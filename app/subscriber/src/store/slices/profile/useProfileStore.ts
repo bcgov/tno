@@ -5,7 +5,6 @@ import {
   IContributorModel,
   IFilterModel,
   IFolderModel,
-  IMinisterModel,
   IReportModel,
   ISubscriberUserModel,
   ISystemMessageModel,
@@ -19,7 +18,6 @@ import {
   storeMyColleagues,
   storeMyFilters,
   storeMyFolders,
-  storeMyMinisters,
   storeMyProfile,
   storeMyReports,
   storeReportContent,
@@ -36,13 +34,12 @@ export interface IProfileStore {
   storeImpersonate: (
     user: ISubscriberUserModel | ActionDelegate<ISubscriberUserModel | undefined> | undefined,
   ) => void;
-  storeFilter: (filter: IFilterModel | ActionDelegate<IFilterModel | undefined>) => void;
-  storeMyFilters: (filters: IFilterModel[] | ActionDelegate<IFilterModel[]>) => void;
-  storeMyFolders: (folders: IFolderModel[] | ActionDelegate<IFolderModel[]>) => void;
   storeContributors: (
     contributors: IContributorModel[] | ActionDelegate<IContributorModel[]>,
   ) => void;
-  storeMyMinisters: (ministers: IMinisterModel[] | ActionDelegate<IMinisterModel[]>) => void;
+  storeFilter: (filter: IFilterModel | ActionDelegate<IFilterModel | undefined>) => void;
+  storeMyFilters: (filters: IFilterModel[] | ActionDelegate<IFilterModel[]>) => void;
+  storeMyFolders: (folders: IFolderModel[] | ActionDelegate<IFolderModel[]>) => void;
   storeMyReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => void;
   storeMyColleagues: (
     reports: IUserColleagueModel[] | ActionDelegate<IUserColleagueModel[]>,
@@ -93,11 +90,6 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
         if (typeof folders === 'function') {
           dispatch(storeMyFolders(folders(state.myFolders)));
         } else dispatch(storeMyFolders(folders));
-      },
-      storeMyMinisters: (ministers: IMinisterModel[] | ActionDelegate<IMinisterModel[]>) => {
-        if (typeof ministers === 'function') {
-          dispatch(storeMyMinisters(ministers(state.myMinisters)));
-        } else dispatch(storeMyMinisters(ministers));
       },
       storeMyReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => {
         if (typeof reports === 'function') {
@@ -154,7 +146,6 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
       state.filter,
       state.myFilters,
       state.myFolders,
-      state.myMinisters,
       state.myReports,
       state.myColleagues,
       state.reportsFilter,
