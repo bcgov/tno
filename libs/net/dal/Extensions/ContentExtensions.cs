@@ -73,23 +73,23 @@ public static class ContentExtensions
     /// <returns></returns>
     public static TNOContext UpdateContext(this TNOContext context, Content original, Content updated)
     {
-        var oactions = context.ContentActions.Where(a => a.ContentId == updated.Id).ToArray();
-        var ocategories = context.ContentTopics.Where(a => a.ContentId == updated.Id).ToArray();
-        var otags = context.ContentTags.Where(a => a.ContentId == updated.Id).ToArray();
-        var otonepools = context.ContentTonePools.Where(a => a.ContentId == updated.Id).ToArray();
-        var otimetrackings = context.TimeTrackings.Where(a => a.ContentId == updated.Id).ToArray();
-        var ofilereferences = context.FileReferences.Where(a => a.ContentId == updated.Id).ToArray();
-        var olinks = context.ContentLinks.Where(a => a.ContentId == updated.Id).ToArray();
-        var olabels = context.ContentLabels.Where(a => a.ContentId == updated.Id).ToArray();
-        var oquotes = context.Quotes.Where(a => a.ContentId == updated.Id).ToArray();
+        var oActions = context.ContentActions.Where(a => a.ContentId == updated.Id).ToArray();
+        var oTopics = context.ContentTopics.Where(a => a.ContentId == updated.Id).ToArray();
+        var oTags = context.ContentTags.Where(a => a.ContentId == updated.Id).ToArray();
+        var oTonePools = context.ContentTonePools.Where(a => a.ContentId == updated.Id).ToArray();
+        var oTimeTrackings = context.TimeTrackings.Where(a => a.ContentId == updated.Id).ToArray();
+        var oFileReferences = context.FileReferences.Where(a => a.ContentId == updated.Id).ToArray();
+        var oLinks = context.ContentLinks.Where(a => a.ContentId == updated.Id).ToArray();
+        var oLabels = context.ContentLabels.Where(a => a.ContentId == updated.Id).ToArray();
+        var oQuotes = context.Quotes.Where(a => a.ContentId == updated.Id).ToArray();
 
-        oactions.Except(updated.ActionsManyToMany).ForEach(a =>
+        oActions.Except(updated.ActionsManyToMany).ForEach(a =>
         {
             context.Entry(a).State = EntityState.Deleted;
         });
         updated.ActionsManyToMany.ForEach(a =>
         {
-            var current = a.ActionId != 0 ? oactions.FirstOrDefault(o => o.ActionId == a.ActionId) : null;
+            var current = a.ActionId != 0 ? oActions.FirstOrDefault(o => o.ActionId == a.ActionId) : null;
             if (current == null)
                 original.ActionsManyToMany.Add(a);
             else if (current.Value != a.Value)
@@ -99,16 +99,17 @@ public static class ContentExtensions
             }
         });
 
-        // oquotes.Except(updated.Quotes).ForEach(a =>
+        // We don't presently remove any quotes.
+        // oQuotes.Except(updated.Quotes).ForEach(a =>
         // {
         //     context.Entry(a).State = EntityState.Deleted;
         // });
         updated.Quotes.ForEach(a =>
         {
-            var current = a.Id != 0 ? oquotes.FirstOrDefault(o => o.Id == a.Id) : null;
+            var current = a.Id != 0 ? oQuotes.FirstOrDefault(o => o.Id == a.Id) : null;
             if (current == null)
                 original.Quotes.Add(a);
-            else if (current.Byline != a.Byline || current.Statement != a.Statement|| current.IsRelevant != a.IsRelevant)
+            else if (current.Byline != a.Byline || current.Statement != a.Statement || current.IsRelevant != a.IsRelevant)
             {
                 current.Byline = a.Byline;
                 current.Statement = a.Statement;
@@ -117,13 +118,13 @@ public static class ContentExtensions
             }
         });
 
-        ocategories.Except(updated.TopicsManyToMany).ForEach(a =>
+        oTopics.Except(updated.TopicsManyToMany).ForEach(a =>
         {
             context.Entry(a).State = EntityState.Deleted;
         });
         updated.TopicsManyToMany.ForEach(a =>
         {
-            var current = a.TopicId != 0 ? ocategories.FirstOrDefault(o => o.TopicId == a.TopicId) : null;
+            var current = a.TopicId != 0 ? oTopics.FirstOrDefault(o => o.TopicId == a.TopicId) : null;
             if (current == null)
                 original.TopicsManyToMany.Add(a);
             else if (current.Score != a.Score)
@@ -133,24 +134,24 @@ public static class ContentExtensions
             }
         });
 
-        otags.Except(updated.TagsManyToMany).ForEach(a =>
+        oTags.Except(updated.TagsManyToMany).ForEach(a =>
         {
             context.Entry(a).State = EntityState.Deleted;
         });
         updated.TagsManyToMany.ForEach(a =>
         {
-            var current = otags.FirstOrDefault(o => o.TagId == a.TagId);
+            var current = oTags.FirstOrDefault(o => o.TagId == a.TagId);
             if (current == null)
                 original.TagsManyToMany.Add(a);
         });
 
-        olabels.Except(updated.Labels).ForEach(a =>
+        oLabels.Except(updated.Labels).ForEach(a =>
         {
             context.Entry(a).State = EntityState.Deleted;
         });
         updated.Labels.ForEach(a =>
         {
-            var current = a.Id != 0 ? olabels.FirstOrDefault(o => o.Id == a.Id) : null;
+            var current = a.Id != 0 ? oLabels.FirstOrDefault(o => o.Id == a.Id) : null;
             if (current == null)
                 original.Labels.Add(a);
             else if (current.Key != a.Key ||
@@ -162,13 +163,13 @@ public static class ContentExtensions
             }
         });
 
-        otonepools.Except(updated.TonePoolsManyToMany).ForEach(a =>
+        oTonePools.Except(updated.TonePoolsManyToMany).ForEach(a =>
         {
             context.Entry(a).State = EntityState.Deleted;
         });
         updated.TonePoolsManyToMany.ForEach(a =>
         {
-            var current = a.TonePoolId != 0 ? otonepools.FirstOrDefault(o => o.TonePoolId == a.TonePoolId) : null;
+            var current = a.TonePoolId != 0 ? oTonePools.FirstOrDefault(o => o.TonePoolId == a.TonePoolId) : null;
             if (current == null)
                 original.TonePoolsManyToMany.Add(a);
             else if (current.Value != a.Value)
@@ -178,13 +179,13 @@ public static class ContentExtensions
             }
         });
 
-        otimetrackings.Except(updated.TimeTrackings).ForEach(a =>
+        oTimeTrackings.Except(updated.TimeTrackings).ForEach(a =>
         {
             context.Entry(a).State = EntityState.Deleted;
         });
         updated.TimeTrackings.ForEach(a =>
         {
-            var current = a.Id != 0 ? otimetrackings.FirstOrDefault(o => o.Id == a.Id) : null;
+            var current = a.Id != 0 ? oTimeTrackings.FirstOrDefault(o => o.Id == a.Id) : null;
             if (current == null)
                 original.TimeTrackings.Add(a);
             else if (current.UserId != a.UserId || current.Effort != a.Effort || current.Activity != a.Activity)
@@ -197,13 +198,13 @@ public static class ContentExtensions
         });
 
         // While the DB supports multiple files, presently the intent is only a single file for content.
-        ofilereferences.Except(updated.FileReferences).ForEach(a =>
+        oFileReferences.Except(updated.FileReferences).ForEach(a =>
         {
             context.Entry(a).State = EntityState.Deleted;
         });
         updated.FileReferences.ForEach(a =>
         {
-            var current = a.Id != 0 ? ofilereferences.FirstOrDefault(o => o.Id == a.Id) : null;
+            var current = a.Id != 0 ? oFileReferences.FirstOrDefault(o => o.Id == a.Id) : null;
             if (current == null)
                 original.FileReferences.Add(a);
             else if (current.ContentType != a.ContentType ||
@@ -219,13 +220,13 @@ public static class ContentExtensions
             }
         });
 
-        olinks.Except(updated.Links).ForEach(a =>
+        oLinks.Except(updated.Links).ForEach(a =>
         {
             context.Entry(a).State = EntityState.Deleted;
         });
         updated.Links.ForEach(a =>
         {
-            var current = a.LinkId != 0 ? olinks.FirstOrDefault(o => o.LinkId == a.LinkId) : null;
+            var current = a.LinkId != 0 ? oLinks.FirstOrDefault(o => o.LinkId == a.LinkId) : null;
             if (current == null)
                 original.Links.Add(a);
         });

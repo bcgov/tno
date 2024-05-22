@@ -293,7 +293,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                             if (notification.IsEnabled)
                             {
                                 this.NotificationValidator.InitializeNotification(notification);
-                                if (request.IgnoreValidation || this.NotificationValidator.ConfirmSend())
+                                if (request.IgnoreValidation || await this.NotificationValidator.ConfirmSendAsync())
                                     await SendNotificationAsync(request, notification, content);
                                 else
                                     this.Logger.LogDebug("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
@@ -314,7 +314,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                         foreach (var notification in notifications)
                         {
                             this.NotificationValidator.InitializeNotification(notification);
-                            if (request.IgnoreValidation || this.NotificationValidator.ConfirmSend())
+                            if (request.IgnoreValidation || await this.NotificationValidator.ConfirmSendAsync())
                                 await SendNotificationAsync(request, notification, content);
                             else
                                 this.Logger.LogDebug("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);

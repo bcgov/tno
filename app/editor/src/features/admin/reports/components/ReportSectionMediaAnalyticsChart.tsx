@@ -19,6 +19,7 @@ import {
   mergeChartSettings,
   OptionItem,
   Row,
+  Show,
   Text,
 } from 'tno-core';
 
@@ -41,6 +42,15 @@ export const ReportSectionMediaAnalyticsChart = ({
   );
   const [dataLabelColors, setDataLabelColors] = React.useState(
     chart.sectionSettings.dataLabelColors?.join(',') ?? '',
+  );
+  const [datasetAvailableOptions] = React.useState(
+    datasetOptions.filter((o) => chart.settings.dataset.includes(o.value)),
+  );
+  const [datasetValueAvailableOptions] = React.useState(
+    datasetValueOptions.filter((o) => chart.settings.datasetValue.includes(o.value)),
+  );
+  const [groupByAvailableOptions] = React.useState(
+    groupByOptions.filter((o) => chart.settings.groupBy.includes(o.value)),
   );
 
   return (
@@ -133,72 +143,76 @@ export const ReportSectionMediaAnalyticsChart = ({
             </Col>
           </Col>
           <Col>
-            <FormikSelect
-              label="Dataset"
-              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataset`}
-              tooltip="A dataset separates the data into groups based on the selected property."
-              value={datasetOptions.find((o) => o.value === chart.sectionSettings.dataset) ?? ''}
-              options={datasetOptions.filter((o) => chart.settings.dataset.includes(o.value))}
-              isClearable={false}
-              onChange={(newValue) => {
-                const option = newValue as OptionItem;
-                setFieldValue(
-                  `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
-                  mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                    dataset: option.value?.toString() ?? '',
-                  }),
-                );
-              }}
-            />
-            <FormikSelect
-              label="Dataset Value"
-              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetValue`}
-              tooltip="A dataset value is how the totals are calculated for each grouping."
-              value={
-                datasetValueOptions.find((o) => o.value === chart.sectionSettings.datasetValue) ??
-                ''
-              }
-              options={datasetValueOptions.filter((o) =>
-                chart.settings.datasetValue.includes(o.value),
-              )}
-              isClearable={false}
-              onChange={(newValue) => {
-                const option = newValue as OptionItem;
-                const isSentiment = option.value === 'sentiment';
-                setFieldValue(
-                  `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
-                  mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                    datasetValue: option.value?.toString() ?? 'count',
-                    scaleSuggestedMin: isSentiment ? -5 : undefined,
-                    scaleSuggestedMax: isSentiment ? 5 : undefined,
-                    scaleTicksStepSize: isSentiment ? 1 : undefined,
-                    datasetColors:
-                      isSentiment && chart.sectionSettings.dataset === ''
-                        ? ['green', 'gold', 'red']
-                        : [],
-                    minBarLength: isSentiment ? 10 : undefined,
-                  }),
-                );
-                setDatasetColors(isSentiment ? 'green,gold,red' : '');
-              }}
-            />
-            <FormikSelect
-              label="Group By"
-              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupBy`}
-              tooltip="Group the dataset by this property (X axis)."
-              value={groupByOptions.find((o) => o.value === chart.sectionSettings.groupBy) ?? ''}
-              options={groupByOptions.filter((o) => chart.settings.groupBy.includes(o.value))}
-              isClearable={false}
-              onChange={(newValue) => {
-                const option = newValue as OptionItem;
-                setFieldValue(
-                  `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
-                  mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                    groupBy: option.value?.toString() ?? '',
-                  }),
-                );
-              }}
-            />
+            <Show visible={datasetAvailableOptions.length > 0}>
+              <FormikSelect
+                label="Dataset"
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataset`}
+                tooltip="A dataset separates the data into groups based on the selected property."
+                value={datasetOptions.find((o) => o.value === chart.sectionSettings.dataset) ?? ''}
+                options={datasetAvailableOptions}
+                isClearable={false}
+                onChange={(newValue) => {
+                  const option = newValue as OptionItem;
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      dataset: option.value?.toString() ?? '',
+                    }),
+                  );
+                }}
+              />
+            </Show>
+            <Show visible={datasetValueAvailableOptions.length > 0}>
+              <FormikSelect
+                label="Dataset Value"
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetValue`}
+                tooltip="A dataset value is how the totals are calculated for each grouping."
+                value={
+                  datasetValueOptions.find((o) => o.value === chart.sectionSettings.datasetValue) ??
+                  ''
+                }
+                options={datasetValueAvailableOptions}
+                isClearable={false}
+                onChange={(newValue) => {
+                  const option = newValue as OptionItem;
+                  const isSentiment = option.value === 'sentiment';
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      datasetValue: option.value?.toString() ?? 'count',
+                      scaleSuggestedMin: isSentiment ? -5 : undefined,
+                      scaleSuggestedMax: isSentiment ? 5 : undefined,
+                      scaleTicksStepSize: isSentiment ? 1 : undefined,
+                      datasetColors:
+                        isSentiment && chart.sectionSettings.dataset === ''
+                          ? ['green', 'gold', 'red']
+                          : [],
+                      minBarLength: isSentiment ? 10 : undefined,
+                    }),
+                  );
+                  setDatasetColors(isSentiment ? 'green,gold,red' : '');
+                }}
+              />
+            </Show>
+            <Show visible={groupByAvailableOptions.length > 0}>
+              <FormikSelect
+                label="Group By"
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupBy`}
+                tooltip="Group the dataset by this property (X axis)."
+                value={groupByOptions.find((o) => o.value === chart.sectionSettings.groupBy) ?? ''}
+                options={groupByAvailableOptions}
+                isClearable={false}
+                onChange={(newValue) => {
+                  const option = newValue as OptionItem;
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      groupBy: option.value?.toString() ?? '',
+                    }),
+                  );
+                }}
+              />
+            </Show>
           </Col>
           <Col gap="1rem">
             <Col>

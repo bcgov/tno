@@ -1,8 +1,10 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Ches.Models;
 using TNO.Core.Extensions;
+using TNO.Elastic;
 using TNO.Entities;
 using TNO.Services.Notification.Config;
 
@@ -15,6 +17,7 @@ public class NotificationValidator : INotificationValidator
 {
     #region Variables
     private static readonly ContentStatus[] _onlyPublished = new[] { ContentStatus.Publish, ContentStatus.Published };
+    private readonly ElasticOptions _elasticOptions;
     private readonly ILogger _logger;
     #endregion
 
@@ -23,6 +26,11 @@ public class NotificationValidator : INotificationValidator
     /// get - The API service.
     /// </summary>
     protected IApiService Api { get; }
+
+    /// <summary>
+    /// get - The Elasticsearch client.
+    /// </summary>
+    protected ITNOElasticClient Client { get; private set; }
 
     /// <summary>
     /// get/set - The notification to validate.
@@ -50,13 +58,19 @@ public class NotificationValidator : INotificationValidator
     /// Creates a new instance of a NotificationValidator object.
     /// </summary>
     /// <param name="api"></param>
+    /// <param name="elasticClient"></param>
+    /// <param name="elasticOptions"></param>
     /// <param name="notificationOptions"></param>
     /// <param name="logger"></param>
     public NotificationValidator(IApiService api,
+        ITNOElasticClient elasticClient,
+        IOptions<ElasticOptions> elasticOptions,
         IOptions<NotificationOptions> notificationOptions,
         ILogger<NotificationValidator> logger)
     {
         this.Api = api;
+        this.Client = elasticClient;
+        _elasticOptions = elasticOptions.Value;
         this.Options = notificationOptions.Value;
         this.SentToUsers = new HashSet<int>();
         _logger = logger;
@@ -66,6 +80,8 @@ public class NotificationValidator : INotificationValidator
     /// Creates a new instance of a NotificationValidator object, initializes with specified parameters.
     /// </summary>
     /// <param name="api"></param>
+    /// <param name="elasticClient"></param>
+    /// <param name="elasticOptions"></param>
     /// <param name="notification"></param>
     /// <param name="content"></param>
     /// <param name="notificationOptions"></param>
@@ -73,12 +89,14 @@ public class NotificationValidator : INotificationValidator
     /// <param name="logger"></param>
     public NotificationValidator(
         IApiService api,
+        ITNOElasticClient elasticClient,
+        IOptions<ElasticOptions> elasticOptions,
         API.Areas.Services.Models.Notification.NotificationModel notification,
         API.Areas.Services.Models.Content.ContentModel content,
         IOptions<NotificationOptions> notificationOptions,
         IOptions<JsonSerializerOptions> serializationOptions,
         ILogger<NotificationValidator> logger)
-        : this(api, notificationOptions, logger)
+        : this(api, elasticClient, elasticOptions, notificationOptions, logger)
     {
         this.Notification = notification;
         this.Content = content;
@@ -191,9 +209,9 @@ public class NotificationValidator : INotificationValidator
     /// Validate the notification filter to determine whether it should generate anything.
     /// </summary>
     /// <returns>True if the notification filter has been matched.</returns>
-    protected virtual bool ValidateFilter()
+    protected virtual async Task<bool> ValidateFilterAsync()
     {
-        if (this.Notification == null || Content == null) throw new InvalidOperationException("Notification and Content properties cannot be null");
+        if (this.Notification == null || this.Content == null) throw new InvalidOperationException("Notification and Content properties cannot be null");
 
         var filter = this.Notification.Settings;
         if (filter == null) return true; // No filter will always send.
@@ -214,11 +232,6 @@ public class NotificationValidator : INotificationValidator
              (filter.EndDate.HasValue && Content.PublishedOn <= filter.EndDate.Value.ToUniversalTime())) &&
 
             (string.IsNullOrWhiteSpace(filter.OtherSource) || Content.OtherSource.ToLower() == filter.OtherSource.ToLower()) &&
-            (string.IsNullOrWhiteSpace(filter.Search) || // TODO: Search terms can contain Elasticsearch query operators.
-                (filter.InHeadline == true && Content.Headline.ToLower().Contains(filter.Search.ToLower())) ||
-                (filter.InByline == true && Content.Byline.ToLower().Contains(filter.Search.ToLower())) ||
-                (filter.InStory == true && (Content.Summary.ToLower().Contains(filter.Search.ToLower()) || Content.Body.ToLower().Contains(filter.Search.ToLower()))
-            )) &&
             (string.IsNullOrWhiteSpace(filter.Page) || Content.Page.ToLower().Contains(filter.Page.ToLower())) &&
             (string.IsNullOrWhiteSpace(filter.Section) || Content.Section.ToLower().Contains(filter.Section.ToLower())) &&
             (string.IsNullOrWhiteSpace(filter.Edition) || Content.Edition.ToLower().Contains(filter.Edition.ToLower())) &&
@@ -232,7 +245,19 @@ public class NotificationValidator : INotificationValidator
                 ((ca.ValueType == Entities.ValueType.Boolean && ca.Value == "true") ||
                  (ca.ValueType != Entities.ValueType.Boolean && !string.IsNullOrWhiteSpace(ca.Value)))));
 
-        if (!result) _logger.LogDebug("Notification '{name}' with content '{id}' did not pass the filter.", this.Notification.Name, this.Content.Id);
+        if (!String.IsNullOrWhiteSpace(filter.Search) && (filter.InHeadline == true || filter.InByline == true || filter.InStory == true))
+        {
+            // Make a request to Elasticsearch to compare the text search.
+            var index = filter.SearchUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex;
+            var query = ModifyElasticQuery(this.Notification.Query, this.Content.Id);
+            var response = await this.Client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, query);
+
+            // If the content item wasn't returned it wasn't a match.
+            if (response.Hits.Total.Value != 1)
+                result = false;
+        }
+
+        if (!result) _logger.LogDebug("Notification '{id}:{name}' with content '{id}' did not pass the filter.", this.Notification.Id, this.Notification.Name, this.Content.Id);
         return result;
     }
 
@@ -241,9 +266,9 @@ public class NotificationValidator : INotificationValidator
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    public bool ConfirmSend()
+    public async Task<bool> ConfirmSendAsync()
     {
-        return ValidateNotification() && ValidateContent() && ValidateFilter();
+        return ValidateNotification() && ValidateContent() && await ValidateFilterAsync();
     }
 
     /// <summary>
@@ -310,6 +335,45 @@ public class NotificationValidator : INotificationValidator
                 };
             }));
         return emails.GroupBy(context => String.Join(",", context.To)).Select(group => group.First());
+    }
+
+    /// <summary>
+    /// Modify the Elasticsearch query to include the content ID.
+    /// This will ensure we only compare a single content item in the search and reduce the bandwidth needed.
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    private static JsonDocument ModifyElasticQuery(JsonDocument query, long contentId)
+    {
+        var json = JsonNode.Parse(query.ToJson())?.AsObject();
+        if (json == null) return query;
+
+        var jMustTerm = JsonNode.Parse($"{{ \"term\": {{ \"id\": {contentId} }}}}")?.AsObject() ?? throw new InvalidOperationException("Failed to parse JSON");
+        if (json.TryGetPropertyValue("query", out JsonNode? jQuery))
+        {
+            if (jQuery?.AsObject().TryGetPropertyValue("bool", out JsonNode? jQueryBool) == true)
+            {
+                if (jQueryBool?.AsObject().TryGetPropertyValue("must", out JsonNode? jQueryBoolMust) == true)
+                {
+                    jQueryBoolMust?.AsArray().Add(jMustTerm);
+                }
+                else
+                {
+                    jQueryBool?.AsObject().Add("must", JsonNode.Parse($"[ {jMustTerm.ToJsonString()} ]"));
+                }
+            }
+            else
+            {
+                jQuery?.AsObject().Add("bool", JsonNode.Parse($"{{ \"must\": [ {jMustTerm.ToJsonString()} ]}}"));
+            }
+        }
+        else
+        {
+            json.Add("query", JsonNode.Parse($"{{ \"bool\": {{ \"must\": [ {jMustTerm.ToJsonString()} ] }}}}"));
+        }
+        return JsonDocument.Parse(json.ToJsonString());
     }
     #endregion
 }

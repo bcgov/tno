@@ -1,5 +1,5 @@
-using Microsoft.Extensions.DependencyInjection;
 using Confluent.Kafka;
+using Microsoft.Extensions.DependencyInjection;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.Indexing.Config;
@@ -44,7 +44,7 @@ public class IndexingService : KafkaConsumerService
             .Configure<AdminClientConfig>(this.Configuration.GetSection("Kafka:Admin"))
             .AddSingleton<IKafkaAdmin, KafkaAdmin>()
             .AddTransient<IKafkaListener<string, IndexRequestModel>, KafkaListener<string, IndexRequestModel>>()
-            .AddScoped<IServiceManager, IndexingManager>();
+            .AddSingleton<IServiceManager, IndexingManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<IndexingOptions>()

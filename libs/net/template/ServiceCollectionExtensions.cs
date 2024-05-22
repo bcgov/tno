@@ -28,4 +28,23 @@ public static class ServiceCollectionExtensions
             .AddScoped<INotificationEngine, NotificationEngine>()
             .AddScoped<IReportEngine, ReportEngine>();
     }
+
+    /// <summary>
+    /// Add the template engine to dependency injection service provider.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddTemplateEngineSingleton(this IServiceCollection services, IConfiguration config)
+    {
+        return services
+            .Configure<ChartsOptions>(config.GetSection("Charts"))
+            .Configure<TemplateOptions>(config.GetSection("Reporting"))
+            .AddSingleton<IRazorEngine, RazorEngine>()
+            .AddSingleton<ITemplateEngine<Models.Notifications.NotificationEngineContentModel>, TemplateEngine<Models.Notifications.NotificationEngineContentModel>>()
+            .AddSingleton<ITemplateEngine<Models.Reports.ReportEngineContentModel>, TemplateEngine<Models.Reports.ReportEngineContentModel>>()
+            .AddSingleton<ITemplateEngine<Models.Reports.ReportEngineAVOverviewModel>, TemplateEngine<Models.Reports.ReportEngineAVOverviewModel>>()
+            .AddSingleton<ITemplateEngine<Models.Reports.ChartEngineContentModel>, TemplateEngine<Models.Reports.ChartEngineContentModel>>()
+            .AddSingleton<INotificationEngine, NotificationEngine>()
+            .AddSingleton<IReportEngine, ReportEngine>();
+    }
 }

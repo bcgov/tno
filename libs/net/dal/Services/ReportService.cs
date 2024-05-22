@@ -605,7 +605,9 @@ public class ReportService : BaseService<Report, int>, IReportService
                 .Include(i => i.ContentManyToMany)
                     .ThenInclude(c => c.Content).ThenInclude(c => c!.TonePoolsManyToMany).ThenInclude(ct => ct.TonePool)
                 .Include(i => i.ContentManyToMany)
-                    .ThenInclude(c => c.Content).ThenInclude(c => c!.MediaType);
+                    .ThenInclude(c => c.Content).ThenInclude(c => c!.MediaType)
+                .Include(i => i.ContentManyToMany)
+                    .ThenInclude(c => c.Content).ThenInclude(c => c!.TopicsManyToMany).ThenInclude(t => t.Topic);
         else
             query = query.Include(i => i.ContentManyToMany);
 

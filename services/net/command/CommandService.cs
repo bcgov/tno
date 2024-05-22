@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using TNO.Services.Runners;
 using TNO.Services.Command.Config;
+using TNO.Services.Runners;
 
 namespace TNO.Services.Command;
 
@@ -38,7 +38,7 @@ public class CommandService : IngestService
             .Configure<CommandOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IIngestAction<CommandOptions>, CommandAction>()
             .AddTransient<IngestManagerFactory<CommandIngestActionManager, CommandOptions>>()
-            .AddScoped<IServiceManager, CommandManager>();
+            .AddSingleton<IServiceManager, CommandManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<CommandOptions>()

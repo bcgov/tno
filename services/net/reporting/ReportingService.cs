@@ -41,8 +41,8 @@ public class ReportingService : KafkaConsumerService
         services
             .Configure<ReportingOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IKafkaListener<string, ReportRequestModel>, KafkaListener<string, ReportRequestModel>>()
-            .AddScoped<IServiceManager, ReportingManager>()
-            .AddTemplateEngine(this.Configuration);
+            .AddSingleton<IServiceManager, ReportingManager>()
+            .AddTemplateEngineSingleton(this.Configuration);
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<ReportingOptions>()

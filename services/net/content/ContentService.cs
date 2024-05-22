@@ -1,8 +1,8 @@
 using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
+using TNO.Kafka;
 using TNO.Services.Content.Config;
 using TNO.Services.Runners;
-using TNO.Kafka;
 
 namespace TNO.Services.Content;
 
@@ -41,7 +41,7 @@ public class ContentService : KafkaConsumerService
             .Configure<ContentOptions>(this.Configuration.GetSection("Service"))
             .Configure<AdminClientConfig>(this.Configuration.GetSection("Kafka:Admin"))
             .AddSingleton<IKafkaAdmin, KafkaAdmin>()
-            .AddScoped<IServiceManager, ContentManager>();
+            .AddSingleton<IServiceManager, ContentManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<ContentOptions>()

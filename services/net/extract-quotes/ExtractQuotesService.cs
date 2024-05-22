@@ -42,9 +42,9 @@ public class ExtractQuotesService : KafkaConsumerService
         services
             .Configure<ExtractQuotesOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IKafkaListener<string, IndexRequestModel>, KafkaListener<string, IndexRequestModel>>()
-            .AddScoped<IServiceManager, ExtractQuotesManager>()
-            .AddScoped<IHttpRequestClient, HttpRequestClient>()
-            .AddScoped<ICoreNLPService, CoreNLPService>();
+            .AddSingleton<IServiceManager, ExtractQuotesManager>()
+            .AddSingleton<IHttpRequestClient, HttpRequestClient>()
+            .AddSingleton<ICoreNLPService, CoreNLPService>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<ExtractQuotesOptions>()

@@ -40,7 +40,7 @@ public class EventHandlerService : KafkaConsumerService
         services
             .Configure<EventHandlerOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IKafkaListener<string, EventScheduleRequestModel>, KafkaListener<string, EventScheduleRequestModel>>()
-            .AddScoped<IServiceManager, EventHandlerManager>();
+            .AddSingleton<IServiceManager, EventHandlerManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<EventHandlerOptions>()

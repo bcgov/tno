@@ -164,7 +164,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
                 _logger.LogDebug("Waiting to receive message from Kafka topics: '{topic}'", String.Join(", ", this.Consumer?.Subscription ?? new List<string>()));
 
             // I don't understand why Kafka didn't use an async+await pattern here, but this function blocks until it receives a message.
-            var consumeResult = this.Consumer!.Consume(cancellationToken);
+            var consumeResult = this.Consumer?.Consume(cancellationToken);
             if (consumeResult != null)
             {
                 _logger.LogDebug("Message received from Kafka topic: '{topic}' key:'{key}'", consumeResult.Topic, consumeResult.Message.Key);
@@ -311,8 +311,9 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
             this.Topics = Array.Empty<string>();
             this.IsConsuming = false;
             this.IsPaused = false;
-            this.Consumer?.Close();
             _open = false;
+            // this.Consumer?.Close();
+            this.Consumer?.Unassign();
             OnStop?.Invoke(this, new EventArgs());
         }
     }
