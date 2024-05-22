@@ -11,7 +11,7 @@ export const TimeLogSection = styled(Row)`
     color: ${(props) => props.theme.css.actionButtonColor};
     cursor: pointer;
 
-    :hover {
+    &:hover {
       color: ${(props) => props.theme.css.lightVariantColor};
     }
   }

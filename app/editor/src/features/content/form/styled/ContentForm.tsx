@@ -40,7 +40,7 @@ export const ContentForm = styled.div`
   }
 
   .icon-button {
-    :not(.disabled) {
+    &:not(.disabled) {
       color: ${(props) => props.theme.css.actionIconColor};
     }
     align-self: center;
@@ -48,7 +48,7 @@ export const ContentForm = styled.div`
     width: 1.5em;
     padding: 0.45em;
 
-    :not(.disabled):hover {
+    &:not(.disabled):hover {
       cursor: pointer;
       color: ${(props) => props.theme.css.lightAccentColor};
     }
