@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
-import { IProfileState, useProfileStore } from 'store/slices';
+import { useLookupStore } from 'store/slices';
 import { useApiSubscriberMinisters } from 'tno-core';
 
 import { IMinisterModel } from './interfaces/IMinisterModel';
@@ -9,10 +9,11 @@ interface IMinisterController {
   getMinisters: () => Promise<IMinisterModel[]>;
 }
 
-export const useMinisters = (): [IProfileState, IMinisterController] => {
+export const useMinisters = (): [IMinisterModel[], IMinisterController] => {
   const api = useApiSubscriberMinisters();
   const dispatch = useAjaxWrapper();
-  const [state, store] = useProfileStore();
+  // const [state, store] = useProfileStore();
+  const [{ ministers }, store] = useLookupStore();
 
   const controller = React.useMemo(
     () => ({
@@ -20,12 +21,12 @@ export const useMinisters = (): [IProfileState, IMinisterController] => {
         const response = await dispatch<IMinisterModel[]>('find-all-ministers', () =>
           api.getMinisters(),
         );
-        store.storeMyMinisters(response.data);
+        store.storeMinisters(response.data);
         return response.data;
       },
     }),
     [api, dispatch, store],
   );
 
-  return [state, controller];
+  return [ministers, controller];
 };

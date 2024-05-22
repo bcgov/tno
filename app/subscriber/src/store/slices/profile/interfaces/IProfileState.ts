@@ -3,7 +3,6 @@ import {
   IContributorModel,
   IFilterModel,
   IFolderModel,
-  IMinisterModel,
   IReportModel,
   ISubscriberUserModel,
   ISystemMessageModel,
@@ -16,16 +15,15 @@ export interface IProfileState {
   filter?: IFilterModel;
   myFilters: IFilterModel[];
   myFolders: IFolderModel[];
-  myMinisters: IMinisterModel[];
   myReports: IReportModel[];
+  myColleagues: IUserColleagueModel[];
+  // There init values are used to ensure we only initialize once.
   init: {
     myFilters: boolean;
     myFolders: boolean;
-    myMinisters: boolean;
     myReports: boolean;
     myColleagues: boolean;
   };
-  myColleagues: IUserColleagueModel[];
   reportsFilter: string;
   reportOutput?: IReportResultForm;
   reportContent: { [reportId: number]: number[] };

@@ -4,7 +4,6 @@ import {
   IContributorModel,
   IFilterModel,
   IFolderModel,
-  IMinisterModel,
   IReportModel,
   ISubscriberUserModel,
   ISystemMessageModel,
@@ -17,7 +16,6 @@ export const initialProfileState: IProfileState = {
   contributors: [],
   myFilters: [],
   myFolders: [],
-  myMinisters: [],
   myReports: [],
   myColleagues: [],
   reportsFilter: '',
@@ -26,7 +24,6 @@ export const initialProfileState: IProfileState = {
   init: {
     myFilters: false,
     myFolders: false,
-    myMinisters: false,
     myReports: false,
     myColleagues: false,
   },
@@ -55,10 +52,6 @@ export const profileSlice = createSlice({
     storeMyFolders(state: IProfileState, action: PayloadAction<IFolderModel[]>) {
       state.myFolders = action.payload;
       state.init.myFolders = true;
-    },
-    storeMyMinisters(state: IProfileState, action: PayloadAction<IMinisterModel[]>) {
-      state.myMinisters = action.payload;
-      state.init.myMinisters = true;
     },
     storeMyReports(state: IProfileState, action: PayloadAction<IReportModel[]>) {
       state.myReports = action.payload;
@@ -95,7 +88,6 @@ export const {
   storeFilter,
   storeMyFilters,
   storeMyFolders,
-  storeMyMinisters,
   storeMyReports,
   storeMyColleagues,
   storeReportsFilter,
