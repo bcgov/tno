@@ -1771,7 +1771,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/is-prop-valid@npm:1.2.2":
+"@emotion/is-prop-valid@npm:1.2.2, @emotion/is-prop-valid@npm:^1.2.2":
   version: 1.2.2
   resolution: "@emotion/is-prop-valid@npm:1.2.2"
   dependencies:
@@ -10521,6 +10521,7 @@ __metadata:
   resolution: "mmi-subscriber-app@workspace:."
   dependencies:
     "@elastic/elasticsearch": 8.13.1
+    "@emotion/is-prop-valid": ^1.2.2
     "@fortawesome/fontawesome-svg-core": 6.5.2
     "@microsoft/signalr": 8.0.0
     "@react-keycloak/web": 3.4.0
@@ -12634,18 +12635,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:^18.3.1":
-  version: 18.3.1
-  resolution: "react-dom@npm:18.3.1"
-  dependencies:
-    loose-envify: ^1.1.0
-    scheduler: ^0.23.2
-  peerDependencies:
-    react: ^18.3.1
-  checksum: 298954ecd8f78288dcaece05e88b570014d8f6dce5db6f66e6ee91448debeb59dcd31561dddb354eee47e6c1bb234669459060deb238ed0213497146e555a0b9
-  languageName: node
-  linkType: hard
-
 "react-error-boundary@npm:4.0.13":
   version: 4.0.13
   resolution: "react-error-boundary@npm:4.0.13"
@@ -13066,15 +13055,6 @@ __metadata:
   dependencies:
     loose-envify: ^1.1.0
   checksum: 88e38092da8839b830cda6feef2e8505dec8ace60579e46aa5490fc3dc9bba0bd50336507dc166f43e3afc1c42939c09fe33b25fae889d6f402721dcd78fca1b
-  languageName: node
-  linkType: hard
-
-"react@npm:^18.3.1":
-  version: 18.3.1
-  resolution: "react@npm:18.3.1"
-  dependencies:
-    loose-envify: ^1.1.0
-  checksum: a27bcfa8ff7c15a1e50244ad0d0c1cb2ad4375eeffefd266a64889beea6f6b64c4966c9b37d14ee32d6c9fcd5aa6ba183b6988167ab4d127d13e7cb5b386a376
   languageName: node
   linkType: hard
 
@@ -13647,15 +13627,6 @@ __metadata:
   dependencies:
     loose-envify: ^1.1.0
   checksum: d79192eeaa12abef860c195ea45d37cbf2bbf5f66e3c4dcd16f54a7da53b17788a70d109ee3d3dde1a0fd50e6a8fc171f4300356c5aee4fc0171de526bf35f8a
-  languageName: node
-  linkType: hard
-
-"scheduler@npm:^0.23.2":
-  version: 0.23.2
-  resolution: "scheduler@npm:0.23.2"
-  dependencies:
-    loose-envify: ^1.1.0
-  checksum: 3e82d1f419e240ef6219d794ff29c7ee415fbdc19e038f680a10c067108e06284f1847450a210b29bbaf97b9d8a97ced5f624c31c681248ac84c80d56ad5a2c4
   languageName: node
   linkType: hard
 
@@ -14751,10 +14722,10 @@ __metadata:
     moment: ^2.29.4
     moment-timezone: ^0.5.41
     rc-slider: ^10.2.1
-    react: ^18.3.1
+    react: ^18.2.0
     react-beautiful-dnd: ^13.1.1
     react-datepicker: ^4.10.0
-    react-dom: ^18.3.1
+    react-dom: ^18.2.0
     react-icons: ^4.10.1
     react-inlinesvg: ^3.0.2
     react-quill: ^2.0.0
@@ -14768,7 +14739,7 @@ __metadata:
     stylis: ^4.3.2
     tno-core: 0.1.69
     yup: ^1.1.1
-  checksum: 86d0f0773ac284b8a37ffd97a994cd3eb62cf6dd9fa506716edab600df2c083dfc42a892312df94357b853ba93140a54da258d0a068add8b1cc294593550e531
+  checksum: ce4254d73f9a189b71e59bfaecf9e44d4208baf14a76e3167b34f015b750e9beb81fd7a578b7a6394a1132a11534482a16b5e23504d7b5319bd4dce0000e9e38
   languageName: node
   linkType: hard
 

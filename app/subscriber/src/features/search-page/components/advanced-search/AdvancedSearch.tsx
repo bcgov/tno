@@ -19,7 +19,7 @@ import {
   FaUsers,
 } from 'react-icons/fa6';
 import { IoIosCog, IoMdRefresh } from 'react-icons/io';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useFilters, useLookup } from 'store/hooks';
 import { useProfileStore } from 'store/slices';

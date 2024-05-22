@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": "src",
+    "types": ["@testing-library/jest-dom"],
     "target": "es5",
     "lib": [
       "dom",
