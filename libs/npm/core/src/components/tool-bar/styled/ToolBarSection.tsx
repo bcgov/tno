@@ -72,7 +72,7 @@ export const ToolBarSection = styled(Col)`
       width: 2em;
       cursor: pointer;
       margin-top: 0.25em;
-      :hover {
+      &:hover {
         color: ${(props) => props.theme.css.lightVariantColor};
       }
     }
