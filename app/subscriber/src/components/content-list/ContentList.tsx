@@ -106,7 +106,7 @@ export const ContentList: React.FC<IContentListProps> = ({
     <styled.ContentList scrollWithin={scrollWithin}>
       <Show visible={!handleDrop}>
         {Object.keys(grouped).map((group) => (
-          <div key={group} className="page-content">
+          <div key={group} className="grouped-content">
             <h2 className="group-title">{group}</h2>
             <div>
               {grouped[group].map((item) => (

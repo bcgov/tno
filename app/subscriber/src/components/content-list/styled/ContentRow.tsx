@@ -7,9 +7,36 @@ export const ContentRow = styled(Col)`
   padding-bottom: 0.25rem;
   border-bottom: 1px solid ${(props) => props.theme.css.bkStaticGray};
 
+  .icon-row {
+    margin-left: 2rem;
+    min-width: 75px;
+  }
+
   .has-divider {
     position: relative;
     margin: 0 5px;
+  }
+
+  .icon-placeholder {
+    width: 20px;
+    height: 20px;
+  }
+
+  .add-margin {
+    margin-left: 4rem;
+  }
+
+  .pin-icon {
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  .popout-placeholder {
+    width: 20px;
+    height: 20px;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
   }
 
   .section,
@@ -110,6 +137,7 @@ export const ContentRow = styled(Col)`
 
   .new-tab {
     margin-right: 0.5rem;
+    margin-left: 0.5rem;
   }
 
   .play-icon,
@@ -134,6 +162,7 @@ export const ContentRow = styled(Col)`
     border-radius: 0.25rem;
     padding: 0.2rem;
     margin-bottom: 0.25rem;
+    margin-right: 7rem;
     cursor: default;
   }
   .headline {
