@@ -154,6 +154,10 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
   const handleSaveFolder = React.useCallback(
     async (values: IFolderModel) => {
       try {
+        if (values.settings.autoPopulate && values.filterId === undefined) {
+          toast.error('Filter required when Auto-populate is checked.');
+          return;
+        }
         const result = await updateFolder(values, false);
         setCurrentFolder(result);
         toast.success('Folder schedule saved.');
@@ -197,58 +201,73 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
             label="Auto-populate this folder"
             checked={currentFolder?.settings.autoPopulate ?? false}
             onChange={(e) => {
-              setCurrentFolder({
-                ...currentFolder,
-                settings: {
-                  autoPopulate: e.target.checked,
-                  keepAgeLimit: currentFolder?.settings.keepAgeLimit,
-                },
-              } as IFolderModel);
+              if (!e.target.checked) {
+                const newFolder = {
+                  ...currentFolder,
+                  settings: {
+                    autoPopulate: e.target.checked,
+                    keepAgeLimit: currentFolder?.settings.keepAgeLimit,
+                  },
+                };
+                delete newFolder?.filter;
+                delete newFolder?.filterId;
+                setCurrentFolder(newFolder as IFolderModel);
+              } else {
+                setCurrentFolder({
+                  ...currentFolder,
+                  settings: {
+                    autoPopulate: e.target.checked,
+                    keepAgeLimit: currentFolder?.settings.keepAgeLimit,
+                  },
+                } as IFolderModel);
+              }
             }}
           />
-          <label>Choose one of your Saved Searches to apply to this folder</label>
-          <Row className="choose-filter" nowrap gap="0.5rem">
-            <Col flex="1">
-              <Select
-                options={filterOptions}
-                name="filters"
-                isClearable
-                className="filter-select"
-                value={filterOptions.find(
-                  (option) => option.value === currentFolder?.filterId ?? '',
-                )}
-                onChange={(newValue) => {
-                  if (!newValue) {
-                    setActiveFilter(undefined);
-                    setCurrentFolder({ ...currentFolder, filterId: undefined } as IFolderModel);
-                  } else {
-                    const option = newValue as IOptionItem;
-                    const targetFilter = myFilters.find((f) => f.id === option.value);
-                    setActiveFilter(targetFilter);
-                    setCurrentFolder({
-                      ...currentFolder,
-                      filterId: targetFilter?.id,
-                    } as IFolderModel);
-                  }
-                }}
-              />
-            </Col>
-            <Button
-              disabled={!activeFilter}
-              title="Populate the folder by running the filter now"
-              onClick={() => !!activeFilter && handleRun(activeFilter)}
-            >
-              Run
-            </Button>
-            <Button
-              disabled={!activeFilter}
-              variant="secondary"
-              title="View Filter"
-              onClick={() => window.open(`/search/advanced/${activeFilter?.id}`, '_blank')}
-            >
-              <FaArrowAltCircleRight />
-            </Button>
-          </Row>
+          <div hidden={!currentFolder?.settings.autoPopulate ?? true}>
+            <label>Choose one of your Saved Searches to apply to this folder</label>
+            <Row className="choose-filter" nowrap gap="0.5rem">
+              <Col flex="1">
+                <Select
+                  options={filterOptions}
+                  name="filters"
+                  isClearable={false}
+                  className="filter-select"
+                  value={filterOptions.find(
+                    (option) => option.value === currentFolder?.filterId ?? '',
+                  )}
+                  onChange={(newValue) => {
+                    if (!newValue) {
+                      setActiveFilter(undefined);
+                      setCurrentFolder({ ...currentFolder, filterId: undefined } as IFolderModel);
+                    } else {
+                      const option = newValue as IOptionItem;
+                      const targetFilter = myFilters.find((f) => f.id === option.value);
+                      setActiveFilter(targetFilter);
+                      setCurrentFolder({
+                        ...currentFolder,
+                        filterId: targetFilter?.id,
+                      } as IFolderModel);
+                    }
+                  }}
+                />
+              </Col>
+              <Button
+                disabled={!activeFilter}
+                title="Populate the folder by running the filter now"
+                onClick={() => !!activeFilter && handleRun(activeFilter)}
+              >
+                Run
+              </Button>
+              <Button
+                disabled={!activeFilter}
+                variant="secondary"
+                title="View Filter"
+                onClick={() => window.open(`/search/advanced/${activeFilter?.id}`, '_blank')}
+              >
+                <FaArrowAltCircleRight />
+              </Button>
+            </Row>
+          </div>
         </div>
         <Schedule
           folderSchedule={currentFolder?.events[0] ?? undefined}
