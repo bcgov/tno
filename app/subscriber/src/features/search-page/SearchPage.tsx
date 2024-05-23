@@ -54,9 +54,11 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   const { expanded } = useSearchPageContext();
   const [init, setInit] = React.useState(true); // React hooks are horrible...
 
-  const filterId = id ? parseInt(id) : 0;
+  const [filterId, setFilterId] = React.useState(0);
 
   React.useEffect(() => {
+    const parsedId = id ? parseInt(id) : 0;
+    setFilterId(parsedId);
     // Fetch the active filter if required.
     if (filterId && init && activeFilter?.id !== filterId) {
       setInit(false);
@@ -69,7 +71,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     } else if (!filterId) {
       storeFilter(undefined);
     }
-  }, [activeFilter, getFilter, filterId, init, storeFilter, storeSearchFilter]);
+  }, [activeFilter, getFilter, filterId, init, storeFilter, storeSearchFilter, id]);
 
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody, searchUnpublished: boolean) => {

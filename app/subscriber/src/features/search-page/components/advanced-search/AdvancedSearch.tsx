@@ -158,12 +158,13 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
       await updateFilter(filter)
         .then((data) => {
           toast.success(`${data.name} has successfully been updated.`);
+          storeFilter(data);
           storeSearchFilter(data.settings);
           setInitialState(data.settings);
         })
         .catch(() => {});
     }
-  }, [search, genQuery, activeFilter, searchName, storeSearchFilter, updateFilter]);
+  }, [search, genQuery, activeFilter, searchName, updateFilter, storeFilter, storeSearchFilter]);
 
   const saveSearch = React.useCallback(async () => {
     const settings = filterFormat(search);
