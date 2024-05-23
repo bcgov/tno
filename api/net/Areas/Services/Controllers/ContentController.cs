@@ -197,10 +197,7 @@ public class ContentController : ControllerBase
                 _topicScoreHelper.SetContentScore(model);
         }
 
-        // Published content should also have a posted date.
-        if (!model.PostedOn.HasValue &&
-            (model.Status == ContentStatus.Publish ||
-            model.Status == ContentStatus.Published))
+        if (!model.PostedOn.HasValue)
             model.PostedOn = DateTime.UtcNow;
 
         var content = _contentService.AddAndSave((Content)model);

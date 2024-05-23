@@ -1,12 +1,9 @@
-﻿using System.CommandLine.Parsing;
-using System.Net;
-using LinqKit;
+﻿using LinqKit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Editor.Models.Lookup;
 using TNO.API.Areas.Editor.Models.MediaType;
 using TNO.API.Areas.Editor.Models.Source;
-using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.Entities;
 using TNO.Kafka.Models;
 using TNO.Services.ContentMigration.Config;
@@ -20,7 +17,6 @@ namespace TNO.Services.ContentMigration.Migrators;
 /// </summary>
 public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentMigrator
 {
-
     /// <summary>
     ///
     /// </summary>
@@ -60,9 +56,9 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
             contentType,
             mediaType.Id,
             GetContentHash(source.Code, newsItemTitle, publishedOnInUtc),
-            newsItemTitle,
-            sanitizedSummary,
-            sanitizedBody,
+            newsItemTitle ?? "",
+            sanitizedSummary ?? "",
+            sanitizedBody ?? "",
             publishedOnInUtc,
             newsItem.Published)
         {

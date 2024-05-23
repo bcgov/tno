@@ -727,7 +727,8 @@ public class ReportService : BaseService<Report, int>, IReportService
                         Source = new API.Areas.Services.Models.Content.ContentModel(c.Content!, _serializerOptions)
                     });
                 searchResults.Add(section.Name, folderContent);
-                excludeAboveSectionContentIds.AddRange(content.Select(c => c.ContentId).ToArray());
+                var contentInThisFolder = content.Select(c => c.ContentId).ToArray();
+                excludeAboveSectionContentIds.AddRange(contentInThisFolder.Except(excludeAboveSectionContentIds));
             }
             else if (section.FilterId.HasValue)
             {
@@ -767,7 +768,7 @@ public class ReportService : BaseService<Report, int>, IReportService
                 });
 
                 searchResults.Add(section.Name, content);
-                excludeAboveSectionContentIds.AddRange(contentIds);
+                excludeAboveSectionContentIds.AddRange(contentIds.Except(excludeAboveSectionContentIds));
             }
         }
 

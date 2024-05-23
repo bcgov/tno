@@ -5,7 +5,6 @@ using Microsoft.Extensions.Options;
 using TNO.API.Areas.Editor.Models.Lookup;
 using TNO.API.Areas.Editor.Models.MediaType;
 using TNO.API.Areas.Editor.Models.Source;
-using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.Entities;
 using TNO.Kafka.Models;
 using TNO.Services.ContentMigration.Config;

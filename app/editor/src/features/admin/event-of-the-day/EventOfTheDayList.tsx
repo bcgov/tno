@@ -1,11 +1,13 @@
 import { getPreviewReportRoute } from 'features/content';
 import React from 'react';
 import { FaBinoculars, FaPaperPlane } from 'react-icons/fa';
+import { FaArrowsSpin } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
 import { useFolders, useReports, useTopics } from 'store/hooks/admin';
 import {
   Button,
+  ButtonVariant,
   FlexboxTable,
   FormPage,
   IContentTopicModel,
@@ -74,21 +76,24 @@ const EventOfTheDayList: React.FC = () => {
     return data;
   };
 
+  const fetch = React.useCallback(
+    async (eventOfTheDayFolderId: number) => {
+      try {
+        let content = await getContentInFolder(eventOfTheDayFolderId, true);
+        content = sortBySourceSortOrderAndPage(content);
+        setItems(content);
+
+        const topics = await findAllTopics();
+        setAllTopics(topics);
+      } catch {}
+    },
+    [findAllTopics, getContentInFolder],
+  );
+
   React.useEffect(() => {
     if (eventOfTheDayFolderId) {
-      getContentInFolder(eventOfTheDayFolderId, true)
-        .then((data) => {
-          data = sortBySourceSortOrderAndPage(data);
-          setItems(data);
-        })
-        .catch(() => {})
-        .finally(() => {});
+      fetch(eventOfTheDayFolderId).catch(() => {});
     }
-    findAllTopics()
-      .then((data) => {
-        setAllTopics(data);
-      })
-      .catch(() => {});
     // KGM - overridden to enforce only call once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventOfTheDayFolderId]);
@@ -156,6 +161,13 @@ const EventOfTheDayList: React.FC = () => {
         <Row className="page-header">
           <p className="list-title">Update Content for Event of the Day</p>
           <div className="buttons">
+            <Button
+              title="Refresh"
+              variant={ButtonVariant.secondary}
+              onClick={() => eventOfTheDayFolderId && fetch(eventOfTheDayFolderId)}
+            >
+              <FaArrowsSpin />
+            </Button>
             <Button
               onClick={() =>
                 window.open(
