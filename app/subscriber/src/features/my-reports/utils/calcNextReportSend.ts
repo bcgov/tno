@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from 'moment-timezone';
 import { IReportModel, IReportScheduleModel } from 'tno-core';
 
 const WeekDays: Record<string, number> = {
@@ -35,6 +35,8 @@ function getNextReportSend(report: IReportModel): string {
   // Get all the schedules and order them by weekday and time
   const sends: ISchedule[] = [];
 
+  let hasManualSend = false;
+
   report.events.forEach((s: IReportScheduleModel) => {
     const weekDays = s.runOnWeekDays.split(',');
     for (let i = 0; i < weekDays.length; i++) {
@@ -45,8 +47,16 @@ function getNextReportSend(report: IReportModel): string {
           time: s.startAt ? s.startAt : '',
         });
       }
+      if (s.settings.autoSend === false) {
+        hasManualSend = true;
+      }
     }
   });
+
+  if (sends.length === 0) {
+    if (hasManualSend) return 'Manual Send';
+    return 'NA';
+  }
 
   sends.sort((a, b) => a.weekDayNum - b.weekDayNum || a.time.localeCompare(b.time));
 
@@ -75,13 +85,18 @@ function getNextReportSend(report: IReportModel): string {
     }
   }
 
+  if (!nextSend) return 'NA';
+
   // Add the day difference to the last sent date and format correctly to display
   const nextSendDate = new Date(currentTime.setDate(currentTime.getDate() + daysToAdd));
   const year = nextSendDate.toLocaleDateString('en-US', { year: 'numeric' });
   const month = nextSendDate.toLocaleDateString('en-US', { month: '2-digit' });
   const day = nextSendDate.toLocaleDateString('en-US', { day: '2-digit' });
-  const nextSendDateTime = new Date(`${year}-${month}-${day}T${nextSend?.time}.000Z`);
-  return moment(nextSendDateTime).utc(false).format('yyyy-MM-DD hh:mm:ssA');
+  const nextSendDateTime = moment(
+    `${year}-${month}-${day} ${nextSend?.time}`,
+    'YYYY-MM-DD HH:mm:ss',
+  ).tz('UTC', true);
+  return nextSendDateTime.format('YYYY-MM-DD hh:mm:ssA');
 }
 
 /**
