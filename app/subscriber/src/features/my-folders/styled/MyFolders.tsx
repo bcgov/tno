@@ -27,20 +27,22 @@ export const MyFolders = styled.div`
     align-items: center;
   }
   .create-new {
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 0.5em;
+    margin-top: 1rem;
+
     .wand {
       margin-top: auto;
       margin-right: 0.25em;
       margin-bottom: auto;
     }
-    width: 80%;
     .create-text {
       font-size: 1rem;
       font-weight: 800;
       align-self: center;
     }
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 0.5em;
   }
   .create-button {
     height: 2.5em;

@@ -56,7 +56,10 @@ export const Schedule: React.FC<IScheduleProps> = ({ folderSchedule, onScheduleC
                   />
                 </Col>
                 <Col className="start-after-col">
-                  <label>Run on:</label>
+                  <Row>
+                    <label>Begin on:</label>
+                    <FaInfoCircle data-tooltip-id="start-on" className="info" />
+                  </Row>
                   <ReactDatePicker
                     minDate={new Date()}
                     showMonthDropdown
@@ -125,17 +128,18 @@ export const Schedule: React.FC<IScheduleProps> = ({ folderSchedule, onScheduleC
                   }}
                 />
                 days.
-                <FaInfoCircle data-tooltip-id="keep-age" />
+                <FaInfoCircle data-tooltip-id="keep-age" className="info" />
               </Row>
             </div>
           </Col>
-          <Row>
-            <Tooltip id="keep-age" variant="light">
-              Remove content older than specified amount of days. Use '0' if you would like to
-              remove all content.
-            </Tooltip>
-          </Row>
         </Row>
+        <Tooltip id="keep-age" variant="info">
+          Remove content older than specified amount of days. Use '0' if you would like to remove
+          all content.
+        </Tooltip>
+        <Tooltip id="start-on" variant="info">
+          If you want to delay when this schedule begins running, enter a date.
+        </Tooltip>
       </div>
     </Show>
   );
