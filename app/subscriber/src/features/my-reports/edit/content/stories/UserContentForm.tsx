@@ -32,6 +32,7 @@ export interface IUserContentFormProps extends React.HTMLAttributes<HTMLDivEleme
   loading?: boolean;
   /** Event fires when content properties are changed. */
   onContentChange?: (content: IReportInstanceContentForm) => void;
+  /** Errors on form. */
   errors: IContentValidationErrors | undefined;
 }
 

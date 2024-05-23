@@ -22,7 +22,7 @@ export interface IContentFormProps extends React.HTMLAttributes<HTMLDivElement> 
  */
 export const ContentForm: React.FC<IContentFormProps> = ({
   content,
-  disabled,
+  disabled = false,
   show = 'none',
   loading,
   className,
@@ -34,10 +34,21 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   if (!content) return null;
 
   const userId = userInfo?.id ?? 0;
-  const headline = content.versions?.[userId]?.headline
-    ? content.versions[userId].headline ?? ''
-    : content.headline;
   const isAV = content.contentType === ContentTypeName.AudioVideo;
+  const versions = content.versions?.[userId] ?? {
+    headline: content.headline,
+    summary: '',
+    body: isAV
+      ? content.isApproved && content.body
+        ? content.body
+        : content.summary
+      : content.body,
+  };
+  const headline = versions.headline ?? '';
+  const summary = versions.summary ?? '';
+  const body =
+    versions.body ??
+    (isAV ? (content.isApproved && content.body ? content.body : content.summary) : content.body);
 
   return show === 'none' ? null : (
     <Col className={`edit-content${className ? ` ${className}` : ''}`} {...rest}>
@@ -51,8 +62,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
           rows={1}
           disabled={disabled}
           onChange={(e) => {
-            const summary = content.versions?.[userId]?.summary ?? content.summary;
-            const body = content.versions?.[userId]?.body ?? content.body;
             const values = {
               ...content,
               versions: {
@@ -74,11 +83,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
         <Wysiwyg
           name={`summary`}
           label="Summary"
-          value={content.versions?.[userId]?.summary ?? ''}
+          value={summary}
           disabled={disabled}
           onChange={(text) => {
-            const headline = content.versions?.[userId]?.headline ?? content.headline;
-            const body = content.versions?.[userId]?.body ?? content.body;
             const values = {
               ...content,
               versions: {
@@ -99,18 +106,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
         <Wysiwyg
           name={`body`}
           label="Body"
-          value={
-            content.versions?.[userId]?.body ??
-            (isAV
-              ? content.isApproved && content.body
-                ? content.body
-                : content.summary
-              : content.body)
-          }
+          value={body}
           disabled={disabled}
           onChange={(text) => {
-            const headline = content.versions?.[userId]?.headline ?? content.headline;
-            const summary = content.versions?.[userId]?.summary ?? content.summary;
             const values = {
               ...content,
               versions: {
