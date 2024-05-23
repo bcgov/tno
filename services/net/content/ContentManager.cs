@@ -295,8 +295,8 @@ public class ContentManager : ServiceManager<ContentOptions>
         bool updateSourceContent = false;
         long? existingContentId = null;
 
-        ContentModel? originalContent = await this.Api.FindContentByUidAsync(model.Uid, model.Source);
-        ContentModel? content = await this.Api.FindContentByUidAsync(model.Uid, model.Source);
+        var originalContent = await this.Api.FindContentByUidAsync(model.Uid, model.Source);
+        var content = await this.Api.FindContentByUidAsync(model.Uid, model.Source);
         if (content != null)
         {
             // Only add if doesn't already exist.

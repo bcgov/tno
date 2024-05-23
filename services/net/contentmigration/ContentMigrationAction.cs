@@ -87,7 +87,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         // KGM : Do NOT remove these null filters.  They exclude bad data
         predicate = predicate.And(ni => ((ni.ItemDate != null) && (ni.Source != null) && (ni.Title != null)));
 
-        DateTime offsetFromNow = DateTime.MaxValue;
+        var offsetFromNow = DateTime.MaxValue;
         if (importOffsetInHours > 0)
         {
             // create an artificial buffer so that the migration isn't using most recent updates
@@ -99,7 +99,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         {
             // if the ingest has previously run, use the creationDateOfNewsItem as the dateFilter
             // if creationDateOfNewsItem is not set, use use DateTime.MinValue
-            DateTime dateFilter = updatedDateOfNewsItem ?? DateTime.MinValue;
+            var dateFilter = updatedDateOfNewsItem ?? DateTime.MinValue;
             if (lastRanOn.HasValue)
             {
                 dateFilter = new[] { lastRanOn.Value, dateFilter }.Min();
@@ -116,8 +116,8 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         }
         else
         {
-            DateTime dateFilterStart = importDateStart ?? DateTime.MinValue;
-            DateTime dateFilterEnd = importDateEnd ?? DateTime.MaxValue;
+            var dateFilterStart = importDateStart ?? DateTime.MinValue;
+            var dateFilterEnd = importDateEnd ?? DateTime.MaxValue;
             if (updatedDateOfNewsItem.HasValue
                 && (dateFilterStart <= updatedDateOfNewsItem.Value)
                 && (dateFilterEnd >= updatedDateOfNewsItem.Value))
@@ -162,14 +162,14 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         // KGM : Only return Published items
         predicate = predicate.And(ni => ((ni.Published)));
 
-        DateTime offsetFromNow = DateTime.MaxValue;
+        var offsetFromNow = DateTime.MaxValue;
         if (importOffsetInHours > 0)
         {
-            // create an artificial buffer so that the migration isnt using most recent updates
+            // create an artificial buffer so that the migration isn't using most recent updates
             offsetFromNow = DateTime.Now.AddMinutes(-1 * 60 * importOffsetInHours);
         }
 
-        // apply an artificial buffer so that the migration isnt using most recent updates
+        // apply an artificial buffer so that the migration isn't using most recent updates
         predicate = predicate.And(ni => (ni.UpdatedOn >= offsetFromNow));
 
         return newsItems.Where(predicate)
@@ -193,8 +193,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     /// <exception cref="ArgumentNullException"></exception>
     public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
-
-        ImportMigrationType importMigrationType = manager.Ingest.GetConfigurationValue<ImportMigrationType>("importMigrationType", ImportMigrationType.Unknown);
+        var importMigrationType = manager.Ingest.GetConfigurationValue<ImportMigrationType>("importMigrationType", ImportMigrationType.Unknown);
         if (importMigrationType == ImportMigrationType.Unknown)
         {
             this.Logger.LogError("Error in Ingest [{ingestName}] config. 'importMigrationType' cannot be null.", manager.Ingest.Name);
@@ -217,9 +216,9 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         await manager.UpdateIngestStateFailedAttemptsAsync(manager.Ingest.FailedAttempts);
 
         this.Logger.LogDebug("Performing ingestion service action for Ingest '{name}'", manager.Ingest.Name);
-        IContentMigrator contentMigrator = _migratorFactory.GetContentMigrator(manager.Ingest.IngestType!.Name);
+        var contentMigrator = _migratorFactory.GetContentMigrator(manager.Ingest.IngestType!.Name);
 
-        API.Areas.Editor.Models.Lookup.LookupModel? lookups = await this.Api.GetLookupsAsync();
+        var lookups = await this.Api.GetLookupsAsync();
 
         var skip = 0;
         var countOfRecordsRetrieved = this.Options.MaxRecordsPerRetrieval;

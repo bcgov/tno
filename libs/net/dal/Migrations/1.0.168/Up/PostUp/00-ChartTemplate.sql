@@ -1,4 +1,9 @@
-@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Reporting.Models.ChartEngineContentModel>
+DO $$
+BEGIN
+
+-- Update name field in report template to match all environments:
+UPDATE public."chart_template"
+SET "template" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.Services.Reporting.Models.ChartEngineContentModel>
 @using System
 @using System.Linq
 @using System.Text.Json
@@ -46,4 +51,7 @@
     }
    ],
    "Count": @sumOfAllScores
-}
+}'
+WHERE "name" = 'Topic Analysis - Topic Score';
+
+END $$;

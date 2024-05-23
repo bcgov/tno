@@ -1,14 +1,9 @@
-using System.Configuration;
-using System.Net;
-using System.Security.Cryptography;
-using System.Text;
 using LinqKit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Editor.Models.Lookup;
 using TNO.API.Areas.Editor.Models.MediaType;
 using TNO.API.Areas.Editor.Models.Source;
-using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.Entities;
 using TNO.Kafka.Models;
 using TNO.Services.ContentMigration.Config;
@@ -64,9 +59,9 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
             contentType,
             mediaType.Id,
             GetContentHash(source.Code, newsItem.GetTitle(), publishedOnInUtc),
-            newsItem.GetTitle(),
-            sanitizedSummary,
-            sanitizedBody,
+            newsItem.GetTitle() ?? "",
+            sanitizedSummary ?? "",
+            sanitizedBody ?? "",
             publishedOnInUtc,
             newsItem.Published)
         {

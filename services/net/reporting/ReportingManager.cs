@@ -361,7 +361,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         }
 
         // Generate a new instance, or accumulate new content each time the report is run.
-        if (reportInstanceModel == null || !(!report.Settings.Content.ClearOnStartNewReport && !report.Settings.Content.CopyPriorInstance))
+        if (reportInstanceModel == null || reportInstanceModel.SentOn.HasValue
+            || !(!report.Settings.Content.ClearOnStartNewReport && !report.Settings.Content.CopyPriorInstance))
         {
             // Fetch content for every section within the report.  This will include folders and filters.
             var searchResults = await this.Api.FindContentForReportIdAsync(report.Id, request.RequestorId);
@@ -407,7 +408,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var reportInstanceContentsBad = sectionContent.SelectMany(s => s.Value.Content.Where(c => c.Id == 0).Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray();
         if (reportInstanceContentsBad.Any())
         {
-            this.Logger.LogWarning($"Report [{report.Name}] {request.GenerateInstance} has malformed content. It will be generated, but may not match expectations.");
+            this.Logger.LogWarning("Report [{name}] {generateInstance} has malformed content. It will be generated, but may not match expectations.", report.Name, request.GenerateInstance);
             foreach (var section in sectionContent)
             {
                 sectionContent[section.Key].Content = section.Value.Content.Where(c => c.Id > 0);
@@ -526,7 +527,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         if (instanceModel != null && request.GenerateInstance)
             instanceModel = await this.Api.UpdateReportInstanceAsync(instanceModel) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
 
-        if (report.Settings.Content.ClearFolders && request.SendToSubscribers)
+        if (request.GenerateInstance && report.Settings.Content.ClearFolders && request.SendToSubscribers)
         {
             // Make a request to clear content from folders in this report.
             await this.Api.ClearFoldersInReport(report.Id);
