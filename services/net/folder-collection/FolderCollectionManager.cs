@@ -494,7 +494,7 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
     /// <param name="contentId"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private JsonDocument ModifyElasticQuery(JsonDocument query, long contentId)
+    private static JsonDocument ModifyElasticQuery(JsonDocument query, long contentId)
     {
         var json = JsonNode.Parse(query.ToJson())?.AsObject();
         if (json == null) return query;

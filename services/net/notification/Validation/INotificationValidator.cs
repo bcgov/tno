@@ -45,7 +45,7 @@ public interface INotificationValidator
     /// Determine if the specified 'notification' should be sent for the specified 'content'.
     /// </summary>
     /// <returns></returns>
-    bool ConfirmSend();
+    Task<bool> ConfirmSendAsync();
 
     /// <summary>
     /// Add users who have received a notification for this content.

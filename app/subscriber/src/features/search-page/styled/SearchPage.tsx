@@ -43,6 +43,28 @@ export const SearchPage = styled.div<{ expanded: boolean }>`
       font-weight: bold;
       font-size: 0.9em;
     }
+    .status {
+      margin-left: 0.7em;
+
+      &_check_mark {
+        color: #19a337;
+      }
+
+      &_saved {
+        color: #19a337;
+        font-weight: bold;
+        font-size: 0.9em;
+      }
+
+      &_save_changes {
+        color: #964b00;
+        background-color: #f5f5dc;
+        border: none;
+        padding: 0.1em 0.625em;
+        cursor: pointer;
+        font-size: 0.6875em;
+      }
+    }
   }
 
   .add-page {

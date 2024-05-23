@@ -106,9 +106,10 @@ public class FolderController : ControllerBase
         if (includeMaxTopicScore)
         {
             var topicScoreRules = _topicScoreRuleService.FindAll();
-            return new JsonResult(result.Select(f => new FolderContentModel(f) {
-                 MaxTopicScore = _topicScoreHelper.GetScore(topicScoreRules, f.Content!.PublishedOn!.Value.TimeOfDay, f.Content.SourceId, f.Content.Body.Length, f.Content.Section, f.Content.Page, f.Content.SeriesId) 
-               }));
+            return new JsonResult(result.Select(f => new FolderContentModel(f)
+            {
+                MaxTopicScore = f.Content == null ? 0 : _topicScoreHelper.GetScore(topicScoreRules, f.Content.PublishedOn, f.Content.SourceId, f.Content.Body.Length, f.Content.Section, f.Content.Page, f.Content.SeriesId)
+            }));
         }
         else
             return new JsonResult(result.Select(f => new FolderContentModel(f)));

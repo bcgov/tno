@@ -176,7 +176,7 @@ public class WorkOrder : AuditColumns
     /// <param name="contentId"></param>
     /// <param name="headline"></param>
     public WorkOrder(WorkOrderType type, string description, long contentId, string headline)
-        : this(type, description, $"{{ \"headline\": \"{headline}\" }}")
+        : this(type, description, $"{{ \"headline\": \"{headline.Replace("\n", "")}\" }}")
     {
         this.ContentId = contentId;
     }

@@ -93,7 +93,6 @@ public abstract class BaseService
     /// <returns></returns>
     protected virtual IServiceCollection ConfigureServices(IServiceCollection services)
     {
-
         var jsonSerializerOptions = new JsonSerializerOptions()
         {
             DefaultIgnoreCondition = this.Configuration.GetValue<JsonIgnoreCondition>("Serialization:Json:DefaultIgnoreCondition", JsonIgnoreCondition.WhenWritingNull),
@@ -119,7 +118,7 @@ public abstract class BaseService
                 options.AddConsole();
             })
             .AddTransient<JwtSecurityTokenHandler>()
-            .AddChesService(this.Configuration.GetSection("CHES"))
+            .AddChesSingletonService(this.Configuration.GetSection("CHES"))
             .AddSingleton(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Email, "") })))
             .Configure<AuthClientOptions>(this.Configuration.GetSection("Auth:Keycloak"))
             .Configure<OpenIdConnectOptions>(this.Configuration.GetSection("Auth:OIDC"))

@@ -38,7 +38,7 @@ public class CaptureService : CommandService
             .Configure<CaptureOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IIngestAction<CaptureOptions>, CaptureAction>()
             .AddTransient<IngestManagerFactory<CaptureIngestActionManager, CaptureOptions>>()
-            .AddScoped<IServiceManager, CaptureManager>();
+            .AddSingleton<IServiceManager, CaptureManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<CaptureOptions>()

@@ -31,40 +31,11 @@ export const ChartTemplatePreviewSources = () => {
           value={show}
         />
       </Row>
+
       {show && (
-        <Row gap="1rem">
-          <Col flex="2">
-            <label>Elasticsearch Filter</label>
-            <Row nowrap>
-              <Select
-                label="Index"
-                name="index"
-                options={indexOptions}
-                value={indexOptions.find((o) => o.value === chartRequestForm.index) ?? ''}
-                clearValue={''}
-                onChange={(newValue) => {
-                  const option = newValue as OptionItem;
-                  setChartRequestForm({ ...chartRequestForm, index: option.value?.toString() });
-                }}
-              />
-              <Col flex="1">
-                <label htmlFor="txa-template">Query</label>
-                <Col className="editor">
-                  <Editor
-                    id="txa-filter"
-                    value={filter}
-                    onValueChange={(code) => setFilter(code)}
-                    highlight={(code) => {
-                      return highlight(code, languages.json, 'razor');
-                    }}
-                  />
-                </Col>
-              </Col>
-            </Row>
-          </Col>
-          <Col flex="1">
-            <label>Linked Report</label>
-            <Row>
+        <Col>
+          <Row>
+            <Col flex="1" alignContent="center">
               <Text
                 name="linkedReportId"
                 label="Report ID"
@@ -77,9 +48,69 @@ export const ChartTemplatePreviewSources = () => {
                   });
                 }}
               />
-            </Row>
-          </Col>
-        </Row>
+            </Col>
+            <Col flex="1" alignContent="center">
+              <Text
+                name="folderId"
+                label="Folder ID"
+                value={chartRequestForm.folderId ?? ''}
+                type="number"
+                onChange={(e) => {
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    folderId: e.target.value ? +e.target.value : undefined,
+                  });
+                }}
+              />
+            </Col>
+            <Col flex="1" alignContent="center">
+              <Text
+                name="filterId"
+                label="Filter ID"
+                value={chartRequestForm.filterId ?? ''}
+                type="number"
+                onChange={(e) => {
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    filterId: e.target.value ? +e.target.value : undefined,
+                  });
+                }}
+              />
+            </Col>
+          </Row>
+          <Row gap="1rem">
+            <Col flex="2">
+              <label>Elasticsearch Filter</label>
+              <p>Enter a custom query to search for content.</p>
+              <Row nowrap>
+                <Select
+                  label="Index"
+                  name="index"
+                  options={indexOptions}
+                  value={indexOptions.find((o) => o.value === chartRequestForm.index) ?? ''}
+                  clearValue={''}
+                  onChange={(newValue) => {
+                    const option = newValue as OptionItem;
+                    setChartRequestForm({ ...chartRequestForm, index: option.value?.toString() });
+                  }}
+                />
+                <Col flex="1">
+                  <label htmlFor="txa-template">Query</label>
+                  <Col className="editor">
+                    <Editor
+                      id="txa-filter"
+                      value={filter}
+                      onValueChange={(code) => setFilter(code)}
+                      highlight={(code) => {
+                        return highlight(code, languages.json, 'razor');
+                      }}
+                    />
+                  </Col>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+        </Col>
       )}
     </styled.ChartTemplatePreviewSources>
   );

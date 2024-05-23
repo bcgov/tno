@@ -1,15 +1,15 @@
 import { Bar } from 'components/bar';
+import { Button } from 'components/button';
 import { Sentiment } from 'components/sentiment';
 import { formatDate, showTranscription } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApp, useContent, useWorkOrders } from 'store/hooks';
+import { useContent, useWorkOrders } from 'store/hooks';
 import { useMinisters } from 'store/hooks/subscriber/useMinisters';
+import { useProfileStore } from 'store/slices';
 import {
-  Button,
-  ButtonVariant,
   Col,
   ContentTypeName,
   IContentModel,
@@ -42,7 +42,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
   const { id } = useParams();
   const [, { getContent, stream }] = useContent();
   const { width } = useWindowSize();
-  const [{ userInfo }] = useApp();
+  const [{ profile }] = useProfileStore();
   const [, api] = useMinisters();
   const [, { transcribe, findWorkOrders }] = useWorkOrders();
 
@@ -82,10 +82,10 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
   }, [api, ministers.length]);
 
   React.useEffect(() => {
-    if (userInfo?.preferences?.myMinisters?.length > 0 && ministers.length > 0) {
+    if (profile?.preferences?.myMinisters?.length > 0 && ministers.length > 0) {
       let selectedAliases: string[] = [];
       selectedAliases = ministers
-        .filter((m) => userInfo?.preferences?.myMinisters?.includes(m.id))
+        .filter((m) => profile?.preferences?.myMinisters?.includes(m.id))
         .flatMap((x) => [
           x.name,
           // first letter of first name whole last name separated by a period
@@ -93,7 +93,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
         ]);
       setAliases(selectedAliases);
     }
-  }, [ministers, userInfo?.preferences?.myMinisters]);
+  }, [ministers, profile?.preferences?.myMinisters]);
 
   React.useEffect(() => {
     // this will bold the ministers name in the summary or body, only when viewing from the my minister list when the content has been received
@@ -185,8 +185,8 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
     ]);
   const isTranscriptRequestor = workOrders.some(
     (wo) =>
-      wo.requestorId === userInfo?.id ||
-      wo.userNotifications?.some((un) => un.userId === userInfo?.id),
+      wo.requestorId === profile?.id ||
+      wo.userNotifications?.some((un) => un.userId === profile?.id),
   );
 
   return (
@@ -268,7 +268,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
         >
           <Button
             onClick={() => handleTranscribe()}
-            variant={isTranscribing ? ButtonVariant.warning : ButtonVariant.primary}
+            variant={isTranscribing ? 'warn' : 'primary'}
             className="transcribe-button"
             disabled={
               (!!content?.fileReferences && !content?.fileReferences.length) ||

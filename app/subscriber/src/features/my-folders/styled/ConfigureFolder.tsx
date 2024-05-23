@@ -80,9 +80,6 @@ export const ConfigureFolder = styled(PageSection)`
 
   .add-filter {
     margin-bottom: 1rem;
-    .frm-in {
-      width: 70%;
-    }
   }
 
   .main-sched-body {
@@ -121,6 +118,18 @@ export const ConfigureFolder = styled(PageSection)`
       }
       .warning {
         margin-right: 0.5rem;
+      }
+    }
+  }
+  .choose-filter {
+    > div:first-child {
+      max-width: 70%;
+    }
+
+    .frm-in {
+      padding: 0;
+      > div > div > div {
+        margin: 0;
       }
     }
   }

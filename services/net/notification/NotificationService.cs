@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using TNO.Elastic;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.Notification.Config;
@@ -43,10 +44,11 @@ public class NotificationService : KafkaConsumerService
         services
             .Configure<NotificationOptions>(this.Configuration.GetSection("Service"))
             .Configure<TemplateOptions>(this.Configuration.GetSection("Reporting"))
+            .AddElasticSingleton(this.Configuration, this.Environment)
             .AddTransient<IKafkaListener<string, NotificationRequestModel>, KafkaListener<string, NotificationRequestModel>>()
             .AddTransient<INotificationValidator, NotificationValidator>()
-            .AddScoped<IServiceManager, NotificationManager>()
-            .AddTemplateEngine(this.Configuration);
+            .AddSingleton<IServiceManager, NotificationManager>()
+            .AddTemplateEngineSingleton(this.Configuration);
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<NotificationOptions>()

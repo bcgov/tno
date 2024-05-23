@@ -13,8 +13,9 @@ namespace TNO.API.Helpers
         #region Variables
         private readonly ITopicScoreRuleService _topicScoreRuleService;
         private readonly ITopicService _topicService;
-        ILogger<TopicScoreHelper> _logger;
-        private static Regex _pageNumberAndPrefixRegex = new Regex(@"(?<page_prefix>[a-zA-Z]+)?(?<page_number>\d+)?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private readonly ILogger<TopicScoreHelper> _logger;
+        private readonly static Regex _pageNumberAndPrefixRegex = new Regex(@"(?<page_prefix>[a-zA-Z]+)?(?<page_number>\d+)?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private readonly static TimeZoneInfo PST = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
         #endregion
 
         #region Constructors
@@ -33,11 +34,10 @@ namespace TNO.API.Helpers
         #endregion
 
         #region Methods
-
         /// <inheritdoc/>
         public void SetContentScore(Content content)
         {
-            var topicScore = GetScore(content.PublishedOn?.TimeOfDay, content.SourceId, content.Body.Length, content.Section, content.Page, content.SeriesId);
+            var topicScore = GetScore(content.PublishedOn, content.SourceId, content.Body.Length, content.Section, content.Page, content.SeriesId);
             if (topicScore != null)
             {
                 if (!content.TopicsManyToMany.Any())
@@ -48,7 +48,7 @@ namespace TNO.API.Helpers
                     if (defaultTopic != null)
                         content.TopicsManyToMany.Add(new ContentTopic(content, defaultTopic, topicScore.Value));
                     else
-                        _logger.LogWarning($"Couldn't retrieve default Topic with ID: [{defaultTopicId}] for Event of the day. Score will not be set on content.");
+                        _logger.LogWarning("Couldn't retrieve default Topic with ID: [{defaultTopicId}] for Event of the day. Score will not be set on content.", defaultTopicId);
                 }
                 else
                 {
@@ -60,30 +60,34 @@ namespace TNO.API.Helpers
         /// <inheritdoc/>
         public void SetContentScore(ContentModel model)
         {
-            var topicScore = GetScore(_topicScoreRuleService.FindAll(), model.PublishedOn?.TimeOfDay, model.SourceId, model.Body.Length, model.Section, model.Page, model.SeriesId);
-            if (topicScore != null) {
-                if(!model.Topics.Any()) {
+            var topicScore = GetScore(_topicScoreRuleService.FindAll(), model.PublishedOn, model.SourceId, model.Body.Length, model.Section, model.Page, model.SeriesId);
+            if (topicScore != null)
+            {
+                if (!model.Topics.Any())
+                {
                     // retrieve the magic placeholder Topic and use that
                     const int defaultTopicId = 1;
                     Entities.Topic? defaultTopic = _topicService.FindById(defaultTopicId);
                     if (defaultTopic != null)
                         model.Topics = new[] { new ContentTopicModel { ContentId = 0, Id = defaultTopic.Id, Name = defaultTopic.Name, TopicType = defaultTopic.TopicType, Score = topicScore.Value } };
                     else
-                        _logger.LogWarning($"Couldn't retrieve default Topic with ID: [{defaultTopicId}] for Event of the day. Score will not be set on content.");
-                } else {
+                        _logger.LogWarning("Couldn't retrieve default Topic with ID: [{defaultTopicId}] for Event of the day. Score will not be set on content.", defaultTopicId);
+                }
+                else
+                {
                     model.Topics.First().Score = topicScore.Value;
                 }
             }
         }
 
         /// <inheritdoc/>
-        public int? GetScore(TimeSpan? publishedOnTime = null, int? sourceId = null, int bodyLength = 0, string section = "", string pageWithPrefix = "", int? seriesId = null)
+        public int? GetScore(DateTime? publishedOn = null, int? sourceId = null, int bodyLength = 0, string section = "", string pageWithPrefix = "", int? seriesId = null)
         {
-            return GetScore(_topicScoreRuleService.FindAll(), publishedOnTime, sourceId, bodyLength, section, pageWithPrefix, seriesId);
+            return GetScore(_topicScoreRuleService.FindAll(), publishedOn, sourceId, bodyLength, section, pageWithPrefix, seriesId);
         }
 
         /// <inheritdoc/>
-        public int? GetScore(IEnumerable<TopicScoreRule> allRules, TimeSpan? publishedOnTime = null, int? sourceId = null, int bodyLength = 0, string section = "", string pageWithPrefix = "", int? seriesId = null)
+        public int? GetScore(IEnumerable<TopicScoreRule> allRules, DateTime? publishedOn = null, int? sourceId = null, int bodyLength = 0, string section = "", string pageWithPrefix = "", int? seriesId = null)
         {
             int? score = null;
 
@@ -94,10 +98,10 @@ namespace TNO.API.Helpers
 
             foreach (TopicScoreRule rule in rulesForSource)
             {
-                // PRINT CONTENT - rule section doesnt match the section on the content
+                // PRINT CONTENT - rule section doesn't match the section on the content
                 if (rule.Section != null && !string.IsNullOrEmpty(section) && section != rule.Section) continue;
 
-                // AUDIO-VIDEO CONTENT - rule series doesnt match the series on the content
+                // AUDIO-VIDEO CONTENT - rule series doesn't match the series on the content
                 if (rule.SeriesId != null && seriesId != null && seriesId != rule.SeriesId) continue;
 
                 (string rulePageMinPrefix, int? rulePageMinNumber) = GetPrintSourceRulePageNumberAndPrefix(rule.PageMin);
@@ -110,8 +114,8 @@ namespace TNO.API.Helpers
 
                 if (!IsPrintContentALengthMatch(bodyLength, rule)) continue;
 
-                // AUDIO-VIDEO CONTENT ONLY? - rule series doesnt match the series on the content
-                if (!IsAudioVideoContentATimeMatch(publishedOnTime, rule.TimeMin, rule.TimeMax)) continue;
+                // AUDIO-VIDEO CONTENT ONLY? - rule series doesn't match the series on the content
+                if (!IsAudioVideoContentATimeMatch(publishedOn, rule.TimeMin, rule.TimeMax)) continue;
 
                 // Take the first matching rule.
                 score = rule.Score;
@@ -127,7 +131,7 @@ namespace TNO.API.Helpers
         /// </summary>
         /// <param name="pageRef"></param>
         /// <returns></returns>
-        private Tuple<string, int?> GetPrintSourceRulePageNumberAndPrefix(string? pageRef)
+        private static Tuple<string, int?> GetPrintSourceRulePageNumberAndPrefix(string? pageRef)
         {
             string pagePrefix = string.Empty;
             int? pageNumber = null;
@@ -164,7 +168,7 @@ namespace TNO.API.Helpers
         /// <param name="actualPagePrefix"></param>
         /// <param name="actualPageNumber"></param>
         /// <returns></returns>
-        private bool IsPrintPageInRange(string rulePageMinPrefix, int? rulePageMinNumber, string rulePageMaxPrefix, int? rulePageMaxNumber, string actualPagePrefix, int? actualPageNumber)
+        private static bool IsPrintPageInRange(string rulePageMinPrefix, int? rulePageMinNumber, string rulePageMaxPrefix, int? rulePageMaxNumber, string actualPagePrefix, int? actualPageNumber)
         {
             if ((rulePageMinNumber != null && rulePageMaxNumber != null &&
                 (actualPageNumber == 0 || actualPageNumber < rulePageMinNumber || actualPageNumber > rulePageMaxNumber)) ||
@@ -191,7 +195,7 @@ namespace TNO.API.Helpers
         /// <param name="bodyLength"></param>
         /// <param name="r"></param>
         /// <returns></returns>
-        private bool IsPrintContentALengthMatch(int bodyLength, TopicScoreRule r)
+        private static bool IsPrintContentALengthMatch(int bodyLength, TopicScoreRule r)
         {
             if (r.CharacterMin != null && r.CharacterMax != null &&
                 (bodyLength < r.CharacterMin || bodyLength > r.CharacterMax))
@@ -207,18 +211,24 @@ namespace TNO.API.Helpers
         /// <summary>
         /// If the rule has timeMin or timeMax values, check the publishedOnTime to see if it's within the range
         /// </summary>
-        /// <param name="publishedOnTime"></param>
+        /// <param name="publishedOn"></param>
         /// <param name="timeMin"></param>
         /// <param name="timeMax"></param>
         /// <returns></returns>
-        private bool IsAudioVideoContentATimeMatch(TimeSpan? publishedOnTime, TimeSpan? timeMin, TimeSpan? timeMax)
+        private static bool IsAudioVideoContentATimeMatch(DateTime? publishedOn, TimeSpan? timeMin, TimeSpan? timeMax)
         {
+            if (publishedOn == null && (timeMin.HasValue || timeMax.HasValue))
+                return false;
+            else if (publishedOn == null)
+                return true;
+
+            // Always treat the timeMin and timeMax as PST.
+            var publishedOnTime = TimeZoneInfo.ConvertTimeFromUtc(publishedOn.Value, PST).TimeOfDay;
+
             if (timeMin != null && timeMax != null &&
               (publishedOnTime < timeMin || publishedOnTime > timeMax)
             )
-            {
                 return false;
-            }
             else if (timeMin != null && publishedOnTime < timeMin) return false;
             else if (timeMax != null && publishedOnTime > timeMax) return false;
 

@@ -156,6 +156,33 @@ spec:
                   name: reporting-shared
                   key: REPORTING_ADD_TO_REPORT_URL
 
+            # Elasticsearch Configuration
+            - name: Elastic__Url
+              valueFrom:
+                configMapKeyRef:
+                  name: api
+                  key: ELASTIC_URIS
+            - name: Elastic__UnpublishedIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: UNPUBLISHED_INDEX
+            - name: Elastic__PublishedIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: PUBLISHED_INDEX
+            - name: ELASTIC_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: elastic
+                  key: USERNAME
+            - name: ELASTIC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: elastic
+                  key: PASSWORD
+
             # CHES Configuration
             - name: CHES__From
               valueFrom:

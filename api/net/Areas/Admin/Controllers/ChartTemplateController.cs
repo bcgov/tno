@@ -1,8 +1,10 @@
+using System.Linq;
 using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.ChartTemplate;
 using TNO.API.Helpers;
@@ -33,6 +35,9 @@ public class ChartTemplateController : ControllerBase
     #region Variables
     private readonly IChartTemplateService _chartTemplateService;
     private readonly IReportHelper _reportHelper;
+    private readonly IFolderService _folderService;
+    private readonly IFilterService _filterService;
+    private readonly Elastic.ElasticOptions _elasticOptions;
     #endregion
 
     #region Constructors
@@ -41,13 +46,22 @@ public class ChartTemplateController : ControllerBase
     /// </summary>
     /// <param name="chartTemplateService"></param>
     /// <param name="reportHelper"></param>
+    /// <param name="folderService"></param>
+    /// <param name="filterService"></param>
+    /// <param name="elasticOptions"></param>
     public ChartTemplateController(
         IChartTemplateService chartTemplateService,
-        IReportHelper reportHelper
+        IReportHelper reportHelper,
+        IFolderService folderService,
+        IFilterService filterService,
+        IOptions<Elastic.ElasticOptions> elasticOptions
     )
     {
         _chartTemplateService = chartTemplateService;
         _reportHelper = reportHelper;
+        _folderService = folderService;
+        _filterService = filterService;
+        _elasticOptions = elasticOptions.Value;
     }
     #endregion
 
@@ -155,6 +169,18 @@ public class ChartTemplateController : ControllerBase
         var content = model.Content?.Select(c => new TemplateEngine.Models.ContentModel(c)) ?? Array.Empty<TemplateEngine.Models.ContentModel>();
         if (model.Filter != null && model.Filter.ToJson() != "{}")
             content = content.AppendRange(await _reportHelper.FindContentAsync(model.Filter, model.Index));
+        else if (model.FilterId.HasValue)
+        {
+            var filter = _filterService.FindById(model.FilterId.Value);
+            if (filter != null)
+            {
+                var filterSettings = JsonSerializer.Deserialize<API.Models.Settings.FilterSettingsModel>(filter.Settings);
+                var index = filterSettings?.SearchUnpublished == true ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex;
+                content = content.AppendRange(await _reportHelper.FindContentAsync(filter.Query, index));
+            }
+        }
+        else if (model.FolderId.HasValue)
+            content = _folderService.GetContentInFolder(model.FolderId.Value).Select(c => new TemplateEngine.Models.ContentModel(c.Content!));
 
         // If this chart pulls data from a linked report add this content.
         var sections = model.LinkedReportId.HasValue ? _reportHelper.GetLinkedReportContent(model.LinkedReportId.Value, null).Result : new();

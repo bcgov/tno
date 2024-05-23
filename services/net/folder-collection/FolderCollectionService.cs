@@ -42,10 +42,10 @@ public class FolderCollectionService : KafkaConsumerService
         services
             .Configure<FolderCollectionOptions>(this.Configuration.GetSection("Service"))
             .Configure<AdminClientConfig>(this.Configuration.GetSection("Kafka:Admin"))
-            .AddElastic(this.Configuration, this.Environment)
+            .AddElasticSingleton(this.Configuration, this.Environment)
             .AddSingleton<IKafkaAdmin, KafkaAdmin>()
             .AddTransient<IKafkaListener<string, IndexRequestModel>, KafkaListener<string, IndexRequestModel>>()
-            .AddScoped<IServiceManager, FolderCollectionManager>();
+            .AddSingleton<IServiceManager, FolderCollectionManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<FolderCollectionOptions>()

@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
@@ -31,16 +30,6 @@ public class EventHandlerManager : ServiceManager<EventHandlerOptions>
     /// get - Kafka Consumer.
     /// </summary>
     protected IKafkaListener<string, EventScheduleRequestModel> Listener { get; }
-
-    /// <summary>
-    /// get - CHES service.
-    /// </summary>
-    protected IChesService Ches { get; }
-
-    /// <summary>
-    /// get - CHES options.
-    /// </summary>
-    protected ChesOptions ChesOptions { get; }
     #endregion
 
     #region Constructors
@@ -62,10 +51,8 @@ public class EventHandlerManager : ServiceManager<EventHandlerOptions>
         IOptions<EventHandlerOptions> eventHandlerOptions,
         IOptions<JsonSerializerOptions> serializationOptions,
         ILogger<EventHandlerManager> logger)
-        : base(api, eventHandlerOptions, logger)
+        : base(api, chesService, chesOptions, eventHandlerOptions, logger)
     {
-        this.Ches = chesService;
-        this.ChesOptions = chesOptions.Value;
         _serializationOptions = serializationOptions.Value;
         this.Listener = listener;
         this.Listener.IsLongRunningJob = true;

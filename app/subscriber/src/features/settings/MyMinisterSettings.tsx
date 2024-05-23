@@ -1,75 +1,59 @@
+import { Button } from 'components/button';
 import React from 'react';
 import { toast } from 'react-toastify';
-import { useApp, useLookup, useUsers } from 'store/hooks';
-import { useAppStore } from 'store/slices';
-import { Button, Checkbox, ISubscriberUserModel, IUserInfoModel, IUserModel, Row } from 'tno-core';
+import { useLookup, useUsers } from 'store/hooks';
+import { useProfileStore } from 'store/slices';
+import { Checkbox, getDistinct, ISubscriberUserModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 
 export const MyMinisterSettings: React.FC = () => {
   const [{ ministers }] = useLookup();
-  const [{ userInfo }] = useApp();
-  const [myMinisters, setMyMinisters] = React.useState<number[]>([]);
-  const [, store] = useAppStore();
-  const api = useUsers();
+  const { updateUser } = useUsers();
+  const [{ profile }, { storeMyProfile }] = useProfileStore();
 
-  let activeMinisters = ministers
-    .filter((m) => m.isEnabled)
-    .sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name));
+  const [activeMinisters, setActiveMinisters] = React.useState(ministers);
 
-  const handleSubmit = async (values: number[], userInfo: IUserInfoModel) => {
-    if (!userInfo) {
-      toast.error('User information is missing. Please try again later');
-      return;
-    }
+  const myMinisters: number[] = profile?.preferences?.myMinisters ?? [];
 
-    try {
-      var user = {
-        ...userInfo,
-        preferences: { ...userInfo.preferences, myMinisters: values },
-      } as ISubscriberUserModel;
-      await api.updateUser(user);
-      toast.success(`Your minister(s) have successfully been updated.`);
-    } catch {}
-  };
+  const mergeValues = React.useCallback(
+    (values: number[]) => {
+      // Remove inactive ministers;
+      const result = activeMinisters.filter((m) => values.includes(m.id)).map((m) => m.id);
+      return getDistinct([...result], (v) => v);
+    },
+    [activeMinisters],
+  );
 
-  React.useEffect(() => {
-    if (userInfo?.preferences?.myMinisters?.length > 0) {
-      setMyMinisters(userInfo?.preferences?.myMinisters);
-    }
-  }, [userInfo]);
-
-  React.useEffect(() => {
-    // check if any of the users previous selections are no longer active
-    if (userInfo && userInfo?.preferences?.myMinisters?.length > 0 && activeMinisters.length > 0) {
-      let activeSelectedMinisters: number[] = [];
-      let inactiveSelectedMinisters: number[] = [];
-      userInfo.preferences?.myMinisters.forEach((m: number) => {
-        const isActive = activeMinisters.find((element) => element.id === m);
-        if (isActive) activeSelectedMinisters.push(m);
-        else inactiveSelectedMinisters.push(m);
-      });
-      if (inactiveSelectedMinisters.length !== 0) {
-        var user = {
-          ...userInfo,
-          preferredEmail: '',
-          preferences: { ...userInfo.preferences, myMinisters: activeSelectedMinisters },
-          isSystemAccount: false,
-          emailVerified: false,
-          uniqueLogins: 0,
-        } as IUserModel;
-        api
-          .updateUser(user)
-          .then((user) => {
-            toast.success(
-              'One of more of your selected ministers are no longer enabled. ' +
-                'Your selection has been updated automatically: ',
-            );
-          })
-          .catch(() => {});
+  const handleSubmit = React.useCallback(
+    async (values: number[]) => {
+      if (!profile) {
+        toast.error('User information is missing. Please try again later');
+        return;
       }
+
+      try {
+        var user: ISubscriberUserModel = {
+          ...profile,
+          preferences: { ...profile.preferences, myMinisters: mergeValues(values) },
+        };
+        await updateUser(user);
+        toast.success(`Your minister(s) have successfully been updated.`);
+      } catch {}
+    },
+    [profile, mergeValues, updateUser],
+  );
+
+  React.useEffect(() => {
+    if (ministers.length > 0) {
+      // Only display members who are active.
+      setActiveMinisters(
+        ministers
+          .filter((m) => m.isEnabled)
+          .sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name)),
+      );
     }
-  }, [activeMinisters, api, store, userInfo]);
+  }, [ministers]);
 
   return (
     <styled.MyMinisterSettings>
@@ -79,7 +63,7 @@ export const MyMinisterSettings: React.FC = () => {
       </p>
       <div className="option-container">
         <Row justifyContent="flex-end">
-          <Button type="submit" onClick={() => handleSubmit(myMinisters, userInfo!)}>
+          <Button type="submit" onClick={() => handleSubmit(myMinisters)}>
             Save
           </Button>
         </Row>
@@ -91,11 +75,19 @@ export const MyMinisterSettings: React.FC = () => {
                 label={`${o.name} : `}
                 checked={myMinisters.includes(o.id)}
                 onChange={(e) => {
-                  if ((e.target as HTMLInputElement).checked) {
-                    setMyMinisters([...myMinisters, o.id]);
-                  } else {
-                    // remove from preferences when unchecking
-                    setMyMinisters(myMinisters.filter((m: number) => m !== o.id));
+                  if (profile) {
+                    const values = e.target.checked
+                      ? [...myMinisters, o.id]
+                      : myMinisters.filter((m) => m !== o.id);
+                    const user = {
+                      ...profile,
+                      preferences: {
+                        ...profile?.preferences,
+                        myMinisters: values,
+                      },
+                    };
+
+                    storeMyProfile(user);
                   }
                 }}
               />
@@ -105,7 +97,7 @@ export const MyMinisterSettings: React.FC = () => {
         })}
 
         <Row justifyContent="flex-end">
-          <Button type="submit" onClick={() => handleSubmit(myMinisters, userInfo!)}>
+          <Button type="submit" onClick={() => handleSubmit(myMinisters)}>
             Save
           </Button>
         </Row>
