@@ -43,13 +43,20 @@ export const MyReports = styled.div`
     }
   }
 
-  .my-reports-content {
-    height: calc(100dvh - 260px);
-    overflow-y: auto;
-    position: relative;
+  .page-section {
+    gap: 0.25rem;
 
-    > div.report-card.active div.section-header {
-      background: ${(props) => props.theme.css.highlightTertiary};
+    .my-reports-content {
+      height: calc(100dvh - 260px);
+      overflow-y: auto;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      > div.report-card.active div.section-header {
+        background: ${(props) => props.theme.css.highlightTertiary};
+      }
     }
   }
 
