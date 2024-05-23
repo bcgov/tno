@@ -21,7 +21,7 @@ export const SentimentPicker = styled.div.attrs<{ required?: boolean }>(({ requi
     min-width: 2rem;
     min-height: 2rem;
     align-self: center;
-    :hover {
+    &:hover {
       cursor: pointer;
     }
   }

@@ -22,7 +22,7 @@ export const ToggleGroup = styled(Row)<{ activeColor?: string }>`
         font-size: 1rem;
         width: 15em;
         color: black;
-        :hover {
+        &:hover {
           background-color: ${(props) => props.activeColor ?? props.theme.css.actionButtonColor};
           color: ${(props) => props.theme.css.backgroundColor};
         }

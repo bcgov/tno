@@ -23,7 +23,7 @@ export const FormikSentiment = styled.div.attrs<IFormikSentimentProps<any>>(({ r
     min-width: 2rem;
     min-height: 2rem;
     align-self: center;
-    :hover {
+    &:hover {
       cursor: pointer;
     }
   }

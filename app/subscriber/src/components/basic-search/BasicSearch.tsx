@@ -2,8 +2,7 @@ import { defaultAdvancedSearch } from 'features/search-page/components/advanced-
 import { handleEnterPressed, isNumber } from 'features/utils';
 import { FaSearch } from 'react-icons/fa';
 import { FaPlay } from 'react-icons/fa6';
-import { useNavigate } from 'react-router';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { Button, IFilterSettingsModel, Row, Text, useWindowSize } from 'tno-core';
 
