@@ -7,7 +7,7 @@ import { createFilterSettings, getBooleanActionValue } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
-import { useContent, useSettings } from 'store/hooks';
+import { useContent, useLookup, useSettings } from 'store/hooks';
 import { generateQuery, IContentModel, Row } from 'tno-core';
 
 import * as styled from './styled';
@@ -26,6 +26,8 @@ export const Home: React.FC = () => {
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const { featuredStoryActionId } = useSettings(true);
+
+  const [{ mediaTypes }] = useLookup();
 
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);
@@ -73,6 +75,7 @@ export const Home: React.FC = () => {
       <DateFilter filter={filter} storeFilter={storeFilter} />
       <ContentList
         onContentSelected={handleContentSelected}
+        showDate
         selected={selected}
         content={content}
       />

@@ -7,12 +7,32 @@ export const ContentRow = styled(Col)`
   padding-bottom: 0.25rem;
   border-bottom: 1px solid ${(props) => props.theme.css.bkStaticGray};
 
+  .has-divider {
+    position: relative;
+    margin: 0 5px;
+  }
+
+  .section,
+  .series,
+  .source,
+  .byline {
+    margin-left: 5px;
+  }
+
+  .has-divider::after {
+    content: '';
+    position: absolute;
+    right: -5px; /* adjust to control the spacing between text and divider */
+    top: 50%;
+    transform: translateY(-60%);
+    width: 1px;
+    height: 14px;
+    background-color: black;
+  }
+
   .parent-row {
     flex-flow: nowrap;
     width: 100%;
-  }
-  .series {
-    margin-right: 0.5rem;
   }
   &:hover {
     background-color: ${(props) => props.theme.css.highlightYellow};
@@ -71,20 +91,17 @@ export const ContentRow = styled(Col)`
   .date {
     font-family: ${(props) => props.theme.css.fPrimary};
     white-space: nowrap;
+    text-transform: uppercase;
     display: flex;
-    max-height: 1.5em;
-    margin-right: 1rem;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
   }
   .section,
   .page-number {
     font-family: ${(props) => props.theme.css.fPrimary};
   }
 
-  .source {
-    margin-right: 0.5rem;
+  .source,
+  .byline {
+    text-transform: uppercase;
   }
 
   .page-number {

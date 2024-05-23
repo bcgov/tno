@@ -4,7 +4,8 @@ import React from 'react';
 import { FaPlayCircle } from 'react-icons/fa';
 import { FaCopyright, FaEyeSlash, FaGripVertical, FaSquareUpRight } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
-import { Checkbox, Col, IColProps, IContentModel, Row, Show } from 'tno-core';
+import { useLookup } from 'store/hooks';
+import { Checkbox, Col, ContentTypeName, IColProps, IContentModel, Row, Show } from 'tno-core';
 
 import { ContentListContext } from './ContentListContext';
 import { ContentReportPin } from './ContentReportPin';
@@ -41,6 +42,12 @@ export const ContentRow: React.FC<IContentRowProps> = ({
     activeStream,
     groupBy,
   } = React.useContext(ContentListContext);
+  const [{ mediaTypes }] = useLookup();
+  console.log(mediaTypes);
+
+  const noByLine = ['Talk Radio', 'News Radio', 'Events'];
+  const noSource = ['Events', 'Talk Radio'];
+  console.log(item);
 
   return (
     <styled.ContentRow {...rest}>
@@ -58,23 +65,37 @@ export const ContentRow: React.FC<IContentRowProps> = ({
           }}
         />
         {viewOptions.sentiment && determineToneIcon(item.tonePools[0])}
-        {showDate && (
-          <div className="date">{`${formatDate(item.publishedOn)} ${
-            showTime ? `(${moment(item.publishedOn).format('HH:mm')})` : ''
-          }`}</div>
-        )}
         <Link to={`/view/${item.id}`} className="headline">
           {item.headline}
         </Link>
-        <Show visible={groupBy === 'time'}>
-          {item.source && <div className="source">{item.source.name}</div>}
-        </Show>
+        {showDate && <div className="date has-divider">{formatDate(item.publishedOn)}</div>}
+        {showTime ||
+          (item.contentType !== ContentTypeName.PrintContent && (
+            <div className="time has-divider">{`${moment(item.publishedOn).format('HH:mm')}`}</div>
+          ))}
+        {item.source &&
+          !noSource.some((mt) => {
+            const mediaTypeObj = mediaTypes.find((m) => m.name === mt);
+            return item.mediaTypeId === mediaTypeObj?.id;
+          }) && (
+            <div className={`source ${item.byline && `has-divider`}`}>{`${item.source.name}`}</div>
+          )}
+        {/* do not include byline in talk radio, news radio, or events even if present */}
+        {item.byline &&
+          !noByLine.some((mt) => {
+            const mediaTypeObj = mediaTypes.find((m) => m.name === mt);
+            return item.mediaTypeId === mediaTypeObj?.id;
+          }) && (
+            <div className={`byline ${!!item.section && 'has-divider'}`}>{`${item.byline}`}</div>
+          )}
+        {item.series &&
+          noSource.some((mt) => {
+            const mediaTypeObj = mediaTypes.find((m) => m.name === mt);
+            return item.mediaTypeId === mediaTypeObj?.id;
+          }) && <div className="series">{item.series.name}</div>}
         <Show visible={viewOptions.section}>
           {item.section && <div className="section">{item.section}</div>}
           {item.page && <div className="page-number">{item.page}</div>}
-        </Show>
-        <Show visible={showSeries}>
-          {item.series && <div className="series">{item.series.name}</div>}
         </Show>
         <Show visible={popOutIds?.includes(String(item.mediaTypeId))}>
           <FaSquareUpRight
