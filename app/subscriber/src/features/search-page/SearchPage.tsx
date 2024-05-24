@@ -172,13 +172,15 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
                 Please refine search criteria and click "search".
               </Row>
             </Show>
-            <ContentList
-              onContentSelected={handleContentSelected}
-              content={content}
-              selected={selected}
-              showDate
-              scrollWithin
-            />
+            <div className="results-only">
+              <ContentList
+                onContentSelected={handleContentSelected}
+                content={content}
+                selected={selected}
+                showDate
+                scrollWithin
+              />
+            </div>
             {isLoading && <Loading />}
           </PageSection>
         </Col>

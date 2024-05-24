@@ -99,7 +99,7 @@ export const Commentary: React.FC = () => {
   hub.useHubEffect(MessageTargetName.ContentAdded, onContentReceived);
 
   return (
-    <styled.Commentary>
+    <styled.Commentary className="commentary-box">
       <PageSection
         header={
           <Row justifyContent="space-between" flex="1">
