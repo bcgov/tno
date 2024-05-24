@@ -372,7 +372,16 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 {
                     var sortOrder = 0;
                     var newContent = results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).OrderBy(c => c.SortOrder).ToArray();
-                    var distinctContent = (currentSectionContent.TryGetValue(section.Name, out ReportSectionModel? currentSection) ? currentSection?.Content.ToArray().AppendRange(newContent).DistinctBy(c => c.Id) : newContent) ?? Array.Empty<ContentModel>();
+                    IEnumerable<ContentModel> distinctContent;
+                    if (report.Settings.Content.CopyPriorInstance)
+                        distinctContent = (
+                        currentSectionContent.TryGetValue(section.Name, out ReportSectionModel? currentSection)
+                            ? currentSection?.Content.ToArray().AppendRange(newContent).DistinctBy(c => c.Id)
+                            : newContent
+                        ) ?? Array.Empty<ContentModel>();
+                    else
+                        distinctContent = newContent;
+
                     section.Content = ReportEngine.OrderBySectionField(distinctContent, section.Settings.SortBy, section.Settings.SortDirection);
                     if (results.Aggregations != null)
                     {
@@ -479,7 +488,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             var responseModel = new ReportEmailResponseModel();
             try
             {
-                if (linkOnlyFormatTo.Any())
+                if (linkOnlyFormatTo.Any() && String.IsNullOrEmpty(request.To))
                 {
                     // Send the email.
                     var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");

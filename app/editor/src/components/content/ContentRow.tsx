@@ -2,8 +2,8 @@ import moment from 'moment';
 import React from 'react';
 import { FaGripVertical } from 'react-icons/fa';
 import { FaX } from 'react-icons/fa6';
+import { Checkbox, Link, Sentiment, Show, Text } from 'tno-core';
 
-import { Checkbox, Link, Sentiment, Show, Text } from '..';
 import { IContentRowModel } from './interfaces';
 import * as styled from './styled';
 
@@ -54,12 +54,12 @@ export const ContentRow: React.FC<IContentRowProps> = ({
   return (
     <styled.ContentRow className="content-row">
       <Show visible={showGrip}>
-        <div className='row-grip'>
+        <div className="row-grip">
           <FaGripVertical />
         </div>
       </Show>
       <Show visible={showCheckbox}>
-        <div className='row-selector'>
+        <div className="row-selector">
           <Checkbox
             name={`chk-row-${row.content.id}`}
             checked={row.selected}
@@ -69,14 +69,22 @@ export const ContentRow: React.FC<IContentRowProps> = ({
           />
         </div>
       </Show>
-      {to ? <Link className='headline-link' to={to}>{row.content.headline}</Link> : <div className='headline'>{row.content.headline}</div>}
-      <div className='byline'>{row.content.byline ? row.content.byline : row.content.contributor?.name}</div>
-      <div className='section-page'>
+      {to ? (
+        <Link className="headline-link" to={to}>
+          {row.content.headline}
+        </Link>
+      ) : (
+        <div className="headline">{row.content.headline}</div>
+      )}
+      <div className="byline">
+        {row.content.byline ? row.content.byline : row.content.contributor?.name}
+      </div>
+      <div className="section-page">
         {row.content.section}
         {row.content.page ? `:${row.content.page}` : ''}
       </div>
-      <div className='other-source'>{row.content.otherSource}</div>
-      <div className='published-on'>
+      <div className="other-source">{row.content.otherSource}</div>
+      <div className="published-on">
         {row.content.publishedOn ? moment(row.content.publishedOn).format('yyyy-MM-DD') : ''}
       </div>
       <Sentiment
@@ -84,7 +92,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
         title={`${row.content.tonePools?.[0]?.value ?? ''}`}
       />
       <Show visible={showSortOrder}>
-        <div className='sort-order'>
+        <div className="sort-order">
           <Text
             className="frm-in number"
             name={`sortOrder-${row.content.id}`}
@@ -103,10 +111,10 @@ export const ContentRow: React.FC<IContentRowProps> = ({
         </div>
       </Show>
       <Show visible={!!actions}>
-        <div className='actions'>{actions}</div>
+        <div className="actions">{actions}</div>
       </Show>
       <Show visible={!!onRemove && !!row.content}>
-        <div className='delete'>
+        <div className="delete">
           <FaX className="btn btn-link red" onClick={() => onRemove?.(row)} title="Remove" />
         </div>
       </Show>

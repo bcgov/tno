@@ -1,4 +1,5 @@
 import { FormikForm } from 'components/formik';
+import { FormPage } from 'components/formpage';
 import { FormikProps } from 'formik';
 import moment from 'moment';
 import React from 'react';
@@ -25,7 +26,6 @@ import {
   FormikSentiment,
   FormikText,
   FormikTextArea,
-  FormPage,
   hasErrors,
   IOptionItem,
   ISeriesModel,

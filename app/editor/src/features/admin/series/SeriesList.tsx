@@ -1,7 +1,8 @@
+import { FormPage } from 'components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSeries } from 'store/hooks/admin';
-import { Col, FlexboxTable, FormPage, IconButton, ISeriesModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, ISeriesModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { SeriesFilter } from './SeriesFilter';

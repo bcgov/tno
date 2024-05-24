@@ -698,7 +698,7 @@ CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}
 
 # Elastic__Url=host.docker.internal:$portElastic
 ELASTIC_USERNAME=$elasticUser
-ELASTIC_PASSWORD=$password"" >> ./services/net/notification/.env
+ELASTIC_PASSWORD=$password" >> ./services/net/notification/.env
     echo "./services/net/notification/.env created"
 fi
 

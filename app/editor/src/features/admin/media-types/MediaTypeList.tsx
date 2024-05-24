@@ -1,7 +1,8 @@
+import { FormPage } from 'components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMediaTypes } from 'store/hooks/admin';
-import { Col, FlexboxTable, FormPage, IconButton, IMediaTypeModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, IMediaTypeModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { MediaTypeFilter } from './MediaTypeFilter';

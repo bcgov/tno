@@ -1,4 +1,5 @@
 import { FormikForm } from 'components/formik';
+import { FormPage } from 'components/formpage';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useApp } from 'store/hooks';
@@ -8,7 +9,6 @@ import {
   Col,
   FormikText,
   FormikTimeInput,
-  FormPage,
   IIngestModel,
   IOptionItem,
   IScheduleModel,
