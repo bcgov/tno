@@ -32,6 +32,18 @@ export const ContentRow = styled(Col)`
     }
   }
 
+  @media (max-width: 768px) {
+    .attributes:not(.mobile) {
+      display: none;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .mobile {
+      display: none;
+    }
+  }
+
   .transcript-feather {
     height: 20px;
     width: 20px;

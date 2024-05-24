@@ -1,16 +1,7 @@
 import React from 'react';
 import { FaCopyright, FaEyeSlash, FaGripVertical } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
-import {
-  Checkbox,
-  Col,
-  ContentTypeName,
-  IColProps,
-  IContentModel,
-  Row,
-  Show,
-  useWindowSize,
-} from 'tno-core';
+import { Checkbox, Col, ContentTypeName, IColProps, IContentModel, Row, Show } from 'tno-core';
 
 import { Attributes } from './Attributes';
 import { ContentListContext } from './ContentListContext';
@@ -48,8 +39,6 @@ export const ContentRow: React.FC<IContentRowProps> = ({
     activeStream,
   } = React.useContext(ContentListContext);
 
-  const { width } = useWindowSize();
-
   return (
     <styled.ContentRow {...rest}>
       <Row className="parent-row">
@@ -76,14 +65,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
         <Link to={`/view/${item.id}`} className="headline">
           {item.headline}
         </Link>
-        {!!width && width > 768 ? (
-          <Attributes
-            item={item}
-            showDate={showDate}
-            showTime={showTime}
-            viewOptions={viewOptions}
-          />
-        ) : null}
+        <Attributes item={item} showDate={showDate} showTime={showTime} viewOptions={viewOptions} />
         <Row className="icon-row">
           {popOutIds?.includes(String(item.mediaTypeId)) ? (
             <img
@@ -136,15 +118,13 @@ export const ContentRow: React.FC<IContentRowProps> = ({
           <ContentReportPin contentId={item.id} />
         </Row>
       </Row>
-      {!!width && width <= 768 && (
-        <Attributes
-          margin
-          item={item}
-          showDate={showDate}
-          showTime={showTime}
-          viewOptions={viewOptions}
-        />
-      )}
+      <Attributes
+        mobile
+        item={item}
+        showDate={showDate}
+        showTime={showTime}
+        viewOptions={viewOptions}
+      />
       <Row>
         {viewOptions.teaser && !!item.body && (
           <div className={`teaser ${canDrag && 'with-grip'}`}>{truncateTeaser(item.body, 250)}</div>

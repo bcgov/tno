@@ -15,15 +15,15 @@ export interface IAttributesProps {
   viewOptions?: {
     section: boolean;
   };
-  /** Whether to add margin spacing */
-  margin?: boolean;
+  /** Whether to this is the mobile view */
+  mobile?: boolean;
 }
 export const Attributes: React.FC<IAttributesProps> = ({
   item,
   showDate,
   showTime,
   viewOptions,
-  margin,
+  mobile,
 }) => {
   const noByLine = ['Talk Radio', 'News Radio', 'Events'];
   const noSource = ['Events', 'Talk Radio'];
@@ -31,7 +31,7 @@ export const Attributes: React.FC<IAttributesProps> = ({
   const [{ mediaTypes }] = useLookup();
 
   return (
-    <Row className={`${margin && 'add-margin'}`}>
+    <Row className={`${mobile && 'mobile add-margin'} attributes`}>
       {showDate && <div className="date has-divider">{formatDate(item.publishedOn)}</div>}
       {showTime ||
         (item.contentType !== ContentTypeName.PrintContent && (
