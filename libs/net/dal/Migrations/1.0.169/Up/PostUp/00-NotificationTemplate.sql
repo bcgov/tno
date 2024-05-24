@@ -24,7 +24,7 @@ SET
 }
 @if (!string.IsNullOrWhiteSpace(@Content.Source?.Name))
 {
-  <div>Content.Source.Name</div>
+  <div>@Content.Source.Name</div>
 }
 @if (!string.IsNullOrEmpty(@Content.Series?.Name))
 {
