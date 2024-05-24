@@ -73,6 +73,7 @@ export const Home: React.FC = () => {
       <DateFilter filter={filter} storeFilter={storeFilter} />
       <ContentList
         onContentSelected={handleContentSelected}
+        showDate
         selected={selected}
         content={content}
       />
