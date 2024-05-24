@@ -22,6 +22,11 @@ export const Landing = styled(Col)`
 
   /* The panel containing Commentary and front pages */
   .right-panel {
+    .commentary-box {
+      .headline {
+        max-width: 30em;
+      }
+    }
     max-height: calc(100vh - 6.5em);
     @media (min-width: 1702px) {
       max-width: 44%;
@@ -38,12 +43,6 @@ export const Landing = styled(Col)`
       border-radius: none;
       max-width: 60%;
     }
-  }
-
-  /* container containing both panels */
-  .contents-container {
-    // overflow-y: auto;
-    // max-height: calc(100vh - 9em);
   }
 
   .title {
@@ -65,10 +64,10 @@ export const Landing = styled(Col)`
       margin-right: 0;
     }
     @media (min-width: 1000px) {
-      max-width: 55%;
+      width: 70%;
     }
     flex-grow: 1;
-    margin: 0 0 1rem 1rem;
+    margin: 0 0 0.75rem 0.75rem;
 
     .content {
       background-color: white;
