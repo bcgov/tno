@@ -2,7 +2,6 @@ import styled from 'styled-components';
 import { Col } from 'tno-core';
 
 export const Landing = styled(Col)`
-  // overflow: hidden;
   display: flex;
   .search-links {
     color: #3847aa;
@@ -28,7 +27,7 @@ export const Landing = styled(Col)`
       }
     }
     max-height: calc(100vh - 6.5em);
-    @media (min-width: 1702px) {
+    @media (min-width: 1832px) {
       max-width: 44%;
     }
     margin-left: auto;

@@ -136,17 +136,11 @@ export const ContentRow = styled(Col)`
   .date {
     font-family: ${(props) => props.theme.css.fPrimary};
     white-space: nowrap;
-    text-transform: uppercase;
     display: flex;
   }
   .section,
   .page-number {
     font-family: ${(props) => props.theme.css.fPrimary};
-  }
-
-  .source,
-  .byline {
-    text-transform: uppercase;
   }
 
   .page-number {
@@ -180,7 +174,7 @@ export const ContentRow = styled(Col)`
     border-radius: 0.25rem;
     padding: 0.2rem;
     margin-bottom: 0.25rem;
-    margin-right: 7rem;
+    margin-right: 7.25rem;
     cursor: default;
   }
   .headline {
