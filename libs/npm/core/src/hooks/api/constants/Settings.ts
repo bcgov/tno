@@ -43,4 +43,8 @@ export const Settings = {
   CommentaryAction: 'CommentaryActionId',
   /** The action id for alerting content */
   AlertAction: 'AlertActionId',
+  /** The id's not to include byline in the content list view*/
+  ExcludeBylineIds: 'ExcludeBylineIds',
+  /** The id's not to include sources in the content list view*/
+  ExcludeSourceIds: 'ExcludeSourceIds',
 };
