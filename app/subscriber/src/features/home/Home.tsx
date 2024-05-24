@@ -7,7 +7,7 @@ import { createFilterSettings, getBooleanActionValue } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
-import { useContent, useSettings } from 'store/hooks';
+import { useApp, useContent, useSettings } from 'store/hooks';
 import { generateQuery, IContentModel, Row } from 'tno-core';
 
 import * as styled from './styled';
@@ -22,6 +22,7 @@ export const Home: React.FC = () => {
     },
     { findContentWithElasticsearch, storeHomeFilter: storeFilter },
   ] = useContent();
+  const [{ userInfo }] = useApp();
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
@@ -43,7 +44,8 @@ export const Home: React.FC = () => {
 
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
-    if (!!featuredStoryActionId) {
+    // wait for userinfo incase applying previously viewed filter
+    if (!!featuredStoryActionId && !!userInfo) {
       fetchResults(
         generateQuery(
           filterFormat({

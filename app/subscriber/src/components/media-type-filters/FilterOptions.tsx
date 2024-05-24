@@ -65,6 +65,7 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
     if (userInfo && !hasProcessedInitialPreference) {
       if (userInfo.preferences && userInfo.preferences.filterPreference) {
         setActive(userInfo.preferences.filterPreference);
+        handleFilterClick(userInfo.preferences.filterPreference);
       } else {
         setActive(FilterOptionTypes.All);
       }

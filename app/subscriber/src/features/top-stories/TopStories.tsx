@@ -7,7 +7,7 @@ import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
-import { useContent, useSettings } from 'store/hooks';
+import { useApp, useContent, useSettings } from 'store/hooks';
 import { generateQuery, IContentModel } from 'tno-core';
 
 import * as styled from './styled';
@@ -22,13 +22,14 @@ export const TopStories: React.FC = () => {
   ] = useContent();
   const getActionFilters = useActionFilters();
   const { topStoryActionId, isReady } = useSettings();
+  const [{ userInfo }] = useApp();
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
 
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
-    if (isReady) {
+    if (isReady && !!userInfo) {
       let actionFilters = getActionFilters();
       const topStoryAction = actionFilters.find((a) => a.id === topStoryActionId);
 
