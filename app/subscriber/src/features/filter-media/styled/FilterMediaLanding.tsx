@@ -97,6 +97,7 @@ export const FilterMediaLanding = styled(Row)`
   }
   .results {
     .results-side {
+      overflow-y: auto;
       padding: 0.5rem;
     }
     @media (min-width: 1000px) {
