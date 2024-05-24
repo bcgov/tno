@@ -357,6 +357,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                 Page = model.Page[0..Math.Min(model.Page.Length, 10)], // TODO: Temporary workaround to deal FileMonitor Service.
                 Summary = String.IsNullOrWhiteSpace(model.Summary) ? "" : model.Summary,
                 Body = !String.IsNullOrWhiteSpace(model.Body) ? model.Body : model.ContentType == ContentType.AudioVideo ? "" : model.Summary,
+                IsApproved = model.ContentType == ContentType.AudioVideo && model.PublishedOn.HasValue && model.Status == ContentStatus.Publish && !String.IsNullOrWhiteSpace(model.Body),
                 SourceUrl = model.Link,
                 PublishedOn = model.PublishedOn,
                 Section = model.Section,
