@@ -54,9 +54,17 @@ export const ContentList: React.FC<IContentListProps> = ({
   React.useEffect(() => {
     if (!cacheCheck) return;
     const existing = localStorage.getItem('selected');
+    // remove selected items when user navigates away from page or refreshes, etc.
+    const handleBeforeUnload = () => {
+      localStorage.removeItem('selected');
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
     if (existing) {
       onContentSelected(JSON.parse(existing));
     }
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
     // only want to fire once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
