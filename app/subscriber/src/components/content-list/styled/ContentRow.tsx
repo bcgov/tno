@@ -32,6 +32,12 @@ export const ContentRow = styled(Col)`
     }
   }
 
+  .transcript-feather {
+    height: 20px;
+    width: 20px;
+    margin-right: 0.5rem;
+  }
+
   .popout-placeholder {
     width: 20px;
     height: 20px;

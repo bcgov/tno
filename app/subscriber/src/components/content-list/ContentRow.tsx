@@ -1,7 +1,16 @@
 import React from 'react';
 import { FaCopyright, FaEyeSlash, FaGripVertical } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
-import { Checkbox, Col, IColProps, IContentModel, Row, Show, useWindowSize } from 'tno-core';
+import {
+  Checkbox,
+  Col,
+  ContentTypeName,
+  IColProps,
+  IContentModel,
+  Row,
+  Show,
+  useWindowSize,
+} from 'tno-core';
 
 import { Attributes } from './Attributes';
 import { ContentListContext } from './ContentListContext';
@@ -37,7 +46,6 @@ export const ContentRow: React.FC<IContentRowProps> = ({
     activeFileReference,
     setActiveFileReference,
     activeStream,
-    groupBy,
   } = React.useContext(ContentListContext);
 
   const { width } = useWindowSize();
@@ -58,6 +66,13 @@ export const ContentRow: React.FC<IContentRowProps> = ({
           }}
         />
         {viewOptions.sentiment && determineToneIcon(item.tonePools[0])}
+        {item.contentType === ContentTypeName.AudioVideo && !!item.body && (
+          <img
+            className="transcript-feather"
+            src={`${process.env.PUBLIC_URL}/assets/transcript_feather.svg`}
+            alt="Transcript"
+          />
+        )}
         <Link to={`/view/${item.id}`} className="headline">
           {item.headline}
         </Link>
