@@ -1,5 +1,5 @@
+import { FormPage } from 'components/formpage';
 import styled from 'styled-components';
-import { FormPage } from 'tno-core';
 
 export const FilterForm = styled(FormPage)`
   display: flex;

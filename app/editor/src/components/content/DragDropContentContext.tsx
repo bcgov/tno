@@ -1,7 +1,7 @@
 import React from 'react';
 import { DragDropContext, DropResult, ResponderProvided } from 'react-beautiful-dnd';
+import { sortObject } from 'tno-core';
 
-import { sortObject } from '../../utils';
 import { DroppableContentContainer, IContentRowModel } from '.';
 
 export interface IDragDropContentContextProps
@@ -16,6 +16,8 @@ export interface IDragDropContentContextProps
   showCheckbox?: boolean;
   /** Whether to show the sort order, which allows manual editing. */
   showSortOrder?: boolean;
+  /** Function to generate route for navigating to content. */
+  to?: (row: IContentRowModel) => string;
   /** The default sort to apply to the rows. */
   defaultSort?: (a: IContentRowModel, b: IContentRowModel) => number;
   /** Returns the new content array with changes. */
@@ -30,6 +32,7 @@ export const DragDropContentContext: React.FC<IDragDropContentContextProps> = ({
   showGrip,
   showCheckbox,
   showSortOrder,
+  to,
   defaultSort = sortObject((item) => item.sortOrder),
   onChange,
   onSelected,
@@ -82,6 +85,7 @@ export const DragDropContentContext: React.FC<IDragDropContentContextProps> = ({
         onRemove={handleRemove}
         onChange={handleChange}
         onSelected={onSelected}
+        to={to}
       />
     </DragDropContext>
   );

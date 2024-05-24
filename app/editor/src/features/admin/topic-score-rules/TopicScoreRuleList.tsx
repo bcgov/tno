@@ -1,4 +1,5 @@
 import { FormikForm } from 'components/formik';
+import { FormPage } from 'components/formpage';
 import React from 'react';
 import { FaArrowDown, FaArrowUp, FaTrash } from 'react-icons/fa';
 import { useLookup, useLookupOptions } from 'store/hooks';
@@ -12,7 +13,6 @@ import {
   FormikSelect,
   FormikText,
   FormikTimeInput,
-  FormPage,
   getSortableOptions,
   IOptionItem,
   Loader,

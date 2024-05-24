@@ -1,9 +1,9 @@
+import { FormPage } from 'components/formpage';
 import React from 'react';
 import { useApiHub, useWorkOrders } from 'store/hooks';
 import {
   defaultPage,
   FlexboxTable,
-  FormPage,
   ITableInternal,
   ITablePage,
   ITableSort,
