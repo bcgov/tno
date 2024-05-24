@@ -71,6 +71,8 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
       }
       setHasProcessedInitialPreference(true);
     }
+    // only fire when userInfo and process complete
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo, hasProcessedInitialPreference]);
 
   const [

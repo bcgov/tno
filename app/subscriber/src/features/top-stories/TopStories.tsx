@@ -52,7 +52,7 @@ export const TopStories: React.FC = () => {
         );
       });
     }
-  }, [filter, findContentWithElasticsearch, getActionFilters, isReady, topStoryActionId]);
+  }, [filter, findContentWithElasticsearch, getActionFilters, isReady, topStoryActionId, userInfo]);
 
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);

@@ -59,7 +59,7 @@ export const TodaysCommentary: React.FC = () => {
         })
         .catch();
     }
-  }, [commentaryActionId, filter, findContentWithElasticsearch, getActionFilters]);
+  }, [commentaryActionId, filter, findContentWithElasticsearch, getActionFilters, userInfo]);
 
   return (
     <styled.TodaysCommentary>
