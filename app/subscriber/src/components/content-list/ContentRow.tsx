@@ -1,3 +1,4 @@
+import { formatSearch } from 'features/search-page/utils';
 import { formatDate } from 'features/utils';
 import moment from 'moment';
 import React from 'react';
@@ -20,6 +21,7 @@ export interface IContentRowProps extends IColProps {
   popOutIds?: string;
   showSeries?: boolean;
   showTime?: boolean;
+  filter?: any;
 }
 
 export const ContentRow: React.FC<IContentRowProps> = ({
@@ -31,6 +33,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
   showSeries,
   showTime,
   popOutIds,
+  filter,
   ...rest
 }) => {
   const {
@@ -41,6 +44,8 @@ export const ContentRow: React.FC<IContentRowProps> = ({
     activeStream,
     groupBy,
   } = React.useContext(ContentListContext);
+  const body = formatSearch(truncateTeaser(item.body, 250), filter);
+  const headline = formatSearch(item.headline, filter);
 
   return (
     <styled.ContentRow {...rest}>
@@ -64,7 +69,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
           }`}</div>
         )}
         <Link to={`/view/${item.id}`} className="headline">
-          {item.headline}
+          <div>{headline}</div>
         </Link>
         <Show visible={groupBy === 'time'}>
           {item.source && <div className="source">{item.source.name}</div>}
@@ -119,7 +124,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
       </Row>
       <Row>
         {viewOptions.teaser && !!item.body && (
-          <div className={`teaser ${canDrag && 'with-grip'}`}>{truncateTeaser(item.body, 250)}</div>
+          <div className={`teaser ${canDrag && 'with-grip'}`}>{body}</div>
         )}
         <Show visible={!!activeStream?.source && activeStream.id === item.id}>
           <Col className="media-playback">

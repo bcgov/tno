@@ -178,6 +178,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
               selected={selected}
               showDate
               scrollWithin
+              filter={filter}
             />
             {isLoading && <Loading />}
           </PageSection>
