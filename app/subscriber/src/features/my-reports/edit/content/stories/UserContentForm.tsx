@@ -21,7 +21,8 @@ import {
   Wysiwyg,
 } from 'tno-core';
 
-export interface IUserContentFormProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface IUserContentFormProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'content'> {
   /** Whether the form is disabled. */
   disabled?: boolean;
   /** The content being edited */

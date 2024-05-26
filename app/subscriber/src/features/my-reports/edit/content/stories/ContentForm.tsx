@@ -2,7 +2,7 @@ import React from 'react';
 import { useApp } from 'store/hooks';
 import { Col, ContentTypeName, IContentModel, Loading, Show, TextArea, Wysiwyg } from 'tno-core';
 
-export interface IContentFormProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface IContentFormProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'content'> {
   /** The content being edited */
   content?: IContentModel;
   /** Whether form is disabled. */
