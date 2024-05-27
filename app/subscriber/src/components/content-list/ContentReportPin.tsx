@@ -34,11 +34,16 @@ export const ContentReportPin = ({ contentId }: IContentReportPinProps) => {
     );
   }, [contentId, myReports, reportContent]);
 
-  if (!reports.length) return <></>;
+  if (!reports.length) return <div className="icon-placeholder" />;
 
   return (
     <styled.ContentReportPin className="content-report-pin">
-      <FaThumbtack data-tooltip-id={`report-pin-${contentId}`} />
+      <img
+        src={`${process.env.PUBLIC_URL}/assets/report_pin.svg`}
+        alt="report-pin"
+        data-tooltip-id={`report-pin-${contentId}`}
+        className="pin-icon"
+      />
       <TooltipMenu
         clickable
         place="right"

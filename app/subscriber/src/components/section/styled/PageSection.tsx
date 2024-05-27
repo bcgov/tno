@@ -3,14 +3,13 @@ import styled from 'styled-components';
 export const PageSection = styled.div<{ $ignoreMinWidth?: boolean; $ignoreLastChildGap?: boolean }>`
   display: flex;
   flex-direction: column;
-  border-radius: 0.5rem;
   background: ${(props) => props.theme.css.bkSecondary};
   box-shadow: ${(props) => props.theme.css.boxShadow};
   align-self: stretch;
   min-width: ${(props) => (props.$ignoreMinWidth ? 'unset' : 'fit-content')};
 
   @media (min-width: 500px) {
-    margin: 0 1rem 1rem 1rem;
+    margin: 0 0.75rem 0.75rem 0.75rem;
   }
 
   .page-section-title {

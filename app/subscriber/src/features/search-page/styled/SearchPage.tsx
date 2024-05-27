@@ -72,7 +72,7 @@ export const SearchPage = styled.div<{ expanded: boolean }>`
   }
 
   .adv-search-container {
-    width: 45%;
+    width: 30%;
   }
 
   .main-search-body {
@@ -80,9 +80,14 @@ export const SearchPage = styled.div<{ expanded: boolean }>`
   }
 
   .result-container {
-    width: ${(props) => (props.expanded ? '55%' : '100%')};
+    width: ${(props) => (props.expanded ? '70%' : '100%')};
     margin-left: ${(props) => (props.expanded ? '' : '1em')};
     margin-top: ${(props) => (props.expanded ? '0' : '1em')};
+  }
+
+  .results-only {
+    padding: 0.5em;
+    overflow-y: auto;
   }
 
   .result-container-full {

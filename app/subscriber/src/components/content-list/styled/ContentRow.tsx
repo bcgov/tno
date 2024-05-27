@@ -7,12 +7,77 @@ export const ContentRow = styled(Col)`
   padding-bottom: 0.25rem;
   border-bottom: 1px solid ${(props) => props.theme.css.bkStaticGray};
 
+  .icon-row {
+    margin-left: 2rem;
+    min-width: 75px;
+  }
+
+  .has-divider {
+    position: relative;
+    margin: 0 5px;
+  }
+
+  .icon-placeholder {
+    width: 20px;
+    height: 20px;
+  }
+
+  .add-margin {
+    margin-left: 4rem;
+  }
+
+  .pin-icon {
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .attributes:not(.mobile) {
+      display: none;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .mobile {
+      display: none;
+    }
+  }
+
+  .transcript-feather {
+    height: 20px;
+    width: 20px;
+    margin-right: 0.5rem;
+  }
+
+  .popout-placeholder {
+    width: 20px;
+    height: 20px;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
+  .section,
+  .series,
+  .source,
+  .byline {
+    margin-left: 5px;
+  }
+
+  .has-divider::after {
+    content: '';
+    position: absolute;
+    right: -5px; /* adjust to control the spacing between text and divider */
+    top: 50%;
+    transform: translateY(-60%);
+    width: 1px;
+    height: 14px;
+    background-color: black;
+  }
+
   .parent-row {
     flex-flow: nowrap;
     width: 100%;
-  }
-  .series {
-    margin-right: 0.5rem;
   }
   &:hover {
     background-color: ${(props) => props.theme.css.highlightYellow};
@@ -72,19 +137,10 @@ export const ContentRow = styled(Col)`
     font-family: ${(props) => props.theme.css.fPrimary};
     white-space: nowrap;
     display: flex;
-    max-height: 1.5em;
-    margin-right: 1rem;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
   }
   .section,
   .page-number {
     font-family: ${(props) => props.theme.css.fPrimary};
-  }
-
-  .source {
-    margin-right: 0.5rem;
   }
 
   .page-number {
@@ -93,6 +149,7 @@ export const ContentRow = styled(Col)`
 
   .new-tab {
     margin-right: 0.5rem;
+    margin-left: 0.5rem;
   }
 
   .play-icon,
@@ -117,6 +174,7 @@ export const ContentRow = styled(Col)`
     border-radius: 0.25rem;
     padding: 0.2rem;
     margin-bottom: 0.25rem;
+    margin-right: 7.25rem;
     cursor: default;
   }
   .headline {

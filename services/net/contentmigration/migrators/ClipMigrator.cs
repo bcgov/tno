@@ -91,12 +91,14 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
             // TODO: replace the USER_RSN value on UserIdentifier with something that can be mapped by the Content Service to an MMI user
             // TODO: remove UserRSN filter once user can be mapped
             content.TonePools = newsItem.Tones.Where(t => t.UserRSN == 0)
-                .Select(t => new Kafka.Models.TonePool { Value = (int)t.ToneValue, UserIdentifier = (t.UserRSN == 0 ? null : t.UserRSN.ToString()) });
+                .Select(t => new Kafka.Models.TonePool { Value = (int)t.ToneValue, UserIdentifier = t.UserRSN == 0 ? null : t.UserRSN.ToString() });
         }
 
         if (!string.IsNullOrEmpty(newsItem.EodGroup) && !string.IsNullOrEmpty(newsItem.EodCategory))
         {
-            content.Topics = new[] { new Kafka.Models.Topic { Name = newsItem.EodCategory, TopicType = (TopicType)Enum.Parse(typeof(TopicType), newsItem.EodGroup) } };
+            // historic data has some values outside of the enum, just ignore them...
+            if (Enum.TryParse(newsItem.EodGroup, out TopicType topicType))
+                content.Topics = new[] { new Kafka.Models.Topic(newsItem.EodCategory, topicType) };
         }
 
         // Tags are in the Summary as they are added by an Editor

@@ -1,8 +1,9 @@
+import { FormPage } from 'components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useTopics } from 'store/hooks/admin';
-import { FlexboxTable, FormPage, ITopicModel } from 'tno-core';
+import { FlexboxTable, ITopicModel } from 'tno-core';
 
 import { defaultTopic } from './constants';
 import { useColumns } from './hooks';

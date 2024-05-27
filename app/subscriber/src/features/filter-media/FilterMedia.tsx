@@ -92,7 +92,7 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({ loaded }) => {
   if (!loaded) return <>Loading</>;
 
   return (
-    <styled.FilterMedia>
+    <styled.FilterMedia className="results-side">
       <ContentListActionBar
         content={selected}
         onSelectAll={(e) => (e.target.checked ? setSelected(currDateResults) : setSelected([]))}

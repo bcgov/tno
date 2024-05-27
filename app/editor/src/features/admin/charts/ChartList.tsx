@@ -1,7 +1,8 @@
+import { FormPage } from 'components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChartTemplates } from 'store/hooks/admin';
-import { Col, FlexboxTable, FormPage, IChartTemplateModel, IconButton, Row } from 'tno-core';
+import { Col, FlexboxTable, IChartTemplateModel, IconButton, Row } from 'tno-core';
 
 import { chartTemplateColumns } from './constants';
 import { ListFilter } from './ListFilter';

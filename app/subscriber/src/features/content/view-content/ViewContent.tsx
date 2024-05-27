@@ -246,18 +246,20 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
         </Row>
       </Show>
       <Row id="summary" className="summary">
-        <Col>
-          {!!content?.body?.length ? (
-            <div>{parse(content?.body?.replace(/\n+/g, '<br><br>') ?? '')}</div>
-          ) : (
-            <span>{parse(content?.summary?.replace(/\n+/g, '<br><br>') ?? '')}</span>
-          )}
-          <Show visible={!!content?.sourceUrl}>
-            <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
-              More...
-            </a>
-          </Show>
-        </Col>
+        <Show visible={!(isAV && !!content.body && !isTranscribing)}>
+          <Col>
+            {!!content?.body?.length ? (
+              <div>{parse(content?.body?.replace(/\n+/g, '<br><br>') ?? '')}</div>
+            ) : (
+              <span>{parse(content?.summary?.replace(/\n+/g, '<br><br>') ?? '')}</span>
+            )}
+            <Show visible={!!content?.sourceUrl}>
+              <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
+                More...
+              </a>
+            </Show>
+          </Col>
+        </Show>
         <Show
           visible={
             isAV &&

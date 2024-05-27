@@ -1,12 +1,10 @@
 import { formatSearch } from 'features/search-page/utils';
-import { formatDate } from 'features/utils';
-import moment from 'moment';
 import React from 'react';
-import { FaPlayCircle } from 'react-icons/fa';
-import { FaCopyright, FaEyeSlash, FaGripVertical, FaSquareUpRight } from 'react-icons/fa6';
+import { FaCopyright, FaEyeSlash, FaGripVertical } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
-import { Checkbox, Col, IColProps, IContentModel, Row, Show } from 'tno-core';
+import { Checkbox, Col, ContentTypeName, IColProps, IContentModel, Row, Show } from 'tno-core';
 
+import { Attributes } from './Attributes';
 import { ContentListContext } from './ContentListContext';
 import { ContentReportPin } from './ContentReportPin';
 import * as styled from './styled';
@@ -42,7 +40,6 @@ export const ContentRow: React.FC<IContentRowProps> = ({
     activeFileReference,
     setActiveFileReference,
     activeStream,
-    groupBy,
   } = React.useContext(ContentListContext);
   const body = formatSearch(truncateTeaser(item.body, 250), filter);
   const headline = formatSearch(item.headline, filter);
@@ -63,65 +60,76 @@ export const ContentRow: React.FC<IContentRowProps> = ({
           }}
         />
         {viewOptions.sentiment && determineToneIcon(item.tonePools[0])}
-        {showDate && (
-          <div className="date">{`${formatDate(item.publishedOn)} ${
-            showTime ? `(${moment(item.publishedOn).format('HH:mm')})` : ''
-          }`}</div>
+        {item.contentType === ContentTypeName.AudioVideo && !!item.body && (
+          <img
+            className="transcript-feather"
+            src={`${process.env.PUBLIC_URL}/assets/transcript_feather.svg`}
+            alt="Transcript"
+          />
         )}
         <Link to={`/view/${item.id}`} className="headline">
           <div>{headline}</div>
         </Link>
-        <Show visible={groupBy === 'time'}>
-          {item.source && <div className="source">{item.source.name}</div>}
-        </Show>
-        <Show visible={viewOptions.section}>
-          {item.section && <div className="section">{item.section}</div>}
-          {item.page && <div className="page-number">{item.page}</div>}
-        </Show>
-        <Show visible={showSeries}>
-          {item.series && <div className="series">{item.series.name}</div>}
-        </Show>
-        <Show visible={popOutIds?.includes(String(item.mediaTypeId))}>
-          <FaSquareUpRight
-            className={`new-tab ${!item.section && 'no-section'}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              window.open(
-                `/view/${item.id}`,
-                '_blank',
-                'toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=600,width=600,height=465',
-              );
-            }}
-          />
-        </Show>
-        <Show
-          visible={
-            !!item.fileReferences.length &&
-            !activeStream?.source &&
-            (item.fileReferences[0].contentType.includes('video') ||
-              item.fileReferences[0].contentType.includes('audio'))
-          }
-        >
-          <FaPlayCircle
-            className="play-icon"
-            onClick={(e) => {
-              e.stopPropagation();
-              setActiveFileReference(item.fileReferences[0]);
-            }}
-          />
-        </Show>
-        <Show visible={!!activeStream && item.id === activeStream.id}>
-          <FaEyeSlash
-            className="eye-slash"
-            onClick={(e) => {
-              e.stopPropagation();
-              setActiveStream({ source: '', id: 0 });
-              setActiveFileReference(undefined);
-            }}
-          />
-        </Show>
-        <ContentReportPin contentId={item.id} />
+        <Attributes item={item} showDate={showDate} showTime={showTime} viewOptions={viewOptions} />
+        <Row className="icon-row">
+          {popOutIds?.includes(String(item.mediaTypeId)) ? (
+            <img
+              src={`${process.env.PUBLIC_URL}/assets/mediaplay-newwindow.svg`}
+              className={`icon new-tab ${!item.section && 'no-section'}`}
+              alt="Pop-out to play"
+              data-tooltip-id="main-tooltip"
+              data-tooltip-content="Pop-out to play"
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(
+                  `/view/${item.id}`,
+                  '_blank',
+                  'toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=600,width=600,height=465',
+                );
+              }}
+            />
+          ) : (
+            <div className="popout-placeholder" />
+          )}
+          {!!item.fileReferences.length &&
+          !activeStream?.source &&
+          (item.fileReferences[0].contentType.includes('video') ||
+            item.fileReferences[0].contentType.includes('audio')) ? (
+            <img
+              className="play-icon icon"
+              data-tooltip-id="main-tooltip"
+              data-tooltip-content="Play inline"
+              alt="Play inline"
+              src={`${process.env.PUBLIC_URL}/assets/mediaplay-inline.svg`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveFileReference(item.fileReferences[0]);
+              }}
+            />
+          ) : (
+            <div className="icon-placeholder" />
+          )}
+
+          <Show visible={!!activeStream && item.id === activeStream.id}>
+            <FaEyeSlash
+              className="eye-slash icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveStream({ source: '', id: 0 });
+                setActiveFileReference(undefined);
+              }}
+            />
+          </Show>
+          <ContentReportPin contentId={item.id} />
+        </Row>
       </Row>
+      <Attributes
+        mobile
+        item={item}
+        showDate={showDate}
+        showTime={showTime}
+        viewOptions={viewOptions}
+      />
       <Row>
         {viewOptions.teaser && !!item.body && (
           <div className={`teaser ${canDrag && 'with-grip'}`}>{body}</div>

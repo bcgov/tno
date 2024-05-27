@@ -1,7 +1,8 @@
+import { FormPage } from 'components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTags } from 'store/hooks/admin';
-import { Col, FlexboxTable, FormPage, IconButton, ITagModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, ITagModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import * as styled from './styled';

@@ -1,3 +1,4 @@
+import { IContentRowModel } from 'components/content';
 import { useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
@@ -17,7 +18,6 @@ import {
   FormikTimeInput,
   getDistinct,
   IContentModel,
-  IContentRowModel,
   IFilterModel,
   OptionItem,
   Row,

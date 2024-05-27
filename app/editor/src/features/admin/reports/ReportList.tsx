@@ -1,8 +1,9 @@
+import { FormPage } from 'components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useReports } from 'store/hooks/admin';
 import { useAdminStore } from 'store/slices';
-import { Col, FlexboxTable, FormPage, IconButton, IReportModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, IReportModel, Row } from 'tno-core';
 
 import { reportColumns } from './constants';
 import { ListFilter } from './ListFilter';

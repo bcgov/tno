@@ -29,6 +29,7 @@ export const Header = styled.div`
   }
 
   .logo-container {
+    padding-left: 0;
     @media (max-width: 700px) {
       width: fit-content;
     }

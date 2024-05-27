@@ -3,7 +3,6 @@ export * from './checkbox';
 export * from './constants';
 export * from './datepicker';
 export * from './error';
-export * from './formpage';
 export * from './iconbutton';
 export * from './options';
 export * from './radio';

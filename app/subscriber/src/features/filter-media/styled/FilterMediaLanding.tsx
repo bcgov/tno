@@ -9,7 +9,7 @@ export const FilterMediaLanding = styled(Row)`
     }
     font-size: 1.2rem;
     @media (min-width: 1000px) {
-      width: 45%;
+      width: 30%;
     }
     @media (max-width: 1000px) {
       width: 100%;
@@ -96,8 +96,12 @@ export const FilterMediaLanding = styled(Row)`
     }
   }
   .results {
+    .results-side {
+      overflow-y: auto;
+      padding: 0.5rem;
+    }
     @media (min-width: 1000px) {
-      width: 55%;
+      width: 70%;
     }
     @media (max-width: 1000px) {
       width: 100%;

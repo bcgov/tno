@@ -1,3 +1,4 @@
+import { FormPage } from 'components/formpage';
 import _ from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -9,7 +10,6 @@ import { useIngests, useIngestTypes } from 'store/hooks/admin';
 import {
   Checkbox,
   Col,
-  FormPage,
   IIngestMessageModel,
   IIngestModel,
   MessageTargetName,

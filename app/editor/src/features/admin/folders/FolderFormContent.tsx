@@ -1,6 +1,7 @@
+import { DragDropContentContext } from 'components/content';
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { Col, DragDropContentContext } from 'tno-core';
+import { Col } from 'tno-core';
 
 import { IFolderForm } from './interfaces';
 
@@ -22,6 +23,9 @@ export const FolderFormContent: React.FC = () => {
         }}
         showSortOrder={true}
         showCheckbox={true}
+        to={(row) => {
+          return `/contents/${row.content.id}`;
+        }}
       />
     </Col>
   );

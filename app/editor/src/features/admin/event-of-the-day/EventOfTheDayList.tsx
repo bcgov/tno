@@ -1,3 +1,4 @@
+import { FormPage } from 'components/formpage';
 import { getPreviewReportRoute } from 'features/content';
 import React from 'react';
 import { FaBinoculars, FaPaperPlane } from 'react-icons/fa';
@@ -9,7 +10,6 @@ import {
   Button,
   ButtonVariant,
   FlexboxTable,
-  FormPage,
   IContentTopicModel,
   IFolderContentModel,
   IReportModel,

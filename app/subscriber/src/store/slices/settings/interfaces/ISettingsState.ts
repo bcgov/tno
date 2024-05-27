@@ -9,4 +9,6 @@ export interface ISettingsState {
   subscriberUrl?: string;
   defaultReportTemplateId?: number;
   frontpageFilterId?: number;
+  excludeBylineIds?: number[];
+  excludeSourceIds?: number[];
 }

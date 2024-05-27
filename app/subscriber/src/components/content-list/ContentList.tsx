@@ -57,9 +57,17 @@ export const ContentList: React.FC<IContentListProps> = ({
   React.useEffect(() => {
     if (!cacheCheck) return;
     const existing = localStorage.getItem('selected');
+    // remove selected items when user navigates away from page or refreshes, etc.
+    const handleBeforeUnload = () => {
+      localStorage.removeItem('selected');
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
     if (existing) {
       onContentSelected(JSON.parse(existing));
     }
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
     // only want to fire once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -109,7 +117,7 @@ export const ContentList: React.FC<IContentListProps> = ({
     <styled.ContentList scrollWithin={scrollWithin}>
       <Show visible={!handleDrop}>
         {Object.keys(grouped).map((group) => (
-          <div key={group} className="page-content">
+          <div key={group} className="grouped-content">
             <h2 className="group-title">{group}</h2>
             <div>
               {grouped[group].map((item) => (

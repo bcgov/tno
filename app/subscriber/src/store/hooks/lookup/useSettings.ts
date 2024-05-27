@@ -22,6 +22,8 @@ export const useSettings = (validate?: boolean) => {
       const alertActionId = settings.find((s) => s.name === Settings.AlertAction)?.value;
       const editorUrl = settings.find((s) => s.name === Settings.EditorUrl)?.value;
       const subscriberUrl = settings.find((s) => s.name === Settings.SubscriberUrl)?.value;
+      const excludeBylineIds = settings.find((s) => s.name === Settings.ExcludeBylineIds)?.value;
+      const excludeSourceIds = settings.find((s) => s.name === Settings.ExcludeSourceIds)?.value;
       const defaultReportTemplateId = settings.find(
         (s) => s.name === Settings.DefaultReportTemplate,
       )?.value;
@@ -36,6 +38,8 @@ export const useSettings = (validate?: boolean) => {
         editorUrl: editorUrl ? editorUrl : undefined,
         subscriberUrl: subscriberUrl ? subscriberUrl : undefined,
         defaultReportTemplateId: defaultReportTemplateId ? +defaultReportTemplateId : undefined,
+        excludeBylineIds: excludeBylineIds ? excludeBylineIds.split(',').map((id) => +id) : [],
+        excludeSourceIds: excludeSourceIds ? excludeSourceIds.split(',').map((id) => +id) : [],
         frontpageFilterId: frontpageFilterId ? +frontpageFilterId : undefined,
       });
     }
@@ -64,6 +68,12 @@ export const useSettings = (validate?: boolean) => {
       if (!values.defaultReportTemplateId)
         toast.error(`Configuration "${Settings.DefaultReportTemplate}" is missing from settings.`);
 
+      if (!values.excludeBylineIds)
+        toast.error(`Configuration "${Settings.ExcludeBylineIds}" is missing from settings.`);
+
+      if (!values.excludeSourceIds)
+        toast.error(`Configuration "${Settings.ExcludeSourceIds}" is missing from settings.`);
+
       if (!values.frontpageFilterId)
         toast.error(`Configuration "${Settings.FrontpageFilter}" is missing from settings.`);
       storeLoading(2);
@@ -80,6 +90,8 @@ export const useSettings = (validate?: boolean) => {
     values.subscriberUrl,
     values.defaultReportTemplateId,
     values.frontpageFilterId,
+    values.excludeBylineIds,
+    values.excludeSourceIds,
   ]);
 
   return values;

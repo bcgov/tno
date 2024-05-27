@@ -7,7 +7,7 @@ import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
-import { useContent, useSettings } from 'store/hooks';
+import { useApp, useContent, useSettings } from 'store/hooks';
 import { generateQuery, IContentModel } from 'tno-core';
 
 import * as styled from './styled';
@@ -22,6 +22,7 @@ export const TodaysCommentary: React.FC = () => {
   ] = useContent();
   const getActionFilters = useActionFilters();
   const { commentaryActionId } = useSettings();
+  const [{ userInfo }] = useApp();
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
@@ -31,7 +32,7 @@ export const TodaysCommentary: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    if (commentaryActionId) {
+    if (commentaryActionId && !!userInfo) {
       let actionFilters = getActionFilters();
       const commentaryAction = actionFilters.find((a) => a.id === commentaryActionId);
 
@@ -58,7 +59,7 @@ export const TodaysCommentary: React.FC = () => {
         })
         .catch();
     }
-  }, [commentaryActionId, filter, findContentWithElasticsearch, getActionFilters]);
+  }, [commentaryActionId, filter, findContentWithElasticsearch, getActionFilters, userInfo]);
 
   return (
     <styled.TodaysCommentary>

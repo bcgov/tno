@@ -1,7 +1,8 @@
+import { FormPage } from 'components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContributors } from 'store/hooks/admin';
-import { Col, FlexboxTable, FormPage, IconButton, IContributorModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, IContributorModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { ContributorFilter } from './ContributorFilter';

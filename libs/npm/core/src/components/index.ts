@@ -2,7 +2,6 @@ export * from './breadcrumb';
 export * from './button';
 export * from './cell';
 export * from './container';
-export * from './content';
 export * from './flex';
 export * from './footer';
 export * from './form';
