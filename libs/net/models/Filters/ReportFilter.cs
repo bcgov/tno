@@ -28,6 +28,11 @@ public class ReportFilter : PageFilter
     /// get/set - Whether the report is public or the user is the owner.
     /// </summary>
     public bool? IsPublicOrOwner { get; set; }
+
+    /// <summary>
+    /// get/set - An array of report ids to return.
+    /// </summary>
+    public int[]? Ids { get; set; }
     #endregion
 
     #region Constructors
@@ -41,6 +46,7 @@ public class ReportFilter : PageFilter
         this.OwnerId = filter.GetIntNullValue(nameof(this.OwnerId));
         this.IsPublic = filter.GetBoolNullValue(nameof(this.IsPublic));
         this.IsPublicOrOwner = filter.GetBoolNullValue(nameof(this.IsPublicOrOwner));
+        this.Ids = filter.GetIntArrayValue(nameof(this.Ids));
     }
     #endregion
 }

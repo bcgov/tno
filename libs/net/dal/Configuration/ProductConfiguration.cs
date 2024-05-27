@@ -1,6 +1,5 @@
 namespace TNO.DAL.Configuration;
 
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TNO.Entities;
 

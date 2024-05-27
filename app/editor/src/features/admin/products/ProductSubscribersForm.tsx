@@ -1,22 +1,44 @@
+import { Grid } from 'components/grid';
+import { SortDirection } from 'components/grid/SortAction';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useUsers } from 'store/hooks/admin';
 import {
-  FlexboxTable,
+  CellEllipsis,
+  Checkbox,
+  FormikSelect,
+  getEnumStringOptions,
   IProductModel,
-  ITableInternal,
-  ITablePage,
-  ITableSort,
-  IUserProductModel,
+  IUserFilter,
+  OptionItem,
+  ProductTypeName,
+  ReportDistributionFormatName,
 } from 'tno-core';
 
-import { subscriberColumns } from './constants';
 import { ProductFilter } from './ProductFilter';
 import * as styled from './styled';
 
 export const ProductSubscribersForm = () => {
   const { values, setFieldValue } = useFormikContext<IProductModel>();
   const [{ users }, { findUsers }] = useUsers();
+  const formatOptions = getEnumStringOptions(ReportDistributionFormatName);
+
+  const [filter, setFilter] = React.useState<IUserFilter>({ page: 1, quantity: 100, sort: [] });
+
+  const fetch = React.useCallback(
+    async (filter: IUserFilter) => {
+      try {
+        await findUsers(filter);
+      } catch {}
+    },
+    [findUsers],
+  );
+
+  React.useEffect(() => {
+    fetch(filter).catch();
+    // The fetch method will result in infinite loop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter]);
 
   React.useEffect(() => {
     findUsers({}).catch(() => {
@@ -26,23 +48,6 @@ export const ProductSubscribersForm = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handlePageChange = React.useCallback(
-    async (page: ITablePage, table: ITableInternal<IUserProductModel>) => {
-      await findUsers({ page: page.pageIndex + 1, quantity: page.pageSize });
-    },
-    [findUsers],
-  );
-
-  const handleSortChange = React.useCallback(
-    async (sort: ITableSort<IUserProductModel>[], table: ITableInternal<IUserProductModel>) => {
-      const sorts = sort
-        .filter((s) => s.isSorted)
-        .map((s) => `${s.id}${s.isSortedDesc ? ' desc' : ''}`);
-      await findUsers({ page: 1, quantity: users.quantity, sort: sorts });
-    },
-    [findUsers, users.quantity],
-  );
-
   return (
     <styled.ProductSubscribersForm>
       <ProductFilter
@@ -50,17 +55,91 @@ export const ProductSubscribersForm = () => {
           await findUsers({ page: 1, quantity: users.quantity, keyword: value });
         }}
       />
-      <FlexboxTable
-        rowId="id"
-        columns={subscriberColumns(values, setFieldValue)}
-        data={users.items as IUserProductModel[]}
-        manualPaging
-        pageIndex={users.page}
-        pageSize={users.quantity}
-        pageCount={Math.ceil(users.total / users.quantity)}
-        onPageChange={handlePageChange}
-        onSortChange={handleSortChange}
-        showSort
+      <Grid
+        data={users}
+        showPaging
+        onNavigatePage={async (page) => {
+          setFilter((filter) => ({ ...filter, page }));
+        }}
+        onQuantityChange={async (quantity) => {
+          setFilter((filter) => ({ ...filter, page: 1, quantity }));
+        }}
+        onSortChange={async (column, direction) => {
+          setFilter((filter) => ({
+            ...filter,
+            page: 1,
+            sort: direction === SortDirection.None ? [] : [`${column.name} ${direction}`],
+          }));
+        }}
+        renderHeader={() => {
+          const columns = [
+            { name: 'isSubscribed', label: '', size: '30px' },
+            { name: 'format', label: 'Format' },
+            { name: 'username', label: 'Username', sortable: true },
+            { name: 'lastName', label: 'Last Name', sortable: true },
+            { name: 'firstName', label: 'First Name', sortable: true },
+            { name: 'email', label: 'Email', sortable: true },
+          ];
+          if (values.productType !== ProductTypeName.Report) columns.splice(1, 1);
+          return columns;
+        }}
+        renderRow={(row, rowIndex) => {
+          const subscriber = values.subscribers.find((u) => u.id === row.id);
+          const columns = [
+            <Checkbox
+              key=""
+              name={`chk-${row.id}`}
+              checked={subscriber?.isSubscribed ?? false}
+              onChange={(e) => {
+                const user = { ...row, ...subscriber, isSubscribed: e.currentTarget.checked };
+                if (values.subscribers.some((u) => u.id === user.id))
+                  setFieldValue(
+                    'subscribers',
+                    values.subscribers.map((item) => (item.id === user.id ? user : item)),
+                  );
+                else setFieldValue('subscribers', [user, ...values.subscribers]);
+              }}
+            />,
+            <FormikSelect
+              key=""
+              name={`subscribers.${rowIndex}.format`}
+              options={formatOptions}
+              value={formatOptions.find((o) => o.value === subscriber?.format) ?? ''}
+              onChange={(e) => {
+                const option = e as OptionItem;
+                const subscriber = values.subscribers.find((u) => u.id === row.id);
+                if (subscriber) {
+                  const user = { ...subscriber, isSubscribed: true, format: option.value };
+                  setFieldValue(
+                    'subscribers',
+                    values.subscribers.map((item) => (item.id === row.id ? user : item)),
+                  );
+                } else {
+                  const user = {
+                    ...row,
+                    isSubscribed: true,
+                    format: option.value,
+                  };
+                  setFieldValue('subscribers', [user, ...values.subscribers]);
+                }
+              }}
+              isClearable={false}
+            />,
+            <CellEllipsis key="">{row.username}</CellEllipsis>,
+            <CellEllipsis key="">{row.lastName}</CellEllipsis>,
+            <CellEllipsis key="">{row.firstName}</CellEllipsis>,
+            <>
+              <CellEllipsis>{row.email}</CellEllipsis>
+              {row.preferredEmail ? (
+                <CellEllipsis className="preferred">{row.preferredEmail}</CellEllipsis>
+              ) : (
+                ''
+              )}
+            </>,
+          ];
+          if (values.productType !== ProductTypeName.Report) columns.splice(1, 1);
+          return columns;
+        }}
       />
     </styled.ProductSubscribersForm>
   );

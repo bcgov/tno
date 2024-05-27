@@ -44,13 +44,14 @@ public class UserAVOverview : AuditColumns
     /// </summary>
     /// <param name="user"></param>
     /// <param name="template"></param>
-    public UserAVOverview(User user, AVOverviewTemplate template)
+    /// <param name="isSubscribed"></param>
+    public UserAVOverview(User user, AVOverviewTemplate template, bool isSubscribed = true)
     {
         this.User = user ?? throw new ArgumentNullException(nameof(user));
         this.UserId = user.Id;
         this.Template = template ?? throw new ArgumentNullException(nameof(template));
         this.TemplateType = template.TemplateType;
-        this.IsSubscribed = true;
+        this.IsSubscribed = isSubscribed;
     }
 
     /// <summary>
@@ -58,11 +59,12 @@ public class UserAVOverview : AuditColumns
     /// </summary>
     /// <param name="userId"></param>
     /// <param name="templateType"></param>
-    public UserAVOverview(int userId, AVOverviewTemplateType templateType)
+    /// <param name="isSubscribed"></param>
+    public UserAVOverview(int userId, AVOverviewTemplateType templateType, bool isSubscribed = true)
     {
         this.UserId = userId;
         this.TemplateType = templateType;
-        this.IsSubscribed = true;
+        this.IsSubscribed = isSubscribed;
     }
     #endregion
 

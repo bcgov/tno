@@ -1,4 +1,3 @@
-using System.Text.Json;
 using TNO.API.Models;
 using TNO.Entities;
 
@@ -42,13 +41,21 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
     /// Creates a new instance of an ProductModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    /// <param name="options"></param>
-    public ProductModel(Entities.Product entity) : base(entity)
+    /// <param name="report"></param>
+    public ProductModel(Entities.Product entity, Entities.Report? report) : base(entity)
     {
         this.TargetProductId = entity.TargetProductId;
         this.ProductType = entity.ProductType;
         this.IsPublic = entity.IsPublic;
-        this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s.User!, s.IsSubscribed, s.SubscriptionChangeActioned, s.RequestedIsSubscribedStatus)).ToArray();
+        this.Subscribers = entity.SubscribersManyToMany
+            .Where(s => s.User != null)
+            .Select(s => new UserModel(
+                s.User!,
+                s.IsSubscribed,
+                entity.ProductType == ProductType.Report ? report?.SubscribersManyToMany.FirstOrDefault(r => r.UserId == s.UserId)?.Format : null,
+                s.SubscriptionChangeActioned,
+                s.RequestedIsSubscribedStatus))
+            .ToArray();
     }
     #endregion
 
@@ -81,10 +88,7 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
             Version = model.Version ?? 0
         };
 
-        entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(us => new Entities.UserProduct(us.Id, entity.Id)
-        {
-            IsSubscribed = us.IsSubscribed,
-        }));
+        entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(us => new Entities.UserProduct(us.Id, entity.Id, us.IsSubscribed)));
 
         return entity;
     }

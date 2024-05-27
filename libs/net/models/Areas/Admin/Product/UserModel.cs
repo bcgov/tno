@@ -47,6 +47,11 @@ public class UserModel
     public bool IsSubscribed { get; set; }
 
     /// <summary>
+    /// get/set - Which distribution format the user wants to receive.
+    /// </summary>
+    public Entities.ReportDistributionFormat? Format { get; set; }
+
+    /// <summary>
     /// get/set - Has an admin approved the status change?
     /// </summary>
     public bool? SubscriptionChangeActioned { get; set; }
@@ -67,10 +72,14 @@ public class UserModel
     /// </summary>
     /// <param name="entity"></param>
     /// <param name="isSubscribed"></param>
+    /// <param name="format"></param>
+    /// <param name="subscriptionChangeActioned"></param>
+    /// <param name="requestedIsSubscribedStatus"></param>
     public UserModel(Entities.User entity,
-     bool isSubscribed = true,
-     bool? subscriptionChangeActioned = null,
-     bool? requestedIsSubscribedStatus = null)
+        bool isSubscribed = true,
+        Entities.ReportDistributionFormat? format = null,
+        bool? subscriptionChangeActioned = null,
+        bool? requestedIsSubscribedStatus = null)
     {
         this.Id = entity.Id;
         this.Username = entity.Username;
@@ -80,6 +89,7 @@ public class UserModel
         this.FirstName = entity.FirstName;
         this.LastName = entity.LastName;
         this.IsSubscribed = isSubscribed;
+        this.Format = format;
         this.SubscriptionChangeActioned = subscriptionChangeActioned;
         this.RequestedIsSubscribedStatus = requestedIsSubscribedStatus;
     }
