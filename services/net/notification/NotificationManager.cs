@@ -283,6 +283,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                 var content = await this.Api.FindContentByIdAsync(request.ContentId.Value, true);
                 if (content != null)
                 {
+                    this.Logger.LogInformation("Notification requested.  Content ID: {contentId}", content.Id);
                     await this.NotificationValidator.InitializeContentAsync(content);
                     // If the request specified a notification then use it, otherwise test all notifications.
                     if (request.NotificationId.HasValue)
@@ -296,7 +297,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                                 if (request.IgnoreValidation || await this.NotificationValidator.ConfirmSendAsync())
                                     await SendNotificationAsync(request, notification, content);
                                 else
-                                    this.Logger.LogDebug("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
+                                    this.Logger.LogInformation("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
                             }
                             else
                                 this.Logger.LogDebug("Notification is disabled.  Notification: {notification}", notification.Id);
@@ -317,7 +318,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                             if (request.IgnoreValidation || await this.NotificationValidator.ConfirmSendAsync())
                                 await SendNotificationAsync(request, notification, content);
                             else
-                                this.Logger.LogDebug("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
+                                this.Logger.LogInformation("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
                         }
                     }
                 }
