@@ -1,3 +1,4 @@
+import { formatSearch } from 'features/search-page/utils';
 import React from 'react';
 import { FaCopyright, FaEyeSlash, FaGripVertical } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
@@ -18,6 +19,7 @@ export interface IContentRowProps extends IColProps {
   popOutIds?: string;
   showSeries?: boolean;
   showTime?: boolean;
+  filter?: any;
 }
 
 export const ContentRow: React.FC<IContentRowProps> = ({
@@ -29,6 +31,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
   showSeries,
   showTime,
   popOutIds,
+  filter,
   ...rest
 }) => {
   const {
@@ -38,6 +41,8 @@ export const ContentRow: React.FC<IContentRowProps> = ({
     setActiveFileReference,
     activeStream,
   } = React.useContext(ContentListContext);
+  const body = formatSearch(truncateTeaser(item.body, 250), filter);
+  const headline = formatSearch(item.headline, filter);
 
   return (
     <styled.ContentRow {...rest}>
@@ -63,7 +68,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
           />
         )}
         <Link to={`/view/${item.id}`} className="headline">
-          {item.headline}
+          <div>{headline}</div>
         </Link>
         <Attributes item={item} showDate={showDate} showTime={showTime} viewOptions={viewOptions} />
         <Row className="icon-row">
@@ -127,7 +132,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
       />
       <Row>
         {viewOptions.teaser && !!item.body && (
-          <div className={`teaser ${canDrag && 'with-grip'}`}>{truncateTeaser(item.body, 250)}</div>
+          <div className={`teaser ${canDrag && 'with-grip'}`}>{body}</div>
         )}
         <Show visible={!!activeStream?.source && activeStream.id === item.id}>
           <Col className="media-playback">

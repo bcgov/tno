@@ -3,7 +3,7 @@ import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useNavigate } from 'react-router-dom';
 import { useContent, useLookup } from 'store/hooks';
-import { IContentModel, Settings, Show } from 'tno-core';
+import { IContentModel, IFilterSettingsModel, Settings, Show } from 'tno-core';
 
 import { ContentListContext } from './ContentListContext';
 import { ContentRow } from './ContentRow';
@@ -31,6 +31,8 @@ export interface IContentListProps {
   showSeries?: boolean;
   /** Whether to store the state of the checkboxes in cache */
   cacheCheck?: boolean;
+  /** filter settings for contents */
+  filter?: IFilterSettingsModel;
 }
 
 export const ContentList: React.FC<IContentListProps> = ({
@@ -43,6 +45,7 @@ export const ContentList: React.FC<IContentListProps> = ({
   showSeries = false,
   showTime = false,
   cacheCheck = true,
+  filter,
 }) => {
   const navigate = useNavigate();
   const { groupBy, setActiveStream, activeFileReference } = React.useContext(ContentListContext);
@@ -130,6 +133,7 @@ export const ContentList: React.FC<IContentListProps> = ({
                   showTime={showTime}
                   item={item}
                   onCheckboxChange={handleCheckboxChange}
+                  filter={filter}
                 />
               ))}
             </div>
@@ -168,6 +172,7 @@ export const ContentList: React.FC<IContentListProps> = ({
                           canDrag
                           item={item}
                           onCheckboxChange={handleCheckboxChange}
+                          filter={filter}
                         />
                       </div>
                     )}
