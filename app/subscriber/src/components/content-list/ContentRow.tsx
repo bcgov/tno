@@ -70,7 +70,13 @@ export const ContentRow: React.FC<IContentRowProps> = ({
         <Link to={`/view/${item.id}`} className="headline">
           <div>{headline}</div>
         </Link>
-        <Attributes item={item} showDate={showDate} showTime={showTime} viewOptions={viewOptions} />
+        <Attributes
+          item={item}
+          showDate={showDate}
+          showTime={showTime}
+          showSeries={showSeries}
+          viewOptions={viewOptions}
+        />
         <Row className="icon-row">
           {popOutIds?.includes(String(item.mediaTypeId)) ? (
             <img
@@ -128,6 +134,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
         item={item}
         showDate={showDate}
         showTime={showTime}
+        showSeries={showSeries}
         viewOptions={viewOptions}
       />
       <Row>

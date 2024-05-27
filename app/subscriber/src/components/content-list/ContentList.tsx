@@ -162,6 +162,8 @@ export const ContentList: React.FC<IContentListProps> = ({
                           }`}
                           popOutIds={popOutIds}
                           showDate={showDate}
+                          showTime={showTime}
+                          showSeries={showSeries}
                           onClick={(e) => {
                             // Ensure the target is an Element and use .closest to check if the click was inside a checkbox (see comment below)
                             if (!(e.target instanceof Element) || !e.target.closest('.checkbox')) {
