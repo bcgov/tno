@@ -15,5 +15,10 @@ public class ApiOptions
     /// get/set - The name of the settings key to identify the notification that will be use to send transcript confirmation emails.
     /// </summary>
     public string TranscriptRequestConfirmationKey { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The service timezone. This is set in appsettings.json as 'Pacific Standard Time'.
+    /// </summary>
+    public string TimeZone { get; set; } = "UTC";
     #endregion
 }

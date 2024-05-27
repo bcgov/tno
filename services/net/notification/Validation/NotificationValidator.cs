@@ -226,10 +226,10 @@ public class NotificationValidator : INotificationValidator
 
             ((!filter.StartDate.HasValue && !filter.EndDate.HasValue) ||
              (filter.StartDate.HasValue && filter.EndDate.HasValue &&
-              Content.PublishedOn >= filter.StartDate.Value.ToUniversalTime() &&
-              Content.PublishedOn <= filter.EndDate.Value.ToUniversalTime()) ||
-             (filter.StartDate.HasValue && Content.PublishedOn >= filter.StartDate.Value.ToUniversalTime()) ||
-             (filter.EndDate.HasValue && Content.PublishedOn <= filter.EndDate.Value.ToUniversalTime())) &&
+              Content.PublishedOn?.ToTimeZone(this.Options.TimeZone) >= filter.StartDate.Value.ToTimeZone(this.Options.TimeZone) &&
+              Content.PublishedOn?.ToTimeZone(this.Options.TimeZone) <= filter.EndDate.Value.ToTimeZone(this.Options.TimeZone)) ||
+             (filter.StartDate.HasValue && Content.PublishedOn?.ToTimeZone(this.Options.TimeZone) >= filter.StartDate.Value.ToTimeZone(this.Options.TimeZone)) ||
+             (filter.EndDate.HasValue && Content.PublishedOn?.ToTimeZone(this.Options.TimeZone) <= filter.EndDate.Value.ToTimeZone(this.Options.TimeZone))) &&
 
             (string.IsNullOrWhiteSpace(filter.OtherSource) || Content.OtherSource.ToLower() == filter.OtherSource.ToLower()) &&
             (string.IsNullOrWhiteSpace(filter.Page) || Content.Page.ToLower().Contains(filter.Page.ToLower())) &&
