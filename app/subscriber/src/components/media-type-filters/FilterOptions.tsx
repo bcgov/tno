@@ -19,6 +19,7 @@ import {
 } from 'tno-core';
 
 import { defaultFilter, FilterOptionTypes } from './constants';
+import { useFilterOptionContext } from './FilterOptionsContextProvider';
 import * as styled from './styled';
 import { determineStore } from './utils';
 
@@ -41,10 +42,10 @@ export interface IMediaTypeFiltersProps {
  */
 export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreName }) => {
   const [{ userInfo }, store] = useAppStore();
-  const [active, setActive] = useState<FilterOptionTypes | undefined>(undefined);
   const filterStoreMethod = determineStore(filterStoreName);
   const api = useUsers();
   const [hasProcessedInitialPreference, setHasProcessedInitialPreference] = useState(false);
+  const { active, setActive } = useFilterOptionContext();
   const savePreferences = async (filterPreference: FilterOptionTypes) => {
     if (userInfo) {
       try {

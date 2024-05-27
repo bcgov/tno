@@ -1,13 +1,14 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { ContentList } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
+import { useFilterOptionContext } from 'components/media-type-filters';
 import { ContentListActionBar } from 'components/tool-bar';
 import { filterFormat } from 'features/search-page/utils';
 import { createFilterSettings, getBooleanActionValue } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
-import { useApp, useContent, useSettings } from 'store/hooks';
+import { useContent, useSettings } from 'store/hooks';
 import { generateQuery, IContentModel, Row } from 'tno-core';
 
 import * as styled from './styled';
@@ -22,7 +23,7 @@ export const Home: React.FC = () => {
     },
     { findContentWithElasticsearch, storeHomeFilter: storeFilter },
   ] = useContent();
-  const [{ userInfo }] = useApp();
+  const { active } = useFilterOptionContext();
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
@@ -45,7 +46,7 @@ export const Home: React.FC = () => {
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
     // wait for userinfo incase applying previously viewed filter
-    if (!!featuredStoryActionId && !!userInfo) {
+    if (!!featuredStoryActionId && !!active) {
       fetchResults(
         generateQuery(
           filterFormat({
@@ -61,7 +62,7 @@ export const Home: React.FC = () => {
         ),
       );
     }
-  }, [filter, fetchResults, featuredStoryActionId, userInfo]);
+  }, [filter, fetchResults, featuredStoryActionId, active]);
 
   return (
     <styled.Home>
