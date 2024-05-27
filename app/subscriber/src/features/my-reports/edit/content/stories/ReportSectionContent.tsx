@@ -14,7 +14,7 @@ import { useApp, useLookup } from 'store/hooks';
 import {
   Col,
   FormikText,
-  FormikTextArea,
+  FormikWysiwyg,
   getDistinct,
   IReportInstanceModel,
   OptionItem,
@@ -183,7 +183,7 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
           label="Section heading:"
           disabled={disabled}
         />
-        <FormikTextArea
+        <FormikWysiwyg
           name={`sections.${sectionIndex}.description`}
           label="Summary text:"
           disabled={disabled}
