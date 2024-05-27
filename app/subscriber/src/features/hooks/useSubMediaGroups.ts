@@ -94,6 +94,7 @@ export const useSubMediaGroups = (
   }, [series, mediaTypes]);
 
   useEffect(() => {
+    if (!userInfo) return;
     const subGroups: ISubMediaGroupItem[] = [];
     mediaTypeSourceLookup.forEach((x) => {
       subGroups.push({
@@ -118,14 +119,7 @@ export const useSubMediaGroups = (
       newSubGroups = newSubGroups.filter((sg) => !userInfo?.mediaTypes.includes(sg.key));
     }
     setSubMediaGroups(newSubGroups);
-  }, [
-    mediaTypeSeriesLookup,
-    mediaTypeSourceLookup,
-    mediaTypes,
-    series,
-    sources,
-    userInfo?.mediaTypes,
-  ]);
+  }, [mediaTypeSeriesLookup, mediaTypeSourceLookup, mediaTypes, series, sources, userInfo]);
 
   return {
     subMediaGroups,
