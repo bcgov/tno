@@ -1,6 +1,9 @@
 import styled from 'styled-components';
 
 export const SearchPage = styled.div<{ expanded: boolean }>`
+  .content-list {
+    padding: 0 1em 0 1em;
+  }
   .divider {
     margin-left: 0.5em;
     margin-right: 0.5em;

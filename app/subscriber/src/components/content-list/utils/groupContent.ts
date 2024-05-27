@@ -49,7 +49,7 @@ export const groupContent = (groupBy: IGroupByState, content: IContentSearchResu
           const date = new Date(item.publishedOn);
           const hours = date.getHours().toString().padStart(2, '0');
           const minutes = date.getMinutes().toString().padStart(2, '0');
-          key = `${moment(date).format('DD/MM/YY')} (${hours}:${minutes})`;
+          key = `${moment(date).format('DD-MMM-YYYY')} ${`(${hours}:${minutes})`}`;
           break;
         case 'source':
           if (!item?.source?.name) {

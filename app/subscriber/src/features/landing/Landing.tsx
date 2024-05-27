@@ -1,5 +1,5 @@
 import { ViewOptions } from 'components/content-list';
-import { FilterOptions } from 'components/media-type-filters';
+import { FilterOptions, FilterOptionsProvider } from 'components/media-type-filters';
 import { INavbarOptionItem, NavbarOptions, navbarOptions } from 'components/navbar/NavbarItems';
 import { PageSection } from 'components/section';
 import { TopDomains } from 'components/top-domains';
@@ -40,77 +40,79 @@ export const Landing: React.FC = () => {
 
   return (
     <styled.Landing className="main-container">
-      <Row className="contents-container">
-        <PageSection
-          ignoreMinWidth
-          activeContent={activeContent}
-          header={
-            <>
-              <Show visible={!!activeItem}>
-                {activeItem?.icon && <div className="page-icon">{activeItem?.icon}</div>}
-                {activeItem === NavbarOptions.settings
-                  ? 'Settings | My Minister'
-                  : activeItem?.label}
+      <FilterOptionsProvider>
+        <Row className="contents-container">
+          <PageSection
+            ignoreMinWidth
+            activeContent={activeContent}
+            header={
+              <>
+                <Show visible={!!activeItem}>
+                  {activeItem?.icon && <div className="page-icon">{activeItem?.icon}</div>}
+                  {activeItem === NavbarOptions.settings
+                    ? 'Settings | My Minister'
+                    : activeItem?.label}
+                </Show>
+                {!!activeItem?.reduxFilterStore && (
+                  <>
+                    <FilterOptions filterStoreName={activeItem?.reduxFilterStore} />
+                    <ViewOptions />
+                  </>
+                )}
+              </>
+            }
+            className="main-panel"
+            includeContentActions={!activeItem}
+          >
+            <div className="content">
+              {/* Home is default selected navigation item on login*/}
+              <Show visible={activeItem === NavbarOptions.home}>
+                <Home />
               </Show>
-              {!!activeItem?.reduxFilterStore && (
-                <>
-                  <FilterOptions filterStoreName={activeItem?.reduxFilterStore} />
-                  <ViewOptions />
-                </>
-              )}
-            </>
-          }
-          className="main-panel"
-          includeContentActions={!activeItem}
-        >
-          <div className="content">
-            {/* Home is default selected navigation item on login*/}
-            <Show visible={activeItem === NavbarOptions.home}>
-              <Home />
-            </Show>
-            <Show visible={!activeItem}>
-              <ViewContent setActiveContent={setActiveContent} />
-            </Show>
-            <Show visible={activeItem === NavbarOptions.settings}>
-              <MyMinisterSettings />
-            </Show>
-            <Show visible={activeItem === NavbarOptions.myMinister}>
-              <MyMinister />
-            </Show>
-            <Show visible={activeItem === NavbarOptions.todaysCommentary}>
-              <TodaysCommentary />
-            </Show>
-            <Show visible={activeItem === NavbarOptions.todaysFrontPages}>
-              <TodaysFrontPages />
-            </Show>
-            <Show visible={activeItem === NavbarOptions.topStories}>
-              <TopStories />
-            </Show>
-            <Show visible={activeItem === NavbarOptions.myProducts}>
-              <MyProducts />
-            </Show>
-            <Show visible={activeItem === NavbarOptions.pressGallery}>
-              <PressGallery />
-            </Show>
-            <Show visible={activeItem === NavbarOptions.mySearches}>
-              <MySearches />
+              <Show visible={!activeItem}>
+                <ViewContent setActiveContent={setActiveContent} />
+              </Show>
+              <Show visible={activeItem === NavbarOptions.settings}>
+                <MyMinisterSettings />
+              </Show>
+              <Show visible={activeItem === NavbarOptions.myMinister}>
+                <MyMinister />
+              </Show>
+              <Show visible={activeItem === NavbarOptions.todaysCommentary}>
+                <TodaysCommentary />
+              </Show>
+              <Show visible={activeItem === NavbarOptions.todaysFrontPages}>
+                <TodaysFrontPages />
+              </Show>
+              <Show visible={activeItem === NavbarOptions.topStories}>
+                <TopStories />
+              </Show>
+              <Show visible={activeItem === NavbarOptions.myProducts}>
+                <MyProducts />
+              </Show>
+              <Show visible={activeItem === NavbarOptions.pressGallery}>
+                <PressGallery />
+              </Show>
+              <Show visible={activeItem === NavbarOptions.mySearches}>
+                <MySearches />
+              </Show>
+              <Show visible={activeItem === NavbarOptions.eveningOverview}>
+                <AVOverviewPreview />
+              </Show>
+            </div>
+          </PageSection>
+          {/* unsure of whether these items will change depending on selected item */}
+          <Col className="right-panel">
+            <Show visible={activeItem !== NavbarOptions.eveningOverview}>
+              <Commentary />
+              <TopDomains />
             </Show>
             <Show visible={activeItem === NavbarOptions.eveningOverview}>
-              <AVOverviewPreview />
+              <MediaOverviewIcons />
             </Show>
-          </div>
-        </PageSection>
-        {/* unsure of whether these items will change depending on selected item */}
-        <Col className="right-panel">
-          <Show visible={activeItem !== NavbarOptions.eveningOverview}>
-            <Commentary />
-            <TopDomains />
-          </Show>
-          <Show visible={activeItem === NavbarOptions.eveningOverview}>
-            <MediaOverviewIcons />
-          </Show>
-        </Col>
-      </Row>
+          </Col>
+        </Row>
+      </FilterOptionsProvider>
     </styled.Landing>
   );
 };
