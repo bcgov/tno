@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormikText, FormikTextArea } from 'tno-core';
+import { FormikText, FormikWysiwyg } from 'tno-core';
 
 import { useReportEditContext } from '../../ReportEditContext';
 
@@ -34,8 +34,9 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
         label="Section heading:"
         disabled={disabled}
       />
-      <FormikTextArea
+      <FormikWysiwyg
         name={`sections.${sectionIndex}.description`}
+        className="frm-in"
         label="Summary text:"
         disabled={disabled}
       />
