@@ -1,9 +1,15 @@
 import styled from 'styled-components';
 
-export const Grid = styled.div`
+import { IGridHeaderColumnProps } from '../Grid';
+
+interface IGridProps {
+  columns: (IGridHeaderColumnProps | undefined)[];
+}
+
+export const Grid = styled.div<IGridProps>`
   .grid-table {
     display: grid;
-    grid-template-columns: 30px 1fr 1fr 1fr 1fr;
+    grid-template-columns: ${(props) => props.columns.map((col) => col?.size ?? '1fr').join(' ')};
     row-gap: 0.5rem;
 
     .grid-header {
