@@ -33,8 +33,6 @@ export const ReportSections = styled.div`
 
       > div {
         > div {
-          display: flex;
-          flex-direction: column;
           gap: 0.15rem;
 
           > div {
