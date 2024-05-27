@@ -1,17 +1,10 @@
+import { Grid } from 'components/grid';
+import { SortDirection } from 'components/grid/SortAction';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useUsers } from 'store/hooks/admin';
-import {
-  FlexboxTable,
-  INotificationModel,
-  ITableInternal,
-  ITablePage,
-  ITableSort,
-  IUserNotificationModel,
-  ResendOptionName,
-} from 'tno-core';
+import { CellEllipsis, Checkbox, INotificationModel } from 'tno-core';
 
-import { subscriberColumns } from './constants';
 import { NotificationFilter } from './NotificationFilter';
 
 export const NotificationSubscribersForm = () => {
@@ -26,26 +19,6 @@ export const NotificationSubscribersForm = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handlePageChange = React.useCallback(
-    async (page: ITablePage, table: ITableInternal<IUserNotificationModel>) => {
-      await findUsers({ page: page.pageIndex + 1, quantity: page.pageSize });
-    },
-    [findUsers],
-  );
-
-  const handleSortChange = React.useCallback(
-    async (
-      sort: ITableSort<IUserNotificationModel>[],
-      table: ITableInternal<IUserNotificationModel>,
-    ) => {
-      const sorts = sort
-        .filter((s) => s.isSorted)
-        .map((s) => `${s.id}${s.isSortedDesc ? ' desc' : ''}`);
-      await findUsers({ page: 1, quantity: users.quantity, sort: sorts });
-    },
-    [findUsers, users.quantity],
-  );
-
   return (
     <div>
       <NotificationFilter
@@ -53,24 +26,56 @@ export const NotificationSubscribersForm = () => {
           await findUsers({ page: 1, quantity: users.quantity, keyword: value });
         }}
       />
-      <FlexboxTable
-        rowId="id"
-        columns={subscriberColumns(values, setFieldValue)}
-        data={users.items.map<IUserNotificationModel>((u) => {
-          const subscriber = values.subscribers.find((s) => s.id === u.id);
-          return {
-            ...u,
-            resend: subscriber?.resend ?? ResendOptionName.Never,
-            isSubscribed: subscriber?.isSubscribed ?? false,
-          };
-        })}
-        manualPaging
-        pageIndex={users.page}
-        pageSize={users.quantity}
-        pageCount={Math.ceil(users.total / users.quantity)}
-        onPageChange={handlePageChange}
-        onSortChange={handleSortChange}
-        showSort
+      <Grid
+        data={users}
+        showPaging
+        onNavigatePage={async (page) => {
+          await findUsers({ page, quantity: users.quantity });
+        }}
+        onQuantityChange={async (quantity) => {
+          await findUsers({ page: 1, quantity: quantity });
+        }}
+        onSortChange={async (column, direction) => {
+          await findUsers({
+            page: 1,
+            quantity: users.quantity,
+            sort: direction === SortDirection.None ? [] : [`${column.name} ${direction}`],
+          });
+        }}
+        renderHeader={() => [
+          { name: 'isSubscribed', label: '' },
+          { name: 'username', label: 'Username', sortable: true },
+          { name: 'lastName', label: 'Last Name', sortable: true },
+          { name: 'firstName', label: 'First Name', sortable: true },
+          { name: 'email', label: 'Email', sortable: true },
+        ]}
+        renderRow={(row) => [
+          <Checkbox
+            key=""
+            name={`chk-${row.id}`}
+            checked={values.subscribers.some((u) => u.id === row.id && u.isSubscribed)}
+            onChange={(e) => {
+              const user = { ...row, isSubscribed: e.target.checked };
+              if (values.subscribers.some((u) => u.id === user.id))
+                setFieldValue(
+                  'subscribers',
+                  values.subscribers.map((item) => (item.id === user.id ? user : item)),
+                );
+              else setFieldValue('subscribers', [user, ...values.subscribers]);
+            }}
+          />,
+          <CellEllipsis key="">{row.username}</CellEllipsis>,
+          <CellEllipsis key="">{row.lastName}</CellEllipsis>,
+          <CellEllipsis key="">{row.firstName}</CellEllipsis>,
+          <>
+            <CellEllipsis>{row.email}</CellEllipsis>
+            {row.preferredEmail ? (
+              <CellEllipsis className="preferred">{row.preferredEmail}</CellEllipsis>
+            ) : (
+              ''
+            )}
+          </>,
+        ]}
       />
     </div>
   );

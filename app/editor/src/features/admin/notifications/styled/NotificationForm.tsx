@@ -63,4 +63,8 @@ export const NotificationForm = styled(FormPage)`
     border-radius: 0.5rem;
     background: ${(props) => props.theme.css.lightAccentColor};
   }
+
+  .grid {
+    margin-bottom: 1rem;
+  }
 `;
