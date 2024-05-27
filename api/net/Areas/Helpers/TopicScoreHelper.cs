@@ -1,5 +1,8 @@
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Content;
+using TNO.API.Config;
+using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Entities;
 
@@ -13,9 +16,9 @@ namespace TNO.API.Helpers
         #region Variables
         private readonly ITopicScoreRuleService _topicScoreRuleService;
         private readonly ITopicService _topicService;
+        private readonly ApiOptions _options;
         private readonly ILogger<TopicScoreHelper> _logger;
         private readonly static Regex _pageNumberAndPrefixRegex = new Regex(@"(?<page_prefix>[a-zA-Z]+)?(?<page_number>\d+)?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private readonly static TimeZoneInfo PST = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
         #endregion
 
         #region Constructors
@@ -24,11 +27,13 @@ namespace TNO.API.Helpers
         /// </summary>
         /// <param name="topicScoreRuleService"></param>
         /// <param name="topicService"></param>
+        /// <param name="apiOptions"></param>
         /// <param name="logger"></param>
-        public TopicScoreHelper(ITopicScoreRuleService topicScoreRuleService, ITopicService topicService, ILogger<TopicScoreHelper> logger)
+        public TopicScoreHelper(ITopicScoreRuleService topicScoreRuleService, ITopicService topicService, IOptions<ApiOptions> apiOptions, ILogger<TopicScoreHelper> logger)
         {
             _topicScoreRuleService = topicScoreRuleService;
             _topicService = topicService;
+            _options = apiOptions.Value;
             _logger = logger;
         }
         #endregion
@@ -215,7 +220,7 @@ namespace TNO.API.Helpers
         /// <param name="timeMin"></param>
         /// <param name="timeMax"></param>
         /// <returns></returns>
-        private static bool IsAudioVideoContentATimeMatch(DateTime? publishedOn, TimeSpan? timeMin, TimeSpan? timeMax)
+        private bool IsAudioVideoContentATimeMatch(DateTime? publishedOn, TimeSpan? timeMin, TimeSpan? timeMax)
         {
             if (publishedOn == null && (timeMin.HasValue || timeMax.HasValue))
                 return false;
@@ -223,7 +228,7 @@ namespace TNO.API.Helpers
                 return true;
 
             // Always treat the timeMin and timeMax as PST.
-            var publishedOnTime = TimeZoneInfo.ConvertTimeFromUtc(publishedOn.Value, PST).TimeOfDay;
+            var publishedOnTime = publishedOn.Value.ToTimeZone(_options.TimeZone).TimeOfDay;
 
             if (timeMin != null && timeMax != null &&
               (publishedOnTime < timeMin || publishedOnTime > timeMax)

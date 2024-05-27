@@ -329,7 +329,7 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
             return false;
         }
 
-        var now = DateTime.Now.ToLocalTime();
+        var now = DateTime.Now.ToTimeZone(this.Options.TimeZone);
 
         if (!filter.Settings.SearchUnpublished && content.Status == Entities.ContentStatus.Draft)
         {
@@ -401,16 +401,16 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
             return false;
         }
 
-        var publishedOn = content.PublishedOn?.ToLocalTime();
+        var publishedOn = content.PublishedOn?.ToTimeZone(this.Options.TimeZone);
 
-        if (filter.Settings.StartDate != null && publishedOn < filter.Settings.StartDate)
+        if (filter.Settings.StartDate != null && publishedOn < filter.Settings.StartDate.Value.ToTimeZone(this.Options.TimeZone))
         {
             this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}. Content.PublishedOn is {actual}, but the folder filter StartDate is {target}.",
-                content.Id, filter.Id, content.PublishedOn, filter.Settings.StartDate);
+                content.Id, filter.Id, content.PublishedOn, filter.Settings.StartDate.Value.ToTimeZone(this.Options.TimeZone));
             return false;
         }
 
-        if (filter.Settings.EndDate != null && publishedOn > filter.Settings.EndDate)
+        if (filter.Settings.EndDate != null && publishedOn > filter.Settings.EndDate.Value.ToTimeZone(this.Options.TimeZone))
         {
             this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}. Content.PublishedOn is {actual}, but the folder filter EndDate is {target}.",
                 content.Id, filter.Id, content.PublishedOn, filter.Settings.EndDate);
