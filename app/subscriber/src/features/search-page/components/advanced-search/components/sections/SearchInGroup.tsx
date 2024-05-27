@@ -12,7 +12,7 @@ export const SearchInGroup: React.FC = () => {
 
   return (
     <Row className="options expanded space-top">
-      <label className="search-in-label">SEARCH IN: </label>
+      <label className="search-in-label">Search in: </label>
       <Checkbox
         id="chkInHeadline"
         label="Headline"

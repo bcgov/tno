@@ -32,6 +32,9 @@ export const ContentRow = styled(Col)`
     }
   }
 
+  .attributes {
+  }
+
   @media (max-width: 768px) {
     .attributes:not(.mobile) {
       display: none;
@@ -167,10 +170,12 @@ export const ContentRow = styled(Col)`
     &.with-grip {
       margin-left: 5.75rem;
     }
-    margin-left: 4.25rem;
+    color: ${(props) => props.theme.css.btnSecondaryColor};
+    margin-left: 4rem;
     background-color: ${(props) => props.theme.css.teaserBackground};
-    font-family: ${(props) => props.theme.css.fSecondary};
-    font-size: 0.9rem;
+    font-family: ${(props) => props.theme.css.fPrimary};
+    font-size: 1rem;
+    font-weight: 400;
     border-radius: 0.25rem;
     padding: 0.2rem;
     margin-bottom: 0.25rem;
@@ -178,7 +183,8 @@ export const ContentRow = styled(Col)`
     cursor: default;
   }
   .headline {
-    font-family: ${(props) => props.theme.css.fSecondary};
+    font-family: ${(props) => props.theme.css.fPrimary};
+    font-size: 1.1rem;
     text-decoration: none;
     margin-right: auto;
     &:hover {

@@ -8,6 +8,14 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     width: 100%;
   }
 
+  .elastic-info {
+    margin-left: auto;
+  }
+
+  .toggle-item {
+    font-size: 0.9em;
+  }
+
   .narrow-filter-header {
     display: flex;
     justify-content: space-between;
@@ -164,9 +172,8 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
 
   /* LABEL FOR THE TEXT AREA IN FIRST SECTION */
   .search-in-label {
+    font-weight: 700;
     margin-right: 0.5em;
-    font-size: 0.8em;
-    align-self: center;
   }
 
   /* CHECKBOX OPTIONS PASSED IN THE SEARCH IN GROUP SECTION */
@@ -203,6 +210,8 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
   /* EXPANDABLE ROW IN THE ADVANCED SEARCH */
   .option-row {
     padding: 0.5em 0 0.5em 0.5em;
+    color: ${(props) => props.theme.css.btnSecondaryColor};
+    font-weight: 650;
 
     &:hover {
       cursor: pointer;
@@ -221,6 +230,8 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     .frm-in {
       width: 100%;
     }
+    margin-left: 2em;
+    color: ${(props) => props.theme.css.btnSecondaryColor};
   }
 
   /* FOR THE DATE PICKER SECTION */

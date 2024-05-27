@@ -7,7 +7,7 @@ import * as styled from './styled';
 /** Component that displays help text for elastic search queries */
 export const ElasticInfo: React.FC = () => {
   return (
-    <styled.ElasticInfo>
+    <styled.ElasticInfo className="elastic-info">
       <FaInfoCircle data-tooltip-id="elastic-info" className="info-icon" />
       <TooltipMenu openOnClick id="elastic-info">
         <Col>

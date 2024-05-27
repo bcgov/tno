@@ -174,17 +174,4 @@ export const SearchPage = styled.div<{ expanded: boolean }>`
   .minimized {
     max-width: 59%;
   }
-
-  .media-button {
-    max-width: fit-content;
-    font-size: 0.6em;
-    margin-left: auto;
-    cursor: pointer;
-    border-radius: 0.25em;
-    border-width: 0.5px;
-    svg {
-      margin-top: 0.25em;
-      margin-left: 0.5em;
-    }
-  }
 `;
