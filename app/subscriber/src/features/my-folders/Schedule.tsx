@@ -5,7 +5,7 @@ import ReactDatePicker from 'react-datepicker';
 import { FaInfoCircle } from 'react-icons/fa';
 import { FaGear } from 'react-icons/fa6';
 import { Tooltip } from 'react-tooltip';
-import { Checkbox, Col, FieldSize, IFolderScheduleModel, Row, Show, Text } from 'tno-core';
+import { Checkbox, Col, FieldSize, IFolderScheduleModel, Row, Show } from 'tno-core';
 
 import { daysOfWeek } from './constants/daysOfWeek';
 
@@ -111,32 +111,9 @@ export const Schedule: React.FC<IScheduleProps> = ({ folderSchedule, onScheduleC
                   value={day.value}
                 />
               ))}
-              <Row className="keep-stories">
-                Keep stories for
-                <Text
-                  width={FieldSize.Small}
-                  name="days"
-                  type="number"
-                  min="0"
-                  max="365"
-                  value={folderSchedule?.settings.keepAgeLimit ?? 0}
-                  onChange={(e) => {
-                    onScheduleChange?.({
-                      ...folderSchedule,
-                      settings: { keepAgeLimit: e.target.value },
-                    } as IFolderScheduleModel);
-                  }}
-                />
-                days.
-                <FaInfoCircle data-tooltip-id="keep-age" className="info" />
-              </Row>
             </div>
           </Col>
         </Row>
-        <Tooltip id="keep-age" variant="info">
-          Remove content older than specified amount of days. Use '0' if you would like to remove
-          all content.
-        </Tooltip>
         <Tooltip id="start-on" variant="info">
           If you want to delay when this schedule begins running, enter a date.
         </Tooltip>

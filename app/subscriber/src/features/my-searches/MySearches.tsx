@@ -5,7 +5,7 @@ import { FaCheck, FaSave } from 'react-icons/fa';
 import { FaBookmark, FaGear, FaPen, FaRegClipboard, FaTrash } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useContent, useFilters } from 'store/hooks';
+import { useApp, useContent, useFilters } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 import { Col, IFilterModel, Modal, Row, Text, useModal } from 'tno-core';
 
@@ -19,17 +19,18 @@ export const MySearches = () => {
   const navigate = useNavigate();
   const [, { storeSearchFilter }] = useContent();
   const [, { storeFilter }] = useProfileStore();
+  const [{ userInfo }] = useApp();
 
   const [active, setActive] = React.useState<IFilterModel>();
   const [editing, setEditing] = React.useState<IFilterModel>();
 
   React.useEffect(() => {
-    if (!myFilters.length) {
+    if (userInfo && !myFilters.length) {
       findMyFilters().catch(() => {});
     }
     // Only do this on init.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [userInfo]);
 
   const handleSave = React.useCallback(
     (filter: IFilterModel) => {

@@ -19,7 +19,7 @@ import {
 
 import { IDateOptions, IGroupedDates, IPressMember } from './interfaces';
 import * as styled from './styled';
-import { generateDates, seperateAlias } from './utils';
+import { generateDates, separateAlias } from './utils';
 
 export const PressGallery: React.FC = () => {
   const [, api] = useContributors();
@@ -96,7 +96,7 @@ export const PressGallery: React.FC = () => {
             return contributor.name;
           }
         });
-      const formattedAliases = seperateAlias(allAliases);
+      const formattedAliases = separateAlias(allAliases);
       setAliases(formattedAliases);
     });
     // run on init

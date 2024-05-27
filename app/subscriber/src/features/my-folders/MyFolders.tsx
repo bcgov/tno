@@ -3,6 +3,7 @@ import React from 'react';
 import { FaFolderPlus, FaWandMagicSparkles } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useApp } from 'store/hooks';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
 import { FlexboxTable, Row, Text } from 'tno-core';
 
@@ -14,15 +15,16 @@ export interface IMyFoldersProps {}
 /** contains a list of the user's folders, allows for edit and viewing */
 export const MyFolders: React.FC<IMyFoldersProps> = () => {
   const navigate = useNavigate();
+  const [{ userInfo }] = useApp();
   const [{ myFolders }, { findMyFolders, addFolder }] = useFolders();
   const columns = useColumns();
 
   const [newFolderName, setNewFolderName] = React.useState<string>('');
 
   React.useEffect(() => {
-    if (!myFolders.length) findMyFolders().catch(() => {});
+    if (userInfo && !myFolders.length) findMyFolders().catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [userInfo]);
 
   const handleAdd = () => {
     if (newFolderName)

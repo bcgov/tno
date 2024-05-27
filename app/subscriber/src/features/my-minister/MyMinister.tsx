@@ -51,7 +51,7 @@ export const MyMinister: React.FC = () => {
 
   React.useEffect(
     () => {
-      if (!ministers.length) {
+      if (userInfo && !ministers.length) {
         api.getMinisters().then((data) => {
           setMinisters(data);
         });
@@ -59,7 +59,7 @@ export const MyMinister: React.FC = () => {
     },
     // do not want to trigger on loading change, will cause infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [userInfo],
   );
 
   const fetchResults = React.useCallback(

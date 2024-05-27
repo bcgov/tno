@@ -11,7 +11,11 @@ namespace TNO.DAL.Services;
 public class FolderService : BaseService<Folder, int>, IFolderService
 {
     #region Constructors
-    public FolderService(TNOContext dbContext, ClaimsPrincipal principal, IServiceProvider serviceProvider, ILogger<TagService> logger) : base(dbContext, principal, serviceProvider, logger)
+    public FolderService(
+        TNOContext dbContext,
+        ClaimsPrincipal principal,
+        IServiceProvider serviceProvider,
+        ILogger<TagService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
     }
     #endregion
@@ -114,12 +118,12 @@ public class FolderService : BaseService<Folder, int>, IFolderService
         original.Version = entity.Version;
         if (entity.Events.Any())
         {
-			foreach (var folderEvent in entity.Events)
+            foreach (var folderEvent in entity.Events)
             {
                 folderEvent.FolderId = entity.Id;
                 if (folderEvent.Id == 0)
                 {
-					if (folderEvent.ScheduleId == 0 && folderEvent.Schedule != null)
+                    if (folderEvent.ScheduleId == 0 && folderEvent.Schedule != null)
                     {
                         this.Context.Add(folderEvent.Schedule);
                     }
@@ -260,7 +264,8 @@ public class FolderService : BaseService<Folder, int>, IFolderService
     {
         var folder = this.Context.Folders.Find(id) ?? throw new NoContentException();
         var keepAgeLimit = folder.Settings.GetElementValue<int>(".keepAgeLimit", 0);
-        var now = DateTime.UtcNow.AddDays(keepAgeLimit * -1);
+        var now = DateTime.Now;
+        now = new DateTime(now.Year, now.Month, now.Day).AddDays(keepAgeLimit * -1);  // Full days rather than compared to when the process runs.
 
         if (keepAgeLimit == 0)
             this.Context.Database.ExecuteSql($"DELETE FROM public.folder_content WHERE \"folder_id\"={id};");
@@ -268,9 +273,16 @@ public class FolderService : BaseService<Folder, int>, IFolderService
         {
             var sqlParams = new object[] {
                 new Npgsql.NpgsqlParameter("folderId", id),
-                new Npgsql.NpgsqlParameter("publishedOn", now),
+                new Npgsql.NpgsqlParameter("publishedOn", now.ToUniversalTime()),
             };
-            this.Context.Database.ExecuteSqlRaw("DELETE FROM public.folder_content WHERE \"content_id\" IN (SELECT c.\"id\" FROM public.content c JOIN public.folder_content fc ON fc.\"folder_id\" = @folderId AND c.\"published_on\" < @publishedOn);", sqlParams);
+            this.Context.Database.ExecuteSqlRaw(
+                @$"DELETE FROM public.folder_content
+                WHERE ""folder_id"" = @folderId
+                    AND ""content_id"" IN (
+                        SELECT ""content_id"" from public.""folder_content"" fc
+                        JOIN public.""content"" c ON fc.""content_id"" = c.""id""
+                        WHERE fc.""folder_id"" = @folderId
+                            AND c.""published_on"" < @publishedOn);", sqlParams);
         }
     }
     #endregion
