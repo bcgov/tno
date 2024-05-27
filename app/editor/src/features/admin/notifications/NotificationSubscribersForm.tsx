@@ -3,7 +3,7 @@ import { SortDirection } from 'components/grid/SortAction';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useUsers } from 'store/hooks/admin';
-import { CellEllipsis, Checkbox, INotificationModel } from 'tno-core';
+import { CellEllipsis, Checkbox, INotificationModel, IUserFilter } from 'tno-core';
 
 import { NotificationFilter } from './NotificationFilter';
 
@@ -11,13 +11,22 @@ export const NotificationSubscribersForm = () => {
   const { values, setFieldValue } = useFormikContext<INotificationModel>();
   const [{ users }, { findUsers }] = useUsers();
 
+  const [filter, setFilter] = React.useState<IUserFilter>({ page: 1, quantity: 100, sort: [] });
+
+  const fetch = React.useCallback(
+    async (filter: IUserFilter) => {
+      try {
+        await findUsers(filter);
+      } catch {}
+    },
+    [findUsers],
+  );
+
   React.useEffect(() => {
-    findUsers({}).catch(() => {
-      // Handled already.
-    });
-    // Fetch users on initial load only.
+    fetch(filter).catch();
+    // The fetch method will result in infinite loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [filter]);
 
   return (
     <div>
@@ -30,20 +39,20 @@ export const NotificationSubscribersForm = () => {
         data={users}
         showPaging
         onNavigatePage={async (page) => {
-          await findUsers({ page, quantity: users.quantity });
+          setFilter((filter) => ({ ...filter, page }));
         }}
         onQuantityChange={async (quantity) => {
-          await findUsers({ page: 1, quantity: quantity });
+          setFilter((filter) => ({ ...filter, page: 1, quantity }));
         }}
         onSortChange={async (column, direction) => {
-          await findUsers({
+          setFilter((filter) => ({
+            ...filter,
             page: 1,
-            quantity: users.quantity,
             sort: direction === SortDirection.None ? [] : [`${column.name} ${direction}`],
-          });
+          }));
         }}
         renderHeader={() => [
-          { name: 'isSubscribed', label: '' },
+          { name: 'isSubscribed', label: '', size: '30px' },
           { name: 'username', label: 'Username', sortable: true },
           { name: 'lastName', label: 'Last Name', sortable: true },
           { name: 'firstName', label: 'First Name', sortable: true },

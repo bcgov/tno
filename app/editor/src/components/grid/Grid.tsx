@@ -5,10 +5,11 @@ import { IPaged, Text } from 'tno-core';
 import { SortAction, SortDirection } from './SortAction';
 import * as styled from './styled';
 
-interface IGridHeaderColumnProps {
+export interface IGridHeaderColumnProps {
   name?: string;
   label?: React.ReactNode;
   sortable?: boolean;
+  size?: string;
 }
 
 interface IGridProps<T> {
@@ -16,7 +17,7 @@ interface IGridProps<T> {
   data: IPaged<T>;
   renderHeader?: () => (React.ReactNode | IGridHeaderColumnProps)[];
   showPaging?: boolean;
-  renderRow: (row: T) => React.ReactNode[];
+  renderRow: (row: T, index?: number) => React.ReactNode[];
   onNavigatePage?: (page: number) => void;
   onQuantityChange?: (quantity: number) => void;
   onSortChange?: (column: IGridHeaderColumnProps, direction: SortDirection) => void;
@@ -32,17 +33,24 @@ export const Grid = <T,>({
   onQuantityChange,
   onSortChange,
 }: IGridProps<T>) => {
-  const [quantity, setQuantity] = React.useState(data.quantity);
-
   const numberOfPages = Math.ceil(data.total / data.quantity);
   const headers = renderHeader?.() ?? [];
+  const columns = headers.map((col) => {
+    const _column = col as IGridHeaderColumnProps;
+    return _column.size ? _column : undefined;
+  });
 
+  const [quantity, setQuantity] = React.useState(data.quantity);
   const [sorting, setSorting] = React.useState<SortDirection[]>(
     headers.map(() => SortDirection.None),
   );
 
+  React.useEffect(() => {
+    setQuantity(data.quantity);
+  }, [data.quantity]);
+
   return (
-    <styled.Grid className={`grid${className ? ` ${className}` : ''}`}>
+    <styled.Grid className={`grid${className ? ` ${className}` : ''}`} columns={columns}>
       <div className="grid-table">
         {headers.map((column, columnIndex) => {
           const _column = column as IGridHeaderColumnProps;
@@ -69,7 +77,7 @@ export const Grid = <T,>({
           );
         })}
         {data.items.map((item, rowIndex) =>
-          renderRow(item).map((column, columnIndex) => (
+          renderRow(item, rowIndex).map((column, columnIndex) => (
             <div key={`${rowIndex}-${columnIndex}`} className="grid-column">
               {column}
             </div>
