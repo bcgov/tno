@@ -32,9 +32,6 @@ export const ContentRow = styled(Col)`
     }
   }
 
-  .attributes {
-  }
-
   @media (max-width: 768px) {
     .attributes:not(.mobile) {
       display: none;
