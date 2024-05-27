@@ -1,0 +1,84 @@
+import styled from 'styled-components';
+
+export const Grid = styled.div`
+  .grid-table {
+    display: grid;
+    grid-template-columns: 30px 1fr 1fr 1fr 1fr;
+    row-gap: 0.5rem;
+
+    .grid-header {
+      border-top: solid 2px black;
+      border-bottom: solid 2px black;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0 0.5rem;
+      font-weight: 800;
+
+      > svg {
+        max-width: 12px;
+        max-height: 12px;
+        color: ${(props) => props.theme.css.primaryColor};
+
+        &:hover:not(.disabled) {
+          color: ${(props) => props.theme.css.primaryLightColor};
+          cursor: pointer;
+        }
+      }
+
+      &:hover {
+        background: ${(props) => props.theme.css.lightAccentColor};
+      }
+    }
+
+    .grid-column {
+      padding: 0.25rem 0.5rem;
+      display: flex;
+      flex-direction: row;
+      gap: 1rem;
+      border-bottom: solid 1px ${(props) => props.theme.css.tableEvenRowColor};
+    }
+  }
+
+  .grid-pager {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.25rem;
+    background: ${(props) => props.theme.css.tableEvenRowColor};
+    border-bottom-left-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+
+    > div {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      svg {
+        color: ${(props) => props.theme.css.primaryColor};
+
+        &.disabled {
+          color: ${(props) => props.theme.css.lightVariantColor};
+        }
+
+        &:hover:not(.disabled) {
+          color: ${(props) => props.theme.css.primaryLightColor};
+          cursor: pointer;
+        }
+      }
+
+      > div.frm-in {
+        padding: 0;
+        margin: 0;
+
+        input {
+          padding: 0 0.15rem;
+        }
+      }
+    }
+  }
+`;
