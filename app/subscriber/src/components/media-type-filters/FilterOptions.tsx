@@ -44,8 +44,9 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
   const [{ userInfo }, store] = useAppStore();
   const filterStoreMethod = determineStore(filterStoreName);
   const api = useUsers();
-  const [hasProcessedInitialPreference, setHasProcessedInitialPreference] = useState(false);
-  const { active, setActive } = useFilterOptionContext();
+  const { hasProcessedInitialPreferences, setHasProcessedInitialPreferences } =
+    useFilterOptionContext();
+  const [active, setActive] = useState<FilterOptionTypes | undefined>(undefined);
   const savePreferences = async (filterPreference: FilterOptionTypes) => {
     if (userInfo) {
       try {
@@ -63,18 +64,18 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
     // if the user has a preference set, set the active filter to that preference
     // otherwise set the active filter to all
     // then set hasProcessedInitialPreference to true which will prevent this from running again
-    if (userInfo && !hasProcessedInitialPreference) {
+    if (userInfo && !hasProcessedInitialPreferences) {
       if (userInfo.preferences && userInfo.preferences.filterPreference) {
         setActive(userInfo.preferences.filterPreference);
         handleFilterClick(userInfo.preferences.filterPreference);
       } else {
         setActive(FilterOptionTypes.All);
       }
-      setHasProcessedInitialPreference(true);
+      setHasProcessedInitialPreferences(true);
     }
     // only fire when userInfo and process complete
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo, hasProcessedInitialPreference]);
+  }, [userInfo, hasProcessedInitialPreferences]);
 
   const [
     {
@@ -146,7 +147,7 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
 
   useEffect(() => {
     // Initial Check: Ensure initial preferences have been processed before proceeding
-    if (hasProcessedInitialPreference) {
+    if (hasProcessedInitialPreferences) {
       if (!filter.contentTypes?.length && !filter.mediaTypeIds?.length) {
         setActive(FilterOptionTypes.All);
       } else if (

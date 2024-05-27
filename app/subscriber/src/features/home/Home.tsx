@@ -23,8 +23,8 @@ export const Home: React.FC = () => {
     },
     { findContentWithElasticsearch, storeHomeFilter: storeFilter },
   ] = useContent();
-  const { active } = useFilterOptionContext();
 
+  const { hasProcessedInitialPreferences } = useFilterOptionContext();
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const { featuredStoryActionId } = useSettings(true);
@@ -46,7 +46,7 @@ export const Home: React.FC = () => {
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
     // wait for userinfo incase applying previously viewed filter
-    if (!!featuredStoryActionId && !!active) {
+    if (!!featuredStoryActionId && hasProcessedInitialPreferences) {
       fetchResults(
         generateQuery(
           filterFormat({
@@ -62,7 +62,7 @@ export const Home: React.FC = () => {
         ),
       );
     }
-  }, [filter, fetchResults, featuredStoryActionId, active]);
+  }, [filter, fetchResults, featuredStoryActionId, hasProcessedInitialPreferences]);
 
   return (
     <styled.Home>

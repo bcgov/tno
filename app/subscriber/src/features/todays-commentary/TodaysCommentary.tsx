@@ -23,7 +23,7 @@ export const TodaysCommentary: React.FC = () => {
   ] = useContent();
   const getActionFilters = useActionFilters();
   const { commentaryActionId } = useSettings();
-  const { active } = useFilterOptionContext();
+  const { hasProcessedInitialPreferences } = useFilterOptionContext();
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
 
@@ -32,7 +32,7 @@ export const TodaysCommentary: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    if (commentaryActionId && !!active) {
+    if (commentaryActionId && hasProcessedInitialPreferences) {
       let actionFilters = getActionFilters();
       const commentaryAction = actionFilters.find((a) => a.id === commentaryActionId);
 
@@ -59,7 +59,13 @@ export const TodaysCommentary: React.FC = () => {
         })
         .catch();
     }
-  }, [commentaryActionId, filter, findContentWithElasticsearch, getActionFilters, active]);
+  }, [
+    commentaryActionId,
+    filter,
+    findContentWithElasticsearch,
+    getActionFilters,
+    hasProcessedInitialPreferences,
+  ]);
 
   return (
     <styled.TodaysCommentary>

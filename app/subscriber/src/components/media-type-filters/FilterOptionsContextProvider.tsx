@@ -1,10 +1,8 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
 
-import { FilterOptionTypes } from './constants';
-
 interface IFilterOptionsContext {
-  active: FilterOptionTypes | undefined;
-  setActive: React.Dispatch<React.SetStateAction<FilterOptionTypes | undefined>>;
+  hasProcessedInitialPreferences: boolean;
+  setHasProcessedInitialPreferences: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const FilterOptionContext = createContext<IFilterOptionsContext | undefined>(undefined);
@@ -22,10 +20,13 @@ interface IFilterOptionsProvider {
 }
 
 export const FilterOptionsProvider: React.FC<IFilterOptionsProvider> = ({ children }) => {
-  const [active, setActive] = useState<FilterOptionTypes | undefined>(undefined);
+  const [hasProcessedInitialPreferences, setHasProcessedInitialPreferences] =
+    useState<boolean>(false);
 
   return (
-    <FilterOptionContext.Provider value={{ active, setActive }}>
+    <FilterOptionContext.Provider
+      value={{ hasProcessedInitialPreferences, setHasProcessedInitialPreferences }}
+    >
       {children}
     </FilterOptionContext.Provider>
   );
