@@ -43,7 +43,7 @@ export const ContentList: React.FC<IContentListProps> = ({
   handleDrop,
   scrollWithin = false,
   showSeries = false,
-  showTime = false,
+  showTime = true,
   cacheCheck = true,
   filter,
 }) => {
