@@ -2,7 +2,7 @@ import { PageSection } from 'components/section';
 import React from 'react';
 import { FaEnvelope, FaUserPlus } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { useProducts } from 'store/hooks';
+import { useApp, useProducts } from 'store/hooks';
 import { IProductSubscriberModel, Modal, Row, Show, useModal } from 'tno-core';
 
 import { ProductCard } from './ProductCard';
@@ -11,17 +11,20 @@ import * as styled from './styled';
 export const MyProducts: React.FC = () => {
   const [{ getProducts, toggleSubscription }] = useProducts();
   const { toggle, isShowing } = useModal();
+  const [{ userInfo }] = useApp();
 
   const [products, setProducts] = React.useState<IProductSubscriberModel[]>([]);
   const [product, setProduct] = React.useState<IProductSubscriberModel>();
 
   React.useEffect(() => {
-    getProducts().then((data) => {
-      setProducts(data);
-    });
+    if (userInfo && !products.length) {
+      getProducts().then((data) => {
+        setProducts(data);
+      });
+    }
     // Only do this on init.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [userInfo]);
 
   const handleToggleSubscription = React.useCallback(
     (product: IProductSubscriberModel) => {

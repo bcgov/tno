@@ -17,7 +17,6 @@ public interface IFolderService : IBaseService<Folder, int>
     /// Clean content from the folder based on the folder's configuration settings.
     /// </summary>
     /// <param name="id"></param>
-    /// <exception cref="NoContentException"></exception>
     void CleanFolder(int id);
 
     Folder UpdateAndSave(Folder entity, bool updateContent);

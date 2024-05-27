@@ -1,2 +1,2 @@
 export * from './generateDates';
-export * from './seperateAlias';
+export * from './separateAlias';

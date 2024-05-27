@@ -1,10 +1,11 @@
 import { Button } from 'components/button';
 import { Modal } from 'components/modal';
 import * as React from 'react';
-import { FaArrowAltCircleRight } from 'react-icons/fa';
+import { FaArrowAltCircleRight, FaInfoCircle } from 'react-icons/fa';
 import { FaGear, FaTrash } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { Tooltip } from 'react-tooltip';
 import { useContent, useFilters, useFolders } from 'store/hooks';
 import {
   Checkbox,
@@ -278,6 +279,34 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
             });
           }}
         />
+        <Row className="keep-stories">
+          Keep stories for
+          <Text
+            width={FieldSize.Small}
+            name="days"
+            type="number"
+            min="0"
+            max="365"
+            value={currentFolder?.settings.keepAgeLimit ?? 0}
+            onChange={(e) => {
+              const value = parseInt(e.currentTarget.value);
+              setCurrentFolder({
+                ...(currentFolder as IFolderModel),
+                settings: {
+                  ...currentFolder?.settings,
+                  keepAgeLimit: value,
+                  autoPopulate: currentFolder?.settings.autoPopulate ?? false,
+                },
+              });
+            }}
+          />
+          days.
+          <FaInfoCircle data-tooltip-id="keep-age" className="info" />
+        </Row>
+        <Tooltip id="keep-age" variant="info">
+          Remove content older than specified amount of days. Use '0' if you would like to remove
+          all content.
+        </Tooltip>
         <Row className="action-buttons">
           <Button variant="secondary" onClick={() => navigate(`/folders`)}>
             Cancel

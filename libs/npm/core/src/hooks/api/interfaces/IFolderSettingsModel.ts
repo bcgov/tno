@@ -8,5 +8,5 @@ export interface IFolderSettingsModel extends Record<string, any> {
   /// <summary>
   /// get/set - If the folder auto populates.
   /// </summary>
-  autoPopulate: boolean;
+  autoPopulate?: boolean;
 }
