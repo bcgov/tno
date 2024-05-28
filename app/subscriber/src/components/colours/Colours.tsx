@@ -15,6 +15,7 @@ export interface IColoursProps {
   values?: string[];
   className?: string;
   placeholders?: string[];
+  disabled?: boolean;
   onChange?: (newValue: string | undefined | null, values: string[]) => void;
   onOpenPicker?: () => void;
   onClosePicker?: () => void;
@@ -33,6 +34,7 @@ export const Colours = ({
   values: initValues,
   className,
   placeholders,
+  disabled,
   onChange,
   onOpenPicker,
   onClosePicker,
@@ -78,7 +80,9 @@ export const Colours = ({
   }));
 
   return (
-    <styled.Colours className={`frm-in${className ? ` ${className}` : ''}`}>
+    <styled.Colours
+      className={`frm-in${className ? ` ${className}` : ''}${disabled ? ` disabled` : ''}`}
+    >
       {label && <label>{label}</label>}
       {values.map((itemValue, index) => {
         return (
@@ -89,6 +93,7 @@ export const Colours = ({
                   name={`${name}-${index}`}
                   options={optionItems}
                   isClearable
+                  isDisabled={disabled}
                   placeholder={
                     placeholders && placeholders.length > index ? placeholders[index] : undefined
                   }
@@ -100,6 +105,7 @@ export const Colours = ({
               </Col>
               <Action
                 icon={<FaPalette />}
+                disabled={disabled}
                 onClick={() => {
                   setShowPicker(index);
                   onOpenPicker?.();
