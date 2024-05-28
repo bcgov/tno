@@ -77,6 +77,9 @@ export const TodaysCommentary: React.FC = () => {
       <ContentList
         content={content}
         selected={selected}
+        showSeries
+        showDate
+        showTime
         onContentSelected={handleContentSelected}
       />
     </styled.TodaysCommentary>

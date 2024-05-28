@@ -77,6 +77,8 @@ export const Home: React.FC = () => {
       <ContentList
         onContentSelected={handleContentSelected}
         showDate
+        showSeries
+        showTime
         selected={selected}
         content={content}
       />
