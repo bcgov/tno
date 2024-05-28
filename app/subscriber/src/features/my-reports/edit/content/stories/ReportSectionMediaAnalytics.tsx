@@ -8,7 +8,7 @@ import { FaArrowsSpin } from 'react-icons/fa6';
 import {
   Col,
   FormikText,
-  FormikTextArea,
+  FormikWysiwyg,
   getDistinct,
   IReportInstanceModel,
   OptionItem,
@@ -116,7 +116,7 @@ export const ReportSectionMediaAnalytics: React.FC<IReportSectionMediaAnalyticsP
           label="Section heading:"
           disabled={disabled}
         />
-        <FormikTextArea
+        <FormikWysiwyg
           name={`sections.${sectionIndex}.description`}
           label="Summary text:"
           disabled={disabled}

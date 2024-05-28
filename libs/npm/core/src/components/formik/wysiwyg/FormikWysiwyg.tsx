@@ -17,6 +17,7 @@ export interface IFormikWysiwygProps<T> extends Omit<IWysiwygProps, 'name' | 'va
  */
 export const FormikWysiwyg = <T extends any>({
   name,
+  className,
   onChange,
   onBlur,
   ...rest
@@ -29,10 +30,15 @@ export const FormikWysiwyg = <T extends any>({
     ((text) => {
       setFieldValue(name.toString(), text);
     });
-
   return (
     <>
-      <Wysiwyg name={name.toString()} value={text} onChange={onChange} {...rest} />
+      <Wysiwyg
+        name={name.toString()}
+        value={text}
+        onChange={onChange}
+        className={`frm-in${className ? ` ${className}` : ''}`}
+        {...rest}
+      />
       <Error error={!!name && touched[name] ? (errors[name] as string) : ''} />
     </>
   );

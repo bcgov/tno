@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormikText, FormikTextArea, Show } from 'tno-core';
+import { FormikText, FormikWysiwyg, Show } from 'tno-core';
 
 export interface IReportSectionTableOfContentsProps
   extends React.AllHTMLAttributes<HTMLDivElement> {
@@ -27,7 +27,7 @@ export const ReportSectionTableOfContents = React.forwardRef<
         label="Section heading:"
         disabled={disabled}
       />
-      <FormikTextArea
+      <FormikWysiwyg
         name={`sections.${sectionIndex}.description`}
         label="Summary text:"
         disabled={disabled}
