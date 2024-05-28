@@ -146,7 +146,40 @@ public class ProductService : BaseService<Product, int>, IProductService
         {
             var originalSubscriber = originalSubscribers.FirstOrDefault(rs => rs.UserId == s.UserId);
             if (originalSubscriber == null)
+            {
                 original.SubscribersManyToMany.Add(s);
+
+                // Update linked subscription products
+                if (entity.ProductType == ProductType.Report)
+                {
+                    var subscription = this.Context.UserReports.FirstOrDefault(r => r.ReportId == entity.TargetProductId && r.UserId == s.UserId);
+                    if (subscription == null)
+                        this.Context.UserReports.Add(new UserReport(s.UserId, entity.TargetProductId, s.IsSubscribed)); // TODO: Add formatting.
+                    else if (subscription.IsSubscribed != s.IsSubscribed)
+                        subscription.IsSubscribed = s.IsSubscribed;
+                }
+                else if (entity.ProductType == ProductType.Notification)
+                {
+                    var subscription = this.Context.UserNotifications.FirstOrDefault(n => n.NotificationId == entity.TargetProductId && n.UserId == s.UserId);
+                    if (subscription == null)
+                        this.Context.UserNotifications.Add(new UserNotification(s.UserId, entity.TargetProductId, s.IsSubscribed));
+                    else if (subscription.IsSubscribed != s.IsSubscribed)
+                        subscription.IsSubscribed = s.IsSubscribed;
+                }
+                else if (entity.ProductType == ProductType.EveningOverview)
+                {
+                    var subscriptions = this.Context.UserAVOverviews.Where(av => av.UserId == s.UserId).ToArray();
+                    if (!subscriptions.Any())
+                    {
+                        this.Context.UserAVOverviews.Add(new UserAVOverview(s.UserId, AVOverviewTemplateType.Weekday, s.IsSubscribed));
+                        this.Context.UserAVOverviews.Add(new UserAVOverview(s.UserId, AVOverviewTemplateType.Weekend, s.IsSubscribed));
+                    }
+                    else if (subscriptions.Any(s => s.IsSubscribed != s.IsSubscribed))
+                    {
+                        subscriptions.ForEach(s => s.IsSubscribed = s.IsSubscribed);
+                    }
+                }
+            }
             else
             {
                 if (originalSubscriber.IsSubscribed != s.IsSubscribed)
@@ -155,6 +188,29 @@ public class ProductService : BaseService<Product, int>, IProductService
                     originalSubscriber.RequestedIsSubscribedStatus = s.RequestedIsSubscribedStatus;
                 if (originalSubscriber.SubscriptionChangeActioned != s.SubscriptionChangeActioned)
                     originalSubscriber.SubscriptionChangeActioned = s.SubscriptionChangeActioned;
+
+                // Update linked subscription products
+                if (entity.ProductType == ProductType.Report)
+                {
+                    var subscription = this.Context.UserReports.FirstOrDefault(r => r.ReportId == entity.TargetProductId && r.UserId == originalSubscriber.UserId);
+                    if (subscription != null && subscription.IsSubscribed != s.IsSubscribed)
+                    {
+                        subscription.IsSubscribed = s.IsSubscribed;
+                        // subscription.Format = s.Format; TODO: Need to apply the format to the report subscription.
+                    }
+                }
+                else if (entity.ProductType == ProductType.Notification)
+                {
+                    var subscription = this.Context.UserNotifications.FirstOrDefault(n => n.NotificationId == entity.TargetProductId && n.UserId == originalSubscriber.UserId);
+                    if (subscription != null && subscription.IsSubscribed != s.IsSubscribed)
+                        subscription.IsSubscribed = s.IsSubscribed;
+                }
+                else if (entity.ProductType == ProductType.EveningOverview)
+                {
+                    var subscriptions = this.Context.UserAVOverviews.Where(av => av.UserId == originalSubscriber.UserId).ToArray();
+                    if (subscriptions.Any(s => s.IsSubscribed != s.IsSubscribed))
+                        subscriptions.ForEach((s) => s.IsSubscribed = s.IsSubscribed);
+                }
             }
         });
 
@@ -181,7 +237,8 @@ public class ProductService : BaseService<Product, int>, IProductService
         var saveChanges = false;
         UserProduct? userProduct = await this.Context.UserProducts.FirstOrDefaultAsync(x => x.UserId == userId && x.ProductId == productId && x.IsSubscribed);
 
-        if (userProduct != null) {
+        if (userProduct != null)
+        {
             userProduct.IsSubscribed = false;
             saveChanges = true;
         }
@@ -198,7 +255,8 @@ public class ProductService : BaseService<Product, int>, IProductService
         var saveChanges = false;
         UserProduct? userProduct = await this.Context.UserProducts.FirstOrDefaultAsync(x => x.UserId == userId && x.ProductId == productId && x.IsSubscribed);
 
-        if (userProduct != null) {
+        if (userProduct != null)
+        {
             userProduct.RequestedIsSubscribedStatus = false;
             userProduct.SubscriptionChangeActioned = false;
             saveChanges = true;
@@ -217,13 +275,17 @@ public class ProductService : BaseService<Product, int>, IProductService
         var saveChanges = false;
         var targetProduct = FindById(productId) ?? throw new NoContentException("Report does not exist");
         var subscriberRecord = targetProduct.Subscribers.FirstOrDefault(s => s.Id == userId);
-        if (subscriberRecord != null) {
+        if (subscriberRecord != null)
+        {
             UserProduct? userProduct = await this.Context.UserProducts.FirstOrDefaultAsync(x => x.UserId == userId && x.ProductId == productId && !x.IsSubscribed);
-            if (userProduct != null) {
+            if (userProduct != null)
+            {
                 userProduct.IsSubscribed = true;
                 saveChanges = true;
             }
-        } else {
+        }
+        else
+        {
             this.Context.UserProducts.Add(new UserProduct(userId, productId, true));
         }
         return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
@@ -240,15 +302,19 @@ public class ProductService : BaseService<Product, int>, IProductService
         var saveChanges = false;
         var targetProduct = FindById(productId) ?? throw new NoContentException("Report does not exist");
         var subscriberRecord = targetProduct.Subscribers.FirstOrDefault(s => s.Id == userId);
-        if (subscriberRecord != null) {
+        if (subscriberRecord != null)
+        {
             UserProduct? userProduct = await this.Context.UserProducts.FirstOrDefaultAsync(x => x.UserId == userId && x.ProductId == productId && !x.IsSubscribed);
-            if (userProduct != null) {
+            if (userProduct != null)
+            {
                 userProduct.RequestedIsSubscribedStatus = true;
                 userProduct.SubscriptionChangeActioned = false;
                 saveChanges = true;
             }
-        } else {
-            this.Context.UserProducts.Add(new UserProduct(userId, productId) {IsSubscribed = false, RequestedIsSubscribedStatus = true, SubscriptionChangeActioned = false});
+        }
+        else
+        {
+            this.Context.UserProducts.Add(new UserProduct(userId, productId) { IsSubscribed = false, RequestedIsSubscribedStatus = true, SubscriptionChangeActioned = false });
             saveChanges = true;
         }
         return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
@@ -262,7 +328,8 @@ public class ProductService : BaseService<Product, int>, IProductService
         if (subscriberRecord == null) throw new NoContentException("User has no subscribe/unsubscribe requests for the report");
 
         UserProduct? userProduct = await this.Context.UserProducts.FirstOrDefaultAsync(x => x.UserId == userId && x.ProductId == productId && x.RequestedIsSubscribedStatus.HasValue);
-        if (userProduct != null) {
+        if (userProduct != null)
+        {
             userProduct.RequestedIsSubscribedStatus = null;
             userProduct.SubscriptionChangeActioned = null;
             saveChanges = true;

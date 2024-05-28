@@ -98,6 +98,9 @@ public class ReportService : BaseService<Report, int>, IReportService
         if (!String.IsNullOrWhiteSpace(filter.Name))
             query = query.Where(r => EF.Functions.Like(r.Name, $"%{filter.Name}%"));
 
+        if (filter.Ids?.Any() == true)
+            query = query.Where(r => filter.Ids.Contains(r.Id));
+
         return query
             .OrderBy(r => r.SortOrder).ThenBy(r => r.Name)
             .ToArray();

@@ -38,13 +38,13 @@ public class UserProductModel : AuditColumnsModel
     /// <summary>
     /// Creates a new instance of an UserProductModel, initializes with specified parameter.
     /// </summary>
-    /// <param name="entity"></param>
-    public UserProductModel(Entities.UserProduct entity) : base(entity)
+    /// <param name="product"></param>
+    public UserProductModel(Entities.UserProduct product) : base(product)
     {
-        this.UserId = entity.UserId;
-        this.User = entity.User != null ? new UserModel(entity.User) : null;
-        this.ProductId = entity.ProductId;
-        this.IsSubscribed = entity.IsSubscribed;
+        this.UserId = product.UserId;
+        this.User = product.User != null ? new UserModel(product.User) : null;
+        this.ProductId = product.ProductId;
+        this.IsSubscribed = product.IsSubscribed;
     }
     #endregion
 
