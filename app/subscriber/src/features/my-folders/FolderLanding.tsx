@@ -1,7 +1,7 @@
 import { PageSection } from 'components/section';
 import { ManageFolder } from 'features/manage-folder';
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Col, Show } from 'tno-core';
 
 import { ConfigureFolder } from './ConfigureFolder';
@@ -11,31 +11,28 @@ import * as styled from './styled';
 
 export const FolderLanding: React.FC<{}> = () => {
   const { action, id } = useParams();
-  const [folderAction, setFolderAction] = React.useState('');
+  const navigate = useNavigate();
 
   React.useEffect(() => {
-    if (!!action && !!id) {
-      setFolderAction(action);
-    }
     if (action === undefined && id) {
-      setFolderAction('view');
+      navigate(`/folders/view/${id}`);
     }
-  }, [action, id]);
+  }, [action, id, navigate]);
 
   return (
-    <styled.FolderLanding split={!!folderAction}>
+    <styled.FolderLanding split={!!action}>
       <FolderProvider>
         <Col className="left-side">
           <PageSection header="My Folders" includeHeaderIcon>
             <MyFolders />
           </PageSection>
         </Col>
-        <Show visible={!!folderAction}>
+        <Show visible={!!action}>
           <Col className="right-side">
-            <Show visible={folderAction === 'view'}>
+            <Show visible={action === 'view'}>
               <ManageFolder />
             </Show>
-            <Show visible={folderAction === 'configure'}>
+            <Show visible={action === 'configure'}>
               <ConfigureFolder />
             </Show>
           </Col>
