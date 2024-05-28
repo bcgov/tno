@@ -11,7 +11,7 @@ import { DropResult } from 'react-beautiful-dnd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
-import { Col, generateQuery, IContentModel, IFolderModel, Row } from 'tno-core';
+import { generateQuery, IContentModel, IFolderModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 
