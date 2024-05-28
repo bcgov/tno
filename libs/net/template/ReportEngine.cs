@@ -193,7 +193,7 @@ public class ReportEngine : IReportEngine
         {
             // Determine the maximum scale and add the auto max to it.
             var dataModel = JsonSerializer.Deserialize<ChartDataModel>(dataJson, this.SerializerOptions);
-            var max = dataModel?.Datasets.Max(ds => ds.Data.Max(v => v));
+            var max = dataModel?.Datasets.Any() == true ? dataModel?.Datasets.Max(ds => ds.Data.Any() ? ds.Data.Max(v => v) : 0) : null;
             if (max.HasValue)
             {
                 var suggestedMax = (int)max + model.ChartTemplate.SectionSettings.ScaleCalcMax.Value;
