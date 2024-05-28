@@ -87,6 +87,12 @@ export const AppRouter: React.FC<IAppRouter> = () => {
           }
         />
         <Route
+          path="/folders/:id?"
+          element={
+            <PrivateRoute claims={Claim.subscriber} element={<FolderLanding />}></PrivateRoute>
+          }
+        />
+        <Route
           path="/folders/:action?/:id?"
           element={
             <PrivateRoute claims={Claim.subscriber} element={<FolderLanding />}></PrivateRoute>
