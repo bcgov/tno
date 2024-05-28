@@ -268,8 +268,8 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
             </Show>
             {/* SEARCH FOR: */}
             <Row className="search-for-row">
+              <label className="search-in-label">Search for:</label>
               <ElasticInfo />
-              <label className="label">SEARCH FOR:</label>
               <Col className="text-area-container">
                 <TextArea
                   value={search.search}
@@ -288,7 +288,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
             <div className="search-in-group space-top"></div>
             <Col className="section top-spacer">
               <div className="narrow-filter-header">
-                <label>Narrow your results by: </label>
+                <label className="search-in-label">Narrow your results by: </label>
                 <div className="toggle-group-container">
                   <ToggleGroup
                     defaultSelected={displayFiltersAsDropdown ? 'sel' : 'chk'}
@@ -406,7 +406,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
 
             <Row>
               <Col className="section top-spacer">
-                <b>Display options:</b>
+                <label className="search-in-label">Display options:</label>
                 {/* SEARCH RESULT SETTINGS SECTION */}
                 <ExpandableRow icon={<IoIosCog />} title="Search result options">
                   <MoreOptions />

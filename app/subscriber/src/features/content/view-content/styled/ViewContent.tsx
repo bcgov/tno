@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const ViewContent = styled.div`
   .summary {
-    font-family: ${(props) => props.theme.css.fSecondary};
+    font-family: ${(props) => props.theme.css.fPrimary};
   }
   .info-bar {
     /* negative margins to bypass parent padding (PageSection) */
