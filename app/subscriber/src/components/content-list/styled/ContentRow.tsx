@@ -7,6 +7,14 @@ export const ContentRow = styled(Col)`
   padding-bottom: 0.25rem;
   border-bottom: 1px solid ${(props) => props.theme.css.bkStaticGray};
 
+  .attributes {
+    .attr:not(:last-child)::after {
+      content: '|';
+      margin-left: 0.25rem;
+      margin-right: 0.25rem;
+    }
+  }
+
   .icon-row {
     margin-left: 2rem;
     min-width: 75px;
@@ -55,24 +63,6 @@ export const ContentRow = styled(Col)`
     height: 20px;
     margin-left: 0.5rem;
     margin-right: 0.5rem;
-  }
-
-  .section,
-  .series,
-  .source,
-  .byline {
-    margin-left: 5px;
-  }
-
-  .has-divider::after {
-    content: '';
-    position: absolute;
-    right: -5px; /* adjust to control the spacing between text and divider */
-    top: 50%;
-    transform: translateY(-60%);
-    width: 1px;
-    height: 14px;
-    background-color: black;
   }
 
   .parent-row {
