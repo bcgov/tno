@@ -168,6 +168,11 @@ public class ChartSectionSettingsModel
     public int? ScaleTicksStepSize { get; set; }
 
     /// <summary>
+    /// get/set - Scale add to max dataset size.
+    /// </summary>
+    public int? ScaleCalcMax { get; set; }
+
+    /// <summary>
     /// get/set - Minimum width in pixels a bar must be.
     /// </summary>
     public int? MinBarLength { get; set; }

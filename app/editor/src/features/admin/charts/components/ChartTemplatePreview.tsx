@@ -2,7 +2,7 @@ import { AxiosError } from 'axios';
 import React from 'react';
 import { FaEraser, FaPlay } from 'react-icons/fa6';
 import { useChartTemplates } from 'store/hooks/admin';
-import { Col, IChartPreviewRequestModel, Row } from 'tno-core';
+import { Col, IChartPreviewRequestModel, mergeChartSettings, Row } from 'tno-core';
 
 import { useChartTemplateContext } from '../ChartTemplateContext';
 import * as styled from './styled';
@@ -18,6 +18,13 @@ export const ChartTemplatePreview = () => {
   const handleGenerateBase64 = React.useCallback(
     async (preview: IChartPreviewRequestModel) => {
       try {
+        if (preview.settings.scaleCalcMax) {
+          // Automatically apply max scale based on dataset values.
+          const scaleSuggestedMax =
+            Math.max(...(preview.chartData as any)?.datasets.map((ds: any) => Math.max(ds.data))) +
+            preview.settings.scaleCalcMax;
+          preview.settings = mergeChartSettings({}, preview.settings, { scaleSuggestedMax });
+        }
         const response = await previewBase64(preview);
         setChartRequestForm((form) => ({ ...form, chartBase64: response }));
       } catch (ex) {

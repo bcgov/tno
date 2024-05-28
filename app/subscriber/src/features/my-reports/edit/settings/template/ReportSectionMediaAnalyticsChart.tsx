@@ -132,22 +132,40 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
                 }}
               />
             </Row>
-            <FormikText
-              label="Step size"
-              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.scaleTicksStepSize`}
-              value={chart.sectionSettings.scaleTicksStepSize ?? ''}
-              type="number"
-              width="10ch"
-              onChange={(e) => {
-                const value = parseInt(e.target.value);
-                setFieldValue(
-                  `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
-                  mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                    scaleTicksStepSize: value ? value : undefined,
-                  }),
-                );
-              }}
-            />
+            <Row gap="1rem">
+              <FormikText
+                label="Step size"
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.scaleTicksStepSize`}
+                value={chart.sectionSettings.scaleTicksStepSize ?? ''}
+                type="number"
+                width="10ch"
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      scaleTicksStepSize: value ? value : undefined,
+                    }),
+                  );
+                }}
+              />
+              <FormikText
+                label="Auto max"
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.scaleCalcMax`}
+                value={chart.sectionSettings.scaleCalcMax ?? ''}
+                type="number"
+                width="10ch"
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      scaleCalcMax: value ? value : undefined,
+                    }),
+                  );
+                }}
+              />
+            </Row>
             <FormikText
               name="minBarLength"
               label="Min bar length"

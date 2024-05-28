@@ -50,6 +50,8 @@ export interface IChartSectionSettingsModel {
   scaleSuggestedMin?: number;
   /** Scale suggested maximum value. */
   scaleSuggestedMax?: number;
+  /** Scale add to max dataset size */
+  scaleCalcMax?: number;
   /** Scale tick step size */
   scaleTicksStepSize?: number;
   /** Minimum width in pixels a bar must be */
