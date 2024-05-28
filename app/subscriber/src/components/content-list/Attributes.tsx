@@ -32,25 +32,21 @@ export const Attributes: React.FC<IAttributesProps> = ({
   const { excludeBylineIds, excludeSourceIds } = useSettings();
   return (
     <Row className={`${mobile && 'mobile add-margin'} attributes`}>
-      {showDate && <div className="date has-divider">{formatDate(item.publishedOn)}</div>}
+      {showDate && <div className="date attr">{formatDate(item.publishedOn)}</div>}
       {showTime && item.contentType !== ContentTypeName.PrintContent && (
-        <div className="time has-divider">{`${moment(item.publishedOn).format('HH:mm')}`}</div>
+        <div className="time attr">{`${moment(item.publishedOn).format('HH:mm')}`}</div>
       )}
       {item.source &&
         !excludeSourceIds?.some((mt) => {
           const mediaTypeObj = mediaTypes.find((m) => m.id === mt);
           return item.mediaTypeId === mediaTypeObj?.id;
-        }) && (
-          <div
-            className={`source ${showSeries && item.series && 'has-divider'}`}
-          >{`${item.source.name}`}</div>
-        )}
+        }) && <div className={`source attr`}>{`${item.source.name}`}</div>}
       {/* do not include byline in talk radio, news radio, or events even if present */}
       {item.byline &&
         !excludeBylineIds?.some((mt) => {
           const mediaTypeObj = mediaTypes.find((m) => m.id === mt);
           return item.mediaTypeId === mediaTypeObj?.id;
-        }) && <div className={`byline`}>{`${item.byline}`}</div>}
+        }) && <div className={`byline attr`}>{`${item.byline}`}</div>}
       {/* show series when source not shown and the show series flag is disabled */}
       {item.series &&
         !showSeries &&
@@ -59,9 +55,7 @@ export const Attributes: React.FC<IAttributesProps> = ({
           return item.mediaTypeId === mediaTypeObj?.id;
         }) && <div className="series">{item.series.name}</div>}
       {/* show series when show series flag is enabled */}
-      {item.series && showSeries && (
-        <div className={`series ${!!item.section && 'has-divider'}`}>{item.series.name}</div>
-      )}
+      {item.series && showSeries && <div className={`series attr`}>{item.series.name}</div>}
       <Show visible={viewOptions?.section}>
         {item.section && <div className="section">{item.section}</div>}
         {item.page && <div className="page-number">{item.page}</div>}

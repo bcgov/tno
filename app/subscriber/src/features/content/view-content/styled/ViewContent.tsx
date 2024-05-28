@@ -3,6 +3,9 @@ import styled from 'styled-components';
 export const ViewContent = styled.div`
   .summary {
     font-family: ${(props) => props.theme.css.fPrimary};
+    p {
+      margin: 0.75em 0;
+    }
   }
   .info-bar {
     /* negative margins to bypass parent padding (PageSection) */

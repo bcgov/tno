@@ -1,6 +1,6 @@
 import { formatSearch } from 'features/search-page/utils';
 import React from 'react';
-import { FaCopyright, FaEyeSlash, FaGripVertical } from 'react-icons/fa6';
+import { FaCopyright, FaEyeSlash } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
 import { Checkbox, Col, ContentTypeName, IColProps, IContentModel, Row, Show } from 'tno-core';
 
@@ -47,9 +47,6 @@ export const ContentRow: React.FC<IContentRowProps> = ({
   return (
     <styled.ContentRow {...rest}>
       <Row className="parent-row">
-        <Show visible={canDrag}>
-          <FaGripVertical className="grip" />
-        </Show>
         <Checkbox
           className="checkbox"
           checked={selected.some((selectedItem) => selectedItem.id === item.id)}
@@ -59,6 +56,9 @@ export const ContentRow: React.FC<IContentRowProps> = ({
             onCheckboxChange(item, e.target.checked);
           }}
         />
+        <Show visible={canDrag}>
+          <img src={`${process.env.PUBLIC_URL}/assets/elipsis.svg`} alt="Drag" className="grip" />
+        </Show>
         {viewOptions.sentiment && determineToneIcon(item.tonePools[0])}
         {item.contentType === ContentTypeName.AudioVideo && !!item.body && (
           <img

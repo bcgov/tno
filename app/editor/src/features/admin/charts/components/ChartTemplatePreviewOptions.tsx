@@ -53,7 +53,7 @@ export const ChartTemplatePreviewOptions = () => {
         />
       </Row>
       {show && (
-        <Row gap="1rem">
+        <Row justifyContent="space-between" gap="1rem">
           <Col>
             <Select
               label="Chart Type"
@@ -133,29 +133,6 @@ export const ChartTemplatePreviewOptions = () => {
                       chartRequestForm.settings,
                       {
                         datasetColors: colors,
-                      },
-                    ),
-                  });
-                }}
-              />
-              <Text
-                name="dataLabelColors"
-                label="Data Label Colours"
-                placeholder="white,black"
-                value={dataLabelColors}
-                onChange={(e) => {
-                  const colors = e.target.value
-                    .split(',')
-                    .map((v) => v.trim())
-                    .filter((v) => v);
-                  setDataLabelColors(e.target.value);
-                  setChartRequestForm({
-                    ...chartRequestForm,
-                    settings: mergeChartSettings(
-                      values.settings.options,
-                      chartRequestForm.settings,
-                      {
-                        dataLabelColors: colors,
                       },
                     ),
                   });
@@ -242,60 +219,126 @@ export const ChartTemplatePreviewOptions = () => {
               }}
             />
           </Col>
-          <Col>
-            <label>Layout</label>
-            <Checkbox
-              name="stacked"
-              label="Stack Datasets"
-              checked={!!chartRequestForm.settings.stacked}
-              onChange={(e) => {
-                setChartRequestForm({
-                  ...chartRequestForm,
-                  settings: mergeChartSettings(values.settings.options, chartRequestForm.settings, {
-                    stacked: e.target.checked,
-                  }),
-                });
-              }}
-            />
-            <Checkbox
-              name="showDataLabels"
-              label="Show Data Labels"
-              checked={!!chartRequestForm.settings.showDataLabels}
-              onChange={(e) => {
-                setChartRequestForm({
-                  ...chartRequestForm,
-                  settings: mergeChartSettings(values.settings.options, chartRequestForm.settings, {
-                    showDataLabels: e.target.checked,
-                  }),
-                });
-              }}
-            />
-            <Checkbox
-              name="isHorizontal"
-              label="Flip X and Y axis"
-              checked={!!chartRequestForm.settings.isHorizontal}
-              onChange={(e) => {
-                setChartRequestForm({
-                  ...chartRequestForm,
-                  settings: mergeChartSettings(values.settings.options, chartRequestForm.settings, {
-                    isHorizontal: e.target.checked,
-                  }),
-                });
-              }}
-            />
-            <Checkbox
-              name="showAxis"
-              label="Show Axis"
-              checked={!!chartRequestForm.settings.showAxis}
-              onChange={(e) => {
-                setChartRequestForm({
-                  ...chartRequestForm,
-                  settings: mergeChartSettings(values.settings.options, chartRequestForm.settings, {
-                    showAxis: e.target.checked,
-                  }),
-                });
-              }}
-            />
+          <Col gap="1rem">
+            <Col>
+              <label>Axis</label>
+              <Checkbox
+                name="stacked"
+                label="Stack Datasets"
+                checked={!!chartRequestForm.settings.stacked}
+                onChange={(e) => {
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        stacked: e.target.checked,
+                      },
+                    ),
+                  });
+                }}
+              />
+              <Checkbox
+                name="showAxis"
+                label="Show Axis"
+                checked={!!chartRequestForm.settings.showAxis}
+                onChange={(e) => {
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        showAxis: e.target.checked,
+                      },
+                    ),
+                  });
+                }}
+              />
+              <Checkbox
+                name="isHorizontal"
+                label="Flip X and Y axis"
+                checked={!!chartRequestForm.settings.isHorizontal}
+                onChange={(e) => {
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        isHorizontal: e.target.checked,
+                      },
+                    ),
+                  });
+                }}
+              />
+            </Col>
+            <Col>
+              <label>Data Labels</label>
+              <Checkbox
+                name="showDataLabels"
+                label="Show Data Labels"
+                checked={!!chartRequestForm.settings.showDataLabels}
+                onChange={(e) => {
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        showDataLabels: e.target.checked,
+                      },
+                    ),
+                  });
+                }}
+              />
+              <Text
+                name="data-label-font-size"
+                label="Font Size"
+                disabled={!chartRequestForm.settings.showDataLabels}
+                value={chartRequestForm.settings.dataLabelFontSize ?? ''}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.currentTarget.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        dataLabelFontSize: value ? value : undefined,
+                      },
+                    ),
+                  });
+                }}
+              />
+              <Text
+                name="dataLabelColors"
+                label="Data Label Colours"
+                placeholder="white,black"
+                value={dataLabelColors}
+                disabled={!chartRequestForm.settings.showDataLabels}
+                onChange={(e) => {
+                  const colors = e.target.value
+                    .split(',')
+                    .map((v) => v.trim())
+                    .filter((v) => v);
+                  setDataLabelColors(e.target.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        dataLabelColors: colors,
+                      },
+                    ),
+                  });
+                }}
+              />
+            </Col>
           </Col>
           <Col>
             <label>Scale</label>
@@ -341,22 +384,48 @@ export const ChartTemplatePreviewOptions = () => {
                 }}
               />
             </Row>
-            <Text
-              name="scaleTicksStepSize"
-              label="Step size"
-              width="8ch"
-              type="number"
-              value={chartRequestForm.settings.scaleTicksStepSize?.toString() ?? ''}
-              onChange={(e) => {
-                const value = parseInt(e.target.value);
-                setChartRequestForm({
-                  ...chartRequestForm,
-                  settings: mergeChartSettings(values.settings.options, chartRequestForm.settings, {
-                    scaleTicksStepSize: value,
-                  }),
-                });
-              }}
-            />
+            <Row>
+              <Text
+                name="scaleCalcMax"
+                label="Auto max"
+                width="8ch"
+                type="number"
+                value={chartRequestForm.settings.scaleCalcMax?.toString() ?? ''}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        scaleCalcMax: value,
+                      },
+                    ),
+                  });
+                }}
+              />
+              <Text
+                name="scaleTicksStepSize"
+                label="Step size"
+                width="8ch"
+                type="number"
+                value={chartRequestForm.settings.scaleTicksStepSize?.toString() ?? ''}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        scaleTicksStepSize: value,
+                      },
+                    ),
+                  });
+                }}
+              />
+            </Row>
             <Text
               name="minBarLength"
               label="Min bar length"
@@ -376,74 +445,6 @@ export const ChartTemplatePreviewOptions = () => {
           </Col>
           <Col>
             <label>Legend</label>
-            <Text
-              name="title"
-              label="Title"
-              value={chartRequestForm.settings.title ?? ''}
-              onChange={(e) =>
-                setChartRequestForm({
-                  ...chartRequestForm,
-                  settings: mergeChartSettings(values.settings.options, chartRequestForm.settings, {
-                    title: e.target.value,
-                  }),
-                })
-              }
-            />
-            <Text
-              name="subtitle"
-              label="Subtitle"
-              value={chartRequestForm.settings.subtitle ?? ''}
-              onChange={(e) =>
-                setChartRequestForm({
-                  ...chartRequestForm,
-                  settings: mergeChartSettings(values.settings.options, chartRequestForm.settings, {
-                    subtitle: e.target.value,
-                  }),
-                })
-              }
-            />
-            <Text
-              name="legendTitle"
-              label="Legend Title"
-              value={chartRequestForm.settings.legendTitle ?? ''}
-              onChange={(e) =>
-                setChartRequestForm({
-                  ...chartRequestForm,
-                  settings: mergeChartSettings(values.settings.options, chartRequestForm.settings, {
-                    legendTitle: e.target.value,
-                  }),
-                })
-              }
-            />
-            <Text
-              name="xLegend"
-              label="X Title"
-              value={chartRequestForm.settings.xLegend ?? ''}
-              onChange={(e) =>
-                setChartRequestForm({
-                  ...chartRequestForm,
-                  settings: mergeChartSettings(values.settings.options, chartRequestForm.settings, {
-                    xLegend: e.target.value,
-                  }),
-                })
-              }
-            />
-            <Text
-              name="yLegend"
-              label="Y Title"
-              value={chartRequestForm.settings.yLegend ?? ''}
-              onChange={(e) =>
-                setChartRequestForm({
-                  ...chartRequestForm,
-                  settings: mergeChartSettings(values.settings.options, chartRequestForm.settings, {
-                    yLegend: e.target.value,
-                  }),
-                })
-              }
-            />
-          </Col>
-          <Col>
-            <label>Legend Layout</label>
             <Checkbox
               name="showLegend"
               label="Show Legend"
@@ -458,6 +459,91 @@ export const ChartTemplatePreviewOptions = () => {
                 });
               }}
             />
+            <Row>
+              <Text
+                name="legendTitle"
+                label="Legend Title"
+                disabled={!chartRequestForm.settings.showLegend}
+                value={chartRequestForm.settings.legendTitle ?? ''}
+                onChange={(e) =>
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        legendTitle: e.target.value,
+                      },
+                    ),
+                  })
+                }
+              />
+              <Text
+                name="legendTitle-font-size"
+                label="Font Size"
+                disabled={!chartRequestForm.settings.showLegend}
+                value={chartRequestForm.settings.legendTitleFontSize ?? ''}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.currentTarget.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        legendTitleFontSize: value ? value : undefined,
+                      },
+                    ),
+                  });
+                }}
+              />
+            </Row>
+            <Row>
+              <Text
+                name="legend-label-font-size"
+                label="Dataset Label Font Size"
+                value={chartRequestForm.settings.legendLabelFontSize ?? ''}
+                width="10ch"
+                type="number"
+                disabled={!chartRequestForm.settings.showLegend}
+                onChange={(e) => {
+                  const value = parseInt(e.currentTarget.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        legendLabelFontSize: value ? value : undefined,
+                      },
+                    ),
+                  });
+                }}
+              />
+              <Text
+                name="legend-label-box-width"
+                label="Label Box Width"
+                value={chartRequestForm.settings.legendLabelBoxWidth ?? ''}
+                width="10ch"
+                type="number"
+                disabled={!chartRequestForm.settings.showLegend}
+                onChange={(e) => {
+                  const value = parseInt(e.currentTarget.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        legendLabelBoxWidth: value ? value : undefined,
+                      },
+                    ),
+                  });
+                }}
+              />
+            </Row>
             <Select
               label="Position"
               name="legendPosition"
@@ -469,6 +555,7 @@ export const ChartTemplatePreviewOptions = () => {
               }
               isClearable
               clearValue={''}
+              isDisabled={!chartRequestForm.settings.showLegend}
               onChange={(newValue) => {
                 const option = newValue as OptionItem;
                 setChartRequestForm({
@@ -489,6 +576,7 @@ export const ChartTemplatePreviewOptions = () => {
               }
               isClearable
               clearValue={''}
+              isDisabled={!chartRequestForm.settings.showLegend}
               onChange={(newValue) => {
                 const option = newValue as OptionItem;
                 setChartRequestForm({
@@ -499,6 +587,165 @@ export const ChartTemplatePreviewOptions = () => {
                 });
               }}
             />
+          </Col>
+          <Col>
+            <label>Labels</label>
+            <Row>
+              <Text
+                name="title"
+                label="Chart title"
+                value={chartRequestForm.settings.title ?? ''}
+                onChange={(e) =>
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        title: e.target.value,
+                      },
+                    ),
+                  })
+                }
+              />
+              <Text
+                name="title-font-size"
+                label="Font Size"
+                value={chartRequestForm.settings.titleFontSize ?? ''}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.currentTarget.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        titleFontSize: value ? value : undefined,
+                      },
+                    ),
+                  });
+                }}
+              />
+            </Row>
+            <Row>
+              <Text
+                name="subtitle"
+                label="Chart subtitle"
+                value={chartRequestForm.settings.subtitle ?? ''}
+                onChange={(e) =>
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        subtitle: e.target.value,
+                      },
+                    ),
+                  })
+                }
+              />
+              <Text
+                name="subtitle-font-size"
+                label="Font Size"
+                value={chartRequestForm.settings.subtitleFontSize ?? ''}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.currentTarget.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        subtitleFontSize: value ? value : undefined,
+                      },
+                    ),
+                  });
+                }}
+              />
+            </Row>
+            <Row>
+              <Text
+                name="xLegend"
+                label="X Title"
+                value={chartRequestForm.settings.xLegend ?? ''}
+                onChange={(e) =>
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        xLegend: e.target.value,
+                      },
+                    ),
+                  })
+                }
+              />
+              <Text
+                name="xLegend-font-size"
+                label="Font Size"
+                value={chartRequestForm.settings.xLegendFontSize ?? ''}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.currentTarget.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        xLegendFontSize: value ? value : undefined,
+                      },
+                    ),
+                  });
+                }}
+              />
+            </Row>
+            <Row>
+              <Text
+                name="yLegend"
+                label="Y Title"
+                value={chartRequestForm.settings.yLegend ?? ''}
+                onChange={(e) =>
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        yLegend: e.target.value,
+                      },
+                    ),
+                  })
+                }
+              />
+              <Text
+                name="yLegend-font-size"
+                label="Font Size"
+                value={chartRequestForm.settings.yLegendFontSize ?? ''}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.currentTarget.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        yLegendFontSize: value ? value : undefined,
+                      },
+                    ),
+                  });
+                }}
+              />
+            </Row>
           </Col>
         </Row>
       )}

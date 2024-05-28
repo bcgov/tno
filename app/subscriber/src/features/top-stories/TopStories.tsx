@@ -75,6 +75,9 @@ export const TopStories: React.FC = () => {
       <ContentList
         content={content}
         onContentSelected={handleContentSelected}
+        showTime
+        showDate
+        showSeries
         selected={selected}
       />
     </styled.TopStories>

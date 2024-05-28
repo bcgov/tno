@@ -48,6 +48,13 @@ spec:
           requests:
             storage: 7Gi
         storageClassName: netapp-block-standard
+      # walVolumeClaimSpec:
+      #   accessModes:
+      #     - "ReadWriteOnce"
+      #   resources:
+      #     requests:
+      #       storage: 5Gi
+      #   storageClassName: netapp-block-standard
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -70,7 +77,7 @@ spec:
   backups:
     pgbackrest:
       global:
-        repo1-retention-full: "2"
+        repo1-retention-full: "1"
       image: artifacts.developer.gov.bc.ca/bcgov-docker-local/crunchy-pgbackrest:ubi8-2.41-4
       repoHost:
         resources:

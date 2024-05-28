@@ -20,14 +20,18 @@ export const MyFolders = styled.div`
   .folder-name {
     height: 1.5em;
     margin-left: 0.5em;
-    width: 60%;
+    max-width: 100%;
   }
   .folder-text {
     display: flex;
     align-items: center;
   }
+  .create-label {
+    margin-left: 0.5em;
+  }
   .create-new {
-    width: 80%;
+    flex-wrap: nowrap;
+    max-width: fit-content;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 0.5em;

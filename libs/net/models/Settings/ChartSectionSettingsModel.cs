@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 namespace TNO.API.Models.Settings;
 
 public class ChartSectionSettingsModel
@@ -60,9 +61,19 @@ public class ChartSectionSettingsModel
     public string? Title { get; set; } = "";
 
     /// <summary>
+    /// get/set - Chart title font size
+    /// </summary>
+    public int? TitleFontSize { get; set; }
+
+    /// <summary>
     /// get/set - Chart subtitle
     /// </summary>
     public string? Subtitle { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Chart title font size
+    /// </summary>
+    public int? SubtitleFontSize { get; set; }
 
     /// <summary>
     /// get/set - Whether to display the legend
@@ -75,6 +86,11 @@ public class ChartSectionSettingsModel
     public string? LegendTitle { get; set; }
 
     /// <summary>
+    /// get/set - Chart title font size
+    /// </summary>
+    public int? LegendTitleFontSize { get; set; }
+
+    /// <summary>
     /// get/set - Legend position ['top' | 'left' | 'bottom' | 'right' | 'chartArea']
     /// </summary>
     public string? LegendPosition { get; set; }
@@ -85,19 +101,46 @@ public class ChartSectionSettingsModel
     public string? LegendAlign { get; set; }
 
     /// <summary>
+    /// get/set - Size of the dataset colour box legend
+    /// </summary>
+    public int? LegendLabelBoxWidth { get; set; }
+
+    /// <summary>
+    /// get/set - Legend label font size
+    /// </summary>
+    public int? LegendLabelFontSize { get; set; }
+
+    /// <summary>
     /// get/set - X axis legend title
     /// </summary>
-    public string? xLegend { get; set; }
+    [JsonPropertyName("xLegend")]
+    public string? XLegend { get; set; }
+
+    /// <summary>
+    /// get/set - Legend X axis title font size
+    /// </summary>
+    public int? XLegendFontSize { get; set; }
 
     /// <summary>
     /// get/set - Y axis legend title
     /// </summary>
-    public string? yLegend { get; set; }
+    [JsonPropertyName("yLegend")]
+    public string? YLegend { get; set; }
+
+    /// <summary>
+    /// get/set - Legend Y axis title font size
+    /// </summary>
+    public int? YLegendFontSize { get; set; }
 
     /// <summary>
     /// get/set -
     /// </summary>
     public bool? ShowDataLabels { get; set; }
+
+    /// <summary>
+    /// get/set - Chart data label font size
+    /// </summary>
+    public int? DataLabelFontSize { get; set; }
 
     /// <summary>
     /// get/set -
@@ -123,6 +166,11 @@ public class ChartSectionSettingsModel
     /// get/set - Scale tick step size.
     /// </summary>
     public int? ScaleTicksStepSize { get; set; }
+
+    /// <summary>
+    /// get/set - Scale add to max dataset size.
+    /// </summary>
+    public int? ScaleCalcMax { get; set; }
 
     /// <summary>
     /// get/set - Minimum width in pixels a bar must be.
