@@ -11,7 +11,7 @@ import { DropResult } from 'react-beautiful-dnd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
-import { Col, generateQuery, IContentModel, IFolderModel, Row } from 'tno-core';
+import { generateQuery, IContentModel, IFolderModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -125,17 +125,15 @@ export const ManageFolder: React.FC = () => {
     <styled.ManageFolder>
       <PageSection
         header={
-          <Col className="header-col">
-            <Row className="header-row">
-              <h1 className="title">{`Manage Folder: ${folder?.name}`}</h1>
-              <Action
-                variant="close"
-                className="close-button"
-                title="Revert"
-                onClick={() => navigate(`/folders`)}
-              />
-            </Row>
-          </Col>
+          <Row className="header-row">
+            <div className="title">{`Manage Folder: ${folder?.name}`}</div>
+            <Action
+              variant="close"
+              className="close-button"
+              title="Revert"
+              onClick={() => navigate(`/folders`)}
+            />
+          </Row>
         }
       >
         <div className="main-manage">

@@ -18,7 +18,6 @@ export const SearchPage = styled.div<{ expanded: boolean }>`
     width: 100%;
     .view-options {
       margin-left: auto;
-      margin-bottom: 0.67em;
     }
   }
   .result-total {

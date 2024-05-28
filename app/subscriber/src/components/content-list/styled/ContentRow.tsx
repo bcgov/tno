@@ -185,8 +185,9 @@ export const ContentRow = styled(Col)`
     }
   }
   .grip {
-    height: 20px;
-    margin-right: 0.5rem;
+    margin-top: 0.25em;
+    height: 15px;
+    margin-right: 0.75rem;
     color: ${(props) => props.theme.css.btnBkPrimary};
     cursor: row-resize;
   }

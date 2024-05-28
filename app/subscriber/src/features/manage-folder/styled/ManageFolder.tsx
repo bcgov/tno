@@ -20,11 +20,15 @@ export const ManageFolder = styled.div`
   .header-col {
     width: 100%;
   }
+  .content-list {
+    padding: 0.5em;
+  }
   .header-row {
     width: 100%;
     .close-button {
       margin-left: auto;
-      margin-bottom: 0.67em;
+      align-self: flex-end;
+      margin-bottom: 0.75em;
       cursor: pointer;
       color: ${({ theme }) => theme.css.iconGrayColor};
       height: 1.2rem;
