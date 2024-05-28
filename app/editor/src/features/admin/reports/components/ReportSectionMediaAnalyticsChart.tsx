@@ -121,141 +121,85 @@ export const ReportSectionMediaAnalyticsChart = ({
                   );
                 }}
               />
-              <Text
-                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataLabelColors`}
-                label="Data Label Colours"
-                placeholder="white,black"
-                value={dataLabelColors}
-                onChange={(e) => {
-                  const colors = e.target.value
-                    .split(',')
-                    .map((v) => v.trim())
-                    .filter((v) => v);
-                  setDataLabelColors(e.target.value);
-                  setFieldValue(
-                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
-                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      dataLabelColors: colors,
-                    }),
-                  );
-                }}
-              />
             </Col>
-          </Col>
-          <Col>
-            <Show visible={datasetAvailableOptions.length > 0}>
-              <FormikSelect
-                label="Dataset"
-                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataset`}
-                tooltip="A dataset separates the data into groups based on the selected property."
-                value={datasetOptions.find((o) => o.value === chart.sectionSettings.dataset) ?? ''}
-                options={datasetAvailableOptions}
-                isClearable={false}
-                onChange={(newValue) => {
-                  const option = newValue as OptionItem;
-                  setFieldValue(
-                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
-                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      dataset: option.value?.toString() ?? '',
-                    }),
-                  );
-                }}
-              />
-            </Show>
-            <Show visible={datasetValueAvailableOptions.length > 0}>
-              <FormikSelect
-                label="Dataset Value"
-                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetValue`}
-                tooltip="A dataset value is how the totals are calculated for each grouping."
-                value={
-                  datasetValueOptions.find((o) => o.value === chart.sectionSettings.datasetValue) ??
-                  ''
-                }
-                options={datasetValueAvailableOptions}
-                isClearable={false}
-                onChange={(newValue) => {
-                  const option = newValue as OptionItem;
-                  const isSentiment = option.value === 'sentiment';
-                  setFieldValue(
-                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
-                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      datasetValue: option.value?.toString() ?? 'count',
-                      scaleSuggestedMin: isSentiment ? -5 : undefined,
-                      scaleSuggestedMax: isSentiment ? 5 : undefined,
-                      scaleTicksStepSize: isSentiment ? 1 : undefined,
-                      datasetColors:
-                        isSentiment && chart.sectionSettings.dataset === ''
-                          ? ['green', 'gold', 'red']
-                          : [],
-                      minBarLength: isSentiment ? 10 : undefined,
-                    }),
-                  );
-                  setDatasetColors(isSentiment ? 'green,gold,red' : '');
-                }}
-              />
-            </Show>
-            <Show visible={groupByAvailableOptions.length > 0}>
-              <FormikSelect
-                label="Group By"
-                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupBy`}
-                tooltip="Group the dataset by this property (X axis)."
-                value={groupByOptions.find((o) => o.value === chart.sectionSettings.groupBy) ?? ''}
-                options={groupByAvailableOptions}
-                isClearable={false}
-                onChange={(newValue) => {
-                  const option = newValue as OptionItem;
-                  setFieldValue(
-                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
-                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      groupBy: option.value?.toString() ?? '',
-                    }),
-                  );
-                }}
-              />
-            </Show>
           </Col>
           <Col gap="1rem">
             <Col>
-              <label>Layout</label>
-              <FormikCheckbox
-                label="Stack Datasets"
-                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.stacked`}
-                checked={!!chart.sectionSettings.stacked}
-                onChange={(e) => {
-                  setFieldValue(
-                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
-                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      stacked: e.target.checked,
-                    }),
-                  );
-                }}
-              />
-              <FormikCheckbox
-                label="Show Data Labels"
-                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.showDataLabels`}
-                checked={chart.sectionSettings.showDataLabels ?? false}
-                onChange={(e) => {
-                  setFieldValue(
-                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
-                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      showDataLabels: e.target.checked,
-                    }),
-                  );
-                }}
-              />
-              <FormikCheckbox
-                label="Flip X and Y axis"
-                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.isHorizontal`}
-                checked={!!chart.sectionSettings.isHorizontal}
-                onChange={(e) => {
-                  setFieldValue(
-                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
-                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      isHorizontal: e.target.checked,
-                    }),
-                  );
-                }}
-              />
+              <Show visible={datasetAvailableOptions.length > 0}>
+                <FormikSelect
+                  label="Dataset"
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataset`}
+                  tooltip="A dataset separates the data into groups based on the selected property."
+                  value={
+                    datasetOptions.find((o) => o.value === chart.sectionSettings.dataset) ?? ''
+                  }
+                  options={datasetAvailableOptions}
+                  isClearable={false}
+                  onChange={(newValue) => {
+                    const option = newValue as OptionItem;
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                      mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                        dataset: option.value?.toString() ?? '',
+                      }),
+                    );
+                  }}
+                />
+              </Show>
+              <Show visible={datasetValueAvailableOptions.length > 0}>
+                <FormikSelect
+                  label="Dataset Value"
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetValue`}
+                  tooltip="A dataset value is how the totals are calculated for each grouping."
+                  value={
+                    datasetValueOptions.find(
+                      (o) => o.value === chart.sectionSettings.datasetValue,
+                    ) ?? ''
+                  }
+                  options={datasetValueAvailableOptions}
+                  isClearable={false}
+                  onChange={(newValue) => {
+                    const option = newValue as OptionItem;
+                    const isSentiment = option.value === 'sentiment';
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                      mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                        datasetValue: option.value?.toString() ?? 'count',
+                        scaleSuggestedMin: isSentiment ? -5 : undefined,
+                        scaleSuggestedMax: isSentiment ? 5 : undefined,
+                        scaleTicksStepSize: isSentiment ? 1 : undefined,
+                        datasetColors:
+                          isSentiment && chart.sectionSettings.dataset === ''
+                            ? ['green', 'gold', 'red']
+                            : [],
+                        minBarLength: isSentiment ? 10 : undefined,
+                      }),
+                    );
+                    setDatasetColors(isSentiment ? 'green,gold,red' : '');
+                  }}
+                />
+              </Show>
+              <Show visible={groupByAvailableOptions.length > 0}>
+                <FormikSelect
+                  label="Group By"
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupBy`}
+                  tooltip="Group the dataset by this property (X axis)."
+                  value={
+                    groupByOptions.find((o) => o.value === chart.sectionSettings.groupBy) ?? ''
+                  }
+                  options={groupByAvailableOptions}
+                  isClearable={false}
+                  onChange={(newValue) => {
+                    const option = newValue as OptionItem;
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                      mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                        groupBy: option.value?.toString() ?? '',
+                      }),
+                    );
+                  }}
+                />
+              </Show>
             </Col>
             <Col>
               <label>Scale</label>
@@ -327,62 +271,196 @@ export const ReportSectionMediaAnalyticsChart = ({
               />
             </Col>
           </Col>
-          <Col>
-            <label>Legend</label>
-            <FormikText
-              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.title`}
-              label="Title"
-              value={chart.sectionSettings.title ?? ''}
-            />
-            <FormikText
-              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.subtitle`}
-              label="Subtitle"
-              value={chart.sectionSettings.subtitle ?? ''}
-            />
-            <FormikText
-              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.legendTitle`}
-              label="Legend Title"
-              value={chart.sectionSettings.legendTitle ?? ''}
-            />
-            <FormikText
-              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.xLegend`}
-              label="X Title"
-              value={chart.sectionSettings.xLegend ?? ''}
-            />
-            <FormikText
-              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.yLegend`}
-              label="Y Title"
-              value={chart.sectionSettings.yLegend ?? ''}
-            />
+          <Col gap="1rem">
+            <Col gap="1rem">
+              <Col>
+                <label>Axis</label>
+                <FormikCheckbox
+                  label="Stack Datasets"
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.stacked`}
+                  checked={!!chart.sectionSettings.stacked}
+                  onChange={(e) => {
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                      mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                        stacked: e.target.checked,
+                      }),
+                    );
+                  }}
+                />
+                <FormikCheckbox
+                  label="Show Axis"
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.showAxis`}
+                  checked={!!chart.sectionSettings.isHorizontal}
+                  onChange={(e) => {
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                      mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                        showAxis: e.target.checked,
+                      }),
+                    );
+                  }}
+                />
+                <FormikCheckbox
+                  label="Flip X and Y axis"
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.isHorizontal`}
+                  checked={!!chart.sectionSettings.isHorizontal}
+                  onChange={(e) => {
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                      mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                        isHorizontal: e.target.checked,
+                      }),
+                    );
+                  }}
+                />
+              </Col>
+              <Col>
+                <label>Data Labels</label>
+                <FormikCheckbox
+                  label="Show Data Labels"
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.showDataLabels`}
+                  checked={chart.sectionSettings.showDataLabels ?? false}
+                  onChange={(e) => {
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                      mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                        showDataLabels: e.target.checked,
+                      }),
+                    );
+                  }}
+                />
+                <Text
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataLabelFontSize`}
+                  label="Font Size"
+                  value={chart.sectionSettings.dataLabelFontSize}
+                  disabled={!chart.sectionSettings.showDataLabels}
+                  width="10ch"
+                  type="number"
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                      mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                        dataLabelFontSize: value ? value : undefined,
+                      }),
+                    );
+                  }}
+                />
+                <Text
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataLabelColors`}
+                  label="Data Label Colours"
+                  placeholder="white,black"
+                  value={dataLabelColors}
+                  disabled={!chart.sectionSettings.showDataLabels}
+                  onChange={(e) => {
+                    const colors = e.target.value
+                      .split(',')
+                      .map((v) => v.trim())
+                      .filter((v) => v);
+                    setDataLabelColors(e.target.value);
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                      mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                        dataLabelColors: colors,
+                      }),
+                    );
+                  }}
+                />
+              </Col>
+            </Col>
           </Col>
           <Col>
-            <label>Legend Layout</label>
+            <label>Legend</label>
             <FormikCheckbox
               label="Show Legend"
               name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.showLegend`}
               checked={chart.sectionSettings.showLegend ?? true}
-            />
-            <FormikCheckbox
-              label="Show axis"
-              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.showAxis`}
-              checked={!!chart.sectionSettings.showAxis}
               onChange={(e) => {
                 setFieldValue(
                   `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                   {
-                    ...chart.sectionSettings,
-                    showAxis: e.target.checked,
-                    options: mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      showAxis: e.target.checked,
-                    }).options,
+                    ...mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      showLegend: e.target.checked,
+                    }),
                   },
                 );
               }}
             />
+            <Row>
+              <FormikText
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.legendTitle`}
+                label="Legend Title"
+                value={chart.sectionSettings.legendTitle ?? ''}
+                disabled={!chart.sectionSettings.showLegend}
+                onChange={(e) => {
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      legendTitle: e.target.value,
+                    }),
+                  );
+                }}
+              />
+              <Text
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.legendLabelBoxWidth`}
+                label="Font size"
+                value={chart.sectionSettings.legendLabelBoxWidth}
+                disabled={!chart.sectionSettings.showLegend}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      legendLabelBoxWidth: value ? value : undefined,
+                    }),
+                  );
+                }}
+              />
+            </Row>
+            <Row justifyContent="space-between">
+              <Text
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.legendLabelFontSize`}
+                label="Dataset label font size"
+                value={chart.sectionSettings.legendLabelFontSize}
+                disabled={!chart.sectionSettings.showLegend}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      legendLabelFontSize: value ? value : undefined,
+                    }),
+                  );
+                }}
+              />
+              <Text
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.legendLabelBoxWidth`}
+                label="Label box width"
+                value={chart.sectionSettings.legendLabelBoxWidth}
+                disabled={!chart.sectionSettings.showLegend}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      legendLabelBoxWidth: value ? value : undefined,
+                    }),
+                  );
+                }}
+              />
+            </Row>
             <FormikSelect
               label="Position"
               name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.legendPosition`}
               options={legendPositionOptions}
+              isDisabled={!chart.sectionSettings.showLegend}
               value={
                 legendPositionOptions.find(
                   (o) => o.value === chart.sectionSettings.legendPosition,
@@ -411,6 +489,7 @@ export const ReportSectionMediaAnalyticsChart = ({
               }
               isClearable
               clearValue={''}
+              isDisabled={!chart.sectionSettings.showLegend}
               onChange={(newValue) => {
                 const option = newValue as IOptionItem;
                 setFieldValue(
@@ -423,6 +502,133 @@ export const ReportSectionMediaAnalyticsChart = ({
                 );
               }}
             />
+          </Col>
+          <Col>
+            <label>Labels</label>
+            <Row>
+              <FormikText
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.title`}
+                label="Chart title"
+                value={chart.sectionSettings.title ?? ''}
+                onChange={(e) => {
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      title: e.target.value,
+                    }),
+                  );
+                }}
+              />
+              <Text
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.legendLabelBoxWidth`}
+                label="Font size"
+                value={chart.sectionSettings.legendLabelBoxWidth}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      legendLabelBoxWidth: value ? value : undefined,
+                    }),
+                  );
+                }}
+              />
+            </Row>
+            <Row>
+              <FormikText
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.subtitle`}
+                label="Chart subtitle"
+                value={chart.sectionSettings.subtitle ?? ''}
+                onChange={(e) => {
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      subtitle: e.target.value,
+                    }),
+                  );
+                }}
+              />
+              <Text
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.legendLabelBoxWidth`}
+                label="Font size"
+                value={chart.sectionSettings.legendLabelBoxWidth}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      legendLabelBoxWidth: value ? value : undefined,
+                    }),
+                  );
+                }}
+              />
+            </Row>
+            <Row>
+              <FormikText
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.xLegend`}
+                label="X Title"
+                value={chart.sectionSettings.xLegend ?? ''}
+                onChange={(e) => {
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      xLegend: e.target.value,
+                    }),
+                  );
+                }}
+              />
+              <Text
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.legendLabelBoxWidth`}
+                label="Font size"
+                value={chart.sectionSettings.legendLabelBoxWidth}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      legendLabelBoxWidth: value ? value : undefined,
+                    }),
+                  );
+                }}
+              />
+            </Row>
+            <Row>
+              <FormikText
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.yLegend`}
+                label="Y Title"
+                value={chart.sectionSettings.yLegend ?? ''}
+                onChange={(e) => {
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      yLegend: e.target.value,
+                    }),
+                  );
+                }}
+              />
+              <Text
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.legendLabelBoxWidth`}
+                label="Font size"
+                value={chart.sectionSettings.legendLabelBoxWidth}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      legendLabelBoxWidth: value ? value : undefined,
+                    }),
+                  );
+                }}
+              />
+            </Row>
           </Col>
         </Row>
       </Col>
