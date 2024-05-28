@@ -12,6 +12,7 @@ export const datasetOptions = [
   new OptionItem('Sentiment Value', 'sentiment'),
   new OptionItem('Sentiment', 'sentimentSimple'),
   new OptionItem('Published On', 'dayMonthYear'),
+  new OptionItem('Published Month/Day', 'monthDay'),
   new OptionItem('Published Month/Year', 'monthYear'),
   new OptionItem('Published Year', 'year'),
   new OptionItem('Report Section', 'reportSection'),

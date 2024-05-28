@@ -421,9 +421,9 @@ export const ReportSectionMediaAnalyticsChart = ({
                 }}
               />
               <Text
-                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.legendLabelBoxWidth`}
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.legendTitleFontSize`}
                 label="Font size"
-                value={chart.sectionSettings.legendLabelBoxWidth}
+                value={chart.sectionSettings.legendTitleFontSize}
                 disabled={!chart.sectionSettings.showLegend}
                 width="10ch"
                 type="number"
@@ -432,7 +432,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                   setFieldValue(
                     `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                     mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      legendLabelBoxWidth: value ? value : undefined,
+                      legendTitleFontSize: value ? value : undefined,
                     }),
                   );
                 }}
@@ -538,9 +538,9 @@ export const ReportSectionMediaAnalyticsChart = ({
                 }}
               />
               <Text
-                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.legendLabelBoxWidth`}
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.titleFontSize`}
                 label="Font size"
-                value={chart.sectionSettings.legendLabelBoxWidth}
+                value={chart.sectionSettings.titleFontSize}
                 width="10ch"
                 type="number"
                 onChange={(e) => {
@@ -548,7 +548,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                   setFieldValue(
                     `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                     mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      legendLabelBoxWidth: value ? value : undefined,
+                      titleFontSize: value ? value : undefined,
                     }),
                   );
                 }}
@@ -569,9 +569,9 @@ export const ReportSectionMediaAnalyticsChart = ({
                 }}
               />
               <Text
-                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.legendLabelBoxWidth`}
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.subtitleFontSize`}
                 label="Font size"
-                value={chart.sectionSettings.legendLabelBoxWidth}
+                value={chart.sectionSettings.subtitleFontSize}
                 width="10ch"
                 type="number"
                 onChange={(e) => {
@@ -579,7 +579,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                   setFieldValue(
                     `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                     mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      legendLabelBoxWidth: value ? value : undefined,
+                      subtitleFontSize: value ? value : undefined,
                     }),
                   );
                 }}
@@ -600,9 +600,9 @@ export const ReportSectionMediaAnalyticsChart = ({
                 }}
               />
               <Text
-                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.legendLabelBoxWidth`}
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.xLegendFontSize`}
                 label="Font size"
-                value={chart.sectionSettings.legendLabelBoxWidth}
+                value={chart.sectionSettings.xLegendFontSize}
                 width="10ch"
                 type="number"
                 onChange={(e) => {
@@ -610,7 +610,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                   setFieldValue(
                     `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                     mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      legendLabelBoxWidth: value ? value : undefined,
+                      xLegendFontSize: value ? value : undefined,
                     }),
                   );
                 }}
@@ -631,9 +631,9 @@ export const ReportSectionMediaAnalyticsChart = ({
                 }}
               />
               <Text
-                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.legendLabelBoxWidth`}
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.yLegendFontSize`}
                 label="Font size"
-                value={chart.sectionSettings.legendLabelBoxWidth}
+                value={chart.sectionSettings.yLegendFontSize}
                 width="10ch"
                 type="number"
                 onChange={(e) => {
@@ -641,7 +641,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                   setFieldValue(
                     `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                     mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      legendLabelBoxWidth: value ? value : undefined,
+                      yLegendFontSize: value ? value : undefined,
                     }),
                   );
                 }}
