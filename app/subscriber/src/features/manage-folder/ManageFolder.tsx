@@ -125,17 +125,15 @@ export const ManageFolder: React.FC = () => {
     <styled.ManageFolder>
       <PageSection
         header={
-          <Col className="header-col">
-            <Row className="header-row">
-              <h1 className="title">{`Manage Folder: ${folder?.name}`}</h1>
-              <Action
-                variant="close"
-                className="close-button"
-                title="Revert"
-                onClick={() => navigate(`/folders`)}
-              />
-            </Row>
-          </Col>
+          <Row className="header-row">
+            <div className="title">{`Manage Folder: ${folder?.name}`}</div>
+            <Action
+              variant="close"
+              className="close-button"
+              title="Revert"
+              onClick={() => navigate(`/folders`)}
+            />
+          </Row>
         }
       >
         <div className="main-manage">

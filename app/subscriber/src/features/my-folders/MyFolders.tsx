@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp } from 'store/hooks';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
-import { FlexboxTable, Row, Text } from 'tno-core';
+import { Col, FlexboxTable, Row, Text } from 'tno-core';
 
 import { useColumns } from './hooks';
 import * as styled from './styled';
@@ -50,26 +50,30 @@ export const MyFolders: React.FC<IMyFoldersProps> = () => {
 
   return (
     <styled.MyFolders>
-      <Row className="create-new">
-        <FaWandMagicSparkles className="wand" />
-        <div className="create-text">CREATE NEW FOLDER: </div>
-        <Text
-          name="folderName"
-          className="folder-name"
-          placeholder="Enter name..."
-          value={newFolderName}
-          onChange={(e) => setNewFolderName(e.target.value)}
-        />
-        <button
-          type="button"
-          title="Create new folder"
-          className="create-button"
-          onClick={handleAdd}
-          disabled={!newFolderName} // Disable button when folder name is empty
-        >
-          <FaFolderPlus className="folder-add" />
-        </button>
-      </Row>
+      <Col className="create-new">
+        <Row className="create-label">
+          <FaWandMagicSparkles className="wand" />
+          <div className="create-text">CREATE NEW FOLDER: </div>
+        </Row>
+        <Row>
+          <Text
+            name="folderName"
+            className="folder-name"
+            placeholder="Enter name..."
+            value={newFolderName}
+            onChange={(e) => setNewFolderName(e.target.value)}
+          />
+          <button
+            type="button"
+            title="Create new folder"
+            className="create-button"
+            onClick={handleAdd}
+            disabled={!newFolderName} // Disable button when folder name is empty
+          >
+            <FaFolderPlus className="folder-add" />
+          </button>
+        </Row>
+      </Col>
       <Row>
         <SubscriberTableContainer>
           <FlexboxTable

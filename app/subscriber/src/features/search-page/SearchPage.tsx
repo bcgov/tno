@@ -141,7 +141,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
             header={
               <Col className="header-col">
                 <Row className="header-row">
-                  <h1 className="title">{`Search Results`}</h1>
+                  <div className="title">{`Search Results`}</div>
                   <ViewOptions />
                 </Row>
                 {!!totalResults && (
