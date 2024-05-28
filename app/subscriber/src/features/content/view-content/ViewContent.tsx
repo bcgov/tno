@@ -7,7 +7,7 @@ import parse from 'html-react-parser';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useContent, useFilters, useWorkOrders } from 'store/hooks';
+import { useContent, useWorkOrders } from 'store/hooks';
 import { useMinisters } from 'store/hooks/subscriber/useMinisters';
 import { useProfileStore } from 'store/slices';
 import {
