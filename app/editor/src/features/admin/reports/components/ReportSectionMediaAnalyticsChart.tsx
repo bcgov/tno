@@ -237,22 +237,40 @@ export const ReportSectionMediaAnalyticsChart = ({
                   }}
                 />
               </Row>
-              <FormikText
-                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.scaleTicksStepSize`}
-                label="Step Size"
-                width="8ch"
-                type="number"
-                value={chart.sectionSettings.scaleTicksStepSize?.toString() ?? ''}
-                onChange={(e) => {
-                  const value = parseInt(e.target.value);
-                  setFieldValue(
-                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
-                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      scaleTicksStepSize: value ? value : undefined,
-                    }),
-                  );
-                }}
-              />
+              <Row>
+                <FormikText
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.scaleCalcMax`}
+                  label="Auto max"
+                  width="8ch"
+                  type="number"
+                  value={chart.sectionSettings.scaleCalcMax?.toString() ?? ''}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                      mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                        scaleCalcMax: value ? value : undefined,
+                      }),
+                    );
+                  }}
+                />
+                <FormikText
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.scaleTicksStepSize`}
+                  label="Step Size"
+                  width="8ch"
+                  type="number"
+                  value={chart.sectionSettings.scaleTicksStepSize?.toString() ?? ''}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                      mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                        scaleTicksStepSize: value ? value : undefined,
+                      }),
+                    );
+                  }}
+                />
+              </Row>
               <Text
                 name="minBarLength"
                 label="Min bar length"

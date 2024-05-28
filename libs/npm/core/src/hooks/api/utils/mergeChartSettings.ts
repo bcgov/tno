@@ -52,6 +52,7 @@ export const mergeChartSettings = (
     stacked: override.stacked,
     scaleSuggestedMin: override.scaleSuggestedMin,
     scaleSuggestedMax: override.scaleSuggestedMax,
+    scaleCalcMax: override.scaleCalcMax,
     scaleTicksStepSize: override.scaleTicksStepSize,
     minBarLength: override.minBarLength,
     options: {

@@ -384,22 +384,48 @@ export const ChartTemplatePreviewOptions = () => {
                 }}
               />
             </Row>
-            <Text
-              name="scaleTicksStepSize"
-              label="Step size"
-              width="8ch"
-              type="number"
-              value={chartRequestForm.settings.scaleTicksStepSize?.toString() ?? ''}
-              onChange={(e) => {
-                const value = parseInt(e.target.value);
-                setChartRequestForm({
-                  ...chartRequestForm,
-                  settings: mergeChartSettings(values.settings.options, chartRequestForm.settings, {
-                    scaleTicksStepSize: value,
-                  }),
-                });
-              }}
-            />
+            <Row>
+              <Text
+                name="scaleCalcMax"
+                label="Auto max"
+                width="8ch"
+                type="number"
+                value={chartRequestForm.settings.scaleCalcMax?.toString() ?? ''}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        scaleCalcMax: value,
+                      },
+                    ),
+                  });
+                }}
+              />
+              <Text
+                name="scaleTicksStepSize"
+                label="Step size"
+                width="8ch"
+                type="number"
+                value={chartRequestForm.settings.scaleTicksStepSize?.toString() ?? ''}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        scaleTicksStepSize: value,
+                      },
+                    ),
+                  });
+                }}
+              />
+            </Row>
             <Text
               name="minBarLength"
               label="Min bar length"

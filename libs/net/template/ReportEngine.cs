@@ -9,6 +9,7 @@ using TNO.Core.Http;
 using TNO.TemplateEngine.Config;
 using TNO.TemplateEngine.Models;
 using TNO.TemplateEngine.Models.Charts;
+using TNO.TemplateEngine.Models.Charts.Options;
 using TNO.TemplateEngine.Models.Reports;
 
 namespace TNO.TemplateEngine;
@@ -50,7 +51,12 @@ public class ReportEngine : IReportEngine
     protected ChartsOptions ChartsOptions { get; }
 
     /// <summary>
-    ///  logger
+    /// get - Serialization options.
+    /// </summary>
+    protected JsonSerializerOptions SerializerOptions { get; }
+
+    /// <summary>
+    /// get - logger
     /// </summary>
     protected ILogger<ReportEngine> Logger { get; }
     #endregion
@@ -65,6 +71,7 @@ public class ReportEngine : IReportEngine
     /// <param name="httpClient"></param>
     /// <param name="templateOptions"></param>
     /// <param name="chartsOptions"></param>
+    /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
     public ReportEngine(
         ITemplateEngine<ReportEngineContentModel> reportEngineContent,
@@ -73,6 +80,7 @@ public class ReportEngine : IReportEngine
         IHttpRequestClient httpClient,
         IOptions<TemplateOptions> templateOptions,
         IOptions<ChartsOptions> chartsOptions,
+        IOptions<JsonSerializerOptions> serializerOptions,
         ILogger<ReportEngine> logger)
     {
         this.ReportEngineContent = reportEngineContent;
@@ -81,6 +89,7 @@ public class ReportEngine : IReportEngine
         this.HttpClient = httpClient;
         this.TemplateOptions = templateOptions.Value;
         this.ChartsOptions = chartsOptions.Value;
+        this.SerializerOptions = serializerOptions.Value;
         this.Logger = logger;
     }
     #endregion
@@ -178,6 +187,29 @@ public class ReportEngine : IReportEngine
         // Get the Chart JSON data.
         var data = model.ChartData ?? (await this.GenerateJsonAsync(model, isPreview)).Json;
         var dataJson = data.ToJson();
+
+        // If chart settings require auto scale
+        if (model.ChartTemplate.SectionSettings.ScaleCalcMax.HasValue)
+        {
+            // Determine the maximum scale and add the auto max to it.
+            var dataModel = JsonSerializer.Deserialize<ChartDataModel>(dataJson, this.SerializerOptions);
+            var max = dataModel?.Datasets.Max(ds => ds.Data.Max(v => v));
+            if (max.HasValue)
+            {
+                var suggestedMax = (int)max + model.ChartTemplate.SectionSettings.ScaleCalcMax.Value;
+                var sectionJsonText = model.ChartTemplate.SectionSettings.Options.ToJson();
+                if (sectionJsonText != "{}")
+                {
+                    var chartOptions = JsonSerializer.Deserialize<ChartOptionsModel>(model.ChartTemplate.SectionSettings.Options);
+                    if (chartOptions != null)
+                    {
+                        chartOptions.Scales.X.SuggestedMax = suggestedMax;
+                        chartOptions.Scales.Y.SuggestedMax = suggestedMax;
+                        model.ChartTemplate.SectionSettings.Options = JsonDocument.Parse(JsonSerializer.Serialize(chartOptions, this.SerializerOptions));
+                    }
+                }
+            }
+        }
 
         var optionsJson = model.ChartTemplate.SectionSettings.Options != null ? JsonSerializer.Serialize(MergeChartOptions(model.ChartTemplate.Settings, model.ChartTemplate.SectionSettings)) : "{}";
         // Modify the chart options based on section settings.
