@@ -148,7 +148,9 @@ export const ManageFolder: React.FC = () => {
           <ContentList
             handleDrop={handleDrop}
             content={items}
-            showDate
+            showDate={true}
+            showTime={true}
+            showSeries={true}
             selected={selected}
             onContentSelected={handleContentSelected}
           />
