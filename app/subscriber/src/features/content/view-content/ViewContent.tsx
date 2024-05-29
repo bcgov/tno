@@ -1,6 +1,7 @@
 import { Bar } from 'components/bar';
 import { Button } from 'components/button';
 import { Sentiment } from 'components/sentiment';
+import { formatSearch } from 'features/search-page/utils';
 import { formatDate, showTranscription } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
@@ -40,7 +41,12 @@ export interface IViewContentProps {
  */
 export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) => {
   const { id } = useParams();
-  const [, { getContent, stream }] = useContent();
+  const [
+    {
+      search: { filter },
+    },
+    { getContent, stream },
+  ] = useContent();
   const { width } = useWindowSize();
   const [{ profile }] = useProfileStore();
   const [, api] = useMinisters();
@@ -189,9 +195,15 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
       wo.userNotifications?.some((un) => un.userId === profile?.id),
   );
 
+  const formatedHeadline = formatSearch(content ? content.headline : '', filter);
+  const tempBody = content?.body?.replace(/\n+/g, '<br><br>') ?? '';
+  const tempSummary = content?.summary?.replace(/\n+/g, '<br><br>') ?? '';
+  const formatedBody = formatSearch(tempBody, filter);
+  const formatedSummary = formatSearch(tempSummary, filter);
+
   return (
     <styled.ViewContent>
-      <div className="headline">{content?.headline}</div>
+      <div className="headline">{formatedHeadline}</div>
       <Bar className="info-bar" vanilla>
         <Show visible={!!content?.byline}>
           <div className="byline">{`BY ${content?.byline}`}</div>
@@ -248,11 +260,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
       <Row id="summary" className="summary">
         <Show visible={!(isAV && !!content.body && !isTranscribing)}>
           <Col>
-            {!!content?.body?.length ? (
-              <div>{parse(content?.body?.replace(/\n+/g, '<br><br>') ?? '')}</div>
-            ) : (
-              <span>{parse(content?.summary?.replace(/\n+/g, '<br><br>') ?? '')}</span>
-            )}
+            {!!content?.body?.length ? <div>{formatedBody}</div> : <span>{formatedSummary}</span>}
             <Show visible={!!content?.sourceUrl}>
               <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
                 More...
