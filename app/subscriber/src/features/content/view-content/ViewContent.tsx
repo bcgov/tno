@@ -212,17 +212,17 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
           {content?.publishedOn && formatDate(content.publishedOn, true)}
         </div>
         <Row className="right-side">
-          <div className="source-name">{content?.source?.name}</div>
-          <span className="divider">|</span>
-          <div className="source-section">{`${content?.section} ${
-            content?.page && `:${content.page}`
-          }`}</div>
-          <Show visible={!!filteredQuotes.length}>
-            <span className="divider">|</span>
-            <a href="#quotes-anchor" title="go to Quotes">
-              [{filteredQuotes.length}] Quotes
-            </a>
-          </Show>
+          <div className="attributes">
+            <div className="source-name attr">{content?.source?.name}</div>
+            <div className="source-section attr">{`${content?.section} ${
+              content?.page && `${content.page}`
+            }`}</div>
+            <Show visible={!!filteredQuotes.length}>
+              <a href="#quotes-anchor" className="attr" title="go to Quotes">
+                [{filteredQuotes.length}] Quotes
+              </a>
+            </Show>
+          </div>
           {content?.tonePools && content?.tonePools.length && (
             <Row className="tone-group">
               <Sentiment value={content?.tonePools[0].value} />

@@ -21,16 +21,28 @@ export const ViewContent = styled.div`
     .right-side {
       margin-left: auto;
     }
+    .right-side {
+      .attributes {
+        display: flex;
+        flex-direction: row;
+        .attr:not(:last-child)::after {
+          content: '|';
+          margin-left: 0.25rem;
+          margin-right: 0.25rem;
+        }
+      }
+    }
     .divider {
       margin: 0 0.5em;
     }
     .numeric-tone {
-      margin-left: 0.5em;
+      margin-left: 0.25em;
+      font-weight: 700;
       align-self: center;
     }
-    .tone-group {
-      margin-left: 0.5em;
-    }
+  }
+  .tone-group {
+    margin-left: 0.5em;
   }
   video {
     margin-top: 1em;
