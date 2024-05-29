@@ -87,11 +87,6 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
     }
   }, [api, ministers.length]);
 
-  // print filter by useeffect
-  React.useEffect(() => {
-    console.log('xxxxfilter', filter);
-  }, [filter]);
-
   React.useEffect(() => {
     if (profile?.preferences?.myMinisters?.length > 0 && ministers.length > 0) {
       let selectedAliases: string[] = [];
