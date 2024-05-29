@@ -1,4 +1,5 @@
 namespace TNO.TemplateEngine;
+using System.Text.RegularExpressions;
 
 using System.Text.Json;
 using TemplateEngine.Models;
@@ -90,6 +91,12 @@ public static class ReportExtensions
         var contentSummary = content.GetSummary(context);
         var contentBody = context.OwnerId.HasValue && content.Versions.TryGetValue(context.OwnerId.Value, out Entities.Models.ContentVersion? value) ? value.Body : content.Body;
         return IsTranscriptAvailable(content) ? contentBody : (IsAV(content) ? contentSummary : contentBody);
+    }
+    // filter out html <img> blocks from the string
+
+    public static string StripHtmlImages(this string html)
+    {
+        return Regex.Replace(html, @"<img[^>]*>", "");
     }
 
     /// <summary>
@@ -362,8 +369,13 @@ public static class ReportExtensions
             : "";
 
         var source = (context.Settings.Headline.ShowSource
-                ? content.OtherSource.ToUpperInvariant()
+                ? content?.Source?.Name
                 : "");
+        // source is empty or empty string, use the other source
+        if (String.IsNullOrWhiteSpace(source))
+        {
+            source = content?.OtherSource.ToUpperInvariant();
+        }
 
         return $"{source}{(!String.IsNullOrWhiteSpace(name) ? $" - {name}" : "")}";
     }
