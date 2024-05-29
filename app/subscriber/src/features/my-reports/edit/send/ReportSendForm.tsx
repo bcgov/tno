@@ -10,7 +10,9 @@ import { useApp, useReportInstances } from 'store/hooks';
 import {
   Claim,
   Col,
+  EmailSendToName,
   getEnumStringOptions,
+  Grid,
   IUserReportModel,
   OptionItem,
   ReportDistributionFormatName,
@@ -43,6 +45,7 @@ export const ReportSendForm: React.FC = () => {
   const instance = values.instances.length ? values.instances[0] : undefined;
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
   const formatOptions = getEnumStringOptions(ReportDistributionFormatName);
+  const sendToOptions = getEnumStringOptions(EmailSendToName, { splitOnCapital: false });
 
   const handleSend = React.useCallback(
     async (id: number, to: string) => {
@@ -68,6 +71,7 @@ export const ReportSendForm: React.FC = () => {
               reportId: values.id,
               isSubscribed: true,
               format: ReportDistributionFormatName.FullText,
+              sendTo: EmailSendToName.To,
               version: 0,
             }));
           setFieldValue('subscribers', [...values.subscribers, ...subscribers]);
@@ -106,62 +110,77 @@ export const ReportSendForm: React.FC = () => {
         </Show>
       </Row>
       <Col className="subscribers">
-        <Row className="header">
-          <Col flex="1">Username</Col>
-          <Col flex="1">LastName</Col>
-          <Col flex="1">FirstName</Col>
-          <Col flex="2">Email</Col>
-          <Col>Format</Col>
-          {isAdmin && <Col></Col>}
-        </Row>
-        {values.subscribers
-          .filter((s) => s.isSubscribed)
-          .map((sub, index) => {
-            return (
-              <Row key={sub.userId} className="row">
-                <Col flex="1">{sub.username}</Col>
-                <Col flex="1">{sub.lastName}</Col>
-                <Col flex="1">{sub.firstName}</Col>
-                <Col flex="2">{sub.preferredEmail.length ? sub.preferredEmail : sub.email}</Col>
-                <Col>
-                  {!isAdmin ? (
-                    sub.format
-                  ) : (
-                    <Select
-                      name={`subscribers.${index}.format`}
-                      options={formatOptions}
-                      value={formatOptions.find((o) => o.value === sub.format) ?? ''}
-                      onChange={(newValue) => {
-                        const option = newValue as OptionItem;
-                        if (option) {
-                          setFieldValue(
-                            'subscribers',
-                            values.subscribers.map((s) =>
-                              s.userId === sub.userId ? { ...sub, format: option.value } : s,
-                            ),
-                          );
-                        }
-                      }}
-                      isClearable={false}
-                    />
-                  )}
-                </Col>
-                {isAdmin && (
-                  <Col>
-                    <Action
-                      icon={<FaTrash />}
-                      onClick={() =>
-                        setFieldValue(
-                          'subscribers',
-                          values.subscribers.filter((s) => s.userId !== sub.userId),
-                        )
-                      }
-                    />
-                  </Col>
-                )}
-              </Row>
-            );
-          })}
+        <Grid
+          items={values.subscribers.filter((s) => s.isSubscribed)}
+          renderHeader={() => {
+            return [
+              <div key="">Username</div>,
+              <div key="">Last Name</div>,
+              <div key="">First Name</div>,
+              <div key="">Email</div>,
+              { label: <div key="">Message</div>, size: 'fit-content(35ch)' },
+              { label: <div key="">Send as</div>, size: 'fit-content(35ch)' },
+              { label: <div key=""></div>, size: '30px' },
+            ];
+          }}
+          renderRow={(row: IUserReportModel, rowIndex) => {
+            return [
+              <div key="">{row.username}</div>,
+              <div key="">{row.lastName}</div>,
+              <div key="">{row.firstName}</div>,
+              <div key="">{row.preferredEmail.length ? row.preferredEmail : row.email}</div>,
+              <div key="">
+                <Select
+                  name={`subscribers.${rowIndex}.format`}
+                  options={formatOptions}
+                  isClearable={false}
+                  value={formatOptions.find((o) => o.value === row.format) ?? ''}
+                  onChange={(newValue) => {
+                    const option = newValue as OptionItem;
+                    if (option) {
+                      setFieldValue(
+                        'subscribers',
+                        values.subscribers.map((s) =>
+                          s.userId === row.userId ? { ...row, format: option.value } : s,
+                        ),
+                      );
+                    }
+                  }}
+                />
+              </div>,
+              <div key="">
+                <Select
+                  name={`subscribers.${rowIndex}.sendTo`}
+                  options={sendToOptions}
+                  isClearable={false}
+                  value={sendToOptions.find((o) => o.value === row.sendTo) ?? ''}
+                  onChange={(newValue) => {
+                    const option = newValue as OptionItem;
+                    if (option) {
+                      setFieldValue(
+                        'subscribers',
+                        values.subscribers.map((s) =>
+                          s.userId === row.userId ? { ...row, sendTo: option.value } : s,
+                        ),
+                      );
+                    }
+                  }}
+                />
+              </div>,
+              <div key="">
+                <Action
+                  icon={<FaTrash />}
+                  onClick={() =>
+                    setFieldValue(
+                      'subscribers',
+                      values.subscribers.filter((s) => s.userId !== row.userId),
+                    )
+                  }
+                />
+              </div>,
+            ];
+          }}
+        />
       </Col>
       <Show visible={isAdmin}>
         <Row gap="1rem">

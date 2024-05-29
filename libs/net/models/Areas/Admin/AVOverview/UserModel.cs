@@ -45,6 +45,11 @@ public class UserModel
     /// get/set - Whether the user is subscribed to the av evening overview report.
     /// </summary>
     public bool IsSubscribed { get; set; }
+
+    /// <summary>
+    /// get/set - How the email will be sent to the subscriber.
+    /// </summary>
+    public Entities.EmailSentTo SendTo { get; set; }
     #endregion
 
     #region Constructors
@@ -58,7 +63,8 @@ public class UserModel
     /// </summary>
     /// <param name="entity"></param>
     /// <param name="isSubscribed"></param>
-    public UserModel(Entities.User entity, bool isSubscribed = true)
+    /// <param name="sendTo"></param>
+    public UserModel(Entities.User entity, bool isSubscribed = true, Entities.EmailSentTo sendTo = Entities.EmailSentTo.To)
     {
         this.Id = entity.Id;
         this.Username = entity.Username;
@@ -68,6 +74,7 @@ public class UserModel
         this.FirstName = entity.FirstName;
         this.LastName = entity.LastName;
         this.IsSubscribed = isSubscribed;
+        this.SendTo = sendTo;
     }
     #endregion
 }

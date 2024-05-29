@@ -1,8 +1,7 @@
-import { Grid } from 'components/grid';
-import { SortDirection } from 'components/grid/SortAction';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useUsers } from 'store/hooks/admin';
+import { Grid, IUserModel, SortDirection } from 'tno-core';
 import { CellEllipsis, Checkbox, INotificationModel, IUserFilter } from 'tno-core';
 
 import { NotificationFilter } from './NotificationFilter';
@@ -36,7 +35,10 @@ export const NotificationSubscribersForm = () => {
         }}
       />
       <Grid
-        data={users}
+        items={users.items}
+        pageIndex={users.page - 1}
+        itemsPerPage={users.quantity}
+        totalItems={users.total}
         showPaging
         onNavigatePage={async (page) => {
           setFilter((filter) => ({ ...filter, page }));
@@ -58,7 +60,7 @@ export const NotificationSubscribersForm = () => {
           { name: 'firstName', label: 'First Name', sortable: true },
           { name: 'email', label: 'Email', sortable: true },
         ]}
-        renderRow={(row) => [
+        renderRow={(row: IUserModel) => [
           <Checkbox
             key=""
             name={`chk-${row.id}`}

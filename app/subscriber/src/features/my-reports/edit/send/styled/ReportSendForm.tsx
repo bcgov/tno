@@ -17,6 +17,15 @@ export const ReportSendForm = styled.div`
   .subscribers {
     gap: 0.25rem;
 
+    .grid-column {
+      align-items: center;
+
+      .frm-in {
+        margin: 0;
+        padding: 0;
+      }
+    }
+
     .header {
       padding: 0.25rem;
       gap: 1rem;

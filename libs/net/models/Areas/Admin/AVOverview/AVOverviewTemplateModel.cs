@@ -41,7 +41,7 @@ public class AVOverviewTemplateModel : AuditColumnsModel
         this.TemplateType = entity.TemplateType;
         this.TemplateId = entity.TemplateId;
         this.Sections = entity.Sections.OrderBy(s => s.SortOrder).Select(s => new AVOverviewTemplateSectionModel(s));
-        this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s.User!, s.IsSubscribed)).ToArray();
+        this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s.User!, s.IsSubscribed, s.SendTo)).ToArray();
     }
     #endregion
 
@@ -59,10 +59,7 @@ public class AVOverviewTemplateModel : AuditColumnsModel
         };
 
         entity.Sections.AddRange(model.Sections.OrderBy(s => s.SortOrder).Select(s => (Entities.AVOverviewTemplateSection)s).ToArray());
-        entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(s => new Entities.UserAVOverview(s.Id, model.TemplateType)
-        {
-            IsSubscribed = s.IsSubscribed
-        }).ToArray());
+        entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(s => new Entities.UserAVOverview(s.Id, model.TemplateType, s.IsSubscribed, s.SendTo)).ToArray());
 
         return entity;
     }

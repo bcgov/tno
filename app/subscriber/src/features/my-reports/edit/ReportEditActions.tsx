@@ -16,9 +16,9 @@ import {
   ReportViewMenuOption,
 } from './constants';
 import { useReportEditContext } from './ReportEditContext';
+import { ReportSubscriberExporter } from './send/ReportSubscriberExporter';
 import { ReportExporter } from './settings/ReportExporter';
 import * as styled from './styled';
-import { ReportSubscriberExporter } from './view/ReportSubscriberExporter';
 
 export interface IReportEditActionsProps {
   /** Control which buttons are enabled. */

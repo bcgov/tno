@@ -1,5 +1,6 @@
 import { ReportDistributionFormatName } from 'tno-core';
 
+import { EmailSendToName } from '../constants';
 import { IUserModel } from '.';
 
 export interface IUserProductModel extends IUserModel {
@@ -7,6 +8,8 @@ export interface IUserProductModel extends IUserModel {
   isSubscribed: boolean;
   /** Which distribution format they want to receive. */
   format?: ReportDistributionFormatName;
+  /** How to send the email to this subscriber. */
+  sendTo: EmailSendToName;
 
   // TODO: These are for subscribers requesting to receive a product.
   /** Whether the user has requested to be subscribed. */

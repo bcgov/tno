@@ -27,6 +27,7 @@ import { ReportEditContentForm, ReportEditSortForm, ReportEditSummaryForm } from
 import { ReportEditActions } from './ReportEditActions';
 import { useReportEditContext } from './ReportEditContext';
 import { ReportEditMenu } from './ReportEditMenu';
+import { ReportSendForm } from './send';
 import {
   ReportEditDataSourcesForm,
   ReportEditDetailsForm,
@@ -35,7 +36,7 @@ import {
   ReportEditTemplateForm,
 } from './settings';
 import * as styled from './styled';
-import { ReportHistoryForm, ReportSendForm, ReportView } from './view';
+import { ReportHistoryForm, ReportView } from './view';
 
 export interface IReportEditFormProps {
   /** Whether edit functionality is disabled. */

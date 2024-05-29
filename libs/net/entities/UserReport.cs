@@ -40,7 +40,14 @@ public class UserReport : AuditColumns
     /// <summary>
     /// get/set - Which distribution format the user wants to receive.
     /// </summary>
+    [Column("format")]
     public ReportDistributionFormat Format { get; set; } = ReportDistributionFormat.FullText;
+
+    /// <summary>
+    /// get/set - How the email will be sent to the subscriber.
+    /// </summary>
+    [Column("send_to")]
+    public EmailSentTo SendTo { get; set; } = EmailSentTo.To;
     #endregion
 
     #region Constructors
@@ -51,7 +58,8 @@ public class UserReport : AuditColumns
     /// <param name="report"></param>
     /// <param name="isSubscribed"></param>
     /// <param name="format"></param>
-    public UserReport(User user, Report report, bool isSubscribed = true, ReportDistributionFormat format = ReportDistributionFormat.FullText)
+    /// <param name="sendTo"></param>
+    public UserReport(User user, Report report, bool isSubscribed = true, ReportDistributionFormat format = ReportDistributionFormat.FullText, EmailSentTo sendTo = EmailSentTo.To)
     {
         this.User = user ?? throw new ArgumentNullException(nameof(user));
         this.UserId = user.Id;
@@ -59,6 +67,7 @@ public class UserReport : AuditColumns
         this.ReportId = report.Id;
         this.IsSubscribed = isSubscribed;
         this.Format = format;
+        this.SendTo = sendTo;
     }
 
     /// <summary>
@@ -68,12 +77,14 @@ public class UserReport : AuditColumns
     /// <param name="reportId"></param>
     /// <param name="isSubscribed"></param>
     /// <param name="format"></param>
-    public UserReport(int userId, int reportId, bool isSubscribed = true, ReportDistributionFormat format = ReportDistributionFormat.FullText)
+    /// <param name="sendTo"></param>
+    public UserReport(int userId, int reportId, bool isSubscribed = true, ReportDistributionFormat format = ReportDistributionFormat.FullText, EmailSentTo sendTo = EmailSentTo.To)
     {
         this.UserId = userId;
         this.ReportId = reportId;
         this.IsSubscribed = isSubscribed;
         this.Format = format;
+        this.SendTo = sendTo;
     }
     #endregion
 

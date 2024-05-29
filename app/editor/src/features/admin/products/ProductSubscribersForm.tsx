@@ -1,5 +1,3 @@
-import { Grid } from 'components/grid';
-import { SortDirection } from 'components/grid/SortAction';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useUsers } from 'store/hooks/admin';
@@ -8,11 +6,14 @@ import {
   Checkbox,
   FormikSelect,
   getEnumStringOptions,
+  Grid,
   IProductModel,
   IUserFilter,
+  IUserModel,
   OptionItem,
   ProductTypeName,
   ReportDistributionFormatName,
+  SortDirection,
 } from 'tno-core';
 
 import { ProductFilter } from './ProductFilter';
@@ -56,7 +57,10 @@ export const ProductSubscribersForm = () => {
         }}
       />
       <Grid
-        data={users}
+        items={users.items}
+        pageIndex={users.page - 1}
+        itemsPerPage={users.quantity}
+        totalItems={users.total}
         showPaging
         onNavigatePage={async (page) => {
           setFilter((filter) => ({ ...filter, page }));
@@ -83,7 +87,7 @@ export const ProductSubscribersForm = () => {
           if (values.productType !== ProductTypeName.Report) columns.splice(1, 1);
           return columns;
         }}
-        renderRow={(row, rowIndex) => {
+        renderRow={(row: IUserModel, rowIndex) => {
           const subscriber = values.subscribers.find((u) => u.id === row.id);
           const columns = [
             <Checkbox

@@ -475,12 +475,16 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         // We do this first because we don't want to save the output of this in the instance.
         var linkOnlyFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && LinkOnlyFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.GetEmail())).ToArray();
         var linkOnlyFormatBody = linkOnlyFormatSubscribers.Any() ? await this.ReportEngine.GenerateReportBodyAsync(report, instanceModel, sectionContent, GetLinkedReportAsync, null, true, false) : "";
-        var linkOnlyFormatTo = linkOnlyFormatSubscribers.Select(s => s.User!.GetEmail()).ToArray();
+        var linkOnlyFormatTo = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).Select(s => s.User!.GetEmail()).ToArray();
+        var linkOnlyFormatCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).Select(s => s.User!.GetEmail()).ToArray();
+        var linkOnlyFormatBCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).Select(s => s.User!.GetEmail()).ToArray();
 
         // Generate and send report to subscribers who want an email format.
         var fullTextFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && FullTextFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.GetEmail())).ToArray();
         var fullTextFormatBody = await this.ReportEngine.GenerateReportBodyAsync(report, instanceModel, sectionContent, GetLinkedReportAsync, null, false, false);
-        var fullTextFormatTo = fullTextFormatSubscribers.Select(s => s.User!.GetEmail()).ToArray();
+        var fullTextFormatTo = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).Select(s => s.User!.GetEmail()).ToArray();
+        var fullTextFormatCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).Select(s => s.User!.GetEmail()).ToArray();
+        var fullTextFormatBCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).Select(s => s.User!.GetEmail()).ToArray();
 
         if (request.SendToSubscribers || !String.IsNullOrEmpty(request.To))
         {
@@ -491,14 +495,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 if (linkOnlyFormatTo.Any() && String.IsNullOrEmpty(request.To))
                 {
                     // Send the email.
-                    var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
+                    var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, linkOnlyFormatCC, linkOnlyFormatBCC, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
                     responseModel.LinkOnlyFormatResponse = responseLinkOnly != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions)) : JsonDocument.Parse("{}");
                 }
 
                 if (fullTextFormatTo.Any() || !String.IsNullOrEmpty(request.To))
                 {
                     // Send the email.
-                    var responseFullText = await SendEmailAsync(request, fullTextFormatTo, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
+                    var responseFullText = await SendEmailAsync(request, fullTextFormatTo, fullTextFormatCC, fullTextFormatBCC, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
                     responseModel.FullTextFormatResponse = responseFullText != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions)) : JsonDocument.Parse("{}");
                 }
 
@@ -578,19 +582,17 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
         // Generate and send report to subscribers who want an email with a link to the website.
         // We do this first because we don't want to save the output of this in the instance.
-        var linkOnlyFormatTo = request.SendToSubscribers ?
-            report.Subscribers
-                .Where(s => s.IsSubscribed && LinkOnlyFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.GetEmail()))
-                .Select(s => s.User!.GetEmail())
-                .ToArray() :
-            Array.Empty<string>();
+        var linkOnlyFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && LinkOnlyFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.GetEmail())).ToArray();
+        var linkOnlyFormatTo = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).Select(s => s.User!.GetEmail()).ToArray();
+        var linkOnlyFormatCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).Select(s => s.User!.GetEmail()).ToArray();
+        var linkOnlyFormatBCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).Select(s => s.User!.GetEmail()).ToArray();
         var linkOnlyFormatBody = linkOnlyFormatTo.Any() ? await this.ReportEngine.GenerateReportBodyAsync(instance.Report, instance, sectionContent, GetLinkedReportAsync, null, true, false) : "";
 
         // Generate and send report to subscribers who want an email format.
-        var fullTextFormatTo = report.Subscribers
-            .Where(s => s.IsSubscribed && FullTextFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.GetEmail()))
-            .Select(s => s.User!.GetEmail())
-            .ToArray();
+        var fullTextFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && FullTextFormats.Contains(s.Format) && !String.IsNullOrWhiteSpace(s.User?.GetEmail())).ToArray();
+        var fullTextFormatTo = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).Select(s => s.User!.GetEmail()).ToArray();
+        var fullTextFormatCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).Select(s => s.User!.GetEmail()).ToArray();
+        var fullTextFormatBCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).Select(s => s.User!.GetEmail()).ToArray();
         var fullTextFormatBody = await this.ReportEngine.GenerateReportBodyAsync(instance.Report, instance, sectionContent, GetLinkedReportAsync, null, false, false);
 
         if (request.SendToSubscribers || !String.IsNullOrWhiteSpace(request.To))
@@ -599,17 +601,17 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             var responseModel = new ReportEmailResponseModel();
             try
             {
-                if (linkOnlyFormatTo.Any())
+                if (request.SendToSubscribers && linkOnlyFormatTo.Any())
                 {
                     // Send the email.
-                    var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
+                    var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, linkOnlyFormatCC, linkOnlyFormatBCC, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
                     responseModel.LinkOnlyFormatResponse = responseLinkOnly != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions)) : JsonDocument.Parse("{}");
                 }
 
                 if (fullTextFormatTo.Any() || !String.IsNullOrEmpty(request.To))
                 {
                     // Send the email.
-                    var responseFullText = await SendEmailAsync(request, fullTextFormatTo, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
+                    var responseFullText = await SendEmailAsync(request, fullTextFormatTo, fullTextFormatCC, fullTextFormatBCC, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
                     responseModel.FullTextFormatResponse = responseFullText != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions)) : JsonDocument.Parse("{}");
 
                 }
@@ -663,7 +665,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var model = new AVOverviewInstanceModel(instance);
         var template = instance.Template ?? throw new InvalidOperationException($"Report template was not included in model.");
 
-        var to = instance.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.GetEmail()) && s.IsSubscribed).Select(s => s.GetEmail()).ToArray();
+        var subscribers = instance.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.GetEmail()) && s.IsSubscribed).ToArray();
+        var to = subscribers.Where(s => s.SendTo == EmailSentTo.To).Select(s => s.GetEmail()).ToArray();
+        var cc = subscribers.Where(s => s.SendTo == EmailSentTo.CC).Select(s => s.GetEmail()).ToArray();
+        var bcc = subscribers.Where(s => s.SendTo == EmailSentTo.BCC).Select(s => s.GetEmail()).ToArray();
+
         // No need to send an email if there are no subscribers.
         if (request.SendToSubscribers)
         {
@@ -673,7 +679,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 var body = await this.ReportEngine.GenerateReportBodyAsync(template, model, false);
 
                 // Send the email.
-                var response = await SendEmailAsync(request, to, subject, body, $"{instance.TemplateType}-{instance.Id}");
+                var response = await SendEmailAsync(request, to, cc, bcc, subject, body, $"{instance.TemplateType}-{instance.Id}");
 
                 // Update the report instance with the email response.
                 instance.Response = response != null ? JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions)) : JsonDocument.Parse("{}");
@@ -689,11 +695,13 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// </summary>
     /// <param name="request"></param>
     /// <param name="to"></param>
+    /// <param name="cc"></param>
+    /// <param name="bcc"></param>
     /// <param name="subject"></param>
     /// <param name="body"></param>
     /// <param name="tag"></param>
     /// <returns></returns>
-    private async Task<EmailResponseModel?> SendEmailAsync(ReportRequestModel request, IEnumerable<string> to, string subject, string body, string tag)
+    private async Task<EmailResponseModel?> SendEmailAsync(ReportRequestModel request, IEnumerable<string> to, IEnumerable<string> cc, IEnumerable<string> bcc, string subject, string body, string tag)
     {
         await HandleChesEmailOverrideAsync(request.RequestorId);
 
@@ -701,18 +709,38 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         if (!String.IsNullOrWhiteSpace(request.To) && request.To.IsValidEmail())
         {
             // Add a context for the requested list of users.
-            var another = request.To.Split(",").Select(v => v.Trim());
-            contexts.Add(new EmailContextModel(another, new Dictionary<string, object>(), DateTime.Now)
+            var toAddresses = request.To.Split(",").Select(v => v.Trim()).ToArray();
+            contexts.Add(new EmailContextModel(toAddresses, new Dictionary<string, object>(), DateTime.Now)
             {
                 Tag = tag,
             });
         }
         else
         {
-            contexts.AddRange(to.Where(v => v.IsValidEmail()).Select(v => new EmailContextModel(new[] { v }, new Dictionary<string, object>(), DateTime.Now)
+            var sendToRequestorSeparately = request.RequestorId.HasValue && (cc.Any() || bcc.Any());
+            var requestor = sendToRequestorSeparately ? await this.Api.GetUserAsync(request.RequestorId!.Value) : null;
+            var requestorEmail = !String.IsNullOrWhiteSpace(requestor?.PreferredEmail) ? requestor.PreferredEmail : requestor?.Email;
+
+            // Do not send multiple emails to the requestor if there is also a CC/BCC list.
+            var toAddresses = String.IsNullOrWhiteSpace(requestorEmail) ? to : to.Where(v => v != requestorEmail);
+            var toContexts = toAddresses
+                .Where(v => v.IsValidEmail())
+                .Select(v => new EmailContextModel(new[] { v }, new Dictionary<string, object>(), DateTime.Now)
+                {
+                    Tag = tag,
+                }).ToArray();
+            contexts.AddRange(toContexts);
+
+            // If there are BCC and CC options then they must be sent with an email that is sent to the requestor.
+            if (sendToRequestorSeparately && !String.IsNullOrWhiteSpace(requestorEmail))
             {
-                Tag = tag,
-            }).ToList());
+                contexts.Add(new EmailContextModel(new[] { requestorEmail }, new Dictionary<string, object>(), DateTime.Now)
+                {
+                    Cc = cc,
+                    Bcc = bcc,
+                    Tag = tag,
+                });
+            }
         }
 
         if (!contexts.Any()) return null;
@@ -726,7 +754,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         };
 
         var response = await this.Ches.SendEmailAsync(merge);
-        this.Logger.LogInformation("Report sent to CHES.  Report: {report}:{instance}", request.ReportId, request.ReportInstanceId);
+        this.Logger.LogInformation("Report sent to CHES.  ReportId:{report}, InstanceId:{instance}", request.ReportId, request.ReportInstanceId);
 
         return response;
     }

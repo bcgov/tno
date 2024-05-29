@@ -52,6 +52,11 @@ public class UserModel
     public Entities.ReportDistributionFormat? Format { get; set; }
 
     /// <summary>
+    /// get/set - How the email will be sent to the subscriber.
+    /// </summary>
+    public Entities.EmailSentTo? SendTo { get; set; }
+
+    /// <summary>
     /// get/set - Has an admin approved the status change?
     /// </summary>
     public bool? SubscriptionChangeActioned { get; set; }
@@ -73,11 +78,13 @@ public class UserModel
     /// <param name="entity"></param>
     /// <param name="isSubscribed"></param>
     /// <param name="format"></param>
+    /// <param name="sendTo"></param>
     /// <param name="subscriptionChangeActioned"></param>
     /// <param name="requestedIsSubscribedStatus"></param>
     public UserModel(Entities.User entity,
         bool isSubscribed = true,
         Entities.ReportDistributionFormat? format = null,
+        Entities.EmailSentTo? sendTo = null,
         bool? subscriptionChangeActioned = null,
         bool? requestedIsSubscribedStatus = null)
     {
@@ -90,6 +97,7 @@ public class UserModel
         this.LastName = entity.LastName;
         this.IsSubscribed = isSubscribed;
         this.Format = format;
+        this.SendTo = sendTo;
         this.SubscriptionChangeActioned = subscriptionChangeActioned;
         this.RequestedIsSubscribedStatus = requestedIsSubscribedStatus;
     }

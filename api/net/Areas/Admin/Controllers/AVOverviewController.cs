@@ -108,47 +108,39 @@ public class AVOverviewController : ControllerBase
         // get a list of sibling template types we need to update
         var otherTemplateTypes = Enum.GetValues(typeof(Entities.AVOverviewTemplateType)).Cast<Entities.AVOverviewTemplateType>().ToList();
         otherTemplateTypes.Remove(model.TemplateType);
-        Entities.AVOverviewTemplate template;
 
         // get the list of UserIds that have been updated
-        HashSet<int> updatedSubscriberUserIds = new HashSet<int>(result.SubscribersManyToMany.Select((s) => s.UserId));
         foreach (var templateType in otherTemplateTypes)
         {
             // retrieve the sibling template
-            template = _overviewTemplateService.FindById(templateType) ?? throw new InvalidOperationException("Overview Template does not exist");
+            var otherTemplate = _overviewTemplateService.FindById(templateType) ?? throw new InvalidOperationException("Overview Template does not exist");
             // update the subscription status for matching users
             foreach (var subscriber in result.SubscribersManyToMany)
             {
-                var target = template.SubscribersManyToMany.FirstOrDefault((s) => s.UserId == subscriber.UserId);
-                if (target != null) target.IsSubscribed = subscriber.IsSubscribed;
-            }
-
-            // get a list of existing userids so we can determine additions and removals
-            HashSet<int> existingSubscriberUserIds = new HashSet<int>(template.SubscribersManyToMany.Select((s) => s.UserId));
-
-            // add new users
-            var newSubscriberUserIds = updatedSubscriberUserIds.Except(existingSubscriberUserIds);
-            template.SubscribersManyToMany.AddRange(
-                newSubscriberUserIds.Select(s => new Entities.UserAVOverview(s, templateType)
+                var otherTemplateSubscriber = otherTemplate.SubscribersManyToMany.FirstOrDefault((s) => s.UserId == subscriber.UserId);
+                if (otherTemplateSubscriber != null)
                 {
-                    IsSubscribed = true
-                })
-            );
+                    otherTemplateSubscriber.IsSubscribed = subscriber.IsSubscribed;
+                    otherTemplateSubscriber.SendTo = subscriber.SendTo;
+                }
+                else
+                {
+                    otherTemplate.SubscribersManyToMany.Add(new Entities.UserAVOverview(subscriber.UserId, subscriber.TemplateType, subscriber.IsSubscribed, subscriber.SendTo));
+                }
+            }
 
             // delete any users that no longer exist - might occur if the user was deleted completely...?
-            var deletedSubscriberUserIds = existingSubscriberUserIds.Except(updatedSubscriberUserIds);
-            foreach (var deletedSubscriberUserId in deletedSubscriberUserIds)
+            foreach (var subscriber in otherTemplate.SubscribersManyToMany)
             {
-                var deletedSubscriber = template.SubscribersManyToMany.FirstOrDefault((s) => s.UserId == deletedSubscriberUserId);
-                if (deletedSubscriber != null) template.SubscribersManyToMany.Remove(deletedSubscriber);
+                var deletedSubscriber = result.SubscribersManyToMany.FirstOrDefault((s) => s.UserId == subscriber.UserId);
+                if (deletedSubscriber == null) otherTemplate.SubscribersManyToMany.Remove(subscriber);
             }
-            _overviewTemplateService.UpdateAndSave((Entities.AVOverviewTemplate)template);
+            _overviewTemplateService.UpdateAndSave(otherTemplate);
         }
-        
-        // retrieve the template that was initially slated for update
-        template = _overviewTemplateService.FindById(model.TemplateType) ?? throw new InvalidOperationException("Overview Template does not exist");
 
-        return new JsonResult(new AVOverviewTemplateModel(template));
+        // retrieve the template that was initially slated for update
+        result = _overviewTemplateService.FindById(model.TemplateType) ?? throw new InvalidOperationException("Overview Template does not exist");
+        return new JsonResult(new AVOverviewTemplateModel(result));
     }
 
     /// <summary>

@@ -78,9 +78,10 @@ public class AVOverviewTemplateService : BaseService<AVOverviewTemplate, AVOverv
             {
                 this.Context.UserAVOverviews.Add(s);
             }
-            else if (originalSubscriber.IsSubscribed != s.IsSubscribed)
+            else if (originalSubscriber.IsSubscribed != s.IsSubscribed || originalSubscriber.SendTo != s.SendTo)
             {
                 originalSubscriber.IsSubscribed = s.IsSubscribed;
+                originalSubscriber.SendTo = s.SendTo;
             }
         });
 

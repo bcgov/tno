@@ -36,6 +36,12 @@ public class UserAVOverview : AuditColumns
     /// </summary>
     [Column("is_subscribed")]
     public bool IsSubscribed { get; set; }
+
+    /// <summary>
+    /// get/set - How the email will be sent to the subscriber.
+    /// </summary>
+    [Column("send_to")]
+    public EmailSentTo SendTo { get; set; } = EmailSentTo.To;
     #endregion
 
     #region Constructors
@@ -45,13 +51,15 @@ public class UserAVOverview : AuditColumns
     /// <param name="user"></param>
     /// <param name="template"></param>
     /// <param name="isSubscribed"></param>
-    public UserAVOverview(User user, AVOverviewTemplate template, bool isSubscribed = true)
+    /// <param name="sendTo"></param>
+    public UserAVOverview(User user, AVOverviewTemplate template, bool isSubscribed = true, EmailSentTo sendTo = EmailSentTo.To)
     {
         this.User = user ?? throw new ArgumentNullException(nameof(user));
         this.UserId = user.Id;
         this.Template = template ?? throw new ArgumentNullException(nameof(template));
         this.TemplateType = template.TemplateType;
         this.IsSubscribed = isSubscribed;
+        this.SendTo = sendTo;
     }
 
     /// <summary>
@@ -60,11 +68,13 @@ public class UserAVOverview : AuditColumns
     /// <param name="userId"></param>
     /// <param name="templateType"></param>
     /// <param name="isSubscribed"></param>
-    public UserAVOverview(int userId, AVOverviewTemplateType templateType, bool isSubscribed = true)
+    /// <param name="sendTo"></param>
+    public UserAVOverview(int userId, AVOverviewTemplateType templateType, bool isSubscribed = true, EmailSentTo sendTo = EmailSentTo.To)
     {
         this.UserId = userId;
         this.TemplateType = templateType;
         this.IsSubscribed = isSubscribed;
+        this.SendTo = sendTo;
     }
     #endregion
 
