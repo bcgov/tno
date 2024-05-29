@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from 'store/hooks';
-import { Row, Show, useKeycloakWrapper, UserStatusName } from 'tno-core';
+import { Col, Loader, Row, Show, useKeycloakWrapper, UserStatusName } from 'tno-core';
 
 import { ApprovalDenied } from './ApprovalDenied';
 import { ApprovalStatus } from './ApprovalStatus';
@@ -16,10 +16,14 @@ export const AccessRequest: React.FC = () => {
   const [{ userInfo }] = useApp();
   const navigate = useNavigate();
   const location = useLocation();
+  const [showLoader, setShowLoader] = React.useState(false);
 
   React.useEffect(() => {
     // The user has been approved, redirect back to home page.
     if (keycloak.hasClaim() && location.pathname === '/welcome') navigate('/');
+    setTimeout(() => {
+      setShowLoader(true);
+    }, 5000);
   }, [keycloak, location.pathname, navigate]);
 
   return (
@@ -36,17 +40,24 @@ export const AccessRequest: React.FC = () => {
           userInfo?.status !== UserStatusName.Denied
         }
       >
-        <Row className="welcome">
-          <h1>Welcome</h1>
-          <p>
-            Hello {keycloak.getDisplayName()}, If this is the first time signing into Media
-            Monitoring Insights & Analysis, you will need to request approval.
-          </p>
-        </Row>
-        {/* <Row gap="1em" justifyContent="space-evenly">
-          <PreapprovedRequest />
-          <RegisterRequest />
-        </Row> */}
+        <Col>
+          <img alt="MMI Logo" className="app-logo" src="/assets/MMinsights_logo_dark_text.svg" />
+          <Loader visible={showLoader}>Loading</Loader>
+          <Row className="containing-row">
+            <Col className="main-box">
+              <p className="top-bar-box">
+                Welcome {keycloak.getDisplayName()}, If this is the first time signing into Media
+                Monitoring Insights & Analysis, your approval is being processed.
+              </p>
+              <div className={'containing-box'}>
+                <Col className="message-box">
+                  <h1>Please wait while your user information is being set up.</h1>
+                  <h2>You will be redirected automatically.</h2>
+                </Col>
+              </div>
+            </Col>
+          </Row>
+        </Col>
       </Show>
     </styled.AccessRequest>
   );

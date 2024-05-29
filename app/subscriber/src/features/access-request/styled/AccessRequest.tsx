@@ -1,75 +1,106 @@
 import styled from 'styled-components';
 
 export const AccessRequest = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: ${(props) => props.theme.css.bkPrimary};
   width: 100%;
-  margin: 0 5% 0 5%;
-  padding: 2em;
-  background-color: ${(props) => props.theme.css.bkForm};
+  height: 100dvh;
 
-  .welcome {
-    gap: 1em;
+  .containing-row {
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: auto;
+  }
 
-    & > p {
-      flex: 1 1 0;
+  .app-logo {
+    padding: 1%;
+    @media (min-width: 1450px) {
+      margin-left: 5%;
+    }
+    @media (min-width: 850px) {
+      max-width: 50em;
+      max-height: 25em;
+    }
+    @media (max-width: 850px) {
+      max-width: 30em;
+      max-height: 15em;
+    }
+    max-width: 50em;
+    max-height: 25em;
+
+    @media (max-width: 1450px) {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    margin-top: 2.5%;
+
+    margin-bottom: 2.5%;
+  }
+
+  a {
+    margin-bottom: 2%;
+  }
+
+  .containing-box {
+    padding: 2%;
+    display: flex;
+    justify-content: center;
+    max-height: fit-content;
+    overflow: hidden;
+    @media (max-width: 1550px) {
+      display: inline-block;
+      margin-left: 5em;
     }
   }
 
-  button {
-    margin-bottom: 0.5em;
+  .mm-logo {
+    height: 8%;
+    @media (max-width: 768px) {
+      height: 6%;
+      right: 1%;
+    }
+    position: fixed;
+    right: 5%;
+    bottom: 1%;
+    z-index: 100;
   }
-
-  .preApproval {
-    flex: 1 1 0;
-    max-width: 30em;
-    background-color: #f5f5f5;
-    border-radius: 1em;
-    padding: 1em 2em 1em 2em;
-    box-shadow: 4px 3px 8px 1px #969696;
-
-    form {
-      background-color: transparent;
+  .logo-row {
+    justify-content: flex-end;
+    img {
     }
   }
 
-  .register {
-    flex: 1 1 0;
-    max-width: 30em;
-    background-color: #f5f5f5;
-    border-radius: 1em;
-    padding: 1em 2em 1em 2em;
-    box-shadow: 4px 3px 8px 1px #969696;
-
-    form {
-      background-color: transparent;
-
-      div {
-        button {
-          margin-left: auto;
-        }
-      }
+  .main-box {
+    margin-left: auto;
+    box-shadow: 0px 2px 6px #0000000a;
+    background-color: #ffffff;
+    max-height: fit-content;
+    margin-right: auto;
+    overflow: hidden;
+    width: 110em;
+    @media (min-width: 850px) {
+      max-width: 70em;
     }
-  }
-
-  .status {
-    flex: 1 1 0;
-    align-items: center;
-    max-width: 30em;
-    background-color: #f5f5f5;
-    border-radius: 1em;
-    padding: 1em 2em 1em 2em;
-    box-shadow: 4px 3px 8px 1px #969696;
-
-    form {
-      background-color: transparent;
-
-      div {
-        button {
-          margin-left: auto;
-        }
-      }
+    @media (max-width: 1550px) {
+      min-width: 50em;
+      margin-left: 1%;
+      margin-bottom: 1%;
+    }
+    @media (min-width: 1450px) {
+      max-width: 130em;
+    }
+    .top-bar-box {
+      margin: 0;
+      background-color: ${(props) => props.theme.css.dialogBoxBkPrimary};
+      color: white;
+      padding: 0.5em;
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 22px;
+      letter-spacing: 0em;
+      text-align: center;
     }
   }
 `;
