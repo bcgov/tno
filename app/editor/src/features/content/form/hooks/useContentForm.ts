@@ -5,7 +5,14 @@ import moment from 'moment';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApiHub, useApp, useContent, useLookupOptions, useWorkOrders } from 'store/hooks';
+import {
+  useApiHub,
+  useApp,
+  useContent,
+  useLookup,
+  useLookupOptions,
+  useWorkOrders,
+} from 'store/hooks';
 import {
   ContentStatusName,
   ContentTypeName,
@@ -47,6 +54,7 @@ export const useContentForm = ({
   ] = useContent();
   const [, { findWorkOrders, transcribe, nlp, ffmpeg }] = useWorkOrders();
   const [{ series }, { getSeries }] = useLookupOptions();
+  const [{ settings }] = useLookup();
 
   // TODO: The stream shouldn't be reset every time the users changes the tab.
   const [stream, setStream] = React.useState<IStream>(); // TODO: Remove dependency coupling with storage component.
@@ -85,6 +93,16 @@ export const useContentForm = ({
     async (id: number) => {
       try {
         const content = await getContent(id);
+        // Set alert to default false if the content is already published
+        if (content?.status === 'Published') {
+          const alert = settings.find((x) => x.name === 'AlertActionId');
+          const alertAction = alert
+            ? content.actions.find((x) => x.id === parseInt(alert.value))
+            : null;
+          if (alertAction) {
+            alertAction.value = 'false';
+          }
+        }
         await updateForm(content);
       } catch (error) {
         const aError = error as AxiosError;
@@ -94,7 +112,7 @@ export const useContentForm = ({
         }
       }
     },
-    [getContent, updateForm, navigate],
+    [getContent, updateForm, settings, navigate],
   );
 
   const onWorkOrder = React.useCallback(
