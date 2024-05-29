@@ -10,7 +10,6 @@ export const FolderLanding = styled(Row)<{ split?: boolean }>`
     @media (min-width: 1100px) {
       width: ${({ split }) => (split ? '30%' : '100%')};
     }
-    transition: width 0.5s ease-in-out;
   }
   .right-side {
     @media (max-width: 1100px) {
@@ -19,6 +18,5 @@ export const FolderLanding = styled(Row)<{ split?: boolean }>`
     @media (min-width: 1100px) {
       width: ${({ split }) => (split ? '70%' : '100%')};
     }
-    transition: width 0.5s ease-in-out;
   }
 `;
