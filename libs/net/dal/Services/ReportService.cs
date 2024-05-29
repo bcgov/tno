@@ -194,6 +194,8 @@ public class ReportService : BaseService<Report, int>, IReportService
                     originalSubscriber.IsSubscribed = s.IsSubscribed;
                 if (originalSubscriber.Format != s.Format)
                     originalSubscriber.Format = s.Format;
+                if (originalSubscriber.SendTo != s.SendTo)
+                    originalSubscriber.SendTo = s.SendTo;
             }
         });
 

@@ -2,12 +2,26 @@
 @import './_fonts';
 
 :export {
-
   // Links
   linkPrimaryColor: $link-primary-color;
   linkPrimaryHoverColor: $link-primary-hover-color;
   linkPrimaryActiveColor: $link-primary-active-color;
   linkGrayColor: $link-gray-color;
+
+  // Lines
+  linePrimaryColor: $line-primary-color;
+
+  // Tables
+  tableOddRow: $table-odd-row;
+  tableEvenRow: $table-even-row;
+  tableHoverRow: $table-hover-row;
+
+  // Icon
+  iconPrimaryColor: $icon-primary-color;
+
+  // ***************************************
+  // DO NOT USE ANY OF THESE BELOW THIS LINE
+  // ***************************************
 
   actionButtonColor: $action-button-color;
   backgroundColor: $background-color;

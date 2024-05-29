@@ -1,18 +1,19 @@
-import { Grid } from 'components/grid';
-import { SortDirection } from 'components/grid/SortAction';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useUsers } from 'store/hooks/admin';
 import {
   CellEllipsis,
   Checkbox,
+  EmailSendToName,
   FormikSelect,
   getEnumStringOptions,
+  Grid,
   IReportModel,
   IUserFilter,
   IUserReportModel,
   OptionItem,
   ReportDistributionFormatName,
+  SortDirection,
 } from 'tno-core';
 
 import { ListFilter } from './ListFilter';
@@ -25,6 +26,7 @@ export const ReportFormSubscribers: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IReportModel>();
   const [{ users }, { findUsers }] = useUsers();
   const formatOptions = getEnumStringOptions(ReportDistributionFormatName);
+  const sendToOptions = getEnumStringOptions(EmailSendToName, { splitOnCapital: false });
 
   const [filter, setFilter] = React.useState<IUserFilter>({ page: 1, quantity: 100, sort: [] });
 
@@ -36,6 +38,7 @@ export const ReportFormSubscribers: React.FC = () => {
       reportId: values.id,
       isSubscribed: subscriber?.isSubscribed ?? false,
       format: subscriber?.format ?? ReportDistributionFormatName.LinkOnly,
+      sendTo: subscriber?.sendTo ?? EmailSendToName.To,
       version: 0,
     };
   });
@@ -65,7 +68,10 @@ export const ReportFormSubscribers: React.FC = () => {
         }}
       />
       <Grid
-        data={page}
+        items={page.items}
+        pageIndex={page.page - 1}
+        itemsPerPage={page.quantity}
+        totalItems={page.total}
         showPaging
         onNavigatePage={async (page) => {
           setFilter((filter) => ({ ...filter, page }));
@@ -82,13 +88,14 @@ export const ReportFormSubscribers: React.FC = () => {
         }}
         renderHeader={() => [
           { name: 'isSubscribed', label: '', size: '30px' },
-          { name: 'format', label: 'Format' },
           { name: 'username', label: 'Username', sortable: true },
           { name: 'lastName', label: 'Last Name', sortable: true },
           { name: 'firstName', label: 'First Name', sortable: true },
           { name: 'email', label: 'Email', sortable: true },
+          { name: 'format', label: 'Format' },
+          { name: 'sendTo', label: 'Send as' },
         ]}
-        renderRow={(row, rowIndex) => [
+        renderRow={(row: IUserReportModel, rowIndex) => [
           <Checkbox
             key=""
             name={`chk-${row.userId}`}
@@ -103,6 +110,17 @@ export const ReportFormSubscribers: React.FC = () => {
               else setFieldValue('subscribers', [user, ...values.subscribers]);
             }}
           />,
+          <CellEllipsis key="">{row.username}</CellEllipsis>,
+          <CellEllipsis key="">{row.lastName}</CellEllipsis>,
+          <CellEllipsis key="">{row.firstName}</CellEllipsis>,
+          <>
+            <CellEllipsis>{row.email}</CellEllipsis>
+            {row.preferredEmail ? (
+              <CellEllipsis className="preferred">{row.preferredEmail}</CellEllipsis>
+            ) : (
+              ''
+            )}
+          </>,
           <FormikSelect
             key=""
             name={`subscribers.${rowIndex}.format`}
@@ -129,17 +147,32 @@ export const ReportFormSubscribers: React.FC = () => {
             }}
             isClearable={false}
           />,
-          <CellEllipsis key="">{row.username}</CellEllipsis>,
-          <CellEllipsis key="">{row.lastName}</CellEllipsis>,
-          <CellEllipsis key="">{row.firstName}</CellEllipsis>,
-          <>
-            <CellEllipsis>{row.email}</CellEllipsis>
-            {row.preferredEmail ? (
-              <CellEllipsis className="preferred">{row.preferredEmail}</CellEllipsis>
-            ) : (
-              ''
-            )}
-          </>,
+          <FormikSelect
+            key=""
+            name={`subscribers.${rowIndex}.format`}
+            options={sendToOptions}
+            value={sendToOptions.find((o) => o.value === row.sendTo) ?? ''}
+            onChange={(e) => {
+              const option = e as OptionItem;
+              if (option) {
+                if (values.subscribers.some((u) => u.userId === row.userId)) {
+                  const user = { ...row, sendTo: option.value };
+                  setFieldValue(
+                    'subscribers',
+                    values.subscribers.map((item) => (item.userId === row.userId ? user : item)),
+                  );
+                } else {
+                  const user = {
+                    ...row,
+                    isSubscribed: true,
+                    sendTo: option.value,
+                  };
+                  setFieldValue('subscribers', [user, ...values.subscribers]);
+                }
+              }
+            }}
+            isClearable={false}
+          />,
         ]}
       />
     </>

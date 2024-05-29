@@ -16,6 +16,8 @@ export * from './ContentTypeName';
 export * from './datasetOptions';
 export * from './datasetValueOptions';
 export * from './defaultChartSectionSettings';
+export * from './EmailSendTo';
+export * from './EmailSendToName';
 export * from './FFmpegAction';
 export * from './FFmpegActionName';
 export * from './groupByOptions';

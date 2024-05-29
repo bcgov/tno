@@ -1,11 +1,7 @@
 import React from 'react';
 import { FaCaretDown, FaCaretUp, FaFilter } from 'react-icons/fa6';
 
-export enum SortDirection {
-  None = '',
-  Ascending = 'asc',
-  Descending = 'desc',
-}
+import { SortDirection } from './constants';
 
 interface ISortActionProps {
   direction?: SortDirection;

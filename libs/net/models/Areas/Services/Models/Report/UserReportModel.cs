@@ -32,6 +32,11 @@ public class UserReportModel : AuditColumnsModel
     /// get/set - Which distribution format the user wants to receive.
     /// </summary>
     public Entities.ReportDistributionFormat Format { get; set; } = Entities.ReportDistributionFormat.FullText;
+
+    /// <summary>
+    /// get/set - How the email will be sent to the subscriber.
+    /// </summary>
+    public Entities.EmailSentTo SendTo { get; set; }
     #endregion
 
     #region Constructors
@@ -51,6 +56,7 @@ public class UserReportModel : AuditColumnsModel
         this.ReportId = entity.ReportId;
         this.IsSubscribed = entity.IsSubscribed;
         this.Format = entity.Format;
+        this.SendTo = entity.SendTo;
     }
     #endregion
 
@@ -61,7 +67,7 @@ public class UserReportModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.UserReport(UserReportModel model)
     {
-        return new Entities.UserReport(model.UserId, model.ReportId, model.IsSubscribed, model.Format)
+        return new Entities.UserReport(model.UserId, model.ReportId, model.IsSubscribed, model.Format, model.SendTo)
         {
             Version = model.Version ?? 0
         };

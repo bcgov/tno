@@ -6,6 +6,7 @@ export * from './flex';
 export * from './footer';
 export * from './form';
 export * from './formik';
+export * from './grid';
 export * from './grid-table';
 export * from './header';
 export * from './link';

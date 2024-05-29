@@ -2,14 +2,18 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { useUsers } from 'store/hooks/admin';
 import {
-  FlexboxTable,
-  ITableInternal,
-  ITablePage,
-  ITableSort,
+  CellEllipsis,
+  Checkbox,
+  EmailSendToName,
+  FormikSelect,
+  getEnumStringOptions,
+  Grid,
   IUserAVOverviewModel,
+  IUserFilter,
+  OptionItem,
+  SortDirection,
 } from 'tno-core';
 
-import { subscriberColumns } from './constants';
 import { IAVOverviewTemplateForm } from './interfaces';
 import { ListFilter } from './ListFilter';
 
@@ -20,35 +24,24 @@ import { ListFilter } from './ListFilter';
 export const OverviewSubscribers: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IAVOverviewTemplateForm>();
   const [{ users }, { findUsers }] = useUsers();
+  const sendToOptions = getEnumStringOptions(EmailSendToName, { splitOnCapital: false });
 
-  React.useEffect(() => {
-    findUsers({ page: 1, quantity: users.quantity }).catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const [filter, setFilter] = React.useState<IUserFilter>({ page: 1, quantity: 100, sort: [] });
 
-  const handlePageChange = React.useCallback(
-    async (page: ITablePage, table: ITableInternal<IUserAVOverviewModel>) => {
+  const fetch = React.useCallback(
+    async (filter: IUserFilter) => {
       try {
-        await findUsers({ page: page.pageIndex + 1, quantity: page.pageSize });
+        await findUsers(filter);
       } catch {}
     },
     [findUsers],
   );
 
-  const handleSortChange = React.useCallback(
-    async (
-      sort: ITableSort<IUserAVOverviewModel>[],
-      table: ITableInternal<IUserAVOverviewModel>,
-    ) => {
-      const sorts = sort
-        .filter((s) => s.isSorted)
-        .map((s) => `${s.id}${s.isSortedDesc ? ' desc' : ''}`);
-      try {
-        await findUsers({ page: 1, quantity: users.quantity, sort: sorts });
-      } catch {}
-    },
-    [findUsers, users.quantity],
-  );
+  React.useEffect(() => {
+    fetch(filter).catch();
+    // The fetch method will result in infinite loop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter]);
 
   return (
     <>
@@ -57,20 +50,90 @@ export const OverviewSubscribers: React.FC = () => {
           await findUsers({ page: 1, quantity: users.quantity, keyword: value });
         }}
       />
-      <FlexboxTable
-        rowId="id"
-        columns={subscriberColumns(values, setFieldValue)}
-        data={users.items.map<IUserAVOverviewModel>((u) => ({
+      <Grid
+        items={users.items.map<IUserAVOverviewModel>((u) => ({
           ...u,
           isSubscribed: values.subscribers.some((s) => s.id === u.id && s.isSubscribed),
+          sendTo: values.subscribers.find((s) => s.id === u.id)?.sendTo ?? EmailSendToName.To,
         }))}
-        manualPaging
         pageIndex={users.page - 1}
-        pageSize={users.quantity}
-        pageCount={Math.ceil(users.total / users.quantity)}
-        onPageChange={handlePageChange}
-        onSortChange={handleSortChange}
-        showSort
+        itemsPerPage={users.quantity}
+        totalItems={users.total}
+        showPaging
+        onNavigatePage={async (page) => {
+          setFilter((filter) => ({ ...filter, page }));
+        }}
+        onQuantityChange={async (quantity) => {
+          setFilter((filter) => ({ ...filter, page: 1, quantity }));
+        }}
+        onSortChange={async (column, direction) => {
+          setFilter((filter) => ({
+            ...filter,
+            page: 1,
+            sort: direction === SortDirection.None ? [] : [`${column.name} ${direction}`],
+          }));
+        }}
+        renderHeader={() => [
+          { name: 'isSubscribed', label: '', size: '30px' },
+          { name: 'username', label: 'Username', sortable: true },
+          { name: 'lastName', label: 'Last Name', sortable: true },
+          { name: 'firstName', label: 'First Name', sortable: true },
+          { name: 'email', label: 'Email', sortable: true },
+          { name: 'sendTo', label: 'Send as' },
+        ]}
+        renderRow={(row: IUserAVOverviewModel, rowIndex) => [
+          <Checkbox
+            key=""
+            name={`chk-${row.id}`}
+            checked={values.subscribers.some((u) => u.id === row.id && u.isSubscribed)}
+            onChange={(e) => {
+              const user = { ...row, isSubscribed: e.target.checked };
+              if (values.subscribers.some((u) => u.id === user.id))
+                setFieldValue(
+                  'subscribers',
+                  values.subscribers.map((item) => (item.id === user.id ? user : item)),
+                );
+              else setFieldValue('subscribers', [user, ...values.subscribers]);
+            }}
+          />,
+          <CellEllipsis key="">{row.username}</CellEllipsis>,
+          <CellEllipsis key="">{row.lastName}</CellEllipsis>,
+          <CellEllipsis key="">{row.firstName}</CellEllipsis>,
+          <>
+            <CellEllipsis>{row.email}</CellEllipsis>
+            {row.preferredEmail ? (
+              <CellEllipsis className="preferred">{row.preferredEmail}</CellEllipsis>
+            ) : (
+              ''
+            )}
+          </>,
+          <FormikSelect
+            key=""
+            name={`subscribers.${rowIndex}.format`}
+            options={sendToOptions}
+            value={sendToOptions.find((o) => o.value === row.sendTo) ?? ''}
+            onChange={(e) => {
+              const option = e as OptionItem;
+              if (option) {
+                if (values.subscribers.some((u) => u.id === row.id)) {
+                  const user = { ...row, sendTo: option.value };
+                  setFieldValue(
+                    'subscribers',
+                    values.subscribers.map((item) => (item.id === row.id ? user : item)),
+                  );
+                } else {
+                  const user = {
+                    ...row,
+                    isSubscribed: true,
+                    sendTo: option.value,
+                  };
+                  setFieldValue('subscribers', [user, ...values.subscribers]);
+                }
+              }
+            }}
+            isClearable={false}
+          />,
+        ]}
       />
     </>
   );

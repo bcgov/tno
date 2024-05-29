@@ -53,6 +53,7 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
                 s.User!,
                 s.IsSubscribed,
                 entity.ProductType == ProductType.Report ? report?.SubscribersManyToMany.FirstOrDefault(r => r.UserId == s.UserId)?.Format : null,
+                entity.ProductType == ProductType.Report ? report?.SubscribersManyToMany.FirstOrDefault(r => r.UserId == s.UserId)?.SendTo : null,
                 s.SubscriptionChangeActioned,
                 s.RequestedIsSubscribedStatus))
             .ToArray();

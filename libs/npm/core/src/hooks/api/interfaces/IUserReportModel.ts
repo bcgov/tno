@@ -1,4 +1,4 @@
-import { ReportDistributionFormatName } from '../constants';
+import { EmailSendToName, ReportDistributionFormatName } from '../constants';
 
 export interface IUserReportModel {
   /** Foreign key to user */
@@ -20,6 +20,8 @@ export interface IUserReportModel {
   isSubscribed: boolean;
   /** Which distribution format they want to receive. */
   format: ReportDistributionFormatName;
+  /** How to send the email to this subscriber. */
+  sendTo: EmailSendToName;
   /** Table row version */
   version: number;
 }
