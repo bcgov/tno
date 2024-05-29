@@ -40,7 +40,7 @@ public class UserReport : AuditColumns
     /// <summary>
     /// get/set - Which distribution format the user wants to receive.
     /// </summary>
-    [Column("format")]
+    [Column("format2")]
     public ReportDistributionFormat Format { get; set; } = ReportDistributionFormat.FullText;
 
     /// <summary>

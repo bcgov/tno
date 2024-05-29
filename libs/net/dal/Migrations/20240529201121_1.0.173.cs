@@ -15,7 +15,7 @@ namespace TNO.DAL.Migrations
             migrationBuilder.RenameColumn(
                 name: "Format",
                 table: "user_report",
-                newName: "format");
+                newName: "format2");
 
             migrationBuilder.AddColumn<int>(
                 name: "send_to",
