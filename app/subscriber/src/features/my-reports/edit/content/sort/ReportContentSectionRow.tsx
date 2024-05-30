@@ -1,7 +1,7 @@
 import { Action } from 'components/action';
 import { Sentiment } from 'components/sentiment';
+import { ReportContentInlineText } from 'features/my-reports/components';
 import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
-import moment from 'moment';
 import React from 'react';
 import { FaGripVertical, FaX } from 'react-icons/fa6';
 import { useApp } from 'store/hooks';
@@ -93,10 +93,7 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
         </span>
       </Col>
       <Col className="story-details">
-        {row.content.byline ? `${row.content.byline} | ` : ''}
-        {row.content.otherSource ? `${row.content.otherSource} | ` : ''}
-        {row.content.page ? `(P.${row.content.page}) | ` : ''}
-        {row.content.publishedOn ? moment(row.content.publishedOn).format('DD-MMM-YYYY') : ''}
+        <ReportContentInlineText row={row} />
       </Col>
       {!disabled && showSelectSection && sectionOptions?.length && (
         <Col className="story-section">
