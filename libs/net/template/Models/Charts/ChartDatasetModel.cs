@@ -18,7 +18,7 @@ public class ChartDatasetModel
     /// get/set -
     /// </summary>
     [JsonPropertyName("data")]
-    public double[] Data { get; set; } = Array.Empty<double>();
+    public double?[] Data { get; set; } = Array.Empty<double?>();
 
     /// <summary>
     /// get/set -
