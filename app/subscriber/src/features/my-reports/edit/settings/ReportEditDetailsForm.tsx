@@ -1,5 +1,5 @@
 import { FaInfoCircle } from 'react-icons/fa';
-import { FormikText, FormikTextArea } from 'tno-core';
+import { FormikCheckbox, FormikText, FormikTextArea } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
 import * as styled from './styled';
@@ -32,6 +32,13 @@ export const ReportEditDetailsForm = () => {
           }}
         />
         <FormikTextArea name="description" label="Description:" />
+        <div>
+          <FormikText name="settings.subject.text" label="Email subject line:" required />
+          <FormikCheckbox
+            name="settings.subject.showTodaysDate"
+            label="Append the report date to the subject line"
+          />
+        </div>
       </div>
     </styled.ReportEditDetailsForm>
   );
