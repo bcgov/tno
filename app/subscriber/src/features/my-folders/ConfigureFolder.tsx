@@ -385,6 +385,8 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
             if (currentFolder) {
               deleteFolder(currentFolder)
                 .then(() => {
+                  // delete and close right side menu to avoid errors on non-existing folder
+                  navigate('/folders');
                   toast.success(`${currentFolder.name} deleted successfully`);
                 })
                 .catch(() => {});
