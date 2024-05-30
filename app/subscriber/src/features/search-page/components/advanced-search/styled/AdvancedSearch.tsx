@@ -4,6 +4,9 @@ import { Row } from 'tno-core';
 export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
   position: relative;
   max-height: calc(100vh - 10em);
+  .react-datepicker {
+    margin-left: 7em;
+  }
   .page-section {
     width: 100%;
   }
