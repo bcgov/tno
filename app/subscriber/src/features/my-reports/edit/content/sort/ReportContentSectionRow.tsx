@@ -1,7 +1,7 @@
 import { Action } from 'components/action';
 import { Sentiment } from 'components/sentiment';
+import { ReportContentInlineText } from 'features/my-reports/components';
 import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
-import { reportInstanceContentInlineDisplay } from 'features/my-reports/utils/reportInstanceContentInlineDisplay';
 import React from 'react';
 import { FaGripVertical, FaX } from 'react-icons/fa6';
 import { useApp } from 'store/hooks';
@@ -92,7 +92,9 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
           {headline}
         </span>
       </Col>
-      <Col className="story-details">{reportInstanceContentInlineDisplay(row)}</Col>
+      <Col className="story-details">
+        <ReportContentInlineText row={row} />
+      </Col>
       {!disabled && showSelectSection && sectionOptions?.length && (
         <Col className="story-section">
           <Select
