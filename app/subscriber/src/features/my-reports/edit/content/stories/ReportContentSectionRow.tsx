@@ -1,12 +1,11 @@
 import { Action } from 'components/action';
 import { Sentiment } from 'components/sentiment';
 import { IReportInstanceContentForm } from 'features/my-reports/interfaces';
-import moment from 'moment';
+import { reportInstanceContentInlineDisplay } from 'features/my-reports/utils/reportInstanceContentInlineDisplay';
 import React from 'react';
 import { FaGripVertical, FaX } from 'react-icons/fa6';
 import { useApp } from 'store/hooks';
 import { Checkbox, Col, IOptionItem, Row, Select, Text } from 'tno-core';
-
 export interface IReportContentSectionRowProps {
   /** Whether to show the form to edit content. */
   show?: 'all' | 'summary' | 'none';
@@ -90,12 +89,7 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
             {headline}
           </span>
         </Col>
-        <Col className="story-details">
-          {row.content.byline ? `${row.content.byline} | ` : ''}
-          {row.content.otherSource ? `${row.content.otherSource} | ` : ''}
-          {row.content.page ? `(P.${row.content.page}) | ` : ''}
-          {row.content.publishedOn ? moment(row.content.publishedOn).format('DD-MMM-YYYY') : ''}
-        </Col>
+        <Col className="story-details">{reportInstanceContentInlineDisplay(row)}</Col>
         {!disabled && showSortOrder && (
           <Col className="story-sortOrder">
             <Text
