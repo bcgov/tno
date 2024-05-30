@@ -144,22 +144,8 @@ export const ReportEditPreferencesForm = () => {
       <div className="frm-in">
         <label>Report Generation Options:</label>
         <Row gap="1rem">
-          <Col>
-            <Show visible={kind === ReportKindName.Manual}>
-              <Checkbox
-                name={`settings.content.copyPriorInstance`}
-                label="Empty report when starting next report"
-                checked={!values.settings.content.copyPriorInstance}
-                onChange={(e) => {
-                  setFieldValue('settings.content', {
-                    ...values.settings.content,
-                    copyPriorInstance: !e.target.checked,
-                    clearOnStartNewReport: e.target.checked ? !e.target.checked : false,
-                  });
-                }}
-              />
-            </Show>
-            <Show visible={kind !== ReportKindName.Manual}>
+          <Show visible={kind !== ReportKindName.Manual}>
+            <Col>
               <Checkbox
                 name={`settings.content.clearOnStartNewReport`}
                 label="Empty report when starting next report"
@@ -180,7 +166,7 @@ export const ReportEditPreferencesForm = () => {
                 onChange={(e) => {
                   setFieldValue('settings.content', {
                     ...values.settings.content,
-                    clearOnStartNewReport: e.target.checked ? !e.target.checked : false,
+                    clearOnStartNewReport: false,
                     excludeContentInUnsentReport: false,
                     copyPriorInstance: e.target.checked,
                   });
@@ -188,43 +174,70 @@ export const ReportEditPreferencesForm = () => {
               />
               <Checkbox
                 name={`settings.content.excludeContentInUnsentReport`}
-                label="Exclude content found in unsent report"
+                label="Exclude content in current unsent report"
                 checked={!!values.settings.content.excludeContentInUnsentReport}
                 onChange={(e) => {
-                  setFieldValue('settings.content.excludeContentInUnsentReport', e.target.checked);
+                  setFieldValue('settings.content', {
+                    ...values.settings.content,
+                    excludeContentInUnsentReport: e.target.checked,
+                  });
                 }}
               />
-            </Show>
-          </Col>
-          <Col>
-            <Show visible={values.settings.content.clearOnStartNewReport}>
-              <p className="info">
-                The next time this report auto runs it will start empty and then populate based on
-                the section data sources.
-              </p>
-            </Show>
-            <Show visible={values.settings.content.copyPriorInstance}>
-              <p className="info">
-                The next time this report auto runs it will accumulate new content based on the
-                section data sources.
-              </p>
-            </Show>
-            <Show visible={values.settings.content.excludeContentInUnsentReport}>
-              <p className="info">
-                Excluding content in the current unsent report ensures each time the report is
-                generated it will only have new content.
-              </p>
-            </Show>
-            <Show
-              visible={
-                !values.settings.content.clearOnStartNewReport &&
-                !values.settings.content.copyPriorInstance &&
-                !values.settings.content.excludeContentInUnsentReport
-              }
-            >
-              <p className="info">The next time this report auto runs it will not change.</p>
-            </Show>
-          </Col>
+            </Col>
+            <Col flex="1">
+              <Show visible={values.settings.content.clearOnStartNewReport}>
+                <p className="info">
+                  The next time this report auto runs it will start empty and then populate based on
+                  the section data sources.
+                </p>
+              </Show>
+              <Show visible={values.settings.content.copyPriorInstance}>
+                <p className="info">
+                  The next time this report auto runs it will accumulate new content based on the
+                  section data sources.
+                </p>
+              </Show>
+              <Show visible={values.settings.content.excludeContentInUnsentReport}>
+                <p className="info">
+                  Excluding content in the current unsent report ensures each time the report is
+                  generated it will only have new content.
+                </p>
+              </Show>
+              <Show
+                visible={
+                  !values.settings.content.clearOnStartNewReport &&
+                  !values.settings.content.copyPriorInstance &&
+                  !values.settings.content.excludeContentInUnsentReport
+                }
+              >
+                <p className="info">The next time this report auto runs it will not change.</p>
+              </Show>
+            </Col>
+          </Show>
+          <Show visible={kind === ReportKindName.Manual}>
+            <Col>
+              <Checkbox
+                name={`settings.content.copyPriorInstance`}
+                label="Empty report when starting next report"
+                checked={!values.settings.content.copyPriorInstance}
+                onChange={(e) => {
+                  setFieldValue('settings.content.copyPriorInstance', !e.target.checked);
+                }}
+              />
+            </Col>
+            <Col flex="1">
+              <Show visible={values.settings.content.copyPriorInstance}>
+                <p className="info">
+                  When you generate the next report it will copy the content from the prior report.
+                </p>
+              </Show>
+              <Show visible={!values.settings.content.copyPriorInstance}>
+                <p className="info">
+                  When you generate the next report it will empty out any content.
+                </p>
+              </Show>
+            </Col>
+          </Show>
         </Row>
       </div>
     </styled.ReportEditPreferencesForm>
