@@ -227,16 +227,18 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
               </p>
             </Show>
           </Col>
-          <Show visible={!instance || !!instance?.sentOn}>
-            <Row gap="1rem">
-              <p>The current report has already been sent to subscribers. Start the next report.</p>
-              <Button variant="success" onClick={() => onGenerate()}>
-                Start next report
-              </Button>
-            </Row>
-          </Show>
         </Show>
       </div>
+      <Show visible={kind === ReportKindName.Manual && (!instance || !!instance?.sentOn)}>
+        <Col alignItems="center">
+          <Row gap="1rem">
+            <p>The current report has already been sent to subscribers. Start the next report.</p>
+            <Button variant="success" onClick={() => onGenerate()}>
+              Start next report
+            </Button>
+          </Row>
+        </Col>
+      </Show>
     </styled.ReportEditSendForm>
   );
 };
