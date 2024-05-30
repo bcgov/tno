@@ -46,7 +46,7 @@ namespace TNO.DAL.Migrations
                 table: "user_av_overview");
 
             migrationBuilder.RenameColumn(
-                name: "format",
+                name: "format2",
                 table: "user_report",
                 newName: "Format");
             PostDown(migrationBuilder);
