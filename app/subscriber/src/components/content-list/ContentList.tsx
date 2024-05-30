@@ -120,22 +120,24 @@ export const ContentList: React.FC<IContentListProps> = ({
           <div key={group} className="grouped-content">
             <h2 className="group-title">{group}</h2>
             <div>
-              {grouped[group].map((item) => (
-                <ContentRow
-                  className={`${
-                    selected.some((selectedItem) => selectedItem.id === item.id) ? 'checked' : ''
-                  }`}
-                  key={item.id}
-                  selected={selected}
-                  popOutIds={popOutIds}
-                  showSeries={showSeries}
-                  showDate={showDate}
-                  showTime={showTime}
-                  item={item}
-                  onCheckboxChange={handleCheckboxChange}
-                  filter={filter}
-                />
-              ))}
+              {grouped[group]
+                .sort((a, b) => (a.publishedOn < b.publishedOn ? 1 : -1))
+                .map((item) => (
+                  <ContentRow
+                    className={`${
+                      selected.some((selectedItem) => selectedItem.id === item.id) ? 'checked' : ''
+                    }`}
+                    key={item.id}
+                    selected={selected}
+                    popOutIds={popOutIds}
+                    showSeries={showSeries}
+                    showDate={showDate}
+                    showTime={showTime}
+                    item={item}
+                    onCheckboxChange={handleCheckboxChange}
+                    filter={filter}
+                  />
+                ))}
             </div>
           </div>
         ))}
