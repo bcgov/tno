@@ -5598,7 +5598,7 @@ namespace TNO.DAL.Migrations
 
                     b.Property<int>("Format")
                         .HasColumnType("integer")
-                        .HasColumnName("format");
+                        .HasColumnName("format2");
 
                     b.Property<bool>("IsSubscribed")
                         .HasColumnType("boolean")
