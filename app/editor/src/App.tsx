@@ -14,8 +14,10 @@ import { ToastContainer } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
 import { StyleSheetManager } from 'styled-components';
 import { createKeycloakInstance, Loading, Show, useKeycloakEventHandler } from 'tno-core';
+import { fixTooltipResizeObserver } from 'utils';
 
 const appName = 'Media Monitoring Insights';
+fixTooltipResizeObserver();
 
 // This implements the default behavior from styled-components v5
 function shouldForwardProp(propName: any, target: any) {
