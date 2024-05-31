@@ -1,5 +1,6 @@
 export * from './ReportContentOptions';
 export * from './ReportHeadlineOptions';
+export * from './ReportOptions';
 export * from './ReportSectionContent';
 export * from './ReportSectionGallery';
 export * from './ReportSectionMediaAnalytics';

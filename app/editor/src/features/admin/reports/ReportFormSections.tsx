@@ -5,7 +5,6 @@ import { useFilters, useFolders } from 'store/hooks/admin';
 import {
   Button,
   ButtonVariant,
-  Checkbox,
   Col,
   FormikCheckbox,
   FormikText,
@@ -19,6 +18,7 @@ import {
 import {
   ReportContentOptions,
   ReportHeadlineOptions,
+  ReportOptions,
   ReportSectionContent,
   ReportSectionGallery,
   ReportSectionMediaAnalytics,
@@ -120,58 +120,7 @@ export const ReportFormSections = () => {
             </Row>
           </Col>
         </Col>
-        <Col className="frm-in options" flex="1">
-          <div>
-            <label>Report Options</label>
-          </div>
-          <Col>
-            <p>
-              Control the output of the report. Redirect users to view the report on the website
-              instead of in their email.
-            </p>
-            <FormikCheckbox
-              label="Show Link to Story"
-              name="settings.content.showLinkToStory"
-              tooltip="Include a link to view the story online"
-            />
-            <FormikCheckbox
-              label="Highlight Keywords"
-              name="settings.content.highlightKeywords"
-              tooltip="Highlight the search keywords found in the report content"
-            />
-            <FormikCheckbox
-              label="Use Page Breaks"
-              name="settings.sections.usePageBreaks"
-              tooltip="use page breaks in each section for printing."
-            />
-            <Checkbox
-              name={`settings.content.copyPriorInstance`}
-              label="Copy prior report when starting new report"
-              checked={values.settings.content.copyPriorInstance}
-              onChange={(e) => {
-                setFieldValue('settings.content.copyPriorInstance', e.target.checked);
-              }}
-            />
-            <Checkbox
-              name={`settings.content.clearOnStartNewReport`}
-              label="Empty report when starting next report"
-              tooltip="If this is not set an auto report will not generate a new report if an active one already exists."
-              checked={values.settings.content.clearOnStartNewReport}
-              onChange={(e) => {
-                setFieldValue('settings.content.clearOnStartNewReport', e.target.checked);
-              }}
-            />
-            <Checkbox
-              name={`settings.content.excludeContentInUnsentReport`}
-              label="Exclude content found in unsent report"
-              tooltip="Excluding content in the current unsent report ensures each time the report is generated it will only have new content."
-              checked={values.settings.content.excludeContentInUnsentReport}
-              onChange={(e) => {
-                setFieldValue('settings.content.excludeContentInUnsentReport', e.target.checked);
-              }}
-            />
-          </Col>
-        </Col>
+        <ReportOptions />
       </Row>
       <Row gap="1rem">
         <ReportHeadlineOptions />
