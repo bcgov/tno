@@ -2,16 +2,7 @@ import { Button } from 'components/button';
 import { IToggleOption, Toggle } from 'components/form';
 import { FaInfoCircle } from 'react-icons/fa';
 import { FaClock, FaUser, FaUserClock } from 'react-icons/fa6';
-import {
-  Checkbox,
-  Col,
-  FormikCheckbox,
-  FormikText,
-  getReportKind,
-  ReportKindName,
-  Row,
-  Show,
-} from 'tno-core';
+import { Checkbox, Col, getReportKind, ReportKindName, Row, Show } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
 import * as styled from './styled';
@@ -62,15 +53,6 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
 
   return (
     <styled.ReportEditSendForm className="report-edit-section">
-      <h2>Email options</h2>
-      <div>
-        <FormikText name="settings.subject.text" label="Email subject line:" required />
-        <FormikCheckbox
-          name="settings.subject.showTodaysDate"
-          label="Append the report date to the subject line"
-        />
-      </div>
-
       <h2>Scheduling</h2>
       <Col className="info" flex="1">
         <p>

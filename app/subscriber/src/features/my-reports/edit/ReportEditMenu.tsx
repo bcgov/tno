@@ -96,7 +96,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
               label="Info"
               active={active === ReportSettingsMenuOption.Info}
               onClick={() => onChange?.(`/reports/${values.id}/${ReportSettingsMenuOption.Info}`)}
-              className={errors.name ? 'error' : ''}
+              className={errors.name || errors.settings?.subject?.text ? 'error' : ''}
             >
               <FaCaretRight className="caret" />
             </MenuButton>
@@ -141,7 +141,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
               label="Sending"
               active={active === ReportSettingsMenuOption.Send}
               onClick={() => onChange?.(`/reports/${values.id}/${ReportSettingsMenuOption.Send}`)}
-              className={errors.settings?.subject?.text || errors.events ? 'error' : ''}
+              className={errors.events ? 'error' : ''}
             />
           </div>
         </Show>
