@@ -44,6 +44,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
   const { folder: currentFolder, setFolder: setCurrentFolder } = useFolderContext();
 
   const [activeFilter, setActiveFilter] = React.useState<IFilterModel>();
+  const [isRunningFilter, setIsRunningFilter] = React.useState(false);
   const [filterOptions, setFilterOptions] = React.useState<IOptionItem[]>(
     getFilterOptions(myFilters, activeFilter?.id ?? 0),
   );
@@ -115,6 +116,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
     async (filter: IFilterModel) => {
       if (!currentFolder) return;
       try {
+        setIsRunningFilter(true);
         const results: any = await findContentWithElasticsearch(
           filter.query,
           filter.settings.searchUnpublished,
@@ -147,7 +149,10 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
         } else {
           toast.warning('No content found for this filter.');
         }
-      } catch {}
+      } catch {
+      } finally {
+        setIsRunningFilter(false);
+      }
     },
     [currentFolder, findContentWithElasticsearch, updateFolder, setCurrentFolder, findMyFolders],
   );
@@ -253,11 +258,11 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
                 />
               </Col>
               <Button
-                disabled={!activeFilter}
+                disabled={!activeFilter || isRunningFilter}
                 title="Populate the folder by running the filter now"
                 onClick={() => !!activeFilter && handleRun(activeFilter)}
               >
-                Run
+                {!isRunningFilter ? 'Run' : 'Please Wait ...'}
               </Button>
               <Button
                 disabled={!activeFilter}
