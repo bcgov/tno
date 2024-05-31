@@ -1,7 +1,9 @@
 using System.Globalization;
+using System.Net;
+using System.Net.Http.Headers;
 using System.ServiceModel.Syndication;
+using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 using HtmlAgilityPack;
@@ -321,7 +323,6 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <returns></returns>
     private static ContentReferenceModel CreateContentReference(IngestModel ingest, SyndicationItem item, SourceContent sourceContent)
     {
-
         return new ContentReferenceModel()
         {
             Source = sourceContent.Source,
@@ -376,7 +377,18 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <returns></returns>
     private async Task<SyndicationFeed> GetFeedAsync(Uri url, IIngestActionManager manager)
     {
-        var response = await _httpClient.GetAsync(url);
+        var username = manager.Ingest.Configuration.GetDictionaryJsonValue<string>("username");
+        var password = manager.Ingest.Configuration.GetDictionaryJsonValue<string>("password");
+        var headers = new HttpRequestMessage().Headers;
+
+        if (!String.IsNullOrWhiteSpace(username) && !String.IsNullOrWhiteSpace(password))
+        {
+            var encoded = Convert.ToBase64String(Encoding.GetEncoding("ISO-8859-1").GetBytes($"{username}:{password}"));
+            var auth = new AuthenticationHeaderValue("Basic", encoded);
+            headers.Authorization = auth;
+        }
+
+        var response = await _httpClient.SendAsync(url, HttpMethod.Get, headers, null);
         if (!response.IsSuccessStatusCode)
         {
             var ex = new HttpRequestException(response.ReasonPhrase, null, response.StatusCode);

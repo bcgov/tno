@@ -79,6 +79,7 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
                       datasetValue: chart.settings?.datasetValue.length
                         ? chart.settings.datasetValue[0]
                         : '',
+                      excludeEmptyValues: false,
                       isHorizontal: false,
                       showDataLabels: false,
                       width: 500,

@@ -5,5 +5,6 @@ export const defaultChartSectionSettings: IChartSectionSettingsModel = {
   groupBy: 'otherSource',
   dataset: '',
   datasetValue: 'count',
+  excludeEmptyValues: false,
   options: {},
 };
