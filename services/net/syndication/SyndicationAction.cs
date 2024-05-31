@@ -96,7 +96,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 if (String.IsNullOrWhiteSpace(item.Id)) item.Id = link?.ToString() ?? throw new InvalidOperationException("Feed item requires a valid 'Id' or 'Link'.");
 
                 // Some feeds require a separate request to fetch relevant meta-data.
-                await FetchContent(manager.Ingest, item, link);
+                await FetchContent(manager, item, link);
                 var sourceContent = CreateSourceContent(manager.Ingest, item);
 
                 // Fetch content reference.
@@ -174,19 +174,20 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// Strip HTML from response body.
     /// Extract published on date and time.
     /// </summary>
-    /// <param name="ingest"></param>
+    /// <param name="manager"></param>
     /// <param name="item"></param>
     /// <param name="link"></param>
     /// <returns></returns>
     /// <exception cref="HttpRequestException"></exception>
-    private async Task FetchContent(IngestModel ingest, SyndicationItem item, Uri? link)
+    private async Task FetchContent(IIngestActionManager manager, SyndicationItem item, Uri? link)
     {
+        var ingest = manager.Ingest;
         // Fetch content body separately if required
         if (ingest.GetConfigurationValue<bool>("fetchContent"))
         {
             if (link != null && Uri.IsWellFormedUriString(link.ToString(), UriKind.Absolute))
             {
-                var text = await this.GetContentAsync(link);
+                var text = await this.GetContentAsync(manager, link);
                 var html = new HtmlDocument();
                 html.LoadHtml(text);
                 var dateNode = html.DocumentNode.SelectSingleNode("//html/p/date");
@@ -227,14 +228,23 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <summary>
     /// Make an AJAX request to fetch the CP News article identified by url.
     /// </summary>
+    /// <param name="manager"></param>
     /// <param name="url">The web location of a CP News article</param>
     /// <returns>An HTML formatted news article</returns>
-    private async Task<string> GetContentAsync(Uri url)
+    private async Task<string> GetContentAsync(IIngestActionManager manager, Uri url)
     {
-        var response = await _httpClient.GetAsync(url);
-        var data = await response.Content.ReadAsStringAsync();
-
-        return data;
+        var response = await _httpClient.SendAsync(url, HttpMethod.Get, ApplyCredentials(manager), null);
+        if (!response.IsSuccessStatusCode)
+        {
+            var ex = new HttpRequestException(response.ReasonPhrase, null, response.StatusCode);
+            this.Logger.LogError(ex, "Failed to fetch syndication feed content for ingest '{name}' - {url}", manager.Ingest.Name, url);
+            throw ex;
+        }
+        else
+        {
+            var data = await response.Content.ReadAsStringAsync();
+            return data;
+        }
     }
 
     /// <summary>
@@ -370,16 +380,15 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     }
 
     /// <summary>
-    /// Make AJAX request to fetch syndication feed.
+    /// Apply the authentication header if required.
     /// </summary>
-    /// <param name="url"></param>
+    /// <param name="headers"></param>
     /// <param name="manager"></param>
-    /// <returns></returns>
-    private async Task<SyndicationFeed> GetFeedAsync(Uri url, IIngestActionManager manager)
+    private static HttpRequestHeaders ApplyCredentials(IIngestActionManager manager, HttpRequestHeaders? headers = null)
     {
+        if (headers == null) headers = new HttpRequestMessage().Headers;
         var username = manager.Ingest.Configuration.GetDictionaryJsonValue<string>("username");
         var password = manager.Ingest.Configuration.GetDictionaryJsonValue<string>("password");
-        var headers = new HttpRequestMessage().Headers;
 
         if (!String.IsNullOrWhiteSpace(username) && !String.IsNullOrWhiteSpace(password))
         {
@@ -387,8 +396,18 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             var auth = new AuthenticationHeaderValue("Basic", encoded);
             headers.Authorization = auth;
         }
+        return headers;
+    }
 
-        var response = await _httpClient.SendAsync(url, HttpMethod.Get, headers, null);
+    /// <summary>
+    /// Make AJAX request to fetch syndication feed.
+    /// </summary>
+    /// <param name="url"></param>
+    /// <param name="manager"></param>
+    /// <returns></returns>
+    private async Task<SyndicationFeed> GetFeedAsync(Uri url, IIngestActionManager manager)
+    {
+        var response = await _httpClient.SendAsync(url, HttpMethod.Get, ApplyCredentials(manager), null);
         if (!response.IsSuccessStatusCode)
         {
             var ex = new HttpRequestException(response.ReasonPhrase, null, response.StatusCode);
