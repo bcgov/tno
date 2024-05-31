@@ -1,6 +1,7 @@
 export * from './castToSearchResult';
 export * from './createFilterSettings';
 export * from './determinePreview';
+export * from './fixTooltipResizeObserver';
 export * from './formatDate';
 export * from './getBooleanActionValue';
 export * from './handleEnterPressed';

@@ -5,7 +5,7 @@ export const ViewContentToolbar = styled(Col)`
   max-height: 10em;
   width: 100%;
   .folder-menu {
-    /* boxs hadow */
+    /* boxshadow */
     box-shadow: 0 0 0.5rem ${(props) => props.theme.css.highlightPrimary};
     opacity: 1;
   }
