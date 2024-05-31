@@ -41,6 +41,11 @@ public class ChartSectionSettingsModel
     public string DatasetValue { get; set; } = "count";
 
     /// <summary>
+    /// get/set - Whether to exclude empty values in the returned dataset.  This only works on a few values that can be null or empty.
+    /// </summary>
+    public bool ExcludeEmptyValues { get; set; }
+
+    /// <summary>
     /// get/set - An array of colour to use for this chart datasets.
     /// </summary>
     public string[] DatasetColors { get; set; } = Array.Empty<string>();

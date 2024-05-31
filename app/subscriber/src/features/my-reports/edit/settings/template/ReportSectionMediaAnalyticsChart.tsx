@@ -184,59 +184,74 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
             />
           </Col>
         </Col>
-        <Col className="frm-in">
-          <label>Chart Data Settings</label>
-          <Show visible={!!chart.settings.dataset.length}>
-            <FormikSelect
-              label="Dataset"
-              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataset`}
-              value={datasetOptions.find((o) => o.value === chart.sectionSettings.dataset) ?? ''}
-              options={allowedDatasetOptions}
-              isClearable={false}
-              required
-            />
-          </Show>
-          <Show visible={!!chart.settings.datasetValue.length}>
-            <FormikSelect
-              label="Dataset Value"
-              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetValue`}
-              value={
-                datasetValueOptions.find((o) => o.value === chart.sectionSettings.datasetValue) ??
-                ''
-              }
-              options={allowedDatasetValueOptions}
-              isClearable={false}
-              required
-              onChange={(newValue) => {
-                var option = newValue as OptionItem;
-                var isSentiment = option.value === 'sentiment';
-                setFieldValue(
-                  `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
-                  mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                    datasetValue: (option.value as any) ?? 'count',
-                    scaleSuggestedMin: isSentiment ? -5 : undefined,
-                    scaleSuggestedMax: isSentiment ? 5 : undefined,
-                    scaleTicksStepSize: isSentiment ? 1 : undefined,
-                    datasetColors:
-                      isSentiment && chart.sectionSettings.dataset === ''
-                        ? ['green', 'gold', 'red']
-                        : [],
-                    minBarLength: isSentiment ? 10 : undefined,
-                  }),
-                );
-              }}
-            />
-          </Show>
-          <Show visible={!!chart.settings.groupBy.length}>
-            <FormikSelect
-              label="Group By"
-              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupBy`}
-              value={groupByOptions.find((o) => o.value === chart.sectionSettings.groupBy) ?? ''}
-              options={groupByOptions.filter((o) => chart.settings.groupBy.includes(o.value))}
-              isClearable={false}
-              required
-            />
-          </Show>
+        <Col gap="1rem">
+          <Col className="frm-in">
+            <label>Chart Data Settings</label>
+            <Show visible={!!chart.settings.dataset.length}>
+              <FormikSelect
+                label="Dataset"
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataset`}
+                value={datasetOptions.find((o) => o.value === chart.sectionSettings.dataset) ?? ''}
+                options={allowedDatasetOptions}
+                isClearable={false}
+                required
+              />
+            </Show>
+            <Show visible={!!chart.settings.datasetValue.length}>
+              <FormikSelect
+                label="Dataset Value"
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetValue`}
+                value={
+                  datasetValueOptions.find((o) => o.value === chart.sectionSettings.datasetValue) ??
+                  ''
+                }
+                options={allowedDatasetValueOptions}
+                isClearable={false}
+                required
+                onChange={(newValue) => {
+                  var option = newValue as OptionItem;
+                  var isSentiment = option.value === 'sentiment';
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      datasetValue: (option.value as any) ?? 'count',
+                      scaleSuggestedMin: isSentiment ? -5 : undefined,
+                      scaleSuggestedMax: isSentiment ? 5 : undefined,
+                      scaleTicksStepSize: isSentiment ? 1 : undefined,
+                      datasetColors:
+                        isSentiment && chart.sectionSettings.dataset === ''
+                          ? ['green', 'gold', 'red']
+                          : [],
+                      minBarLength: isSentiment ? 10 : undefined,
+                    }),
+                  );
+                }}
+              />
+            </Show>
+            <Show visible={!!chart.settings.groupBy.length}>
+              <FormikSelect
+                label="Group By"
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupBy`}
+                value={groupByOptions.find((o) => o.value === chart.sectionSettings.groupBy) ?? ''}
+                options={groupByOptions.filter((o) => chart.settings.groupBy.includes(o.value))}
+                isClearable={false}
+                required
+              />
+            </Show>
+          </Col>
+          <FormikCheckbox
+            label="Exclude Empty Values"
+            name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.excludeEmptyValues`}
+            checked={!!chart.sectionSettings.excludeEmptyValues}
+            onChange={(e) => {
+              setFieldValue(
+                `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                  excludeEmptyValues: e.target.checked,
+                }),
+              );
+            }}
+          />
         </Col>
         <Col>
           <Row className="frm-in">

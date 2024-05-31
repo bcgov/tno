@@ -218,6 +218,19 @@ export const ChartTemplatePreviewOptions = () => {
                 });
               }}
             />
+            <Checkbox
+              name="excludeEmptyValues"
+              label="Exclude empty values"
+              checked={!!chartRequestForm.settings.excludeEmptyValues}
+              onChange={(e) => {
+                setChartRequestForm({
+                  ...chartRequestForm,
+                  settings: mergeChartSettings(values.settings.options, chartRequestForm.settings, {
+                    excludeEmptyValues: e.target.checked,
+                  }),
+                });
+              }}
+            />
           </Col>
           <Col gap="1rem">
             <Col>

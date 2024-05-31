@@ -59,7 +59,7 @@
     "redux-logger": "3.0.6",
     "styled-components": "6.1.11",
     "stylis": "4.3.2",
-    "tno-core": "0.1.81"
+    "tno-core": "0.1.82"
   },
   "devDependencies": {
     "@simbathesailor/use-what-changed": "2.0.0",

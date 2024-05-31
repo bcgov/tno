@@ -200,6 +200,19 @@ export const ReportSectionMediaAnalyticsChart = ({
                   }}
                 />
               </Show>
+              <FormikCheckbox
+                label="Exclude empty values"
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.excludeEmptyValues`}
+                checked={!!chart.sectionSettings.excludeEmptyValues}
+                onChange={(e) => {
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      excludeEmptyValues: e.target.checked,
+                    }),
+                  );
+                }}
+              />
             </Col>
             <Col>
               <label>Scale</label>

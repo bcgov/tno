@@ -1,7 +1,6 @@
 namespace TNO.TemplateEngine;
-using System.Text.RegularExpressions;
-
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using TemplateEngine.Models;
 using TemplateEngine.Models.Reports;
 
@@ -519,7 +518,8 @@ public static class ReportExtensions
     public static IEnumerable<IGrouping<string, TNO.TemplateEngine.Models.ContentModel>> GroupContent(
         string groupBy,
         IEnumerable<TNO.TemplateEngine.Models.ContentModel> content,
-        Dictionary<string, TNO.TemplateEngine.Models.Reports.ReportSectionModel> sections)
+        Dictionary<string, TNO.TemplateEngine.Models.Reports.ReportSectionModel> sections,
+        API.Models.Settings.ChartSectionSettingsModel? settings = null)
     {
         if (groupBy == "topicType")
         {
@@ -558,12 +558,14 @@ public static class ReportExtensions
             return spread.GroupBy(s => s.Key, s => s.Value);
         }
 
+        var excludeEmptyValues = settings?.ExcludeEmptyValues ?? false;
+
         var groups = groupBy switch
         {
             "mediaType" => content.GroupBy(c => c.MediaType?.Name ?? "Other").OrderBy(group => group.Key),
             "contentType" => content.GroupBy(c => c.ContentType.ToString()).OrderBy(group => group.Key),
-            "byline" => content.GroupBy(c => String.IsNullOrWhiteSpace(c.Byline) ? "Unknown" : c.Byline).OrderBy(group => group.Key),
-            "series" => content.GroupBy(c => c.SeriesId?.ToString() ?? "NA").OrderBy(group => group.Key),
+            "byline" => content.GroupBy(c => String.IsNullOrWhiteSpace(c.Byline) ? "Unknown" : c.Byline).Where((g) => excludeEmptyValues ? g.Key != "Unknown" : true).OrderBy(group => group.Key),
+            "series" => content.GroupBy(c => c.SeriesId?.ToString() ?? "NA").OrderBy(group => group.Key).Where((g) => excludeEmptyValues ? g.Key != "NA" : true),
             "sentiment" => content.GroupBy(c => GetSentimentValue(c)?.ToString() ?? "0").OrderByDescending(group => group.Key),
             "sentimentSimple" => content.GroupBy(c => GetSentimentRating(c)).OrderBy(group => group.Key),
             "source" => content.GroupBy(c => c.OtherSource).OrderBy(group => group.Key),
@@ -724,7 +726,11 @@ public static class ReportExtensions
     /// <param name="content"></param>
     /// <param name="labels"></param>
     /// <returns></returns>
-    public static int?[] ExtractDatasetValues(string datasetValue, string groupBy, IEnumerable<TNO.TemplateEngine.Models.ContentModel> content, string[] labels)
+    public static int?[] ExtractDatasetValues(
+        string datasetValue,
+        string groupBy,
+        IEnumerable<TNO.TemplateEngine.Models.ContentModel> content,
+        string[] labels)
     {
         var values = new List<int?>();
         foreach (var label in labels)

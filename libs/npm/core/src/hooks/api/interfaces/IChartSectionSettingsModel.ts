@@ -11,6 +11,8 @@ export interface IChartSectionSettingsModel {
   dataset: string;
   /** The property to extract a value for the dataset [otherSource|series|mediaType|contentType|sentiment|sentimentSimple|byline|section] */
   datasetValue: string;
+  /** Whether to exclude empty values in the returned dataset. */
+  excludeEmptyValues: boolean;
   /** Colours to use in the chart data sets. */
   datasetColors?: string[];
   /** Colours to use in the chart data labels. */

@@ -26,6 +26,7 @@ export const mergeChartSettings = (
     dataset: override.dataset,
     datasetValue: override.datasetValue,
     groupBy: override.groupBy,
+    excludeEmptyValues: override.excludeEmptyValues,
     height: override.height,
     width: override.width,
     title: override.title,

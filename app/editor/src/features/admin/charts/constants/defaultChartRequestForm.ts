@@ -9,6 +9,7 @@ export const defaultChartRequestForm: IChartRequestForm = {
     groupBy: 'otherSource',
     dataset: '',
     datasetValue: 'count',
+    excludeEmptyValues: false,
     options: defaultChartJSOptions,
   },
   template: '',
