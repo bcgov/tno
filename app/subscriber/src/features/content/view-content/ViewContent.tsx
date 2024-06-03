@@ -201,17 +201,6 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
   //Difference ratio
   const threshold = 0.1;
 
-  //Return true if difference between length of str1 & str2 is greater than 10%
-  const isDifferent = (str1: string | undefined, str2: string | undefined) => {
-    if (str1 === undefined || str2 === undefined) {
-      return false; // If either str1 or str2 is undefined, return false
-    }
-
-    const difference = Math.abs((str1.length ?? 0) - (str2.length ?? 0));
-    const maxLength = Math.max(str1.length ?? 0, str2.length ?? 0);
-    return difference > maxLength * threshold;
-  };
-
   const formatedHeadline = formatSearch(content ? content.headline : '', filter);
   const tempBody = content?.body?.replace(/\n+/g, '<br><br>') ?? '';
   const tempSummary = content?.summary?.replace(/\n+/g, '<br><br>') ?? '';
@@ -219,6 +208,17 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
   const formatedSummary = formatSearch(tempSummary, filter);
   const cleanBody = cleanString(content?.body);
   const cleanSummary = cleanString(content?.summary);
+
+  //Return true if difference between length of cleanBody & cleanSummary is greater than 10%
+  const isDifferent = React.useMemo(() => {
+    if (cleanBody === undefined || cleanSummary === undefined) {
+      return false; // If either cleanBody or cleanSummary is undefined, return false
+    }
+
+    const difference = Math.abs((cleanBody.length ?? 0) - (cleanSummary.length ?? 0));
+    const maxLength = Math.max(cleanBody.length ?? 0, cleanSummary.length ?? 0);
+    return difference > maxLength * threshold;
+  }, [cleanBody, cleanSummary]);
 
   return (
     <styled.ViewContent>
@@ -291,14 +291,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
             </Show>
           </Col>
         </Show>
-        <Show
-          visible={
-            isAV &&
-            cleanBody !== cleanSummary &&
-            isDifferent(cleanBody, cleanSummary) &&
-            !isTranscribing
-          }
-        >
+        <Show visible={isAV && cleanBody !== cleanSummary && isDifferent && !isTranscribing}>
           <Col>
             {content?.summary?.length && <div>{formatedSummary}</div>}
             <Show visible={!!content?.sourceUrl}>
