@@ -32,6 +32,10 @@ export const MySearches = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo]);
 
+  const sortedMyFilters = React.useMemo(() => {
+    return [...myFilters].sort((a, b) => a.name.localeCompare(b.name));
+  }, [myFilters]);
+
   const handleSave = React.useCallback(
     (filter: IFilterModel) => {
       updateFilter(filter)
@@ -58,13 +62,14 @@ export const MySearches = () => {
     navigator.clipboard.writeText(keywords);
     toast.success('Keywords copied to clipboard');
   };
+
   return (
     <styled.MySearches>
       <SubscriberTableContainer>
         <Row className="header">
           <span className="label">Search Name</span>
         </Row>
-        {myFilters.map((filter, index) => {
+        {sortedMyFilters.map((filter, index) => {
           const keywords = filter.settings?.search ? filter.settings.search : '';
           const truncatedKeywords = truncateTeaser(keywords, 20);
           return (
