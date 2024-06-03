@@ -615,7 +615,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="sources"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private static string GetItemSourceCode(IngestModel ingest, string paperName, Dictionary<string, string> sources)
+    private string GetItemSourceCode(IngestModel ingest, string paperName, Dictionary<string, string> sources)
     {
         if (sources.Count == 0) // Self published
         {
@@ -632,6 +632,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             else
             {
                 var source = ingest.GetConfigurationValue("defaultSource");
+                this.Logger.LogWarning("Paper name '{name}' does not have a mapped source.", paperName);
                 if (String.IsNullOrWhiteSpace(source))
                     return ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code.");
                 return source;
@@ -884,10 +885,10 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <returns></returns>
     private static string RemoveSpecial(string text)
     {
-        var arr = text.Select(ch => 
-                                ((ch >= 'a' && ch <= 'z') 
-                                    || (ch >= 'A' && ch <= 'Z') 
-                                    || (ch >= '0' && ch <= '9') 
+        var arr = text.Select(ch =>
+                                ((ch >= 'a' && ch <= 'z')
+                                    || (ch >= 'A' && ch <= 'Z')
+                                    || (ch >= '0' && ch <= '9')
                                     ) ? ch : ' ').ToArray();
         return new string(arr);
     }
@@ -900,7 +901,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     private static string ToTitleCase(string author)
     {
         var stringCheck = RemoveSpecial(author.Replace("By", "BY"));
-        TextInfo tInfo = new CultureInfo("en-US",false).TextInfo;
+        TextInfo tInfo = new CultureInfo("en-US", false).TextInfo;
         return IsAllCaps(stringCheck) ? tInfo.ToTitleCase(author.ToLower()) : author;
     }
 
