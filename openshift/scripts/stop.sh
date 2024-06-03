@@ -1,6 +1,6 @@
 #!/bin/bash
 
-env=${1-dev}
+env=${1-ABC}
 echo "Deploying to $env"
 
 oc project 9b301c-tools
