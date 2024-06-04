@@ -775,7 +775,7 @@ Service__ApiUrl=http://host.docker.internal:$portApi/api
 
 # Elastic__Url=host.docker.internal:$portElastic
 ELASTIC_USERNAME=$elasticUser
-ELASTIC_PASSWORD=$password" >> ./services/net/folder-collection/.env
+ELASTIC_PASSWORD=$password >> ./services/net/folder-collection/.env
     echo "./services/net/folder-collection/.env created"
 fi
 

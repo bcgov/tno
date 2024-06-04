@@ -7,7 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useFilters } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Col, IFilterModel, Modal, Row, Text, useModal } from 'tno-core';
+import { Col, IFilterModel, Row, Text, useModal } from 'tno-core';
+import { Modal } from 'components/modal';
 
 import { truncateTeaser } from '../../components/content-list/utils/truncateTeaser';
 import * as styled from './styled';

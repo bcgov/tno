@@ -11,12 +11,12 @@ import {
   IReportModel,
   Loading,
   MessageTargetName,
-  Modal,
   ReportStatusName,
   Row,
   Show,
   useModal,
 } from 'tno-core';
+import { Modal } from 'components/modal';
 
 import { ReportCard } from './ReportCard';
 import { ReportFilter } from './ReportFilter';

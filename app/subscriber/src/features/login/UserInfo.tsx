@@ -6,10 +6,10 @@ import {
   Button,
   Col,
   MessageTargetName,
-  Modal,
   useKeycloakWrapper,
   useModal,
 } from 'tno-core';
+import { Modal } from 'components/modal';
 
 export interface IUserInfoProps {
   children?: React.ReactNode;

@@ -7,7 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useColleagues } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { IUserColleagueModel, Modal, Row, useModal } from 'tno-core';
+import { IUserColleagueModel, Row, useModal } from 'tno-core';
+import { Modal } from 'components/modal';
 
 import { ColleagueCard } from './ColleagueCard';
 import * as styled from './styled/MyColleagues';
