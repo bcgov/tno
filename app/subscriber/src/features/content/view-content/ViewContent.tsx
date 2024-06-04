@@ -195,6 +195,12 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
       wo.userNotifications?.some((un) => un.userId === profile?.id),
   );
 
+  //Remove HTML tags, square brackets and line breaks before comparison.
+  const cleanString = (str: string | undefined) => str?.replace(/<[^>]*>?|\[|\]|\n/gm, '').trim();
+
+  //Difference ratio
+  const threshold = 0.1;
+
   const formattedHeadline = React.useMemo(
     () => formatSearch(content?.headline ?? '', filter),
     [content?.headline, filter],
@@ -207,6 +213,20 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
     () => formatSearch(content?.summary?.replace(/\n+/g, '<br><br>') ?? '', filter),
     [content?.summary, filter],
   );
+
+  const cleanBody = cleanString(content?.body);
+  const cleanSummary = cleanString(content?.summary);
+
+  //Return true if difference between length of cleanBody & cleanSummary is greater than 10%
+  const isDifferent = React.useMemo(() => {
+    if (cleanBody === undefined || cleanSummary === undefined) {
+      return false; // If either cleanBody or cleanSummary is undefined, return false
+    }
+
+    const difference = Math.abs((cleanBody.length ?? 0) - (cleanSummary.length ?? 0));
+    const maxLength = Math.max(cleanBody.length ?? 0, cleanSummary.length ?? 0);
+    return difference > maxLength * threshold;
+  }, [cleanBody, cleanSummary]);
 
   return (
     <styled.ViewContent>
@@ -267,7 +287,21 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
       <Row id="summary" className="summary">
         <Show visible={!(isAV && !!content.body && !isTranscribing)}>
           <Col>
-            {!!content?.body?.length ? <div>{formattedBody}</div> : <span>{formattedSummary}</span>}
+            {!!content?.summary?.length ? (
+              <div>{formattedSummary}</div>
+            ) : (
+              <span>{formattedBody}</span>
+            )}
+            <Show visible={!!content?.sourceUrl}>
+              <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
+                More...
+              </a>
+            </Show>
+          </Col>
+        </Show>
+        <Show visible={isAV && cleanBody !== cleanSummary && isDifferent && !isTranscribing}>
+          <Col>
+            {content?.summary?.length && <div>{formattedSummary}</div>}
             <Show visible={!!content?.sourceUrl}>
               <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
                 More...

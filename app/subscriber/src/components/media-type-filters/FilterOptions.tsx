@@ -19,7 +19,6 @@ import {
 } from 'tno-core';
 
 import { defaultFilter, FilterOptionTypes } from './constants';
-import { useFilterOptionContext } from './FilterOptionsContextProvider';
 import * as styled from './styled';
 import { determineStore } from './utils';
 
@@ -44,8 +43,6 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
   const [{ userInfo }, store] = useAppStore();
   const filterStoreMethod = determineStore(filterStoreName);
   const api = useUsers();
-  const { hasProcessedInitialPreferences, setHasProcessedInitialPreferences } =
-    useFilterOptionContext();
   const [active, setActive] = useState<FilterOptionTypes | undefined>(undefined);
   const savePreferences = async (filterPreference: FilterOptionTypes) => {
     if (userInfo) {
@@ -64,18 +61,17 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
     // if the user has a preference set, set the active filter to that preference
     // otherwise set the active filter to all
     // then set hasProcessedInitialPreference to true which will prevent this from running again
-    if (userInfo && !hasProcessedInitialPreferences) {
+    if (userInfo) {
       if (userInfo.preferences && userInfo.preferences.filterPreference) {
         setActive(userInfo.preferences.filterPreference);
         handleFilterClick(userInfo.preferences.filterPreference);
       } else {
         setActive(FilterOptionTypes.All);
       }
-      setHasProcessedInitialPreferences(true);
     }
     // only fire when userInfo and process complete
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo, hasProcessedInitialPreferences]);
+  }, [userInfo]);
 
   const [
     {
@@ -147,39 +143,37 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
 
   useEffect(() => {
     // Initial Check: Ensure initial preferences have been processed before proceeding
-    if (hasProcessedInitialPreferences) {
-      if (!filter.contentTypes?.length && !filter.mediaTypeIds?.length) {
-        setActive(FilterOptionTypes.All);
-      } else if (
-        filter.mediaTypeIds?.includes(mediaTypes.find((s) => s.name === 'Events')?.id ?? 0)
-      ) {
-        setActive(FilterOptionTypes.Events);
-      } else {
-        // currently only support one content type at a time (with the exception of the all filter)
-        if (!!filter?.contentTypes?.length) {
-          switch (filter.contentTypes[0]) {
-            case ContentTypeName.PrintContent:
-              setActive(FilterOptionTypes.Papers);
+    if (!filter.contentTypes?.length && !filter.mediaTypeIds?.length) {
+      setActive(FilterOptionTypes.All);
+    } else if (
+      filter.mediaTypeIds?.includes(mediaTypes.find((s) => s.name === 'Events')?.id ?? 0)
+    ) {
+      setActive(FilterOptionTypes.Events);
+    } else {
+      // currently only support one content type at a time (with the exception of the all filter)
+      if (!!filter?.contentTypes?.length) {
+        switch (filter.contentTypes[0]) {
+          case ContentTypeName.PrintContent:
+            setActive(FilterOptionTypes.Papers);
+            break;
+          case ContentTypeName.AudioVideo:
+            setActive(FilterOptionTypes.RadioTV);
+            break;
+          case ContentTypeName.Internet:
+            if (filter.sourceIds?.length === 1) {
+              setActive(FilterOptionTypes.CPNews);
               break;
-            case ContentTypeName.AudioVideo:
-              setActive(FilterOptionTypes.RadioTV);
+            } else {
+              setActive(FilterOptionTypes.Internet);
               break;
-            case ContentTypeName.Internet:
-              if (filter.sourceIds?.length === 1) {
-                setActive(FilterOptionTypes.CPNews);
-                break;
-              } else {
-                setActive(FilterOptionTypes.Internet);
-                break;
-              }
-            default:
-              setActive(FilterOptionTypes.All);
-          }
+            }
+          default:
+            setActive(FilterOptionTypes.All);
         }
       }
     }
     // hasProcessedInitialPreference is intentionally omitted from the dependencies.
-    // Beacuse we only want to run this effect if hasProcessedInitialPreference as true.
+    // Because we only want to run this effect if hasProcessedInitialPreference as true.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, mediaTypes]);
 

@@ -1,7 +1,6 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { ContentList } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
-import { useFilterOptionContext } from 'components/media-type-filters';
 import { ContentListActionBar } from 'components/tool-bar';
 import { filterFormat } from 'features/search-page/utils';
 import { createFilterSettings, getBooleanActionValue } from 'features/utils';
@@ -24,7 +23,6 @@ export const Home: React.FC = () => {
     { findContentWithElasticsearch, storeHomeFilter: storeFilter },
   ] = useContent();
 
-  const { hasProcessedInitialPreferences } = useFilterOptionContext();
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const { featuredStoryActionId } = useSettings(true);
@@ -46,7 +44,7 @@ export const Home: React.FC = () => {
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
     // wait for userinfo incase applying previously viewed filter
-    if (!!featuredStoryActionId && hasProcessedInitialPreferences) {
+    if (!!featuredStoryActionId) {
       fetchResults(
         generateQuery(
           filterFormat({
@@ -62,7 +60,7 @@ export const Home: React.FC = () => {
         ),
       );
     }
-  }, [filter, fetchResults, featuredStoryActionId, hasProcessedInitialPreferences]);
+  }, [filter, fetchResults, featuredStoryActionId]);
 
   return (
     <styled.Home>
