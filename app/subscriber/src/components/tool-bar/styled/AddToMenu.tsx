@@ -32,6 +32,7 @@ export const AddToMenu = styled.div`
       font-weight: bold;
     }
     .report-item {
+      font-weight: 600;
       .not-hovered {
         width: 18px;
       }
