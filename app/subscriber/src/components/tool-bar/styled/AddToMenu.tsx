@@ -1,22 +1,53 @@
 import styled from 'styled-components';
 
 export const AddToMenu = styled.div`
-  .report {
-    svg {
-      margin-right: 0.5em;
-      color: ${(props) => props.theme.css.iconPrimaryColor};
+  .react-tooltip {
+    font-size: 1.1em;
+  }
+  .section {
+    font-style: italic;
+    &:hover {
+      color: ${(props) => props.theme.css.btnBkPrimary};
+      font-weight: bold;
     }
+    .active-section {
+      position: absolute;
+      left: 2.85em;
+    }
+    margin-left: 3em;
+    &:not(:hover) {
+      .active-section {
+        display: none;
+      }
+    }
+  }
+  .choose-report {
+    border-bottom: 1px solid ${(props) => props.theme.css.btnGrayColor};
+    margin-bottom: 0.5em;
     font-weight: bold;
   }
   .list {
-    margin-left: 1.5em;
     .row-title {
       font-weight: bold;
     }
     .report-item {
+      .not-hovered {
+        width: 18px;
+      }
+      .report-icon {
+        display: none;
+      }
       cursor: pointer;
       &:hover {
-        background-color: ${(props) => props.theme.css.codeBlockColor};
+        color: ${(props) => props.theme.css.btnBkPrimary};
+        font-weight: bold;
+        .not-hovered {
+          display: none;
+        }
+        .report-icon {
+          display: block;
+          width: 15px;
+        }
       }
       min-width: 15em;
     }
