@@ -56,6 +56,12 @@ export const useApiSubscriberReports = (
         `/subscriber/reports/${id}/instances${toQueryString(query)}`,
       );
     },
+    findInstanceForReportIdAndDate: (id: number, date: Date) => {
+      const query = { date };
+      return api.get<never, AxiosResponse<IReportInstanceModel[]>, any>(
+        `/subscriber/reports/${id}/report${toQueryString(query)}`,
+      );
+    },
     addReport: (report: IReportModel) => {
       return api.post<IReportModel, AxiosResponse<IReportModel>, any>(
         '/subscriber/reports',

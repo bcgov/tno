@@ -276,5 +276,45 @@ public class ReportInstanceController : ControllerBase
 
         return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
+
+    /**************************************************************
+    public IActionResult FindByDate([FromQuery]DateTime? publishedOn = null)
+    {
+        Entities.AVOverviewInstance? instance;
+        if (publishedOn != null) {
+            instance = _overviewInstanceService.FindByDate((DateTime) publishedOn);
+        } else {
+            instance = _overviewInstanceService.FindLatest();
+        }
+
+        if (instance == null) return new NoContentResult();
+        return new JsonResult(new AVOverviewInstanceModel(instance));
+    }
+    */
+    /// <summary>
+    /// Find report instance for the specified report and date.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="date"></param>
+    /// <returns></returns>
+    [HttpGet("{reportId}/report")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "ReportInstance" })]
+    public IActionResult FindByReportIdAndDate(int reportId, [FromQuery]DateTime date)
+    {
+        var user = _impersonate.GetCurrentUser();
+        var instance = _reportInstanceService.FindInstanceForReportIdAndDate(reportId, date) ?? throw new NoContentException();
+        var report = instance.Report ?? throw new NoContentException("Report does not exist");
+        if (instance.OwnerId != user.Id && // User does not own the report instance
+            !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
+            !report.IsPublic) throw new NotAuthorizedException("Not authorized to use this report"); // Report is not public
+
+        var model = new ReportInstanceModel(instance);
+        // if (includeContent)
+        //     model.Content = _reportInstanceService.GetContentForInstance(id).Select(c => new ReportInstanceContentModel(c));
+        return new JsonResult(model);
+    }
     #endregion
 }

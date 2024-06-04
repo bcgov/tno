@@ -7,6 +7,7 @@ import { Commentary } from 'features/commentary';
 import { ViewContent } from 'features/content/view-content';
 import AVOverviewPreview from 'features/daily-overview/AVOverviewPreview';
 import { MediaOverviewIcons } from 'features/daily-overview/MediaOverviewIcons';
+import EventOfTheDayPreview from 'features/event-of-the-day/EventOfTheDayPreview';
 import { Home } from 'features/home';
 import { MyMinister } from 'features/my-minister/MyMinister';
 import { MyProducts } from 'features/my-products';
@@ -95,6 +96,9 @@ export const Landing: React.FC = () => {
               </Show>
               <Show visible={activeItem === NavbarOptions.mySearches}>
                 <MySearches />
+              </Show>
+              <Show visible={activeItem === NavbarOptions.eventOfTheDay}>
+                <EventOfTheDayPreview />
               </Show>
               <Show visible={activeItem === NavbarOptions.eveningOverview}>
                 <AVOverviewPreview />

@@ -59,6 +59,21 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
     }
 
     /// <summary>
+    /// Find report instances for the specified 'reportId' and 'date'.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="date"></param>
+    /// <returns></returns>
+    public ReportInstance FindInstanceForReportIdAndDate(int reportId, DateTime date)
+    {
+        return this.Context.ReportInstances
+            .AsNoTracking()
+            .Include(ri => ri.Owner)
+            .Where(ri => ri.ReportId == reportId && ri.PublishedOn == date)
+            .First();
+    }
+
+    /// <summary>
     /// Get all the content items for the specified instance.
     /// </summary>
     /// <param name="id"></param>

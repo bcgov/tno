@@ -14,6 +14,13 @@ public interface IReportInstanceService : IBaseService<ReportInstance, long>
     /// <returns></returns>
     IEnumerable<ReportInstance> FindInstancesForReportId(int reportId, int? ownerId, int skip = 0, int take = 10);
 
+    /// <summary>
+    /// Find report instances for the specified 'reportId' and 'date'.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="date"></param>
+    /// <returns></returns>
+    ReportInstance FindInstanceForReportIdAndDate(int reportId, DateTime date);
 
     /// <summary>
     /// Get all the content items for the specified instance.
@@ -37,4 +44,5 @@ public interface IReportInstanceService : IBaseService<ReportInstance, long>
     /// <param name="updateChildren"></param>
     /// <returns></returns>
     ReportInstance UpdateAndSave(ReportInstance entity, bool updateChildren = false);
+    
 }

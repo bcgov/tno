@@ -11,6 +11,7 @@ import {
   FaNewspaper,
   FaSearch,
   FaSlidersH,
+  FaSun,
   FaUsers,
   FaUserTie,
 } from 'react-icons/fa';
@@ -58,6 +59,11 @@ export const NavbarOptions: INavbarOptions = {
     label: 'Press Gallery',
     path: 'landing/pressgallery',
     icon: <FaUsers />,
+  },
+  eventOfTheDay: {
+    label: 'Event of the Day',
+    path: 'landing/eventoftheday',
+    icon: <FaSun />,
   },
   eveningOverview: {
     label: 'Evening Overview',
