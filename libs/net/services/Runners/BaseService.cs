@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -215,6 +216,22 @@ public abstract class BaseService
         this.App.MapControllers();
 
         await this.App.RunAsync();
+    }
+
+    /// <summary>
+    /// Create a unique hash for the specified 'source', 'headline', and 'publishedOn'
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="headline"></param>
+    /// <param name="publishedOn"></param>
+    /// <returns></returns>
+    public static string GetContentHash(string source, string headline, DateTime? publishedOn)
+    {
+        var date = publishedOn.HasValue ? $"{publishedOn:yyyy-MM-dd-hh-mm-ss}" : "";
+        string hashInput = $"{source}:{headline}:{date}";
+        var inputBytes = Encoding.UTF8.GetBytes(hashInput);
+        var inputHash = SHA256.HashData(inputBytes);
+        return Convert.ToHexString(inputHash);
     }
     #endregion
 }

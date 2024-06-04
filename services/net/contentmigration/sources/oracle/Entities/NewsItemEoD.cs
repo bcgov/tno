@@ -1,20 +1,24 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TNO.Services.ContentMigration.Sources.Oracle;
 
 /// <summary>
-/// UsersTones class, provides an entity to store News Item Tone records in the database.
+/// NewsItemEoD class, provides an entity to store News Item EoD records in the database.
 /// </summary>
-public class UserTone
+[Table("NEWS_ITEMS_EOD")]
+public class NewsItemEoD
 {
+    #region Properties
     /// <summary>
     /// get/set.
     /// </summary>
+    [Key]
     [Column("ITEM_RSN")]
     public long ItemRSN { get; set; }
 
     /// <summary>
-    /// get/set - The parent news item.
+    /// get/set - The parent new item.
     /// </summary>
     public NewsItem? NewsItem { get; set; }
 
@@ -31,12 +35,25 @@ public class UserTone
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("USER_RSN")]
-    public long UserRSN { get; set; }
+    [Column("EOD_CATEGORY")]
+    public string? Category { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("TONE")]
-    public long ToneValue { get; set; }
+    [Column("EOD_CATEGORY_GROUP")]
+    public string? CategoryGroup { get; set; }
+
+    /// <summary>
+    /// get/set.
+    /// </summary>
+    [Column("EOD_DATE")]
+    public string? EoDDate { get; set; }
+
+    /// <summary>
+    /// get/set.
+    /// </summary>
+    [Column("ITEM_SCORE")]
+    public int Score { get; set; }
+    #endregion
 }
