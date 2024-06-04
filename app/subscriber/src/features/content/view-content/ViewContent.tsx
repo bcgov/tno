@@ -195,15 +195,22 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
       wo.userNotifications?.some((un) => un.userId === profile?.id),
   );
 
-  const formatedHeadline = formatSearch(content ? content.headline : '', filter);
-  const tempBody = content?.body?.replace(/\n+/g, '<br><br>') ?? '';
-  const tempSummary = content?.summary?.replace(/\n+/g, '<br><br>') ?? '';
-  const formatedBody = formatSearch(tempBody, filter);
-  const formatedSummary = formatSearch(tempSummary, filter);
+  const formattedHeadline = React.useMemo(
+    () => formatSearch(content?.headline ?? '', filter),
+    [content?.headline, filter],
+  );
+  const formattedBody = React.useMemo(
+    () => formatSearch(content?.body?.replace(/\n+/g, '<br><br>') ?? '', filter),
+    [content?.body, filter],
+  );
+  const formattedSummary = React.useMemo(
+    () => formatSearch(content?.summary?.replace(/\n+/g, '<br><br>') ?? '', filter),
+    [content?.summary, filter],
+  );
 
   return (
     <styled.ViewContent>
-      <div className="headline">{formatedHeadline}</div>
+      <div className="headline">{formattedHeadline}</div>
       <Bar className="info-bar" vanilla>
         <Show visible={!!content?.byline}>
           <div className="byline">{`BY ${content?.byline}`}</div>
@@ -260,7 +267,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
       <Row id="summary" className="summary">
         <Show visible={!(isAV && !!content.body && !isTranscribing)}>
           <Col>
-            {!!content?.body?.length ? <div>{formatedBody}</div> : <span>{formatedSummary}</span>}
+            {!!content?.body?.length ? <div>{formattedBody}</div> : <span>{formattedSummary}</span>}
             <Show visible={!!content?.sourceUrl}>
               <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
                 More...

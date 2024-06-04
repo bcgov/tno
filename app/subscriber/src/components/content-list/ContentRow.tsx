@@ -41,8 +41,14 @@ export const ContentRow: React.FC<IContentRowProps> = ({
     setActiveFileReference,
     activeStream,
   } = React.useContext(ContentListContext);
-  const body = formatSearch(truncateTeaser(item.body, 250), filter);
-  const headline = formatSearch(item.headline, filter);
+
+  const body = React.useMemo(() => {
+    const truncated = truncateTeaser(item.body, 250);
+    return formatSearch(truncated, filter);
+  }, [filter, item.body]);
+  const headline = React.useMemo(() => {
+    return formatSearch(item.headline, filter);
+  }, [filter, item.headline]);
 
   return (
     <styled.ContentRow {...rest}>
