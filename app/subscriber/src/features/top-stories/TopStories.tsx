@@ -1,6 +1,5 @@
 import { ContentList } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
-import { useFilterOptionContext } from 'components/media-type-filters';
 import { ContentListActionBar } from 'components/tool-bar';
 import { useActionFilters } from 'features/search-page/hooks';
 import { filterFormat } from 'features/search-page/utils';
@@ -23,14 +22,13 @@ export const TopStories: React.FC = () => {
   ] = useContent();
   const getActionFilters = useActionFilters();
   const { topStoryActionId, isReady } = useSettings();
-  const { hasProcessedInitialPreferences } = useFilterOptionContext();
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
 
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
-    if (isReady && hasProcessedInitialPreferences) {
+    if (isReady) {
       let actionFilters = getActionFilters();
       const topStoryAction = actionFilters.find((a) => a.id === topStoryActionId);
 
@@ -53,14 +51,7 @@ export const TopStories: React.FC = () => {
         );
       });
     }
-  }, [
-    filter,
-    findContentWithElasticsearch,
-    getActionFilters,
-    isReady,
-    topStoryActionId,
-    hasProcessedInitialPreferences,
-  ]);
+  }, [filter, findContentWithElasticsearch, getActionFilters, isReady, topStoryActionId]);
 
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);

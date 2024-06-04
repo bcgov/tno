@@ -212,7 +212,10 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
 
   /* EXPANDABLE ROW IN THE ADVANCED SEARCH */
   .option-row {
-    padding: 0.5em 0 0.5em 0.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5em 0.5em 0.5em 0.5em;
     color: ${(props) => props.theme.css.btnSecondaryColor};
     font-weight: 650;
 
@@ -246,12 +249,16 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
   .date-range-toggle {
     padding: 0;
     margin-top: auto;
+    max-width: 20em;
   }
 
   .date-range {
     @media (max-width: 1300px) {
       max-width: 15em;
     }
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin-left: auto;
     margin-right: auto;
   }
@@ -361,6 +368,11 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     padding-bottom: 0.5em;
     .picker {
       margin-right: 0.5em;
+      margin-bottom: 0.5em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
       @media (max-width: 1300px) {
         margin-bottom: 0.5em;
         margin-left: 0.5em;
@@ -368,6 +380,7 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     }
     p {
       margin: 0.35em 0.35em;
+      text-align: center;
     }
     .react-datepicker-wrapper {
       max-width: fit-content;
