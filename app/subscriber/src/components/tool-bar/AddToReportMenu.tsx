@@ -114,24 +114,24 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
                   <FaFileExport className="report-icon" />
                   {report.name}
                 </Row>
-                <Show visible={!!activeReport && activeReport.id === report.id}>
-                  {activeReport?.sections.map(
-                    (section) =>
-                      section.sectionType === ReportSectionTypeName.Content && (
-                        <Row
-                          key={section.id}
-                          className="section"
-                          onClick={() => handleAddToReport(section.name).catch(() => {})}
-                        >
-                          <div className="not-hovered" />
-                          <FaAngleRight className="active-section" />
-                          {section.settings.label}
-                        </Row>
-                      ),
-                  )}
-                </Show>
               </Show>
             ))}
+            <Show visible={!!activeReport}>
+              {activeReport?.sections.map(
+                (section) =>
+                  section.sectionType === ReportSectionTypeName.Content && (
+                    <Row
+                      key={section.id}
+                      className="section"
+                      onClick={() => handleAddToReport(section.name).catch(() => {})}
+                    >
+                      <div className="not-hovered" />
+                      <FaAngleRight className="active-section" />
+                      {section.settings.label}
+                    </Row>
+                  ),
+              )}
+            </Show>
           </Col>
         </TooltipMenu>
       </div>
