@@ -9,6 +9,7 @@ export const AddToMenu = styled.div`
     &:hover {
       color: ${(props) => props.theme.css.btnBkPrimary};
       font-weight: bold;
+      border-bottom: 1px solid ${(props) => props.theme.css.btnBkPrimary};
     }
     .active-section {
       position: absolute;

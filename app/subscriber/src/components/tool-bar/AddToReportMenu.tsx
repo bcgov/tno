@@ -101,31 +101,37 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
               <Show key={report.id} visible={!!report.sections.length}>
                 <Row
                   className="report-item"
-                  onClick={() => setReportId(report.id)}
+                  onClick={() => {
+                    // allow user to toggle close list of sections
+                    if (report.id === reportId) {
+                      setReportId(null);
+                      setActiveReport(undefined);
+                    } else setReportId(report.id);
+                  }}
                   data-tooltip-id={`tooltip-add-to-section`}
                 >
                   <div className="not-hovered" />
                   <FaFileExport className="report-icon" />
                   {report.name}
                 </Row>
+                <Show visible={!!activeReport && activeReport.id === report.id}>
+                  {activeReport?.sections.map(
+                    (section) =>
+                      section.sectionType === ReportSectionTypeName.Content && (
+                        <Row
+                          key={section.id}
+                          className="section"
+                          onClick={() => handleAddToReport(section.name).catch(() => {})}
+                        >
+                          <div className="not-hovered" />
+                          <FaAngleRight className="active-section" />
+                          {section.settings.label}
+                        </Row>
+                      ),
+                  )}
+                </Show>
               </Show>
             ))}
-            <Show visible={!!activeReport}>
-              {activeReport?.sections.map(
-                (section) =>
-                  section.sectionType === ReportSectionTypeName.Content && (
-                    <Row
-                      key={section.id}
-                      className="section"
-                      onClick={() => handleAddToReport(section.name).catch(() => {})}
-                    >
-                      <div className="not-hovered" />
-                      <FaAngleRight className="active-section" />
-                      {section.settings.label}
-                    </Row>
-                  ),
-              )}
-            </Show>
           </Col>
         </TooltipMenu>
       </div>
