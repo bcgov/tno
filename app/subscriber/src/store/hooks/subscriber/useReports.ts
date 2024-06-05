@@ -15,7 +15,7 @@ interface IReportController {
   findMyReports: (filter?: IReportFilter) => Promise<IReportModel[]>;
   findPublicReports: (filter?: IReportFilter) => Promise<IReportModel[]>;
   getReport: (id: number, includeContent?: boolean) => Promise<IReportModel | undefined>;
-  findInstancesForReportId: (id: number, ownerId?: number) => Promise<IReportInstanceModel[]>;
+  // findInstancesForReportId: (id: number, ownerId?: number) => Promise<IReportInstanceModel[]>;
   addReport: (model: IReportModel) => Promise<IReportModel>;
   updateReport: (model: IReportModel, updateInstances?: boolean) => Promise<IReportModel>;
   deleteReport: (model: IReportModel) => Promise<IReportModel>;
@@ -100,12 +100,12 @@ export const useReports = (): [IProfileState, IReportController] => {
         }
         return response.data;
       },
-      findInstanceForReportIdAndDate: async (id: number, date: Date) => {
-        const response = await dispatch<IReportInstanceModel[]>('get-report-instance-by-date', () =>
-          api.findInstanceForReportIdAndDate(id, date),
-        );
-        return response.data;
-      },
+      // findInstanceForReportIdAndDate: async (id: number, date: Date) => {
+      //   const response = await dispatch<IReportInstanceModel[]>('get-report-instance-by-date', () =>
+      //     api.findInstanceForReportIdAndDate(id, date),
+      //   );
+      //   return response.data;
+      // },
       addReport: async (model: IReportModel) => {
         const response = await dispatch<IReportModel>('add-report', () => api.addReport(model));
         // Update store with report data.

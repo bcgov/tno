@@ -13,7 +13,7 @@ const EventOfTheDayPreview: React.FC = () => {
     },
     { storeEventofTheDayDateFilter: storeFilter },
   ] = useContent();
-  const [, { previewReport, findInstancesForReportId }] = useReports();
+  const [, { findInstancesForReportId }] = useReports();
   const reportId = 8;
 
   const [isLoading, setIsLoading] = React.useState(true);
