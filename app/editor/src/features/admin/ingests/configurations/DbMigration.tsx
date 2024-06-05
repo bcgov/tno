@@ -27,73 +27,10 @@ export const DbMigration: React.FC = (props) => {
   const { values, setFieldValue } = useFormikContext<IIngestModel>();
   const { applyPlaceholder } = useFormikHelpers();
 
-  const minMigrationIngestSpanInDays = 1;
-  const maxMigrationIngestSpanInYears = 1;
-
-  const maxEndDate = React.useMemo(() => {
-    let dateTimeNow = moment();
-    let returnVal;
-    if (values.configuration.importDateStart) {
-      const startDatePlusMaxSpan = moment(
-        values.configuration.importDateStart,
-        'YYYY-MM-DD hh:mm:ss a',
-      ).add(maxMigrationIngestSpanInYears, 'year');
-      returnVal = startDatePlusMaxSpan > dateTimeNow ? dateTimeNow : startDatePlusMaxSpan;
-    } else {
-      returnVal = dateTimeNow;
-    }
-    return returnVal.toDate();
-  }, [values.configuration.importDateStart]);
-
-  const minEndDate = React.useMemo(() => {
-    let dateTimeNow = moment();
-    let returnVal;
-    if (values.configuration.importDateStart) {
-      const startDatePlusMinSpan = moment(
-        values.configuration.importDateStart,
-        'YYYY-MM-DD hh:mm:ss a',
-      ).add(minMigrationIngestSpanInDays, 'day');
-      returnVal = startDatePlusMinSpan > dateTimeNow ? dateTimeNow : startDatePlusMinSpan;
-    } else {
-      returnVal = moment().subtract(maxMigrationIngestSpanInYears, 'year');
-    }
-    return returnVal.toDate();
-  }, [values.configuration.importDateStart]);
-
-  const minStartDate = React.useMemo(() => {
-    let returnVal;
-    if (values.configuration.importDateEnd) {
-      returnVal = moment(values.configuration.importDateEnd, 'YYYY-MM-DD hh:mm:ss a').subtract(
-        maxMigrationIngestSpanInYears,
-        'year',
-      );
-    } else {
-      returnVal = moment().subtract(maxMigrationIngestSpanInYears, 'year');
-    }
-    return returnVal.toDate();
-  }, [values.configuration.importDateEnd]);
-
-  const maxStartDate = React.useMemo(() => {
-    let returnVal;
-    if (values.configuration.importDateEnd) {
-      returnVal = moment(values.configuration.importDateEnd, 'YYYY-MM-DD hh:mm:ss a').subtract(
-        minMigrationIngestSpanInDays,
-        'day',
-      );
-    } else {
-      returnVal = moment().subtract(minMigrationIngestSpanInDays, 'day');
-    }
-    return returnVal.toDate();
-  }, [values.configuration.importDateEnd]);
-
   return (
     <styled.IngestType>
       <ImportContent />
       <Col gap="0.5rem">
-        <p>
-          Max Ingest window is&nbsp;{maxMigrationIngestSpanInYears} Year(s). Min Ingest window
-          is&nbsp;{minMigrationIngestSpanInDays} Day(s)
-        </p>
         <FormikRadioGroup
           label="Migration Type"
           name="importMigrationType"
@@ -142,8 +79,6 @@ export const DbMigration: React.FC = (props) => {
                   ? moment(values.configuration.importDateStart).toLocaleString()
                   : ''
               }
-              minDate={minStartDate}
-              maxDate={maxStartDate}
               required={values.configuration.importMigrationType === ImportMigrationType.Historic}
               onChange={(date) => {
                 if (
@@ -218,8 +153,6 @@ export const DbMigration: React.FC = (props) => {
               autoComplete="false"
               width={FieldSize.Medium}
               selectedDate={values.configuration.importDateEnd ?? ''}
-              minDate={minEndDate}
-              maxDate={maxEndDate}
               required={values.configuration.importMigrationType === ImportMigrationType.Historic}
               onChange={(date) => {
                 if (
