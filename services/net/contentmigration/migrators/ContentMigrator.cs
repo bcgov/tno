@@ -81,13 +81,15 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     #endregion
 
     #region Methods
-
     /// <summary>
-    /// Gets the base filter for excluding items from the dbcontext search
+    /// Gets the base filter for excluding items from the dbContext search
     /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="contentType"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    public virtual Expression<Func<NewsItem, bool>> GetBaseFilter(ContentType contentType) => throw new NotImplementedException();
+    public virtual Expression<Func<T, bool>> GetBaseFilter<T>(ContentType contentType)
+        where T : BaseNewsItem => throw new NotImplementedException();
 
     /// <summary>
     /// Creates a SourceContent item
@@ -185,8 +187,8 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// <returns></returns>
     public SourceModel? GetSourceMapping(IEnumerable<SourceModel> lookup, string? newsItemSource)
     {
-        SourceModel? source = lookup.Where(s => (s.Name.Equals(newsItemSource, StringComparison.InvariantCultureIgnoreCase)
-                                                 || s.Code.Equals(newsItemSource, StringComparison.InvariantCultureIgnoreCase))).FirstOrDefault();
+        var source = lookup.FirstOrDefault(s => s.Name.Equals(newsItemSource, StringComparison.InvariantCultureIgnoreCase)
+                                                 || s.Code.Equals(newsItemSource, StringComparison.InvariantCultureIgnoreCase));
 
         // if the Name doesn't match one of our sources, use the extra mappings from the config
         if (source == null && newsItemSource != null)
@@ -314,20 +316,6 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
                 throw new FileNotFoundException();
             }
         }
-    }
-
-    /// <summary>
-    /// Generate a unique identifier for content
-    /// </summary>
-    /// <param name="source"></param>
-    /// <param name="headline"></param>
-    /// <param name="publishedOn"></param>
-    /// <returns></returns>
-    protected string GetContentHash(string source, string headline, DateTime publishedOn)
-    {
-        var inputBytes = Encoding.UTF8.GetBytes($"{source}:{headline}:{publishedOn:yyyy-MM-dd-hh-mm-ss}");
-        var inputHash = SHA256.HashData(inputBytes);
-        return Convert.ToHexString(inputHash);
     }
 
     /// <summary>

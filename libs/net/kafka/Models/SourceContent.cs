@@ -17,6 +17,11 @@ public class SourceContent : ContentBase
     /// get/set - A unique key to identify this content - comes from external source.
     /// </summary>
     public string ExternalUid { get; set; } = "";
+
+    /// <summary>
+    /// get/set - A unique key to identify this content - comes from internal source.
+    /// </summary>
+    public string HashUid { get; set; } = "";
     #endregion
 
     #region Constructors
