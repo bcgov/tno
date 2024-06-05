@@ -27,8 +27,9 @@ export const formatSearch = (text: string, filter: IFilterSettingsModel) => {
     return parse(text);
   }
 
-  // Match possible phrases within quotes, prefixed terms with '*', normal words, and exclude words with '-'
-  const tokens = cleanedSearch.match(/"[^"]+"|\b\w+\*|\b\w+\b|-\s*\w+/g) || [];
+  // Match possible phrases within quotes, prefixed terms with '*',
+  // normal words, and exclude words with '-' and '~'
+  const tokens = cleanedSearch.match(/"[^"]+"|\b\w+\*|\b\w+\b|[-~]\s*\w+/g) || [];
 
   let includePatterns: string[] = [];
   let excludePatterns: string[] = [];
@@ -41,7 +42,7 @@ export const formatSearch = (text: string, filter: IFilterSettingsModel) => {
       // Handle prefix queries, remove the '*' at the end
       let prefix = escapeRegExp(token.slice(0, -1));
       includePatterns.push(`\\b${prefix}\\w*\\b`);
-    } else if (token.startsWith('-')) {
+    } else if (token.startsWith('-') || token.startsWith('~')) {
       // Handle exclude words, remove the '-' at the beginning
       excludePatterns.push(`\\b${escapeRegExp(token.slice(1))}\\b`);
     } else {
