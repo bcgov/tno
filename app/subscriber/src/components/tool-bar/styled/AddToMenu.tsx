@@ -1,11 +1,33 @@
 import styled from 'styled-components';
 
 export const AddToMenu = styled.div`
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  .report-icon {
+    position: absolute;
+    left: 1em;
+    width: 15px;
+    color: ${(props) => props.theme.css.btnBkPrimary};
+  }
+  .report-name {
+    margin-left: 1.25em;
+  }
   .react-tooltip {
     font-size: 1.1em;
   }
   .section {
     font-style: italic;
+    .spinner {
+      margin-left: auto;
+      animation: spin 1s linear infinite;
+    }
+
     &:hover {
       color: ${(props) => props.theme.css.btnBkPrimary};
       font-weight: bold;
@@ -33,22 +55,15 @@ export const AddToMenu = styled.div`
     }
     .report-item {
       font-weight: 600;
-      .not-hovered {
-        width: 18px;
-      }
-      .report-icon {
+      .report-icon:not(.expanded) {
         display: none;
       }
       cursor: pointer;
       &:hover {
         color: ${(props) => props.theme.css.btnBkPrimary};
         font-weight: bold;
-        .not-hovered {
-          display: none;
-        }
         .report-icon {
           display: block;
-          width: 15px;
         }
       }
       min-width: 15em;
