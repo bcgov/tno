@@ -138,23 +138,30 @@ export const DbMigration: React.FC = (props) => {
               autoComplete="false"
               width={FieldSize.Medium}
               selectedDate={
-                !!values.configuration.importDateStart
-                  ? moment(values.configuration.importDateStart).toString()
-                  : undefined
+                values.configuration.importDateStart
+                  ? moment(values.configuration.importDateStart).toLocaleString()
+                  : ''
               }
-              required={values.configuration.importMigrationType === ImportMigrationType.Historic}
               minDate={minStartDate}
               maxDate={maxStartDate}
+              required={values.configuration.importMigrationType === ImportMigrationType.Historic}
               onChange={(date) => {
-                if (values.configuration.importDateStart) {
-                  const hours = values.configuration.importDateStart.split(':');
-                  if (hours && date) {
-                    date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
-                  }
+                if (
+                  date &&
+                  values.configuration.importDateStart &&
+                  moment(date).isValid() &&
+                  moment(values.configuration.importDateStart).isValid()
+                ) {
+                  const importDateStart = moment(values.configuration.importDateStart);
+                  date.setHours(
+                    importDateStart.hour(),
+                    importDateStart.minute(),
+                    importDateStart.second(),
+                  );
                 }
 
                 const value = moment(date).isValid()
-                  ? moment(date).format('YYYY-MM-DD h:mm:ss a')
+                  ? moment(date).format('YYYY-MM-DD HH:mm:ss a')
                   : undefined;
                 setFieldValue('configuration.importDateStart', value);
               }}
@@ -168,24 +175,12 @@ export const DbMigration: React.FC = (props) => {
               width="7em"
               value={
                 !!values.configuration.importDateStart
-                  ? formatDate(
-                      moment(
-                        values.configuration.importDateStart,
-                        'YYYY-MM-DD hh:mm:ss a',
-                      ).toISOString(),
-                      'HH:mm:ss',
-                    )
+                  ? formatDate(values.configuration.importDateStart, 'HH:mm:ss')
                   : undefined
               }
               placeholder={
                 !!values.configuration.importDateStart
-                  ? formatDate(
-                      moment(
-                        values.configuration.importDateStart,
-                        'YYYY-MM-DD hh:mm:ss a',
-                      ).toISOString(),
-                      'HH:mm:ss',
-                    )?.toString()
+                  ? formatDate(values.configuration.importDateStart, 'HH:mm:ss')?.toString()
                   : 'HH:MM:SS'
               }
               onChange={(e) => {
@@ -195,7 +190,7 @@ export const DbMigration: React.FC = (props) => {
                   date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
                   setFieldValue(
                     'configuration.importDateStart',
-                    moment(date.toISOString()).format('YYYY-MM-DD h:mm:ss a'),
+                    moment(date.toISOString()).format('YYYY-MM-DD HH:mm:ss a'),
                   );
                 }
               }}
@@ -222,24 +217,27 @@ export const DbMigration: React.FC = (props) => {
               label="Import End Date"
               autoComplete="false"
               width={FieldSize.Medium}
-              selectedDate={
-                !!values.configuration.importDateEnd
-                  ? moment(values.configuration.importDateEnd).toString()
-                  : undefined
-              }
-              required={values.configuration.importMigrationType === ImportMigrationType.Historic}
+              selectedDate={values.configuration.importDateEnd ?? ''}
               minDate={minEndDate}
               maxDate={maxEndDate}
+              required={values.configuration.importMigrationType === ImportMigrationType.Historic}
               onChange={(date) => {
-                if (values.configuration.importDateEndTime) {
-                  const hours = values.configuration.importDateEndTime.split(':');
-                  if (hours && date) {
-                    date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
-                  }
+                if (
+                  date &&
+                  values.configuration.importDateEndTime &&
+                  moment(date).isValid() &&
+                  moment(values.configuration.importDateEndTime).isValid()
+                ) {
+                  const importDateEndTime = moment(values.configuration.importDateEndTime);
+                  date.setHours(
+                    importDateEndTime.hour(),
+                    importDateEndTime.minute(),
+                    importDateEndTime.second(),
+                  );
                 }
 
                 const value = moment(date).isValid()
-                  ? moment(date).format('YYYY-MM-DD h:mm:ss a')
+                  ? moment(date).format('YYYY-MM-DD HH:mm:ss a')
                   : undefined;
                 setFieldValue('configuration.importDateEnd', value);
               }}
@@ -253,25 +251,13 @@ export const DbMigration: React.FC = (props) => {
               width="7em"
               value={
                 !!values.configuration.importDateEnd
-                  ? formatDate(
-                      moment(
-                        values.configuration.importDateEnd,
-                        'YYYY-MM-DD hh:mm:ss a',
-                      ).toISOString(),
-                      'HH:mm:ss',
-                    )
+                  ? formatDate(values.configuration.importDateEnd, 'HH:mm:ss')
                   : ''
               }
               placeholder={
                 !!values.configuration.importDateEnd
-                  ? formatDate(
-                      moment(
-                        values.configuration.importDateEnd,
-                        'YYYY-MM-DD hh:mm:ss a',
-                      ).toISOString(),
-                      'HH:mm:ss',
-                    )?.toString()
-                  : 'HH:MM:SS'
+                  ? formatDate(values.configuration.importDateEnd, 'HH:mm:ss')?.toString()
+                  : 'HH:mm:ss'
               }
               onChange={(e) => {
                 const date = new Date(values.configuration.importDateEnd);
@@ -280,7 +266,7 @@ export const DbMigration: React.FC = (props) => {
                   date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
                   setFieldValue(
                     'configuration.importDateEnd',
-                    moment(date.toISOString()).format('YYYY-MM-DD h:mm:ss a'),
+                    moment(date.toISOString()).format('YYYY-MM-DD HH:mm:ss a'),
                   );
                 }
               }}
