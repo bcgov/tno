@@ -1,9 +1,10 @@
 import { TooltipMenu } from 'components/tooltip-menu';
 import React from 'react';
-import { FaFileExport, FaPlay } from 'react-icons/fa6';
+import { FaAngleRight } from 'react-icons/fa';
+import { FaFileExport } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useReports } from 'store/hooks';
-import { IContentModel, IReportModel, Link, ReportSectionTypeName, Row } from 'tno-core';
+import { Col, IContentModel, IReportModel, Link, ReportSectionTypeName, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
 import { toInstanceContent } from './utils';
@@ -94,40 +95,46 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
       <div data-tooltip-id="tooltip-add-to-report" className="action">
         <FaFileExport /> <span>ADD TO REPORT</span>
         <TooltipMenu clickable openOnClick id="tooltip-add-to-report" place="bottom">
-          <Row className="report">
-            <FaFileExport /> SELECT REPORT...
-          </Row>
-          <div className="list">
+          <Row className="choose-report">Choose Report...</Row>
+          <Col className="list">
             {myReports.map((report) => (
-              <Row
-                key={report.id}
-                className="report-item"
-                onClick={() => setReportId(report.id)}
-                data-tooltip-id={`tooltip-add-to-section`}
-              >
-                {report.name} {!!report.sections.length && <FaPlay className="expand-sections" />}
-              </Row>
+              <Show key={report.id} visible={!!report.sections.length}>
+                <Row
+                  className="report-item"
+                  onClick={() => {
+                    // allow user to toggle close list of sections
+                    if (report.id === reportId) {
+                      setReportId(null);
+                      setActiveReport(undefined);
+                    } else setReportId(report.id);
+                  }}
+                  data-tooltip-id={`tooltip-add-to-section`}
+                >
+                  <div className="not-hovered" />
+                  <FaFileExport className="report-icon" />
+                  {report.name}
+                </Row>
+                <Show visible={!!activeReport && activeReport.id === report.id}>
+                  {activeReport?.sections.map(
+                    (section) =>
+                      section.sectionType === ReportSectionTypeName.Content && (
+                        <Row
+                          key={section.id}
+                          className="section"
+                          onClick={() => handleAddToReport(section.name).catch(() => {})}
+                        >
+                          <div className="not-hovered" />
+                          <FaAngleRight className="active-section" />
+                          {section.settings.label}
+                        </Row>
+                      ),
+                  )}
+                </Show>
+              </Show>
             ))}
-          </div>
+          </Col>
         </TooltipMenu>
       </div>
-      <TooltipMenu place="right" id={`tooltip-add-to-section`} clickable openOnClick>
-        <div className="list">
-          <div className="row-title">SECTIONS:</div>
-          {activeReport?.sections.map(
-            (section) =>
-              section.sectionType === ReportSectionTypeName.Content && (
-                <Row
-                  key={section.id}
-                  className="report-item"
-                  onClick={() => handleAddToReport(section.name).catch(() => {})}
-                >
-                  {section.settings.label}
-                </Row>
-              ),
-          )}
-        </div>
-      </TooltipMenu>
     </styled.AddToMenu>
   );
 };
