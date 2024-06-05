@@ -92,6 +92,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             .Include(m => m.Tones)
             .Where(predicate)
             .OrderBy(ni => ni.UpdatedOn) // oldest first
+            .ThenBy(ni => ni.ItemTime) // oldest first
             .ThenBy(ni => ni.RSN);
     }
 
@@ -128,7 +129,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             this.Logger.LogDebug(query!.ToQueryString());
             return query.ToArray().Select(newsItem => (NewsItem)newsItem).ToArray();
         }
-        else if (importMigrationType == ImportMigrationType.Current)
+        else if (importMigrationType == ImportMigrationType.All)
         {
             var newsItemsQuery = contentMigrator.GetBaseFilter<AllNewsItem>(contentType);
             var query = GetFilteredNewsItems<AllNewsItem>(newsItemsQuery, publishedOnly, offsetHours, startDate, endDate, lastRunDate);
@@ -229,24 +230,25 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 retrievedRecords = items.Count();
                 this.Logger.LogDebug("Ingest [{name}] retrieved [{countOfRecordsRetrieved}] records", manager.Ingest.Name, retrievedRecords);
 
+                DateTime? lastReceivedContentOn = null;
                 if (retrievedRecords == 0 && importDateEnd.HasValue)
                 {
                     this.Logger.LogDebug("Ingest [{name}] - no records prior to import end date filter [{importDateEnd}] records", manager.Ingest.Name, importDateEnd.Value.ToString("yyyy-MM-dd h:mm:ss tt"));
-                    creationDateOfLastImport = importDateEnd.Value;
+                    lastReceivedContentOn = importDateEnd.Value;
                 }
 
                 await items.ForEachAsync(async newsItem =>
                 {
                     await MigrateNewsItemAsync(manager, contentMigrator, newsItem, defaultTimeZone, forceUpdate);
-                    creationDateOfLastImport = newsItem.UpdatedOn;
+                    lastReceivedContentOn = newsItem.UpdatedOn;
 
                     // This ingest has just processed a story.
                     await manager.UpdateIngestStateFailedAttemptsAsync(0);
                 });
 
                 // might not have a date set here if the filter retrieved no records
-                if (creationDateOfLastImport != null)
-                    await manager.UpdateIngestStateFailedAttemptsAsync(0, creationDateOfLastImport.Value);
+                if (lastReceivedContentOn.HasValue)
+                    await manager.UpdateIngestStateFailedAttemptsAsync(0, lastReceivedContentOn.Value);
 
                 skip += retrievedRecords;
                 if (retrievedRecords == 0) continueFetchingRecords = false;
