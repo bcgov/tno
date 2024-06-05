@@ -1,7 +1,7 @@
 import { TooltipMenu } from 'components/tooltip-menu';
 import React from 'react';
 import { FaAngleRight } from 'react-icons/fa';
-import { FaFileExport } from 'react-icons/fa6';
+import { FaFileExport, FaSpinner } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useReports } from 'store/hooks';
 import { Col, IContentModel, IReportModel, Link, ReportSectionTypeName, Row, Show } from 'tno-core';
@@ -20,6 +20,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
   const [{ requests }] = useApp();
   const [activeReport, setActiveReport] = React.useState<IReportModel>();
   const [reportId, setReportId] = React.useState<number | null>(null);
+  const [inProgress, setInProgress] = React.useState({ sectionName: '', value: false });
   const isLoading = requests.some((r) => r.url === 'find-my-reports');
 
   React.useEffect(() => {
@@ -36,6 +37,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
       if (!activeReport) return;
 
       try {
+        setInProgress({ sectionName, value: true });
         var instance = activeReport.instances.length ? activeReport.instances[0] : undefined;
         if (!instance || instance.sentOn) {
           toast.error('Unable to generate a new report');
@@ -123,10 +125,17 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
                           <Row
                             key={section.id}
                             className="section"
-                            onClick={() => handleAddToReport(section.name).catch(() => {})}
+                            onClick={() =>
+                              handleAddToReport(section.name)
+                                .then(() => setInProgress({ sectionName: '', value: false }))
+                                .catch(() => {})
+                            }
                           >
                             <FaAngleRight className="active-section" />
                             {section.settings.label}
+                            {section.name === inProgress.sectionName && inProgress.value && (
+                              <FaSpinner className="spinner" />
+                            )}
                           </Row>
                         ),
                     )}

@@ -1,6 +1,14 @@
 import styled from 'styled-components';
 
 export const AddToMenu = styled.div`
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
   .report-icon {
     position: absolute;
     left: 1em;
@@ -19,6 +27,11 @@ export const AddToMenu = styled.div`
   }
   .section {
     font-style: italic;
+    .spinner {
+      margin-left: auto;
+      animation: spin 1s linear infinite;
+    }
+
     &:hover {
       color: ${(props) => props.theme.css.btnBkPrimary};
       font-weight: bold;
