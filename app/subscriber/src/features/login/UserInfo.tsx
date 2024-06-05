@@ -1,3 +1,4 @@
+import { Modal } from 'components/modal';
 import React from 'react';
 import { useApiHub, useApp } from 'store/hooks';
 import { useAppStore } from 'store/slices';
@@ -9,7 +10,6 @@ import {
   useKeycloakWrapper,
   useModal,
 } from 'tno-core';
-import { Modal } from 'components/modal';
 
 export interface IUserInfoProps {
   children?: React.ReactNode;

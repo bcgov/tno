@@ -1,4 +1,5 @@
 import { Action } from 'components/action';
+import { Modal } from 'components/modal';
 import { SubscriberTableContainer } from 'components/table';
 import React from 'react';
 import { FaCheck, FaSave } from 'react-icons/fa';
@@ -8,7 +9,6 @@ import { toast } from 'react-toastify';
 import { useApp, useContent, useFilters } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 import { Col, IFilterModel, Row, Text, useModal } from 'tno-core';
-import { Modal } from 'components/modal';
 
 import { truncateTeaser } from '../../components/content-list/utils/truncateTeaser';
 import * as styled from './styled';

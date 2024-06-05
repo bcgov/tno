@@ -1,5 +1,6 @@
 import { Action } from 'components/action';
 import { Bar } from 'components/bar';
+import { Modal } from 'components/modal';
 import { PageSection } from 'components/section';
 import React from 'react';
 import { FaClipboard } from 'react-icons/fa6';
@@ -16,7 +17,6 @@ import {
   Show,
   useModal,
 } from 'tno-core';
-import { Modal } from 'components/modal';
 
 import { ReportCard } from './ReportCard';
 import { ReportFilter } from './ReportFilter';
