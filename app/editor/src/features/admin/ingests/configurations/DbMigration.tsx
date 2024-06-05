@@ -79,7 +79,7 @@ export const DbMigration: React.FC = (props) => {
                   ? moment(values.configuration.importDateStart).toLocaleString()
                   : ''
               }
-              required={values.configuration.importMigrationType === ImportMigrationType.Historic}
+              required={!values.configuration.offsetHours}
               onChange={(date) => {
                 if (
                   date &&
@@ -153,7 +153,6 @@ export const DbMigration: React.FC = (props) => {
               autoComplete="false"
               width={FieldSize.Medium}
               selectedDate={values.configuration.importDateEnd ?? ''}
-              required={values.configuration.importMigrationType === ImportMigrationType.Historic}
               onChange={(date) => {
                 if (
                   date &&
