@@ -21,10 +21,6 @@ export const AddToMenu = styled.div`
   .react-tooltip {
     font-size: 1.1em;
   }
-  .list {
-    max-height: fit-content;
-    transition: max-height 0.5s ease-out;
-  }
   .section {
     font-style: italic;
     .spinner {
