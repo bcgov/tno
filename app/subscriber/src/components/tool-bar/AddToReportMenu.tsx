@@ -110,25 +110,27 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
                   }}
                   data-tooltip-id={`tooltip-add-to-section`}
                 >
-                  <div className="not-hovered" />
-                  <FaFileExport className="report-icon" />
-                  {report.name}
+                  <FaFileExport
+                    className={`report-icon ${activeReport?.id === report.id && 'expanded'}`}
+                  />
+                  <div className="report-name">{report.name}</div>
                 </Row>
                 <Show visible={!!activeReport && activeReport.id === report.id}>
-                  {activeReport?.sections.map(
-                    (section) =>
-                      section.sectionType === ReportSectionTypeName.Content && (
-                        <Row
-                          key={section.id}
-                          className="section"
-                          onClick={() => handleAddToReport(section.name).catch(() => {})}
-                        >
-                          <div className="not-hovered" />
-                          <FaAngleRight className="active-section" />
-                          {section.settings.label}
-                        </Row>
-                      ),
-                  )}
+                  <div className={`section-list`}>
+                    {activeReport?.sections.map(
+                      (section) =>
+                        section.sectionType === ReportSectionTypeName.Content && (
+                          <Row
+                            key={section.id}
+                            className="section"
+                            onClick={() => handleAddToReport(section.name).catch(() => {})}
+                          >
+                            <FaAngleRight className="active-section" />
+                            {section.settings.label}
+                          </Row>
+                        ),
+                    )}
+                  </div>
                 </Show>
               </Show>
             ))}
