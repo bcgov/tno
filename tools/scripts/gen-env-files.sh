@@ -550,11 +550,7 @@ Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 
-Kafka__Admin__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
-Kafka__Producer__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
-
 Service__ApiUrl=http://host.docker.internal:$portApi/api
-Service__TranscriptionTopic=transcription
 
 CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
 CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1

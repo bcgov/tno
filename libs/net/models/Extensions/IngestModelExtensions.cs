@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text.Json;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 
 namespace TNO.Models.Extensions;
 
@@ -56,7 +57,27 @@ public static class IngestModelExtensions
                 {
                     JsonValueKind.String => (T)Convert.ChangeType($"{element.GetString()}".Trim(), typeof(T)),
                     JsonValueKind.Null or JsonValueKind.Undefined => default,
-                    JsonValueKind.Number => (T)Convert.ChangeType($"{element.GetInt32()}", typeof(T)),
+                    JsonValueKind.Number => Type.GetTypeCode(typeof(T)) switch
+                    {
+                        TypeCode.Int32 => typeof(T).IsNullable()
+                            ? (Int32.TryParse($"{element.GetInt32()}", out int result) ? (T)(object)result : default)
+                            : (T)Convert.ChangeType($"{element.GetInt32()}", typeof(T)),
+                        TypeCode.Int64 => typeof(T).IsNullable()
+                            ? (Int64.TryParse($"{element.GetInt64()}", out long result) ? (T)(object)result : default)
+                            : (T)Convert.ChangeType($"{element.GetInt64()}", typeof(T)),
+                        TypeCode.Decimal => typeof(T).IsNullable()
+                            ? (Decimal.TryParse($"{element.GetDecimal()}", out decimal result) ? (T)(object)result : default)
+                            : (T)Convert.ChangeType($"{element.GetDecimal()}", typeof(T)),
+                        TypeCode.Double => typeof(T).IsNullable()
+                            ? (Double.TryParse($"{element.GetDouble()}", out double result) ? (T)(object)result : default)
+                            : (T)Convert.ChangeType($"{element.GetDouble()}", typeof(T)),
+                        TypeCode.Single => typeof(T).IsNullable()
+                            ? (Single.TryParse($"{element.GetSingle()}", out float result) ? (T)(object)result : default)
+                            : (T)Convert.ChangeType($"{element.GetSingle()}", typeof(T)),
+                        _ => typeof(T).IsNullable()
+                            ? (Int32.TryParse($"{element.GetInt32()}", out int result) ? (T)(object)result : default)
+                            : (T)Convert.ChangeType($"{element.GetInt32()}", typeof(T)),
+                    },
                     JsonValueKind.True or JsonValueKind.False => (T)Convert.ChangeType($"{element.GetBoolean()}", typeof(T)),
                     _ => (T)Convert.ChangeType($"{element}", typeof(T)),
                 };
@@ -93,8 +114,30 @@ public static class IngestModelExtensions
                 {
                     JsonValueKind.String => (T)Convert.ChangeType($"{element.GetString()}".Trim(), typeof(T)),
                     JsonValueKind.Null or JsonValueKind.Undefined => default,
-                    JsonValueKind.Number => (T)Convert.ChangeType($"{element.GetInt32()}", typeof(T)),
+                    JsonValueKind.Number => Type.GetTypeCode(typeof(T)) switch
+                    {
+                        TypeCode.Int32 => typeof(T).IsNullable()
+                            ? (Int32.TryParse($"{element.GetInt32()}", out int result) ? (T)(object)result : default)
+                            : (T)Convert.ChangeType($"{element.GetInt32()}", typeof(T)),
+                        TypeCode.Int64 => typeof(T).IsNullable()
+                            ? (Int64.TryParse($"{element.GetInt64()}", out long result) ? (T)(object)result : default)
+                            : (T)Convert.ChangeType($"{element.GetInt64()}", typeof(T)),
+                        TypeCode.Decimal => typeof(T).IsNullable()
+                            ? (Decimal.TryParse($"{element.GetDecimal()}", out decimal result) ? (T)(object)result : default)
+                            : (T)Convert.ChangeType($"{element.GetDecimal()}", typeof(T)),
+                        TypeCode.Double => typeof(T).IsNullable()
+                            ? (Double.TryParse($"{element.GetDouble()}", out double result) ? (T)(object)result : default)
+                            : (T)Convert.ChangeType($"{element.GetDouble()}", typeof(T)),
+                        TypeCode.Single => typeof(T).IsNullable()
+                            ? (Single.TryParse($"{element.GetSingle()}", out float result) ? (T)(object)result : default)
+                            : (T)Convert.ChangeType($"{element.GetSingle()}", typeof(T)),
+                        _ => typeof(T).IsNullable()
+                            ? (Int32.TryParse($"{element.GetInt32()}", out int result) ? (T)(object)result : default)
+                            : (T)Convert.ChangeType($"{element.GetInt32()}", typeof(T)),
+                    },
                     JsonValueKind.True or JsonValueKind.False => (T)Convert.ChangeType($"{element.GetBoolean()}", typeof(T)),
+                    JsonValueKind.Object => throw new NotImplementedException(),
+                    JsonValueKind.Array => throw new NotImplementedException(),
                     _ => (T)Convert.ChangeType($"{element}", typeof(T)),
                 }) ?? defaultValue;
             }

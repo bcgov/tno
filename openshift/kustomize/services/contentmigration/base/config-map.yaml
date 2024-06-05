@@ -21,7 +21,7 @@ data:
   CONTENT_MIGRATION_MEDIA_HOST_ROOT_URI: "https://tno.gov.bc.ca/av"
   # Filter per instance
   INGEST_TYPES: "TNO-AudioVideo,TNO-Image,TNO-PrintContent,TNO-Story"
-  SUPPORTED_IMPORT_MIGRATION_TYPES: "Recent,RecentlyPublished"
+  SUPPORTED_IMPORT_MIGRATION_TYPES: "Current"
   DEFAULT_USERNAME_FOR_AUDIT: "contentmigrator"
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"

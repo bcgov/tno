@@ -1,45 +1,69 @@
 import parse from 'html-react-parser';
 import { IFilterSettingsModel } from 'tno-core';
 
+/**
+ * Escapes special characters in a string to be used in a regular expression.
+ * @param string - The string to escape.
+ * @returns The escaped string.
+ */
+function escapeRegExp(string: string): string {
+  return string.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Formats the search text by applying bold formatting to matched keywords and excluding certain words.
+ * @param text - The text to be formatted.
+ * @param filter - The filter settings to be applied.
+ * @returns The formatted text with matched keywords bolded.
+ */
 export const formatSearch = (text: string, filter: IFilterSettingsModel) => {
-  // Check if filter is undefined or null
-  if (!filter) {
+  if (!filter || filter.boldKeywords === false || !filter.search || !filter.search.trim()) {
     return parse(text);
   }
 
-  let tempText = text;
-  let parseText = () => {
-    if (filter.search) return filter.search;
-    else return '';
-  };
-
-  const searchWords = parseText()
-    .split(' e')
-    .filter((word) => word); // Filter out empty words
-  if (searchWords.length === 0) {
-    // If there are no valid search words, return the original text parsed
+  // Remove parentheses to prevent affecting the construction of the regular expression
+  const cleanedSearch = filter.search.replace(/[()]/g, '');
+  if (!cleanedSearch) {
     return parse(text);
   }
 
-  searchWords.forEach((word) => {
-    const regex = new RegExp(word, 'gi');
-    // remove duplicates found only want unique matches, this will be varying capitalization
-    const matches = text.match(regex)?.filter((v, i, a) => a.indexOf(v) === i) ?? [];
-    // text.match included in replace in order to keep the proper capitalization
-    // When there is more than one match, this indicates there will be varying capitalization. In this case we
-    // have to iterate through the matches and do a more specific replace in order to keep the words capitalization
-    if (matches.length > 1) {
-      matches.forEach((match, i) => {
-        let multiMatch = new RegExp(`${matches[i]}`);
-        tempText = tempText.replace(multiMatch, `<b>${match}</b>`);
-      });
-    } else if (matches.length === 1) {
-      // in this case there will only be one match, so we can just insert the first match
-      tempText = tempText.replace(regex, `<b>${matches[0]}</b>`);
+  // Match possible phrases within quotes, prefixed terms with '*',
+  // normal words, and exclude words with '-' and '~'
+  const tokens = cleanedSearch.match(/"[^"]+"|\b\w+\*|\b\w+\b|[-~]\s*\w+/g) || [];
+
+  let includePatterns: string[] = [];
+  let excludePatterns: string[] = [];
+
+  tokens.forEach((token) => {
+    if (token.startsWith('"') && token.endsWith('"')) {
+      // Handle phrases within quotes, remove the quotes
+      includePatterns.push(`\\b${escapeRegExp(token.slice(1, -1))}\\b`);
+    } else if (token.endsWith('*')) {
+      // Handle prefix queries, remove the '*' at the end
+      let prefix = escapeRegExp(token.slice(0, -1));
+      includePatterns.push(`\\b${prefix}\\w*\\b`);
+    } else if (token.startsWith('-') || token.startsWith('~')) {
+      // Handle exclude words, remove the '-' at the beginning
+      excludePatterns.push(`\\b${escapeRegExp(token.slice(1))}\\b`);
+    } else {
+      // Handle normal keywords
+      includePatterns.push(`\\b${escapeRegExp(token)}\\b`);
     }
   });
 
-  // Check if filter.boldKeywords is undefined or null
-  if (!filter.boldKeywords) return parse(text);
-  return parse(tempText);
+  if (includePatterns.length === 0) {
+    return parse(text);
+  }
+
+  // Build the regular expression and bold the matched words
+  let includeRegex = new RegExp(`(${includePatterns.join('|')})`, 'gi');
+  let boldedText = text.replace(includeRegex, `<b>$&</b>`);
+
+  // Use exclude patterns not bold "-"
+  if (excludePatterns.length > 0) {
+    let excludeRegex = new RegExp(`(${excludePatterns.join('|')})`, 'gi');
+    boldedText = boldedText.replace(excludeRegex, (match) => match);
+  }
+
+  return parse(boldedText);
 };

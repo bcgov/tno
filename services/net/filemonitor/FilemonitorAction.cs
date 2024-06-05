@@ -450,7 +450,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                         var mediaTypeId = await GetMediaTypeIdAsync(ingest, code, sources);
                         var headline = GetXmlData(story, Fields.Headline, ingest);
                         var publishedOn = GetPublishedOn(GetXmlData(story, Fields.Date, ingest), ingest, this.Options);
-                        var contentHash = GetContentHash(code, headline, publishedOn);
+                        var contentHash = Runners.BaseService.GetContentHash(code, headline, publishedOn);
                         var author = GetXmlData(story, Fields.Author, ingest);
 
                         var item = new SourceContent(

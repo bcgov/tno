@@ -36,6 +36,11 @@ public class ContentOptions : ServiceOptions
     public string PrivateKeysPath { get; set; } = "";
 
     /// <summary>
+    /// get/set - Whether existing content will be updated.  This will overwrite anything in MMI.
+    /// </summary>
+    public bool AllowUpdate { get; set; } = false;
+
+    /// <summary>
     /// get/set - Settings around content coming from the Content Migration service
     /// </summary>
     public ContentMigrationOptions MigrationOptions { get; set; } = new ContentMigrationOptions();

@@ -43,7 +43,7 @@ public class ContentMigrationOptions : IngestServiceOptions
     /// Mapping for "action type" to Name in the db
     /// Only need to add a mapping here, if the name in the db is different to the Action Type enum string
     /// </summary>
-    public Dictionary<ActionType,string> ActionNameMappings {get; set; } = new Dictionary<ActionType,string>();
+    public Dictionary<ActionType, string> ActionNameMappings { get; set; } = new Dictionary<ActionType, string>();
 
     /// <summary>
     /// get/set - The default number of minutes that it took a migrated article to be ready for publishing
@@ -71,6 +71,11 @@ public class ContentMigrationOptions : IngestServiceOptions
     public string SupportedImportMigrationTypes { get; set; } = "";
 
     /// <summary>
+    /// get/set - Whether to only support ingest configurations for published content.
+    /// </summary>
+    public bool OnlyPublished { get; set; }
+
+    /// <summary>
     /// get/set - Generate Alerts from content migrated from TNO 1.0 if it flagged as alertable.
     /// </summary>
     public bool GenerateAlertsOnContentMigration { get; set; } = true;
@@ -80,5 +85,9 @@ public class ContentMigrationOptions : IngestServiceOptions
     /// </summary>
     public string TagForMigratedContent { get; set; } = "";
 
+    /// <summary>
+    /// get/set - Whether to send a message to Kafka regardless of whether the content has been updated or not.
+    /// </summary>
+    public bool ForceUpdate { get; set; }
     #endregion
 }
