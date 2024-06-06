@@ -28,42 +28,46 @@ export const DbMigration: React.FC = (props) => {
   return (
     <styled.IngestType>
       <ImportContent />
-      <Col gap="0.5rem">
-        <FormikRadioGroup
-          label="Migration Type"
-          name="importMigrationType"
-          value={values.configuration.importMigrationType ?? ImportMigrationType.Current}
-          onChange={(val) => {
-            const configuration = {
-              ...values.configuration,
-              importMigrationType: val.target.value,
-              offsetHours:
-                val.target.value === ImportMigrationType.Historic ||
-                val.target.value === ImportMigrationType.All
-                  ? undefined
-                  : values.configuration.offsetHours,
-              importDateStart:
-                val.target.value === ImportMigrationType.Current
-                  ? undefined
-                  : values.configuration.importDateStart,
-              importDateEnd:
-                val.target.value === ImportMigrationType.Current
-                  ? undefined
-                  : values.configuration.importDateEnd,
-            };
-            setFieldValue('configuration', configuration);
-          }}
-          options={[
-            ImportMigrationType.Historic,
-            ImportMigrationType.All,
-            ImportMigrationType.Recent,
-            ImportMigrationType.Current,
-          ]}
-          required={true}
-        />
-        <FormikCheckbox name="configuration.publishedOnly" label="Published Content Only" />
-        <FormikCheckbox name="configuration.forceUpdate" label="Force Update" />
-      </Col>
+      <Row gap="1rem">
+        <Col flex="1">
+          <FormikRadioGroup
+            label="Migration Type"
+            name="importMigrationType"
+            value={values.configuration.importMigrationType ?? ImportMigrationType.Current}
+            onChange={(val) => {
+              const configuration = {
+                ...values.configuration,
+                importMigrationType: val.target.value,
+                offsetHours:
+                  val.target.value === ImportMigrationType.Historic ||
+                  val.target.value === ImportMigrationType.All
+                    ? undefined
+                    : values.configuration.offsetHours,
+                importDateStart:
+                  val.target.value === ImportMigrationType.Current
+                    ? undefined
+                    : values.configuration.importDateStart,
+                importDateEnd:
+                  val.target.value === ImportMigrationType.Current
+                    ? undefined
+                    : values.configuration.importDateEnd,
+              };
+              setFieldValue('configuration', configuration);
+            }}
+            options={[
+              ImportMigrationType.Historic,
+              ImportMigrationType.All,
+              ImportMigrationType.Recent,
+              ImportMigrationType.Current,
+            ]}
+            required={true}
+          />
+        </Col>
+        <Col flex="1" gap="0.5rem">
+          <FormikCheckbox name="configuration.publishedOnly" label="Published Content Only" />
+          <FormikCheckbox name="configuration.forceUpdate" label="Force Update" />
+        </Col>
+      </Row>
       <Show visible={values.configuration.importMigrationType !== ImportMigrationType.Current}>
         <Row>
           <Col>
@@ -217,29 +221,50 @@ export const DbMigration: React.FC = (props) => {
           </Col>
         </Row>
       </Show>
-
-      <Show
-        visible={
-          ![ImportMigrationType.Historic, ImportMigrationType.All].includes(
-            values.configuration.importMigrationType,
-          )
-        }
-      >
-        <FormikText
-          label="Migration offset in hours"
-          name="configuration.offsetHours"
-          type="number"
-          min="0"
-          width="10ch"
-          size={5}
-          value={values.configuration.offsetHours ?? ''}
-          onChange={(e) => {
-            const value = e.currentTarget.value;
-            const offset = value && !isNaN(Number(value)) ? Number(value) : undefined;
-            setFieldValue('configuration.offsetHours', offset);
-          }}
-        />
-      </Show>
+      <Row gap="1rem">
+        <Show
+          visible={
+            ![ImportMigrationType.Historic, ImportMigrationType.All].includes(
+              values.configuration.importMigrationType,
+            )
+          }
+        >
+          <Col flex="1">
+            <FormikText
+              label="Migration offset in hours"
+              name="configuration.offsetHours"
+              type="number"
+              min="0"
+              width="10ch"
+              size={5}
+              value={values.configuration.offsetHours ?? ''}
+              onChange={(e) => {
+                const value = e.currentTarget.value;
+                const offset = value && !isNaN(Number(value)) ? Number(value) : undefined;
+                setFieldValue('configuration.offsetHours', offset);
+              }}
+            />
+          </Col>
+        </Show>
+        <Col flex="1">
+          <FormikText
+            label="Import Delay in seconds"
+            name="configuration.importDelayMs"
+            type="number"
+            min="0"
+            width="10ch"
+            size={5}
+            value={
+              values.configuration.importDelayMs ? values.configuration.importDelayMs / 1000 : ''
+            }
+            onChange={(e) => {
+              const value = e.currentTarget.value;
+              const delay = value && !isNaN(Number(value)) ? Number(value) * 1000 : undefined;
+              setFieldValue('configuration.importDelayMs', delay);
+            }}
+          />
+        </Col>
+      </Row>
       <Row>
         <Col flex="1 1 1">
           <FormikText

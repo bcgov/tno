@@ -105,10 +105,10 @@ public class ContentManager : ServiceManager<ContentOptions>
                     // TODO: Handle e-tag.
                     var ingest = (await this.Api.GetIngestsAsync()).ToArray();
 
-                    // Listen to every enabled data source with a topic that is configured to produce content.
+                    // Listen to every data source with a topic that is configured to produce content.
+                    // Even disabled data sources should continue to import.
                     var topics = this.Options.GetContentTopics(ingest
-                        .Where(i => i.IsEnabled &&
-                            !String.IsNullOrWhiteSpace(i.Topic) &&
+                        .Where(i => !String.IsNullOrWhiteSpace(i.Topic) &&
                             i.ImportContent())
                         .Select(i => i.Topic).ToArray());
 
