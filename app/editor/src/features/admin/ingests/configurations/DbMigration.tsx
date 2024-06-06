@@ -16,7 +16,6 @@ import {
   Row,
   Show,
   TimeInput,
-  useFormikHelpers,
 } from 'tno-core';
 
 import { ImportMigrationType } from './constants';
@@ -25,7 +24,6 @@ import * as styled from './styled';
 
 export const DbMigration: React.FC = (props) => {
   const { values, setFieldValue } = useFormikContext<IIngestModel>();
-  const { applyPlaceholder } = useFormikHelpers();
 
   return (
     <styled.IngestType>
@@ -230,12 +228,16 @@ export const DbMigration: React.FC = (props) => {
         <FormikText
           label="Migration offset in hours"
           name="configuration.offsetHours"
-          value={values.configuration.offsetHours}
           type="number"
           min="0"
           width="10ch"
           size={5}
-          onClick={applyPlaceholder}
+          value={values.configuration.offsetHours ?? ''}
+          onChange={(e) => {
+            const value = e.currentTarget.value;
+            const offset = value && !isNaN(Number(value)) ? Number(value) : undefined;
+            setFieldValue('configuration.offsetHours', offset);
+          }}
         />
       </Show>
       <Row>
@@ -244,7 +246,7 @@ export const DbMigration: React.FC = (props) => {
             label="Creation Date of Last Imported Item"
             disabled
             name="creationDateOfLastItem"
-            value={values.creationDateOfLastItem}
+            value={values.creationDateOfLastItem ?? ''}
             tooltip="The Creation Date of the last item imported from the Source System"
             formatter={(value) => formatDate(value, 'YYYY-MM-DD h:mm:ss a')}
           />
