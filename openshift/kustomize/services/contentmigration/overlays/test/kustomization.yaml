@@ -19,16 +19,16 @@ patches:
         value: 1
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
-        value: 10m
+        value: 25m
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
         value: 128Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
-        value: 25m
+        value: 150m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 200Mi
+        value: 350Mi
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
         value: contentmigration-service:test
