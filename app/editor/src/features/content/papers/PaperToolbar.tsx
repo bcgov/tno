@@ -35,7 +35,7 @@ export interface IPaperToolbarProps {
 export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
   const [{ filterPaper: filter }, { storeFilterPaper }] = useContent();
   const [{ mediaTypeOptions }] = useLookupOptions();
-  const [{ publishReport }] = useReports();
+  const [{ previewReport, publishReport }] = useReports();
   const [{ publishNotification }] = useNotifications();
   const [{ isReady, settings }] = useLookup();
   const { toggle, isShowing } = useModal();
@@ -67,6 +67,20 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
   React.useEffect(() => {
     setMediaTypeOptions([new OptionItem<number>('Any', 0), ...mediaTypeOptions]);
   }, [mediaTypeOptions]);
+
+  async function checkReportContent() {
+    try {
+      const preview = await previewReport(+frontPageImagesReportId);
+      if (preview.body && preview.body !== '\n') {
+        return true;
+      } else {
+        toast.error('Report content is empty. Please add content before sending.');
+        return false;
+      }
+    } catch (error) {
+      toast.error(`Failed to preview report. ${error}`);
+    }
+  }
 
   const onFilterChange = (filter: IContentListFilter) => {
     const newFilter = { ...filter, pageIndex: 0 };
@@ -109,7 +123,9 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
           <FaFileImage
             className="action-button btn-preview"
             title="Front Page Images"
-            onClick={(e) => {
+            onClick={async (e) => {
+              const hasContent = await checkReportContent();
+              if (!hasContent) return;
               if (frontPageImagesReportId) {
                 setSendInfo({
                   name: 'Front Page Images',
