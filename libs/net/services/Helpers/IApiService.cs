@@ -459,4 +459,12 @@ public interface IApiService
     /// <returns></returns>
     Task<ContentModel?> AddQuotesToContentAsync(long contentId, IEnumerable<QuoteModel> quotes);
     #endregion
+
+    #region Settings
+    /// <summary>
+    /// Get all of the settings
+    /// </summary>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>> GetSettings();
+    #endregion
 }

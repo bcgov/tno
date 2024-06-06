@@ -105,12 +105,16 @@ public class ContentManager : ServiceManager<ContentOptions>
                     // TODO: Handle e-tag.
                     var ingest = (await this.Api.GetIngestsAsync()).ToArray();
 
+                    // Get settings to find any overrides.
+                    var settings = await this.Api.GetSettings();
+                    var topicOverride = settings.FirstOrDefault(s => s.Name == "ContentImportTopicOverride")?.Value.Split(",", StringSplitOptions.TrimEntries) ?? Array.Empty<string>();
+                    var ingestTopics = ingest
+                        .Where(i => !String.IsNullOrWhiteSpace(i.Topic) && i.ImportContent())
+                        .Select(i => i.Topic).ToArray();
+
                     // Listen to every data source with a topic that is configured to produce content.
                     // Even disabled data sources should continue to import.
-                    var topics = this.Options.GetContentTopics(ingest
-                        .Where(i => !String.IsNullOrWhiteSpace(i.Topic) &&
-                            i.ImportContent())
-                        .Select(i => i.Topic).ToArray());
+                    var topics = this.Options.GetContentTopics(topicOverride.Any() ? topicOverride : ingestTopics);
 
                     // Only include topics that exist.
                     var kafkaTopics = this.KafkaAdmin.ListTopics();
