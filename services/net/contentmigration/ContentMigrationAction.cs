@@ -246,8 +246,8 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                     await manager.UpdateIngestStateFailedAttemptsAsync(0);
                 });
 
-                // might not have a date set here if the filter retrieved no records
-                if (lastReceivedContentOn.HasValue)
+                // Inform the ingest to pick up where it left off so that the next time it runs it will continue rather than restart.
+                if (lastReceivedContentOn.HasValue && (!offsetHours.HasValue || offsetHours == 0))
                     await manager.UpdateIngestStateFailedAttemptsAsync(0, lastReceivedContentOn.Value);
 
                 skip += retrievedRecords;
