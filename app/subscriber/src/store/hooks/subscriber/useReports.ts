@@ -24,7 +24,10 @@ interface IReportController {
   regenerateSection: (id: number, sectionId: number) => Promise<IReportInstanceModel>;
   addContentToReport: (id: number, content: IReportInstanceContentModel[]) => Promise<IReportModel>;
   getAllContentInMyReports: () => Promise<{ [reportId: number]: number[] }>;
-  // findInstanceForReportIdAndDate: (id: number, date: Date) => Promise<IReportInstanceModel>;
+  findInstanceForReportIdAndDate: (
+    id: number,
+    publishedOn: Date | string,
+  ) => Promise<IReportInstanceModel>;
 }
 
 export const useReports = (): [IProfileState, IReportController] => {
@@ -100,12 +103,12 @@ export const useReports = (): [IProfileState, IReportController] => {
         }
         return response.data;
       },
-      // findInstanceForReportIdAndDate: async (id: number, date: Date) => {
-      //   const response = await dispatch<IReportInstanceModel[]>('get-report-instance-by-date', () =>
-      //     api.findInstanceForReportIdAndDate(id, date),
-      //   );
-      //   return response.data;
-      // },
+      findInstanceForReportIdAndDate: async (id: number, publishedOn: Date | string) => {
+        const response = await dispatch<IReportInstanceModel>('get-report-instance-by-date', () =>
+          api.findInstanceForReportIdAndDate(id, publishedOn),
+        );
+        return response.data;
+      },
       addReport: async (model: IReportModel) => {
         const response = await dispatch<IReportModel>('add-report', () => api.addReport(model));
         // Update store with report data.

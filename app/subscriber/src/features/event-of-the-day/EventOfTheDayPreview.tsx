@@ -19,7 +19,7 @@ const EventOfTheDayPreview: React.FC = () => {
   const dateUrlParam = params.get('date')
     ? params.get('date')
     : moment(new Date()).endOf('day').toISOString();
-  const [, { findInstancesForReportId }] = useReports();
+  const [, { findInstanceForReportIdAndDate }] = useReports();
   const [{ settings }] = useLookup();
   const [date, setDate] = React.useState<string>();
 
@@ -44,8 +44,8 @@ const EventOfTheDayPreview: React.FC = () => {
         setDate(filterDate);
         const reportId = settings.find((x) => x.name === 'EventOfTheDayReportId')?.value;
         if (reportId) {
-          const instances = await findInstancesForReportId(parseInt(reportId));
-          setPreview(instances[0]);
+          const instance = await findInstanceForReportIdAndDate(parseInt(reportId), filterDate);
+          setPreview(instance);
         } else {
           toast.error(`Configuration EventOfTheDayReportId is missing from settings.`);
         }
@@ -54,7 +54,7 @@ const EventOfTheDayPreview: React.FC = () => {
         setIsLoading(false);
       }
     },
-    [eventOfTheDayFilter?.startDate, settings, findInstancesForReportId],
+    [eventOfTheDayFilter?.startDate, settings, findInstanceForReportIdAndDate],
   );
 
   React.useEffect(() => {
@@ -90,7 +90,7 @@ const EventOfTheDayPreview: React.FC = () => {
       </Show>
       <Show visible={!isLoading}>
         <DateFilter filter={eventOfTheDayFilter} storeFilter={storeFilter} />
-        <Show visible={!isLoading}>
+        <Show visible={!isLoading && !!preview}>
           <Col className="preview-report">
             <div
               className="preview-subject"
@@ -103,9 +103,9 @@ const EventOfTheDayPreview: React.FC = () => {
           </Col>
         </Show>
       </Show>
-      {/* <Show visible={!isPublished || !reactElements}>
+      <Show visible={!isLoading && !preview}>
         No report has been published yet. Please check back later.
-      </Show> */}
+      </Show>
     </styled.EventOfTheDayPreview>
   );
 };
