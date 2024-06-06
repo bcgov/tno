@@ -1,7 +1,9 @@
 import { DateFilter } from 'components/date-filter';
+import moment from 'moment';
 import React from 'react';
-import { useParams } from 'react-router-dom';
-import { useContent, useReports } from 'store/hooks';
+import { useSearchParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useContent, useLookup, useReports } from 'store/hooks';
 import { Col, IReportResultModel, Loading, Show } from 'tno-core';
 
 import * as styled from './styled';
@@ -13,32 +15,74 @@ const EventOfTheDayPreview: React.FC = () => {
     },
     { storeEventofTheDayDateFilter: storeFilter },
   ] = useContent();
+  const [params] = useSearchParams();
+  const dateUrlParam = params.get('date')
+    ? params.get('date')
+    : moment(new Date()).endOf('day').toISOString();
   const [, { findInstancesForReportId }] = useReports();
-  const reportId = 8;
+  const [{ settings }] = useLookup();
+  const [date, setDate] = React.useState<string>();
 
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isLoading, setIsLoading] = React.useState(false);
   const [preview, setPreview] = React.useState<IReportResultModel | undefined>();
 
-  const handlePreviewReport = React.useCallback(
-    async (reportId: number) => {
+  const clear = () => {
+    setIsLoading(true);
+    setPreview(undefined);
+  };
+
+  // Used to refresh preview data for newly selected date
+  const handleChangeReportDate = React.useCallback(
+    async (overrideDate?: string) => {
       try {
-        setIsLoading(true);
-        // const response = await previewReport(reportId);
-        // setPreview(response);
-        const instances = await findInstancesForReportId(reportId);
-        console.log('testinstances', instances);
-        setPreview(instances[0]);
+        clear();
+
+        const filterDate = moment(overrideDate ?? eventOfTheDayFilter?.startDate)
+          .startOf('day')
+          .toISOString();
+
+        setDate(filterDate);
+        const reportId = settings.find((x) => x.name === 'EventOfTheDayReportId')?.value;
+        if (reportId) {
+          const instances = await findInstancesForReportId(parseInt(reportId));
+          setPreview(instances[0]);
+        } else {
+          toast.error(`Configuration EventOfTheDayReportId is missing from settings.`);
+        }
       } catch {
       } finally {
         setIsLoading(false);
       }
     },
-    [findInstancesForReportId],
+    [eventOfTheDayFilter?.startDate, settings, findInstancesForReportId],
   );
 
   React.useEffect(() => {
-    handlePreviewReport(reportId);
-  }, []);
+    if (!date && dateUrlParam) {
+      // Case 1: No date stored in memory, but there's a date parameter in path
+      // in this case use that date param, set local state & fetch the overview
+      setDate(moment(dateUrlParam).startOf('day').toISOString());
+      storeFilter({
+        ...eventOfTheDayFilter,
+        startDate: moment(dateUrlParam).startOf('day').toISOString(),
+        endDate: moment(dateUrlParam).endOf('day').toISOString(),
+      });
+      handleChangeReportDate(dateUrlParam);
+      // Case 2: There's a date in memory, but that doesn't match the date
+      // which the filter is showing. In this case, fetch overview for filter
+      // date and update the date in memory so it's matching.
+    } else if (!!date && date !== eventOfTheDayFilter?.startDate) {
+      handleChangeReportDate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handleChangeReportDate, eventOfTheDayFilter, dateUrlParam]);
+
+  React.useEffect(() => {
+    window.history.pushState({}, '', `?date=${moment(date).format('yyyy/MM/DD')}`);
+    // we only want to update the date in the url when date in memory changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [date]);
+
   return (
     <styled.EventOfTheDayPreview>
       <Show visible={isLoading}>

@@ -15,7 +15,7 @@ interface IReportController {
   findMyReports: (filter?: IReportFilter) => Promise<IReportModel[]>;
   findPublicReports: (filter?: IReportFilter) => Promise<IReportModel[]>;
   getReport: (id: number, includeContent?: boolean) => Promise<IReportModel | undefined>;
-  // findInstancesForReportId: (id: number, ownerId?: number) => Promise<IReportInstanceModel[]>;
+  findInstancesForReportId: (id: number, ownerId?: number) => Promise<IReportInstanceModel[]>;
   addReport: (model: IReportModel) => Promise<IReportModel>;
   updateReport: (model: IReportModel, updateInstances?: boolean) => Promise<IReportModel>;
   deleteReport: (model: IReportModel) => Promise<IReportModel>;
@@ -24,7 +24,7 @@ interface IReportController {
   regenerateSection: (id: number, sectionId: number) => Promise<IReportInstanceModel>;
   addContentToReport: (id: number, content: IReportInstanceContentModel[]) => Promise<IReportModel>;
   getAllContentInMyReports: () => Promise<{ [reportId: number]: number[] }>;
-  findInstanceForReportIdAndDate: (id: number, date: Date) => Promise<IReportInstanceModel>;
+  // findInstanceForReportIdAndDate: (id: number, date: Date) => Promise<IReportInstanceModel>;
 }
 
 export const useReports = (): [IProfileState, IReportController] => {
