@@ -85,7 +85,11 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
         sort: ['publishedOn asc'],
       }).then((data) => {
         setContentItems(data.items);
-        const newClips = data.items.map((c) => new OptionItem(c.headline, c.id)) as IOptionItem[];
+        const newClips = data.items.map((c) => {
+          const publishedOnTime = c.publishedOn ? `${moment(c.publishedOn).format('HH:mm')} ` : '';
+          const itemHeadline = `${publishedOnTime}${c.headline}`;
+          return new OptionItem(itemHeadline, c.id);
+        }) as IOptionItem[];
         // check if any previously selected clips are no longer available, if not, unselec them
         items.forEach((item, itemIndex) => {
           if (item.contentId && !newClips.some((clip) => clip.value === item.contentId)) {
