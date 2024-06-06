@@ -3,23 +3,23 @@
 kind: DeploymentConfig
 apiVersion: apps.openshift.io/v1
 metadata:
-  name: contentmigration-service
+  name: contentmigration-recent-service
   namespace: default
   annotations:
-    description: Defines how to deploy contentmigration-service
+    description: Defines how to deploy contentmigration-recent-service
     created-by: kyle.morris
   labels:
-    name: contentmigration-service
+    name: contentmigration-recent-service
     part-of: tno
     version: 1.0.0
-    component: contentmigration-service
+    component: contentmigration-recent-service
     managed-by: kustomize
 spec:
   replicas: 1
   selector:
-    name: contentmigration-service
+    name: contentmigration-recent-service
     part-of: tno
-    component: contentmigration-service
+    component: contentmigration-recent-service
   strategy:
     rollingParams:
       intervalSeconds: 1
@@ -30,18 +30,18 @@ spec:
     type: Rolling
   template:
     metadata:
-      name: contentmigration-service
+      name: contentmigration-recent-service
       labels:
-        name: contentmigration-service
+        name: contentmigration-recent-service
         part-of: tno
-        component: contentmigration-service
+        component: contentmigration-recent-service
     spec:
       volumes:
         - name: ingest-storage
           persistentVolumeClaim:
             claimName: ingest-storage
       containers:
-        - name: contentmigration-service
+        - name: contentmigration-recent-service
           image: ""
           imagePullPolicy: Always
           ports:
@@ -52,10 +52,10 @@ spec:
               mountPath: /data
           resources:
             limits:
-              cpu: 50m
+              cpu: 25m
               memory: 200Mi
             requests:
-              cpu: 20m
+              cpu: 10m
               memory: 128Mi
           env:
             # .NET Configuration
@@ -105,33 +105,38 @@ spec:
             - name: Service__MaxFailLimit
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-service
+                  name: contentmigration-recent-service
                   key: MAX_FAIL_LIMIT
             - name: Service__VolumePath
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-service
+                  name: contentmigration-recent-service
                   key: VOLUME_PATH
             - name: Service__MediaHostRootUri
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-service
+                  name: contentmigration-recent-service
                   key: CONTENT_MIGRATION_MEDIA_HOST_ROOT_URI
             - name: Service__IngestTypes
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-service
+                  name: contentmigration-recent-service
                   key: INGEST_TYPES
             - name: Service__SupportedImportMigrationTypes
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-service
+                  name: contentmigration-recent-service
                   key: SUPPORTED_IMPORT_MIGRATION_TYPES
             - name: Service__DefaultUserNameForAudit
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-service
+                  name: contentmigration-recent-service
                   key: DEFAULT_USERNAME_FOR_AUDIT
+            - name: Service__GenerateAlertsOnContentMigration
+              valueFrom:
+                configMapKeyRef:
+                  name: contentmigration-recent-service
+                  key: GENERATE_ALERTS_ON_CONTENT_MIGRATION
 
             # CHES Configuration
             - name: CHES__From
@@ -142,12 +147,12 @@ spec:
             - name: CHES__EmailEnabled
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-service
+                  name: contentmigration-recent-service
                   key: CHES_EMAIL_ENABLED
             - name: CHES__EmailAuthorized
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-service
+                  name: contentmigration-recent-service
                   key: CHES_EMAIL_AUTHORIZED
 
             - name: CHES__AuthUrl
@@ -206,7 +211,7 @@ spec:
       imageChangeParams:
         automatic: true
         containerNames:
-          - contentmigration-service
+          - contentmigration-recent-service
         from:
           kind: ImageStreamTag
           namespace: 9b301c-tools

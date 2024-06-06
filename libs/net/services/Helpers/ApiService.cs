@@ -861,5 +861,17 @@ public class ApiService : IApiService
     }
     #endregion
 
+    #region Settings
+    /// <summary>
+    /// Get all of the settings
+    /// </summary>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>> GetSettings()
+    {
+        var url = this.Options.ApiUrl.Append($"services/settings");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>>(url)) ?? Array.Empty<API.Areas.Services.Models.Setting.SettingModel>();
+    }
+    #endregion
+
     #endregion
 }

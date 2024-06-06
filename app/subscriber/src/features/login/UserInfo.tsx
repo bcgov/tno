@@ -1,3 +1,4 @@
+import { Modal } from 'components/modal';
 import React from 'react';
 import { useApiHub, useApp } from 'store/hooks';
 import { useAppStore } from 'store/slices';
@@ -6,7 +7,6 @@ import {
   Button,
   Col,
   MessageTargetName,
-  Modal,
   useKeycloakWrapper,
   useModal,
 } from 'tno-core';

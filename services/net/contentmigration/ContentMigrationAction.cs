@@ -219,6 +219,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         var importDateEnd = !String.IsNullOrWhiteSpace(importDateEndValue) ? DateTime.Parse(importDateEndValue).ToTimeZone(defaultTimeZone) : (DateTime?)null;
         var creationDateOfLastImport = manager.Ingest.CreationDateOfLastItem;
         var offsetHours = manager.Ingest.GetConfigurationValue<int?>("offsetHours", null);
+        var importDelayMs = manager.Ingest.GetConfigurationValue<int?>("importDelayMs", null);
         var forceUpdate = manager.Ingest.GetConfigurationValue<bool>("forceUpdate", this.Options.ForceUpdate);
         var retrievedRecords = 0;
         var continueFetchingRecords = true;
@@ -246,12 +247,17 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                     await manager.UpdateIngestStateFailedAttemptsAsync(0);
                 });
 
-                // might not have a date set here if the filter retrieved no records
-                if (lastReceivedContentOn.HasValue)
+                // Inform the ingest to pick up where it left off so that the next time it runs it will continue rather than restart.
+                if (lastReceivedContentOn.HasValue && (!offsetHours.HasValue || offsetHours == 0))
                     await manager.UpdateIngestStateFailedAttemptsAsync(0, lastReceivedContentOn.Value);
 
                 skip += retrievedRecords;
                 if (retrievedRecords == 0) continueFetchingRecords = false;
+                else if (importDelayMs.HasValue && importDelayMs > 0)
+                {
+                    // Artificial delay to reduce creating lag.
+                    await Task.Delay(importDelayMs.Value);
+                }
             }
             catch (Exception ex)
             {
@@ -323,7 +329,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
 
             // Fetch or create a content reference.  This is a locking mechanism to ensure only one process works on a single piece of content.
             var addOrUpdateContent = forceUpdate;
-            var reference = await this.FindContentReferenceAsync(source?.Code, newsItem.RSN.ToString());
+            var reference = await this.FindContentReferenceAsync(source?.Code, sourceContent.Uid);
             if (reference == null)
             {
                 addOrUpdateContent = true;

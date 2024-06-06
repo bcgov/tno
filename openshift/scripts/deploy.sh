@@ -30,6 +30,7 @@ podsSubscriber=$(getPods subscriber dc $env)
 
 # podsCapture=$(getPods capture-service dc $env)
 podsContentMigration=$(getPods contentmigration-service dc $env)
+podsContentMigrationRecent=$(getPods contentmigration-recent-service dc $env)
 podsContentMigrationHistoric=$(getPods contentmigration-historic-service dc $env)
 podsFileMonitor=$(getPods filemonitor-service dc $env)
 podsSyndication=$(getPods syndication-service dc $env)
@@ -104,6 +105,7 @@ scale subscriber $podsSubscriber dc $env
 
 # scale capture-service $podsCapture dc $env
 scale contentmigration-service $podsContentMigration dc $env
+scale contentmigration-recent-service $podsContentMigrationRecent dc $env
 scale contentmigration-historic-service $podsContentMigrationHistoric dc $env
 scale filemonitor-service $podsFileMonitor dc $env
 scale syndication-service $podsSyndication dc $env
