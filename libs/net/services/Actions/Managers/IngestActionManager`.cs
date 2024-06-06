@@ -69,13 +69,13 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     {
         if (this.Ingest.IsEnabled && (!this.Ingest.IngestSchedules.Any() || this.Ingest.IngestSchedules.All(s => s.Schedule == null)))
         {
-            this.Logger.LogWarning($"Ingest [{this.Ingest.Name}] is enabled but has NO schedules.  Ingest will be SKIPPED.");
+            this.Logger.LogWarning("Ingest [{name}] is enabled but has NO schedules.  Ingest will be SKIPPED.", this.Ingest.Name);
             return Task.FromResult(false);
         }
 
         if (this.Ingest.IsEnabled && !this.Ingest.IngestSchedules.Any(s => s.Schedule?.IsEnabled == true))
         {
-            this.Logger.LogWarning($"Ingest [{this.Ingest.Name}] is enabled but has NO enabled schedules.  Ingest will be SKIPPED.");
+            this.Logger.LogWarning("Ingest [{name}] is enabled but has NO enabled schedules.  Ingest will be SKIPPED.", this.Ingest.Name);
             return Task.FromResult(false);
         }
 

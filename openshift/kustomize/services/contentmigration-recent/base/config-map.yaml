@@ -3,16 +3,16 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: contentmigration-historic-service
+  name: contentmigration-recent-service
   namespace: default
   annotations:
-    description: Content Migration HISTORIC service configuration settings
+    description: Content Migration RECENT service configuration settings
     created-by: kyle.morris
   labels:
-    name: contentmigration-historic-service
+    name: contentmigration-recent-service
     part-of: tno
     version: 1.0.0
-    component: contentmigration-historic-service
+    component: contentmigration-recent-service
     managed-by: kustomize
 data:
   MAX_FAIL_LIMIT: "5"
@@ -20,7 +20,7 @@ data:
   CONTENT_MIGRATION_MEDIA_HOST_ROOT_URI: "https://tno.gov.bc.ca/av"
   # Filter per instance
   INGEST_TYPES: "TNO-AudioVideo,TNO-Image,TNO-PrintContent,TNO-Story"
-  SUPPORTED_IMPORT_MIGRATION_TYPES: "Historic,All"
+  SUPPORTED_IMPORT_MIGRATION_TYPES: "Recent"
   DEFAULT_USERNAME_FOR_AUDIT: "contentmigrator"
   GENERATE_ALERTS_ON_CONTENT_MIGRATION: "true"
   CHES_EMAIL_ENABLED: "true"

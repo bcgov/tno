@@ -1,5 +1,6 @@
 import { Action } from 'components/action';
 import { Bar } from 'components/bar';
+import { Modal } from 'components/modal';
 import { PageSection } from 'components/section';
 import React from 'react';
 import { FaClipboard } from 'react-icons/fa6';
@@ -7,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useColleagues } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { IUserColleagueModel, Modal, Row, useModal } from 'tno-core';
+import { IUserColleagueModel, Row, useModal } from 'tno-core';
 
 import { ColleagueCard } from './ColleagueCard';
 import * as styled from './styled/MyColleagues';
@@ -27,7 +28,7 @@ export const MyColleagues: React.FC = () => {
 
   const handleDelete = React.useCallback(
     async (model: IUserColleagueModel) => {
-      if (!!model) {
+      if (model) {
         try {
           await deleteColleague(model);
           toast.success(`Successfully deleted '${model.colleague?.email}' as colleague.`);

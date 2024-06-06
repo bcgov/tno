@@ -16,7 +16,6 @@ import {
   Row,
   Show,
   TimeInput,
-  useFormikHelpers,
 } from 'tno-core';
 
 import { ImportMigrationType } from './constants';
@@ -25,110 +24,50 @@ import * as styled from './styled';
 
 export const DbMigration: React.FC = (props) => {
   const { values, setFieldValue } = useFormikContext<IIngestModel>();
-  const { applyPlaceholder } = useFormikHelpers();
-
-  const minMigrationIngestSpanInDays = 1;
-  const maxMigrationIngestSpanInYears = 1;
-
-  const maxEndDate = React.useMemo(() => {
-    let dateTimeNow = moment();
-    let returnVal;
-    if (values.configuration.importDateStart) {
-      const startDatePlusMaxSpan = moment(
-        values.configuration.importDateStart,
-        'YYYY-MM-DD hh:mm:ss a',
-      ).add(maxMigrationIngestSpanInYears, 'year');
-      returnVal = startDatePlusMaxSpan > dateTimeNow ? dateTimeNow : startDatePlusMaxSpan;
-    } else {
-      returnVal = dateTimeNow;
-    }
-    return returnVal.toDate();
-  }, [values.configuration.importDateStart]);
-
-  const minEndDate = React.useMemo(() => {
-    let dateTimeNow = moment();
-    let returnVal;
-    if (values.configuration.importDateStart) {
-      const startDatePlusMinSpan = moment(
-        values.configuration.importDateStart,
-        'YYYY-MM-DD hh:mm:ss a',
-      ).add(minMigrationIngestSpanInDays, 'day');
-      returnVal = startDatePlusMinSpan > dateTimeNow ? dateTimeNow : startDatePlusMinSpan;
-    } else {
-      returnVal = moment().subtract(maxMigrationIngestSpanInYears, 'year');
-    }
-    return returnVal.toDate();
-  }, [values.configuration.importDateStart]);
-
-  const minStartDate = React.useMemo(() => {
-    let returnVal;
-    if (values.configuration.importDateEnd) {
-      returnVal = moment(values.configuration.importDateEnd, 'YYYY-MM-DD hh:mm:ss a').subtract(
-        maxMigrationIngestSpanInYears,
-        'year',
-      );
-    } else {
-      returnVal = moment().subtract(maxMigrationIngestSpanInYears, 'year');
-    }
-    return returnVal.toDate();
-  }, [values.configuration.importDateEnd]);
-
-  const maxStartDate = React.useMemo(() => {
-    let returnVal;
-    if (values.configuration.importDateEnd) {
-      returnVal = moment(values.configuration.importDateEnd, 'YYYY-MM-DD hh:mm:ss a').subtract(
-        minMigrationIngestSpanInDays,
-        'day',
-      );
-    } else {
-      returnVal = moment().subtract(minMigrationIngestSpanInDays, 'day');
-    }
-    return returnVal.toDate();
-  }, [values.configuration.importDateEnd]);
 
   return (
     <styled.IngestType>
       <ImportContent />
-      <Col gap="0.5rem">
-        <p>
-          Max Ingest window is&nbsp;{maxMigrationIngestSpanInYears} Year(s). Min Ingest window
-          is&nbsp;{minMigrationIngestSpanInDays} Day(s)
-        </p>
-        <FormikRadioGroup
-          label="Migration Type"
-          name="importMigrationType"
-          value={values.configuration.importMigrationType ?? ImportMigrationType.Current}
-          onChange={(val) => {
-            const configuration = {
-              ...values.configuration,
-              importMigrationType: val.target.value,
-              offsetHours:
-                val.target.value === ImportMigrationType.Historic ||
-                val.target.value === ImportMigrationType.All
-                  ? undefined
-                  : values.configuration.offsetHours,
-              importDateStart:
-                val.target.value === ImportMigrationType.Current
-                  ? undefined
-                  : values.configuration.importDateStart,
-              importDateEnd:
-                val.target.value === ImportMigrationType.Current
-                  ? undefined
-                  : values.configuration.importDateEnd,
-            };
-            setFieldValue('configuration', configuration);
-          }}
-          options={[
-            ImportMigrationType.Historic,
-            ImportMigrationType.All,
-            ImportMigrationType.Recent,
-            ImportMigrationType.Current,
-          ]}
-          required={true}
-        />
-        <FormikCheckbox name="configuration.publishedOnly" label="Published Content Only" />
-        <FormikCheckbox name="configuration.forceUpdate" label="Force Update" />
-      </Col>
+      <Row gap="1rem">
+        <Col flex="1">
+          <FormikRadioGroup
+            label="Migration Type"
+            name="importMigrationType"
+            value={values.configuration.importMigrationType ?? ImportMigrationType.Current}
+            onChange={(val) => {
+              const configuration = {
+                ...values.configuration,
+                importMigrationType: val.target.value,
+                offsetHours:
+                  val.target.value === ImportMigrationType.Historic ||
+                  val.target.value === ImportMigrationType.All
+                    ? undefined
+                    : values.configuration.offsetHours,
+                importDateStart:
+                  val.target.value === ImportMigrationType.Current
+                    ? undefined
+                    : values.configuration.importDateStart,
+                importDateEnd:
+                  val.target.value === ImportMigrationType.Current
+                    ? undefined
+                    : values.configuration.importDateEnd,
+              };
+              setFieldValue('configuration', configuration);
+            }}
+            options={[
+              ImportMigrationType.Historic,
+              ImportMigrationType.All,
+              ImportMigrationType.Recent,
+              ImportMigrationType.Current,
+            ]}
+            required={true}
+          />
+        </Col>
+        <Col flex="1" gap="0.5rem">
+          <FormikCheckbox name="configuration.publishedOnly" label="Published Content Only" />
+          <FormikCheckbox name="configuration.forceUpdate" label="Force Update" />
+        </Col>
+      </Row>
       <Show visible={values.configuration.importMigrationType !== ImportMigrationType.Current}>
         <Row>
           <Col>
@@ -138,23 +77,28 @@ export const DbMigration: React.FC = (props) => {
               autoComplete="false"
               width={FieldSize.Medium}
               selectedDate={
-                !!values.configuration.importDateStart
-                  ? moment(values.configuration.importDateStart).toString()
-                  : undefined
+                values.configuration.importDateStart
+                  ? moment(values.configuration.importDateStart).toLocaleString()
+                  : ''
               }
-              required={values.configuration.importMigrationType === ImportMigrationType.Historic}
-              minDate={minStartDate}
-              maxDate={maxStartDate}
+              required={!values.configuration.offsetHours}
               onChange={(date) => {
-                if (values.configuration.importDateStart) {
-                  const hours = values.configuration.importDateStart.split(':');
-                  if (hours && date) {
-                    date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
-                  }
+                if (
+                  date &&
+                  values.configuration.importDateStart &&
+                  moment(date).isValid() &&
+                  moment(values.configuration.importDateStart).isValid()
+                ) {
+                  const importDateStart = moment(values.configuration.importDateStart);
+                  date.setHours(
+                    importDateStart.hour(),
+                    importDateStart.minute(),
+                    importDateStart.second(),
+                  );
                 }
 
                 const value = moment(date).isValid()
-                  ? moment(date).format('YYYY-MM-DD h:mm:ss a')
+                  ? moment(date).format('YYYY-MM-DD HH:mm:ss a')
                   : undefined;
                 setFieldValue('configuration.importDateStart', value);
               }}
@@ -168,24 +112,12 @@ export const DbMigration: React.FC = (props) => {
               width="7em"
               value={
                 !!values.configuration.importDateStart
-                  ? formatDate(
-                      moment(
-                        values.configuration.importDateStart,
-                        'YYYY-MM-DD hh:mm:ss a',
-                      ).toISOString(),
-                      'HH:mm:ss',
-                    )
+                  ? formatDate(values.configuration.importDateStart, 'HH:mm:ss')
                   : undefined
               }
               placeholder={
                 !!values.configuration.importDateStart
-                  ? formatDate(
-                      moment(
-                        values.configuration.importDateStart,
-                        'YYYY-MM-DD hh:mm:ss a',
-                      ).toISOString(),
-                      'HH:mm:ss',
-                    )?.toString()
+                  ? formatDate(values.configuration.importDateStart, 'HH:mm:ss')?.toString()
                   : 'HH:MM:SS'
               }
               onChange={(e) => {
@@ -195,7 +127,7 @@ export const DbMigration: React.FC = (props) => {
                   date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
                   setFieldValue(
                     'configuration.importDateStart',
-                    moment(date.toISOString()).format('YYYY-MM-DD h:mm:ss a'),
+                    moment(date.toISOString()).format('YYYY-MM-DD HH:mm:ss a'),
                   );
                 }
               }}
@@ -222,24 +154,24 @@ export const DbMigration: React.FC = (props) => {
               label="Import End Date"
               autoComplete="false"
               width={FieldSize.Medium}
-              selectedDate={
-                !!values.configuration.importDateEnd
-                  ? moment(values.configuration.importDateEnd).toString()
-                  : undefined
-              }
-              required={values.configuration.importMigrationType === ImportMigrationType.Historic}
-              minDate={minEndDate}
-              maxDate={maxEndDate}
+              selectedDate={values.configuration.importDateEnd ?? ''}
               onChange={(date) => {
-                if (values.configuration.importDateEndTime) {
-                  const hours = values.configuration.importDateEndTime.split(':');
-                  if (hours && date) {
-                    date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
-                  }
+                if (
+                  date &&
+                  values.configuration.importDateEndTime &&
+                  moment(date).isValid() &&
+                  moment(values.configuration.importDateEndTime).isValid()
+                ) {
+                  const importDateEndTime = moment(values.configuration.importDateEndTime);
+                  date.setHours(
+                    importDateEndTime.hour(),
+                    importDateEndTime.minute(),
+                    importDateEndTime.second(),
+                  );
                 }
 
                 const value = moment(date).isValid()
-                  ? moment(date).format('YYYY-MM-DD h:mm:ss a')
+                  ? moment(date).format('YYYY-MM-DD HH:mm:ss a')
                   : undefined;
                 setFieldValue('configuration.importDateEnd', value);
               }}
@@ -253,25 +185,13 @@ export const DbMigration: React.FC = (props) => {
               width="7em"
               value={
                 !!values.configuration.importDateEnd
-                  ? formatDate(
-                      moment(
-                        values.configuration.importDateEnd,
-                        'YYYY-MM-DD hh:mm:ss a',
-                      ).toISOString(),
-                      'HH:mm:ss',
-                    )
+                  ? formatDate(values.configuration.importDateEnd, 'HH:mm:ss')
                   : ''
               }
               placeholder={
                 !!values.configuration.importDateEnd
-                  ? formatDate(
-                      moment(
-                        values.configuration.importDateEnd,
-                        'YYYY-MM-DD hh:mm:ss a',
-                      ).toISOString(),
-                      'HH:mm:ss',
-                    )?.toString()
-                  : 'HH:MM:SS'
+                  ? formatDate(values.configuration.importDateEnd, 'HH:mm:ss')?.toString()
+                  : 'HH:mm:ss'
               }
               onChange={(e) => {
                 const date = new Date(values.configuration.importDateEnd);
@@ -280,7 +200,7 @@ export const DbMigration: React.FC = (props) => {
                   date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
                   setFieldValue(
                     'configuration.importDateEnd',
-                    moment(date.toISOString()).format('YYYY-MM-DD h:mm:ss a'),
+                    moment(date.toISOString()).format('YYYY-MM-DD HH:mm:ss a'),
                   );
                 }
               }}
@@ -301,32 +221,57 @@ export const DbMigration: React.FC = (props) => {
           </Col>
         </Row>
       </Show>
-
-      <Show
-        visible={
-          ![ImportMigrationType.Historic, ImportMigrationType.All].includes(
-            values.configuration.importMigrationType,
-          )
-        }
-      >
-        <FormikText
-          label="Migration offset in hours"
-          name="configuration.offsetHours"
-          value={values.configuration.offsetHours}
-          type="number"
-          min="0"
-          width="10ch"
-          size={5}
-          onClick={applyPlaceholder}
-        />
-      </Show>
+      <Row gap="1rem">
+        <Show
+          visible={
+            ![ImportMigrationType.Historic, ImportMigrationType.All].includes(
+              values.configuration.importMigrationType,
+            )
+          }
+        >
+          <Col flex="1">
+            <FormikText
+              label="Migration offset in hours"
+              name="configuration.offsetHours"
+              type="number"
+              min="0"
+              width="10ch"
+              size={5}
+              value={values.configuration.offsetHours ?? ''}
+              onChange={(e) => {
+                const value = e.currentTarget.value;
+                const offset = value && !isNaN(Number(value)) ? Number(value) : undefined;
+                setFieldValue('configuration.offsetHours', offset);
+              }}
+            />
+          </Col>
+        </Show>
+        <Col flex="1">
+          <FormikText
+            label="Import Delay in seconds"
+            name="configuration.importDelayMs"
+            type="number"
+            min="0"
+            width="10ch"
+            size={5}
+            value={
+              values.configuration.importDelayMs ? values.configuration.importDelayMs / 1000 : ''
+            }
+            onChange={(e) => {
+              const value = e.currentTarget.value;
+              const delay = value && !isNaN(Number(value)) ? Number(value) * 1000 : undefined;
+              setFieldValue('configuration.importDelayMs', delay);
+            }}
+          />
+        </Col>
+      </Row>
       <Row>
         <Col flex="1 1 1">
           <FormikText
             label="Creation Date of Last Imported Item"
             disabled
             name="creationDateOfLastItem"
-            value={values.creationDateOfLastItem}
+            value={values.creationDateOfLastItem ?? ''}
             tooltip="The Creation Date of the last item imported from the Source System"
             formatter={(value) => formatDate(value, 'YYYY-MM-DD h:mm:ss a')}
           />
