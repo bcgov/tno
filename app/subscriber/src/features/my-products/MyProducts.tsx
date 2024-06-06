@@ -1,9 +1,10 @@
+import { Modal } from 'components/modal';
 import { PageSection } from 'components/section';
 import React from 'react';
 import { FaEnvelope, FaUserPlus } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useProducts } from 'store/hooks';
-import { IProductSubscriberModel, Modal, Row, Show, useModal } from 'tno-core';
+import { IProductSubscriberModel, Row, Show, useModal } from 'tno-core';
 
 import { ProductCard } from './ProductCard';
 import * as styled from './styled';
