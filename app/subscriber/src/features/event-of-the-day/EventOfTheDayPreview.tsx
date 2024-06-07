@@ -3,7 +3,7 @@ import moment from 'moment';
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useContent, useLookup, useReports } from 'store/hooks';
+import { useContent, useLookup, useReportInstances } from 'store/hooks';
 import { Col, IReportResultModel, Loading, Show } from 'tno-core';
 
 import * as styled from './styled';
@@ -19,24 +19,17 @@ const EventOfTheDayPreview: React.FC = () => {
   const dateUrlParam = params.get('date')
     ? params.get('date')
     : moment(new Date()).endOf('day').toISOString();
-  const [, { findInstanceForReportIdAndDate }] = useReports();
+  const [{ getReportInstance }] = useReportInstances();
   const [{ settings }] = useLookup();
   const [date, setDate] = React.useState<string>();
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [preview, setPreview] = React.useState<IReportResultModel | undefined>();
 
-  const clear = () => {
-    setIsLoading(true);
-    setPreview(undefined);
-  };
-
   // Used to refresh preview data for newly selected date
   const handleChangeReportDate = React.useCallback(
     async (overrideDate?: string) => {
       try {
-        clear();
-
         const filterDate = moment(overrideDate ?? eventOfTheDayFilter?.startDate)
           .startOf('day')
           .toISOString();
@@ -44,7 +37,7 @@ const EventOfTheDayPreview: React.FC = () => {
         setDate(filterDate);
         const reportId = settings.find((x) => x.name === 'EventOfTheDayReportId')?.value;
         if (reportId) {
-          const instance = await findInstanceForReportIdAndDate(parseInt(reportId), filterDate);
+          const instance = await getReportInstance(parseInt(reportId), false, filterDate);
           setPreview(instance);
         } else {
           toast.error(`Configuration EventOfTheDayReportId is missing from settings.`);
@@ -54,7 +47,7 @@ const EventOfTheDayPreview: React.FC = () => {
         setIsLoading(false);
       }
     },
-    [eventOfTheDayFilter?.startDate, settings, findInstanceForReportIdAndDate],
+    [eventOfTheDayFilter?.startDate, settings, getReportInstance],
   );
 
   React.useEffect(() => {

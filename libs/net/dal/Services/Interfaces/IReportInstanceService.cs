@@ -20,7 +20,7 @@ public interface IReportInstanceService : IBaseService<ReportInstance, long>
     /// <param name="reportId"></param>
     /// <param name="date"></param>
     /// <returns></returns>
-    ReportInstance? FindInstanceForReportIdAndDate(int reportId, DateTime date);
+    ReportInstance? FindInstanceForReportIdAndDate(long reportId, DateTime date);
 
     /// <summary>
     /// Get all the content items for the specified instance.
