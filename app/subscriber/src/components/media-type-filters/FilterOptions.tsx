@@ -32,6 +32,7 @@ export interface IMediaTypeFiltersProps {
     | 'myMinister'
     | 'topStories'
     | 'avOverview'
+    | 'eventOfTheDay'
     | 'pressGalleryFilter';
 }
 

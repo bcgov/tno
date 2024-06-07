@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
+import { toQueryString } from '../../../utils';
 import {
   defaultEnvelope,
   ILifecycleToasts,
@@ -26,9 +27,12 @@ export const useApiSubscriberReportInstances = (
   const download = useDownload(api);
 
   return React.useRef({
-    getReportInstance: (id: number, includeContent?: boolean) => {
+    getReportInstance: (id: number, includeContent?: boolean, publishedOn?: Date | string) => {
+      const query = { publishedOn };
       return api.get<never, AxiosResponse<IReportInstanceModel | undefined>, any>(
-        `/subscriber/report/instances/${id}?includeContent=${!!includeContent}`,
+        `/subscriber/report/instances/${id}?includeContent=${!!includeContent}${
+          publishedOn && `&${toQueryString(query)}`
+        }`,
       );
     },
     addReportInstance: (instance: IReportInstanceModel) => {

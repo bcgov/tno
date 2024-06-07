@@ -44,4 +44,7 @@ export const initialContentState: IContentState = {
   avOverview: {
     filter: defaultContentFilter,
   },
+  eventOfTheDay: {
+    filter: defaultContentFilter,
+  },
 };
