@@ -241,7 +241,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             try
             {
                 var items = GetNewsItems(manager.Ingest.IngestType.ContentType, importMigrationType, contentMigrator, publishedOnly, offsetHours, importDateStart, importDateEnd, creationDateOfLastImport, skip);
-                retrievedRecords = items.Count();
+                retrievedRecords = items.Length;
                 this.Logger.LogDebug("Ingest [{name}] retrieved [{countOfRecordsRetrieved}] records", manager.Ingest.Name, retrievedRecords);
 
                 DateTime? lastReceivedContentOn = null;
@@ -269,7 +269,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 else if (importDelayMs.HasValue && importDelayMs > 0)
                 {
                     // Artificial delay to reduce creating lag.
-                    await Task.Delay(importDelayMs.Value);
+                    await Task.Delay(importDelayMs.Value, cancellationToken);
                 }
             }
             catch (Exception ex)
