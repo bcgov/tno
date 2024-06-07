@@ -149,6 +149,11 @@ spec:
                 configMapKeyRef:
                   name: folder-collection-service
                   key: TOPICS
+            - name: Service__IgnoreContentPublishedBeforeOffset
+              valueFrom:
+                configMapKeyRef:
+                  name: folder-collection-service
+                  key: IGNORE_CONTENT_PUBLISHED_BEFORE_OFFSET
 
             # CHES Configuration
             - name: CHES__From
