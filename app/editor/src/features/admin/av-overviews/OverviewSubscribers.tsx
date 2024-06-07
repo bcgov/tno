@@ -81,7 +81,7 @@ export const OverviewSubscribers: React.FC = () => {
           { name: 'email', label: 'Email', sortable: true },
           { name: 'sendTo', label: 'Send as' },
         ]}
-        renderRow={(row: IUserAVOverviewModel, rowIndex) => [
+        renderColumns={(row: IUserAVOverviewModel, rowIndex) => [
           <Checkbox
             key=""
             name={`chk-${row.id}`}

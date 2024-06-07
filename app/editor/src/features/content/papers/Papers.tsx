@@ -1,5 +1,6 @@
 import { SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
-import { NavigateOptions, useTab } from 'components/tab-control';
+import { Status } from 'components/status';
+import { NavigateOptions, TabControl, useTab } from 'components/tab-control';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -7,18 +8,24 @@ import { useApiHub, useContent, useLocalStorage, useSettings } from 'store/hooks
 import { IContentSearchResult, storeContentFilterAdvanced } from 'store/slices';
 import { useCastContentToSearchResult } from 'store/slices/content/hooks/useCastContentToSearchResult';
 import {
+  CellEllipsis,
+  Checkbox,
   Col,
   ContentStatusName,
   FlexboxTable,
+  Grid,
   IContentModel,
+  IGridHeaderColumnProps,
   ITableInternalCell,
   ITableInternalRow,
   ITablePage,
   ITableSort,
+  LogicalOperator,
   MessageTargetName,
   Page,
   replaceQueryParams,
   Row,
+  SortDirection,
 } from 'tno-core';
 
 import { AdvancedSearchKeys } from '../constants';
@@ -45,7 +52,13 @@ const Papers: React.FC<IPapersProps> = (props) => {
   const { id } = useParams();
   const [
     { filterPaper: filter, filterPaperAdvanced: filterAdvanced },
-    { findContentWithElasticsearch, storeFilterPaper, updateContent: updateStatus, getContent },
+    {
+      findContentWithElasticsearch,
+      storeFilterPaper,
+      updateContent: updateStatus,
+      getContent,
+      storeFilterPaperAdvanced,
+    },
   ] = useContent();
   const paperSources = usePaperSources();
   const { navigate } = useTab();
@@ -263,6 +276,64 @@ const Papers: React.FC<IPapersProps> = (props) => {
     [currentResultsPage],
   );
 
+  /////// NEW STUFF
+
+  const handleQuantityChange = React.useCallback(
+    (quantity: number) => {
+      if (filter.pageSize !== quantity) {
+        const newFilter = {
+          ...filter,
+          pageSize: quantity,
+        };
+        storeFilterPaper(newFilter);
+        replaceQueryParams(newFilter, { includeEmpty: false });
+      }
+    },
+    [filter, storeFilterPaper],
+  );
+
+  const handlePageChange = React.useCallback(
+    (page: number) => {
+      if (filter.pageIndex !== page - 1) {
+        const newFilter = {
+          ...filter,
+          pageIndex: page - 1,
+        };
+        storeFilterPaper(newFilter);
+        replaceQueryParams(newFilter, { includeEmpty: false });
+      }
+    },
+    [filter, storeFilterPaper],
+  );
+
+  const handleSortChange = React.useCallback(
+    (column: IGridHeaderColumnProps, direction: SortDirection) => {
+      if (column.name) {
+        const sort =
+          direction === SortDirection.None
+            ? []
+            : [{ id: column.name, desc: direction === SortDirection.Descending }];
+        storeFilterPaper({ ...filter, sort });
+      }
+    },
+    [filter, storeFilterPaper],
+  );
+
+  const handleContentClick = (id: number, event: React.MouseEvent<Element, MouseEvent>) => {
+    setContentId(id.toString());
+    setCurrentItemId(id);
+    if (event.ctrlKey) navigate(id, '/contents', NavigateOptions.NewTab);
+    else navigate(id);
+  };
+
+  const handleSelectedContentChange = (row: ITableInternalRow<IContentSearchResult>) => {
+    if (row.isSelected) {
+      setSelected(row.table.rows.filter((r) => r.isSelected).map((r) => r.original));
+    } else {
+      setSelected((selected) => selected.filter((r) => r.id !== row.original.id));
+    }
+  };
+
   return (
     <styled.Papers>
       <Col wrap="nowrap">
@@ -286,7 +357,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
           </div>
         </div>
         <Row className="content-list">
-          <FlexboxTable
+          {/* <FlexboxTable
             rowId="id"
             columns={columns}
             data={currentResultsPage.items}
@@ -304,6 +375,148 @@ const Papers: React.FC<IPapersProps> = (props) => {
             onCellClick={handleRowClick}
             onSelectedChanged={handleSelectedRowsChanged}
             selectedRowIds={selectedIds}
+          /> */}
+          <Grid
+            items={currentResultsPage.items}
+            pageIndex={currentResultsPage.pageIndex}
+            itemsPerPage={currentResultsPage.pageSize}
+            totalItems={currentResultsPage.total}
+            showPaging
+            onNavigatePage={async (page) => {
+              handlePageChange(page);
+            }}
+            onQuantityChange={async (quantity) => {
+              handleQuantityChange(quantity);
+            }}
+            onSortChange={async (column, direction) => {
+              handleSortChange(column, direction);
+            }}
+            renderHeader={() => [
+              { name: 'isChecked', label: '', size: '30px' },
+              {
+                name: 'headline',
+                label: (
+                  <Row gap="0.5rem" key="">
+                    <TabControl />
+                    Headline
+                  </Row>
+                ),
+              },
+              { name: 'otherSource', label: 'Source', sortable: true },
+              { name: 'mediaTypeId', label: 'Media Type', sortable: true },
+              {
+                name: 'page',
+                label: (
+                  <Row nowrap key="">
+                    Page:Section
+                    <Checkbox
+                      name="page"
+                      checked={
+                        filterAdvanced.fieldType === AdvancedSearchKeys.Page &&
+                        filterAdvanced.searchTerm === '?*'
+                      }
+                      onChange={async (e) => {
+                        const values = {
+                          ...filterAdvanced,
+                          fieldType: AdvancedSearchKeys.Page,
+                          searchTerm: e.target.checked ? '?*' : '',
+                          logicalOperator: LogicalOperator.Equals,
+                        };
+                        storeFilterPaperAdvanced(values);
+                        await fetch({ ...filter, ...values });
+                      }}
+                    />
+                  </Row>
+                ),
+                sortable: true,
+              },
+              { name: 'status', label: 'Use', size: '50px' },
+            ]}
+            renderColumns={(row: IContentSearchResult, rowIndex) => {
+              const isSelected = selected.some((c) => row.id === c.id);
+              const separator = row.page && row.section ? ':' : '';
+              const pageSection = `${row.page}${separator}${row.section}`;
+
+              return [
+                {
+                  key: row.id.toString(),
+                  column: (
+                    <div key="">
+                      <Checkbox
+                        name={`chk-content-${row.id}`}
+                        value={isSelected}
+                        onChange={(e) =>
+                          setSelected((selected) => {
+                            if (e.target.checked) return [...selected, row];
+                            else return selected.filter((c) => c.id !== row.id);
+                          })
+                        }
+                      />
+                    </div>
+                  ),
+                },
+                {
+                  column: (
+                    <div
+                      key=""
+                      className="clickable"
+                      onClick={(e) => handleContentClick(row.id, e)}
+                    >
+                      <CellEllipsis>{row.headline}</CellEllipsis>
+                    </div>
+                  ),
+                },
+                {
+                  column: (
+                    <div
+                      className="clickable"
+                      key=""
+                      onClick={(e) => handleContentClick(row.id, e)}
+                    >
+                      <CellEllipsis>{row.otherSource}</CellEllipsis>
+                    </div>
+                  ),
+                },
+                {
+                  column: (
+                    <div
+                      className="clickable"
+                      key=""
+                      onClick={(e) => handleContentClick(row.id, e)}
+                    >
+                      <CellEllipsis
+                        className="clickable"
+                        key=""
+                        onClick={(e) => handleContentClick(row.id, e)}
+                      >
+                        {row.mediaType}
+                      </CellEllipsis>
+                    </div>
+                  ),
+                },
+                {
+                  column: (
+                    <div
+                      className="clickable"
+                      key=""
+                      onClick={(e) => handleContentClick(row.id, e)}
+                    >
+                      {pageSection}
+                    </div>
+                  ),
+                },
+                {
+                  column: (
+                    <div key="" className="clickable">
+                      <Status
+                        value={row.status}
+                        onClick={(status) => handleClickUse({ ...row, status: status })}
+                      />
+                    </div>
+                  ),
+                },
+              ];
+            }}
           />
         </Row>
         <ReportActions
