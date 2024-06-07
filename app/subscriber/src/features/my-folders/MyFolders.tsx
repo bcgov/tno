@@ -1,23 +1,19 @@
-import { SubscriberTableContainer } from 'components/table';
 import React from 'react';
 import { FaFolderPlus, FaWandMagicSparkles } from 'react-icons/fa6';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp } from 'store/hooks';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
-import { Col, FlexboxTable, Row, Text } from 'tno-core';
+import { Col, Row, Text } from 'tno-core';
 
-import { useColumns } from './hooks';
+import { FolderList } from './FolderList';
 import * as styled from './styled';
 
 export interface IMyFoldersProps {}
 
 /** contains a list of the user's folders, allows for edit and viewing */
 export const MyFolders: React.FC<IMyFoldersProps> = () => {
-  const navigate = useNavigate();
   const [{ userInfo }] = useApp();
   const [{ myFolders }, { findMyFolders, addFolder }] = useFolders();
-  const columns = useColumns();
 
   const [newFolderName, setNewFolderName] = React.useState<string>('');
 
@@ -75,19 +71,7 @@ export const MyFolders: React.FC<IMyFoldersProps> = () => {
         </Row>
       </Col>
       <Row>
-        <SubscriberTableContainer>
-          <FlexboxTable
-            pagingEnabled={false}
-            columns={columns}
-            rowId={'id'}
-            disableZebraStriping
-            onRowClick={(e) => {
-              navigate(`/folders/view/${e.original.id}`);
-            }}
-            data={myFolders}
-            showActive={false}
-          />
-        </SubscriberTableContainer>
+        <FolderList folders={myFolders} />
       </Row>
     </styled.MyFolders>
   );
