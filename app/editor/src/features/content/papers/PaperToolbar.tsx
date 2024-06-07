@@ -122,8 +122,10 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
             <FaFileImage
               className="action-button btn-preview"
               title="Front Page Images"
-              onClick={(e) => {
+              onClick={async (e) => {
                 if (frontPageImagesReportId) {
+                  const hasContent = await checkReportContent(frontPageImagesReportId);
+                  if (!hasContent) return;
                   setSendInfo({
                     name: 'Front Page Images',
                     value: frontPageImagesReportId,
