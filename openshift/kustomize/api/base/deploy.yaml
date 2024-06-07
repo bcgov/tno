@@ -182,9 +182,6 @@ spec:
                   name: elastic
                   key: PASSWORD
 
-            - name: Charts__Url
-              value: "http://charts-api:8080"
-
             - name: Reporting__SubscriberAppUrl
               valueFrom:
                 configMapKeyRef:

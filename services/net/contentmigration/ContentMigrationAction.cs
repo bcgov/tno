@@ -213,22 +213,35 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             }
         }
 
-        var importDateStartValue = manager.Ingest.GetConfigurationValue<string?>("importDateStart", null);
-        var importDateEndValue = manager.Ingest.GetConfigurationValue<string?>("importDateEnd", null);
-        var importDateStart = !String.IsNullOrWhiteSpace(importDateStartValue) ? DateTime.Parse(importDateStartValue).ToTimeZone(defaultTimeZone) : (DateTime?)null;
-        var importDateEnd = !String.IsNullOrWhiteSpace(importDateEndValue) ? DateTime.Parse(importDateEndValue).ToTimeZone(defaultTimeZone) : (DateTime?)null;
+        // Capture original so that we know if they change mid import.
+        var originalImportDateStartValue = manager.Ingest.GetConfigurationValue<string?>("importDateStart", null);
+        var originalImportDateEndValue = manager.Ingest.GetConfigurationValue<string?>("importDateEnd", null);
+        var originalImportDateStart = !String.IsNullOrWhiteSpace(originalImportDateStartValue) ? DateTime.Parse(originalImportDateStartValue).ToTimeZone(defaultTimeZone) : (DateTime?)null;
+        var originalImportDateEnd = !String.IsNullOrWhiteSpace(originalImportDateEndValue) ? DateTime.Parse(originalImportDateEndValue).ToTimeZone(defaultTimeZone) : (DateTime?)null;
+        var originalOffsetHours = manager.Ingest.GetConfigurationValue<int?>("offsetHours", null);
+
         var creationDateOfLastImport = manager.Ingest.CreationDateOfLastItem;
-        var offsetHours = manager.Ingest.GetConfigurationValue<int?>("offsetHours", null);
-        var importDelayMs = manager.Ingest.GetConfigurationValue<int?>("importDelayMs", null);
-        var forceUpdate = manager.Ingest.GetConfigurationValue<bool>("forceUpdate", this.Options.ForceUpdate);
         var retrievedRecords = 0;
         var continueFetchingRecords = true;
         while (continueFetchingRecords && (maxRecordsPerRetrieval > 0) && (skip < maxIngestedRecords))
         {
+            if (manager.Ingest.IngestType == null) throw new ConfigurationException("Ingest type cannot be null.");
+
+            var importDateStartValue = manager.Ingest.GetConfigurationValue<string?>("importDateStart", null);
+            var importDateEndValue = manager.Ingest.GetConfigurationValue<string?>("importDateEnd", null);
+            var importDateStart = !String.IsNullOrWhiteSpace(importDateStartValue) ? DateTime.Parse(importDateStartValue).ToTimeZone(defaultTimeZone) : (DateTime?)null;
+            var importDateEnd = !String.IsNullOrWhiteSpace(importDateEndValue) ? DateTime.Parse(importDateEndValue).ToTimeZone(defaultTimeZone) : (DateTime?)null;
+            var offsetHours = manager.Ingest.GetConfigurationValue<int?>("offsetHours", null);
+            var importDelayMs = manager.Ingest.GetConfigurationValue<int?>("importDelayMs", null);
+            var forceUpdate = manager.Ingest.GetConfigurationValue<bool>("forceUpdate", this.Options.ForceUpdate);
+
+            // If the config changes, start from the beginning again.
+            if (originalImportDateStart != importDateStart || originalImportDateEnd != importDateEnd || originalOffsetHours != offsetHours) skip = 0;
+
             try
             {
                 var items = GetNewsItems(manager.Ingest.IngestType.ContentType, importMigrationType, contentMigrator, publishedOnly, offsetHours, importDateStart, importDateEnd, creationDateOfLastImport, skip);
-                retrievedRecords = items.Count();
+                retrievedRecords = items.Length;
                 this.Logger.LogDebug("Ingest [{name}] retrieved [{countOfRecordsRetrieved}] records", manager.Ingest.Name, retrievedRecords);
 
                 DateTime? lastReceivedContentOn = null;
@@ -244,19 +257,19 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                     lastReceivedContentOn = newsItem.UpdatedOn;
 
                     // This ingest has just processed a story.
-                    await manager.UpdateIngestStateFailedAttemptsAsync(0);
+                    manager.Ingest = await manager.UpdateIngestStateFailedAttemptsAsync(0);
                 });
 
                 // Inform the ingest to pick up where it left off so that the next time it runs it will continue rather than restart.
                 if (lastReceivedContentOn.HasValue && (!offsetHours.HasValue || offsetHours == 0))
-                    await manager.UpdateIngestStateFailedAttemptsAsync(0, lastReceivedContentOn.Value);
+                    manager.Ingest = await manager.UpdateIngestStateFailedAttemptsAsync(0, lastReceivedContentOn.Value);
 
                 skip += retrievedRecords;
                 if (retrievedRecords == 0) continueFetchingRecords = false;
                 else if (importDelayMs.HasValue && importDelayMs > 0)
                 {
                     // Artificial delay to reduce creating lag.
-                    await Task.Delay(importDelayMs.Value);
+                    await Task.Delay(importDelayMs.Value, cancellationToken);
                 }
             }
             catch (Exception ex)

@@ -8,7 +8,7 @@ import { generateMustNotQuery, generateQuery, IFilterSettingsModel } from 'tno-c
  * @returns Function to generate an elasticsearch query from configuration.
  */
 export const useElastic = () => {
-  const { frontPageImagesMediaTypeId } = useSettings();
+  const { frontpageImageMediaTypeId } = useSettings();
 
   return React.useCallback(
     (
@@ -17,17 +17,14 @@ export const useElastic = () => {
       condition: 'must' | 'must_not' | 'filter' = 'must',
     ) => {
       var elastic = generateQuery(filter, query, condition);
-      if (
-        frontPageImagesMediaTypeId &&
-        !filter.mediaTypeIds?.includes(frontPageImagesMediaTypeId)
-      ) {
+      if (frontpageImageMediaTypeId && !filter.mediaTypeIds?.includes(frontpageImageMediaTypeId)) {
         // Do not include front page images in results unless they are specifically requested.
-        elastic = generateMustNotQuery({ mediaTypeIds: [frontPageImagesMediaTypeId] }, elastic);
+        elastic = generateMustNotQuery({ mediaTypeIds: [frontpageImageMediaTypeId] }, elastic);
       } else {
         elastic = generateMustNotQuery({}, elastic);
       }
       return elastic;
     },
-    [frontPageImagesMediaTypeId],
+    [frontpageImageMediaTypeId],
   );
 };

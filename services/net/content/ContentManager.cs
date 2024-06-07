@@ -107,7 +107,7 @@ public class ContentManager : ServiceManager<ContentOptions>
 
                     // Get settings to find any overrides.
                     var settings = await this.Api.GetSettings();
-                    var topicOverride = settings.FirstOrDefault(s => s.Name == "ContentImportTopicOverride")?.Value.Split(",", StringSplitOptions.TrimEntries) ?? Array.Empty<string>();
+                    var topicOverride = settings.FirstOrDefault(s => s.Name == "ContentImportTopicOverride")?.Value.Split(",", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
                     var ingestTopics = ingest
                         .Where(i => !String.IsNullOrWhiteSpace(i.Topic) && i.ImportContent())
                         .Select(i => i.Topic).ToArray();

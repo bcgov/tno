@@ -38,7 +38,8 @@ podsImage=$(getPods image-service dc $env)
 
 podsIndexing=$(getPods indexing-service dc $env)
 podsContent=$(getPods content-service dc $env)
-podsContentTNO=$(getPods content-historic-service dc $env)
+podsContentTNOCurrent=$(getPods content-current-service dc $env)
+podsContentTNOHistoric=$(getPods content-historic-service dc $env)
 
 podsFileCopy=$(getPods filecopy-service dc $env)
 podsFolderCollection=$(getPods folder-collection-service dc $env)
@@ -113,7 +114,8 @@ scale image-service $podsImage dc $env
 
 scale indexing-service $podsIndexing dc $env
 scale content-service $podsContent dc $env
-scale content-historic-service $podsContentTNO dc $env
+scale content-current-service $podsContentTNOCurrent dc $env
+scale content-historic-service $podsContentTNOHistoric dc $env
 
 scale filecopy-service $podsFileCopy dc $env
 scale folder-collection-service $podsFolderCollection dc $env

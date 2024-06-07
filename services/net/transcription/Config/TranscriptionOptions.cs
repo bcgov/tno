@@ -38,5 +38,10 @@ public class TranscriptionOptions : ServiceOptions
     /// get/set - An array of file extensions to convert to audio format (i.e. mp4, mov).
     /// </summary>
     public string[] ConvertToAudio { get; set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// get/set - Ignore any content that was indexed before this day offset.
+    /// </summary>
+    public int? IgnoreContentPublishedBeforeOffset { get; set; }
     #endregion
 }

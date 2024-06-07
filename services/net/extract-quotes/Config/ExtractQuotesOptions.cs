@@ -30,5 +30,9 @@ public class ExtractQuotesOptions : ServiceOptions
     /// </summary>
     public string CoreNLPApiUrl { get; set; } = "";
 
+    /// <summary>
+    /// get/set - Ignore any content that was indexed before this day offset.
+    /// </summary>
+    public int? IgnoreContentPublishedBeforeOffset { get; set; }
     #endregion
 }

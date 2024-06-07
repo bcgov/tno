@@ -1,6 +1,5 @@
-import { ReportDistributionFormatName } from 'tno-core';
-
 import { EmailSendToName } from '../constants';
+import { ReportDistributionFormatName } from '../constants/ReportDistributionFormatName';
 import { IUserModel } from '.';
 
 export interface IUserProductModel extends IUserModel {

@@ -169,6 +169,13 @@ public class NotificationValidator : INotificationValidator
     {
         if (this.Notification == null || this.Content == null) throw new InvalidOperationException("Notification and Content properties cannot be null");
 
+        // If the content was published before the specified offset, ignore it.
+        if (this.Options.IgnoreContentPublishedBeforeOffset.HasValue
+            && this.Options.IgnoreContentPublishedBeforeOffset > 0
+            && this.Content.PublishedOn.HasValue
+            && this.Content.PublishedOn.Value < DateTime.UtcNow.AddDays(-1 * this.Options.IgnoreContentPublishedBeforeOffset.Value))
+            return false;
+
         var send = !this.Notification.AlertOnIndex || (this.Notification.Resend switch
         {
             // Never resend after the first published alert.

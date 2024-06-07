@@ -76,10 +76,11 @@ export const DbMigration: React.FC = (props) => {
               label="Import Start Date"
               autoComplete="false"
               width={FieldSize.Medium}
+              placeholderText="MM/DD/YYYY"
               selectedDate={
                 values.configuration.importDateStart
-                  ? moment(values.configuration.importDateStart).toLocaleString()
-                  : ''
+                  ? moment(values.configuration.importDateStart).format('MM/DD/YYYY')
+                  : undefined
               }
               required={!values.configuration.offsetHours}
               onChange={(date) => {
@@ -111,12 +112,12 @@ export const DbMigration: React.FC = (props) => {
               disabled={!values.configuration.importDateStart}
               width="7em"
               value={
-                !!values.configuration.importDateStart
+                values.configuration.importDateStart
                   ? formatDate(values.configuration.importDateStart, 'HH:mm:ss')
-                  : undefined
+                  : ''
               }
               placeholder={
-                !!values.configuration.importDateStart
+                values.configuration.importDateStart
                   ? formatDate(values.configuration.importDateStart, 'HH:mm:ss')?.toString()
                   : 'HH:MM:SS'
               }
@@ -133,19 +134,6 @@ export const DbMigration: React.FC = (props) => {
               }}
             />
           </Col>
-          <Col>
-            <label>&nbsp;</label>
-            <Button
-              tooltip="Reset"
-              variant={ButtonVariant.danger}
-              disabled={!values.configuration.importDateStart}
-              onClick={() => {
-                setFieldValue('configuration.importDateStart', null);
-              }}
-            >
-              <FaTrash />
-            </Button>
-          </Col>
         </Row>
         <Row>
           <Col flex="1 1 1">
@@ -154,7 +142,12 @@ export const DbMigration: React.FC = (props) => {
               label="Import End Date"
               autoComplete="false"
               width={FieldSize.Medium}
-              selectedDate={values.configuration.importDateEnd ?? ''}
+              placeholderText="MM/DD/YYYY"
+              selectedDate={
+                values.configuration.importDateEnd
+                  ? moment(values.configuration.importDateEnd).format('MM/DD/YYYY')
+                  : undefined
+              }
               onChange={(date) => {
                 if (
                   date &&
@@ -184,14 +177,14 @@ export const DbMigration: React.FC = (props) => {
               disabled={!values.configuration.importDateEnd}
               width="7em"
               value={
-                !!values.configuration.importDateEnd
+                values.configuration.importDateEnd
                   ? formatDate(values.configuration.importDateEnd, 'HH:mm:ss')
                   : ''
               }
               placeholder={
-                !!values.configuration.importDateEnd
+                values.configuration.importDateEnd
                   ? formatDate(values.configuration.importDateEnd, 'HH:mm:ss')?.toString()
-                  : 'HH:mm:ss'
+                  : 'HH:MM:SS'
               }
               onChange={(e) => {
                 const date = new Date(values.configuration.importDateEnd);
@@ -205,19 +198,6 @@ export const DbMigration: React.FC = (props) => {
                 }
               }}
             />
-          </Col>
-          <Col>
-            <label>&nbsp;</label>
-            <Button
-              tooltip="Reset"
-              variant={ButtonVariant.danger}
-              disabled={!values.configuration.importDateEnd}
-              onClick={() => {
-                setFieldValue('configuration.importDateEnd', null);
-              }}
-            >
-              <FaTrash />
-            </Button>
           </Col>
         </Row>
       </Show>
