@@ -1,4 +1,5 @@
 import { adminSlice, appSlice, contentSlice, lookupSlice } from './slices';
+import { settingsSlice } from './slices/settings';
 import { workOrderSlice } from './slices/work-orders';
 
 export const reducer = {
@@ -7,4 +8,5 @@ export const reducer = {
   [contentSlice.name]: contentSlice.reducer,
   [lookupSlice.name]: lookupSlice.reducer,
   [workOrderSlice.name]: workOrderSlice.reducer,
+  [settingsSlice.name]: settingsSlice.reducer,
 };

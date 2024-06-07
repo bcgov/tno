@@ -248,14 +248,28 @@ public class NotificationService : BaseService<Notification, int>, INotification
         var filter = JsonSerializer.Deserialize<FilterSettingsModel>(notification.Settings.ToJson(), _serializerOptions) ?? new();
 
         var ownerId = requestorId ?? notification.OwnerId; // TODO: Handle users generating instances for a notifications they do not own.
-        var prevInstance = GetPreviousNotificationInstance(notification.Id, ownerId);
 
         var defaultIndex = filter.SearchUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex;
         var query = notification.Query;
 
-        // Only include content posted before the prior notification instance.
-        if (prevInstance?.SentOn.HasValue == true)
-            query = query.IncludeOnlyLatestPosted(prevInstance?.SentOn);
+        // Fetch all notifications within the offset of the requested notification filter.
+        // Need to identify all content already notified by this notification so that we don't resend.
+        var settings = JsonSerializer.Deserialize<FilterSettingsModel>(notification.Settings, _serializerOptions);
+        if (settings != null && (settings.DateOffset.HasValue || settings.StartDate.HasValue))
+        {
+            var statuses = new[] { NotificationStatus.Pending, NotificationStatus.Accepted, NotificationStatus.Completed };
+            var dateOffset = settings.DateOffset.HasValue ? DateTime.UtcNow.AddDays(-1 * settings.DateOffset.Value) : (DateTime?)null;
+            var sentNotificationContentIds = this.Context.NotificationInstances.Where(ni => ni.NotificationId == notification.Id
+                && (ownerId == null || ni.OwnerId == ownerId)
+                && statuses.Contains(ni.Status)
+                && ni.SentOn != null
+                && (dateOffset == null || ni.SentOn >= dateOffset)
+                && (settings.StartDate == null | ni.SentOn >= settings.StartDate))
+                .Select(ni => ni.ContentId).Distinct().ToArray();
+
+            if (sentNotificationContentIds.Any())
+                query = query.AddExcludeContent(sentNotificationContentIds);
+        }
 
         return await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query);
     }
