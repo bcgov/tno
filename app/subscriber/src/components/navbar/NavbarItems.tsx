@@ -61,7 +61,7 @@ export const NavbarOptions: INavbarOptions = {
     icon: <FaUsers />,
   },
   eventOfTheDay: {
-    label: 'Event of the Day',
+    label: 'AM Analysis',
     path: 'landing/eventoftheday',
     icon: <FaSun />,
   },
