@@ -10,6 +10,7 @@ import {
   OptionItem,
   replaceQueryParams,
   Settings,
+  Spinner,
   ToolBar,
   ToolBarSection,
   useModal,
@@ -45,7 +46,7 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
   const [frontPageImagesReportId, setFrontPageImagesReportId] = React.useState(0);
   const [topStoryAlertId, setTopStoryAlertId] = React.useState(0);
   const [sendInfo, setSendInfo] = React.useState<IReportInfo>();
-
+  const [isLoading, setIsLoading] = React.useState(false);
   React.useEffect(() => {
     if (isReady) {
       const morningReportId = settings.find((s) => s.name === Settings.MorningReport)?.value;
@@ -68,17 +69,25 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
     setMediaTypeOptions([new OptionItem<number>('Any', 0), ...mediaTypeOptions]);
   }, [mediaTypeOptions]);
 
-  async function checkReportContent() {
+  async function checkReportContent(reportID: number) {
     try {
-      const preview = await previewReport(+frontPageImagesReportId);
-      if (preview.body && preview.body !== '\n') {
-        return true;
-      } else {
+      setIsLoading(true);
+      const preview = await previewReport(reportID);
+      if (!preview.data || !preview.data.length) {
         toast.error('Report content is empty. Please add content before sending.');
         return false;
+      } else if (preview.body && preview.body === '\n') {
+        toast.error(
+          `Report tempalte is inactive, check the settings ReportID with value ${reportID}.`,
+        );
+        return false;
+      } else {
+        return true;
       }
     } catch (error) {
       toast.error(`Failed to preview report. ${error}`);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -120,25 +129,30 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
           />
         </ToolBarSection>
         <ToolBarSection label="Send">
-          <FaFileImage
-            className="action-button btn-preview"
-            title="Front Page Images"
-            onClick={async (e) => {
-              const hasContent = await checkReportContent();
-              if (!hasContent) return;
-              if (frontPageImagesReportId) {
-                setSendInfo({
-                  name: 'Front Page Images',
-                  value: +frontPageImagesReportId,
-                  action: 'report',
-                });
-                toggle();
-              } else
-                toast.error(
-                  `Configuration setting "${Settings.FrontPageImagesReport}" is missing.`,
-                );
-            }}
-          />
+          {isLoading ? (
+            <Spinner />
+          ) : (
+            <FaFileImage
+              className="action-button btn-preview"
+              title="Front Page Images"
+              onClick={async (e) => {
+                const hasContent = await checkReportContent(frontPageImagesReportId);
+                if (!hasContent) return;
+                if (frontPageImagesReportId) {
+                  setSendInfo({
+                    name: 'Front Page Images',
+                    value: +frontPageImagesReportId,
+                    action: 'report',
+                  });
+                  toggle();
+                } else
+                  toast.error(
+                    `Configuration setting "${Settings.FrontPageImagesReport}" is missing.`,
+                  );
+              }}
+            />
+          )}
+
           <FaFileArrowUp
             className="action-button btn-preview"
             title="Top Stories"
