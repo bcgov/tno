@@ -1,28 +1,33 @@
+using System.Text;
+using System.Text.RegularExpressions;
 using Confluent.Kafka;
+using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using TNO.API.Areas.Services.Models.Minister;
 using TNO.Ches;
 using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Kafka;
 using TNO.Kafka.Models;
-using TNO.Services.Managers;
 using TNO.Services.ExtractQuotes.Config;
-using TNO.Services.NLP.ExtractQuotes;
-using TNO.API.Areas.Services.Models.Minister;
 using TNO.Services.ExtractQuotes.CoreNLP.models;
-using System.Text;
-using HtmlAgilityPack;
-using System.Text.RegularExpressions;
+using TNO.Services.Managers;
+using TNO.Services.NLP.ExtractQuotes;
 
 namespace TNO.Services.ExtractQuotes;
 
 /// <summary>
 /// ExtractQuotesManager class, provides a Kafka Consumer service which extracts quotes from content from all active topics.
 /// </summary>
-public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
+public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
 {
     #region Variables
+    [GeneratedRegex("^\"")]
+    private static partial Regex MyRegex();
+    [GeneratedRegex("\"$")]
+    private static partial Regex MyRegex1();
+
     private CancellationTokenSource? _cancelToken;
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
@@ -65,12 +70,12 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
         ILogger<ExtractQuotesManager> logger)
         : base(api, chesService, chesOptions, extractQuotesOptions, logger)
     {
-        this.Listener = listener;
-        this.Listener.IsLongRunningJob = true;
-        this.Listener.OnError += ListenerErrorHandler;
-        this.Listener.OnStop += ListenerStopHandler;
+        Listener = listener;
+        Listener.IsLongRunningJob = true;
+        Listener.OnError += ListenerErrorHandler;
+        Listener.OnStop += ListenerStopHandler;
 
-        this.CoreNLPService = coreNLPService;
+        CoreNLPService = coreNLPService;
     }
     #endregion
 
@@ -81,50 +86,50 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
     /// <returns></returns>
     public override async Task RunAsync()
     {
-        var delay = this.Options.DefaultDelayMS;
+        var delay = Options.DefaultDelayMS;
 
         // Always keep looping until an unexpected failure occurs.
         while (true)
         {
-            if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause)
+            if (State.Status == ServiceStatus.RequestSleep || State.Status == ServiceStatus.RequestPause)
             {
                 // An API request or failures have requested the service to stop.
-                this.Logger.LogInformation("The service is stopping: '{Status}'", this.State.Status);
-                this.State.Stop();
+                Logger.LogInformation("The service is stopping: '{Status}'", State.Status);
+                State.Stop();
 
                 // The service is stopping or has stopped, consume should stop too.
-                this.Listener.Stop();
+                Listener.Stop();
             }
-            else if (this.State.Status != ServiceStatus.Running)
+            else if (State.Status != ServiceStatus.Running)
             {
-                this.Logger.LogDebug("The service is not running: '{Status}'", this.State.Status);
+                Logger.LogDebug("The service is not running: '{Status}'", State.Status);
             }
             else
             {
                 try
                 {
-                    var topics = this.Options.Topics.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                    var topics = Options.Topics.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
                     if (topics.Length != 0)
                     {
-                        this.Listener.Subscribe(topics);
+                        Listener.Subscribe(topics);
                         ConsumeMessages();
                     }
                     else if (topics.Length == 0)
                     {
-                        this.Listener.Stop();
+                        Listener.Stop();
                     }
                 }
                 catch (Exception ex)
                 {
-                    this.Logger.LogError(ex, "Service had an unexpected failure.");
-                    this.State.RecordFailure();
-                    await this.SendEmailAsync("Service had an Unexpected Failure", ex);
+                    Logger.LogError(ex, "Service had an unexpected failure.");
+                    State.RecordFailure();
+                    await SendEmailAsync("Service had an Unexpected Failure", ex);
                 }
             }
 
             // The delay ensures we don't have a run away thread.
-            this.Logger.LogDebug("Service sleeping for {delay} ms", delay);
+            Logger.LogDebug("Service sleeping for {delay} ms", delay);
             await Task.Delay(delay);
         }
     }
@@ -151,14 +156,14 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
     /// <returns></returns>
     private async Task ListenerHandlerAsync()
     {
-        while (this.State.Status == ServiceStatus.Running &&
+        while (State.Status == ServiceStatus.Running &&
             _cancelToken?.IsCancellationRequested == false)
         {
-            await this.Listener.ConsumeAsync(HandleMessageAsync, _cancelToken.Token);
+            await Listener.ConsumeAsync(HandleMessageAsync, _cancelToken.Token);
         }
 
         // The service is stopping or has stopped, consume should stop too.
-        this.Listener.Stop();
+        Listener.Stop();
     }
 
     /// <summary>
@@ -172,12 +177,12 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
     {
         // Only the first retry will count as a failure.
         if (_retries == 0)
-            this.State.RecordFailure();
+            State.RecordFailure();
 
         if (e.GetException() is ConsumeException consume)
         {
             if (consume.Error.IsFatal)
-                this.Listener.Stop();
+                Listener.Stop();
         }
     }
 
@@ -207,21 +212,21 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
         try
         {
             // The service has stopped, so to should consuming messages.
-            if (this.State.Status != ServiceStatus.Running)
+            if (State.Status != ServiceStatus.Running)
             {
-                this.Listener.Stop();
-                this.State.Stop();
+                Listener.Stop();
+                State.Stop();
             }
             else
             {
                 await ProcessIndexRequestAsync(result);
 
                 // Inform Kafka this message is completed.
-                this.Listener.Commit(result);
-                this.Listener.Resume();
+                Listener.Commit(result);
+                Listener.Resume();
 
                 // Successful run clears any errors.
-                this.State.ResetFailures();
+                State.ResetFailures();
                 _retries = 0;
             }
         }
@@ -229,13 +234,13 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
         {
             if (ex is HttpClientRequestException httpEx)
             {
-                this.Logger.LogError(ex, "HTTP exception while consuming. {response}", httpEx.Data["body"] ?? "");
-                await this.SendEmailAsync("HTTP exception while consuming. {response}", ex);
+                Logger.LogError(ex, "HTTP exception while consuming. {response}", httpEx.Data["body"] ?? "");
+                await SendEmailAsync("HTTP exception while consuming. {response}", ex);
             }
             else
             {
-                this.Logger.LogError(ex, "Failed to handle message");
-                await this.SendEmailAsync("Failed to handle message", ex);
+                Logger.LogError(ex, "Failed to handle message");
+                await SendEmailAsync("Failed to handle message", ex);
             }
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
         }
@@ -252,22 +257,30 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
     /// <returns></returns>
     private async Task ProcessIndexRequestAsync(ConsumeResult<string, IndexRequestModel> result)
     {
-        this.Logger.LogDebug($"ProcessIndexRequestAsync:BEGIN:{result.Message.Key}");
+        Logger.LogDebug("ProcessIndexRequestAsync:BEGIN:{key}", result.Message.Key);
 
         var model = result.Message.Value;
 
-        if ((model.Action == IndexAction.Index && this.Options.ExtractQuotesOnIndex) || 
-            (model.Action == IndexAction.Publish && this.Options.ExtractQuotesOnPublish))
+        if (model.Action == IndexAction.Index && Options.ExtractQuotesOnIndex ||
+            model.Action == IndexAction.Publish && Options.ExtractQuotesOnPublish)
         {
-            this.Logger.LogInformation("Extracting Quotes from Topic: {Topic}, Action: {Action}, Content ID: {Key}", result.Topic, model.Action, result.Message.Key);
+            Logger.LogInformation("Extracting Quotes from Topic: {Topic}, Action: {Action}, Content ID: {Key}", result.Topic, model.Action, result.Message.Key);
             // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
-            var content = await this.Api.FindContentByIdAsync(result.Message.Value.ContentId);
-            var ministers = await this.Api.GetMinistersAsync();
+            var content = await Api.FindContentByIdAsync(result.Message.Value.ContentId);
+            var ministers = await Api.GetMinistersAsync();
             if (content != null) // need to check here if this content uses a transcript and if it does, skip if transcript is not approved
             {
+                // If the content was published before the specified offset, ignore it.
+                if (Options.IgnoreContentPublishedBeforeOffset.HasValue
+                    && Options.IgnoreContentPublishedBeforeOffset > 0
+                    && content.PublishedOn.HasValue
+                    && content.PublishedOn.Value < DateTime.UtcNow.AddDays(-1 * Options.IgnoreContentPublishedBeforeOffset.Value))
+                    return;
+
                 var text = new StringBuilder();
                 // Only use Summary if Body is empty
-                if (String.IsNullOrWhiteSpace(content.Body) && !String.IsNullOrWhiteSpace(content.Summary)) {
+                if (string.IsNullOrWhiteSpace(content.Body) && !string.IsNullOrWhiteSpace(content.Summary))
+                {
                     var html = new HtmlDocument();
                     html.LoadHtml(content.Summary);
                     foreach (HtmlNode node in html.DocumentNode.SelectNodes("//text()"))
@@ -276,7 +289,8 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
                     }
                 }
 
-                if (!String.IsNullOrWhiteSpace(content.Body)) {
+                if (!string.IsNullOrWhiteSpace(content.Body))
+                {
                     var html = new HtmlDocument();
                     html.LoadHtml(content.Body);
                     foreach (HtmlNode node in html.DocumentNode.SelectNodes("//text()"))
@@ -285,65 +299,78 @@ public class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
                     }
                 }
                 var annotationInput = text.ToString();
-                if (annotationInput.Length == 0) {
-                    this.Logger.LogInformation("Content ID: {Key} has no text to extract quotes from.", result.Message.Key);
+                if (annotationInput.Length == 0)
+                {
+                    Logger.LogInformation("Content ID: {Key} has no text to extract quotes from.", result.Message.Key);
                     return;
                 }
 
-                try {
+                try
+                {
                     var annotations = await CoreNLPService.PerformAnnotation(annotationInput);
-                    if (annotations != null && annotations.Quotes.Any()) {
-                        this.Logger.LogInformation("Extracted [{quoteCount}] Quotes from Content ID: {Key}", annotations.Quotes.Count, result.Message.Key);
+                    if (annotations != null && annotations.Quotes.Any())
+                    {
+                        Logger.LogInformation("Extracted [{quoteCount}] Quotes from Content ID: {Key}", annotations.Quotes.Count, result.Message.Key);
 
                         var speakersAndQuotes = ExtractSpeakersAndQuotes(ministers, annotations);
 
                         List<API.Areas.Services.Models.Content.QuoteModel> quotesToAdd = new List<API.Areas.Services.Models.Content.QuoteModel>();
-                        foreach(var speaker in speakersAndQuotes.Keys) {
-                            foreach(var quote in speakersAndQuotes[speaker]) {
-                                // only add quotes which dont match any previously captured
+                        foreach (var speaker in speakersAndQuotes.Keys)
+                        {
+                            foreach (var quote in speakersAndQuotes[speaker])
+                            {
+                                // only add quotes which don't match any previously captured
                                 if (!content.Quotes.Any((q) => q.Byline.Equals(speaker) && q.Statement.Equals(quote)))
-                                    quotesToAdd.Add(new API.Areas.Services.Models.Content.QuoteModel() {Id = 0, ContentId = content.Id, Byline = speaker, Statement = quote});
+                                    quotesToAdd.Add(new API.Areas.Services.Models.Content.QuoteModel() { Id = 0, ContentId = content.Id, Byline = speaker, Statement = quote });
                             }
                         }
-                        content = await this.Api.AddQuotesToContentAsync(content.Id, quotesToAdd);
-                    } else {
-                        this.Logger.LogInformation("Extracted [{quoteCount}] Quotes from Content ID: {Key}", 0, result.Message.Key);
+                        content = await Api.AddQuotesToContentAsync(content.Id, quotesToAdd);
                     }
-                } catch (Exception) {
-                    this.Logger.LogError("Quote Extraction failed for Content ID: {Key}", result.Message.Key);
+                    else
+                    {
+                        Logger.LogInformation("Extracted [{quoteCount}] Quotes from Content ID: {Key}", 0, result.Message.Key);
+                    }
+                }
+                catch (Exception)
+                {
+                    Logger.LogError("Quote Extraction failed for Content ID: {Key}", result.Message.Key);
                     throw;
                 }
             }
             else
             {
-                this.Logger.LogWarning("Content does not exists. Content ID: {ContentId}", result.Message.Value.ContentId);
+                Logger.LogWarning("Content does not exists. Content ID: {ContentId}", result.Message.Value.ContentId);
             }
-        } else {
-            this.Logger.LogInformation("SKIPPED: Extracting Quotes from Topic: {Topic}, Action: {Action}, Content ID: {Key}", result.Topic, model.Action, result.Message.Key);
         }
-        this.Logger.LogDebug($"ProcessIndexRequestAsync:END:{result.Message.Key}");
+        else
+        {
+            Logger.LogInformation("SKIPPED: Extracting Quotes from Topic: {Topic}, Action: {Action}, Content ID: {Key}", result.Topic, model.Action, result.Message.Key);
+        }
+        Logger.LogDebug("ProcessIndexRequestAsync:END:{key}", result.Message.Key);
     }
 
     private Dictionary<string, List<string>> ExtractSpeakersAndQuotes(IEnumerable<MinisterModel> ministers, AnnotationResponse annotations)
     {
-        Dictionary<string, List<string>> speakersAndQuotes = new Dictionary<string, List<string>>();
+        var speakersAndQuotes = new Dictionary<string, List<string>>();
 
-        foreach(var quote in annotations.Quotes) {
+        foreach (var quote in annotations.Quotes)
+        {
             var canonicalSpeaker = quote.canonicalSpeaker;
-            // if nlp isnt willing to guess a speaker, see if we can find a PERSON mentioned in the same sentence as the Quote
-            if (canonicalSpeaker.Equals("Unknown")) {
+            // if nlp isn't willing to guess a speaker, see if we can find a PERSON mentioned in the same sentence as the Quote
+            if (canonicalSpeaker.Equals("Unknown"))
+            {
                 var speakerInSameSentenceAsQuote = annotations.Sentences[quote.beginSentence].entityMentions.FirstOrDefault((m) => m.ner.Equals("PERSON"));
                 if (speakerInSameSentenceAsQuote != null) canonicalSpeaker = speakerInSameSentenceAsQuote.text;
             }
-            
+
             var quotedMinister = ministers.FirstOrDefault((m) => m.Name.Contains(canonicalSpeaker));
             if (quotedMinister != null) canonicalSpeaker = quotedMinister.Name;
 
             if (!speakersAndQuotes.ContainsKey(canonicalSpeaker)) speakersAndQuotes.Add(canonicalSpeaker, new List<string>());
 
             var cleanedQuoteText = quote.text;
-            cleanedQuoteText = Regex.Replace(cleanedQuoteText, "^\"", string.Empty); // remove quote from start
-            cleanedQuoteText = Regex.Replace(cleanedQuoteText, "\"$", string.Empty); // remove quote from end
+            cleanedQuoteText = MyRegex().Replace(cleanedQuoteText, string.Empty); // remove quote from start
+            cleanedQuoteText = MyRegex1().Replace(cleanedQuoteText, string.Empty); // remove quote from end
 
             speakersAndQuotes[canonicalSpeaker].Add(cleanedQuoteText);
         }

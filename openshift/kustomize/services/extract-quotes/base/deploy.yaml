@@ -137,6 +137,11 @@ spec:
                 configMapKeyRef:
                   name: extract-quotes-service
                   key: EXTRACT_QUOTES_ON_PUBLISH
+            - name: Service__IgnoreContentPublishedBeforeOffset
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: IGNORE_CONTENT_PUBLISHED_BEFORE_OFFSET
 
             # CHES Configuration
             - name: CHES__From
