@@ -277,21 +277,6 @@ public class ReportInstanceController : ControllerBase
         return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
 
-    /**************************************************************
-    public IActionResult FindByDate([FromQuery]DateTime? publishedOn = null)
-    {
-        Entities.AVOverviewInstance? instance;
-        if (publishedOn != null) {
-            instance = _overviewInstanceService.FindByDate((DateTime) publishedOn);
-        } else {
-            instance = _overviewInstanceService.FindLatest();
-        }
-
-        if (instance == null) return new NoContentResult();
-        return new JsonResult(new AVOverviewInstanceModel(instance));
-    }http://localhost:40081/api/subscriber/report/instances/8/report?publishedOn=2024-06-06T07%3A00%3A00.000Z
-
-    */
     /// <summary>
     /// Find report instance for the specified report and date.
     /// </summary>
