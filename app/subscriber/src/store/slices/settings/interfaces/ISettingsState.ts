@@ -11,4 +11,5 @@ export interface ISettingsState {
   frontpageFilterId?: number;
   excludeBylineIds?: number[];
   excludeSourceIds?: number[];
+  eventOfTheDayReportId?: number;
 }

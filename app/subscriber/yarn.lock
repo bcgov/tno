@@ -10689,7 +10689,7 @@ __metadata:
     sheetjs: "file:packages/xlsx-0.20.1.tgz"
     styled-components: 6.1.11
     stylis: 4.3.2
-    tno-core: 0.1.84
+    tno-core: ./tno-core-0.1.84.tgz
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -14721,9 +14721,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:0.1.84":
+"tno-core@file:./tno-core-0.1.84.tgz::locator=mmi-subscriber-app%40workspace%3A.":
   version: 0.1.84
-  resolution: "tno-core@npm:0.1.84"
+  resolution: "tno-core@file:./tno-core-0.1.84.tgz::locator=mmi-subscriber-app%40workspace%3A."
   dependencies:
     "@elastic/elasticsearch": ^8.13.1
     "@fortawesome/free-solid-svg-icons": ^6.4.2
@@ -14756,7 +14756,7 @@ __metadata:
     styled-components: ^6.1.11
     stylis: ^4.3.2
     yup: ^1.1.1
-  checksum: ac8c4f6a106d770699e10b0ef60bc5313b008ef24408a0e1f45569092b7b9c0da59b5e75c1eb650f33a606f2b432d1ebce0c8afb5948faabcfba2f54682f2b46
+  checksum: b1fc233529c0eb449acb49cb18b046402a0fa2aa1984956d2838f855775348f087a6c71f1883107d17a417b35c897a6af29d3934df6ce47b446369e94bd59ac1
   languageName: node
   linkType: hard
 
