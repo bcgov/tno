@@ -1,8 +1,8 @@
 import { ScreenSizes } from 'components/layout/constants';
 import React from 'react';
 import { BiLogOut } from 'react-icons/bi';
-import { FaChevronCircleDown, FaQuestionCircle, FaUserCircle } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
+import { FaChevronCircleDown, FaUserCircle } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 import { useUsers } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
@@ -18,7 +18,6 @@ export const UserProfile: React.FC = () => {
   const { width } = useWindowSize();
   const [{ profile, impersonate }, { storeImpersonate }] = useProfileStore();
   const { getUser } = useUsers();
-  const navigate = useNavigate();
 
   const [profileMenu, setProfileMenu] = React.useState(false);
 
@@ -43,19 +42,6 @@ export const UserProfile: React.FC = () => {
 
   return (
     <styled.UserProfile>
-      <Row
-        direction="row"
-        className="username-info"
-        onClick={() => {
-          navigate('/help');
-        }}
-      >
-        <div>
-          <Show visible={!!width && width > ScreenSizes.Mobile}>
-            <FaQuestionCircle title="Help" size={15} />
-          </Show>
-        </div>
-      </Row>
       <Row
         data-tooltip-id="my-info"
         direction="row"
