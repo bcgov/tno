@@ -363,29 +363,51 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             else if (reference != null)
             {
                 // check if this is content previously ingested by this service, but has been updated by an Editor in TNO
-                var originalLastUpdateDate = DateTime.MinValue;
-                var originalIsContentPublished = false;
-                if (reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn, out object? mdUpdatedOn)
-                    && DateTime.TryParse(mdUpdatedOn.ToString(), out DateTime referenceUpdatedOn))
-                    originalLastUpdateDate = referenceUpdatedOn;
-
-                if (reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.MetadataKeyIsContentPublished, out object? mdIsContentPublished)
-                    && Boolean.TryParse(mdIsContentPublished.ToString(), out bool referenceIsContentPublished))
-                    originalIsContentPublished = referenceIsContentPublished;
+                var originalLastUpdateDate = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.UpdatedOn, out object? contentUpdatedOn) ? (DateTime.TryParse(contentUpdatedOn?.ToString(), out DateTime updatedOn) ? updatedOn : DateTime.MinValue) : DateTime.MinValue;
+                var originalIsContentPublished = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsContentPublished, out object? contentIsPublished) ? (Boolean.TryParse(contentIsPublished?.ToString(), out bool isPublished) ? isPublished : false) : false;
+                var originalIsFeaturedStory = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsFeaturedStory, out object? contentIsFeaturedStory) ? (Boolean.TryParse(contentIsFeaturedStory?.ToString(), out bool isFeaturedStory) ? isFeaturedStory : false) : false;
+                var originalIsTopStory = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsTopStory, out object? contentIsTopStory) ? (Boolean.TryParse(contentIsTopStory?.ToString(), out bool isTopStory) ? isTopStory : false) : false;
+                var originalIsAlert = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsAlert, out object? contentIsAlert) ? (Boolean.TryParse(contentIsAlert?.ToString(), out bool isAlert) ? isAlert : false) : false;
+                var originalIsCommentary = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsCommentary, out object? contentIsCommentary) ? (Boolean.TryParse(contentIsCommentary?.ToString(), out bool isCommentary) ? isCommentary : false) : false;
+                var originalCommentaryTimeout = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.CommentaryTimeout, out object? contentCommentaryTimeout) ? (Int32.TryParse(contentCommentaryTimeout?.ToString(), out int commentaryTimeout) ? commentaryTimeout : (int?)null) : null;
+                var originalEoDGroup = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.EoDGroup, out object? contentEoDGroup) ? contentEoDGroup?.ToString() : null;
+                var originalEoDCategory = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.EoDCategory, out object? contentEoDCategory) ? contentEoDCategory?.ToString() : null;
+                var originalTopicScore = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.TopicScore, out object? contentTopicScore) ? (Int32.TryParse(contentTopicScore?.ToString(), out int topicScore) ? topicScore : (int?)null) : null;
+                var originalToneValue = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.ToneValue, out object? contentToneValue) ? (Int32.TryParse(contentToneValue?.ToString(), out int toneValue) ? toneValue : (int?)null) : null;
 
                 // IF this record was previously ingested from TNO by the Content Migration Service
                 // AND ((it has been updated since it's original ingest)
                 //  OR (the published status of the TNO items has changed))
                 // THEN trigger an update to the content
-                if ((sourceContent.UpdatedOn > originalLastUpdateDate) || (newsItem.Published != originalIsContentPublished))
+                if ((sourceContent.UpdatedOn > originalLastUpdateDate)
+                    || (newsItem.Published != originalIsContentPublished)
+                    || (newsItem.FrontPageStory != originalIsFeaturedStory)
+                    || (newsItem.WapTopStory != originalIsTopStory)
+                    || (newsItem.Alert != originalIsAlert)
+                    || (newsItem.Commentary != originalIsCommentary)
+                    || (newsItem.CommentaryTimeout != originalCommentaryTimeout)
+                    || (newsItem.EodGroup != originalEoDGroup)
+                    || (newsItem.EodCategory != originalEoDCategory)
+                    || (newsItem.Topics.FirstOrDefault()?.Score != originalTopicScore)
+                    || (newsItem.Tones.FirstOrDefault()?.ToneValue != originalToneValue))
                 {
                     addOrUpdateContent = true;
+
+                    // Update the content reference so that we can compare future fetches.
                     reference.PublishedOn = sourceContent.PublishedOn;
                     reference.SourceUpdateOn = sourceContent.UpdatedOn;
-                    // make sure the published status on the reference is up to date
-                    reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyIsContentPublished] = newsItem.Published;
-                    // update the stored UpdatedOn value
-                    reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn] = sourceContent.UpdatedOn?.ToString("yyyy-MM-dd h:mm:ss tt") ?? DateTime.Now.ToString("yyyy-MM-dd h:mm:ss tt");
+                    reference.Metadata[ContentReferenceMetaDataKeys.IsContentPublished] = newsItem.Published;
+                    reference.Metadata[ContentReferenceMetaDataKeys.UpdatedOn] = sourceContent.UpdatedOn?.ToString("yyyy-MM-dd h:mm:ss tt") ?? DateTime.Now.ToString("yyyy-MM-dd h:mm:ss tt");
+                    reference.Metadata[ContentReferenceMetaDataKeys.IsFeaturedStory] = newsItem.FrontPageStory;
+                    reference.Metadata[ContentReferenceMetaDataKeys.IsTopStory] = newsItem.WapTopStory;
+                    reference.Metadata[ContentReferenceMetaDataKeys.IsAlert] = newsItem.Alert;
+                    reference.Metadata[ContentReferenceMetaDataKeys.IsCommentary] = newsItem.Commentary;
+                    reference.Metadata[ContentReferenceMetaDataKeys.CommentaryTimeout] = newsItem.CommentaryTimeout;
+                    reference.Metadata[ContentReferenceMetaDataKeys.EoDGroup] = newsItem.EodGroup;
+                    reference.Metadata[ContentReferenceMetaDataKeys.EoDCategory] = newsItem.EodCategory;
+                    reference.Metadata[ContentReferenceMetaDataKeys.TopicScore] = newsItem.Topics.FirstOrDefault()?.Score;
+                    reference.Metadata[ContentReferenceMetaDataKeys.ToneValue] = newsItem.Tones.FirstOrDefault()?.ToneValue;
+
                     reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
                     // What about the worst case scenario: one Editor changes it in MMI and another Editor changes it in TNO?
                     Logger.LogInformation("Received updated content from TNO. Forcing an update to the MMI Content : {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);

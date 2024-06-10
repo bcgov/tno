@@ -296,8 +296,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             Topic = ingest.Topic,
             Status = (int)WorkflowStatus.InProgress,
             PublishedOn = content.PublishedOn,
-            Metadata = new Dictionary<string, object> {
-                { ContentReferenceMetaDataKeys.MetadataKeyIngestSource, ingest.Source!.Code }
+            Metadata = new Dictionary<string, object?> {
+                { ContentReferenceMetaDataKeys.IngestSource, ingest.Source!.Code }
             }
         };
 

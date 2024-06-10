@@ -197,7 +197,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     private void ListenerErrorHandler(object sender, ErrorEventArgs e)
     {
         this.Logger.LogDebug("ListenerErrorHandler:BEGIN");
-        this.Logger.LogDebug($"ListenerErrorHandler: Retries={_retries}");
+        this.Logger.LogDebug("ListenerErrorHandler: Retries={count}", _retries);
         // Only the first retry will count as a failure.
         if (_retries == 0)
             this.State.RecordFailure();
@@ -684,7 +684,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         return tagModel;
     }
 
-    private TNO.API.Areas.Services.Models.Content.SeriesModel? GetSeriesModel(IEnumerable<API.Areas.Editor.Models.Series.SeriesModel> seriesLookup, string seriesName)
+    private static TNO.API.Areas.Services.Models.Content.SeriesModel? GetSeriesModel(IEnumerable<API.Areas.Editor.Models.Series.SeriesModel> seriesLookup, string seriesName)
     {
         var targetSeries = seriesLookup.FirstOrDefault(s => s.Name == seriesName);
 
