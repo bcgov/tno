@@ -46,7 +46,7 @@ export const Modal: React.FC<IModalProps> = ({
   customButtons,
   type,
   hasHeight,
-  enableConfirm,
+  enableConfirm = true,
   isSubmitting: initIsSubmitting,
 }) => {
   const [isSubmitting, setIsSubmitting] = React.useState(initIsSubmitting);
@@ -75,7 +75,7 @@ export const Modal: React.FC<IModalProps> = ({
                       <Button
                         variant={type === 'delete' ? 'error' : 'primary'}
                         onClick={onConfirm}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting && !enableConfirm}
                       >
                         {confirmText ?? 'Continue'}
                       </Button>
