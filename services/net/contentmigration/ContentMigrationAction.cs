@@ -422,7 +422,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             }
             else
             {
-                Logger.LogInformation("No action taken.  Not new, updated or stuck.  {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
+                Logger.LogDebug("No action taken.  Not new, updated or stuck.  {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
             }
         }
         catch (Exception ex)
