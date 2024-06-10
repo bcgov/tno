@@ -29,7 +29,7 @@ export const useSettings = (validate?: boolean) => {
       )?.value;
       const frontpageFilterId = settings.find((s) => s.name === Settings.FrontpageFilter)?.value;
       const eventOfTheDayReportId = settings.find(
-        (s) => s.name === Settings.EventOfTheDayReportId,
+        (s) => s.name === Settings.EventOfTheDayReport,
       )?.value;
       storeValues({
         loadingState: 1,
@@ -82,7 +82,7 @@ export const useSettings = (validate?: boolean) => {
         toast.error(`Configuration "${Settings.FrontpageFilter}" is missing from settings.`);
 
       if (!values.eventOfTheDayReportId)
-        toast.error(`Configuration "${Settings.EventOfTheDayReportId}" is missing from settings.`);
+        toast.error(`Configuration "${Settings.EventOfTheDayReport}" is missing from settings.`);
       storeLoading(2);
     }
   }, [
