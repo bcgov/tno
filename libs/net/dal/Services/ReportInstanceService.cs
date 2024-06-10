@@ -66,7 +66,7 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
     /// <returns></returns>
     public ReportInstance? FindInstanceForReportIdAndDate(long reportId, DateTime date)
     {
-        DateTime morning = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
+        DateTime morning = new(date.Year, date.Month, date.Day, 0, 0, 0);
         DateTime midnight = morning.AddHours(24);
         return this.Context.ReportInstances
             .AsNoTracking()
