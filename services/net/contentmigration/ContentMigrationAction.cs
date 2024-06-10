@@ -363,17 +363,17 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             else if (reference != null)
             {
                 // check if this is content previously ingested by this service, but has been updated by an Editor in TNO
-                var originalLastUpdateDate = reference.Metadata!.GetDictionaryJsonValue<DateTime>(ContentReferenceMetaDataKeys.UpdatedOn, DateTime.MinValue);
-                var originalIsContentPublished = reference.Metadata!.GetDictionaryJsonValue<bool>(ContentReferenceMetaDataKeys.IsContentPublished, false);
-                var originalIsFeaturedStory = reference.Metadata!.GetDictionaryJsonValue<bool>(ContentReferenceMetaDataKeys.IsFeaturedStory, false);
-                var originalIsTopStory = reference.Metadata!.GetDictionaryJsonValue<bool>(ContentReferenceMetaDataKeys.IsTopStory, false);
-                var originalIsAlert = reference.Metadata!.GetDictionaryJsonValue<bool>(ContentReferenceMetaDataKeys.IsAlert, false);
-                var originalIsCommentary = reference.Metadata!.GetDictionaryJsonValue<bool>(ContentReferenceMetaDataKeys.IsCommentary, false);
-                var originalCommentaryTimeout = reference.Metadata!.GetDictionaryJsonValue<int?>(ContentReferenceMetaDataKeys.CommentaryTimeout, null);
-                var originalEoDGroup = reference.Metadata!.GetDictionaryJsonValue<string?>(ContentReferenceMetaDataKeys.EoDGroup, null);
-                var originalEoDCategory = reference.Metadata!.GetDictionaryJsonValue<string?>(ContentReferenceMetaDataKeys.EoDCategory, null);
-                var originalTopicScore = reference.Metadata!.GetDictionaryJsonValue<int?>(ContentReferenceMetaDataKeys.TopicScore, null);
-                var originalToneValue = reference.Metadata!.GetDictionaryJsonValue<int?>(ContentReferenceMetaDataKeys.ToneValue, null);
+                var originalLastUpdateDate = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.UpdatedOn, out object? contentUpdatedOn) ? (DateTime.TryParse(contentUpdatedOn?.ToString(), out DateTime updatedOn) ? updatedOn : DateTime.MinValue) : DateTime.MinValue;
+                var originalIsContentPublished = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsContentPublished, out object? contentIsPublished) ? (Boolean.TryParse(contentIsPublished?.ToString(), out bool isPublished) ? isPublished : false) : false;
+                var originalIsFeaturedStory = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsFeaturedStory, out object? contentIsFeaturedStory) ? (Boolean.TryParse(contentIsFeaturedStory?.ToString(), out bool isFeaturedStory) ? isFeaturedStory : false) : false;
+                var originalIsTopStory = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsTopStory, out object? contentIsTopStory) ? (Boolean.TryParse(contentIsTopStory?.ToString(), out bool isTopStory) ? isTopStory : false) : false;
+                var originalIsAlert = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsAlert, out object? contentIsAlert) ? (Boolean.TryParse(contentIsAlert?.ToString(), out bool isAlert) ? isAlert : false) : false;
+                var originalIsCommentary = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsCommentary, out object? contentIsCommentary) ? (Boolean.TryParse(contentIsCommentary?.ToString(), out bool isCommentary) ? isCommentary : false) : false;
+                var originalCommentaryTimeout = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.CommentaryTimeout, out object? contentCommentaryTimeout) ? (Int32.TryParse(contentCommentaryTimeout?.ToString(), out int commentaryTimeout) ? commentaryTimeout : (int?)null) : null;
+                var originalEoDGroup = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.EoDGroup, out object? contentEoDGroup) ? contentEoDGroup?.ToString() : null;
+                var originalEoDCategory = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.EoDCategory, out object? contentEoDCategory) ? contentEoDCategory?.ToString() : null;
+                var originalTopicScore = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.TopicScore, out object? contentTopicScore) ? (Int32.TryParse(contentTopicScore?.ToString(), out int topicScore) ? topicScore : (int?)null) : null;
+                var originalToneValue = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.ToneValue, out object? contentToneValue) ? (Int32.TryParse(contentToneValue?.ToString(), out int toneValue) ? toneValue : (int?)null) : null;
 
                 // IF this record was previously ingested from TNO by the Content Migration Service
                 // AND ((it has been updated since it's original ingest)
