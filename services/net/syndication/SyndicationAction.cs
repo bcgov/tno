@@ -341,8 +341,8 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             Status = (int)WorkflowStatus.InProgress,
             PublishedOn = sourceContent.PublishedOn,
             SourceUpdateOn = item.LastUpdatedTime.UtcDateTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null,
-            Metadata = new Dictionary<string, object> {
-                { ContentReferenceMetaDataKeys.MetadataKeyIngestSource, ingest.Source!.Code }
+            Metadata = new Dictionary<string, object?> {
+                { ContentReferenceMetaDataKeys.IngestSource, ingest.Source!.Code }
             }
         };
     }

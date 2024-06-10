@@ -363,29 +363,51 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             else if (reference != null)
             {
                 // check if this is content previously ingested by this service, but has been updated by an Editor in TNO
-                var originalLastUpdateDate = DateTime.MinValue;
-                var originalIsContentPublished = false;
-                if (reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn, out object? mdUpdatedOn)
-                    && DateTime.TryParse(mdUpdatedOn.ToString(), out DateTime referenceUpdatedOn))
-                    originalLastUpdateDate = referenceUpdatedOn;
-
-                if (reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.MetadataKeyIsContentPublished, out object? mdIsContentPublished)
-                    && Boolean.TryParse(mdIsContentPublished.ToString(), out bool referenceIsContentPublished))
-                    originalIsContentPublished = referenceIsContentPublished;
+                var originalLastUpdateDate = reference.Metadata!.GetDictionaryJsonValue<DateTime>(ContentReferenceMetaDataKeys.UpdatedOn, DateTime.MinValue);
+                var originalIsContentPublished = reference.Metadata!.GetDictionaryJsonValue<bool>(ContentReferenceMetaDataKeys.IsContentPublished, false);
+                var originalIsFeaturedStory = reference.Metadata!.GetDictionaryJsonValue<bool>(ContentReferenceMetaDataKeys.IsFeaturedStory, false);
+                var originalIsTopStory = reference.Metadata!.GetDictionaryJsonValue<bool>(ContentReferenceMetaDataKeys.IsTopStory, false);
+                var originalIsAlert = reference.Metadata!.GetDictionaryJsonValue<bool>(ContentReferenceMetaDataKeys.IsAlert, false);
+                var originalIsCommentary = reference.Metadata!.GetDictionaryJsonValue<bool>(ContentReferenceMetaDataKeys.IsCommentary, false);
+                var originalCommentaryTimeout = reference.Metadata!.GetDictionaryJsonValue<int?>(ContentReferenceMetaDataKeys.CommentaryTimeout, null);
+                var originalEoDGroup = reference.Metadata!.GetDictionaryJsonValue<string?>(ContentReferenceMetaDataKeys.EoDGroup, null);
+                var originalEoDCategory = reference.Metadata!.GetDictionaryJsonValue<string?>(ContentReferenceMetaDataKeys.EoDCategory, null);
+                var originalTopicScore = reference.Metadata!.GetDictionaryJsonValue<int?>(ContentReferenceMetaDataKeys.TopicScore, null);
+                var originalToneValue = reference.Metadata!.GetDictionaryJsonValue<int?>(ContentReferenceMetaDataKeys.ToneValue, null);
 
                 // IF this record was previously ingested from TNO by the Content Migration Service
                 // AND ((it has been updated since it's original ingest)
                 //  OR (the published status of the TNO items has changed))
                 // THEN trigger an update to the content
-                if ((sourceContent.UpdatedOn > originalLastUpdateDate) || (newsItem.Published != originalIsContentPublished))
+                if ((sourceContent.UpdatedOn > originalLastUpdateDate)
+                    || (newsItem.Published != originalIsContentPublished)
+                    || (newsItem.FrontPageStory != originalIsFeaturedStory)
+                    || (newsItem.WapTopStory != originalIsTopStory)
+                    || (newsItem.Alert != originalIsAlert)
+                    || (newsItem.Commentary != originalIsCommentary)
+                    || (newsItem.CommentaryTimeout != originalCommentaryTimeout)
+                    || (newsItem.EodGroup != originalEoDGroup)
+                    || (newsItem.EodCategory != originalEoDCategory)
+                    || (newsItem.Topics.FirstOrDefault()?.Score != originalTopicScore)
+                    || (newsItem.Tones.FirstOrDefault()?.ToneValue != originalToneValue))
                 {
                     addOrUpdateContent = true;
+
+                    // Update the content reference so that we can compare future fetches.
                     reference.PublishedOn = sourceContent.PublishedOn;
                     reference.SourceUpdateOn = sourceContent.UpdatedOn;
-                    // make sure the published status on the reference is up to date
-                    reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyIsContentPublished] = newsItem.Published;
-                    // update the stored UpdatedOn value
-                    reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn] = sourceContent.UpdatedOn?.ToString("yyyy-MM-dd h:mm:ss tt") ?? DateTime.Now.ToString("yyyy-MM-dd h:mm:ss tt");
+                    reference.Metadata[ContentReferenceMetaDataKeys.IsContentPublished] = newsItem.Published;
+                    reference.Metadata[ContentReferenceMetaDataKeys.UpdatedOn] = sourceContent.UpdatedOn?.ToString("yyyy-MM-dd h:mm:ss tt") ?? DateTime.Now.ToString("yyyy-MM-dd h:mm:ss tt");
+                    reference.Metadata[ContentReferenceMetaDataKeys.IsFeaturedStory] = newsItem.FrontPageStory;
+                    reference.Metadata[ContentReferenceMetaDataKeys.IsTopStory] = newsItem.WapTopStory;
+                    reference.Metadata[ContentReferenceMetaDataKeys.IsAlert] = newsItem.Alert;
+                    reference.Metadata[ContentReferenceMetaDataKeys.IsCommentary] = newsItem.Commentary;
+                    reference.Metadata[ContentReferenceMetaDataKeys.CommentaryTimeout] = newsItem.CommentaryTimeout;
+                    reference.Metadata[ContentReferenceMetaDataKeys.EoDGroup] = newsItem.EodGroup;
+                    reference.Metadata[ContentReferenceMetaDataKeys.EoDCategory] = newsItem.EodCategory;
+                    reference.Metadata[ContentReferenceMetaDataKeys.TopicScore] = newsItem.Topics.FirstOrDefault()?.Score;
+                    reference.Metadata[ContentReferenceMetaDataKeys.ToneValue] = newsItem.Tones.FirstOrDefault()?.ToneValue;
+
                     reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
                     // What about the worst case scenario: one Editor changes it in MMI and another Editor changes it in TNO?
                     Logger.LogInformation("Received updated content from TNO. Forcing an update to the MMI Content : {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
