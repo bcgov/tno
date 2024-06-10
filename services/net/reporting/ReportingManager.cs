@@ -492,14 +492,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             var responseModel = new ReportEmailResponseModel();
             try
             {
-                if (linkOnlyFormatTo.Any() && String.IsNullOrEmpty(request.To))
+                if ((linkOnlyFormatTo.Any() || linkOnlyFormatCC.Any() || linkOnlyFormatBCC.Any()) && String.IsNullOrEmpty(request.To))
                 {
                     // Send the email.
                     var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, linkOnlyFormatCC, linkOnlyFormatBCC, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
                     responseModel.LinkOnlyFormatResponse = responseLinkOnly != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions)) : JsonDocument.Parse("{}");
                 }
 
-                if (fullTextFormatTo.Any() || !String.IsNullOrEmpty(request.To))
+                if (fullTextFormatTo.Any() || fullTextFormatCC.Any() || fullTextFormatBCC.Any() || !String.IsNullOrEmpty(request.To))
                 {
                     // Send the email.
                     var responseFullText = await SendEmailAsync(request, fullTextFormatTo, fullTextFormatCC, fullTextFormatBCC, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
@@ -611,14 +611,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             var responseModel = new ReportEmailResponseModel();
             try
             {
-                if (request.SendToSubscribers && linkOnlyFormatTo.Any())
+                if (request.SendToSubscribers && (linkOnlyFormatTo.Any() || linkOnlyFormatCC.Any() || linkOnlyFormatBCC.Any()))
                 {
                     // Send the email.
                     var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, linkOnlyFormatCC, linkOnlyFormatBCC, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
                     responseModel.LinkOnlyFormatResponse = responseLinkOnly != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions)) : JsonDocument.Parse("{}");
                 }
 
-                if (fullTextFormatTo.Any() || !String.IsNullOrEmpty(request.To))
+                if (fullTextFormatTo.Any() || fullTextFormatCC.Any() || fullTextFormatBCC.Any() || !String.IsNullOrEmpty(request.To))
                 {
                     // Send the email.
                     var responseFullText = await SendEmailAsync(request, fullTextFormatTo, fullTextFormatCC, fullTextFormatBCC, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
