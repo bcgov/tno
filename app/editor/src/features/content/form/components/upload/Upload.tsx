@@ -167,9 +167,9 @@ export const Upload: React.FC<IUploadProps> = ({
       >
         <Col flex="1">
           <img
-            height="300"
-            width="500"
-            alt=""
+            height="350"
+            width="400"
+            alt="media"
             className="image"
             src={stream?.url || fileBlobUrl}
           ></img>
@@ -195,7 +195,8 @@ export const Upload: React.FC<IUploadProps> = ({
       </Show>
       <Show visible={!!file || !!fileName || !!fileReference}>
         <Row justifyContent="flex-end" gap="0.5rem" alignItems="center">
-          {fileName}
+          <span className="file-name">{fileName}</span>
+
           <Row gap="0.25rem">
             <Show visible={values.contentType === ContentTypeName.AudioVideo}>
               <Button
@@ -216,27 +217,29 @@ export const Upload: React.FC<IUploadProps> = ({
                 {processing ? <Spinner size="8px" /> : <FaMobile />}
               </Button>
             </Show>
-            <Button
-              variant={ButtonVariant.link}
-              onClick={() => onDownload?.()}
-              disabled={!onDownload || !file || !downloadable || !fileName || !fileReference}
-              className="file-name"
-              tooltip={`Download ${!!fileName ? fileName : 'not available'}`}
-            >
-              <FaDownload />
-            </Button>
-            <Button
-              disabled={!fileName || (!fileReference && !file)}
-              variant={ButtonVariant.danger}
-              className="delete"
-              onClick={() => {
-                if (verifyDelete) toggle();
-                else handleDelete();
-              }}
-            >
-              <FaTrash />
-            </Button>
           </Row>
+        </Row>
+        <Row className="upload-buttons">
+          <Button
+            variant={ButtonVariant.link}
+            onClick={() => onDownload?.()}
+            disabled={!onDownload || !file || !downloadable || !fileName || !fileReference}
+            className="file-name"
+            tooltip={`Download ${!!fileName ? fileName : 'not available'}`}
+          >
+            <FaDownload />
+          </Button>
+          <Button
+            disabled={!fileName || (!fileReference && !file)}
+            variant={ButtonVariant.danger}
+            className="delete"
+            onClick={() => {
+              if (verifyDelete) toggle();
+              else handleDelete();
+            }}
+          >
+            <FaTrash />
+          </Button>
         </Row>
       </Show>
       {/* Modal to appear when removing a file */}
