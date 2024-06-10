@@ -97,7 +97,7 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
             // TODO: replace the USER_RSN value on UserIdentifier with something that can be mapped by the Content Service to an MMI user
             // TODO: remove UserRSN filter once user can be mapped
             content.TonePools = newsItem.Tones.Where(t => t.UserRSN == 0)
-                .Select(t => new Kafka.Models.TonePool { Value = (int)t.ToneValue, UserIdentifier = t.UserRSN == 0 ? null : t.UserRSN.ToString() });
+                .Select(t => new Kafka.Models.TonePool((int)t.ToneValue, t.UserRSN == 0 ? null : t.UserRSN.ToString()));
         }
 
         if (!string.IsNullOrEmpty(newsItem.EodGroup) && !string.IsNullOrEmpty(newsItem.EodCategory))
@@ -116,8 +116,7 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
         }
 
         // map relevant news item properties to actions
-        content.Actions = GetActionMappings(newsItem.FrontPageStory, newsItem.WapTopStory, newsItem.Alert,
-            newsItem.Commentary, newsItem.CommentaryTimeout);
+        content.Actions = GetActionMappings(newsItem.FrontPageStory, newsItem.WapTopStory, newsItem.Alert, newsItem.Commentary, newsItem.CommentaryTimeout);
 
         // the total "Effort" is stored in the Number2 field as seconds
         if (newsItem.Number2.HasValue && newsItem.Number2 > 0)
@@ -139,7 +138,7 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
     {
         string[] targetTypes = new string[] { "Radio News", "TV News", "Talk Radio", "Scrum", "CC News" };
         return PredicateBuilder.New<T>()
-                .And(ni => targetTypes.Contains(ni.Type!.ToString()))
+                .And(ni => targetTypes.Contains(ni.Type.ToString()))
                 .Or(ni => ni.ContentType!.Equals("video/quicktime"));
     }
 }

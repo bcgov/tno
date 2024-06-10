@@ -187,8 +187,8 @@ public class ClipAction : CommandAction<ClipOptions>
             PublishedOn = this.ToTimeZone(publishedOn, ingest).ToUniversalTime(),
             Topic = ingest.Topic,
             Status = (int)WorkflowStatus.InProgress,
-            Metadata = new Dictionary<string, object> {
-                { ContentReferenceMetaDataKeys.MetadataKeyIngestSource, ingest.Source!.Code }
+            Metadata = new Dictionary<string, object?> {
+                { ContentReferenceMetaDataKeys.IngestSource, ingest.Source!.Code }
             }
         };
     }

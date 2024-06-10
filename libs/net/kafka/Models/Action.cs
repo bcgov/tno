@@ -1,5 +1,3 @@
-using ValueType = TNO.Entities.ValueType;
-
 namespace TNO.Kafka.Models;
 
 public class Action
