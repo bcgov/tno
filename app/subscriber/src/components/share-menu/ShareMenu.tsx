@@ -1,3 +1,4 @@
+import { Modal } from 'components/modal';
 import React from 'react';
 import { FaEnvelope } from 'react-icons/fa';
 import { toast } from 'react-toastify';
@@ -8,7 +9,6 @@ import {
   Button,
   IContentModel,
   IUserColleagueModel,
-  Modal,
   Row,
   Settings,
   Text,
