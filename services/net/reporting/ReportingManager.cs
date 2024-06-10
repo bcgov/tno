@@ -568,27 +568,32 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <exception cref="ArgumentException"></exception>
     private async Task GenerateReportAsync(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance)
     {
+        var resending = instance.SentOn.HasValue && !String.IsNullOrWhiteSpace(instance.Subject) && !String.IsNullOrWhiteSpace(instance.Body);
         // TODO: Control when a report is sent through configuration.
         var report = instance.Report ?? throw new ArgumentException("Report instance must include the report model.");
         var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
-        var searchResults = await this.Api.GetContentForReportInstanceIdAsync(instance.Id);
+
+        var searchResults = !resending ? await this.Api.GetContentForReportInstanceIdAsync(instance.Id) : Array.Empty<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>();
         var sectionContent = sections.ToDictionary(s => s.Name, section =>
         {
             section.Content = searchResults.Where(sr => sr.SectionName == section.Name && sr.Content != null).Select(ri => new ContentModel(ri.Content!, ri.SortOrder)).ToArray();
             return section;
         });
 
-        // Fetch all image data.  Need to do this in a separate step because of async+await.
-        // TODO: Review this implementation due to performance issues.
-        foreach (var section in sectionContent)
+        if (!resending)
         {
-            foreach (var content in section.Value.Content.Where(c => c.ContentType == Entities.ContentType.Image))
+            // Fetch all image data.  Need to do this in a separate step because of async+await.
+            // TODO: Review this implementation due to performance issues.
+            foreach (var section in sectionContent)
             {
-                content.ImageContent = await this.Api.GetImageFile(content.Id);
+                foreach (var content in section.Value.Content.Where(c => c.ContentType == Entities.ContentType.Image))
+                {
+                    content.ImageContent = await this.Api.GetImageFile(content.Id);
+                }
             }
         }
 
-        var subject = await this.ReportEngine.GenerateReportSubjectAsync(instance.Report, instance, sectionContent, false, false);
+        var subject = !resending ? await this.ReportEngine.GenerateReportSubjectAsync(instance.Report, instance, sectionContent, false, false) : instance.Subject;
 
         // Generate and send report to subscribers who want an email with a link to the website.
         // We do this first because we don't want to save the output of this in the instance.
@@ -603,7 +608,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var fullTextFormatTo = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).Select(s => s.User!.GetEmail()).ToArray();
         var fullTextFormatCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).Select(s => s.User!.GetEmail()).ToArray();
         var fullTextFormatBCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).Select(s => s.User!.GetEmail()).ToArray();
-        var fullTextFormatBody = await this.ReportEngine.GenerateReportBodyAsync(instance.Report, instance, sectionContent, GetLinkedReportAsync, null, false, false);
+        var fullTextFormatBody = !resending ? await this.ReportEngine.GenerateReportBodyAsync(instance.Report, instance, sectionContent, GetLinkedReportAsync, null, false, false) : instance.Body;
 
         if (request.SendToSubscribers || !String.IsNullOrWhiteSpace(request.To))
         {
@@ -647,7 +652,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
             }
 
-            if (request.GenerateInstance)
+            if (request.GenerateInstance && !resending)
             {
                 // Update the report instance.
                 instance.Subject = subject;
@@ -660,7 +665,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             }
         }
 
-        if (report.Settings.Content.ClearFolders && request.SendToSubscribers)
+        if (report.Settings.Content.ClearFolders && request.SendToSubscribers && !resending)
         {
             // Make a request to clear content from folders in this report.
             await this.Api.ClearFoldersInReport(report.Id);
