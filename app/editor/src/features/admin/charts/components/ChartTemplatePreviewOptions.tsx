@@ -253,23 +253,6 @@ export const ChartTemplatePreviewOptions = () => {
                 }}
               />
               <Checkbox
-                name="showAxis"
-                label="Show Axis"
-                checked={!!chartRequestForm.settings.showAxis}
-                onChange={(e) => {
-                  setChartRequestForm({
-                    ...chartRequestForm,
-                    settings: mergeChartSettings(
-                      values.settings.options,
-                      chartRequestForm.settings,
-                      {
-                        showAxis: e.target.checked,
-                      },
-                    ),
-                  });
-                }}
-              />
-              <Checkbox
                 name="isHorizontal"
                 label="Flip X and Y axis"
                 checked={!!chartRequestForm.settings.isHorizontal}
@@ -281,6 +264,40 @@ export const ChartTemplatePreviewOptions = () => {
                       chartRequestForm.settings,
                       {
                         isHorizontal: e.target.checked,
+                      },
+                    ),
+                  });
+                }}
+              />
+              <Checkbox
+                name="xShowAxisLabels"
+                label="Show X axis labels"
+                checked={!!chartRequestForm.settings.xShowAxisLabels}
+                onChange={(e) => {
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        xShowAxisLabels: e.target.checked,
+                      },
+                    ),
+                  });
+                }}
+              />
+              <Checkbox
+                name="yShowAxisLabels"
+                label="Show Y axis labels"
+                checked={!!chartRequestForm.settings.yShowAxisLabels}
+                onChange={(e) => {
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        yShowAxisLabels: e.target.checked,
                       },
                     ),
                   });

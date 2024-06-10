@@ -514,11 +514,21 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             }
             catch (ChesException ex)
             {
+                this.Logger.LogError(ex, "Failed to send report ID: {id}, InstanceId: {instance}", instanceModel?.ReportId, instanceModel?.Id);
                 if (responseModel.LinkOnlyFormatResponse != null)
                     responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
                 else
                     responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
 
+                if (instanceModel != null)
+                {
+                    instanceModel.Status = ReportStatus.Failed;
+                    instanceModel.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+                }
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Failed to send report ID: {id}, InstanceId: {instance}", instanceModel?.ReportId, instanceModel?.Id);
                 if (instanceModel != null)
                 {
                     instanceModel.Status = ReportStatus.Failed;
@@ -621,11 +631,18 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             }
             catch (ChesException ex)
             {
+                this.Logger.LogError(ex, "Failed to send report ID: {id}, InstanceId: {instance}", instance.ReportId, instance.Id);
                 if (responseModel.LinkOnlyFormatResponse != null)
                     responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
                 else
                     responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
 
+                instance.Status = ReportStatus.Failed;
+                instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Failed to send report ID: {id}, InstanceId: {instance}", instance.ReportId, instance.Id);
                 instance.Status = ReportStatus.Failed;
                 instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
             }

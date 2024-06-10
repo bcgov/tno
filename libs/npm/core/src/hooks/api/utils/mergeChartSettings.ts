@@ -41,11 +41,12 @@ export const mergeChartSettings = (
     legendLabelBoxWidth: override.legendLabelBoxWidth,
     legendPosition: override.legendPosition,
     legendAlign: override.legendAlign,
-    showAxis: override.showAxis,
     xLegend: override.xLegend,
     xLegendFontSize: override.xLegendFontSize,
+    xShowAxisLabels: override.xShowAxisLabels,
     yLegend: override.yLegend,
     yLegendFontSize: override.yLegendFontSize,
+    yShowAxisLabels: override.yShowAxisLabels,
     isHorizontal: override.isHorizontal,
     dataLabelColors: override.dataLabelColors,
     datasetColors: override.datasetColors,
@@ -120,7 +121,7 @@ export const mergeChartSettings = (
         x: {
           ...xScales,
           stacked: override.stacked,
-          display: override.showAxis,
+          display: override.xShowAxisLabels,
           title: {
             ...xScales.title,
             display: !!override.xLegend,
@@ -140,7 +141,7 @@ export const mergeChartSettings = (
         y: {
           ...yScales,
           stacked: override.stacked,
-          display: override.showAxis,
+          display: override.yShowAxisLabels,
           title: {
             ...yScales.title,
             display: !!override.yLegend,

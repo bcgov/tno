@@ -116,6 +116,11 @@ public class ChartSectionSettingsModel
     public int? LegendLabelFontSize { get; set; }
 
     /// <summary>
+    /// get/set -
+    /// </summary>
+    public bool? XShowAxisLabels { get; set; }
+
+    /// <summary>
     /// get/set - X axis legend title
     /// </summary>
     [JsonPropertyName("xLegend")]
@@ -125,6 +130,11 @@ public class ChartSectionSettingsModel
     /// get/set - Legend X axis title font size
     /// </summary>
     public int? XLegendFontSize { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public bool? YShowAxisLabels { get; set; }
 
     /// <summary>
     /// get/set - Y axis legend title
@@ -146,11 +156,6 @@ public class ChartSectionSettingsModel
     /// get/set - Chart data label font size
     /// </summary>
     public int? DataLabelFontSize { get; set; }
-
-    /// <summary>
-    /// get/set -
-    /// </summary>
-    public bool? ShowAxis { get; set; }
 
     /// <summary>
     /// get/set - Whether to stack datasets (only works on some charts).
