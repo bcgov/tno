@@ -7,7 +7,7 @@ import { Row } from 'tno-core/dist/components/flex/row';
  */
 export const NavBar: React.FC = () => {
   const [activeHover, setActiveHover] = React.useState<string>('');
-
+  const [activeSubmenu, setActiveSubmenu] = React.useState<string>('');
   const hideRef = React.useRef(false);
   const ref = React.useRef<any>();
 
@@ -25,7 +25,10 @@ export const NavBar: React.FC = () => {
   const onMouseLeave = () => {
     hideRef.current = true;
     setTimeout(() => {
-      if (hideRef.current) setActiveHover('');
+      if (hideRef.current) {
+        setActiveHover('');
+        setActiveSubmenu('');
+      }
     }, 2000);
   };
 
@@ -33,80 +36,146 @@ export const NavBar: React.FC = () => {
     if (ref.current && !ref.current.contains(event.target)) {
       hideRef.current = true;
       setActiveHover('');
+      setActiveSubmenu('');
     }
   };
 
-  const handleClick = (menu: string = '') => {
-    if (activeHover === menu) setActiveHover('');
-    else setActiveHover(menu);
+  const handleFirstLevelClick = (menu: string = '') => {
+    setActiveSubmenu('');
+    setActiveHover(activeHover === menu ? '' : menu);
+  };
+
+  const handleSecondLevelClick = (submenu: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setActiveSubmenu(activeSubmenu === submenu ? '' : submenu);
   };
 
   return (
     <div onMouseLeave={onMouseLeave} onMouseOver={onMouseOver} ref={ref}>
       <NavBarGroup className="navbar">
         <Row>
-          <div className="editor" onClick={() => handleClick('editor')}>
-            <NavBarItem activeHoverTab={activeHover} label="Editor" claim={Claim.editor} />
+          <div className="home" onClick={() => handleFirstLevelClick('')}>
+            <NavBarItem navigateTo="/contents" label="Home" claim={Claim.editor} />
           </div>
-          <div className="admin" onClick={() => handleClick('admin')}>
-            <NavBarItem activeHoverTab={activeHover} label="Admin" claim={Claim.administrator} />
+
+          <div className="content" onClick={() => handleFirstLevelClick('content')}>
+            <NavBarItem activeHoverTab={activeHover} label="Content" claim={Claim.editor} />
           </div>
-          <div className="report" onClick={() => handleClick('report')}>
-            <NavBarItem activeHoverTab={activeHover} label="Reports" claim={Claim.editor} />
+
+          <div className="report-building" onClick={() => handleFirstLevelClick('report-building')}>
+            <NavBarItem activeHoverTab={activeHover} label="Report Building" claim={Claim.editor} />
           </div>
-          <div className="event-of-the-day" onClick={() => handleClick('event-of-the-day')}>
+
+          <div
+            className="content-configuration"
+            onClick={() => handleFirstLevelClick('content-configuration')}
+          >
             <NavBarItem
               activeHoverTab={activeHover}
-              label="Event of the Day"
+              label="Content Configuration"
+              claim={Claim.administrator}
+            />
+          </div>
+
+          <div className="data-import" onClick={() => handleFirstLevelClick('data-import')}>
+            <NavBarItem
+              activeHoverTab={activeHover}
+              label="Data Import"
+              claim={Claim.administrator}
+            />
+          </div>
+
+          <div className="system-settings" onClick={() => handleFirstLevelClick('system-settings')}>
+            <NavBarItem
+              activeHoverTab={activeHover}
+              label="System Settings"
               claim={Claim.administrator}
             />
           </div>
         </Row>
       </NavBarGroup>
-      <NavBarGroup hover zIndex={1001} className="navbar" onClick={() => handleClick()}>
+      <NavBarGroup hover zIndex={1001} className="navbar" onClick={() => handleFirstLevelClick()}>
         <Row hidden={!activeHover}>
-          {/* Editor */}
-          <Show visible={activeHover === 'editor'}>
-            <NavBarItem navigateTo="/contents" label="Content" claim={Claim.editor} level={1} />
+          {/* Content
+              Items:
+              All Content, Papers, Transcripts Queue
+
+          */}
+          <Show visible={activeHover === 'content'}>
+            <NavBarItem navigateTo="/contents" label="All Content" claim={Claim.editor} level={1} />
             <NavBarItem navigateTo="/papers" label="Papers" claim={Claim.editor} level={1} />
-            {/* <NavBarItem
-              navigateTo="/storage/locations/1"
-              label="File Explorer"
-              claim={Claim.editor}
-              level={1}
-            />
-            <NavBarItem navigateTo="/clips" label="Request Clip" claim={Claim.editor} level={1} /> */}
             <NavBarItem
               navigateTo="/transcriptions"
-              label="Transcriptions"
+              label="Transcripts Queue"
               claim={Claim.editor}
               level={1}
             />
           </Show>
 
-          {/* Admin */}
-          <Show visible={activeHover === 'admin'}>
+          <Show visible={activeHover === 'report-building'}>
+            {/* Report Building
+              Items:
+              Filters
+              Folders
+              Evening Overview
+              Event of the day
+              products
+              CBRA report
+              Report Configuration
+            */}
             <NavBarItem
-              navigateTo="/admin/dashboard"
-              label="Dashboard"
+              navigateTo="/admin/filters"
+              label="Filters"
               claim={Claim.administrator}
               level={1}
             />
             <NavBarItem
-              navigateTo="/admin/programs"
-              label="Show/Program"
+              navigateTo="/admin/folders"
+              label="Folders"
               claim={Claim.administrator}
               level={1}
             />
             <NavBarItem
-              navigateTo="/admin/contributors"
-              label="Columnist/Pundit"
+              navigateTo="/reports/av/evening-overview"
+              label="Evening Overview"
+              claim={Claim.editor}
+              level={1}
+            />
+            <div
+              className="event-of-the-day"
+              onClick={(e) => handleSecondLevelClick('event-of-the-day-details', e)}
+            >
+              <NavBarItem label="Event of the day ▼" claim={Claim.administrator} level={1} />
+            </div>
+            <NavBarItem
+              navigateTo="/admin/products"
+              label="MMI Products"
               claim={Claim.administrator}
               level={1}
             />
             <NavBarItem
-              navigateTo="/admin/sources"
-              label="Sources"
+              navigateTo="/reports/cbra"
+              label="CBRA Report"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <div
+              className="report-configuration"
+              onClick={(e) => handleSecondLevelClick('report-configuration', e)}
+            >
+              <NavBarItem label="Report Configuration ▼" claim={Claim.administrator} level={1} />
+            </div>
+          </Show>
+
+          {/* Content Configuration
+              items:
+              Tags，Media Types，Columnists & Pundits，Ministers，Shows & Programs
+
+          */}
+          <Show visible={activeHover === 'content-configuration'}>
+            <NavBarItem
+              navigateTo="/admin/tags"
+              label="Tags"
               claim={Claim.administrator}
               level={1}
             />
@@ -117,8 +186,8 @@ export const NavBar: React.FC = () => {
               level={1}
             />
             <NavBarItem
-              navigateTo="/admin/tags"
-              label="Tags"
+              navigateTo="/admin/contributors"
+              label="Columnists & Pundits"
               claim={Claim.administrator}
               level={1}
             />
@@ -129,44 +198,65 @@ export const NavBar: React.FC = () => {
               level={1}
             />
             <NavBarItem
-              navigateTo="/admin/system-message"
-              label="System Message"
+              navigateTo="/admin/programs"
+              label="Shows & Programs"
               claim={Claim.administrator}
               level={1}
             />
+          </Show>
+
+          {/* Data Import 
+             Items:
+             Services dashboard, Ingest, Ingest Types, Media sources, Media licencing
+          */}
+          <Show visible={activeHover === 'data-import'}>
+            <NavBarItem
+              navigateTo="/admin/dashboard"
+              label="Services Dashboard"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <NavBarItem
+              navigateTo="/admin/ingests"
+              label="Ingested Services"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <NavBarItem
+              navigateTo="/admin/ingest/types"
+              label="Ingest Types"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <NavBarItem
+              navigateTo="/admin/sources"
+              label="Media Sources"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <NavBarItem
+              navigateTo="/admin/licences"
+              label="Media Licences"
+              claim={Claim.administrator}
+              level={1}
+            />
+          </Show>
+
+          {/* System Settings 
+            Items:
+            Manage Users,System Message, Notifications,Actions, Data Locations, Data Connections,System Configuration
+          
+          */}
+          <Show visible={activeHover === 'system-settings'}>
             <NavBarItem
               navigateTo="/admin/users"
-              label="Users"
+              label="Manage Users"
               claim={Claim.administrator}
               level={1}
             />
             <NavBarItem
-              navigateTo="/admin/reports"
-              label="Reports"
-              claim={Claim.administrator}
-              level={1}
-            />
-            <NavBarItem
-              navigateTo="/admin/products"
-              label="Products"
-              claim={Claim.administrator}
-              level={1}
-            />
-            <NavBarItem
-              navigateTo="/admin/av/evening-overview"
-              label="Evening Overview Templates"
-              claim={Claim.administrator}
-              level={1}
-            />
-            <NavBarItem
-              navigateTo="/admin/filters"
-              label="Filters"
-              claim={Claim.administrator}
-              level={1}
-            />
-            <NavBarItem
-              navigateTo="/admin/folders"
-              label="Folders"
+              navigateTo="/admin/system-message"
+              label="System Message"
               claim={Claim.administrator}
               level={1}
             />
@@ -183,84 +273,68 @@ export const NavBar: React.FC = () => {
               level={1}
             />
             <NavBarItem
-              navigateTo="/admin/licences"
-              label="Licences"
-              claim={Claim.administrator}
-              level={1}
-            />
-            <NavBarItem
-              navigateTo="/admin/work/orders"
-              label="Work Orders"
-              claim={Claim.administrator}
-              level={1}
-            />
-            <NavBarItem
-              navigateTo="/admin/connections"
-              label="Connections"
-              claim={Claim.administrator}
-              level={1}
-            />
-            <NavBarItem
               navigateTo="/admin/data/locations"
               label="Data Locations"
               claim={Claim.administrator}
               level={1}
             />
             <NavBarItem
-              navigateTo="/admin/ingests"
-              label="Ingest"
-              claim={Claim.administrator}
-              level={1}
-            />
-            <NavBarItem
-              navigateTo="/admin/ingest/types"
-              label="Ingest Types"
+              navigateTo="/admin/connections"
+              label="Data Connections"
               claim={Claim.administrator}
               level={1}
             />
             <NavBarItem
               navigateTo="/admin/settings"
-              label="Settings"
+              label="System Configuration"
               claim={Claim.administrator}
               level={1}
             />
           </Show>
-
-          {/* Reports */}
-          <Show visible={activeHover === 'report'}>
-            <NavBarItem
-              navigateTo="/reports/av/evening-overview"
-              label="Evening Overview"
-              claim={Claim.editor}
-              level={1}
-            />
-            <NavBarItem
-              navigateTo="/reports/cbra"
-              label="CBRA Report"
-              claim={Claim.administrator}
-              level={1}
-            />
-          </Show>
-
-          {/* Event of the day */}
-          <Show visible={activeHover === 'event-of-the-day'}>
+        </Row>
+        <Row hidden={!activeSubmenu}>
+          {/* Items:
+              Event of the day
+              Topics
+              Topic Scoring
+          
+          */}
+          <Show visible={activeSubmenu === 'event-of-the-day-details'}>
             <NavBarItem
               navigateTo="/admin/event-of-the-day"
-              label="Event of the day"
+              label={'Event of the day'}
               claim={Claim.administrator}
-              level={1}
+              level={2}
             />
             <NavBarItem
               navigateTo="/admin/topics"
-              label="Topics"
-              claim={Claim.administrator}
-              level={1}
+              label={`Edit Topics`}
+              claim={Claim.editor}
+              level={2}
             />
             <NavBarItem
               navigateTo="/admin/topic-scores"
-              label="Topic Scores"
+              label="Configure Topic Scoring"
               claim={Claim.administrator}
-              level={1}
+              level={2}
+            />
+          </Show>
+          {/* Items:
+              Manage reports
+              Evening Overview Templates
+          */}
+          <Show visible={activeSubmenu === 'report-configuration'}>
+            <NavBarItem
+              navigateTo="/admin/reports"
+              label={`Manage reports`}
+              claim={Claim.administrator}
+              level={2}
+            />
+            <NavBarItem
+              navigateTo="/admin/av/evening-overview"
+              label="Evening Overview Templates"
+              claim={Claim.administrator}
+              level={2}
             />
           </Show>
         </Row>
