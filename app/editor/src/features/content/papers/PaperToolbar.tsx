@@ -60,47 +60,17 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
     try {
       setIsLoading(true);
       const preview = await previewReport(reportID);
-      let noContentText = 'Report content is empty. Please add content before sending.';
-      if (!preview.data) {
-        toast.error(noContentText);
-        return false;
-      } else if (preview.body && preview.body === '\n') {
+      let noContentToastText = 'Report content is empty. Please add content before sending.';
+      if (preview.body && preview.body === '\n') {
         toast.error(
           `Report tempalte is inactive, check the settings ReportID with value ${reportID}.`,
         );
         return false;
       } else {
-        /*
-        The preview data come from ReportHelper.cs -> GenerateReportAsync method which 
-        assigned to the preview.data as a part of elasticSearch result.
-        whith the structure like this:
-
-        {
-            "10c5d002-a8b5-40ef-a683-f4371ad1eee8": {
-                "took": 1,
-                "time_out": false,
-                "_shards": {
-                    "total": 1,
-                    "successful": 1,
-                    "skipped": 0,
-                    "failed": 0
-                },
-                "hits": {
-                    "total": {
-                        "value": 0,
-                        "relation": "eq"
-                    },
-                    "hits": []
-                }
-            }
-        }            
-        */
-        const hitsData: JSON = Object.values(preview.data)
-          .map((item: any) => item.hits)
-          .find((hitsData) => hitsData.hits.length !== 0);
-
-        if (!hitsData) {
-          toast.error(noContentText);
+        let keywords = 'There is no content in this report';
+        const isReportEmpty = preview.body?.toLowerCase().includes(keywords.toLowerCase());
+        if (isReportEmpty) {
+          toast.error(noContentToastText);
           return false;
         }
       }
