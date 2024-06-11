@@ -9,6 +9,7 @@ import {
   FaHome,
   FaMoon,
   FaNewspaper,
+  FaQuestion,
   FaSearch,
   FaSlidersH,
   FaSun,
@@ -105,6 +106,12 @@ export const NavbarOptions: INavbarOptions = {
     label: 'My Reports',
     path: 'reports',
     icon: <FaClipboard />,
+  },
+  help: {
+    groupName: 'USER RESOURCES',
+    label: 'Help',
+    path: 'help',
+    icon: <FaQuestion />,
   },
   settings: {
     groupName: 'USER RESOURCES',
