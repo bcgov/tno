@@ -16,6 +16,7 @@ import {
   OptionItem,
   replaceQueryParams,
   Settings,
+  Spinner,
   ToolBar,
   ToolBarSection,
   useModal,
@@ -41,7 +42,7 @@ export interface IPaperToolbarProps {
 export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
   const [{ filterPaper: filter }, { storeFilterPaper }] = useContent();
   const [{ mediaTypeOptions }] = useLookupOptions();
-  const [{ publishReport }] = useReports();
+  const [{ previewReport, publishReport }] = useReports();
   const [{ publishNotification }] = useNotifications();
   const { morningReportId, frontPageImagesReportId, topStoryAlertId } = useSettings();
   const { toggle, isShowing } = useModal();
@@ -49,9 +50,37 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
   const [, setMediaTypeOptions] = React.useState<IOptionItem[]>([]);
   const [sendInfo, setSendInfo] = React.useState<IReportInfo>();
 
+  const [isLoading, setIsLoading] = React.useState(false);
+
   React.useEffect(() => {
     setMediaTypeOptions([new OptionItem<number>('Any', 0), ...mediaTypeOptions]);
   }, [mediaTypeOptions]);
+
+  async function checkReportContent(reportID: number) {
+    try {
+      setIsLoading(true);
+      const preview = await previewReport(reportID);
+      let noContentToastText = 'Report content is empty. Please add content before sending.';
+      if (preview.body && preview.body === '\n') {
+        toast.error(
+          `Report tempalte is inactive, check the settings ReportID with value ${reportID}.`,
+        );
+        return false;
+      } else {
+        let keywords = 'There is no content in this report';
+        const isReportEmpty = preview.body?.toLowerCase().includes(keywords.toLowerCase());
+        if (isReportEmpty) {
+          toast.error(noContentToastText);
+          return false;
+        }
+      }
+      return true;
+    } catch (error) {
+      toast.error(`Failed to preview report. ${error}`);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   const onFilterChange = (filter: IContentListFilter) => {
     const newFilter = { ...filter, pageIndex: 0 };
@@ -91,20 +120,26 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
           />
         </ToolBarSection>
         <ToolBarSection label="Send">
-          <FaFileImage
-            className="action-button btn-preview"
-            title="Front Page Images"
-            onClick={(e) => {
-              if (frontPageImagesReportId) {
-                setSendInfo({
-                  name: 'Front Page Images',
-                  value: frontPageImagesReportId,
-                  action: 'report',
-                });
-                toggle();
-              }
-            }}
-          />
+          {isLoading ? (
+            <Spinner />
+          ) : (
+            <FaFileImage
+              className="action-button btn-preview"
+              title="Front Page Images"
+              onClick={async (e) => {
+                if (frontPageImagesReportId) {
+                  const hasContent = await checkReportContent(frontPageImagesReportId);
+                  if (!hasContent) return;
+                  setSendInfo({
+                    name: 'Front Page Images',
+                    value: frontPageImagesReportId,
+                    action: 'report',
+                  });
+                  toggle();
+                }
+              }}
+            />
+          )}
           <FaFileArrowUp
             className="action-button btn-preview"
             title="Top Stories"
