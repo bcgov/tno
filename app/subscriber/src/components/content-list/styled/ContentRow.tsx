@@ -30,6 +30,15 @@ export const ContentRow = styled(Col)`
     height: 20px;
   }
 
+  .icon-remove {
+    color: ${(props) => props.theme.css.btnRedColor};
+    cursor: pointer;
+
+    &:hover {
+      color: ${(props) => props.theme.css.btnLightRedColor};
+    }
+  }
+
   .add-margin {
     margin-left: 4rem;
   }
