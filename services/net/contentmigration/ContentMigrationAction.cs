@@ -226,6 +226,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         while (continueFetchingRecords && (maxRecordsPerRetrieval > 0) && (skip < maxIngestedRecords))
         {
             if (manager.Ingest.IngestType == null) throw new ConfigurationException("Ingest type cannot be null.");
+            if (!manager.Ingest.IsEnabled) break;
 
             var importDateStartValue = manager.Ingest.GetConfigurationValue<string?>("importDateStart", null);
             var importDateEndValue = manager.Ingest.GetConfigurationValue<string?>("importDateEnd", null);
