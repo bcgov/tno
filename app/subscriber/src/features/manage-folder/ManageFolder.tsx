@@ -94,28 +94,31 @@ export const ManageFolder: React.FC = () => {
   );
 
   /** function that will remove items from the folder when the button is clicked */
-  const removeItems = React.useCallback(async () => {
-    const updatedList = items.filter((item: IContentSearchResult) => !selected.includes(item));
-    setItems(updatedList);
-    let res: IFolderModel | undefined;
-    if (!!folder) {
-      try {
-        res = await updateFolder(
-          {
-            ...folder,
-            content: updatedList.map((item: any, index: any) => ({
-              ...item,
-              contentId: item.id,
-              sortOrder: index,
-            })),
-          },
-          true,
-        );
-      } catch (error) {}
-    }
-    setFolder(res);
-    setSelected([]);
-  }, [folder, items, selected, updateFolder]);
+  const removeItems = React.useCallback(
+    async (selected: IContentModel[]) => {
+      const updatedList = items.filter((item: IContentSearchResult) => !selected.includes(item));
+      setItems(updatedList);
+      let res: IFolderModel | undefined;
+      if (!!folder) {
+        try {
+          res = await updateFolder(
+            {
+              ...folder,
+              content: updatedList.map((item: any, index: any) => ({
+                ...item,
+                contentId: item.id,
+                sortOrder: index,
+              })),
+            },
+            true,
+          );
+        } catch (error) {}
+      }
+      setFolder(res);
+      setSelected([]);
+    },
+    [folder, items, updateFolder],
+  );
 
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);
@@ -140,7 +143,7 @@ export const ManageFolder: React.FC = () => {
           <ContentListActionBar
             content={selected}
             onSelectAll={(e) => (e.target.checked ? setSelected(items) : setSelected([]))}
-            removeFolderItem={removeItems}
+            removeFolderItem={() => removeItems(selected)}
             disableAddToFolder={true}
           />
           <ContentList
@@ -151,6 +154,9 @@ export const ManageFolder: React.FC = () => {
             showSeries={true}
             selected={selected}
             onContentSelected={handleContentSelected}
+            onContentRemove={(item) => {
+              removeItems([item]);
+            }}
           />
         </div>
       </PageSection>
