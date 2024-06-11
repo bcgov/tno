@@ -367,15 +367,13 @@ public static class ReportExtensions
             ? $"{content.Source?.ShortName}"
             : "";
 
-        var source = (context.Settings.Headline.ShowSource
-                ? content?.Source?.Name
-                : "");
-        // source is empty or empty string, use the other source
-        if (String.IsNullOrWhiteSpace(source))
+        var source = "";
+        if (context.Settings.Headline.ShowSource)
         {
-            source = content?.OtherSource.ToUpperInvariant();
+            source = !string.IsNullOrEmpty(content?.Source?.Name)
+                ? content.Source.Name
+                : content?.OtherSource;
         }
-
         return $"{source}{(!String.IsNullOrWhiteSpace(name) ? $" - {name}" : "")}";
     }
 
