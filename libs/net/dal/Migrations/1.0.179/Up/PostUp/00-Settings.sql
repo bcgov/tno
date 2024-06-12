@@ -18,6 +18,7 @@ VALUES (
   , 0
   , ''
   , ''
-);
+)
+ON CONFLICT DO NOTHING;
 
 END $$;
