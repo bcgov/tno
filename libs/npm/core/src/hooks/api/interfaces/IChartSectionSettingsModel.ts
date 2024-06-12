@@ -13,8 +13,12 @@ export interface IChartSectionSettingsModel {
   datasetValue: string;
   /** Whether to exclude empty values in the returned dataset. */
   excludeEmptyValues: boolean;
+  /** Whether to apply the dataset colour to each value instead of a dataset */
+  applyColorToValue?: boolean;
   /** Colours to use in the chart data sets. */
   datasetColors?: string[];
+  /** Colours to use in the chart data sets borders. */
+  datasetBorderColors?: string[];
   /** Colours to use in the chart data labels. */
   dataLabelColors?: string[];
 

@@ -254,8 +254,23 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
           />
         </Col>
         <Col>
+          <FormikCheckbox
+            label="Apply Colour to Group"
+            name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.applyColorToValue`}
+            checked={!!chart.sectionSettings.applyColorToValue}
+            onChange={(e) => {
+              setFieldValue(
+                `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                  applyColorToValue: e.target.checked,
+                }),
+              );
+            }}
+          />
           <Row className="frm-in">
-            <label>Dataset Colours</label>
+            <label>{`${
+              chart.sectionSettings.applyColorToValue ? 'Group' : 'Dataset'
+            } Colours`}</label>
             <FaInfoCircle data-tooltip-id="dataset-colours" className="info" />
           </Row>
           <Colours
@@ -273,6 +288,29 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
                 `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                 mergeChartSettings(chart.settings.options, chart.sectionSettings, {
                   datasetColors: values,
+                }),
+              );
+            }}
+          />
+          <Row className="frm-in">
+            <label>Border Colours</label>
+            <FaInfoCircle data-tooltip-id="dataset-colours" className="info" />
+          </Row>
+          <Colours
+            name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetBorderColors`}
+            options={['white', 'black']}
+            values={chart.sectionSettings.datasetBorderColors}
+            onOpenPicker={() => {
+              onDisableDrag?.(true);
+            }}
+            onClosePicker={() => {
+              onDisableDrag?.(false);
+            }}
+            onChange={(newValue, values) => {
+              setFieldValue(
+                `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                  datasetBorderColors: values,
                 }),
               );
             }}

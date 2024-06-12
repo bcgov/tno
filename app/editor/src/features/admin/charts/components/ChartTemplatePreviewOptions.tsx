@@ -37,6 +37,7 @@ export const ChartTemplatePreviewOptions = () => {
     groupByOptions.filter((o) => values.settings?.groupBy?.some((v) => v === o.value)) ?? [],
   );
   const [datasetColors, setDatasetColors] = React.useState('');
+  const [datasetBorderColors, setDatasetBorderColors] = React.useState('');
   const [dataLabelColors, setDataLabelColors] = React.useState('');
   const [show, setShow] = React.useState(false);
 
@@ -115,9 +116,28 @@ export const ChartTemplatePreviewOptions = () => {
               />
             </Row>
             <Col>
+              <Checkbox
+                name="applyColorToValue"
+                label="Apply Colour to Group"
+                checked={!!chartRequestForm.settings.applyColorToValue}
+                onChange={(e) => {
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        applyColorToValue: e.target.checked,
+                      },
+                    ),
+                  });
+                }}
+              />
               <Text
                 name="datasetColors"
-                label="Dataset Colours"
+                label={`${
+                  chartRequestForm.settings.applyColorToValue ? 'Group' : 'Dataset'
+                } Colours`}
                 placeholder="green,gold,red"
                 value={datasetColors}
                 onChange={(e) => {
@@ -133,6 +153,29 @@ export const ChartTemplatePreviewOptions = () => {
                       chartRequestForm.settings,
                       {
                         datasetColors: colors,
+                      },
+                    ),
+                  });
+                }}
+              />
+              <Text
+                name="datasetBorderColors"
+                label="Border Colours"
+                placeholder="white"
+                value={datasetBorderColors}
+                onChange={(e) => {
+                  const colors = e.target.value
+                    .split(',')
+                    .map((v) => v.trim())
+                    .filter((v) => v);
+                  setDatasetBorderColors(e.target.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        datasetBorderColors: colors,
                       },
                     ),
                   });
