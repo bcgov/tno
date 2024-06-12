@@ -15,4 +15,5 @@ export interface ISettingsState {
   topStoryAlertId?: number;
   excludeBylineIds?: number[];
   excludeSourceIds?: number[];
+  basicAlertTemplateId?: number;
 }

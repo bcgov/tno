@@ -31,6 +31,7 @@ export const settingsSlice = createSlice({
       state.frontpageImageMediaTypeId = action.payload.frontpageImageMediaTypeId;
       state.frontPageImagesReportId = action.payload.frontPageImagesReportId;
       state.topStoryAlertId = action.payload.topStoryAlertId;
+      state.basicAlertTemplateId = action.payload.basicAlertTemplateId;
     },
   },
 });
