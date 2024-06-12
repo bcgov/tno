@@ -45,7 +45,11 @@ export const NotificationFormTemplate = () => {
   }, [notificationTemplates, values.templateId]);
 
   React.useEffect(() => {
-    if (values.id === 0 && (!values.templateId || values.templateId === 0)) {
+    if (
+      values.id === 0 &&
+      (!values.templateId || values.templateId === 0) &&
+      notificationTemplates.length > 0
+    ) {
       setFieldValue('templateId', basicAlertTemplateId);
       setFieldValue(
         'template',
@@ -54,7 +58,7 @@ export const NotificationFormTemplate = () => {
     }
     // Fetch only when basicAlertTemplateId gets updated.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [basicAlertTemplateId]);
+  }, [basicAlertTemplateId, notificationTemplates]);
 
   return (
     <>
