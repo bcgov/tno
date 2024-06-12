@@ -1,7 +1,7 @@
 import { SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
 import { Status } from 'components/status';
 import { NavigateOptions, TabControl, useTab } from 'components/tab-control';
-import React from 'react';
+import React, { useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApiHub, useContent, useLocalStorage, useSettings } from 'store/hooks';
@@ -12,14 +12,9 @@ import {
   Checkbox,
   Col,
   ContentStatusName,
-  FlexboxTable,
   Grid,
   IContentModel,
   IGridHeaderColumnProps,
-  ITableInternalCell,
-  ITableInternalRow,
-  ITablePage,
-  ITableSort,
   LogicalOperator,
   MessageTargetName,
   Page,
@@ -34,8 +29,8 @@ import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
 import { defaultPage } from '../list-view/constants';
 import { queryToFilter, queryToFilterAdvanced } from '../list-view/utils';
 import { ReportActions } from './components';
-import { defaultPaperFilter, defaultSort, defaultTotals } from './constants';
-import { useColumns, usePaperSources, useSortContent } from './hooks';
+import { defaultPaperFilter, defaultTotals } from './constants';
+import { usePaperSources, useSortContent } from './hooks';
 import { ITotalsInfo } from './interfaces';
 import { PaperToolbar } from './PaperToolbar';
 import * as styled from './styled';
@@ -73,14 +68,14 @@ const Papers: React.FC<IPapersProps> = (props) => {
   const [, setCurrentItems] = useLocalStorage('currentContent', {} as IContentSearchResult[]);
   const [currentItemId, setCurrentItemId] = useLocalStorage('currentContentItemId', -1);
 
-  const [contentId, setContentId] = React.useState(id);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [, setContentId] = React.useState(id);
+  const [, setIsLoading] = React.useState(false);
   const [isFilterLoading, setIsFilterLoading] = React.useState(true);
   const [selected, setSelected] = React.useState<IContentSearchResult[]>([]);
+  const [focusedRowIndex, setFocusedRowIndex] = React.useState<number | null>(null);
+  const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [currentResultsPage, setCurrentResultsPage] = React.useState(defaultPage);
   const [totals, setTotals] = React.useState<ITotalsInfo>(defaultTotals);
-
-  const selectedIds = selected.map((i) => i.id.toString());
 
   hub.useHubEffect(MessageTargetName.ContentUpdated, (message) => {
     getContent(message.id)
@@ -129,6 +124,10 @@ const Papers: React.FC<IPapersProps> = (props) => {
     if (currentItemId !== -1) setContentId(currentItemId.toString());
   }, [currentItemId, setContentId]);
 
+  React.useEffect(() => {
+    setFocusedRowIndex(currentResultsPage?.items[0]?.id);
+  }, [currentResultsPage]);
+
   const handleClickUse = React.useCallback(
     (content: IContentSearchResult) => {
       updateStatus({ ...content.original, status: content.status })
@@ -147,6 +146,15 @@ const Papers: React.FC<IPapersProps> = (props) => {
     },
     [castContentToSearchResult, updateStatus],
   );
+
+  React.useEffect(() => {
+    if (focusedRowIndex !== null) {
+      const focusedRow = currentResultsPage.items.findIndex((item) => item.id === focusedRowIndex);
+      if (rowRefs.current[focusedRow]) {
+        rowRefs.current[focusedRow]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }, [focusedRowIndex, currentResultsPage.items]);
 
   const fetch = React.useCallback(
     async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
@@ -181,7 +189,46 @@ const Papers: React.FC<IPapersProps> = (props) => {
     [castContentToSearchResult, findContentWithElasticsearch, toFilter, sortContent],
   );
 
-  const columns = useColumns({ fetch, onClickUse: handleClickUse });
+  const handleKeyDown = React.useCallback(
+    (e: KeyboardEvent) => {
+      if ((e.ctrlKey && e.key === 'ArrowUp') || (e.ctrlKey && e.key === 'ArrowDown')) {
+        e.preventDefault();
+        setFocusedRowIndex((prevIndex) => {
+          let currentIndex = currentResultsPage.items.findIndex((item) => item.id === prevIndex);
+          if (currentIndex === -1) currentIndex = 0;
+
+          let newIndex = currentIndex;
+
+          if (e.key === 'ArrowUp') {
+            newIndex = currentIndex - 1;
+          } else if (e.key === 'ArrowDown') {
+            newIndex = currentIndex + 1;
+          }
+
+          if (newIndex < 0) {
+            newIndex = currentResultsPage.items.length - 1;
+          } else if (newIndex >= currentResultsPage.items.length) {
+            newIndex = 0;
+          }
+
+          return currentResultsPage.items[newIndex].id;
+        });
+      } else if (e.code === 'Enter' && focusedRowIndex !== null) {
+        e.preventDefault();
+        const focusedRow = currentResultsPage.items.find((item) => item.id === focusedRowIndex);
+        if (focusedRow) {
+          setSelected((selected) => {
+            if (!selected.some((item) => item.id === focusedRow.id)) {
+              return [...selected, focusedRow];
+            }
+
+            return selected.filter((item) => item.id !== focusedRow.id);
+          });
+        }
+      }
+    },
+    [focusedRowIndex, currentResultsPage.items, setSelected],
+  );
 
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
@@ -214,49 +261,12 @@ const Papers: React.FC<IPapersProps> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, isFilterLoading, settingsReady]);
 
-  const handleRowClick = (
-    cell: ITableInternalCell<IContentSearchResult>,
-    row: ITableInternalRow<IContentSearchResult>,
-    event: React.MouseEvent<Element, MouseEvent>,
-  ) => {
-    if (cell.index > 0 && cell.index !== 5) {
-      setContentId(row.original.id.toString());
-      setCurrentItemId(row.original.id);
-      if (event.ctrlKey) navigate(row.original.id, '/contents', NavigateOptions.NewTab);
-      else navigate(row.original.id);
-    }
-  };
-
-  const handleChangePage = React.useCallback(
-    (page: ITablePage) => {
-      if (filter.pageIndex !== page.pageIndex || filter.pageSize !== page.pageSize) {
-        const newFilter = {
-          ...filter,
-          pageIndex: page.pageIndex,
-          pageSize: page.pageSize ?? filter.pageSize,
-        };
-        storeFilterPaper(newFilter);
-        replaceQueryParams(newFilter, { includeEmpty: false });
-      }
-    },
-    [filter, storeFilterPaper],
-  );
-
-  const handleChangeSort = React.useCallback(
-    (sort: ITableSort<IContentSearchResult>[]) => {
-      const sorts = sort.filter((s) => s.isSorted).map((s) => ({ id: s.id, desc: s.isSortedDesc }));
-      storeFilterPaper({ ...filter, sort: sorts.length ? sorts : defaultSort });
-    },
-    [filter, storeFilterPaper],
-  );
-
-  const handleSelectedRowsChanged = (row: ITableInternalRow<IContentSearchResult>) => {
-    if (row.isSelected) {
-      setSelected(row.table.rows.filter((r) => r.isSelected).map((r) => r.original));
-    } else {
-      setSelected((selected) => selected.filter((r) => r.id !== row.original.id));
-    }
-  };
+  React.useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
 
   const handleContentHidden = React.useCallback(
     async (contentToHide: IContentModel[]) => {
@@ -275,8 +285,6 @@ const Papers: React.FC<IPapersProps> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentResultsPage],
   );
-
-  /////// NEW STUFF
 
   const handleQuantityChange = React.useCallback(
     (quantity: number) => {
@@ -326,11 +334,15 @@ const Papers: React.FC<IPapersProps> = (props) => {
     else navigate(id);
   };
 
-  const handleSelectedContentChange = (row: ITableInternalRow<IContentSearchResult>) => {
-    if (row.isSelected) {
-      setSelected(row.table.rows.filter((r) => r.isSelected).map((r) => r.original));
-    } else {
-      setSelected((selected) => selected.filter((r) => r.id !== row.original.id));
+  const handleRowFocus = (index: number) => {
+    setFocusedRowIndex(index);
+
+    const focusedRowRef = rowRefs.current[index];
+    if (focusedRowRef && focusedRowRef.scrollIntoView) {
+      focusedRowRef.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
     }
   };
 
@@ -357,28 +369,9 @@ const Papers: React.FC<IPapersProps> = (props) => {
           </div>
         </div>
         <Row className="content-list">
-          {/* <FlexboxTable
-            rowId="id"
-            columns={columns}
-            data={currentResultsPage.items}
-            isMulti={true}
-            manualPaging={true}
-            pageIndex={filter.pageIndex}
-            pageSize={filter.pageSize}
-            pageCount={currentResultsPage.pageCount}
-            totalItems={currentResultsPage.total}
-            showSort={true}
-            activeRowId={contentId}
-            isLoading={isLoading || isFilterLoading}
-            onPageChange={handleChangePage}
-            onSortChange={handleChangeSort}
-            onCellClick={handleRowClick}
-            onSelectedChanged={handleSelectedRowsChanged}
-            selectedRowIds={selectedIds}
-          /> */}
           <Grid
             items={currentResultsPage.items}
-            pageIndex={currentResultsPage.pageIndex}
+            pageIndex={currentResultsPage.pageIndex - 1}
             itemsPerPage={currentResultsPage.pageSize}
             totalItems={currentResultsPage.total}
             showPaging
@@ -434,6 +427,8 @@ const Papers: React.FC<IPapersProps> = (props) => {
             ]}
             renderColumns={(row: IContentSearchResult, rowIndex) => {
               const isSelected = selected.some((c) => row.id === c.id);
+              const isFocused = focusedRowIndex === row.id;
+
               const separator = row.page && row.section ? ':' : '';
               const pageSection = `${row.page}${separator}${row.section}`;
 
@@ -441,48 +436,73 @@ const Papers: React.FC<IPapersProps> = (props) => {
                 {
                   key: row.id.toString(),
                   column: (
-                    <div key="">
+                    <div
+                      key=""
+                      ref={(el) => {
+                        if (rowIndex) rowRefs.current[rowIndex] = el;
+                      }}
+                    >
                       <Checkbox
                         name={`chk-content-${row.id}`}
-                        value={isSelected}
                         onChange={(e) =>
                           setSelected((selected) => {
                             if (e.target.checked) return [...selected, row];
                             else return selected.filter((c) => c.id !== row.id);
                           })
                         }
+                        checked={selected.some((c) => c.id === row.id)}
                       />
                     </div>
                   ),
+                  isSelected: isSelected,
+                  isFocused: isFocused,
                 },
                 {
                   column: (
                     <div
                       key=""
+                      ref={(el) => {
+                        if (rowIndex) rowRefs.current[rowIndex] = el;
+                      }}
                       className="clickable"
                       onClick={(e) => handleContentClick(row.id, e)}
+                      onFocus={() => handleRowFocus(row.id)}
                     >
                       <CellEllipsis>{row.headline}</CellEllipsis>
                     </div>
                   ),
+                  isSelected: isSelected,
+                  isFocused: isFocused,
                 },
                 {
                   column: (
                     <div
                       className="clickable"
                       key=""
+                      ref={(el) => {
+                        if (rowIndex) rowRefs.current[rowIndex] = el;
+                      }}
                       onClick={(e) => handleContentClick(row.id, e)}
+                      onFocus={(e: any) => {
+                        handleRowFocus(row.id);
+                      }}
                     >
                       <CellEllipsis>{row.otherSource}</CellEllipsis>
                     </div>
                   ),
+                  isSelected: isSelected,
+                  isFocused: isFocused,
                 },
                 {
                   column: (
                     <div
                       className="clickable"
                       key=""
+                      ref={(el) => {
+                        if (rowIndex) rowRefs.current[rowIndex] = el;
+                      }}
                       onClick={(e) => handleContentClick(row.id, e)}
+                      onFocus={() => handleRowFocus(row.id)}
                     >
                       <CellEllipsis
                         className="clickable"
@@ -493,27 +513,43 @@ const Papers: React.FC<IPapersProps> = (props) => {
                       </CellEllipsis>
                     </div>
                   ),
+                  isSelected: isSelected,
+                  isFocused: isFocused,
                 },
                 {
                   column: (
                     <div
                       className="clickable"
                       key=""
+                      ref={(el) => {
+                        if (rowIndex) rowRefs.current[rowIndex] = el;
+                      }}
                       onClick={(e) => handleContentClick(row.id, e)}
+                      onFocus={() => handleRowFocus(row.id)}
                     >
                       {pageSection}
                     </div>
                   ),
+                  isSelected: isSelected,
+                  isFocused: isFocused,
                 },
                 {
                   column: (
-                    <div key="" className="clickable">
+                    <div
+                      key=""
+                      ref={(el) => {
+                        if (rowIndex) rowRefs.current[rowIndex] = el;
+                      }}
+                      className="clickable"
+                    >
                       <Status
                         value={row.status}
                         onClick={(status) => handleClickUse({ ...row, status: status })}
                       />
                     </div>
                   ),
+                  isSelected: isSelected,
+                  isFocused: isFocused,
                 },
               ];
             }}

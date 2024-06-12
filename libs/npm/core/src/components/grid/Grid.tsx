@@ -15,6 +15,8 @@ export interface IGridHeaderColumnProps {
 export interface IGridColumnProps {
   key?: string | number;
   column?: React.ReactNode;
+  isSelected?: boolean;
+  isFocused?: boolean;
 }
 
 interface IGridProps<T> {
@@ -95,8 +97,13 @@ export const Grid = <T,>({
               const _node = column as React.ReactNode;
               const key = _column.key ?? `${rowIndex}-${columnIndex}`;
               const body = _column.column ?? _node;
+              const isActive =
+                (typeof _column.isSelected === 'boolean' && _column.isSelected) ||
+                (typeof _column.isFocused === 'boolean' && _column.isFocused)
+                  ? 'active'
+                  : '';
               return (
-                <div key={key} className="grid-column">
+                <div key={key} className={`grid-column ${isActive}`}>
                   {body}
                 </div>
               );
