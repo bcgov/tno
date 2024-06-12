@@ -45,6 +45,9 @@ export const useSettings = (validate?: boolean): ISettingsState => {
         (s) => s.name === Settings.FrontPageImagesReport,
       )?.value;
       const topStoryAlertId = settings.find((s) => s.name === Settings.TopStoryAlert)?.value;
+      const basicAlertTemplateId = settings.find(
+        (s) => s.name === Settings.BasicAlertTemplateId,
+      )?.value;
 
       storeValues({
         loadingState: 1,
@@ -65,6 +68,7 @@ export const useSettings = (validate?: boolean): ISettingsState => {
         topStoryAlertId: topStoryAlertId ? +topStoryAlertId : undefined,
         excludeBylineIds: excludeBylineIds ? excludeBylineIds.split(',').map((id) => +id) : [],
         excludeSourceIds: excludeSourceIds ? excludeSourceIds.split(',').map((id) => +id) : [],
+        basicAlertTemplateId: basicAlertTemplateId ? +basicAlertTemplateId : undefined,
       });
     }
   }, [values.loadingState, isReady, settings, storeValues]);
@@ -114,6 +118,9 @@ export const useSettings = (validate?: boolean): ISettingsState => {
 
       if (!values.topStoryAlertId)
         toast.error(`Configuration "${Settings.TopStoryAlert}" is missing from settings.`);
+
+      if (!values.basicAlertTemplateId)
+        toast.error(`Configuration "${Settings.BasicAlertTemplateId}" is missing from settings.`);
       storeLoading(2);
     }
   }, [
@@ -134,6 +141,7 @@ export const useSettings = (validate?: boolean): ISettingsState => {
     values.frontPageImagesReportId,
     values.topStoryAlertId,
     values.frontpageImageMediaTypeId,
+    values.basicAlertTemplateId,
   ]);
 
   return values;
