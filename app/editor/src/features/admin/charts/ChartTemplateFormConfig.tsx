@@ -15,13 +15,13 @@ import {
   defaultChartTemplate,
 } from './constants';
 
-export interface IChartTemplateFormOptionsProps {}
+export interface IChartTemplateFormConfigProps {}
 
 /**
  * The page used to view and edit a chart template Chart.js options.
  * @returns Component.
  */
-export const ChartTemplateFormOptions: React.FC<IChartTemplateFormOptionsProps> = () => {
+export const ChartTemplateFormConfig: React.FC<IChartTemplateFormConfigProps> = () => {
   const { values, setFieldValue, setValues } = useChartTemplateContext();
 
   const [chartOptions, setChartOptions] = React.useState(

@@ -46,9 +46,19 @@ public class ChartSectionSettingsModel
     public bool ExcludeEmptyValues { get; set; }
 
     /// <summary>
+    /// get/set - Whether to apply the dataset colour to each value instead of a dataset
+    /// </summary>
+    public bool ApplyColorToValue { get; set; }
+
+    /// <summary>
     /// get/set - An array of colour to use for this chart datasets.
     /// </summary>
     public string[] DatasetColors { get; set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// get/set - An array of colour to use for this chart datasets borders.
+    /// </summary>
+    public string[] DatasetBorderColors { get; set; } = Array.Empty<string>();
 
     /// <summary>
     /// get/set - An array of colour to use for this chart data labels.
