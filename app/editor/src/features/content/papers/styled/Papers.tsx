@@ -110,4 +110,19 @@ export const Papers = styled(FormPage)`
       }
     }
   }
+
+  .grid-table:nth-child(2) {
+    min-height: 100px;
+    max-height: calc(-450px + 100vh);
+    overflow: auto;
+
+    .grid-column {
+      > .clickable {
+        cursor: pointer;
+      }
+      > div {
+        width: 100%;
+      }
+    }
+  }
 `;
