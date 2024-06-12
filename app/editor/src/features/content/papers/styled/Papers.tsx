@@ -120,9 +120,18 @@ export const Papers = styled(FormPage)`
       > .clickable {
         cursor: pointer;
       }
+      &.active {
+        background-color: rgb(66, 139, 202);
+        color: #fff;
+        position: relative;
+      }
       > div {
         width: 100%;
       }
     }
+  }
+
+  .grid {
+    width: 100%;
   }
 `;

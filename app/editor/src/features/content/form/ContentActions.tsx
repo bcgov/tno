@@ -60,6 +60,17 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
   addRowOn ??= (action: IActionModel, index: number) =>
     options.length > 4 && action.id === commentaryActionId;
 
+  const toggle = (checked: boolean | string) => {
+    // Check if checked is a boolean
+    if (typeof checked === 'boolean') {
+      return !checked ? '' : 'true';
+    }
+
+    // Handle the case where checked is a string
+    const booleanValue = !JSON.parse(checked || 'false');
+    return booleanValue ? 'true' : '';
+  };
+
   React.useEffect(() => {
     // Needed this to reset the hidden values when new content is loaded.
     // Otherwise the checkboxes that have the extra input results in an invalid checked.
@@ -113,6 +124,47 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
       });
     });
   }, [formActions]);
+
+  const handleKeyDown = React.useCallback(
+    (e: KeyboardEvent) => {
+      const handleToggleAction = (actionName: string) => {
+        const actionIndex = formActions.findIndex((action) => action.name === actionName);
+        if (actionIndex !== -1) {
+          const checked = formActions[actionIndex].value;
+          const checkToggled = toggle(checked);
+          const newValue =
+            checkToggled === 'true' ? (actionName === 'Commentary' ? '3' : 'true') : '';
+          setFieldValue(field('value', actionIndex), newValue ? newValue : checkToggled);
+        }
+      };
+
+      if (e.ctrlKey) {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        switch (e.code) {
+          case 'KeyC':
+            handleToggleAction('Commentary');
+            break;
+          case 'KeyO':
+            handleToggleAction('Top Story');
+            break;
+          case 'KeyF':
+            handleToggleAction('Featured Story');
+            break;
+          default:
+            break;
+        }
+      }
+    },
+    [formActions, setFieldValue, field],
+  );
+
+  React.useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
 
   const inputs = options.map((a, rowIndex) => {
     const actionIndex = formActions.findIndex((ca) => ca.id === a.id);
