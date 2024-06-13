@@ -71,7 +71,7 @@ export const MySearches = () => {
           { name: 'name', label: '', size: '2fr' },
           { name: 'actions', label: '', size: '1fr' },
         ]}
-        renderRow={(row: IFilterModel, rowIndex) => {
+        renderColumns={(row: IFilterModel, rowIndex) => {
           const keywords = row.settings?.search ? row.settings.search : '';
           const truncatedKeywords = truncateTeaser(keywords, 20);
 
