@@ -60,7 +60,7 @@ export const NotificationSubscribersForm = () => {
           { name: 'firstName', label: 'First Name', sortable: true },
           { name: 'email', label: 'Email', sortable: true },
         ]}
-        renderRow={(row: IUserModel) => [
+        renderColumns={(row: IUserModel) => [
           <Checkbox
             key=""
             name={`chk-${row.id}`}

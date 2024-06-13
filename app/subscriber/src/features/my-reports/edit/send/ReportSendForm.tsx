@@ -123,7 +123,7 @@ export const ReportSendForm: React.FC = () => {
               { label: <div key=""></div>, size: '30px' },
             ];
           }}
-          renderRow={(row: IUserReportModel, rowIndex) => {
+          renderColumns={(row: IUserReportModel, rowIndex) => {
             return [
               <div key="">{row.username}</div>,
               <div key="">{row.lastName}</div>,

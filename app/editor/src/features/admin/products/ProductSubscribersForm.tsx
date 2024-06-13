@@ -87,7 +87,7 @@ export const ProductSubscribersForm = () => {
           if (values.productType !== ProductTypeName.Report) columns.splice(1, 1);
           return columns;
         }}
-        renderRow={(row: IUserModel, rowIndex) => {
+        renderColumns={(row: IUserModel, rowIndex) => {
           const subscriber = values.subscribers.find((u) => u.id === row.id);
           const columns = [
             <Checkbox

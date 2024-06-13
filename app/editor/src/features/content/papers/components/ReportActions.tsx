@@ -75,6 +75,70 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
     [setLoading, updateContentList, selected, searchResults?.items, onContentHidden],
   );
 
+  const handleToggleAction = React.useCallback(
+    (action: string) => {
+      let actionId;
+      switch (action) {
+        case 'Commentary':
+          actionId = commentaryActionId;
+          break;
+        case 'Top Story':
+          actionId = topStoryActionId;
+          break;
+        case 'Featured Story':
+          actionId = featuredStoryActionId;
+          break;
+        case 'Published Selected':
+          break;
+        default:
+          return;
+      }
+
+      if (actionId) {
+        handleAction(
+          ContentListActionName.Action,
+          actionId,
+          actionId === commentaryActionId ? '3' : 'true',
+        );
+      } else {
+        handleAction(ContentListActionName.Publish);
+      }
+    },
+    [commentaryActionId, featuredStoryActionId, handleAction, topStoryActionId],
+  );
+
+  const handleKeyDown = React.useCallback(
+    (e: KeyboardEvent) => {
+      if (e.ctrlKey) {
+        e.preventDefault();
+        switch (e.code) {
+          case 'KeyC':
+            handleToggleAction('Commentary');
+            break;
+          case 'KeyO':
+            handleToggleAction('Top Story');
+            break;
+          case 'KeyF':
+            handleToggleAction('Featured Story');
+            break;
+          case 'KeyP':
+            handleToggleAction('Published Selected');
+            break;
+          default:
+            break;
+        }
+      }
+    },
+    [handleToggleAction],
+  );
+
+  React.useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
+
   return (
     <styled.ReportActions>
       <Show visible={!filter.isHidden}>
