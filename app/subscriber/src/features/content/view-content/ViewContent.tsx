@@ -25,16 +25,22 @@ import {
 } from 'tno-core';
 
 import * as styled from './styled';
+import { ToneValue } from './ToneValue';
 import { isWorkOrderStatus } from './utils';
+
+//Difference ratio
+const threshold = 0.1;
 
 export interface IStream {
   url: string;
   type: string;
 }
+
 export interface IViewContentProps {
   /** set active content */
   setActiveContent?: (content: IContentModel[]) => void;
 }
+
 /**
  * Component to display content when navigating to it from the landing page list view, responsive and adaptive to screen size
  * @returns ViewContent component
@@ -175,12 +181,6 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
     }
   }, [id, fetchContent]);
 
-  // add classname for colouring as well as formatting the tone value (+ sign for positive)
-  const showToneValue = (tone: number) => {
-    if (tone > 0) return <span className="pos">+{tone}</span>;
-    if (tone < 0) return <span className="neg">{tone}</span>;
-    if (tone === 0) return <span className="neut">{tone}</span>;
-  };
   const isAV = content?.contentType === ContentTypeName.AudioVideo;
   const isTranscribing =
     isAV &&
@@ -197,9 +197,6 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
 
   //Remove HTML tags, square brackets and line breaks before comparison.
   const cleanString = (str: string | undefined) => str?.replace(/<[^>]*>?|\[|\]|\n/gm, '').trim();
-
-  //Difference ratio
-  const threshold = 0.1;
 
   const formattedHeadline = React.useMemo(
     () => formatSearch(content?.headline ?? '', filter),
@@ -253,7 +250,9 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
           {content?.tonePools && content?.tonePools.length && (
             <Row className="tone-group">
               <Sentiment value={content?.tonePools[0].value} />
-              <div className="numeric-tone">{showToneValue(content?.tonePools[0].value)}</div>
+              <div className="numeric-tone">
+                <ToneValue tone={content?.tonePools[0].value} />
+              </div>
             </Row>
           )}
         </Row>
@@ -284,30 +283,14 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
           <img alt="media" src={!!avStream?.url ? avStream?.url : ''} />
         </Row>
       </Show>
-      <Row id="summary" className="summary">
-        <Show visible={!(isAV && !!content.body && !isTranscribing)}>
-          <Col>
-            {!!content?.summary?.length ? (
-              <div>{formattedSummary}</div>
-            ) : (
-              <span>{formattedBody}</span>
-            )}
-            <Show visible={!!content?.sourceUrl}>
-              <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
-                More...
-              </a>
-            </Show>
-          </Col>
-        </Show>
-        <Show visible={isAV && cleanBody !== cleanSummary && isDifferent && !isTranscribing}>
-          <Col>
-            {content?.body?.length && <div>{formattedBody}</div>}
-            <Show visible={!!content?.sourceUrl}>
-              <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
-                More...
-              </a>
-            </Show>
-          </Col>
+      <Col id="summary" className="summary">
+        <Show visible={isDifferent && !!formattedSummary}>{formattedSummary}</Show>
+        <hr />
+        <Show visible={!!formattedBody && (!isAV || content?.isApproved)}>{formattedBody}</Show>
+        <Show visible={!!content?.sourceUrl}>
+          <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
+            More...
+          </a>
         </Show>
         <Show
           visible={
@@ -334,7 +317,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
             </Show>
           </Button>
         </Show>
-      </Row>
+      </Col>
       <Show visible={isAV && isTranscribing}>
         <hr />
         <h3>Transcription:</h3>
