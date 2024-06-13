@@ -301,7 +301,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
         </Show>
         <Show visible={isAV && cleanBody !== cleanSummary && isDifferent && !isTranscribing}>
           <Col>
-            {content?.summary?.length && <div>{formattedSummary}</div>}
+            {content?.body?.length && <div>{formattedBody}</div>}
             <Show visible={!!content?.sourceUrl}>
               <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
                 More...
