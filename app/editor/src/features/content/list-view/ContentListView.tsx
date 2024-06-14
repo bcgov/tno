@@ -1,39 +1,43 @@
 import { KnnSearchResponse, SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
-import { NavigateOptions, useTab } from 'components/tab-control';
+import { Status } from 'components/status';
+import { NavigateOptions, TabControl, useTab } from 'components/tab-control';
 import moment from 'moment';
-import React, { lazy } from 'react';
+import React, { lazy, useRef } from 'react';
 import { useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useApiHub, useApp, useContent, useLocalStorage, useWorkOrders } from 'store/hooks';
 import { IContentSearchResult } from 'store/slices';
 import { useCastContentToSearchResult } from 'store/slices/content/hooks';
 import {
+  CellEllipsis,
+  Checkbox,
   Col,
   ContentTypeName,
-  FlexboxTable,
+  Grid,
   IContentMessageModel,
   IContentModel,
+  IGridHeaderColumnProps,
   IPaged,
-  ITableInternalRow,
-  ITablePage,
-  ITableSort,
   IWorkOrderFilter,
   IWorkOrderMessageModel,
   IWorkOrderModel,
+  LogicalOperator,
   MessageTargetName,
   Page,
   replaceQueryParams,
   Row,
   Show,
+  SortDirection,
   useCombinedView,
   WorkOrderStatusName,
   WorkOrderTypeName,
 } from 'tno-core';
 
+import { AdvancedSearchKeys } from '../constants';
 import { useElasticsearch } from '../hooks';
 import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
 import { ContentToolBar } from './components';
 import { defaultPage } from './constants';
-import { useColumns } from './hooks';
 import * as styled from './styled';
 import { queryToFilter, queryToFilterAdvanced } from './utils';
 
@@ -49,7 +53,13 @@ const ContentListView: React.FC = () => {
   const { id } = useParams();
   const [
     { filter, filterAdvanced },
-    { getContent, storeFilter, storeFilterAdvanced, findContentWithElasticsearch },
+    {
+      getContent,
+      storeFilter,
+      storeFilterAdvanced,
+      findContentWithElasticsearch,
+      updateContent: updateStatus,
+    },
   ] = useContent();
   const { combined, formType } = useCombinedView();
   const { navigate } = useTab({ showNav: false });
@@ -66,6 +76,9 @@ const ContentListView: React.FC = () => {
   // that are opened.  Mainly used for navigation in the tab
   const [, setCurrentItems] = useLocalStorage('currentContent', {} as IContentSearchResult[]);
   const [currentItemId, setCurrentItemId] = useLocalStorage('currentContentItemId', -1);
+
+  const [focusedRowIndex, setFocusedRowIndex] = React.useState<number | null>(null);
+  const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Stores the current page
   const [currentResultsPage, setCurrentResultsPage] = React.useState(defaultPage);
@@ -269,8 +282,6 @@ const ContentListView: React.FC = () => {
     [findContentWithElasticsearch, toFilter],
   );
 
-  const columns = useColumns({ fetch });
-
   React.useEffect(() => {
     if (isReady) {
       fetch({ ...filter, ...filterAdvanced });
@@ -279,13 +290,12 @@ const ContentListView: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady, filter, fetch]);
 
-  const handleChangePage = React.useCallback(
-    (page: ITablePage) => {
-      if (filter.pageIndex !== page.pageIndex || filter.pageSize !== page.pageSize) {
+  const handlePageChange = React.useCallback(
+    (page: number) => {
+      if (filter.pageIndex !== page - 1) {
         const newFilter = {
           ...filter,
-          pageIndex: page.pageIndex,
-          pageSize: page.pageSize ?? filter.pageSize,
+          pageIndex: page - 1,
         };
         storeFilter(newFilter);
         replaceQueryParams(newFilter, { includeEmpty: false });
@@ -294,42 +304,93 @@ const ContentListView: React.FC = () => {
     [filter, storeFilter],
   );
 
-  const handleChangeSort = React.useCallback(
-    (sort: ITableSort<IContentSearchResult>[]) => {
-      const sorts = sort.filter((s) => s.isSorted).map((s) => ({ id: s.id, desc: s.isSortedDesc }));
-      storeFilter({ ...filter, sort: sorts });
+  const handleSortChange = React.useCallback(
+    (column: IGridHeaderColumnProps, direction: SortDirection) => {
+      if (column.name) {
+        const sort =
+          direction === SortDirection.None
+            ? []
+            : [{ id: column.name, desc: direction === SortDirection.Descending }];
+        storeFilter({ ...filter, sort });
+      }
     },
-    [storeFilter, filter],
+    [filter, storeFilter],
   );
 
-  const handleRowClick = (
-    row: ITableInternalRow<IContentSearchResult>,
-    event: React.MouseEvent<Element, MouseEvent>,
-  ) => {
-    setContentType(row.original.contentType);
-    setContentId(row.original.id.toString());
-    setCurrentItemId(row.original.id);
-    if (event.ctrlKey) navigate(row.original.id, '/contents', NavigateOptions.NewTab);
-    else navigate(row.original.id);
+  const handleContentClick = (id: number, event: React.MouseEvent<Element, MouseEvent>) => {
+    setContentId(id.toString());
+    setCurrentItemId(id);
+    if (event.ctrlKey) navigate(id, '/contents', NavigateOptions.NewTab);
+    else navigate(id);
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-      const index = !!contentId
-        ? currentResultsPage?.items.findIndex((c: any) => c.id === +contentId) ?? -1
-        : -1;
-      const newIndex = event.key === 'ArrowUp' ? index - 1 : index + 1;
-      const newContent = currentResultsPage.items[newIndex];
-      if (newContent) {
-        setContentType(newContent.contentType);
-        setContentId(newContent.id.toString());
-        const currentRow = document.querySelector('div.active');
-        event.key === 'ArrowUp'
-          ? (currentRow?.previousSibling as any)?.focus()
-          : (currentRow?.nextSibling as any)?.focus();
+  React.useEffect(() => {
+    setFocusedRowIndex(currentResultsPage?.items[0]?.id);
+  }, [currentResultsPage]);
+
+  const handleClickUse = React.useCallback(
+    (content: IContentSearchResult) => {
+      updateStatus({ ...content.original, status: content.status })
+        .then((content) => {
+          setCurrentResultsPage((page) => ({
+            ...page,
+            items: page.items.map((i) =>
+              i.id === content.id ? castContentToSearchResult(content) : i,
+            ),
+          }));
+          toast.success(
+            `"${content.headline}" has been updated.  A request has been sent to update the index.`,
+          );
+        })
+        .catch((error) => {});
+    },
+    [castContentToSearchResult, updateStatus],
+  );
+
+  React.useEffect(() => {
+    if (focusedRowIndex !== null) {
+      const focusedRow = currentResultsPage.items.findIndex((item) => item.id === focusedRowIndex);
+      if (rowRefs.current[focusedRow]) {
+        rowRefs.current[focusedRow]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
-  };
+  }, [focusedRowIndex, currentResultsPage.items]);
+
+  const handleKeyDown = React.useCallback(
+    (e: KeyboardEvent) => {
+      if ((e.ctrlKey && e.key === 'ArrowUp') || (e.ctrlKey && e.key === 'ArrowDown')) {
+        e.preventDefault();
+        setFocusedRowIndex((prevIndex) => {
+          let currentIndex = currentResultsPage.items.findIndex((item) => item.id === prevIndex);
+          if (currentIndex === -1) currentIndex = 0;
+
+          let newIndex = currentIndex;
+
+          if (e.key === 'ArrowUp') {
+            newIndex = currentIndex - 1;
+          } else if (e.key === 'ArrowDown') {
+            newIndex = currentIndex + 1;
+          }
+
+          if (newIndex < 0) {
+            newIndex = currentResultsPage.items.length - 1;
+          } else if (newIndex >= currentResultsPage.items.length) {
+            newIndex = 0;
+          }
+
+          return currentResultsPage.items[newIndex].id;
+        });
+      }
+    },
+    [currentResultsPage.items],
+  );
+
+  React.useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
 
   return (
     <styled.ContentListView>
@@ -337,22 +398,184 @@ const ContentListView: React.FC = () => {
         <ContentToolBar onSearch={fetch} />
         <Row className="top-pane">
           <Row className="content-list">
-            <FlexboxTable
-              rowId="id"
-              columns={columns}
-              data={currentResultsPage.items}
-              manualPaging={true}
-              pageIndex={filter.pageIndex}
-              pageSize={filter.pageSize}
-              pageCount={currentResultsPage.pageCount}
+            <Grid
+              items={currentResultsPage.items}
+              pageIndex={currentResultsPage.pageIndex - 1}
+              itemsPerPage={currentResultsPage.pageSize}
               totalItems={currentResultsPage.total}
-              showSort={true}
-              activeRowId={contentId}
-              isLoading={isLoading}
-              onPageChange={handleChangePage}
-              onSortChange={handleChangeSort}
-              onRowClick={handleRowClick}
-              onKeyDown={handleKeyDown}
+              showPaging
+              onNavigatePage={async (page) => {
+                handlePageChange(page);
+              }}
+              onSortChange={async (column, direction) => {
+                handleSortChange(column, direction);
+              }}
+              renderHeader={() => [
+                {
+                  name: 'headline',
+                  label: (
+                    <Row gap="0.5rem" key="">
+                      <TabControl />
+                      Headline
+                    </Row>
+                  ),
+                  size: '40%',
+                },
+                { name: 'otherSource', label: 'Source', sortable: true, size: '15%' },
+                { name: 'mediaTypeId', label: 'Media Type', sortable: true, size: '15%' },
+                {
+                  name: 'page',
+                  label: (
+                    <Row nowrap key="">
+                      Page:Section
+                      <Checkbox
+                        name="page"
+                        checked={
+                          filterAdvanced.fieldType === AdvancedSearchKeys.Page &&
+                          filterAdvanced.searchTerm === '?*'
+                        }
+                        onChange={async (e) => {
+                          const values = {
+                            ...filterAdvanced,
+                            fieldType: AdvancedSearchKeys.Page,
+                            searchTerm: e.target.checked ? '?*' : '',
+                            logicalOperator: LogicalOperator.Equals,
+                          };
+                          storeFilterAdvanced(values);
+                          await fetch({ ...filter, ...values });
+                        }}
+                      />
+                    </Row>
+                  ),
+                  sortable: true,
+                },
+                { name: 'owner', label: 'User', sortable: true },
+                { name: 'publishedOn', label: 'Pub Date', sortable: true, size: '10%' },
+                { name: 'status', label: 'Use', sortable: true, size: '75px' },
+              ]}
+              renderColumns={(row: IContentSearchResult, rowIndex) => {
+                const isFocused = focusedRowIndex === row.id;
+                const separator = row.page && row.section ? ':' : '';
+                const pageSection = `${row.page}${separator}${row.section}`;
+
+                return [
+                  {
+                    column: (
+                      <div
+                        key=""
+                        ref={(el) => {
+                          if (rowIndex) rowRefs.current[rowIndex] = el;
+                        }}
+                        className="clickable"
+                        onClick={(e) => handleContentClick(row.id, e)}
+                      >
+                        <CellEllipsis>{row.headline}</CellEllipsis>
+                      </div>
+                    ),
+                    isFocused: isFocused,
+                  },
+                  {
+                    column: (
+                      <div
+                        className="clickable"
+                        key=""
+                        ref={(el) => {
+                          if (rowIndex) rowRefs.current[rowIndex] = el;
+                        }}
+                        onClick={(e) => handleContentClick(row.id, e)}
+                      >
+                        <CellEllipsis>{row.otherSource}</CellEllipsis>
+                      </div>
+                    ),
+                    isFocused: isFocused,
+                  },
+                  {
+                    column: (
+                      <div
+                        className="clickable"
+                        key=""
+                        ref={(el) => {
+                          if (rowIndex) rowRefs.current[rowIndex] = el;
+                        }}
+                        onClick={(e) => handleContentClick(row.id, e)}
+                      >
+                        <CellEllipsis
+                          className="clickable"
+                          key=""
+                          onClick={(e) => handleContentClick(row.id, e)}
+                        >
+                          {row.mediaType}
+                        </CellEllipsis>
+                      </div>
+                    ),
+                    isFocused: isFocused,
+                  },
+                  {
+                    column: (
+                      <div
+                        className="clickable"
+                        key=""
+                        ref={(el) => {
+                          if (rowIndex) rowRefs.current[rowIndex] = el;
+                        }}
+                        onClick={(e) => handleContentClick(row.id, e)}
+                      >
+                        {pageSection}
+                      </div>
+                    ),
+                    isFocused: isFocused,
+                  },
+                  {
+                    column: (
+                      <div
+                        className="clickable"
+                        key=""
+                        ref={(el) => {
+                          if (rowIndex) rowRefs.current[rowIndex] = el;
+                        }}
+                        onClick={(e) => handleContentClick(row.id, e)}
+                      >
+                        {row.owner}
+                      </div>
+                    ),
+                    isFocused: isFocused,
+                  },
+                  {
+                    column: (
+                      <div
+                        className="clickable"
+                        key=""
+                        ref={(el) => {
+                          if (rowIndex) rowRefs.current[rowIndex] = el;
+                        }}
+                        onClick={(e) => handleContentClick(row.id, e)}
+                      >
+                        {row.publishedOn
+                          ? moment(row.publishedOn).format('MM/DD/YYYY HH:mm:ss')
+                          : ''}
+                      </div>
+                    ),
+                    isFocused: isFocused,
+                  },
+                  {
+                    column: (
+                      <div
+                        key=""
+                        ref={(el) => {
+                          if (rowIndex) rowRefs.current[rowIndex] = el;
+                        }}
+                        className="clickable"
+                      >
+                        <Status
+                          value={row.status}
+                          onClick={(status) => handleClickUse({ ...row, status: status })}
+                        />
+                      </div>
+                    ),
+                    isFocused: isFocused,
+                  },
+                ];
+              }}
             />
           </Row>
         </Row>

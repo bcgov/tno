@@ -151,7 +151,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
     if (focusedRowIndex !== null) {
       const focusedRow = currentResultsPage.items.findIndex((item) => item.id === focusedRowIndex);
       if (rowRefs.current[focusedRow]) {
-        rowRefs.current[focusedRow]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        rowRefs.current[focusedRow]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
   }, [focusedRowIndex, currentResultsPage.items]);
@@ -334,18 +334,6 @@ const Papers: React.FC<IPapersProps> = (props) => {
     else navigate(id);
   };
 
-  const handleRowFocus = (index: number) => {
-    setFocusedRowIndex(index);
-
-    const focusedRowRef = rowRefs.current[index];
-    if (focusedRowRef && focusedRowRef.scrollIntoView) {
-      focusedRowRef.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-      });
-    }
-  };
-
   return (
     <styled.Papers>
       <Col wrap="nowrap">
@@ -394,9 +382,10 @@ const Papers: React.FC<IPapersProps> = (props) => {
                     Headline
                   </Row>
                 ),
+                size: '40%',
               },
-              { name: 'otherSource', label: 'Source', sortable: true },
-              { name: 'mediaTypeId', label: 'Media Type', sortable: true },
+              { name: 'otherSource', label: 'Source', sortable: true, size: '20%' },
+              { name: 'mediaTypeId', label: 'Media Type', sortable: true, size: '20%' },
               {
                 name: 'page',
                 label: (
@@ -423,7 +412,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
                 ),
                 sortable: true,
               },
-              { name: 'status', label: 'Use', size: '50px' },
+              { name: 'status', label: 'Use', sortable: true, size: '80px' },
             ]}
             renderColumns={(row: IContentSearchResult, rowIndex) => {
               const isSelected = selected.some((c) => row.id === c.id);
@@ -466,7 +455,6 @@ const Papers: React.FC<IPapersProps> = (props) => {
                       }}
                       className="clickable"
                       onClick={(e) => handleContentClick(row.id, e)}
-                      onFocus={() => handleRowFocus(row.id)}
                     >
                       <CellEllipsis>{row.headline}</CellEllipsis>
                     </div>
@@ -483,9 +471,6 @@ const Papers: React.FC<IPapersProps> = (props) => {
                         if (rowIndex) rowRefs.current[rowIndex] = el;
                       }}
                       onClick={(e) => handleContentClick(row.id, e)}
-                      onFocus={(e: any) => {
-                        handleRowFocus(row.id);
-                      }}
                     >
                       <CellEllipsis>{row.otherSource}</CellEllipsis>
                     </div>
@@ -502,7 +487,6 @@ const Papers: React.FC<IPapersProps> = (props) => {
                         if (rowIndex) rowRefs.current[rowIndex] = el;
                       }}
                       onClick={(e) => handleContentClick(row.id, e)}
-                      onFocus={() => handleRowFocus(row.id)}
                     >
                       <CellEllipsis
                         className="clickable"
@@ -525,7 +509,6 @@ const Papers: React.FC<IPapersProps> = (props) => {
                         if (rowIndex) rowRefs.current[rowIndex] = el;
                       }}
                       onClick={(e) => handleContentClick(row.id, e)}
-                      onFocus={() => handleRowFocus(row.id)}
                     >
                       {pageSection}
                     </div>
