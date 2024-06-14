@@ -67,8 +67,8 @@ const ContentListView: React.FC = () => {
   const toFilter = useElasticsearch();
   const castContentToSearchResult = useCastContentToSearchResult();
 
-  const [contentId, setContentId] = React.useState(id);
-  const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
+  const [, setContentId] = React.useState(id);
+  const [contentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
   const [isLoading, setIsLoading] = React.useState(false);
 
   const [, { findWorkOrders }] = useWorkOrders();
