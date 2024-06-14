@@ -244,8 +244,6 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 var items = GetNewsItems(manager.Ingest.IngestType.ContentType, importMigrationType, contentMigrator, publishedOnly, offsetHours, importDateStart, importDateEnd, creationDateOfLastImport, skip);
                 retrievedRecords = items.Length;
                 this.Logger.LogDebug("Ingest [{name}] retrieved [{countOfRecordsRetrieved}] records", manager.Ingest.Name, retrievedRecords);
-                var featuredStories = items.Where(i => i.FrontPageStory);
-                var found = featuredStories.Any();
 
                 DateTime? lastReceivedContentOn = null;
                 if (retrievedRecords == 0 && importDateEnd.HasValue)
@@ -421,7 +419,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             if (addOrUpdateContent)
             {
                 await LinkFile(manager, contentMigrator, newsItem, sourceContent);
-                await ContentReceivedAsync(manager, reference, sourceContent);
+                await ContentReceivedAsync(manager, reference, sourceContent, forceUpdate);
             }
             else
             {
