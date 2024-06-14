@@ -447,7 +447,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             {
                 OwnerId = request.RequestorId ?? report.OwnerId,
                 PublishedOn = DateTime.UtcNow,
-                Content = instanceContent
+                Content = instanceContent,
             };
         }
 
@@ -548,7 +548,20 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         }
 
         if (instanceModel != null && request.GenerateInstance)
-            instanceModel = await this.Api.UpdateReportInstanceAsync(instanceModel) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+        {
+            // We're getting optimistic errors here, most likely due to changes occurring from the UI.  Since we only need to change values related to status, we can get the latest and reapply.
+            var latestInstanceModel = await this.Api.GetReportInstanceAsync(instanceModel.Id) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+            if (latestInstanceModel.Version != instanceModel.Version)
+            {
+                latestInstanceModel.Subject = instanceModel.Subject;
+                latestInstanceModel.Body = instanceModel.Body;
+                latestInstanceModel.SentOn = instanceModel.SentOn;
+                latestInstanceModel.Status = instanceModel.Status;
+                instanceModel = await this.Api.UpdateReportInstanceAsync(latestInstanceModel) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+            }
+            else
+                instanceModel = await this.Api.UpdateReportInstanceAsync(instanceModel) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+        }
 
         if (request.GenerateInstance && report.Settings.Content.ClearFolders && request.SendToSubscribers)
         {
