@@ -96,4 +96,29 @@ export const ContentListView = styled(FormPage)`
   .failed {
     color: ${(props) => props.theme.css.dangerColor};
   }
+
+  .grid-table:nth-child(2) {
+    min-height: 100px;
+    max-height: calc(-450px + 100vh);
+    overflow: auto;
+    margin-right: -17px;
+
+    .grid-column {
+      > .clickable {
+        cursor: pointer;
+      }
+      &.active {
+        background-color: rgb(66, 139, 202);
+        color: #fff;
+        position: relative;
+      }
+      > div {
+        width: 100%;
+      }
+    }
+  }
+
+  .grid {
+    width: 100%;
+  }
 `;
