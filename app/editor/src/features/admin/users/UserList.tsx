@@ -3,14 +3,20 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUsers } from 'store/hooks/admin';
 import {
+  CellCheckbox,
+  CellDate,
+  CellEllipsis,
   Col,
   FlexboxTable,
+  Grid,
   IconButton,
+  IGridHeaderColumnProps,
   ITablePage,
   ITableSort,
   IUserModel,
   Page,
   Row,
+  SortDirection,
 } from 'tno-core';
 
 import { columns } from './constants';
@@ -34,6 +40,31 @@ const UserList: React.FC = () => {
     },
     [storeFilter, userFilter],
   );
+  const handleSortChange = React.useCallback(
+    (column: IGridHeaderColumnProps, direction: SortDirection) => {
+      if (column.name) {
+        const sort =
+          direction === SortDirection.None
+            ? []
+            : [{ id: column.name, desc: direction === SortDirection.Descending }];
+        storeFilter({ ...userFilter, sort });
+      }
+    },
+    [userFilter, storeFilter],
+  );
+
+  const handleQuantityChange = React.useCallback(
+    (quantity: number) => {
+      if (userFilter.pageSize !== quantity) {
+        const newFilter = {
+          ...userFilter,
+          pageSize: quantity,
+        };
+        storeFilter(newFilter);
+      }
+    },
+    [userFilter, storeFilter],
+  );
 
   const handleChangePage = React.useCallback(
     (page: ITablePage) => {
@@ -43,6 +74,18 @@ const UserList: React.FC = () => {
           pageIndex: page.pageIndex,
           pageSize: page.pageSize ?? userFilter.pageSize,
         });
+      }
+    },
+    [userFilter, storeFilter],
+  );
+  const handlePageChange = React.useCallback(
+    (page: number) => {
+      if (userFilter.pageIndex !== page - 1) {
+        const newFilter = {
+          ...userFilter,
+          pageIndex: page - 1,
+        };
+        storeFilter(newFilter);
       }
     },
     [userFilter, storeFilter],
@@ -81,17 +124,96 @@ const UserList: React.FC = () => {
         />
       </Row>
       <UserFilter />
-      <FlexboxTable
-        rowId="id"
-        data={page.items}
-        columns={columns}
-        showSort={true}
-        manualPaging={true}
-        pageIndex={page.pageIndex}
-        pageSize={page.pageSize}
-        onRowClick={(row) => navigate(`${row.original.id}`)}
-        onPageChange={handleChangePage}
-        onSortChange={handleChangeSort}
+      <Grid
+        items={page.items}
+        pageIndex={page.pageIndex - 1}
+        itemsPerPage={page.pageSize}
+        totalItems={page.total}
+        showPaging
+        onNavigatePage={async (page) => {
+          handlePageChange(page);
+        }}
+        onQuantityChange={async (quantity) => {
+          handleQuantityChange(quantity);
+        }}
+        onSortChange={async (column, direction) => {
+          handleSortChange(column, direction);
+        }}
+        renderHeader={() => [
+          {
+            name: 'username',
+            label: 'Username',
+            size: '10%',
+            sortable: true,
+          },
+          { name: 'email', label: 'Email', size: '20%', sortable: true },
+          { name: 'lastName', label: 'Last Name', size: '14%', sortable: true },
+          { name: 'firstName', label: 'First Name', size: '14%', sortable: true },
+          { name: 'roles', label: 'Role(s)', size: '15%', sortable: true },
+          { name: 'lastLogin', label: 'Last Login', sortable: true },
+          { name: 'isEnabled', label: 'Enabled', size: '7%', sortable: true },
+          { name: 'status', label: 'Status', size: '8%', sortable: true },
+        ]}
+        renderColumns={(row: IUserModel, rowIndex) => {
+          return [
+            {
+              column: (
+                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                  <CellEllipsis>{row.username}</CellEllipsis>
+                </div>
+              ),
+            },
+            {
+              column: (
+                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                  <CellEllipsis>{row.email}</CellEllipsis>
+                </div>
+              ),
+            },
+            {
+              column: (
+                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                  <CellEllipsis key="">{row.lastName}</CellEllipsis>
+                </div>
+              ),
+            },
+            {
+              column: (
+                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                  <CellEllipsis key="">{row.firstName}</CellEllipsis>
+                </div>
+              ),
+            },
+            {
+              column: (
+                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                  <CellEllipsis key="">{row.roles?.join(', ')}</CellEllipsis>
+                </div>
+              ),
+            },
+            {
+              column: (
+                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                  <CellDate value={row.lastLoginOn} />
+                </div>
+              ),
+            },
+            {
+              column: (
+                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                  <CellCheckbox checked={row.isEnabled} />
+                </div>
+              ),
+            },
+            {
+              column: (
+                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                  <CellEllipsis key="">{row.status}</CellEllipsis>
+                </div>
+              ),
+            },
+          ];
+        }}
       />
     </styled.UserList>
   );
