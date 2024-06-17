@@ -7,7 +7,6 @@ import {
   CellDate,
   CellEllipsis,
   Col,
-  FlexboxTable,
   Grid,
   IconButton,
   IGridHeaderColumnProps,
@@ -19,7 +18,6 @@ import {
   SortDirection,
 } from 'tno-core';
 
-import { columns } from './constants';
 import { IUserListFilter } from './interfaces/IUserListFilter';
 import * as styled from './styled';
 import { UserFilter } from './UserFilter';
@@ -33,13 +31,6 @@ const UserList: React.FC = () => {
     new Page(users.page - 1, users.quantity, users.items, users.total),
   );
 
-  const handleChangeSort = React.useCallback(
-    (sort: ITableSort<IUserModel>[]) => {
-      const sorts = sort.filter((s) => s.isSorted).map((s) => ({ id: s.id, desc: s.isSortedDesc }));
-      storeFilter({ ...userFilter, sort: sorts });
-    },
-    [storeFilter, userFilter],
-  );
   const handleSortChange = React.useCallback(
     (column: IGridHeaderColumnProps, direction: SortDirection) => {
       if (column.name) {
@@ -66,18 +57,6 @@ const UserList: React.FC = () => {
     [userFilter, storeFilter],
   );
 
-  const handleChangePage = React.useCallback(
-    (page: ITablePage) => {
-      if (userFilter.pageIndex !== page.pageIndex || userFilter.pageSize !== page.pageSize) {
-        storeFilter({
-          ...userFilter,
-          pageIndex: page.pageIndex,
-          pageSize: page.pageSize ?? userFilter.pageSize,
-        });
-      }
-    },
-    [userFilter, storeFilter],
-  );
   const handlePageChange = React.useCallback(
     (page: number) => {
       if (userFilter.pageIndex !== page - 1) {
