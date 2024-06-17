@@ -3,7 +3,6 @@ using FTTLib;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Content;
-using TNO.API.Models.Settings;
 using TNO.Ches;
 using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
@@ -25,7 +24,7 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
     private CancellationTokenSource? _cancelToken;
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
-    private readonly WorkOrderStatus[] _ignoreWorkOrders = new WorkOrderStatus[] { WorkOrderStatus.Completed, WorkOrderStatus.Cancelled, WorkOrderStatus.Failed };
+    private readonly WorkOrderStatus[] _activeWorkOrders = new WorkOrderStatus[] { WorkOrderStatus.Submitted, WorkOrderStatus.InProgress, WorkOrderStatus.Completed };
     private int _retries = 0;
     #endregion
 
@@ -33,7 +32,7 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
     /// <summary>
     /// get - Kafka Consumer object.
     /// </summary>
-    protected IKafkaListener<string, FFmpegRequestModel> Listener { get; private set; }
+    protected IKafkaListener<string, IndexRequestModel> Listener { get; private set; }
     #endregion
 
     #region Constructors
@@ -45,7 +44,7 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public FFmpegManager(
-        IKafkaListener<string, FFmpegRequestModel> listener,
+        IKafkaListener<string, IndexRequestModel> listener,
         IApiService api,
         IChesService chesService,
         IOptions<ChesOptions> chesOptions,
@@ -187,7 +186,7 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
     /// </summary>
     /// <param name="result"></param>
     /// <returns></returns>
-    private async Task HandleMessageAsync(ConsumeResult<string, FFmpegRequestModel> result)
+    private async Task HandleMessageAsync(ConsumeResult<string, IndexRequestModel> result)
     {
         try
         {
@@ -242,99 +241,74 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
     /// <param name="content"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    private async Task UpdateAVAsync(FFmpegRequestModel request, ContentModel content)
+    private async Task UpdateAVAsync(IndexRequestModel request, ContentModel content)
     {
         // TODO: Handle different storage locations.
         // Remote storage locations may not be easily accessible by this service.
         var fileRef = content.FileReferences.FirstOrDefault();
         if (fileRef != null)
         {
+            // Check if there is already a work order processing or processed this content.
+            var workOrders = await this.Api.FindWorkOrderForContentIdAsync(content.Id);
+            if (workOrders.Any(wo => _activeWorkOrders.Contains(wo.Status))) return;
+
             var sourcePath = Path.Join(this.Options.VolumePath, fileRef.Path.MakeRelativePath());
             if (File.Exists(sourcePath))
             {
                 var sourceExt = Path.GetExtension(sourcePath);
-                await UpdateWorkOrderAsync(request, WorkOrderStatus.InProgress);
-                var completed = true;
-                foreach (var action in request.Actions)
+                var process = this.Options.Converters.FirstOrDefault(c => c.MediaTypeId == content.MediaTypeId && c.FromFormat.Equals(sourceExt, StringComparison.OrdinalIgnoreCase));
+                if (process != null)
                 {
-                    if (action.Action == FFmpegAction.Convert)
+                    var workOrder = await AddWorkOrderAsync(request, WorkOrderStatus.InProgress) ?? throw new InvalidOperationException("Work order failed to be returned by API");
+                    var contentType = !String.IsNullOrWhiteSpace(process.ToContentType) ? process.ToContentType : FTT.GetMimeType(process.ToFormat.Replace(".", ""));
+
+                    try
                     {
-                        var convertFrom = action.Arguments.ContainsKey("from") ? action.Arguments["from"] : "";
-                        var convertTo = action.Arguments.ContainsKey("to") ? action.Arguments["to"] : "";
-                        var contentType = action.Arguments.ContainsKey("contentType") ? action.Arguments["contentType"] : FTT.GetMimeType(convertTo.Replace(".", ""));
-                        if (convertFrom.Equals(sourceExt, StringComparison.OrdinalIgnoreCase))
+                        this.Logger.LogDebug("Converting file. Content ID: {Id}, Path: {path}", request.ContentId, sourcePath);
+                        var newFile = await ConvertFile(sourcePath, process.ToFormat);
+                        if (!String.IsNullOrEmpty(newFile))
                         {
-                            if (!String.IsNullOrWhiteSpace(convertTo))
-                            {
-                                this.Logger.LogDebug("Converting file. Content ID: {Id}, Path: {path}", request.ContentId, sourcePath);
-                                var newFile = await ConvertFile(sourcePath, convertTo);
-                                if (!String.IsNullOrEmpty(newFile))
-                                {
-                                    fileRef.Path = fileRef.Path.Replace(convertFrom, convertTo);
-                                    fileRef.FileName = Path.GetFileName(fileRef.Path);
-                                    fileRef.ContentType = contentType;
-                                }
-                                else
-                                {
-                                    completed = false;
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                this.Logger.LogError("Convert to extension required. Content ID: {Id}, Path: {path}", request.ContentId, sourcePath);
-                                completed = false;
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            this.Logger.LogDebug("Convert from extension action did not match content. Content ID: {Id}, Path: {path}", request.ContentId, sourcePath);
+                            fileRef.Path = fileRef.Path.Replace(process.FromFormat, process.ToFormat);
+                            fileRef.FileName = Path.GetFileName(fileRef.Path);
+                            fileRef.ContentType = contentType;
+
+                            this.Logger.LogInformation("Content has been processed.  Content ID: {id}, Path: {path}", request.ContentId, fileRef.Path);
+                            await this.Api.UpdateFileAsync(content, true, request.RequestorId);
+                            workOrder.Status = WorkOrderStatus.Completed;
+                            await this.Api.UpdateWorkOrderAsync(workOrder);
+                            // File.Delete(sourcePath); // TODO: Delete old file
                         }
                     }
-                }
-                if (completed)
-                {
-                    this.Logger.LogInformation("Content has been processed.  Content ID: {id}, Path: {path}", request.ContentId, fileRef.Path);
-                    await this.Api.UpdateFileAsync(content, true, request.RequestorId);
-                    await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
-                    // File.Delete(sourcePath);
-                }
-                else
-                {
-                    await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed);
+                    catch (Exception ex)
+                    {
+                        this.Logger.LogError(ex, "Converter failed.  Content ID: {id}, Path: {path}", request.ContentId, fileRef.Path);
+                        workOrder.Status = WorkOrderStatus.Failed;
+                        await this.Api.UpdateWorkOrderAsync(workOrder);
+                    }
                 }
             }
             else
             {
                 this.Logger.LogError("File does not exist for content. Content ID: {Id}, Path: {path}", request.ContentId, sourcePath);
-                await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed);
             }
-        }
-        else
-        {
-            this.Logger.LogWarning("File does not included in model for content. Content ID: {Id}", request.ContentId);
-            await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed);
         }
     }
 
     /// <summary>
-    /// Update the work order (if it exists) with the specified 'status'.
+    /// Add the work order with the specified 'status'.
     /// </summary>
     /// <param name="request"></param>
     /// <param name="status"></param>
     /// <returns>Whether a work order exists or is not required.</returns>
-    private async Task UpdateWorkOrderAsync(FFmpegRequestModel request, WorkOrderStatus status)
+    private async Task<API.Areas.Services.Models.WorkOrder.WorkOrderModel?> AddWorkOrderAsync(IndexRequestModel request, WorkOrderStatus status)
     {
-        if (request.WorkOrderId > 0)
+        var workOrder = new API.Areas.Services.Models.WorkOrder.WorkOrderModel()
         {
-            var workOrder = await this.Api.FindWorkOrderAsync(request.WorkOrderId);
-            if (workOrder != null && !_ignoreWorkOrders.Contains(workOrder.Status))
-            {
-                workOrder.Status = status;
-                await this.Api.UpdateWorkOrderAsync(workOrder);
-            }
-        }
+            WorkType = WorkOrderType.FFmpeg,
+            Status = status,
+            ContentId = request.ContentId
+        };
+        return await this.Api.AddWorkOrderAsync(workOrder);
     }
 
     /// <summary>
@@ -361,7 +335,7 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
         var result = process.ExitCode;
         if (result != 0)
         {
-            this.Logger.LogError("File conversion error. Error code: {errorcode}, Details: {details}", result, output);
+            this.Logger.LogError("File conversion error. Error code: {error}, Details: {details}", result, output);
         }
         return result == 0 ? destFile : String.Empty;
     }

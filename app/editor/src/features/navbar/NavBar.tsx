@@ -169,10 +169,22 @@ export const NavBar: React.FC = () => {
 
           {/* Content Configuration
               items:
-              Tags，Media Types，Columnists & Pundits，Ministers，Shows & Programs
+              Tags，Media Types，Columnists & Pundits，Ministers，Shows & Programs, Actions
 
           */}
           <Show visible={activeHover === 'content-configuration'}>
+            <NavBarItem
+              navigateTo="/admin/sources"
+              label="Media Sources"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <NavBarItem
+              navigateTo="/admin/programs"
+              label="Shows & Programs"
+              claim={Claim.administrator}
+              level={1}
+            />
             <NavBarItem
               navigateTo="/admin/tags"
               label="Tags"
@@ -198,16 +210,16 @@ export const NavBar: React.FC = () => {
               level={1}
             />
             <NavBarItem
-              navigateTo="/admin/programs"
-              label="Shows & Programs"
+              navigateTo="/admin/actions"
+              label="Actions"
               claim={Claim.administrator}
               level={1}
             />
           </Show>
 
-          {/* Data Import 
+          {/* Data Import
              Items:
-             Services dashboard, Ingest, Ingest Types, Media sources, Media licencing
+             Services dashboard, Ingest, Ingest Types, Media sources, Media licensing, Data Locations, Data Connections
           */}
           <Show visible={activeHover === 'data-import'}>
             <NavBarItem
@@ -229,23 +241,29 @@ export const NavBar: React.FC = () => {
               level={1}
             />
             <NavBarItem
-              navigateTo="/admin/sources"
-              label="Media Sources"
-              claim={Claim.administrator}
-              level={1}
-            />
-            <NavBarItem
               navigateTo="/admin/licences"
               label="Media Licences"
               claim={Claim.administrator}
               level={1}
             />
+            <NavBarItem
+              navigateTo="/admin/data/locations"
+              label="Data Locations"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <NavBarItem
+              navigateTo="/admin/connections"
+              label="Data Connections"
+              claim={Claim.administrator}
+              level={1}
+            />
           </Show>
 
-          {/* System Settings 
+          {/* System Settings
             Items:
-            Manage Users,System Message, Notifications,Actions, Data Locations, Data Connections,System Configuration
-          
+            Manage Users,System Message, Notifications, System Configuration
+
           */}
           <Show visible={activeHover === 'system-settings'}>
             <NavBarItem
@@ -267,20 +285,8 @@ export const NavBar: React.FC = () => {
               level={1}
             />
             <NavBarItem
-              navigateTo="/admin/actions"
-              label="Actions"
-              claim={Claim.administrator}
-              level={1}
-            />
-            <NavBarItem
-              navigateTo="/admin/data/locations"
-              label="Data Locations"
-              claim={Claim.administrator}
-              level={1}
-            />
-            <NavBarItem
-              navigateTo="/admin/connections"
-              label="Data Connections"
+              navigateTo="/admin/work/orders"
+              label="Work Orders"
               claim={Claim.administrator}
               level={1}
             />
@@ -297,7 +303,7 @@ export const NavBar: React.FC = () => {
               Event of the day
               Topics
               Topic Scoring
-          
+
           */}
           <Show visible={activeSubmenu === 'event-of-the-day-details'}>
             <NavBarItem

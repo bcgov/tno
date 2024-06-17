@@ -18,5 +18,10 @@ public class FFmpegOptions : ServiceOptions
     /// get/set - The path to the local mapped volume.
     /// </summary>
     public string VolumePath { get; set; } = "";
+
+    /// <summary>
+    /// get/set - An array of converter configuration options.
+    /// </summary>
+    public ConverterOptions[] Converters { get; set; } = Array.Empty<ConverterOptions>();
     #endregion
 }
