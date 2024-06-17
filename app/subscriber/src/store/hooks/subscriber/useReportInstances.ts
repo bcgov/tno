@@ -36,7 +36,7 @@ export const useReportInstances = (): [IReportInstanceController] => {
       ) => {
         const response = await dispatch<IReportInstanceModel | undefined>(
           'get-report-instance',
-          () => api.getReportInstance(id, includeContent),
+          () => api.getReportInstance(id, includeContent, publishedOn),
         );
         if (response.status === 200 && !!response.data) {
           const instance = response.data;
