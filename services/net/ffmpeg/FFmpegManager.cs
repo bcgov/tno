@@ -264,7 +264,7 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
 
                     try
                     {
-                        this.Logger.LogDebug("Converting file. Content ID: {Id}, Path: {path}", request.ContentId, sourcePath);
+                        this.Logger.LogInformation("Converting file. Content ID: {Id}, Path: {path}", request.ContentId, sourcePath);
                         var newFile = await ConvertFile(sourcePath, process.ToFormat);
                         if (!String.IsNullOrEmpty(newFile))
                         {
