@@ -1,7 +1,6 @@
 import { Action } from 'components/action';
 import { Modal } from 'components/modal';
 import { SubscriberTableContainer } from 'components/table';
-
 import React from 'react';
 import { FaCheck, FaSave } from 'react-icons/fa';
 import { FaBookmark, FaGear, FaPen, FaRegClipboard, FaTrash } from 'react-icons/fa6';
