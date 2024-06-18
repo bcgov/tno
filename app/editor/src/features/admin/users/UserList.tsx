@@ -1,4 +1,5 @@
 import { makeUserFilter } from 'features/admin/users/utils/makeUserFilter';
+import _ from 'lodash';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUsers } from 'store/hooks/admin';
@@ -10,8 +11,6 @@ import {
   Grid,
   IconButton,
   IGridHeaderColumnProps,
-  ITablePage,
-  ITableSort,
   IUserModel,
   Page,
   Row,
@@ -26,48 +25,9 @@ const UserList: React.FC = () => {
   const navigate = useNavigate();
   const [{ users, userFilter }, { findUsers, storeFilter }] = useUsers();
 
-  const [filter, setFilter] = React.useState<IUserListFilter>();
+  const [filter, setFilter] = React.useState<IUserListFilter | null>(null);
   const [page, setPage] = React.useState(
     new Page(users.page - 1, users.quantity, users.items, users.total),
-  );
-
-  const handleSortChange = React.useCallback(
-    (column: IGridHeaderColumnProps, direction: SortDirection) => {
-      if (column.name) {
-        const sort =
-          direction === SortDirection.None
-            ? []
-            : [{ id: column.name, desc: direction === SortDirection.Descending }];
-        storeFilter({ ...userFilter, sort });
-      }
-    },
-    [userFilter, storeFilter],
-  );
-
-  const handleQuantityChange = React.useCallback(
-    (quantity: number) => {
-      if (userFilter.pageSize !== quantity) {
-        const newFilter = {
-          ...userFilter,
-          pageSize: quantity,
-        };
-        storeFilter(newFilter);
-      }
-    },
-    [userFilter, storeFilter],
-  );
-
-  const handlePageChange = React.useCallback(
-    (page: number) => {
-      if (userFilter.pageIndex !== page - 1) {
-        const newFilter = {
-          ...userFilter,
-          pageIndex: page - 1,
-        };
-        storeFilter(newFilter);
-      }
-    },
-    [userFilter, storeFilter],
   );
 
   const fetch = React.useCallback(
@@ -84,11 +44,50 @@ const UserList: React.FC = () => {
   );
 
   React.useEffect(() => {
-    if (filter !== userFilter) {
+    if (filter === null || !_.isEqual(filter, userFilter)) {
       setFilter(userFilter); // Need this to stop infinite loop.
       fetch(userFilter);
     }
   }, [fetch, filter, userFilter]);
+
+  const handleSortChange = React.useCallback(
+    (column: IGridHeaderColumnProps, direction: SortDirection) => {
+      if (column.name) {
+        const sort =
+          direction === SortDirection.None
+            ? []
+            : [{ id: column.name, desc: direction === SortDirection.Descending }];
+        storeFilter({ ...userFilter, sort });
+      }
+    },
+    [userFilter, storeFilter],
+  );
+
+  const handleQuantityChange = React.useCallback(
+    (quantity: number) => {
+      if (userFilter.quantity !== quantity) {
+        const newFilter = {
+          ...userFilter,
+          quantity: quantity,
+        };
+        storeFilter(newFilter);
+      }
+    },
+    [userFilter, storeFilter],
+  );
+
+  const handlePageChange = React.useCallback(
+    (page: number) => {
+      if (userFilter.page !== page - 1) {
+        const newFilter = {
+          ...userFilter,
+          page: page - 1,
+        };
+        storeFilter(newFilter);
+      }
+    },
+    [userFilter, storeFilter],
+  );
 
   return (
     <styled.UserList>
@@ -105,7 +104,7 @@ const UserList: React.FC = () => {
       <UserFilter />
       <Grid
         items={page.items}
-        pageIndex={page.pageIndex - 1}
+        pageIndex={page.pageIndex}
         itemsPerPage={page.pageSize}
         totalItems={page.total}
         showPaging
@@ -138,14 +137,14 @@ const UserList: React.FC = () => {
             {
               column: (
                 <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
-                  <CellEllipsis>{row.username}</CellEllipsis>
+                  <CellEllipsis key="">{row.username}</CellEllipsis>
                 </div>
               ),
             },
             {
               column: (
                 <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
-                  <CellEllipsis>{row.email}</CellEllipsis>
+                  <CellEllipsis key="">{row.email}</CellEllipsis>
                 </div>
               ),
             },
