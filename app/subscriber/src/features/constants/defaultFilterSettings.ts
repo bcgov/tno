@@ -7,6 +7,7 @@ export const defaultFilterSettings: IFilterSettingsModel = {
   inByline: true,
   inHeadline: true,
   inStory: true,
+  inProgram: true,
   sourceIds: [],
   mediaTypeIds: [],
   seriesIds: [],
