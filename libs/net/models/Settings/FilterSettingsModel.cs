@@ -60,6 +60,11 @@ public class FilterSettingsModel
     public bool? InStory { get; set; }
 
     /// <summary>
+    /// get/set - Search for the 'search' values in the abstract/body.
+    /// </summary>
+    public bool? InProgram { get; set; }
+
+    /// <summary>
     /// get/set - Filter content that was published on and after this date.
     /// </summary>
     public DateTime? StartDate { get; set; }

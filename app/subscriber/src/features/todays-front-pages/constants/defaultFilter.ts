@@ -13,6 +13,7 @@ export const defaultFilter: IFilterModel = {
     inHeadline: false,
     inByline: false,
     inStory: false,
+    inProgram: false,
     sourceIds: [],
     mediaTypeIds: [],
     seriesIds: [],
