@@ -71,7 +71,6 @@ export const ContentActionBar = styled(Row)`
   .action {
     display: flex;
     svg {
-      align-self: flex-end;
       margin-right: 0.25em;
     }
     margin-right: 1em;

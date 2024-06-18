@@ -53,20 +53,26 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
         var sanitizedSummary = TNO.Core.Extensions.StringExtensions.ConvertTextToParagraphs(newsItem.Summary, @"\r\n?|\n|\|");
         var sanitizedBody = TNO.Core.Extensions.StringExtensions.ConvertTextToParagraphs(newsItem.Transcript, @"\r\n?|\n|\|");
 
+        // Scrum/Events place their transcript in the summary.
+        if (String.IsNullOrWhiteSpace(sanitizedBody) && mediaType.Name == "Events") sanitizedBody = sanitizedSummary;
+
         var content = new SourceContent(
             this.Options.DataLocation,
             source.Code,
             contentType,
             mediaType.Id,
-            GetContentHash(source.Code, newsItem.GetTitle(), publishedOnInUtc),
-            newsItem.GetTitle() ?? "",
-            sanitizedSummary ?? "",
-            sanitizedBody ?? "",
+            newsItem.RSN.ToString(),
+            newsItem.GetTitle(),
+            sanitizedSummary ?? string.Empty,
+            sanitizedBody ?? string.Empty,
             publishedOnInUtc,
             newsItem.Published)
         {
+            HashUid = Runners.BaseService.GetContentHash(source.Code, newsItem.GetTitle(), publishedOnInUtc),
+            ExternalUid = newsItem.WebPath ?? string.Empty,
+            Link = newsItem.WebPath ?? string.Empty,
             FilePath = newsItem.FilePath ?? string.Empty,
-            Language = "", // TODO: Need to extract this from the ingest, or determine it after transcription.
+            Language = string.Empty, // TODO: Need to extract this from the ingest, or determine it after transcription.
         };
 
         if (string.IsNullOrEmpty(this.Options.DefaultUserNameForAudit)) throw new System.Configuration.ConfigurationErrorsException("Default Username for ContentMigration has not been configured");
@@ -91,14 +97,14 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
             // TODO: replace the USER_RSN value on UserIdentifier with something that can be mapped by the Content Service to an MMI user
             // TODO: remove UserRSN filter once user can be mapped
             content.TonePools = newsItem.Tones.Where(t => t.UserRSN == 0)
-                .Select(t => new Kafka.Models.TonePool { Value = (int)t.ToneValue, UserIdentifier = t.UserRSN == 0 ? null : t.UserRSN.ToString() });
+                .Select(t => new Kafka.Models.TonePool((int)t.ToneValue, t.UserRSN == 0 ? null : t.UserRSN.ToString()));
         }
 
         if (!string.IsNullOrEmpty(newsItem.EodGroup) && !string.IsNullOrEmpty(newsItem.EodCategory))
         {
             // historic data has some values outside of the enum, just ignore them...
             if (Enum.TryParse(newsItem.EodGroup, out TopicType topicType))
-                content.Topics = new[] { new Kafka.Models.Topic(newsItem.EodCategory, topicType) };
+                content.Topics = new[] { new Kafka.Models.Topic(newsItem.EodCategory, topicType, newsItem.Topics.FirstOrDefault()?.Score) };
         }
 
         // Tags are in the Summary as they are added by an Editor
@@ -110,8 +116,7 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
         }
 
         // map relevant news item properties to actions
-        content.Actions = GetActionMappings(newsItem.FrontPageStory, newsItem.WapTopStory, newsItem.Alert,
-            newsItem.Commentary, newsItem.CommentaryTimeout);
+        content.Actions = GetActionMappings(newsItem.FrontPageStory, newsItem.WapTopStory, newsItem.Alert, newsItem.Commentary, newsItem.CommentaryTimeout);
 
         // the total "Effort" is stored in the Number2 field as seconds
         if (newsItem.Number2.HasValue && newsItem.Number2 > 0)
@@ -129,11 +134,11 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
     ///
     /// </summary>
     /// <returns></returns>
-    public override System.Linq.Expressions.Expression<Func<NewsItem, bool>> GetBaseFilter(ContentType contentType)
+    public override System.Linq.Expressions.Expression<Func<T, bool>> GetBaseFilter<T>(ContentType contentType)
     {
         string[] targetTypes = new string[] { "Radio News", "TV News", "Talk Radio", "Scrum", "CC News" };
-        return PredicateBuilder.New<NewsItem>()
-                            .And(ni => targetTypes.Contains(ni.Type!.ToString()))
-                            .Or(ni => ni.ContentType!.Equals("video/quicktime"));
+        return PredicateBuilder.New<T>()
+                .And(ni => targetTypes.Contains(ni.Type.ToString()))
+                .Or(ni => ni.ContentType!.Equals("video/quicktime"));
     }
 }

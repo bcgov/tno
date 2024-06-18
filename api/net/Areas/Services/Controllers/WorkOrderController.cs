@@ -74,6 +74,38 @@ public class WorkOrderController : ControllerBase
     }
 
     /// <summary>
+    /// Find the work orders for the specified 'contentId'.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    [HttpGet("content/{contentId}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<WorkOrderModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "WorkOrder" })]
+    public IActionResult FindByContentId(long contentId)
+    {
+        var result = _service.FindByContentId(contentId);
+        return new JsonResult(result.Select(w => new WorkOrderModel(w, _serializerOptions)));
+    }
+
+    /// <summary>
+    /// Add work order.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "WorkOrder" })]
+    public IActionResult Add(WorkOrderModel model)
+    {
+        var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
+        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new WorkOrderModel(result, _serializerOptions));
+    }
+
+    /// <summary>
     /// Update the work order in the data source.
     /// </summary>
     /// <param name="workOrder"></param>

@@ -28,6 +28,7 @@ export interface IContentController {
   storeGalleryDateFilter: (dateFilter: IOptionItem | null) => void;
   storeGalleryPressFilter: (pressFilter: IOptionItem | null) => void;
   storeAvOverviewDateFilter: (filter: IFilterSettingsModel) => void;
+  storeEventofTheDayDateFilter: (filter: IFilterSettingsModel) => void;
   storeMediaTypeFilter: (filter: IFilterSettingsModel) => void;
   stream: (path: string) => Promise<string>;
   addContent: (content: IContentModel) => Promise<IContentModel | undefined>;
@@ -95,6 +96,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       storeGalleryDateFilter: actions.storeGalleryDateFilter,
       storeGalleryPressFilter: actions.storeGalleryPressFilter,
       storeAvOverviewDateFilter: actions.storeAvOverviewDateFilter,
+      storeEventofTheDayDateFilter: actions.storeEventofTheDayDateFilter,
       storeFrontPageFilter: actions.storeFrontPageFilter,
       storeMediaTypeFilter: actions.storeMediaTypeFilter,
       storeMyMinisterFilter: actions.storeMyMinisterFilter,

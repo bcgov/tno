@@ -9,8 +9,10 @@ import {
   FaHome,
   FaMoon,
   FaNewspaper,
+  FaQuestion,
   FaSearch,
   FaSlidersH,
+  FaSun,
   FaUsers,
   FaUserTie,
 } from 'react-icons/fa';
@@ -59,6 +61,11 @@ export const NavbarOptions: INavbarOptions = {
     path: 'landing/pressgallery',
     icon: <FaUsers />,
   },
+  eventOfTheDay: {
+    label: 'AM Analysis',
+    path: 'landing/eventoftheday',
+    icon: <FaSun />,
+  },
   eveningOverview: {
     label: 'Evening Overview',
     path: 'landing/eveningoverview',
@@ -99,6 +106,12 @@ export const NavbarOptions: INavbarOptions = {
     label: 'My Reports',
     path: 'reports',
     icon: <FaClipboard />,
+  },
+  help: {
+    groupName: 'USER RESOURCES',
+    label: 'Help',
+    path: 'help',
+    icon: <FaQuestion />,
   },
   settings: {
     groupName: 'USER RESOURCES',

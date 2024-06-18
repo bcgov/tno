@@ -118,14 +118,12 @@ export const useContentForm = ({
   const onWorkOrder = React.useCallback(
     (workOrder: IWorkOrderMessageModel) => {
       if (form.id === workOrder.contentId) {
-        if (workOrder.workType === WorkOrderTypeName.FFmpeg) {
-          setForm({
-            ...form,
-            workOrders: [workOrder, ...form.workOrders.filter((wo) => wo.id !== workOrder.id)],
-          });
-        } else if (
-          workOrder.workType === WorkOrderTypeName.Transcription ||
-          workOrder.workType === WorkOrderTypeName.NaturalLanguageProcess
+        if (
+          [
+            WorkOrderTypeName.FFmpeg,
+            WorkOrderTypeName.Transcription,
+            WorkOrderTypeName.NaturalLanguageProcess,
+          ].includes(workOrder.workType)
         ) {
           // TODO: Don't overwrite the user's edits.
           fetchContent(workOrder.contentId);

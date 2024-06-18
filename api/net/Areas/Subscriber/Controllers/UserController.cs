@@ -94,7 +94,8 @@ public class UserController : ControllerBase
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
-        if (user.Id != model.Id) throw new NotAuthorizedException("You are not authorized to update this user.");
+        var isAdmin = user.Roles.Split(',').Contains($"[{ClientRole.Administrator.GetName()}]");
+        if (user.Id != model.Id && !isAdmin) throw new NotAuthorizedException("You are not authorized to update this user.");
         var result = _userService.UpdatePreferences((User)model) ?? throw new NoContentException("Updated did not return the user");
         return new JsonResult(new UserModel(result));
     }

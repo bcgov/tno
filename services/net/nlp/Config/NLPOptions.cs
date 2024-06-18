@@ -23,5 +23,10 @@ public class NLPOptions : ServiceOptions
     /// get/set - Whether to only accept messages from Kafka that include work orders.
     /// </summary>
     public bool AcceptOnlyWorkOrders { get; set; } = true;
+
+    /// <summary>
+    /// get/set - Ignore any content that was indexed before this day offset.
+    /// </summary>
+    public int? IgnoreContentPublishedBeforeOffset { get; set; }
     #endregion
 }

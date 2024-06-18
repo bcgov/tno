@@ -1,10 +1,8 @@
 import { IContentForm } from 'features/content/form/interfaces';
-import { isWorkOrderStatus } from 'features/content/utils';
 import { useFormikContext } from 'formik';
 import React, { ButtonHTMLAttributes } from 'react';
 import { FileUploader } from 'react-drag-drop-files';
 import { FaDownload, FaTrash, FaUpload } from 'react-icons/fa';
-import { FaMobile } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useWorkOrders } from 'store/hooks';
 import {
@@ -15,10 +13,8 @@ import {
   Modal,
   Row,
   Show,
-  Spinner,
   useModal,
   WorkOrderStatusName,
-  WorkOrderTypeName,
 } from 'tno-core';
 
 import { toModel } from '../../utils';
@@ -67,10 +63,6 @@ export const Upload: React.FC<IUploadProps> = ({
   const [fileName, setFileName] = React.useState<string>();
   const [fileBlobUrl, setFileBlobUrl] = React.useState<string>();
   const fileReference = values.fileReferences.length ? values.fileReferences[0] : undefined;
-  const processing = values.workOrders.some(
-    (wo) =>
-      wo.workType === WorkOrderTypeName.FFmpeg && wo.status === WorkOrderStatusName.InProgress,
-  );
 
   React.useEffect(() => {
     const newFileName = generateName(initFile);
@@ -167,9 +159,9 @@ export const Upload: React.FC<IUploadProps> = ({
       >
         <Col flex="1">
           <img
-            height="300"
-            width="500"
-            alt=""
+            height="350"
+            width="400"
+            alt="media"
             className="image"
             src={stream?.url || fileBlobUrl}
           ></img>
@@ -195,48 +187,29 @@ export const Upload: React.FC<IUploadProps> = ({
       </Show>
       <Show visible={!!file || !!fileName || !!fileReference}>
         <Row justifyContent="flex-end" gap="0.5rem" alignItems="center">
-          {fileName}
-          <Row gap="0.25rem">
-            <Show visible={values.contentType === ContentTypeName.AudioVideo}>
-              <Button
-                variant={ButtonVariant.link}
-                onClick={() =>
-                  isWorkOrderStatus(values.workOrders, WorkOrderTypeName.FFmpeg, [
-                    WorkOrderStatusName.Completed,
-                  ])
-                    ? toggleFFmpeg()
-                    : handleFFmpeg(values)
-                }
-                disabled={
-                  !onDownload || !file || !downloadable || !fileName || !fileReference || processing
-                }
-                className="file-name"
-                tooltip="Process file"
-              >
-                {processing ? <Spinner size="8px" /> : <FaMobile />}
-              </Button>
-            </Show>
-            <Button
-              variant={ButtonVariant.link}
-              onClick={() => onDownload?.()}
-              disabled={!onDownload || !file || !downloadable || !fileName || !fileReference}
-              className="file-name"
-              tooltip={`Download ${!!fileName ? fileName : 'not available'}`}
-            >
-              <FaDownload />
-            </Button>
-            <Button
-              disabled={!fileName || (!fileReference && !file)}
-              variant={ButtonVariant.danger}
-              className="delete"
-              onClick={() => {
-                if (verifyDelete) toggle();
-                else handleDelete();
-              }}
-            >
-              <FaTrash />
-            </Button>
-          </Row>
+          <span className="file-name">{fileName}</span>
+        </Row>
+        <Row className="upload-buttons">
+          <Button
+            variant={ButtonVariant.link}
+            onClick={() => onDownload?.()}
+            disabled={!onDownload || !file || !downloadable || !fileName || !fileReference}
+            className="file-name"
+            tooltip={`Download ${!!fileName ? fileName : 'not available'}`}
+          >
+            <FaDownload />
+          </Button>
+          <Button
+            disabled={!fileName || (!fileReference && !file)}
+            variant={ButtonVariant.danger}
+            className="delete"
+            onClick={() => {
+              if (verifyDelete) toggle();
+              else handleDelete();
+            }}
+          >
+            <FaTrash />
+          </Button>
         </Row>
       </Show>
       {/* Modal to appear when removing a file */}

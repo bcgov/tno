@@ -130,3 +130,12 @@ cd db/kafka/scripts
 
 # manually restart Kafka brokers, one at a time.
 ```
+
+## Remove a Topic from a Consumer Group
+
+```bash
+./kafka-consumer-groups --bootstrap-server kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092,kafka-broker-3.kafka-headless:9092 \
+--delete-offsets \
+--group Content \
+--topic TNO
+```

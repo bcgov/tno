@@ -26,7 +26,8 @@ export const UserProfile: React.FC = () => {
   React.useEffect(() => {
     if (
       profile?.preferences?.impersonate &&
-      profile?.preferences?.impersonate !== impersonate?.key
+      profile?.preferences?.impersonate !== impersonate?.key &&
+      !impersonate
     ) {
       getUser()
         .then((user) => {

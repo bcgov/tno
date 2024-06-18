@@ -33,6 +33,12 @@ export const SearchInGroup: React.FC = () => {
         checked={filter.inStory}
         onChange={(e) => storeFilter({ ...filter, inStory: e.target.checked })}
       />
+      <Checkbox
+        id="chkInProgram"
+        label="Program/Show"
+        checked={filter.inProgram}
+        onChange={(e) => storeFilter({ ...filter, inProgram: e.target.checked })}
+      />
     </Row>
   );
 };

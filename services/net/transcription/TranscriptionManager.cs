@@ -208,6 +208,13 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
                 var content = await this.Api.FindContentByIdAsync(request.ContentId);
                 if (content != null)
                 {
+                    // If the content was published before the specified offset, ignore it.
+                    if (Options.IgnoreContentPublishedBeforeOffset.HasValue
+                        && Options.IgnoreContentPublishedBeforeOffset > 0
+                        && content.PublishedOn.HasValue
+                        && content.PublishedOn.Value < DateTime.UtcNow.AddDays(-1 * Options.IgnoreContentPublishedBeforeOffset.Value))
+                        return;
+
                     // TODO: Handle multi-threading so that more than one transcription can be performed at a time.
                     await UpdateTranscriptionAsync(request, content);
                 }

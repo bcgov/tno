@@ -1,6 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 
 namespace TNO.Services.ContentMigration.Sources.Oracle;
@@ -14,12 +12,27 @@ public class MigrationSourceContext : DbContext
     /// <summary>
     /// get/set for Set of NewsItem.
     /// </summary>
+    public DbSet<AllNewsItem> AllNewsItems => Set<AllNewsItem>();
+
+    /// <summary>
+    /// get/set for Set of NewsItem.
+    /// </summary>
     public DbSet<NewsItem> NewsItems => Set<NewsItem>();
 
     /// <summary>
-    /// get/set for Set of UsersTones.
+    /// get/set for Set of HNewsItem.
+    /// </summary>
+    public DbSet<HNewsItem> HNewsItems => Set<HNewsItem>();
+
+    /// <summary>
+    /// get/set for Set of UserTone.
     /// </summary>
     public DbSet<UserTone> UsersTones => Set<UserTone>();
+
+    /// <summary>
+    /// get/set for Set of NewsItemEoD.
+    /// </summary>
+    public DbSet<NewsItemEoD> NewsItemEoDs => Set<NewsItemEoD>();
     #endregion
 
     #region Constructors
@@ -68,24 +81,17 @@ public class MigrationSourceContext : DbContext
         base.OnConfiguring(optionsBuilder);
     }
 
-
     /// <summary>
     /// Apply all the configuration settings to the model.
     /// </summary>
     /// <param name="modelBuilder"></param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.ApplyAllConfigurations(typeof(AllNewsItemConfiguration), this);
         modelBuilder.ApplyAllConfigurations(typeof(NewsItemConfiguration), this);
+        modelBuilder.ApplyAllConfigurations(typeof(HNewsItemConfiguration), this);
         modelBuilder.ApplyAllConfigurations(typeof(UserToneConfiguration), this);
-
-        modelBuilder.Entity<NewsItem>()
-            .HasMany(s => s.Tones)
-            .WithOne()
-            .HasForeignKey(e => e.ItemRSN);
-
-        modelBuilder.Entity<NewsItem>()
-            .Navigation(e => e.Tones)
-            .AutoInclude();
+        modelBuilder.ApplyAllConfigurations(typeof(NewsItemConfiguration), this);
     }
     #endregion
 }

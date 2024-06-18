@@ -75,13 +75,13 @@ export const OverviewSubscribers: React.FC = () => {
         }}
         renderHeader={() => [
           { name: 'isSubscribed', label: '', size: '30px' },
-          { name: 'username', label: 'Username', sortable: true },
-          { name: 'lastName', label: 'Last Name', sortable: true },
-          { name: 'firstName', label: 'First Name', sortable: true },
-          { name: 'email', label: 'Email', sortable: true },
+          { name: 'username', label: 'Username', size: '17%', sortable: true },
+          { name: 'lastName', label: 'Last Name', size: '17%', sortable: true },
+          { name: 'firstName', label: 'First Name', size: '17%', sortable: true },
+          { name: 'email', label: 'Email', size: '40%', sortable: true },
           { name: 'sendTo', label: 'Send as' },
         ]}
-        renderRow={(row: IUserAVOverviewModel, rowIndex) => [
+        renderColumns={(row: IUserAVOverviewModel, rowIndex) => [
           <Checkbox
             key=""
             name={`chk-${row.id}`}

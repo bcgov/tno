@@ -129,6 +129,11 @@ spec:
                 configMapKeyRef:
                   name: content-service
                   key: CONTENT_TOPICS_EXCLUSIONS
+            - name: Service__AllowUpdate
+              valueFrom:
+                configMapKeyRef:
+                  name: content-service
+                  key: ALLOW_UPDATE
 
             # CHES Configuration
             - name: CHES__From
@@ -146,11 +151,6 @@ spec:
                 configMapKeyRef:
                   name: content-service
                   key: CHES_EMAIL_AUTHORIZED
-            - name: Service__MigrationOptions__AllowSourceContentOverwrite
-              valueFrom:
-                configMapKeyRef:
-                  name: content-historic-service
-                  key: ALLOW_SOURCE_CONTENT_OVERWRITE
 
             - name: CHES__AuthUrl
               valueFrom:

@@ -55,19 +55,20 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
             source.Code,
             contentType,
             mediaType.Id,
-            GetContentHash(source.Code, newsItemTitle, publishedOnInUtc),
-            newsItemTitle ?? "",
-            sanitizedSummary ?? "",
-            sanitizedBody ?? "",
+            newsItem.RSN.ToString(),
+            newsItemTitle,
+            sanitizedSummary ?? string.Empty,
+            sanitizedBody ?? string.Empty,
             publishedOnInUtc,
             newsItem.Published)
         {
+            HashUid = Runners.BaseService.GetContentHash(source.Code, newsItemTitle, publishedOnInUtc),
+            ExternalUid = newsItem.WebPath ?? string.Empty,
             Section = newsItem.string2 ?? string.Empty,
             Page = newsItem.string3 ?? string.Empty,
             FilePath = newsItem.FilePath ?? string.Empty,
             Link = newsItem.WebPath ?? string.Empty,
-            Language = "", // TODO: Need to extract this from the ingest, or determine it after transcription.
-            ExternalUid = newsItem.WebPath ?? string.Empty
+            Language = string.Empty, // TODO: Need to extract this from the ingest, or determine it after transcription.
         };
 
         if (string.IsNullOrEmpty(this.Options.DefaultUserNameForAudit)) throw new System.Configuration.ConfigurationErrorsException("Default Username for ContentMigration has not been configured");
@@ -77,7 +78,7 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
             // TODO: replace the USER_RSN value on UserIdentifier with something that can be mapped by the Content Service to an MMI user
             // TODO: remove UserRSN filter once user can be mapped
             content.TonePools = newsItem.Tones.Where(t => t.UserRSN == 0)
-                .Select(t => new Kafka.Models.TonePool { Value = (int)t.ToneValue, UserIdentifier = (t.UserRSN == 0 ? null : t.UserRSN.ToString()) });
+                .Select(t => new Kafka.Models.TonePool { Value = (int)t.ToneValue, UserIdentifier = t.UserRSN == 0 ? null : t.UserRSN.ToString() });
         }
 
         // Extract authors from a "delimited" string.  Don't use the source name as an author.
@@ -101,7 +102,7 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
         {
             // historic data has some values outside of the enum, just ignore them...
             if (Enum.TryParse(newsItem.EodGroup, out TopicType topicType))
-                content.Topics = new[] { new Kafka.Models.Topic(newsItem.EodCategory, topicType) };
+                content.Topics = new[] { new Kafka.Models.Topic(newsItem.EodCategory, topicType, newsItem.Topics.FirstOrDefault()?.Score) };
         }
 
         // Tags are in the Summary as they are added by an Editor
@@ -113,8 +114,7 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
         }
 
         // map relevant news item properties to actions
-        content.Actions = GetActionMappings(newsItem.FrontPageStory, newsItem.WapTopStory, newsItem.Alert,
-            newsItem.Commentary, newsItem.CommentaryTimeout);
+        content.Actions = GetActionMappings(newsItem.FrontPageStory, newsItem.WapTopStory, newsItem.Alert, newsItem.Commentary, newsItem.CommentaryTimeout);
 
         // the total "Effort" is stored in the Number2 field as seconds
         if (newsItem.Number2.HasValue && newsItem.Number2 > 0)
@@ -132,19 +132,19 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
     ///
     /// </summary>
     /// <returns></returns>
-    public override System.Linq.Expressions.Expression<Func<NewsItem, bool>> GetBaseFilter(ContentType contentType)
+    public override System.Linq.Expressions.Expression<Func<T, bool>> GetBaseFilter<T>(ContentType contentType)
     {
         string[] excludedContentTypes = new string[] { "video/quicktime", "image/jpeg" };
         switch (contentType)
         {
             case ContentType.PrintContent:
                 string[] targetPrintTypes = new string[] { "Newspaper", "Regional" };
-                return PredicateBuilder.New<NewsItem>()
+                return PredicateBuilder.New<T>()
                                     .And(ni => targetPrintTypes.Contains(ni.Type!.ToString()))
                                     .And(ni => !excludedContentTypes.Contains(ni.ContentType!.ToString()));
             case ContentType.Internet:
                 string[] targetStoryTypes = new string[] { "CP News", "Internet" };
-                return PredicateBuilder.New<NewsItem>()
+                return PredicateBuilder.New<T>()
                                     .And(ni => targetStoryTypes.Contains(ni.Type!.ToString()))
                                     .And(ni => !excludedContentTypes.Contains(ni.ContentType!.ToString()));
             default:

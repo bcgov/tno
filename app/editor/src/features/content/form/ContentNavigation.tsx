@@ -1,9 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { FaChevronLeft, FaChevronRight, FaSpinner } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { useLocalStorage } from 'store/hooks';
+import { useApiHub, useLocalStorage } from 'store/hooks';
 import { IContentSearchResult } from 'store/slices';
-import { Button, ButtonVariant, Row, Show } from 'tno-core';
+import {
+  Button,
+  ButtonVariant,
+  IWorkOrderMessageModel,
+  MessageTargetName,
+  Row,
+  Show,
+  Spinner,
+  WorkOrderStatusName,
+  WorkOrderTypeName,
+} from 'tno-core';
 
 import { IContentForm } from './interfaces/IContentForm';
 import { getContentPath } from './utils';
@@ -28,13 +38,17 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
   showRefresh = true,
 }) => {
   const navigate = useNavigate();
+  const hub = useApiHub();
 
   const [currentItems] = useLocalStorage('currentContent', null);
   const [, setCurrentItemId] = useLocalStorage('currentContentItemId', -1);
 
-  const [indexPosition, setIndexPosition] = useState(0);
-  const [enablePrev, setEnablePrev] = useState(false);
-  const [enableNext, setEnableNext] = useState(false);
+  const [isProcessing, setIsProcessing] = React.useState(
+    values.workOrders.some((wo) => wo.status === WorkOrderStatusName.InProgress),
+  );
+  const [indexPosition, setIndexPosition] = React.useState(0);
+  const [enablePrev, setEnablePrev] = React.useState(false);
+  const [enableNext, setEnableNext] = React.useState(false);
 
   React.useEffect(() => {
     if (currentItems != null) {
@@ -56,6 +70,14 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
       }
     }
   };
+
+  const onWorkOrder = React.useCallback(async (workOrder: IWorkOrderMessageModel) => {
+    if ([WorkOrderTypeName.FFmpeg].includes(workOrder.workType)) {
+      setIsProcessing(workOrder.status === WorkOrderStatusName.InProgress);
+    }
+  }, []);
+
+  hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrder);
 
   return (
     <Row gap="0.15rem">
@@ -84,7 +106,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
               fetchContent(values.id);
             }}
           >
-            <FaSpinner />
+            {isProcessing ? <Spinner size="10px" /> : <FaSpinner />}
           </Button>
         )}
       </Show>

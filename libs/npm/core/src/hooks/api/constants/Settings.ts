@@ -47,4 +47,8 @@ export const Settings = {
   ExcludeBylineIds: 'ExcludeBylineIds',
   /** The id's not to include sources in the content list view*/
   ExcludeSourceIds: 'ExcludeSourceIds',
+  /** The report ID used for the AM Analysys (Event of the Day) report. */
+  EventOfTheDayReportId: 'EventOfTheDayReportId',
+  /** The default template ID to Basic Alerts. */
+  BasicAlertTemplateId: 'BasicAlertTemplateId',
 };

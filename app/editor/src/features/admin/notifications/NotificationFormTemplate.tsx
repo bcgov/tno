@@ -2,6 +2,7 @@ import { useFormikContext } from 'formik';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
+import { useSettings } from 'store/hooks';
 import { useNotificationTemplates } from 'store/hooks/admin';
 import {
   Button,
@@ -20,6 +21,7 @@ import { defaultNotificationTemplate, defaultRazorTemplate } from './constants';
 import { getNotificationTemplateOptions } from './utils';
 
 export const NotificationFormTemplate = () => {
+  const { basicAlertTemplateId } = useSettings();
   const { values, setFieldValue } = useFormikContext<INotificationModel>();
   const [{ notificationTemplates }, { findAllNotificationTemplates }] = useNotificationTemplates();
 
@@ -41,6 +43,22 @@ export const NotificationFormTemplate = () => {
   React.useEffect(() => {
     setTemplateOptions(getNotificationTemplateOptions(notificationTemplates, values.templateId));
   }, [notificationTemplates, values.templateId]);
+
+  React.useEffect(() => {
+    if (
+      values.id === 0 &&
+      (!values.templateId || values.templateId === 0) &&
+      notificationTemplates.length > 0
+    ) {
+      setFieldValue('templateId', basicAlertTemplateId);
+      setFieldValue(
+        'template',
+        notificationTemplates.find((rt) => rt.id === basicAlertTemplateId),
+      );
+    }
+    // Fetch only when basicAlertTemplateId gets updated.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [basicAlertTemplateId, notificationTemplates]);
 
   return (
     <>

@@ -1,0 +1,3 @@
+@using TNO.TemplateEngine
+DEV | @Settings.Subject.Text @(Settings.Subject.ShowTodaysDate ? $" - {ReportExtensions.GetTodaysDate():dd-MMM-yyyy}" :
+"")
