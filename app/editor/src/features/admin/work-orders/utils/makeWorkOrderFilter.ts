@@ -20,13 +20,13 @@ export const makeWorkOrderFilter = (filter: IWorkOrderListFilter): IWorkOrderFil
  * @param sortBy An array of sort objects.
  * @returns An array of sort parameters.
  */
-const applySortBy = (sortBy?: ISortBy[]) => {
+const applySortBy = (sortBy?: ISortBy[]): ISortBy[] | undefined => {
   if (sortBy === undefined || sortBy.length === 0) return undefined;
 
-  var sort: string[] = [];
-  for (let i = 0; i < sortBy.length; i++) {
-    let column = sortBy[i].id;
-    sort.push(`${column}${sortBy[i].desc ? ' desc' : ''}`);
-  }
+  const sort: ISortBy[] = sortBy.map((item) => ({
+    id: item.id,
+    desc: item.desc,
+  }));
+
   return sort;
 };

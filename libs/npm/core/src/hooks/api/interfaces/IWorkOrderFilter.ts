@@ -1,4 +1,5 @@
 import { WorkOrderStatusName, WorkOrderTypeName } from '../constants';
+import { ISortBy } from './iSortBy';
 
 export interface IWorkOrderFilter {
   keywords?: string;
@@ -17,7 +18,7 @@ export interface IWorkOrderFilter {
   updatedOn?: string;
   updatedStartOn?: string;
   updatedEndOn?: string;
-  sort?: string[];
+  sort?: ISortBy[];
   page?: number;
   quantity?: number;
 }
