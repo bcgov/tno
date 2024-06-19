@@ -42,7 +42,16 @@ export const useUsers = (): IUserController => {
         return response.data;
       },
     }),
-    [dispatch, getUser, findUsers, storeMyProfile, userInfo, storeUserInfo, updateUser],
+    [
+      dispatch,
+      getUser,
+      findUsers,
+      storeMyProfile,
+      storeImpersonate,
+      userInfo,
+      storeUserInfo,
+      updateUser,
+    ],
   );
 
   return controller;
