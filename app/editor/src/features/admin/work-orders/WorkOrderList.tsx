@@ -1,3 +1,4 @@
+import isEqual from 'lodash/isEqual';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWorkOrders } from 'store/hooks/admin/useWorkOrders';
@@ -44,6 +45,19 @@ const WorkOrderList = () => {
     [workOrderFilter, storeFilter],
   );
 
+  const handleQuantityChange = React.useCallback(
+    (quantity: number) => {
+      if (workOrderFilter.pageSize !== quantity) {
+        const newFilter = {
+          ...workOrderFilter,
+          pageSize: quantity,
+        };
+        storeFilter(newFilter);
+      }
+    },
+    [workOrderFilter, storeFilter],
+  );
+
   const handlePageChange = React.useCallback(
     (page: number) => {
       if (workOrderFilter.pageIndex !== page - 1) {
@@ -74,11 +88,11 @@ const WorkOrderList = () => {
   );
 
   React.useEffect(() => {
-    if (workOrderFilter !== filter) {
+    if (!isEqual(workOrderFilter, filter)) {
       setFilter(workOrderFilter);
       fetch(workOrderFilter);
     }
-  }, [fetch, workOrderFilter, filter]);
+  }, [fetch, filter, workOrderFilter]);
 
   return (
     <styled.WorkOrderList>
@@ -97,6 +111,9 @@ const WorkOrderList = () => {
         onNavigatePage={async (page) => {
           handlePageChange(page);
         }}
+        onQuantityChange={async (quantity) => {
+          handleQuantityChange(quantity);
+        }}
         onSortChange={async (column, direction) => {
           handleSortChange(column, direction);
         }}
@@ -108,8 +125,6 @@ const WorkOrderList = () => {
           { name: 'status', label: 'Status', size: '10%', sortable: true },
         ]}
         renderColumns={(row: IWorkOrderModel, rowIndex) => {
-          // eslint-disable-next-line no-console
-          console.log('row.configuration: ', row.configuration);
           return [
             {
               column: (

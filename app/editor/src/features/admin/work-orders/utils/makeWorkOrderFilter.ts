@@ -1,13 +1,13 @@
 import { ISortBy } from 'features/interfaces';
-import { IWorkOrderFilter } from 'tno-core';
+import { IWorkOrderFilter, WorkOrderStatusName, WorkOrderTypeName } from 'tno-core';
 
 import { IWorkOrderListFilter } from '../interfaces/IWorkOrderListFilter';
 
 export const makeWorkOrderFilter = (filter: IWorkOrderListFilter): IWorkOrderFilter => {
   return {
     ...filter,
-    status: filter.status === '' ? undefined : [filter.status],
-    workType: filter.workType === '' ? undefined : filter.workType,
+    status: filter.status === '' ? undefined : [filter.status as WorkOrderStatusName],
+    workType: filter.workType === '' ? undefined : (filter.workType as WorkOrderTypeName),
     page: filter.pageIndex + 1,
     quantity: filter.pageSize,
     sort: applySortBy(filter.sort),
@@ -20,7 +20,7 @@ export const makeWorkOrderFilter = (filter: IWorkOrderListFilter): IWorkOrderFil
  * @param sortBy An array of sort objects.
  * @returns An array of sort parameters.
  */
-const applySortBy = (sortBy?: ISortBy[]): ISortBy[] | undefined => {
+const applySortBy = (sortBy?: ISortBy[]) => {
   if (sortBy === undefined || sortBy.length === 0) return undefined;
 
   const sort: ISortBy[] = sortBy.map((item) => ({
