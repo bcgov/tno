@@ -118,7 +118,7 @@ export const TranscriptionList: React.FC = () => {
         const sort =
           direction === SortDirection.None
             ? []
-            : [{ id: column.name, desc: direction === SortDirection.Descending }];
+            : [`${column.name}:${direction === SortDirection.Descending ? 'desc' : 'asc'}`];
         storeFilter({ ...filter, sort });
       }
     },
