@@ -12,43 +12,41 @@ export interface IPreviousResultsProps {
   currDateResults: IContentSearchResult[];
   prevDateResults: IContentSearchResult[];
   setResults: React.Dispatch<React.SetStateAction<IContentSearchResult[]>>;
+  startDate: Date;
 }
 export const PreviousResults: React.FC<IPreviousResultsProps> = ({
   loaded,
   currDateResults,
   prevDateResults,
+  startDate,
 }) => {
   const [
     {
-      mediaType: { filter },
+      search: { filter },
     },
-    { storeMediaTypeFilter: storeFilter },
+    { storeSearchFilter: storeFilter },
   ] = useContent();
 
   const [prevResults, setPrevResults] = React.useState<IPreviousDate[]>([]);
 
   React.useEffect(() => {
     // wait for startDate, and also do not want to fetch if results are returned
-    if (!loaded || !filter.startDate || !!currDateResults.length) return;
-    createDateRanges(filter.startDate);
+    if (!startDate || !!currDateResults.length) return;
+    createDateRanges(startDate);
     // only want to run when start date or source ids change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter.startDate, filter.sourceIds, currDateResults, prevDateResults]);
 
-  const createDateRanges = (startDateStr: string) => {
-    // Parse the input strings into Date objects
-    const startDate = new Date(startDateStr);
-
+  const createDateRanges = (startDate: Date) => {
     const dayInMillis = 24 * 60 * 60 * 1000; // Hours*Minutes*Seconds*Milliseconds
 
     // Previous 5 days that will be used to fetch in a filter
     let dateRanges: IPreviousDate[] = [];
 
-    // Generate the previous 5 days from the read date
-    for (let i = 1; i <= 5; i++) {
+    // Generate the previous 7 days from the read date
+    for (let i = 1; i <= 7; i++) {
       const currStartDate = new Date(startDate.getTime() - i * dayInMillis);
       const currEndDate = new Date(currStartDate.getTime() + dayInMillis - 1);
-
       const currResults = prevDateResults.filter((res) => {
         const resDate = new Date(res.publishedOn);
         if (
@@ -68,12 +66,11 @@ export const PreviousResults: React.FC<IPreviousResultsProps> = ({
     }
     setPrevResults(dateRanges);
   };
-
   return (
     <styled.PreviousResults>
       <p>
         There are no results for your specified filter. If there are results for your filter in the
-        past 5 days, they will be listed below.
+        past 7 days, they will be listed below.
       </p>
       {prevResults
         .filter((x) => x.hits > 0)
