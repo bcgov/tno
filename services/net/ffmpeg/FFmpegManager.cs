@@ -24,7 +24,7 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
     private CancellationTokenSource? _cancelToken;
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
-    private readonly WorkOrderStatus[] _activeWorkOrders = new WorkOrderStatus[] { WorkOrderStatus.Submitted, WorkOrderStatus.InProgress, WorkOrderStatus.Completed };
+    private readonly WorkOrderStatus[] _activeWorkOrders = new WorkOrderStatus[] { WorkOrderStatus.Submitted, WorkOrderStatus.InProgress };
     private int _retries = 0;
     #endregion
 
@@ -250,7 +250,7 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
         {
             // Check if there is already a work order processing or processed this content.
             var workOrders = await this.Api.FindWorkOrderForContentIdAsync(content.Id);
-            if (workOrders.Any(wo => _activeWorkOrders.Contains(wo.Status))) return;
+            if (workOrders.Any(wo => wo.WorkType == WorkOrderType.FFmpeg && _activeWorkOrders.Contains(wo.Status))) return;
 
             var sourcePath = Path.Join(this.Options.VolumePath, fileRef.Path.MakeRelativePath());
             if (File.Exists(sourcePath))
@@ -259,7 +259,7 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
                 var process = this.Options.Converters.FirstOrDefault(c => c.MediaTypeId == content.MediaTypeId && c.FromFormat.Equals(sourceExt, StringComparison.OrdinalIgnoreCase));
                 if (process != null)
                 {
-                    var workOrder = await AddWorkOrderAsync(request, WorkOrderStatus.InProgress) ?? throw new InvalidOperationException("Work order failed to be returned by API");
+                    var workOrder = await AddWorkOrderAsync(request, content) ?? throw new InvalidOperationException("Work order failed to be returned by API");
                     var contentType = !String.IsNullOrWhiteSpace(process.ToContentType) ? process.ToContentType : FTT.GetMimeType(process.ToFormat.Replace(".", ""));
 
                     try
@@ -268,11 +268,14 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
                         var newFile = await ConvertFile(sourcePath, process.ToFormat);
                         if (!String.IsNullOrEmpty(newFile))
                         {
+                            this.Logger.LogInformation("Content has been processed.  Content ID: {id}, Path: {path}", request.ContentId, fileRef.Path);
+
+                            content = await this.Api.FindContentByIdAsync(request.ContentId) ?? throw new InvalidOperationException("Unable to fetch latest version of content");
+                            fileRef = content.FileReferences.FirstOrDefault() ?? throw new InvalidOperationException("Content is missing a file reference");
                             fileRef.Path = fileRef.Path.Replace(process.FromFormat, process.ToFormat);
                             fileRef.FileName = Path.GetFileName(fileRef.Path);
                             fileRef.ContentType = contentType;
 
-                            this.Logger.LogInformation("Content has been processed.  Content ID: {id}, Path: {path}", request.ContentId, fileRef.Path);
                             await this.Api.UpdateFileAsync(content, true, request.RequestorId);
                             workOrder.Status = WorkOrderStatus.Completed;
                             await this.Api.UpdateWorkOrderAsync(workOrder);
@@ -298,15 +301,19 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
     /// Add the work order with the specified 'status'.
     /// </summary>
     /// <param name="request"></param>
-    /// <param name="status"></param>
+    /// <param name="content"></param>
     /// <returns>Whether a work order exists or is not required.</returns>
-    private async Task<API.Areas.Services.Models.WorkOrder.WorkOrderModel?> AddWorkOrderAsync(IndexRequestModel request, WorkOrderStatus status)
+    private async Task<API.Areas.Services.Models.WorkOrder.WorkOrderModel?> AddWorkOrderAsync(IndexRequestModel request, ContentModel content)
     {
+        var configuration = new Dictionary<string, object>();
+        configuration.Add("contentId", content.Id);
+        configuration.Add("headline", content.Headline);
         var workOrder = new API.Areas.Services.Models.WorkOrder.WorkOrderModel()
         {
             WorkType = WorkOrderType.FFmpeg,
-            Status = status,
-            ContentId = request.ContentId
+            Status = WorkOrderStatus.InProgress,
+            ContentId = request.ContentId,
+            Configuration = configuration,
         };
         return await this.Api.AddWorkOrderAsync(workOrder);
     }
