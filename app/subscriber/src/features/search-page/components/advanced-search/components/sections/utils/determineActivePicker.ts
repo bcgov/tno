@@ -1,3 +1,5 @@
+import { IFilterSettingsModel } from 'tno-core';
+
 import { QuickPickerNames } from '../constants';
 
 /**
@@ -5,8 +7,9 @@ import { QuickPickerNames } from '../constants';
  * @param publishedStartOn ISO string value of the published start date
  * @param publishedEndOn ISO string value of the published end date
  */
-export const determineActivePicker = (dateOffset: number) => {
-  switch (dateOffset) {
+export const determineActivePicker = (filter: IFilterSettingsModel) => {
+  if (filter.startDate || filter.endDate) return QuickPickerNames.Custom;
+  switch (filter.dateOffset) {
     case 0:
       return QuickPickerNames.Today;
     case 1:
@@ -15,7 +18,15 @@ export const determineActivePicker = (dateOffset: number) => {
       return QuickPickerNames.FortyEightHours;
     case 7:
       return QuickPickerNames.SevenDays;
+    case 30:
+      return QuickPickerNames.OneMonth;
+    case 60:
+      return QuickPickerNames.TwoMonths;
+    case 90:
+      return QuickPickerNames.ThreeMonths;
+    case 120:
+      return QuickPickerNames.SixMonths;
     default:
-      return QuickPickerNames.Custom;
+      return QuickPickerNames.All;
   }
 };
