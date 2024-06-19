@@ -54,7 +54,6 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const { expanded } = useSearchPageContext();
   const [startDate, setStartDate] = React.useState<Date>(new Date());
-  const [endDate, setEndDate] = React.useState<Date>(new Date());
   const [init, setInit] = React.useState(true); // React hooks are horrible...
 
   const [filterId, setFilterId] = React.useState(0);
@@ -95,7 +94,11 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         const prevStartDate = new Date(currStartDate.getTime() - 7 * dayInMillis);
         const currEndDate = new Date(currStartDate.getTime() + dayInMillis - 1);
         setStartDate(currStartDate);
-        setEndDate(currEndDate);
+        newFilter = {
+          ...filter,
+          startDate: prevStartDate.toISOString(),
+          endDate: currEndDate.toISOString(),
+        };
         const settings = filterFormat(newFilter);
         const query = genQuery(settings);
         const res: any = await findContentWithElasticsearch(
@@ -122,7 +125,6 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
             prevDateResults.push(h._source);
           }
         });
-        console.log('testOlderFilter', prevDateResults);
         setCurrDateResults(currDateResults);
         setPrevDateResults(prevDateResults);
         setTotalResults(res.hits.total.value);
@@ -226,11 +228,11 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
             />
             <Show visible={!currDateResults.length}>
               <PreviousResults
-                loaded={isLoading}
                 currDateResults={currDateResults}
                 prevDateResults={prevDateResults}
                 startDate={startDate}
                 setResults={setPrevDateResults}
+                executeSearch={executeSearch}
               />
             </Show>
             {isLoading && <Loading />}

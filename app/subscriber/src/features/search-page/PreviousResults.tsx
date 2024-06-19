@@ -8,17 +8,17 @@ import { IPreviousDate } from './interfaces';
 import * as styled from './styled';
 
 export interface IPreviousResultsProps {
-  loaded: boolean;
   currDateResults: IContentSearchResult[];
   prevDateResults: IContentSearchResult[];
   setResults: React.Dispatch<React.SetStateAction<IContentSearchResult[]>>;
   startDate: Date;
+  executeSearch: Function;
 }
 export const PreviousResults: React.FC<IPreviousResultsProps> = ({
-  loaded,
   currDateResults,
   prevDateResults,
   startDate,
+  executeSearch,
 }) => {
   const [
     {
@@ -79,7 +79,11 @@ export const PreviousResults: React.FC<IPreviousResultsProps> = ({
             <Row
               key={x.startDate}
               className="prev-result-row"
-              onClick={() => storeFilter({ ...filter, startDate: x.startDate, endDate: x.endDate })}
+              onClick={() => {
+                const newFilter = { ...filter, startDate: x.startDate, endDate: x.endDate };
+                storeFilter(newFilter);
+                executeSearch(newFilter);
+              }}
             >
               <div className="hits">{x.hits}</div>
               <div className="date">{moment(x.startDate).format('dddd, MMMM DD, YYYY')}</div>
