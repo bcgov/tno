@@ -10,11 +10,13 @@ import * as styled from './styled';
 export const MyMinisterSettings: React.FC = () => {
   const [{ ministers }] = useLookup();
   const { updateUser } = useUsers();
-  const [{ profile }, { storeMyProfile }] = useProfileStore();
+  const [{ profile, impersonate }, { storeMyProfile, storeImpersonate }] = useProfileStore();
 
   const [activeMinisters, setActiveMinisters] = React.useState(ministers);
 
-  const myMinisters: number[] = profile?.preferences?.myMinisters ?? [];
+  const myMinisters: number[] = !!impersonate
+    ? impersonate?.preferences?.myMinisters ?? []
+    : profile?.preferences?.myMinisters ?? [];
 
   const mergeValues = React.useCallback(
     (values: number[]) => {
@@ -31,17 +33,29 @@ export const MyMinisterSettings: React.FC = () => {
         toast.error('User information is missing. Please try again later');
         return;
       }
+      const baseProfile = impersonate ?? profile;
+      const createUser = (): ISubscriberUserModel => {
+        // use impersonate if it exists, otherwise use profile
+        return {
+          ...baseProfile,
+          preferences: {
+            ...baseProfile.preferences,
+            myMinisters: mergeValues(values),
+          },
+        };
+      };
+
+      const user = createUser();
 
       try {
-        var user: ISubscriberUserModel = {
-          ...profile,
-          preferences: { ...profile.preferences, myMinisters: mergeValues(values) },
-        };
         await updateUser(user);
-        toast.success(`Your minister(s) have successfully been updated.`);
-      } catch {}
+        toast.success('Your minister(s) have successfully been updated.');
+      } catch (error) {
+        // Handle the error, if needed
+        console.error('Failed to update user:', error);
+      }
     },
-    [profile, mergeValues, updateUser],
+    [profile, impersonate, mergeValues, updateUser],
   );
 
   React.useEffect(() => {
@@ -75,19 +89,19 @@ export const MyMinisterSettings: React.FC = () => {
                 label={`${o.name} : `}
                 checked={myMinisters.includes(o.id)}
                 onChange={(e) => {
-                  if (profile) {
+                  const baseProfile = impersonate ?? profile;
+                  if (baseProfile) {
                     const values = e.target.checked
                       ? [...myMinisters, o.id]
                       : myMinisters.filter((m) => m !== o.id);
                     const user = {
-                      ...profile,
+                      ...baseProfile,
                       preferences: {
-                        ...profile?.preferences,
+                        ...baseProfile?.preferences,
                         myMinisters: values,
                       },
                     };
-
-                    storeMyProfile(user);
+                    !!impersonate ? storeImpersonate(user) : storeMyProfile(user);
                   }
                 }}
               />

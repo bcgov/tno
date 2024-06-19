@@ -353,7 +353,7 @@ public class ContentManager : ServiceManager<ContentOptions>
 
             if (model.Actions.Any())
             {
-                IEnumerable<ContentActionModel> mappedContentActionModels = GetActionMappings(actions!, model.Actions, content.Id);
+                var mappedContentActionModels = GetActionMappings(actions!, model.Actions, content.Id);
                 if (mappedContentActionModels.Any())
                 {
                     content.Actions = mappedContentActionModels.ToArray();

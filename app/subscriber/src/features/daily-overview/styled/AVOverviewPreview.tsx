@@ -37,7 +37,6 @@ export const AVOverviewPreview = styled.div`
       color: #4d4f5c;
       td {
         border-color: #ddd6c8;
-        padding: 0.5em;
       }
     }
   }

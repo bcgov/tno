@@ -7,5 +7,6 @@ export enum QuickPickerNames {
   TwoMonths = '2 MONTHS',
   ThreeMonths = '3 MONTHS',
   SixMonths = '6 MONTHS',
+  All = 'All',
   Custom = '',
 }

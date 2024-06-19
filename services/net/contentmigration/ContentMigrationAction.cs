@@ -419,7 +419,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             if (addOrUpdateContent)
             {
                 await LinkFile(manager, contentMigrator, newsItem, sourceContent);
-                await ContentReceivedAsync(manager, reference, sourceContent);
+                await ContentReceivedAsync(manager, reference, sourceContent, forceUpdate);
             }
             else
             {

@@ -26,6 +26,11 @@ public class WorkOrderModel : AuditColumnsModel
     public WorkOrderStatus Status { get; set; }
 
     /// <summary>
+    /// get/set - The foreign key to the content.
+    /// </summary>
+    public long? ContentId { get; set; }
+
+    /// <summary>
     /// get/set - Foreign key to the user requested this work order.
     /// </summary>
     public int? RequestorId { get; set; }
@@ -67,6 +72,7 @@ public class WorkOrderModel : AuditColumnsModel
         this.Id = entity.Id;
         this.WorkType = entity.WorkType;
         this.Status = entity.Status;
+        this.ContentId = entity.ContentId;
         this.RequestorId = entity.RequestorId;
         this.AssignedId = entity.AssignedId;
         this.Description = entity.Description;
@@ -85,6 +91,7 @@ public class WorkOrderModel : AuditColumnsModel
     {
         entity.WorkType = this.WorkType;
         entity.Status = this.Status;
+        entity.ContentId = this.ContentId;
         entity.AssignedId = this.AssignedId;
         entity.RequestorId = this.RequestorId;
         entity.Description = this.Description;
@@ -92,6 +99,26 @@ public class WorkOrderModel : AuditColumnsModel
         entity.Version = this.Version ?? 0;
         entity.Configuration = JsonDocument.Parse(JsonSerializer.Serialize(this.Configuration, options));
         return entity;
+    }
+
+    /// <summary>
+    /// Copy values from model to entity.
+    /// </summary>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public Entities.WorkOrder ToEntity(JsonSerializerOptions options)
+    {
+        return new Entities.WorkOrder(this.WorkType, this.Description, JsonSerializer.Serialize(this.Configuration, options))
+        {
+            Id = this.Id,
+            Status = this.Status,
+            RequestorId = this.RequestorId,
+            AssignedId = this.AssignedId,
+            Description = this.Description,
+            Note = this.Note,
+            ContentId = this.ContentId,
+            Version = this.Version ?? 0
+        };
     }
     #endregion
 }

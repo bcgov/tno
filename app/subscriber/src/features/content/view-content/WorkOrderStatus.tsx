@@ -7,7 +7,7 @@ import {
   WorkOrderTypeName,
 } from 'tno-core';
 
-import { findWorkOrder } from './findWorkOrder';
+import { findWorkOrder } from './utils';
 
 export interface ITranscriptionStatusProps {
   /** An array of work orders. */
