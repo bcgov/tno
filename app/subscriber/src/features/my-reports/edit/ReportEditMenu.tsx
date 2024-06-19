@@ -2,7 +2,7 @@ import { Action } from 'components/action';
 import { MenuButton } from 'components/button';
 import { FaLock } from 'react-icons/fa6';
 import { FaCaretRight, FaRightToBracket } from 'react-icons/fa6';
-import { Col, Row, Show } from 'tno-core';
+import { Row, Show } from 'tno-core';
 
 import { ReportKindIcon } from '../components';
 import { getLastSent } from '../utils';
@@ -27,7 +27,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
 
   return (
     <styled.ReportEditMenu className="report-menu">
-      <div className="report-main-menu">
+      <div className="report-headline">
         <div>
           <Action
             icon={<FaRightToBracket className="icon-exit" />}
@@ -39,6 +39,13 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
             {values.name ? values.name : 'New Report'} <ReportKindIcon report={values} />
           </div>
         </div>
+        <Row nowrap gap="0.5rem">
+          <label>Last Sent:</label>
+          <span>{lastSent ? lastSent : 'Never'}</span>
+        </Row>
+      </div>
+
+      <div className="report-main-menu">
         <div>
           <MenuButton
             label="Settings"
@@ -84,12 +91,6 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
         </div>
       </div>
       <div className="report-secondary-menu">
-        <Col flex="1">
-          <Row nowrap gap="0.5rem">
-            <label>Last Sent:</label>
-            <span>{lastSent ? lastSent : 'Never'}</span>
-          </Row>
-        </Col>
         <Show visible={active?.startsWith(ReportMainMenuOption.Settings)}>
           <div>
             <MenuButton
