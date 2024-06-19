@@ -25,7 +25,6 @@ import {
 } from 'tno-core';
 
 import { WorkOrderFilter } from '../WorkOrderFilter';
-import { useColumns } from './hooks';
 import * as styled from './styled';
 
 export const TranscriptionList: React.FC = () => {
