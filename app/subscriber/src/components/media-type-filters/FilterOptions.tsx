@@ -186,7 +186,7 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
   const filters = [
     { type: FilterOptionTypes.Papers, label: 'PAPERS', icon: <FaNewspaper /> },
     { type: FilterOptionTypes.RadioTV, label: 'RADIO/TV', icon: <FaTowerCell /> },
-    { type: FilterOptionTypes.Internet, label: 'INTERNET', icon: <FaGlobe /> },
+    { type: FilterOptionTypes.Internet, label: 'ONLINE', icon: <FaGlobe /> },
     { type: FilterOptionTypes.CPNews, label: 'CP NEWS', icon: <FaCanadianMapleLeaf /> },
     { type: FilterOptionTypes.Events, label: 'EVENTS', icon: <FaCalendar /> },
     { type: FilterOptionTypes.All, label: 'ALL' },

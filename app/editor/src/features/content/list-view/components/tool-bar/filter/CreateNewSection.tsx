@@ -73,7 +73,7 @@ export const CreateNewSection: React.FC<ICreateNewSectionProps> = ({
           return (
             <FaFileInvoice
               key={contentType}
-              data-tooltip-content="Internet"
+              data-tooltip-content="Online"
               data-tooltip-id="main-tooltip"
               onClick={(e) =>
                 e.ctrlKey
