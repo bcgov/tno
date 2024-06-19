@@ -159,7 +159,8 @@ public class ProductController : ControllerBase
                 var productSubscriptionManagerEmail = _settingService.FindByName(AdminConfigurableSettingNames.ProductSubscriptionManagerEmail.ToString());
                 if (productSubscriptionManagerEmail != null)
                 {
-                    var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, productSubscriptionManagerEmail.Value, subject, message.ToString());
+                    var emailAddresses = productSubscriptionManagerEmail.Value.Split(new char[] { ';', ',' }, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                    var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, emailAddresses, subject, message.ToString());
                     var emailRequest = await _ches.SendEmailAsync(email);
                     _logger.LogInformation($"Product subscription request email to [${productSubscriptionManagerEmail.Value}] queued: ${emailRequest.TransactionId}");
                 }
