@@ -30,6 +30,7 @@ export const initialContentState: IContentState = {
       inByline: true,
       inHeadline: true,
       inStory: true,
+      inProgram: true,
       dateOffset: 1,
     },
   },
