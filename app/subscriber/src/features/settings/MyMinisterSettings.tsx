@@ -34,7 +34,6 @@ export const MyMinisterSettings: React.FC = () => {
         return;
       }
       const baseProfile = impersonate ?? profile;
-      console.log('baseProfile', baseProfile);
       const createUser = (): ISubscriberUserModel => {
         // use impersonate if it exists, otherwise use profile
         return {
