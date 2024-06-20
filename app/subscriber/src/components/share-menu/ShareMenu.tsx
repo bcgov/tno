@@ -99,7 +99,8 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
         className="share-menu"
         place="bottom"
         openOnClick
-        style={{ opacity: '1', boxShadow: '0 0 8px #464545', zIndex: '999' }}
+        opacity={1}
+        style={{ boxShadow: '0 0 8px #464545', zIndex: '999' }}
         id="share"
       >
         <FaEnvelope /> SHARE WITH A COLLEAGUE:

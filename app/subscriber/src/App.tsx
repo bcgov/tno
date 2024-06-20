@@ -68,10 +68,10 @@ function App() {
         </Show>
         <ToastContainer />
         <Tooltip
+          opacity={1}
           style={{
             backgroundColor: '#FFFFCC',
             color: 'black',
-            opacity: '1',
             boxShadow: '0 0 8px #464545',
             zIndex: '999',
           }}
