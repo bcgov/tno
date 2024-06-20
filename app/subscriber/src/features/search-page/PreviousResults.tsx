@@ -35,7 +35,7 @@ export const PreviousResults: React.FC<IPreviousResultsProps> = ({
     createDateRanges(startDate);
     // only want to run when start date or source ids change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter.startDate, filter.sourceIds, currDateResults, prevDateResults]);
+  }, [filter.startDate, currDateResults, prevDateResults]);
 
   const createDateRanges = (startDate: Date) => {
     const dayInMillis = 24 * 60 * 60 * 1000; // Hours*Minutes*Seconds*Milliseconds
