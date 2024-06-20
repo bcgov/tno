@@ -64,7 +64,8 @@ export const UserProfile: React.FC = () => {
         closeOnEsc
         isOpen={profileMenu}
         setIsOpen={setProfileMenu}
-        style={{ opacity: '1', boxShadow: '0 0 8px #464545', zIndex: '999' }}
+        opacity={1}
+        style={{ boxShadow: '0 0 8px #464545', zIndex: '999' }}
         id="my-info"
       >
         <h1>My Profile</h1>
