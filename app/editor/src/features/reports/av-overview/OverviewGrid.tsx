@@ -334,7 +334,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
                                     rows={item.itemType === AVOverviewItemTypeName.Intro ? 3 : 1}
                                     disabled={!editable || item.itemType === 'Ad'}
                                     maxLength={
-                                      item.itemType === AVOverviewItemTypeName.Intro ? 2000 : 90
+                                      item.itemType === AVOverviewItemTypeName.Intro ? 2000 : 83
                                     }
                                     onChange={(e) => {
                                       const value = e.target.value;

@@ -219,9 +219,6 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     color: ${(props) => props.theme.css.btnSecondaryColor};
     font-weight: 650;
 
-    &:hover {
-      cursor: pointer;
-    }
     .drop-icon {
       margin-left: auto;
       cursor: pointer;
@@ -250,6 +247,18 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     padding: 0;
     margin-top: auto;
     max-width: 20em;
+    display: flex;
+    flex-direction: row;
+
+    > button {
+      flex: 1;
+      white-space: nowrap;
+      > div {
+        > div {
+          justify-content: center;
+        }
+      }
+    }
   }
 
   .date-range {

@@ -48,7 +48,7 @@ export const MyMinisterSettings: React.FC = () => {
       const user = createUser();
 
       try {
-        await updateUser(user);
+        await updateUser(user, !!impersonate);
         toast.success('Your minister(s) have successfully been updated.');
       } catch (error) {
         // Handle the error, if needed

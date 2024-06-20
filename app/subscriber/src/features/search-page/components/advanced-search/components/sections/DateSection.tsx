@@ -16,10 +16,7 @@ export const DateSection: React.FC = () => {
     { storeSearchFilter: storeFilter },
   ] = useContent();
 
-  const offset =
-    filter?.startDate || filter?.endDate
-      ? undefined
-      : determineActivePicker(filter.dateOffset ?? 0);
+  const dateOption = determineActivePicker(filter);
 
   return (
     <Row className="expanded date-range">
@@ -68,7 +65,7 @@ export const DateSection: React.FC = () => {
       </Row>
       <ToggleGroup
         className="date-range-toggle"
-        defaultSelected={offset}
+        defaultSelected={dateOption}
         options={[
           {
             label: QuickPickerNames.Today,
@@ -109,6 +106,16 @@ export const DateSection: React.FC = () => {
             label: QuickPickerNames.SixMonths,
             onClick: () =>
               storeFilter({ ...filter, dateOffset: 120, startDate: undefined, endDate: undefined }),
+          },
+          {
+            label: QuickPickerNames.All,
+            onClick: () =>
+              storeFilter({
+                ...filter,
+                dateOffset: undefined,
+                startDate: undefined,
+                endDate: undefined,
+              }),
           },
         ]}
         activeColor="#6750a4"
