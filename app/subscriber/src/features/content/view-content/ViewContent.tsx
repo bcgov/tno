@@ -71,6 +71,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
   const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
   const [filteredQuotes, setFilteredQuotes] = React.useState<IQuoteModel[]>([]);
 
+  const fileRef = React.useRef<HTMLVideoElement>(null);
   const fileReference = content?.fileReferences ? content?.fileReferences[0] : undefined;
 
   const isAV = content?.contentType === ContentTypeName.AudioVideo;
@@ -87,20 +88,29 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
       wo.userNotifications?.some((un) => un.userId === profile?.id),
   );
   const [isProcessing, setIsProcessing] = React.useState(
-    isAV &&
+    workOrders.every(
+      (wo) =>
+        wo.workType === WorkOrderTypeName.FFmpeg && wo.status !== WorkOrderStatusName.Completed,
+    ),
+  );
+  const [wasProcessing, setWasProcessing] = React.useState(isProcessing);
+
+  React.useEffect(() => {
+    // When the processing completes it needs to load the file again.
+    if (wasProcessing && !isProcessing && fileRef.current) {
+      fileRef.current.load();
+    }
+    setWasProcessing(isProcessing);
+    // Only interested in when the processing changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isProcessing]);
+
+  React.useEffect(() => {
+    setIsProcessing(
       workOrders.every(
         (wo) =>
           wo.workType === WorkOrderTypeName.FFmpeg && wo.status !== WorkOrderStatusName.Completed,
       ),
-  );
-
-  React.useEffect(() => {
-    setIsProcessing(
-      isAV &&
-        workOrders.every(
-          (wo) =>
-            wo.workType === WorkOrderTypeName.FFmpeg && wo.status !== WorkOrderStatusName.Completed,
-        ),
     );
   }, [isAV, workOrders]);
 
@@ -218,8 +228,10 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
 
   const onWorkOrder = React.useCallback(async (workOrder: IWorkOrderMessageModel) => {
     if ([WorkOrderTypeName.FFmpeg].includes(workOrder.workType)) {
-      console.debug(workOrder);
-      setIsProcessing(workOrder.status === WorkOrderStatusName.InProgress);
+      setIsProcessing(
+        workOrder.workType === WorkOrderTypeName.FFmpeg &&
+          workOrder.status === WorkOrderStatusName.InProgress,
+      );
     }
   }, []);
 
@@ -296,7 +308,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
             </Col>
           </Show>
           <Show visible={!isProcessing && fileReference?.contentType.startsWith('audio/')}>
-            <audio controls>
+            <audio controls ref={fileRef}>
               <source src={avStream?.url} type={fileReference?.contentType} />
               HTML5 Audio is required
             </audio>
@@ -307,6 +319,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
               height={width! > 500 ? '270' : 135}
               width={width! > 500 ? 480 : 240}
               preload="metadata"
+              ref={fileRef}
             >
               <source src={avStream?.url} type={fileReference?.contentType} />
               HTML5 Audio is required
