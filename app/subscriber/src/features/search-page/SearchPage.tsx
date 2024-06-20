@@ -99,6 +99,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         if (filter.startDate && filter.endDate) {
           newFilter = {
             ...filter,
+            dateOffset: undefined,
             startDate: prevStartDate.toISOString(),
             endDate: currEndDate.toISOString(),
           };
