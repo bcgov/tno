@@ -55,7 +55,8 @@ export const Upload: React.FC<IUploadProps> = ({
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const { isProcessing } = useContentForm(values);
 
-  const fileRef = React.useRef<HTMLVideoElement>(null);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const radioRef = React.useRef<HTMLAudioElement>(null);
 
   const [wasProcessing, setWasProcessing] = React.useState(isProcessing);
   const [file, setFile] = React.useState<IFile>();
@@ -79,13 +80,17 @@ export const Upload: React.FC<IUploadProps> = ({
       // Worried this may result in an odd race condition with 'file' and 'stream'.
       setFile(undefined);
       setFileName(undefined);
+    } else {
+      if (videoRef.current) videoRef.current.load();
+      if (radioRef.current) radioRef.current.load();
     }
   }, [stream]);
 
   React.useEffect(() => {
     // When the processing completes it needs to load the file again.
-    if (wasProcessing && !isProcessing && fileRef.current) {
-      fileRef.current.load();
+    if (wasProcessing && !isProcessing) {
+      if (videoRef.current) videoRef.current.load();
+      if (radioRef.current) radioRef.current.load();
     }
     setWasProcessing(isProcessing);
     // Only interested in when the processing changes.
@@ -160,7 +165,7 @@ export const Upload: React.FC<IUploadProps> = ({
       <Show visible={!!stream && contentType === ContentTypeName.AudioVideo && !!fileReference}>
         <Show visible={fileReference?.contentType.startsWith('audio/')}>
           <Col flex="1">
-            <audio controls ref={fileRef}>
+            <audio controls ref={radioRef}>
               <source src={`${stream?.url}`} type={`${fileReference?.contentType}`} />
               HTML5 Audio is required
             </audio>
@@ -168,7 +173,7 @@ export const Upload: React.FC<IUploadProps> = ({
         </Show>
         <Show visible={fileReference?.contentType.startsWith('video/')}>
           <Col flex="1">
-            <video controls preload="metadata" ref={fileRef}>
+            <video controls preload="metadata" ref={videoRef}>
               <source src={`${stream?.url}`} type={`${fileReference?.contentType}`} />
               HTML5 Video is required
             </video>
