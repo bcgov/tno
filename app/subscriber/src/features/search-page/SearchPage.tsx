@@ -89,16 +89,20 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         const offSet = filter.dateOffset ? filter.dateOffset : 0;
         const dayInMillis = 24 * 60 * 60 * 1000; // Hours*Minutes*Seconds*Milliseconds
         let offSetDate = new Date();
-        offSetDate.setDate(offSetDate.getDate() - (offSet + 1));
+        offSetDate.setDate(offSetDate.getDate() - offSet);
         const currStartDate = filter.startDate ? new Date(filter.startDate) : offSetDate;
         const prevStartDate = new Date(currStartDate.getTime() - 7 * dayInMillis);
-        const currEndDate = new Date(currStartDate.getTime() + dayInMillis - 1);
+        const currEndDate = filter.endDate
+          ? new Date(filter.endDate)
+          : new Date(currStartDate.getTime() + offSet * dayInMillis - 1);
         setStartDate(currStartDate);
-        newFilter = {
-          ...filter,
-          startDate: prevStartDate.toISOString(),
-          endDate: currEndDate.toISOString(),
-        };
+        if (filter.startDate && filter.endDate) {
+          newFilter = {
+            ...filter,
+            startDate: prevStartDate.toISOString(),
+            endDate: currEndDate.toISOString(),
+          };
+        }
         const settings = filterFormat(newFilter);
         const query = genQuery(settings);
         const res: any = await findContentWithElasticsearch(
@@ -108,7 +112,6 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         );
         const currDateResults: IContentSearchResult[] = [],
           prevDateResults: IContentSearchResult[] = [];
-
         res.hits.hits.forEach((h: { _source: IContentSearchResult }) => {
           const resDate = new Date(h._source.publishedOn);
           if (
@@ -127,7 +130,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         });
         setCurrDateResults(currDateResults);
         setPrevDateResults(prevDateResults);
-        setTotalResults(res.hits.total.value);
+        setTotalResults(currDateResults.length);
         if (res.hits.total.value >= 500)
           toast.warn(
             'Search returned 500+ results, only showing first 500. Please consider refining your search.',

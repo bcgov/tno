@@ -40,7 +40,7 @@ export const PreviousResults: React.FC<IPreviousResultsProps> = ({
   const createDateRanges = (startDate: Date) => {
     const dayInMillis = 24 * 60 * 60 * 1000; // Hours*Minutes*Seconds*Milliseconds
 
-    // Previous 5 days that will be used to fetch in a filter
+    // Previous 7 days that will be used to fetch in a filter
     let dateRanges: IPreviousDate[] = [];
 
     // Generate the previous 7 days from the read date
