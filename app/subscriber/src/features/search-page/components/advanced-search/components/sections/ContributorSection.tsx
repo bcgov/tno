@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useContent, useLookup } from 'store/hooks';
 import {
   Button,
@@ -27,6 +27,29 @@ export const ContributorSection: React.FC<IFilterDisplayProps> = ({ displayFilte
         }),
     [contributors],
   );
+
+  const handleChange = useCallback(
+    (checked: boolean, value: string) => {
+      const selectedItem = contributorOptions.find((i) => String(i.value) === value);
+      const label = selectedItem ? selectedItem.label : null;
+
+      const updatedContributorNames = checked
+        ? label
+          ? [...(filter.contributorNames ?? []), label] // add it
+          : filter.contributorNames
+        : filter.contributorNames?.filter((i) => i !== label); // remove it
+
+      storeFilter({
+        ...filter,
+        contributorIds: checked
+          ? [...(filter.contributorIds ?? []), +value] // add it
+          : filter.contributorIds?.filter((i) => i !== +value), // remove it
+        contributorNames: updatedContributorNames,
+      });
+    },
+    [contributorOptions, filter, storeFilter],
+  );
+
   return (
     <Row justifyContent="center">
       <Show visible={!displayFiltersAsDropdown}>
@@ -56,12 +79,7 @@ export const ContributorSection: React.FC<IFilterDisplayProps> = ({ displayFilte
                 checked={filter.contributorIds?.includes(+item.value!)}
                 value={item.value}
                 onChange={(e) => {
-                  storeFilter({
-                    ...filter,
-                    contributorIds: e.target.checked
-                      ? [...(filter.contributorIds ?? []), +e.target.value] // add it
-                      : filter.contributorIds?.filter((i) => i !== +e.target.value), // remove it
-                  });
+                  handleChange(e.target.checked, e.target.value);
                 }}
               />
             </div>

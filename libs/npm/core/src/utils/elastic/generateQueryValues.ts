@@ -28,7 +28,10 @@ export const generateQueryValues = (
     generateTerms('sourceId', settings.sourceIds),
     generateTerms('mediaTypeId', settings.mediaTypeIds),
     generateTerms('seriesId', settings.seriesIds),
-    generateTerms('contributorId', settings.contributorIds),
+    // TNO-2786: User expects to filter by columnist(s) when is not added to the content
+    // Added columnist(s) in the search filter. Once all content has columnist assigned
+    // we can uncomment the following line.
+    // generateTerms('contributorId', settings.contributorIds),
     generateTerms('contentType', settings.contentTypes),
     generateTerms('id', settings.contentIds),
     generateTermsForArrayField('tags.code', settings.tags),
