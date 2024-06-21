@@ -36,7 +36,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   const { id } = useParams();
   const [
     {
-      search: { filter },
+      search: { filter, content },
     },
     { findContentWithElasticsearch, storeSearchFilter },
   ] = useContent();
@@ -75,8 +75,39 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     }
   }, [activeFilter, getFilter, filterId, init, storeFilter, storeSearchFilter, id]);
 
+  const groupResults = React.useCallback(
+    (res: any, currStartDate: Date, currEndDate: Date, prevStartDate: Date) => {
+      const currDateResults: IContentSearchResult[] = [],
+        prevDateResults: IContentSearchResult[] = [];
+      res.hits.hits.forEach((h: { _source: IContentSearchResult }) => {
+        const resDate = new Date(h._source.publishedOn);
+        if (
+          resDate.getTime() >= currStartDate.getTime() &&
+          resDate.getTime() <= currEndDate.getTime()
+        ) {
+          // result occurred during currently selected date
+          currDateResults.push(h._source);
+        } else if (
+          // result occurred sometime in past 5 days
+          resDate.getTime() >= prevStartDate.getTime() &&
+          resDate.getTime() <= currEndDate.getTime()
+        ) {
+          prevDateResults.push(h._source);
+        }
+      });
+      setCurrDateResults(currDateResults);
+      setPrevDateResults(prevDateResults);
+      setTotalResults(currDateResults.length);
+      if (res.hits.total.value >= 500)
+        toast.warn(
+          'Search returned 500+ results, only showing first 500. Please consider refining your search.',
+        );
+    },
+    [],
+  );
+
   const fetchResults = React.useCallback(
-    async (filter: IFilterSettingsModel) => {
+    async (filter: IFilterSettingsModel, storedContent?: any) => {
       try {
         setIsLoading(true);
         let newFilter = filter;
@@ -106,43 +137,29 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         }
         const settings = filterFormat(newFilter);
         const query = genQuery(settings);
-        const res: any = await findContentWithElasticsearch(
-          query,
-          filter.searchUnpublished,
-          'search',
-        );
-        const currDateResults: IContentSearchResult[] = [],
-          prevDateResults: IContentSearchResult[] = [];
-        res.hits.hits.forEach((h: { _source: IContentSearchResult }) => {
-          const resDate = new Date(h._source.publishedOn);
-          if (
-            resDate.getTime() >= currStartDate.getTime() &&
-            resDate.getTime() <= currEndDate.getTime()
-          ) {
-            // result occurred during currently selected date
-            currDateResults.push(h._source);
-          } else if (
-            // result occurred sometime in past 5 days
-            resDate.getTime() >= prevStartDate.getTime() &&
-            resDate.getTime() <= currEndDate.getTime()
-          ) {
-            prevDateResults.push(h._source);
-          }
-        });
-        setCurrDateResults(currDateResults);
-        setPrevDateResults(prevDateResults);
-        setTotalResults(currDateResults.length);
-        if (res.hits.total.value >= 500)
-          toast.warn(
-            'Search returned 500+ results, only showing first 500. Please consider refining your search.',
-          );
+        let res;
+        if (!storedContent) {
+          res = await findContentWithElasticsearch(query, filter.searchUnpublished, 'search');
+        } else {
+          res = storedContent;
+        }
+
+        groupResults(res, currStartDate, currEndDate, prevStartDate);
       } catch {
       } finally {
         setIsLoading(false);
       }
     },
-    [findContentWithElasticsearch, genQuery],
+    [findContentWithElasticsearch, genQuery, groupResults],
   );
+
+  React.useEffect(() => {
+    // only fetch this when there's no call to the elastic search
+    if (isLoading) return;
+    fetchResults(filter, content);
+    // Do not execute when changeing the filters
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [content, fetchResults]);
 
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);
