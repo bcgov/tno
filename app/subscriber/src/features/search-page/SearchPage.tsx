@@ -121,11 +121,13 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         const dayInMillis = 24 * 60 * 60 * 1000; // Hours*Minutes*Seconds*Milliseconds
         let offSetDate = new Date();
         offSetDate.setDate(offSetDate.getDate() - offSet);
+        offSetDate.setHours(0, 0, 0);
         const currStartDate = filter.startDate ? new Date(filter.startDate) : offSetDate;
         const prevStartDate = new Date(currStartDate.getTime() - 7 * dayInMillis);
         const currEndDate = filter.endDate
           ? new Date(filter.endDate)
           : new Date(currStartDate.getTime() + offSet * dayInMillis - 1);
+        currEndDate.setHours(23, 59, 59);
         setStartDate(currStartDate);
         if (filter.startDate && filter.endDate) {
           newFilter = {
@@ -157,7 +159,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     // only fetch this when there's no call to the elastic search
     if (isLoading) return;
     fetchResults(filter, content);
-    // Do not execute when changeing the filters
+    // Do not execute when changing the filters
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [content, fetchResults]);
 
