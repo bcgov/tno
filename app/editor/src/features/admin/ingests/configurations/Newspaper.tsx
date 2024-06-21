@@ -80,15 +80,15 @@ export const Newspaper: React.FC = (props) => {
     <styled.IngestType>
       <ImportContent />
       <Row>
-        <Col flex="1 1 0">
+        <Col flex="1">
           <FormikCheckbox label="Escape Content" name="configuration.escapeContent" />
           <FormikCheckbox label="Add Parent" name="configuration.addParent" />
           <FormikCheckbox label="Fix Blacks Newsgroup XML" name="configuration.fixBlacksXml" />
         </Col>
-        <Col flex="1 1 0"></Col>
+        <Col flex="1"></Col>
       </Row>
       <Row>
-        <Col flex="1 1 0">
+        <Col flex="1">
           <FormikSelect
             label="Timezone"
             name="configuration.timeZone"
@@ -97,7 +97,7 @@ export const Newspaper: React.FC = (props) => {
             value={timeZone}
           />
         </Col>
-        <Col flex="1 1 0">
+        <Col flex="1">
           <FormikText
             label="Date Offset"
             name="configuration.dateOffset"
@@ -107,7 +107,7 @@ export const Newspaper: React.FC = (props) => {
         </Col>
       </Row>
       <Row>
-        <Col flex="1 1 0">
+        <Col flex="1">
           <FormikSelect
             label="File Type"
             name="configuration.fileFormat"
@@ -117,7 +117,7 @@ export const Newspaper: React.FC = (props) => {
             required
           />
         </Col>
-        <Col flex="1 1 0">
+        <Col flex="1">
           <FormikSelect
             label="Default Language"
             name="configuration.language"
@@ -128,14 +128,14 @@ export const Newspaper: React.FC = (props) => {
         </Col>
       </Row>
       <Row>
-        <Col flex="1 1 0">
+        <Col flex="1">
           <FormikText
             label="Path to Files"
             name="configuration.path"
             value={values.configuration.path}
           />
         </Col>
-        <Col flex="1 1 0">
+        <Col flex="1">
           <FormikText
             label="File Name Pattern"
             name="configuration.filePattern"
@@ -148,7 +148,25 @@ export const Newspaper: React.FC = (props) => {
         entry.
       </p>
       <Row>
-        <Col flex="1 1 0">
+        <Row flex="1">
+          <Col flex="1">
+            <FormikText label="ID" name="configuration.namespaces.0.id" />
+          </Col>
+          <Col flex="4">
+            <FormikText label="Namespace" name="configuration.namespaces.0.href" />
+          </Col>
+        </Row>
+        <Row flex="1">
+          <Col flex="1">
+            <FormikText label="ID" name="configuration.namespaces.1.id" />
+          </Col>
+          <Col flex="4">
+            <FormikText label="Namespace" name="configuration.namespaces.1.href" />
+          </Col>
+        </Row>
+      </Row>
+      <Row>
+        <Col flex="1">
           <FormikText
             label="Entry"
             name="configuration.item"
@@ -156,7 +174,7 @@ export const Newspaper: React.FC = (props) => {
             required
           />
         </Col>
-        <Col flex="1 1 0">
+        <Col flex="1">
           <FormikText
             label="UID"
             name="configuration.id"
@@ -166,7 +184,7 @@ export const Newspaper: React.FC = (props) => {
         </Col>
       </Row>
       <Row>
-        <Col flex="1 1 0">
+        <Col flex="1">
           <FormikText
             label="Published Date"
             name="configuration.date"
@@ -174,7 +192,7 @@ export const Newspaper: React.FC = (props) => {
             required
           />
         </Col>
-        <Col flex="1 1 0">
+        <Col flex="1">
           <FormikText
             label="Date Format"
             name="configuration.dateFmt"
@@ -184,7 +202,7 @@ export const Newspaper: React.FC = (props) => {
         </Col>
       </Row>
       <Row>
-        <Col flex="1 1 0">
+        <Col flex="1">
           <FormikText
             label="Headline"
             name="configuration.headline"
@@ -192,7 +210,7 @@ export const Newspaper: React.FC = (props) => {
             required
           />
         </Col>
-        <Col flex="1 1 0">
+        <Col flex="1">
           <FormikText
             label="Summary"
             name="configuration.summary"
@@ -202,7 +220,7 @@ export const Newspaper: React.FC = (props) => {
         </Col>
       </Row>
       <Row>
-        <Col flex="1 1 0">
+        <Col flex="1">
           <FormikText
             label="Paper Name"
             name="configuration.papername"
@@ -210,7 +228,7 @@ export const Newspaper: React.FC = (props) => {
             required
           />
         </Col>
-        <Col flex="1 1 0">
+        <Col flex="1">
           <FormikText
             label="Content"
             name="configuration.story"
@@ -220,39 +238,48 @@ export const Newspaper: React.FC = (props) => {
         </Col>
       </Row>
       <Row>
-        <Col flex="1 1 0">
+        <Col flex="1">
           <FormikText
             label="Section"
             name="configuration.section"
             tooltip="The path to the section"
           />
         </Col>
-        <Col flex="1 1 0">
+        <Col flex="1">
           <FormikText label="Page" name="configuration.page" tooltip="The path to the page" />
         </Col>
       </Row>
       <Row>
-        <Col flex="1 1 0">
+        <Col flex="1">
           <FormikText label="Author" name="configuration.author" tooltip="The path to the author" />
         </Col>
-        <Col flex="1 1 0">
-          <FormikText label="Tags" name="configuration.tags" tooltip="The path to the tags" />
+        <Col flex="1" justifyContent="center">
+          <FormikCheckbox
+            label="Byline Title Case"
+            tooltip="Applies title case when the text is ALL CAPS"
+            name="configuration.bylineTitleCase"
+          />
         </Col>
       </Row>
       <Row>
-        <Col flex="1 1 0">
+        <Col flex="1">
+          <FormikText label="Tags" name="configuration.tags" tooltip="The path to the tags" />
+        </Col>
+        <Col flex="1">
           <FormikText
             label="Language"
             name="configuration.lang"
             tooltip="The path to the language"
           />
         </Col>
-        <Col flex="1 1 0">
-          <span className="checkbox-label">Byline Title Case</span>
+      </Row>
+      <Row>
+        <Col className="frm-in">
+          <label>Text Formatting</label>
           <FormikCheckbox
-            label="Enable"
-            tooltip="Applies title case when the text is ALL CAPS"
-            name="configuration.bylineTitleCase"
+            label="Remove newlines"
+            tooltip="Remove newline formatting in text"
+            name="configuration.removeNewlines"
           />
         </Col>
       </Row>

@@ -550,6 +550,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         var password = connection.GetConfigurationValue("password");
         var keyFileName = connection.GetConfigurationValue("keyFileName");
         var path = connection.GetConfigurationValue("path");
+        var port = connection.GetConfigurationValue<int?>("port");
 
         AuthenticationMethod authMethod;
         if (!String.IsNullOrWhiteSpace(password))
@@ -572,7 +573,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         }
         else throw new ConfigurationException("Data location connection settings are missing");
 
-        using var client = new SftpClient(new ConnectionInfo(hostname, username, authMethod));
+        using var client = port.HasValue ? new SftpClient(new ConnectionInfo(hostname, port.Value, username, authMethod)) : new SftpClient(new ConnectionInfo(hostname, username, authMethod));
         client.HostKeyReceived += (object? sender, HostKeyEventArgs e) =>
         {
             e.CanTrust = true;
