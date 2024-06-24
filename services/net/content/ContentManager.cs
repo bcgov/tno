@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -28,6 +29,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
     private int _retries = 0;
+
     #endregion
 
     #region Properties
@@ -350,6 +352,16 @@ public class ContentManager : ServiceManager<ContentOptions>
             content.PublishedOn = model.PublishedOn;
             content.Section = model.Section;
             content.Byline = string.Join(",", model.Authors.Select(a => a.Name[0..Math.Min(a.Name.Length, 200)])); // TODO: Temporary workaround to deal with regression issue in Syndication Service.
+            if (!string.IsNullOrEmpty(content.Byline)) {
+                var contributors = lookups?.Contributors;
+                if (contributors != null && contributors.Any()) {
+                    var contributor = FindMatchedContributor(contributors, content.Byline);
+                    if (contributor != null) {
+                        content.Contributor = new ContributorModel((Contributor)contributor);
+                        content.ContributorId = content.Contributor.Id;
+                    }
+                }
+            }
 
             if (model.Actions.Any())
             {
@@ -508,6 +520,83 @@ public class ContentManager : ServiceManager<ContentOptions>
         {
             // TODO: Content could be updated by source, however this could overwrite local editor changes.  Need a way to handle this.
             this.Logger.LogWarning("Content already exists. Content Source: {source}, UID: {uid}", model.Source, model.Uid);
+        }
+    }
+
+    /// <summary>
+    /// Find matched contributor by name
+    /// If a match found, return the contributor. Otherwise, return null.
+    /// </summary>
+    /// <param name="contributors"></param>
+    /// <param name="nameString"></param>
+    /// <returns></returns>
+    private static API.Areas.Editor.Models.Contributor.ContributorModel? FindMatchedContributor(IEnumerable<API.Areas.Editor.Models.Contributor.ContributorModel> contributors,
+        string nameString)
+    {
+        if (contributors == null || !contributors.Any()) return null;
+        return contributors.Where(c => ContributorNameMatch(c, nameString)).FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Compare contributor's name with another name if they are matched.
+    /// </summary>
+    /// <param name="contributor"></param>
+    /// <param name="nameString"></param>
+    /// <returns></returns>
+    private static bool ContributorNameMatch(API.Areas.Editor.Models.Contributor.ContributorModel contributor, string nameString)
+    {
+        if (contributor == null || string.IsNullOrEmpty(contributor.Name)) return false;
+        if (string.Equals(contributor.Name, nameString, StringComparison.OrdinalIgnoreCase)) return true;
+        if (NamesMatched(contributor.Name, nameString)) return true;
+        var aliases = contributor.Aliases.ToLowerInvariant();
+        if (!string.IsNullOrEmpty(aliases))
+        {
+            MatchCollection matches = Regex.Matches(aliases, "\\\"(.*?)\\\"");
+            return matches != null && matches.Any(m => NamesMatched(m.Groups[1].Value, nameString));
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Compare two names if they are matched
+    /// </summary>
+    /// <param name="name1"></param>
+    /// <param name="name2"></param>
+    /// <returns></returns>
+    private static bool NamesMatched(string name1, string name2)
+    {
+        var name1LowerCase = name1.ToLowerInvariant();
+        var name2LowerCase = name2.ToLowerInvariant();
+        if (string.Equals(name1LowerCase, name2LowerCase, StringComparison.OrdinalIgnoreCase)) return true;
+        var formattedName1 = FormatNameString(name1);
+        var formattedName2 = FormatNameString(name2);
+        return string.Equals(formattedName1, formattedName2, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Format name string to the format of: "<last name>, <first name> <middle name>".
+    /// </summary>
+    /// <param name="nameString"></param>
+    /// <returns></returns>
+    private static string FormatNameString(string nameString)
+    {
+        if (string.IsNullOrWhiteSpace(nameString)) return nameString;
+
+        Regex regex = new Regex(@"^(.*?),(.*?)$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        Match match = regex.Match(nameString);
+        if (match.Success)
+        {
+            var index = nameString.IndexOf(",", 0, nameString.Length, StringComparison.OrdinalIgnoreCase);
+            return $"{nameString.Substring(0, index).Trim()}, {nameString.Substring(index + 1).Trim()}";
+        }
+        else
+        {
+            var index = nameString.LastIndexOf(" ", nameString.Length-1, nameString.Length, StringComparison.OrdinalIgnoreCase);
+            if (index == -1)
+            {
+                return nameString;
+            }
+            return $"{nameString.Substring(index + 1).Trim()}, {nameString.Substring(0, index).Trim()}";
         }
     }
 
