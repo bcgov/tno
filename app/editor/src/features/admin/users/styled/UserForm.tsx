@@ -9,4 +9,20 @@ export const UserForm = styled(FormPage)`
   .back-button {
     align-self: start;
   }
+
+  .distribution-list {
+    > div:first-child {
+      align-items: flex-end;
+
+      button {
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    .addresses {
+      width: calc(100% - 1rem);
+      max-height: 500px;
+      overflow-y: scroll;
+    }
+  }
 `;

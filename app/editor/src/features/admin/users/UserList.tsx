@@ -91,14 +91,24 @@ const UserList: React.FC = () => {
 
   return (
     <styled.UserList>
-      <Row className="add-media" justifyContent="flex-end">
+      <Row className="add-media" justifyContent="flex-end" gap="1rem">
         <Col flex="1 1 0">
           User administration provides a way to approve users and grant them appropriate roles.
         </Col>
         <IconButton
           iconType="plus"
-          label="Add New User"
-          onClick={() => navigate('/admin/users/0')}
+          label="Direct User"
+          onClick={() => navigate('/admin/users/0/direct')}
+        />
+        <IconButton
+          iconType="plus"
+          label="Indirect User"
+          onClick={() => navigate('/admin/users/0/indirect')}
+        />
+        <IconButton
+          iconType="plus"
+          label="Distribution List"
+          onClick={() => navigate('/admin/users/0/distribution')}
         />
       </Row>
       <UserFilter />

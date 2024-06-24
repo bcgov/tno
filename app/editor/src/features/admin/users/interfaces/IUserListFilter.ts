@@ -1,5 +1,5 @@
 import { ISortBy } from 'features/interfaces';
-import { UserStatusName } from 'tno-core';
+import { UserAccountTypeName, UserStatusName } from 'tno-core';
 
 export interface IUserListFilter {
   username?: string;
@@ -9,6 +9,7 @@ export interface IUserListFilter {
   lastName?: string;
   isEnabled?: boolean;
   isSystemAccount?: boolean;
+  accountType?: UserAccountTypeName;
   status?: UserStatusName;
   sort: ISortBy[];
   roleName?: string;

@@ -1,4 +1,4 @@
-import { IUserModel, UserStatusName } from 'tno-core';
+import { IUserModel, UserAccountTypeName, UserStatusName } from 'tno-core';
 
 export const defaultUser: IUserModel = {
   id: 0,
@@ -13,6 +13,7 @@ export const defaultUser: IUserModel = {
   status: UserStatusName.Preapproved,
   emailVerified: false,
   isSystemAccount: false,
+  accountType: UserAccountTypeName.Direct,
   note: '',
   roles: [],
   uniqueLogins: 0,
