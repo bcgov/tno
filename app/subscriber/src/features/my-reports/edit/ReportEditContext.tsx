@@ -132,6 +132,8 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
       setActive(ReportSettingsMenuOption.DataSources);
     else if (path === ReportSettingsMenuOption.Preferences)
       setActive(ReportSettingsMenuOption.Preferences);
+    else if (path === ReportSettingsMenuOption.Subscribers)
+      setActive(ReportSettingsMenuOption.Subscribers);
     else if (path === ReportMainMenuOption.Content) setActive(ReportMainMenuOption.Content);
     else if (path === ReportContentMenuOption.Content) setActive(ReportContentMenuOption.Content);
     else if (path === ReportContentMenuOption.Sort) setActive(ReportContentMenuOption.Sort);

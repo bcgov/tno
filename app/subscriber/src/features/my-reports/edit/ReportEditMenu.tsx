@@ -76,7 +76,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
         </div>
         <div>
           <MenuButton
-            label="Report Preview"
+            label="Preview & Send"
             active={active?.startsWith(ReportMainMenuOption.View)}
             disabled={!values.id}
             onClick={() => onChange?.(`/reports/${values.id}/${ReportMainMenuOption.View}`)}
@@ -84,7 +84,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
         </div>
         <div>
           <MenuButton
-            label="Send"
+            label="History"
             active={active === ReportMainMenuOption.Send}
             onClick={() => onChange?.(`/reports/${values.id}/${ReportMainMenuOption.Send}`)}
           />
@@ -104,7 +104,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
           </div>
           <div>
             <MenuButton
-              label="Template Design"
+              label="Template"
               active={active === ReportSettingsMenuOption.Sections}
               onClick={() =>
                 onChange?.(`/reports/${values.id}/${ReportSettingsMenuOption.Sections}`)
@@ -128,7 +128,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
           </div>
           <div>
             <MenuButton
-              label="Report Preferences"
+              label="Preferences"
               active={active === ReportSettingsMenuOption.Preferences}
               onClick={() =>
                 onChange?.(`/reports/${values.id}/${ReportSettingsMenuOption.Preferences}`)
@@ -139,7 +139,18 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
           </div>
           <div>
             <MenuButton
-              label="Sending"
+              label="Subscribers"
+              active={active === ReportSettingsMenuOption.Subscribers}
+              onClick={() =>
+                onChange?.(`/reports/${values.id}/${ReportSettingsMenuOption.Subscribers}`)
+              }
+            >
+              <FaCaretRight className="caret" />
+            </MenuButton>
+          </div>
+          <div>
+            <MenuButton
+              label="Schedule"
               active={active === ReportSettingsMenuOption.Send}
               onClick={() => onChange?.(`/reports/${values.id}/${ReportSettingsMenuOption.Send}`)}
               className={errors.events ? 'error' : ''}

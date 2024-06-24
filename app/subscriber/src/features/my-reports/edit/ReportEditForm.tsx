@@ -33,6 +33,7 @@ import {
   ReportEditDetailsForm,
   ReportEditPreferencesForm,
   ReportEditSendForm,
+  ReportEditSubscribersForm,
   ReportEditTemplateForm,
 } from './settings';
 import * as styled from './styled';
@@ -157,6 +158,10 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
         <Show visible={active === ReportSettingsMenuOption.Preferences}>
           <ReportEditPreferencesForm />
         </Show>
+        <Show visible={active === ReportSettingsMenuOption.Subscribers}>
+          <ReportEditSubscribersForm />
+        </Show>
+
         <Show visible={active === ReportSettingsMenuOption.Send}>
           <ReportEditSendForm
             onPublish={() => toggleSend()}

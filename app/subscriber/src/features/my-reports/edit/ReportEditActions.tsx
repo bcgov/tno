@@ -147,9 +147,10 @@ export const ReportEditActions = ({
       </Show>
       <Show
         visible={
-          active?.startsWith(ReportMainMenuOption.Settings) ||
-          active?.startsWith(ReportMainMenuOption.Content) ||
-          active?.startsWith(ReportMainMenuOption.View)
+          (active?.startsWith(ReportMainMenuOption.Settings) ||
+            active?.startsWith(ReportMainMenuOption.Content) ||
+            active?.startsWith(ReportMainMenuOption.View)) &&
+          !active?.startsWith(ReportSettingsMenuOption.Subscribers)
         }
       >
         <Button
@@ -177,7 +178,7 @@ export const ReportEditActions = ({
           <FaCaretRight className="caret" />
         </Button>
       </Show>
-      <Show visible={active?.startsWith(ReportMainMenuOption.Send) && !instance?.sentOn}>
+      <Show visible={active?.startsWith(ReportSettingsMenuOption.Subscribers) && !instance?.sentOn}>
         <Button
           disabled={isSubmitting || !instance || instance?.status === ReportStatusName.Submitted}
           onClick={() => onPublish()}
