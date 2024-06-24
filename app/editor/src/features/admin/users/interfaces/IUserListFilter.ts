@@ -13,6 +13,6 @@ export interface IUserListFilter {
   sort: ISortBy[];
   roleName?: string;
   keyword?: string;
-  pageIndex: number;
-  pageSize: number;
+  page: number;
+  quantity: number;
 }

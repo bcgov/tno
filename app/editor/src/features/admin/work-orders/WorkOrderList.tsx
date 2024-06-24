@@ -1,10 +1,19 @@
+import isEqual from 'lodash/isEqual';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SortingRule } from 'react-table';
 import { useWorkOrders } from 'store/hooks/admin/useWorkOrders';
-import { Col, FlexboxTable, ITablePage, IWorkOrderModel, Page, Row } from 'tno-core';
+import {
+  CellDate,
+  CellEllipsis,
+  Col,
+  Grid,
+  IGridHeaderColumnProps,
+  IWorkOrderModel,
+  Page,
+  Row,
+  SortDirection,
+} from 'tno-core';
 
-import { getColumns } from './constants';
 import { IWorkOrderListFilter } from './interfaces/IWorkOrderListFilter';
 import * as styled from './styled';
 import { makeWorkOrderFilter } from './utils/makeWorkOrderFilter';
@@ -23,31 +32,40 @@ const WorkOrderList = () => {
   );
   const [filter, setFilter] = React.useState<IWorkOrderListFilter>();
 
-  const handleChangeSort = React.useCallback(
-    (sortBy: SortingRule<IWorkOrderModel>[]) => {
-      const sorts = sortBy.map((sb) => ({ id: sb.id, desc: sb.desc }));
-      const same = sorts.every(
-        (val, i) =>
-          val.id === workOrderFilter.sort[i]?.id && val.desc === workOrderFilter.sort[i]?.desc,
-      );
-      if (!same) {
-        storeFilter({ ...workOrderFilter, sort: sorts });
+  const handleSortChange = React.useCallback(
+    (column: IGridHeaderColumnProps, direction: SortDirection) => {
+      if (column.name) {
+        const sort =
+          direction === SortDirection.None
+            ? []
+            : [{ id: column.name, desc: direction === SortDirection.Descending }];
+        storeFilter({ ...workOrderFilter, sort });
       }
     },
-    [storeFilter, workOrderFilter],
+    [workOrderFilter, storeFilter],
   );
 
-  const handleChangePage = React.useCallback(
-    (page: ITablePage) => {
-      if (
-        workOrderFilter.pageIndex !== page.pageIndex ||
-        workOrderFilter.pageSize !== page.pageSize
-      ) {
-        storeFilter({
+  const handleQuantityChange = React.useCallback(
+    (quantity: number) => {
+      if (workOrderFilter.pageSize !== quantity) {
+        const newFilter = {
           ...workOrderFilter,
-          pageIndex: page.pageIndex,
-          pageSize: page.pageSize ?? workOrderFilter.pageSize,
-        });
+          pageSize: quantity,
+        };
+        storeFilter(newFilter);
+      }
+    },
+    [workOrderFilter, storeFilter],
+  );
+
+  const handlePageChange = React.useCallback(
+    (page: number) => {
+      if (workOrderFilter.pageIndex !== page - 1) {
+        const newFilter = {
+          ...workOrderFilter,
+          pageIndex: page - 1,
+        };
+        storeFilter(newFilter);
       }
     },
     [workOrderFilter, storeFilter],
@@ -70,11 +88,11 @@ const WorkOrderList = () => {
   );
 
   React.useEffect(() => {
-    if (workOrderFilter !== filter) {
+    if (!isEqual(workOrderFilter, filter)) {
       setFilter(workOrderFilter);
       fetch(workOrderFilter);
     }
-  }, [fetch, workOrderFilter, filter]);
+  }, [fetch, filter, workOrderFilter]);
 
   return (
     <styled.WorkOrderList>
@@ -84,18 +102,67 @@ const WorkOrderList = () => {
         </Col>
       </Row>
       <WorkOrderListFilter />
-      <FlexboxTable
-        rowId="id"
-        columns={getColumns((contentId) => navigate(`/contents/${contentId}`))}
-        data={page.items}
-        manualPaging={true}
-        pageIndex={workOrderFilter.pageIndex}
-        pageSize={workOrderFilter.pageSize}
-        pageCount={page.pageCount}
-        showSort={true}
-        onPageChange={handleChangePage}
-        onSortChange={handleChangeSort}
-        onRowClick={(row) => navigate(`${row.original.id}`)}
+      <Grid
+        items={page.items}
+        pageIndex={page.pageIndex - 1}
+        itemsPerPage={workOrderFilter.pageSize}
+        totalItems={page.total}
+        showPaging
+        onNavigatePage={async (page) => {
+          handlePageChange(page);
+        }}
+        onQuantityChange={async (quantity) => {
+          handleQuantityChange(quantity);
+        }}
+        onSortChange={async (column, direction) => {
+          handleSortChange(column, direction);
+        }}
+        renderHeader={() => [
+          { name: 'workType', label: 'Type', size: '15%', sortable: true },
+          { name: 'configuration', label: 'Content', size: '40%', sortable: true },
+          { name: 'createdOn', label: 'Submitted', size: '20%', sortable: true },
+          { name: 'updatedOn', label: 'Updated', size: '15%', sortable: true },
+          { name: 'status', label: 'Status', size: '10%', sortable: true },
+        ]}
+        renderColumns={(row: IWorkOrderModel, rowIndex) => {
+          return [
+            {
+              column: (
+                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                  <CellEllipsis>{row.workType}</CellEllipsis>
+                </div>
+              ),
+            },
+            {
+              column: (
+                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                  <CellEllipsis>{row.configuration?.headline}</CellEllipsis>
+                </div>
+              ),
+            },
+            {
+              column: (
+                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                  <CellDate value={row.createdOn} />
+                </div>
+              ),
+            },
+            {
+              column: (
+                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                  <CellDate value={row.updatedOn} />
+                </div>
+              ),
+            },
+            {
+              column: (
+                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                  <CellEllipsis key="">{row.status}</CellEllipsis>
+                </div>
+              ),
+            },
+          ];
+        }}
       />
     </styled.WorkOrderList>
   );

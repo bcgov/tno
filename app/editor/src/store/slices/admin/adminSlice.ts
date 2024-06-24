@@ -79,8 +79,8 @@ export const initialAdminState: IAdminState = {
   topicFilter: '',
   topics: [],
   userFilter: {
-    pageIndex: 0,
-    pageSize: 20,
+    page: 0,
+    quantity: 20,
     sort: [],
   },
   users: { page: 1, quantity: 20, items: [], total: 0 },

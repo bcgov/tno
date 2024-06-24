@@ -98,10 +98,10 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
               roleName: undefined,
               keyword: '',
               status: undefined,
-              pageIndex: 0,
-              pageSize: 20,
+              page: 0,
+              quantity: 20,
             });
-            storeFilter({ sort: [], pageIndex: 0, pageSize: 20 });
+            storeFilter({ sort: [], page: 0, quantity: 20 });
           }}
         />
       </Row>

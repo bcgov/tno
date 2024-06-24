@@ -141,8 +141,8 @@ public static class IngestModelExtensions
                     }
             },
             JsonValueKind.True or JsonValueKind.False => (T)Convert.ChangeType($"{element.GetBoolean()}", typeof(T)),
-            JsonValueKind.Object => throw new NotImplementedException(),
-            JsonValueKind.Array => throw new NotImplementedException(),
+            JsonValueKind.Object => (T)Convert.ChangeType($"{element.GetRawText()}", typeof(T)),
+            JsonValueKind.Array => (T)Convert.ChangeType($"{element.GetRawText()}", typeof(T)),
             _ => (T)Convert.ChangeType($"{element}", typeof(T)),
         };
     }

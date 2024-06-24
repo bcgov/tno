@@ -71,6 +71,8 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
   const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
   const [filteredQuotes, setFilteredQuotes] = React.useState<IQuoteModel[]>([]);
 
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const radioRef = React.useRef<HTMLAudioElement>(null);
   const fileReference = content?.fileReferences ? content?.fileReferences[0] : undefined;
 
   const isAV = content?.contentType === ContentTypeName.AudioVideo;
@@ -87,22 +89,12 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
       wo.userNotifications?.some((un) => un.userId === profile?.id),
   );
   const [isProcessing, setIsProcessing] = React.useState(
-    isAV &&
-      workOrders.every(
-        (wo) =>
-          wo.workType === WorkOrderTypeName.FFmpeg && wo.status !== WorkOrderStatusName.Completed,
-      ),
+    workOrders.some(
+      (wo) =>
+        wo.workType === WorkOrderTypeName.FFmpeg &&
+        [WorkOrderStatusName.Submitted, WorkOrderStatusName.InProgress].includes(wo.status),
+    ),
   );
-
-  React.useEffect(() => {
-    setIsProcessing(
-      isAV &&
-        workOrders.every(
-          (wo) =>
-            wo.workType === WorkOrderTypeName.FFmpeg && wo.status !== WorkOrderStatusName.Completed,
-        ),
-    );
-  }, [isAV, workOrders]);
 
   const handleTranscribe = React.useCallback(async () => {
     try {
@@ -187,6 +179,13 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
     else setAVStream(undefined);
   }, [stream, fileReference]);
 
+  React.useEffect(() => {
+    if (avStream) {
+      if (videoRef.current) videoRef.current.load();
+      if (radioRef.current) radioRef.current.load();
+    }
+  }, [avStream]);
+
   const fetchContent = React.useCallback(
     (id: number) => {
       getContent(id)
@@ -202,6 +201,11 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
       findWorkOrders({ contentId: id })
         .then((res) => {
           setWorkOrders(res.items);
+          setIsProcessing(
+            res.items.some((wo) =>
+              [WorkOrderStatusName.Submitted, WorkOrderStatusName.InProgress].includes(wo.status),
+            ),
+          );
         })
         .catch(() => {});
     },
@@ -216,12 +220,23 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
     }
   }, [id, fetchContent]);
 
-  const onWorkOrder = React.useCallback(async (workOrder: IWorkOrderMessageModel) => {
-    if ([WorkOrderTypeName.FFmpeg].includes(workOrder.workType)) {
-      console.debug(workOrder);
-      setIsProcessing(workOrder.status === WorkOrderStatusName.InProgress);
-    }
-  }, []);
+  const onWorkOrder = React.useCallback(
+    (workOrder: IWorkOrderMessageModel) => {
+      if (
+        content &&
+        workOrder.contentId === content?.id &&
+        workOrder.workType === WorkOrderTypeName.FFmpeg
+      ) {
+        setIsProcessing(
+          [WorkOrderStatusName.Submitted, WorkOrderStatusName.InProgress].includes(
+            workOrder.status,
+          ),
+        );
+        if (workOrder.status === WorkOrderStatusName.Completed) fetchContent(content.id);
+      }
+    },
+    [fetchContent, content],
+  );
 
   hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrder);
 
@@ -296,7 +311,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
             </Col>
           </Show>
           <Show visible={!isProcessing && fileReference?.contentType.startsWith('audio/')}>
-            <audio controls>
+            <audio controls ref={radioRef}>
               <source src={avStream?.url} type={fileReference?.contentType} />
               HTML5 Audio is required
             </audio>
@@ -307,6 +322,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
               height={width! > 500 ? '270' : 135}
               width={width! > 500 ? 480 : 240}
               preload="metadata"
+              ref={videoRef}
             >
               <source src={avStream?.url} type={fileReference?.contentType} />
               HTML5 Audio is required

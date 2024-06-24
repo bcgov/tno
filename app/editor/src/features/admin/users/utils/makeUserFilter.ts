@@ -10,8 +10,8 @@ import { IUserFilter } from 'tno-core';
 export const makeUserFilter = (filter: IUserListFilter): IUserFilter => {
   return {
     ...filter,
-    page: filter.pageIndex + 1,
-    quantity: filter.pageSize,
+    page: filter.page + 1,
+    quantity: filter.quantity,
     sort: applySortBy(filter.sort),
   };
 };

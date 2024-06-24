@@ -304,6 +304,19 @@ const ContentListView: React.FC = () => {
     [filter, storeFilter],
   );
 
+  const handleQuantityChange = React.useCallback(
+    (quantity: number) => {
+      if (filter.pageSize !== quantity) {
+        const newFilter = {
+          ...filter,
+          pageSize: quantity,
+        };
+        storeFilter(newFilter);
+      }
+    },
+    [filter, storeFilter],
+  );
+
   const handleSortChange = React.useCallback(
     (column: IGridHeaderColumnProps, direction: SortDirection) => {
       if (column.name) {
@@ -409,6 +422,9 @@ const ContentListView: React.FC = () => {
               }}
               onSortChange={async (column, direction) => {
                 handleSortChange(column, direction);
+              }}
+              onQuantityChange={async (quantity) => {
+                handleQuantityChange(quantity);
               }}
               renderHeader={() => [
                 {

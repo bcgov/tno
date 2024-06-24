@@ -65,6 +65,9 @@ export const useContentForm = ({
     ...defaultFormValues(contentType),
     id: parseInt(id ?? '0'),
   });
+  const [isProcessing, setIsProcessing] = React.useState(
+    form.workOrders.some((wo) => wo.status === WorkOrderStatusName.InProgress),
+  );
 
   const userId = userInfo?.id ?? '';
   const fileReference = form.fileReferences.length ? form.fileReferences[0] : undefined;
@@ -116,7 +119,7 @@ export const useContentForm = ({
   );
 
   const onWorkOrder = React.useCallback(
-    (workOrder: IWorkOrderMessageModel) => {
+    async (workOrder: IWorkOrderMessageModel) => {
       if (form.id === workOrder.contentId) {
         if (
           [
@@ -126,7 +129,11 @@ export const useContentForm = ({
           ].includes(workOrder.workType)
         ) {
           // TODO: Don't overwrite the user's edits.
-          fetchContent(workOrder.contentId);
+          await fetchContent(workOrder.contentId);
+          setIsProcessing(
+            workOrder.workType === WorkOrderTypeName.FFmpeg &&
+              workOrder.status === WorkOrderStatusName.InProgress,
+          );
         }
       }
     },
@@ -134,6 +141,15 @@ export const useContentForm = ({
   );
 
   hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrder);
+
+  React.useEffect(() => {
+    setIsProcessing(
+      form.workOrders.some(
+        (wo) =>
+          wo.workType === WorkOrderTypeName.FFmpeg && wo.status === WorkOrderStatusName.InProgress,
+      ),
+    );
+  }, [form.workOrders]);
 
   const onContentAction = React.useCallback(
     (action: IContentActionMessageModel) => {
@@ -203,6 +219,7 @@ export const useContentForm = ({
 
   const setAvStream = React.useCallback(() => {
     if (!!path) {
+      console.debug('file changed', path);
       getStream(path)
         .then((result) => {
           setStream(
@@ -424,6 +441,7 @@ export const useContentForm = ({
     form,
     setForm,
     isSubmitting,
+    isProcessing,
     setIsSubmitting,
     fetchContent,
     deleteContent,

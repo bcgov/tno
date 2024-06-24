@@ -99,9 +99,10 @@ public class WorkOrderController : ControllerBase
     [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
-    public IActionResult Add(WorkOrderModel model)
+    public async Task<IActionResult> AddAsync(WorkOrderModel model)
     {
         var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new KafkaInvocationMessage(MessageTarget.WorkOrder, new[] { new WorkOrderMessageModel(result, _serializerOptions) })));
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new WorkOrderModel(result, _serializerOptions));
     }
 
@@ -115,7 +116,7 @@ public class WorkOrderController : ControllerBase
     [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
-    public async Task<IActionResult> Update(WorkOrderModel workOrder)
+    public async Task<IActionResult> UpdateAsync(WorkOrderModel workOrder)
     {
         var entity = _service.FindById(workOrder.Id) ?? throw new NoContentException();
 
