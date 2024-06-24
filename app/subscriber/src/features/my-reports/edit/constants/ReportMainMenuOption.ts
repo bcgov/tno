@@ -10,6 +10,7 @@ export enum ReportSettingsMenuOption {
   Sections = 'settings/sections',
   DataSources = 'settings/sources',
   Preferences = 'settings/preferences',
+  Subscribers = 'settings/subscribers',
   Send = 'settings/send',
 }
 
