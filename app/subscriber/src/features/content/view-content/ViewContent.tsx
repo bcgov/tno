@@ -91,6 +91,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
   const [isProcessing, setIsProcessing] = React.useState(
     workOrders.some(
       (wo) =>
+        wo.contentId === content?.id &&
         wo.workType === WorkOrderTypeName.FFmpeg &&
         [WorkOrderStatusName.Submitted, WorkOrderStatusName.InProgress].includes(wo.status),
     ),
@@ -202,8 +203,11 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
         .then((res) => {
           setWorkOrders(res.items);
           setIsProcessing(
-            res.items.some((wo) =>
-              [WorkOrderStatusName.Submitted, WorkOrderStatusName.InProgress].includes(wo.status),
+            res.items.some(
+              (wo) =>
+                wo.contentId === content?.id &&
+                wo.workType === WorkOrderTypeName.FFmpeg &&
+                [WorkOrderStatusName.Submitted, WorkOrderStatusName.InProgress].includes(wo.status),
             ),
           );
         })
