@@ -240,6 +240,22 @@ export const ReportEditPreferencesForm = () => {
           </Show>
         </Row>
       </div>
+      <div className="frm-in">
+        <label>Email sending options:</label>
+        <Row gap="1rem">
+          <Col>
+            <Checkbox
+              name={`settings.doNotSendEmail`}
+              label="Do not send Email"
+              checked={values.settings.doNotSendEmail}
+              onChange={(e) => {
+                setFieldValue('settings.doNotSendEmail', e.target.checked);
+                // console.log('testReport', values, e.target.checked);
+              }}
+            />
+          </Col>
+        </Row>
+      </div>
     </styled.ReportEditPreferencesForm>
   );
 };
