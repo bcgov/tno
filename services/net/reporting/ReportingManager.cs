@@ -475,16 +475,16 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         // We do this first because we don't want to save the output of this in the instance.
         var linkOnlyFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && LinkOnlyFormats.Contains(s.Format)).ToArray();
         var linkOnlyFormatBody = linkOnlyFormatSubscribers.Any() ? await this.ReportEngine.GenerateReportBodyAsync(report, instanceModel, sectionContent, GetLinkedReportAsync, null, true, false) : "";
-        var linkOnlyFormatTo = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).ToArray();
-        var linkOnlyFormatCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).ToArray();
-        var linkOnlyFormatBCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).ToArray();
+        var linkOnlyFormatTo = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+        var linkOnlyFormatCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+        var linkOnlyFormatBCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
 
         // Generate and send report to subscribers who want an email format.
         var fullTextFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && FullTextFormats.Contains(s.Format)).ToArray();
         var fullTextFormatBody = await this.ReportEngine.GenerateReportBodyAsync(report, instanceModel, sectionContent, GetLinkedReportAsync, null, false, false);
-        var fullTextFormatTo = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).ToArray();
-        var fullTextFormatCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).ToArray();
-        var fullTextFormatBCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).ToArray();
+        var fullTextFormatTo = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+        var fullTextFormatCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+        var fullTextFormatBCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
 
         if (request.SendToSubscribers || !String.IsNullOrEmpty(request.To))
         {
@@ -611,16 +611,16 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         // Generate and send report to subscribers who want an email with a link to the website.
         // We do this first because we don't want to save the output of this in the instance.
         var linkOnlyFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && LinkOnlyFormats.Contains(s.Format)).ToArray();
-        var linkOnlyFormatTo = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).ToArray();
-        var linkOnlyFormatCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).ToArray();
-        var linkOnlyFormatBCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).ToArray();
+        var linkOnlyFormatTo = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+        var linkOnlyFormatCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+        var linkOnlyFormatBCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
         var linkOnlyFormatBody = linkOnlyFormatTo.Any() ? await this.ReportEngine.GenerateReportBodyAsync(instance.Report, instance, sectionContent, GetLinkedReportAsync, null, true, false) : "";
 
         // Generate and send report to subscribers who want an email format.
         var fullTextFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && FullTextFormats.Contains(s.Format)).ToArray();
-        var fullTextFormatTo = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).ToArray();
-        var fullTextFormatCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).ToArray();
-        var fullTextFormatBCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).ToArray();
+        var fullTextFormatTo = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+        var fullTextFormatCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+        var fullTextFormatBCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
         var fullTextFormatBody = !resending ? await this.ReportEngine.GenerateReportBodyAsync(instance.Report, instance, sectionContent, GetLinkedReportAsync, null, false, false) : instance.Body;
 
         if (request.SendToSubscribers || !String.IsNullOrWhiteSpace(request.To))
@@ -701,14 +701,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var template = instance.Template ?? throw new InvalidOperationException($"Report template was not included in model.");
 
         var subscribers = instance.Subscribers.Where(s => s.IsSubscribed).ToArray();
-        var to = subscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.GetEmails()).ToArray();
-        var cc = subscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.GetEmails()).ToArray();
-        var bcc = subscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.GetEmails()).ToArray();
+        var to = subscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.GetEmails()).Distinct().ToArray();
+        var cc = subscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.GetEmails()).Distinct().ToArray();
+        var bcc = subscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.GetEmails()).Distinct().ToArray();
 
         // No need to send an email if there are no subscribers.
         if (request.SendToSubscribers)
         {
-            if ((to.Length > 0 || !String.IsNullOrEmpty(request.To)))
+            if (to.Length > 0 || !String.IsNullOrEmpty(request.To))
             {
                 var subject = await this.ReportEngine.GenerateReportSubjectAsync(template, model, false);
                 var body = await this.ReportEngine.GenerateReportBodyAsync(template, model, false);
