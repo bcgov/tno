@@ -142,6 +142,7 @@ public class UserService : BaseService<User, int>, IUserService
     public override User UpdateAndSave(User entity)
     {
         var original = FindById(entity.Id) ?? throw new NoContentException();
+        original.AccountType = entity.AccountType;
         original.Key = entity.Key;
         original.Username = entity.Username;
         original.Email = entity.Email;
