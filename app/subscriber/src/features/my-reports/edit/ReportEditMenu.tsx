@@ -86,12 +86,12 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
           <MenuButton
             label="History"
             active={active === ReportMainMenuOption.Send}
-            onClick={() => onChange?.(`/reports/${values.id}/${ReportMainMenuOption.Send}`)}
+            onClick={() => onChange?.(`/reports/${values.id}/${ReportSendMenuOption.History}`)}
           />
         </div>
       </div>
-      <div className="report-secondary-menu">
-        <Show visible={active?.startsWith(ReportMainMenuOption.Settings)}>
+      <Show visible={active?.startsWith(ReportMainMenuOption.Settings)}>
+        <div className="report-secondary-menu">
           <div>
             <MenuButton
               label="Info"
@@ -156,9 +156,11 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
               className={errors.events ? 'error' : ''}
             />
           </div>
-        </Show>
-        {/* Content secondary menu */}
-        <Show visible={active?.startsWith(ReportMainMenuOption.Content)}>
+        </div>
+      </Show>
+      {/* Content secondary menu */}
+      <Show visible={active?.startsWith(ReportMainMenuOption.Content)}>
+        <div className="report-secondary-menu">
           <div>
             <MenuButton
               label={
@@ -205,29 +207,8 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
               onClick={() => onChange?.(`/reports/${values.id}/${ReportContentMenuOption.Summary}`)}
             />
           </div>
-        </Show>
-        {/* Preview secondary menu */}
-        <Show visible={active?.startsWith(ReportMainMenuOption.View)}>
-          <MenuButton
-            label="View"
-            active={active === ReportMainMenuOption.View}
-            onClick={() => onChange?.(`/reports/${values.id}/${ReportMainMenuOption.View}`)}
-          />
-        </Show>
-        {/* Send secondary menu */}
-        <Show visible={active?.startsWith(ReportMainMenuOption.Send)}>
-          <MenuButton
-            label="Subscribers"
-            active={active === ReportSendMenuOption.Send}
-            onClick={() => onChange?.(`/reports/${values.id}/${ReportSendMenuOption.Send}`)}
-          />
-          <MenuButton
-            label="History"
-            active={active === ReportSendMenuOption.History}
-            onClick={() => onChange?.(`/reports/${values.id}/${ReportSendMenuOption.History}`)}
-          />
-        </Show>
-      </div>
+        </div>
+      </Show>
     </styled.ReportEditMenu>
   );
 };

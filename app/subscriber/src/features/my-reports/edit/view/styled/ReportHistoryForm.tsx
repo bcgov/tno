@@ -4,10 +4,12 @@ export const ReportHistoryForm = styled.div`
   display: flex;
   flex-direction: column;
   padding: 1rem;
-
   div.report-history {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: 2fr 1fr 2fr 1fr;
+    .report-status {
+      color: ${(props) => props.theme.css.fInfo};
+    }
 
     > div {
       padding: 0.25rem 1rem;

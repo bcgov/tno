@@ -23,6 +23,9 @@ export const ReportHistoryView = styled.div`
       }
     }
   }
+  .report-preview-headline-icon {
+    color: ${(props) => props.theme.css.iconPrimaryColor};
+  }
 
   .preview-report {
     .preview-subject {

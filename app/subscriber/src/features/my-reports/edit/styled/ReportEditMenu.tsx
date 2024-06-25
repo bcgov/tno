@@ -54,7 +54,7 @@ export const ReportEditMenu = styled.div`
       align-items: flex-end;
     }
   }
-  .report-secondary-menu {
+  .report-main-menu {
     background: ${(props) => props.theme.css.bkTertiary};
   }
 
