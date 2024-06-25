@@ -53,6 +53,8 @@ export * from './ScheduleWeekDayName';
 export * from './Settings';
 export * from './TopicType';
 export * from './TopicTypeName';
+export * from './UserAccountType';
+export * from './UserAccountTypeName';
 export * from './UserStatus';
 export * from './UserStatusName';
 export * from './ValueType';

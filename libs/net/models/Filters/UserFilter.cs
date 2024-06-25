@@ -17,6 +17,7 @@ public class UserFilter : PageFilter
     public bool? IsEnabled { get; set; }
     public Entities.UserStatus? Status { get; set; }
     public bool? IsSystemAccount { get; set; }
+    public Entities.UserAccountType? AccountType { get; set; }
     public string[] Sort { get; set; } = Array.Empty<string>();
     public string? Keyword { get; set; }
     public string? RoleName { get; set; }
@@ -39,6 +40,7 @@ public class UserFilter : PageFilter
         this.IsEnabled = filter.GetBoolNullValue(nameof(this.IsEnabled));
         this.Status = filter.GetEnumNullValue<Entities.UserStatus>(nameof(this.Status));
         this.IsSystemAccount = filter.GetBoolNullValue(nameof(this.IsSystemAccount));
+        this.AccountType = filter.GetEnumNullValue<Entities.UserAccountType>(nameof(this.AccountType));
         this.Keyword = filter.GetStringValue(nameof(this.Keyword));
         this.RoleName = filter.GetStringValue(nameof(this.RoleName));
 

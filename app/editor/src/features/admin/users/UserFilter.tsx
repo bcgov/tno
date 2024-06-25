@@ -9,6 +9,7 @@ import {
   OptionItem,
   Select,
   Text,
+  UserAccountTypeName,
   UserStatusName,
 } from 'tno-core';
 import { Row } from 'tno-core/dist/components/flex';
@@ -32,6 +33,7 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
   );
 
   const statusOptions = getEnumStringOptions(UserStatusName);
+  const accountTypeOptions = getEnumStringOptions(UserAccountTypeName);
 
   React.useEffect(() => {
     setRoleOptions(lookups.roles.map((r) => new OptionItem(r.name, r.id)));
@@ -58,7 +60,8 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
       <Row className="filter-bar" justifyContent="center">
         <Text
           onChange={(e) => {
-            setFilter({ ...filter, keyword: e.target.value });
+            if (e) setFilter({ ...filter, keyword: e.target.value });
+            else setFilter({ ...filter, keyword: undefined });
           }}
           placeholder="Search by keyword"
           name="keyword"
@@ -66,7 +69,19 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
         />
         <Select
           onChange={(e: any) => {
-            setFilter({ ...filter, status: e.value });
+            if (e) setFilter({ ...filter, accountType: e.value });
+            else setFilter({ ...filter, accountType: undefined });
+          }}
+          width={FieldSize.Medium}
+          options={accountTypeOptions}
+          name="accountType"
+          placeholder="Search by Type"
+          value={accountTypeOptions.find((s) => s.value === filter.accountType) || ''}
+        />
+        <Select
+          onChange={(e: any) => {
+            if (e) setFilter({ ...filter, status: e.value });
+            else setFilter({ ...filter, status: undefined });
           }}
           width={FieldSize.Medium}
           options={statusOptions}
@@ -76,7 +91,8 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
         />
         <Select
           onChange={(e: any) => {
-            setFilter({ ...filter, roleName: e.value });
+            if (e) setFilter({ ...filter, roleName: e.value });
+            else setFilter({ ...filter, roleName: undefined });
           }}
           width={FieldSize.Medium}
           options={filterEnabledOptions(roleOptions, filter.roleName)}
