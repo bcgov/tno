@@ -36,6 +36,10 @@ export const ReportEditSubscribersForm = styled.div`
       margin-left: 1em;
     }
   }
+  .subscriber-exporter.empty {
+    pointer-events: none;
+    opacity: 0.5;
+  }
   .hide {
     display: none;
   }

@@ -30,7 +30,6 @@ export const ReportEditSubscribersForm = () => {
   const { values, setFieldValue } = useReportEditContext();
   const [{ userInfo }] = useApp();
   const { findUsers } = useApiAdminUsers();
-  // const [email, setEmail] = React.useState('');
   const [emailForAdd, setEmailForAdd] = React.useState('');
   const [emailForRequest, setEmailForRequest] = React.useState('');
 
@@ -176,7 +175,13 @@ export const ReportEditSubscribersForm = () => {
             <Row justifyContent="space-between">
               <div className="subscriber-title">Current Subscribers</div>
               <div className="report-exporter-container">
-                <ReportSubscriberExporter />
+                <div
+                  className={`subscriber-exporter ${
+                    values?.subscribers?.length === 0 ? 'empty' : ''
+                  }`}
+                >
+                  <ReportSubscriberExporter />
+                </div>
               </div>
             </Row>
 
@@ -207,7 +212,7 @@ export const ReportEditSubscribersForm = () => {
                     ),
                     size: '3rem',
                   },
-                  ,
+
                   <div key="username">Username</div>,
                   <div key="firstName">First Name</div>,
                   <div key="lastName">Last Name</div>,
