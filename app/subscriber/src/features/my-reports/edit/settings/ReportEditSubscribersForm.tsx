@@ -83,13 +83,9 @@ export const ReportEditSubscribersForm = () => {
   const handleCopySelected = () => {
     const selectedData = values.subscribers
       .filter((subscriber) => selectedSubscribers.includes(subscriber.userId))
-      .map(({ username, firstName, lastName, email }) => ({
-        username,
-        firstName,
-        lastName,
-        email,
-      }));
-    navigator.clipboard.writeText(JSON.stringify(selectedData));
+      .map(({ email }) => email)
+      .join(',');
+    navigator.clipboard.writeText(selectedData);
     toast.success('Selected subscribers copied to clipboard.');
   };
 
