@@ -10,8 +10,8 @@ import { IReportForm, IReportInstanceContentForm } from '../interfaces';
 import { toForm } from '../utils';
 import {
   ReportContentMenuOption,
+  ReportHistoryMenuOption,
   ReportMainMenuOption,
-  ReportSendMenuOption,
   ReportSettingsMenuOption,
   ReportViewMenuOption,
 } from './constants';
@@ -53,6 +53,8 @@ export interface IReportEditContext {
   onGenerate: (report: IReportForm, regenerate: boolean) => Promise<IReportForm | undefined>;
   onRegenerateSection: (report: IReportForm, sectionId: number) => Promise<IReportForm | undefined>;
   instance?: IReportInstanceModel;
+  activeInstance?: IReportInstanceModel;
+  setActiveInstance: (instance: IReportInstanceModel) => void;
 }
 
 /**
@@ -73,6 +75,7 @@ export const ReportEditContext = React.createContext<IReportEditContext>({
   onExport: () => {},
   onGenerate: () => Promise.resolve(undefined),
   onRegenerateSection: () => Promise.resolve(undefined),
+  setActiveInstance() {},
 });
 
 /**
@@ -118,6 +121,7 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
   const [activeRow, setActiveRow] = React.useState<IReportInstanceContentForm>();
 
   const instance = values.instances.length ? values.instances[0] : undefined;
+  const [activeInstance, setActiveInstance] = React.useState<IReportInstanceModel>();
 
   React.useEffect(() => {
     // Set the active form based on the route.
@@ -132,15 +136,17 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
       setActive(ReportSettingsMenuOption.DataSources);
     else if (path === ReportSettingsMenuOption.Preferences)
       setActive(ReportSettingsMenuOption.Preferences);
+    else if (path === ReportSettingsMenuOption.Subscribers)
+      setActive(ReportSettingsMenuOption.Subscribers);
     else if (path === ReportMainMenuOption.Content) setActive(ReportMainMenuOption.Content);
     else if (path === ReportContentMenuOption.Content) setActive(ReportContentMenuOption.Content);
     else if (path === ReportContentMenuOption.Sort) setActive(ReportContentMenuOption.Sort);
     else if (path === ReportContentMenuOption.Summary) setActive(ReportContentMenuOption.Summary);
     else if (path === ReportMainMenuOption.View) setActive(ReportMainMenuOption.View);
     else if (path === ReportViewMenuOption.View) setActive(ReportViewMenuOption.View);
-    else if (path === ReportMainMenuOption.Send) setActive(ReportMainMenuOption.Send);
+    else if (path === ReportMainMenuOption.History) setActive(ReportMainMenuOption.History);
     else if (path === ReportSettingsMenuOption.Send) setActive(ReportSettingsMenuOption.Send);
-    else if (path === ReportSendMenuOption.History) setActive(ReportSendMenuOption.History);
+    else if (path === ReportHistoryMenuOption.History) setActive(ReportHistoryMenuOption.History);
     else setActive(ReportMainMenuOption.Settings);
   }, [path1, path2]);
 
@@ -215,6 +221,10 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
     [regenerateSection, setFieldValue],
   );
 
+  const handleSetActiveInstance = (instance: IReportInstanceModel) => {
+    setActiveInstance(instance);
+  };
+
   return (
     <ReportEditContext.Provider
       value={{
@@ -235,6 +245,8 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
         onGenerate,
         onRegenerateSection,
         instance,
+        activeInstance,
+        setActiveInstance: handleSetActiveInstance,
       }}
     >
       {children}

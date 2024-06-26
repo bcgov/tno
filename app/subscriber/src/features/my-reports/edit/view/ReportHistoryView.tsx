@@ -1,27 +1,36 @@
 import { Button } from 'components/button';
+import { formatDate, formatTime } from 'features/utils';
 import { FaX } from 'react-icons/fa6';
+import { FaEye, FaRegClock } from 'react-icons/fa6';
 import { useReportsStore } from 'store/slices';
-import { Col } from 'tno-core';
+import { Col, Row } from 'tno-core';
 
+import { useReportEditContext } from '../ReportEditContext';
 import * as styled from './styled';
-
 export const ReportHistoryView = () => {
   const [{ reportView }, { storeReportView }] = useReportsStore();
+  const { activeInstance } = useReportEditContext();
 
-  if (!reportView) return null;
+  if (!reportView || !activeInstance) return null;
 
   return (
-    <styled.ReportHistoryView className="report-edit-section">
+    <styled.ReportHistoryView>
       <div>
-        <h1>View Prior Report</h1>
-        <Button
-          variant="info"
-          onClick={() => {
-            storeReportView(undefined);
-          }}
-        >
-          <FaX />
-        </Button>
+        <Row className="report-history-headline" alignItems="first baseline" gap="0.5em">
+          <FaEye size={18} />
+          <h1>Previous Report</h1>
+          <h2>{formatDate(activeInstance.createdOn)}</h2>
+          <FaRegClock size={18} />
+          <h2>{formatTime(activeInstance.createdOn)}</h2>
+          <Button
+            variant="info"
+            onClick={() => {
+              storeReportView(undefined);
+            }}
+          >
+            <FaX />
+          </Button>
+        </Row>
       </div>
       <Col className="preview-report">
         <div

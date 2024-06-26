@@ -6,8 +6,13 @@ export const ReportEditPage = styled.div`
     flex-direction: row;
     gap: 1rem;
 
-    > div {
-      flex: 1 1 100%;
+    > div:first-child {
+      flex: 1 1 30%;
+      background: ${(props) => props.theme.css.bkSecondary};
+    }
+
+    > div:last-child {
+      flex: 1 1 70%;
       background: ${(props) => props.theme.css.bkSecondary};
     }
   }
