@@ -133,41 +133,6 @@ export const ReportEditSubscribersForm = () => {
           </Col>
         </Row>
       </Show>
-      <Show visible={isAdmin}>
-        <Row gap="1rem">
-          <Col flex="1">
-            <div className="subscriber-block">
-              <div>
-                <FaUserPlus size={20} />
-              </div>
-              <Col>
-                <div className="subscriber-title">Request to Add a Subscriber</div>
-                <div className="subscriber-describe">
-                  Subscribers will receive this report by email each time it is sent out. To be
-                  added, a person must have an active MMI account (direct or indirect).
-                </div>{' '}
-                <Text
-                  name="email"
-                  label="Add a Subscriber"
-                  value={emailForRequest}
-                  onChange={(e) => setEmailForRequest(e.target.value)}
-                  width="300px"
-                >
-                  <Button
-                    className="request-button"
-                    variant="secondary"
-                    disabled={!validateEmail(emailForRequest)}
-                    onClick={() => {}}
-                    style={{ backgroundColor: 'transparent' }}
-                  >
-                    Send Request
-                  </Button>
-                </Text>
-              </Col>
-            </div>
-          </Col>
-        </Row>
-      </Show>
       <Row>
         <div className="subscriber-block">
           <FaUsers size={20} />
