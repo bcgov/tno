@@ -65,8 +65,8 @@ export const TodaysFrontPages: React.FC = () => {
         frontPageFilter?.endDate !== filter?.endDate)
     ) {
       fetchResults(generateFilterQuery(frontPageFilter)).catch(() => {});
+      setFilter(frontPageFilter);
     }
-    setFilter(frontPageFilter);
   }, [fetchResults, filter?.dateOffset, filter?.endDate, filter?.startDate, frontPageFilter]);
 
   return (
