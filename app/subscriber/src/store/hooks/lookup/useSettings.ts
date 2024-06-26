@@ -24,6 +24,9 @@ export const useSettings = (validate?: boolean) => {
       const subscriberUrl = settings.find((s) => s.name === Settings.SubscriberUrl)?.value;
       const excludeBylineIds = settings.find((s) => s.name === Settings.ExcludeBylineIds)?.value;
       const excludeSourceIds = settings.find((s) => s.name === Settings.ExcludeSourceIds)?.value;
+      const disableTranscribingMediaTypeIds = settings.find(
+        (s) => s.name === Settings.DisableTranscribingMediaTypeIds,
+      )?.value;
       const defaultReportTemplateId = settings.find(
         (s) => s.name === Settings.DefaultReportTemplate,
       )?.value;
@@ -46,6 +49,9 @@ export const useSettings = (validate?: boolean) => {
         defaultReportTemplateId: defaultReportTemplateId ? +defaultReportTemplateId : undefined,
         excludeBylineIds: excludeBylineIds ? excludeBylineIds.split(',').map((id) => +id) : [],
         excludeSourceIds: excludeSourceIds ? excludeSourceIds.split(',').map((id) => +id) : [],
+        disableTranscribingMediaTypeIds: disableTranscribingMediaTypeIds
+          ? disableTranscribingMediaTypeIds.split(',').map((id) => +id)
+          : [],
         frontpageFilterId: frontpageFilterId ? +frontpageFilterId : undefined,
         frontPageImageMediaTypeId: frontPageImageMediaTypeId
           ? +frontPageImageMediaTypeId
@@ -92,6 +98,11 @@ export const useSettings = (validate?: boolean) => {
           `Configuration "${Settings.FrontPageImageMediaType}" is missing from settings.`,
         );
 
+      if (!values.disableTranscribingMediaTypeIds)
+        toast.error(
+          `Configuration "${Settings.DisableTranscribingMediaTypeIds}" is missing from settings.`,
+        );
+
       if (!values.eventOfTheDayReportId)
         toast.error(`Configuration "${Settings.EventOfTheDayReport}" is missing from settings.`);
       storeLoading(2);
@@ -104,6 +115,7 @@ export const useSettings = (validate?: boolean) => {
     values.featuredStoryActionId,
     values.topStoryActionId,
     values.loadingState,
+    values.disableTranscribingMediaTypeIds,
     values.editorUrl,
     values.subscriberUrl,
     values.defaultReportTemplateId,

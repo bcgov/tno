@@ -51,4 +51,6 @@ export const Settings = {
   EventOfTheDayReportId: 'EventOfTheDayReportId',
   /** The default template ID to Basic Alerts. */
   BasicAlertTemplateId: 'BasicAlertTemplateId',
+  /** Disable tanscription for certain media types */
+  DisableTranscriptionMediaTypeIds: 'DisableTranscriptionMediaTypeIds',
 };

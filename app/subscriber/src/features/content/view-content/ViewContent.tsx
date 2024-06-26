@@ -20,6 +20,7 @@ import {
   IWorkOrderModel,
   MessageTargetName,
   Row,
+  Settings,
   Show,
   Spinner,
   useWindowSize,
@@ -364,7 +365,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
               (!!content?.fileReferences && !content?.fileReferences.length) ||
               (!!content?.fileReferences &&
                 content?.fileReferences.length > 0 &&
-                !content?.fileReferences[0].isUploaded)
+                !content?.fileReferences[0].isUploaded || Set)
             }
           >
             <Show visible={!isTranscribing}>Request Transcript</Show>
