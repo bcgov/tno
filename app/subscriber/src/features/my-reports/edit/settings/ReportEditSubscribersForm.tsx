@@ -12,6 +12,7 @@ import {
   getEnumStringOptions,
   Grid,
   IUserReportModel,
+  Modal,
   ReportDistributionFormatName,
   ReportStatusName,
   Row,
@@ -39,31 +40,39 @@ export const ReportEditSubscribersForm = () => {
   const sendToOptions = getEnumStringOptions(EmailSendToName, { splitOnCapital: false });
   const [selectedSubscribers, setSelectedSubscribers] = React.useState<number[]>([]);
 
+  const fetchUsersByEmail = async (email: string) => {
+    try {
+      const response = await findUsers({ email });
+      return response.data.items;
+    } catch (error) {
+      toast.error('Error fetching users.');
+      return [];
+    }
+  };
+
   const addSubscriber = React.useCallback(
     async (email: string) => {
-      try {
-        const response = await findUsers({ email });
-        const users = response.data;
-        if (users.items.length) {
-          const subscribers: IUserReportModel[] = users.items
-            .filter((user) => !values.subscribers.some((s) => s.userId === user.id))
-            .map<IUserReportModel>((user) => ({
-              ...user,
-              userId: user.id,
-              reportId: values.id,
-              isSubscribed: true,
-              format: ReportDistributionFormatName.FullText,
-              sendTo: EmailSendToName.To,
-              version: 0,
-            }));
-          setFieldValue('subscribers', [...values.subscribers, ...subscribers]);
-        } else {
-          toast.warning(`No users found for the specified email "${email}".`);
-        }
-      } catch {}
+      const users = await fetchUsersByEmail(email);
+      if (users.length) {
+        const subscribers = users
+          .filter((user) => !values.subscribers.some((s) => s.userId === user.id))
+          .map((user) => ({
+            ...user,
+            userId: user.id,
+            reportId: values.id,
+            isSubscribed: true,
+            format: ReportDistributionFormatName.FullText,
+            sendTo: EmailSendToName.To,
+            version: 0,
+          }));
+        setFieldValue('subscribers', [...values.subscribers, ...subscribers]);
+      } else {
+        toast.warning(`No users found for the specified email "${email}".`);
+      }
     },
     [findUsers, setFieldValue, values.id, values.subscribers],
   );
+
   const handleSelectSubscriber = (userId: any) => {
     setSelectedSubscribers((prevSelected: any) =>
       prevSelected.includes(userId)
