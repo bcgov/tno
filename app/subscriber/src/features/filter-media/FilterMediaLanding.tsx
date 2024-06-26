@@ -163,9 +163,9 @@ export const FilterMediaLanding: React.FC = () => {
         sourceIds,
         seriesIds,
         mediaTypeIds: [mediaGroup.key],
+        activeSubGroup: mediaGroup.label,
       });
       setActiveFilter(mediaGroup);
-      storeFilter({ ...filter, activeSubGroup: mediaGroup.label });
       setParentClicked(true);
     },
     [filter, storeFilter],
