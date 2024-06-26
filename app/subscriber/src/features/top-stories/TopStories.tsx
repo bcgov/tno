@@ -31,7 +31,7 @@ export const TopStories: React.FC = () => {
 
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
-    if (isReady && hasProcessedInitialPreferences && !loading) {
+    if (isReady) {
       let actionFilters = getActionFilters();
       const topStoryAction = actionFilters.find((a) => a.id === topStoryActionId);
       setLoading(true);
