@@ -37,7 +37,7 @@ import {
   ReportEditTemplateForm,
 } from './settings';
 import * as styled from './styled';
-import { ReportHistoryForm, ReportView } from './view';
+import { ReportHistoryForm, ReportViewForm } from './view';
 
 export interface IReportEditFormProps {
   /** Whether edit functionality is disabled. */
@@ -204,7 +204,7 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
         </Show>
         {/* Preview Menu */}
         <Show visible={active === ReportViewMenuOption.View}>
-          <ReportView />
+          <ReportViewForm />
         </Show>
         {/* Send Menu */}
         <Show visible={active === ReportSendMenuOption.Send}>

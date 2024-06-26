@@ -6,7 +6,7 @@ export const ReportHistoryForm = styled.div`
   padding: 1rem;
   div.report-history {
     display: grid;
-    grid-template-columns: 2fr 1fr 2fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     .report-status {
       color: ${(props) => props.theme.css.fInfo};
     }
@@ -32,6 +32,10 @@ export const ReportHistoryForm = styled.div`
     }
 
     > div.col-1 {
+      min-width: 12rem;
+    }
+    > div.col-3 {
+      min-width: 12rem;
     }
 
     > div.col-4 {

@@ -1,10 +1,11 @@
 import styled from 'styled-components';
 
-export const ReportHistoryView = styled.div`
+export const ReportView = styled.div`
   display: flex;
   flex-direction: column;
   padding: 1rem;
-  .report-history-headline {
+
+  .report-edit-headline-row {
     display: flex;
     align-items: first baseline;
     gap: 0.5em;
@@ -12,14 +13,10 @@ export const ReportHistoryView = styled.div`
     > :nth-child(1) {
       color: ${(props) => props.theme.css.iconPrimaryColor};
     }
-    > :nth-child(4) {
-      color: ${(props) => props.theme.css.iconPrimaryColor};
-    }
 
     > :last-child {
       margin-left: auto;
       justify-content: flex-end;
-      color: ${(props) => props.theme.css.iconPrimaryColor};
     }
   }
 
