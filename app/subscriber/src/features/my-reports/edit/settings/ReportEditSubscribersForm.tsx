@@ -123,6 +123,7 @@ export const ReportEditSubscribersForm = () => {
                   width="300px"
                 >
                   <Button
+                    className="request-button"
                     variant="secondary"
                     disabled={!validateEmail(emailForAdd)}
                     onClick={() => addSubscriber(emailForAdd)}
@@ -158,6 +159,7 @@ export const ReportEditSubscribersForm = () => {
                   width="300px"
                 >
                   <Button
+                    className="request-button"
                     variant="secondary"
                     disabled={!validateEmail(emailForRequest)}
                     onClick={() => {}}

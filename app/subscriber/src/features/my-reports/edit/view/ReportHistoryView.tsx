@@ -11,20 +11,18 @@ export const ReportHistoryView = () => {
   const [{ reportView }, { storeReportView }] = useReportsStore();
   const { activeInstance } = useReportEditContext();
 
-  if (!reportView) return null;
-  if (!activeInstance) return null;
+  if (!reportView || !activeInstance) return null;
 
   return (
-    <styled.ReportHistoryView className="report-edit-section">
+    <styled.ReportHistoryView>
       <div>
-        <Row alignItems="first baseline" gap="0.5em">
-          <FaEye className="report-preview-headline-icon" size={18} />
+        <Row className= "report-history-headline" alignItems="first baseline" gap="0.5em">
+          <FaEye  size={18} />
           <h1>Previous Report</h1>
           <h2>{formatDate(activeInstance.createdOn)}</h2>
-          <FaRegClock className="report-preview-headline-icon" size={18} />
+          <FaRegClock  size={18} />
           <h2>{formatTime(activeInstance.createdOn)}</h2>
-        </Row>
-        <Button
+                  <Button
           variant="info"
           onClick={() => {
             storeReportView(undefined);
@@ -32,6 +30,8 @@ export const ReportHistoryView = () => {
         >
           <FaX />
         </Button>
+
+        </Row>
       </div>
       <Col className="preview-report">
         <div
