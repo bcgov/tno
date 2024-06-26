@@ -19,6 +19,7 @@ export const settingsSlice = createSlice({
       state.loadingState = action.payload.loadingState;
       state.featuredStoryActionId = action.payload.featuredStoryActionId;
       state.commentaryActionId = action.payload.commentaryActionId;
+      state.disableTranscriptionMediaTypeIds = action.payload.disableTranscriptionMediaTypeIds;
       state.topStoryActionId = action.payload.topStoryActionId;
       state.alertActionId = action.payload.alertActionId;
       state.editorUrl = action.payload.editorUrl;

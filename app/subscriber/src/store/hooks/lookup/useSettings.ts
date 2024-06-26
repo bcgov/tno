@@ -24,8 +24,8 @@ export const useSettings = (validate?: boolean) => {
       const subscriberUrl = settings.find((s) => s.name === Settings.SubscriberUrl)?.value;
       const excludeBylineIds = settings.find((s) => s.name === Settings.ExcludeBylineIds)?.value;
       const excludeSourceIds = settings.find((s) => s.name === Settings.ExcludeSourceIds)?.value;
-      const disableTranscribingMediaTypeIds = settings.find(
-        (s) => s.name === Settings.DisableTranscribingMediaTypeIds,
+      const disableTranscriptionMediaTypeIds = settings.find(
+        (s) => s.name === Settings.DisableTranscriptionMediaTypeIds,
       )?.value;
       const defaultReportTemplateId = settings.find(
         (s) => s.name === Settings.DefaultReportTemplate,
@@ -49,8 +49,8 @@ export const useSettings = (validate?: boolean) => {
         defaultReportTemplateId: defaultReportTemplateId ? +defaultReportTemplateId : undefined,
         excludeBylineIds: excludeBylineIds ? excludeBylineIds.split(',').map((id) => +id) : [],
         excludeSourceIds: excludeSourceIds ? excludeSourceIds.split(',').map((id) => +id) : [],
-        disableTranscribingMediaTypeIds: disableTranscribingMediaTypeIds
-          ? disableTranscribingMediaTypeIds.split(',').map((id) => +id)
+        disableTranscriptionMediaTypeIds: disableTranscriptionMediaTypeIds
+          ? disableTranscriptionMediaTypeIds.split(',').map((id) => +id)
           : [],
         frontpageFilterId: frontpageFilterId ? +frontpageFilterId : undefined,
         frontPageImageMediaTypeId: frontPageImageMediaTypeId
@@ -98,9 +98,9 @@ export const useSettings = (validate?: boolean) => {
           `Configuration "${Settings.FrontPageImageMediaType}" is missing from settings.`,
         );
 
-      if (!values.disableTranscribingMediaTypeIds)
+      if (!values.disableTranscriptionMediaTypeIds)
         toast.error(
-          `Configuration "${Settings.DisableTranscribingMediaTypeIds}" is missing from settings.`,
+          `Configuration "${Settings.DisableTranscriptionMediaTypeIds}" is missing from settings.`,
         );
 
       if (!values.eventOfTheDayReportId)
@@ -115,7 +115,7 @@ export const useSettings = (validate?: boolean) => {
     values.featuredStoryActionId,
     values.topStoryActionId,
     values.loadingState,
-    values.disableTranscribingMediaTypeIds,
+    values.disableTranscriptionMediaTypeIds,
     values.editorUrl,
     values.subscriberUrl,
     values.defaultReportTemplateId,

@@ -7,7 +7,7 @@ import parse from 'html-react-parser';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApiHub, useContent, useWorkOrders } from 'store/hooks';
+import { useApiHub, useContent, useSettings, useWorkOrders } from 'store/hooks';
 import { useMinisters } from 'store/hooks/subscriber/useMinisters';
 import { useProfileStore } from 'store/slices';
 import {
@@ -71,6 +71,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
   const [avStream, setAVStream] = React.useState<IStream>();
   const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
   const [filteredQuotes, setFilteredQuotes] = React.useState<IQuoteModel[]>([]);
+  const { disableTranscriptionMediaTypeIds } = useSettings();
 
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const radioRef = React.useRef<HTMLAudioElement>(null);
@@ -365,7 +366,9 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
               (!!content?.fileReferences && !content?.fileReferences.length) ||
               (!!content?.fileReferences &&
                 content?.fileReferences.length > 0 &&
-                !content?.fileReferences[0].isUploaded || Set)
+                !content?.fileReferences[0].isUploaded) ||
+              (!!content?.mediaTypeId &&
+                disableTranscriptionMediaTypeIds?.includes(content?.mediaTypeId))
             }
           >
             <Show visible={!isTranscribing}>Request Transcript</Show>

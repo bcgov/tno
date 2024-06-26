@@ -12,6 +12,6 @@ export interface ISettingsState {
   frontPageImageMediaTypeId?: number;
   excludeBylineIds?: number[];
   excludeSourceIds?: number[];
-  disableTranscribingMediaTypeIds?: number[];
+  disableTranscriptionMediaTypeIds?: number[];
   eventOfTheDayReportId?: number;
 }
