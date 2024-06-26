@@ -31,7 +31,6 @@ export const ReportEditSubscribersForm = () => {
   const [{ userInfo }] = useApp();
   const { findUsers } = useApiAdminUsers();
   const [emailForAdd, setEmailForAdd] = React.useState('');
-  const [emailForRequest, setEmailForRequest] = React.useState('');
 
   const instance = values.instances.length ? values.instances[0] : undefined;
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
