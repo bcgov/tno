@@ -20,7 +20,7 @@ export const TodaysFrontPages: React.FC = () => {
 
   const [frontPages, setFrontPages] = React.useState<IContentModel[]>([]);
   const [selected] = React.useState<IContentModel[]>([]);
-  const [filter, setFilter] = React.useState<IFilterSettingsModel>(frontPageFilter);
+  const [filter, setFilter] = React.useState<IFilterSettingsModel>();
 
   React.useEffect(() => {
     storeFilter({
