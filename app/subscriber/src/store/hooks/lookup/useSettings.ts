@@ -28,6 +28,9 @@ export const useSettings = (validate?: boolean) => {
         (s) => s.name === Settings.DefaultReportTemplate,
       )?.value;
       const frontpageFilterId = settings.find((s) => s.name === Settings.FrontpageFilter)?.value;
+      const frontPageImageMediaTypeId = settings.find(
+        (s) => s.name === Settings.FrontPageImageMediaType,
+      )?.value;
       const eventOfTheDayReportId = settings.find(
         (s) => s.name === Settings.EventOfTheDayReport,
       )?.value;
@@ -44,6 +47,9 @@ export const useSettings = (validate?: boolean) => {
         excludeBylineIds: excludeBylineIds ? excludeBylineIds.split(',').map((id) => +id) : [],
         excludeSourceIds: excludeSourceIds ? excludeSourceIds.split(',').map((id) => +id) : [],
         frontpageFilterId: frontpageFilterId ? +frontpageFilterId : undefined,
+        frontPageImageMediaTypeId: frontPageImageMediaTypeId
+          ? +frontPageImageMediaTypeId
+          : undefined,
         eventOfTheDayReportId: eventOfTheDayReportId ? +eventOfTheDayReportId : undefined,
       });
     }
@@ -81,6 +87,11 @@ export const useSettings = (validate?: boolean) => {
       if (!values.frontpageFilterId)
         toast.error(`Configuration "${Settings.FrontpageFilter}" is missing from settings.`);
 
+      if (!values.frontPageImageMediaTypeId)
+        toast.error(
+          `Configuration "${Settings.FrontPageImageMediaType}" is missing from settings.`,
+        );
+
       if (!values.eventOfTheDayReportId)
         toast.error(`Configuration "${Settings.EventOfTheDayReport}" is missing from settings.`);
       storeLoading(2);
@@ -100,6 +111,7 @@ export const useSettings = (validate?: boolean) => {
     values.excludeBylineIds,
     values.excludeSourceIds,
     values.eventOfTheDayReportId,
+    values.frontPageImageMediaTypeId,
   ]);
 
   return values;
