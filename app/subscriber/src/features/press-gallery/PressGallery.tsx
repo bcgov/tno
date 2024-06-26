@@ -229,6 +229,9 @@ export const PressGallery: React.FC = () => {
       <ContentList
         onContentSelected={handleContentSelected}
         content={content}
+        showDate
+        showTime
+        showSeries
         selected={selected}
       />
     </styled.PressGallery>
