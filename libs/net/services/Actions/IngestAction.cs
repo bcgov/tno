@@ -1,6 +1,4 @@
 using System.Net.Http.Headers;
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.ContentReference;
@@ -107,12 +105,14 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
     /// <param name="manager"></param>
     /// <param name="reference"></param>
     /// <param name="content"></param>
+    /// <param name="forceUpdate"></param>
     /// <returns></returns>
-    protected virtual async Task<ContentReferenceModel?> ContentReceivedAsync(IIngestActionManager manager, ContentReferenceModel? reference, SourceContent? content)
+    protected virtual async Task<ContentReferenceModel?> ContentReceivedAsync(IIngestActionManager manager, ContentReferenceModel? reference, SourceContent? content, bool forceUpdate = false)
     {
         if (reference != null &&
+            (forceUpdate ||
             reference.Status != (int)WorkflowStatus.Received &&
-            reference.Status != (int)WorkflowStatus.Imported)
+            reference.Status != (int)WorkflowStatus.Imported))
         {
             reference = await this.UpdateContentReferenceAsync(reference, WorkflowStatus.Received);
             if (reference != null && manager.Ingest.PostToKafka() && content != null)
@@ -167,22 +167,6 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
     protected DateTime GetDateTimeForTimeZone(IngestModel ingest, DateTime date)
     {
         return date.ToTimeZone(IngestActionManager<TOptions>.GetTimeZone(ingest, this.Options.TimeZone));
-    }
-
-    /// <summary>
-    /// Create a unique hash for the specified 'source', 'headline', and 'publishedOn'
-    /// </summary>
-    /// <param name="source"></param>
-    /// <param name="headline"></param>
-    /// <param name="publishedOn"></param>
-    /// <returns></returns>
-    protected string GetContentHash(string source, string headline, DateTime? publishedOn)
-    {
-        var date = publishedOn.HasValue ? $"{publishedOn:yyyy-MM-dd-hh-mm-ss}" : "";
-        string hashInput = $"{source}:{headline}:{date}";
-        var inputBytes = Encoding.UTF8.GetBytes(hashInput);
-        var inputHash = SHA256.HashData(inputBytes);
-        return Convert.ToHexString(inputHash);
     }
     #endregion
 }

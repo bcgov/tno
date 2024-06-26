@@ -1,3 +1,4 @@
+import { Modal } from 'components/modal';
 import React from 'react';
 import { FaEnvelope } from 'react-icons/fa';
 import { toast } from 'react-toastify';
@@ -8,7 +9,6 @@ import {
   Button,
   IContentModel,
   IUserColleagueModel,
-  Modal,
   Row,
   Settings,
   Text,
@@ -99,7 +99,8 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
         className="share-menu"
         place="bottom"
         openOnClick
-        style={{ opacity: '1', boxShadow: '0 0 8px #464545', zIndex: '999' }}
+        opacity={1}
+        style={{ boxShadow: '0 0 8px #464545', zIndex: '999' }}
         id="share"
       >
         <FaEnvelope /> SHARE WITH A COLLEAGUE:

@@ -9,6 +9,7 @@ import { Col } from 'tno-core';
 import { useChartTemplateContext } from './ChartTemplateContext';
 import {
   ChartTemplatePreview,
+  ChartTemplatePreviewConfig,
   ChartTemplatePreviewJson,
   ChartTemplatePreviewOptions,
   ChartTemplatePreviewSources,
@@ -38,6 +39,7 @@ export const ChartTemplateFormPreview = () => {
       </p>
       <ChartTemplatePreviewSources />
       <ChartTemplatePreviewOptions />
+      <ChartTemplatePreviewConfig />
       <ChartTemplatePreviewJson />
       <ChartTemplatePreview />
       <hr />

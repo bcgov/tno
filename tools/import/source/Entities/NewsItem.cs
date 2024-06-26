@@ -47,31 +47,31 @@ public class NewsItem
     public DateTime? UpdatedOn { get; set; }
 
     [Column("STRING1")]
-    public string? string1 { get; set; }
+    public string? String1 { get; set; }
 
     [Column("STRING2")]
-    public string? string2 { get; set; }
+    public string? String2 { get; set; }
 
     [Column("STRING3")]
-    public string? string3 { get; set; }
+    public string? String3 { get; set; }
 
     [Column("STRING4")]
-    public string? string4 { get; set; }
+    public string? String4 { get; set; }
 
     [Column("STRING5")]
-    public string? string5 { get; set; }
+    public string? String5 { get; set; }
 
     [Column("STRING6")]
-    public string? string6 { get; set; }
+    public string? String6 { get; set; }
 
     [Column("STRING7")]
-    public string? string7 { get; set; }
+    public string? String7 { get; set; }
 
     [Column("STRING8")]
-    public string? string8 { get; set; }
+    public string? String8 { get; set; }
 
     [Column("STRING9")]
-    public string? string9 { get; set; }
+    public string? String9 { get; set; }
 
     [Column("NUMBER1")]
     public long? Number1 { get; set; }

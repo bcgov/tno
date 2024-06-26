@@ -35,7 +35,8 @@ export const evalScripts = (
       const dataset = data.datasets[i];
       try {
         const bkColor = dataset.backgroundColor;
-        if (bkColor && typeof bkColor === 'string' && bkColor[0] === '(')
+        const isArray = Array.isArray(bkColor);
+        if (bkColor && !isArray && typeof bkColor === 'string' && bkColor[0] === '(')
           dataset.backgroundColor = eval(bkColor);
       } catch (ex) {
         console.error('Failed to eval dataset.backgroundColor', ex);
@@ -43,7 +44,8 @@ export const evalScripts = (
       }
       try {
         const bColor = dataset.borderColor;
-        if (bColor && typeof bColor === 'string' && bColor[0] === '(')
+        const isArray = Array.isArray(bColor);
+        if (bColor && !isArray && typeof bColor === 'string' && bColor[0] === '(')
           dataset.borderColor = eval(bColor);
       } catch (ex) {
         console.error('Failed to eval dataset.borderColor', ex);

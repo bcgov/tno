@@ -1,3 +1,6 @@
+using System.Text.Json;
+using TNO.Core.Extensions;
+
 namespace TNO.API.Areas.Services.Models.Content;
 
 /// <summary>
@@ -40,6 +43,16 @@ public class UserModel
     /// get/set - Last name of user.
     /// </summary>
     public string LastName { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The user account type.
+    /// </summary>
+    public Entities.UserAccountType AccountType { get; set; }
+
+    /// <summary>
+    /// get/set - The user preferences.
+    /// </summary>
+    public JsonDocument Preferences { get; set; } = JsonDocument.Parse("{}");
     #endregion
 
     #region Constructors
@@ -61,6 +74,8 @@ public class UserModel
         this.DisplayName = entity.DisplayName;
         this.FirstName = entity.FirstName;
         this.LastName = entity.LastName;
+        this.AccountType = entity.AccountType;
+        this.Preferences = entity.Preferences;
     }
     #endregion
 
@@ -72,6 +87,25 @@ public class UserModel
     public string GetEmail()
     {
         return String.IsNullOrWhiteSpace(this.PreferredEmail) ? this.Email : this.PreferredEmail;
+    }
+
+    /// <summary>
+    /// Get the preferred email if it has been set.
+    /// </summary>
+    /// <returns></returns>
+    public string[] GetEmails()
+    {
+        if (this.AccountType == Entities.UserAccountType.Distribution)
+        {
+            var addresses = this.Preferences.GetElementValue<API.Models.UserEmailModel[]?>(".addresses");
+            if (addresses != null) return addresses.Select(a => a.Email).ToArray();
+            return Array.Empty<string>();
+        }
+        else
+        {
+            var email = String.IsNullOrWhiteSpace(this.PreferredEmail) ? this.Email : this.PreferredEmail;
+            return new string[] { email };
+        }
     }
     #endregion
 }

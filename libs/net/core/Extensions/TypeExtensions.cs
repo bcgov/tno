@@ -107,6 +107,19 @@ namespace TNO.Core.Extensions
         /// <summary>
         /// Determine if the type/object is a nullable type.
         /// </summary>
+        /// <param name="type"></param>
+        /// <returns>True if the type/object is nullable.</returns>
+        public static bool IsNullable(this Type type)
+        {
+            if (type == null) return true;
+            if (!type.IsValueType) return true;
+            if (Nullable.GetUnderlyingType(type) != null) return true;
+            return false;
+        }
+
+        /// <summary>
+        /// Determine if the type/object is a nullable type.
+        /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
         /// <returns>True if the type/object is nullable.</returns>

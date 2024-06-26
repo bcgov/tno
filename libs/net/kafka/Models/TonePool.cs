@@ -11,10 +11,10 @@ public class TonePool
     #region Constructors
     public TonePool() { }
 
-    public TonePool(int toneValue, string userIdentifier)
+    public TonePool(int toneValue, string? userIdentifier)
     {
         this.Value = toneValue;
-        this.UserIdentifier = userIdentifier ?? "";
+        this.UserIdentifier = userIdentifier;
     }
     #endregion
 }

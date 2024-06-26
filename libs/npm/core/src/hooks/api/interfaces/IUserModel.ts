@@ -1,4 +1,4 @@
-import { UserStatusName } from '../constants';
+import { UserAccountTypeName, UserStatusName } from '../constants';
 import {
   IAuditColumnsModel,
   IFilterModel,
@@ -25,6 +25,7 @@ export interface IUserModel extends IAuditColumnsModel {
   status: UserStatusName;
   emailVerified: boolean;
   isSystemAccount: boolean;
+  accountType: UserAccountTypeName;
   preferences?: IUserPreferencesModel;
   uniqueLogins: number;
   note: string;

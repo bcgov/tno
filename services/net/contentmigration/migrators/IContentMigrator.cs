@@ -24,7 +24,8 @@ public interface IContentMigrator
     ///
     /// </summary>
     /// <returns></returns>
-    Expression<Func<NewsItem, bool>> GetBaseFilter(ContentType contentType);
+    Expression<Func<T, bool>> GetBaseFilter<T>(ContentType contentType)
+        where T : BaseNewsItem => throw new NotImplementedException();
 
     /// <summary>
     ///

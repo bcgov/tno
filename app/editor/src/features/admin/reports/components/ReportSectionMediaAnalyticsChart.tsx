@@ -5,6 +5,7 @@ import {
   Button,
   ButtonVariant,
   chartTypeOptions,
+  Checkbox,
   Col,
   datasetOptions,
   datasetValueOptions,
@@ -39,6 +40,9 @@ export const ReportSectionMediaAnalyticsChart = ({
 
   const [datasetColors, setDatasetColors] = React.useState(
     chart.sectionSettings.datasetColors?.join(',') ?? '',
+  );
+  const [datasetBorderColors, setDatasetBorderColors] = React.useState(
+    chart.sectionSettings.datasetBorderColors?.join(',') ?? '',
   );
   const [dataLabelColors, setDataLabelColors] = React.useState(
     chart.sectionSettings.dataLabelColors?.join(',') ?? '',
@@ -102,9 +106,22 @@ export const ReportSectionMediaAnalyticsChart = ({
               />
             </Row>
             <Col>
+              <Checkbox
+                name="applyColorToValue"
+                label="Apply Colour to Group"
+                checked={!!chart.sectionSettings.applyColorToValue}
+                onChange={(e) => {
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      applyColorToValue: e.target.checked,
+                    }),
+                  );
+                }}
+              />
               <Text
                 name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetColors`}
-                label="Dataset Colours"
+                label={`${chart.sectionSettings.applyColorToValue ? 'Group' : 'Dataset'} Colours`}
                 placeholder="green,gold,red"
                 value={datasetColors}
                 onChange={(e) => {
@@ -117,6 +134,25 @@ export const ReportSectionMediaAnalyticsChart = ({
                     `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                     mergeChartSettings(chart.settings.options, chart.sectionSettings, {
                       datasetColors: colors,
+                    }),
+                  );
+                }}
+              />
+              <Text
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetBorderColors`}
+                label="Border Colours"
+                placeholder="white"
+                value={datasetBorderColors}
+                onChange={(e) => {
+                  const colors = e.target.value
+                    .split(',')
+                    .map((v) => v.trim())
+                    .filter((v) => v);
+                  setDatasetBorderColors(e.target.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      datasetBorderColors: colors,
                     }),
                   );
                 }}
@@ -320,19 +356,6 @@ export const ReportSectionMediaAnalyticsChart = ({
                   }}
                 />
                 <FormikCheckbox
-                  label="Show Axis"
-                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.showAxis`}
-                  checked={!!chart.sectionSettings.isHorizontal}
-                  onChange={(e) => {
-                    setFieldValue(
-                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
-                      mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                        showAxis: e.target.checked,
-                      }),
-                    );
-                  }}
-                />
-                <FormikCheckbox
                   label="Flip X and Y axis"
                   name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.isHorizontal`}
                   checked={!!chart.sectionSettings.isHorizontal}
@@ -341,6 +364,32 @@ export const ReportSectionMediaAnalyticsChart = ({
                       `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                       mergeChartSettings(chart.settings.options, chart.sectionSettings, {
                         isHorizontal: e.target.checked,
+                      }),
+                    );
+                  }}
+                />
+                <FormikCheckbox
+                  label="Show X axis labels"
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.xShowAxisLabels`}
+                  checked={!!chart.sectionSettings.xShowAxisLabels}
+                  onChange={(e) => {
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                      mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                        xShowAxisLabels: e.target.checked,
+                      }),
+                    );
+                  }}
+                />
+                <FormikCheckbox
+                  label="Show Y axis labels"
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.yShowAxisLabels`}
+                  checked={!!chart.sectionSettings.yShowAxisLabels}
+                  onChange={(e) => {
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                      mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                        yShowAxisLabels: e.target.checked,
                       }),
                     );
                   }}

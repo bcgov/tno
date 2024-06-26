@@ -6,6 +6,9 @@ export const ViewContent = styled.div`
     p {
       margin: 0.75em 0;
     }
+    hr {
+      width: 100%;
+    }
   }
   .info-bar {
     /* negative margins to bypass parent padding (PageSection) */

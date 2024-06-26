@@ -13,14 +13,14 @@ import {
 interface IUserController {
   getUser: () => Promise<ISubscriberUserModel>;
   findUsers: (filter: IUserFilter) => Promise<IPaged<IUserModel>>;
-  updateUser: (model: ISubscriberUserModel) => Promise<ISubscriberUserModel>;
+  updateUser: (model: ISubscriberUserModel, impersonate?: boolean) => Promise<ISubscriberUserModel>;
 }
 
 export const useUsers = (): IUserController => {
   const { findUsers } = useApiAdminUsers();
   const { getUser, updateUser } = useApiSubscriberUsers();
   const dispatch = useAjaxWrapper();
-  const [, { storeMyProfile }] = useProfileStore();
+  const [, { storeMyProfile, storeImpersonate }] = useProfileStore();
   const [{ userInfo }, { storeUserInfo }] = useAppStore();
 
   const controller = React.useMemo(
@@ -33,16 +33,25 @@ export const useUsers = (): IUserController => {
         const response = await dispatch('find-users', () => findUsers(filter));
         return response.data;
       },
-      updateUser: async (model: ISubscriberUserModel) => {
+      updateUser: async (model: ISubscriberUserModel, impersonate?: boolean) => {
         const response = await dispatch<ISubscriberUserModel>('update-user', () =>
           updateUser(model),
         );
-        storeMyProfile(response.data);
+        impersonate ? storeImpersonate(response.data) : storeMyProfile(response.data);
         if (userInfo) storeUserInfo({ ...userInfo, preferences: response.data.preferences });
         return response.data;
       },
     }),
-    [dispatch, getUser, findUsers, storeMyProfile, userInfo, storeUserInfo, updateUser],
+    [
+      dispatch,
+      getUser,
+      findUsers,
+      storeMyProfile,
+      storeImpersonate,
+      userInfo,
+      storeUserInfo,
+      updateUser,
+    ],
   );
 
   return controller;

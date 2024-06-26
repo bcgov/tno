@@ -40,4 +40,7 @@ export interface IContentState {
   avOverview: {
     filter: IFilterSettingsModel;
   };
+  eventOfTheDay: {
+    filter: IFilterSettingsModel;
+  };
 }

@@ -11,6 +11,7 @@ interface IReportInstanceController {
   getReportInstance: (
     id: number,
     includeContent?: boolean,
+    publishedOn?: Date | string,
   ) => Promise<IReportInstanceModel | undefined>;
   addReportInstance: (model: IReportInstanceModel) => Promise<IReportInstanceModel>;
   updateReportInstance: (model: IReportInstanceModel) => Promise<IReportInstanceModel>;
@@ -28,10 +29,14 @@ export const useReportInstances = (): [IReportInstanceController] => {
 
   const controller = React.useMemo(
     () => ({
-      getReportInstance: async (id: number, includeContent: boolean = false) => {
+      getReportInstance: async (
+        id: number,
+        includeContent: boolean = false,
+        publishedOn?: Date | string,
+      ) => {
         const response = await dispatch<IReportInstanceModel | undefined>(
           'get-report-instance',
-          () => api.getReportInstance(id, includeContent),
+          () => api.getReportInstance(id, includeContent, publishedOn),
         );
         if (response.status === 200 && !!response.data) {
           const instance = response.data;

@@ -13,8 +13,6 @@ import { groupContent } from './utils';
 export interface IContentListProps {
   /** content is an array of content objects to be displayed and manipulated by the content list*/
   content: IContentSearchResult[];
-  /** determine the selected content based on the checkbox */
-  onContentSelected: (content: IContentModel[]) => void;
   /** array of selected content */
   selected: IContentModel[];
   /** prop to determine whether to style the content based on user settings */
@@ -33,11 +31,14 @@ export interface IContentListProps {
   cacheCheck?: boolean;
   /** filter settings for contents */
   filter?: IFilterSettingsModel;
+  /** determine the selected content based on the checkbox */
+  onContentSelected: (content: IContentModel[]) => void;
+  /** Event fires when content is removed. */
+  onContentRemove?: (content: IContentModel) => void;
 }
 
 export const ContentList: React.FC<IContentListProps> = ({
   content,
-  onContentSelected,
   selected,
   showDate = false,
   handleDrop,
@@ -46,6 +47,8 @@ export const ContentList: React.FC<IContentListProps> = ({
   showTime = true,
   cacheCheck = true,
   filter,
+  onContentSelected,
+  onContentRemove,
 }) => {
   const navigate = useNavigate();
   const { groupBy, setActiveStream, activeFileReference } = React.useContext(ContentListContext);
@@ -82,7 +85,7 @@ export const ContentList: React.FC<IContentListProps> = ({
     } else {
       array = [];
     }
-    if (array.lenth !== selected.length) {
+    if (array.length !== selected.length) {
       array = selected;
     }
     localStorage.setItem('selected', JSON.stringify(array));
@@ -176,6 +179,7 @@ export const ContentList: React.FC<IContentListProps> = ({
                           canDrag
                           item={item}
                           onCheckboxChange={handleCheckboxChange}
+                          onRemove={onContentRemove}
                           filter={filter}
                         />
                       </div>

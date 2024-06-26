@@ -36,6 +36,7 @@ export const defaultReport: IReportModel = {
     sections: {
       usePageBreaks: false,
     },
+    doNotSendEmail: false,
   },
   isEnabled: false,
   isPublic: false,

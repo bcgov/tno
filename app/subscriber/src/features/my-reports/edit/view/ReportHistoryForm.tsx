@@ -1,17 +1,17 @@
 import { Action } from 'components/action';
 import { getStatus } from 'features/my-reports/utils';
-import { formatDate } from 'features/utils';
+import { formatDate, formatTime } from 'features/utils';
 import React from 'react';
-import { FaSquarePollVertical } from 'react-icons/fa6';
+import { FaClockRotateLeft, FaEye, FaRegClock } from 'react-icons/fa6';
 import { useApp, useReports } from 'store/hooks';
 import { useReportsStore } from 'store/slices';
-import { Col, IReportInstanceModel, Loading, ReportStatusName, Show } from 'tno-core';
+import { Col, IReportInstanceModel, Loading, ReportStatusName, Row, Show } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
 import * as styled from './styled';
 
 export const ReportHistoryForm = () => {
-  const { values } = useReportEditContext();
+  const { values, setActiveInstance } = useReportEditContext();
   const [{ requests }] = useApp();
   const [, { findInstancesForReportId }] = useReports();
   const [, { storeReportView }] = useReportsStore();
@@ -42,7 +42,9 @@ export const ReportHistoryForm = () => {
   const handleViewReport = React.useCallback(
     (instance: IReportInstanceModel) => {
       storeReportView({ instanceId: instance.id, subject: instance.subject, body: instance.body });
+      setActiveInstance(instance);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [storeReportView],
   );
 
@@ -51,20 +53,38 @@ export const ReportHistoryForm = () => {
       <Show visible={isLoading}>
         <Loading />
       </Show>
+      <Row alignItems="first baseline" gap="0.5em">
+        <FaClockRotateLeft />
+        <h2>History</h2>
+      </Row>
       <Col className="report-history">
         <div className="col-1">Published On</div>
-        <div className="col-2">Sent On</div>
-        <div className="col-3">Status</div>
+        <div className="col-2">Status</div>
+
+        <div className="col-3">Sent On</div>
         <div className="col-4"></div>
         {instances.map((instance) => {
           return (
             <React.Fragment key={instance.id}>
-              <div className="col-1">{formatDate(instance.publishedOn ?? '', true)}</div>
-              <div className="col-2">{formatDate(instance.sentOn ?? '', true)}</div>
-              <div className="col-3">{getStatus(instance.status)}</div>
+              <div className="col-1">
+                <Row gap="0.2em">
+                  {formatDate(instance.publishedOn ?? '', false)}
+                  <FaRegClock size={18} className="" />
+                  {formatTime(instance.publishedOn ?? '')}
+                </Row>
+              </div>
+              <div className="col-2 report-status">{getStatus(instance.status)}</div>
+
+              <div className="col-3">
+                <Row gap="0.2em">
+                  {formatDate(instance.sentOn ?? '', false)}
+                  <FaRegClock size={18} className="" />
+                  {formatTime(instance.publishedOn ?? '')}
+                </Row>
+              </div>
               <div className="col-4">
                 <Action
-                  icon={<FaSquarePollVertical />}
+                  icon={<FaEye />}
                   title="View"
                   onClick={() => {
                     handleViewReport(instance);

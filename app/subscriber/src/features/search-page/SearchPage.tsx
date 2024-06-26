@@ -1,4 +1,3 @@
-import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { BasicSearch } from 'components/basic-search';
 import { ContentList, ViewOptions } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
@@ -23,6 +22,7 @@ import {
 } from 'tno-core';
 
 import { AdvancedSearch } from './components';
+import { PreviousResults } from './PreviousResults';
 import { useSearchPageContext } from './SearchPageContext';
 import * as styled from './styled';
 import { filterFormat } from './utils';
@@ -36,7 +36,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   const { id } = useParams();
   const [
     {
-      search: { filter },
+      search: { filter, content },
     },
     { findContentWithElasticsearch, storeSearchFilter },
   ] = useContent();
@@ -47,11 +47,13 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   const [{ filter: activeFilter }, { storeFilter }] = useProfileStore();
   const { pathname } = useLocation();
 
-  const [content, setContent] = React.useState<IContentSearchResult[]>([]);
+  const [currDateResults, setCurrDateResults] = React.useState<IContentSearchResult[]>([]);
+  const [prevDateResults, setPrevDateResults] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [totalResults, setTotalResults] = React.useState(0);
   const [isLoading, setIsLoading] = React.useState(false);
   const { expanded } = useSearchPageContext();
+  const [startDate, setStartDate] = React.useState<Date>(new Date());
   const [init, setInit] = React.useState(true); // React hooks are horrible...
 
   const [filterId, setFilterId] = React.useState(0);
@@ -73,24 +75,93 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     }
   }, [activeFilter, getFilter, filterId, init, storeFilter, storeSearchFilter, id]);
 
+  const groupResults = React.useCallback(
+    (res: any, currStartDate: Date, currEndDate: Date, prevStartDate: Date) => {
+      const currDateResults: IContentSearchResult[] = [],
+        prevDateResults: IContentSearchResult[] = [];
+      res.hits.hits.forEach((h: { _source: IContentSearchResult }) => {
+        const resDate = new Date(h._source.publishedOn);
+        if (
+          resDate.getTime() >= currStartDate.getTime() &&
+          resDate.getTime() <= currEndDate.getTime()
+        ) {
+          // result occurred during currently selected date
+          currDateResults.push(h._source);
+        } else if (
+          // result occurred sometime in past 5 days
+          resDate.getTime() >= prevStartDate.getTime() &&
+          resDate.getTime() <= currEndDate.getTime()
+        ) {
+          prevDateResults.push(h._source);
+        }
+      });
+      setCurrDateResults(currDateResults);
+      setPrevDateResults(prevDateResults);
+      setTotalResults(currDateResults.length);
+      if (res.hits.total.value >= 500)
+        toast.warn(
+          'Search returned 500+ results, only showing first 500. Please consider refining your search.',
+        );
+    },
+    [],
+  );
+
   const fetchResults = React.useCallback(
-    async (filter: MsearchMultisearchBody, searchUnpublished: boolean) => {
+    async (filter: IFilterSettingsModel, storedContent?: any) => {
       try {
         setIsLoading(true);
-        const res: any = await findContentWithElasticsearch(filter, searchUnpublished, 'search');
-        setContent(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
-        setTotalResults(res.hits.total.value);
-        if (res.hits.total.value >= 500)
-          toast.warn(
-            'Search returned 500+ results, only showing first 500. Please consider refining your search.',
-          );
+        let newFilter = filter;
+        if (filter.dateOffset !== undefined) {
+          newFilter = {
+            ...filter,
+            dateOffset: filter.dateOffset + 7,
+          };
+        }
+        const offSet = filter.dateOffset ? filter.dateOffset : 0;
+        const dayInMillis = 24 * 60 * 60 * 1000; // Hours*Minutes*Seconds*Milliseconds
+        let offSetDate = new Date();
+        offSetDate.setDate(offSetDate.getDate() - offSet);
+        offSetDate.setHours(0, 0, 0);
+        const currStartDate = filter.startDate ? new Date(filter.startDate) : offSetDate;
+        const prevStartDate = new Date(currStartDate.getTime() - 7 * dayInMillis);
+        const currEndDate = filter.endDate
+          ? new Date(filter.endDate)
+          : new Date(currStartDate.getTime() + offSet * dayInMillis - 1);
+        currEndDate.setHours(23, 59, 59);
+        setStartDate(currStartDate);
+        if (filter.startDate && filter.endDate) {
+          newFilter = {
+            ...filter,
+            dateOffset: undefined,
+            startDate: prevStartDate.toISOString(),
+            endDate: currEndDate.toISOString(),
+          };
+        }
+        const settings = filterFormat(newFilter);
+        const query = genQuery(settings);
+        let res;
+        if (!storedContent) {
+          res = await findContentWithElasticsearch(query, filter.searchUnpublished, 'search');
+        } else {
+          res = storedContent;
+        }
+
+        groupResults(res, currStartDate, currEndDate, prevStartDate);
       } catch {
       } finally {
         setIsLoading(false);
       }
     },
-    [findContentWithElasticsearch],
+    [findContentWithElasticsearch, genQuery, groupResults],
   );
+
+  React.useEffect(() => {
+    // only fetch this when there's no call to the elastic search
+    if (isLoading) return;
+    fetchResults(filter, content);
+    // Do not execute when changing the filters
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [content, fetchResults]);
 
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);
@@ -100,27 +171,21 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     // Do not want it to fire on initial load of a user clicking "go advanced"
     // Need to wait until front page images are in redux store before making a request.
     if (frontPageImagesMediaTypeId && !pathname.includes('advanced')) {
-      const settings = filterFormat(filter);
-      const query = genQuery(settings);
-      fetchResults(query, filter.searchUnpublished);
+      fetchResults(filter);
     }
     // Only execute this on page load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [frontPageImagesMediaTypeId]);
 
   const handleSearch = React.useCallback(async () => {
-    const settings = filterFormat(filter);
-    const query = genQuery(settings);
-    fetchResults(query, filter.searchUnpublished);
-  }, [fetchResults, filter, genQuery]);
+    fetchResults(filter);
+  }, [fetchResults, filter]);
 
   const executeSearch = React.useCallback(
     async (filter: IFilterSettingsModel) => {
-      const settings = filterFormat(filter);
-      const query = genQuery(settings);
-      fetchResults(query, filter.searchUnpublished);
+      fetchResults(filter);
     },
-    [fetchResults, genQuery],
+    [fetchResults],
   );
 
   return (
@@ -152,7 +217,9 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
           >
             <ContentListActionBar
               content={selected}
-              onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
+              onSelectAll={(e) =>
+                e.target.checked ? setSelected(currDateResults) : setSelected([])
+              }
               className="search"
             />
             <DateFilter
@@ -167,14 +234,14 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
                 <div className="filter-name">{activeFilter?.name}</div>
               </div>
             </Show>
-            <Show visible={!content.length}>
+            <Show visible={!currDateResults.length}>
               <Row className="helper-text" justifyContent="center">
                 Please refine search criteria and click "search".
               </Row>
             </Show>
             <ContentList
               onContentSelected={handleContentSelected}
-              content={content}
+              content={currDateResults}
               selected={selected}
               showDate
               showTime
@@ -182,6 +249,15 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
               scrollWithin
               filter={filter}
             />
+            <Show visible={!currDateResults.length}>
+              <PreviousResults
+                currDateResults={currDateResults}
+                prevDateResults={prevDateResults}
+                startDate={startDate}
+                setResults={setPrevDateResults}
+                executeSearch={executeSearch}
+              />
+            </Show>
             {isLoading && <Loading />}
           </PageSection>
         </Col>

@@ -56,15 +56,18 @@ public class ImageMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
             source.Code,
             contentType,
             mediaType.Id,
-            GetContentHash(source.Code, newsItem.GetTitle(), publishedOnInUtc),
+            newsItem.RSN.ToString(),
             newsItemTitle,
-            "",
-            "",
+            string.Empty,
+            string.Empty,
             publishedOnInUtc,
             newsItem.Published)
         {
+            HashUid = Runners.BaseService.GetContentHash(source.Code, newsItemTitle, publishedOnInUtc),
+            ExternalUid = newsItem.WebPath ?? string.Empty,
+            Link = newsItem.WebPath ?? string.Empty,
             FilePath = newsItem.FilePath ?? string.Empty,
-            Language = "", // TODO: Need to extract this from the ingest, or determine it after transcription.
+            Language = string.Empty, // TODO: Need to extract this from the ingest, or determine it after transcription.
         };
 
         if (newsItem.UpdatedOn != null)
@@ -94,9 +97,9 @@ public class ImageMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
     ///
     /// </summary>
     /// <returns></returns>
-    public override System.Linq.Expressions.Expression<Func<NewsItem, bool>> GetBaseFilter(ContentType contentType)
+    public override System.Linq.Expressions.Expression<Func<T, bool>> GetBaseFilter<T>(ContentType contentType)
     {
-        return PredicateBuilder.New<NewsItem>()
+        return PredicateBuilder.New<T>()
             .And(ni => ni.ContentType!.Equals("image/jpeg"));
     }
 }
