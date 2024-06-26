@@ -16,7 +16,7 @@ public class EventItem
     /// <summary>
     /// get/set - x
     /// </summary>
-    [Column("NAME")]
+    [Column("NAME", TypeName = "VARCHAR2")]
     public string Name { get; set; } = "";
 
     /// <summary>
@@ -28,37 +28,37 @@ public class EventItem
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("PROCESS")]
+    [Column("PROCESS", TypeName = "VARCHAR2")]
     public string? Process { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("CHANNEL")]
+    [Column("CHANNEL", TypeName = "VARCHAR2")]
     public string? Channel { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("SOURCE")]
+    [Column("SOURCE", TypeName = "VARCHAR2")]
     public string? Source { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("FILE_NAME")]
+    [Column("FILE_NAME", TypeName = "VARCHAR2")]
     public string? FileName { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("START_TIME")]
+    [Column("START_TIME", TypeName = "VARCHAR2")]
     public string? StartTime { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("STOP_TIME")]
+    [Column("STOP_TIME", TypeName = "VARCHAR2")]
     public string? StopTime { get; set; }
 
     /// <summary>
@@ -70,30 +70,30 @@ public class EventItem
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("FREQUENCY")]
+    [Column("FREQUENCY", TypeName = "VARCHAR2")]
     public string? Frequency { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("DEFINITION_NAME")]
+    [Column("DEFINITION_NAME", TypeName = "VARCHAR2")]
     public string? DefinitionName { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("TITLE")]
+    [Column("TITLE", TypeName = "VARCHAR2")]
     public string? Title { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("CAPTURE_COMMAND")]
+    [Column("CAPTURE_COMMAND", TypeName = "VARCHAR2")]
     public string? CaptureCommand { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("CLIP_COMMAND")]
+    [Column("CLIP_COMMAND", TypeName = "VARCHAR2")]
     public string? ClipCommand { get; set; }
 }

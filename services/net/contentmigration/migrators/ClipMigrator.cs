@@ -78,10 +78,10 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
         if (string.IsNullOrEmpty(this.Options.DefaultUserNameForAudit)) throw new System.Configuration.ConfigurationErrorsException("Default Username for ContentMigration has not been configured");
         var auditUser = lookups.Users.FirstOrDefault(u => u.Username == this.Options.DefaultUserNameForAudit) ?? throw new System.Configuration.ConfigurationErrorsException($"Default User for ContentMigration not found : {this.Options.DefaultUserNameForAudit}");
 
-        // newsItem.string5 and newsItem.string5 both seem to be the "Show/Program"
-        if (newsItem.string5 != null)
+        // newsItem.String5 and newsItem.String5 both seem to be the "Show/Program"
+        if (newsItem.String5 != null)
         {
-            content.Series = newsItem.string5;
+            content.Series = newsItem.String5;
         }
 
         if (newsItem.UpdatedOn != null)
