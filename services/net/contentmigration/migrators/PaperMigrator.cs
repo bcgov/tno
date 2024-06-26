@@ -64,8 +64,8 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
         {
             HashUid = Runners.BaseService.GetContentHash(source.Code, newsItemTitle, publishedOnInUtc),
             ExternalUid = newsItem.WebPath ?? string.Empty,
-            Section = newsItem.string2 ?? string.Empty,
-            Page = newsItem.string3 ?? string.Empty,
+            Section = newsItem.String2 ?? string.Empty,
+            Page = newsItem.String3 ?? string.Empty,
             FilePath = newsItem.FilePath ?? string.Empty,
             Link = newsItem.WebPath ?? string.Empty,
             Language = string.Empty, // TODO: Need to extract this from the ingest, or determine it after transcription.
@@ -82,11 +82,11 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
         }
 
         // Extract authors from a "delimited" string.  Don't use the source name as an author.
-        if (!string.IsNullOrEmpty(newsItem.string5) || !string.IsNullOrEmpty(newsItem.string6))
+        if (!string.IsNullOrEmpty(newsItem.String5) || !string.IsNullOrEmpty(newsItem.String6))
         {
             var authors = new List<string>();
-            if (!string.IsNullOrEmpty(newsItem.string5)) authors.AddRange(ExtractAuthors(newsItem.string5, newsItem.Source));
-            if (!string.IsNullOrEmpty(newsItem.string6)) authors.AddRange(ExtractAuthors(newsItem.string6, newsItem.Source));
+            if (!string.IsNullOrEmpty(newsItem.String5)) authors.AddRange(ExtractAuthors(newsItem.String5, newsItem.Source));
+            if (!string.IsNullOrEmpty(newsItem.String6)) authors.AddRange(ExtractAuthors(newsItem.String6, newsItem.Source));
             content.Authors = authors.Distinct().Select(a => new Author(a));
         }
 
@@ -134,19 +134,19 @@ public class PaperMigrator : ContentMigrator<ContentMigrationOptions>, IContentM
     /// <returns></returns>
     public override System.Linq.Expressions.Expression<Func<T, bool>> GetBaseFilter<T>(ContentType contentType)
     {
-        string[] excludedContentTypes = new string[] { "video/quicktime", "image/jpeg" };
+        var excludedContentTypes = new string[] { "video/quicktime", "image/jpeg" };
         switch (contentType)
         {
             case ContentType.PrintContent:
-                string[] targetPrintTypes = new string[] { "Newspaper", "Regional" };
+                var targetPrintTypes = new string[] { "Newspaper", "Regional" };
                 return PredicateBuilder.New<T>()
-                                    .And(ni => targetPrintTypes.Contains(ni.Type!.ToString()))
-                                    .And(ni => !excludedContentTypes.Contains(ni.ContentType!.ToString()));
+                                    .And(ni => targetPrintTypes.Contains(ni.Type))
+                                    .And(ni => !excludedContentTypes.Contains(ni.ContentType));
             case ContentType.Internet:
-                string[] targetStoryTypes = new string[] { "CP News", "Internet" };
+                var targetStoryTypes = new string[] { "CP News", "Internet" };
                 return PredicateBuilder.New<T>()
-                                    .And(ni => targetStoryTypes.Contains(ni.Type!.ToString()))
-                                    .And(ni => !excludedContentTypes.Contains(ni.ContentType!.ToString()));
+                                    .And(ni => targetStoryTypes.Contains(ni.Type))
+                                    .And(ni => !excludedContentTypes.Contains(ni.ContentType));
             default:
                 throw new ArgumentException("ContentType must be PrintContent OR Story.");
         }

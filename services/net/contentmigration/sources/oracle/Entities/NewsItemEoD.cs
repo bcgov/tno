@@ -35,19 +35,19 @@ public class NewsItemEoD
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("EOD_CATEGORY")]
+    [Column("EOD_CATEGORY", TypeName = "VARCHAR2")]
     public string? Category { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("EOD_CATEGORY_GROUP")]
+    [Column("EOD_CATEGORY_GROUP", TypeName = "VARCHAR2")]
     public string? CategoryGroup { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("EOD_DATE")]
+    [Column("EOD_DATE", TypeName = "VARCHAR2")]
     public string? EoDDate { get; set; }
 
     /// <summary>

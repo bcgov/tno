@@ -27,25 +27,25 @@ public abstract class BaseNewsItem
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("SOURCE")]
+    [Column("SOURCE", TypeName = "VARCHAR2")]
     public string? Source { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("SUMMARY")]
+    [Column("SUMMARY", TypeName = "VARCHAR2")]
     public string? Summary { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("TITLE")]
+    [Column("TITLE", TypeName = "VARCHAR2")]
     public string? Title { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("TYPE")]
+    [Column("TYPE", TypeName = "VARCHAR2")]
     public string Type { get; set; } = "";
 
     /// <summary>
@@ -69,7 +69,7 @@ public abstract class BaseNewsItem
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("ARCHIVED_TO")]
+    [Column("ARCHIVED_TO", TypeName = "VARCHAR2")]
     public string? ArchivedTo { get; set; }
 
     /// <summary>
@@ -87,57 +87,57 @@ public abstract class BaseNewsItem
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("STRING1")]
-    public string? string1 { get; set; }
+    [Column("STRING1", TypeName = "VARCHAR2")]
+    public string? String1 { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("STRING2")]
-    public string? string2 { get; set; }
+    [Column("STRING2", TypeName = "VARCHAR2")]
+    public string? String2 { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("STRING3")]
-    public string? string3 { get; set; }
+    [Column("STRING3", TypeName = "VARCHAR2")]
+    public string? String3 { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("STRING4")]
-    public string? string4 { get; set; }
+    [Column("STRING4", TypeName = "VARCHAR2")]
+    public string? String4 { get; set; }
 
     /// <summary>
     /// get/set.
     /// Appears to map to [Columnist/Pundit]
     /// </summary>
-    [Column("STRING5")]
-    public string? string5 { get; set; }
+    [Column("STRING5", TypeName = "VARCHAR2")]
+    public string? String5 { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("STRING6")]
-    public string? string6 { get; set; }
+    [Column("STRING6", TypeName = "VARCHAR2")]
+    public string? String6 { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("STRING7")]
-    public string? string7 { get; set; }
+    [Column("STRING7", TypeName = "VARCHAR2")]
+    public string? String7 { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("STRING8")]
-    public string? string8 { get; set; }
+    [Column("STRING8", TypeName = "VARCHAR2")]
+    public string? String8 { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("STRING9")]
-    public string? string9 { get; set; }
+    [Column("STRING9", TypeName = "VARCHAR2")]
+    public string? String9 { get; set; }
 
     /// <summary>
     /// get/set.
@@ -167,19 +167,19 @@ public abstract class BaseNewsItem
     /// get/set.
     /// appears to be only a few file extensions used [.mp4, .m4a, .jpg, .pdf, .mov]
     /// </summary>
-    [Column("FILENAME")]
+    [Column("FILENAME", TypeName = "VARCHAR2")]
     public string? FileName { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("FULLFILEPATH")]
+    [Column("FULLFILEPATH", TypeName = "VARCHAR2")]
     public string? FilePath { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("WEBPATH")]
+    [Column("WEBPATH", TypeName = "VARCHAR2")]
     public string? WebPath { get; set; }
 
     /// <summary>
@@ -191,7 +191,7 @@ public abstract class BaseNewsItem
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("IMPORTEDFROM")]
+    [Column("IMPORTEDFROM", TypeName = "VARCHAR2")]
     public string? ImportedFrom { get; set; }
 
     /// <summary>
@@ -209,7 +209,7 @@ public abstract class BaseNewsItem
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("TEXT")]
+    [Column("TEXT", TypeName = "VARCHAR2")]
     public string? Text { get; set; }
 
     /// <summary>
@@ -222,7 +222,7 @@ public abstract class BaseNewsItem
     /// get/set.
     /// Can be NULL or one of [video/quicktime, image/jpeg, application/pdf]
     /// </summary>
-    [Column("CONTENTTYPE")]
+    [Column("CONTENTTYPE", TypeName = "VARCHAR2")]
     public string? ContentType { get; set; }
 
     /// <summary>
@@ -252,7 +252,7 @@ public abstract class BaseNewsItem
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("POSTEDBY")]
+    [Column("POSTEDBY", TypeName = "VARCHAR2")]
     public string? PostedBy { get; set; }
 
     /// <summary>
@@ -306,25 +306,25 @@ public abstract class BaseNewsItem
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("TRANSCRIPT")]
+    [Column("TRANSCRIPT", TypeName = "VARCHAR2")]
     public string? Transcript { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("EOD_CATEGORY")]
+    [Column("EOD_CATEGORY", TypeName = "VARCHAR2")]
     public string? EodCategory { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("EOD_CATEGORY_GROUP")]
+    [Column("EOD_CATEGORY_GROUP", TypeName = "VARCHAR2")]
     public string? EodGroup { get; set; }
 
     /// <summary>
     /// get/set.
     /// </summary>
-    [Column("EOD_DATE")]
+    [Column("EOD_DATE", TypeName = "VARCHAR2")]
     public string? EodDateTime { get; set; }
 
     /// <summary>
