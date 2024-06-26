@@ -196,10 +196,8 @@ public static partial class ReportExtensions
         return value switch
         {
             0 => $"<span style=\"color: #FFC107;\">😐{(showSentimentValue ? $" {value}</span>" : "")}",
-            <= -3 => $"<span style=\"color: #DC3545;\">☹️{(showSentimentValue ? $" {value}</span>" : "")}",
-            < 0 => $"<span style=\"color: #FFC107;\">😐{(showSentimentValue ? $" {value}</span>" : "")}",
-            >= 3 => $"<span style=\"color: #20C997;\">🙂{(showSentimentValue ? $" {value}</span>" : "")}",
-            > 0 => $"<span style=\"color: #FFC107;\">😐{(showSentimentValue ? $" {value}</span>" : "")}",
+            < 0 => $"<span style=\"color: #DC3545;\">☹️{(showSentimentValue ? $" {value}</span>" : "")}",
+            > 0 => $"<span style=\"color: #20C997;\">🙂{(showSentimentValue ? $" {value}</span>" : "")}",
             _ => "",
         };
     }
