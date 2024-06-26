@@ -6,7 +6,7 @@ export const ReportEditSubscribersForm = styled.div`
   margin: 1rem;
   gap: 1rem;
   .select-column {
-    width: 5rem !important;
+    width: 5rem;
   }
   .selected-all-btn {
     margin-top: 0.25rem;
