@@ -24,7 +24,7 @@ namespace TNO.Services.ContentMigration.Migrators;
 ///
 /// </summary>
 /// <typeparam name="TOptions"></typeparam>
-public abstract class ContentMigrator<TOptions> : IContentMigrator
+public abstract partial class ContentMigrator<TOptions> : IContentMigrator
     where TOptions : ContentMigrationOptions
 {
     #region Properties
@@ -55,7 +55,7 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     {
         get
         {
-            return this.MigratorOptions.SupportedIngests;
+            return MigratorOptions.SupportedIngests;
         }
     }
 
@@ -72,22 +72,24 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// <param name="logger"></param>
     public ContentMigrator(IApiService api, IOptionsSnapshot<MigratorOptions> migratorOptions, IOptions<TOptions> options, ILogger<ContentMigrator<TOptions>> logger)
     {
-        this.Api = api;
-        this.Options = options.Value;
-        this.Logger = logger;
+        Api = api;
+        Options = options.Value;
+        Logger = logger;
         // as a convention the Named Option should be the same as the class name which needs to consume it
-        this.MigratorOptions = migratorOptions.Get(this.GetType().Name);
+        MigratorOptions = migratorOptions.Get(GetType().Name);
     }
     #endregion
 
     #region Methods
-
     /// <summary>
-    /// Gets the base filter for excluding items from the dbcontext search
+    /// Gets the base filter for excluding items from the dbContext search
     /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="contentType"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    public virtual Expression<Func<NewsItem, bool>> GetBaseFilter(ContentType contentType) => throw new NotImplementedException();
+    public virtual Expression<Func<T, bool>> GetBaseFilter<T>(ContentType contentType)
+        where T : BaseNewsItem => throw new NotImplementedException();
 
     /// <summary>
     /// Creates a SourceContent item
@@ -120,14 +122,23 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
         {
             Source = source.Code,
             Uid = uid,
-            PublishedOn = this.GetSourceDateTime(newsItem.GetPublishedDateTime(), defaultTimeZone).ToUniversalTime(),
+            PublishedOn = GetSourceDateTime(newsItem.GetPublishedDateTime(), defaultTimeZone).ToUniversalTime(),
             Topic = topic,
             Status = (int)WorkflowStatus.InProgress,
-            Metadata = new Dictionary<string, object> {
-                { ContentReferenceMetaDataKeys.MetadataKeyOriginalIngestSource, "TNO" },
-                { ContentReferenceMetaDataKeys.MetadataKeyIngestSource, source!.Code },
-                { ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn, newsItem.UpdatedOn.HasValue ? this.GetSourceDateTime(newsItem.UpdatedOn.Value, defaultTimeZone).ToUniversalTime().ToString("yyyy-MM-dd h:mm:ss tt") : DateTime.MinValue },
-                { ContentReferenceMetaDataKeys.MetadataKeyIsContentPublished, newsItem.Published.ToString() },
+            Metadata = new Dictionary<string, object?> {
+                { ContentReferenceMetaDataKeys.OriginalIngestSource, "TNO" },
+                { ContentReferenceMetaDataKeys.IngestSource, source.Code },
+                { ContentReferenceMetaDataKeys.UpdatedOn, newsItem.UpdatedOn.HasValue ? GetSourceDateTime(newsItem.UpdatedOn.Value, defaultTimeZone).ToUniversalTime().ToString("yyyy-MM-dd h:mm:ss tt") : DateTime.MinValue },
+                { ContentReferenceMetaDataKeys.IsContentPublished, newsItem.Published },
+                { ContentReferenceMetaDataKeys.IsAlert, newsItem.Alert },
+                { ContentReferenceMetaDataKeys.IsCommentary, newsItem.Commentary },
+                { ContentReferenceMetaDataKeys.IsFeaturedStory, newsItem.FrontPageStory },
+                { ContentReferenceMetaDataKeys.IsTopStory, newsItem.WapTopStory },
+                { ContentReferenceMetaDataKeys.CommentaryTimeout, newsItem.CommentaryTimeout },
+                { ContentReferenceMetaDataKeys.EoDCategory, newsItem.EodCategory },
+                { ContentReferenceMetaDataKeys.EoDGroup, newsItem.EodGroup },
+                { ContentReferenceMetaDataKeys.TopicScore, newsItem.Topics.FirstOrDefault()?.Score },
+                { ContentReferenceMetaDataKeys.ToneValue, newsItem.Tones.FirstOrDefault()?.ToneValue },
             }
         };
     }
@@ -144,7 +155,7 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     }
 
     /// <summary>
-    /// Extracts Authors from a source string, using any combination of delimters plus the word " and "
+    /// Extracts Authors from a source string, using any combination of delimiters plus the word " and "
     /// </summary>
     /// <param name="authors"></param>
     /// <param name="source"></param>
@@ -163,7 +174,7 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// <returns></returns>
     internal static IEnumerable<string> ExtractTags(string source)
     {
-        Regex tagsBetweenBracketsRegex = new(@"\[([^\]]*)\]", RegexOptions.RightToLeft);
+        Regex tagsBetweenBracketsRegex = ExtractTags();
         string[] tags = Array.Empty<string>();
         var tagMatches = tagsBetweenBracketsRegex.Matches(source);
         if (tagMatches.Count > 0)
@@ -185,13 +196,13 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// <returns></returns>
     public SourceModel? GetSourceMapping(IEnumerable<SourceModel> lookup, string? newsItemSource)
     {
-        SourceModel? source = lookup.Where(s => (s.Name.Equals(newsItemSource, StringComparison.InvariantCultureIgnoreCase)
-                                                 || s.Code.Equals(newsItemSource, StringComparison.InvariantCultureIgnoreCase))).FirstOrDefault();
+        var source = lookup.FirstOrDefault(s => s.Name.Equals(newsItemSource, StringComparison.InvariantCultureIgnoreCase)
+            || s.Code.Equals(newsItemSource, StringComparison.InvariantCultureIgnoreCase));
 
         // if the Name doesn't match one of our sources, use the extra mappings from the config
         if (source == null && newsItemSource != null)
         {
-            this.MigratorOptions.IngestSourceMappings.TryGetValue(newsItemSource, out string? customMapping);
+            MigratorOptions.IngestSourceMappings.TryGetValue(newsItemSource, out string? customMapping);
             source = lookup.Where(s => s.Code == customMapping).FirstOrDefault();
         }
 
@@ -207,12 +218,12 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     public MediaTypeModel? GetMediaTypeMapping(IEnumerable<MediaTypeModel> lookup, string newsItemMediaType)
     {
         // TODO: KGM - what to do if we have no mapping - make nullable so we can skip it on migration
-        MediaTypeModel? mediaType = lookup.Where(s => s.Name == newsItemMediaType).FirstOrDefault();
+        var mediaType = lookup.Where(s => s.Name == newsItemMediaType).FirstOrDefault();
 
         // if the Name doesn't match one of our media types, use the extra mappings from the config
         if (mediaType == null)
         {
-            this.MigratorOptions.MediaTypeMappings.TryGetValue(newsItemMediaType, out string? customMapping);
+            MigratorOptions.MediaTypeMappings.TryGetValue(newsItemMediaType, out string? customMapping);
             mediaType = lookup.Where(s => s.Name == customMapping).FirstOrDefault();
         }
 
@@ -222,53 +233,45 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// <summary>
     /// map possible Action values to Actions
     /// </summary>
-    /// <param name="frontPageStory"></param>
+    /// <param name="featuredStory"></param>
     /// <param name="wapTopStory"></param>
     /// <param name="alert"></param>
     /// <param name="commentary"></param>
     /// <param name="commentaryTimeout"></param>
     /// <returns></returns>
-    public IEnumerable<Kafka.Models.Action> GetActionMappings(bool frontPageStory, bool wapTopStory, bool alert, bool commentary, double? commentaryTimeout)
+    public IEnumerable<Kafka.Models.Action> GetActionMappings(bool featuredStory, bool wapTopStory, bool alert, bool commentary, double? commentaryTimeout)
     {
         List<Kafka.Models.Action> mappedActions = new();
         string actionName;
         ActionType actionType;
 
-        if (frontPageStory)
+        if (featuredStory)
         {
-            actionType = ActionType.Homepage;
-            actionName = this.Options.ActionNameMappings.ContainsKey(actionType)
-                ? this.Options.ActionNameMappings[actionType]
-                : actionType.ToString();
-            mappedActions.Add(new Kafka.Models.Action(actionName, Boolean.TrueString.ToLower()));
+            actionType = ActionType.FeaturedStory;
+            actionName = Options.ActionNameMappings.TryGetValue(actionType, out string? value) ? value : actionType.ToString();
+            mappedActions.Add(new Kafka.Models.Action(actionName, bool.TrueString.ToLower()));
         }
 
         if (wapTopStory)
         {
             actionType = ActionType.TopStory;
-            actionName = this.Options.ActionNameMappings.ContainsKey(actionType)
-                ? this.Options.ActionNameMappings[actionType]
-                : actionType.ToString();
-            mappedActions.Add(new Kafka.Models.Action(actionName, Boolean.TrueString.ToLower()));
+            actionName = Options.ActionNameMappings.TryGetValue(actionType, out string? value) ? value : actionType.ToString();
+            mappedActions.Add(new Kafka.Models.Action(actionName, bool.TrueString.ToLower()));
         }
 
         // KGM: 2023-09-25 - Added an option switch for triggering alerts in MMI
         // if content has been flagged with Alert in TNO 1.0
-        if (alert && this.Options.GenerateAlertsOnContentMigration)
+        if (alert && Options.GenerateAlertsOnContentMigration)
         {
             actionType = ActionType.Alert;
-            actionName = this.Options.ActionNameMappings.ContainsKey(actionType)
-                ? this.Options.ActionNameMappings[actionType]
-                : actionType.ToString();
-            mappedActions.Add(new Kafka.Models.Action(actionName, Boolean.TrueString.ToLower()));
+            actionName = Options.ActionNameMappings.TryGetValue(actionType, out string? value) ? value : actionType.ToString();
+            mappedActions.Add(new Kafka.Models.Action(actionName, bool.TrueString.ToLower()));
         }
 
         if (commentary && commentaryTimeout.HasValue)
         {
             actionType = ActionType.Commentary;
-            actionName = this.Options.ActionNameMappings.ContainsKey(actionType)
-                ? this.Options.ActionNameMappings[actionType]
-                : actionType.ToString();
+            actionName = Options.ActionNameMappings.TryGetValue(actionType, out string? value) ? value : actionType.ToString();
             mappedActions.Add(new Kafka.Models.Action(actionName, commentaryTimeout.Value.ToString()));
         }
 
@@ -285,7 +288,7 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     /// <exception cref="FileNotFoundException"></exception>
     public async Task CopyFileAsync(FileMigrationModel request, string contentStagingFolderName)
     {
-        var localPath = Path.Combine(this.Options.VolumePath, contentStagingFolderName, request.Path, request.Filename);
+        var localPath = Path.Combine(Options.VolumePath, contentStagingFolderName, request.Path, request.Filename);
         var localDirectory = Path.GetDirectoryName(localPath) ?? throw new ConfigurationException("Local path for Content Migration is invalid");
 
         if (!Directory.Exists(localDirectory)) Directory.CreateDirectory(localDirectory);
@@ -293,7 +296,7 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
         // we only need to download the file if it's not already staged.
         if (!File.Exists(localPath))
         {
-            UriBuilder uriBuilder = new(this.Options.MediaHostRootUri);
+            UriBuilder uriBuilder = new(Options.MediaHostRootUri);
             var contentPath = Path.Combine(uriBuilder.ToString(), request.Path, request.Filename).Replace("\\", "/");
 
             using var client = new HttpClient();
@@ -317,20 +320,6 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     }
 
     /// <summary>
-    /// Generate a unique identifier for content
-    /// </summary>
-    /// <param name="source"></param>
-    /// <param name="headline"></param>
-    /// <param name="publishedOn"></param>
-    /// <returns></returns>
-    protected string GetContentHash(string source, string headline, DateTime publishedOn)
-    {
-        var inputBytes = Encoding.UTF8.GetBytes($"{source}:{headline}:{publishedOn:yyyy-MM-dd-hh-mm-ss}");
-        var inputHash = SHA256.HashData(inputBytes);
-        return Convert.ToHexString(inputHash);
-    }
-
-    /// <summary>
     /// Get the date and time for the source timezone.
     /// </summary>
     /// <param name="date"></param>
@@ -340,5 +329,12 @@ public abstract class ContentMigrator<TOptions> : IContentMigrator
     {
         return date.ToTimeZone(timeZoneId);
     }
+
+    /// <summary>
+    /// Extract tags from text.
+    /// </summary>
+    /// <returns></returns>
+    [GeneratedRegex("\\[([^\\]]*)\\]", RegexOptions.RightToLeft)]
+    private static partial Regex ExtractTags();
     #endregion
 }

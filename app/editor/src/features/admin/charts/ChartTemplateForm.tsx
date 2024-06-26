@@ -17,8 +17,8 @@ import {
 } from 'tno-core';
 
 import { ChartTemplateContextProvider } from './ChartTemplateContext';
+import { ChartTemplateFormConfig } from './ChartTemplateFormConfig';
 import { ChartTemplateFormDetails } from './ChartTemplateFormDetails';
-import { ChartTemplateFormOptions } from './ChartTemplateFormOptions';
 import { ChartTemplateFormPreview } from './ChartTemplateFormPreview';
 import { ChartTemplateFormTemplate } from './ChartTemplateFormTemplate';
 import { defaultChartRequestForm, defaultChartTemplate } from './constants';
@@ -115,11 +115,11 @@ const ChartTemplateForm: React.FC = () => {
                     active={active === 'template'}
                   />
                   <Tab
-                    label="Chart.JS Options"
+                    label="Chart.JS Configuration"
                     onClick={() => {
-                      setActive('options');
+                      setActive('config');
                     }}
-                    active={active === 'options'}
+                    active={active === 'config'}
                   />
                   <Tab
                     label="Preview"
@@ -138,8 +138,8 @@ const ChartTemplateForm: React.FC = () => {
                 <Show visible={active === 'template'}>
                   <ChartTemplateFormTemplate />
                 </Show>
-                <Show visible={active === 'options'}>
-                  <ChartTemplateFormOptions />
+                <Show visible={active === 'config'}>
+                  <ChartTemplateFormConfig />
                 </Show>
                 <Show visible={active === 'preview'}>
                   <ChartTemplateFormPreview />

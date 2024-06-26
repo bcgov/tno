@@ -39,7 +39,7 @@ public class FFmpegService : KafkaConsumerService
         base.ConfigureServices(services);
         services
             .Configure<FFmpegOptions>(this.Configuration.GetSection("Service"))
-            .AddTransient<IKafkaListener<string, FFmpegRequestModel>, KafkaListener<string, FFmpegRequestModel>>()
+            .AddTransient<IKafkaListener<string, IndexRequestModel>, KafkaListener<string, IndexRequestModel>>()
             .AddSingleton<IServiceManager, FFmpegManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.

@@ -10,4 +10,5 @@ export interface IReportSettingsModel {
   headline: IReportHeadlineSettingsModel;
   content: IReportContentSettingsModel;
   sections: IReportSectionsSettingsModel;
+  doNotSendEmail: boolean;
 }

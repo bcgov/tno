@@ -95,7 +95,7 @@ export const ReportFormSubscribers: React.FC = () => {
           { name: 'format', label: 'Format' },
           { name: 'sendTo', label: 'Send as' },
         ]}
-        renderRow={(row: IUserReportModel, rowIndex) => [
+        renderColumns={(row: IUserReportModel, rowIndex) => [
           <Checkbox
             key=""
             name={`chk-${row.userId}`}

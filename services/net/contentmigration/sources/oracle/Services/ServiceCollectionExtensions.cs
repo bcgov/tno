@@ -19,19 +19,23 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddMigrationSourceContext(this IServiceCollection services, OracleConnectionSettings? config)
     {
         string connectionString = string.Empty;
-        if (config != null) {
+        if (config != null)
+        {
             connectionString = OracleConnectionStringHelper.GetConnectionString(config.UserName, config.Password, config.HostName, config.Port, config.Sid);
         }
 
         services.AddDbContext<MigrationSourceContext>(options =>
         {
             DbContextOptionsBuilder db;
-            if (connectionString != null) {
+            if (connectionString != null)
+            {
                 db = options.UseOracle(connectionString, options =>
                 {
                     options.CommandTimeout((int)TimeSpan.FromMinutes(5).TotalSeconds);
                 });
-            } else {
+            }
+            else
+            {
                 db = options.UseOracle(options =>
                 {
                     options.CommandTimeout((int)TimeSpan.FromMinutes(5).TotalSeconds);

@@ -3,10 +3,9 @@ import { DateFilter } from 'components/date-filter';
 import { FolderSubMenu } from 'components/folder-sub-menu';
 import { FrontPageGallery } from 'components/front-page-gallery';
 import React from 'react';
-import { useContent, useFilters, useSettings } from 'store/hooks';
-import { generateFilterQuery, IContentModel, IFilterModel, IFilterSettingsModel } from 'tno-core';
+import { useContent, useSettings } from 'store/hooks';
+import { generateFilterQuery, IContentModel, IFilterSettingsModel } from 'tno-core';
 
-import { defaultFilter } from './constants';
 import * as styled from './styled';
 
 /** Component that displays front pages defaulting to today's date and adjustable via a date filter. */
@@ -17,20 +16,27 @@ export const TodaysFrontPages: React.FC = () => {
     },
     { findContentWithElasticsearch, storeFrontPageFilter: storeFilter },
   ] = useContent();
-  const [, { getFilter }] = useFilters();
-  const { frontpageFilterId } = useSettings(true);
+  const { frontPageImageMediaTypeId } = useSettings(true);
 
-  const [frontpages, setFrontPages] = React.useState<IContentModel[]>([]);
+  const [frontPages, setFrontPages] = React.useState<IContentModel[]>([]);
   const [selected] = React.useState<IContentModel[]>([]);
-  const [filter, setFilter] = React.useState<IFilterModel>({
-    ...defaultFilter,
-    settings: frontPageFilter,
-  });
+  const [filter, setFilter] = React.useState<IFilterSettingsModel>();
+
+  React.useEffect(() => {
+    storeFilter({
+      size: 100,
+      searchUnpublished: false,
+      dateOffset: 0,
+      mediaTypeIds: frontPageImageMediaTypeId ? [frontPageImageMediaTypeId] : [],
+    });
+    // Only update the filter if the frontPageImageMediaTypeId changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [frontPageImageMediaTypeId]);
 
   const fetchResults = React.useCallback(
-    async (filter: MsearchMultisearchBody) => {
+    async (query: MsearchMultisearchBody) => {
       try {
-        const res: any = await findContentWithElasticsearch(filter, false, 'frontPage');
+        const res: any = await findContentWithElasticsearch(query, false, 'frontPage');
         const mappedResults = res.hits?.hits?.map((h: { _source: IContentModel }) => {
           const content = h._source;
           return {
@@ -51,50 +57,23 @@ export const TodaysFrontPages: React.FC = () => {
   );
 
   React.useEffect(() => {
-    if (frontPageFilter.startDate !== filter.settings.startDate) {
-      const settings: IFilterSettingsModel = { ...frontPageFilter, dateOffset: undefined };
-      setFilter((filter) => ({
-        ...filter,
-        settings: settings,
-        query: generateFilterQuery(settings, filter.query),
-      }));
-    } else {
-      setFilter((filter) => ({ ...filter, settings: frontPageFilter }));
+    if (
+      frontPageFilter &&
+      frontPageFilter.mediaTypeIds?.length &&
+      (frontPageFilter?.dateOffset !== filter?.dateOffset ||
+        frontPageFilter?.startDate !== filter?.startDate ||
+        frontPageFilter?.endDate !== filter?.endDate)
+    ) {
+      fetchResults(generateFilterQuery(frontPageFilter)).catch(() => {});
+      setFilter(frontPageFilter);
     }
-    // Only update the local filter when the front page filter changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [frontPageFilter]);
-
-  React.useEffect(() => {
-    if (filter.query.query) {
-      fetchResults(filter.query).catch(() => {});
-    }
-  }, [fetchResults, filter]);
-
-  React.useEffect(() => {
-    if (frontpageFilterId && filter.id !== frontpageFilterId) {
-      setFilter({ ...defaultFilter, id: frontpageFilterId }); // Do this to stop double fetch.
-      getFilter(frontpageFilterId)
-        .then((data) => {
-          setFilter(data);
-        })
-        .catch(() => {});
-    }
-  }, [
-    fetchResults,
-    filter.id,
-    frontPageFilter.endDate,
-    frontPageFilter.startDate,
-    frontpageFilterId,
-    getFilter,
-    storeFilter,
-  ]);
+  }, [fetchResults, filter?.dateOffset, filter?.endDate, filter?.startDate, frontPageFilter]);
 
   return (
     <styled.TodaysFrontPages>
       <FolderSubMenu selectedContent={selected} />
       <DateFilter filter={frontPageFilter} storeFilter={storeFilter} />
-      <FrontPageGallery frontpages={frontpages} />
+      <FrontPageGallery frontpages={frontPages} />
     </styled.TodaysFrontPages>
   );
 };

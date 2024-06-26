@@ -259,7 +259,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         var source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code.");
         var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
         var publishedOn = item.PublishDate.UtcDateTime != DateTime.MinValue ? item.PublishDate.UtcDateTime : (DateTime?)null;
-        var uid = GetContentHash(source, title, publishedOn);
+        var uid = Runners.BaseService.GetContentHash(source, title, publishedOn);
 
         return new SourceContent(
             this.Options.DataLocation,
@@ -341,8 +341,8 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             Status = (int)WorkflowStatus.InProgress,
             PublishedOn = sourceContent.PublishedOn,
             SourceUpdateOn = item.LastUpdatedTime.UtcDateTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null,
-            Metadata = new Dictionary<string, object> {
-                { ContentReferenceMetaDataKeys.MetadataKeyIngestSource, ingest.Source!.Code }
+            Metadata = new Dictionary<string, object?> {
+                { ContentReferenceMetaDataKeys.IngestSource, ingest.Source!.Code }
             }
         };
     }

@@ -19,6 +19,8 @@ public class UserConfiguration : AuditColumnsConfiguration<User>
         builder.Property(m => m.LastName).IsRequired().HasMaxLength(100).HasDefaultValueSql("''");
         builder.Property(m => m.IsEnabled);
         builder.Property(m => m.Status).HasDefaultValue(UserStatus.Preapproved);
+        builder.Property(m => m.IsSystemAccount).IsRequired();
+        builder.Property(m => m.AccountType).HasDefaultValue(UserAccountType.Direct);
         builder.Property(m => m.EmailVerified);
         builder.Property(m => m.LastLoginOn);
         builder.Property(m => m.UniqueLogins).IsRequired().HasDefaultValueSql("0");

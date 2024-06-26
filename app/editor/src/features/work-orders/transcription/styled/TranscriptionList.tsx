@@ -22,4 +22,24 @@ export const TranscriptionList = styled.div`
   .cancelled {
     color: ${(props) => props.theme.css.cancelledColor};
   }
+
+  .grid-table:nth-child(2) {
+    min-height: 100px;
+    max-height: calc(-450px + 100vh);
+    overflow: auto;
+    margin-right: -17px;
+
+    .grid-column {
+      > .clickable {
+        cursor: pointer;
+      }
+      > div {
+        width: 100%;
+      }
+    }
+  }
+
+  .grid {
+    width: 100%;
+  }
 `;

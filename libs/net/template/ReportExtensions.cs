@@ -7,8 +7,13 @@ using TemplateEngine.Models.Reports;
 /// <summary>
 /// ReportExtensions static class, provides extension methods for report templates.
 /// </summary>
-public static class ReportExtensions
+public static partial class ReportExtensions
 {
+    #region Variables
+    [GeneratedRegex("<img[^>]*>")]
+    private static partial Regex StripHtmlImagesRegex();
+    #endregion
+
     #region Methods
     /// <summary>
     /// Get the UTC offset hours for specified 'date' and 'timezoneId'.
@@ -18,7 +23,7 @@ public static class ReportExtensions
     /// <returns></returns>
     public static int GetUtcOffset(DateTime? date = null, string timezoneId = "Pacific Standard Time")
     {
-        date ??= System.DateTime.Now;
+        date ??= DateTime.Now;
         var tz = TimeZoneInfo.FindSystemTimeZoneById(timezoneId);
         return tz.GetUtcOffset(date.Value).Hours;
     }
@@ -30,7 +35,7 @@ public static class ReportExtensions
     /// <returns></returns>
     public static DateTime GetTodaysDate(string timezoneId = "Pacific Standard Time")
     {
-        var now = System.DateTime.Now;
+        var now = DateTime.Now;
         return now.AddHours(GetUtcOffset(now, timezoneId));
     }
 
@@ -41,7 +46,7 @@ public static class ReportExtensions
     /// <returns></returns>
     public static bool IsAV(this ContentModel content)
     {
-        return content.ContentType == TNO.Entities.ContentType.AudioVideo;
+        return content.ContentType == Entities.ContentType.AudioVideo;
     }
 
     /// <summary>
@@ -51,7 +56,7 @@ public static class ReportExtensions
     /// <returns></returns>
     public static bool IsTranscriptAvailable(this ContentModel content)
     {
-        return IsAV(content) && !string.IsNullOrWhiteSpace(content.Body) && content.IsApproved;
+        return content.IsAV() && !string.IsNullOrWhiteSpace(content.Body) && content.IsApproved;
     }
 
     /// <summary>
@@ -73,7 +78,7 @@ public static class ReportExtensions
     /// <returns></returns>
     public static string GetSummary(this ContentModel content, ReportEngineContentModel context)
     {
-        return context.OwnerId.HasValue && content.Versions.ContainsKey(context.OwnerId.Value) ? content.Versions[context.OwnerId.Value].Summary : content.Summary;
+        return context.OwnerId.HasValue && content.Versions.TryGetValue(context.OwnerId.Value, out Entities.Models.ContentVersion? value) ? value.Summary : content.Summary;
     }
 
     /// <summary>
@@ -89,13 +94,17 @@ public static class ReportExtensions
     {
         var contentSummary = content.GetSummary(context);
         var contentBody = context.OwnerId.HasValue && content.Versions.TryGetValue(context.OwnerId.Value, out Entities.Models.ContentVersion? value) ? value.Body : content.Body;
-        return IsTranscriptAvailable(content) ? contentBody : (IsAV(content) ? contentSummary : contentBody);
+        return content.IsTranscriptAvailable() ? contentBody : content.IsAV() ? contentSummary : contentBody;
     }
-    // filter out html <img> blocks from the string
 
+    /// <summary>
+    /// Filter out html <img> blocks from the string
+    /// </summary>
+    /// <param name="html"></param>
+    /// <returns></returns>
     public static string StripHtmlImages(this string html)
     {
-        return Regex.Replace(html, @"<img[^>]*>", "");
+        return StripHtmlImagesRegex().Replace(html, "");
     }
 
     /// <summary>
@@ -159,7 +168,7 @@ public static class ReportExtensions
     /// <returns></returns>
     public static string GetTranscriptIcon(this ContentModel content)
     {
-        return IsTranscriptAvailable(content) ? "▶️📄" : (IsAV(content) ? "▶️" : "");
+        return content.IsTranscriptAvailable() ? "▶️📄" : content.IsAV() ? "▶️" : "";
     }
 
     /// <summary>
@@ -173,7 +182,7 @@ public static class ReportExtensions
         var value = content.TonePools.FirstOrDefault()?.Value;
         var icon = GetSentimentIcon(value);
 
-        return !String.IsNullOrEmpty(icon) ? String.Format(format, icon) : icon;
+        return !string.IsNullOrEmpty(icon) ? string.Format(format, icon) : icon;
     }
 
     /// <summary>
@@ -187,10 +196,8 @@ public static class ReportExtensions
         return value switch
         {
             0 => $"<span style=\"color: #FFC107;\">😐{(showSentimentValue ? $" {value}</span>" : "")}",
-            <= -3 => $"<span style=\"color: #DC3545;\">☹️{(showSentimentValue ? $" {value}</span>" : "")}",
-            < 0 => $"<span style=\"color: #FFC107;\">😐{(showSentimentValue ? $" {value}</span>" : "")}",
-            >= 3 => $"<span style=\"color: #20C997;\">🙂{(showSentimentValue ? $" {value}</span>" : "")}",
-            > 0 => $"<span style=\"color: #FFC107;\">😐{(showSentimentValue ? $" {value}</span>" : "")}",
+            < 0 => $"<span style=\"color: #DC3545;\">☹️{(showSentimentValue ? $" {value}</span>" : "")}",
+            > 0 => $"<span style=\"color: #20C997;\">🙂{(showSentimentValue ? $" {value}</span>" : "")}",
             _ => "",
         };
     }
@@ -208,7 +215,7 @@ public static class ReportExtensions
         var value = content.TonePools.FirstOrDefault()?.Value;
         var icon = context.GetSentimentImage(value, showSentimentValue);
 
-        return !String.IsNullOrEmpty(icon) ? String.Format(format, icon) : icon;
+        return !string.IsNullOrEmpty(icon) ? string.Format(format, icon) : icon;
     }
 
     /// <summary>
@@ -363,20 +370,18 @@ public static class ReportExtensions
     /// <returns></returns>
     public static string GetSource(this ContentModel content, ReportEngineContentModel context)
     {
-        var name = context.Settings.Headline.ShowShortName && !String.IsNullOrEmpty(content.Source?.ShortName)
+        var name = context.Settings.Headline.ShowShortName && !string.IsNullOrEmpty(content.Source?.ShortName)
             ? $"{content.Source?.ShortName}"
             : "";
 
-        var source = (context.Settings.Headline.ShowSource
-                ? content?.Source?.Name
-                : "");
-        // source is empty or empty string, use the other source
-        if (String.IsNullOrWhiteSpace(source))
+        var source = "";
+        if (context.Settings.Headline.ShowSource)
         {
-            source = content?.OtherSource.ToUpperInvariant();
+            source = !string.IsNullOrEmpty(content?.Source?.Name)
+                ? content.Source.Name
+                : content?.OtherSource;
         }
-
-        return $"{source}{(!String.IsNullOrWhiteSpace(name) ? $" - {name}" : "")}";
+        return $"{source}{(!string.IsNullOrWhiteSpace(name) ? $" - {name}" : "")}";
     }
 
     /// <summary>
@@ -387,7 +392,7 @@ public static class ReportExtensions
     /// <returns></returns>
     public static string GetHeadline(this ContentModel content, ReportEngineContentModel context)
     {
-        return context.OwnerId.HasValue && content.Versions.ContainsKey(context.OwnerId.Value) ? content.Versions[context.OwnerId.Value].Headline : content.Headline;
+        return context.OwnerId.HasValue && content.Versions.TryGetValue(context.OwnerId.Value, out Entities.Models.ContentVersion? value) ? value.Headline : content.Headline;
     }
 
     /// <summary>
@@ -398,7 +403,7 @@ public static class ReportExtensions
     /// <returns></returns>
     public static string GetByline(this ContentModel content, ReportEngineContentModel context)
     {
-        return context.OwnerId.HasValue && content.Versions.ContainsKey(context.OwnerId.Value) ? content.Versions[context.OwnerId.Value].Byline : content.Byline;
+        return context.OwnerId.HasValue && content.Versions.TryGetValue(context.OwnerId.Value, out Entities.Models.ContentVersion? value) ? value.Byline : content.Byline;
     }
 
     /// <summary>
@@ -432,16 +437,16 @@ public static class ReportExtensions
     /// <returns></returns>
     public static string GetFullHeadline(this ContentModel content, ReportEngineContentModel context, int utcOffset = 0, bool includeLink = false, string href = "", string target = "", bool showSentimentValue = false)
     {
-        var byline = context.Settings.Headline.ShowByline && !String.IsNullOrWhiteSpace(content.Byline) ? $" - {content.Byline}" : "";
+        var byline = context.Settings.Headline.ShowByline && !string.IsNullOrWhiteSpace(content.Byline) ? $" - {content.Byline}" : "";
         var sentiment = context.Settings.Headline.ShowSentiment ? content.GetSentiment(context, showSentimentValue) : "";
         var headline = content.GetHeadline(context);
-        var headlineValue = !String.IsNullOrWhiteSpace(headline) ? headline : "NO HEADLINE";
-        var actualHref = String.IsNullOrWhiteSpace(href) ? $"{context.ViewContentUrl}{content.Id}" : href;
-        var actualTarget = String.IsNullOrWhiteSpace(target) ? "" : $" target=\"{target}\"";
+        var headlineValue = !string.IsNullOrWhiteSpace(headline) ? headline : "NO HEADLINE";
+        var actualHref = string.IsNullOrWhiteSpace(href) ? $"{context.ViewContentUrl}{content.Id}" : href;
+        var actualTarget = string.IsNullOrWhiteSpace(target) ? "" : $" target=\"{target}\"";
         var link = includeLink ? $"<a href=\"{actualHref}\"{actualTarget}>{headlineValue}</a>" : headlineValue;
         var source = content.GetSource(context);
         var publishedOn = context.Settings.Headline.ShowPublishedOn ? content.GetPublishedOn(context, utcOffset) : "";
-        return $"{(String.IsNullOrWhiteSpace(sentiment) ? "" : $"{sentiment} - ")}{link}{byline}{(String.IsNullOrWhiteSpace(source) ? "" : $" - {source}")}{(String.IsNullOrWhiteSpace(publishedOn) ? "" : $" - {publishedOn}")}";
+        return $"{(string.IsNullOrWhiteSpace(sentiment) ? "" : $"{sentiment} - ")}{link}{byline}{(string.IsNullOrWhiteSpace(source) ? "" : $" - {source}")}{(string.IsNullOrWhiteSpace(publishedOn) ? "" : $" - {publishedOn}")}";
     }
 
     /// <summary>
@@ -515,17 +520,17 @@ public static class ReportExtensions
     /// <param name="content"></param>
     /// <param name="sections"></param>
     /// <returns></returns>
-    public static IEnumerable<IGrouping<string, TNO.TemplateEngine.Models.ContentModel>> GroupContent(
+    public static IEnumerable<IGrouping<string, ContentModel>> GroupContent(
         string groupBy,
-        IEnumerable<TNO.TemplateEngine.Models.ContentModel> content,
-        Dictionary<string, TNO.TemplateEngine.Models.Reports.ReportSectionModel> sections,
+        IEnumerable<ContentModel> content,
+        Dictionary<string, ReportSectionModel> sections,
         API.Models.Settings.ChartSectionSettingsModel? settings = null)
     {
         if (groupBy == "topicType")
         {
             // Extract all topic types from content.
             var topicTypes = content.SelectMany(c => c.Topics.Select(t => t.TopicType)).Distinct();
-            var topicTypesDict = new Dictionary<string, IEnumerable<TNO.TemplateEngine.Models.ContentModel>>();
+            var topicTypesDict = new Dictionary<string, IEnumerable<ContentModel>>();
             foreach (var type in topicTypes.OrderBy(t => t))
             {
                 topicTypesDict.Add(type.ToString(), content.Where(c => c.Topics.Any(t => t.TopicType == type)));
@@ -537,7 +542,7 @@ public static class ReportExtensions
         {
             // Extract all topic names from content.
             var topicNames = content.SelectMany(c => c.Topics.Select(t => t.Name)).Distinct();
-            var topicNamesDict = new Dictionary<string, IEnumerable<TNO.TemplateEngine.Models.ContentModel>>();
+            var topicNamesDict = new Dictionary<string, IEnumerable<ContentModel>>();
             foreach (var name in topicNames.OrderBy(t => t))
             {
                 topicNamesDict.Add(name.ToString(), content.Where(c => c.Topics.Any(t => t.Name == name)));
@@ -549,7 +554,7 @@ public static class ReportExtensions
         {
             // Extract report sections and then group content into the sections.
             var sectionsKeys = sections.OrderBy(s => s.Value.SortOrder).Select(s => (s.Value.Name, s.Value.Settings.Label));
-            var sectionDict = new Dictionary<string, IEnumerable<TNO.TemplateEngine.Models.ContentModel>>();
+            var sectionDict = new Dictionary<string, IEnumerable<ContentModel>>();
             foreach (var section in sectionsKeys)
             {
                 sectionDict.Add(section.Name, content.Where(c => c.SectionName == section.Name));
@@ -564,7 +569,7 @@ public static class ReportExtensions
         {
             "mediaType" => content.GroupBy(c => c.MediaType?.Name ?? "Other").OrderBy(group => group.Key),
             "contentType" => content.GroupBy(c => c.ContentType.ToString()).OrderBy(group => group.Key),
-            "byline" => content.GroupBy(c => String.IsNullOrWhiteSpace(c.Byline) ? "Unknown" : c.Byline).Where((g) => excludeEmptyValues ? g.Key != "Unknown" : true).OrderBy(group => group.Key),
+            "byline" => content.GroupBy(c => string.IsNullOrWhiteSpace(c.Byline) ? "Unknown" : c.Byline).Where((g) => excludeEmptyValues ? g.Key != "Unknown" : true).OrderBy(group => group.Key),
             "series" => content.GroupBy(c => c.SeriesId?.ToString() ?? "NA").OrderBy(group => group.Key).Where((g) => excludeEmptyValues ? g.Key != "NA" : true),
             "sentiment" => content.GroupBy(c => GetSentimentValue(c)?.ToString() ?? "0").OrderByDescending(group => group.Key),
             "sentimentSimple" => content.GroupBy(c => GetSentimentRating(c)).OrderBy(group => group.Key),
@@ -587,7 +592,7 @@ public static class ReportExtensions
     /// <returns></returns>
     public static int? GetSentimentSwitch(string datasetName)
     {
-        if (Int32.TryParse(datasetName, out int value))
+        if (int.TryParse(datasetName, out int value))
             return value;
         else
         {
@@ -619,12 +624,12 @@ public static class ReportExtensions
     /// Extract the color for the specified dataset, or base the color the sentiment value.
     /// </summary>
     /// <param name="colors"></param>
-    /// <param name="index"></param>
+    /// <param name="index">If -1 it will return all colours in the array.</param>
     /// <param name="dataset"></param>
     /// <param name="datasetName"></param>
     /// <param name="datasetValueProp"></param>
     /// <returns></returns>
-    public static string GetColor(string[] colors, int index, string dataset, string datasetName, string datasetValueProp)
+    public static string[] GetColors(string[] colors, int index, string dataset, string datasetName, string datasetValueProp)
     {
         var defaultColors = new[] { "#36A2EB", "#FF6384", "#4BC0C0", "#FF9F40", "#9966FF", "#FFCD56", "#C9CBCF", "#AA0DFE", "#3283FE", "#85660D", "#782AB6", "#565656", "#1C8356", "#16FF32", "#F7E1A0", "#1CBE4F", "#C4451C", "#DEA0FD", "#FE00FA", "#325A9B", "#FEAF16", "#F8A19F", "#90AD1C", "#F6222E", "#1CFFCE", "#2ED9FF", "#FBE426" };
         colors = colors.Length > 0 ? colors : defaultColors;
@@ -635,7 +640,7 @@ public static class ReportExtensions
             if (colors.Length < 3)
                 colors = new[] { "green", "gold", "red" };
 
-            return GetSentimentColorScript(colors);
+            return new[] { GetSentimentColorScript(colors) };
         }
 
         if (dataset == "sentiment" || dataset == "sentimentSimple")
@@ -644,25 +649,28 @@ public static class ReportExtensions
             if (colors.Length < 3)
                 colors = new[] { "green", "gold", "red" };
 
-            if (Int32.TryParse(datasetName, out int value))
-                return value > 0 ? colors[0] : value == 0 ? colors[1] : colors[2];
+            if (int.TryParse(datasetName, out int value))
+                return new[] { value > 0 ? colors[0] : value == 0 ? colors[1] : colors[2] };
             else
             {
-                return datasetName switch
+                return new[] {datasetName switch
                 {
                     "Positive" => colors[0],
                     "Neutral" => colors[1],
                     "Negative" => colors[2],
                     _ => colors[0],
-                };
+                }};
             }
         }
+
+        // This will return a colour for each value in the dataset.
+        if (index < 0) return colors;
 
         // Use the index of the dataset to pick the colour.
         index = index >= 0 ? index : 0;
         var length = colors.Length;
-        var position = index < length ? index : (index % length);
-        return colors[position];
+        var position = index < length ? index : index % length;
+        return new[] { colors[position] };
     }
 
     /// <summary>
@@ -673,7 +681,7 @@ public static class ReportExtensions
     /// <param name="settings"></param>
     /// <param name="sections"></param>
     /// <returns></returns>
-    public static string[] GetLabels(IEnumerable<IGrouping<string, TNO.TemplateEngine.Models.ContentModel>> datasets, API.Models.Settings.ChartSectionSettingsModel settings, Dictionary<string, TNO.TemplateEngine.Models.Reports.ReportSectionModel> sections)
+    public static string[] GetLabels(IEnumerable<IGrouping<string, ContentModel>> datasets, API.Models.Settings.ChartSectionSettingsModel settings, Dictionary<string, ReportSectionModel> sections)
     {
         return datasets.Select(ds => GetLabel(ds, settings, sections)).ToArray();
     }
@@ -686,9 +694,9 @@ public static class ReportExtensions
     /// <param name="settings"></param>
     /// <param name="sections"></param>
     /// <returns></returns>
-    public static string GetLabel(IGrouping<string, TNO.TemplateEngine.Models.ContentModel> dataset, API.Models.Settings.ChartSectionSettingsModel settings, Dictionary<string, TNO.TemplateEngine.Models.Reports.ReportSectionModel> sections)
+    public static string GetLabel(IGrouping<string, ContentModel> dataset, API.Models.Settings.ChartSectionSettingsModel settings, Dictionary<string, ReportSectionModel> sections)
     {
-        var hasSection = sections.TryGetValue(dataset.Key, out TNO.TemplateEngine.Models.Reports.ReportSectionModel? section);
+        var hasSection = sections.TryGetValue(dataset.Key, out ReportSectionModel? section);
         if (hasSection && section != null && (settings.Dataset == "reportSection" || settings.GroupBy == "reportSection"))
             return section.Settings.Label ?? "Other";
 
@@ -700,7 +708,7 @@ public static class ReportExtensions
     /// </summary>
     /// <param name="content"></param>
     /// <returns></returns>
-    public static int? GetSentimentValue(TNO.TemplateEngine.Models.ContentModel content)
+    public static int? GetSentimentValue(ContentModel content)
     {
         return content.TonePools.FirstOrDefault()?.Value;
     }
@@ -710,7 +718,7 @@ public static class ReportExtensions
     /// </summary>
     /// <param name="content"></param>
     /// <returns></returns>
-    public static string GetSentimentRating(TNO.TemplateEngine.Models.ContentModel content)
+    public static string GetSentimentRating(ContentModel content)
     {
         var value = GetSentimentValue(content);
         if (value < 0) return "Negative";
@@ -729,7 +737,7 @@ public static class ReportExtensions
     public static int?[] ExtractDatasetValues(
         string datasetValue,
         string groupBy,
-        IEnumerable<TNO.TemplateEngine.Models.ContentModel> content,
+        IEnumerable<ContentModel> content,
         string[] labels)
     {
         var values = new List<int?>();
@@ -739,7 +747,7 @@ public static class ReportExtensions
             {
                 "mediaType" => content.Where(c => (c.MediaType?.Name ?? "Other") == label),
                 "contentType" => content.Where(c => c.ContentType.ToString() == label),
-                "byline" => content.Where(c => (String.IsNullOrWhiteSpace(c.Byline) ? "Unknown" : c.Byline) == label),
+                "byline" => content.Where(c => (string.IsNullOrWhiteSpace(c.Byline) ? "Unknown" : c.Byline) == label),
                 "series" => content.Where(c => (c.SeriesId?.ToString() ?? "NA") == label),
                 "sentiment" => content.Where(c => (GetSentimentValue(c)?.ToString() ?? "0") == label),
                 "sentimentSimple" => content.Where(c => GetSentimentRating(c) == label),

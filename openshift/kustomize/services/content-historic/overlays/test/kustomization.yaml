@@ -25,10 +25,10 @@ patches:
         value: 100Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
-        value: 75m
+        value: 125m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 150Mi
+        value: 350Mi
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
         value: content-service:test

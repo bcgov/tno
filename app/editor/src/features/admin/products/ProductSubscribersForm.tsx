@@ -78,16 +78,16 @@ export const ProductSubscribersForm = () => {
         renderHeader={() => {
           const columns = [
             { name: 'isSubscribed', label: '', size: '30px' },
-            { name: 'format', label: 'Format' },
-            { name: 'username', label: 'Username', sortable: true },
-            { name: 'lastName', label: 'Last Name', sortable: true },
-            { name: 'firstName', label: 'First Name', sortable: true },
-            { name: 'email', label: 'Email', sortable: true },
+            { name: 'format', label: 'Format', size: '10%' },
+            { name: 'username', label: 'Username', size: '14%', sortable: true },
+            { name: 'lastName', label: 'Last Name', size: '17%', sortable: true },
+            { name: 'firstName', label: 'First Name', size: '17%', sortable: true },
+            { name: 'email', label: 'Email', size: '40%', sortable: true },
           ];
           if (values.productType !== ProductTypeName.Report) columns.splice(1, 1);
           return columns;
         }}
-        renderRow={(row: IUserModel, rowIndex) => {
+        renderColumns={(row: IUserModel, rowIndex) => {
           const subscriber = values.subscribers.find((u) => u.id === row.id);
           const columns = [
             <Checkbox

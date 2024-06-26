@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -28,6 +29,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
     private int _retries = 0;
+
     #endregion
 
     #region Properties
@@ -105,12 +107,16 @@ public class ContentManager : ServiceManager<ContentOptions>
                     // TODO: Handle e-tag.
                     var ingest = (await this.Api.GetIngestsAsync()).ToArray();
 
-                    // Listen to every enabled data source with a topic that is configured to produce content.
-                    var topics = this.Options.GetContentTopics(ingest
-                        .Where(i => i.IsEnabled &&
-                            !String.IsNullOrWhiteSpace(i.Topic) &&
-                            i.ImportContent())
-                        .Select(i => i.Topic).ToArray());
+                    // Get settings to find any overrides.
+                    var settings = await this.Api.GetSettings();
+                    var topicOverride = settings.FirstOrDefault(s => s.Name == "ContentImportTopicOverride")?.Value.Split(",", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+                    var ingestTopics = ingest
+                        .Where(i => !String.IsNullOrWhiteSpace(i.Topic) && i.ImportContent())
+                        .Select(i => i.Topic).ToArray();
+
+                    // Listen to every data source with a topic that is configured to produce content.
+                    // Even disabled data sources should continue to import.
+                    var topics = this.Options.GetContentTopics(topicOverride.Any() ? topicOverride : ingestTopics);
 
                     // Only include topics that exist.
                     var kafkaTopics = this.KafkaAdmin.ListTopics();
@@ -193,7 +199,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     private void ListenerErrorHandler(object sender, ErrorEventArgs e)
     {
         this.Logger.LogDebug("ListenerErrorHandler:BEGIN");
-        this.Logger.LogDebug($"ListenerErrorHandler: Retries={_retries}");
+        this.Logger.LogDebug("ListenerErrorHandler: Retries={count}", _retries);
         // Only the first retry will count as a failure.
         if (_retries == 0)
             this.State.RecordFailure();
@@ -279,7 +285,6 @@ public class ContentManager : ServiceManager<ContentOptions>
 
     private async Task ProcessSourceContentAsync(ConsumeResult<string, SourceContent> result)
     {
-        this.Logger.LogDebug($"ProcessSourceContentAsync:BEGIN:{result.Message.Key}");
         this.Logger.LogInformation("Importing Content from Topic: {topic}, Uid: {key}", result.Topic, result.Message.Key);
 
         var model = result.Message.Value;
@@ -292,47 +297,33 @@ public class ContentManager : ServiceManager<ContentOptions>
             return;
         }
 
-        bool updateSourceContent = false;
-        long? existingContentId = null;
-
-        var originalContent = await this.Api.FindContentByUidAsync(model.Uid, model.Source);
-        var content = await this.Api.FindContentByUidAsync(model.Uid, model.Source);
+        // If content is not discovered with the Uid, make a second request for the hash to find a possible duplicate from another ingest.
+        // The first time content is migrated from TNO if we received the content from another ingest first, we should find the matching story.
+        // However if the TNO migration ran first then we need to find a possible duplicate using the hash.
+        // It is still possible to result in duplicate content in MMI if the first time the TNO migration runs the duplicate story has a different title due to timing.
+        var duplicateContent = !String.IsNullOrWhiteSpace(model.HashUid) ? await this.Api.FindContentByUidAsync(model.HashUid, model.Source) : null;
+        var content = duplicateContent ?? await this.Api.FindContentByUidAsync(model.Uid, model.Source);
+        var updateContent = content != null && this.Options.AllowUpdate;
         if (content != null)
         {
-            // Only add if doesn't already exist.
-            existingContentId = content.Id;
-
-            // KGM - This code should be removed/refactored post PROD deployment most likely
-            // IF we are allowing overwrites from the Content Migration Service
-            if (result.Topic.Equals(this.Options.MigrationOptions.ContentMigrationIngestSourceCode))
-            {
-                // AND if the current content was ingested by the Content Migration Service
-                // THEN we trigger a complete overwrite of the existing content with the updated content
-                if (this.Options.MigrationOptions.AllowSourceContentOverwrite)
-                {
-                    updateSourceContent = true;
-                    Logger.LogInformation("Received updated content from TNO. Forcing an update to the MMI Content : {Source}:{Title}", model.Source, model.Title);
-                }
-                else
-                {
-                    updateSourceContent = false;
-                    Logger.LogInformation("Received updated content from TNO, but SourceContentOverwrite is disabled : {Source}:{Title}", model.Source, model.Title);
-                }
-            }
+            if (updateContent)
+                Logger.LogInformation("Received updated content from TNO. Forcing an update to the MMI Content : {Source}:{Title}", model.Source, model.Title);
+            else
+                Logger.LogInformation("Received updated content from TNO, but AllowUpdate is disabled : {Source}:{Title}", model.Source, model.Title);
         }
 
-        if (content == null || updateSourceContent)
+        if (content == null || updateContent)
         {
             // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
             // TODO: Handle e-tag.
             var source = await this.Api.GetSourceForCodeAsync(model.Source);
             var lookups = await this.Api.GetLookupsAsync();
 
-            IEnumerable<API.Areas.Editor.Models.Action.ActionModel>? actions = lookups?.Actions;
-            IEnumerable<API.Areas.Editor.Models.Tag.TagModel>? tags = lookups?.Tags;
-            IEnumerable<API.Areas.Editor.Models.TonePool.TonePoolModel>? tonePools = lookups?.TonePools;
-            IEnumerable<API.Areas.Editor.Models.Topic.TopicModel>? topics = lookups?.Topics;
-            IEnumerable<API.Areas.Editor.Models.Series.SeriesModel>? series = lookups?.Series;
+            var actions = lookups?.Actions;
+            var tags = lookups?.Tags;
+            var tonePools = lookups?.TonePools;
+            var topics = lookups?.Topics;
+            var series = lookups?.Series;
 
             if (model.MediaTypeId == 0)
             {
@@ -341,32 +332,40 @@ public class ContentManager : ServiceManager<ContentOptions>
                 model.MediaTypeId = ingests.FirstOrDefault()?.MediaTypeId ?? throw new InvalidOperationException($"Unable to find an ingest for the topic '{result.Topic}'");
             }
 
-            content = new ContentModel()
-            {
-                Status = model.Status,
-                SourceId = source?.Id,
-                OtherSource = model.Source,
-                ContentType = model.ContentType,
-                MediaTypeId = model.MediaTypeId,
-                LicenseId = source?.LicenseId ?? 1,  // TODO: Default license by configuration.
-                SeriesId = null, // TODO: Provide default series from Data Source config settings.
-                OtherSeries = null, // TODO: Provide default series from Data Source config settings.
-                OwnerId = model.RequestedById ?? source?.OwnerId,
-                Headline = model.Title,
-                Uid = model.Uid,
-                Page = model.Page[0..Math.Min(model.Page.Length, 10)], // TODO: Temporary workaround to deal FileMonitor Service.
-                Summary = String.IsNullOrWhiteSpace(model.Summary) ? "" : model.Summary,
-                Body = !String.IsNullOrWhiteSpace(model.Body) ? model.Body : model.ContentType == ContentType.AudioVideo ? "" : model.Summary,
-                IsApproved = model.ContentType == ContentType.AudioVideo && model.PublishedOn.HasValue && model.Status == ContentStatus.Publish && !String.IsNullOrWhiteSpace(model.Body),
-                SourceUrl = model.Link,
-                PublishedOn = model.PublishedOn,
-                Section = model.Section,
-                Byline = string.Join(",", model.Authors.Select(a => a.Name[0..Math.Min(a.Name.Length, 200)])) // TODO: Temporary workaround to deal with regression issue in Syndication Service.
-            };
+            content ??= new ContentModel();
+            content.Uid = model.Uid;
+            content.Status = model.Status;
+            content.SourceId = source?.Id;
+            content.OtherSource = model.Source;
+            content.ContentType = model.ContentType;
+            content.MediaTypeId = model.MediaTypeId;
+            content.LicenseId = source?.LicenseId ?? 1;  // TODO: Default license by configuration.
+            content.SeriesId = content.SeriesId; // TODO: Provide default series from Data Source config settings.
+            content.OtherSeries = content.OtherSeries; // TODO: Provide default series from Data Source config settings.
+            content.OwnerId = model.RequestedById ?? source?.OwnerId;
+            content.Headline = model.Title;
+            content.Page = model.Page[0..Math.Min(model.Page.Length, 10)]; // TODO: Temporary workaround to deal FileMonitor Service.
+            content.Summary = String.IsNullOrWhiteSpace(model.Summary) ? "" : model.Summary;
+            content.Body = !String.IsNullOrWhiteSpace(model.Body) ? model.Body : model.ContentType == ContentType.AudioVideo ? "" : model.Summary;
+            content.IsApproved = model.ContentType == ContentType.AudioVideo && model.PublishedOn.HasValue && model.Status == ContentStatus.Publish && !String.IsNullOrWhiteSpace(model.Body);
+            content.SourceUrl = model.Link;
+            content.PublishedOn = model.PublishedOn;
+            content.Section = model.Section;
+            content.Byline = string.Join(",", model.Authors.Select(a => a.Name[0..Math.Min(a.Name.Length, 200)])); // TODO: Temporary workaround to deal with regression issue in Syndication Service.
+            if (!string.IsNullOrEmpty(content.Byline)) {
+                var contributors = lookups?.Contributors;
+                if (contributors != null && contributors.Any()) {
+                    var contributor = FindMatchedContributor(contributors, content.Byline);
+                    if (contributor != null) {
+                        content.Contributor = new ContributorModel((Contributor)contributor);
+                        content.ContributorId = content.Contributor.Id;
+                    }
+                }
+            }
 
             if (model.Actions.Any())
             {
-                IEnumerable<ContentActionModel> mappedContentActionModels = GetActionMappings(actions!, model.Actions, existingContentId ?? 0);
+                var mappedContentActionModels = GetActionMappings(actions!, model.Actions, content.Id);
                 if (mappedContentActionModels.Any())
                 {
                     content.Actions = mappedContentActionModels.ToArray();
@@ -431,7 +430,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                 var mappedContentTopicModels = new List<ContentTopicModel>();
                 foreach (var topic in model.Topics)
                 {
-                    var mapping = GetTopicMapping(topics!, topic.TopicType, topic.Name);
+                    var mapping = GetTopicMapping(topics!, topic.TopicType, topic.Name, topic.Score ?? 0);
                     if (mapping != null)
                     {
                         mappedContentTopicModels.Add(mapping);
@@ -448,28 +447,15 @@ public class ContentManager : ServiceManager<ContentOptions>
                 content.TimeTrackings = model.TimeTrackings.Select(t => new API.Areas.Services.Models.Content.TimeTrackingModel(t.UserId, t.Effort, t.Activity)).ToArray();
             }
 
-            if (updateSourceContent && (existingContentId != null))
-            {
-                // before saving, reinstate some values from the original content object
-                if (originalContent != null)
-                {
-                    content.Id = originalContent.Id;
-                    content.Source = originalContent.Source;
-                    content.MediaType = originalContent.MediaType;
-                    content.Version = originalContent.Version;
-                    content.CreatedBy = originalContent.CreatedBy;
-                    content.CreatedOn = originalContent.CreatedOn;
-                    content.UpdatedBy = originalContent.UpdatedBy;
-                    content.UpdatedOn = originalContent.UpdatedOn;
-                }
-
-                content = await this.Api.UpdateContentAsync(content, updateSourceContent) ?? throw new InvalidOperationException($"Updating content failed {content.OtherSource}:{content.Uid}");
-                this.Logger.LogInformation("Content Updated.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
-            }
-            else
+            if (content.Id == 0)
             {
                 content = await this.Api.AddContentAsync(content) ?? throw new InvalidOperationException($"Adding content failed {content.OtherSource}:{content.Uid}");
                 this.Logger.LogInformation("Content Imported.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
+            }
+            else if (updateContent)
+            {
+                content = await this.Api.UpdateContentAsync(content, true) ?? throw new InvalidOperationException($"Updating content failed {content.OtherSource}:{content.Uid}");
+                this.Logger.LogInformation("Content Updated.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
             }
 
             var isUploadSuccess = true;
@@ -535,7 +521,83 @@ public class ContentManager : ServiceManager<ContentOptions>
             // TODO: Content could be updated by source, however this could overwrite local editor changes.  Need a way to handle this.
             this.Logger.LogWarning("Content already exists. Content Source: {source}, UID: {uid}", model.Source, model.Uid);
         }
-        this.Logger.LogDebug($"ProcessSourceContentAsync:END:{result.Message.Key}");
+    }
+
+    /// <summary>
+    /// Find matched contributor by name
+    /// If a match found, return the contributor. Otherwise, return null.
+    /// </summary>
+    /// <param name="contributors"></param>
+    /// <param name="nameString"></param>
+    /// <returns></returns>
+    private static API.Areas.Editor.Models.Contributor.ContributorModel? FindMatchedContributor(IEnumerable<API.Areas.Editor.Models.Contributor.ContributorModel> contributors,
+        string nameString)
+    {
+        if (contributors == null || !contributors.Any()) return null;
+        return contributors.Where(c => ContributorNameMatch(c, nameString)).FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Compare contributor's name with another name if they are matched.
+    /// </summary>
+    /// <param name="contributor"></param>
+    /// <param name="nameString"></param>
+    /// <returns></returns>
+    private static bool ContributorNameMatch(API.Areas.Editor.Models.Contributor.ContributorModel contributor, string nameString)
+    {
+        if (contributor == null || string.IsNullOrEmpty(contributor.Name)) return false;
+        if (string.Equals(contributor.Name, nameString, StringComparison.OrdinalIgnoreCase)) return true;
+        if (NamesMatched(contributor.Name, nameString)) return true;
+        var aliases = contributor.Aliases.ToLowerInvariant();
+        if (!string.IsNullOrEmpty(aliases))
+        {
+            MatchCollection matches = Regex.Matches(aliases, "\\\"(.*?)\\\"");
+            return matches != null && matches.Any(m => NamesMatched(m.Groups[1].Value, nameString));
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Compare two names if they are matched
+    /// </summary>
+    /// <param name="name1"></param>
+    /// <param name="name2"></param>
+    /// <returns></returns>
+    private static bool NamesMatched(string name1, string name2)
+    {
+        var name1LowerCase = name1.ToLowerInvariant();
+        var name2LowerCase = name2.ToLowerInvariant();
+        if (string.Equals(name1LowerCase, name2LowerCase, StringComparison.OrdinalIgnoreCase)) return true;
+        var formattedName1 = FormatNameString(name1);
+        var formattedName2 = FormatNameString(name2);
+        return string.Equals(formattedName1, formattedName2, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Format name string to the format of: "<last name>, <first name> <middle name>".
+    /// </summary>
+    /// <param name="nameString"></param>
+    /// <returns></returns>
+    private static string FormatNameString(string nameString)
+    {
+        if (string.IsNullOrWhiteSpace(nameString)) return nameString;
+
+        Regex regex = new Regex(@"^(.*?),(.*?)$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        Match match = regex.Match(nameString);
+        if (match.Success)
+        {
+            var index = nameString.IndexOf(",", 0, nameString.Length, StringComparison.OrdinalIgnoreCase);
+            return $"{nameString.Substring(0, index).Trim()}, {nameString.Substring(index + 1).Trim()}";
+        }
+        else
+        {
+            var index = nameString.LastIndexOf(" ", nameString.Length-1, nameString.Length, StringComparison.OrdinalIgnoreCase);
+            if (index == -1)
+            {
+                return nameString;
+            }
+            return $"{nameString.Substring(index + 1).Trim()}, {nameString.Substring(0, index).Trim()}";
+        }
     }
 
     /// <summary>
@@ -577,6 +639,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         var password = connection.GetConfigurationValue("password");
         var keyFileName = connection.GetConfigurationValue("keyFileName");
         var path = connection.GetConfigurationValue("path");
+        var port = connection.GetConfigurationValue<int?>("port");
 
         AuthenticationMethod authMethod;
         if (!String.IsNullOrWhiteSpace(password))
@@ -599,7 +662,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         }
         else throw new ConfigurationException("Data location connection settings are missing");
 
-        using var client = new SftpClient(new ConnectionInfo(hostname, username, authMethod));
+        using var client = port.HasValue ? new SftpClient(new ConnectionInfo(hostname, port.Value, username, authMethod)) : new SftpClient(new ConnectionInfo(hostname, username, authMethod));
         client.HostKeyReceived += (object? sender, HostKeyEventArgs e) =>
         {
             e.CanTrust = true;
@@ -663,12 +726,12 @@ public class ContentManager : ServiceManager<ContentOptions>
         }
     }
 
-    private static ContentTopicModel? GetTopicMapping(IEnumerable<API.Areas.Editor.Models.Topic.TopicModel> topicsLookup, TopicType topicType, string topicName)
+    private static ContentTopicModel? GetTopicMapping(IEnumerable<API.Areas.Editor.Models.Topic.TopicModel> topicsLookup, TopicType topicType, string topicName, int score = 0)
     {
         var topicModel = new ContentTopicModel()
         {
             ContentId = 0, // for new content
-            Score = 0 // TODO: dig score out of TNO 1.0
+            Score = score
         };
         var topic = topicsLookup.Where(s => s.Name.Equals(topicName, StringComparison.InvariantCultureIgnoreCase) && s.TopicType == topicType).FirstOrDefault();
         if (topic != null)
@@ -711,7 +774,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         return tagModel;
     }
 
-    private TNO.API.Areas.Services.Models.Content.SeriesModel? GetSeriesModel(IEnumerable<API.Areas.Editor.Models.Series.SeriesModel> seriesLookup, string seriesName)
+    private static TNO.API.Areas.Services.Models.Content.SeriesModel? GetSeriesModel(IEnumerable<API.Areas.Editor.Models.Series.SeriesModel> seriesLookup, string seriesName)
     {
         var targetSeries = seriesLookup.FirstOrDefault(s => s.Name == seriesName);
 

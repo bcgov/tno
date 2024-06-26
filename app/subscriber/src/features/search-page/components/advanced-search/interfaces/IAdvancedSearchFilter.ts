@@ -7,6 +7,7 @@ export interface IAdvancedSearchFilter {
   inHeadline?: boolean;
   inByline?: boolean;
   inStory?: boolean;
+  inProgram?: boolean;
   /** the term that will be queried */
   searchTerm: string;
   /** array of sources to filter by */

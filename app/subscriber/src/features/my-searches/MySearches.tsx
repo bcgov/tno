@@ -1,5 +1,5 @@
 import { Action } from 'components/action';
-import { SubscriberTableContainer } from 'components/table';
+import { Modal } from 'components/modal';
 import React from 'react';
 import { FaCheck, FaSave } from 'react-icons/fa';
 import { FaBookmark, FaGear, FaPen, FaRegClipboard, FaTrash } from 'react-icons/fa6';
@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useFilters } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Col, IFilterModel, Modal, Row, Text, useModal } from 'tno-core';
+import { Col, Grid, IFilterModel, Row, Text, useModal } from 'tno-core';
 
 import { truncateTeaser } from '../../components/content-list/utils/truncateTeaser';
 import * as styled from './styled';
@@ -65,63 +65,72 @@ export const MySearches = () => {
 
   return (
     <styled.MySearches>
-      <SubscriberTableContainer>
-        <Row className="header">
-          <span className="label">Search Name</span>
-        </Row>
-        {sortedMyFilters.map((filter, index) => {
-          const keywords = filter.settings?.search ? filter.settings.search : '';
+      <Grid
+        items={sortedMyFilters}
+        renderHeader={() => [
+          { name: 'name', label: '', size: '2fr' },
+          { name: 'actions', label: '', size: '1fr' },
+        ]}
+        renderColumns={(row: IFilterModel, rowIndex) => {
+          const keywords = row.settings?.search ? row.settings.search : '';
           const truncatedKeywords = truncateTeaser(keywords, 20);
-          return (
-            <Row key={filter.id} className="row">
-              <FaBookmark className="darker-icon link" onClick={() => handleClick(filter)} />
-              <Col flex="1" className="link" onClick={() => handleClick(filter)}>
-                {editing?.id === filter.id ? (
-                  <Text
-                    name={`filters.${index}.name`}
-                    value={editing?.name ?? ''}
-                    onChange={(e) => setEditing({ ...editing, name: e.target.value })}
-                  >
-                    <Col className="txt-btn">
-                      <Action icon={<FaSave />} onClick={() => handleSave(editing)} />
-                    </Col>
-                  </Text>
-                ) : (
-                  filter.name
-                )}
-              </Col>
+
+          return [
+            <Row key="" flex="1" gap="1rem">
+              <Action icon={<FaBookmark />} onClick={() => handleClick(row)}>
+                <Col flex="1" className="link">
+                  {editing?.id === row.id ? (
+                    <Text
+                      name={`filters.${rowIndex}.name`}
+                      value={editing?.name ?? ''}
+                      onChange={(e) => setEditing({ ...editing, name: e.target.value })}
+                    >
+                      <Col className="txt-btn">
+                        <Action icon={<FaSave />} onClick={() => handleSave(editing)} />
+                      </Col>
+                    </Text>
+                  ) : (
+                    row.name
+                  )}
+                </Col>
+              </Action>
+            </Row>,
+            <Row key="" justifyContent="flex-end" flex="1" gap="1rem">
               <Col flex="1">
                 {truncatedKeywords ? (
                   <Row className="keywords-row">
                     {truncatedKeywords}
-                    <FaRegClipboard
-                      className="copy-icon"
-                      onClick={() => handleCopyKeywords(filter.settings?.search)}
+                    <Action
+                      icon={<FaRegClipboard />}
                       title="Copy Keywords"
+                      className="copy-icon"
+                      onClick={() => handleCopyKeywords(row.settings?.search)}
                     />
                   </Row>
                 ) : null}
               </Col>
-              {editing?.id === filter.id ? (
-                <FaCheck onClick={() => setEditing(undefined)} />
+              {editing?.id === row.id ? (
+                <Action icon={<FaCheck />} onClick={() => setEditing(undefined)} />
               ) : (
-                <FaPen
+                <Action
+                  icon={<FaPen />}
                   onClick={() => {
-                    setEditing(filter);
+                    setEditing(row);
                   }}
                 />
               )}
-              <FaGear onClick={() => handleClick(filter, true)} />
-              <FaTrash
+              <Action icon={<FaGear />} onClick={() => handleClick(row, true)} />
+              <Action
+                icon={<FaTrash />}
                 onClick={() => {
-                  setActive(filter);
+                  setActive(row);
                   toggle();
                 }}
               />
-            </Row>
-          );
-        })}
-      </SubscriberTableContainer>
+            </Row>,
+          ];
+        }}
+      />
       <Modal
         headerText="Confirm Removal"
         body={`Are you sure you want to delete the "${active?.name}" filter?`}

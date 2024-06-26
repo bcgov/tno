@@ -46,9 +46,19 @@ public class ChartSectionSettingsModel
     public bool ExcludeEmptyValues { get; set; }
 
     /// <summary>
+    /// get/set - Whether to apply the dataset colour to each value instead of a dataset
+    /// </summary>
+    public bool ApplyColorToValue { get; set; }
+
+    /// <summary>
     /// get/set - An array of colour to use for this chart datasets.
     /// </summary>
     public string[] DatasetColors { get; set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// get/set - An array of colour to use for this chart datasets borders.
+    /// </summary>
+    public string[] DatasetBorderColors { get; set; } = Array.Empty<string>();
 
     /// <summary>
     /// get/set - An array of colour to use for this chart data labels.
@@ -116,6 +126,11 @@ public class ChartSectionSettingsModel
     public int? LegendLabelFontSize { get; set; }
 
     /// <summary>
+    /// get/set -
+    /// </summary>
+    public bool? XShowAxisLabels { get; set; }
+
+    /// <summary>
     /// get/set - X axis legend title
     /// </summary>
     [JsonPropertyName("xLegend")]
@@ -125,6 +140,11 @@ public class ChartSectionSettingsModel
     /// get/set - Legend X axis title font size
     /// </summary>
     public int? XLegendFontSize { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public bool? YShowAxisLabels { get; set; }
 
     /// <summary>
     /// get/set - Y axis legend title
@@ -146,11 +166,6 @@ public class ChartSectionSettingsModel
     /// get/set - Chart data label font size
     /// </summary>
     public int? DataLabelFontSize { get; set; }
-
-    /// <summary>
-    /// get/set -
-    /// </summary>
-    public bool? ShowAxis { get; set; }
 
     /// <summary>
     /// get/set - Whether to stack datasets (only works on some charts).

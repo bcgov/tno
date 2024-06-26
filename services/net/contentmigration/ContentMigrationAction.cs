@@ -2,8 +2,6 @@ using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.API.Areas.Editor.Models.MediaType;
-using TNO.API.Areas.Editor.Models.Source;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
@@ -27,17 +25,10 @@ namespace TNO.Services.ContentMigration;
 /// </summary>
 public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
 {
-    enum ImportMigrationType
-    {
-        Unknown,
-        Historic,
-        Recent,
-        RecentlyPublished
-    }
-
     #region Variables
     private readonly MigrationSourceContext _sourceContext;
     private readonly ContentMigratorFactory _migratorFactory;
+    private API.Areas.Editor.Models.Lookup.LookupModel? _lookups;
     #endregion
 
     #region Properties
@@ -64,118 +55,99 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     #endregion
 
     #region Methods
-
     /// <summary>
     ///
     /// </summary>
-    /// <param name="newsItems"></param>
     /// <param name="predicate"></param>
-    /// <param name="skip"></param>
-    /// <param name="count"></param>
-    /// <param name="lastRanOn"></param>
+    /// <param name="publishedOnly"></param>
+    /// <param name="offsetHours"></param>
     /// <param name="importDateStart"></param>
     /// <param name="importDateEnd"></param>
-    /// <param name="updatedDateOfNewsItem"></param>
-    /// <param name="importOffsetInHours"></param>
+    /// <param name="lastRanOn"></param>
     /// <returns></returns>
-    private IQueryable<NewsItem> GetFilteredNewsItems(IQueryable<NewsItem> newsItems,
-        System.Linq.Expressions.Expression<Func<NewsItem, bool>> predicate,
-        int skip, int count, DateTime? lastRanOn,
-        DateTime? importDateStart, DateTime? importDateEnd,
-        DateTime? updatedDateOfNewsItem, double importOffsetInHours = 0)
+    private IQueryable<T> GetFilteredNewsItems<T>(
+        System.Linq.Expressions.Expression<Func<T, bool>> predicate,
+        bool publishedOnly,
+        int? offsetHours,
+        DateTime? importDateStart,
+        DateTime? importDateEnd,
+        DateTime? lastRanOn)
+        where T : BaseNewsItem
     {
         // KGM : Do NOT remove these null filters.  They exclude bad data
-        predicate = predicate.And(ni => ((ni.ItemDate != null) && (ni.Source != null) && (ni.Title != null)));
+        predicate = predicate.And(ni => (ni.ItemDate != null) && (ni.Source != null) && (ni.Title != null));
 
-        var offsetFromNow = DateTime.MaxValue;
-        if (importOffsetInHours > 0)
+        var offsetDate = offsetHours > 0 ? DateTime.UtcNow.AddHours(-1 * offsetHours.Value) : (DateTime?)null;
+        var minDate = lastRanOn.HasValue ? lastRanOn : importDateStart.HasValue ? importDateStart : offsetDate;
+
+        if (publishedOnly)
+            predicate = predicate.And(ni => ni.Published);
+        if (minDate.HasValue)
+            predicate = predicate.And(ni => ni.UpdatedOn >= minDate.Value.ToUniversalTime());
+        if (importDateEnd.HasValue)
+            predicate = predicate.And(ni => ni.UpdatedOn <= importDateEnd.Value.ToUniversalTime());
+
+        return _sourceContext.Set<T>()
+            .Include(m => m.Topics)
+            .Include(m => m.Tones)
+            .Where(predicate)
+            .OrderBy(ni => ni.UpdatedOn) // oldest first
+            .ThenBy(ni => ni.ItemTime) // oldest first
+            .ThenBy(ni => ni.RSN)
+            .AsSplitQuery();
+    }
+
+    /// <summary>
+    /// Complete the query and make a request for the content.
+    /// </summary>
+    /// <param name="contentType"></param>
+    /// <param name="importMigrationType"></param>
+    /// <param name="contentMigrator"></param>
+    /// <param name="publishedOnly"></param>
+    /// <param name="offsetHours"></param>
+    /// <param name="startDate"></param>
+    /// <param name="endDate"></param>
+    /// <param name="lastRunDate"></param>
+    /// <param name="skip"></param>
+    /// <returns></returns>
+    private NewsItem[] GetNewsItems(
+        TNO.Entities.ContentType contentType,
+        ImportMigrationType importMigrationType,
+        IContentMigrator contentMigrator,
+        bool publishedOnly,
+        int? offsetHours,
+        DateTime? startDate,
+        DateTime? endDate,
+        DateTime? lastRunDate,
+        int skip)
+    {
+        if (importMigrationType == ImportMigrationType.Historic)
         {
-            // create an artificial buffer so that the migration isn't using most recent updates
-            offsetFromNow = DateTime.Now.AddMinutes(-1 * 60 * importOffsetInHours);
+            var newsItemsQuery = contentMigrator.GetBaseFilter<HNewsItem>(contentType);
+            var query = GetFilteredNewsItems<HNewsItem>(newsItemsQuery, publishedOnly, offsetHours, startDate, endDate, lastRunDate);
+            query = query.Skip(skip).Take(this.Options.MaxRecordsPerRetrieval);
+
+            this.Logger.LogDebug("{query}", query.ToQueryString());
+            return query.ToArray().Select(newsItem => (NewsItem)newsItem).ToArray();
         }
-
-        // if no import filter dates are set
-        if (!importDateStart.HasValue && !importDateEnd.HasValue)
+        else if (importMigrationType == ImportMigrationType.All)
         {
-            // if the ingest has previously run, use the creationDateOfNewsItem as the dateFilter
-            // if creationDateOfNewsItem is not set, use use DateTime.MinValue
-            var dateFilter = updatedDateOfNewsItem ?? DateTime.MinValue;
-            if (lastRanOn.HasValue)
-            {
-                dateFilter = new[] { lastRanOn.Value, dateFilter }.Min();
-            }
-            if (offsetFromNow != DateTime.MaxValue)
-            {
-                // apply an artificial buffer so that the migration isn't using most recent updates
-                predicate = predicate.And(ni => (ni.UpdatedOn >= dateFilter) && (ni.UpdatedOn <= offsetFromNow));
-            }
-            else
-            {
-                predicate = predicate.And(ni => ni.UpdatedOn >= dateFilter);
-            }
+            var newsItemsQuery = contentMigrator.GetBaseFilter<AllNewsItem>(contentType);
+            var query = GetFilteredNewsItems<AllNewsItem>(newsItemsQuery, publishedOnly, offsetHours, startDate, endDate, lastRunDate);
+            query = query.Skip(skip).Take(this.Options.MaxRecordsPerRetrieval);
+
+            this.Logger.LogDebug("{query}", query.ToQueryString());
+            return query.ToArray().Select(newsItem => (NewsItem)newsItem).ToArray();
         }
         else
         {
-            var dateFilterStart = importDateStart ?? DateTime.MinValue;
-            var dateFilterEnd = importDateEnd ?? DateTime.MaxValue;
-            if (updatedDateOfNewsItem.HasValue
-                && (dateFilterStart <= updatedDateOfNewsItem.Value)
-                && (dateFilterEnd >= updatedDateOfNewsItem.Value))
-            {
-                // if a date filter is set AND the creationDateOfNewsItem is set
-                // use the creationDateOfNewsItem as the start date ONLY if it's
-                // between the targeted start and end dates
-                dateFilterStart = new[] { updatedDateOfNewsItem.Value, dateFilterStart }.Max();
-            }
-            if ((dateFilterEnd != DateTime.MaxValue) || (offsetFromNow != DateTime.MaxValue))
-            {
-                dateFilterEnd = new[] { dateFilterEnd, offsetFromNow }.Min();
-                predicate = predicate.And(ni => (ni.UpdatedOn >= dateFilterStart) && (ni.UpdatedOn <= dateFilterEnd));
-            }
-            else
-            {
-                predicate = predicate.And(ni => (ni.UpdatedOn >= dateFilterStart));
-            }
+            var newsItemsQuery = contentMigrator.GetBaseFilter<NewsItem>(contentType);
+            var query = GetFilteredNewsItems<NewsItem>(newsItemsQuery, publishedOnly, offsetHours, startDate, endDate, lastRunDate);
+            query = query.Skip(skip).Take(this.Options.MaxRecordsPerRetrieval);
+
+            this.Logger.LogDebug("{query}", query.ToQueryString());
+            return query.ToArray();
         }
-
-        return newsItems.Where(predicate)
-                .OrderBy(ni => ni.UpdatedOn) // oldest first
-                .ThenBy(ni => ni.RSN)
-                .Skip(skip).Take(count);
-    }
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="newsItems"></param>
-    /// <param name="predicate"></param>
-    /// <param name="skip"></param>
-    /// <param name="count"></param>
-    /// <param name="importOffsetInHours"></param>
-    /// <returns></returns>
-    private IQueryable<NewsItem> GetRecentlyPublishedNewsItems(IQueryable<NewsItem> newsItems,
-        System.Linq.Expressions.Expression<Func<NewsItem, bool>> predicate,
-        int skip, int count, double importOffsetInHours = 0)
-    {
-        // KGM : Do NOT remove these null filters.  They exclude bad data
-        predicate = predicate.And(ni => ((ni.ItemDate != null) && (ni.Source != null) && (ni.Title != null)));
-
-        // KGM : Only return Published items
-        predicate = predicate.And(ni => ((ni.Published)));
-
-        var offsetFromNow = DateTime.MaxValue;
-        if (importOffsetInHours > 0)
-        {
-            // create an artificial buffer so that the migration isn't using most recent updates
-            offsetFromNow = DateTime.Now.AddMinutes(-1 * 60 * importOffsetInHours);
-        }
-
-        // apply an artificial buffer so that the migration isn't using most recent updates
-        predicate = predicate.And(ni => (ni.UpdatedOn >= offsetFromNow));
-
-        return newsItems.Where(predicate)
-                .OrderBy(ni => ni.UpdatedOn) // oldest first
-                .ThenBy(ni => ni.RSN)
-                .Skip(skip).Take(count);
     }
 
     /// <summary>
@@ -193,22 +165,25 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     /// <exception cref="ArgumentNullException"></exception>
     public override async Task<ServiceActionResult> PerformActionAsync<T>(IIngestActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
+        if (manager.Ingest.IngestType == null) throw new ConfigurationException("Ingest type cannot be null.");
+
         var importMigrationType = manager.Ingest.GetConfigurationValue<ImportMigrationType>("importMigrationType", ImportMigrationType.Unknown);
         if (importMigrationType == ImportMigrationType.Unknown)
-        {
-            this.Logger.LogError("Error in Ingest [{ingestName}] config. 'importMigrationType' cannot be null.", manager.Ingest.Name);
-            throw new ArgumentNullException(nameof(importMigrationType));
-        }
+            throw new ConfigurationException($"Error in Ingest [{manager.Ingest.Name}] config. 'importMigrationType' cannot be null.");
 
         if (string.IsNullOrEmpty(this.Options.SupportedImportMigrationTypes))
-        {
-            this.Logger.LogError("Error in service config. 'SupportedImportMigrationTypes' cannot be null.");
-            throw new ArgumentNullException(nameof(this.Options.SupportedImportMigrationTypes));
-        }
+            throw new ConfigurationException("Error in service config. 'SupportedImportMigrationTypes' cannot be null.");
 
         if (!this.Options.SupportedImportMigrationTypes.Split(',', StringSplitOptions.TrimEntries).Contains(importMigrationType.ToString()))
         {
-            this.Logger.LogInformation("Skipping Ingest [{ingestName}]. Import Migration Type: [{migrationType}] not in supported list [{supportedMigrationTypes}]", manager.Ingest.Name, importMigrationType.ToString(), this.Options.SupportedImportMigrationTypes);
+            this.Logger.LogDebug("Skipping Ingest [{ingestName}]. Import Migration Type: [{migrationType}] not in supported list [{supportedMigrationTypes}]", manager.Ingest.Name, importMigrationType.ToString(), this.Options.SupportedImportMigrationTypes);
+            return ServiceActionResult.Skipped;
+        }
+
+        var publishedOnly = manager.Ingest.GetConfigurationValue<bool>("publishedOnly", false);
+        if (this.Options.OnlyPublished && !publishedOnly)
+        {
+            this.Logger.LogDebug("Skipping Ingest [{ingestName}]. Only published content allowed", manager.Ingest.Name);
             return ServiceActionResult.Skipped;
         }
 
@@ -216,24 +191,14 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         await manager.UpdateIngestStateFailedAttemptsAsync(manager.Ingest.FailedAttempts);
 
         this.Logger.LogDebug("Performing ingestion service action for Ingest '{name}'", manager.Ingest.Name);
-        var contentMigrator = _migratorFactory.GetContentMigrator(manager.Ingest.IngestType!.Name);
+        var contentMigrator = _migratorFactory.GetContentMigrator(manager.Ingest.IngestType.Name) ?? throw new ConfigurationException($"Missing content migrator for ingest type '{manager.Ingest.IngestType?.Name}'.");
 
-        var lookups = await this.Api.GetLookupsAsync();
+        _lookups = await this.Api.GetLookupsAsync() ?? throw new InvalidOperationException("Lookups cannot be null");
 
         var skip = 0;
-        var countOfRecordsRetrieved = this.Options.MaxRecordsPerRetrieval;
+        var maxRecordsPerRetrieval = this.Options.MaxRecordsPerRetrieval;
         var maxIngestedRecords = Math.Max(this.Options.MaxRecordsPerIngest, this.Options.MaxRecordsPerRetrieval);
         var defaultTimeZone = GetTimeZone(manager.Ingest, this.Options.TimeZone);
-
-        double migrationTimeOffsetInHours = 0;
-        try
-        {
-            migrationTimeOffsetInHours = manager.Ingest.GetConfigurationValue<double>("migrationTimeOffsetInHours");
-        }
-        catch (Exception)
-        {
-            this.Logger.LogInformation("No migrationTimeOffsetInHours found for ingest '{name}'", manager.Ingest.Name);
-        }
 
         if (manager.Ingest.SourceConnection != null)
         {
@@ -249,93 +214,75 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             }
         }
 
-        DateTime? importDateStart = null;
-        DateTime? importDateEnd = null;
-        DateTime? creationDateOfLastImport = null;
+        // Capture original so that we know if they change mid import.
+        var originalImportDateStartValue = manager.Ingest.GetConfigurationValue<string?>("importDateStart", null);
+        var originalImportDateEndValue = manager.Ingest.GetConfigurationValue<string?>("importDateEnd", null);
+        var originalImportDateStart = !String.IsNullOrWhiteSpace(originalImportDateStartValue) ? DateTime.Parse(originalImportDateStartValue).ToTimeZone(defaultTimeZone) : (DateTime?)null;
+        var originalImportDateEnd = !String.IsNullOrWhiteSpace(originalImportDateEndValue) ? DateTime.Parse(originalImportDateEndValue).ToTimeZone(defaultTimeZone) : (DateTime?)null;
+        var originalOffsetHours = manager.Ingest.GetConfigurationValue<int?>("offsetHours", null);
 
-        if ((importMigrationType == ImportMigrationType.Historic) || (importMigrationType == ImportMigrationType.Recent))
+        var creationDateOfLastImport = manager.Ingest.CreationDateOfLastItem;
+        var retrievedRecords = 0;
+        var continueFetchingRecords = true;
+        while (continueFetchingRecords && (maxRecordsPerRetrieval > 0) && (skip < maxIngestedRecords))
         {
-            try
-            {
-                importDateStart = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateStart")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateStart") : null;
-            }
-            catch (TNO.Core.Exceptions.ConfigurationException)
-            {
-                importDateStart = null;
-            }
-            try
-            {
-                importDateEnd = !string.IsNullOrEmpty(manager.Ingest.GetConfigurationValue("importDateEnd")) ? manager.Ingest.GetConfigurationValue<DateTime>("importDateEnd") : null;
-            }
-            catch (TNO.Core.Exceptions.ConfigurationException)
-            {
-                importDateEnd = null;
-            }
-            try
-            {
-                creationDateOfLastImport = manager.Ingest.CreationDateOfLastItem;
-            }
-            catch (Exception)
-            {
-                // migration has never been run before.
-                this.Logger.LogInformation("CreationDateOfLastItem not found for ingest '{name}'", manager.Ingest.Name);
-            }
-        }
+            if (manager.Ingest.IngestType == null) throw new ConfigurationException("Ingest type cannot be null.");
+            if (!manager.Ingest.IsEnabled) break;
 
-        while ((countOfRecordsRetrieved > 0) && (skip < maxIngestedRecords))
-        {
+            var importDateStartValue = manager.Ingest.GetConfigurationValue<string?>("importDateStart", null);
+            var importDateEndValue = manager.Ingest.GetConfigurationValue<string?>("importDateEnd", null);
+            var importDateStart = !String.IsNullOrWhiteSpace(importDateStartValue) ? DateTime.Parse(importDateStartValue).ToTimeZone(defaultTimeZone) : (DateTime?)null;
+            var importDateEnd = !String.IsNullOrWhiteSpace(importDateEndValue) ? DateTime.Parse(importDateEndValue).ToTimeZone(defaultTimeZone) : (DateTime?)null;
+            var offsetHours = manager.Ingest.GetConfigurationValue<int?>("offsetHours", null);
+            var importDelayMs = manager.Ingest.GetConfigurationValue<int?>("importDelayMs", null);
+            var forceUpdate = manager.Ingest.GetConfigurationValue<bool>("forceUpdate", this.Options.ForceUpdate);
+
+            // If the config changes, start from the beginning again.
+            if (originalImportDateStart != importDateStart || originalImportDateEnd != importDateEnd || originalOffsetHours != offsetHours) skip = 0;
+
             try
             {
-                var baseFilter = contentMigrator.GetBaseFilter(manager.Ingest.IngestType.ContentType);
+                var items = GetNewsItems(manager.Ingest.IngestType.ContentType, importMigrationType, contentMigrator, publishedOnly, offsetHours, importDateStart, importDateEnd, creationDateOfLastImport, skip);
+                retrievedRecords = items.Length;
+                this.Logger.LogInformation("Ingest [{name}] retrieved [{countOfRecordsRetrieved}] records", manager.Ingest.Name, retrievedRecords);
 
-                IQueryable<NewsItem>? items = null;
-                switch (importMigrationType)
+                DateTime? lastReceivedContentOn = null;
+                if (retrievedRecords == 0 && importDateEnd.HasValue)
                 {
-                    case ImportMigrationType.Historic:
-                    case ImportMigrationType.Recent:
-                        items = GetFilteredNewsItems(_sourceContext.NewsItems, baseFilter, skip, this.Options.MaxRecordsPerRetrieval, manager.Ingest.LastRanOn, importDateStart, importDateEnd, creationDateOfLastImport, migrationTimeOffsetInHours);
-                        break;
-                    case ImportMigrationType.RecentlyPublished:
-                        maxIngestedRecords = int.MaxValue; // we need to ingest *ALL* the recently published items, so we cant set a chunk size :(
-                        items = GetRecentlyPublishedNewsItems(_sourceContext.NewsItems, baseFilter, skip, this.Options.MaxRecordsPerRetrieval, migrationTimeOffsetInHours);
-                        break;
+                    this.Logger.LogDebug("Ingest [{name}] - no records prior to import end date filter [{importDateEnd}] records", manager.Ingest.Name, importDateEnd.Value.ToString("yyyy-MM-dd h:mm:ss tt"));
+                    lastReceivedContentOn = importDateEnd.Value;
                 }
 
-                if (items != null)
+                await items.ForEachAsync(async newsItem =>
                 {
-                    this.Logger.LogDebug(items!.ToQueryString());
-                    countOfRecordsRetrieved = items.Count();
-                    this.Logger.LogDebug("Ingest [{name}] retrieved [{countOfRecordsRetrieved}] records", manager.Ingest.Name, countOfRecordsRetrieved);
+                    await MigrateNewsItemAsync(manager, contentMigrator, newsItem, defaultTimeZone, forceUpdate);
+                    lastReceivedContentOn = newsItem.UpdatedOn;
 
-                    if (countOfRecordsRetrieved == 0 && importDateEnd.HasValue)
-                    {
-                        this.Logger.LogDebug("Ingest [{name}] - no records prior to import end date filter [{importDateEnd}] records", manager.Ingest.Name, importDateEnd.Value.ToString("yyyy-MM-dd h:mm:ss tt"));
-                        creationDateOfLastImport = importDateEnd.Value;
-                    }
+                    // This ingest has just processed a story.
+                    manager.Ingest = await manager.UpdateIngestStateFailedAttemptsAsync(0);
+                });
 
-                    await items.ForEachAsync(async newsItem =>
-                    {
-                        await MigrateNewsItemAsync(manager, contentMigrator, lookups, newsItem, defaultTimeZone);
-                        creationDateOfLastImport = newsItem.UpdatedOn;
+                // Inform the ingest to pick up where it left off so that the next time it runs it will continue rather than restart.
+                if (lastReceivedContentOn.HasValue && (!offsetHours.HasValue || offsetHours == 0))
+                    manager.Ingest = await manager.UpdateIngestStateFailedAttemptsAsync(0, lastReceivedContentOn.Value);
 
-                        // This ingest has just processed a story.
-                        await manager.UpdateIngestStateFailedAttemptsAsync(manager.Ingest.FailedAttempts);
-                    });
+                skip += retrievedRecords;
+                if (retrievedRecords == 0) continueFetchingRecords = false;
+                else if (importDelayMs.HasValue && importDelayMs > 0)
+                {
+                    // Artificial delay to reduce creating lag.
+                    await Task.Delay(importDelayMs.Value, cancellationToken);
                 }
-
-                // might not have a date set here if the filter retrieved no records
-                if (creationDateOfLastImport != null)
-                    await manager.UpdateIngestStateCreationDateOfLastItemAsync(creationDateOfLastImport!.Value);
-
-                skip += countOfRecordsRetrieved;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Logger.LogError("Migration Failed on {skip}:{count}", skip, countOfRecordsRetrieved);
-                // only update the DateTime.MinValue value if it was set
-                if (creationDateOfLastImport != null)
-                    await manager.UpdateIngestStateCreationDateOfLastItemAsync(creationDateOfLastImport!.Value);
-                throw;
+                // Reached limit return to ingest manager.
+                if (manager.Ingest.FailedAttempts + 1 >= manager.Ingest.RetryLimit)
+                    throw;
+
+                Logger.LogError(ex, "Migration Failed on {skip}:{count}", skip, retrievedRecords);
+                await manager.RecordFailureAsync(ex);
+                await manager.SendEmailAsync($"Failed to ingest item for ingest '{manager.Ingest.Name}'", ex);
             }
         }
 
@@ -355,166 +302,125 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     /// </summary>
     /// <param name="manager"></param>
     /// <param name="contentMigrator"></param>
-    /// <param name="lookups"></param>
     /// <param name="newsItem"></param>
     /// <param name="defaultTimeZone"></param>
+    /// <param name="forceUpdate"></param>
     /// <returns></returns>
     public async Task MigrateNewsItemAsync(
         IIngestActionManager manager,
         IContentMigrator contentMigrator,
-        API.Areas.Editor.Models.Lookup.LookupModel? lookups,
         NewsItem newsItem,
-        string defaultTimeZone)
+        string defaultTimeZone,
+        bool forceUpdate)
     {
-        if (lookups == null)
-        {
-            this.Logger.LogError("Lookups cannot be null");
-            throw new ArgumentNullException(nameof(lookups));
-        }
+        if (_lookups == null) return;
 
         try
         {
-            SourceModel? source = contentMigrator.GetSourceMapping(lookups.Sources, newsItem.Source);
+            var source = contentMigrator.GetSourceMapping(_lookups.Sources, newsItem.Source);
             if (source == null)
             {
                 // if we don't have a custom mapping, fallback to our Ingest 'DEFAULT' mapping
                 // TODO: KGM - When this happens, store the TNO 1.0 "Source" in "Other Source" field
-                source = contentMigrator.GetSourceMapping(lookups.Sources, manager.Ingest.Source!.Code);
+                source = contentMigrator.GetSourceMapping(_lookups.Sources, manager.Ingest.Source?.Code);
                 if (source == null)
                 {
                     this.Logger.LogWarning("Couldn't map to Source for NewsItem with source '{sourceName}'", newsItem.Source);
                     return;
                 }
             }
-            MediaTypeModel? mediaType = contentMigrator.GetMediaTypeMapping(lookups.MediaTypes, newsItem.Type);
+            var mediaType = contentMigrator.GetMediaTypeMapping(_lookups.MediaTypes, newsItem.Type);
             if (mediaType == null)
             {
                 this.Logger.LogWarning("Couldn't map to Media Type for NewsItem with type '{sourceName}'", newsItem.Type);
                 return;
             }
 
-            var sourceContent = contentMigrator.CreateSourceContent(lookups, source!, mediaType, manager.Ingest.IngestType!.ContentType, newsItem, defaultTimeZone);
+            var sourceContent = contentMigrator.CreateSourceContent(_lookups, source!, mediaType, manager.Ingest.IngestType!.ContentType, newsItem, defaultTimeZone);
             if (this.Options.TagForMigratedContent != "")
             {
                 sourceContent.Tags = sourceContent.Tags.Append(new TNO.Kafka.Models.Tag(this.Options.TagForMigratedContent, ""));
             }
-            bool isNewSourceContent = false;
-            bool isUpdatedSourceContent = false;
+
+            // Fetch or create a content reference.  This is a locking mechanism to ensure only one process works on a single piece of content.
+            var addOrUpdateContent = forceUpdate;
             var reference = await this.FindContentReferenceAsync(source?.Code, sourceContent.Uid);
             if (reference == null)
             {
-                isNewSourceContent = true;
+                addOrUpdateContent = true;
                 reference = contentMigrator.CreateContentReference(source!, manager.Ingest.Topic, newsItem, sourceContent.Uid, defaultTimeZone);
+                reference = await this.Api.AddContentReferenceAsync(reference) ?? throw new InvalidOperationException("Failed to return content reference");
+                Logger.LogInformation("Migrating content {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
             }
-            else
+            else if (reference != null && reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
             {
-                // check if this is content, previously ingested by this service, but has been updated by an Editor in TNO
-                DateTime originalLastUpdateDate = DateTime.MinValue;
-                string originalSource = String.Empty;
-                bool originalIsContentPublished = false;
-                if (reference.Metadata.ContainsKey(ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn))
-                {
-                    if (!DateTime.TryParse(reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn].ToString(), out originalLastUpdateDate))
-                        originalLastUpdateDate = DateTime.MinValue;
-                }
-                if (reference.Metadata.ContainsKey(ContentReferenceMetaDataKeys.MetadataKeyIngestSource))
-                {
-                    originalSource = reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyIngestSource].ToString() ?? String.Empty;
-                }
-                if (reference.Metadata.ContainsKey(ContentReferenceMetaDataKeys.MetadataKeyIsContentPublished))
-                {
-                    if (!Boolean.TryParse(reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyIsContentPublished].ToString(), out originalIsContentPublished))
-                        originalIsContentPublished = false;
-                }
+                // If another process has it in progress only attempt to do an Migration if it's
+                // more than an 5 minutes old. Assumption is that it is stuck.
+                addOrUpdateContent = true;
+                reference.PublishedOn = sourceContent.PublishedOn;
+                reference.SourceUpdateOn = sourceContent.UpdatedOn;
+                reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
+                Logger.LogInformation("Updating migrated content {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
+            }
+            else if (reference != null)
+            {
+                // check if this is content previously ingested by this service, but has been updated by an Editor in TNO
+                var originalLastUpdateDate = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.UpdatedOn, out object? contentUpdatedOn) ? (DateTime.TryParse(contentUpdatedOn?.ToString(), out DateTime updatedOn) ? updatedOn : DateTime.MinValue) : DateTime.MinValue;
+                var originalIsContentPublished = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsContentPublished, out object? contentIsPublished) && Boolean.TryParse(contentIsPublished?.ToString(), out bool isPublished) && isPublished;
+                var originalIsFeaturedStory = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsFeaturedStory, out object? contentIsFeaturedStory) && Boolean.TryParse(contentIsFeaturedStory?.ToString(), out bool isFeaturedStory) && isFeaturedStory;
+                var originalIsTopStory = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsTopStory, out object? contentIsTopStory) && Boolean.TryParse(contentIsTopStory?.ToString(), out bool isTopStory) && isTopStory;
+                var originalIsAlert = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsAlert, out object? contentIsAlert) && Boolean.TryParse(contentIsAlert?.ToString(), out bool isAlert) && isAlert;
+                var originalIsCommentary = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsCommentary, out object? contentIsCommentary) && Boolean.TryParse(contentIsCommentary?.ToString(), out bool isCommentary) && isCommentary;
+                var originalCommentaryTimeout = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.CommentaryTimeout, out object? contentCommentaryTimeout) ? (Int32.TryParse(contentCommentaryTimeout?.ToString(), out int commentaryTimeout) ? commentaryTimeout : (int?)null) : null;
+                var originalEoDGroup = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.EoDGroup, out object? contentEoDGroup) ? contentEoDGroup?.ToString() : null;
+                var originalEoDCategory = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.EoDCategory, out object? contentEoDCategory) ? contentEoDCategory?.ToString() : null;
+                var originalTopicScore = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.TopicScore, out object? contentTopicScore) ? (Int32.TryParse(contentTopicScore?.ToString(), out int topicScore) ? topicScore : (int?)null) : null;
+                var originalToneValue = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.ToneValue, out object? contentToneValue) ? (Int32.TryParse(contentToneValue?.ToString(), out int toneValue) ? toneValue : (int?)null) : null;
 
                 // IF this record was previously ingested from TNO by the Content Migration Service
                 // AND ((it has been updated since it's original ingest)
                 //  OR (the published status of the TNO items has changed))
                 // THEN trigger an update to the content
-                if ((sourceContent.UpdatedOn > originalLastUpdateDate) || (newsItem.Published != originalIsContentPublished))
+                if ((sourceContent.UpdatedOn > originalLastUpdateDate)
+                    || (newsItem.Published != originalIsContentPublished)
+                    || (newsItem.FrontPageStory != originalIsFeaturedStory)
+                    || (newsItem.WapTopStory != originalIsTopStory)
+                    || (newsItem.Alert != originalIsAlert)
+                    || (newsItem.Commentary != originalIsCommentary)
+                    || (newsItem.CommentaryTimeout != originalCommentaryTimeout)
+                    || (newsItem.EodGroup != originalEoDGroup)
+                    || (newsItem.EodCategory != originalEoDCategory)
+                    || (newsItem.Topics.FirstOrDefault()?.Score != originalTopicScore)
+                    || (newsItem.Tones.FirstOrDefault()?.ToneValue != originalToneValue))
                 {
-                    isUpdatedSourceContent = true;
-                    reference.Status = (int)WorkflowStatus.InProgress;
-                    // make sure the published status on the reference is up to date
-                    reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyIsContentPublished] = newsItem.Published;
-                    // update the stored UpdatedOn value
-                    reference.Metadata[ContentReferenceMetaDataKeys.MetadataKeyUpdatedOn] = sourceContent.UpdatedOn?.ToString("yyyy-MM-dd h:mm:ss tt") ?? DateTime.Now.ToString("yyyy-MM-dd h:mm:ss tt");
+                    addOrUpdateContent = true;
+
+                    // Update the content reference so that we can compare future fetches.
+                    reference.PublishedOn = sourceContent.PublishedOn;
+                    reference.SourceUpdateOn = sourceContent.UpdatedOn;
+                    reference.Metadata[ContentReferenceMetaDataKeys.IsContentPublished] = newsItem.Published;
+                    reference.Metadata[ContentReferenceMetaDataKeys.UpdatedOn] = sourceContent.UpdatedOn?.ToString("yyyy-MM-dd h:mm:ss tt") ?? DateTime.Now.ToString("yyyy-MM-dd h:mm:ss tt");
+                    reference.Metadata[ContentReferenceMetaDataKeys.IsFeaturedStory] = newsItem.FrontPageStory;
+                    reference.Metadata[ContentReferenceMetaDataKeys.IsTopStory] = newsItem.WapTopStory;
+                    reference.Metadata[ContentReferenceMetaDataKeys.IsAlert] = newsItem.Alert;
+                    reference.Metadata[ContentReferenceMetaDataKeys.IsCommentary] = newsItem.Commentary;
+                    reference.Metadata[ContentReferenceMetaDataKeys.CommentaryTimeout] = newsItem.CommentaryTimeout;
+                    reference.Metadata[ContentReferenceMetaDataKeys.EoDGroup] = newsItem.EodGroup;
+                    reference.Metadata[ContentReferenceMetaDataKeys.EoDCategory] = newsItem.EodCategory;
+                    reference.Metadata[ContentReferenceMetaDataKeys.TopicScore] = newsItem.Topics.FirstOrDefault()?.Score;
+                    reference.Metadata[ContentReferenceMetaDataKeys.ToneValue] = newsItem.Tones.FirstOrDefault()?.ToneValue;
+
+                    reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
                     // What about the worst case scenario: one Editor changes it in MMI and another Editor changes it in TNO?
                     Logger.LogInformation("Received updated content from TNO. Forcing an update to the MMI Content : {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
                 }
             }
 
-            if (isNewSourceContent)
+            // Send the source content to Kafka so that it can be added or updated in MMI.
+            if (addOrUpdateContent)
             {
-                reference = await this.Api.AddContentReferenceAsync(reference);
-                Logger.LogInformation("Migrating content {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
-            }
-
-            if (isNewSourceContent || isUpdatedSourceContent)
-            {
-                try
-                {
-                    if (newsItem.FilePath != null)
-                    {
-                        if (string.IsNullOrEmpty(newsItem.ContentType))
-                        {
-                            string ext = Path.GetExtension(newsItem.FilePath);
-                            switch (ext.ToUpper())
-                            {
-                                case ".DOC":
-                                    newsItem.ContentType = "application/msword";
-                                    break;
-                                case ".GIF":
-                                    newsItem.ContentType = "image/gif";
-                                    break;
-                                case ".JPEG":
-                                case ".JPG":
-                                    newsItem.ContentType = "image/jpeg";
-                                    break;
-                                case ".HTM":
-                                    newsItem.ContentType = "text/html";
-                                    break;
-                                case ".MOV":
-                                case ".MP4":
-                                case ".M4A":
-                                    newsItem.ContentType = "video/quicktime";
-                                    break;
-                                case ".PDF":
-                                    newsItem.ContentType = "application/pdf";
-                                    break;
-                                case ".TXT":
-                                    newsItem.ContentType = "text/plain";
-                                    break;
-                            }
-                        }
-
-                        if (string.IsNullOrEmpty(newsItem.ContentType))
-                        {
-                            Logger.LogWarning("Skipping file migration, ContentType is missing {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
-                        }
-                        else
-                        {
-                            string contentStagingFolderName = GetOutputPathPrefix(manager.Ingest);
-                            await contentMigrator.CopyFileAsync(new Models.FileMigrationModel(newsItem.RSN, Path.GetDirectoryName(newsItem.FilePath)!, Path.GetFileName(newsItem.FilePath), newsItem.ContentType!), contentStagingFolderName);
-                            sourceContent.FilePath = Path.Combine(contentStagingFolderName, newsItem.FilePath);
-                            Logger.LogInformation("Migrating file associated with content content {RSN}:{Title}:[{filePath}]", newsItem.RSN, newsItem.Title, sourceContent.FilePath);
-                        }
-                    }
-                }
-                catch (FileNotFoundException)
-                {
-                    // nothing we can do about it if the source content is archived/gone...
-                    Logger.LogWarning("Migration source file content for RSN:{RSN} Path:{filePath} is missing", newsItem.RSN, newsItem.FilePath);
-                }
-
-                await ContentReceivedAsync(manager, reference, sourceContent);
-            }
-            else if (reference != null & reference?.Status == (int)WorkflowStatus.InProgress && reference?.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
-            {
-                // If another process has it in progress only attempt to do an Migration if it's
-                // more than an 5 minutes old. Assumption is that it is stuck.
-                reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
-                Logger.LogInformation("Updating migrated content {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
+                await LinkFile(manager, contentMigrator, newsItem, sourceContent);
+                await ContentReceivedAsync(manager, reference, sourceContent, forceUpdate);
             }
             else
             {
@@ -530,6 +436,76 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}'", manager.Ingest.Name);
             await manager.RecordFailureAsync(ex);
             await manager.SendEmailAsync($"Failed to ingest item for ingest '{manager.Ingest.Name}'", ex);
+        }
+    }
+
+    /// <summary>
+    /// Link the associated file if it exists.
+    /// </summary>
+    /// <param name="manager"></param>
+    /// <param name="contentMigrator"></param>
+    /// <param name="newsItem"></param>
+    /// <param name="sourceContent"></param>
+    /// <returns></returns>
+    private async Task LinkFile(
+        IIngestActionManager manager,
+        IContentMigrator contentMigrator,
+        NewsItem newsItem,
+        Kafka.Models.SourceContent sourceContent)
+    {
+        if (newsItem.FilePath != null)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(newsItem.ContentType))
+                {
+                    string ext = Path.GetExtension(newsItem.FilePath);
+                    switch (ext.ToUpper())
+                    {
+                        case ".DOC":
+                            newsItem.ContentType = "application/msword";
+                            break;
+                        case ".GIF":
+                            newsItem.ContentType = "image/gif";
+                            break;
+                        case ".JPEG":
+                        case ".JPG":
+                            newsItem.ContentType = "image/jpeg";
+                            break;
+                        case ".HTM":
+                            newsItem.ContentType = "text/html";
+                            break;
+                        case ".MOV":
+                        case ".MP4":
+                        case ".M4A":
+                            newsItem.ContentType = "video/quicktime";
+                            break;
+                        case ".PDF":
+                            newsItem.ContentType = "application/pdf";
+                            break;
+                        case ".TXT":
+                            newsItem.ContentType = "text/plain";
+                            break;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(newsItem.ContentType))
+                {
+                    Logger.LogWarning("Skipping file migration, ContentType is missing {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
+                }
+                else
+                {
+                    string contentStagingFolderName = GetOutputPathPrefix(manager.Ingest);
+                    await contentMigrator.CopyFileAsync(new Models.FileMigrationModel(newsItem.RSN, Path.GetDirectoryName(newsItem.FilePath)!, Path.GetFileName(newsItem.FilePath), newsItem.ContentType!), contentStagingFolderName);
+                    sourceContent.FilePath = Path.Combine(contentStagingFolderName, newsItem.FilePath);
+                    Logger.LogInformation("Migrating file associated with content content {RSN}:{Title}:[{filePath}]", newsItem.RSN, newsItem.Title, sourceContent.FilePath);
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                // nothing we can do about it if the source content is archived/gone...
+                Logger.LogWarning("Migration source file content for RSN:{RSN} Path:{filePath} is missing", newsItem.RSN, newsItem.FilePath);
+            }
         }
     }
 

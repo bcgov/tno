@@ -1,9 +1,12 @@
+import { Action } from 'components/action/Action';
 import React from 'react';
+import { FaEye, FaX } from 'react-icons/fa6';
 import { useApp, useReportInstances } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Col, Loading, Show } from 'tno-core';
+import { Col, Loading, Row, Show } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
+import * as styled from './styled';
 
 export const ReportView = () => {
   const { values } = useReportEditContext();
@@ -32,11 +35,25 @@ export const ReportView = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  if (!reportOutput) return null;
+
   return (
-    <div className="report-edit-section">
+    <styled.ReportView className="report-edit-section">
       <Show visible={isLoading}>
         <Loading />
       </Show>
+      <div>
+        <Row className="report-edit-headline-row" alignItems="first baseline" gap="0.5em">
+          <FaEye size={18} />
+          <h1>Preview Report</h1>
+          <Action
+            icon={<FaX className="icon-close" />}
+            onClick={() => storeReportOutput(undefined)}
+            id="icon-close"
+          />
+        </Row>
+      </div>
+
       <Col className="preview-report">
         <div
           className="preview-subject"
@@ -47,6 +64,6 @@ export const ReportView = () => {
           dangerouslySetInnerHTML={{ __html: reportOutput?.body ?? '' }}
         ></div>
       </Col>
-    </div>
+    </styled.ReportView>
   );
 };

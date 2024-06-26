@@ -1,8 +1,5 @@
-using System;
 using System.Globalization;
 using System.IO.Compression;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -367,34 +364,14 @@ public class ImageAction : IngestAction<ImageOptions>
         return new ContentReferenceModel()
         {
             Source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code."),
-            Uid = GetContentHash(ingest.Source.Code, $"{ingest.IngestType?.Name ?? "Image"} : {ingest.Name}", publishedOn),
+            Uid = Runners.BaseService.GetContentHash(ingest.Source.Code, $"{ingest.IngestType?.Name ?? "Image"} : {ingest.Name}", publishedOn),
             PublishedOn = publishedOn,
             Topic = ingest.Topic,
             Status = (int)WorkflowStatus.InProgress,
-            Metadata = new Dictionary<string, object> {
-                { ContentReferenceMetaDataKeys.MetadataKeyIngestSource, ingest.Source!.Code }
+            Metadata = new Dictionary<string, object?> {
+                { ContentReferenceMetaDataKeys.IngestSource, ingest.Source!.Code }
             }
         };
-    }
-
-
-    /// <summary>
-    /// Create a unique hash for the specified 'source', 'headline', and 'publishedOn'
-    /// Override the base method here as we don't want to be quite so specific with the date
-    /// </summary>
-    /// <param name="source"></param>
-    /// <param name="headline"></param>
-    /// <param name="publishedOn"></param>
-    /// <returns></returns>
-    private new static string GetContentHash(string source, string headline, DateTime? publishedOn)
-    {
-        // if we get to a stage where we can ingest multiple DIFFERENT
-        // images per day from an ingest this has will have to be changed
-        var date = publishedOn.HasValue ? $"{publishedOn:yyyy-MM-dd}" : "";
-        string hashInput = $"{source}:{headline}:{date}";
-        var inputBytes = Encoding.UTF8.GetBytes(hashInput);
-        var inputHash = SHA256.HashData(inputBytes);
-        return Convert.ToHexString(inputHash);
     }
 
     /// <summary>

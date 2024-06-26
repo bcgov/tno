@@ -183,12 +183,12 @@ public class ClipAction : CommandAction<ClipOptions>
         return new ContentReferenceModel()
         {
             Source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' missing source code."),
-            Uid = GetContentHash(ingest.Source.Code, $"{schedule.Name}:{schedule.Id}", publishedOn),
+            Uid = Runners.BaseService.GetContentHash(ingest.Source.Code, $"{schedule.Name}:{schedule.Id}", publishedOn),
             PublishedOn = this.ToTimeZone(publishedOn, ingest).ToUniversalTime(),
             Topic = ingest.Topic,
             Status = (int)WorkflowStatus.InProgress,
-            Metadata = new Dictionary<string, object> {
-                { ContentReferenceMetaDataKeys.MetadataKeyIngestSource, ingest.Source!.Code }
+            Metadata = new Dictionary<string, object?> {
+                { ContentReferenceMetaDataKeys.IngestSource, ingest.Source!.Code }
             }
         };
     }

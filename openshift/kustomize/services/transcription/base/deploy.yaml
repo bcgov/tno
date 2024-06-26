@@ -162,6 +162,11 @@ spec:
                 configMapKeyRef:
                   name: transcription-service
                   key: NOTIFICATION_TOPIC
+            - name: Service__IgnoreContentPublishedBeforeOffset
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: IGNORE_CONTENT_PUBLISHED_BEFORE_OFFSET
 
             # CHES Configuration
             - name: CHES__From

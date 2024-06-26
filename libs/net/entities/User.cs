@@ -87,6 +87,12 @@ public class User : AuditColumns
     public bool IsSystemAccount { get; set; }
 
     /// <summary>
+    /// get/set - The user account type.
+    /// </summary>
+    [Column("account_type")]
+    public UserAccountType AccountType { get; set; }
+
+    /// <summary>
     /// get/set - The last time this user logged in.
     /// </summary>
     [Column("last_login_on")]
@@ -270,8 +276,9 @@ public class User : AuditColumns
     /// </summary>
     /// <param name="username"></param>
     /// <param name="email"></param>
+    /// <param name="accountType"></param>
     /// <exception cref="ArgumentException"></exception>
-    public User(string username, string email) : this(username, email, Guid.NewGuid().ToString())
+    public User(string username, string email, UserAccountType accountType = UserAccountType.Direct) : this(username, email, Guid.NewGuid().ToString(), accountType)
     {
     }
 
@@ -281,8 +288,9 @@ public class User : AuditColumns
     /// <param name="username"></param>
     /// <param name="email"></param>
     /// <param name="key"></param>
+    /// <param name="accountType"></param>
     /// <exception cref="ArgumentException"></exception>
-    public User(string username, string email, string key)
+    public User(string username, string email, string key, UserAccountType accountType = UserAccountType.Direct)
     {
         if (String.IsNullOrWhiteSpace(username)) throw new ArgumentException("Parameter is required, not null, empty or whitespace", nameof(username));
 
@@ -290,6 +298,7 @@ public class User : AuditColumns
         this.Email = email ?? throw new ArgumentNullException(nameof(email));
         this.Key = key;
         this.DisplayName = username;
+        this.AccountType = accountType;
     }
     #endregion
 }

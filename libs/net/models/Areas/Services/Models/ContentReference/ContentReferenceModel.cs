@@ -4,16 +4,6 @@ using TNO.Entities;
 
 namespace TNO.API.Areas.Services.Models.ContentReference;
 
-public static class ContentReferenceMetaDataKeys
-{
-    #region Constants
-    public const string MetadataKeyUpdatedOn = "UpdatedOn";
-    public const string MetadataKeyIngestSource = "IngestSource";
-    public const string MetadataKeyOriginalIngestSource = "OriginalIngestSource";
-    public const string MetadataKeyIsContentPublished = "IsContentPublished";
-    #endregion
-}
-
 /// <summary>
 /// ContentReferenceModel class, provides a model that represents an content reference.
 /// </summary>
@@ -38,7 +28,7 @@ public class ContentReferenceModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
+    public Dictionary<string, object?> Metadata { get; set; } = new Dictionary<string, object?>();
 
     /// <summary>
     /// get/set -
@@ -76,8 +66,8 @@ public class ContentReferenceModel : AuditColumnsModel
         this.PublishedOn = entity.PublishedOn;
         this.SourceUpdateOn = entity.SourceUpdateOn;
         this.Metadata = entity?.Metadata != null
-            ? JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Metadata, options) ?? new Dictionary<string, object>()
-            : new Dictionary<string, object>();
+            ? JsonSerializer.Deserialize<Dictionary<string, object?>>(entity.Metadata, options) ?? new Dictionary<string, object?>()
+            : new Dictionary<string, object?>();
     }
     #endregion
 

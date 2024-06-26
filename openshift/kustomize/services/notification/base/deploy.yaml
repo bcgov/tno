@@ -133,6 +133,11 @@ spec:
                 configMapKeyRef:
                   name: notification-service
                   key: TOPICS
+            - name: Service__IgnoreContentPublishedBeforeOffset
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: IGNORE_CONTENT_PUBLISHED_BEFORE_OFFSET
 
             # Shared Reporting Configuration
             - name: Reporting__SubscriberAppUrl

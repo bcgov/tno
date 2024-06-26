@@ -13,6 +13,11 @@ public class FolderCollectionOptions : ServiceOptions
     /// get/set - A comma separated list of Kafka topics to consume.
     /// </summary>
     public string Topics { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Ignore any content that was indexed before this day offset.
+    /// </summary>
+    public int? IgnoreContentPublishedBeforeOffset { get; set; }
     #endregion
 
     #region Methods

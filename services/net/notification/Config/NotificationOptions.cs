@@ -18,5 +18,10 @@ public class NotificationOptions : ServiceOptions
     /// get/set - The primary key to the alert action.
     /// </summary>
     public int AlertId { get; set; }
+
+    /// <summary>
+    /// get/set - Ignore any content that was indexed before this day offset.
+    /// </summary>
+    public int? IgnoreContentPublishedBeforeOffset { get; set; }
     #endregion
 }
