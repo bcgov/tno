@@ -9,7 +9,7 @@ import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { useContent, useSettings } from 'store/hooks';
-import { generateQuery, IContentModel } from 'tno-core';
+import { generateQuery, IContentModel, Loading, Show } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -27,13 +27,14 @@ export const TopStories: React.FC = () => {
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
+  const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
-    if (isReady && hasProcessedInitialPreferences) {
+    if (isReady && hasProcessedInitialPreferences && !loading) {
       let actionFilters = getActionFilters();
       const topStoryAction = actionFilters.find((a) => a.id === topStoryActionId);
-
+      setLoading(true);
       findContentWithElasticsearch(
         generateQuery(
           filterFormat({
@@ -51,6 +52,7 @@ export const TopStories: React.FC = () => {
             return castToSearchResult(content);
           }),
         );
+        setLoading(false);
       });
     }
   }, [
@@ -64,6 +66,7 @@ export const TopStories: React.FC = () => {
 
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);
+    setLoading(false);
   }, []);
   return (
     <styled.TopStories>
@@ -72,6 +75,9 @@ export const TopStories: React.FC = () => {
         onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
       />
       <DateFilter filter={filter} storeFilter={storeFilter} />
+      <Show visible={loading}>
+        <Loading />
+      </Show>
       <ContentList
         content={content}
         onContentSelected={handleContentSelected}

@@ -13,8 +13,10 @@ import {
   generateQuery,
   IContentModel,
   IFilterSettingsModel,
+  Loading,
   Row,
   Select,
+  Show,
 } from 'tno-core';
 
 import { IDateOptions, IGroupedDates, IPressMember } from './interfaces';
@@ -134,6 +136,7 @@ export const PressGallery: React.FC = () => {
 
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);
+    setLoading(false);
   }, []);
 
   return (
@@ -226,6 +229,9 @@ export const PressGallery: React.FC = () => {
           }}
         />
       </Row>
+      <Show visible={loading}>
+        <Loading />
+      </Show>
       <ContentList
         onContentSelected={handleContentSelected}
         content={content}
