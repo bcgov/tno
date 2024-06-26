@@ -1,5 +1,3 @@
-import SVG from 'react-inlinesvg';
-
 import IconInternalServerError from '../../../assets/500.svg';
 import * as styled from './InternalServerErrorStyled';
 
@@ -11,7 +9,7 @@ export const InternalServerError: React.FC = () => {
   return (
     <styled.InternalServerError>
       <div>
-        <SVG src={IconInternalServerError} />
+        <IconInternalServerError />
         <div>
           <h1>500: Internal Server Error</h1>
           <p>An unexpected error has occurred.</p>

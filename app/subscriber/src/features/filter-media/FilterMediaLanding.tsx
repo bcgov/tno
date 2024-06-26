@@ -41,25 +41,27 @@ export const FilterMediaLanding: React.FC = () => {
   // init
   React.useEffect(() => {
     if (loaded && mediaGroups && !activeFilter) {
-      const dailyPrintMediaGroup = subMediaGroups.find((sg) => sg.label === 'Daily Print');
-      if (dailyPrintMediaGroup) {
-        setActiveFilter(dailyPrintMediaGroup);
+      const activeSubMediaGroup =
+        subMediaGroups.find((sg) => sg.label === filter.activeSubGroup) ??
+        subMediaGroups.find((sg) => sg.label === 'Daily Print');
+      if (activeSubMediaGroup) {
+        setActiveFilter(activeSubMediaGroup);
         setActiveSource(null);
-        setNarrowedOptions(dailyPrintMediaGroup?.options ?? []);
-        checkAllOptions(dailyPrintMediaGroup, true);
+        setNarrowedOptions(activeSubMediaGroup?.options ?? []);
+        checkAllOptions(activeSubMediaGroup, true);
         let seriesIds: number[] = [];
         let sourceIds: number[] = [];
-        if (dailyPrintMediaGroup?.listOption === ListOptionName.Series) {
-          seriesIds = dailyPrintMediaGroup.options.map((x) => x.id);
+        if (activeSubMediaGroup?.listOption === ListOptionName.Series) {
+          seriesIds = activeSubMediaGroup.options.map((x) => x.id);
         }
-        if (dailyPrintMediaGroup?.listOption === ListOptionName.Source) {
-          sourceIds = dailyPrintMediaGroup.options.map((x) => x.id);
+        if (activeSubMediaGroup?.listOption === ListOptionName.Source) {
+          sourceIds = activeSubMediaGroup.options.map((x) => x.id);
         }
         const newFilter: IFilterSettingsModel = {
           ...filter,
           startDate: moment(new Date()).startOf('day').toISOString(),
           endDate: moment(new Date()).endOf('day').toISOString(),
-          mediaTypeIds: [dailyPrintMediaGroup.key],
+          mediaTypeIds: [activeSubMediaGroup.key],
           seriesIds,
           sourceIds,
         };
@@ -163,6 +165,7 @@ export const FilterMediaLanding: React.FC = () => {
         mediaTypeIds: [mediaGroup.key],
       });
       setActiveFilter(mediaGroup);
+      storeFilter({ ...filter, activeSubGroup: mediaGroup.label });
       setParentClicked(true);
     },
     [filter, storeFilter],

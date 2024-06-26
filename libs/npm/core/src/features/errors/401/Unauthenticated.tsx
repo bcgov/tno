@@ -1,5 +1,3 @@
-import SVG from 'react-inlinesvg';
-
 import IconUnauthenticated from '../../../assets/401.svg';
 import * as styled from './UnauthenticatedStyled';
 
@@ -11,7 +9,7 @@ export const Unauthenticated: React.FC = () => {
   return (
     <styled.Unauthenticated>
       <div>
-        <SVG src={IconUnauthenticated} />
+        <IconUnauthenticated />
         <div>
           <h1>401: Unauthenticated</h1>
           <p>You need to login.</p>

@@ -2,6 +2,7 @@ import { ContentStatusName, ContentTypeName } from '../constants';
 import { IFilterActionSettingsModel, ISortField } from '.';
 
 export interface IFilterSettingsModel {
+  activeSubGroup?: string;
   searchUnpublished: boolean;
   id?: number;
   from?: number;
