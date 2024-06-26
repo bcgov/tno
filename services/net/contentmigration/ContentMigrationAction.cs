@@ -126,7 +126,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             var query = GetFilteredNewsItems<HNewsItem>(newsItemsQuery, publishedOnly, offsetHours, startDate, endDate, lastRunDate);
             query = query.Skip(skip).Take(this.Options.MaxRecordsPerRetrieval);
 
-            this.Logger.LogDebug(query!.ToQueryString());
+            this.Logger.LogDebug("{query}", query.ToQueryString());
             return query.ToArray().Select(newsItem => (NewsItem)newsItem).ToArray();
         }
         else if (importMigrationType == ImportMigrationType.All)
@@ -135,7 +135,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             var query = GetFilteredNewsItems<AllNewsItem>(newsItemsQuery, publishedOnly, offsetHours, startDate, endDate, lastRunDate);
             query = query.Skip(skip).Take(this.Options.MaxRecordsPerRetrieval);
 
-            this.Logger.LogDebug(query!.ToQueryString());
+            this.Logger.LogDebug("{query}", query.ToQueryString());
             return query.ToArray().Select(newsItem => (NewsItem)newsItem).ToArray();
         }
         else
@@ -144,7 +144,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             var query = GetFilteredNewsItems<NewsItem>(newsItemsQuery, publishedOnly, offsetHours, startDate, endDate, lastRunDate);
             query = query.Skip(skip).Take(this.Options.MaxRecordsPerRetrieval);
 
-            this.Logger.LogDebug(query!.ToQueryString());
+            this.Logger.LogDebug("{query}", query.ToQueryString());
             return query.ToArray();
         }
     }
@@ -243,7 +243,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             {
                 var items = GetNewsItems(manager.Ingest.IngestType.ContentType, importMigrationType, contentMigrator, publishedOnly, offsetHours, importDateStart, importDateEnd, creationDateOfLastImport, skip);
                 retrievedRecords = items.Length;
-                this.Logger.LogDebug("Ingest [{name}] retrieved [{countOfRecordsRetrieved}] records", manager.Ingest.Name, retrievedRecords);
+                this.Logger.LogInformation("Ingest [{name}] retrieved [{countOfRecordsRetrieved}] records", manager.Ingest.Name, retrievedRecords);
 
                 DateTime? lastReceivedContentOn = null;
                 if (retrievedRecords == 0 && importDateEnd.HasValue)
@@ -365,11 +365,11 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             {
                 // check if this is content previously ingested by this service, but has been updated by an Editor in TNO
                 var originalLastUpdateDate = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.UpdatedOn, out object? contentUpdatedOn) ? (DateTime.TryParse(contentUpdatedOn?.ToString(), out DateTime updatedOn) ? updatedOn : DateTime.MinValue) : DateTime.MinValue;
-                var originalIsContentPublished = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsContentPublished, out object? contentIsPublished) ? (Boolean.TryParse(contentIsPublished?.ToString(), out bool isPublished) ? isPublished : false) : false;
-                var originalIsFeaturedStory = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsFeaturedStory, out object? contentIsFeaturedStory) ? (Boolean.TryParse(contentIsFeaturedStory?.ToString(), out bool isFeaturedStory) ? isFeaturedStory : false) : false;
-                var originalIsTopStory = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsTopStory, out object? contentIsTopStory) ? (Boolean.TryParse(contentIsTopStory?.ToString(), out bool isTopStory) ? isTopStory : false) : false;
-                var originalIsAlert = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsAlert, out object? contentIsAlert) ? (Boolean.TryParse(contentIsAlert?.ToString(), out bool isAlert) ? isAlert : false) : false;
-                var originalIsCommentary = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsCommentary, out object? contentIsCommentary) ? (Boolean.TryParse(contentIsCommentary?.ToString(), out bool isCommentary) ? isCommentary : false) : false;
+                var originalIsContentPublished = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsContentPublished, out object? contentIsPublished) && Boolean.TryParse(contentIsPublished?.ToString(), out bool isPublished) && isPublished;
+                var originalIsFeaturedStory = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsFeaturedStory, out object? contentIsFeaturedStory) && Boolean.TryParse(contentIsFeaturedStory?.ToString(), out bool isFeaturedStory) && isFeaturedStory;
+                var originalIsTopStory = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsTopStory, out object? contentIsTopStory) && Boolean.TryParse(contentIsTopStory?.ToString(), out bool isTopStory) && isTopStory;
+                var originalIsAlert = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsAlert, out object? contentIsAlert) && Boolean.TryParse(contentIsAlert?.ToString(), out bool isAlert) && isAlert;
+                var originalIsCommentary = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.IsCommentary, out object? contentIsCommentary) && Boolean.TryParse(contentIsCommentary?.ToString(), out bool isCommentary) && isCommentary;
                 var originalCommentaryTimeout = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.CommentaryTimeout, out object? contentCommentaryTimeout) ? (Int32.TryParse(contentCommentaryTimeout?.ToString(), out int commentaryTimeout) ? commentaryTimeout : (int?)null) : null;
                 var originalEoDGroup = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.EoDGroup, out object? contentEoDGroup) ? contentEoDGroup?.ToString() : null;
                 var originalEoDCategory = reference.Metadata.TryGetValue(ContentReferenceMetaDataKeys.EoDCategory, out object? contentEoDCategory) ? contentEoDCategory?.ToString() : null;
@@ -423,7 +423,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             }
             else
             {
-                Logger.LogDebug("No action taken.  Not new, updated or stuck.  {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
+                Logger.LogInformation("No action taken.  Not new, updated or stuck.  {RSN}:{PublishedStatus}:{Title}", newsItem.RSN, newsItem.Published ? "PUBLISHED" : "UNPUBLISHED", newsItem.Title);
             }
         }
         catch (Exception ex)
