@@ -18,8 +18,8 @@ import { IReportForm, IReportInstanceContentForm } from '../interfaces';
 import { toForm } from '../utils';
 import {
   ReportContentMenuOption,
+  ReportHistoryMenuOption,
   ReportMainMenuOption,
-  ReportSendMenuOption,
   ReportSettingsMenuOption,
   ReportViewMenuOption,
 } from './constants';
@@ -27,7 +27,6 @@ import { ReportEditContentForm, ReportEditSortForm, ReportEditSummaryForm } from
 import { ReportEditActions } from './ReportEditActions';
 import { useReportEditContext } from './ReportEditContext';
 import { ReportEditMenu } from './ReportEditMenu';
-import { ReportSendForm } from './send';
 import {
   ReportEditDataSourcesForm,
   ReportEditDetailsForm,
@@ -207,10 +206,7 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
           <ReportViewForm />
         </Show>
         {/* Send Menu */}
-        <Show visible={active === ReportSendMenuOption.Send}>
-          <ReportSendForm />
-        </Show>
-        <Show visible={active === ReportSendMenuOption.History}>
+        <Show visible={active === ReportHistoryMenuOption.History}>
           <ReportHistoryForm />
         </Show>
         <ReportEditActions

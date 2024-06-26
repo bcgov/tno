@@ -8,8 +8,8 @@ import { ReportKindIcon } from '../components';
 import { getLastSent } from '../utils';
 import {
   ReportContentMenuOption,
+  ReportHistoryMenuOption,
   ReportMainMenuOption,
-  ReportSendMenuOption,
   ReportSettingsMenuOption,
 } from './constants';
 import { useReportEditContext } from './ReportEditContext';
@@ -85,8 +85,8 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
         <div>
           <MenuButton
             label="History"
-            active={active === ReportMainMenuOption.Send}
-            onClick={() => onChange?.(`/reports/${values.id}/${ReportSendMenuOption.History}`)}
+            active={active === ReportMainMenuOption.History}
+            onClick={() => onChange?.(`/reports/${values.id}/${ReportHistoryMenuOption.History}`)}
           />
         </div>
       </div>

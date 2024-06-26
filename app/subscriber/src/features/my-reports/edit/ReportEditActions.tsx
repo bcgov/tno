@@ -123,7 +123,7 @@ export const ReportEditActions = ({
           !disabled ||
           !instance?.sentOn ||
           active?.startsWith(ReportMainMenuOption.Settings) ||
-          active?.startsWith(ReportMainMenuOption.Send)
+          active?.startsWith(ReportMainMenuOption.History)
         }
       >
         <Button

@@ -2,7 +2,7 @@ export enum ReportMainMenuOption {
   Settings = 'settings',
   Content = 'content',
   View = 'view',
-  Send = 'send',
+  History = 'history',
 }
 
 export enum ReportSettingsMenuOption {
@@ -24,7 +24,6 @@ export enum ReportViewMenuOption {
   View = 'view',
 }
 
-export enum ReportSendMenuOption {
-  Send = 'send',
-  History = 'send/history',
+export enum ReportHistoryMenuOption {
+  History = 'history',
 }
