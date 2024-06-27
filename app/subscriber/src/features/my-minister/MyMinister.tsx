@@ -17,7 +17,9 @@ import {
   generateQuery,
   IContentModel,
   ITableInternalRow,
+  Loading,
   Row,
+  Show,
 } from 'tno-core';
 
 import { determineColumns } from './constants';
@@ -222,6 +224,9 @@ export const MyMinister: React.FC = () => {
           );
         })}
       </div>
+      <Show visible={loading}>
+        <Loading />
+      </Show>
       <Row className="table-container">
         <FlexboxTable
           rowId="id"

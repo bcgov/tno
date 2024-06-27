@@ -4,7 +4,7 @@ import { FolderSubMenu } from 'components/folder-sub-menu';
 import { FrontPageGallery } from 'components/front-page-gallery';
 import React from 'react';
 import { useContent, useSettings } from 'store/hooks';
-import { generateFilterQuery, IContentModel, IFilterSettingsModel } from 'tno-core';
+import { generateFilterQuery, IContentModel, IFilterSettingsModel, Loading, Show } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -21,7 +21,7 @@ export const TodaysFrontPages: React.FC = () => {
   const [frontPages, setFrontPages] = React.useState<IContentModel[]>([]);
   const [selected] = React.useState<IContentModel[]>([]);
   const [filter, setFilter] = React.useState<IFilterSettingsModel>();
-
+  const [loading, setLoading] = React.useState(false);
   React.useEffect(() => {
     storeFilter({
       size: 100,
@@ -36,6 +36,7 @@ export const TodaysFrontPages: React.FC = () => {
   const fetchResults = React.useCallback(
     async (query: MsearchMultisearchBody) => {
       try {
+        setLoading(true);
         const res: any = await findContentWithElasticsearch(query, false, 'frontPage');
         const mappedResults = res.hits?.hits?.map((h: { _source: IContentModel }) => {
           const content = h._source;
@@ -51,7 +52,10 @@ export const TodaysFrontPages: React.FC = () => {
           };
         });
         setFrontPages(mappedResults);
-      } catch {}
+      } catch {
+      } finally {
+        setLoading(false);
+      }
     },
     [findContentWithElasticsearch],
   );
@@ -73,6 +77,9 @@ export const TodaysFrontPages: React.FC = () => {
     <styled.TodaysFrontPages>
       <FolderSubMenu selectedContent={selected} />
       <DateFilter filter={frontPageFilter} storeFilter={storeFilter} />
+      <Show visible={loading}>
+        <Loading />
+      </Show>
       <FrontPageGallery frontpages={frontPages} />
     </styled.TodaysFrontPages>
   );

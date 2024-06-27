@@ -8,7 +8,7 @@ import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { useContent, useSettings } from 'store/hooks';
-import { generateQuery, IContentModel } from 'tno-core';
+import { generateQuery, IContentModel, Loading, Show } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -24,16 +24,17 @@ export const TodaysCommentary: React.FC = () => {
   const { commentaryActionId } = useSettings();
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
-
+  const [loading, setLoading] = React.useState(false);
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);
+    setLoading(false);
   }, []);
 
   React.useEffect(() => {
     if (commentaryActionId) {
       let actionFilters = getActionFilters();
       const commentaryAction = actionFilters.find((a) => a.id === commentaryActionId);
-
+      setLoading(true);
       findContentWithElasticsearch(
         generateQuery(
           filterFormat({
@@ -54,6 +55,7 @@ export const TodaysCommentary: React.FC = () => {
               return castToSearchResult(content);
             }),
           );
+          setLoading(false);
         })
         .catch();
     }
@@ -66,6 +68,9 @@ export const TodaysCommentary: React.FC = () => {
         onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
       />
       <DateFilter filter={filter} storeFilter={storeFilter} />
+      <Show visible={loading}>
+        <Loading />
+      </Show>
       <ContentList
         content={content}
         selected={selected}
