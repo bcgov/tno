@@ -230,10 +230,8 @@ public static partial class ReportExtensions
         return value switch
         {
             0 => $"<img height=\"16\" width=\"16\" style=\"height: 16px; width: 16px;\" src=\"{context.SubscriberAppUrl}assets/reports/face-neutral@2x.png\" alt=\"{value}\" />{(showSentimentValue ? $" <span style=\"color: #FFC107;font-size: 12px;\">{value}</span>" : "")}",
-            <= -3 => $"<img height=\"16\" width=\"16\" style=\"height: 16px; width: 16px;\" src=\"{context.SubscriberAppUrl}assets/reports/face-negative@2x.png\" alt=\"{value}\" />{(showSentimentValue ? $" <span style=\"color: #DC3545;font-size: 12px;\">{value}</span>" : "")}",
-            < 0 => $"<img height=\"16\" width=\"16\" style=\"height: 16px; width: 16px;\" src=\"{context.SubscriberAppUrl}assets/reports/face-neutral@2x.png\" alt=\"{value}\" />{(showSentimentValue ? $" <span style=\"color: #FFC107;font-size: 12px;\">{value}</span>" : "")}",
-            >= 3 => $"<img height=\"16\" width=\"16\" style=\"height: 16px; width: 16px;\" src=\"{context.SubscriberAppUrl}assets/reports/face-positive@2x.png\" alt=\"{value}\" />{(showSentimentValue ? $" <span style=\"color: #20C997;font-size: 12px;\">{value}</span>" : "")}",
-            > 0 => $"<img height=\"16\" width=\"16\" style=\"height: 16px; width: 16px;\" src=\"{context.SubscriberAppUrl}assets/reports/face-neutral@2x.png\" alt=\"{value}\" />{(showSentimentValue ? $" <span style=\"color: #FFC107;font-size: 12px;\">{value}</span>" : "")}",
+            < 0 => $"<img height=\"16\" width=\"16\" style=\"height: 16px; width: 16px;\" src=\"{context.SubscriberAppUrl}assets/reports/face-negative@2x.png\" alt=\"{value}\" />{(showSentimentValue ? $" <span style=\"color: #DC3545;font-size: 12px;\">{value}</span>" : "")}",
+            > 0 => $"<img height=\"16\" width=\"16\" style=\"height: 16px; width: 16px;\" src=\"{context.SubscriberAppUrl}assets/reports/face-positive@2x.png\" alt=\"{value}\" />{(showSentimentValue ? $" <span style=\"color: #20C997;font-size: 12px;\">{value}</span>" : "")}",
             _ => "",
         };
     }
