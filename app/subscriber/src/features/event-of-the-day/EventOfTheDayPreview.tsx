@@ -29,6 +29,7 @@ const EventOfTheDayPreview: React.FC = () => {
   const handleChangeReportDate = React.useCallback(
     async (eventOfTheDayReportId: number, overrideDate?: string) => {
       try {
+        setIsLoading(true);
         const filterDate = moment(overrideDate ?? eventOfTheDayFilter?.startDate)
           .startOf('day')
           .toISOString();
