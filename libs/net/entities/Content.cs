@@ -372,8 +372,6 @@ public class Content : AuditColumns
     /// <exception cref="ArgumentNullException"></exception>
     private Content(string uid, string headline, ContentType contentType, int licenseId, int mediaTypeId, int? ownerId = null)
     {
-        if (String.IsNullOrWhiteSpace(headline)) throw new ArgumentException("Parameter is required and cannot be null, empty, or whitespace", nameof(headline));
-
         this.Uid = uid ?? throw new ArgumentNullException(nameof(uid));
         this.Headline = headline;
         this.ContentType = contentType;
