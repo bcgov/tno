@@ -35,19 +35,28 @@ export const UserFormDistribution: React.FC = () => {
 
   const accountTypeOptions = getEnumStringOptions(UserAccountTypeName);
   const userOptions = users.map(
-    (u) => new OptionItem(u.preferredEmail ? u.preferredEmail : u.email, u.id),
+    (u) =>
+      new OptionItem(
+        `${u.preferredEmail ? u.preferredEmail : u.email} - ${
+          [UserAccountTypeName.Direct].includes(u.accountType)
+            ? u.username
+            : u.accountType.toString()
+        }`,
+        u.id,
+      ),
   );
 
   const addresses: IUserEmailModel[] = values.preferences?.addresses ?? [];
-
-  React.useEffect(() => {}, []);
 
   const handleFindUsers = React.useCallback(
     async (keyword: string) => {
       try {
         const results = await findUsers({ keyword });
-        setUsers(results.items);
-        setSelectedUser(results.items.length ? results.items[0].id : 0);
+        const users = results.items.filter(
+          (u) => u.accountType !== UserAccountTypeName.Distribution,
+        );
+        setUsers(users);
+        setSelectedUser(users.length ? users[0].id : 0);
       } catch {}
     },
     [findUsers],
@@ -67,7 +76,7 @@ export const UserFormDistribution: React.FC = () => {
           />
           <FormikText
             name="username"
-            label="Username"
+            label="Name"
             required
             onChange={(e) => setFieldValue('username', e.currentTarget.value.toUpperCase())}
           />
@@ -103,6 +112,7 @@ export const UserFormDistribution: React.FC = () => {
           >
             <Button
               title="Add"
+              disabled={!selectedUser}
               onClick={(e) => {
                 const user = users.find((u) => u.id === selectedUser);
                 const found = user && addresses.some((a) => a.userId === user.id);
