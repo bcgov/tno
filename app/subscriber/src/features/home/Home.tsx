@@ -8,7 +8,7 @@ import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { useContent, useSettings } from 'store/hooks';
-import { generateQuery, IContentModel, Row } from 'tno-core';
+import { generateQuery, IContentModel, Loading, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -26,17 +26,22 @@ export const Home: React.FC = () => {
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const { featuredStoryActionId } = useSettings(true);
-
+  const [loading, setLoading] = React.useState(false);
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);
+    setLoading(false);
   }, []);
 
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
       try {
+        setLoading(true);
         const res: any = await findContentWithElasticsearch(filter, false);
         setContent(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
-      } catch {}
+      } catch {
+      } finally {
+        setLoading(false);
+      }
     },
     [findContentWithElasticsearch],
   );
@@ -72,6 +77,9 @@ export const Home: React.FC = () => {
         />
       </Row>
       <DateFilter filter={filter} storeFilter={storeFilter} />
+      <Show visible={loading}>
+        <Loading />
+      </Show>
       <ContentList
         onContentSelected={handleContentSelected}
         showDate
