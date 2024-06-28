@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useFilters } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Col, Grid, IFilterModel, Row, Text, useModal } from 'tno-core';
+import { Col, Grid, IFilterModel, Loading, Row, Show, Text, useModal } from 'tno-core';
 
 import { truncateTeaser } from '../../components/content-list/utils/truncateTeaser';
 import * as styled from './styled';
@@ -20,13 +20,19 @@ export const MySearches = () => {
   const [, { storeSearchFilter }] = useContent();
   const [, { storeFilter }] = useProfileStore();
   const [{ userInfo }] = useApp();
-
+  const [loading, setLoading] = React.useState(false);
   const [active, setActive] = React.useState<IFilterModel>();
   const [editing, setEditing] = React.useState<IFilterModel>();
 
   React.useEffect(() => {
     if (userInfo && !myFilters.length) {
-      findMyFilters().catch(() => {});
+      setLoading(true);
+      findMyFilters()
+        .then((result) => {})
+        .catch((error) => {})
+        .finally(() => {
+          setLoading(false);
+        });
     }
     // Only do this on init.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -65,6 +71,9 @@ export const MySearches = () => {
 
   return (
     <styled.MySearches>
+      <Show visible={loading}>
+        <Loading />
+      </Show>
       <Grid
         items={sortedMyFilters}
         renderHeader={() => [
