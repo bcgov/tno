@@ -7,6 +7,7 @@ import { generateQueryForActions } from './generateQueryForActions';
 import { generateQueryForExistCheck } from './generateQueryForExistCheck';
 import { generateRangeForArrayField } from './generateRangeForArrayField';
 import { generateRangeForDates } from './generateRangeForDates';
+import { generateShouldQuery } from './generateShouldQuery';
 import { generateTerm } from './generateTerm';
 import { generateTerms } from './generateTerms';
 import { generateTermsForArrayField } from './generateTermsForArrayField';
@@ -28,13 +29,16 @@ export const generateQueryValues = (
     generateTerms('sourceId', settings.sourceIds),
     generateTerms('mediaTypeId', settings.mediaTypeIds),
     generateTerms('seriesId', settings.seriesIds),
-    generateTerms('contributorId', settings.contributorIds),
+    // Following line replaced by generateShouldQuery:
+    // generateTerms('contributorId', settings.contributorIds),
     generateTerms('contentType', settings.contentTypes),
     generateTerms('id', settings.contentIds),
     generateTermsForArrayField('tags.code', settings.tags),
     generateRangeForArrayField('tonePools.value', settings.sentiment),
     actionFilters.length > 1 ? { bool: { should: actionFilters } } : undefined,
     actionFilters.length === 1 ? actionFilters[0] : undefined,
+    // Search for byline with contributorName.
+    generateShouldQuery(settings),
     generateTextQuery(settings),
     settings.edition ? generateTerm('edition', settings.edition) : undefined,
     settings.section ? generateTerm('section', settings.section) : undefined,

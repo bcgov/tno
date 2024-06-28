@@ -79,8 +79,8 @@ export const MyFolders: React.FC<IMyFoldersProps> = () => {
         </Row>
       </Col>
       <Show visible={loading}>
-          <Loading />
-        </Show>
+        <Loading />
+      </Show>
       <Row>
         <FolderList folders={myFolders} />
       </Row>
