@@ -3,7 +3,7 @@ import { FaFolderPlus, FaWandMagicSparkles } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp } from 'store/hooks';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
-import { Col, Row, Text } from 'tno-core';
+import { Col, Loading, Row, Show, Text } from 'tno-core';
 
 import { FolderList } from './FolderList';
 import * as styled from './styled';
@@ -14,11 +14,19 @@ export interface IMyFoldersProps {}
 export const MyFolders: React.FC<IMyFoldersProps> = () => {
   const [{ userInfo }] = useApp();
   const [{ myFolders }, { findMyFolders, addFolder }] = useFolders();
-
+  const [loading, setLoading] = React.useState(false);
   const [newFolderName, setNewFolderName] = React.useState<string>('');
 
   React.useEffect(() => {
-    if (userInfo && !myFolders.length) findMyFolders().catch(() => {});
+    if (userInfo && !myFolders.length) {
+      setLoading(true);
+      findMyFolders()
+        .then(() => {})
+        .catch(() => {})
+        .finally(() => {
+          setLoading(false);
+        });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo]);
 
@@ -70,6 +78,9 @@ export const MyFolders: React.FC<IMyFoldersProps> = () => {
           </button>
         </Row>
       </Col>
+      <Show visible={loading}>
+          <Loading />
+        </Show>
       <Row>
         <FolderList folders={myFolders} />
       </Row>

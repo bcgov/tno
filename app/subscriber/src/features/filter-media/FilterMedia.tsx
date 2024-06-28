@@ -5,7 +5,7 @@ import { ContentListActionBar } from 'components/tool-bar';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import React from 'react';
 import { useContent } from 'store/hooks';
-import { generateQuery, IContentModel, Show } from 'tno-core';
+import { generateQuery, IContentModel, Loading, Show } from 'tno-core';
 
 import { PreviousResults } from './PreviousResults';
 import * as styled from './styled';
@@ -25,7 +25,7 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({ loaded }) => {
   const [currDateResults, setCurrDateResults] = React.useState<IContentSearchResult[]>([]);
   const [prevDateResults, setPrevDateResults] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
-
+  const [isLoading, setIsLoading] = React.useState(true);
   const fetchResults = React.useCallback(
     async (requestFilter: MsearchMultisearchBody) => {
       if (!filter.startDate) return;
@@ -48,6 +48,7 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({ loaded }) => {
           setPrevDateResults([]);
           return;
         }
+        setIsLoading(true);
         const res: any = await findContentWithElasticsearch(query, false);
         const currDateResults: IContentSearchResult[] = [],
           prevDateResults: IContentSearchResult[] = [];
@@ -70,7 +71,10 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({ loaded }) => {
         });
         setCurrDateResults(currDateResults);
         setPrevDateResults(prevDateResults);
-      } catch {}
+      } catch {
+      } finally {
+        setIsLoading(false);
+      }
     },
     // only run on filter change
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,6 +91,7 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({ loaded }) => {
 
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);
+    setIsLoading(false);
   }, []);
 
   if (!loaded) return <>Loading</>;
@@ -98,6 +103,9 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({ loaded }) => {
         onSelectAll={(e) => (e.target.checked ? setSelected(currDateResults) : setSelected([]))}
       />
       <DateFilter loaded={loaded} filter={filter} storeFilter={storeFilter} />
+      <Show visible={isLoading}>
+        <Loading />
+      </Show>
       <ContentList
         onContentSelected={handleContentSelected}
         content={currDateResults}
