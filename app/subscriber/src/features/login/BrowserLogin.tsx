@@ -46,7 +46,7 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
                       ></Button>
                       <Show visible={!isProd}>
                         <Button
-                          className="white bceid-logo"
+                          className="white azure-logo"
                           onClick={() => login(isLocal ? 'gcpe-oidc' : 'azureidir')}
                         >
                           Azure
