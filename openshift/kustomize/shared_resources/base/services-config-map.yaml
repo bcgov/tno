@@ -14,7 +14,7 @@ metadata:
     component: services
     managed-by: kustomize
 data:
-  API_HOST_URL: http://api:8080
+  API_HOST_URL: http://api-services:8080
 
   KEYCLOAK_AUTHORITY: https://dev.loginproxy.gov.bc.ca/auth
   KEYCLOAK_AUDIENCE: mmia-service-account-3994

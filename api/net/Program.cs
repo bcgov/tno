@@ -148,7 +148,8 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-builder.Services.AddKafkaHubBackplane(config);
+if (signalROptions.EnableKafkaBackPlane)
+    builder.Services.AddKafkaHubBackPlane(config);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, TNO.API.Config.Swagger.ConfigureSwaggerOptions>();
