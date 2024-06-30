@@ -62,8 +62,9 @@ podsEventHandler=$(getPods event-handler-service dc $env)
 # APIs
 scale api-services 0 dc $env
 oc tag api:latest api:$env
-oc rollout restart sts/api -n 9b301c-$env
 
+scale api-services $podsApiServices dc $env
+oc rollout restart sts/api -n 9b301c-$env
 oc rollout status --watch --timeout=600s sts/api -n 9b301c-$env
 
 oc tag charts-api:latest charts-api:$env
@@ -102,7 +103,6 @@ oc tag event-handler-service:latest event-handler-service:$env
 
 # Start everying
 scale api $podsApi sts $env
-scale api-services $podsApiServices dc $env
 scale charts-api $podsCharts dc $env
 scale editor $podsEditor dc $env
 scale subscriber $podsSubscriber dc $env
