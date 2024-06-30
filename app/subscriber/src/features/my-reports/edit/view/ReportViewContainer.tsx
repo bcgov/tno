@@ -5,6 +5,7 @@ import { ReportView } from './ReportView';
 
 export const ReportContainer = () => {
   const { active } = useReportEditContext();
+
   if (!active) return null;
 
   return (

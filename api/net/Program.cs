@@ -148,8 +148,7 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-if (signalROptions.EnableKafkaBackPlane)
-    builder.Services.AddKafkaHubBackPlane(config);
+builder.Services.AddKafkaHubBackPlane(config);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, TNO.API.Config.Swagger.ConfigureSwaggerOptions>();
@@ -238,6 +237,7 @@ builder.Services.AddCors(options =>
             cfg.AllowAnyMethod();
             cfg.WithOrigins(builder.Configuration["AllowedCORS"] ?? "");
         }));
+
 builder.Services.AddSignalR(options =>
     {
         options.EnableDetailedErrors = signalROptions.EnableDetailedErrors;
@@ -300,6 +300,7 @@ app.MapMetrics().RequireAuthorization();
 
 app.MapControllers();
 
-app.MapHub<MessageHub>(signalROptions.HubPath);
+if (signalROptions.EnableKafkaBackPlane)
+    app.MapHub<MessageHub>(signalROptions.HubPath);
 
 app.Run();

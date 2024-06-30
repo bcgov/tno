@@ -93,7 +93,7 @@ spec:
               value: /mnt/ingest
 
             - name: SignalR__EnableKafkaBackPlane
-              value: false
+              value: "false"
 
             - name: Keycloak__Authority
               valueFrom:
