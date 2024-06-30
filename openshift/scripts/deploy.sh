@@ -24,6 +24,7 @@ scale () {
 }
 
 podsApi=$(getPods api sts $env)
+podsApiServices=$(getPods api-services dc $env)
 podsCharts=$(getPods charts-api dc $env)
 podsEditor=$(getPods editor dc $env)
 podsSubscriber=$(getPods subscriber dc $env)
@@ -59,6 +60,7 @@ podsEventHandler=$(getPods event-handler-service dc $env)
 ./stop.sh $env
 
 # APIs
+scale api-services 0 dc $env
 oc tag api:latest api:$env
 oc rollout restart sts/api -n 9b301c-$env
 
@@ -100,6 +102,7 @@ oc tag event-handler-service:latest event-handler-service:$env
 
 # Start everying
 scale api $podsApi sts $env
+scale api-services $podsApiServices dc $env
 scale charts-api $podsCharts dc $env
 scale editor $podsEditor dc $env
 scale subscriber $podsSubscriber dc $env

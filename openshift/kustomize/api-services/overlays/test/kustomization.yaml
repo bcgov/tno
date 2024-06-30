@@ -25,7 +25,7 @@ patches:
         value: 500m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 1536Mi
+        value: 1256Mi
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
         value: image-registry.openshift-image-registry.svc:5000/9b301c-tools/api:prod

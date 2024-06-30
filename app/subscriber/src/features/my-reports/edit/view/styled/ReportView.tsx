@@ -21,6 +21,12 @@ export const ReportView = styled.div`
   }
 
   .preview-report {
+    position: relative;
+
+    .spinner {
+      position: fixed;
+    }
+
     .preview-subject {
       padding: 1rem;
       background-color: ${(props) => props.theme.css.btnBkPrimary};

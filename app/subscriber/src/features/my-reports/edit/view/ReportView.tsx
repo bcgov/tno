@@ -3,7 +3,7 @@ import React from 'react';
 import { FaEye, FaX } from 'react-icons/fa6';
 import { useApp, useReportInstances } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Col, Loading, Row, Show } from 'tno-core';
+import { Col, Loading, Overlay, Row, Show } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
 import * as styled from './styled';
@@ -39,9 +39,6 @@ export const ReportView = () => {
 
   return (
     <styled.ReportView className="report-edit-section">
-      <Show visible={isLoading}>
-        <Loading />
-      </Show>
       <div>
         <Row className="report-edit-headline-row" alignItems="first baseline" gap="0.5em">
           <FaEye size={18} />
@@ -55,6 +52,11 @@ export const ReportView = () => {
       </div>
 
       <Col className="preview-report">
+        <Show visible={isLoading}>
+          <Overlay>
+            <Loading />
+          </Overlay>
+        </Show>
         <div
           className="preview-subject"
           dangerouslySetInnerHTML={{ __html: reportOutput?.subject ?? '' }}
