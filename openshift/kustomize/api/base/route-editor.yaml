@@ -6,6 +6,7 @@ metadata:
   namespace: default
   annotations:
     haproxy.router.openshift.io/rewrite-target: /
+    haproxy.router.openshift.io/timeout: 2m
   labels:
     name: api-editor
     part-of: tno
@@ -32,100 +33,11 @@ spec:
 kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
-  name: api-editor-0
-  namespace: default
-  annotations:
-    haproxy.router.openshift.io/rewrite-target: /
-  labels:
-    name: api-editor-0
-    part-of: tno
-    version: 1.0.0
-    component: api
-    managed-by: kustomize
-    created-by: jeremy.foster
-spec:
-  host: tno-dev-0.apps.silver.devops.gov.bc.ca
-  path: /api
-  port:
-    targetPort: 8080-tcp
-  tls:
-    insecureEdgeTerminationPolicy: Redirect
-    termination: edge
-    # caCertificate: ""
-    # certificate: ""
-    # key: ""
-  to:
-    kind: Service
-    name: api-0
-    weight: 100
----
-kind: Route
-apiVersion: route.openshift.io/v1
-metadata:
-  name: api-editor-1
-  namespace: default
-  annotations:
-    haproxy.router.openshift.io/rewrite-target: /
-  labels:
-    name: api-editor-1
-    part-of: tno
-    version: 1.0.0
-    component: api
-    managed-by: kustomize
-    created-by: jeremy.foster
-spec:
-  host: tno-dev-1.apps.silver.devops.gov.bc.ca
-  path: /api
-  port:
-    targetPort: 8080-tcp
-  tls:
-    insecureEdgeTerminationPolicy: Redirect
-    termination: edge
-    # caCertificate: ""
-    # certificate: ""
-    # key: ""
-  to:
-    kind: Service
-    name: api-1
-    weight: 100
----
-kind: Route
-apiVersion: route.openshift.io/v1
-metadata:
-  name: api-editor-2
-  namespace: default
-  annotations:
-    haproxy.router.openshift.io/rewrite-target: /
-  labels:
-    name: api-editor-2
-    part-of: tno
-    version: 1.0.0
-    component: api
-    managed-by: kustomize
-    created-by: jeremy.foster
-spec:
-  host: tno-dev-2.apps.silver.devops.gov.bc.ca
-  path: /api
-  port:
-    targetPort: 8080-tcp
-  tls:
-    insecureEdgeTerminationPolicy: Redirect
-    termination: edge
-    # caCertificate: ""
-    # certificate: ""
-    # key: ""
-  to:
-    kind: Service
-    name: api-2
-    weight: 100
----
-kind: Route
-apiVersion: route.openshift.io/v1
-metadata:
   name: api-editor-tls
   namespace: default
   annotations:
     haproxy.router.openshift.io/rewrite-target: /
+    haproxy.router.openshift.io/timeout: 2m
   labels:
     name: api-editor-tls
     part-of: tno
@@ -148,3 +60,93 @@ spec:
     kind: Service
     name: api
     weight: 100
+# ---
+# kind: Route
+# apiVersion: route.openshift.io/v1
+# metadata:
+#   name: api-editor-0
+#   namespace: default
+#   annotations:
+#     haproxy.router.openshift.io/rewrite-target: /
+#   labels:
+#     name: api-editor-0
+#     part-of: tno
+#     version: 1.0.0
+#     component: api
+#     managed-by: kustomize
+#     created-by: jeremy.foster
+# spec:
+#   host: tno-dev-0.apps.silver.devops.gov.bc.ca
+#   path: /api
+#   port:
+#     targetPort: 8080-tcp
+#   tls:
+#     insecureEdgeTerminationPolicy: Redirect
+#     termination: edge
+#     # caCertificate: ""
+#     # certificate: ""
+#     # key: ""
+#   to:
+#     kind: Service
+#     name: api-0
+#     weight: 100
+# ---
+# kind: Route
+# apiVersion: route.openshift.io/v1
+# metadata:
+#   name: api-editor-1
+#   namespace: default
+#   annotations:
+#     haproxy.router.openshift.io/rewrite-target: /
+#   labels:
+#     name: api-editor-1
+#     part-of: tno
+#     version: 1.0.0
+#     component: api
+#     managed-by: kustomize
+#     created-by: jeremy.foster
+# spec:
+#   host: tno-dev-1.apps.silver.devops.gov.bc.ca
+#   path: /api
+#   port:
+#     targetPort: 8080-tcp
+#   tls:
+#     insecureEdgeTerminationPolicy: Redirect
+#     termination: edge
+#     # caCertificate: ""
+#     # certificate: ""
+#     # key: ""
+#   to:
+#     kind: Service
+#     name: api-1
+#     weight: 100
+# ---
+# kind: Route
+# apiVersion: route.openshift.io/v1
+# metadata:
+#   name: api-editor-2
+#   namespace: default
+#   annotations:
+#     haproxy.router.openshift.io/rewrite-target: /
+#   labels:
+#     name: api-editor-2
+#     part-of: tno
+#     version: 1.0.0
+#     component: api
+#     managed-by: kustomize
+#     created-by: jeremy.foster
+# spec:
+#   host: tno-dev-2.apps.silver.devops.gov.bc.ca
+#   path: /api
+#   port:
+#     targetPort: 8080-tcp
+#   tls:
+#     insecureEdgeTerminationPolicy: Redirect
+#     termination: edge
+#     # caCertificate: ""
+#     # certificate: ""
+#     # key: ""
+#   to:
+#     kind: Service
+#     name: api-2
+#     weight: 100

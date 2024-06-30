@@ -47,7 +47,7 @@ public static class ServiceCollectionExtensions
     /// <param name="services"></param>
     /// <param name="config"></param>
     /// <returns></returns>
-    public static IServiceCollection AddKafkaHubBackplane(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddKafkaHubBackPlane(this IServiceCollection services, IConfiguration config)
     {
         return services
             .Configure<KafkaHubConfig>(config.GetSection("Kafka"))

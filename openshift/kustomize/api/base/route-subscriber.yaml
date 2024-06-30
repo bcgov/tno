@@ -6,6 +6,7 @@ metadata:
   namespace: default
   annotations:
     haproxy.router.openshift.io/rewrite-target: /
+    haproxy.router.openshift.io/timeout: 2m
   labels:
     name: api-subscriber
     part-of: tno
@@ -32,100 +33,11 @@ spec:
 kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
-  name: api-subscriber-0
-  namespace: default
-  annotations:
-    haproxy.router.openshift.io/rewrite-target: /
-  labels:
-    name: api-subscriber-0
-    part-of: tno
-    version: 1.0.0
-    component: api
-    managed-by: kustomize
-    created-by: jeremy.foster
-spec:
-  host: mmi-dev-0.apps.silver.devops.gov.bc.ca
-  path: /api
-  port:
-    targetPort: 8080-tcp
-  tls:
-    insecureEdgeTerminationPolicy: Redirect
-    termination: edge
-    # caCertificate: ""
-    # certificate: ""
-    # key: ""
-  to:
-    kind: Service
-    name: api-0
-    weight: 100
----
-kind: Route
-apiVersion: route.openshift.io/v1
-metadata:
-  name: api-subscriber-1
-  namespace: default
-  annotations:
-    haproxy.router.openshift.io/rewrite-target: /
-  labels:
-    name: api-subscriber-1
-    part-of: tno
-    version: 1.0.0
-    component: api
-    managed-by: kustomize
-    created-by: jeremy.foster
-spec:
-  host: mmi-dev-1.apps.silver.devops.gov.bc.ca
-  path: /api
-  port:
-    targetPort: 8080-tcp
-  tls:
-    insecureEdgeTerminationPolicy: Redirect
-    termination: edge
-    # caCertificate: ""
-    # certificate: ""
-    # key: ""
-  to:
-    kind: Service
-    name: api-1
-    weight: 100
----
-kind: Route
-apiVersion: route.openshift.io/v1
-metadata:
-  name: api-subscriber-2
-  namespace: default
-  annotations:
-    haproxy.router.openshift.io/rewrite-target: /
-  labels:
-    name: api-subscriber-2
-    part-of: tno
-    version: 1.0.0
-    component: api
-    managed-by: kustomize
-    created-by: jeremy.foster
-spec:
-  host: mmi-dev-2.apps.silver.devops.gov.bc.ca
-  path: /api
-  port:
-    targetPort: 8080-tcp
-  tls:
-    insecureEdgeTerminationPolicy: Redirect
-    termination: edge
-    # caCertificate: ""
-    # certificate: ""
-    # key: ""
-  to:
-    kind: Service
-    name: api-2
-    weight: 100
----
-kind: Route
-apiVersion: route.openshift.io/v1
-metadata:
   name: api-subscriber-tls
   namespace: default
   annotations:
     haproxy.router.openshift.io/rewrite-target: /
+    haproxy.router.openshift.io/timeout: 2m
   labels:
     name: api-subscriber-tls
     part-of: tno
@@ -148,3 +60,93 @@ spec:
     kind: Service
     name: api
     weight: 100
+# ---
+# kind: Route
+# apiVersion: route.openshift.io/v1
+# metadata:
+#   name: api-subscriber-0
+#   namespace: default
+#   annotations:
+#     haproxy.router.openshift.io/rewrite-target: /
+#   labels:
+#     name: api-subscriber-0
+#     part-of: tno
+#     version: 1.0.0
+#     component: api
+#     managed-by: kustomize
+#     created-by: jeremy.foster
+# spec:
+#   host: mmi-dev-0.apps.silver.devops.gov.bc.ca
+#   path: /api
+#   port:
+#     targetPort: 8080-tcp
+#   tls:
+#     insecureEdgeTerminationPolicy: Redirect
+#     termination: edge
+#     # caCertificate: ""
+#     # certificate: ""
+#     # key: ""
+#   to:
+#     kind: Service
+#     name: api-0
+#     weight: 100
+# ---
+# kind: Route
+# apiVersion: route.openshift.io/v1
+# metadata:
+#   name: api-subscriber-1
+#   namespace: default
+#   annotations:
+#     haproxy.router.openshift.io/rewrite-target: /
+#   labels:
+#     name: api-subscriber-1
+#     part-of: tno
+#     version: 1.0.0
+#     component: api
+#     managed-by: kustomize
+#     created-by: jeremy.foster
+# spec:
+#   host: mmi-dev-1.apps.silver.devops.gov.bc.ca
+#   path: /api
+#   port:
+#     targetPort: 8080-tcp
+#   tls:
+#     insecureEdgeTerminationPolicy: Redirect
+#     termination: edge
+#     # caCertificate: ""
+#     # certificate: ""
+#     # key: ""
+#   to:
+#     kind: Service
+#     name: api-1
+#     weight: 100
+# ---
+# kind: Route
+# apiVersion: route.openshift.io/v1
+# metadata:
+#   name: api-subscriber-2
+#   namespace: default
+#   annotations:
+#     haproxy.router.openshift.io/rewrite-target: /
+#   labels:
+#     name: api-subscriber-2
+#     part-of: tno
+#     version: 1.0.0
+#     component: api
+#     managed-by: kustomize
+#     created-by: jeremy.foster
+# spec:
+#   host: mmi-dev-2.apps.silver.devops.gov.bc.ca
+#   path: /api
+#   port:
+#     targetPort: 8080-tcp
+#   tls:
+#     insecureEdgeTerminationPolicy: Redirect
+#     termination: edge
+#     # caCertificate: ""
+#     # certificate: ""
+#     # key: ""
+#   to:
+#     kind: Service
+#     name: api-2
+#     weight: 100

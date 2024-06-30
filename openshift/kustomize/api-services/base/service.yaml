@@ -1,0 +1,26 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: api-services
+  namespace: default
+  annotations:
+    description: Exposes and load balances the api pods.
+  labels:
+    name: api-services
+    part-of: tno
+    version: 1.0.0
+    component: api-services
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    part-of: tno
+    component: api-services
+  sessionAffinity: None
+  type: ClusterIP
