@@ -1,0 +1,175 @@
+# How the app will be deployed to the pod.
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: nginx-editor
+  namespace: default
+  annotations:
+    description: Defines how to deploy nginx
+  labels:
+    name: nginx-editor
+    part-of: tno
+    version: 1.0.0
+    component: nginx-editor
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  replicas: 1
+  selector:
+    name: nginx-editor
+    part-of: tno
+    component: nginx-editor
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      name: nginx-editor
+      labels:
+        name: nginx-editor
+        part-of: tno
+        component: nginx-editor
+    spec:
+      containers:
+        - name: nginx-editor
+          image: ""
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 20m
+              memory: 50Mi
+            limits:
+              cpu: 50m
+              memory: 100Mi
+          # livenessProbe:
+          #   httpGet:
+          #     path: '/nginx-status'
+          #     port: 8080
+          #     scheme: HTTP
+          #   initialDelaySeconds: 120
+          #   timeoutSeconds: 60
+          #   periodSeconds: 30
+          #   successThreshold: 1
+          #   failureThreshold: 3
+          # readinessProbe:
+          #   httpGet:
+          #     path: '/nginx-status'
+          #     port: 8080
+          #     scheme: HTTP
+          #   initialDelaySeconds: 120
+          #   timeoutSeconds: 60
+          #   periodSeconds: 30
+          #   successThreshold: 1
+          #   failureThreshold: 3
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - nginx-editor
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: nginx-editor:dev
+---
+# How the app will be deployed to the pod.
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: nginx-subscriber
+  namespace: default
+  annotations:
+    description: Defines how to deploy nginx
+  labels:
+    name: nginx-subscriber
+    part-of: tno
+    version: 1.0.0
+    component: nginx-subscriber
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  replicas: 1
+  selector:
+    name: nginx-subscriber
+    part-of: tno
+    component: nginx-subscriber
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      name: nginx-subscriber
+      labels:
+        name: nginx-subscriber
+        part-of: tno
+        component: nginx-subscriber
+    spec:
+      containers:
+        - name: nginx-subscriber
+          image: ""
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 20m
+              memory: 50Mi
+            limits:
+              cpu: 50m
+              memory: 100Mi
+          # livenessProbe:
+          #   httpGet:
+          #     path: '/nginx-status'
+          #     port: 8080
+          #     scheme: HTTP
+          #   initialDelaySeconds: 120
+          #   timeoutSeconds: 60
+          #   periodSeconds: 30
+          #   successThreshold: 1
+          #   failureThreshold: 3
+          # readinessProbe:
+          #   httpGet:
+          #     path: '/nginx-status'
+          #     port: 8080
+          #     scheme: HTTP
+          #   initialDelaySeconds: 120
+          #   timeoutSeconds: 60
+          #   periodSeconds: 30
+          #   successThreshold: 1
+          #   failureThreshold: 3
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - nginx-subscriber
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: nginx-subscriber:dev
