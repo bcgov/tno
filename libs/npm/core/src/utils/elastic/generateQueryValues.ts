@@ -29,8 +29,7 @@ export const generateQueryValues = (
     generateTerms('sourceId', settings.sourceIds),
     generateTerms('mediaTypeId', settings.mediaTypeIds),
     generateTerms('seriesId', settings.seriesIds),
-    // Following line replaced by generateShouldQuery:
-    // generateTerms('contributorId', settings.contributorIds),
+    generateTerms('contributorId', settings.contributorIds),
     generateTerms('contentType', settings.contentTypes),
     generateTerms('id', settings.contentIds),
     generateTermsForArrayField('tags.code', settings.tags),
