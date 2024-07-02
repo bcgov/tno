@@ -7,6 +7,7 @@ import { generateQueryForActions } from './generateQueryForActions';
 import { generateQueryForExistCheck } from './generateQueryForExistCheck';
 import { generateRangeForArrayField } from './generateRangeForArrayField';
 import { generateRangeForDates } from './generateRangeForDates';
+import { generateShouldQuery } from './generateShouldQuery';
 import { generateTerm } from './generateTerm';
 import { generateTerms } from './generateTerms';
 import { generateTermsForArrayField } from './generateTermsForArrayField';
@@ -35,6 +36,8 @@ export const generateQueryValues = (
     generateRangeForArrayField('tonePools.value', settings.sentiment),
     actionFilters.length > 1 ? { bool: { should: actionFilters } } : undefined,
     actionFilters.length === 1 ? actionFilters[0] : undefined,
+    // Search for byline with contributorName.
+    generateShouldQuery(settings),
     generateTextQuery(settings),
     settings.edition ? generateTerm('edition', settings.edition) : undefined,
     settings.section ? generateTerm('section', settings.section) : undefined,

@@ -6,6 +6,7 @@ export const filterFormat = (filter: IFilterSettingsModel) => {
     contentTypes: filter.contentTypes ?? [],
     contentIds: filter.contentIds ?? [],
     contributorIds: filter.contributorIds ?? [],
+    contributorNames: filter.contributorNames ?? [],
     dateOffset: filter.dateOffset,
     defaultSearchOperator: filter.defaultSearchOperator ?? 'and',
     edition: filter.edition ?? '',
