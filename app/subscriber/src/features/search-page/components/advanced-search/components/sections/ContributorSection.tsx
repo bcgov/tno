@@ -32,6 +32,10 @@ export const ContributorSection: React.FC<IFilterDisplayProps> = ({ displayFilte
       const selectedItem = contributorOptions.find((i) => String(i.value) === value);
       const label = selectedItem ? selectedItem.label : null;
 
+      const updatedContributorIds = checked
+        ? [...(filter.contributorIds ?? []), +value] // add it
+        : filter.contributorIds?.filter((i) => i !== +value); // remove it
+
       const updatedContributorNames = checked
         ? label
           ? [...(filter.contributorNames ?? []), label] // add it
@@ -40,9 +44,7 @@ export const ContributorSection: React.FC<IFilterDisplayProps> = ({ displayFilte
 
       storeFilter({
         ...filter,
-        contributorIds: checked
-          ? [...(filter.contributorIds ?? []), +value] // add it
-          : filter.contributorIds?.filter((i) => i !== +value), // remove it
+        contributorIds: updatedContributorIds,
         contributorNames: updatedContributorNames,
       });
     },
