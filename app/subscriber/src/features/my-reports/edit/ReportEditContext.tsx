@@ -55,6 +55,8 @@ export interface IReportEditContext {
   instance?: IReportInstanceModel;
   activeInstance?: IReportInstanceModel;
   setActiveInstance: (instance: IReportInstanceModel) => void;
+  previewLastUpdatedOn?: string;
+  setPreviewLastUpdatedOn: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 /**
@@ -76,6 +78,7 @@ export const ReportEditContext = React.createContext<IReportEditContext>({
   onGenerate: () => Promise.resolve(undefined),
   onRegenerateSection: () => Promise.resolve(undefined),
   setActiveInstance() {},
+  setPreviewLastUpdatedOn: () => {},
 });
 
 /**
@@ -122,6 +125,7 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
 
   const instance = values.instances.length ? values.instances[0] : undefined;
   const [activeInstance, setActiveInstance] = React.useState<IReportInstanceModel>();
+  const [previewLastUpdatedOn, setPreviewLastUpdatedOn] = React.useState<string | undefined>();
 
   React.useEffect(() => {
     // Set the active form based on the route.
@@ -247,6 +251,8 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
         instance,
         activeInstance,
         setActiveInstance: handleSetActiveInstance,
+        previewLastUpdatedOn,
+        setPreviewLastUpdatedOn,
       }}
     >
       {children}

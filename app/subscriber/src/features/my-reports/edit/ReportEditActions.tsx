@@ -114,16 +114,22 @@ export const ReportEditActions = ({
           />
         </Col>
       </Show>
-      <Button variant="secondary" onClick={() => navigate('/reports')}>
-        Cancel
-      </Button>
+      <Show
+        visible={
+          !active?.startsWith(ReportMainMenuOption.View) &&
+          !active?.startsWith(ReportMainMenuOption.History)
+        }
+      >
+        <Button variant="secondary" onClick={() => navigate('/reports')}>
+          Cancel
+        </Button>
+      </Show>
       {/* Show save during submitted to handle scenario when email fails */}
       <Show
         visible={
-          !disabled ||
-          !instance?.sentOn ||
-          active?.startsWith(ReportMainMenuOption.Settings) ||
-          active?.startsWith(ReportMainMenuOption.History)
+          (!disabled || !instance?.sentOn || active?.startsWith(ReportMainMenuOption.Settings)) &&
+          !active?.startsWith(ReportMainMenuOption.View) &&
+          !active?.startsWith(ReportMainMenuOption.History)
         }
       >
         <Button
@@ -147,8 +153,7 @@ export const ReportEditActions = ({
       <Show
         visible={
           (active?.startsWith(ReportMainMenuOption.Settings) ||
-            active?.startsWith(ReportMainMenuOption.Content) ||
-            active?.startsWith(ReportMainMenuOption.View)) &&
+            active?.startsWith(ReportMainMenuOption.Content)) &&
           !active?.startsWith(ReportSettingsMenuOption.Subscribers)
         }
       >
