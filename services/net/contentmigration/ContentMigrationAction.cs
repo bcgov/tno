@@ -75,7 +75,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         where T : BaseNewsItem
     {
         // KGM : Do NOT remove these null filters.  They exclude bad data
-        predicate = predicate.And(ni => (ni.ItemDate != null) && (ni.Source != null) && (ni.Title != null));
+        predicate = predicate.And(ni => (ni.ItemDate != null) && (ni.Source != null));
 
         var offsetDate = offsetHours > 0 ? DateTime.UtcNow.AddHours(-1 * offsetHours.Value) : (DateTime?)null;
         var minDate = lastRanOn.HasValue ? lastRanOn : importDateStart.HasValue ? importDateStart : offsetDate;

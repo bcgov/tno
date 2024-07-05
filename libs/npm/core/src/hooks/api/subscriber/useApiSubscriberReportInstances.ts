@@ -28,11 +28,9 @@ export const useApiSubscriberReportInstances = (
 
   return React.useRef({
     getReportInstance: (id: number, includeContent?: boolean, publishedOn?: Date | string) => {
-      const query = { publishedOn };
+      const query = { publishedOn, includeContent };
       return api.get<never, AxiosResponse<IReportInstanceModel | undefined>, any>(
-        `/subscriber/report/instances/${id}?includeContent=${!!includeContent}${
-          publishedOn && `&${toQueryString(query)}`
-        }`,
+        `/subscriber/report/instances/${id}?${toQueryString(query)}`,
       );
     },
     addReportInstance: (instance: IReportInstanceModel) => {
