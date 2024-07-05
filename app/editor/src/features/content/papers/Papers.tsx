@@ -68,11 +68,10 @@ const Papers: React.FC<IPapersProps> = (props) => {
   const [, setCurrentItems] = useLocalStorage('currentContent', {} as IContentSearchResult[]);
   const [currentItemId, setCurrentItemId] = useLocalStorage('currentContentItemId', -1);
 
-  const [, setContentId] = React.useState(id);
   const [, setIsLoading] = React.useState(false);
   const [isFilterLoading, setIsFilterLoading] = React.useState(true);
   const [selected, setSelected] = React.useState<IContentSearchResult[]>([]);
-  const [focusedRowIndex, setFocusedRowIndex] = React.useState<number | null>(null);
+  const [focusedRowIndex, setFocusedRowIndex] = React.useState(id);
   const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [currentResultsPage, setCurrentResultsPage] = React.useState(defaultPage);
   const [totals, setTotals] = React.useState<ITotalsInfo>(defaultTotals);
@@ -121,12 +120,8 @@ const Papers: React.FC<IPapersProps> = (props) => {
 
   // if the user navigates next/previous in another window change the highlighted row
   React.useEffect(() => {
-    if (currentItemId !== -1) setContentId(currentItemId.toString());
-  }, [currentItemId, setContentId]);
-
-  React.useEffect(() => {
-    setFocusedRowIndex(currentResultsPage?.items[0]?.id);
-  }, [currentResultsPage]);
+    if (currentItemId !== -1) setFocusedRowIndex(currentItemId.toString());
+  }, [currentItemId, setFocusedRowIndex]);
 
   const handleClickUse = React.useCallback(
     (content: IContentSearchResult) => {
@@ -149,7 +144,9 @@ const Papers: React.FC<IPapersProps> = (props) => {
 
   React.useEffect(() => {
     if (focusedRowIndex !== null) {
-      const focusedRow = currentResultsPage.items.findIndex((item) => item.id === focusedRowIndex);
+      const focusedRow = currentResultsPage.items.findIndex(
+        (item) => item.id.toString() === focusedRowIndex,
+      );
       if (rowRefs.current[focusedRow]) {
         rowRefs.current[focusedRow]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
@@ -194,7 +191,9 @@ const Papers: React.FC<IPapersProps> = (props) => {
       if ((e.ctrlKey && e.key === 'ArrowUp') || (e.ctrlKey && e.key === 'ArrowDown')) {
         e.preventDefault();
         setFocusedRowIndex((prevIndex) => {
-          let currentIndex = currentResultsPage.items.findIndex((item) => item.id === prevIndex);
+          let currentIndex = currentResultsPage.items.findIndex(
+            (item) => item.id.toString() === prevIndex,
+          );
           if (currentIndex === -1) currentIndex = 0;
 
           let newIndex = currentIndex;
@@ -211,11 +210,13 @@ const Papers: React.FC<IPapersProps> = (props) => {
             newIndex = 0;
           }
 
-          return currentResultsPage.items[newIndex].id;
+          return currentResultsPage.items[newIndex].id.toString();
         });
       } else if (e.code === 'Enter' && focusedRowIndex !== null) {
         e.preventDefault();
-        const focusedRow = currentResultsPage.items.find((item) => item.id === focusedRowIndex);
+        const focusedRow = currentResultsPage.items.find(
+          (item) => item.id.toString() === focusedRowIndex,
+        );
         if (focusedRow) {
           setSelected((selected) => {
             if (!selected.some((item) => item.id === focusedRow.id)) {
@@ -328,7 +329,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
   );
 
   const handleContentClick = (id: number, event: React.MouseEvent<Element, MouseEvent>) => {
-    setContentId(id.toString());
+    setFocusedRowIndex(id.toString());
     setCurrentItemId(id);
     if (event.ctrlKey) navigate(id, '/contents', NavigateOptions.NewTab);
     else navigate(id);
@@ -416,7 +417,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
             ]}
             renderColumns={(row: IContentSearchResult, rowIndex) => {
               const isSelected = selected.some((c) => row.id === c.id);
-              const isFocused = focusedRowIndex === row.id;
+              const isFocused = focusedRowIndex === row.id.toString();
 
               const separator = row.page && row.section ? ':' : '';
               const pageSection = `${row.page}${separator}${row.section}`;
