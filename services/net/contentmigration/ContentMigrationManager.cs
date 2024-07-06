@@ -58,7 +58,7 @@ public class ContentMigrationManager : IngestManager<ContentMigrationIngestActio
 
             if (importMigrationType == ImportMigrationType.Unknown)
             {
-                this.Logger.LogWarning("Error in Ingest [{ingest.Name}] config. 'importMigrationType' cannot be null.", ingest.Name);
+                this.Logger.LogError("Error in Ingest [{ingest.Name}] config. 'importMigrationType' cannot be null.", ingest.Name);
             }
             else if (!this.Options.SupportedImportMigrationTypes.Split(',', StringSplitOptions.TrimEntries).Contains(importMigrationType.ToString()))
             {
