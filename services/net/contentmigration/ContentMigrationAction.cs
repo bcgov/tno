@@ -270,7 +270,8 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 if (retrievedRecords == 0) continueFetchingRecords = false;
                 else if (importDelayMs.HasValue && importDelayMs > 0)
                 {
-                    // Artificial delay to reduce creating lag.
+                    // Artificial delay to reduce creating Kafka lag.
+                    this.Logger.LogDebug("Ingest [{name}] - delay for {delay} seconds", manager.Ingest.Name, importDelayMs / 1000);
                     await Task.Delay(importDelayMs.Value, cancellationToken);
                 }
             }
