@@ -78,11 +78,13 @@ public class ContentReferenceService : BaseService<ContentReference, string[]>, 
         else
             query = query.OrderByDescending(c => c.PublishedOn).ThenBy(c => c.Source);
 
-        var skip = (filter.Page - 1) * filter.Quantity;
-        query = query.Skip(skip).Take(filter.Quantity);
+        var page = filter.Page ?? 1;
+        var quantity = filter.Quantity ?? 50;
+        var skip = (page - 1) * quantity;
+        query = query.Skip(skip).Take(quantity);
 
         var items = query?.ToArray() ?? Array.Empty<ContentReference>();
-        return new Paged<ContentReference>(items, filter.Page, filter.Quantity, total);
+        return new Paged<ContentReference>(items, page, quantity, total);
     }
 
     public override ContentReference AddAndSave(ContentReference entity)

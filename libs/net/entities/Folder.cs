@@ -70,7 +70,6 @@ public class Folder : BaseType<int>
     /// </summary>
     /// <param name="name"></param>
     /// <param name="owner"></param>
-    /// <param name="template"></param>
     public Folder(string name, User owner)
         : this(0, name, owner?.Id)
     {
@@ -83,10 +82,28 @@ public class Folder : BaseType<int>
     /// <param name="id"></param>
     /// <param name="name"></param>
     /// <param name="ownerId"></param>
-    /// <param name="ownerId"></param>
     public Folder(int id, string name, int? ownerId) : base(id, name)
     {
         this.OwnerId = ownerId;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a Folder object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="folder"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="filter"></param>
+    public Folder(Folder folder, int ownerId, Filter? filter = null)
+    {
+        this.Name = folder.Name;
+        this.Description = folder.Description;
+        this.IsEnabled = folder.IsEnabled;
+        this.OwnerId = ownerId;
+        this.Settings = folder.Settings;
+        this.SortOrder = folder.SortOrder;
+        this.ContentManyToMany.AddRange(folder.ContentManyToMany.Select(fc => new FolderContent(0, fc.ContentId, fc.SortOrder)));
+        this.FilterId = filter?.Id;
+        this.Filter = filter;
     }
     #endregion
 }

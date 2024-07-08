@@ -74,7 +74,10 @@ const NotificationForm: React.FC = () => {
               },
             };
         const result = !Notification.id
-          ? await addNotification({ ...notification, ownerId: userInfo?.id })
+          ? await addNotification({
+              ...notification,
+              ownerId: notification.ownerId ?? userInfo?.id,
+            })
           : await updateNotification(notification);
         setNotification(result);
         toast.success(`${result.name} has successfully been saved.`);

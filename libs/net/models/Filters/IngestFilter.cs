@@ -15,7 +15,6 @@ public class IngestFilter : PageFilter
     public int? SourceConnectionId { get; set; }
     public int? DestinationConnectionId { get; set; }
     public bool? IsEnabled { get; set; }
-    public string[] Sort { get; set; } = Array.Empty<string>();
     #endregion
 
     #region Constructors
@@ -35,8 +34,6 @@ public class IngestFilter : PageFilter
         this.SourceConnectionId = filter.GetIntNullValue(nameof(this.SourceConnectionId));
         this.DestinationConnectionId = filter.GetIntNullValue(nameof(this.DestinationConnectionId));
         this.IsEnabled = filter.GetBoolNullValue(nameof(this.IsEnabled));
-
-        this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }
     #endregion
 }

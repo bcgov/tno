@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
@@ -93,9 +94,12 @@ public class ReportController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<ReportModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult FindAll()
+    public IActionResult Find()
     {
-        return new JsonResult(_reportService.FindAll().Select(ds => new ReportModel(ds, _serializerOptions)));
+        var uri = new Uri(this.Request.GetDisplayUrl());
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        var result = _reportService.Find(new TNO.Models.Filters.ReportFilter(query));
+        return new JsonResult(result.Select(ds => new ReportModel(ds, _serializerOptions)));
     }
     /// <summary>
     /// Find all reports - only return partial model.
@@ -107,7 +111,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult FindAllHeadersOnly()
     {
-        return new JsonResult(_reportService.FindAll(false).Select(ds => new ReportModel(ds, _serializerOptions)));
+        return new JsonResult(_reportService.Find(new TNO.Models.Filters.ReportFilter(), false).Select(ds => new ReportModel(ds, _serializerOptions)));
     }
 
     /// <summary>

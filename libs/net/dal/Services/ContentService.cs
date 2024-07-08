@@ -162,11 +162,13 @@ public class ContentService : BaseService<Content, long>, IContentService
         else
             query = query.OrderByDescending(c => c.PublishedOn).ThenByDescending(c => c.Id);
 
-        var skip = (filter.Page - 1) * filter.Quantity;
-        query = query.Skip(skip).Take(filter.Quantity);
+        var page = filter.Page ?? 1;
+        var quantity = filter.Quantity ?? 500;
+        var skip = (page - 1) * quantity;
+        query = query.Skip(skip).Take(quantity);
 
         var items = query?.ToArray() ?? Array.Empty<Content>();
-        return new Paged<Content>(items, filter.Page, filter.Quantity, total);
+        return new Paged<Content>(items, page, quantity, total);
     }
 
     // TODO: Delete this function
@@ -177,6 +179,9 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// <returns>A page of content items that match the filter.</returns>
     public async Task<IPaged<API.Areas.Services.Models.Content.ContentModel>> FindWithElasticsearchAsync(string index, ContentFilter filter)
     {
+        var page = filter.Page ?? 1;
+        var quantity = filter.Quantity ?? 500;
+
         var contentQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
         if (filter.ContentIds.Any())
             contentQueries.Add(s => s.Terms(t => t.Field(f => f.Id).Terms(filter.ContentIds)));
@@ -372,8 +377,8 @@ public class ContentService : BaseService<Content, long>, IContentService
             var result = s
                 .Pretty()
                 .Index(index)
-                .From((filter.Page - 1) * filter.Quantity)
-                .Size(filter.Quantity);
+                .From((page - 1) * quantity)
+                .Size(quantity);
 
             if (contentQueries.Any())
                 result = result.Query(q => q.Bool(b => b.Must(contentQueries)));
@@ -419,7 +424,7 @@ public class ContentService : BaseService<Content, long>, IContentService
         var items = response.IsValid ?
             response.Documents :
             throw new Exception($"Invalid Elasticsearch response: {response.ServerError?.Error?.Reason}");
-        return new Paged<API.Areas.Services.Models.Content.ContentModel>(items, filter.Page, filter.Quantity, response.Total);
+        return new Paged<API.Areas.Services.Models.Content.ContentModel>(items, page, quantity, response.Total);
     }
 
     /// <summary>

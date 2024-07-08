@@ -1,6 +1,7 @@
 import { UserAccountTypeName, UserStatusName } from '../constants';
+import { ISortPageFilter } from './ISortPageFilter';
 
-export interface IUserFilter {
+export interface IUserFilter extends ISortPageFilter {
   includeUserId?: number;
   username?: string;
   email?: string;
@@ -11,9 +12,6 @@ export interface IUserFilter {
   isSystemAccount?: boolean;
   accountTypes?: UserAccountTypeName[];
   status?: UserStatusName;
-  sort?: string[];
   roleName?: string;
   keyword?: string;
-  page?: number;
-  quantity?: number;
 }

@@ -177,11 +177,6 @@ public class ContentFilter : PageFilter
     public string[] Actions { get; set; } = Array.Empty<string>();
 
     /// <summary>
-    /// get/set - Sort the content in the specified order.
-    /// </summary>
-    public string[] Sort { get; set; } = Array.Empty<string>();
-
-    /// <summary>
     /// get/set - The content sentiment.
     /// </summary>
     public int[] Sentiment { get; set; } = Array.Empty<int>();
@@ -248,7 +243,6 @@ public class ContentFilter : PageFilter
         this.Sentiment = filter.GetIntArrayValue(nameof(this.Sentiment));
         this.ExcludeSourceIds = filter.GetIntArrayValue(nameof(this.ExcludeSourceIds));
         this.Actions = filter.GetStringArrayValue(nameof(this.Actions));
-        this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }
     #endregion
 }

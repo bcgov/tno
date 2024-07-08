@@ -55,7 +55,6 @@ public class Filter : BaseType<int>
     /// </summary>
     /// <param name="name"></param>
     /// <param name="owner"></param>
-    /// <param name="template"></param>
     public Filter(string name, User owner)
         : this(0, name, owner?.Id)
     {
@@ -68,10 +67,25 @@ public class Filter : BaseType<int>
     /// <param name="id"></param>
     /// <param name="name"></param>
     /// <param name="ownerId"></param>
-    /// <param name="ownerId"></param>
     public Filter(int id, string name, int? ownerId) : base(id, name)
     {
         this.OwnerId = ownerId;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a Filter object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <param name="ownerId"></param>
+    public Filter(Filter filter, int ownerId)
+    {
+        this.Name = filter.Name;
+        this.Description = filter.Description;
+        this.IsEnabled = filter.IsEnabled;
+        this.OwnerId = ownerId;
+        this.Query = filter.Query;
+        this.Settings = filter.Settings;
+        this.SortOrder = filter.SortOrder;
     }
     #endregion
 }

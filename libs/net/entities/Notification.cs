@@ -153,5 +153,56 @@ public class Notification : BaseType<int>
         this.NotificationType = type;
         this.TemplateId = templateId;
     }
+
+    /// <summary>
+    /// Creates a new instance of a Notification object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="notification"></param>
+    /// <param name="ownerId"></param>
+    public Notification(Notification notification, int ownerId)
+    {
+        this.Id = 0;
+        this.Name = notification.Name;
+        this.NotificationType = notification.NotificationType;
+        this.OwnerId = ownerId;
+        this.Description = notification.Description;
+        this.AlertOnIndex = notification.AlertOnIndex;
+        this.IsEnabled = notification.IsEnabled;
+        this.IsPublic = notification.IsPublic;
+        this.Query = notification.Query;
+        this.Resend = notification.Resend;
+        this.Settings = notification.Settings;
+        this.SortOrder = notification.SortOrder;
+        this.TemplateId = notification.TemplateId;
+        this.SubscribersManyToMany.AddRange(notification.SubscribersManyToMany.Select(s => new UserNotification(s.UserId, 0, true)));
+        this.Schedules.AddRange(notification.Schedules.Select(s =>
+            new EventSchedule(s.Name, s.EventType,
+                new Schedule(s.Schedule!.Name, s.Schedule.DelayMS)
+                {
+                    Description = s.Schedule!.Description,
+                    DayOfMonth = s.Schedule!.DayOfMonth,
+                    DelayMS = s.Schedule!.DelayMS,
+                    IsEnabled = s.Schedule!.IsEnabled,
+                    Repeat = s.Schedule!.Repeat,
+                    RequestedBy = s.Schedule!.RequestedBy,
+                    RequestedById = s.Schedule!.RequestedById,
+                    RunOn = s.Schedule!.RunOn,
+                    RunOnlyOnce = s.Schedule!.RunOnlyOnce,
+                    RunOnMonths = s.Schedule!.RunOnMonths,
+                    RunOnWeekDays = s.Schedule!.RunOnWeekDays,
+                    StartAt = s.Schedule!.StartAt,
+                    StopAt = s.Schedule!.StopAt,
+                }, s.Settings)
+            {
+                Description = s.Description,
+                IsEnabled = s.IsEnabled,
+                LastRanOn = s.LastRanOn,
+                RequestSentOn = s.RequestSentOn,
+                FolderId = s.FolderId,
+                ReportId = s.ReportId,
+                NotificationId = s.NotificationId,
+            })
+            );
+    }
     #endregion
 }

@@ -3,11 +3,14 @@ FROM node:18-bullseye
 RUN apt-get update && apt-get install -qq -y --no-install-recommends \
   nano build-essential libpq-dev yarn
 
+RUN apt-get update
+RUN apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
+
 WORKDIR /usr/app
 COPY .yarn ./.yarn
 COPY package*.json yarn.lock .yarnrc.yml ./
 
-RUN yarn set version berry
+RUN yarn set version 3.x
 RUN npx update-browserslist-db@latest
 RUN yarn
 COPY . .

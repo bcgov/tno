@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
@@ -66,9 +67,12 @@ public class FolderController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<FolderModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Folder" })]
-    public IActionResult FindAll()
+    public IActionResult Find()
     {
-        return new JsonResult(_folderService.FindAll().Select(ds => new FolderModel(ds, _serializerOptions)));
+        var uri = new Uri(this.Request.GetDisplayUrl());
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        var result = _folderService.Find(new TNO.Models.Filters.FolderFilter(query));
+        return new JsonResult(result.Select(ds => new FolderModel(ds, _serializerOptions)));
     }
 
     /// <summary>

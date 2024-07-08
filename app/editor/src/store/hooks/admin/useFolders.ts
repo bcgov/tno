@@ -1,10 +1,10 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
-import { IFolderContentModel, IFolderModel, useApiAdminFolders } from 'tno-core';
+import { IFolderContentModel, IFolderFilter, IFolderModel, useApiAdminFolders } from 'tno-core';
 
 interface IFolderController {
-  findAllFolders: () => Promise<IFolderModel[]>;
+  findFolders: (filter: IFolderFilter) => Promise<IFolderModel[]>;
   getFolder: (id: number, includeContent: boolean) => Promise<IFolderModel>;
   getContentInFolder: (id: number, includeMaxTopicScore: boolean) => Promise<IFolderContentModel[]>;
   addFolder: (model: IFolderModel) => Promise<IFolderModel>;
@@ -21,9 +21,9 @@ export const useFolders = (): [IAdminState & { initialized: boolean }, IFolderCo
 
   const controller = React.useMemo(
     () => ({
-      findAllFolders: async () => {
+      findFolders: async (filter: IFolderFilter) => {
         const response = await dispatch<IFolderModel[]>('find-all-folders', () =>
-          api.findAllFolders(),
+          api.findFolders(filter),
         );
         store.storeFolders(response.data);
         setInitialized(true);

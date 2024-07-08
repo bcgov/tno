@@ -65,8 +65,29 @@ public class NotificationService : BaseService<Notification, int>, INotification
             query = query.Where(n => n.AlertOnIndex == filter.AlertOnIndex);
         if (filter.NotificationType.HasValue)
             query = query.Where(n => n.NotificationType == filter.NotificationType);
+        if (filter.OwnerId.HasValue)
+            query = query.Where(n => n.OwnerId == filter.OwnerId.Value);
+        if (filter.SubscriberUserId.HasValue)
+            query = query.Where(n => n.SubscribersManyToMany.Any(ns => ns.IsSubscribed && ns.UserId == filter.SubscriberUserId.Value));
 
-        query = query.OrderBy(a => a.SortOrder).ThenBy(a => a.Name);
+        if (filter.Sort?.Any() == true)
+        {
+            query = query.OrderByProperty(filter.Sort.First());
+            foreach (var sort in filter.Sort.Skip(1))
+            {
+                query = query.ThenByProperty(sort);
+            }
+        }
+        else
+            query = query.OrderBy(u => u.Name);
+
+        if (filter.Page.HasValue && filter.Quantity.HasValue)
+        {
+            var skip = (filter.Page.Value - 1) * filter.Quantity.Value;
+            query = query
+                .Skip(skip)
+                .Take(filter.Quantity.Value);
+        }
 
         return query.ToArray();
     }

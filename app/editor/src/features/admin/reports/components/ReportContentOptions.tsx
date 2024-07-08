@@ -13,12 +13,12 @@ import {
 
 export const ReportContentOptions = () => {
   const { values, setFieldValue } = useFormikContext<IReportModel>();
-  const [{ reports }, { findAllReports }] = useReports();
+  const [{ reports }, { findReports }] = useReports();
   const [reportOptions, setReportOptions] = React.useState(getSortableOptions(reports));
 
   React.useEffect(() => {
     if (!reports.length)
-      findAllReports()
+      findReports({})
         .then((reports) => {
           setReportOptions(getSortableOptions(reports));
         })
