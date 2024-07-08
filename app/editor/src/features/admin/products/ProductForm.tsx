@@ -24,6 +24,7 @@ import {
 
 import { defaultProduct } from './constants';
 import { ProductDetailsForm } from './ProductDetailsForm';
+import { ProductSubRequests } from './ProductSubRequests';
 import { ProductSubscribersForm } from './ProductSubscribersForm';
 import * as styled from './styled';
 
@@ -102,6 +103,13 @@ const ProductForm: React.FC = () => {
                   }}
                   active={active === 'subscribers'}
                 />
+                <Tab
+                  label="Requests"
+                  onClick={() => {
+                    setActive('Requests');
+                  }}
+                  active={active === 'Requests'}
+                />
               </>
             }
           >
@@ -111,6 +119,9 @@ const ProductForm: React.FC = () => {
               </Show>
               <Show visible={active === 'subscribers'}>
                 <ProductSubscribersForm />
+              </Show>
+              <Show visible={active === 'Requests'}>
+                <ProductSubRequests />
               </Show>
               <Row justifyContent="center" className="form-inputs">
                 <Button type="submit" disabled={isSubmitting}>
