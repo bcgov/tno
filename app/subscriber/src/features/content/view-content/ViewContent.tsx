@@ -32,7 +32,7 @@ import { ToneValue } from './ToneValue';
 import { isWorkOrderStatus } from './utils';
 
 //Difference ratio
-const threshold = 0.1;
+//const threshold = 0.1;
 
 export interface IStream {
   url: string;
@@ -244,7 +244,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
   hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrder);
 
   //Remove HTML tags, square brackets and line breaks before comparison.
-  const cleanString = (str: string | undefined) => str?.replace(/<[^>]*>?|\[|\]|\n/gm, '').trim();
+  //const cleanString = (str: string | undefined) => str?.replace(/<[^>]*>?|\[|\]|\n/gm, '').trim();
 
   const formattedHeadline = React.useMemo(
     () => formatSearch(content?.headline ?? '', filter),
@@ -259,8 +259,8 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
     [content?.summary, filter],
   );
 
-  const cleanBody = cleanString(content?.body);
-  const cleanSummary = cleanString(content?.summary);
+  //const cleanBody = cleanString(content?.body);
+  //const cleanSummary = cleanString(content?.summary);
 
   //Return true if difference between length of cleanBody & cleanSummary is greater than 10%
   /*const isDifferent = React.useMemo(() => {
