@@ -60,7 +60,6 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
   const [avStream, setAVStream] = React.useState<IStream>();
   const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
   const [filteredQuotes, setFilteredQuotes] = React.useState<IQuoteModel[]>([]);
-
   const fileReference = content?.fileReferences ? content?.fileReferences[0] : undefined;
 
   const handleTranscribe = React.useCallback(async () => {
@@ -258,7 +257,17 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
         </Row>
       </Show>
       <Row id="summary" className="summary">
-        <Show visible={!(isAV && !!content.body && !isTranscribing)}>
+        <Show visible={isAV && !!content?.summary && !isTranscribing}>
+          <Col>
+            <span>{formatedSummary}</span>
+            <Show visible={!!content?.sourceUrl}>
+              <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
+                More...
+              </a>
+            </Show>
+          </Col>
+        </Show>
+        <Show visible={!isAV && !!content}>
           <Col>
             {!!content?.body?.length ? <div>{formatedBody}</div> : <span>{formatedSummary}</span>}
             <Show visible={!!content?.sourceUrl}>
