@@ -1,4 +1,4 @@
-import { UserStatusName } from '../constants';
+import { UserAccountTypeName, UserStatusName } from '../constants';
 
 export interface IUserFilter {
   includeUserId?: number;
@@ -9,6 +9,7 @@ export interface IUserFilter {
   lastName?: string;
   isEnabled?: boolean;
   isSystemAccount?: boolean;
+  accountType?: UserAccountTypeName;
   status?: UserStatusName;
   sort?: string[];
   roleName?: string;

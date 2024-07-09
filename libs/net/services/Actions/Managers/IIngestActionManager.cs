@@ -23,14 +23,10 @@ public interface IIngestActionManager : IServiceActionManager
     /// <summary>
     /// Make AJAX request and update the ingest state - Failed Attempts.
     /// </summary>
+    /// <param name="failedAttempts"></param>
+    /// <param name="lastItemUpdatedDate"></param>
     /// <returns></returns>
-    Task<IngestModel> UpdateIngestStateFailedAttemptsAsync(int failedAttempts = 0);
-
-    /// <summary>
-    /// Make AJAX request and update the ingest state - Creation Date Of Last Item.
-    /// </summary>
-    /// <returns></returns>
-    Task<IngestModel> UpdateIngestStateCreationDateOfLastItemAsync(DateTime creationDate);
+    Task<IngestModel> UpdateIngestStateFailedAttemptsAsync(int failedAttempts = 0, DateTime? lastItemUpdatedDate = null);
 
     /// <summary>
     /// Verify that the specified ingest ingestion action should be run.

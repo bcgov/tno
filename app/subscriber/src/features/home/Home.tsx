@@ -1,7 +1,6 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { ContentList } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
-import { useFilterOptionContext } from 'components/media-type-filters';
 import { ContentListActionBar } from 'components/tool-bar';
 import { filterFormat } from 'features/search-page/utils';
 import { createFilterSettings, getBooleanActionValue } from 'features/utils';
@@ -9,7 +8,7 @@ import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { useContent, useSettings } from 'store/hooks';
-import { generateQuery, IContentModel, Row } from 'tno-core';
+import { generateQuery, IContentModel, Loading, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -24,21 +23,25 @@ export const Home: React.FC = () => {
     { findContentWithElasticsearch, storeHomeFilter: storeFilter },
   ] = useContent();
 
-  const { hasProcessedInitialPreferences } = useFilterOptionContext();
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const { featuredStoryActionId } = useSettings(true);
-
+  const [loading, setLoading] = React.useState(false);
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);
+    setLoading(false);
   }, []);
 
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
       try {
+        setLoading(true);
         const res: any = await findContentWithElasticsearch(filter, false);
         setContent(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
-      } catch {}
+      } catch {
+      } finally {
+        setLoading(false);
+      }
     },
     [findContentWithElasticsearch],
   );
@@ -46,7 +49,7 @@ export const Home: React.FC = () => {
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
     // wait for userinfo incase applying previously viewed filter
-    if (!!featuredStoryActionId && hasProcessedInitialPreferences) {
+    if (!!featuredStoryActionId) {
       fetchResults(
         generateQuery(
           filterFormat({
@@ -62,7 +65,7 @@ export const Home: React.FC = () => {
         ),
       );
     }
-  }, [filter, fetchResults, featuredStoryActionId, hasProcessedInitialPreferences]);
+  }, [filter, fetchResults, featuredStoryActionId]);
 
   return (
     <styled.Home>
@@ -74,6 +77,9 @@ export const Home: React.FC = () => {
         />
       </Row>
       <DateFilter filter={filter} storeFilter={storeFilter} />
+      <Show visible={loading}>
+        <Loading />
+      </Show>
       <ContentList
         onContentSelected={handleContentSelected}
         showDate

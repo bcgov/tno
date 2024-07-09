@@ -25,8 +25,10 @@ export const settingsSlice = createSlice({
       state.subscriberUrl = action.payload.subscriberUrl;
       state.defaultReportTemplateId = action.payload.defaultReportTemplateId;
       state.frontpageFilterId = action.payload.frontpageFilterId;
+      state.frontPageImageMediaTypeId = action.payload.frontPageImageMediaTypeId;
       state.excludeBylineIds = action.payload.excludeBylineIds;
       state.excludeSourceIds = action.payload.excludeSourceIds;
+      state.eventOfTheDayReportId = action.payload.eventOfTheDayReportId;
     },
   },
 });

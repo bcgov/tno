@@ -15,6 +15,16 @@ export const TableExporter = React.forwardRef<HTMLTableElement, ITableExporterPr
       const wb = utils.table_to_book(ref);
       writeFileXLSX(wb, filename);
     }, [filename, ref]);
+    if (label === 'Export subscriber list') {
+      return (
+        <img
+          src="/assets/download_to_excel.svg"
+          alt="Export subscriber list"
+          onClick={() => exportSubscribers()}
+          style={{ cursor: 'pointer' }}
+        />
+      );
+    }
 
     return (
       <Button variant="secondary" onClick={() => exportSubscribers()}>

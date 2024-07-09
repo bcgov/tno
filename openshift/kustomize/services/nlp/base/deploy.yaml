@@ -127,6 +127,11 @@ spec:
                 configMapKeyRef:
                   name: nlp-service
                   key: INDEXING_TOPIC
+            - name: Service__IgnoreContentPublishedBeforeOffset
+              valueFrom:
+                configMapKeyRef:
+                  name: nlp-service
+                  key: IGNORE_CONTENT_PUBLISHED_BEFORE_OFFSET
 
             # CHES Configuration
             - name: CHES__From

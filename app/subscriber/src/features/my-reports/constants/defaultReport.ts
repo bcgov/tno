@@ -38,6 +38,7 @@ export const defaultReport = (ownerId: number, templateId: number): IReportForm 
       sections: {
         usePageBreaks: true,
       },
+      doNotSendEmail: false,
     },
     sections: [],
     subscribers: [],

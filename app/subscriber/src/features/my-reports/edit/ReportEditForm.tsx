@@ -18,8 +18,8 @@ import { IReportForm, IReportInstanceContentForm } from '../interfaces';
 import { toForm } from '../utils';
 import {
   ReportContentMenuOption,
+  ReportHistoryMenuOption,
   ReportMainMenuOption,
-  ReportSendMenuOption,
   ReportSettingsMenuOption,
   ReportViewMenuOption,
 } from './constants';
@@ -27,16 +27,16 @@ import { ReportEditContentForm, ReportEditSortForm, ReportEditSummaryForm } from
 import { ReportEditActions } from './ReportEditActions';
 import { useReportEditContext } from './ReportEditContext';
 import { ReportEditMenu } from './ReportEditMenu';
-import { ReportSendForm } from './send';
 import {
   ReportEditDataSourcesForm,
   ReportEditDetailsForm,
   ReportEditPreferencesForm,
   ReportEditSendForm,
+  ReportEditSubscribersForm,
   ReportEditTemplateForm,
 } from './settings';
 import * as styled from './styled';
-import { ReportHistoryForm, ReportView } from './view';
+import { ReportHistoryForm, ReportViewForm } from './view';
 
 export interface IReportEditFormProps {
   /** Whether edit functionality is disabled. */
@@ -157,6 +157,10 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
         <Show visible={active === ReportSettingsMenuOption.Preferences}>
           <ReportEditPreferencesForm />
         </Show>
+        <Show visible={active === ReportSettingsMenuOption.Subscribers}>
+          <ReportEditSubscribersForm />
+        </Show>
+
         <Show visible={active === ReportSettingsMenuOption.Send}>
           <ReportEditSendForm
             onPublish={() => toggleSend()}
@@ -199,13 +203,10 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
         </Show>
         {/* Preview Menu */}
         <Show visible={active === ReportViewMenuOption.View}>
-          <ReportView />
+          <ReportViewForm />
         </Show>
         {/* Send Menu */}
-        <Show visible={active === ReportSendMenuOption.Send}>
-          <ReportSendForm />
-        </Show>
-        <Show visible={active === ReportSendMenuOption.History}>
+        <Show visible={active === ReportHistoryMenuOption.History}>
           <ReportHistoryForm />
         </Show>
         <ReportEditActions

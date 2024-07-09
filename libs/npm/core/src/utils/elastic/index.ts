@@ -9,6 +9,7 @@ export * from './generateQuery';
 export * from './generateQueryForAction';
 export * from './generateQueryForActions';
 export * from './generateQueryForExistCheck';
+export * from './generateQueryString';
 export * from './generateQueryValues';
 export * from './generateRangeForArrayField';
 export * from './generateRangeForDateOffset';

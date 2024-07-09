@@ -3,6 +3,25 @@ import styled from 'styled-components';
 export const Upload = styled.div`
   display: flex;
   flex-direction: column;
+  margin-top: 2.5rem;
+  padding-bottom: 0.5rem;
+  img,
+  video,
+  audio {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .file-name {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .upload-buttons {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0.5em;
+  }
 
   > div:first-child {
     justify-content: center;

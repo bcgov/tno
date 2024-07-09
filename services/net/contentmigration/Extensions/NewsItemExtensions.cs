@@ -15,7 +15,7 @@ public static class NewsItemExtensions
     /// <returns></returns>
     public static DateTime GetPublishedDateTime(this NewsItem newsItem)
     {
-        var amalgamatedPublishedDateTime = newsItem.ItemDate ?? DateTime.Now;
+        var amalgamatedPublishedDateTime = newsItem.ItemDate ?? newsItem.UpdatedOn ?? DateTime.Now;
         if (newsItem.ItemTime != null)
         {
             amalgamatedPublishedDateTime = new DateTime(amalgamatedPublishedDateTime.Year, amalgamatedPublishedDateTime.Month, amalgamatedPublishedDateTime.Day,

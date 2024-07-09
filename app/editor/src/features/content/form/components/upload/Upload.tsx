@@ -1,12 +1,8 @@
 import { IContentForm } from 'features/content/form/interfaces';
-import { isWorkOrderStatus } from 'features/content/utils';
 import { useFormikContext } from 'formik';
 import React, { ButtonHTMLAttributes } from 'react';
 import { FileUploader } from 'react-drag-drop-files';
 import { FaDownload, FaTrash, FaUpload } from 'react-icons/fa';
-import { FaMobile } from 'react-icons/fa6';
-import { toast } from 'react-toastify';
-import { useWorkOrders } from 'store/hooks';
 import {
   Button,
   ButtonVariant,
@@ -17,11 +13,9 @@ import {
   Show,
   Spinner,
   useModal,
-  WorkOrderStatusName,
-  WorkOrderTypeName,
 } from 'tno-core';
 
-import { toModel } from '../../utils';
+import { useContentForm } from '../../hooks';
 import { IFile } from '.';
 import * as styled from './styled';
 import { generateName } from './utils';
@@ -59,18 +53,16 @@ export const Upload: React.FC<IUploadProps> = ({
 }) => {
   const { isShowing, toggle } = useModal();
   const { values, setFieldValue } = useFormikContext<IContentForm>();
-  const [, { ffmpeg }] = useWorkOrders();
-  const { isShowing: showFFmpegModal, toggle: toggleFFmpeg } = useModal();
+  const { isProcessing } = useContentForm(values);
 
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const radioRef = React.useRef<HTMLAudioElement>(null);
+
+  const [wasProcessing, setWasProcessing] = React.useState(isProcessing);
   const [file, setFile] = React.useState<IFile>();
-
   const [fileName, setFileName] = React.useState<string>();
   const [fileBlobUrl, setFileBlobUrl] = React.useState<string>();
   const fileReference = values.fileReferences.length ? values.fileReferences[0] : undefined;
-  const processing = values.workOrders.some(
-    (wo) =>
-      wo.workType === WorkOrderTypeName.FFmpeg && wo.status === WorkOrderStatusName.InProgress,
-  );
 
   React.useEffect(() => {
     const newFileName = generateName(initFile);
@@ -88,8 +80,22 @@ export const Upload: React.FC<IUploadProps> = ({
       // Worried this may result in an odd race condition with 'file' and 'stream'.
       setFile(undefined);
       setFileName(undefined);
+    } else {
+      if (videoRef.current) videoRef.current.load();
+      if (radioRef.current) radioRef.current.load();
     }
   }, [stream]);
+
+  React.useEffect(() => {
+    // When the processing completes it needs to load the file again.
+    if (wasProcessing && !isProcessing) {
+      if (videoRef.current) videoRef.current.load();
+      if (radioRef.current) radioRef.current.load();
+    }
+    setWasProcessing(isProcessing);
+    // Only interested in when the processing changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isProcessing]);
 
   React.useEffect(() => {
     const updatedFileName = generateName(file);
@@ -112,25 +118,6 @@ export const Upload: React.FC<IUploadProps> = ({
       onDelete?.();
     }
   };
-
-  const handleFFmpeg = React.useCallback(
-    async (values: IContentForm) => {
-      try {
-        // Save before submitting request.
-        const response = await ffmpeg(toModel(values));
-
-        if (response.status === 200) toast.success('A FFmpeg process has been requested');
-        else if (response.status === 208) {
-          if (response.data.status === WorkOrderStatusName.Completed)
-            toast.warn('Content has already been processed by FFmpeg');
-          else toast.warn(`An active request for FFmpeg already exists`);
-        }
-      } catch {
-        // Ignore this failure it is handled by our global ajax requests.
-      }
-    },
-    [ffmpeg],
-  );
 
   return (
     <styled.Upload className={className ?? ''}>
@@ -167,9 +154,9 @@ export const Upload: React.FC<IUploadProps> = ({
       >
         <Col flex="1">
           <img
-            height="300"
-            width="500"
-            alt=""
+            height="350"
+            width="400"
+            alt="media"
             className="image"
             src={stream?.url || fileBlobUrl}
           ></img>
@@ -178,7 +165,7 @@ export const Upload: React.FC<IUploadProps> = ({
       <Show visible={!!stream && contentType === ContentTypeName.AudioVideo && !!fileReference}>
         <Show visible={fileReference?.contentType.startsWith('audio/')}>
           <Col flex="1">
-            <audio controls>
+            <audio controls ref={radioRef}>
               <source src={`${stream?.url}`} type={`${fileReference?.contentType}`} />
               HTML5 Audio is required
             </audio>
@@ -186,7 +173,7 @@ export const Upload: React.FC<IUploadProps> = ({
         </Show>
         <Show visible={fileReference?.contentType.startsWith('video/')}>
           <Col flex="1">
-            <video controls preload="metadata">
+            <video controls preload="metadata" ref={videoRef}>
               <source src={`${stream?.url}`} type={`${fileReference?.contentType}`} />
               HTML5 Video is required
             </video>
@@ -195,48 +182,30 @@ export const Upload: React.FC<IUploadProps> = ({
       </Show>
       <Show visible={!!file || !!fileName || !!fileReference}>
         <Row justifyContent="flex-end" gap="0.5rem" alignItems="center">
-          {fileName}
-          <Row gap="0.25rem">
-            <Show visible={values.contentType === ContentTypeName.AudioVideo}>
-              <Button
-                variant={ButtonVariant.link}
-                onClick={() =>
-                  isWorkOrderStatus(values.workOrders, WorkOrderTypeName.FFmpeg, [
-                    WorkOrderStatusName.Completed,
-                  ])
-                    ? toggleFFmpeg()
-                    : handleFFmpeg(values)
-                }
-                disabled={
-                  !onDownload || !file || !downloadable || !fileName || !fileReference || processing
-                }
-                className="file-name"
-                tooltip="Process file"
-              >
-                {processing ? <Spinner size="8px" /> : <FaMobile />}
-              </Button>
-            </Show>
-            <Button
-              variant={ButtonVariant.link}
-              onClick={() => onDownload?.()}
-              disabled={!onDownload || !file || !downloadable || !fileName || !fileReference}
-              className="file-name"
-              tooltip={`Download ${!!fileName ? fileName : 'not available'}`}
-            >
-              <FaDownload />
-            </Button>
-            <Button
-              disabled={!fileName || (!fileReference && !file)}
-              variant={ButtonVariant.danger}
-              className="delete"
-              onClick={() => {
-                if (verifyDelete) toggle();
-                else handleDelete();
-              }}
-            >
-              <FaTrash />
-            </Button>
-          </Row>
+          <span className="file-name">{fileName}</span>
+        </Row>
+        <Row className="upload-buttons">
+          {isProcessing && <Spinner title="Processing" />}
+          <Button
+            variant={ButtonVariant.link}
+            onClick={() => onDownload?.()}
+            disabled={!onDownload || !file || !downloadable || !fileName || !fileReference}
+            className="file-name"
+            tooltip={`Download ${!!fileName ? fileName : 'not available'}`}
+          >
+            <FaDownload />
+          </Button>
+          <Button
+            disabled={!fileName || (!fileReference && !file)}
+            variant={ButtonVariant.danger}
+            className="delete"
+            onClick={() => {
+              if (verifyDelete) toggle();
+              else handleDelete();
+            }}
+          >
+            <FaTrash />
+          </Button>
         </Row>
       </Show>
       {/* Modal to appear when removing a file */}
@@ -250,21 +219,6 @@ export const Upload: React.FC<IUploadProps> = ({
         onConfirm={() => {
           handleDelete();
           toggle();
-        }}
-      />
-      <Modal
-        headerText="Confirm FFmpeg Request"
-        body="Content has already been processed by FFmpeg, do you want to process again?"
-        isShowing={showFFmpegModal}
-        hide={toggleFFmpeg}
-        type="default"
-        confirmText="Yes, process"
-        onConfirm={async () => {
-          try {
-            await handleFFmpeg(values);
-          } finally {
-            toggleFFmpeg();
-          }
         }}
       />
     </styled.Upload>

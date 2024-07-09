@@ -12,6 +12,13 @@ export const formatDate = (date: string | Date | undefined, includeTime?: boolea
   if (includeTime) {
     return result.format('MMMM DD, YYYY HH:mm:ss');
   } else {
-    return result.format('MMMM DD YYYY');
+    return result.format('MMMM DD - YYYY');
   }
+};
+
+export const formatTime = (date: string | Date | undefined): string => {
+  if (date === undefined) return '';
+  const result = moment(date);
+
+  return result.format('HH:mm:ss');
 };

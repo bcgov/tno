@@ -1,9 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Oracle.ManagedDataAccess.Client;
 using TNO.Services.ContentMigration.Config;
 using TNO.Services.ContentMigration.Migrators;
-using TNO.Services.ContentMigration.Sources.Oracle;
 using TNO.Services.ContentMigration.Sources.Oracle.Services;
 using TNO.Services.Runners;
 

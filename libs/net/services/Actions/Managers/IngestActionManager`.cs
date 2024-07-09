@@ -67,13 +67,15 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// <returns></returns>
     protected override Task<bool> PreRunAsync()
     {
-        if (this.Ingest.IsEnabled && (!this.Ingest.IngestSchedules.Any() || this.Ingest.IngestSchedules.All(s => s.Schedule == null))) {
-            this.Logger.LogWarning($"Ingest [{this.Ingest.Name}] is enabled but has NO schedules.  Ingest will be SKIPPED.");
+        if (this.Ingest.IsEnabled && (!this.Ingest.IngestSchedules.Any() || this.Ingest.IngestSchedules.All(s => s.Schedule == null)))
+        {
+            this.Logger.LogWarning("Ingest [{name}] is enabled but has NO schedules.  Ingest will be SKIPPED.", this.Ingest.Name);
             return Task.FromResult(false);
         }
-        
-        if (this.Ingest.IsEnabled && !this.Ingest.IngestSchedules.Any(s => s.Schedule?.IsEnabled == true)) {
-            this.Logger.LogWarning($"Ingest [{this.Ingest.Name}] is enabled but has NO enabled schedules.  Ingest will be SKIPPED.");
+
+        if (this.Ingest.IsEnabled && !this.Ingest.IngestSchedules.Any(s => s.Schedule?.IsEnabled == true))
+        {
+            this.Logger.LogWarning("Ingest [{name}] is enabled but has NO enabled schedules.  Ingest will be SKIPPED.", this.Ingest.Name);
             return Task.FromResult(false);
         }
 
@@ -115,22 +117,15 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// <summary>
     /// Make AJAX request and update the ingest state - Failed Attempts.
     /// </summary>
+    /// <param name="failedAttempts"></param>
+    /// <param name="lastItemUpdatedDate"></param>
     /// <returns></returns>
-    public async Task<IngestModel> UpdateIngestStateFailedAttemptsAsync(int failedAttempts = 0)
+    public async Task<IngestModel> UpdateIngestStateFailedAttemptsAsync(int failedAttempts = 0, DateTime? lastItemUpdatedDate = null)
     {
         this.Ingest.LastRanOn = DateTime.UtcNow;
         this.Ingest.FailedAttempts = failedAttempts;
-        this.Ingest = await this.Api.UpdateIngestStateAsync(Ingest) ?? this.Ingest;
-        return this.Ingest;
-    }
-
-    /// <summary>
-    /// Make AJAX request and update the ingest state - Creation Date Of Last Item.
-    /// </summary>
-    /// <returns></returns>
-    public async Task<IngestModel> UpdateIngestStateCreationDateOfLastItemAsync(DateTime creationDate)
-    {
-        this.Ingest.CreationDateOfLastItem = creationDate.ToUniversalTime();
+        if (lastItemUpdatedDate != null)
+            this.Ingest.CreationDateOfLastItem = lastItemUpdatedDate.Value.ToUniversalTime();
         this.Ingest = await this.Api.UpdateIngestStateAsync(Ingest) ?? this.Ingest;
         return this.Ingest;
     }

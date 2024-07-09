@@ -52,8 +52,8 @@ spec:
               mountPath: /data
           resources:
             limits:
-              cpu: 50m
-              memory: 150Mi
+              cpu: 125m
+              memory: 350Mi
             requests:
               cpu: 25m
               memory: 100Mi
@@ -129,11 +129,11 @@ spec:
                 configMapKeyRef:
                   name: content-historic-service
                   key: CONTENT_TOPICS_OVERRIDE
-            - name: Service__MigrationOptions__AllowSourceContentOverwrite
+            - name: Service__AllowUpdate
               valueFrom:
                 configMapKeyRef:
                   name: content-historic-service
-                  key: ALLOW_SOURCE_CONTENT_OVERWRITE
+                  key: ALLOW_UPDATE
 
             # CHES Configuration
             - name: CHES__From

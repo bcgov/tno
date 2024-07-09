@@ -1,6 +1,6 @@
 import { formatSearch } from 'features/search-page/utils';
 import React from 'react';
-import { FaCopyright, FaEyeSlash } from 'react-icons/fa6';
+import { FaCopyright, FaEyeSlash, FaX } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
 import { Checkbox, Col, ContentTypeName, IColProps, IContentModel, Row, Show } from 'tno-core';
 
@@ -13,25 +13,27 @@ import { determineToneIcon, truncateTeaser } from './utils';
 export interface IContentRowProps extends IColProps {
   selected: IContentModel[];
   item: IContentModel;
-  onCheckboxChange: (item: IContentModel, checked: boolean) => void;
   canDrag?: boolean;
   showDate?: boolean;
   popOutIds?: string;
   showSeries?: boolean;
   showTime?: boolean;
   filter?: any;
+  onCheckboxChange: (item: IContentModel, checked: boolean) => void;
+  onRemove?: (item: IContentModel) => void;
 }
 
 export const ContentRow: React.FC<IContentRowProps> = ({
   selected,
   item,
-  onCheckboxChange,
   canDrag,
   showDate,
   showSeries,
   showTime,
   popOutIds,
   filter,
+  onCheckboxChange,
+  onRemove,
   ...rest
 }) => {
   const {
@@ -41,8 +43,14 @@ export const ContentRow: React.FC<IContentRowProps> = ({
     setActiveFileReference,
     activeStream,
   } = React.useContext(ContentListContext);
-  const body = formatSearch(truncateTeaser(item.body, 250), filter);
-  const headline = formatSearch(item.headline, filter);
+
+  const body = React.useMemo(() => {
+    const truncated = truncateTeaser(item.body, 250);
+    return formatSearch(truncated, filter);
+  }, [filter, item.body]);
+  const headline = React.useMemo(() => {
+    return formatSearch(item.headline, filter);
+  }, [filter, item.headline]);
 
   return (
     <styled.ContentRow {...rest}>
@@ -77,7 +85,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
           showSeries={showSeries}
           viewOptions={viewOptions}
         />
-        <Row className="icon-row">
+        <Row className="icon-row" nowrap>
           {popOutIds?.includes(String(item.mediaTypeId)) ? (
             <img
               src={`${process.env.PUBLIC_URL}/assets/mediaplay-newwindow.svg`}
@@ -115,7 +123,16 @@ export const ContentRow: React.FC<IContentRowProps> = ({
           ) : (
             <div className="icon-placeholder" />
           )}
-
+          {onRemove && (
+            <FaX
+              className="icon-remove"
+              title="Remove"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove(item);
+              }}
+            />
+          )}
           <Show visible={!!activeStream && item.id === activeStream.id}>
             <FaEyeSlash
               className="eye-slash icon"

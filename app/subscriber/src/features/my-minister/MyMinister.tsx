@@ -10,13 +10,16 @@ import { useNavigate } from 'react-router-dom';
 import { useApp, useContent } from 'store/hooks';
 import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 import { useMinisters } from 'store/hooks/subscriber/useMinisters';
+import { useProfileStore } from 'store/slices';
 import {
   Checkbox,
   FlexboxTable,
   generateQuery,
   IContentModel,
   ITableInternalRow,
+  Loading,
   Row,
+  Show,
 } from 'tno-core';
 
 import { determineColumns } from './constants';
@@ -32,6 +35,7 @@ export const MyMinister: React.FC = () => {
   const [{ userInfo }] = useApp();
   const [, api] = useMinisters();
   const navigate = useNavigate();
+  const [{ impersonate }] = useProfileStore();
 
   const [selected, setSelected] = React.useState<IContentSearchResult[]>([]);
   const [filteredContent, setFilteredContent] = React.useState<IContentSearchResult[]>([]);
@@ -111,9 +115,13 @@ export const MyMinister: React.FC = () => {
 
     const displayData = async () => {
       const contentList: IContentSearchResult[] = [];
-      if (userInfo?.preferences?.myMinisters?.length > 0 && ministers.length > 0) {
+      if (
+        userInfo?.preferences?.myMinisters?.length > 0 ||
+        (impersonate?.preferences?.myMinisters?.length > 0 && ministers.length > 0)
+      ) {
+        const baseProfile = impersonate ?? userInfo;
         let ministerModels = ministers
-          .filter((m) => userInfo?.preferences?.myMinisters?.includes(m.id))
+          .filter((m) => baseProfile?.preferences?.myMinisters?.includes(m.id))
           .map((m) => {
             return { ...m, contentCount: 0 };
           })
@@ -158,6 +166,8 @@ export const MyMinister: React.FC = () => {
       }
     };
     displayData().catch(() => {});
+    // only fire when filter changes or ministers updated
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo?.preferences?.myMinisters, ministers, fetchResults, filter]);
 
   React.useEffect(() => {
@@ -214,6 +224,9 @@ export const MyMinister: React.FC = () => {
           );
         })}
       </div>
+      <Show visible={loading}>
+        <Loading />
+      </Show>
       <Row className="table-container">
         <FlexboxTable
           rowId="id"

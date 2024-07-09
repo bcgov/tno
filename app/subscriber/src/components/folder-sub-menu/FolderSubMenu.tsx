@@ -38,7 +38,8 @@ export const FolderSubMenu: React.FC<IFolderSubMenuProps> = ({ selectedContent }
         className="folder-menu"
         place="bottom"
         openOnClick
-        style={{ opacity: '1', boxShadow: '0 0 8px #464545', zIndex: '999' }}
+        opacity={1}
+        style={{ boxShadow: '0 0 8px #464545', zIndex: '999' }}
         id="folder"
       >
         <FolderMenu content={toFolderContent(selectedContent)} />

@@ -344,7 +344,8 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                             foreach (var content in results.Hits.Hits.Select(h => h.Source).Where(c => c != null))
                             {
                                 this.NotificationValidator.Initialize(notification, content);
-                                await SendNotificationAsync(request, notification, content);
+                                if (request.IgnoreValidation || await this.NotificationValidator.ConfirmSendAsync())
+                                    await SendNotificationAsync(request, notification, content);
                             }
                         }
                         else

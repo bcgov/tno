@@ -40,6 +40,14 @@ export const BrowserLogin = styled.div`
     background-size: cover;
   }
 
+  .azure-logo {
+    padding: 1%;
+    /* background-image: url('/assets/IDIR_button.png'); */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
   .login-content {
     margin-top: 2%;
     display: flex;

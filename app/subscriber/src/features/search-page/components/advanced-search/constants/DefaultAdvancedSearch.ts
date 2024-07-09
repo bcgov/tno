@@ -9,6 +9,7 @@ export const defaultAdvancedSearch = {
   inByline: true,
   inHeadline: true,
   inStory: true,
+  inProgram: true,
   mediaTypeIds: [],
   page: '',
   publishedEndOn: '',

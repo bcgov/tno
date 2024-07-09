@@ -53,7 +53,6 @@ export const AVOverviewPreview = styled.div`
   }
   svg {
     align-self: center;
-    margin-right: 0.25rem;
   }
 
   .label-container {
@@ -64,7 +63,6 @@ export const AVOverviewPreview = styled.div`
     display: table;
 
     svg {
-      padding-right: 0.25em;
       align-self: center;
     }
 

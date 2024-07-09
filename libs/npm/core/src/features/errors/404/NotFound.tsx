@@ -1,5 +1,3 @@
-import SVG from 'react-inlinesvg';
-
 import IconNotFound from '../../../assets/404.svg';
 import * as styled from './NotFoundStyled';
 
@@ -11,7 +9,7 @@ export const NotFound: React.FC = () => {
   return (
     <styled.NotFound>
       <div>
-        <SVG src={IconNotFound} />
+        <IconNotFound />
         <div>
           <h1>404: Page Not Found</h1>
           <p>This page does not exist.</p>

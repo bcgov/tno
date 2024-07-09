@@ -12,6 +12,13 @@ export interface IGridHeaderColumnProps {
   size?: string;
 }
 
+export interface IGridColumnProps {
+  key?: string | number;
+  column?: React.ReactNode;
+  isSelected?: boolean;
+  isFocused?: boolean;
+}
+
 interface IGridProps<T> {
   className?: string;
   items: T[];
@@ -20,7 +27,7 @@ interface IGridProps<T> {
   totalItems?: number;
   renderHeader?: () => (React.ReactNode | IGridHeaderColumnProps)[];
   showPaging?: boolean;
-  renderRow: (row: T, index?: number) => React.ReactNode[];
+  renderColumns: (row: T, index?: number) => (React.ReactNode | IGridColumnProps)[];
   onNavigatePage?: (page: number) => void;
   onQuantityChange?: (quantity: number) => void;
   onSortChange?: (column: IGridHeaderColumnProps, direction: SortDirection) => void;
@@ -39,7 +46,7 @@ export const Grid = <T,>({
   showPaging,
   className,
   renderHeader,
-  renderRow,
+  renderColumns,
   onNavigatePage,
   onQuantityChange,
   onSortChange,
@@ -56,38 +63,53 @@ export const Grid = <T,>({
 
   return (
     <styled.Grid className={`grid${className ? ` ${className}` : ''}`} columns={columns}>
-      <div className="grid-table">
-        {headers.map((column, columnIndex) => {
-          const _column = column as IGridHeaderColumnProps;
-          const _node = column as React.ReactNode;
-          const isColumn = column?.hasOwnProperty('label');
+      <div>
+        <div className="grid-table">
+          {headers.map((column, columnIndex) => {
+            const _column = column as IGridHeaderColumnProps;
+            const _node = column as React.ReactNode;
+            const isColumn = column?.hasOwnProperty('label');
 
-          return (
-            <div key={columnIndex} className="grid-header">
-              {isColumn ? _column.label : _node}
-              {isColumn && _column.sortable && _column.name && (
-                <SortAction
-                  direction={sorting.length > columnIndex ? sorting[columnIndex] : undefined}
-                  onChange={(direction) => {
-                    setSorting((values) => {
-                      return values.map((value, index) =>
-                        index === columnIndex ? direction : SortDirection.None,
-                      );
-                    });
-                    onSortChange?.(_column, direction);
-                  }}
-                />
-              )}
-            </div>
-          );
-        })}
-        {items?.map((item, rowIndex) =>
-          renderRow(item, rowIndex).map((column, columnIndex) => (
-            <div key={`${rowIndex}-${columnIndex}`} className="grid-column">
-              {column}
-            </div>
-          )),
-        )}
+            return (
+              <div key={columnIndex} className="grid-header">
+                {isColumn ? _column.label : _node}
+                {isColumn && _column.sortable && _column.name && (
+                  <SortAction
+                    direction={sorting.length > columnIndex ? sorting[columnIndex] : undefined}
+                    onChange={(direction) => {
+                      setSorting((values) => {
+                        return values.map((value, index) =>
+                          index === columnIndex ? direction : SortDirection.None,
+                        );
+                      });
+                      onSortChange?.(_column, direction);
+                    }}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <div className="grid-table">
+          {items?.map((item, rowIndex) =>
+            renderColumns(item, rowIndex).map((column, columnIndex) => {
+              const _column = column as IGridColumnProps;
+              const _node = column as React.ReactNode;
+              const key = _column.key ?? `${rowIndex}-${columnIndex}`;
+              const body = _column.column ?? _node;
+              const isActive =
+                (typeof _column.isSelected === 'boolean' && _column.isSelected) ||
+                (typeof _column.isFocused === 'boolean' && _column.isFocused)
+                  ? 'active'
+                  : '';
+              return (
+                <div key={key} className={`grid-column ${isActive}`}>
+                  {body}
+                </div>
+              );
+            }),
+          )}
+        </div>
       </div>
       {showPaging && (
         <GridPager

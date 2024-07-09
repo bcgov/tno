@@ -24,13 +24,13 @@ public class ChartDatasetModel
     /// get/set -
     /// </summary>
     [JsonPropertyName("backgroundColor")]
-    public string? BackgroundColor { get; set; }
+    public string[]? BackgroundColor { get; set; }
 
     /// <summary>
     /// get/set -
     /// </summary>
     [JsonPropertyName("borderColor")]
-    public string? BorderColor { get; set; }
+    public string[]? BorderColor { get; set; }
 
     /// <summary>
     /// get/set -

@@ -1,1 +1,1 @@
-export * from './ReportSendForm';
+export * from './ReportSubscriberExporter';

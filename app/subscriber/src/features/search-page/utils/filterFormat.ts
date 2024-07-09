@@ -13,6 +13,7 @@ export const filterFormat = (filter: IFilterSettingsModel) => {
     from: 0,
     inByline: filter.inByline ?? false,
     inHeadline: filter.inHeadline ?? false,
+    inProgram: filter.inProgram ?? false,
     inStory: filter.inStory ?? false,
     mediaTypeIds: filter.mediaTypeIds ?? [],
     page: filter.page ?? '',
