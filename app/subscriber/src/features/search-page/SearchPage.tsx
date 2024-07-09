@@ -98,6 +98,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
       setCurrDateResults(currDateResults);
       setPrevDateResults(prevDateResults);
       setTotalResults(currDateResults.length);
+      if (res.hits.total.value === 0) toast.warn('No results found.');
       if (res.hits.total.value >= 500)
         toast.warn(
           'Search returned 500+ results, only showing first 500. Please consider refining your search.',
