@@ -263,7 +263,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
   const cleanSummary = cleanString(content?.summary);
 
   //Return true if difference between length of cleanBody & cleanSummary is greater than 10%
-  const isDifferent = React.useMemo(() => {
+  /*const isDifferent = React.useMemo(() => {
     if (cleanBody === undefined || cleanSummary === undefined) {
       return false; // If either cleanBody or cleanSummary is undefined, return false
     }
@@ -271,7 +271,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
     const difference = Math.abs((cleanBody.length ?? 0) - (cleanSummary.length ?? 0));
     const maxLength = Math.max(cleanBody.length ?? 0, cleanSummary.length ?? 0);
     return difference > maxLength * threshold;
-  }, [cleanBody, cleanSummary]);
+  }, [cleanBody, cleanSummary]); */
 
   return (
     <styled.ViewContent>
