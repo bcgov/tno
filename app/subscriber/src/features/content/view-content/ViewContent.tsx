@@ -341,7 +341,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
       <Row id="summary" className="summary">
         <Show visible={isAV && !!content?.summary && !isTranscribing}>
           <Col>
-            <span>{formatedSummary}</span>
+            <span>{formattedSummary}</span>
             <Show visible={!!content?.sourceUrl}>
               <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
                 More...
@@ -351,7 +351,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
         </Show>
         <Show visible={!isAV && !!content}>
           <Col>
-            {!!content?.body?.length ? <div>{formatedBody}</div> : <span>{formatedSummary}</span>}
+            {!!content?.body?.length ? <div>{formattedBody}</div> : <span>{formattedSummary}</span>}
             <Show visible={!!content?.sourceUrl}>
               <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
                 More...
