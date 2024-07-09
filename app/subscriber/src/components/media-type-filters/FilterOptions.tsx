@@ -44,7 +44,7 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
   const [{ userInfo }, store] = useAppStore();
   const filterStoreMethod = determineStore(filterStoreName);
   const api = useUsers();
-  const [active, setActive] = useState<FilterOptionTypes | undefined>(undefined);
+  const [active, setActive] = useState<FilterOptionTypes>(FilterOptionTypes.All);
   const savePreferences = async (filterPreference: FilterOptionTypes) => {
     if (userInfo) {
       try {
@@ -57,22 +57,6 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
       } catch {}
     }
   };
-
-  useEffect(() => {
-    // if the user has a preference set, set the active filter to that preference
-    // otherwise set the active filter to all
-    // then set hasProcessedInitialPreference to true which will prevent this from running again
-    if (userInfo) {
-      if (userInfo.preferences && userInfo.preferences.filterPreference) {
-        setActive(userInfo.preferences.filterPreference);
-        handleFilterClick(userInfo.preferences.filterPreference);
-      } else {
-        setActive(FilterOptionTypes.All);
-      }
-    }
-    // only fire when userInfo and process complete
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo]);
 
   const [
     {
