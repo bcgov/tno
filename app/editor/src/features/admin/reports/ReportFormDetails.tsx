@@ -19,6 +19,7 @@ import {
   OptionItem,
   Row,
   Show,
+  UserAccountTypeName,
 } from 'tno-core';
 
 /**
@@ -34,7 +35,15 @@ export const ReportFormDetails: React.FC = () => {
 
   React.useEffect(() => {
     if (userInfo?.id) {
-      findUsers({ quantity: 50, includeUserId: values.ownerId })
+      findUsers({
+        quantity: 50,
+        includeUserId: values.ownerId,
+        accountTypes: [
+          UserAccountTypeName.Direct,
+          UserAccountTypeName.Indirect,
+          UserAccountTypeName.SystemAccount,
+        ],
+      })
         .then((results) => {
           setUserOptions(getUserOptions(results.items));
         })
@@ -45,7 +54,18 @@ export const ReportFormDetails: React.FC = () => {
   }, [userInfo?.id]);
 
   const handleFindUsers = debounce(async (text: string) => {
-    const results = await findUsers({ quantity: 50, keyword: text }, true);
+    const results = await findUsers(
+      {
+        quantity: 50,
+        keyword: text,
+        accountTypes: [
+          UserAccountTypeName.Direct,
+          UserAccountTypeName.Indirect,
+          UserAccountTypeName.SystemAccount,
+        ],
+      },
+      true,
+    );
     setUserOptions(getUserOptions(results.items));
     return results;
   }, 500);
