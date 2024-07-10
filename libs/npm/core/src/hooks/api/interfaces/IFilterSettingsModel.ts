@@ -28,6 +28,7 @@ export interface IFilterSettingsModel {
   otherSource?: string;
   ownerId?: number;
   page?: string;
+  pressMembers?: string[];
   search?: string;
   section?: string;
   sentiment?: number[];
