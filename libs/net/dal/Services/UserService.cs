@@ -35,7 +35,7 @@ public class UserService : BaseService<User, int>, IUserService
             .AsNoTracking()
             .AsQueryable();
 
-        var predicate = PredicateBuilder.New<User>();
+        var predicate = PredicateBuilder.New<User>(true);
 
         if (!String.IsNullOrWhiteSpace(filter.Username))
             predicate = predicate.And(c => EF.Functions.Like(c.Username.ToLower(), $"{filter.Username.ToLower()}%"));
