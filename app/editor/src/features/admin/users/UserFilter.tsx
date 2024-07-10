@@ -76,7 +76,7 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
           options={accountTypeOptions}
           name="accountType"
           placeholder="Search by Type"
-          value={accountTypeOptions.find((s) => s.value === filter.accountType) || ''}
+          value={accountTypeOptions.find((s) => filter.accountType === s.value) || ''}
         />
         <Select
           onChange={(e: any) => {
@@ -114,6 +114,7 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
               roleName: undefined,
               keyword: '',
               status: undefined,
+              accountType: undefined,
               page: 0,
               quantity: 20,
             });
