@@ -39,7 +39,7 @@ export const Action = styled.div<IActionProps>`
     color: ${(props) =>
       !props.disabled ? props.theme.css.linkPrimaryColor : props.theme.css.linkGrayColor};
     text-transform: uppercase;
-    cursor: pointer;
+    cursor: ${(props) => (!props.disabled ? 'cursor' : 'default')};
   }
 
   svg {
@@ -52,5 +52,9 @@ export const Action = styled.div<IActionProps>`
     min-width: ${(props) => props.size};
     color: ${(props) =>
       !props.disabled ? props.theme.css.iconPrimaryColor : props.theme.css.iconGrayColor};
+
+    &:hover {
+      cursor: ${(props) => (!props.disabled ? 'cursor' : 'default')};
+    }
   }
 `;

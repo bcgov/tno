@@ -65,10 +65,8 @@ public class UserService : BaseService<User, int>, IUserService
             predicate = predicate.And(c => c.IsEnabled == filter.IsEnabled);
         if (filter.IsSystemAccount != null)
             predicate = predicate.And(c => c.IsSystemAccount == filter.IsSystemAccount);
-        else
-            predicate = predicate.And(c => !c.IsSystemAccount);
-        if (filter.AccountType != null)
-            predicate = predicate.And(c => c.AccountType == filter.AccountType);
+        if (filter.AccountTypes?.Any() == true)
+            predicate = predicate.And(c => filter.AccountTypes.Contains(c.AccountType));
 
         if (filter.IncludeUserId.HasValue)
             predicate = PredicateBuilder.Or<User>(u => u.Id == filter.IncludeUserId, predicate);

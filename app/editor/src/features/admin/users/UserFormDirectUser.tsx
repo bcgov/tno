@@ -32,7 +32,9 @@ export const UserFormDirectUser: React.FC = () => {
   );
 
   const statusOptions = getEnumStringOptions(UserStatusName);
-  const accountTypeOptions = getEnumStringOptions(UserAccountTypeName);
+  const accountTypeOptions = getEnumStringOptions(UserAccountTypeName).filter(
+    (o) => o.value !== UserAccountTypeName.SystemAccount,
+  );
 
   React.useEffect(() => {
     setRoleOptions(roles.map((r) => new OptionItem(r.name, r.id)));
