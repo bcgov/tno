@@ -9,7 +9,7 @@ export interface IUserFilter {
   lastName?: string;
   isEnabled?: boolean;
   isSystemAccount?: boolean;
-  accountType?: UserAccountTypeName;
+  accountTypes?: UserAccountTypeName[];
   status?: UserStatusName;
   sort?: string[];
   roleName?: string;

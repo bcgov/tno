@@ -33,7 +33,9 @@ export const UserFormDistribution: React.FC = () => {
   const [users, setUsers] = React.useState<IUserModel[]>([]);
   const [selectedUser, setSelectedUser] = React.useState(0);
 
-  const accountTypeOptions = getEnumStringOptions(UserAccountTypeName);
+  const accountTypeOptions = getEnumStringOptions(UserAccountTypeName).filter(
+    (o) => o.value !== UserAccountTypeName.SystemAccount,
+  );
   const userOptions = users.map(
     (u) =>
       new OptionItem(
@@ -64,97 +66,100 @@ export const UserFormDistribution: React.FC = () => {
 
   return (
     <div className="form-container">
-      <Row gap="1rem">
-        <Col>
-          <FormikSelect
-            name="accountType"
-            label="Account Type"
-            options={accountTypeOptions}
-            value={accountTypeOptions.find((s) => s.value === values.accountType) || ''}
-            required
-            isClearable={false}
-          />
-          <FormikText
-            name="username"
-            label="Name"
-            required
-            onChange={(e) => setFieldValue('username', e.currentTarget.value.toUpperCase())}
-          />
-          <FormikTextArea name="note" label="Note" />
-        </Col>
-        <Section className="frm-in distribution-list">
-          <Row>
-            <Text
-              name="findUser"
-              label="Find User"
-              value={keyword}
-              onChange={(e) => setKeyword(e.currentTarget.value)}
-              onKeyDown={(e) => {
-                if (e.code === 'Enter') {
-                  e.preventDefault();
-                  handleFindUsers(keyword);
-                }
-              }}
+      <Section className="frm-in">
+        <label>Account Information</label>
+        <Row gap="1rem">
+          <Col>
+            <FormikSelect
+              name="accountType"
+              label="Account Type"
+              options={accountTypeOptions}
+              value={accountTypeOptions.find((s) => s.value === values.accountType) || ''}
+              required
+              isClearable={false}
             />
-            <Button title="Search" onClick={() => handleFindUsers(keyword)}>
-              <FaSearch />
-            </Button>
-          </Row>
-          <Select
-            name="users"
-            options={userOptions}
-            value={userOptions.find((o) => o.value === selectedUser) ?? ''}
-            onChange={(e) => {
-              const option = e as OptionItem;
-              if (option && option.value) setSelectedUser(+option.value);
-              else setSelectedUser(0);
-            }}
-          >
-            <Button
-              title="Add"
-              disabled={!selectedUser}
-              onClick={(e) => {
-                const user = users.find((u) => u.id === selectedUser);
-                const found = user && addresses.some((a) => a.userId === user.id);
-                if (user && !found) {
-                  const email = user.preferredEmail ? user.preferredEmail : user.email;
-                  setFieldValue('preferences', {
-                    ...values.preferences,
-                    addresses: [{ userId: user.id, email: email }, ...addresses],
-                  });
-                }
-                setSelectedUser(0);
+            <FormikText
+              name="username"
+              label="Name"
+              required
+              onChange={(e) => setFieldValue('username', e.currentTarget.value.toUpperCase())}
+            />
+            <FormikTextArea name="note" label="Note" />
+          </Col>
+          <Section className="frm-in distribution-list">
+            <Row>
+              <Text
+                name="findUser"
+                label="Find User"
+                value={keyword}
+                onChange={(e) => setKeyword(e.currentTarget.value)}
+                onKeyDown={(e) => {
+                  if (e.code === 'Enter') {
+                    e.preventDefault();
+                    handleFindUsers(keyword);
+                  }
+                }}
+              />
+              <Button title="Search" onClick={() => handleFindUsers(keyword)}>
+                <FaSearch />
+              </Button>
+            </Row>
+            <Select
+              name="users"
+              options={userOptions}
+              value={userOptions.find((o) => o.value === selectedUser) ?? ''}
+              onChange={(e) => {
+                const option = e as OptionItem;
+                if (option && option.value) setSelectedUser(+option.value);
+                else setSelectedUser(0);
               }}
             >
-              <FaPlus />
-            </Button>
-          </Select>
-          <label>Email Addresses</label>
-          <Section className="addresses">
-            <Col gap="0.5rem">
-              {addresses.map((address) => {
-                return (
-                  <Row key={address.userId} gap="0.5rem" alignItems="center">
-                    <Col flex="1">{address.email}</Col>
-                    <Button
-                      title="Remove"
-                      variant={ButtonVariant.red}
-                      onClick={(e) => {
-                        setFieldValue('preferences', {
-                          ...values.preferences,
-                          addresses: addresses.filter((a) => a.userId !== address.userId),
-                        });
-                      }}
-                    >
-                      <FaTrash />
-                    </Button>
-                  </Row>
-                );
-              })}
-            </Col>
+              <Button
+                title="Add"
+                disabled={!selectedUser}
+                onClick={(e) => {
+                  const user = users.find((u) => u.id === selectedUser);
+                  const found = user && addresses.some((a) => a.userId === user.id);
+                  if (user && !found) {
+                    const email = user.preferredEmail ? user.preferredEmail : user.email;
+                    setFieldValue('preferences', {
+                      ...values.preferences,
+                      addresses: [{ userId: user.id, email: email }, ...addresses],
+                    });
+                  }
+                  setSelectedUser(0);
+                }}
+              >
+                <FaPlus />
+              </Button>
+            </Select>
+            <label>Email Addresses</label>
+            <Section className="addresses">
+              <Col gap="0.5rem">
+                {addresses.map((address) => {
+                  return (
+                    <Row key={address.userId} gap="0.5rem" alignItems="center">
+                      <Col flex="1">{address.email}</Col>
+                      <Button
+                        title="Remove"
+                        variant={ButtonVariant.red}
+                        onClick={(e) => {
+                          setFieldValue('preferences', {
+                            ...values.preferences,
+                            addresses: addresses.filter((a) => a.userId !== address.userId),
+                          });
+                        }}
+                      >
+                        <FaTrash />
+                      </Button>
+                    </Row>
+                  );
+                })}
+              </Col>
+            </Section>
           </Section>
-        </Section>
-      </Row>
+        </Row>
+      </Section>
     </div>
   );
 };

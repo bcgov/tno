@@ -12,7 +12,16 @@ import {
 } from 'react-icons/fa6';
 import { useUsers } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Col, IPaged, ISubscriberUserModel, IUserFilter, IUserModel, Row, Text } from 'tno-core';
+import {
+  Col,
+  IPaged,
+  ISubscriberUserModel,
+  IUserFilter,
+  IUserModel,
+  Row,
+  Text,
+  UserAccountTypeName,
+} from 'tno-core';
 
 import { defaultPage } from './constants';
 import * as styled from './styled';
@@ -28,7 +37,10 @@ export const Impersonation = () => {
   const handleSearch = React.useCallback(
     async (filter: IUserFilter) => {
       try {
-        const page = await findUsers(filter);
+        const page = await findUsers({
+          ...filter,
+          accountTypes: [UserAccountTypeName.Direct, UserAccountTypeName.Indirect],
+        });
         setUsers(page);
         setPage(`${filter.page ?? 1}`);
       } catch {}
@@ -121,6 +133,7 @@ export const Impersonation = () => {
             })}
           </Col>
           <Row className="table-footer">
+            <label>Page</label>
             <Action
               icon={<FaCaretLeft />}
               disabled={users.page <= 1}
@@ -132,7 +145,7 @@ export const Impersonation = () => {
               <Text
                 name="page"
                 value={page}
-                width="5ch"
+                width="8ch"
                 type="number"
                 onChange={(e) => {
                   setPage(e.target.value);
