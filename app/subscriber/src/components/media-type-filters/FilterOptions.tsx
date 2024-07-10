@@ -44,7 +44,7 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
   const [{ userInfo }, store] = useAppStore();
   const filterStoreMethod = determineStore(filterStoreName);
   const api = useUsers();
-  const [active, setActive] = useState<FilterOptionTypes>(FilterOptionTypes.All);
+  const [active, setActive] = useState<FilterOptionTypes>();
   const savePreferences = async (filterPreference: FilterOptionTypes) => {
     if (userInfo) {
       try {
@@ -128,7 +128,7 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
 
   useEffect(() => {
     // Initial Check: Ensure initial preferences have been processed before proceeding
-    if (!filter.contentTypes?.length && !filter.mediaTypeIds?.length) {
+    if (!filter.contentTypes?.length && !filter.mediaTypeIds?.length && !!userInfo?.preferences) {
       setActive(FilterOptionTypes.All);
     } else if (
       filter.mediaTypeIds?.includes(mediaTypes.find((s) => s.name === 'Events')?.id ?? 0)
@@ -161,6 +161,14 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
     // Because we only want to run this effect if hasProcessedInitialPreference as true.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, mediaTypes]);
+
+  /** When userinfo is loaded we need to set active to their preference (it remembers where you left off) */
+  useEffect(() => {
+    if (userInfo?.preferences?.filterPreference) {
+      setActive(userInfo.preferences.filterPreference);
+      handleFilterClick(userInfo.preferences.filterPreference);
+    }
+  }, [userInfo?.preferences?.filterPreference, handleFilterClick]);
 
   const filters = [
     { type: FilterOptionTypes.Papers, label: 'PAPERS', icon: <FaNewspaper /> },
