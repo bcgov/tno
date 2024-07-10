@@ -32,7 +32,7 @@ import { ToneValue } from './ToneValue';
 import { isWorkOrderStatus } from './utils';
 
 //Difference ratio
-const threshold = 0.1;
+//const threshold = 0.1;
 
 export interface IStream {
   url: string;
@@ -70,7 +70,6 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
   const [avStream, setAVStream] = React.useState<IStream>();
   const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
   const [filteredQuotes, setFilteredQuotes] = React.useState<IQuoteModel[]>([]);
-
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const radioRef = React.useRef<HTMLAudioElement>(null);
   const fileReference = content?.fileReferences ? content?.fileReferences[0] : undefined;
@@ -245,7 +244,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
   hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrder);
 
   //Remove HTML tags, square brackets and line breaks before comparison.
-  const cleanString = (str: string | undefined) => str?.replace(/<[^>]*>?|\[|\]|\n/gm, '').trim();
+  //const cleanString = (str: string | undefined) => str?.replace(/<[^>]*>?|\[|\]|\n/gm, '').trim();
 
   const formattedHeadline = React.useMemo(
     () => formatSearch(content?.headline ?? '', filter),
@@ -260,11 +259,11 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
     [content?.summary, filter],
   );
 
-  const cleanBody = cleanString(content?.body);
-  const cleanSummary = cleanString(content?.summary);
+  //const cleanBody = cleanString(content?.body);
+  //const cleanSummary = cleanString(content?.summary);
 
   //Return true if difference between length of cleanBody & cleanSummary is greater than 10%
-  const isDifferent = React.useMemo(() => {
+  /*const isDifferent = React.useMemo(() => {
     if (cleanBody === undefined || cleanSummary === undefined) {
       return false; // If either cleanBody or cleanSummary is undefined, return false
     }
@@ -272,7 +271,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
     const difference = Math.abs((cleanBody.length ?? 0) - (cleanSummary.length ?? 0));
     const maxLength = Math.max(cleanBody.length ?? 0, cleanSummary.length ?? 0);
     return difference > maxLength * threshold;
-  }, [cleanBody, cleanSummary]);
+  }, [cleanBody, cleanSummary]); */
 
   return (
     <styled.ViewContent>
@@ -339,14 +338,26 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
           <img alt="media" src={!!avStream?.url ? avStream?.url : ''} />
         </Row>
       </Show>
-      <Col id="summary" className="summary">
-        <Show visible={isDifferent && !!formattedSummary}>{formattedSummary}</Show>
-        <hr />
-        <Show visible={!!formattedBody && (!isAV || content?.isApproved)}>{formattedBody}</Show>
-        <Show visible={!!content?.sourceUrl}>
-          <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
-            More...
-          </a>
+      <Row id="summary" className="summary">
+        <Show visible={isAV && !!content?.summary && !isTranscribing}>
+          <Col>
+            <span>{formattedSummary}</span>
+            <Show visible={!!content?.sourceUrl}>
+              <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
+                More...
+              </a>
+            </Show>
+          </Col>
+        </Show>
+        <Show visible={!isAV && !!content}>
+          <Col>
+            {!!content?.body?.length ? <div>{formattedBody}</div> : <span>{formattedSummary}</span>}
+            <Show visible={!!content?.sourceUrl}>
+              <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
+                More...
+              </a>
+            </Show>
+          </Col>
         </Show>
         <Show
           visible={
@@ -373,7 +384,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
             </Show>
           </Button>
         </Show>
-      </Col>
+      </Row>
       <Show visible={isAV && isTranscribing}>
         <hr />
         <h3>Transcription:</h3>
