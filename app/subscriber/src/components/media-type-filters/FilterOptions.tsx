@@ -168,7 +168,7 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
       setActive(userInfo.preferences.filterPreference);
       handleFilterClick(userInfo.preferences.filterPreference);
     }
-  }, [userInfo?.preferences?.filterPreference]);
+  }, [userInfo?.preferences?.filterPreference, handleFilterClick]);
 
   const filters = [
     { type: FilterOptionTypes.Papers, label: 'PAPERS', icon: <FaNewspaper /> },

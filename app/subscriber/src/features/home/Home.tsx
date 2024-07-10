@@ -66,7 +66,7 @@ export const Home: React.FC = () => {
         ),
       );
     }
-  }, [filter, fetchResults, featuredStoryActionId]);
+  }, [filter, fetchResults, userInfo, featuredStoryActionId]);
 
   return (
     <styled.Home>
