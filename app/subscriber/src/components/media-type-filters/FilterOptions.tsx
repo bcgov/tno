@@ -168,6 +168,8 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
       setActive(userInfo.preferences.filterPreference);
       handleFilterClick(userInfo.preferences.filterPreference);
     }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo?.preferences?.filterPreference]);
 
   const filters = [
