@@ -48,9 +48,9 @@ export const ContentRow: React.FC<IContentRowProps> = ({
   } = React.useContext(ContentListContext);
 
   const body = React.useMemo(() => {
-    const truncated = truncateTeaser(item.body, 250);
+    const truncated = truncateTeaser(item.body || item.summary, 250);
     return formatSearch(truncated, filter);
-  }, [filter, item.body]);
+  }, [filter, item.body, item.summary]);
   const headline = React.useMemo(() => {
     return formatSearch(item.headline, filter);
   }, [filter, item.headline]);
@@ -171,14 +171,14 @@ export const ContentRow: React.FC<IContentRowProps> = ({
         viewOptions={viewOptions}
       />
       <Row>
-        {viewOptions.teaser && !!item.body && (
+        {viewOptions.teaser && (!!item.body || !!item.summary) && (
           <>
             {bodyTermHighlighted.length > 0 ? (
               bodyTermHighlighted.map((part, index) => (
                 <React.Fragment key={index}>{part}</React.Fragment>
               ))
             ) : (
-              <div className="teaser-content">{item.body}</div>
+              <div className="teaser-content">{body}</div>
             )}
           </>
         )}
