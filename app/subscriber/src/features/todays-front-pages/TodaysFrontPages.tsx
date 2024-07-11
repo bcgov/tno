@@ -1,6 +1,5 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
-import { FolderSubMenu } from 'components/folder-sub-menu';
 import { FrontPageGallery } from 'components/front-page-gallery';
 import React from 'react';
 import { useContent, useFilters, useSettings } from 'store/hooks';
@@ -21,7 +20,6 @@ export const TodaysFrontPages: React.FC = () => {
   const { frontpageFilterId } = useSettings(true);
 
   const [frontpages, setFrontPages] = React.useState<IContentModel[]>([]);
-  const [selected] = React.useState<IContentModel[]>([]);
   const [filter, setFilter] = React.useState<IFilterModel>({
     ...defaultFilter,
     settings: frontPageFilter,
