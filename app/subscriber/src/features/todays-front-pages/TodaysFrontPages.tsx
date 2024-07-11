@@ -92,7 +92,6 @@ export const TodaysFrontPages: React.FC = () => {
 
   return (
     <styled.TodaysFrontPages>
-      <FolderSubMenu selectedContent={selected} />
       <DateFilter filter={frontPageFilter} storeFilter={storeFilter} />
       <FrontPageGallery frontpages={frontpages} />
     </styled.TodaysFrontPages>
