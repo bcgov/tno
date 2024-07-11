@@ -44,7 +44,7 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
   const [{ userInfo }, store] = useAppStore();
   const filterStoreMethod = determineStore(filterStoreName);
   const api = useUsers();
-  const [active, setActive] = useState<FilterOptionTypes>();
+  const [active, setActive] = useState<FilterOptionTypes>(FilterOptionTypes.All);
   const savePreferences = async (filterPreference: FilterOptionTypes) => {
     if (userInfo) {
       try {
@@ -109,23 +109,6 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
 
   const getClassName = (type: FilterOptionTypes) => (type === active ? 'active' : 'inactive');
 
-  /**
-   * React useEffect hook that sets the active filter option based on the current filter and media types.
-   *
-   * The hook performs the following checks in order:
-   * 1. Checks if the initial preferences have been processed.
-   * 2. If there are no content types and media type IDs in the filter, it sets the active filter to 'All'.
-   * 3. If the media type IDs in the filter include 'Events', it sets the active filter to 'Events'.
-   * 4. If there is at least one content type in the filter, it sets the active filter based on the first content type:
-   *    - 'PrintContent' sets the active filter to 'Papers'.
-   *    - 'AudioVideo' sets the active filter to 'RadioTV'.
-   *    - 'Internet' sets the active filter to 'CPNews' if there is exactly one source ID, otherwise it sets the active filter to 'Internet'.
-   * 5. If none of the above conditions are met, it sets the active filter to 'All'.
-   *
-   * @param {Object} filter - The current filter object.
-   * @param {Array} mediaTypes - The current array of media types.
-   */
-
   useEffect(() => {
     // Initial Check: Ensure initial preferences have been processed before proceeding
     if (!filter.contentTypes?.length && !filter.mediaTypeIds?.length && !!userInfo?.preferences) {
@@ -157,20 +140,8 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
         }
       }
     }
-    // hasProcessedInitialPreference is intentionally omitted from the dependencies.
-    // Because we only want to run this effect if hasProcessedInitialPreference as true.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, mediaTypes]);
-
-  /** When userinfo is loaded we need to set active to their preference (it remembers where you left off) */
-  useEffect(() => {
-    if (userInfo?.preferences?.filterPreference) {
-      setActive(userInfo.preferences.filterPreference);
-      handleFilterClick(userInfo.preferences.filterPreference);
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo?.preferences?.filterPreference]);
 
   const filters = [
     { type: FilterOptionTypes.Papers, label: 'PAPERS', icon: <FaNewspaper /> },
