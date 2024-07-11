@@ -41,7 +41,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
     setActiveFileReference,
     activeStream,
   } = React.useContext(ContentListContext);
-  const body = formatSearch(truncateTeaser(item.body, 250), filter);
+  const body = formatSearch(truncateTeaser(item.body || item.summary, 250), filter);
   const headline = formatSearch(item.headline, filter);
 
   return (
@@ -138,7 +138,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
         viewOptions={viewOptions}
       />
       <Row>
-        {viewOptions.teaser && !!item.body && (
+        {viewOptions.teaser && (!!item.body || !!item.summary) && (
           <div className={`teaser ${canDrag && 'with-grip'}`}>{body}</div>
         )}
         <Show visible={!!activeStream?.source && activeStream.id === item.id}>
