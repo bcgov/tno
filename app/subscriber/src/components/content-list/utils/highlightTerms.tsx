@@ -2,6 +2,10 @@ export const highlightTerms = (
   body: string,
   highlightedVals: string[],
 ): (string | JSX.Element)[] => {
+  if (typeof body !== 'string') {
+    return [body];
+  }
+
   const regex = new RegExp(
     `(${highlightedVals.map((term) => escapeRegExp(term)).join('|')})`,
     'gi',
