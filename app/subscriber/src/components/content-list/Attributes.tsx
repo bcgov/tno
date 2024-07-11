@@ -4,9 +4,13 @@ import * as React from 'react';
 import { useLookup, useSettings } from 'store/hooks';
 import { ContentTypeName, IContentModel, Row, Show } from 'tno-core';
 
+import { highlightTerms } from './utils/highlightTerms';
+
 export interface IAttributesProps {
   /** The content item */
   item: IContentModel;
+  /** List of terms to be highlighted */
+  highlighTerms: string[];
   /** Whether to show the date */
   showDate?: boolean;
   /** Whether to show the time */
@@ -22,6 +26,7 @@ export interface IAttributesProps {
 }
 export const Attributes: React.FC<IAttributesProps> = ({
   item,
+  highlighTerms,
   showDate,
   showTime,
   showSeries,
@@ -30,6 +35,7 @@ export const Attributes: React.FC<IAttributesProps> = ({
 }) => {
   const [{ mediaTypes }] = useLookup();
   const { excludeBylineIds, excludeSourceIds } = useSettings();
+  const bylineTermHighlighted = highlightTerms(item.byline as string, highlighTerms ?? []);
   return (
     <Row className={`${mobile && 'mobile add-margin'} attributes`}>
       {showDate && <div className="date attr">{formatDate(item.publishedOn)}</div>}
@@ -46,7 +52,19 @@ export const Attributes: React.FC<IAttributesProps> = ({
         !excludeBylineIds?.some((mt) => {
           const mediaTypeObj = mediaTypes.find((m) => m.id === mt);
           return item.mediaTypeId === mediaTypeObj?.id;
-        }) && <div className={`byline attr`}>{`${item.byline}`}</div>}
+        }) && (
+          <div className={`byline attr`}>
+            <>
+              {bylineTermHighlighted.length > 0 ? (
+                bylineTermHighlighted.map((part, index) => (
+                  <React.Fragment key={index}>{part}</React.Fragment>
+                ))
+              ) : (
+                <div>{item.byline}</div>
+              )}
+            </>
+          </div>
+        )}
       {/* show series when source not shown and the show series flag is disabled */}
       {item.series &&
         !showSeries &&

@@ -9,10 +9,12 @@ import { ContentListContext } from './ContentListContext';
 import { ContentReportPin } from './ContentReportPin';
 import * as styled from './styled';
 import { determineToneIcon, truncateTeaser } from './utils';
+import { highlightTerms } from './utils/highlightTerms';
 
 export interface IContentRowProps extends IColProps {
   selected: IContentModel[];
   item: IContentModel;
+  highlighTerms?: string[];
   canDrag?: boolean;
   showDate?: boolean;
   popOutIds?: string;
@@ -26,6 +28,7 @@ export interface IContentRowProps extends IColProps {
 export const ContentRow: React.FC<IContentRowProps> = ({
   selected,
   item,
+  highlighTerms,
   canDrag,
   showDate,
   showSeries,
@@ -52,6 +55,9 @@ export const ContentRow: React.FC<IContentRowProps> = ({
     return formatSearch(item.headline, filter);
   }, [filter, item.headline]);
 
+  const bodyTermHighlighted = highlightTerms(body as string, highlighTerms ?? []);
+  const headerTermHighlighted = highlightTerms(headline as string, highlighTerms ?? []);
+
   return (
     <styled.ContentRow {...rest}>
       <Row className="parent-row">
@@ -76,10 +82,19 @@ export const ContentRow: React.FC<IContentRowProps> = ({
           />
         )}
         <Link to={`/view/${item.id}`} className="headline">
-          <div>{headline}</div>
+          <>
+            {headerTermHighlighted.length > 0 ? (
+              headerTermHighlighted.map((part, index) => (
+                <React.Fragment key={index}>{part}</React.Fragment>
+              ))
+            ) : (
+              <div>{headline}</div>
+            )}
+          </>
         </Link>
         <Attributes
           item={item}
+          highlighTerms={highlighTerms ?? []}
           showDate={showDate}
           showTime={showTime}
           showSeries={showSeries}
@@ -149,6 +164,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
       <Attributes
         mobile
         item={item}
+        highlighTerms={highlighTerms ?? []}
         showDate={showDate}
         showTime={showTime}
         showSeries={showSeries}
@@ -156,7 +172,15 @@ export const ContentRow: React.FC<IContentRowProps> = ({
       />
       <Row>
         {viewOptions.teaser && !!item.body && (
-          <div className={`teaser ${canDrag && 'with-grip'}`}>{body}</div>
+          <>
+            {bodyTermHighlighted.length > 0 ? (
+              bodyTermHighlighted.map((part, index) => (
+                <React.Fragment key={index}>{part}</React.Fragment>
+              ))
+            ) : (
+              <div className="teaser-content">{item.body}</div>
+            )}
+          </>
         )}
         <Show visible={!!activeStream?.source && activeStream.id === item.id}>
           <Col className="media-playback">
