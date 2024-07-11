@@ -1,5 +1,4 @@
 import React from 'react';
-import SVG from 'react-inlinesvg';
 
 import IconToggle from '../../assets/navbar-toggle-icon.svg';
 import { useKeycloakWrapper } from '../../hooks';
@@ -59,7 +58,7 @@ export const MenuToggle: React.FC<IMenuToggleProps> = ({ width = '45px', height 
       }}
     >
       <Button>
-        <SVG src={IconToggle} />
+        <IconToggle />
       </Button>
     </styled.MenuToggle>
   ) : (

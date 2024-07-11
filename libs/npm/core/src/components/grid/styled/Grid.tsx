@@ -18,7 +18,7 @@ export const Grid = styled.div<IGridProps>`
       display: flex;
       flex-direction: row;
       align-items: center;
-      justify-content: space-between;
+      justify-content: start;
       gap: 1rem;
       padding: 0 0.5rem;
       font-weight: 800;

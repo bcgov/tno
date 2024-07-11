@@ -8,7 +8,7 @@ public enum ActionType
     /// <summary>
     ///
     /// </summary>
-    Homepage,
+    FeaturedStory,
     /// <summary>
     ///
     /// </summary>

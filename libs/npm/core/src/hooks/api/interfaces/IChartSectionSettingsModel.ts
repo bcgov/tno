@@ -13,8 +13,12 @@ export interface IChartSectionSettingsModel {
   datasetValue: string;
   /** Whether to exclude empty values in the returned dataset. */
   excludeEmptyValues: boolean;
+  /** Whether to apply the dataset colour to each value instead of a dataset */
+  applyColorToValue?: boolean;
   /** Colours to use in the chart data sets. */
   datasetColors?: string[];
+  /** Colours to use in the chart data sets borders. */
+  datasetBorderColors?: string[];
   /** Colours to use in the chart data labels. */
   dataLabelColors?: string[];
 
@@ -35,17 +39,19 @@ export interface IChartSectionSettingsModel {
   legendLabelFontSize?: number;
   /** Size of the dataset colour box legend */
   legendLabelBoxWidth?: number;
+  /** Whether to show the axis information on the chart */
+  xShowAxisLabels?: boolean;
   /** The X axis legend title */
   xLegend?: string;
   xLegendFontSize?: number;
+  /** Whether to show the axis information on the chart */
+  yShowAxisLabels?: boolean;
   /** The Y axis legend title */
   yLegend?: string;
   yLegendFontSize?: number;
   /** Whether to show the data value labels in the chart */
   showDataLabels?: boolean;
   dataLabelFontSize?: number;
-  /** Whether to show the axis information on the chart */
-  showAxis?: boolean;
   /** Whether to stack datasets (only works on some charts). */
   stacked?: boolean;
   /** Scale suggested minimum value. */

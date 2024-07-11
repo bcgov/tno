@@ -69,6 +69,7 @@ export const AdminRouter: React.FC = () => {
 
         <Route path="users" element={<UserList />} />
         <Route path="users/:id" element={<UserForm />} />
+        <Route path="users/:id/:type" element={<UserForm />} />
 
         <Route path="topics" element={<TopicList />} />
         <Route path="topics/:id" element={<TopicList />} />

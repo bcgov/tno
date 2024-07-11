@@ -12,7 +12,10 @@ public class ContributorModel : BaseTypeModel<int>
     /// get/set - Foreign key to source.
     /// </summary>
     public int? SourceId { get; set; }
-
+    /// <summary>
+    /// get/set - aliases
+    /// </summary>
+    public string Aliases { get; set; } = "";
     /// <summary>
     /// get/set - Whether to show the topics on the content form.
     /// </summary>
@@ -32,6 +35,24 @@ public class ContributorModel : BaseTypeModel<int>
     public ContributorModel(Entities.Contributor entity) : base(entity)
     {
         this.SourceId = entity.SourceId;
+        this.Aliases = entity.Aliases;
+    }
+    #endregion
+
+    #region Methods
+    /// <summary>
+    /// Explicit conversion to entity.
+    /// </summary>
+    /// <param name="model"></param>
+    public static explicit operator Entities.Contributor(ContributorModel model)
+    {
+        return new Entities.Contributor(model.Name, model.SourceId)
+        {
+            Id = model.Id,
+            Description = model.Description,
+            IsEnabled = model.IsEnabled,
+            SortOrder = model.SortOrder
+        };
     }
     #endregion
 }

@@ -2,6 +2,7 @@ import { ContentStatusName, ContentTypeName } from '../constants';
 import { IFilterActionSettingsModel, ISortField } from '.';
 
 export interface IFilterSettingsModel {
+  activeSubGroup?: string;
   searchUnpublished: boolean;
   id?: number;
   from?: number;
@@ -20,12 +21,14 @@ export interface IFilterSettingsModel {
   inByline?: boolean;
   inHeadline?: boolean;
   inStory?: boolean;
+  inProgram?: boolean;
   isHidden?: boolean;
   mediaTypeIds?: number[];
   names?: string;
   otherSource?: string;
   ownerId?: number;
   page?: string;
+  pressMembers?: string[];
   search?: string;
   section?: string;
   sentiment?: number[];

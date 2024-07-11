@@ -7,6 +7,7 @@ import { generateQueryForActions } from './generateQueryForActions';
 import { generateQueryForExistCheck } from './generateQueryForExistCheck';
 import { generateRangeForArrayField } from './generateRangeForArrayField';
 import { generateRangeForDates } from './generateRangeForDates';
+import { generateShouldQuery } from './generateShouldQuery';
 import { generateTerm } from './generateTerm';
 import { generateTerms } from './generateTerms';
 import { generateTermsForArrayField } from './generateTermsForArrayField';
@@ -35,7 +36,7 @@ export const generateQueryValues = (
     generateRangeForArrayField('tonePools.value', settings.sentiment),
     actionFilters.length > 1 ? { bool: { should: actionFilters } } : undefined,
     actionFilters.length === 1 ? actionFilters[0] : undefined,
-    generateTextQuery(settings),
+    generateShouldQuery(['byline', 'headline', 'summary', 'body', 'series.name'], settings),
     settings.edition ? generateTerm('edition', settings.edition) : undefined,
     settings.section ? generateTerm('section', settings.section) : undefined,
     settings.page ? generateTerm('page', settings.page) : undefined,

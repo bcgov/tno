@@ -5042,6 +5042,12 @@ namespace TNO.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AccountType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("account_type");
+
                     b.Property<string>("Code")
                         .IsRequired()
                         .ValueGeneratedOnAdd()

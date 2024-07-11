@@ -10,7 +10,7 @@ package_name=$(node -p "require('./package.json').name")
 package_version=$(node -p "require('./package.json').version")
 
 info=$()
-current_version=$(yarn npm info tno-core | grep -oP '(?<="customfield_11500": ")[^"]*' -)
+current_version=$(yarn npm info tno-core version)
 
 echo "Current version $package_version"
 

@@ -16,10 +16,10 @@ public class UserToneConfiguration : IEntityTypeConfiguration<UserTone>
     public virtual void Configure(EntityTypeBuilder<UserTone> builder)
     {
         builder.ToTable("USERS_TONES", "TNO");
-        builder.HasKey(x => new { x.ItemRSN,x.UserRSN});
+        builder.HasKey(x => new { x.ItemRSN, x.UserRSN });
 
-        builder.Property(e => e.ItemRSN).HasColumnName("ITEM_RSN");
-        builder.Property(e => e.UserRSN).HasColumnName("USER_RSN");
-        builder.Property(e => e.ToneValue).HasColumnName("TONE");
+        builder.HasOne(m => m.NewsItem).WithMany(m => m.Tones).HasForeignKey(m => m.ItemRSN);
+        builder.HasOne(m => m.HNewsItem).WithMany(m => m.Tones).HasForeignKey(m => m.ItemRSN);
+        builder.HasOne(m => m.AllNewsItem).WithMany(m => m.Tones).HasForeignKey(m => m.ItemRSN);
     }
 }

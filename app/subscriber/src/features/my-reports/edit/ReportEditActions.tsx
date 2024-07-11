@@ -2,7 +2,7 @@ import { Action } from 'components/action';
 import { Button } from 'components/button';
 import { Modal } from 'components/modal';
 import React from 'react';
-import { FaSave, FaTelegramPlane } from 'react-icons/fa';
+import { FaSave } from 'react-icons/fa';
 import { FaArrowsSpin, FaCaretRight, FaFileCirclePlus, FaLockOpen, FaTrash } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { useReportInstances } from 'store/hooks';
@@ -16,7 +16,6 @@ import {
   ReportViewMenuOption,
 } from './constants';
 import { useReportEditContext } from './ReportEditContext';
-import { ReportSubscriberExporter } from './send/ReportSubscriberExporter';
 import { ReportExporter } from './settings/ReportExporter';
 import * as styled from './styled';
 
@@ -85,12 +84,12 @@ export const ReportEditActions = ({
 
   return (
     <styled.ReportEditActions className="report-edit-actions">
-      <Show visible={active?.startsWith(ReportMainMenuOption.Send)}>
-        <Col flex="1" alignItems="flex-start">
-          <ReportSubscriberExporter />
-        </Col>
-      </Show>
-      <Show visible={active?.startsWith(ReportMainMenuOption.Settings)}>
+      <Show
+        visible={
+          active?.startsWith(ReportMainMenuOption.Settings) &&
+          !active?.startsWith(ReportSettingsMenuOption.Subscribers)
+        }
+      >
         <Col flex="1" alignItems="flex-start">
           <ReportExporter />
         </Col>
@@ -115,16 +114,22 @@ export const ReportEditActions = ({
           />
         </Col>
       </Show>
-      <Button variant="secondary" onClick={() => navigate('/reports')}>
-        Cancel
-      </Button>
+      <Show
+        visible={
+          !active?.startsWith(ReportMainMenuOption.View) &&
+          !active?.startsWith(ReportMainMenuOption.History)
+        }
+      >
+        <Button variant="secondary" onClick={() => navigate('/reports')}>
+          Cancel
+        </Button>
+      </Show>
       {/* Show save during submitted to handle scenario when email fails */}
       <Show
         visible={
-          !disabled ||
-          !instance?.sentOn ||
-          active?.startsWith(ReportMainMenuOption.Settings) ||
-          active?.startsWith(ReportMainMenuOption.Send)
+          (!disabled || !instance?.sentOn || active?.startsWith(ReportMainMenuOption.Settings)) &&
+          !active?.startsWith(ReportMainMenuOption.View) &&
+          !active?.startsWith(ReportMainMenuOption.History)
         }
       >
         <Button
@@ -147,9 +152,9 @@ export const ReportEditActions = ({
       </Show>
       <Show
         visible={
-          active?.startsWith(ReportMainMenuOption.Settings) ||
-          active?.startsWith(ReportMainMenuOption.Content) ||
-          active?.startsWith(ReportMainMenuOption.View)
+          (active?.startsWith(ReportMainMenuOption.Settings) ||
+            active?.startsWith(ReportMainMenuOption.Content)) &&
+          !active?.startsWith(ReportSettingsMenuOption.Subscribers)
         }
       >
         <Button
@@ -175,16 +180,6 @@ export const ReportEditActions = ({
         >
           Next Step
           <FaCaretRight className="caret" />
-        </Button>
-      </Show>
-      <Show visible={active?.startsWith(ReportMainMenuOption.Send) && !instance?.sentOn}>
-        <Button
-          disabled={isSubmitting || !instance || instance?.status === ReportStatusName.Submitted}
-          onClick={() => onPublish()}
-          variant="success"
-        >
-          Send to subscribers
-          <FaTelegramPlane />
         </Button>
       </Show>
       <Modal

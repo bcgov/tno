@@ -83,16 +83,18 @@ public class ReportInstanceController : ControllerBase
     /// </summary>
     /// <param name="id"></param>
     /// <param name="includeContent"></param>
+    /// <param name="publishedOn"></param>
     /// <returns></returns>
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
-    public IActionResult FindById(long id, bool includeContent = false)
+    public IActionResult FindById(long id, bool includeContent = false, [FromQuery]DateTime? publishedOn = null)
     {
         var user = _impersonate.GetCurrentUser();
-        var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException();
+        var instance = publishedOn == null ? _reportInstanceService.FindById(id) : _reportInstanceService.FindInstanceForReportIdAndDate(id, (DateTime)publishedOn);
+        if (instance == null) return new JsonResult(null);
         var report = instance.Report ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id && // User does not own the report instance
             !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report

@@ -553,6 +553,29 @@ public class ApiService : IApiService
     }
 
     /// <summary>
+    /// Make a request to the API and find the work orders for the specified 'contentId'.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.WorkOrder.WorkOrderModel>> FindWorkOrderForContentIdAsync(long contentId)
+    {
+        var url = this.Options.ApiUrl.Append($"services/work/orders/content/{contentId}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.WorkOrder.WorkOrderModel>>(url)) ?? Array.Empty<API.Areas.Services.Models.WorkOrder.WorkOrderModel>();
+    }
+
+    /// <summary>
+    /// Make a request to the API and add the specified 'workOrder'.
+    /// </summary>
+    /// <param name="workOrder"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.WorkOrder.WorkOrderModel?> AddWorkOrderAsync(
+        API.Areas.Services.Models.WorkOrder.WorkOrderModel workOrder)
+    {
+        var url = this.Options.ApiUrl.Append($"services/work/orders");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.WorkOrder.WorkOrderModel>(url, JsonContent.Create(workOrder)));
+    }
+
+    /// <summary>
     /// Make an HTTP request to the aip and update the specified 'workOrder'.
     /// </summary>
     /// <param name="workOrder"></param>
@@ -858,6 +881,18 @@ public class ApiService : IApiService
     {
         var url = this.Options.ApiUrl.Append($"services/contents/{contentId}/quotes");
         return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.Content.ContentModel?>(url, JsonContent.Create(quotes)));
+    }
+    #endregion
+
+    #region Settings
+    /// <summary>
+    /// Get all of the settings
+    /// </summary>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>> GetSettings()
+    {
+        var url = this.Options.ApiUrl.Append($"services/settings");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>>(url)) ?? Array.Empty<API.Areas.Services.Models.Setting.SettingModel>();
     }
     #endregion
 

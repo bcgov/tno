@@ -169,6 +169,13 @@ public class NotificationValidator : INotificationValidator
     {
         if (this.Notification == null || this.Content == null) throw new InvalidOperationException("Notification and Content properties cannot be null");
 
+        // If the content was published before the specified offset, ignore it.
+        if (this.Options.IgnoreContentPublishedBeforeOffset.HasValue
+            && this.Options.IgnoreContentPublishedBeforeOffset > 0
+            && this.Content.PublishedOn.HasValue
+            && this.Content.PublishedOn.Value < DateTime.UtcNow.AddDays(-1 * this.Options.IgnoreContentPublishedBeforeOffset.Value))
+            return false;
+
         var send = !this.Notification.AlertOnIndex || (this.Notification.Resend switch
         {
             // Never resend after the first published alert.
@@ -306,7 +313,8 @@ public class NotificationValidator : INotificationValidator
         var emails = new List<EmailContextModel>();
         if (this.Notification == null) return Array.Empty<EmailContextModel>();
         if (this.Content != null)
-            emails.AddRange(this.Content.UserNotifications.Select(un =>
+        {
+            emails.AddRange(this.Content.UserNotifications.Where(un => un.User!.AccountType != UserAccountType.Distribution).Select(un =>
             {
                 var email = un.User!.GetEmail();
                 var context = new Dictionary<string, object>() {
@@ -319,8 +327,10 @@ public class NotificationValidator : INotificationValidator
                     Tag = $"{this.Notification.Name}-{this.Content.Id}",
                 };
             }));
+        }
         emails.AddRange(this.Notification.Subscribers
-            .Where(s => !String.IsNullOrWhiteSpace(s.User?.GetEmail()) && s.IsSubscribed && !this.SentToUsers.Contains(s.UserId))
+            .Where(s => s.User!.AccountType != UserAccountType.Distribution
+                && !String.IsNullOrWhiteSpace(s.User?.GetEmail()) && s.IsSubscribed && !this.SentToUsers.Contains(s.UserId))
             .Select(s =>
             {
                 var email = s.User!.GetEmail();
@@ -334,6 +344,22 @@ public class NotificationValidator : INotificationValidator
                     Tag = $"{this.Notification.Name}",
                 };
             }));
+        var distributions = this.Notification.Subscribers.Where(s => s.User!.AccountType == UserAccountType.Distribution
+            && s.IsSubscribed && !this.SentToUsers.Contains(s.UserId));
+        emails.AddRange(distributions.SelectMany((u) =>
+        {
+            var addresses = u.User!.Preferences.GetElementValue<API.Models.UserEmailModel[]?>(".addresses");
+            return addresses?.Select((a) =>
+            {
+                var context = new Dictionary<string, object>() {
+                    { "id", a.UserId },
+                };
+                return new EmailContextModel(new[] { a.Email }, context, now)
+                {
+                    Tag = $"{this.Notification.Name}",
+                };
+            }) ?? Array.Empty<EmailContextModel>();
+        }));
         return emails.GroupBy(context => String.Join(",", context.To)).Select(group => group.First());
     }
 

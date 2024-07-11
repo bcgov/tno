@@ -1,9 +1,10 @@
 import { TooltipMenu } from 'components/tooltip-menu';
 import React from 'react';
-import { FaFileExport, FaPlay } from 'react-icons/fa6';
+import { FaAngleRight } from 'react-icons/fa';
+import { FaFileExport, FaSpinner } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useReports } from 'store/hooks';
-import { IContentModel, IReportModel, Link, ReportSectionTypeName, Row } from 'tno-core';
+import { Col, IContentModel, IReportModel, Link, ReportSectionTypeName, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
 import { toInstanceContent } from './utils';
@@ -19,6 +20,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
   const [{ requests }] = useApp();
   const [activeReport, setActiveReport] = React.useState<IReportModel>();
   const [reportId, setReportId] = React.useState<number | null>(null);
+  const [inProgress, setInProgress] = React.useState({ sectionName: '', value: false });
   const isLoading = requests.some((r) => r.url === 'find-my-reports');
 
   React.useEffect(() => {
@@ -35,6 +37,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
       if (!activeReport) return;
 
       try {
+        setInProgress({ sectionName, value: true });
         var instance = activeReport.instances.length ? activeReport.instances[0] : undefined;
         if (!instance || instance.sentOn) {
           toast.error('Unable to generate a new report');
@@ -94,40 +97,55 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
       <div data-tooltip-id="tooltip-add-to-report" className="action">
         <FaFileExport /> <span>ADD TO REPORT</span>
         <TooltipMenu clickable openOnClick id="tooltip-add-to-report" place="bottom">
-          <Row className="report">
-            <FaFileExport /> SELECT REPORT...
-          </Row>
-          <div className="list">
+          <Row className="choose-report">Choose Report...</Row>
+          <Col className="list">
             {myReports.map((report) => (
-              <Row
-                key={report.id}
-                className="report-item"
-                onClick={() => setReportId(report.id)}
-                data-tooltip-id={`tooltip-add-to-section`}
-              >
-                {report.name} {!!report.sections.length && <FaPlay className="expand-sections" />}
-              </Row>
+              <Show key={report.id} visible={!!report.sections.length}>
+                <Row
+                  className="report-item"
+                  onClick={() => {
+                    // allow user to toggle close list of sections
+                    if (report.id === reportId) {
+                      setReportId(null);
+                      setActiveReport(undefined);
+                    } else setReportId(report.id);
+                  }}
+                  data-tooltip-id={`tooltip-add-to-section`}
+                >
+                  <FaFileExport
+                    className={`report-icon ${activeReport?.id === report.id && 'expanded'}`}
+                  />
+                  <div className="report-name">{report.name}</div>
+                </Row>
+                <Show visible={!!activeReport && activeReport.id === report.id}>
+                  <div className={`section-list`}>
+                    {activeReport?.sections.map(
+                      (section) =>
+                        section.sectionType === ReportSectionTypeName.Content && (
+                          <Row
+                            key={section.id}
+                            className="section"
+                            onClick={() =>
+                              handleAddToReport(section.name)
+                                .then(() => setInProgress({ sectionName: '', value: false }))
+                                .catch(() => {})
+                            }
+                          >
+                            <FaAngleRight className="active-section" />
+                            {section.settings.label}
+                            {section.name === inProgress.sectionName && inProgress.value && (
+                              <FaSpinner className="spinner" />
+                            )}
+                          </Row>
+                        ),
+                    )}
+                  </div>
+                </Show>
+              </Show>
             ))}
-          </div>
+          </Col>
         </TooltipMenu>
       </div>
-      <TooltipMenu place="right" id={`tooltip-add-to-section`} clickable openOnClick>
-        <div className="list">
-          <div className="row-title">SECTIONS:</div>
-          {activeReport?.sections.map(
-            (section) =>
-              section.sectionType === ReportSectionTypeName.Content && (
-                <Row
-                  key={section.id}
-                  className="report-item"
-                  onClick={() => handleAddToReport(section.name).catch(() => {})}
-                >
-                  {section.settings.label}
-                </Row>
-              ),
-          )}
-        </div>
-      </TooltipMenu>
     </styled.AddToMenu>
   );
 };

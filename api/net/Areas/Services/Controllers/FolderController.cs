@@ -6,7 +6,6 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.Folder;
 using TNO.API.Models;
-using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 

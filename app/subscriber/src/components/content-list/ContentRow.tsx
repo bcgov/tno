@@ -1,6 +1,6 @@
 import { formatSearch } from 'features/search-page/utils';
 import React from 'react';
-import { FaCopyright, FaEyeSlash } from 'react-icons/fa6';
+import { FaCopyright, FaEyeSlash, FaX } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
 import { Checkbox, Col, ContentTypeName, IColProps, IContentModel, Row, Show } from 'tno-core';
 
@@ -9,29 +9,34 @@ import { ContentListContext } from './ContentListContext';
 import { ContentReportPin } from './ContentReportPin';
 import * as styled from './styled';
 import { determineToneIcon, truncateTeaser } from './utils';
+import { highlightTerms } from './utils/highlightTerms';
 
 export interface IContentRowProps extends IColProps {
   selected: IContentModel[];
   item: IContentModel;
-  onCheckboxChange: (item: IContentModel, checked: boolean) => void;
+  highlighTerms?: string[];
   canDrag?: boolean;
   showDate?: boolean;
   popOutIds?: string;
   showSeries?: boolean;
   showTime?: boolean;
   filter?: any;
+  onCheckboxChange: (item: IContentModel, checked: boolean) => void;
+  onRemove?: (item: IContentModel) => void;
 }
 
 export const ContentRow: React.FC<IContentRowProps> = ({
   selected,
   item,
-  onCheckboxChange,
+  highlighTerms,
   canDrag,
   showDate,
   showSeries,
   showTime,
   popOutIds,
   filter,
+  onCheckboxChange,
+  onRemove,
   ...rest
 }) => {
   const {
@@ -41,8 +46,17 @@ export const ContentRow: React.FC<IContentRowProps> = ({
     setActiveFileReference,
     activeStream,
   } = React.useContext(ContentListContext);
-  const body = formatSearch(truncateTeaser(item.body, 250), filter);
-  const headline = formatSearch(item.headline, filter);
+
+  const body = React.useMemo(() => {
+    const truncated = truncateTeaser(item.body, 250);
+    return formatSearch(truncated, filter);
+  }, [filter, item.body]);
+  const headline = React.useMemo(() => {
+    return formatSearch(item.headline, filter);
+  }, [filter, item.headline]);
+
+  const bodyTermHighlighted = highlightTerms(body as string, highlighTerms ?? []);
+  const headerTermHighlighted = highlightTerms(headline as string, highlighTerms ?? []);
 
   return (
     <styled.ContentRow {...rest}>
@@ -68,16 +82,25 @@ export const ContentRow: React.FC<IContentRowProps> = ({
           />
         )}
         <Link to={`/view/${item.id}`} className="headline">
-          <div>{headline}</div>
+          <>
+            {headerTermHighlighted.length > 0 ? (
+              headerTermHighlighted.map((part, index) => (
+                <React.Fragment key={index}>{part}</React.Fragment>
+              ))
+            ) : (
+              <div>{headline}</div>
+            )}
+          </>
         </Link>
         <Attributes
           item={item}
+          highlighTerms={highlighTerms ?? []}
           showDate={showDate}
           showTime={showTime}
           showSeries={showSeries}
           viewOptions={viewOptions}
         />
-        <Row className="icon-row">
+        <Row className="icon-row" nowrap>
           {popOutIds?.includes(String(item.mediaTypeId)) ? (
             <img
               src={`${process.env.PUBLIC_URL}/assets/mediaplay-newwindow.svg`}
@@ -115,7 +138,16 @@ export const ContentRow: React.FC<IContentRowProps> = ({
           ) : (
             <div className="icon-placeholder" />
           )}
-
+          {onRemove && (
+            <FaX
+              className="icon-remove"
+              title="Remove"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove(item);
+              }}
+            />
+          )}
           <Show visible={!!activeStream && item.id === activeStream.id}>
             <FaEyeSlash
               className="eye-slash icon"
@@ -132,6 +164,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
       <Attributes
         mobile
         item={item}
+        highlighTerms={highlighTerms ?? []}
         showDate={showDate}
         showTime={showTime}
         showSeries={showSeries}
@@ -139,7 +172,15 @@ export const ContentRow: React.FC<IContentRowProps> = ({
       />
       <Row>
         {viewOptions.teaser && !!item.body && (
-          <div className={`teaser ${canDrag && 'with-grip'}`}>{body}</div>
+          <>
+            {bodyTermHighlighted.length > 0 ? (
+              bodyTermHighlighted.map((part, index) => (
+                <React.Fragment key={index}>{part}</React.Fragment>
+              ))
+            ) : (
+              <div className="teaser-content">{item.body}</div>
+            )}
+          </>
         )}
         <Show visible={!!activeStream?.source && activeStream.id === item.id}>
           <Col className="media-playback">

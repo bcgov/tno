@@ -1,6 +1,8 @@
 import { Button } from 'components/button';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { FaRegQuestionCircle } from 'react-icons/fa';
+import { MdClose } from 'react-icons/md';
 import { Col, Row } from 'tno-core/dist/components/flex';
 
 import * as styled from './styled';
@@ -27,6 +29,8 @@ export interface IModalProps {
   hasHeight?: boolean;
   /** Form is submitting and buttons should be disabled. */
   isSubmitting?: boolean;
+  /** Checking condition for enabling Confirm button*/
+  enableConfirm?: boolean;
 }
 
 /**
@@ -44,14 +48,13 @@ export const Modal: React.FC<IModalProps> = ({
   customButtons,
   type,
   hasHeight,
+  enableConfirm = true,
   isSubmitting: initIsSubmitting,
 }) => {
   const [isSubmitting, setIsSubmitting] = React.useState(initIsSubmitting);
-
   React.useEffect(() => {
     setIsSubmitting(initIsSubmitting);
   }, [initIsSubmitting]);
-
   return isShowing
     ? ReactDOM.createPortal(
         <styled.Modal hasHeight={hasHeight}>
@@ -60,7 +63,13 @@ export const Modal: React.FC<IModalProps> = ({
               <div className="modal">
                 {!!headerText && (
                   <Row className="modal-header">
+                    <span>
+                      <FaRegQuestionCircle />
+                    </span>
                     <h1>{headerText}</h1>
+                    <span onClick={hide} style={{ cursor: 'pointer' }}>
+                      <MdClose />
+                    </span>
                   </Row>
                 )}
                 <Col alignItems="flex-start" className="modal-body">
@@ -69,15 +78,15 @@ export const Modal: React.FC<IModalProps> = ({
                 <Row className="button-row">
                   {!customButtons ? (
                     <>
+                      <Button variant={'secondary'} onClick={hide} disabled={isSubmitting}>
+                        {cancelText ?? 'Cancel'}
+                      </Button>
                       <Button
                         variant={type === 'delete' ? 'error' : 'primary'}
                         onClick={onConfirm}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting && !enableConfirm}
                       >
                         {confirmText ?? 'Continue'}
-                      </Button>
-                      <Button variant={'secondary'} onClick={hide} disabled={isSubmitting}>
-                        {cancelText ?? 'Cancel'}
                       </Button>
                     </>
                   ) : (

@@ -17,6 +17,7 @@ export const queryToState = (queryString: string) => {
     inHeadline: search.inHeadline === 'true',
     inStory: search.inStory === 'true',
     inByline: search.inByline === 'true',
+    inProgram: search.inProgram === 'true',
     frontPage: search.mediaTypeIds?.includes(11) || false,
     topStory: search.actions?.includes('topStory') || false,
     sourceIds: search.sourceIds?.map((v: any) => Number(v)),

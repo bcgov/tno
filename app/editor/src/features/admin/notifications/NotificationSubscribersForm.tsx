@@ -55,12 +55,12 @@ export const NotificationSubscribersForm = () => {
         }}
         renderHeader={() => [
           { name: 'isSubscribed', label: '', size: '30px' },
-          { name: 'username', label: 'Username', sortable: true },
-          { name: 'lastName', label: 'Last Name', sortable: true },
-          { name: 'firstName', label: 'First Name', sortable: true },
-          { name: 'email', label: 'Email', sortable: true },
+          { name: 'username', label: 'Username', size: '18%', sortable: true },
+          { name: 'lastName', label: 'Last Name', size: '20%', sortable: true },
+          { name: 'firstName', label: 'First Name', size: '20%', sortable: true },
+          { name: 'email', label: 'Email', size: '40%', sortable: true },
         ]}
-        renderRow={(row: IUserModel) => [
+        renderColumns={(row: IUserModel) => [
           <Checkbox
             key=""
             name={`chk-${row.id}`}

@@ -8,292 +8,241 @@ import {
   Col,
   FieldSize,
   formatDate,
+  FormikCheckbox,
   FormikDatePicker,
   FormikRadioGroup,
   FormikText,
   IIngestModel,
   Row,
+  Show,
   TimeInput,
-  useFormikHelpers,
 } from 'tno-core';
 
+import { ImportMigrationType } from './constants';
 import { ImportContent } from './ImportContent';
 import * as styled from './styled';
 
 export const DbMigration: React.FC = (props) => {
   const { values, setFieldValue } = useFormikContext<IIngestModel>();
-  const { applyPlaceholder } = useFormikHelpers();
-
-  const minMigrationIngestSpanInDays = 1;
-  const maxMigrationIngestSpanInYears = 1;
-  let isImportStartDateRequired = false;
-  let isImportEndDateRequired = false;
-
-  const maxEndDate = React.useMemo(() => {
-    let dateTimeNow = moment();
-    let returnVal;
-    if (values.configuration.importDateStart) {
-      const startDatePlusMaxSpan = moment(
-        values.configuration.importDateStart,
-        'YYYY-MM-DD hh:mm:ss a',
-      ).add(maxMigrationIngestSpanInYears, 'year');
-      returnVal = startDatePlusMaxSpan > dateTimeNow ? dateTimeNow : startDatePlusMaxSpan;
-    } else {
-      returnVal = dateTimeNow;
-    }
-    return returnVal.toDate();
-  }, [values.configuration.importDateStart]);
-
-  const minEndDate = React.useMemo(() => {
-    let dateTimeNow = moment();
-    let returnVal;
-    if (values.configuration.importDateStart) {
-      const startDatePlusMinSpan = moment(
-        values.configuration.importDateStart,
-        'YYYY-MM-DD hh:mm:ss a',
-      ).add(minMigrationIngestSpanInDays, 'day');
-      returnVal = startDatePlusMinSpan > dateTimeNow ? dateTimeNow : startDatePlusMinSpan;
-    } else {
-      returnVal = moment().subtract(maxMigrationIngestSpanInYears, 'year');
-    }
-    return returnVal.toDate();
-  }, [values.configuration.importDateStart]);
-
-  const minStartDate = React.useMemo(() => {
-    let returnVal;
-    if (values.configuration.importDateEnd) {
-      returnVal = moment(values.configuration.importDateEnd, 'YYYY-MM-DD hh:mm:ss a').subtract(
-        maxMigrationIngestSpanInYears,
-        'year',
-      );
-    } else {
-      returnVal = moment().subtract(maxMigrationIngestSpanInYears, 'year');
-    }
-    return returnVal.toDate();
-  }, [values.configuration.importDateEnd]);
-
-  const maxStartDate = React.useMemo(() => {
-    let returnVal;
-    if (values.configuration.importDateEnd) {
-      returnVal = moment(values.configuration.importDateEnd, 'YYYY-MM-DD hh:mm:ss a').subtract(
-        minMigrationIngestSpanInDays,
-        'day',
-      );
-    } else {
-      returnVal = moment().subtract(minMigrationIngestSpanInDays, 'day');
-    }
-    return returnVal.toDate();
-  }, [values.configuration.importDateEnd]);
 
   return (
     <styled.IngestType>
       <ImportContent />
-      <Row>
-        <Col>
-          Max Ingest window is&nbsp;{maxMigrationIngestSpanInYears} Year(s). Min Ingest window
-          is&nbsp;{minMigrationIngestSpanInDays} Day(s)
-        </Col>
-      </Row>
-      <Row>
-        <Col flex="1 1 1">
+      <Row gap="1rem">
+        <Col flex="1">
           <FormikRadioGroup
             label="Migration Type"
-            name="ImportMigrationType"
-            value={
-              !!values.configuration.importMigrationType
-                ? values.configuration.importMigrationType
-                : 'Recent'
-            }
+            name="importMigrationType"
+            value={values.configuration.importMigrationType ?? ImportMigrationType.Current}
             onChange={(val) => {
-              isImportStartDateRequired = val.target.value === 'Recent';
-              isImportEndDateRequired = val.target.value === 'Historic';
-              setFieldValue('configuration.importMigrationType', val.target.value, false);
+              const configuration = {
+                ...values.configuration,
+                importMigrationType: val.target.value,
+                offsetHours:
+                  val.target.value === ImportMigrationType.Historic ||
+                  val.target.value === ImportMigrationType.All
+                    ? undefined
+                    : values.configuration.offsetHours,
+                importDateStart:
+                  val.target.value === ImportMigrationType.Current
+                    ? undefined
+                    : values.configuration.importDateStart,
+                importDateEnd:
+                  val.target.value === ImportMigrationType.Current
+                    ? undefined
+                    : values.configuration.importDateEnd,
+              };
+              setFieldValue('configuration', configuration);
             }}
-            options={['Historic', 'Recent', 'RecentlyPublished']}
+            options={[
+              ImportMigrationType.Historic,
+              ImportMigrationType.All,
+              ImportMigrationType.Recent,
+              ImportMigrationType.Current,
+            ]}
             required={true}
-          ></FormikRadioGroup>
+          />
+        </Col>
+        <Col flex="1" gap="0.5rem">
+          <FormikCheckbox name="configuration.publishedOnly" label="Published Content Only" />
+          <FormikCheckbox name="configuration.forceUpdate" label="Force Update" />
         </Col>
       </Row>
-      <Row>
-        <Col flex="1 1 1">
-          <FormikDatePicker
-            name="importDateStart"
-            label="Import Start Date"
-            autoComplete="false"
-            width={FieldSize.Medium}
-            selectedDate={
-              !!values.configuration.importDateStart
-                ? moment(values.configuration.importDateStart, 'YYYY-MM-DD hh:mm:ss a').toString()
-                : undefined
-            }
-            value={
-              !!values.configuration.importDateStart
-                ? moment(values.configuration.importDateStart, 'YYYY-MM-DD hh:mm:ss a').format(
-                    'MMM D, yyyy',
-                  )
-                : undefined
-            }
-            required={isImportStartDateRequired}
-            minDate={minStartDate}
-            maxDate={maxStartDate}
-            onChange={(date) => {
-              if (!!values.configuration.importDateStartTime) {
-                const hours = values.configuration.importDateStartTime?.split(':');
-                if (!!hours && !!date) {
-                  date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
-                }
+      <Show visible={values.configuration.importMigrationType !== ImportMigrationType.Current}>
+        <Row>
+          <Col>
+            <FormikDatePicker
+              name="importDateStart"
+              label="Import Start Date"
+              autoComplete="false"
+              width={FieldSize.Medium}
+              placeholderText="MM/DD/YYYY"
+              selectedDate={
+                values.configuration.importDateStart
+                  ? moment(values.configuration.importDateStart).format('MM/DD/YYYY')
+                  : undefined
               }
-              setFieldValue(
-                'configuration.importDateStart',
-                moment(date).format('YYYY-MM-DD h:mm:ss a'),
-              );
-            }}
-          />
-        </Col>
-        <Col>
-          <TimeInput
-            name="importDateStartTime"
-            label="Time"
-            disabled={!values.configuration.importDateStart}
-            width="7em"
+              required={!values.configuration.offsetHours}
+              onChange={(date) => {
+                if (
+                  date &&
+                  values.configuration.importDateStart &&
+                  moment(date).isValid() &&
+                  moment(values.configuration.importDateStart).isValid()
+                ) {
+                  const importDateStart = moment(values.configuration.importDateStart);
+                  date.setHours(
+                    importDateStart.hour(),
+                    importDateStart.minute(),
+                    importDateStart.second(),
+                  );
+                }
+
+                const value = moment(date).isValid()
+                  ? moment(date).format('YYYY-MM-DD HH:mm:ss a')
+                  : undefined;
+                setFieldValue('configuration.importDateStart', value);
+              }}
+            />
+          </Col>
+          <Col>
+            <TimeInput
+              name="importDateStartTime"
+              label="Time"
+              disabled={!values.configuration.importDateStart}
+              width="7em"
+              value={
+                values.configuration.importDateStart
+                  ? formatDate(values.configuration.importDateStart, 'HH:mm:ss')
+                  : ''
+              }
+              placeholder={
+                values.configuration.importDateStart
+                  ? formatDate(values.configuration.importDateStart, 'HH:mm:ss')?.toString()
+                  : 'HH:MM:SS'
+              }
+              onChange={(e) => {
+                const date = new Date(values.configuration.importDateStart);
+                const hours = e.target.value?.split(':');
+                if (!!hours && !!e.target.value && !e.target.value.includes('_')) {
+                  date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
+                  setFieldValue(
+                    'configuration.importDateStart',
+                    moment(date.toISOString()).format('YYYY-MM-DD HH:mm:ss a'),
+                  );
+                }
+              }}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col flex="1 1 1">
+            <FormikDatePicker
+              name="importDateEnd"
+              label="Import End Date"
+              autoComplete="false"
+              width={FieldSize.Medium}
+              placeholderText="MM/DD/YYYY"
+              selectedDate={
+                values.configuration.importDateEnd
+                  ? moment(values.configuration.importDateEnd).format('MM/DD/YYYY')
+                  : undefined
+              }
+              onChange={(date) => {
+                if (
+                  date &&
+                  values.configuration.importDateEndTime &&
+                  moment(date).isValid() &&
+                  moment(values.configuration.importDateEndTime).isValid()
+                ) {
+                  const importDateEndTime = moment(values.configuration.importDateEndTime);
+                  date.setHours(
+                    importDateEndTime.hour(),
+                    importDateEndTime.minute(),
+                    importDateEndTime.second(),
+                  );
+                }
+
+                const value = moment(date).isValid()
+                  ? moment(date).format('YYYY-MM-DD HH:mm:ss a')
+                  : undefined;
+                setFieldValue('configuration.importDateEnd', value);
+              }}
+            />
+          </Col>
+          <Col>
+            <TimeInput
+              name="importDateEndTime"
+              label="Time"
+              disabled={!values.configuration.importDateEnd}
+              width="7em"
+              value={
+                values.configuration.importDateEnd
+                  ? formatDate(values.configuration.importDateEnd, 'HH:mm:ss')
+                  : ''
+              }
+              placeholder={
+                values.configuration.importDateEnd
+                  ? formatDate(values.configuration.importDateEnd, 'HH:mm:ss')?.toString()
+                  : 'HH:MM:SS'
+              }
+              onChange={(e) => {
+                const date = new Date(values.configuration.importDateEnd);
+                const hours = e.target.value?.split(':');
+                if (!!hours && !!e.target.value && !e.target.value.includes('_')) {
+                  date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
+                  setFieldValue(
+                    'configuration.importDateEnd',
+                    moment(date.toISOString()).format('YYYY-MM-DD HH:mm:ss a'),
+                  );
+                }
+              }}
+            />
+          </Col>
+        </Row>
+      </Show>
+      <Row gap="1rem">
+        <Show
+          visible={
+            ![ImportMigrationType.Historic, ImportMigrationType.All].includes(
+              values.configuration.importMigrationType,
+            )
+          }
+        >
+          <Col flex="1">
+            <FormikText
+              label="Migration offset in hours"
+              name="configuration.offsetHours"
+              type="number"
+              min="0"
+              width="10ch"
+              size={5}
+              value={values.configuration.offsetHours ?? ''}
+              onChange={(e) => {
+                const value = e.currentTarget.value;
+                const offset = value && !isNaN(Number(value)) ? Number(value) : undefined;
+                setFieldValue('configuration.offsetHours', offset);
+              }}
+            />
+          </Col>
+        </Show>
+        <Col flex="1">
+          <FormikText
+            label="Import Delay in seconds"
+            name="configuration.importDelayMs"
+            type="number"
+            min="0"
+            width="10ch"
+            size={5}
             value={
-              !!values.configuration.importDateStart
-                ? formatDate(
-                    moment(
-                      values.configuration.importDateStart,
-                      'YYYY-MM-DD hh:mm:ss a',
-                    ).toISOString(),
-                    'HH:mm:ss',
-                  )
-                : undefined
-            }
-            placeholder={
-              !!values.configuration.importDateStart
-                ? formatDate(
-                    moment(
-                      values.configuration.importDateStart,
-                      'YYYY-MM-DD hh:mm:ss a',
-                    ).toISOString(),
-                    'HH:mm:ss',
-                  )?.toString()
-                : 'HH:MM:SS'
+              values.configuration.importDelayMs ? values.configuration.importDelayMs / 1000 : ''
             }
             onChange={(e) => {
-              const date = new Date(values.configuration.importDateStart);
-              const hours = e.target.value?.split(':');
-              if (!!hours && !!e.target.value && !e.target.value.includes('_')) {
-                date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
-                setFieldValue(
-                  'configuration.importDateStart',
-                  moment(date.toISOString()).format('YYYY-MM-DD h:mm:ss a'),
-                );
-              }
+              const value = e.currentTarget.value;
+              const delay = value && !isNaN(Number(value)) ? Number(value) * 1000 : undefined;
+              setFieldValue('configuration.importDelayMs', delay);
             }}
           />
-        </Col>
-        <Col>
-          <label>&nbsp;</label>
-          <Button
-            tooltip="Reset"
-            variant={ButtonVariant.danger}
-            disabled={!values.configuration.importDateStart}
-            onClick={() => {
-              setFieldValue('configuration.importDateStart', null);
-            }}
-          >
-            <FaTrash />
-          </Button>
-        </Col>
-      </Row>
-      <Row>
-        <Col flex="1 1 1">
-          <FormikDatePicker
-            name="importDateEnd"
-            label="Import End Date"
-            autoComplete="false"
-            width={FieldSize.Medium}
-            selectedDate={
-              !!values.configuration.importDateEnd
-                ? moment(values.configuration.importDateEnd, 'YYYY-MM-DD hh:mm:ss a').toString()
-                : undefined
-            }
-            value={
-              !!values.configuration.importDateEnd
-                ? moment(values.configuration.importDateEnd, 'YYYY-MM-DD hh:mm:ss a').format(
-                    'MMM D, yyyy',
-                  )
-                : ''
-            }
-            required={isImportEndDateRequired}
-            minDate={minEndDate}
-            maxDate={maxEndDate}
-            onChange={(date) => {
-              if (!!values.configuration.importDateEndTime) {
-                const hours = values.configuration.importDateEndTime?.split(':');
-                if (!!hours && !!date) {
-                  date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
-                }
-              }
-              setFieldValue(
-                'configuration.importDateEnd',
-                moment(date).format('YYYY-MM-DD h:mm:ss a'),
-              );
-            }}
-          />
-        </Col>
-        <Col>
-          <TimeInput
-            name="importDateEndTime"
-            label="Time"
-            disabled={!values.configuration.importDateEnd}
-            width="7em"
-            value={
-              !!values.configuration.importDateEnd
-                ? formatDate(
-                    moment(
-                      values.configuration.importDateEnd,
-                      'YYYY-MM-DD hh:mm:ss a',
-                    ).toISOString(),
-                    'HH:mm:ss',
-                  )
-                : ''
-            }
-            placeholder={
-              !!values.configuration.importDateEnd
-                ? formatDate(
-                    moment(
-                      values.configuration.importDateEnd,
-                      'YYYY-MM-DD hh:mm:ss a',
-                    ).toISOString(),
-                    'HH:mm:ss',
-                  )?.toString()
-                : 'HH:MM:SS'
-            }
-            onChange={(e) => {
-              const date = new Date(values.configuration.importDateEnd);
-              const hours = e.target.value?.split(':');
-              if (!!hours && !!e.target.value && !e.target.value.includes('_')) {
-                date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
-                setFieldValue(
-                  'configuration.importDateEnd',
-                  moment(date.toISOString()).format('YYYY-MM-DD h:mm:ss a'),
-                );
-              }
-            }}
-          />
-        </Col>
-        <Col>
-          <label>&nbsp;</label>
-          <Button
-            tooltip="Reset"
-            variant={ButtonVariant.danger}
-            disabled={!values.configuration.importDateEnd}
-            onClick={() => {
-              setFieldValue('configuration.importDateEnd', null);
-            }}
-          >
-            <FaTrash />
-          </Button>
         </Col>
       </Row>
       <Row>
@@ -302,7 +251,7 @@ export const DbMigration: React.FC = (props) => {
             label="Creation Date of Last Imported Item"
             disabled
             name="creationDateOfLastItem"
-            value={values.creationDateOfLastItem}
+            value={values.creationDateOfLastItem ?? ''}
             tooltip="The Creation Date of the last item imported from the Source System"
             formatter={(value) => formatDate(value, 'YYYY-MM-DD h:mm:ss a')}
           />
@@ -319,20 +268,6 @@ export const DbMigration: React.FC = (props) => {
           >
             <FaTrash />
           </Button>
-        </Col>
-      </Row>
-      <Row>
-        <Col flex="1 1 1">
-          <FormikText
-            label="Migration offset in hours"
-            name="configuration.migrationTimeOffsetInHours"
-            value={values.configuration.migrationTimeOffsetInHours}
-            type="number"
-            placeholder="2"
-            min="0"
-            size={5}
-            onClick={applyPlaceholder}
-          />
         </Col>
       </Row>
     </styled.IngestType>

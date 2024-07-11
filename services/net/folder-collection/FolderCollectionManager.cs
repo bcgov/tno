@@ -257,6 +257,13 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
         var content = await this.Api.FindContentByIdAsync(request.ContentId);
         if (content != null)
         {
+            // If the content was published before the specified offset, ignore it.
+            if (this.Options.IgnoreContentPublishedBeforeOffset.HasValue
+                && this.Options.IgnoreContentPublishedBeforeOffset > 0
+                && content.PublishedOn.HasValue
+                && content.PublishedOn.Value < DateTime.UtcNow.AddDays(-1 * this.Options.IgnoreContentPublishedBeforeOffset.Value))
+                return;
+
             // TODO: Review how we can cache filters so that we do not need to request them every time we index content.
             var folders = await this.Api.GetFoldersWithFiltersAsync() ?? Array.Empty<API.Areas.Services.Models.Folder.FolderModel>();
             var activeFolders = folders.Where(f => f.Filter != null && f.Filter?.IsEnabled == true);

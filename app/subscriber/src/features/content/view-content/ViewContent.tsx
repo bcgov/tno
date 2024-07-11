@@ -7,7 +7,7 @@ import parse from 'html-react-parser';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useContent, useWorkOrders } from 'store/hooks';
+import { useApiHub, useContent, useWorkOrders } from 'store/hooks';
 import { useMinisters } from 'store/hooks/subscriber/useMinisters';
 import { useProfileStore } from 'store/slices';
 import {
@@ -16,25 +16,34 @@ import {
   IContentModel,
   IMinisterModel,
   IQuoteModel,
+  IWorkOrderMessageModel,
   IWorkOrderModel,
+  MessageTargetName,
   Row,
   Show,
+  Spinner,
   useWindowSize,
   WorkOrderStatusName,
   WorkOrderTypeName,
 } from 'tno-core';
 
 import * as styled from './styled';
+import { ToneValue } from './ToneValue';
 import { isWorkOrderStatus } from './utils';
+
+//Difference ratio
+//const threshold = 0.1;
 
 export interface IStream {
   url: string;
   type: string;
 }
+
 export interface IViewContentProps {
   /** set active content */
   setActiveContent?: (content: IContentModel[]) => void;
 }
+
 /**
  * Component to display content when navigating to it from the landing page list view, responsive and adaptive to screen size
  * @returns ViewContent component
@@ -51,6 +60,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
   const [{ profile }] = useProfileStore();
   const [, api] = useMinisters();
   const [, { transcribe, findWorkOrders }] = useWorkOrders();
+  const hub = useApiHub();
 
   // flag to keep track of the bolding completion in my minister view
   const [boldingComplete, setBoldingComplete] = React.useState(false);
@@ -60,8 +70,31 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
   const [avStream, setAVStream] = React.useState<IStream>();
   const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
   const [filteredQuotes, setFilteredQuotes] = React.useState<IQuoteModel[]>([]);
-
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const radioRef = React.useRef<HTMLAudioElement>(null);
   const fileReference = content?.fileReferences ? content?.fileReferences[0] : undefined;
+
+  const isAV = content?.contentType === ContentTypeName.AudioVideo;
+  const isTranscribing =
+    isAV &&
+    !content?.isApproved &&
+    isWorkOrderStatus(workOrders, WorkOrderTypeName.Transcription, [
+      WorkOrderStatusName.Completed,
+      WorkOrderStatusName.Submitted,
+    ]);
+  const isTranscriptRequestor = workOrders.some(
+    (wo) =>
+      wo.requestorId === profile?.id ||
+      wo.userNotifications?.some((un) => un.userId === profile?.id),
+  );
+  const [isProcessing, setIsProcessing] = React.useState(
+    workOrders.some(
+      (wo) =>
+        wo.contentId === content?.id &&
+        wo.workType === WorkOrderTypeName.FFmpeg &&
+        [WorkOrderStatusName.Submitted, WorkOrderStatusName.InProgress].includes(wo.status),
+    ),
+  );
 
   const handleTranscribe = React.useCallback(async () => {
     try {
@@ -146,6 +179,13 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
     else setAVStream(undefined);
   }, [stream, fileReference]);
 
+  React.useEffect(() => {
+    if (avStream) {
+      if (videoRef.current) videoRef.current.load();
+      if (radioRef.current) radioRef.current.load();
+    }
+  }, [avStream]);
+
   const fetchContent = React.useCallback(
     (id: number) => {
       getContent(id)
@@ -161,6 +201,14 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
       findWorkOrders({ contentId: id })
         .then((res) => {
           setWorkOrders(res.items);
+          setIsProcessing(
+            res.items.some(
+              (wo) =>
+                wo.contentId === content?.id &&
+                wo.workType === WorkOrderTypeName.FFmpeg &&
+                [WorkOrderStatusName.Submitted, WorkOrderStatusName.InProgress].includes(wo.status),
+            ),
+          );
         })
         .catch(() => {});
     },
@@ -175,35 +223,59 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
     }
   }, [id, fetchContent]);
 
-  // add classname for colouring as well as formatting the tone value (+ sign for positive)
-  const showToneValue = (tone: number) => {
-    if (tone > 0) return <span className="pos">+{tone}</span>;
-    if (tone < 0) return <span className="neg">{tone}</span>;
-    if (tone === 0) return <span className="neut">{tone}</span>;
-  };
-  const isAV = content?.contentType === ContentTypeName.AudioVideo;
-  const isTranscribing =
-    isAV &&
-    !content?.isApproved &&
-    isWorkOrderStatus(workOrders, WorkOrderTypeName.Transcription, [
-      WorkOrderStatusName.Completed,
-      WorkOrderStatusName.Submitted,
-    ]);
-  const isTranscriptRequestor = workOrders.some(
-    (wo) =>
-      wo.requestorId === profile?.id ||
-      wo.userNotifications?.some((un) => un.userId === profile?.id),
+  const onWorkOrder = React.useCallback(
+    (workOrder: IWorkOrderMessageModel) => {
+      if (
+        content &&
+        workOrder.contentId === content?.id &&
+        workOrder.workType === WorkOrderTypeName.FFmpeg
+      ) {
+        setIsProcessing(
+          [WorkOrderStatusName.Submitted, WorkOrderStatusName.InProgress].includes(
+            workOrder.status,
+          ),
+        );
+        if (workOrder.status === WorkOrderStatusName.Completed) fetchContent(content.id);
+      }
+    },
+    [fetchContent, content],
   );
 
-  const formatedHeadline = formatSearch(content ? content.headline : '', filter);
-  const tempBody = content?.body?.replace(/\n+/g, '<br><br>') ?? '';
-  const tempSummary = content?.summary?.replace(/\n+/g, '<br><br>') ?? '';
-  const formatedBody = formatSearch(tempBody, filter);
-  const formatedSummary = formatSearch(tempSummary, filter);
+  hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrder);
+
+  //Remove HTML tags, square brackets and line breaks before comparison.
+  //const cleanString = (str: string | undefined) => str?.replace(/<[^>]*>?|\[|\]|\n/gm, '').trim();
+
+  const formattedHeadline = React.useMemo(
+    () => formatSearch(content?.headline ?? '', filter),
+    [content?.headline, filter],
+  );
+  const formattedBody = React.useMemo(
+    () => formatSearch(content?.body?.replace(/\n+/g, '<br><br>') ?? '', filter),
+    [content?.body, filter],
+  );
+  const formattedSummary = React.useMemo(
+    () => formatSearch(content?.summary?.replace(/\n+/g, '<br><br>') ?? '', filter),
+    [content?.summary, filter],
+  );
+
+  //const cleanBody = cleanString(content?.body);
+  //const cleanSummary = cleanString(content?.summary);
+
+  //Return true if difference between length of cleanBody & cleanSummary is greater than 10%
+  /*const isDifferent = React.useMemo(() => {
+    if (cleanBody === undefined || cleanSummary === undefined) {
+      return false; // If either cleanBody or cleanSummary is undefined, return false
+    }
+
+    const difference = Math.abs((cleanBody.length ?? 0) - (cleanSummary.length ?? 0));
+    const maxLength = Math.max(cleanBody.length ?? 0, cleanSummary.length ?? 0);
+    return difference > maxLength * threshold;
+  }, [cleanBody, cleanSummary]); */
 
   return (
     <styled.ViewContent>
-      <div className="headline">{formatedHeadline}</div>
+      <div className="headline">{formattedHeadline}</div>
       <Bar className="info-bar" vanilla>
         <Show visible={!!content?.byline}>
           <div className="byline">{`BY ${content?.byline}`}</div>
@@ -226,25 +298,34 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
           {content?.tonePools && content?.tonePools.length && (
             <Row className="tone-group">
               <Sentiment value={content?.tonePools[0].value} />
-              <div className="numeric-tone">{showToneValue(content?.tonePools[0].value)}</div>
+              <div className="numeric-tone">
+                <ToneValue tone={content?.tonePools[0].value} />
+              </div>
             </Row>
           )}
         </Row>
       </Bar>
       <Show visible={!!avStream && isAV}>
         <Row justifyContent="center">
-          <Show visible={fileReference?.contentType.startsWith('audio/')}>
-            <audio controls>
+          <Show visible={isProcessing}>
+            <Col alignItems="center" gap="1rem">
+              File is being converted.
+              <Spinner />
+            </Col>
+          </Show>
+          <Show visible={!isProcessing && fileReference?.contentType.startsWith('audio/')}>
+            <audio controls ref={radioRef}>
               <source src={avStream?.url} type={fileReference?.contentType} />
               HTML5 Audio is required
             </audio>
           </Show>
-          <Show visible={fileReference?.contentType.startsWith('video/')}>
+          <Show visible={!isProcessing && fileReference?.contentType.startsWith('video/')}>
             <video
               controls
               height={width! > 500 ? '270' : 135}
               width={width! > 500 ? 480 : 240}
               preload="metadata"
+              ref={videoRef}
             >
               <source src={avStream?.url} type={fileReference?.contentType} />
               HTML5 Audio is required
@@ -258,9 +339,19 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
         </Row>
       </Show>
       <Row id="summary" className="summary">
-        <Show visible={!(isAV && !!content.body && !isTranscribing)}>
+        <Show visible={isAV && !!content?.summary && !isTranscribing}>
           <Col>
-            {!!content?.body?.length ? <div>{formatedBody}</div> : <span>{formatedSummary}</span>}
+            <span>{formattedSummary}</span>
+            <Show visible={!!content?.sourceUrl}>
+              <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
+                More...
+              </a>
+            </Show>
+          </Col>
+        </Show>
+        <Show visible={!isAV && !!content}>
+          <Col>
+            {!!content?.body?.length ? <div>{formattedBody}</div> : <span>{formattedSummary}</span>}
             <Show visible={!!content?.sourceUrl}>
               <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
                 More...

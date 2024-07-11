@@ -30,6 +30,7 @@ export const initialContentState: IContentState = {
       inByline: true,
       inHeadline: true,
       inStory: true,
+      inProgram: true,
       dateOffset: 1,
     },
   },
@@ -42,6 +43,9 @@ export const initialContentState: IContentState = {
     filter: defaultContentFilter,
   },
   avOverview: {
+    filter: defaultContentFilter,
+  },
+  eventOfTheDay: {
     filter: defaultContentFilter,
   },
 };

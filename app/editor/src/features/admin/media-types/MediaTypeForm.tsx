@@ -22,7 +22,6 @@ import {
   OptionItem,
   Row,
   Show,
-  TextArea,
   useModal,
 } from 'tno-core';
 
@@ -109,14 +108,6 @@ const MediaTypeForm: React.FC = () => {
               <Col gap="0.5rem">
                 <FormikCheckbox label="Is Enabled" name="isEnabled" />
                 <FormikCheckbox label="Automatically transcribe when saved" name="autoTranscribe" />
-                <TextArea
-                  label="Settings"
-                  name="settings"
-                  value={settings}
-                  onChange={(e) => {
-                    setSettings(e.target.value);
-                  }}
-                />
               </Col>
               <Show visible={!!values.id}>
                 <Row>

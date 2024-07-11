@@ -7,6 +7,11 @@ public class SignalROptions
 {
     #region Properties
     /// <summary>
+    /// get/set - Whether to enable the Kafka back plane.
+    /// </summary>
+    public bool EnableKafkaBackPlane { get; set; } = true;
+
+    /// <summary>
     /// get/set - Path pattern to SignalR hub.
     /// </summary>
     public string HubPath { get; set; } = "/hub";

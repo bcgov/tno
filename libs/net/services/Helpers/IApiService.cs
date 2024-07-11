@@ -1,4 +1,3 @@
-using TNO.API.Areas.Services.Models.Content;
 using TNO.Core.Http;
 
 namespace TNO.Services;
@@ -261,6 +260,20 @@ public interface IApiService
     Task<API.Areas.Services.Models.WorkOrder.WorkOrderModel?> FindWorkOrderAsync(long id);
 
     /// <summary>
+    /// Make a request to the API and find the work orders for the specified 'contentId'.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.WorkOrder.WorkOrderModel>> FindWorkOrderForContentIdAsync(long contentId);
+
+    /// <summary>
+    /// Make a request to the API and add the specified 'workOrder'.
+    /// </summary>
+    /// <param name="workOrder"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.WorkOrder.WorkOrderModel?> AddWorkOrderAsync(API.Areas.Services.Models.WorkOrder.WorkOrderModel workOrder);
+
+    /// <summary>
     /// Make a request to the API and update the specified 'workOrder'.
     /// </summary>
     /// <param name="workOrder"></param>
@@ -457,6 +470,14 @@ public interface IApiService
     /// <param name="contentId"></param>
     /// <param name="quotes"></param>
     /// <returns></returns>
-    Task<ContentModel?> AddQuotesToContentAsync(long contentId, IEnumerable<QuoteModel> quotes);
+    Task<API.Areas.Services.Models.Content.ContentModel?> AddQuotesToContentAsync(long contentId, IEnumerable<API.Areas.Services.Models.Content.QuoteModel> quotes);
+    #endregion
+
+    #region Settings
+    /// <summary>
+    /// Get all of the settings
+    /// </summary>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>> GetSettings();
     #endregion
 }

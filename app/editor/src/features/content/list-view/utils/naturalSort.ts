@@ -1,14 +1,16 @@
-import { IContentSearchResult } from 'store/slices';
+// Define a common interface that includes page and section
+interface ContentWithPageSection {
+  page: string;
+  section: string;
+}
 
-function getPageSectionValue(row: IContentSearchResult) {
+function getPageSectionValue(row: ContentWithPageSection) {
   // gnerate page:section string, keep it in the lowercase
-  const value = `${row.original.page ? row.original.page : ''}:${
-    row.original.section ? row.original.section : ''
-  }`.toLowerCase();
+  const value = `${row.page ? row.page : ''}:${row.section ? row.section : ''}`.toLowerCase();
   return value;
 }
 
-export function naturalSortValue(row: IContentSearchResult) {
+export function naturalSortValue(row: ContentWithPageSection) {
   const pageSectionValue = getPageSectionValue(row);
   // Replace each segment of digits and non-digits with formatted strings
   // Digits are padded with zeros to the left to ensure correct natural sorting

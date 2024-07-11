@@ -2,14 +2,14 @@ import { Action } from 'components/action';
 import { MenuButton } from 'components/button';
 import { FaLock } from 'react-icons/fa6';
 import { FaCaretRight, FaRightToBracket } from 'react-icons/fa6';
-import { Col, Row, Show } from 'tno-core';
+import { Row, Show } from 'tno-core';
 
 import { ReportKindIcon } from '../components';
 import { getLastSent } from '../utils';
 import {
   ReportContentMenuOption,
+  ReportHistoryMenuOption,
   ReportMainMenuOption,
-  ReportSendMenuOption,
   ReportSettingsMenuOption,
 } from './constants';
 import { useReportEditContext } from './ReportEditContext';
@@ -27,7 +27,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
 
   return (
     <styled.ReportEditMenu className="report-menu">
-      <div className="report-main-menu">
+      <div className="report-headline">
         <div>
           <Action
             icon={<FaRightToBracket className="icon-exit" />}
@@ -39,6 +39,13 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
             {values.name ? values.name : 'New Report'} <ReportKindIcon report={values} />
           </div>
         </div>
+        <Row nowrap gap="0.5rem">
+          <label>Last Sent:</label>
+          <span>{lastSent ? lastSent : 'Never'}</span>
+        </Row>
+      </div>
+
+      <div className="report-main-menu">
         <div>
           <MenuButton
             label="Settings"
@@ -69,7 +76,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
         </div>
         <div>
           <MenuButton
-            label="Report Preview"
+            label="Preview & Send"
             active={active?.startsWith(ReportMainMenuOption.View)}
             disabled={!values.id}
             onClick={() => onChange?.(`/reports/${values.id}/${ReportMainMenuOption.View}`)}
@@ -77,20 +84,14 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
         </div>
         <div>
           <MenuButton
-            label="Send"
-            active={active === ReportMainMenuOption.Send}
-            onClick={() => onChange?.(`/reports/${values.id}/${ReportMainMenuOption.Send}`)}
+            label="History"
+            active={active === ReportMainMenuOption.History}
+            onClick={() => onChange?.(`/reports/${values.id}/${ReportHistoryMenuOption.History}`)}
           />
         </div>
       </div>
-      <div className="report-secondary-menu">
-        <Col flex="1">
-          <Row nowrap gap="0.5rem">
-            <label>Last Sent:</label>
-            <span>{lastSent ? lastSent : 'Never'}</span>
-          </Row>
-        </Col>
-        <Show visible={active?.startsWith(ReportMainMenuOption.Settings)}>
+      <Show visible={active?.startsWith(ReportMainMenuOption.Settings)}>
+        <div className="report-secondary-menu">
           <div>
             <MenuButton
               label="Info"
@@ -103,7 +104,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
           </div>
           <div>
             <MenuButton
-              label="Template Design"
+              label="Template"
               active={active === ReportSettingsMenuOption.Sections}
               onClick={() =>
                 onChange?.(`/reports/${values.id}/${ReportSettingsMenuOption.Sections}`)
@@ -127,7 +128,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
           </div>
           <div>
             <MenuButton
-              label="Report Preferences"
+              label="Preferences"
               active={active === ReportSettingsMenuOption.Preferences}
               onClick={() =>
                 onChange?.(`/reports/${values.id}/${ReportSettingsMenuOption.Preferences}`)
@@ -138,15 +139,28 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
           </div>
           <div>
             <MenuButton
-              label="Sending"
+              label="Subscribers"
+              active={active === ReportSettingsMenuOption.Subscribers}
+              onClick={() =>
+                onChange?.(`/reports/${values.id}/${ReportSettingsMenuOption.Subscribers}`)
+              }
+            >
+              <FaCaretRight className="caret" />
+            </MenuButton>
+          </div>
+          <div>
+            <MenuButton
+              label="Schedule"
               active={active === ReportSettingsMenuOption.Send}
               onClick={() => onChange?.(`/reports/${values.id}/${ReportSettingsMenuOption.Send}`)}
               className={errors.events ? 'error' : ''}
             />
           </div>
-        </Show>
-        {/* Content secondary menu */}
-        <Show visible={active?.startsWith(ReportMainMenuOption.Content)}>
+        </div>
+      </Show>
+      {/* Content secondary menu */}
+      <Show visible={active?.startsWith(ReportMainMenuOption.Content)}>
+        <div className="report-secondary-menu">
           <div>
             <MenuButton
               label={
@@ -193,29 +207,8 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
               onClick={() => onChange?.(`/reports/${values.id}/${ReportContentMenuOption.Summary}`)}
             />
           </div>
-        </Show>
-        {/* Preview secondary menu */}
-        <Show visible={active?.startsWith(ReportMainMenuOption.View)}>
-          <MenuButton
-            label="View"
-            active={active === ReportMainMenuOption.View}
-            onClick={() => onChange?.(`/reports/${values.id}/${ReportMainMenuOption.View}`)}
-          />
-        </Show>
-        {/* Send secondary menu */}
-        <Show visible={active?.startsWith(ReportMainMenuOption.Send)}>
-          <MenuButton
-            label="Subscribers"
-            active={active === ReportSendMenuOption.Send}
-            onClick={() => onChange?.(`/reports/${values.id}/${ReportSendMenuOption.Send}`)}
-          />
-          <MenuButton
-            label="History"
-            active={active === ReportSendMenuOption.History}
-            onClick={() => onChange?.(`/reports/${values.id}/${ReportSendMenuOption.History}`)}
-          />
-        </Show>
-      </div>
+        </div>
+      </Show>
     </styled.ReportEditMenu>
   );
 };

@@ -35,7 +35,7 @@ public class UserService : BaseService<User, int>, IUserService
             .AsNoTracking()
             .AsQueryable();
 
-        var predicate = PredicateBuilder.New<User>();
+        var predicate = PredicateBuilder.New<User>(true);
 
         if (!String.IsNullOrWhiteSpace(filter.Username))
             predicate = predicate.And(c => EF.Functions.Like(c.Username.ToLower(), $"{filter.Username.ToLower()}%"));
@@ -50,8 +50,11 @@ public class UserService : BaseService<User, int>, IUserService
         if (!String.IsNullOrWhiteSpace(filter.Keyword))
         {
             var keyword = filter.Keyword.ToLower();
-            predicate = predicate.And(c => EF.Functions.Like(c.Username.ToLower(), $"{keyword}%") || EF.Functions.Like(c.Email.ToLower(), $"{keyword}%") || EF.Functions.Like(c.FirstName.ToLower(),
-            $"{keyword}%") || EF.Functions.Like(c.LastName.ToLower(), $"{keyword}%"));
+            predicate = predicate.And(c => EF.Functions.Like(c.Username.ToLower(), $"%{keyword}%")
+                || EF.Functions.Like(c.Email.ToLower(), $"%{keyword}%")
+                || EF.Functions.Like(c.PreferredEmail.ToLower(), $"%{keyword}%")
+                || EF.Functions.Like(c.FirstName.ToLower(), $"%{keyword}%")
+                || EF.Functions.Like(c.LastName.ToLower(), $"%{keyword}%"));
         }
         if (!String.IsNullOrWhiteSpace(filter.RoleName))
             predicate = predicate.And(c => EF.Functions.Like(c.Roles.ToLower(), $"%[{filter.RoleName.ToLower()}]%"));
@@ -62,8 +65,8 @@ public class UserService : BaseService<User, int>, IUserService
             predicate = predicate.And(c => c.IsEnabled == filter.IsEnabled);
         if (filter.IsSystemAccount != null)
             predicate = predicate.And(c => c.IsSystemAccount == filter.IsSystemAccount);
-        else
-            predicate = predicate.And(c => !c.IsSystemAccount);
+        if (filter.AccountTypes?.Any() == true)
+            predicate = predicate.And(c => filter.AccountTypes.Contains(c.AccountType));
 
         if (filter.IncludeUserId.HasValue)
             predicate = PredicateBuilder.Or<User>(u => u.Id == filter.IncludeUserId, predicate);
@@ -114,7 +117,7 @@ public class UserService : BaseService<User, int>, IUserService
     public IEnumerable<User> FindByEmail(string email)
     {
         return this.Context.Users
-            .Where(u =>u.Email.ToLower() == email.ToLower() || u.PreferredEmail.ToLower() == email.ToLower());
+            .Where(u => u.Email.ToLower() == email.ToLower() || u.PreferredEmail.ToLower() == email.ToLower());
     }
 
     public override User AddAndSave(User entity)
@@ -137,6 +140,7 @@ public class UserService : BaseService<User, int>, IUserService
     public override User UpdateAndSave(User entity)
     {
         var original = FindById(entity.Id) ?? throw new NoContentException();
+        original.AccountType = entity.AccountType;
         original.Key = entity.Key;
         original.Username = entity.Username;
         original.Email = entity.Email;

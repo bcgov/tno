@@ -1,6 +1,5 @@
 import { ContentList } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
-import { useFilterOptionContext } from 'components/media-type-filters';
 import { ContentListActionBar } from 'components/tool-bar';
 import { useActionFilters } from 'features/search-page/hooks';
 import { filterFormat } from 'features/search-page/utils';
@@ -9,7 +8,7 @@ import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { useContent, useSettings } from 'store/hooks';
-import { generateQuery, IContentModel } from 'tno-core';
+import { generateQuery, IContentModel, Loading, Show } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -23,19 +22,19 @@ export const TodaysCommentary: React.FC = () => {
   ] = useContent();
   const getActionFilters = useActionFilters();
   const { commentaryActionId } = useSettings();
-  const { hasProcessedInitialPreferences } = useFilterOptionContext();
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
-
+  const [loading, setLoading] = React.useState(false);
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);
+    setLoading(false);
   }, []);
 
   React.useEffect(() => {
-    if (commentaryActionId && hasProcessedInitialPreferences) {
+    if (commentaryActionId) {
       let actionFilters = getActionFilters();
       const commentaryAction = actionFilters.find((a) => a.id === commentaryActionId);
-
+      setLoading(true);
       findContentWithElasticsearch(
         generateQuery(
           filterFormat({
@@ -56,16 +55,11 @@ export const TodaysCommentary: React.FC = () => {
               return castToSearchResult(content);
             }),
           );
+          setLoading(false);
         })
         .catch();
     }
-  }, [
-    commentaryActionId,
-    filter,
-    findContentWithElasticsearch,
-    getActionFilters,
-    hasProcessedInitialPreferences,
-  ]);
+  }, [commentaryActionId, filter, findContentWithElasticsearch, getActionFilters]);
 
   return (
     <styled.TodaysCommentary>
@@ -74,6 +68,9 @@ export const TodaysCommentary: React.FC = () => {
         onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
       />
       <DateFilter filter={filter} storeFilter={storeFilter} />
+      <Show visible={loading}>
+        <Loading />
+      </Show>
       <ContentList
         content={content}
         selected={selected}

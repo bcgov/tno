@@ -24,12 +24,14 @@ scale () {
 }
 
 podsApi=$(getPods api sts $env)
+podsApiServices=$(getPods api-services dc $env)
 podsCharts=$(getPods charts-api dc $env)
 podsEditor=$(getPods editor dc $env)
 podsSubscriber=$(getPods subscriber dc $env)
 
 # podsCapture=$(getPods capture-service dc $env)
 podsContentMigration=$(getPods contentmigration-service dc $env)
+podsContentMigrationRecent=$(getPods contentmigration-recent-service dc $env)
 podsContentMigrationHistoric=$(getPods contentmigration-historic-service dc $env)
 podsFileMonitor=$(getPods filemonitor-service dc $env)
 podsSyndication=$(getPods syndication-service dc $env)
@@ -37,7 +39,8 @@ podsImage=$(getPods image-service dc $env)
 
 podsIndexing=$(getPods indexing-service dc $env)
 podsContent=$(getPods content-service dc $env)
-podsContentTNO=$(getPods content-historic-service dc $env)
+podsContentTNOCurrent=$(getPods content-current-service dc $env)
+podsContentTNOHistoric=$(getPods content-historic-service dc $env)
 
 podsFileCopy=$(getPods filecopy-service dc $env)
 podsFolderCollection=$(getPods folder-collection-service dc $env)
@@ -57,9 +60,11 @@ podsEventHandler=$(getPods event-handler-service dc $env)
 ./stop.sh $env
 
 # APIs
+scale api-services 0 dc $env
 oc tag api:latest api:$env
-oc rollout restart sts/api -n 9b301c-$env
 
+scale api-services $podsApiServices dc $env
+oc rollout restart sts/api -n 9b301c-$env
 oc rollout status --watch --timeout=600s sts/api -n 9b301c-$env
 
 oc tag charts-api:latest charts-api:$env
@@ -104,6 +109,7 @@ scale subscriber $podsSubscriber dc $env
 
 # scale capture-service $podsCapture dc $env
 scale contentmigration-service $podsContentMigration dc $env
+scale contentmigration-recent-service $podsContentMigrationRecent dc $env
 scale contentmigration-historic-service $podsContentMigrationHistoric dc $env
 scale filemonitor-service $podsFileMonitor dc $env
 scale syndication-service $podsSyndication dc $env
@@ -111,7 +117,8 @@ scale image-service $podsImage dc $env
 
 scale indexing-service $podsIndexing dc $env
 scale content-service $podsContent dc $env
-scale content-historic-service $podsContentTNO dc $env
+scale content-current-service $podsContentTNOCurrent dc $env
+scale content-historic-service $podsContentTNOHistoric dc $env
 
 scale filecopy-service $podsFileCopy dc $env
 scale folder-collection-service $podsFolderCollection dc $env

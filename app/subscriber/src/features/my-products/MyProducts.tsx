@@ -1,9 +1,10 @@
+import { Modal } from 'components/modal';
 import { PageSection } from 'components/section';
 import React from 'react';
 import { FaEnvelope, FaUserPlus } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useProducts } from 'store/hooks';
-import { IProductSubscriberModel, Modal, Row, Show, useModal } from 'tno-core';
+import { IProductSubscriberModel, Loading, Row, Show, useModal } from 'tno-core';
 
 import { ProductCard } from './ProductCard';
 import * as styled from './styled';
@@ -15,11 +16,13 @@ export const MyProducts: React.FC = () => {
 
   const [products, setProducts] = React.useState<IProductSubscriberModel[]>([]);
   const [product, setProduct] = React.useState<IProductSubscriberModel>();
-
+  const [isLoading, setIsLoading] = React.useState(true);
   React.useEffect(() => {
     if (userInfo && !products.length) {
+      setIsLoading(true);
       getProducts().then((data) => {
         setProducts(data);
+        setIsLoading(false);
       });
     }
     // Only do this on init.
@@ -103,6 +106,9 @@ export const MyProducts: React.FC = () => {
             are sent by email on a scheduled basis.
           </p>
           <div>
+            <Show visible={isLoading}>
+              <Loading />
+            </Show>
             {products
               .filter(
                 (product) =>

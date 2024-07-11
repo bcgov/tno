@@ -4,23 +4,22 @@ export const ReportHistoryView = styled.div`
   display: flex;
   flex-direction: column;
   padding: 1rem;
-
-  > div:first-child {
+  .report-history-headline {
     display: flex;
-    flex-direction: row;
-    gap: 1rem;
-    align-items: center;
-    justify-content: space-between;
+    align-items: first baseline;
+    gap: 0.5em;
 
-    button {
-      padding: 0.15rem;
+    > :nth-child(1) {
+      color: ${(props) => props.theme.css.iconPrimaryColor};
+    }
+    > :nth-child(4) {
+      color: ${(props) => props.theme.css.iconPrimaryColor};
+    }
 
-      svg {
-        min-height: 12px;
-        max-height: 12px;
-        min-width: 12px;
-        max-width: 12px;
-      }
+    > :last-child {
+      margin-left: auto;
+      justify-content: flex-end;
+      color: ${(props) => props.theme.css.iconPrimaryColor};
     }
   }
 

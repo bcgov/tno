@@ -13,13 +13,15 @@ import {
   generateQuery,
   IContentModel,
   IFilterSettingsModel,
+  Loading,
   Row,
   Select,
+  Show,
 } from 'tno-core';
 
 import { IDateOptions, IGroupedDates, IPressMember } from './interfaces';
 import * as styled from './styled';
-import { generateDates, separateAlias } from './utils';
+import { generateDates } from './utils';
 
 export const PressGallery: React.FC = () => {
   const [, api] = useContributors();
@@ -34,7 +36,7 @@ export const PressGallery: React.FC = () => {
   const [initialLoad, setInitialLoad] = React.useState(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [dateOptions, setDateOptions] = React.useState<IDateOptions[]>([]);
-  const [aliases, setAliases] = React.useState<string[]>([]);
+  const [pressMemberNames, setPressMembersNames] = React.useState<string[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [contentByDate, setContentByDate] = React.useState<IGroupedDates | undefined>();
   const [pressSettings] = React.useState<IFilterSettingsModel>(
@@ -87,17 +89,12 @@ export const PressGallery: React.FC = () => {
   React.useEffect(() => {
     api.findAllContributors().then((contributors) => {
       setPressMembers(contributors.filter((contributor) => contributor.isPress));
-      const allAliases = contributors
+      const names = contributors
         .filter((c) => c.isPress)
         .map((contributor) => {
-          if (!!contributor.aliases) {
-            return contributor.aliases;
-          } else {
-            return contributor.name;
-          }
+          return contributor.name;
         });
-      const formattedAliases = separateAlias(allAliases);
-      setAliases(formattedAliases);
+      setPressMembersNames(names);
     });
     // run on init
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -111,29 +108,31 @@ export const PressGallery: React.FC = () => {
       startDate = `${moment(pressGalleryFilter.dateFilter.value).startOf('day')}`;
       endDate = `${moment(pressGalleryFilter.dateFilter.value).endOf('day')}`;
     }
-    // only fetch once the aliases are ready
-    if (!!aliases.length && !initialLoad) {
-      var aliasesFilter = aliases.toString();
-      if (!!pressGalleryFilter.pressFilter) {
-        aliasesFilter =
-          pressMembers.find((c) => c.aliases === pressGalleryFilter.pressFilter?.value)?.aliases ??
-          '';
-      }
+    // only fetch once the Press Members are ready
+    if (!!pressMemberNames.length && !initialLoad) {
       fetchResults(
         generateQuery({
           ...pressSettings,
           defaultSearchOperator: 'or',
-          search: aliasesFilter,
+          pressMembers: pressMemberNames,
           startDate,
           endDate,
         }),
       );
       setInitialLoad(true);
     }
-  }, [aliases, pressSettings, initialLoad, fetchResults, pressGalleryFilter, pressMembers]);
+  }, [
+    pressMemberNames,
+    pressSettings,
+    initialLoad,
+    fetchResults,
+    pressGalleryFilter,
+    pressMembers,
+  ]);
 
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);
+    setLoading(false);
   }, []);
 
   return (
@@ -156,7 +155,15 @@ export const PressGallery: React.FC = () => {
               generateQuery({
                 ...pressSettings,
                 defaultSearchOperator: 'or',
-                search: pressMembers.find((c) => c.aliases === e.value)?.aliases ?? '',
+                pressMembers: [
+                  pressMemberNames.find(
+                    (pm) =>
+                      pm ===
+                      (e.value?.trim().startsWith('"') && e.value.trim().endsWith('"')
+                        ? e.value.trim().slice(1, -1)
+                        : e.value.trim()),
+                  ) ?? '',
+                ],
                 startDate: pressGalleryFilter.dateFilter
                   ? `${moment(pressGalleryFilter.dateFilter.value).startOf('day')}`
                   : `${moment().subtract(2, 'weeks')}`,
@@ -196,10 +203,18 @@ export const PressGallery: React.FC = () => {
                 generateQuery({
                   ...pressSettings,
                   defaultSearchOperator: 'or',
-                  search: pressGalleryFilter.pressFilter?.value
-                    ? pressMembers.find((c) => c.aliases === pressGalleryFilter.pressFilter?.value)
-                        ?.aliases ?? ''
-                    : aliases.toString().split(',').join(' '),
+                  pressMembers: pressGalleryFilter.pressFilter?.value
+                    ? [
+                        pressMemberNames.find(
+                          (pm) =>
+                            pm ===
+                            (pressGalleryFilter.pressFilter?.value as string).replace(
+                              /^"+|"+$/g,
+                              '',
+                            ),
+                        ) ?? '',
+                      ]
+                    : pressMemberNames ?? [],
                   startDate: `${moment(e.value).startOf('day')}`,
                   endDate: `${moment(e.value).endOf('day')}`,
                 }),
@@ -218,7 +233,7 @@ export const PressGallery: React.FC = () => {
               generateQuery({
                 ...pressSettings,
                 defaultSearchOperator: 'or',
-                search: aliases.toString(),
+                pressMembers: pressMemberNames,
                 startDate: `${moment().subtract(2, 'weeks')}`,
                 endDate: `${moment()}`,
               }),
@@ -226,10 +241,17 @@ export const PressGallery: React.FC = () => {
           }}
         />
       </Row>
+      <Show visible={loading}>
+        <Loading />
+      </Show>
       <ContentList
         onContentSelected={handleContentSelected}
         content={content}
+        showDate
+        showTime
+        showSeries
         selected={selected}
+        highlighTerms={pressMemberNames}
       />
     </styled.PressGallery>
   );

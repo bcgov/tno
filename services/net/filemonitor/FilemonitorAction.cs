@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Microsoft.Extensions.Logging;
@@ -93,19 +95,17 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     public async Task FetchFilesFromRemoteAsync(IIngestActionManager manager)
     {
         // Extract the source connection configuration settings.
-        var remotePath = manager.Ingest.SourceConnection?.GetConfigurationValue("path");
+        var remotePath = manager.Ingest.SourceConnection?.GetConfigurationValue("path") ?? "";
         var username = manager.Ingest.SourceConnection?.GetConfigurationValue("username");
-        var keyFileName = manager.Ingest.SourceConnection?.GetConfigurationValue("keyFileName") ?? "";
+        var keyFileName = manager.Ingest.SourceConnection?.GetConfigurationValue("keyFileName");
         var hostname = manager.Ingest.SourceConnection?.GetConfigurationValue("hostname");
         var password = manager.Ingest.SourceConnection?.GetConfigurationValue("password");
+        var port = manager.Ingest.SourceConnection?.GetConfigurationValue<int?>("port");
         if (String.IsNullOrWhiteSpace(hostname)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'hostname'.");
-        if (String.IsNullOrWhiteSpace(username)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'username'.");
-        if (String.IsNullOrWhiteSpace(keyFileName) && String.IsNullOrWhiteSpace(password)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' one of 'keyFileName' or 'password' required in source connection.");
-        if (String.IsNullOrWhiteSpace(remotePath)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'path'.");
 
         // The ingest configuration may have a different path than the root connection path.
         remotePath = remotePath.CombineWith(manager.Ingest.GetConfigurationValue("path")?.MakeRelativePath() ?? "");
-        AuthenticationMethod? authMethod;
+        AuthenticationMethod? authMethod = null;
         if (!String.IsNullOrWhiteSpace(password))
         {
             authMethod = new PasswordAuthenticationMethod(username, password);
@@ -124,9 +124,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 throw new ConfigurationException($"SSH Private key file does not exist: {sshKeyFile}");
             }
         }
-        else throw new ConfigurationException("Data location connection settings are missing");
 
-        var connectionInfo = new ConnectionInfo(hostname, username, authMethod);
+        var connectionInfo = port.HasValue ? new ConnectionInfo(hostname, port.Value, username, authMethod) : new ConnectionInfo(hostname, username, authMethod);
         await FetchFiles(connectionInfo, remotePath, manager);
     }
 
@@ -296,8 +295,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             Topic = ingest.Topic,
             Status = (int)WorkflowStatus.InProgress,
             PublishedOn = content.PublishedOn,
-            Metadata = new Dictionary<string, object> {
-                { ContentReferenceMetaDataKeys.MetadataKeyIngestSource, ingest.Source!.Code }
+            Metadata = new Dictionary<string, object?> {
+                { ContentReferenceMetaDataKeys.IngestSource, ingest.Source!.Code }
             }
         };
 
@@ -329,49 +328,25 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="story"></param>
     /// <param name="key"></param>
     /// <param name="ingest"></param>
+    /// <param name="namespaceManager"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    private string GetXmlData(XmlElement story, string key, IngestModel ingest)
+    private string GetXmlData(XmlElement story, string key, IngestModel ingest, XmlNamespaceManager? namespaceManager = null)
     {
         var value = ingest.GetConfigurationValue(key);
-        var result = "";
-
-        if (String.IsNullOrEmpty(value))
+        if (!String.IsNullOrEmpty(value))
         {
-            throw new InvalidOperationException($"Ingest configuration value '{key}' is not defined for {ingest.Name}.");
-        }
-        else
-        {
-            var comps = value.Split('!');
-            if (comps.Length == 2) // Tag and attribute name present
+            try
             {
-                XmlNodeList nodeList = story.GetElementsByTagName(comps[0]);
-
-                if (nodeList is not null && nodeList.Count > 0 && nodeList[0]?.Attributes?.Count > 0)
-                {
-                    result = nodeList[0]!.Attributes![comps[1]]?.Value ?? "";
-                }
-                else
-                {
-                    throw new InvalidOperationException($"No node/attribute pair in story XML matching '{comps[0]}/{comps[1]}' for ingest '{ingest.Name}.");
-                }
+                var node = namespaceManager != null ? story.SelectSingleNode(value, namespaceManager) : story.SelectSingleNode(value);
+                return node?.InnerXml ?? "";
             }
-            else
-            if (comps.Length == 1) // Tag name only
+            catch (Exception e)
             {
-                try
-                {
-                    XmlNodeList nodeList = story.GetElementsByTagName(value);
-                    result = nodeList is not null && nodeList.Count > 0 ? nodeList[0]!.InnerXml : "";
-                }
-                catch (Exception e)
-                {
-                    this.Logger.LogWarning(e, "Error extracting node '{key}' for ingest {name}.", key, ingest.Name);
-                }
+                this.Logger.LogWarning(e, "Error extracting XML value '{key}' for ingest {name}.", key, ingest.Name);
             }
         }
 
-        return result;
+        return "";
     }
 
     /// <summary>
@@ -418,6 +393,20 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     }
 
     /// <summary>
+    /// Format text based on ingest configuration.
+    /// </summary>
+    /// <param name="manager"></param>
+    /// <param name="text"></param>
+    /// <returns></returns>
+    private string FormatText(IIngestActionManager manager, string text)
+    {
+        var value = new StringBuilder(text);
+        var removeNewlines = manager.Ingest.GetConfigurationValue<bool>("removeNewlines", false);
+        if (removeNewlines) value = value.Replace("\r\n", " ").Replace("\n", " ");
+        return value.ToString();
+    }
+
+    /// <summary>
     /// Get a separate XML document for each file in dir and return a list of SourceContent records, one for each story in the
     /// list of files. Each XML document will include one or more stories. None of the XML formats we import contain the language.
     /// </summary>
@@ -431,6 +420,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         var ingest = manager.Ingest;
         var fileList = GetFileList(dir);
         var isBylineTitleCase = manager.Ingest.GetConfigurationValue<bool>("bylineTitleCase", false);
+        var namespacesValue = manager.Ingest.GetConfigurationValue<string>("namespaces", "[]");
+        var namespaces = JsonSerializer.Deserialize<XmlNamespace[]>(namespacesValue) ?? Array.Empty<XmlNamespace>();
 
         foreach (var path in fileList)
         {
@@ -440,18 +431,23 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 var document = GetValidXmlDocument(path, ingest);
                 if (document != null)
                 {
+                    var namespaceManager = new XmlNamespaceManager(document.NameTable);
+                    namespaces.ForEach(ns => namespaceManager.AddNamespace(ns.Id, ns.Href));
+
                     var elementList = document.GetElementsByTagName(ingest.GetConfigurationValue(Fields.Item));
 
                     // Iterate over the list of stories and add a new item to the articles list for each story.
                     foreach (XmlElement story in elementList)
                     {
-                        var paperName = GetXmlData(story, Fields.PaperName, ingest);
+                        var paperName = GetXmlData(story, Fields.PaperName, ingest, namespaceManager);
                         var code = GetItemSourceCode(ingest, paperName, sources);
                         var mediaTypeId = await GetMediaTypeIdAsync(ingest, code, sources);
-                        var headline = GetXmlData(story, Fields.Headline, ingest);
-                        var publishedOn = GetPublishedOn(GetXmlData(story, Fields.Date, ingest), ingest, this.Options);
-                        var contentHash = GetContentHash(code, headline, publishedOn);
-                        var author = GetXmlData(story, Fields.Author, ingest);
+                        var headline = GetXmlData(story, Fields.Headline, ingest, namespaceManager);
+                        var publishedOn = GetPublishedOn(GetXmlData(story, Fields.Date, ingest, namespaceManager), ingest, this.Options);
+                        var contentHash = Runners.BaseService.GetContentHash(code, headline, publishedOn);
+                        var author = FormatText(manager, GetXmlData(story, Fields.Author, ingest, namespaceManager));
+                        var summary = GetXmlData(story, Fields.Summary, ingest, namespaceManager);
+                        var body = GetXmlData(story, Fields.Story, ingest, namespaceManager);
 
                         var item = new SourceContent(
                             this.Options.DataLocation,
@@ -459,16 +455,16 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                             ContentType.PrintContent,
                             mediaTypeId,
                             contentHash,
-                            headline,
-                            GetXmlData(story, Fields.Summary, ingest),
-                            GetXmlData(story, Fields.Story, ingest),
-                            GetPublishedOn(GetXmlData(story, Fields.Date, ingest), ingest, this.Options))
+                            FormatText(manager, headline),
+                            FormatText(manager, summary),
+                            FormatText(manager, body),
+                            publishedOn)
                         {
-                            Page = GetXmlData(story, Fields.Page, ingest),
-                            Section = GetXmlData(story, Fields.Section, ingest),
+                            Page = GetXmlData(story, Fields.Page, ingest, namespaceManager),
+                            Section = GetXmlData(story, Fields.Section, ingest, namespaceManager),
                             Language = ingest.GetConfigurationValue("language"),
                             Authors = GetAuthorList(isBylineTitleCase ? ToTitleCase(author) : author),
-                            ExternalUid = GetXmlData(story, Fields.Id, ingest)
+                            ExternalUid = GetXmlData(story, Fields.Id, ingest, namespaceManager)
                         };
 
                         await ImportArticleAsync(manager, item);

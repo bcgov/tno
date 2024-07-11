@@ -70,6 +70,11 @@ public class UserModel : AuditColumnsModel
     public bool IsSystemAccount { get; set; }
 
     /// <summary>
+    /// get/set - The user account type.
+    /// </summary>
+    public Entities.UserAccountType AccountType { get; set; }
+
+    /// <summary>
     /// get/set - The last date and time when user logged in.
     /// </summary>
     public DateTime? LastLoginOn { get; set; }
@@ -144,6 +149,7 @@ public class UserModel : AuditColumnsModel
         this.IsEnabled = entity.IsEnabled;
         this.Status = entity.Status;
         this.IsSystemAccount = entity.IsSystemAccount;
+        this.AccountType = entity.AccountType;
         this.EmailVerified = entity.EmailVerified;
         this.LastLoginOn = entity.LastLoginOn;
         this.Note = entity.Note;
@@ -184,7 +190,7 @@ public class UserModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.User(UserModel model)
     {
-        var entity = new Entities.User(model.Username, model.Email, model.Key)
+        var entity = new Entities.User(model.Username, model.Email, model.Key, model.AccountType)
         {
             Id = model.Id,
             FirstName = model.FirstName,

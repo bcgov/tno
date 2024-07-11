@@ -1,0 +1,51 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-editor
+  namespace: default
+  annotations:
+    description: Exposes and load balances the application pods.
+  labels:
+    name: nginx-editor
+    part-of: tno
+    version: 1.0.0
+    component: nginx-editor
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    part-of: tno
+    component: nginx-editor
+  sessionAffinity: None
+  type: ClusterIP
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-subscriber
+  namespace: default
+  annotations:
+    description: Exposes and load balances the application pods.
+  labels:
+    name: nginx-subscriber
+    part-of: tno
+    version: 1.0.0
+    component: nginx-editor
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    part-of: tno
+    component: nginx-subscriber
+  sessionAffinity: None
+  type: ClusterIP

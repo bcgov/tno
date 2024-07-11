@@ -116,6 +116,16 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
     [initialState, search],
   );
 
+  const checkDisplayOptions = React.useCallback((): boolean => {
+    return (
+      !search.searchUnpublished ||
+      search.boldKeywords ||
+      (search.actions?.length ?? 0) > 0 ||
+      (search.mediaTypeIds?.length ?? 0) > 0 ||
+      search.size !== 500
+    );
+  }, [search]);
+
   React.useEffect(() => {
     if (activeFilter) {
       setSearchName(activeFilter.name);
@@ -408,7 +418,11 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
               <Col className="section top-spacer">
                 <label className="search-in-label">Display options:</label>
                 {/* SEARCH RESULT SETTINGS SECTION */}
-                <ExpandableRow icon={<IoIosCog />} title="Search result options">
+                <ExpandableRow
+                  icon={<IoIosCog />}
+                  title="Search result options"
+                  hasValues={checkDisplayOptions()}
+                >
                   <MoreOptions />
                 </ExpandableRow>
               </Col>

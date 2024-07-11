@@ -2,7 +2,13 @@ import React from 'react';
 import { FaFileImage, FaFileInvoice } from 'react-icons/fa';
 import { FaFileArrowUp } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { useContent, useLookup, useLookupOptions, useNotifications, useReports } from 'store/hooks';
+import {
+  useContent,
+  useLookupOptions,
+  useNotifications,
+  useReports,
+  useSettings,
+} from 'store/hooks';
 import {
   ContentTypeName,
   IOptionItem,
@@ -10,6 +16,7 @@ import {
   OptionItem,
   replaceQueryParams,
   Settings,
+  Spinner,
   ToolBar,
   ToolBarSection,
   useModal,
@@ -35,38 +42,45 @@ export interface IPaperToolbarProps {
 export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
   const [{ filterPaper: filter }, { storeFilterPaper }] = useContent();
   const [{ mediaTypeOptions }] = useLookupOptions();
-  const [{ publishReport }] = useReports();
+  const [{ previewReport, publishReport }] = useReports();
   const [{ publishNotification }] = useNotifications();
-  const [{ isReady, settings }] = useLookup();
+  const { morningReportId, frontPageImagesReportId, topStoryAlertId } = useSettings();
   const { toggle, isShowing } = useModal();
 
   const [, setMediaTypeOptions] = React.useState<IOptionItem[]>([]);
-  const [morningReportId, setMorningReportId] = React.useState(0);
-  const [frontPageImagesReportId, setFrontPageImagesReportId] = React.useState(0);
-  const [topStoryAlertId, setTopStoryAlertId] = React.useState(0);
   const [sendInfo, setSendInfo] = React.useState<IReportInfo>();
 
-  React.useEffect(() => {
-    if (isReady) {
-      const morningReportId = settings.find((s) => s.name === Settings.MorningReport)?.value;
-      if (morningReportId) setMorningReportId(+morningReportId);
-      else toast.error(`${Settings.MorningReport} setting needs to be configured.`);
-
-      const frontPageImagesReportId = settings.find(
-        (s) => s.name === Settings.FrontPageImagesReport,
-      )?.value;
-      if (frontPageImagesReportId) setFrontPageImagesReportId(+frontPageImagesReportId);
-      else toast.error(`${Settings.FrontPageImagesReport} setting needs to be configured.`);
-
-      const topStoryAlertId = settings.find((s) => s.name === Settings.TopStoryAlert)?.value;
-      if (topStoryAlertId) setTopStoryAlertId(+topStoryAlertId);
-      else toast.error(`${Settings.TopStoryAlert} setting needs to be configured.`);
-    }
-  }, [isReady, settings]);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   React.useEffect(() => {
     setMediaTypeOptions([new OptionItem<number>('Any', 0), ...mediaTypeOptions]);
   }, [mediaTypeOptions]);
+
+  async function checkReportContent(reportID: number) {
+    try {
+      setIsLoading(true);
+      const preview = await previewReport(reportID);
+      let noContentToastText = 'Report content is empty. Please add content before sending.';
+      if (preview.body && preview.body === '\n') {
+        toast.error(
+          `Report tempalte is inactive, check the settings ReportID with value ${reportID}.`,
+        );
+        return false;
+      } else {
+        let keywords = 'There is no content in this report';
+        const isReportEmpty = preview.body?.toLowerCase().includes(keywords.toLowerCase());
+        if (isReportEmpty) {
+          toast.error(noContentToastText);
+          return false;
+        }
+      }
+      return true;
+    } catch (error) {
+      toast.error(`Failed to preview report. ${error}`);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   const onFilterChange = (filter: IContentListFilter) => {
     const newFilter = { ...filter, pageIndex: 0 };
@@ -106,33 +120,38 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
           />
         </ToolBarSection>
         <ToolBarSection label="Send">
-          <FaFileImage
-            className="action-button btn-preview"
-            title="Front Page Images"
-            onClick={(e) => {
-              if (frontPageImagesReportId) {
-                setSendInfo({
-                  name: 'Front Page Images',
-                  value: +frontPageImagesReportId,
-                  action: 'report',
-                });
-                toggle();
-              } else
-                toast.error(
-                  `Configuration setting "${Settings.FrontPageImagesReport}" is missing.`,
-                );
-            }}
-          />
+          {isLoading ? (
+            <Spinner />
+          ) : (
+            <FaFileImage
+              className="action-button btn-preview"
+              title="Front Page Images"
+              onClick={async (e) => {
+                if (frontPageImagesReportId) {
+                  const hasContent = await checkReportContent(frontPageImagesReportId);
+                  if (!hasContent) return;
+                  setSendInfo({
+                    name: 'Front Page Images',
+                    value: frontPageImagesReportId,
+                    action: 'report',
+                  });
+                  toggle();
+                }
+              }}
+            />
+          )}
           <FaFileArrowUp
             className="action-button btn-preview"
             title="Top Stories"
             onClick={(e) => {
-              setSendInfo({
-                name: 'Top Stories',
-                value: +topStoryAlertId,
-                action: 'notification',
-              });
-              toggle();
+              if (topStoryAlertId) {
+                setSendInfo({
+                  name: 'Top Stories',
+                  value: topStoryAlertId,
+                  action: 'notification',
+                });
+                toggle();
+              }
             }}
           />
           <FaFileInvoice
@@ -142,11 +161,11 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
               if (morningReportId) {
                 setSendInfo({
                   name: 'Morning',
-                  value: +morningReportId,
+                  value: morningReportId,
                   action: 'report',
                 });
                 toggle();
-              } else toast.error(`Configuration setting "${Settings.MorningReport}" is missing.`);
+              }
             }}
           />
         </ToolBarSection>

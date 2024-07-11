@@ -45,6 +45,8 @@ export const ReportOptions = () => {
             label="Exclude content found in unsent report"
             tooltip="Excluding content in the current unsent report ensures each time the report is generated it will only have new content."
           />
+          <label>Send options</label>
+          <FormikCheckbox name={`settings.doNotSendEmail`} label="Do not send email" />
         </Col>
       </Row>
     </Col>
