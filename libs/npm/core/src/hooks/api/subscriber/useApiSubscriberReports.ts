@@ -104,5 +104,10 @@ export const useApiSubscriberReports = (
         `/subscriber/reports/all-content`,
       );
     },
+    subscribeToReport: (reportId: number, applicantEmail: string) => {
+      return api.post<never, AxiosResponse<any>, any>(
+        `/subscriber/reports/${reportId}/subscription?applicantEmail=${applicantEmail}`,
+      );
+    },
   }).current;
 };

@@ -16,8 +16,11 @@ using TNO.Kafka;
 using TNO.Kafka.SignalR;
 using TNO.Keycloak;
 using TNO.Models.Filters;
-
+using System.Text;
+using TNO.Entities;
+using TNO.Ches.Configuration;
 namespace TNO.API.Areas.Subscriber.Controllers;
+using TNO.Ches;
 
 /// <summary>
 /// ReportController class, provides Report endpoints for the api.
@@ -45,6 +48,9 @@ public class ReportController : ControllerBase
     private readonly IImpersonationHelper _impersonate;
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly ILogger<ReportController> _logger;
+    private readonly ISettingService _settingService;
+    private readonly ChesOptions _chesOptions;
+    private readonly IChesService _ches;
     #endregion
 
     #region Constructors
@@ -61,6 +67,10 @@ public class ReportController : ControllerBase
     /// <param name="impersonateHelper"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
+    /// <param name="settingService"></param>
+    /// <param name="chesOptions"></param>
+    /// <param name="ches"></param>
+
     public ReportController(
         IReportService reportService,
         IReportInstanceService reportInstanceService,
@@ -71,7 +81,11 @@ public class ReportController : ControllerBase
         IOptions<KafkaHubConfig> kafkaHubOptions,
         IImpersonationHelper impersonateHelper,
         IOptions<JsonSerializerOptions> serializerOptions,
-        ILogger<ReportController> logger)
+        ILogger<ReportController> logger,
+        ISettingService settingService,
+        IOptions<ChesOptions> chesOptions,
+        IChesService ches
+        )
     {
         _reportService = reportService;
         _reportInstanceService = reportInstanceService;
@@ -83,6 +97,10 @@ public class ReportController : ControllerBase
         _impersonate = impersonateHelper;
         _serializerOptions = serializerOptions.Value;
         _logger = logger;
+        _settingService = settingService;
+        _chesOptions = chesOptions.Value;
+        _ches = ches;
+
     }
     #endregion
 
@@ -452,5 +470,63 @@ public class ReportController : ControllerBase
         var result = _reportService.GetAllContentInMyReports(user.Id);
         return new JsonResult(result);
     }
+    /// <summary>
+    /// send a notification to the subscription manager.
+    /// </summary>
+    /// <param name="id">Report ID</param>
+    /// <param name="applicantEmail">Applicant Email</param>
+    /// <returns></returns>
+    [HttpPost("{id}/subscription")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(void), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public async Task<IActionResult> RequestSubscription(int id, string applicantEmail)
+    {
+        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
+
+        StringBuilder message = new StringBuilder();
+        message.AppendLine("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">");
+        message.AppendLine("<HTML>");
+        message.AppendLine("<BODY>");
+        message.AppendLine($"<p><strong>User Email {applicantEmail}</strong>: </p>");
+        message.AppendLine($"<p><strong>Report {report.Name}, ID {report.Id}</strong>: </p>");
+
+        message.AppendLine("</BODY>");
+        message.AppendLine("</HTML>");
+        string subject = string.Empty;
+        subject = $"MMI: Report Subscription Request  - [{report.Name}]";
+
+        try
+        {
+            var productSubscriptionManagerEmail = _settingService.FindByName(AdminConfigurableSettingNames.ProductSubscriptionManagerEmail.ToString());
+
+            if (productSubscriptionManagerEmail != null)
+            {
+
+                var emailAddresses = productSubscriptionManagerEmail.Value.Split(new char[] { ';', ',' }, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, emailAddresses, subject, message.ToString());
+                var emailRequest = await _ches.SendEmailAsync(email);
+
+                _logger.LogInformation($"Product subscription request email to [${productSubscriptionManagerEmail.Value}] queued: ${emailRequest.TransactionId}");
+
+            }
+            else
+            {
+                _logger.LogError("Couldn't send product subscription request email: [ProductSubscriptionManagerEmail] not set.");
+            }
+
+
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Email failed to send");
+        }
+
+        return Ok();
+    }
+
+
+
     #endregion
 }

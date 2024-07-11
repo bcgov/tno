@@ -3,7 +3,7 @@ import { Button } from 'components/button';
 import React from 'react';
 import { FaCopy, FaTrash, FaUserPlus, FaUsers } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { useApp } from 'store/hooks';
+import { useApp, useReports } from 'store/hooks';
 import {
   Checkbox,
   Claim,
@@ -11,8 +11,6 @@ import {
   EmailSendToName,
   getEnumStringOptions,
   Grid,
-  IUserReportModel,
-  Modal,
   ReportDistributionFormatName,
   ReportStatusName,
   Row,
@@ -39,7 +37,7 @@ export const ReportEditSubscribersForm = () => {
   const formatOptions = getEnumStringOptions(ReportDistributionFormatName);
   const sendToOptions = getEnumStringOptions(EmailSendToName, { splitOnCapital: false });
   const [selectedSubscribers, setSelectedSubscribers] = React.useState<number[]>([]);
-
+  const [, { RequestSubscriber }] = useReports();
   const fetchUsersByEmail = async (email: string) => {
     try {
       const response = await findUsers({ email });
@@ -70,7 +68,25 @@ export const ReportEditSubscribersForm = () => {
         toast.warning(`No users found for the specified email "${email}".`);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [findUsers, setFieldValue, values.id, values.subscribers],
+  );
+
+  const addSubscriberRequest = React.useCallback(
+    async (email: string) => {
+      const users = await fetchUsersByEmail(email);
+      if (!instance?.reportId) {
+        toast.error('Report not found.');
+      }
+      if (users.length) {
+        RequestSubscriber(instance?.reportId || 0, email);
+        toast.success('Request has been submitted.');
+      } else {
+        toast.warning(`No users found for the specified email "${email}".`);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [instance?.reportId, RequestSubscriber],
   );
 
   const handleSelectSubscriber = (userId: any) => {
@@ -165,7 +181,9 @@ export const ReportEditSubscribersForm = () => {
                   className="request-button"
                   variant="secondary"
                   disabled={!validateEmail(emailForRequest)}
-                  onClick={() => {}}
+                  onClick={async () => {
+                    await addSubscriberRequest(emailForRequest);
+                  }}
                   style={{ backgroundColor: 'transparent' }}
                 >
                   Send Request
