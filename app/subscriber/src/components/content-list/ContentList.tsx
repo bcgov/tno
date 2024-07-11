@@ -13,6 +13,8 @@ import { groupContent } from './utils';
 export interface IContentListProps {
   /** content is an array of content objects to be displayed and manipulated by the content list*/
   content: IContentSearchResult[];
+  /** array of terms to be highlighted in body */
+  highlighTerms?: string[];
   /** array of selected content */
   selected: IContentModel[];
   /** prop to determine whether to style the content based on user settings */
@@ -39,6 +41,7 @@ export interface IContentListProps {
 
 export const ContentList: React.FC<IContentListProps> = ({
   content,
+  highlighTerms,
   selected,
   showDate = false,
   handleDrop,
@@ -137,6 +140,7 @@ export const ContentList: React.FC<IContentListProps> = ({
                     showDate={showDate}
                     showTime={showTime}
                     item={item}
+                    highlighTerms={highlighTerms || []}
                     onCheckboxChange={handleCheckboxChange}
                     filter={filter}
                   />
