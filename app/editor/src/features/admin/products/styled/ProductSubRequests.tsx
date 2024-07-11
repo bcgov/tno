@@ -8,7 +8,7 @@ export const ProductSubRequests = styled.div`
     margin-left: auto;
   }
   .user-row {
-    max-width: 35%;
+    max-width: 30em;
     margin-left: 2em;
   }
   .unsub {

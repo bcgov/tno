@@ -1,7 +1,13 @@
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useProducts } from 'store/hooks/admin';
-import { IProductModel, IUserProductModel, Row, ToggleGroup } from 'tno-core';
+import {
+  IProductModel,
+  IUserProductModel,
+  ReportDistributionFormatName,
+  Row,
+  ToggleGroup,
+} from 'tno-core';
 
 export interface IUserApproveDenyProps {
   user: IUserProductModel;
@@ -17,6 +23,7 @@ export const UserApproveDeny: React.FC<IUserApproveDenyProps> = ({ user, product
     const updatedUser = {
       ...user,
       isSubscribed: !user.isSubscribed,
+      format: ReportDistributionFormatName.FullText,
       requestedIsSubscribedStatus: false,
     };
     // update the product's subscribers list
