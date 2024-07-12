@@ -1,6 +1,5 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
-import { FolderSubMenu } from 'components/folder-sub-menu';
 import { FrontPageGallery } from 'components/front-page-gallery';
 import React from 'react';
 import { useContent, useSettings } from 'store/hooks';
@@ -19,7 +18,6 @@ export const TodaysFrontPages: React.FC = () => {
   const { frontPageImageMediaTypeId } = useSettings(true);
 
   const [frontPages, setFrontPages] = React.useState<IContentModel[]>([]);
-  const [selected] = React.useState<IContentModel[]>([]);
   const [filter, setFilter] = React.useState<IFilterSettingsModel>();
   const [loading, setLoading] = React.useState(false);
   React.useEffect(() => {
@@ -75,7 +73,6 @@ export const TodaysFrontPages: React.FC = () => {
 
   return (
     <styled.TodaysFrontPages>
-      <FolderSubMenu selectedContent={selected} />
       <DateFilter filter={frontPageFilter} storeFilter={storeFilter} />
       <Show visible={loading}>
         <Loading />
