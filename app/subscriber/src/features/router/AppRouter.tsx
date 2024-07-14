@@ -154,7 +154,12 @@ export const AppRouter: React.FC<IAppRouter> = () => {
         />
         <Route
           path="report/instances/:id/view"
-          element={<PrivateRoute claims={Claim.subscriber} element={<ReportView />}></PrivateRoute>}
+          element={
+            <PrivateRoute
+              claims={Claim.subscriber}
+              element={<ReportView regenerate={false} />}
+            ></PrivateRoute>
+          }
         />
         <Route
           path="/impersonation"
