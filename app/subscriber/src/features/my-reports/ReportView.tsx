@@ -5,7 +5,12 @@ import { useReports } from 'store/hooks';
 
 import { ReportInstanceView } from './ReportInstanceView';
 
-export const ReportView = () => {
+export interface IReportViewProps {
+  // Whether to regenerate the report instance.
+  regenerate?: boolean;
+}
+
+export const ReportView: React.FC<IReportViewProps> = ({ regenerate = false }) => {
   const [, { generateReport }] = useReports();
   const { id } = useParams();
 
@@ -36,5 +41,5 @@ export const ReportView = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reportId]);
 
-  return <ReportInstanceView instanceId={instanceId} />;
+  return <ReportInstanceView instanceId={instanceId} regenerate={regenerate} />;
 };

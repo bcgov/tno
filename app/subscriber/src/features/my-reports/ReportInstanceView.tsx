@@ -6,9 +6,14 @@ import { Col, Loading, Show } from 'tno-core';
 export interface IReportInstanceViewProps {
   /** Report instance id. */
   instanceId: number;
+  /** Regenerate report instance */
+  regenerate?: boolean;
 }
 
-export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({ instanceId }) => {
+export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({
+  instanceId,
+  regenerate,
+}) => {
   const [{ viewReportInstance }] = useReportInstances();
   const [{ requests }] = useApp();
   const [{ reportOutput }, { storeReportOutput }] = useProfileStore();
@@ -18,11 +23,11 @@ export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({ instanc
   const handleViewReport = React.useCallback(
     async (instanceId: number) => {
       try {
-        const response = await viewReportInstance(instanceId, true);
+        const response = await viewReportInstance(instanceId, regenerate);
         storeReportOutput({ ...response, instanceId });
       } catch {}
     },
-    [viewReportInstance, storeReportOutput],
+    [viewReportInstance, regenerate, storeReportOutput],
   );
 
   React.useEffect(() => {
