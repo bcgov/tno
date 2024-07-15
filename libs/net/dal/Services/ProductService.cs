@@ -69,21 +69,40 @@ public class ProductService : BaseService<Product, int>, IProductService
     /// </summary>
     /// <param name="filter"></param>
     /// <returns></returns>
-    public IEnumerable<Product> Find(ProductFilter filter)
+    public IEnumerable<Product> Find(ProductFilter? filter = null)
     {
         var query = this.Context.Products
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
             .AsNoTracking();
 
-        if (!String.IsNullOrWhiteSpace(filter.Name))
+        if (!String.IsNullOrWhiteSpace(filter?.Name))
             query = query.Where(r => EF.Functions.Like(r.Name, $"%{filter.Name}%"));
 
-        if (filter.IsPublic.HasValue)
+        if (filter?.IsPublic.HasValue == true)
             query = query.Where(r => r.IsPublic == filter.IsPublic.Value);
 
         // brings back products which the user is subscriber to but are not public
-        if (filter.SubscriberUserId.HasValue)
-            query = query.Where(r => r.SubscribersManyToMany.Any(s => s.UserId == filter.SubscriberUserId.Value && s.IsSubscribed));
+        if (filter?.SubscriberUserId.HasValue == true)
+            query = query.Where(r => r.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == filter.SubscriberUserId.Value));
+
+        if (filter?.Sort?.Any() == true)
+        {
+            query = query.OrderByProperty(filter.Sort.First());
+            foreach (var sort in filter.Sort.Skip(1))
+            {
+                query = query.ThenByProperty(sort);
+            }
+        }
+        else
+            query = query.OrderBy(q => q.SortOrder).OrderBy(u => u.Name);
+
+        if (filter != null && filter.Page.HasValue && filter.Quantity.HasValue)
+        {
+            var skip = (filter.Page.Value - 1) * filter.Quantity.Value;
+            query = query
+                .Skip(skip)
+                .Take(filter.Quantity.Value);
+        }
 
         return query.ToArray();
     }

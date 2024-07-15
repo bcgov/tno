@@ -1,7 +1,10 @@
 using System.Security.Claims;
+using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TNO.DAL.Extensions;
 using TNO.Entities;
+using TNO.Models.Filters;
 
 namespace TNO.DAL.Services;
 
@@ -16,13 +19,47 @@ public class FilterService : BaseService<Filter, int>, IFilterService
     #endregion
 
     #region Methods
-    public IEnumerable<Filter> FindAll()
+    /// <summary>
+    /// Find all filters for the specified filter.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <returns></returns>
+    public IEnumerable<Filter> Find(FilterFilter? filter = null)
     {
-        return this.Context.Filters
+        var query = this.Context.Filters
             .AsNoTracking()
             .Include(f => f.Owner)
-            .OrderBy(a => a.SortOrder).ThenBy(a => a.Name)
-            .ToArray();
+            .AsQueryable();
+
+        var predicate = PredicateBuilder.New<Filter>(true);
+
+        if (!String.IsNullOrWhiteSpace(filter?.Name))
+            predicate = predicate.And(c => EF.Functions.Like(c.Name.ToLower(), $"{filter.Name.ToLower()}%"));
+        if (filter?.OwnerId.HasValue == true)
+            predicate = predicate.And(p => p.OwnerId == filter.OwnerId);
+
+        query = query.Where(predicate);
+
+        if (filter?.Sort?.Any() == true)
+        {
+            query = query.OrderByProperty(filter.Sort.First());
+            foreach (var sort in filter.Sort.Skip(1))
+            {
+                query = query.ThenByProperty(sort);
+            }
+        }
+        else
+            query = query.OrderBy(u => u.Name);
+
+        if (filter != null && filter.Page.HasValue && filter.Quantity.HasValue)
+        {
+            var skip = (filter.Page.Value - 1) * filter.Quantity.Value;
+            query = query
+                .Skip(skip)
+                .Take(filter.Quantity.Value);
+        }
+
+        return query.ToArray();
     }
 
     public override Filter? FindById(int id)
@@ -30,14 +67,6 @@ public class FilterService : BaseService<Filter, int>, IFilterService
         return this.Context.Filters
             .Include(f => f.Owner)
             .FirstOrDefault(f => f.Id == id);
-    }
-
-    public IEnumerable<Filter> FindMyFilters(int userId)
-    {
-        return this.Context.Filters
-            .Where(f => f.OwnerId == userId)
-            .OrderBy(a => a.Name)
-            .ToArray();
     }
     #endregion
 

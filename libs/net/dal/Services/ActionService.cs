@@ -66,11 +66,13 @@ public class ActionService : BaseService<Entities.Action, int>, IActionService
         else
             query = query.OrderBy(c => c.SortOrder).ThenBy(c => c.Name);
 
-        var skip = (filter.Page - 1) * filter.Quantity;
-        query = query.Skip(skip).Take(filter.Quantity);
+        var page = filter.Page ?? 1;
+        var quantity = filter.Quantity ?? 500;
+        var skip = (page - 1) * quantity;
+        query = query.Skip(skip).Take(quantity);
 
         var items = query?.ToArray() ?? Array.Empty<Entities.Action>();
-        return new Paged<Entities.Action>(items, filter.Page, filter.Quantity, total);
+        return new Paged<Entities.Action>(items, page, quantity, total);
     }
 
     /// <summary>

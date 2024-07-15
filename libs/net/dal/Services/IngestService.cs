@@ -108,8 +108,10 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
         else
             query = query.OrderBy(i => i.Name).ThenBy(i => i.IngestTypeId).ThenBy(i => i.IsEnabled);
 
-        var skip = (filter.Page - 1) * filter.Quantity;
-        query = query.Skip(skip).Take(filter.Quantity);
+        var page = filter.Page ?? 1;
+        var quantity = filter.Quantity ?? 500;
+        var skip = (page - 1) * quantity;
+        query = query.Skip(skip).Take(quantity);
 
         var items = query?.ToArray()
             .Select(i =>
@@ -119,7 +121,7 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
                 i.DestinationConnection!.Configuration = JsonDocument.Parse("{}");
                 return i;
             }) ?? Array.Empty<Ingest>();
-        return new Paged<Ingest>(items, filter.Page, filter.Quantity, total);
+        return new Paged<Ingest>(items, page, quantity, total);
     }
 
     /// <summary>

@@ -70,11 +70,13 @@ public class SeriesService : BaseService<Series, int>, ISeriesService
         else
             query = query.OrderBy(c => c.SortOrder).ThenBy(c => c.Name);
 
-        var skip = (filter.Page - 1) * filter.Quantity;
-        query = query.Skip(skip).Take(filter.Quantity);
+        var page = filter.Page ?? 1;
+        var quantity = filter.Quantity ?? 500;
+        var skip = (page - 1) * quantity;
+        query = query.Skip(skip).Take(quantity);
 
         var items = query?.ToArray() ?? Array.Empty<Series>();
-        return new Paged<Series>(items, filter.Page, filter.Quantity, total);
+        return new Paged<Series>(items, page, quantity, total);
     }
 
     /// <summary>
@@ -142,7 +144,8 @@ public class SeriesService : BaseService<Series, int>, ISeriesService
         // get a list of content ids by finding all content records which refer to the fromId
         var contentIdsToUpdate = this.Context.Contents.Where((c) => c.SeriesId == fromId).Select((c) => c.Id).ToList();
         // if there are in fact records to update, update them
-        if (contentIdsToUpdate.Any()) {
+        if (contentIdsToUpdate.Any())
+        {
             this.Context.Contents
                 .Where(f => contentIdsToUpdate.Contains(f.Id))
                 .ExecuteUpdate(f => f.SetProperty(x => x.SeriesId, x => intoId));

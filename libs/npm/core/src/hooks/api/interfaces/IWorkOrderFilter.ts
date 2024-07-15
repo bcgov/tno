@@ -1,6 +1,7 @@
 import { WorkOrderStatusName, WorkOrderTypeName } from '../constants';
+import { ISortPageFilter } from './ISortPageFilter';
 
-export interface IWorkOrderFilter {
+export interface IWorkOrderFilter extends ISortPageFilter {
   keywords?: string;
   isApproved?: boolean;
   status?: WorkOrderStatusName[];
@@ -17,7 +18,4 @@ export interface IWorkOrderFilter {
   updatedOn?: string;
   updatedStartOn?: string;
   updatedEndOn?: string;
-  sort?: string[];
-  page?: number;
-  quantity?: number;
 }

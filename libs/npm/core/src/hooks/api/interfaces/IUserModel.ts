@@ -5,6 +5,7 @@ import {
   IFolderModel,
   INotificationModel,
   IOrganizationModel,
+  IProductModel,
   IReportInstanceModel,
   IReportModel,
   IUserColleagueModel,
@@ -31,6 +32,7 @@ export interface IUserModel extends IAuditColumnsModel {
   note: string;
   roles?: string[];
   organizations?: IOrganizationModel[];
+  products?: IProductModel[];
   folders?: IFolderModel[];
   filters?: IFilterModel[];
   reports?: IReportModel[];

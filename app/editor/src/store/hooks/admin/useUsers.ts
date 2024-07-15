@@ -2,7 +2,7 @@ import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
-import { IPaged, IUserFilter, IUserModel, useApiAdminUsers } from 'tno-core';
+import { IPaged, ITransferAccount, IUserFilter, IUserModel, useApiAdminUsers } from 'tno-core';
 
 interface IUserController {
   findUsers: (filter: IUserFilter, isSilent?: boolean) => Promise<IPaged<IUserModel>>;
@@ -10,6 +10,7 @@ interface IUserController {
   addUser: (model: IUserModel) => Promise<IUserModel>;
   updateUser: (model: IUserModel) => Promise<IUserModel>;
   deleteUser: (model: IUserModel) => Promise<IUserModel>;
+  transferAccount: (model: ITransferAccount) => Promise<IUserModel>;
   storeFilter: (filter: IUserListFilter) => void;
 }
 
@@ -67,6 +68,19 @@ export const useUsers = (): [IAdminState, IUserController] => {
           items: users.items.filter((ds) => ds.id !== response.data.id),
         }));
         await lookup.getLookups();
+        return response.data;
+      },
+      transferAccount: async (model: ITransferAccount) => {
+        const response = await dispatch<IUserModel>('transfer-account', () =>
+          api.transferAccount(model),
+        );
+        store.storeUsers((users) => ({
+          ...users,
+          items: users.items.map((ds) => {
+            if (ds.id === response.data.id) return response.data;
+            return ds;
+          }),
+        }));
         return response.data;
       },
       storeFilter: store.storeUserFilter,

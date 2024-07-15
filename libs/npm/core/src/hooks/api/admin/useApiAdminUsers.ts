@@ -3,7 +3,7 @@ import React from 'react';
 
 import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { IPaged, IUserFilter, IUserModel, useApi } from '..';
+import { IPaged, ITransferAccount, IUserFilter, IUserModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -38,6 +38,12 @@ export const useApiAdminUsers = (
       return api.delete<IUserModel, AxiosResponse<IUserModel>, any>(`/admin/users/${model.id}`, {
         data: model,
       });
+    },
+    transferAccount: (model: ITransferAccount) => {
+      return api.post<ITransferAccount, AxiosResponse<IUserModel>, any>(
+        `/admin/users/transfer`,
+        model,
+      );
     },
   }).current;
 };

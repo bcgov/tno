@@ -101,12 +101,14 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
         else
             query = query.OrderByDescending(c => c.CreatedOn);
 
-        var skip = (filter.Page - 1) * filter.Quantity;
-        query = query.Skip(skip).Take(filter.Quantity);
+        var page = filter.Page ?? 1;
+        var quantity = filter.Quantity ?? 50;
+        var skip = (page - 1) * quantity;
+        query = query.Skip(skip).Take(quantity);
 
         var items = query?.ToArray() ?? Array.Empty<WorkOrder>();
 
-        return new Paged<WorkOrder>(items, filter.Page, filter.Quantity, total);
+        return new Paged<WorkOrder>(items, page, quantity, total);
     }
 
     /// <summary>
@@ -119,33 +121,33 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
         var query =
         from t in
             from w in this.Context.WorkOrders
-             join w2 in
-                 from wo in this.Context.WorkOrders
-                  group wo by wo.ContentId into g
-                  select new
-                  {
-                      ContentId = g.Key,
-                      LatestCreatedOn = g.Max(wo => wo.CreatedOn)
-                  }
-             on new { w.ContentId, w.CreatedOn }
-             equals new { w2.ContentId, CreatedOn = w2.LatestCreatedOn }
-             select new
-             {
-                 w.Id,
-                 w.AssignedId,
-                 w.Configuration,
-                 w.ContentId,
-                 w.CreatedBy,
-                 w.CreatedOn,
-                 w.Description,
-                 w.Note,
-                 w.RequestorId,
-                 w.Status,
-                 w.UpdatedBy,
-                 w.UpdatedOn,
-                 w.Version,
-                 w.WorkType
-             }
+            join w2 in
+                from wo in this.Context.WorkOrders
+                group wo by wo.ContentId into g
+                select new
+                {
+                    ContentId = g.Key,
+                    LatestCreatedOn = g.Max(wo => wo.CreatedOn)
+                }
+            on new { w.ContentId, w.CreatedOn }
+            equals new { w2.ContentId, CreatedOn = w2.LatestCreatedOn }
+            select new
+            {
+                w.Id,
+                w.AssignedId,
+                w.Configuration,
+                w.ContentId,
+                w.CreatedBy,
+                w.CreatedOn,
+                w.Description,
+                w.Note,
+                w.RequestorId,
+                w.Status,
+                w.UpdatedBy,
+                w.UpdatedOn,
+                w.Version,
+                w.WorkType
+            }
         join u in this.Context.Users on t.RequestorId equals u.Id into requestorJoin
         from u in requestorJoin.DefaultIfEmpty()
         join u0 in this.Context.Users on t.AssignedId equals u0.Id into assignedJoin
@@ -159,7 +161,8 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
         join s0 in this.Context.Sources on c.SourceId equals s0.Id into sourceJoin
         from s0 in sourceJoin.DefaultIfEmpty()
         orderby t.CreatedOn descending
-        select new WorkOrderModel {
+        select new WorkOrderModel
+        {
             Id = t.Id,
             WorkType = t.WorkType,
             Status = t.Status,
@@ -167,7 +170,8 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
             Note = t.Note,
             Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(t.Configuration, options) ?? new Dictionary<string, object>(),
             RequestorId = t.RequestorId,
-            Requestor = t.RequestorId != null ? new UserModel {
+            Requestor = t.RequestorId != null ? new UserModel
+            {
                 Id = u.Id,
                 Username = u.Username,
                 Email = u.Email,
@@ -176,7 +180,8 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
                 LastName = u.LastName
             } : null,
             AssignedId = t.AssignedId,
-            Assigned = t.AssignedId != null ? new UserModel {
+            Assigned = t.AssignedId != null ? new UserModel
+            {
                 Id = u0.Id,
                 Username = u0.Username,
                 Email = u0.Email,
@@ -185,7 +190,8 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
                 LastName = u0.LastName
             } : null,
             ContentId = t.ContentId,
-            Content = t.ContentId != null ? new ContentModel {
+            Content = t.ContentId != null ? new ContentModel
+            {
                 Id = c.Id,
                 Headline = c.Headline,
                 OtherSource = c.OtherSource,
@@ -260,12 +266,14 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
         else
             query = query.OrderByDescending(c => c.CreatedOn);
 
-        var skip = (filter.Page - 1) * filter.Quantity;
-        query = query.Skip(skip).Take(filter.Quantity);
+        var page = filter.Page ?? 1;
+        var quantity = filter.Quantity ?? 50;
+        var skip = (page - 1) * quantity;
+        query = query.Skip(skip).Take(quantity);
 
         var items = query?.ToArray() ?? Array.Empty<WorkOrderModel>();
-        
-        return new Paged<WorkOrderModel>(items, filter.Page, filter.Quantity, total);
+
+        return new Paged<WorkOrderModel>(items, page, quantity, total);
     }
 
     /// <summary>

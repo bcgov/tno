@@ -11,14 +11,14 @@ import * as styled from './styled';
 
 export const FilterList: React.FC = () => {
   const navigate = useNavigate();
-  const [{ initialized, filters }, { findAllFilters }] = useFilters();
+  const [{ initialized, filters }, { findFilters }] = useFilters();
   const [{ filterFilter }] = useAdminStore();
 
   const [items, setItems] = React.useState<IFilterModel[]>(filters);
 
   React.useEffect(() => {
     if (!initialized) {
-      findAllFilters().catch(() => {});
+      findFilters({}).catch(() => {});
     }
     // The api will cause a double render because findAllFilters(...) updates the store.
     // eslint-disable-next-line react-hooks/exhaustive-deps

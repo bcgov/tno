@@ -154,5 +154,21 @@ public class UserController : ControllerBase
         await _cssHelper.DeleteUserAsync((User)model);
         return new JsonResult(model);
     }
+
+    /// <summary>
+    /// Transfer ownership or copy an accounts objects to another user.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost("transfer")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "User" })]
+    public IActionResult TransferAccount(TransferAccountModel model)
+    {
+        var result = _userService.TransferAccount(model) ?? throw new NoContentException();
+        return new JsonResult(new UserModel(result, _serializerOptions));
+    }
     #endregion
 }

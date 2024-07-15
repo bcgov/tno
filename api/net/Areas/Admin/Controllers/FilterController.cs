@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
@@ -56,9 +57,12 @@ public class FilterController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<FilterModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Filter" })]
-    public IActionResult FindAll()
+    public IActionResult Find()
     {
-        return new JsonResult(_filterService.FindAll().Select(ds => new FilterModel(ds, _serializerOptions)));
+        var uri = new Uri(this.Request.GetDisplayUrl());
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        var result = _filterService.Find(new TNO.Models.Filters.FilterFilter(query));
+        return new JsonResult(result.Select(ds => new FilterModel(ds, _serializerOptions)));
     }
 
     /// <summary>

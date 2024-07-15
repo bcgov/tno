@@ -1,7 +1,7 @@
+import { FaLink } from 'react-icons/fa';
 import { NavigateOptions, useNavigate } from 'react-router-dom';
 
 import * as styled from './styled';
-import { FaLink } from 'react-icons/fa';
 
 export interface ILinkProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Route to navigate to. */

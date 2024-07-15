@@ -1,7 +1,5 @@
 import 'react-quill/dist/quill.snow.css';
 
-import _ from 'lodash';
-
 import { IContentModel, ITagModel } from '../../../hooks/api';
 import { FormikWysiwyg, IFormikWysiwygProps } from './FormikWysiwyg';
 

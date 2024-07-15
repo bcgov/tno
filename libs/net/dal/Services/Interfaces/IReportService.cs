@@ -6,13 +6,6 @@ namespace TNO.DAL.Services;
 public interface IReportService : IBaseService<Report, int>
 {
     /// <summary>
-    /// Find all reports.
-    /// </summary>
-    /// <param name="populateFullModel"></param>
-    /// <returns></returns>
-    IEnumerable<Report> FindAll(bool populateFullModel = true);
-
-    /// <summary>
     /// Find all reports that match the filter.
     /// </summary>
     /// <param name="filter"></param>

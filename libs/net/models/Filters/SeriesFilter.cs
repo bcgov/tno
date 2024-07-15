@@ -8,8 +8,6 @@ public class SeriesFilter : PageFilter
     #region Properties
     public string? Name { get; set; }
     public string? Description { get; set; }
-    public string[] Sort { get; set; } = Array.Empty<string>();
-
     public bool? IsOther { get; set; }
     #endregion
 
@@ -26,8 +24,6 @@ public class SeriesFilter : PageFilter
         var isOtherValue = filter.GetStringValue(nameof(this.IsOther));
         if (!string.IsNullOrEmpty(isOtherValue))
             this.IsOther = bool.Parse(isOtherValue);
-
-        this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }
     #endregion
 }

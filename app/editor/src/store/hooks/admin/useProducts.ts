@@ -1,10 +1,10 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
-import { IProductModel, useApiAdminProducts } from 'tno-core';
+import { IProductFilter, IProductModel, useApiAdminProducts } from 'tno-core';
 
 interface IProductController {
-  findAllProducts: () => Promise<IProductModel[]>;
+  findProducts: (filter: IProductFilter) => Promise<IProductModel[]>;
   getProduct: (id: number) => Promise<IProductModel>;
   addProduct: (model: IProductModel) => Promise<IProductModel>;
   updateProduct: (model: IProductModel) => Promise<IProductModel>;
@@ -19,9 +19,9 @@ export const useProducts = (): [IAdminState, IProductController] => {
 
   const controller = React.useMemo(
     () => ({
-      findAllProducts: async () => {
-        const response = await dispatch<IProductModel[]>('find-all-products', () =>
-          api.findAllProducts(),
+      findProducts: async (filter: IProductFilter) => {
+        const response = await dispatch<IProductModel[]>('find-products', () =>
+          api.findProducts(filter),
         );
         store.storeProducts(response.data);
         return response.data;

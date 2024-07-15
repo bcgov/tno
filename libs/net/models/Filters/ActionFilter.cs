@@ -8,7 +8,6 @@ public class ActionFilter : PageFilter
     #region Properties
     public string? Name { get; set; }
     public string? Description { get; set; }
-    public string[] Sort { get; set; } = Array.Empty<string>();
     #endregion
 
     #region Constructors
@@ -20,8 +19,6 @@ public class ActionFilter : PageFilter
 
         this.Name = filter.GetStringValue(nameof(this.Name));
         this.Description = filter.GetStringValue(nameof(this.Description));
-
-        this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }
     #endregion
 }
