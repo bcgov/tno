@@ -21,7 +21,7 @@ export const generateTextQuery = (
 
   let fields: string[] = [];
   if (settings.inByline || settings.inStory || settings.inHeadline || settings.inProgram) {
-    if (!!settings.inByline) fields = [...fields, 'byline'];
+    if (!!settings.inByline) fields = [...fields, 'content.contributor.name'];
     if (!!settings.inStory) fields = [...fields, 'summary', 'body'];
     if (!!settings.inHeadline) fields = [...fields, 'headline'];
     if (!!settings.inProgram) fields = [...fields, 'series.name'];

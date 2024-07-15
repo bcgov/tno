@@ -36,7 +36,17 @@ export const generateQueryValues = (
     generateRangeForArrayField('tonePools.value', settings.sentiment),
     actionFilters.length > 1 ? { bool: { should: actionFilters } } : undefined,
     actionFilters.length === 1 ? actionFilters[0] : undefined,
-    generateShouldQuery(['byline', 'headline', 'summary', 'body', 'series.name'], settings),
+    generateTextQuery(settings),
+    generateShouldQuery(
+      ['byline', 'headline', 'summary', 'body', 'series.name'],
+      settings,
+      settings.pressMembers ?? [],
+    ),
+    generateShouldQuery(
+      ['byline', 'headline', 'summary', 'body', 'series.name'],
+      settings,
+      settings.contributorNames ?? [],
+    ),
     settings.edition ? generateTerm('edition', settings.edition) : undefined,
     settings.section ? generateTerm('section', settings.section) : undefined,
     settings.page ? generateTerm('page', settings.page) : undefined,
