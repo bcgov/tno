@@ -15,11 +15,11 @@ export function useSearchPageContext() {
   return context;
 }
 
-interface IProivderProps {
+interface IProviderProps {
   children: ReactNode;
 }
 
-export function SearchPageProvider({ children }: IProivderProps) {
+export function SearchPageProvider({ children }: IProviderProps) {
   const [expanded, setExpanded] = useState<boolean>(true);
 
   const value = { expanded, setExpanded };

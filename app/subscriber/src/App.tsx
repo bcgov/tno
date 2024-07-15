@@ -56,7 +56,7 @@ function App() {
           >
             <ContentListProvider>
               <SearchPageProvider>
-                <AppRouter name={appName} />
+                <AppRouter />
               </SearchPageProvider>
             </ContentListProvider>
           </ReactKeycloakProvider>

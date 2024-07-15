@@ -1,4 +1,4 @@
-import { DefaultLayout } from 'components/layout';
+import { DefaultLayout, LayoutAnonymous } from 'components/layout';
 import { AccessRequest } from 'features/access-request';
 import { FilterMediaLanding } from 'features/filter-media';
 import { Help } from 'features/help';
@@ -20,25 +20,46 @@ import { Claim, InternalServerError, NotFound } from 'tno-core';
 
 import { PrivateRoute } from './PrivateRoute';
 
-export interface IAppRouter {
-  name: string;
-}
-
 /**
  * AppRouter provides a SPA router to manage routes.
  * Renders router when the application has been initialized.
  * @returns AppRouter component.
  */
-export const AppRouter: React.FC<IAppRouter> = () => {
+export const AppRouter: React.FC = () => {
   const [, { authenticated }] = useApp();
   const navigate = useNavigate();
 
   React.useEffect(() => {
     // There is a race condition, when keycloak is ready state related to user claims will not be.
     // Additionally, when the user is not authenticated keycloak also is not initialized (which makes no sense).
-    if (!authenticated && !window.location.pathname.startsWith('/login'))
+    if (
+      !authenticated &&
+      !window.location.pathname.startsWith('/login') &&
+      !window.location.pathname.startsWith('/report/instances')
+    )
       navigate(`/login?redirectTo=${window.location.pathname}`);
   }, [authenticated, navigate]);
+
+  if (!authenticated)
+    return (
+      <Routes>
+        <Route
+          path="/report/instances/:id/view"
+          element={
+            <LayoutAnonymous name={''}>
+              <ReportView regenerate={false} />
+            </LayoutAnonymous>
+          }
+        />
+        <Route path="/" element={<DefaultLayout />}>
+          <Route path="/" element={<Navigate to="/landing/home" />} />
+          <Route path="login" element={<Login />} />
+          <Route path="help" element={<Help />} />
+          <Route path="welcome" element={<AccessRequest />} />
+          <Route path="access/request" element={<AccessRequest />} />
+        </Route>
+      </Routes>
+    );
 
   return (
     <Routes>
@@ -152,15 +173,7 @@ export const AppRouter: React.FC<IAppRouter> = () => {
             <PrivateRoute claims={Claim.subscriber} element={<ReportEditPage />}></PrivateRoute>
           }
         />
-        <Route
-          path="report/instances/:id/view"
-          element={
-            <PrivateRoute
-              claims={Claim.subscriber}
-              element={<ReportView regenerate={false} />}
-            ></PrivateRoute>
-          }
-        />
+        <Route path="report/instances/:id/view" element={<ReportView regenerate={false} />} />
         <Route
           path="/impersonation"
           element={
