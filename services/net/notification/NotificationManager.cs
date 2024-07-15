@@ -321,6 +321,8 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                                 this.Logger.LogInformation("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
                         }
                     }
+
+                    await ResetAlertAsync(content);
                 }
                 else
                 {
@@ -346,6 +348,8 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                                 this.NotificationValidator.Initialize(notification, content);
                                 if (request.IgnoreValidation || await this.NotificationValidator.ConfirmSendAsync())
                                     await SendNotificationAsync(request, notification, content);
+
+                                await ResetAlertAsync(content);
                             }
                         }
                         else
@@ -357,6 +361,21 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                 else
                     this.Logger.LogDebug("Notification does not exist.  Notification: {notification}", request.NotificationId);
             }
+        }
+    }
+
+    /// <summary>
+    /// The alert has been sent, remove the flag from the content so that future alerts can be sent.
+    /// </summary>
+    /// <param name="content"></param>
+    private async Task ResetAlertAsync(API.Areas.Services.Models.Content.ContentModel content)
+    {
+        // The alert has been sent, remove the flag from the content so that future alerts can be sent.
+        var alert = content.Actions.FirstOrDefault(a => a.Id == this.Options.AlertId);
+        if (alert != null && alert.Value == "true")
+        {
+            alert.Value = "false";
+            await this.Api.UpdateContentActionAsync(alert);
         }
     }
 
@@ -424,14 +443,6 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                     Body = body,
                 };
                 await this.Api.AddNotificationInstanceAsync(new API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel(instance, _serializationOptions));
-
-                // The alert has been sent, remove the flag from the content so that future alerts can be sent.
-                var alert = content.Actions.FirstOrDefault(a => a.Id == this.Options.AlertId);
-                if (alert != null && alert.Value == "true")
-                {
-                    alert.Value = "false";
-                    await this.Api.UpdateContentActionAsync(alert);
-                }
             }
         }
         catch (ChesException ex)
