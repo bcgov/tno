@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
@@ -90,7 +91,7 @@ public class ReportInstanceController : ControllerBase
     [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
-    public IActionResult FindById(long id, bool includeContent = false, [FromQuery]DateTime? publishedOn = null)
+    public IActionResult FindById(long id, bool includeContent = false, [FromQuery] DateTime? publishedOn = null)
     {
         var user = _impersonate.GetCurrentUser();
         var instance = publishedOn == null ? _reportInstanceService.FindById(id) : _reportInstanceService.FindInstanceForReportIdAndDate(id, (DateTime)publishedOn);
@@ -173,17 +174,18 @@ public class ReportInstanceController : ControllerBase
     /// <param name="regenerate"></param>
     /// <returns></returns>
     [HttpPost("{id}/view")]
+    [AllowAnonymous]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportResultModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> ViewAsync(int id, bool regenerate = false)
     {
-        var user = _impersonate.GetCurrentUser();
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
 
         if (regenerate || String.IsNullOrWhiteSpace(instance.Body))
         {
+            var user = _impersonate.GetCurrentUser();
             var report = instance.Report ?? throw new NoContentException("Report does not exist");
             if (instance.OwnerId != user.Id && // User does not own the report instance
                 !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
