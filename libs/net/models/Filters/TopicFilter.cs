@@ -13,7 +13,6 @@ public class TopicFilter : PageFilter
     /// get/set - The type of topic (issue, proactive).
     /// </summary>
     public TopicType? TopicType { get; set; }
-    public string[] Sort { get; set; } = Array.Empty<string>();
     #endregion
 
     #region Constructors
@@ -27,8 +26,6 @@ public class TopicFilter : PageFilter
         this.Description = filter.GetStringValue(nameof(this.Description));
 
         this.TopicType = filter.GetEnumNullValue<TopicType>(nameof(this.TopicType));
-
-        this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }
     #endregion
 }

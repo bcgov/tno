@@ -80,10 +80,13 @@ public class SourceService : BaseService<Source, int>, ISourceService
         else
             query = query.OrderBy(s => s.Code).ThenBy(s => s.Name).ThenBy(s => s.IsEnabled);
 
-        var skip = (filter.Page - 1) * filter.Quantity;
-        query = query.Skip(skip).Take(filter.Quantity);
+        var page = filter.Page ?? 1;
+        var quantity = filter.Quantity ?? 500;
+        var skip = (page - 1) * quantity;
+        query = query.Skip(skip).Take(quantity);
+
         var items = query?.ToArray() ?? Array.Empty<Source>();
-        return new Paged<Source>(items, filter.Page, filter.Quantity, total);
+        return new Paged<Source>(items, page, quantity, total);
     }
 
     /// <summary>

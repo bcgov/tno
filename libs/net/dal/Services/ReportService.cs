@@ -42,31 +42,6 @@ public class ReportService : BaseService<Report, int>, IReportService
 
     #region Methods
     /// <summary>
-    /// Find all the reports.
-    /// </summary>
-    /// <param name="populateFullModel"></param>
-    /// <returns></returns>
-    public IEnumerable<Report> FindAll(bool populateFullModel = true)
-    {
-        var query = this.Context.Reports
-            .AsNoTracking()
-            .Include(f => f.Owner)
-            .AsQueryable();
-
-        if (populateFullModel)
-            query = query
-                .Include(r => r.Template).ThenInclude(t => t!.ChartTemplates)
-                .Include(r => r.Sections)
-                .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
-                .Include(r => r.Events).ThenInclude(s => s.Schedule)
-                .AsQueryable();
-
-        return query
-            .OrderBy(r => r.SortOrder).ThenBy(r => r.Name)
-            .ToArray();
-    }
-
-    /// <summary>
     /// Find all reports that match the filter.
     /// </summary>
     /// <param name="filter"></param>
@@ -94,6 +69,8 @@ public class ReportService : BaseService<Report, int>, IReportService
             query = query.Where(r => r.OwnerId == filter.OwnerId || r.IsPublic);
         else if (filter.OwnerId.HasValue)
             query = query.Where(r => r.OwnerId == filter.OwnerId);
+        if (filter.SubscriberUserId.HasValue)
+            query = query.Where(n => n.SubscribersManyToMany.Any(ns => ns.IsSubscribed && ns.UserId == filter.SubscriberUserId.Value));
 
         if (!String.IsNullOrWhiteSpace(filter.Name))
             query = query.Where(r => EF.Functions.Like(r.Name, $"%{filter.Name}%"));
@@ -101,9 +78,26 @@ public class ReportService : BaseService<Report, int>, IReportService
         if (filter.Ids?.Any() == true)
             query = query.Where(r => filter.Ids.Contains(r.Id));
 
-        return query
-            .OrderBy(r => r.SortOrder).ThenBy(r => r.Name)
-            .ToArray();
+        if (filter.Sort?.Any() == true)
+        {
+            query = query.OrderByProperty(filter.Sort.First());
+            foreach (var sort in filter.Sort.Skip(1))
+            {
+                query = query.ThenByProperty(sort);
+            }
+        }
+        else
+            query = query.OrderBy(q => q.SortOrder).ThenBy(u => u.Name);
+
+        if (filter.Page.HasValue && filter.Quantity.HasValue)
+        {
+            var skip = (filter.Page.Value - 1) * filter.Quantity.Value;
+            query = query
+                .Skip(skip)
+                .Take(filter.Quantity.Value);
+        }
+
+        return query.ToArray();
     }
 
     /// <summary>

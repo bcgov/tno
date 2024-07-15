@@ -11,14 +11,14 @@ import * as styled from './styled';
 
 export const FolderList: React.FC = () => {
   const navigate = useNavigate();
-  const [{ initialized, folders }, { findAllFolders }] = useFolders();
+  const [{ initialized, folders }, { findFolders }] = useFolders();
   const [{ folderFilter }] = useAdminStore();
 
   const [items, setItems] = React.useState<IFolderModel[]>(folders);
 
   React.useEffect(() => {
     if (!initialized) {
-      findAllFolders().catch(() => {});
+      findFolders({}).catch(() => {});
     }
     // The api will cause a double render because findAllFolders(...) updates the store.
     // eslint-disable-next-line react-hooks/exhaustive-deps

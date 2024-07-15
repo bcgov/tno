@@ -1,8 +1,10 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
+import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
 import { IProductModel, useApi } from '..';
+import { IProductFilter } from '../interfaces/IProductFilter';
 
 /**
  * Common hook to make requests to the API.
@@ -19,8 +21,9 @@ export const useApiAdminProducts = (
   const api = useApi(options);
 
   return React.useRef({
-    findAllProducts: () => {
-      return api.get<never, AxiosResponse<IProductModel[]>, any>(`/admin/products`);
+    findProducts: (filter: IProductFilter) => {
+      var query = toQueryString(filter);
+      return api.get<never, AxiosResponse<IProductModel[]>, any>(`/admin/products?${query}`);
     },
     getProduct: (id: number) => {
       return api.get<never, AxiosResponse<IProductModel>, any>(`/admin/products/${id}`);

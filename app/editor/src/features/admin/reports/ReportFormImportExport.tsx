@@ -24,8 +24,8 @@ export const ReportFormImportExport: React.FC = () => {
   const { values, setValues } = useFormikContext<IReportModel>();
   const [{ reportTemplates }] = useAdminStore();
   const [, { findAllReportTemplates }] = useReportTemplates();
-  const [{ filters }, { findAllFilters }] = useFilters();
-  const [{ folders }, { findAllFolders }] = useFolders();
+  const [{ filters }, { findFilters }] = useFilters();
+  const [{ folders }, { findFolders }] = useFolders();
   const [rawReport, setRawReport] = React.useState('{}');
 
   const parseImport = React.useCallback(
@@ -56,8 +56,8 @@ export const ReportFormImportExport: React.FC = () => {
 
   React.useEffect(() => {
     if (!reportTemplates.length) findAllReportTemplates();
-    if (!filters.length) findAllFilters();
-    if (!folders.length) findAllFolders();
+    if (!filters.length) findFilters({});
+    if (!folders.length) findFolders({});
     // Only fetch items on initial load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

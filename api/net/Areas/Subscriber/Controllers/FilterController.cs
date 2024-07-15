@@ -84,7 +84,9 @@ public class FilterController : ControllerBase
     public IActionResult FindMyFilters()
     {
         var user = _impersonate.GetCurrentUser();
-        return new JsonResult(_filterService.FindMyFilters(user.Id).Select(ds => new FilterModel(ds, _serializerOptions)));
+        var filter = new TNO.Models.Filters.FilterFilter() { OwnerId = user.Id };
+        var result = _filterService.Find(filter);
+        return new JsonResult(result.Select(ds => new FilterModel(ds, _serializerOptions)));
     }
 
     /// <summary>

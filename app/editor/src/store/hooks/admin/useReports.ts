@@ -2,6 +2,7 @@ import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 import {
+  IReportFilter,
   IReportInstanceModel,
   IReportModel,
   IReportResultModel,
@@ -10,7 +11,7 @@ import {
 } from 'tno-core';
 
 interface IReportController {
-  findAllReports: () => Promise<IReportModel[]>;
+  findReports: (filter: IReportFilter) => Promise<IReportModel[]>;
   findAllReportsHeadersOnly: () => Promise<IReportModel[]>;
   findInstancesForReportId: (id: number, ownerId?: number) => Promise<IReportInstanceModel[]>;
   getReport: (id: number) => Promise<IReportModel>;
@@ -35,9 +36,9 @@ export const useReports = (): [IAdminState & { initialized: boolean }, IReportCo
 
   const controller = React.useMemo(
     () => ({
-      findAllReports: async () => {
-        const response = await dispatch<IReportModel[]>('find-all-reports', () =>
-          api.findAllReports(),
+      findReports: async (filter: IReportFilter) => {
+        const response = await dispatch<IReportModel[]>('find-reports', () =>
+          api.findReports(filter),
         );
         store.storeReports(response.data);
         setInitialized(true);

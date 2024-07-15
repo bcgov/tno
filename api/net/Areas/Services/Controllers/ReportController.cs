@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
@@ -8,7 +9,6 @@ using TNO.API.Areas.Services.Models.Report;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.DAL.Services;
-using TNO.Entities.Models;
 using TNO.Keycloak;
 
 namespace TNO.API.Areas.Services.Controllers;
@@ -48,20 +48,23 @@ public class ReportController : ControllerBase
 
     #region Endpoints
     /// <summary>
-    /// Find a page of content for the specified query filter.
+    /// Find all of the reports for the specified query filter.
     /// </summary>
     /// <returns></returns>
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IPaged<ReportModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IEnumerable<ReportModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult FindAll()
+    public IActionResult Find()
     {
-        return new JsonResult(_service.FindAll().Select(ds => new ReportModel(ds, _serializerOptions)));
+        var uri = new Uri(this.Request.GetDisplayUrl());
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        var result = _service.Find(new TNO.Models.Filters.ReportFilter(query), false);
+        return new JsonResult(result.Select(ds => new ReportModel(ds, _serializerOptions)));
     }
 
     /// <summary>
-    /// Find content for the specified 'id'.
+    /// Find report for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>

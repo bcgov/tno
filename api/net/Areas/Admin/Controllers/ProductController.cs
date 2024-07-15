@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Mime;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Product;
@@ -57,12 +58,14 @@ public class ProductController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<ProductModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Product" })]
-    public IActionResult FindAll()
+    public IActionResult Find()
     {
-        var products = _productService.FindAll();
-        var reportIds = products.Where(p => p.ProductType == Entities.ProductType.Report).Select(p => p.TargetProductId).ToArray();
+        var uri = new Uri(this.Request.GetDisplayUrl());
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        var result = _productService.Find(new TNO.Models.Filters.ProductFilter(query));
+        var reportIds = result.Where(p => p.ProductType == Entities.ProductType.Report).Select(p => p.TargetProductId).ToArray();
         var reports = reportIds.Any() ? _reportService.Find(new TNO.Models.Filters.ReportFilter() { Ids = reportIds }) : Array.Empty<Entities.Report>();
-        return new JsonResult(products.Select(ds => new ProductModel(ds, ds.ProductType == Entities.ProductType.Report ? reports.FirstOrDefault(r => r.Id == ds.TargetProductId) : null)));
+        return new JsonResult(result.Select(ds => new ProductModel(ds, ds.ProductType == Entities.ProductType.Report ? reports.FirstOrDefault(r => r.Id == ds.TargetProductId) : null)));
     }
 
     /// <summary>

@@ -6,9 +6,20 @@ namespace TNO.Models.Filters;
 public abstract class PageFilter
 {
     #region Properties
-    public int Page { get; set; } = 1;
+    /// <summary>
+    /// get/set - The page to start on.
+    /// </summary>
+    public int? Page { get; set; }
 
-    public int Quantity { get; set; } = 10;
+    /// <summary>
+    /// get/set - The number of record to return.
+    /// </summary>
+    public int? Quantity { get; set; }
+
+    /// <summary>
+    /// get/set - An array of property name and the direction to sort by.
+    /// </summary>
+    public string[] Sort { get; set; } = Array.Empty<string>();
     #endregion
 
     #region Constructors
@@ -18,8 +29,10 @@ public abstract class PageFilter
     {
         var filter = new Dictionary<string, StringValues>(queryParams, StringComparer.OrdinalIgnoreCase);
 
-        this.Page = filter.GetIntValue(nameof(this.Page), 1);
-        this.Quantity = filter.GetIntValue(nameof(this.Quantity), 10);
+        this.Page = filter.GetIntNullValue(nameof(this.Page));
+        this.Quantity = filter.GetIntNullValue(nameof(this.Quantity));
+
+        this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }
     #endregion
 }

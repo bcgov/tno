@@ -18,7 +18,6 @@ public class ContentReferenceFilter : PageFilter
     public DateTime? UpdatedOn { get; set; }
     public DateTime? UpdatedStartOn { get; set; }
     public DateTime? UpdatedEndOn { get; set; }
-    public string[] Sort { get; set; } = Array.Empty<string>();
     #endregion
 
     #region Constructors
@@ -42,8 +41,6 @@ public class ContentReferenceFilter : PageFilter
         this.UpdatedOn = filter.GetDateTimeNullValue(nameof(this.UpdatedOn));
         this.UpdatedStartOn = filter.GetDateTimeNullValue(nameof(this.UpdatedStartOn));
         this.UpdatedEndOn = filter.GetDateTimeNullValue(nameof(this.UpdatedEndOn));
-
-        this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }
     #endregion
 }

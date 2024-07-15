@@ -47,7 +47,7 @@ export const UserFormIndirectUser: React.FC = () => {
           label="Email"
           type="email"
           required
-          onChange={(e) => setFieldValue('email', e.currentTarget.value.toUpperCase())}
+          onChange={(e) => setFieldValue('email', e.currentTarget.value)}
         />
         <Row>
           <Col className="form-inputs">

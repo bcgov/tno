@@ -30,6 +30,11 @@ public class ReportFilter : PageFilter
     public bool? IsPublicOrOwner { get; set; }
 
     /// <summary>
+    /// get/set - Only include content owned by this user.
+    /// </summary>
+    public int? SubscriberUserId { get; set; }
+
+    /// <summary>
     /// get/set - An array of report ids to return.
     /// </summary>
     public int[]? Ids { get; set; }
@@ -47,6 +52,7 @@ public class ReportFilter : PageFilter
         this.IsPublic = filter.GetBoolNullValue(nameof(this.IsPublic));
         this.IsPublicOrOwner = filter.GetBoolNullValue(nameof(this.IsPublicOrOwner));
         this.Ids = filter.GetIntArrayValue(nameof(this.Ids));
+        this.SubscriberUserId = filter.GetIntNullValue(nameof(this.SubscriberUserId));
     }
     #endregion
 }

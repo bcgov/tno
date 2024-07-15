@@ -6,6 +6,7 @@ import { useUsers } from 'store/hooks/admin';
 import {
   Button,
   ButtonVariant,
+  Col,
   IconButton,
   IUserModel,
   Modal,
@@ -82,7 +83,7 @@ const UserForm: React.FC = () => {
         }}
       >
         {({ values, isSubmitting }) => (
-          <>
+          <Col>
             <Show visible={values.accountType === UserAccountTypeName.Direct}>
               <UserFormDirectUser />
             </Show>
@@ -105,7 +106,7 @@ const UserForm: React.FC = () => {
                 </Button>
               </Show>
             </Row>
-          </>
+          </Col>
         )}
       </FormikForm>
       <Modal

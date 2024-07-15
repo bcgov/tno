@@ -31,12 +31,12 @@ import { createReportSection } from './utils';
 
 export const ReportFormSections = () => {
   const { values, setFieldValue } = useFormikContext<IReportModel>();
-  const [{ filters }, { findAllFilters }] = useFilters();
-  const [{ folders }, { findAllFolders }] = useFolders();
+  const [{ filters }, { findFilters }] = useFilters();
+  const [{ folders }, { findFolders }] = useFolders();
 
   React.useEffect(() => {
-    if (!filters.length) findAllFilters().catch(() => {});
-    if (!folders.length) findAllFolders().catch(() => {});
+    if (!filters.length) findFilters({}).catch(() => {});
+    if (!folders.length) findFolders({}).catch(() => {});
     // Only fetch items on initial load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

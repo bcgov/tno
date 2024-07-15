@@ -12,17 +12,21 @@ const NotificationList: React.FC = () => {
   const navigate = useNavigate();
   const [{ notifications }, api] = useNotifications();
 
+  const [isReady, setIsReady] = React.useState(false);
   const [items, setItems] = React.useState<INotificationModel[]>([]);
 
   React.useEffect(() => {
-    if (!notifications.length) {
-      api.findAllNotifications().then((data) => {
-        setItems(data);
-      });
+    if (!isReady) {
+      api
+        .findNotifications()
+        .then((data) => {
+          setItems(data);
+        })
+        .finally(() => setIsReady(true));
     } else {
       setItems(notifications);
     }
-  }, [api, notifications]);
+  }, [api, isReady, notifications]);
 
   return (
     <styled.NotificationList>

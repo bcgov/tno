@@ -1,9 +1,11 @@
 using System.Security.Claims;
+using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.Core.Exceptions;
-using TNO.Core.Extensions;
+using TNO.DAL.Extensions;
 using TNO.Entities;
+using TNO.Models.Filters;
 
 namespace TNO.DAL.Services;
 
@@ -21,12 +23,47 @@ public class FolderService : BaseService<Folder, int>, IFolderService
     #endregion
 
     #region Methods
-    public IEnumerable<Folder> FindAll()
+    /// <summary>
+    /// Find all folders that match the filter.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <returns></returns>
+    public IEnumerable<Folder> Find(FolderFilter? filter = null)
     {
-        return this.Context.Folders
+        var query = this.Context.Folders
             .AsNoTracking()
             .Include(f => f.Owner)
-            .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
+            .AsQueryable();
+
+        var predicate = PredicateBuilder.New<Folder>(true);
+
+        if (!String.IsNullOrWhiteSpace(filter?.Name))
+            predicate = predicate.And(c => EF.Functions.Like(c.Name.ToLower(), $"{filter.Name.ToLower()}%"));
+        if (filter?.OwnerId.HasValue == true)
+            predicate = predicate.And(p => p.OwnerId == filter.OwnerId);
+
+        query = query.Where(predicate);
+
+        if (filter?.Sort?.Any() == true)
+        {
+            query = query.OrderByProperty(filter.Sort.First());
+            foreach (var sort in filter.Sort.Skip(1))
+            {
+                query = query.ThenByProperty(sort);
+            }
+        }
+        else
+            query = query.OrderBy(q => q.SortOrder).OrderBy(u => u.Name);
+
+        if (filter != null && filter.Page.HasValue && filter.Quantity.HasValue)
+        {
+            var skip = (filter.Page.Value - 1) * filter.Quantity.Value;
+            query = query
+                .Skip(skip)
+                .Take(filter.Quantity.Value);
+        }
+
+        return query.ToArray();
     }
 
     public override Folder? FindById(int id)
@@ -263,7 +300,7 @@ public class FolderService : BaseService<Folder, int>, IFolderService
     public void CleanFolder(int id)
     {
         var folder = this.Context.Folders.Find(id) ?? throw new NoContentException();
-        var keepAgeLimit = folder.Settings.GetElementValue<int>(".keepAgeLimit", 0);
+        var keepAgeLimit = TNO.Core.Extensions.JsonDocumentExtensions.GetElementValue<int>(folder.Settings, ".keepAgeLimit", 0);
         var now = DateTime.Now;
         now = new DateTime(now.Year, now.Month, now.Day).AddDays(keepAgeLimit * -1);  // Full days rather than compared to when the process runs.
 

@@ -19,7 +19,7 @@ const ProductList: React.FC = () => {
     if (!products.length && !isReady) {
       setIsReady(true);
       api
-        .findAllProducts()
+        .findProducts({})
         .then((data) => {
           setItems(data);
         })

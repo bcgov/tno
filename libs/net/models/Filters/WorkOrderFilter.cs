@@ -89,11 +89,6 @@ public class WorkOrderFilter : PageFilter
     /// get/set - Only include work order updated on or before this date.
     /// </summary>
     public DateTime? UpdatedEndOn { get; set; }
-
-    /// <summary>
-    /// get/set - Sort the work order in the specified order.
-    /// </summary>
-    public string[] Sort { get; set; } = Array.Empty<string>();
     #endregion
 
     #region Constructors
@@ -131,8 +126,6 @@ public class WorkOrderFilter : PageFilter
         this.MediaTypeIds = filter.GetIntArrayValue(nameof(this.MediaTypeIds));
         this.SeriesIds = filter.GetIntArrayValue(nameof(this.SeriesIds));
         this.SourceIds = filter.GetIntArrayValue(nameof(this.SourceIds));
-
-        this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }
     #endregion
 }

@@ -85,13 +85,15 @@ public class UserService : BaseService<User, int>, IUserService
         else
             query = query.OrderBy(u => u.Status).OrderBy(u => u.LastName).ThenBy(u => u.FirstName).ThenBy(u => u.Username);
 
-        var skip = (filter.Page - 1) * filter.Quantity;
+        var page = filter.Page ?? 1;
+        var quantity = filter.Quantity ?? 500;
+        var skip = (page - 1) * quantity;
         query = query
             .Skip(skip)
-            .Take(filter.Quantity);
+            .Take(quantity);
 
         var items = query?.ToArray() ?? Array.Empty<User>();
-        return new Paged<User>(items, filter.Page, filter.Quantity, total);
+        return new Paged<User>(items, page, quantity, total);
     }
 
     public override User? FindById(int id)
@@ -217,6 +219,262 @@ public class UserService : BaseService<User, int>, IUserService
             result = result.Where(predicate);
         }
         return result.OrderBy(a => a.Username).ThenBy(a => a.LastName).ThenBy(a => a.FirstName);
+    }
+
+    /// <summary>
+    /// Transfer the ownership of the specified account objects to the specified user.
+    /// Or copy the specified account objects to the specified user.
+    /// </summary>
+    /// <param name="account"></param>
+    /// <returns></returns>
+    public User? TransferAccount(API.Areas.Admin.Models.User.TransferAccountModel account)
+    {
+        var user = this.FindById(account.ToAccountId);
+
+        if (account.TransferOwnership)
+        {
+            foreach (var transfer in account.Notifications.Where(t => t.Checked))
+            {
+                var item = this.Context.Notifications.FirstOrDefault(n => n.Id == transfer.OriginalId);
+                if (item != null)
+                {
+                    var subscriptions = this.Context.UserNotifications.Where(un => un.NotificationId == transfer.OriginalId && (un.UserId == account.ToAccountId || un.UserId == account.FromAccountId));
+                    var isToSubscribed = subscriptions.Any(s => s.UserId == account.ToAccountId);
+                    var fromSubscription = subscriptions.FirstOrDefault(s => s.UserId == account.FromAccountId);
+                    if (!isToSubscribed)
+                    {
+                        this.Context.Add(new UserNotification(account.ToAccountId, transfer.OriginalId, true, null));
+                    }
+                    if (fromSubscription != null)
+                    {
+                        this.Context.Remove(fromSubscription);
+                    }
+                    if (!transfer.SubscribeOnly)
+                    {
+                        // Transfer the ownership of the object to the new account.
+                        if (!String.IsNullOrWhiteSpace(transfer.NewName) && transfer.NewName != item.Name) item.Name = transfer.NewName;
+                        item.OwnerId = account.ToAccountId;
+                        this.Context.Update(item);
+                    }
+                }
+            }
+            foreach (var transfer in account.Reports.Where(t => t.Checked))
+            {
+                var item = this.Context.Reports.FirstOrDefault(n => n.Id == transfer.OriginalId);
+                if (item != null)
+                {
+                    var subscriptions = this.Context.UserReports.Where(un => un.ReportId == transfer.OriginalId && (un.UserId == account.ToAccountId || un.UserId == account.FromAccountId));
+                    var isToSubscribed = subscriptions.Any(s => s.UserId == account.ToAccountId);
+                    var fromSubscription = subscriptions.FirstOrDefault(s => s.UserId == account.FromAccountId);
+                    if (!isToSubscribed)
+                    {
+                        this.Context.Add(new UserReport(account.ToAccountId, transfer.OriginalId, true));
+                    }
+                    if (fromSubscription != null)
+                    {
+                        this.Context.Remove(fromSubscription);
+                    }
+                    if (!transfer.SubscribeOnly)
+                    {
+                        // Transfer the ownership of the object to the new account.
+                        if (!String.IsNullOrWhiteSpace(transfer.NewName) && transfer.NewName != item.Name) item.Name = transfer.NewName;
+                        item.OwnerId = account.ToAccountId;
+                        this.Context.Update(item);
+                    }
+                }
+            }
+            foreach (var transfer in account.Products.Where(t => t.Checked))
+            {
+                var item = this.Context.Products.FirstOrDefault(n => n.Id == transfer.OriginalId);
+                if (item != null)
+                {
+                    var subscriptions = this.Context.UserProducts.Where(un => un.ProductId == transfer.OriginalId && (un.UserId == account.ToAccountId || un.UserId == account.FromAccountId));
+                    var isToSubscribed = subscriptions.Any(s => s.UserId == account.ToAccountId);
+                    var fromSubscription = subscriptions.FirstOrDefault(s => s.UserId == account.FromAccountId);
+                    if (!isToSubscribed)
+                    {
+                        this.Context.Add(new UserProduct(account.ToAccountId, transfer.OriginalId, true));
+                    }
+                    if (fromSubscription != null)
+                    {
+                        this.Context.Remove(fromSubscription);
+                    }
+                }
+            }
+            foreach (var transfer in account.Filters.Where(t => t.Checked))
+            {
+                var item = this.Context.Filters.FirstOrDefault(n => n.Id == transfer.OriginalId);
+                if (item != null)
+                {
+                    // Transfer the ownership of the object to the new account.
+                    if (!String.IsNullOrWhiteSpace(transfer.NewName) && transfer.NewName != item.Name) item.Name = transfer.NewName;
+                    item.OwnerId = account.ToAccountId;
+                    this.Context.Update(item);
+                }
+            }
+            foreach (var transfer in account.Folders.Where(t => t.Checked))
+            {
+                var item = this.Context.Folders.FirstOrDefault(n => n.Id == transfer.OriginalId);
+                if (item != null)
+                {
+                    // Transfer the ownership of the object to the new account.
+                    if (!String.IsNullOrWhiteSpace(transfer.NewName) && transfer.NewName != item.Name) item.Name = transfer.NewName;
+                    item.OwnerId = account.ToAccountId;
+                    this.Context.Update(item);
+                }
+            }
+
+            // Transfer history to new account.
+            if (account.IncludeHistory)
+            {
+                var sqlParams = new object[] {
+                    new Npgsql.NpgsqlParameter("fromAccountId", account.FromAccountId),
+                    new Npgsql.NpgsqlParameter("toAccountId", account.ToAccountId),
+                };
+                this.Context.Database.ExecuteSqlRaw(
+                    @$"UPDATE public.""notification_instance""
+                    SET ""owner_id"" = @toAccountId
+                    WHERE ""owner_id"" = @fromAccountId;", sqlParams);
+                this.Context.Database.ExecuteSqlRaw(
+                    @$"UPDATE public.""report_instance""
+                    SET ""owner_id"" = @toAccountId
+                    WHERE ""owner_id"" = @fromAccountId;", sqlParams);
+            }
+        }
+        else
+        {
+            var folders = new Dictionary<int, Folder>();
+            var filters = new Dictionary<int, Filter>();
+            var reports = new Dictionary<int, Report>();
+
+            // Copy the objects.  This requires remapping foreign keys.
+            foreach (var copy in account.Notifications.Where(t => t.Checked))
+            {
+                var item = this.Context.Notifications
+                    .Include(n => n.Schedules)
+                    .ThenInclude(s => s.Schedule)
+                    .Include(n => n.SubscribersManyToMany)
+                    .FirstOrDefault(n => n.Id == copy.OriginalId);
+                if (item != null)
+                {
+                    if (copy.SubscribeOnly && !item.SubscribersManyToMany.Any(ns => ns.UserId == account.ToAccountId))
+                    {
+                        // Only subscribe if not already subscribed.
+                        this.Context.Add(new UserNotification(account.ToAccountId, copy.OriginalId, true, null));
+                    }
+                    else if (!copy.SubscribeOnly)
+                    {
+                        // Copy the object to the new account.
+                        var newItem = new Notification(item, account.ToAccountId)
+                        {
+                            Name = !String.IsNullOrWhiteSpace(copy.NewName) && copy.NewName != item.Name ? copy.NewName! : item.Name,
+                        };
+                        this.Context.Add(newItem);
+                    }
+                }
+            }
+            foreach (var copy in account.Products.Where(t => t.Checked))
+            {
+                var item = this.Context.Products.FirstOrDefault(n => n.Id == copy.OriginalId);
+                if (item != null)
+                {
+                    var isToSubscribed = this.Context.UserProducts.Any(un => un.ProductId == copy.OriginalId && (un.UserId == account.ToAccountId));
+                    if (!isToSubscribed)
+                    {
+                        this.Context.Add(new UserProduct(account.ToAccountId, copy.OriginalId, true));
+                    }
+                }
+            }
+            foreach (var copy in account.Filters.Where(t => t.Checked))
+            {
+                var item = this.Context.Filters
+                    .FirstOrDefault(n => n.Id == copy.OriginalId);
+                if (item != null)
+                {
+                    if (!copy.SubscribeOnly)
+                    {
+                        // Copy the object to the new account.
+                        var newItem = new Filter(item, account.ToAccountId)
+                        {
+                            Name = !String.IsNullOrWhiteSpace(copy.NewName) && copy.NewName != item.Name ? copy.NewName! : item.Name,
+                        };
+                        filters.Add(copy.OriginalId, newItem);
+                        this.Context.Add(newItem);
+                    }
+                }
+            }
+            foreach (var copy in account.Folders.Where(t => t.Checked))
+            {
+                var item = this.Context.Folders
+                    .Include(f => f.ContentManyToMany)
+                    .FirstOrDefault(n => n.Id == copy.OriginalId);
+                if (item != null)
+                {
+                    if (!copy.SubscribeOnly)
+                    {
+                        var linkedFilter = item.FilterId.HasValue && filters.TryGetValue(item.FilterId.Value, out Filter? filter) ? filter : null;
+                        // Copy the object to the new account.
+                        var newItem = new Folder(item, account.ToAccountId, linkedFilter)
+                        {
+                            Name = !String.IsNullOrWhiteSpace(copy.NewName) && copy.NewName != item.Name ? copy.NewName! : item.Name,
+                        };
+                        folders.Add(copy.OriginalId, newItem);
+                        this.Context.Add(newItem);
+                    }
+                }
+            }
+            foreach (var copy in account.Reports.Where(t => t.Checked))
+            {
+                var item = this.Context.Reports
+                    .Include(r => r.Sections)
+                    .Include(n => n.SubscribersManyToMany)
+                    .FirstOrDefault(n => n.Id == copy.OriginalId);
+                if (item != null)
+                {
+                    if (copy.SubscribeOnly && !item.SubscribersManyToMany.Any(ns => ns.UserId == account.ToAccountId))
+                    {
+                        this.Context.Add(new UserReport(account.ToAccountId, copy.OriginalId, true));
+                    }
+                    else if (!copy.SubscribeOnly)
+                    {
+                        // Copy the object to the new account.
+                        var newItem = new Report(item, account.ToAccountId)
+                        {
+                            Name = !String.IsNullOrWhiteSpace(copy.NewName) && copy.NewName != item.Name ? copy.NewName! : item.Name,
+                        };
+                        reports.Add(copy.OriginalId, newItem);
+                        this.Context.Add(newItem);
+                    }
+                }
+            }
+            // Must reiterate through reports to remap linked reports within sections.
+            foreach (var copy in reports.Values)
+            {
+                foreach (var section in copy.Sections)
+                {
+                    // Remap the filter/folder/report in each section.
+                    if (section.FilterId.HasValue && filters.TryGetValue(section.FilterId.Value, out Filter? filter))
+                    {
+                        section.FilterId = filter.Id;
+                        section.Filter = filter;
+                    }
+                    if (section.FolderId.HasValue && folders.TryGetValue(section.FolderId.Value, out Folder? folder))
+                    {
+                        section.FolderId = folder.Id;
+                        section.Folder = folder;
+                    }
+                    if (section.LinkedReportId.HasValue && reports.TryGetValue(section.LinkedReportId.Value, out Report? report))
+                    {
+                        section.LinkedReportId = report.Id;
+                        section.LinkedReport = report;
+                    }
+                }
+            }
+        }
+
+        this.CommitTransaction();
+
+        return user;
     }
     #endregion
 }

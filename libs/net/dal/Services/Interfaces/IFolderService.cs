@@ -1,11 +1,12 @@
 using TNO.Entities;
+using TNO.Models.Filters;
 
 namespace TNO.DAL.Services;
 
 public interface IFolderService : IBaseService<Folder, int>
 {
     IEnumerable<Folder> FindMyFolders(int userId);
-    IEnumerable<Folder> FindAll();
+    IEnumerable<Folder> Find(FolderFilter? filter = null);
     Folder? FindById(int id, bool includeContent = false);
     IEnumerable<FolderContent> GetContentInFolder(int folderId);
     void RemoveContentFromFolders(long contentId);

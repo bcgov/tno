@@ -19,6 +19,16 @@ public class NotificationFilter : PageFilter
     /// get/set - The notification type.
     /// </summary>
     public NotificationType? NotificationType { get; set; }
+
+    /// <summary>
+    /// get/set - The owner of the notification.
+    /// </summary>
+    public int? OwnerId { get; set; }
+
+    /// <summary>
+    /// get/set - Only include content owned by this user.
+    /// </summary>
+    public int? SubscriberUserId { get; set; }
     #endregion
 
     #region Constructors
@@ -30,6 +40,8 @@ public class NotificationFilter : PageFilter
 
         this.AlertOnIndex = filter.GetBoolNullValue(nameof(this.AlertOnIndex));
         this.NotificationType = filter.GetEnumNullValue<NotificationType>(nameof(this.NotificationType));
+        this.OwnerId = filter.GetIntNullValue(nameof(this.OwnerId));
+        this.SubscriberUserId = filter.GetIntNullValue(nameof(this.SubscriberUserId));
     }
     #endregion
 }

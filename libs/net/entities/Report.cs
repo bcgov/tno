@@ -117,5 +117,47 @@ public class Report : BaseType<int>
         this.OwnerId = ownerId;
         this.TemplateId = templateId;
     }
+
+    /// <summary>
+    /// Creates a new instance of a Report object, initializes with specified parameters.
+    /// Make certain the linked filters/folders/reports within each section are pointing to the correct objects.
+    /// </summary>
+    /// <param name="report"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="filter"></param>
+    public Report(Report report, int ownerId)
+    {
+        this.Name = report.Name;
+        this.Description = report.Description;
+        this.IsEnabled = report.IsEnabled;
+        this.OwnerId = ownerId;
+        this.Settings = report.Settings;
+        this.SortOrder = report.SortOrder;
+        this.TemplateId = report.TemplateId;
+        this.IsPublic = report.IsPublic;
+        this.SubscribersManyToMany.AddRange(report.SubscribersManyToMany.Select(s => new UserReport(s.UserId, 0, true)));
+        this.Sections.AddRange(report.Sections.Select(s =>
+        {
+            var section = new ReportSection(s.Name, s.SectionType, 0)
+            {
+                Description = s.Description,
+                FilterId = s.FilterId,
+                FolderId = s.FolderId,
+                LinkedReportId = s.LinkedReportId,
+                IsEnabled = s.IsEnabled,
+                Settings = s.Settings,
+                SortOrder = s.SortOrder,
+            };
+            section.ChartTemplatesManyToMany.AddRange(s.ChartTemplatesManyToMany.Select((ct =>
+            {
+                var chartTemplate = new ReportSectionChartTemplate(0, ct.ChartTemplateId, ct.SortOrder)
+                {
+                    Settings = ct.Settings,
+                };
+                return chartTemplate;
+            })));
+            return section;
+        }));
+    }
     #endregion
 }

@@ -55,11 +55,13 @@ public class TopicService : BaseService<Topic, int>, ITopicService
         else
             query = query.OrderBy(a => a.TopicType).ThenBy(c => c.SortOrder).ThenBy(c => c.Name);
 
-        var skip = (filter.Page - 1) * filter.Quantity;
-        query = query.Skip(skip).Take(filter.Quantity);
+        var page = filter.Page ?? 1;
+        var quantity = filter.Quantity ?? 500;
+        var skip = (page - 1) * quantity;
+        query = query.Skip(skip).Take(quantity);
 
         var items = query?.ToArray() ?? Array.Empty<Topic>();
-        return new Paged<Topic>(items, filter.Page, filter.Quantity, total);
+        return new Paged<Topic>(items, page, quantity, total);
     }
     #endregion
 }

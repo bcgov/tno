@@ -18,7 +18,6 @@ public class UserFilter : PageFilter
     public Entities.UserStatus? Status { get; set; }
     public bool? IsSystemAccount { get; set; }
     public Entities.UserAccountType[] AccountTypes { get; set; } = Array.Empty<Entities.UserAccountType>();
-    public string[] Sort { get; set; } = Array.Empty<string>();
     public string? Keyword { get; set; }
     public string? RoleName { get; set; }
 
@@ -43,8 +42,6 @@ public class UserFilter : PageFilter
         this.AccountTypes = filter.GetEnumArrayValue<Entities.UserAccountType>(nameof(this.AccountTypes));
         this.Keyword = filter.GetStringValue(nameof(this.Keyword));
         this.RoleName = filter.GetStringValue(nameof(this.RoleName));
-
-        this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }
     #endregion
 }

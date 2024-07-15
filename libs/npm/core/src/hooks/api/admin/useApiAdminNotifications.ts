@@ -1,8 +1,9 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
+import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { INotificationModel, INotificationResultModel, useApi } from '..';
+import { INotificationFilter, INotificationModel, INotificationResultModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -19,8 +20,11 @@ export const useApiAdminNotifications = (
   const api = useApi(options);
 
   return React.useRef({
-    findAllNotifications: () => {
-      return api.get<never, AxiosResponse<INotificationModel[]>, any>(`/admin/notifications`);
+    findNotifications: (filter?: INotificationFilter) => {
+      var query = toQueryString(filter ?? {});
+      return api.get<never, AxiosResponse<INotificationModel[]>, any>(
+        `/admin/notifications?${query}`,
+      );
     },
     getNotification: (id: number) => {
       return api.get<never, AxiosResponse<INotificationModel>, any>(`/admin/notifications/${id}`);

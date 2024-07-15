@@ -32,7 +32,7 @@ import { createSchedule, getFilterOptions } from './utils';
 
 export const FolderFormCollect: React.FC = () => {
   const { values, setFieldValue, setValues } = useFormikContext<IFolderForm>();
-  const [{ filters }, { findAllFilters }] = useFilters();
+  const [{ filters }, { findFilters }] = useFilters();
   const [, { findContentWithElasticsearch }] = useContent();
 
   const [filterOptions, setFilterOptions] = React.useState(
@@ -42,13 +42,13 @@ export const FolderFormCollect: React.FC = () => {
 
   React.useEffect(() => {
     if (!filters.length) {
-      findAllFilters()
+      findFilters({})
         .then((filters) => {
           setFilterOptions(getFilterOptions(filters, values.filterId));
         })
         .catch(() => {});
     }
-  }, [filters, findAllFilters, values.filterId]);
+  }, [filters, findFilters, values.filterId]);
 
   const handleRun = React.useCallback(
     async (filter: IFilterModel) => {

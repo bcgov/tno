@@ -1,8 +1,9 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
+import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { IFolderContentModel, IFolderModel, useApi } from '..';
+import { IFolderContentModel, IFolderFilter, IFolderModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -19,8 +20,9 @@ export const useApiAdminFolders = (
   const api = useApi(options);
 
   return React.useRef({
-    findAllFolders: () => {
-      return api.get<never, AxiosResponse<IFolderModel[]>, any>(`/admin/folders`);
+    findFolders: (filter?: IFolderFilter) => {
+      var query = toQueryString(filter ?? {});
+      return api.get<never, AxiosResponse<IFolderModel[]>, any>(`/admin/folders?${query}`);
     },
     getContentInFolder: (id: number, includeMaxTopicScore: boolean = false) => {
       return api.get<never, AxiosResponse<IFolderContentModel[]>, any>(

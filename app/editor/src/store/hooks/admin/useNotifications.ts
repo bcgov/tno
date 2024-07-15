@@ -1,10 +1,15 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
-import { INotificationModel, INotificationResultModel, useApiAdminNotifications } from 'tno-core';
+import {
+  INotificationFilter,
+  INotificationModel,
+  INotificationResultModel,
+  useApiAdminNotifications,
+} from 'tno-core';
 
 interface INotificationController {
-  findAllNotifications: () => Promise<INotificationModel[]>;
+  findNotifications: (filter?: INotificationFilter) => Promise<INotificationModel[]>;
   getNotification: (id: number) => Promise<INotificationModel>;
   addNotification: (model: INotificationModel) => Promise<INotificationModel>;
   updateNotification: (model: INotificationModel) => Promise<INotificationModel>;
@@ -28,9 +33,9 @@ export const useNotifications = (): [IAdminState, INotificationController] => {
 
   const controller = React.useMemo(
     () => ({
-      findAllNotifications: async () => {
-        const response = await dispatch<INotificationModel[]>('find-all-Notifications', () =>
-          api.findAllNotifications(),
+      findNotifications: async (filter?: INotificationFilter) => {
+        const response = await dispatch<INotificationModel[]>('find-Notifications', () =>
+          api.findNotifications(filter),
         );
         store.storeNotifications(response.data);
         return response.data;

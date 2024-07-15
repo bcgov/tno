@@ -52,7 +52,7 @@ export const ProductDetailsForm: React.FC = () => {
           break;
         case ProductTypeName.Notification:
           // set using notifications
-          apiNotifications.findAllNotifications().then((data) => {
+          apiNotifications.findNotifications().then((data) => {
             setTargetProductOptions(data.map((s) => new OptionItem(s.name, s.id)));
           });
           break;
