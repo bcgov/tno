@@ -3,6 +3,8 @@ import { useApp, useReportInstances } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 import { Col, Loading, Show } from 'tno-core';
 
+import * as styled from './styled';
+
 export interface IReportInstanceViewProps {
   /** Report instance id. */
   instanceId: number;
@@ -39,7 +41,7 @@ export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({
   }, [instanceId, reportOutput]);
 
   return (
-    <div className="preview-section">
+    <styled.ReportInstanceView className="preview-section">
       <Show visible={isLoading}>
         <Loading />
       </Show>
@@ -53,6 +55,6 @@ export const ReportInstanceView: React.FC<IReportInstanceViewProps> = ({
           dangerouslySetInnerHTML={{ __html: reportOutput?.body ?? '' }}
         ></div>
       </Col>
-    </div>
+    </styled.ReportInstanceView>
   );
 };
