@@ -12,6 +12,7 @@ export interface IFilterSettingsModel {
   contentIds?: number[];
   contentTypes?: ContentTypeName[];
   contributorIds?: number[];
+  contributorNames?: string[];
   edition?: string;
   headline?: string;
   summary?: string;
