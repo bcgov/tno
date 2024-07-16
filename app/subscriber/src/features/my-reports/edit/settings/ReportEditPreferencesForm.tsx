@@ -250,7 +250,6 @@ export const ReportEditPreferencesForm = () => {
               checked={values.settings.doNotSendEmail}
               onChange={(e) => {
                 setFieldValue('settings.doNotSendEmail', e.target.checked);
-                // console.log('testReport', values, e.target.checked);
               }}
             />
           </Col>
