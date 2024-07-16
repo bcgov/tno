@@ -13,6 +13,7 @@ import { ReportView } from 'features/my-reports';
 import { ReportEditPage } from 'features/my-reports/edit';
 import { SearchPage } from 'features/search-page';
 import { SettingsLanding } from 'features/settings';
+import { TranscriptionRequest } from 'features/transcription-request';
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useApp } from 'store/hooks';
@@ -35,7 +36,8 @@ export const AppRouter: React.FC = () => {
     if (
       !authenticated &&
       !window.location.pathname.startsWith('/login') &&
-      !window.location.pathname.startsWith('/report/instances')
+      !window.location.pathname.startsWith('/report/instances') &&
+      !window.location.pathname.startsWith('/transcribe')
     )
       navigate(`/login?redirectTo=${window.location.pathname}`);
   }, [authenticated, navigate]);
@@ -48,6 +50,14 @@ export const AppRouter: React.FC = () => {
           element={
             <LayoutAnonymous name={''}>
               <ReportView regenerate={false} />
+            </LayoutAnonymous>
+          }
+        />
+        <Route
+          path="/transcribe/:id"
+          element={
+            <LayoutAnonymous name={''}>
+              <TranscriptionRequest />
             </LayoutAnonymous>
           }
         />
@@ -183,6 +193,7 @@ export const AppRouter: React.FC = () => {
             <PrivateRoute claims={Claim.administrator} element={<Impersonation />}></PrivateRoute>
           }
         />
+        <Route path="/transcribe/:id" element={<TranscriptionRequest />} />
         <Route path="error" element={<InternalServerError />} />
         <Route path="*" element={<NotFound />} />
       </Route>

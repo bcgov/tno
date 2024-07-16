@@ -14,11 +14,12 @@ export const TranscriptionRequest: React.FC = () => {
         <img alt="MMI Logo" className="app-logo" src="/assets/MMinsights_logo_dark_text.svg" />
         <Row className="containing-row">
           <Col className="main-box">
-            <p className="top-bar-box">Transcription Requested</p>
+            <hr />
+            <p className="top-bar-box">The transcript request has been submitted.</p>
             <div className={'containing-box'}>
               <Col className="message-box">
-                <h1>Please wait while your user information is being set up.</h1>
-                <h2>You will be redirected automatically.</h2>
+                You will receive an email to let you know when the transcript has been prepared and
+                is ready to view.
               </Col>
             </div>
           </Col>
