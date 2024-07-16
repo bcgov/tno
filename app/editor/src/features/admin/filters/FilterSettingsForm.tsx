@@ -161,6 +161,11 @@ export const FilterSettingsForm: React.FC<IFilterSEttingsFormProps> = ({
           label="Story text"
           onChange={(e) => updateSettings('inStory', e.target.checked)}
         />
+        <FormikCheckbox
+          name={`${path}inProgram`}
+          label="Program"
+          onChange={(e) => updateSettings('inProgram', e.target.checked)}
+        />
       </Row>
       <Row nowrap>
         <Col>

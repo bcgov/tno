@@ -1,4 +1,3 @@
-import { IFilterSettingsModel } from '../../hooks';
 import { generateMatchPhrase } from './generateMatchPhrase';
 /**
  * Generates an Elasticsearch query based on specified 'query'.
