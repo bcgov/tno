@@ -3,10 +3,14 @@ import styled from 'styled-components';
 export const TranscriptionRequest = styled.div`
   position: relative;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: auto;
   background: ${(props) => props.theme.css.bkPrimary};
   width: 100%;
-  height: 100dvh;
+  height: 100%;
+
+  hr {
+    width: 100%;
+  }
 
   .containing-row {
     overflow-x: auto;
@@ -44,15 +48,9 @@ export const TranscriptionRequest = styled.div`
   }
 
   .containing-box {
-    padding: 2%;
     display: flex;
-    justify-content: center;
     max-height: fit-content;
     overflow: hidden;
-    @media (max-width: 1550px) {
-      display: inline-block;
-      margin-left: 5em;
-    }
   }
 
   .mm-logo {
@@ -74,33 +72,25 @@ export const TranscriptionRequest = styled.div`
 
   .main-box {
     margin-left: auto;
-    box-shadow: 0px 2px 6px #0000000a;
-    background-color: #ffffff;
     max-height: fit-content;
     margin-right: auto;
     overflow: hidden;
     width: 110em;
-    @media (min-width: 850px) {
-      max-width: 70em;
-    }
-    @media (max-width: 1550px) {
-      min-width: 50em;
-      margin-left: 1%;
-      margin-bottom: 1%;
-    }
-    @media (min-width: 1450px) {
-      max-width: 130em;
-    }
     .top-bar-box {
       margin: 0;
-      background-color: ${(props) => props.theme.css.dialogBoxBkPrimary};
-      color: white;
       padding: 0.5em;
+      font-size: 18px;
+      line-height: 22px;
+      letter-spacing: 0em;
+      font-weight: bold;
+    }
+    .message-box {
+      padding: 0.5em;
+      margin: 0;
       font-size: 18px;
       font-weight: 400;
       line-height: 22px;
       letter-spacing: 0em;
-      text-align: center;
     }
   }
 `;
