@@ -11,12 +11,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetEnv" Version="2.5.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.5" />
+    <PackageReference Include="DotNetEnv" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.20" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="7.0.0" />
-    <PackageReference Include="Confluent.Kafka" Version="2.3.0" />
+    <PackageReference Include="Confluent.Kafka" Version="2.5.0" />
     <PackageReference Include="FTTLib.dll" Version="1.1.5" />
-    <PackageReference Include="SSH.NET" Version="2020.0.2" />
+    <PackageReference Include="SSH.NET" Version="2024.1.0" />
   </ItemGroup>
 
   <ItemGroup>

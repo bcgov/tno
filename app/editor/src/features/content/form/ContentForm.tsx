@@ -110,7 +110,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const { isShowing: showTranscribeModal, toggle: toggleTranscribe } = useModal();
   const { isShowing: showNLPModal, toggle: toggleNLP } = useModal();
 
-  const [size, setSize] = React.useState(1); // TODO: change this to use css media types instead.
+  const [size, setSize] = React.useState(1);
   const [active, setActive] = React.useState('summary');
   const [allowPublishWithoutFile, setAllowPublishWithoutFile] = React.useState(false);
   const [, setClipErrors] = React.useState<string>('');
