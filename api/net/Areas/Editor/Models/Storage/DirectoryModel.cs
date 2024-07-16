@@ -83,7 +83,7 @@ public class DirectoryModel
     /// </summary>
     /// <param name="files"></param>
     /// <param name="isLocal"></param>
-    public DirectoryModel(IEnumerable<Renci.SshNet.Sftp.SftpFile> files, bool isLocal = false)
+    public DirectoryModel(IEnumerable<Renci.SshNet.Sftp.ISftpFile> files, bool isLocal = false)
     {
         var result = new List<ItemModel>();
         foreach (var file in files.Where(f => !f.IsDirectory || !f.Name.StartsWith(".")))

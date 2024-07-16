@@ -266,12 +266,12 @@ public class ImageAction : IngestAction<ImageOptions>
     /// </summary>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    private static async Task<IEnumerable<SftpFile>> FetchImagesAsync(SftpClient client, string remoteFullName)
+    private static async Task<IEnumerable<ISftpFile>> FetchImagesAsync(SftpClient client, string remoteFullName)
     {
         // TODO: use private keys in ./keys folder to connect to remote ingest.
         // TODO: Fetch image from source data location.  Only continue if the image exists.
         // TODO: Eventually handle different ingest locations based on config.
-        return await Task.Factory.FromAsync<IEnumerable<SftpFile>>((callback, obj) => client.BeginListDirectory(remoteFullName, callback, obj), client.EndListDirectory, null);
+        return await Task.Factory.FromAsync<IEnumerable<ISftpFile>>((callback, obj) => client.BeginListDirectory(remoteFullName, callback, obj), client.EndListDirectory, null);
     }
 
     /// <summary>

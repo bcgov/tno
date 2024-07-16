@@ -199,6 +199,8 @@ export const useContentForm = ({
   React.useEffect(() => {
     if (!!id && +id > 0) {
       fetchContent(+id);
+    } else if (!id || +id === 0) {
+      setForm((values) => ({ ...defaultFormValues(values.contentType) }));
     }
   }, [id, fetchContent]);
 
@@ -219,7 +221,6 @@ export const useContentForm = ({
 
   const setAvStream = React.useCallback(() => {
     if (!!path) {
-      console.debug('file changed', path);
       getStream(path)
         .then((result) => {
           setStream(

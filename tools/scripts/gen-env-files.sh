@@ -264,7 +264,13 @@ CSS__ApiUrl=http://host.docker.internal:$portCssApi/api
 CSS__Authority=http://host.docker.internal:$portCssApi
 CSS__TokenPath=/api/v1/token
 CSS__ClientId=service-account-team-795-4127
-CSS__Secret={GET KEYCLOAK tno-service-account CLIENT SECRET}" >> ./api/net/.env
+CSS__Secret={GET KEYCLOAK tno-service-account CLIENT SECRET}
+
+CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
+CHES__Username={GET CHES USERNAME}
+CHES__Password={GET CHES PASSWORD}
+CHES__EmailAuthorized=true" >> ./api/net/.env
     echo "./api/net/.env created"
 fi
 
