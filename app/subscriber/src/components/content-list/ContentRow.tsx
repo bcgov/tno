@@ -172,7 +172,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
       />
       <Row>
         {viewOptions.teaser && (!!item.body || !!item.summary) && (
-          <>
+          <div className="teaser">
             {bodyTermHighlighted.length > 0 ? (
               bodyTermHighlighted.map((part, index) => (
                 <React.Fragment key={index}>{part}</React.Fragment>
@@ -180,7 +180,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
             ) : (
               <div className="teaser-content">{body}</div>
             )}
-          </>
+          </div>
         )}
         <Show visible={!!activeStream?.source && activeStream.id === item.id}>
           <Col className="media-playback">
