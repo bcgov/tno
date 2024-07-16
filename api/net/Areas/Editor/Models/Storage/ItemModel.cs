@@ -81,7 +81,7 @@ public class ItemModel
     /// </summary>
     /// <param name="file"></param>
     /// <param name="isLocal"></param>
-    public ItemModel(Renci.SshNet.Sftp.SftpFile file, bool isLocal = false)
+    public ItemModel(Renci.SshNet.Sftp.ISftpFile file, bool isLocal = false)
     {
         this.IsLocal = isLocal;
         this.Name = file.Name;

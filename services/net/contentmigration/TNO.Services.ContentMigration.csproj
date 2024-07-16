@@ -17,9 +17,9 @@
   <ItemGroup>
     <PackageReference Include="LinqKit" Version="1.2.4" />
     <PackageReference Include="System.CommandLine.DragonFruit" Version="0.3.0-alpha.20070.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.20" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
-    <PackageReference Include="Oracle.EntityFrameworkCore" Version="7.21.9" />
+    <PackageReference Include="Oracle.EntityFrameworkCore" Version="7.21.13" />
   </ItemGroup>
 
   <ItemGroup>
