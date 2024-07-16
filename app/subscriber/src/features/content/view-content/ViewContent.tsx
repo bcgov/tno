@@ -244,7 +244,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
   hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrder);
 
   //Remove HTML tags, square brackets and line breaks before comparison.
-  //const cleanString = (str: string | undefined) => str?.replace(/<[^>]*>?|\[|\]|\n/gm, '').trim();
+  const cleanString = (str: string | undefined) => str?.replace(/<[^>]*>?|\[|\]|\n/gm, '').trim();
 
   const formattedHeadline = React.useMemo(
     () => formatSearch(content?.headline ?? '', filter),
@@ -259,19 +259,17 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
     [content?.summary, filter],
   );
 
-  //const cleanBody = cleanString(content?.body);
-  //const cleanSummary = cleanString(content?.summary);
+  const cleanBody = cleanString(content?.body);
+  const cleanSummary = cleanString(content?.summary);
 
-  //Return true if difference between length of cleanBody & cleanSummary is greater than 10%
-  /*const isDifferent = React.useMemo(() => {
+  //Return true if length of cleanBody & cleanSummary is not same, or one of them does not exist
+  const isDifferent = React.useMemo(() => {
     if (cleanBody === undefined || cleanSummary === undefined) {
-      return false; // If either cleanBody or cleanSummary is undefined, return false
+      return true; // If either cleanBody or cleanSummary is undefined, return true
     }
-
-    const difference = Math.abs((cleanBody.length ?? 0) - (cleanSummary.length ?? 0));
-    const maxLength = Math.max(cleanBody.length ?? 0, cleanSummary.length ?? 0);
-    return difference > maxLength * threshold;
-  }, [cleanBody, cleanSummary]); */
+    if (cleanBody.length !== cleanSummary.length) return true;
+    if (cleanBody === cleanSummary) return false;
+  }, [cleanBody, cleanSummary]);
 
   return (
     <styled.ViewContent>
@@ -339,7 +337,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
         </Row>
       </Show>
       <Row id="summary" className="summary">
-        <Show visible={isAV && !!content?.summary && !isTranscribing}>
+        <Show visible={isAV && !!content?.summary && !isTranscribing && isDifferent}>
           <Col>
             <span>{formattedSummary}</span>
             <Show visible={!!content?.sourceUrl}>
