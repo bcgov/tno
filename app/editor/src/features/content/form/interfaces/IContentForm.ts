@@ -24,6 +24,7 @@ export interface IContentForm
   workOrders: IWorkOrderModel[];
   quotes: IQuoteModel[];
   publishedOnTime: string;
+  postedOnTime?: string;
   file?: File | null;
   prep?: number;
   // Print Content

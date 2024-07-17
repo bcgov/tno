@@ -350,7 +350,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
         // If we don't clear the prior report we must append new content to it.
         var currentSectionContent = new Dictionary<string, ReportSectionModel>();
-        if (reportInstanceModel != null && !report.Settings.Content.ClearOnStartNewReport)
+        if (reportInstanceModel != null && !reportInstanceModel.SentOn.HasValue && !report.Settings.Content.ClearOnStartNewReport)
         {
             // Extract the section content from the current instance.
             currentSectionContent = sections.ToDictionary(s => s.Name, section =>
