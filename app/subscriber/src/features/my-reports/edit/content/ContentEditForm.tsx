@@ -32,7 +32,6 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
     const { values, onNavigate, isSubmitting, setSubmitting, setValues, activeRow, setActiveRow } =
       useReportEditContext();
 
-    console.log(values);
     const [form, setForm] = React.useState<IReportInstanceContentForm | undefined>(activeRow);
     const [errors, setErrors] = React.useState<IContentValidationErrors>();
 
