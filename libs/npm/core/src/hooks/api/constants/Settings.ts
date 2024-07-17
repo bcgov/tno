@@ -35,6 +35,8 @@ export const Settings = {
   FrontPageImageMediaType: 'FrontPageImageMediaTypeId',
   /** Media types that displays a new window on search results */
   SearchPageResultsNewWindow: 'SearchPageResultsNewWindow',
+  /** Media Types not considering source_type_search_mapping table */
+  MediaTypesAllSources: 'MediaTypesAllSources',
   /** The action id for featured content */
   FeaturedAction: 'FeaturedActionId',
   /** The action id for top story content */
