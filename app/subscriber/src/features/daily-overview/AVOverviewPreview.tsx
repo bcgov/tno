@@ -136,10 +136,6 @@ const AVOverviewPreview: React.FC = () => {
         <DateFilter filter={avOverviewFilter} storeFilter={storeFilter} />
         <Show visible={!isLoading && !!isPublished && !!reactElements}>
           <Col className="preview-report">
-            <div className="danger">
-              This TNO product is intended only for the use of the person to whom it is addressed.
-              Please do not forward or redistribute.{' '}
-            </div>
             <div className="preview-body">{reactElements}</div>
           </Col>
         </Show>
