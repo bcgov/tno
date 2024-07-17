@@ -3,6 +3,51 @@ import styled from 'styled-components';
 import { IWysiwygProps } from '../Wysiwyg';
 
 export const Wysiwyg = styled.div<IWysiwygProps>`
+  .ql-custom {
+    width: 25em;
+    .ql-picker-label:before,
+    .ql-picker-item:before {
+      content: attr(data-label);
+    }
+  }
+  .content-menu {
+    b {
+      border-bottom: 1px solid;
+      margin-bottom: 0.5em;
+    }
+
+    z-index: 1000;
+    position: absolute;
+    margin-top: 1.5em;
+    background-color: white;
+    border: 1px solid black;
+    padding: 0.5em;
+    .exit {
+      margin-left: auto;
+      &:hover {
+        cursor: pointer;
+        transform: scale(1.1);
+      }
+    }
+    .content-option {
+      &:hover {
+        cursor: pointer;
+        background-color: #f0f0f0;
+      }
+      margin-bottom: 0.25em;
+    }
+  }
+
+  .add-button {
+    border: 1px solid;
+    padding: 0.35em 0.25em 0.25em 0.25em;
+    border-radius: 0.5em;
+    cursor: pointer;
+    &:hover {
+      background-color: #f0f0f0;
+    }
+  }
+
   padding-right: 0.5rem;
   padding-bottom: 0.5rem;
 
