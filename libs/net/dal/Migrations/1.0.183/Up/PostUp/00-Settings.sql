@@ -12,8 +12,8 @@ INSERT INTO public."setting" (
   , "created_by"
   , "updated_by"
 ) VALUES (
-  'MediaTypesAllSources' -- name
-  , 'These media types will not consider source_media_type_search_mapping table and filter just by Media Type, not considering sources in filter.' -- description
+  'MediaTypesIdsAllSources' -- name
+  , 'These Media Type Ids will not consider source_media_type_search_mapping table and filter just by Media Type, not considering sources in filter.' -- description
   , '1,2,3,4,5,6,10'
   , true -- is_enabled
   , 0 -- sort_order

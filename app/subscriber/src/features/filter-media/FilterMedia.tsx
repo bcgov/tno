@@ -4,8 +4,8 @@ import { DateFilter } from 'components/date-filter';
 import { ContentListActionBar } from 'components/tool-bar';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import React from 'react';
-import { useContent, useLookup } from 'store/hooks';
-import { generateQuery, IContentModel, Loading, Settings, Show } from 'tno-core';
+import { useContent, useSettings } from 'store/hooks';
+import { generateQuery, IContentModel, Loading, Show } from 'tno-core';
 
 import { PreviousResults } from './PreviousResults';
 import * as styled from './styled';
@@ -21,16 +21,12 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({ loaded }) => {
     },
     { findContentWithElasticsearch, storeMediaTypeFilter: storeFilter },
   ] = useContent();
-  const [{ settings }] = useLookup();
+  const { mediaTypesIdsAllSources } = useSettings();
 
   const [currDateResults, setCurrDateResults] = React.useState<IContentSearchResult[]>([]);
   const [prevDateResults, setPrevDateResults] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
-
-  const MediaTypeAllSourcesIds = React.useMemo(() => {
-    return settings.find((setting) => setting.name === Settings.MediaTypesAllSources)?.value;
-  }, [settings]);
 
   const fetchResults = React.useCallback(
     async (requestFilter: MsearchMultisearchBody) => {
@@ -39,11 +35,12 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({ loaded }) => {
       const currStartDate = new Date(filter.startDate);
       const prevStartDate = new Date(currStartDate.getTime() - 5 * dayInMillis);
       const currEndDate = new Date(currStartDate.getTime() + dayInMillis - 1);
-      const mediaTypeIds = filter.mediaTypeIds?.toString() || '';
       const query = generateQuery({
         ...filter,
         mediaTypeIds: filter.mediaTypeIds ?? [],
-        sourceIds: MediaTypeAllSourcesIds?.includes(mediaTypeIds) ? [] : filter.sourceIds ?? [],
+        sourceIds: mediaTypesIdsAllSources?.some((id) => filter.mediaTypeIds?.includes(id))
+          ? []
+          : filter.sourceIds ?? [],
         seriesIds: filter.seriesIds ?? [],
         startDate: prevStartDate.toISOString(),
         endDate: currEndDate.toISOString(),

@@ -34,6 +34,15 @@ export const useSettings = (validate?: boolean) => {
       const eventOfTheDayReportId = settings.find(
         (s) => s.name === Settings.EventOfTheDayReport,
       )?.value;
+      const mediaTypesIds = settings.find(
+        (s) => s.name === Settings.MediaTypesIdsAllSources,
+      )?.value;
+      const mediaTypesIdsAllSourcesArray: number[] =
+        typeof mediaTypesIds === 'string'
+          ? mediaTypesIds.split(',').map(Number)
+          : Array.isArray(mediaTypesIds)
+          ? mediaTypesIds
+          : [];
       storeValues({
         loadingState: 1,
         isReady,
@@ -51,6 +60,7 @@ export const useSettings = (validate?: boolean) => {
           ? +frontPageImageMediaTypeId
           : undefined,
         eventOfTheDayReportId: eventOfTheDayReportId ? +eventOfTheDayReportId : undefined,
+        mediaTypesIdsAllSources: mediaTypesIdsAllSourcesArray ?? [],
       });
     }
   }, [values.loadingState, isReady, settings, storeValues]);
@@ -94,6 +104,12 @@ export const useSettings = (validate?: boolean) => {
 
       if (!values.eventOfTheDayReportId)
         toast.error(`Configuration "${Settings.EventOfTheDayReport}" is missing from settings.`);
+
+      if (!values.mediaTypesIdsAllSources)
+        toast.error(
+          `Configuration "${Settings.MediaTypesIdsAllSources}" is missing from settings.`,
+        );
+
       storeLoading(2);
     }
   }, [
@@ -112,6 +128,7 @@ export const useSettings = (validate?: boolean) => {
     values.excludeSourceIds,
     values.eventOfTheDayReportId,
     values.frontPageImageMediaTypeId,
+    values.mediaTypesIdsAllSources,
   ]);
 
   return values;
