@@ -178,14 +178,14 @@ public class WorkOrderController : ControllerBase
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public async Task<IActionResult> RequestAnonymousTranscriptionAsync(long contentId, int uid)
     {
+        var redirectUrl = _apiOptions.SubscriberAppUrl + "/transcribe/" + contentId;
         var user = _userService.FindById(uid) ?? throw new NotAuthorizedException("User is missing");
         var content = _contentService.FindById(contentId, true) ?? throw new NoContentException();
         if (content.Source?.DisableTranscribe == true) return BadRequest("Cannot request transcription");
         if (content.IsApproved || content.ContentType != Entities.ContentType.AudioVideo || !content.FileReferences.Any())
         {
             // The transcript has already been approved, do not allow new requests.
-            // TODO: Respond differently depending on whether the transcript has already been completed.
-            return new OkResult();
+            return RedirectPermanent(redirectUrl + "?requested=true");
         }
         else
         {
@@ -208,7 +208,7 @@ public class WorkOrderController : ControllerBase
             }
 
             // TODO: Respond differently depending on whether the transcript has already been completed.
-            return new OkResult();
+            return RedirectPermanent(redirectUrl);
         }
     }
     #endregion

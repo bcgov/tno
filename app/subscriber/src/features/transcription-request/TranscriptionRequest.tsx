@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Col, Row } from 'tno-core';
 
 import * as styled from './styled';
@@ -8,6 +9,8 @@ import * as styled from './styled';
  * @returns Access request page.
  */
 export const TranscriptionRequest: React.FC = () => {
+  const [params] = useSearchParams();
+  const requested = params.get('requested');
   return (
     <styled.TranscriptionRequest>
       <Col>
@@ -15,7 +18,11 @@ export const TranscriptionRequest: React.FC = () => {
         <Row className="containing-row">
           <Col className="main-box">
             <hr />
-            <p className="top-bar-box">The transcript request has been submitted.</p>
+            <p className="top-bar-box">
+              {!requested
+                ? 'The transcript request has been submitted.'
+                : 'The transcript has already been requested.'}
+            </p>
             <div className={'containing-box'}>
               <Col className="message-box">
                 You will receive an email to let you know when the transcript has been prepared and
