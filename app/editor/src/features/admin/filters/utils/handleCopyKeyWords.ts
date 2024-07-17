@@ -1,8 +1,8 @@
 import { toast } from 'react-toastify';
 
-export const handleCopyKeyWords = (event: any, cell: any) => {
-  navigator.clipboard.writeText(cell.original.settings!.search);
-  // animate the clipboar icon to show something happened
+export const handleCopyKeyWords = (event: any, keywords: any) => {
+  navigator.clipboard.writeText(keywords);
+  // animate the clipboard icon to show something happened
   event.target.classList.toggle('animate');
   setTimeout(() => {
     event.target.classList.toggle('animate');

@@ -6,7 +6,7 @@ export const columns: ITableHookColumn<ISourceModel>[] = [
     accessor: 'name',
     width: 3,
     cell: (cell) => (
-      <Link to={`${cell.original.id}`}>
+      <Link to={`/admin/sources/${cell.original.id}`}>
         <CellEllipsis>{cell.original.name}</CellEllipsis>
       </Link>
     ),
