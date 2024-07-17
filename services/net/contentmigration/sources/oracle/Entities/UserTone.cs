@@ -5,6 +5,7 @@ namespace TNO.Services.ContentMigration.Sources.Oracle;
 /// <summary>
 /// UsersTones class, provides an entity to store News Item Tone records in the database.
 /// </summary>
+[Table("USERS_TONES")]
 public class UserTone
 {
     /// <summary>

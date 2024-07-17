@@ -109,6 +109,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const { isShowing: showDeleteModal, toggle: toggleDelete } = useModal();
   const { isShowing: showTranscribeModal, toggle: toggleTranscribe } = useModal();
   const { isShowing: showNLPModal, toggle: toggleNLP } = useModal();
+  const refForm = React.useRef<HTMLDivElement>(null);
 
   const [size, setSize] = React.useState(1);
   const [active, setActive] = React.useState('summary');
@@ -123,6 +124,9 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
   const [seriesOtherOptions, setSeriesOtherOptions] = React.useState<IOptionItem[]>([]);
   const [seriesOtherCreated, setSeriesOtherCreated] = React.useState<string>('');
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const showPostedOn = ['', 'true'].includes(urlParams.get('showPostedOn') ?? 'false');
 
   React.useEffect(() => {
     setSeriesOptions(
@@ -142,7 +146,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
   }, [series, seriesOtherCreated]);
 
   return (
-    <styled.ContentForm className="content-form fvh">
+    <styled.ContentForm className="content-form fvh" ref={refForm}>
       <FormPage className="fvh">
         <Area className="area fvh">
           <FormikForm
@@ -161,7 +165,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
 
               return (
                 <Col className="content-col fvh">
-                  <ContentFormToolBar fetchContent={fetchContent} combinedPath={combinedPath} />
+                  <ContentFormToolBar
+                    fetchContent={fetchContent}
+                    combinedPath={combinedPath}
+                    ref={refForm}
+                  />
                   <FormikHidden name="uid" formNoValidate />
                   <Row alignItems="flex-start" className="content-details fvh">
                     <Show visible={size === 0}>
@@ -475,6 +483,85 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                       );
                                       props.setFieldValue(
                                         'publishedOnTime',
+                                        moment(date).format('HH:mm:ss'),
+                                      );
+                                    }
+                                  }}
+                                />
+                              </Show>
+                              <Show visible={showPostedOn}>
+                                <FormikDatePicker
+                                  name="postedOn"
+                                  label="Posted On"
+                                  autoComplete="false"
+                                  width={FieldSize.Medium}
+                                  selectedDate={
+                                    !!props.values.postedOn
+                                      ? moment(props.values.postedOn).toString()
+                                      : undefined
+                                  }
+                                  value={
+                                    !!props.values.postedOn
+                                      ? moment(props.values.postedOn).format('MMM D, yyyy')
+                                      : ''
+                                  }
+                                  onChange={(date) => {
+                                    if (!!props.values.postedOnTime) {
+                                      const hours = props.values.postedOnTime?.split(':');
+                                      if (!!hours && !!date) {
+                                        date.setHours(
+                                          Number(hours[0]),
+                                          Number(hours[1]),
+                                          Number(hours[2]),
+                                        );
+                                      }
+                                    }
+                                    props.setFieldValue(
+                                      'postedOn',
+                                      moment(date).format('MMM D, yyyy HH:mm:ss'),
+                                    );
+                                  }}
+                                />
+                                <TimeInput
+                                  name="postedOnTime"
+                                  label="Time"
+                                  disabled={!props.values.postedOn}
+                                  width="7em"
+                                  value={!!props.values.postedOn ? props.values.postedOnTime : ''}
+                                  placeholder={
+                                    !!props.values.postedOn ? props.values.postedOnTime : 'HH:MM:SS'
+                                  }
+                                  onBlur={(e) => {
+                                    if (e.target.value.indexOf('_')) {
+                                      e.target.value = e.target.value.replaceAll('_', '0');
+                                    }
+                                    const date = setTime(
+                                      props.values.postedOn ?? '',
+                                      e.target.value,
+                                    );
+                                    if (!!date) {
+                                      props.setFieldValue(
+                                        'postedOn',
+                                        moment(date).format('MMM D, yyyy HH:mm:ss'),
+                                      );
+                                      props.setFieldValue(
+                                        'postedOnTime',
+                                        moment(date).format('HH:mm:ss'),
+                                      );
+                                    }
+                                  }}
+                                  onChange={(e) => {
+                                    const date = setTime(
+                                      props.values.postedOn ?? '',
+                                      e.target.value,
+                                    );
+                                    if (!!date) {
+                                      props.setFieldValue(
+                                        'postedOn',
+                                        moment(date).format('MMM D, yyyy HH:mm:ss'),
+                                      );
+                                      props.setFieldValue(
+                                        'postedOnTime',
                                         moment(date).format('HH:mm:ss'),
                                       );
                                     }

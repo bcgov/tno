@@ -58,7 +58,7 @@ public static class JsonDocumentExtensions
         var json = JsonNode.Parse(query.ToJson())?.AsObject();
         if (json == null || previousInstancePublishedOn == null) return query;
 
-        var jIncludeOnlyLatestPosted = JsonNode.Parse($"{{ \"range\": {{ \"postedOn\": {{ \"gte\": \"{previousInstancePublishedOn.Value.ToLocalTime():yyyy-MM-ddTHH:mm:ss}\", \"time_zone\": \"US/Pacific\" }} }} }}");
+        var jIncludeOnlyLatestPosted = JsonNode.Parse($"{{ \"range\": {{ \"postedOn\": {{ \"gte\": \"{previousInstancePublishedOn.Value:yyyy-MM-ddTHH:mm:ssZ}\", \"time_zone\": \"US/Pacific\" }} }} }}");
         if (json.TryGetPropertyValue("query", out JsonNode? jQuery))
         {
             if (jQuery?.AsObject().TryGetPropertyValue("bool", out JsonNode? jQueryBool) == true)
