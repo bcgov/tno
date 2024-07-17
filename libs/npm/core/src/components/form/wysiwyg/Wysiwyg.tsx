@@ -159,7 +159,6 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
   const onChangeContentSelect = (value: IUrlOption) => {
     if (!quill.current) return;
     try {
-      console.log('trying to insert text:', value);
       const editor = quill.current.getEditor();
       const selection = editor.getSelection();
       const index = selection ? selection.index : 0;
