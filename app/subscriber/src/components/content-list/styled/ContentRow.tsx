@@ -6,6 +6,12 @@ export const ContentRow = styled(Col)`
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
   border-bottom: 1px solid ${(props) => props.theme.css.bkStaticGray};
+  a:link {
+    color: ${(props) => props.theme.css.linkPrimaryColor};
+  }
+  a:visited {
+    color: ${(props) => props.theme.css.linkVisited};
+  }
 
   .attributes {
     .attr:not(:last-child)::after {
