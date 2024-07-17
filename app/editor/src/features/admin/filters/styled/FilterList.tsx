@@ -23,10 +23,6 @@ export const FilterList = styled.div`
     }
   }
 
-  .table {
-    max-height: calc(100% - 120px);
-    min-height: 200px;
-  }
   .keyword-cell {
     display: flex;
     align-items: center;
@@ -41,6 +37,18 @@ export const FilterList = styled.div`
 
     &:hover .clipboard-icon {
       opacity: 1;
+    }
+  }
+
+  .grid {
+    min-height: 200px;
+
+    .grid-column {
+      overflow: hidden;
+
+      &:nth-child(5n + 5) {
+        justify-content: center;
+      }
     }
   }
 `;

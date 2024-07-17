@@ -1,4 +1,3 @@
-import { FaLink } from 'react-icons/fa';
 import { NavigateOptions, useNavigate } from 'react-router-dom';
 
 import * as styled from './styled';
@@ -23,7 +22,7 @@ export const Link: React.FC<ILinkProps> = ({
   options,
   className,
   children,
-  icon = <FaLink />,
+  icon,
   onClick,
   ...rest
 }) => {

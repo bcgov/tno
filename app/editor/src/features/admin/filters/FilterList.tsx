@@ -1,13 +1,25 @@
 import { FormPage } from 'components/formpage';
 import React from 'react';
+import { FaRegClipboard } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { useFilters } from 'store/hooks/admin';
 import { useAdminStore } from 'store/slices';
-import { Col, FlexboxTable, IconButton, IFilterModel, Row } from 'tno-core';
+import {
+  CellCheckbox,
+  CellEllipsis,
+  Col,
+  Grid,
+  IconButton,
+  IFilterModel,
+  Link,
+  Row,
+  SortDirection,
+} from 'tno-core';
 
-import { filterColumns } from './constants';
 import { ListFilter } from './ListFilter';
 import * as styled from './styled';
+import { handleCopyKeyWords } from './utils/handleCopyKeyWords';
+import { truncateString } from './utils/truncateString';
 
 export const FilterList: React.FC = () => {
   const navigate = useNavigate();
@@ -15,10 +27,11 @@ export const FilterList: React.FC = () => {
   const [{ filterFilter }] = useAdminStore();
 
   const [items, setItems] = React.useState<IFilterModel[]>(filters);
+  const [sort, setSort] = React.useState('name');
 
   React.useEffect(() => {
     if (!initialized) {
-      findFilters({}).catch(() => {});
+      findFilters({ sort: [sort] }).catch(() => {});
     }
     // The api will cause a double render because findAllFilters(...) updates the store.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -43,6 +56,22 @@ export const FilterList: React.FC = () => {
     }
   }, [filters, filterFilter]);
 
+  React.useEffect(() => {
+    setItems((items) => {
+      if (!sort) return items;
+      const parts = sort.split(' ');
+      const desc = parts.length === 2 ? parts[1] === SortDirection.Descending : false;
+      return [...items].sort((a, b) => {
+        if (!sort) return 0;
+        const aValue = (a as any)[parts[0]];
+        const bValue = (b as any)[parts[0]];
+        if (aValue < bValue) return desc ? 1 : -1;
+        if (aValue > bValue) return desc ? -1 : 1;
+        return 0;
+      });
+    });
+  }, [sort]);
+
   return (
     <styled.FilterList>
       <FormPage>
@@ -55,13 +84,40 @@ export const FilterList: React.FC = () => {
           />
         </Row>
         <ListFilter onFilterChange={(filter) => {}} />
-        <FlexboxTable
-          rowId="id"
-          data={items}
-          columns={filterColumns}
-          showSort={true}
-          onRowClick={(row) => navigate(`${row.original.id}`)}
-          pagingEnabled={false}
+        <Grid
+          items={items}
+          onSortChange={async (column, direction) => {
+            if (direction === SortDirection.None) setSort('name');
+            else setSort(`${column.name} ${direction}`);
+          }}
+          renderHeader={() => [
+            { name: 'name', label: 'Name', sortable: true },
+            { name: 'description', label: 'Description', sortable: true },
+            { name: 'ownerId', label: 'Owner', sortable: true },
+            { name: 'keywords', label: 'Keywords', sortable: false },
+            { name: 'isEnabled', label: 'Enabled', size: '120px', sortable: true },
+          ]}
+          renderColumns={(row: IFilterModel, rowIndex) => [
+            <CellEllipsis key="1">
+              <Link to={`/admin/filters/${row.id}`}>{row.name}</Link>
+            </CellEllipsis>,
+            <CellEllipsis key="2">{row.description}</CellEllipsis>,
+            <CellEllipsis key="3">{row.owner?.username}</CellEllipsis>,
+            <div key="4" className="keyword-cell">
+              <CellEllipsis>{truncateString(row.settings?.search)}</CellEllipsis>
+              {row.settings?.search ? (
+                <FaRegClipboard
+                  className="clipboard-icon"
+                  title="Copy keywords to clipboard"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCopyKeyWords(e, row.settings.search);
+                  }}
+                />
+              ) : null}
+            </div>,
+            <CellCheckbox key="5" checked={row.isEnabled} />,
+          ]}
         />
       </FormPage>
     </styled.FilterList>
