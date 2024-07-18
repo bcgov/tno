@@ -18,6 +18,7 @@ export const hideEmptySections = (report: IReportForm, checked: boolean) => {
         ...section.settings,
         hideEmpty:
           section.sectionType === ReportSectionTypeName.Text ||
+          section.sectionType === ReportSectionTypeName.MediaAnalytics ||
           section.sectionType === ReportSectionTypeName.TableOfContents
             ? false
             : checked,
