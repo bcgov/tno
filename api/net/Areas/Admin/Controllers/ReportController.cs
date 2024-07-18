@@ -177,7 +177,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult Update(ReportModel model)
     {
-        var result = _reportService.UpdateAndSave(model.ToEntity(_serializerOptions, true));
+        var result = _reportService.UpdateAndSave(model.ToEntity(_serializerOptions, false));
         var report = _reportService.FindById(result.Id) ?? throw new NoContentException("Report does not exist");
         return new JsonResult(new ReportModel(report, _serializerOptions));
     }

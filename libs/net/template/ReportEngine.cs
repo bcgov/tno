@@ -359,6 +359,7 @@ public class ReportEngine : IReportEngine
                         settings.UseAllContent ? null : content);
                     var chartRequestModel = new ChartRequestModel(chartModel);
                     var base64Image = await this.GenerateBase64ImageAsync(chartRequestModel);
+                    this.Logger.LogDebug("Chart generated, sectionId:{sectionId} chartId:{chartId}", section.Id, chart.Id);
 
                     // Replace Chart Stubs with the generated image.
                     body = body.Replace(ReportSectionModel.GenerateChartUid(section.Id, chart.Id), base64Image);

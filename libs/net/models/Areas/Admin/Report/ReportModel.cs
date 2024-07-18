@@ -131,6 +131,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
     /// Explicit conversion to entity.
     /// </summary>
     /// <param name="model"></param>
+    /// <param name="includeChartTemplates"></param>
     public static explicit operator Entities.Report(ReportModel model)
     {
         var entity = new Entities.Report(model.Id, model.Name, model.TemplateId, model.OwnerId)
@@ -181,6 +182,13 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
             section.ChartTemplatesManyToMany.AddRange(modelSection.ChartTemplates.OrderBy(ct => ct.SortOrder).Select(ct => new Entities.ReportSectionChartTemplate(modelSection.Id, ct.Id, ct.SortOrder)
             {
                 ReportSection = section,
+                ChartTemplate = new Entities.ChartTemplate(ct.Id, ct.Name, ct.Template)
+                {
+                    Description = ct.Description,
+                    IsEnabled = ct.IsEnabled,
+                    SortOrder = ct.SortOrder,
+                    Settings = JsonDocument.Parse(JsonSerializer.Serialize(ct.Settings)),
+                },
                 Settings = ct.SectionSettings != null ? JsonDocument.Parse(JsonSerializer.Serialize(ct.SectionSettings)) : JsonDocument.Parse(JsonSerializer.Serialize(new ChartSectionSettingsModel())),
             }));
             return section;

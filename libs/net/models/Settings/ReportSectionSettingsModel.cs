@@ -19,10 +19,6 @@ public class ReportSectionSettingsModel
     public string GroupBy { get; set; } = "";
     public string SortBy { get; set; } = "";
     public string SortDirection { get; set; } = "";
-    // public bool ApplyColorToValue { get; set; }
-    // public string[] DatasetColors { get; set; } = Array.Empty<string>();
-    // public string[] DatasetBorderColors { get; set; } = Array.Empty<string>();
-    // public string[] DataLabelColors { get; set; } = Array.Empty<string>();
     #endregion
 
     #region Constructors
@@ -42,8 +38,6 @@ public class ReportSectionSettingsModel
         this.GroupBy = settings.GetDictionaryJsonValue("groupBy", "", options)!;
         this.SortBy = settings.GetDictionaryJsonValue("sortBy", "", options)!;
         this.SortDirection = settings.GetDictionaryJsonValue("sortDirection", "", options)!;
-        // this.DatasetColors = settings.GetDictionaryJsonValue("datasetColors", Array.Empty<string>(), options)!;
-        // this.DataLabelColors = settings.GetDictionaryJsonValue("dataLabelColors", Array.Empty<string>(), options)!;
     }
 
     public ReportSectionSettingsModel(JsonDocument settings, JsonSerializerOptions options)
@@ -60,8 +54,6 @@ public class ReportSectionSettingsModel
         this.GroupBy = settings.GetElementValue("groupBy", "", options)!;
         this.SortBy = settings.GetElementValue("sortBy", "", options)!;
         this.SortDirection = settings.GetElementValue("sortDirection", "", options)!;
-        // this.DatasetColors = settings.GetElementValue("datasetColors", Array.Empty<string>(), options)!;
-        // this.DataLabelColors = settings.GetElementValue("dataLabelColors", Array.Empty<string>(), options)!;
     }
     #endregion
 }
