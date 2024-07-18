@@ -15,6 +15,14 @@ export const Wysiwyg = styled.div<IWysiwygProps>`
       border-bottom: 1px solid;
       margin-bottom: 0.5em;
     }
+    .scroll {
+      max-height: 20em;
+      overflow-y: auto;
+    }
+
+    .toolbar {
+      margin-bottom: 0.5em;
+    }
 
     z-index: 1000;
     position: absolute;
@@ -29,6 +37,10 @@ export const Wysiwyg = styled.div<IWysiwygProps>`
         cursor: pointer;
         transform: scale(1.1);
       }
+      align-self: center;
+      height: 15px;
+      width: 15px;
+      margin-left: 2em;
     }
     .content-option {
       &:hover {

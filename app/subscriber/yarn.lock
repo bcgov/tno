@@ -14721,9 +14721,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:0.1.107":
-  version: 0.1.107
-  resolution: "tno-core@npm:0.1.107"
+"tno-core@npm:0.1.106":
+  version: 0.1.106
+  resolution: "tno-core@npm:0.1.106"
   dependencies:
     "@elastic/elasticsearch": ^8.13.1
     "@fortawesome/free-solid-svg-icons": ^6.4.2
@@ -14756,7 +14756,7 @@ __metadata:
     styled-components: ^6.1.11
     stylis: ^4.3.2
     yup: ^1.1.1
-  checksum: 779093ad1410ed09ead2fae1aadc283035794c988223a678a94105bbf3e911593ebd2dc30b75f4794f5c6e1237970a9d694f043ee81bd6c03f2f90633ef40562
+  checksum: 1143a3e22c2c534ad359035a78401a1111aff1caab1f058867a4f896654c48ec81ce58e508c4a597c3227493293b2a7eb478b1b32379be8a51d9cb65f357ad92
   languageName: node
   linkType: hard
 
