@@ -143,6 +143,7 @@ export const ManageFolder: React.FC = () => {
           <ContentListActionBar
             content={selected}
             onSelectAll={(e) => (e.target.checked ? setSelected(items) : setSelected([]))}
+            onClear={() => setSelected([])}
             removeFolderItem={() => removeItems(selected)}
             disableAddToFolder={true}
           />

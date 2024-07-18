@@ -63,6 +63,7 @@ export const TopStories: React.FC = () => {
     <styled.TopStories>
       <ContentListActionBar
         content={selected}
+        onClear={() => setSelected([])}
         onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
       />
       <DateFilter filter={filter} storeFilter={storeFilter} />

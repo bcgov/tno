@@ -65,6 +65,7 @@ export const TodaysCommentary: React.FC = () => {
     <styled.TodaysCommentary>
       <ContentListActionBar
         content={selected}
+        onClear={() => setSelected([])}
         onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
       />
       <DateFilter filter={filter} storeFilter={storeFilter} />
