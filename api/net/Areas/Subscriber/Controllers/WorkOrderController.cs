@@ -178,14 +178,17 @@ public class WorkOrderController : ControllerBase
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public async Task<IActionResult> RequestAnonymousTranscriptionAsync(long contentId, int uid)
     {
-        var redirectUrl = _apiOptions.SubscriberAppUrl + "/transcribe/" + contentId;
         var user = _userService.FindById(uid) ?? throw new NotAuthorizedException("User is missing");
         var content = _contentService.FindById(contentId, true) ?? throw new NoContentException();
         if (content.Source?.DisableTranscribe == true) return BadRequest("Cannot request transcription");
         if (content.IsApproved || content.ContentType != Entities.ContentType.AudioVideo || !content.FileReferences.Any())
         {
             // The transcript has already been approved, do not allow new requests.
-            return RedirectPermanent(redirectUrl + "?requested=true");
+            var result = new {
+                StatusCode = HttpStatusCode.OK,
+                Status = "Approved",
+            };
+            return new JsonResult(result);
         }
         else
         {
@@ -207,8 +210,11 @@ public class WorkOrderController : ControllerBase
                 await _kafkaProducer.SendMessageAsync(_kafkaOptions.NotificationTopic, request);
             }
 
-            // TODO: Respond differently depending on whether the transcript has already been completed.
-            return RedirectPermanent(redirectUrl);
+            var result = new {
+                StatusCode = HttpStatusCode.OK,
+                Status = "Requested",
+            };
+            return new JsonResult(result);
         }
     }
     #endregion
