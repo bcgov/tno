@@ -79,7 +79,7 @@ export const ReportHistoryForm = () => {
                 <Row gap="0.2em">
                   {formatDate(instance.sentOn ?? '', false)}
                   <FaRegClock size={18} className="" />
-                  {formatTime(instance.publishedOn ?? '')}
+                  {formatTime(instance.sentOn ?? '')}
                 </Row>
               </div>
               <div className="col-4">
