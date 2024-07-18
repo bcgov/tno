@@ -1,3 +1,4 @@
+
 using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
@@ -21,6 +22,7 @@ using TNO.Entities;
 using TNO.Ches.Configuration;
 namespace TNO.API.Areas.Subscriber.Controllers;
 using TNO.Ches;
+using TNO.Core.Extensions;
 
 /// <summary>
 /// ReportController class, provides Report endpoints for the api.
@@ -484,14 +486,21 @@ public class ReportController : ControllerBase
     public async Task<IActionResult> RequestSubscription(int id, string applicantEmail)
     {
         var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
+        var user = _userService.FindByEmail(applicantEmail).FirstOrDefault() ?? throw new InvalidOperationException("User does not exist");
+        var isSubscribed = report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id);
+        if (isSubscribed)
+        {
+            _logger.LogInformation($"User is already subscribed to this report {report.Id}, no need to send a subscription request.");
+            return Ok();
+        }
 
         StringBuilder message = new StringBuilder();
         message.AppendLine("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">");
         message.AppendLine("<HTML>");
         message.AppendLine("<BODY>");
-        message.AppendLine($"<p><strong>User Email {applicantEmail}</strong>: </p>");
-        message.AppendLine($"<p><strong>Report {report.Name}, ID {report.Id}</strong>: </p>");
-
+        message.AppendLine($"<p><strong>User Name</strong>: {user.DisplayName}</p>");
+        message.AppendLine($"<p><strong>User Email</strong>: {user.Email}</p>");
+        message.AppendLine($"<p><strong>Report</strong>: {report.Name} </p>");
         message.AppendLine("</BODY>");
         message.AppendLine("</HTML>");
         string subject = string.Empty;
@@ -508,12 +517,12 @@ public class ReportController : ControllerBase
                 var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, emailAddresses, subject, message.ToString());
                 var emailRequest = await _ches.SendEmailAsync(email);
 
-                _logger.LogInformation($"Product subscription request email to [${productSubscriptionManagerEmail.Value}] queued: ${emailRequest.TransactionId}");
+                _logger.LogInformation($"report subscription request email to [${productSubscriptionManagerEmail.Value}] queued: ${emailRequest.TransactionId}");
 
             }
             else
             {
-                _logger.LogError("Couldn't send product subscription request email: [ProductSubscriptionManagerEmail] not set.");
+                _logger.LogError("Couldn't send report subscription request email: [ProductSubscriptionManagerEmail] not set.");
             }
 
 
@@ -525,6 +534,69 @@ public class ReportController : ControllerBase
 
         return Ok();
     }
+
+    /// <summary>
+    /// Send a notification to the subscription manager for unsubscription.
+    /// </summary>
+    /// <param name="id">Report ID</param>
+    /// <param name="applicantEmail">Applicant Email</param>
+    /// <returns></returns>
+    [HttpPost("{id}/unsubscription")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(void), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public async Task<IActionResult> RequestUnsubscription(int id, string applicantEmail)
+    {
+        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
+
+        var user = _userService.FindByEmail(applicantEmail).FirstOrDefault() ?? throw new InvalidOperationException("User does not exist");
+        var isSubscribed = report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id);
+        if (!isSubscribed)
+        {
+            _logger.LogInformation($"User is not subscribed to report {report.Id}, no need to send an unsubscription request.");
+            return Ok();
+
+        }
+
+
+        StringBuilder message = new StringBuilder();
+        message.AppendLine("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">");
+        message.AppendLine("<HTML>");
+        message.AppendLine("<BODY>");
+        message.AppendLine($"<p><strong>User Name</strong>: {user.DisplayName}</p>");
+        message.AppendLine($"<p><strong>User Email</strong>: {user.Email}</p>");
+        message.AppendLine($"<p><strong>Report</strong>: {report.Name} </p>");
+        message.AppendLine("<p>The user has requested to unsubscribe from the report.</p>");
+        message.AppendLine("</BODY>");
+        message.AppendLine("</HTML>");
+        string subject = $"MMI: Report Unsubscription Request - [{report.Name}]";
+
+        try
+        {
+            var productSubscriptionManagerEmail = _settingService.FindByName(AdminConfigurableSettingNames.ProductSubscriptionManagerEmail.ToString());
+
+            if (productSubscriptionManagerEmail != null)
+            {
+                var emailAddresses = productSubscriptionManagerEmail.Value.Split(new char[] { ';', ',' }, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, emailAddresses, subject, message.ToString());
+                var emailRequest = await _ches.SendEmailAsync(email);
+
+                _logger.LogInformation($"Report unsubscription request email to [{productSubscriptionManagerEmail.Value}] queued: {emailRequest.TransactionId}");
+            }
+            else
+            {
+                _logger.LogError("Couldn't send report unsubscription request email: [ProductSubscriptionManagerEmail] not set.");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Email failed to send");
+        }
+
+        return Ok();
+    }
+
 
 
 

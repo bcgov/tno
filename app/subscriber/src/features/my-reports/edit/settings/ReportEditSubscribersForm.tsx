@@ -11,6 +11,7 @@ import {
   EmailSendToName,
   getEnumStringOptions,
   Grid,
+  Modal,
   ReportDistributionFormatName,
   ReportStatusName,
   Row,
@@ -19,6 +20,7 @@ import {
   Spinner,
   Text,
   useApiAdminUsers,
+  useModal,
   validateEmail,
 } from 'tno-core';
 
@@ -31,13 +33,19 @@ export const ReportEditSubscribersForm = () => {
   const { findUsers } = useApiAdminUsers();
   const [emailForAdd, setEmailForAdd] = React.useState('');
   const [emailForRequest, setEmailForRequest] = React.useState('');
+  const { toggle, isShowing } = useModal();
+  const [modalContent, setModalContent] = React.useState({
+    headerText: '',
+    body: '',
+    onConfirm: () => {},
+  });
 
   const instance = values.instances.length ? values.instances[0] : undefined;
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
   const formatOptions = getEnumStringOptions(ReportDistributionFormatName);
   const sendToOptions = getEnumStringOptions(EmailSendToName, { splitOnCapital: false });
   const [selectedSubscribers, setSelectedSubscribers] = React.useState<number[]>([]);
-  const [, { RequestSubscriber }] = useReports();
+  const [, { RequestToSubscribe, RequestToUnsubscribe }] = useReports();
   const fetchUsersByEmail = async (email: string) => {
     try {
       const response = await findUsers({ email });
@@ -77,16 +85,43 @@ export const ReportEditSubscribersForm = () => {
       const users = await fetchUsersByEmail(email);
       if (!instance?.reportId) {
         toast.error('Report not found.');
+        return;
       }
       if (users.length) {
-        RequestSubscriber(instance?.reportId || 0, email);
-        toast.success('Request has been submitted.');
+        const user = users[0];
+        const isSubscribed = values.subscribers.some((s) => s.userId === user.id);
+
+        setModalContent({
+          headerText: isSubscribed ? 'Confirm Unsubscribe' : 'Confirm Subscribe',
+          body: isSubscribed
+            ? `The user ${user.displayName} - ${user.email} is already subscribed. Do you want to unsubscribe?`
+            : `The user ${user.displayName} - ${user.email} is not subscribed. Do you want to subscribe?`,
+          onConfirm: async () => {
+            if (isSubscribed) {
+              RequestToUnsubscribe(instance.reportId, email);
+              toast.success('Unsubscribe request submitted.');
+            } else {
+              RequestToSubscribe(instance.reportId, email);
+              toast.success('Subscribed request submitted.');
+            }
+            toggle();
+          },
+        });
+
+        toggle();
       } else {
         toast.warning(`No users found for the specified email "${email}".`);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [instance?.reportId, RequestSubscriber],
+    [
+      instance?.reportId,
+      values.subscribers,
+      setFieldValue,
+      toggle,
+      fetchUsersByEmail,
+      addSubscriber,
+    ],
   );
 
   const handleSelectSubscriber = (userId: any) => {
@@ -316,6 +351,15 @@ export const ReportEditSubscribersForm = () => {
           </Col>
         </div>
       </Row>
+      <Modal
+        headerText={modalContent.headerText}
+        body={modalContent.body}
+        isShowing={isShowing}
+        hide={toggle}
+        type="default"
+        confirmText="Yes"
+        onConfirm={modalContent.onConfirm}
+      />
     </styled.ReportEditSubscribersForm>
   );
 };

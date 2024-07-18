@@ -24,7 +24,8 @@ interface IReportController {
   regenerateSection: (id: number, sectionId: number) => Promise<IReportInstanceModel>;
   addContentToReport: (id: number, content: IReportInstanceContentModel[]) => Promise<IReportModel>;
   getAllContentInMyReports: () => Promise<{ [reportId: number]: number[] }>;
-  RequestSubscriber: (id: number, email: string) => void;
+  RequestToSubscribe: (id: number, email: string) => void;
+  RequestToUnsubscribe: (id: number, email: string) => void;
 }
 
 export const useReports = (): [IProfileState, IReportController] => {
@@ -239,10 +240,16 @@ export const useReports = (): [IProfileState, IReportController] => {
         );
         return response.data;
       },
-      RequestSubscriber: async (id: number, applicantEmail: string) => {
+      RequestToSubscribe: async (id: number, applicantEmail: string) => {
+        const response = await dispatch<{ [reportId: number]: number[] }>('request-subscribe', () =>
+          api.RequestToSubscribe(id, applicantEmail),
+        );
+        return response.data;
+      },
+      RequestToUnsubscribe: async (id: number, applicantEmail: string) => {
         const response = await dispatch<{ [reportId: number]: number[] }>(
-          'request-subscriber',
-          () => api.subscribeToReport(id, applicantEmail),
+          'request-unsubscribe',
+          () => api.RequestToUnsubscribe(id, applicantEmail),
         );
         return response.data;
       },
