@@ -7,6 +7,7 @@ import ReactQuill from 'react-quill';
 
 import { CustomToolbar } from './CustomToolbar';
 import * as styled from './styled';
+import { IUrlOption } from './interfaces';
 
 const formats = [
   'header',
@@ -32,6 +33,8 @@ export interface IWysiwygProps {
   name?: string;
   /** optional label to appear above the WYSIWYG */
   label?: string;
+  /** options to choose from a dropdown that will hyperlink the url attribute */
+  urlOptions?: { label: string; url: string; section: string }[];
   /** Whether component is disabled. */
   disabled?: boolean;
   /** whether or not it is a required field */
@@ -68,9 +71,11 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
   expandModal,
   onChange,
   onBlur,
+  urlOptions,
 }) => {
   const [toolBarNode, setToolBarNode] = React.useState();
 
+  const quill = React.useRef<ReactQuill>(null);
   const [state, setState] = React.useState({
     html: '',
     text: value ?? '',
@@ -151,11 +156,26 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
     return config;
   }, [toolBarNode]);
 
+  const onChangeContentSelect = (value: IUrlOption) => {
+    if (!quill.current) return;
+    try {
+      const editor = quill.current.getEditor();
+      // put tag at current cursor position or at the end of the text
+      const selection = editor.getSelection();
+      const index = selection ? selection.index : editor.getLength() - 1;
+
+      editor.insertText(index, value.label, 'link', value.url);
+    } catch (error) {
+      console.error('Failed to insert text:', error);
+    }
+  };
   return (
     <styled.Wysiwyg viewRaw={showRaw} className={className}>
       {label && <label className={required ? 'required' : ''}>{label}</label>}
       <CustomToolbar
         onClickRaw={onClickRaw}
+        onChangeContentSelect={onChangeContentSelect}
+        urlOptions={urlOptions}
         onClickRemoveFormat={stripHtml}
         onClickFormatRaw={onClickFormatRaw}
         onClickClear={() => setState({ ...state, html: '', text: '' })}
@@ -173,6 +193,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
             theme="snow"
             modules={modules}
             formats={formats}
+            ref={quill}
             onBlur={onBlur}
             readOnly={disabled}
           />

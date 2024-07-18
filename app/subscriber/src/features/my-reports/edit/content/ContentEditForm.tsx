@@ -140,6 +140,16 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
       [addContent, setActiveRow, setSubmitting, setValues, updateContent, updateReport],
     );
 
+    const reportContent: { label: string; url: string; section: string }[] = values.instances.length
+      ? values.instances[0].content.map((c) => {
+          return {
+            label: c.content?.headline || '', // Provide a default value in case headline is undefined
+            url: `/view/${c.content?.id}` || '', // Provide a default value in case id is undefined
+            section: values.sections.find((s) => s.name === c.sectionName)?.settings.label || '',
+          };
+        })
+      : [];
+
     const handleKeyDown = React.useCallback(
       (e: KeyboardEvent) => {
         if (!form?.content) return;
@@ -223,6 +233,7 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
           />
         ) : (
           <ContentForm
+            reportContent={reportContent}
             content={form.content}
             show={'all'}
             onContentChange={(content) => {

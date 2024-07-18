@@ -13,6 +13,7 @@ export interface IContentFormProps extends Omit<React.HTMLAttributes<HTMLDivElem
   loading?: boolean;
   /** Event fires when content properties are changed. */
   onContentChange?: (content: IContentModel) => void;
+  reportContent: { label: string; url: string; section: string }[];
 }
 
 /**
@@ -26,6 +27,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   show = 'none',
   loading,
   className,
+  reportContent,
   onContentChange,
   ...rest
 }) => {
@@ -83,6 +85,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
         <Wysiwyg
           name={`summary`}
           label="Summary"
+          urlOptions={reportContent}
           value={summary}
           disabled={disabled}
           onChange={(text) => {
@@ -108,6 +111,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
           label="Body"
           value={body}
           disabled={disabled}
+          urlOptions={reportContent}
           onChange={(text) => {
             const values = {
               ...content,

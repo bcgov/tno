@@ -3,6 +3,76 @@ import styled from 'styled-components';
 import { IWysiwygProps } from '../Wysiwyg';
 
 export const Wysiwyg = styled.div<IWysiwygProps>`
+  .ql-custom {
+    width: 25em;
+    .ql-picker-label:before,
+    .ql-picker-item:before {
+      content: attr(data-label);
+    }
+  }
+  .content-menu {
+    b {
+      border-bottom: 1px solid;
+      margin-bottom: 0.5em;
+    }
+
+    z-index: 1000;
+    position: absolute;
+    margin-top: 2em;
+    font-size: 0.85em;
+    background-color: white;
+    border: 1px solid #cccccc;
+    padding: 0.5em;
+    .exit {
+      margin-left: auto;
+      &:hover {
+        cursor: pointer;
+        transform: scale(1.1);
+      }
+    }
+    .content-option {
+      &:hover {
+        cursor: pointer;
+        background-color: #f0f0f0;
+      }
+      margin-bottom: 0.25em;
+    }
+  }
+
+  .add-button.hide-bottom-border {
+    border: 1px solid #cccccc;
+    border-radius: 0.5em 0.5em 0 0;
+    padding: 0.25em;
+    display: flex;
+    align-items: center;
+    .add-text {
+      font-size: 0.85em;
+      margin-top: 0.25em;
+      margin-left: 0.25em;
+    }
+    cursor: pointer;
+    &:hover {
+      background-color: #f0f0f0;
+    }
+  }
+
+  .add-button:not(.hide-bottom-border) {
+    border: 1px solid #cccccc;
+    padding: 0.25em;
+    display: flex;
+    align-items: center;
+    border-radius: 0.5em;
+    .add-text {
+      font-size: 0.85em;
+      margin-top: 0.25em;
+      margin-left: 0.25em;
+    }
+    cursor: pointer;
+    &:hover {
+      background-color: #f0f0f0;
+    }
+  }
+
   padding-right: 0.5rem;
   padding-bottom: 0.5rem;
 
