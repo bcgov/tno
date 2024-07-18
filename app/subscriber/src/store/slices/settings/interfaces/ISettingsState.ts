@@ -13,4 +13,5 @@ export interface ISettingsState {
   excludeBylineIds?: number[];
   excludeSourceIds?: number[];
   eventOfTheDayReportId?: number;
+  mediaTypesIdsAllSources?: number[];
 }
