@@ -160,8 +160,9 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
     if (!quill.current) return;
     try {
       const editor = quill.current.getEditor();
+      // put tag at current cursor position or at the end of the text
       const selection = editor.getSelection();
-      const index = selection ? selection.index : 0;
+      const index = selection ? selection.index : editor.getLength() - 1;
 
       editor.insertText(index, value.label, 'link', value.url);
     } catch (error) {

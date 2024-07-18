@@ -18,9 +18,10 @@ export const Wysiwyg = styled.div<IWysiwygProps>`
 
     z-index: 1000;
     position: absolute;
-    margin-top: 1.5em;
+    margin-top: 2em;
+    font-size: 0.85em;
     background-color: white;
-    border: 1px solid black;
+    border: 1px solid #cccccc;
     padding: 0.5em;
     .exit {
       margin-left: auto;
@@ -38,10 +39,34 @@ export const Wysiwyg = styled.div<IWysiwygProps>`
     }
   }
 
-  .add-button {
-    border: 1px solid;
-    padding: 0.35em 0.25em 0.25em 0.25em;
+  .add-button.hide-bottom-border {
+    border: 1px solid #cccccc;
+    border-radius: 0.5em 0.5em 0 0;
+    padding: 0.25em;
+    display: flex;
+    align-items: center;
+    .add-text {
+      font-size: 0.85em;
+      margin-top: 0.25em;
+      margin-left: 0.25em;
+    }
+    cursor: pointer;
+    &:hover {
+      background-color: #f0f0f0;
+    }
+  }
+
+  .add-button:not(.hide-bottom-border) {
+    border: 1px solid #cccccc;
+    padding: 0.25em;
+    display: flex;
+    align-items: center;
     border-radius: 0.5em;
+    .add-text {
+      font-size: 0.85em;
+      margin-top: 0.25em;
+      margin-left: 0.25em;
+    }
     cursor: pointer;
     &:hover {
       background-color: #f0f0f0;

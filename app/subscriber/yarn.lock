@@ -14756,7 +14756,7 @@ __metadata:
     styled-components: ^6.1.11
     stylis: ^4.3.2
     yup: ^1.1.1
-  checksum: 1f18a805406685877d462da34afe7b9237e3a2a7157f82f6e532e9fc48368a7d79c182aadbe91c72107d0bd9b2dda8622239747d9c55ecbf33b5c5df4fbf1119
+  checksum: 705715c1660a4f62c00bad36a667a1ed21d988dd043749d8c25ff89d6612f1a09bec9d512fef67618523cfe048ca08f564af9c3697245a8c9e158bffb37de817
   languageName: node
   linkType: hard
 

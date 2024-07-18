@@ -3,7 +3,7 @@ import { Col, Row } from '../../flex';
 import { Show } from '../../show';
 import { FaCode, FaExpandAlt, FaPaintBrush, FaRemoveFormat } from 'react-icons/fa';
 import { IUrlOption } from './interfaces';
-import { FaCircleXmark } from 'react-icons/fa6';
+import { FaCircleXmark, FaRegNewspaper } from 'react-icons/fa6';
 export interface ICustomToolbarProps {
   onClickRaw: React.MouseEventHandler<HTMLButtonElement>;
   onClickRemoveFormat: React.MouseEventHandler<HTMLButtonElement>;
@@ -75,8 +75,11 @@ export const CustomToolbar: React.FC<ICustomToolbarProps> = ({
       </span>
       <span className="ql-formats">
         <Col>
-          <div className="add-button" onClick={() => setShowContentSelect(true)}>
-            + Add Content Link
+          <div
+            className={`add-button ${showContentSelect && 'hide-bottom-border'}`}
+            onClick={() => setShowContentSelect(true)}
+          >
+            <FaRegNewspaper /> <span className="add-text">Insert Link to Story </span>
           </div>
           <Show visible={showContentSelect}>
             <div className="content-menu">
