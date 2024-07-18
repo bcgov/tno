@@ -116,7 +116,7 @@ export const NavbarOptions: INavbarOptions = {
   settings: {
     groupName: 'USER RESOURCES',
     label: 'Settings',
-    path: 'landing/settings',
+    path: 'settings',
     icon: <FaCogs />,
   },
 };

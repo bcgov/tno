@@ -13,6 +13,7 @@ import { MyReports } from 'features/my-reports';
 import { ReportView } from 'features/my-reports';
 import { ReportEditPage } from 'features/my-reports/edit';
 import { SearchPage } from 'features/search-page';
+import { SettingsLanding } from 'features/settings';
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useApp } from 'store/hooks';
@@ -113,6 +114,12 @@ export const AppRouter: React.FC = () => {
           path="/folders/:id?"
           element={
             <PrivateRoute claims={Claim.subscriber} element={<FolderLanding />}></PrivateRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <PrivateRoute claims={Claim.subscriber} element={<SettingsLanding />}></PrivateRoute>
           }
         />
         <Route
