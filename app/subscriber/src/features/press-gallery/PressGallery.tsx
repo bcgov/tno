@@ -139,6 +139,7 @@ export const PressGallery: React.FC = () => {
     <styled.PressGallery>
       <ContentListActionBar
         content={selected}
+        onClear={() => setSelected([])}
         onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
       />
       <Row className="tool-bar">

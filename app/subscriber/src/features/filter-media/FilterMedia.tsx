@@ -101,6 +101,7 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({ loaded }) => {
       <ContentListActionBar
         content={selected}
         onSelectAll={(e) => (e.target.checked ? setSelected(currDateResults) : setSelected([]))}
+        onClear={() => setSelected([])}
       />
       <DateFilter loaded={loaded} filter={filter} storeFilter={storeFilter} />
       <Show visible={isLoading}>

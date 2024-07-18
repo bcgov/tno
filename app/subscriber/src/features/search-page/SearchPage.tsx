@@ -218,6 +218,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
           >
             <ContentListActionBar
               content={selected}
+              onClear={() => setSelected([])}
               onSelectAll={(e) =>
                 e.target.checked ? setSelected(currDateResults) : setSelected([])
               }

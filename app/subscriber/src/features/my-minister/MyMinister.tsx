@@ -205,6 +205,7 @@ export const MyMinister: React.FC = () => {
     <styled.MyMinister>
       <ContentListActionBar
         content={selected}
+        onClear={() => setSelected([])}
         onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
       />
       <DateFilter filter={filter} storeFilter={storeFilter} />
