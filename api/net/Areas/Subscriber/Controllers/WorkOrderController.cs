@@ -184,7 +184,8 @@ public class WorkOrderController : ControllerBase
         if (content.IsApproved || content.ContentType != Entities.ContentType.AudioVideo || !content.FileReferences.Any())
         {
             // The transcript has already been approved, do not allow new requests.
-            var result = new {
+            var result = new
+            {
                 StatusCode = HttpStatusCode.OK,
                 Status = "Approved",
             };
@@ -210,7 +211,8 @@ public class WorkOrderController : ControllerBase
                 await _kafkaProducer.SendMessageAsync(_kafkaOptions.NotificationTopic, request);
             }
 
-            var result = new {
+            var result = new
+            {
                 StatusCode = HttpStatusCode.OK,
                 Status = "Requested",
             };
