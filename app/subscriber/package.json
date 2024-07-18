@@ -47,7 +47,6 @@
   "devDependencies": {
     "@testing-library/jest-dom": "6.4.5",
     "@types/customize-cra": "1.0.8",
-    "@types/history": "5.0.0",
     "@types/jest": "29.5.12",
     "@types/js-beautify": "1.14.3",
     "@types/lodash.throttle": "4.1.9",

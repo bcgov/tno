@@ -178,7 +178,6 @@ public class WorkOrderController : ControllerBase
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public async Task<IActionResult> RequestAnonymousTranscriptionAsync(long contentId, int uid)
     {
-        var redirectUrl = _apiOptions.SubscriberAppUrl + "/transcribe/" + contentId;
         var user = _userService.FindById(uid) ?? throw new NotAuthorizedException("User is missing");
         var content = _contentService.FindById(contentId, true) ?? throw new NoContentException();
         if (content.Source?.DisableTranscribe == true) return BadRequest("Cannot request transcription");
