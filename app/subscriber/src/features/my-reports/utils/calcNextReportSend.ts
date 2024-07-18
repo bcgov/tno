@@ -23,7 +23,7 @@ function getNextReportSend(report: IReportModel): string {
     weekday: 'long',
   });
   const currentTimeOfDay = currentTime.toLocaleTimeString('en-US', {
-    // TODO: Store User's preferred timezone in profile/settings to use for coverting/storing
+    // TODO: Store User's preferred timezone in profile/settings to use for converting/storing
     // Server currently compares time in server local time, which is PST. Hence, use PST.
     timeZone: 'America/Vancouver',
     hour12: false,

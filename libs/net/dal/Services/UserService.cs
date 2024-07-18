@@ -222,6 +222,25 @@ public class UserService : BaseService<User, int>, IUserService
     }
 
     /// <summary>
+    /// Delete the user
+    /// </summary>
+    /// <param name="entity"></param>
+    public override void Delete(User entity)
+    {
+        // Unlink work orders.
+        var workOrders = this.Context.WorkOrders.Where(wo => wo.AssignedId == entity.Id || wo.RequestorId == entity.Id);
+        workOrders.ForEach(wo =>
+        {
+            if (wo.AssignedId == entity.Id) wo.AssignedId = null;
+            if (wo.RequestorId == entity.Id) wo.RequestorId = null;
+            this.Context.Update(wo);
+        });
+
+        // Unlink
+        base.Delete(entity);
+    }
+
+    /// <summary>
     /// Transfer the ownership of the specified account objects to the specified user.
     /// Or copy the specified account objects to the specified user.
     /// </summary>
