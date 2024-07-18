@@ -180,13 +180,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
             };
             section.ChartTemplatesManyToMany.AddRange(modelSection.ChartTemplates.OrderBy(ct => ct.SortOrder).Select(ct => new Entities.ReportSectionChartTemplate(modelSection.Id, ct.Id, ct.SortOrder)
             {
-                ChartTemplate = new Entities.ChartTemplate(ct.Id, ct.Name, ct.Template)
-                {
-                    Description = ct.Description,
-                    IsEnabled = ct.IsEnabled,
-                    SortOrder = ct.SortOrder,
-                    Settings = JsonDocument.Parse(JsonSerializer.Serialize(ct.Settings)),
-                },
+                ReportSection = section,
                 Settings = ct.SectionSettings != null ? JsonDocument.Parse(JsonSerializer.Serialize(ct.SectionSettings)) : JsonDocument.Parse(JsonSerializer.Serialize(new ChartSectionSettingsModel())),
             }));
             return section;
