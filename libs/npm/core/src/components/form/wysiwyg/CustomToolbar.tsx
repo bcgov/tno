@@ -74,31 +74,33 @@ export const CustomToolbar: React.FC<ICustomToolbarProps> = ({
         </button>
       </span>
       <span className="ql-formats">
-        <Col>
-          <div
-            className={`add-button ${showContentSelect && 'hide-bottom-border'}`}
-            onClick={() => setShowContentSelect(true)}
-          >
-            <FaRegNewspaper /> <span className="add-text">Insert Link to Story </span>
-          </div>
-          <Show visible={showContentSelect}>
-            <div className="content-menu">
-              <Row>
-                <FaCircleXmark onClick={() => setShowContentSelect(false)} className="exit" />
-              </Row>
-              {Object.keys(groupedOptions).map((category) => (
-                <Col key={category}>
-                  <b>{category}</b>
-                  {groupedOptions[category].map((option) => (
-                    <div className="content-option" onClick={() => onChangeContentSelect(option)}>
-                      {option.label}
-                    </div>
-                  ))}
-                </Col>
-              ))}
+        <Show visible={!!urlOptions?.length}>
+          <Col>
+            <div
+              className={`add-button ${showContentSelect && 'hide-bottom-border'}`}
+              onClick={() => setShowContentSelect(true)}
+            >
+              <FaRegNewspaper /> <span className="add-text">Insert Link to Story </span>
             </div>
-          </Show>
-        </Col>
+            <Show visible={showContentSelect}>
+              <div className="content-menu">
+                <Row>
+                  <FaCircleXmark onClick={() => setShowContentSelect(false)} className="exit" />
+                </Row>
+                {Object.keys(groupedOptions).map((category) => (
+                  <Col key={category}>
+                    <b>{category}</b>
+                    {groupedOptions[category].map((option) => (
+                      <div className="content-option" onClick={() => onChangeContentSelect(option)}>
+                        {option.label}
+                      </div>
+                    ))}
+                  </Col>
+                ))}
+              </div>
+            </Show>
+          </Col>
+        </Show>
       </span>
     </div>
   );
