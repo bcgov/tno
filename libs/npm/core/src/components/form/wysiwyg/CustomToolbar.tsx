@@ -35,6 +35,7 @@ export const CustomToolbar: React.FC<ICustomToolbarProps> = ({
       return acc;
     }, {} as { [key: string]: IUrlOption[] }) || {}; // Ensures groupedOptions is an empty object if urlOptions is undefined
   const [showContentSelect, setShowContentSelect] = React.useState(false);
+  const [filterText, setFilterText] = React.useState('');
 
   return (
     <div ref={innerRef} className="toolbar">
@@ -84,19 +85,31 @@ export const CustomToolbar: React.FC<ICustomToolbarProps> = ({
             </div>
             <Show visible={showContentSelect}>
               <div className="content-menu">
-                <Row>
+                <Row className="toolbar">
+                  <input
+                    type="text"
+                    placeholder="Search"
+                    onChange={(e) => setFilterText(e.target.value)}
+                  />
                   <FaCircleXmark onClick={() => setShowContentSelect(false)} className="exit" />
                 </Row>
-                {Object.keys(groupedOptions).map((category) => (
-                  <Col key={category}>
-                    <b>{category}</b>
-                    {groupedOptions[category].map((option) => (
-                      <div className="content-option" onClick={() => onChangeContentSelect(option)}>
-                        {option.label}
-                      </div>
-                    ))}
-                  </Col>
-                ))}
+                <div className="scroll">
+                  {Object.keys(groupedOptions).map((category) => (
+                    <Col key={category}>
+                      <b>{category}</b>
+                      {groupedOptions[category]
+                        .filter((option) => option.label.includes(filterText))
+                        .map((option) => (
+                          <div
+                            className="content-option"
+                            onClick={() => onChangeContentSelect(option)}
+                          >
+                            {option.label}
+                          </div>
+                        ))}
+                    </Col>
+                  ))}
+                </div>
               </div>
             </Show>
           </Col>
