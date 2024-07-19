@@ -164,30 +164,7 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> AddAsync(ContentModel model, int? requestorId = null)
     {
-        var newTopics = model.Topics.Where(t => t.Id == 0);
-        foreach (var topic in newTopics)
-        {
-            var topicModel = new TopicModel
-            {
-                IsEnabled = false,
-                Name = topic.Name,
-                TopicType = topic.TopicType
-            };
-            var result = _topicService.AddAndSave((TNO.Entities.Topic)topicModel);
-            topic.Id = result.Id;
-        }
-
-        var newTags = model.Tags.Where(t => t.Id == 0);
-        foreach (var tag in newTags)
-        {
-            var tagModel = new TagModel
-            {
-                Code = tag.Code,
-                Name = tag.Name
-            };
-            var result = _tagService.AddAndSave((TNO.Entities.Tag)tagModel);
-            tag.Id = result.Id;
-        }
+        AddNewContentModelData(model);
 
         // only assign a default score to content which has a source relevant to Event of the Day
         if (model.SourceId.HasValue)
@@ -234,6 +211,35 @@ public class ContentController : ControllerBase
         // return CreatedAtRoute("EditorContentFindById", new { id = content.Id }, new ContentModel(content));
     }
 
+    private void AddNewContentModelData(ContentModel model)
+    {
+        if (model == null) return;   
+        var newTopics = model.Topics.Where(t => t.Id == 0);
+        foreach (var topic in newTopics)
+        {
+            var topicModel = new TopicModel
+            {
+                IsEnabled = false,
+                Name = topic.Name,
+                TopicType = topic.TopicType
+            };
+            var result = _topicService.AddAndSave((TNO.Entities.Topic)topicModel);
+            topic.Id = result.Id;
+        }
+
+        var newTags = model.Tags.Where(t => t.Id == 0);
+        foreach (var tag in newTags)
+        {
+            var tagModel = new TagModel
+            {
+                Code = tag.Code,
+                Name = tag.Name
+            };
+            var result = _tagService.AddAndSave((TNO.Entities.Tag)tagModel);
+            tag.Id = result.Id;
+        }
+    }
+
     /// <summary>
     /// Update content for the specified 'id'.
     /// Publish message to kafka to index content in elasticsearch.
@@ -249,6 +255,7 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> UpdateAsync(ContentModel model, bool index = false, int? requestorId = null)
     {
+        AddNewContentModelData(model);
         // Published content should also have a posted date.
         if (!model.PostedOn.HasValue &&
             (model.Status == ContentStatus.Publish ||
