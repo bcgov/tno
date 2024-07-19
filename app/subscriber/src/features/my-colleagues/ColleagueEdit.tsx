@@ -2,17 +2,17 @@ import { Button } from 'components/button';
 import { FormikForm } from 'components/formik';
 import { PageSection } from 'components/section';
 import React from 'react';
-import { FaSave } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { FaBackward, FaSave } from 'react-icons/fa';
 import { useColleagues } from 'store/hooks';
 import { Col, FormikText, validateEmail } from 'tno-core';
 
+import { ColleagueActionEnum } from './constants/ColleagueActionEnum';
 import { defaultColleague } from './constants/defaultColleague';
 import { IColleagueForm } from './interfaces/IColleagueForm';
+import { IMyColleaguesProps } from './interfaces/IMyColleaguesProps';
 import * as styled from './styled';
 
-export const ColleagueEdit: React.FC = () => {
-  const navigate = useNavigate();
+export const ColleagueEdit: React.FC<IMyColleaguesProps> = ({ changeAction }) => {
   const [{ addColleague }] = useColleagues();
   const [colleague] = React.useState<IColleagueForm>(defaultColleague);
 
@@ -20,10 +20,10 @@ export const ColleagueEdit: React.FC = () => {
     async (values: IColleagueForm) => {
       try {
         await addColleague(values.colleagueEmail);
-        navigate('/colleagues');
+        changeAction(ColleagueActionEnum.List);
       } catch {}
     },
-    [addColleague, navigate],
+    [addColleague, changeAction],
   );
 
   return (
@@ -39,6 +39,14 @@ export const ColleagueEdit: React.FC = () => {
         >
           {({ values, isSubmitting, setFieldValue, submitForm }) => (
             <>
+              <div
+                className="back"
+                onClick={() => {
+                  changeAction(ColleagueActionEnum.List);
+                }}
+              >
+                <FaBackward /> Back
+              </div>
               <Col className="edit">
                 <FormikText
                   name={`colleagueEmail`}

@@ -5,8 +5,7 @@ import { Help } from 'features/help';
 import { Impersonation } from 'features/impersonation';
 import { Landing } from 'features/landing';
 import { Login } from 'features/login';
-import { MyColleagues } from 'features/my-colleagues';
-import { ColleagueEdit } from 'features/my-colleagues/ColleagueEdit';
+import { MyColleaguesLanding } from 'features/my-colleagues';
 import { FolderLanding } from 'features/my-folders';
 import { MyProducts } from 'features/my-products';
 import { MyReports } from 'features/my-reports';
@@ -131,13 +130,10 @@ export const AppRouter: React.FC = () => {
         <Route
           path="/colleagues"
           element={
-            <PrivateRoute claims={Claim.subscriber} element={<MyColleagues />}></PrivateRoute>
-          }
-        />
-        <Route
-          path="/colleagues/add"
-          element={
-            <PrivateRoute claims={Claim.subscriber} element={<ColleagueEdit />}></PrivateRoute>
+            <PrivateRoute
+              claims={Claim.subscriber}
+              element={<MyColleaguesLanding inFrame={false} />}
+            ></PrivateRoute>
           }
         />
         <Route

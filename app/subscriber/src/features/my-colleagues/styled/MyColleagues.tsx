@@ -34,4 +34,10 @@ export const MyColleagues = styled.div`
   .fs1 {
     font-size: 0.75rem;
   }
+
+  .back {
+    color: ${(props) => props.theme.css.linkGrayColor};
+    font-weight: 400;
+    cursor: pointer;
+  }
 `;
