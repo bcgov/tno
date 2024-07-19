@@ -114,7 +114,7 @@ public class PrincipalModel
     public PrincipalModel(ClaimsPrincipal principal, User? user, AccountAuthState state)
     {
         this.Id = user?.Id ?? 0;
-        this.Key = principal.GetKey();
+        this.Key = principal.GetUid();
         this.Username = principal.GetUsername();
         this.DisplayName = principal.GetDisplayName();
         this.Email = principal.GetEmail();

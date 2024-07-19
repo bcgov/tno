@@ -27,13 +27,18 @@ export function useKeycloakWrapper(): IKeycloak {
        * @param claim - The name of the claim
        */
       hasClaim: (claim?: Claim | Array<Claim>): boolean => {
-        if (claim === undefined && !!token?.client_roles?.length) return true;
+        const client_roles = token?.client_roles;
+        const resource_roles = token?.resource_access?.['mmi-app']?.roles;
+
+        if (claim === undefined && (!!client_roles?.length || !!resource_roles?.length))
+          return true;
+
         return (
           claim !== undefined &&
           claim !== null &&
           (typeof claim === 'string'
-            ? token?.client_roles?.includes(claim) ?? false
-            : claim.some((c) => token?.client_roles?.includes(c)))
+            ? (client_roles?.includes(claim) || resource_roles?.includes(claim)) ?? false
+            : claim.some((c) => client_roles?.includes(c) || resource_roles?.includes(c)))
         );
       },
       /**
@@ -55,14 +60,14 @@ export function useKeycloakWrapper(): IKeycloak {
        * @returns User's display name.
        */
       getDisplayName: () => {
-        return token?.display_name ?? '';
+        return token?.display_name ?? token?.name ?? '';
       },
       /**
        * Extract the unique username of the user
        * @returns User's unique username
        */
       getUserKey: () => {
-        return token?.preferred_username ?? '';
+        return token?.sub ?? '';
       },
       /**
        * Extract the unique username of the user
@@ -74,6 +79,9 @@ export function useKeycloakWrapper(): IKeycloak {
           token?.idir_username ??
           token?.github_username ??
           token?.bceid_username ??
+          token?.bcgov_username ??
+          token?.user_principal_name ??
+          token?.preferred_username ??
           ''
         );
       },
@@ -82,7 +90,14 @@ export function useKeycloakWrapper(): IKeycloak {
        * @returns User's unique username
        */
       getUserUid: () => {
-        return token?.idir_user_guid ?? token?.github_id ?? token?.bceid_user_guid ?? '';
+        return (
+          token?.idir_user_guid ??
+          token?.github_id ??
+          token?.bceid_user_guid ??
+          token?.bcgov_guid ??
+          token?.sub ??
+          ''
+        );
       },
     }),
     [],

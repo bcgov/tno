@@ -7,9 +7,6 @@ using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Subscriber.Models.Lookup;
 using TNO.API.Filters;
 using TNO.API.Models;
-using TNO.Core.Exceptions;
-using TNO.CSS;
-using TNO.CSS.Config;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 
@@ -44,9 +41,6 @@ public class LookupController : ControllerBase
     private readonly ITagService _tagService;
     private readonly ISettingService _settingService;
     private readonly ITonePoolService _tonePoolService;
-    private readonly ICssEnvironmentService _CssService;
-    private readonly CssEnvironmentOptions _CssOptions;
-    private readonly ILogger _logger;
     #endregion
 
     #region Constructors
@@ -63,11 +57,8 @@ public class LookupController : ControllerBase
     /// <param name="settingService"></param>
     /// <param name="tonePoolService"></param>
     /// <param name="ministerService"></param>
-    /// <param name="cssService"></param>
-    /// <param name="cssOptions"></param>
     /// <param name="contributorService"></param>
     /// <param name="serializerOptions"></param>
-    /// <param name="logger"></param>
     public LookupController(
         IActionService actionService,
         ITopicService topicService,
@@ -80,10 +71,7 @@ public class LookupController : ControllerBase
         ITagService tagService,
         ISettingService settingService,
         ITonePoolService tonePoolService,
-        ICssEnvironmentService cssService,
-        IOptions<CssEnvironmentOptions> cssOptions,
-        IOptions<JsonSerializerOptions> serializerOptions,
-        ILogger<LookupController> logger)
+        IOptions<JsonSerializerOptions> serializerOptions)
     {
         _actionService = actionService;
         _topicService = topicService;
@@ -95,11 +83,8 @@ public class LookupController : ControllerBase
         _tagService = tagService;
         _settingService = settingService;
         _tonePoolService = tonePoolService;
-        _CssService = cssService;
         _contributorService = contributorService;
-        _CssOptions = cssOptions.Value;
         _serializerOptions = serializerOptions.Value;
-        _logger = logger;
     }
     #endregion
 
@@ -117,9 +102,6 @@ public class LookupController : ControllerBase
     [ResponseCache(Duration = 5 * 60)]
     public IActionResult FindAllAsync()
     {
-        if (String.IsNullOrWhiteSpace(_CssOptions.ClientId)) throw new ConfigurationException("CSS clientId has not been configured");
-        if (String.IsNullOrWhiteSpace(_CssOptions.Secret)) throw new ConfigurationException("CSS secret has not been configured");
-
         var actions = _actionService.FindAll();
         var contributors = _contributorService.FindAll();
         var topics = _topicService.FindAll();

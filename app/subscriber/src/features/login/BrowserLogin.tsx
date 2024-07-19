@@ -41,8 +41,14 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
                     <Show visible={!isLocal}>
                       <Button
                         className="white idir-logo"
-                        onClick={() => login(isLocal ? 'gcpe-oidc' : 'idir')}
+                        onClick={() => login('azure-entra')}
                       ></Button>
+                      <Button className="white azure-logo" onClick={() => login('azure-entra')}>
+                        Microsoft
+                      </Button>
+                      <Button className="white signIn" onClick={() => login()}>
+                        Other
+                      </Button>
                     </Show>
                     <Show visible={isLocal}>
                       <Button className="white" onClick={() => login()}>

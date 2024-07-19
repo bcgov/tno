@@ -33,6 +33,7 @@ export interface IKeycloakToken {
   email?: string;
   email_verified?: boolean;
   client_roles?: string[];
+  resource_access?: { [name: string]: { roles: string[] } };
 
   // IDIR
   idir_user_guid?: string;
@@ -45,4 +46,9 @@ export interface IKeycloakToken {
   // BCeID
   bceid_username?: string;
   bceid_user_guid?: string;
+
+  // Azure Entra
+  bcgov_username?: string;
+  bcgov_guid?: string;
+  user_principal_name?: string;
 }

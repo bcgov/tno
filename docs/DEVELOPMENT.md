@@ -117,7 +117,7 @@ make up n=keycloak
 # After keycloak starts go to http://localhost:40001 and login to confirm it has successfully initialized.
 # There should be a tno realm.  You can review the predefined user accounts.
 
-# Copy the tno-service-account credentials secret and paste it into the following configuration file.
+# Copy the mmi-service-account credentials secret and paste it into the following configuration file.
 # Keycloak__Secret={GET KEYCLOAK SERVICE ACCOUNT}
 cd ./tools/css-api/.env
 # Auth__Keycloak__Secret={GET KEYCLOAK SERVICE ACCOUNT}

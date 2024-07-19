@@ -17,13 +17,13 @@ public class ResourceAccessModel
     /// <summary>
     /// get/set - Realm management claims.
     /// </summary>
-    [JsonPropertyName("tno-app")]
+    [JsonPropertyName("mmi-app")]
     public RolesModel App { get; set; } = new RolesModel();
 
     /// <summary>
     /// get/set - Realm management claims.
     /// </summary>
-    [JsonPropertyName("tno-service-account")]
+    [JsonPropertyName("mmi-service-account")]
     public RolesModel ServiceAccount { get; set; } = new RolesModel();
 
     /// <summary>

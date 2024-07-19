@@ -129,7 +129,7 @@ public class CssHelper : ICssHelper
     public async Task<Tuple<Entities.User?, Models.Auth.AccountAuthState>> ActivateAsync(ClaimsPrincipal principal, Models.Auth.LocationModel? location = null)
     {
         // CSS uses the preferred_username value as a username, but it's not the actual username...
-        var key = principal.GetKey() ?? throw new NotAuthorizedException("The 'preferred_username' is required but missing from token");
+        var key = principal.GetUid() ?? throw new NotAuthorizedException("The 'sub' is required but missing from token");
         var user = _userService.FindByUserKey(key);
         var auth = Models.Auth.AccountAuthState.Authorized;
 
@@ -224,7 +224,7 @@ public class CssHelper : ICssHelper
     public void RemoveLocation(ClaimsPrincipal principal, string? deviceKey = null)
     {
         // CSS uses the preferred_username value as a username, but it's not the actual username...
-        var key = principal.GetKey() ?? throw new NotAuthorizedException("The 'preferred_username' is required but missing from token");
+        var key = principal.GetUid() ?? throw new NotAuthorizedException("The 'sub' is required but missing from token");
         var user = _userService.FindByUserKey(key);
         if (user != null && deviceKey != null)
         {
@@ -255,7 +255,7 @@ public class CssHelper : ICssHelper
     public void RemoveOtherLocations(ClaimsPrincipal principal, string? deviceKey = null)
     {
         // CSS uses the preferred_username value as a username, but it's not the actual username...
-        var key = principal.GetKey() ?? throw new NotAuthorizedException("The 'preferred_username' is required but missing from token");
+        var key = principal.GetUid() ?? throw new NotAuthorizedException("The 'sub' is required but missing from token");
         var user = _userService.FindByUserKey(key);
         if (user != null && deviceKey != null)
         {

@@ -9,8 +9,6 @@ using TNO.API.Filters;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.Core.Http;
-using TNO.CSS;
-using TNO.CSS.Config;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 
@@ -50,8 +48,9 @@ public class LookupController : ControllerBase
     private readonly IUserService _userService;
     private readonly IDataLocationService _dataLocationService;
     private readonly ISettingService _settingService;
-    private readonly ICssEnvironmentService _CssService;
-    private readonly CssEnvironmentOptions _CssOptions;
+    private readonly IKeycloakService _keycloakService;
+
+    private readonly Config.KeycloakOptions _keycloakOptions;
     private readonly ILogger _logger;
     #endregion
 
@@ -75,8 +74,8 @@ public class LookupController : ControllerBase
     /// <param name="userService"></param>
     /// <param name="dataLocationService"></param>
     /// <param name="settingService"></param>
-    /// <param name="cssService"></param>
-    /// <param name="cssOptions"></param>
+    /// <param name="keycloakService"></param>
+    /// <param name="keycloakOptions"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
     public LookupController(
@@ -96,8 +95,8 @@ public class LookupController : ControllerBase
         IUserService userService,
         IDataLocationService dataLocationService,
         ISettingService settingService,
-        ICssEnvironmentService cssService,
-        IOptions<CssEnvironmentOptions> cssOptions,
+        IKeycloakService keycloakService,
+        IOptions<Config.KeycloakOptions> keycloakOptions,
         IOptions<JsonSerializerOptions> serializerOptions,
         ILogger<LookupController> logger)
     {
@@ -117,8 +116,8 @@ public class LookupController : ControllerBase
         _userService = userService;
         _dataLocationService = dataLocationService;
         _settingService = settingService;
-        _CssService = cssService;
-        _CssOptions = cssOptions.Value;
+        _keycloakService = keycloakService;
+        _keycloakOptions = keycloakOptions.Value;
         _serializerOptions = serializerOptions.Value;
         _logger = logger;
     }
@@ -138,8 +137,7 @@ public class LookupController : ControllerBase
     [ResponseCache(Duration = 5 * 60)]
     public async Task<IActionResult> FindAllAsync()
     {
-        if (String.IsNullOrWhiteSpace(_CssOptions.ClientId)) throw new ConfigurationException("CSS clientId has not been configured");
-        if (String.IsNullOrWhiteSpace(_CssOptions.Secret)) throw new ConfigurationException("CSS secret has not been configured");
+        if (!_keycloakOptions.ClientId.HasValue) throw new ConfigurationException("Keycloak ClientId must be in configuration.");
 
         CanadaHolidayModel? statHolidays = null;
         try
@@ -158,7 +156,7 @@ public class LookupController : ControllerBase
         var sources = _sourceService.FindAll();
         var license = _licenseService.FindAll();
         var ingestTypes = _ingestTypeService.FindAll();
-        var roles = (await _CssService.GetRolesAsync()).Select(r => r.Name!);
+        var roles = (await _keycloakService.GetRolesAsync(_keycloakOptions.ClientId.Value)).Select(r => r.Name!);
         var series = _seriesService.FindAll();
         var contributors = _contributorService.FindAll();
         var metrics = _metricService.FindAll();

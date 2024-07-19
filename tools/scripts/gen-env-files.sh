@@ -242,7 +242,7 @@ KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBrokerAdvertisedExternal
 ################################################
 # Storage__UploadPath=uploads
 # Storage__CapturePath=uploads
-# Keycloak__Issuer=http://localhost:$portKeycloak/auth/realms/tno
+# Keycloak__Issuer=http://localhost:$portKeycloak/auth/realms/mmi
 
 ################################################
 # Remote CSS
@@ -255,16 +255,32 @@ KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBrokerAdvertisedExternal
 # CSS__Secret={https://bcgov.github.io/sso-requests}
 
 ################################################
+# Custom Keycloak Realm
+################################################
+# Keycloak__Authority=https://dev.loginproxy.gov.bc.ca/auth/realms/mmi
+# Keycloak__Audience=mmi-app
+# Keycloak__Issuer=mmi-app,mmi-service-account
+# Keycloak__ServiceAccount__Authority=https://dev.loginproxy.gov.bc.ca
+# Keycloak__ServiceAccount__Secret={GET KEYCLOAK mmi-service-account CLIENT SECRET}
+# Keycloak__ClientId={GET KEYCLOAK mmi-app CLIENT ID}
+
+################################################
 # Local Keycloak
 ################################################
-keycloak__Authority=http://host.docker.internal:$portKeycloak/realms/tno
-Keycloak__Audience=tno-app,tno-service-account
-Keycloak__Issuer=tno-app,tno-service-account
-CSS__ApiUrl=http://host.docker.internal:$portCssApi/api
-CSS__Authority=http://host.docker.internal:$portCssApi
-CSS__TokenPath=/api/v1/token
-CSS__ClientId=service-account-team-795-4127
-CSS__Secret={GET KEYCLOAK tno-service-account CLIENT SECRET}
+keycloak__Authority=http://host.docker.internal:$portKeycloak/realms/mmi
+Keycloak__Audience=mmi-app,mmi-service-account
+Keycloak__Issuer=mmi-app,mmi-service-account
+Keycloak__ServiceAccount__Authority=http://host.docker.internal:$portKeycloak
+Keycloak__ServiceAccount__RealmPath=/realms/
+Keycloak__ServiceAccount__AdminPath=/admin/realms/
+Keycloak__ServiceAccount__Secret={GET KEYCLOAK mmi-service-account CLIENT SECRET}
+Keycloak__ClientId={GET KEYCLOAK mmi-app CLIENT ID}
+
+# CSS__ApiUrl=http://host.docker.internal:$portCssApi/api
+# CSS__Authority=http://host.docker.internal:$portCssApi
+# CSS__TokenPath=/api/v1/token
+# CSS__ClientId=service-account-team-795-4127
+# CSS__Secret={GET KEYCLOAK mmi-service-account CLIENT SECRET}
 
 CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
 CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
@@ -389,9 +405,9 @@ echo \
 ASPNETCORE_URLS=http://+:8081
 
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 
@@ -415,9 +431,9 @@ echo \
 ASPNETCORE_URLS=http://+:8081
 
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 # Service__VolumePath=../data
@@ -442,9 +458,9 @@ echo \
 ASPNETCORE_URLS=http://+:8081
 
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 # Service__VolumePath=../data
@@ -469,9 +485,9 @@ echo \
 ASPNETCORE_URLS=http://+:8081
 
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 # Service__VolumePath=../data
@@ -496,9 +512,9 @@ echo \
 ASPNETCORE_URLS=http://+:8081
 
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 # Service__VolumePath=../data
@@ -523,9 +539,9 @@ echo \
 ASPNETCORE_URLS=http://+:8081
 
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Kafka__Admin__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
 Kafka__Producer__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
@@ -552,9 +568,9 @@ echo \
 ASPNETCORE_URLS=http://+:8081
 
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 Service__DataLocation=Openshift
@@ -578,9 +594,9 @@ echo \
 ASPNETCORE_URLS=http://+:8081
 
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 Service__AzureCognitiveServicesKey={ENTER A VALID AZURE KEY}
@@ -605,9 +621,9 @@ echo \
 ASPNETCORE_URLS=http://+:8081
 
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 Service__ElasticsearchUri=http://host.docker.internal:$portElastic
@@ -634,9 +650,9 @@ echo \
 ASPNETCORE_URLS=http://+:8081
 
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 
@@ -660,9 +676,9 @@ echo \
 ASPNETCORE_URLS=http://+:8081
 
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 
@@ -686,9 +702,9 @@ echo \
 ASPNETCORE_URLS=http://+:8081
 
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 
@@ -715,9 +731,9 @@ echo \
 ASPNETCORE_URLS=http://+:8081
 
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 Charts__Url=http://charts:8080
@@ -742,9 +758,9 @@ echo \
 ASPNETCORE_URLS=http://+:8081
 
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 
@@ -771,9 +787,9 @@ ASPNETCORE_URLS=http://+:8081
 # Local
 ###########################################
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 
@@ -796,9 +812,9 @@ ASPNETCORE_URLS=http://+:8081
 # Local
 ###########################################
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 # Service__VolumePath=../data" >> ./services/net/ffmpeg/.env
@@ -814,9 +830,9 @@ echo \
 ASPNETCORE_URLS=http://+:8081
 
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 
@@ -839,9 +855,9 @@ echo \
 ASPNETCORE_URLS=http://+:8081
 
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 Service__CoreNLPApiUrl=http://host.docker.internal:$portCoreNlp
