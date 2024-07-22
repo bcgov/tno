@@ -113,7 +113,7 @@ export const PressGallery: React.FC = () => {
       fetchResults(
         generateQuery({
           ...pressSettings,
-          defaultSearchOperator: 'or',
+          defaultOperator: 'or',
           pressMembers: pressMemberNames,
           startDate,
           endDate,
@@ -155,7 +155,7 @@ export const PressGallery: React.FC = () => {
             fetchResults(
               generateQuery({
                 ...pressSettings,
-                defaultSearchOperator: 'or',
+                defaultOperator: 'or',
                 pressMembers: [
                   pressMemberNames.find(
                     (pm) =>
@@ -203,7 +203,7 @@ export const PressGallery: React.FC = () => {
               fetchResults(
                 generateQuery({
                   ...pressSettings,
-                  defaultSearchOperator: 'or',
+                  defaultOperator: 'or',
                   pressMembers: pressGalleryFilter.pressFilter?.value
                     ? [
                         pressMemberNames.find(
@@ -233,7 +233,7 @@ export const PressGallery: React.FC = () => {
             fetchResults(
               generateQuery({
                 ...pressSettings,
-                defaultSearchOperator: 'or',
+                defaultOperator: 'or',
                 pressMembers: pressMemberNames,
                 startDate: `${moment().subtract(2, 'weeks')}`,
                 endDate: `${moment()}`,

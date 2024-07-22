@@ -147,7 +147,7 @@ export const MyMinister: React.FC = () => {
                   inByline: true,
                   inHeadline: true,
                   inStory: true,
-                  defaultSearchOperator: 'or',
+                  defaultOperator: 'or',
                 }),
               ),
             );

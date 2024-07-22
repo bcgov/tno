@@ -59,4 +59,10 @@ export const FilterForm = styled(FormPage)`
   .pad-05 {
     padding: 0.5rem;
   }
+
+  code {
+    border: solid 1px gray;
+    border-radius: 0.15rem;
+    padding: 0 0.25rem;
+  }
 `;
