@@ -14,11 +14,14 @@ import {
   IFilterSettingsModel,
   OptionItem,
   Row,
+  Section,
   SentimentSlider,
   Show,
+  ToggleGroup,
 } from 'tno-core';
 
 import { contentTypeOptions } from './constants';
+import { ElasticQueryHelp } from './ElasticQueryHelp';
 import { getActionOptions, getTagOptions } from './utils';
 
 export interface IFilterSEttingsFormProps {
@@ -47,7 +50,7 @@ export const FilterSettingsForm: React.FC<IFilterSEttingsFormProps> = ({
   const [actionOptions, setActionOptions] = React.useState(getActionOptions(actions));
   const [tagOptions, setTagOptions] = React.useState(getTagOptions(tags));
 
-  const settings = defaultPath ? getIn(values, defaultPath) : values;
+  const settings: IFilterSettingsModel = defaultPath ? getIn(values, defaultPath) : values;
   const path = defaultPath ? `${defaultPath}.` : '';
   const startDate = settings.startDate ? moment(settings.startDate).format('YYYY/MM/DD') : '';
   const endDate = settings.endDate ? moment(settings.endDate).format('YYYY/MM/DD') : '';
@@ -96,77 +99,88 @@ export const FilterSettingsForm: React.FC<IFilterSEttingsFormProps> = ({
           is 10, the maximum is 10,000.
         </p>
       </Row>
-      <Row>
-        <Col>
-          <FormikTextArea
-            name={`${path}search`}
-            label="Keywords"
-            value={settings.search ?? ''}
-            width={FieldSize.Large}
-            rows={8}
-            onChange={(e) => {
-              const value = e.target.value.length ? e.target.value : undefined;
-              updateSettings('search', value);
-            }}
-          />
-        </Col>
-        <Show visible={supportsElasticQuery}>
-          <Col>
-            <div>
-              The keywords query supports the following operators:
-              <ul>
-                <li>
-                  <code>+</code> signifies AND operation
-                </li>
-                <li>
-                  <code>|</code> signifies OR operation
-                </li>
-                <li>
-                  <code>-</code> negates a single token
-                </li>
-                <li>
-                  <code>"</code> wraps a number of tokens to signify a phrase for searching
-                </li>
-                <li>
-                  <code>*</code> at the end of a term signifies a prefix query
-                </li>
-                <li>
-                  <code>(</code> and <code>)</code> signify precedence
-                </li>
-                <li>
-                  <code>~N</code> after a word signifies edit distance (fuzziness)
-                </li>
-                <li>
-                  <code>~N</code> after a phrase signifies slop amount
-                </li>
-              </ul>
-            </div>
+      <Section>
+        <Row gap="1rem" alignItems="center" className="frm-in">
+          <label>Advanced Options:</label>
+          <Row alignItems="center" justifyContent="space-between">
+            Default operator:
+            <ToggleGroup
+              defaultSelected={settings.defaultOperator ?? 'and'}
+              options={[
+                {
+                  id: 'and',
+                  label: 'AND',
+                  onClick: () => updateSettings('defaultOperator', 'and'),
+                },
+                {
+                  id: 'or',
+                  label: 'OR',
+                  onClick: () => updateSettings('defaultOperator', 'or'),
+                },
+              ]}
+            />
+          </Row>
+          <Row alignItems="center" justifyContent="space-between">
+            Query Type:
+            <ToggleGroup
+              defaultSelected={settings.queryType ?? 'simple-query-string'}
+              options={[
+                {
+                  id: 'query-string',
+                  label: 'Advanced',
+                  onClick: () => updateSettings('queryType', 'query-string'),
+                },
+                {
+                  id: 'simple-query-string',
+                  label: 'Simple',
+                  onClick: () => updateSettings('queryType', 'simple-query-string'),
+                },
+              ]}
+            />
+          </Row>
+        </Row>
+        <Row nowrap>
+          <Col flex="2">
+            <FormikTextArea
+              name={`${path}search`}
+              label="Keywords"
+              value={settings.search ?? ''}
+              width={FieldSize.Large}
+              rows={8}
+              onChange={(e) => {
+                const value = e.target.value.length ? e.target.value : undefined;
+                updateSettings('search', value);
+              }}
+            />
           </Col>
-        </Show>
-      </Row>
-      <Row gap="1rem">
-        <label>Search for Keywords in: </label>
-        <FormikCheckbox
-          name={`${path}inHeadline`}
-          label="Headline"
-          onChange={(e) => updateSettings('inHeadline', e.target.checked)}
-        />
-        <FormikCheckbox
-          name={`${path}inByline`}
-          label="Byline"
-          onChange={(e) => updateSettings('inByline', e.target.checked)}
-        />
-        <FormikCheckbox
-          name={`${path}inStory`}
-          label="Story text"
-          onChange={(e) => updateSettings('inStory', e.target.checked)}
-        />
-        <FormikCheckbox
-          name={`${path}inProgram`}
-          label="Program"
-          onChange={(e) => updateSettings('inProgram', e.target.checked)}
-        />
-      </Row>
+          <Show visible={supportsElasticQuery}>
+            <ElasticQueryHelp queryType={settings.queryType} />
+          </Show>
+        </Row>
+        <Row gap="1rem">
+          <label>Search for Keywords in: </label>
+          <FormikCheckbox
+            name={`${path}inHeadline`}
+            label="Headline"
+            onChange={(e) => updateSettings('inHeadline', e.target.checked)}
+          />
+          <FormikCheckbox
+            name={`${path}inByline`}
+            label="Byline"
+            onChange={(e) => updateSettings('inByline', e.target.checked)}
+          />
+          <FormikCheckbox
+            name={`${path}inStory`}
+            label="Story text"
+            onChange={(e) => updateSettings('inStory', e.target.checked)}
+          />
+          <FormikCheckbox
+            name={`${path}inProgram`}
+            label="Program"
+            onChange={(e) => updateSettings('inProgram', e.target.checked)}
+          />
+        </Row>
+      </Section>
       <Row nowrap>
         <Col>
           <FormikDatePicker
