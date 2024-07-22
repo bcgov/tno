@@ -20,7 +20,6 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
   const isLocal =
     new URL(authority).host.startsWith('localhost') ||
     new URL(authority).host.startsWith('host.docker.internal');
-  const isProd = new URL(authority).host === 'editor.mmi.gov.bc.ca';
 
   const [showModal, setShowModal] = React.useState(false);
 
