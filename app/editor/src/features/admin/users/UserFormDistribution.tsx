@@ -49,6 +49,15 @@ export const UserFormDistribution: React.FC = () => {
   );
 
   const addresses: IUserEmailModel[] = values.preferences?.addresses ?? [];
+  const sortedAddresses = [...addresses].sort((address1, address2) => {
+    if (address1.email < address2.email) {
+      return -1;
+    }
+    if (address1.email > address2.email) {
+      return 1;
+    }
+    return 0;
+  });
 
   const handleFindUsers = React.useCallback(
     async (keyword: string) => {
@@ -136,7 +145,7 @@ export const UserFormDistribution: React.FC = () => {
             <label>Email Addresses</label>
             <Section className="addresses">
               <Col gap="0.5rem">
-                {addresses.map((address) => {
+                {sortedAddresses.map((address) => {
                   return (
                     <Row key={address.userId} gap="0.5rem" alignItems="center">
                       <Col flex="1">{address.email}</Col>
@@ -146,7 +155,7 @@ export const UserFormDistribution: React.FC = () => {
                         onClick={(e) => {
                           setFieldValue('preferences', {
                             ...values.preferences,
-                            addresses: addresses.filter((a) => a.userId !== address.userId),
+                            addresses: sortedAddresses.filter((a) => a.userId !== address.userId),
                           });
                         }}
                       >
