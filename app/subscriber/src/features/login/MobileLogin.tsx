@@ -45,10 +45,6 @@ export const MobileLogin: React.FC<IMobileLoginProps> = ({ login }) => {
                       >
                         IDIR
                       </Button>
-                      <Button
-                        className="white bceid-logo"
-                        onClick={() => login(isLocal ? 'gcpe-oidc' : 'bceid-basic')}
-                      ></Button>
                     </Show>
                     <Show visible={isLocal}>
                       <Button className="white" onClick={() => login()}>
