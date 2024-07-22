@@ -34,7 +34,7 @@ export const BrowserLogin = styled.div`
 
   .idir-logo {
     padding: 1%;
-    background-image: url('/assets/IDIR_button.png');
+    background-image: url('/assets/Logos_IDIR.svg');
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -42,7 +42,7 @@ export const BrowserLogin = styled.div`
 
   .azure-logo {
     padding: 1%;
-    /* background-image: url('/assets/IDIR_button.png'); */
+    /* background-image: url('/assets/Logos_IDIR.svg'); */
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;

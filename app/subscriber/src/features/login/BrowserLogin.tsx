@@ -20,7 +20,6 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
   const isLocal =
     new URL(authority).host.startsWith('localhost') ||
     new URL(authority).host.startsWith('host.docker.internal');
-  const isProd = new URL(authority).host === 'editor.mmi.gov.bc.ca';
 
   const [showModal, setShowModal] = React.useState(false);
 
@@ -44,14 +43,6 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
                         className="white idir-logo"
                         onClick={() => login(isLocal ? 'gcpe-oidc' : 'idir')}
                       ></Button>
-                      <Show visible={!isProd}>
-                        <Button
-                          className="white azure-logo"
-                          onClick={() => login(isLocal ? 'gcpe-oidc' : 'azureidir')}
-                        >
-                          Azure
-                        </Button>
-                      </Show>
                     </Show>
                     <Show visible={isLocal}>
                       <Button className="white" onClick={() => login()}>
