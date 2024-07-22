@@ -12,9 +12,17 @@ import * as styled from './styled';
 
 interface IFilterMediaProps {
   loaded?: boolean;
+  selected: IContentModel[];
+  setSelected: React.Dispatch<React.SetStateAction<IContentModel[]>>;
+  onReset: () => void;
 }
 
-export const FilterMedia: React.FC<IFilterMediaProps> = ({ loaded }) => {
+export const FilterMedia: React.FC<IFilterMediaProps> = ({
+  loaded,
+  selected,
+  setSelected,
+  onReset,
+}) => {
   const [
     {
       mediaType: { filter },
@@ -25,7 +33,6 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({ loaded }) => {
 
   const [currDateResults, setCurrDateResults] = React.useState<IContentSearchResult[]>([]);
   const [prevDateResults, setPrevDateResults] = React.useState<IContentSearchResult[]>([]);
-  const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
   const fetchResults = React.useCallback(
@@ -106,6 +113,7 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({ loaded }) => {
         content={selected}
         onSelectAll={(e) => (e.target.checked ? setSelected(currDateResults) : setSelected([]))}
         onClear={() => setSelected([])}
+        onReset={onReset}
       />
       <DateFilter loaded={loaded} filter={filter} storeFilter={storeFilter} />
       <Show visible={isLoading}>

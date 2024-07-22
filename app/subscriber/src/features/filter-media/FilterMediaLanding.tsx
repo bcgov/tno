@@ -5,7 +5,15 @@ import { IGroupOption } from 'features/search-page/components/advanced-search/in
 import moment from 'moment';
 import React from 'react';
 import { useContent, useLookup } from 'store/hooks';
-import { Checkbox, Col, IFilterSettingsModel, ListOptionName, Row, Show } from 'tno-core';
+import {
+  Checkbox,
+  Col,
+  IContentModel,
+  IFilterSettingsModel,
+  ListOptionName,
+  Row,
+  Show,
+} from 'tno-core';
 
 import { FilterMedia } from './FilterMedia';
 import * as styled from './styled';
@@ -28,6 +36,7 @@ export const FilterMediaLanding: React.FC = () => {
   const [narrowedOptions, setNarrowedOptions] = React.useState<IGroupOption[]>([]);
   const [activeSource, setActiveSource] = React.useState<IGroupOption | null>(null);
   const [parentClicked, setParentClicked] = React.useState<boolean>(false);
+  const [selected, setSelected] = React.useState<IContentModel[]>([]);
 
   const [loaded, setLoaded] = React.useState<boolean>(false);
 
@@ -38,12 +47,13 @@ export const FilterMediaLanding: React.FC = () => {
     }
   }, [subMediaGroups]);
 
-  // init
-  React.useEffect(() => {
-    if (loaded && mediaGroups && !activeFilter) {
-      const activeSubMediaGroup =
-        subMediaGroups.find((sg) => sg.label === filter.activeSubGroup) ??
-        subMediaGroups.find((sg) => sg.label === 'Daily Print');
+  const resetFilters = React.useCallback(
+    (resetSubMediaGroup = false) => {
+      const activeSubMediaGroup = resetSubMediaGroup
+        ? subMediaGroups.find((sg) => sg.label === 'Daily Print')
+        : subMediaGroups.find((sg) => sg.label === filter.activeSubGroup) ??
+          subMediaGroups.find((sg) => sg.label === 'Daily Print');
+
       if (activeSubMediaGroup) {
         setActiveFilter(activeSubMediaGroup);
         setActiveSource(null);
@@ -67,6 +77,14 @@ export const FilterMediaLanding: React.FC = () => {
         };
         storeFilter(newFilter);
       }
+    },
+    [filter, storeFilter, subMediaGroups],
+  );
+
+  // init
+  React.useEffect(() => {
+    if (loaded && mediaGroups && !activeFilter) {
+      resetFilters();
     }
     // only when media groups / relevant data is loaded & ready
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -205,6 +223,11 @@ export const FilterMediaLanding: React.FC = () => {
     [activeFilter, filter, storeFilter],
   );
 
+  const handleReset = React.useCallback(() => {
+    resetFilters(true);
+    setSelected([]);
+  }, [resetFilters]);
+
   return (
     <styled.FilterMediaLanding>
       <Col className="filters">
@@ -295,7 +318,12 @@ export const FilterMediaLanding: React.FC = () => {
       </Col>
       <Col className="results">
         <PageSection>
-          <FilterMedia loaded={loaded} />
+          <FilterMedia
+            loaded={loaded}
+            onReset={handleReset}
+            selected={selected}
+            setSelected={setSelected}
+          />
         </PageSection>
       </Col>
     </styled.FilterMediaLanding>

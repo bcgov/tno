@@ -1,6 +1,7 @@
 import { ShareMenu } from 'components/share-menu';
 import React, { useState } from 'react';
 import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
+import { IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
@@ -24,12 +25,16 @@ export interface IContentActionBarProps {
   onBack?: () => void;
   /** Event fires when select all checkbox is changed */
   onSelectAll?: React.ChangeEventHandler<HTMLInputElement>;
+  /** state for checkbox Select All */
+  isSelectAllChecked?: boolean;
   /** Whether to show remove from folder button */
   removeFolderItem?: Function;
   /** whether to disable AddToFolderMenu */
   disableAddToFolder?: boolean;
   /** Event to fire when selection should be cleared */
   onClear?: () => void;
+  /** Event to fire to clear state */
+  onReset?: () => void;
 }
 
 export const ContentActionBar: React.FC<IContentActionBarProps> = ({
@@ -38,7 +43,9 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
   viewingContent,
   onBack,
   onSelectAll,
+  isSelectAllChecked,
   onClear,
+  onReset,
   removeFolderItem,
   disableAddToFolder,
 }) => {
@@ -96,13 +103,21 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
         <Row className="select-all">
           <div className="check-area">
             <Row gap="0.25rem">
-              <Checkbox id="select-all" onChange={onSelectAll} />
+              <Checkbox id="select-all" checked={isSelectAllChecked} onChange={onSelectAll} />
               <label htmlFor="select-all">SELECT ALL</label>
             </Row>
           </div>
         </Row>
         <div className="arrow" />
       </Show>
+      {onReset && (
+        <IoMdRefresh
+          className="reset"
+          data-tooltip-id="main-tooltip"
+          data-tooltip-content="Reset filters"
+          onClick={() => onReset?.()}
+        />
+      )}
       {showActionsItems && (
         <div className="right-side-items">
           <Row>

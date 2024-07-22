@@ -24,6 +24,7 @@ export const TodaysCommentary: React.FC = () => {
   const { commentaryActionId } = useSettings();
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
+  const [isSelectAllChecked, setIsSelectAllChecked] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);
@@ -60,13 +61,39 @@ export const TodaysCommentary: React.FC = () => {
         .catch();
     }
   }, [commentaryActionId, filter, findContentWithElasticsearch, getActionFilters]);
+  const resetDateFilter = React.useCallback(() => {
+    const defaultStartDate = moment().startOf('day').toISOString();
+    const defaultEndDate = moment().endOf('day').toISOString();
+    storeFilter({
+      ...filter,
+      startDate: defaultStartDate,
+      endDate: defaultEndDate,
+      dateOffset: undefined,
+    });
+  }, [filter, storeFilter]);
+
+  const handleReset = React.useCallback(() => {
+    setSelected([]);
+    resetDateFilter();
+    setIsSelectAllChecked(false); // Uncheck the checkbox
+  }, [resetDateFilter]);
+
+  const handleSelectAll = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSelected(e.target.checked ? content : []);
+      setIsSelectAllChecked(e.target.checked); // Update checkbox state
+    },
+    [content],
+  );
 
   return (
     <styled.TodaysCommentary>
       <ContentListActionBar
         content={selected}
         onClear={() => setSelected([])}
-        onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
+        onSelectAll={handleSelectAll}
+        isSelectAllChecked={isSelectAllChecked}
+        onReset={handleReset}
       />
       <DateFilter filter={filter} storeFilter={storeFilter} />
       <Show visible={loading}>
