@@ -958,6 +958,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                               }
                               variant={ButtonVariant.action}
                               disabled={
+                                props.values.isApproved ||
                                 props.isSubmitting ||
                                 !props.values.fileReferences.length ||
                                 (props.values.fileReferences.length > 0 &&
