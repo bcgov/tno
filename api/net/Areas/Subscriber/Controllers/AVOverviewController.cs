@@ -14,7 +14,7 @@ namespace TNO.API.Areas.Subscriber.Controllers;
 /// <summary>
 /// AVOverviewController class, provides endpoints to manage evening overviews.
 /// </summary>
-[ClientRoleAuthorize(ClientRole.Editor)]
+[ClientRoleAuthorize(ClientRole.Subscriber)]
 [ApiController]
 [Area("subscriber")]
 [ApiVersion("1.0")]
@@ -28,7 +28,6 @@ public class AVOverviewController : ControllerBase
 {
     #region Variables
     private readonly IAVOverviewInstanceService _overviewInstanceService;
-    private readonly IAVOverviewTemplateService _overviewTemplateService;
     private readonly IReportHelper _reportHelper;
     #endregion
 
@@ -37,15 +36,12 @@ public class AVOverviewController : ControllerBase
     /// Creates a new instance of a AVOverviewController object, initializes with specified parameters.
     /// </summary>
     /// <param name="overviewInstanceService"></param>
-    /// <param name="overviewTemplateService"></param>
     /// <param name="reportHelper"></param>
     public AVOverviewController(
         IAVOverviewInstanceService overviewInstanceService,
-        IAVOverviewTemplateService overviewTemplateService,
         IReportHelper reportHelper)
     {
         _overviewInstanceService = overviewInstanceService;
-        _overviewTemplateService = overviewTemplateService;
         _reportHelper = reportHelper;
     }
     #endregion
@@ -62,12 +58,15 @@ public class AVOverviewController : ControllerBase
     [ProducesResponseType(typeof(AVOverviewInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
-    public IActionResult FindByDate([FromQuery]DateTime? publishedOn = null)
+    public IActionResult FindByDate([FromQuery] DateTime? publishedOn = null)
     {
         Entities.AVOverviewInstance? instance;
-        if (publishedOn != null) {
-            instance = _overviewInstanceService.FindByDate((DateTime) publishedOn);
-        } else {
+        if (publishedOn != null)
+        {
+            instance = _overviewInstanceService.FindByDate((DateTime)publishedOn);
+        }
+        else
+        {
             instance = _overviewInstanceService.FindLatest();
         }
 
