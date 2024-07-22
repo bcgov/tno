@@ -87,17 +87,13 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         ) {
           // result occurred during currently selected date
           currDateResults.push(h._source);
-        } else if (
-          // result occurred sometime in past 5 days
-          resDate.getTime() >= prevStartDate.getTime() &&
-          resDate.getTime() <= currEndDate.getTime()
-        ) {
+        } else {
           prevDateResults.push(h._source);
         }
       });
       setCurrDateResults(currDateResults);
       setPrevDateResults(prevDateResults);
-      setTotalResults(currDateResults.length);
+      setTotalResults(currDateResults.length + prevDateResults.length);
       if (res.hits.total.value === 0) toast.warn('No results found.');
       if (res.hits.total.value >= 500)
         toast.warn(
@@ -119,15 +115,15 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
           };
         }
         const offSet = filter.dateOffset ? filter.dateOffset : 0;
-        const dayInMillis = 24 * 60 * 60 * 1000; // Hours*Minutes*Seconds*Milliseconds
+        const dayInMs = 24 * 60 * 60 * 1000; // Hours*Minutes*Seconds*Milliseconds
         let offSetDate = new Date();
         offSetDate.setDate(offSetDate.getDate() - offSet);
         offSetDate.setHours(0, 0, 0);
         const currStartDate = filter.startDate ? new Date(filter.startDate) : offSetDate;
-        const prevStartDate = new Date(currStartDate.getTime() - 7 * dayInMillis);
+        const prevStartDate = new Date(currStartDate.getTime() - 7 * dayInMs);
         const currEndDate = filter.endDate
           ? new Date(filter.endDate)
-          : new Date(currStartDate.getTime() + offSet * dayInMillis - 1);
+          : new Date(currStartDate.getTime() + offSet * dayInMs - 1);
         currEndDate.setHours(23, 59, 59);
         setStartDate(currStartDate);
         if (filter.startDate && filter.endDate) {
@@ -158,11 +154,11 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
 
   React.useEffect(() => {
     // only fetch this when there's no call to the elastic search
-    if (isLoading) return;
+    if (isLoading || (id && !activeFilter)) return;
     fetchResults(filter, content);
     // Do not execute when changing the filters
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content, fetchResults]);
+  }, [content, fetchResults, id]);
 
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);

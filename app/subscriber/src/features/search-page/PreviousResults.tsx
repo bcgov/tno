@@ -31,41 +31,52 @@ export const PreviousResults: React.FC<IPreviousResultsProps> = ({
 
   React.useEffect(() => {
     // wait for startDate, and also do not want to fetch if results are returned
-    if (!startDate || !!currDateResults.length) return;
+    if (!startDate || currDateResults.length) return;
     createDateRanges(startDate);
     // only want to run when start date or source ids change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter.startDate, currDateResults, prevDateResults]);
 
-  const createDateRanges = (startDate: Date) => {
-    const dayInMillis = 24 * 60 * 60 * 1000; // Hours*Minutes*Seconds*Milliseconds
+  const createDateRanges = React.useCallback(
+    (startDate: Date) => {
+      if (!prevDateResults.length) return setPrevResults([]);
+      const dayInMs = 24 * 60 * 60 * 1000; // Hours*Minutes*Seconds*Milliseconds
+      // Previous 7 days that will be used to fetch in a filter
+      let dateRanges: IPreviousDate[] = [];
+      const days =
+        moment(startDate)
+          .startOf('day')
+          .diff(
+            moment(prevDateResults[prevDateResults.length - 1].publishedOn).endOf('day'),
+            'days',
+          ) + 1;
 
-    // Previous 7 days that will be used to fetch in a filter
-    let dateRanges: IPreviousDate[] = [];
+      // Generate the previous 7 days from the read date
+      for (let i = 1; i <= days; i++) {
+        const currStartDate = new Date(startDate.getTime() - i * dayInMs);
+        const currEndDate = new Date(currStartDate.getTime() + dayInMs - 1);
+        const currResults = prevDateResults.filter((res) => {
+          const resDate = new Date(res.publishedOn);
+          if (
+            resDate.getTime() >= currStartDate.getTime() &&
+            resDate.getTime() <= currEndDate.getTime()
+          ) {
+            return true;
+          }
+          return false;
+        });
 
-    // Generate the previous 7 days from the read date
-    for (let i = 1; i <= 7; i++) {
-      const currStartDate = new Date(startDate.getTime() - i * dayInMillis);
-      const currEndDate = new Date(currStartDate.getTime() + dayInMillis - 1);
-      const currResults = prevDateResults.filter((res) => {
-        const resDate = new Date(res.publishedOn);
-        if (
-          resDate.getTime() >= currStartDate.getTime() &&
-          resDate.getTime() <= currEndDate.getTime()
-        ) {
-          return true;
-        }
-        return false;
-      });
+        dateRanges.push({
+          startDate: currStartDate.toISOString(),
+          endDate: currEndDate.toISOString(),
+          hits: currResults.length,
+        });
+      }
+      setPrevResults(dateRanges);
+    },
+    [prevDateResults],
+  );
 
-      dateRanges.push({
-        startDate: currStartDate.toISOString(),
-        endDate: currEndDate.toISOString(),
-        hits: currResults.length,
-      });
-    }
-    setPrevResults(dateRanges);
-  };
   return (
     <styled.PreviousResults>
       <p>

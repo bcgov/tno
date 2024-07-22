@@ -16,5 +16,5 @@ export const defaultFilterSettings: IFilterSettingsModel = {
   contentTypes: [],
   tags: [],
   sentiment: [],
-  defaultSearchOperator: 'and',
+  defaultOperator: 'and',
 };

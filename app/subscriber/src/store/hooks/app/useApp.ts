@@ -1,4 +1,3 @@
-import axios from 'axios';
 import React from 'react';
 import { IAppState, IErrorModel, useAppStore, useProfileStore } from 'store/slices';
 import {
@@ -92,24 +91,25 @@ export const useApp = (): [IAppState, IAppController] => {
       getUserInfo: async (refresh: boolean = false) => {
         if (userInfo.id !== 0 && !refresh) return userInfo;
         var location: IUserLocationModel | undefined;
-        try {
-          // Generate a unique key for this user and store in local storage.
-          var key = localStorage.getItem('device-key');
-          if (!key) {
-            key = crypto.randomUUID();
-            localStorage.setItem('device-key', key);
-          }
-          const locationResponse = await dispatch(
-            'get-location',
-            () => axios.get('https://geolocation-db.com/json/'),
-            'location',
-            true,
-            true,
-          );
-          location = { ...locationResponse.data, key };
-        } catch {
-          // Ignore location error
-        }
+        // TODO: Find a new way to do this, the location request was being blocked and causing login issues.
+        // try {
+        //   // Generate a unique key for this user and store in local storage.
+        //   var key = localStorage.getItem('device-key');
+        //   if (!key) {
+        //     key = crypto.randomUUID();
+        //     localStorage.setItem('device-key', key);
+        //   }
+        //   const locationResponse = await dispatch(
+        //     'get-location',
+        //     () => axios.get('https://geolocation-db.com/json/'),
+        //     'location',
+        //     true,
+        //     true,
+        //   );
+        //   location = { ...locationResponse.data, key };
+        // } catch {
+        //   // Ignore location error
+        // }
         const response = await dispatch('get-user-info', () => api.getUserInfo(location));
         userInfo = response.data;
         storeUserInfo(userInfo);

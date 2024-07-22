@@ -85,7 +85,7 @@ export const MySearches = () => {
           const truncatedKeywords = truncateTeaser(keywords, 20);
 
           return [
-            <Row key="" flex="1" gap="1rem">
+            <Row key="1" flex="1" gap="1rem">
               <Action icon={<FaBookmark />} onClick={() => handleClick(row)}>
                 <Col flex="1" className="link">
                   {editing?.id === row.id ? (
@@ -104,7 +104,7 @@ export const MySearches = () => {
                 </Col>
               </Action>
             </Row>,
-            <Row key="" justifyContent="flex-end" flex="1" gap="1rem">
+            <Row key="2" justifyContent="flex-end" flex="1" gap="1rem">
               <Col flex="1">
                 {truncatedKeywords ? (
                   <Row className="keywords-row">

@@ -11,6 +11,7 @@ import {
   FaBookmark,
   FaCheck,
   FaDownLeftAndUpRightToCenter,
+  FaGears,
   FaIcons,
   FaNewspaper,
   FaTag,
@@ -42,7 +43,7 @@ import {
   ContentTypeSection,
   ContributorSection,
   DateSection,
-  ElasticInfo,
+  ElasticQueryHelp,
   ExpandableRow,
   MediaSection,
   MediaTypeSection,
@@ -56,7 +57,6 @@ import {
 } from './components';
 import { defaultAdvancedSearch, defaultFilter } from './constants';
 import * as styled from './styled';
-import { extractTags, removeTags } from './utils';
 
 export interface IAdvancedSearchProps {
   /** Event fires when search button is clicked. */
@@ -279,7 +279,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
             {/* SEARCH FOR: */}
             <Row className="search-for-row">
               <label className="search-in-label">Search for:</label>
-              <ElasticInfo />
+              <ElasticQueryHelp queryType={search.queryType} />
               <Col className="text-area-container">
                 <TextArea
                   value={search.search}
@@ -287,14 +287,53 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
                   onKeyDown={(e) => handleEnterPressed(e, () => onSearch?.(search), true)}
                   name="search"
                   onChange={(e) => {
-                    const { value } = e.target;
-                    const tags = extractTags(value);
-                    storeSearchFilter({ ...search, search: removeTags(value), tags: tags ?? [] });
+                    storeSearchFilter({ ...search, search: e.target.value });
                   }}
                 />
                 <SearchInGroup />
               </Col>
             </Row>
+            <Col className="section">
+              <ExpandableRow icon={<FaGears />} title="Advanced Options:" hasValues={false}>
+                <Row alignItems="center" justifyContent="space-between">
+                  Default operator:
+                  <ToggleGroup
+                    defaultSelected={search.defaultOperator ?? 'and'}
+                    options={[
+                      {
+                        id: 'and',
+                        label: 'AND',
+                        onClick: () => storeSearchFilter({ ...search, defaultOperator: 'and' }),
+                      },
+                      {
+                        id: 'or',
+                        label: 'OR',
+                        onClick: () => storeSearchFilter({ ...search, defaultOperator: 'or' }),
+                      },
+                    ]}
+                  />
+                </Row>
+                <Row alignItems="center" justifyContent="space-between">
+                  Query Type:
+                  <ToggleGroup
+                    defaultSelected={search.queryType ?? 'simple-query-string'}
+                    options={[
+                      {
+                        id: 'query-string',
+                        label: 'Advanced',
+                        onClick: () => storeSearchFilter({ ...search, queryType: 'query-string' }),
+                      },
+                      {
+                        id: 'simple-query-string',
+                        label: 'Simple',
+                        onClick: () =>
+                          storeSearchFilter({ ...search, queryType: 'simple-query-string' }),
+                      },
+                    ]}
+                  />
+                </Row>
+              </ExpandableRow>
+            </Col>
             <div className="search-in-group space-top"></div>
             <Col className="section top-spacer">
               <div className="narrow-filter-header">

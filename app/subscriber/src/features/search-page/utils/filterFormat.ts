@@ -2,13 +2,14 @@ import { IFilterSettingsModel } from 'tno-core';
 
 export const filterFormat = (filter: IFilterSettingsModel) => {
   const settings: IFilterSettingsModel = {
+    queryType: filter.queryType ?? 'simple-query-string',
+    defaultOperator: filter.defaultOperator ?? 'and',
     actions: filter.actions ?? [],
     contentTypes: filter.contentTypes ?? [],
     contentIds: filter.contentIds ?? [],
     contributorIds: filter.contributorIds ?? [],
     contributorNames: filter.contributorNames ?? [],
     dateOffset: filter.dateOffset,
-    defaultSearchOperator: filter.defaultSearchOperator ?? 'and',
     edition: filter.edition ?? '',
     featured: filter.featured ?? false,
     from: 0,

@@ -2,12 +2,9 @@ import { ContentStatusName, ContentTypeName } from '../constants';
 import { IFilterActionSettingsModel, ISortField } from '.';
 
 export interface IFilterSettingsModel {
-  activeSubGroup?: string;
   searchUnpublished: boolean;
+  activeSubGroup?: string;
   id?: number;
-  from?: number;
-  size: number;
-  defaultSearchOperator?: 'and' | 'or';
   boldKeywords?: boolean;
   contentIds?: number[];
   contentTypes?: ContentTypeName[];
@@ -47,5 +44,10 @@ export interface IFilterSettingsModel {
   updatedOn?: string;
   status?: ContentStatusName;
   userId?: number;
+  // Elasticsearch specific fields
+  from?: number;
+  size: number;
+  queryType?: 'query-string' | 'simple-query-string';
+  defaultOperator?: 'and' | 'or';
   sort?: ISortField[];
 }

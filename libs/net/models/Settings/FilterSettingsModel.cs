@@ -14,6 +14,16 @@ public class FilterSettingsModel
     public bool SearchUnpublished { get; set; }
 
     /// <summary>
+    /// get/set - The Elasticsearch query type to use [query-string, simple-query-string]
+    /// </summary>
+    public string QueryType { get; set; } = "query-string";
+
+    /// <summary>
+    /// get/set - The default search query operator Elasticsearch will use [and|or]
+    /// </summary>
+    public string? DefaultOperator { get; set; }
+
+    /// <summary>
     /// get/set - The number of content items to search for.
     /// Defaults to 10, limit is 10,000.
     /// </summary>
@@ -38,11 +48,6 @@ public class FilterSettingsModel
     /// get/set - Keyword search support Elasticsearch query syntax.
     /// </summary>
     public string? Search { get; set; }
-
-    /// <summary>
-    /// get/set - The default search query operator Elasticsearch will use [and|or]
-    /// </summary>
-    public string? DefaultSearchOperator { get; set; }
 
     /// <summary>
     /// get/set - Search for the 'search' values in the headline.
