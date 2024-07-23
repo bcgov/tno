@@ -16,5 +16,6 @@ data:
   KEYCLOAK_AUTHORITY: https://loginproxy.gov.bc.ca/auth/realms/mmi
   KEYCLOAK_AUDIENCE: mmi-app
   KEYCLOAK_ISSUER: mmi-app,mmi-service-account
+  KEYCLOAK_CLIENT_ID: 0445c687-9d1e-46a9-8573-4d528f437a39
 
   KEYCLOAK_SERVICEACCOUNT_AUTHORITY: https://loginproxy.gov.bc.ca
