@@ -5,7 +5,6 @@ import { formatSearch } from 'features/search-page/utils';
 import { formatDate, showTranscription } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
-import { FaFeather, FaFeatherPointed } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApiHub, useContent, useWorkOrders } from 'store/hooks';

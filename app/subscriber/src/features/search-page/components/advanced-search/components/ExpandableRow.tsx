@@ -1,7 +1,6 @@
 import React from 'react';
 import { FaWater } from 'react-icons/fa6';
 import { IoIosArrowDropdownCircle, IoIosArrowDroprightCircle } from 'react-icons/io';
-import { MdOutlineFilterList } from 'react-icons/md';
 import { Tooltip } from 'react-tooltip';
 import { Col, Row } from 'tno-core';
 
