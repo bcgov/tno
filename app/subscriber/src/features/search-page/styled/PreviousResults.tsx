@@ -13,6 +13,9 @@ export const PreviousResults = styled(Col)`
       }
     }
   }
+  .no-results {
+    margin-left: 1rem;
+  }
   .hits {
     display: flex;
     align-items: center;

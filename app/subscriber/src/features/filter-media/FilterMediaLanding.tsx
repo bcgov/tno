@@ -251,9 +251,6 @@ export const FilterMediaLanding: React.FC = () => {
                   }}
                   className="show-all"
                 >
-                  <label className="all-chk" htmlFor="all-chk">
-                    Show all
-                  </label>
                   <Checkbox
                     className="opt-chk"
                     id="all-chk"
@@ -262,6 +259,9 @@ export const FilterMediaLanding: React.FC = () => {
                       handleClickAll(e);
                     }}
                   />
+                  <label className="all-chk" htmlFor="all-chk">
+                    Show all
+                  </label>
                 </Row>
                 <div className="scroll-container">
                   {narrowedOptions.map((opt) => {
@@ -273,7 +273,6 @@ export const FilterMediaLanding: React.FC = () => {
                           activeSource?.name === opt.name ? 'active' : 'inactive'
                         } narrowed-option`}
                       >
-                        {opt.name}
                         <Checkbox
                           className="opt-chk"
                           checked={opt.selected}
@@ -281,6 +280,7 @@ export const FilterMediaLanding: React.FC = () => {
                             handleClick(opt, e.target);
                           }}
                         />
+                        {opt.name}
                       </Row>
                     );
                   })}

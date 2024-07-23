@@ -14,7 +14,6 @@ export const Home = styled.div`
     button {
       min-width: 5rem;
       border: none;
-      display: flex;
       justify-content: center;
     }
   }

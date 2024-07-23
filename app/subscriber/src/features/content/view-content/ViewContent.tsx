@@ -5,6 +5,7 @@ import { formatSearch } from 'features/search-page/utils';
 import { formatDate, showTranscription } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
+import { FaFeather, FaFeatherPointed } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApiHub, useContent, useWorkOrders } from 'store/hooks';
@@ -111,6 +112,13 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
       // Ignore this failure it is handled by our global ajax requests.
     }
   }, [workOrders, transcribe, content]);
+
+  //TOOD: Sroll to top of screen when content changes
+
+  React.useEffect(() => {
+    console.log('scrolling to top');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [id]);
 
   React.useEffect(() => {
     if (!ministers.length) {
@@ -395,7 +403,14 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
       </Show>
       <Show visible={isAV && !isTranscribing && !!content.body?.length}>
         <hr />
-        <h3>Transcription:</h3>
+        <Row>
+          <img
+            className="transcript-feather"
+            src={`${process.env.PUBLIC_URL}/assets/transcript_feather.svg`}
+            alt="Transcript"
+          />
+          <h3 className="transcipt-heading">Transcript:</h3>
+        </Row>
         <Col>{content && parse(showTranscription(content))}</Col>
       </Show>
       <Show

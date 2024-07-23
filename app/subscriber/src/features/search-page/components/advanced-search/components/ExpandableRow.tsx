@@ -1,4 +1,5 @@
 import React from 'react';
+import { FaWater } from 'react-icons/fa6';
 import { IoIosArrowDropdownCircle, IoIosArrowDroprightCircle } from 'react-icons/io';
 import { MdOutlineFilterList } from 'react-icons/md';
 import { Tooltip } from 'react-tooltip';
@@ -38,7 +39,8 @@ export const ExpandableRow: React.FC<IExpandableRowProps> = ({
         {title}
         <Col className="action-icons">
           {hasValues ? (
-            <MdOutlineFilterList
+            <FaWater
+              className="active-filter-icon"
               data-tooltip-id={`btn-tip-${uniqueId}`}
               data-tooltip-content="Expand to see current filter settings"
             />

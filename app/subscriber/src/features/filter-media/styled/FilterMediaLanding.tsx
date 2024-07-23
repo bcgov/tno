@@ -7,7 +7,6 @@ export const FilterMediaLanding = styled(Row)`
       max-height: calc(100dvh - 20rem);
       overflow-y: auto;
     }
-    font-size: 1.2rem;
     @media (min-width: 1000px) {
       width: 30%;
     }
@@ -27,6 +26,9 @@ export const FilterMediaLanding = styled(Row)`
     }
     .all-chk {
       cursor: pointer;
+    }
+    .opt-chk {
+      margin-right: 0.5rem;
     }
     .media-filter {
       margin-left: 1rem;
@@ -60,9 +62,6 @@ export const FilterMediaLanding = styled(Row)`
         align-items: center;
         width: 10rem;
       }
-    }
-    .opt-chk {
-      margin-left: auto;
     }
     .narrowed-options {
       margin-left: 1rem;

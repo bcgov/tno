@@ -340,6 +340,9 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
   .section {
     width: 100%;
     .action-icons {
+      .active-filter-icon {
+        color: ${(props) => props.theme.css.iconGreen};
+      }
       margin-left: auto;
       flex-direction: row;
       .drop-icon {
