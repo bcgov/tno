@@ -147,12 +147,15 @@ public class WorkOrderHelper : IWorkOrderHelper
     /// <exception cref="NoContentException"></exception>
     /// <exception cref="ConfigurationException"></exception>
     /// <exception cref="NotAuthorizedException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+
     public async Task<Entities.WorkOrder> RequestTranscriptionAsync(long contentId, Entities.User requestor, bool force = false)
     {
         if (this.Content == null || this.Content.Id != contentId)
             this.Content = _contentService.FindById(contentId) ?? throw new NoContentException("Content does not exist");
         if (String.IsNullOrWhiteSpace(_kafkaOptions.TranscriptionTopic)) throw new ConfigurationException("Kafka transcription topic not configured.");
 
+        if (this.Content.IsApproved && force == false) throw new InvalidOperationException("Content is already approved");
         // Only allow one work order transcript request at a time.
         // TODO: Handle blocked work orders stuck in progress.
         var workOrders = _workOrderService.FindByContentId(contentId);

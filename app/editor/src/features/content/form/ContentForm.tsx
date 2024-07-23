@@ -291,6 +291,20 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                 label="Byline"
                                 width="50ch"
                                 onChange={(e) => {
+                                  const inputValue = e.target.value;
+
+                                  const matchedOption = contributorOptions.find(
+                                    (option) =>
+                                      typeof option.label === 'string' &&
+                                      option.label.toLowerCase() === inputValue.toLowerCase(),
+                                  );
+
+                                  if (matchedOption) {
+                                    props.setFieldValue('contributorId', matchedOption.value);
+                                  } else {
+                                    props.setFieldValue('contributorId', '');
+                                  }
+
                                   if (useTitleCase) {
                                     props.setFieldValue('byline', toTitleCase(e.target.value));
                                   } else {
@@ -336,6 +350,20 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                 name="byline"
                                 label="Byline"
                                 onChange={(e) => {
+                                  const inputValue = e.target.value;
+
+                                  const matchedOption = contributorOptions.find(
+                                    (option) =>
+                                      typeof option.label === 'string' &&
+                                      option.label.toLowerCase() === inputValue.toLowerCase(),
+                                  );
+
+                                  if (matchedOption) {
+                                    props.setFieldValue('contributorId', matchedOption.value);
+                                  } else {
+                                    props.setFieldValue('contributorId', '');
+                                  }
+
                                   if (useTitleCase) {
                                     props.setFieldValue('byline', toTitleCase(e.target.value));
                                   } else {
@@ -958,6 +986,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                               }
                               variant={ButtonVariant.action}
                               disabled={
+                                props.values.isApproved ||
                                 props.isSubmitting ||
                                 !props.values.fileReferences.length ||
                                 (props.values.fileReferences.length > 0 &&

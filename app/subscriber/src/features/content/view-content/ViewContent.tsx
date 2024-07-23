@@ -97,6 +97,10 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
   );
 
   const handleTranscribe = React.useCallback(async () => {
+    if (content?.isApproved) {
+      toast.error('This content has already been approved.');
+      return;
+    }
     try {
       if (!!content) {
         const response = await transcribe(content);
