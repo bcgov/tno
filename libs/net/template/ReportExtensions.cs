@@ -117,48 +117,53 @@ public static partial class ReportExtensions
     /// <returns></returns>
     public static string HighlightKeyWords(this FilterModel filter, string text, string field)
     {
-        string keywords = "";
-        string highlightedText = text;
-        if (filter?.Query != null &&
-            filter.Query.RootElement.TryGetProperty("query", out JsonElement query) &&
-            query.TryGetProperty("bool", out JsonElement queryBool) &&
-            queryBool.TryGetProperty("must", out JsonElement queryBoolMust))
-        {
-            foreach (var c in queryBoolMust.EnumerateArray())
-            {
-                if (c.TryGetProperty("simple_query_string", out JsonElement simpleQueryString) && simpleQueryString.TryGetProperty("query", out JsonElement simpleQueryStringValue))
-                {
-                    keywords += simpleQueryStringValue;
-                    bool fieldExists = false;
-                    if (simpleQueryString.TryGetProperty("fields", out JsonElement simpleQueryStringFields))
-                    {
-                        foreach (var f in simpleQueryStringFields.EnumerateArray())
-                        {
-                            if (f.ToString().StartsWith(field))
-                            {
-                                fieldExists = true;
-                            }
-                        }
-                    }
-                    if (!fieldExists)
-                    {
-                        return text;
-                    }
-                }
-            }
-        }
+        return text;
 
-        char[] delimiterChars = { '|', '+', '-' };
-        string[] reservedStrings = new string[] { "*", "( and )", "~N", "\"" };
-        foreach (var s in reservedStrings)
-        {
-            keywords = keywords.Replace(s, "");
-        }
-        foreach (string word in keywords.Split(delimiterChars))
-        {
-            highlightedText = word != "" ? highlightedText.Replace(word.Trim(), "<mark>" + word.Trim() + "</mark>") : highlightedText;
-        }
-        return highlightedText;
+        // string keywords = "";
+        // string highlightedText = text;
+
+        // TODO: There is no reason to parse the Elastic query since we have the filter.Settings properties that give us access to the relevant values.
+        // if (filter?.Query != null &&
+        //     filter.Query.RootElement.TryGetProperty("query", out JsonElement query) &&
+        //     query.TryGetProperty("bool", out JsonElement queryBool) &&
+        //     queryBool.TryGetProperty("must", out JsonElement queryBoolMust))
+        // {
+        //     foreach (var c in queryBoolMust.EnumerateArray())
+        //     {
+        //         if (c.TryGetProperty("simple_query_string", out JsonElement simpleQueryString) && simpleQueryString.TryGetProperty("query", out JsonElement simpleQueryStringValue))
+        //         {
+        //             keywords += simpleQueryStringValue;
+        //             bool fieldExists = false;
+        //             if (simpleQueryString.TryGetProperty("fields", out JsonElement simpleQueryStringFields))
+        //             {
+        //                 foreach (var f in simpleQueryStringFields.EnumerateArray())
+        //                 {
+        //                     if (f.ToString().StartsWith(field))
+        //                     {
+        //                         fieldExists = true;
+        //                     }
+        //                 }
+        //             }
+        //             if (!fieldExists)
+        //             {
+        //                 return text;
+        //             }
+        //         }
+        //     }
+        // }
+
+        // TODO: None of this will actually work correctly because it doesn't account for escaping characters, or double pipes.
+        // char[] delimiterChars = { '|', '+', '-' };
+        // string[] reservedStrings = new string[] { "*", "( and )", "~N", "\"" };
+        // foreach (var s in reservedStrings)
+        // {
+        //     keywords = keywords.Replace(s, "");
+        // }
+        // foreach (string word in keywords.Split(delimiterChars))
+        // {
+        //     highlightedText = word != "" ? highlightedText.Replace(word.Trim(), "<mark>" + word.Trim() + "</mark>") : highlightedText;
+        // }
+        // return highlightedText;
     }
 
     /// <summary>
