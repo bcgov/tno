@@ -36,8 +36,11 @@ export const FilterMediaLanding: React.FC = () => {
   const [narrowedOptions, setNarrowedOptions] = React.useState<IGroupOption[]>([]);
   const [activeSource, setActiveSource] = React.useState<IGroupOption | null>(null);
   const [parentClicked, setParentClicked] = React.useState<boolean>(false);
-  const [selected, setSelected] = React.useState<IContentModel[]>([]);
-
+  const [stateByDate, setStateByDate] = React.useState<{
+    [date: string]: {
+      [mediaType: string]: { selected: IContentModel[]; isSelectAllChecked: boolean };
+    };
+  }>({});
   const [loaded, setLoaded] = React.useState<boolean>(false);
 
   React.useEffect(() => {
@@ -224,8 +227,19 @@ export const FilterMediaLanding: React.FC = () => {
   );
 
   const handleReset = React.useCallback(() => {
+    setStateByDate((prevState) => {
+      const newState = { ...prevState };
+      for (const dateKey in newState) {
+        for (const mediaTypeId in newState[dateKey]) {
+          newState[dateKey][mediaTypeId] = {
+            selected: [],
+            isSelectAllChecked: false,
+          };
+        }
+      }
+      return newState;
+    });
     resetFilters(true);
-    setSelected([]);
   }, [resetFilters]);
 
   return (
@@ -321,8 +335,8 @@ export const FilterMediaLanding: React.FC = () => {
           <FilterMedia
             loaded={loaded}
             onReset={handleReset}
-            selected={selected}
-            setSelected={setSelected}
+            setStateByDate={setStateByDate}
+            stateByDate={stateByDate}
           />
         </PageSection>
       </Col>

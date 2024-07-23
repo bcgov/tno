@@ -25,14 +25,25 @@ export const Home: React.FC = () => {
   const [{ userInfo }] = useApp();
 
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
-  const [selected, setSelected] = React.useState<IContentModel[]>([]);
-  const [isSelectAllChecked, setIsSelectAllChecked] = React.useState(false);
   const { featuredStoryActionId } = useSettings(true);
+  const [stateByDate, setStateByDate] = React.useState<{
+    [date: string]: { selected: IContentModel[]; isSelectAllChecked: boolean };
+  }>({});
   const [loading, setLoading] = React.useState(false);
-  const handleContentSelected = React.useCallback((content: IContentModel[]) => {
-    setSelected(content);
-    setLoading(false);
-  }, []);
+  const handleContentSelected = React.useCallback(
+    (selectedContent: IContentModel[]) => {
+      const dateKey = filter.startDate || moment().startOf('day').toISOString();
+      setStateByDate((prevState) => ({
+        ...prevState,
+        [dateKey]: {
+          ...prevState[dateKey],
+          selected: selectedContent,
+        },
+      }));
+      setLoading(false);
+    },
+    [filter.startDate],
+  );
 
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
@@ -81,27 +92,54 @@ export const Home: React.FC = () => {
   }, [filter, storeFilter]);
 
   const handleReset = React.useCallback(() => {
-    setSelected([]);
+    const dateKey = filter.startDate || moment().startOf('day').toISOString();
+    setStateByDate((prevState) => ({
+      ...prevState,
+      [dateKey]: {
+        ...prevState[dateKey],
+        selected: [],
+        isSelectAllChecked: false,
+      },
+    }));
     resetDateFilter();
-    setIsSelectAllChecked(false); // Uncheck the checkbox
-  }, [resetDateFilter]);
+  }, [filter.startDate, resetDateFilter]);
 
   const handleSelectAll = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSelected(e.target.checked ? content : []);
-      setIsSelectAllChecked(e.target.checked); // Update checkbox state
+      const dateKey = filter.startDate || moment().startOf('day').toISOString();
+      setStateByDate((prevState) => ({
+        ...prevState,
+        [dateKey]: {
+          ...prevState[dateKey],
+          selected: e.target.checked ? content : [],
+          isSelectAllChecked: e.target.checked,
+        },
+      }));
     },
-    [content],
+    [content, filter.startDate],
   );
+
+  const dateKey = filter.startDate || moment().startOf('day').toISOString();
+  const currentSelected = stateByDate[dateKey]?.selected || [];
+  const currentIsSelectAllChecked = stateByDate[dateKey]?.isSelectAllChecked || false;
+  const allSelectedContent = Object.values(stateByDate).flatMap((state) => state.selected);
 
   return (
     <styled.Home>
       <Row>
         <ContentListActionBar
-          content={selected}
+          content={allSelectedContent}
           onSelectAll={handleSelectAll}
-          isSelectAllChecked={isSelectAllChecked}
-          onClear={() => setSelected([])}
+          isSelectAllChecked={currentIsSelectAllChecked}
+          onClear={() =>
+            setStateByDate((prevState) => ({
+              ...prevState,
+              [dateKey]: {
+                ...prevState[dateKey],
+                selected: [],
+              },
+            }))
+          }
           onReset={handleReset}
         />
       </Row>
@@ -114,7 +152,7 @@ export const Home: React.FC = () => {
         showDate
         showSeries
         showTime
-        selected={selected}
+        selected={currentSelected}
         content={content}
       />
     </styled.Home>

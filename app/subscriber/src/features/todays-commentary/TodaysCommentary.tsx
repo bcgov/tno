@@ -23,13 +23,25 @@ export const TodaysCommentary: React.FC = () => {
   const getActionFilters = useActionFilters();
   const { commentaryActionId } = useSettings();
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
-  const [selected, setSelected] = React.useState<IContentModel[]>([]);
-  const [isSelectAllChecked, setIsSelectAllChecked] = React.useState(false);
+  const [stateByDate, setStateByDate] = React.useState<{
+    [date: string]: { selected: IContentModel[]; isSelectAllChecked: boolean };
+  }>({});
   const [loading, setLoading] = React.useState(false);
-  const handleContentSelected = React.useCallback((content: IContentModel[]) => {
-    setSelected(content);
-    setLoading(false);
-  }, []);
+
+  const handleContentSelected = React.useCallback(
+    (selectedContent: IContentModel[]) => {
+      const dateKey = filter.startDate || moment().startOf('day').toISOString();
+      setStateByDate((prevState) => ({
+        ...prevState,
+        [dateKey]: {
+          ...prevState[dateKey],
+          selected: selectedContent,
+        },
+      }));
+      setLoading(false);
+    },
+    [filter.startDate],
+  );
 
   React.useEffect(() => {
     if (commentaryActionId) {
@@ -73,26 +85,53 @@ export const TodaysCommentary: React.FC = () => {
   }, [filter, storeFilter]);
 
   const handleReset = React.useCallback(() => {
-    setSelected([]);
+    const dateKey = filter.startDate || moment().startOf('day').toISOString();
+    setStateByDate((prevState) => ({
+      ...prevState,
+      [dateKey]: {
+        ...prevState[dateKey],
+        selected: [],
+        isSelectAllChecked: false,
+      },
+    }));
     resetDateFilter();
-    setIsSelectAllChecked(false); // Uncheck the checkbox
-  }, [resetDateFilter]);
+  }, [filter.startDate, resetDateFilter]);
 
   const handleSelectAll = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSelected(e.target.checked ? content : []);
-      setIsSelectAllChecked(e.target.checked); // Update checkbox state
+      const dateKey = filter.startDate || moment().startOf('day').toISOString();
+      setStateByDate((prevState) => ({
+        ...prevState,
+        [dateKey]: {
+          ...prevState[dateKey],
+          selected: e.target.checked ? content : [],
+          isSelectAllChecked: e.target.checked,
+        },
+      }));
     },
-    [content],
+    [content, filter.startDate],
   );
+
+  const dateKey = filter.startDate || moment().startOf('day').toISOString();
+  const currentSelected = stateByDate[dateKey]?.selected || [];
+  const currentIsSelectAllChecked = stateByDate[dateKey]?.isSelectAllChecked || false;
+  const allSelectedContent = Object.values(stateByDate).flatMap((state) => state.selected);
 
   return (
     <styled.TodaysCommentary>
       <ContentListActionBar
-        content={selected}
-        onClear={() => setSelected([])}
+        content={allSelectedContent}
+        onClear={() =>
+          setStateByDate((prevState) => ({
+            ...prevState,
+            [dateKey]: {
+              ...prevState[dateKey],
+              selected: [],
+            },
+          }))
+        }
         onSelectAll={handleSelectAll}
-        isSelectAllChecked={isSelectAllChecked}
+        isSelectAllChecked={currentIsSelectAllChecked}
         onReset={handleReset}
       />
       <DateFilter filter={filter} storeFilter={storeFilter} />
@@ -101,7 +140,7 @@ export const TodaysCommentary: React.FC = () => {
       </Show>
       <ContentList
         content={content}
-        selected={selected}
+        selected={currentSelected}
         showSeries
         showDate
         showTime

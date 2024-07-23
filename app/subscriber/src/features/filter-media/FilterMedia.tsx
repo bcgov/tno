@@ -3,6 +3,7 @@ import { ContentList } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
 import { ContentListActionBar } from 'components/tool-bar';
 import { IContentSearchResult } from 'features/utils/interfaces';
+import moment from 'moment';
 import React from 'react';
 import { useContent, useSettings } from 'store/hooks';
 import { generateQuery, IContentModel, Loading, Show } from 'tno-core';
@@ -12,16 +13,26 @@ import * as styled from './styled';
 
 interface IFilterMediaProps {
   loaded?: boolean;
-  selected: IContentModel[];
-  setSelected: React.Dispatch<React.SetStateAction<IContentModel[]>>;
   onReset: () => void;
+  setStateByDate: React.Dispatch<
+    React.SetStateAction<{
+      [date: string]: {
+        [mediaType: string]: { selected: IContentModel[]; isSelectAllChecked: boolean };
+      };
+    }>
+  >;
+  stateByDate: {
+    [date: string]: {
+      [mediaType: string]: { selected: IContentModel[]; isSelectAllChecked: boolean };
+    };
+  };
 }
 
 export const FilterMedia: React.FC<IFilterMediaProps> = ({
   loaded,
-  selected,
-  setSelected,
   onReset,
+  setStateByDate,
+  stateByDate,
 }) => {
   const [
     {
@@ -100,19 +111,71 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
-  const handleContentSelected = React.useCallback((content: IContentModel[]) => {
-    setSelected(content);
-    setIsLoading(false);
-  }, []);
+  const handleContentSelected = React.useCallback(
+    (selectedContent: IContentModel[]) => {
+      const dateKey = filter.startDate || moment().startOf('day').toISOString();
+      const mediaTypeId = filter.mediaTypeIds?.[0]?.toString() ?? '';
+      setStateByDate((prevState) => ({
+        ...prevState,
+        [dateKey]: {
+          ...prevState[dateKey],
+          [mediaTypeId]: {
+            selected: selectedContent,
+            isSelectAllChecked: prevState[dateKey]?.[mediaTypeId]?.isSelectAllChecked ?? false,
+          },
+        },
+      }));
+    },
+    [filter.mediaTypeIds, filter.startDate, setStateByDate],
+  );
+
+  const handleSelectAll = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const dateKey = filter.startDate || moment().startOf('day').toISOString();
+      const mediaTypeId = filter.mediaTypeIds?.[0]?.toString() ?? '';
+      setStateByDate((prevState) => ({
+        ...prevState,
+        [dateKey]: {
+          ...prevState[dateKey],
+          [mediaTypeId]: {
+            selected: e.target.checked ? currDateResults : [],
+            isSelectAllChecked: e.target.checked,
+          },
+        },
+      }));
+    },
+    [currDateResults, filter.mediaTypeIds, filter.startDate, setStateByDate],
+  );
 
   if (!loaded) return <>Loading</>;
+
+  const dateKey = filter.startDate || moment().startOf('day').toISOString();
+  const mediaTypeId = filter.mediaTypeIds?.[0]?.toString() ?? '';
+  const currentSelected = stateByDate[dateKey]?.[mediaTypeId]?.selected || [];
+  const currentIsSelectAllChecked =
+    stateByDate[dateKey]?.[mediaTypeId]?.isSelectAllChecked || false;
+  const allSelectedContent = Object.values(stateByDate).flatMap((dateEntry) =>
+    Object.values(dateEntry).flatMap((mediaTypeEntry) => mediaTypeEntry.selected),
+  );
 
   return (
     <styled.FilterMedia className="results-side">
       <ContentListActionBar
-        content={selected}
-        onSelectAll={(e) => (e.target.checked ? setSelected(currDateResults) : setSelected([]))}
-        onClear={() => setSelected([])}
+        content={allSelectedContent}
+        onSelectAll={handleSelectAll}
+        onClear={() =>
+          setStateByDate((prevState) => ({
+            ...prevState,
+            [dateKey]: {
+              ...prevState[dateKey],
+              [mediaTypeId]: {
+                selected: [],
+                isSelectAllChecked: false,
+              },
+            },
+          }))
+        }
+        isSelectAllChecked={currentIsSelectAllChecked}
         onReset={onReset}
       />
       <DateFilter loaded={loaded} filter={filter} storeFilter={storeFilter} />
@@ -125,7 +188,7 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({
         showDate
         showTime
         showSeries
-        selected={selected}
+        selected={currentSelected}
       />
       <Show visible={!currDateResults.length}>
         <PreviousResults
