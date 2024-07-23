@@ -3,7 +3,7 @@ import { Button } from 'components/button';
 import React from 'react';
 import { FaCopy, FaTrash, FaUserPlus, FaUsers } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { useApp } from 'store/hooks';
+import { useApp, useReports } from 'store/hooks';
 import {
   Checkbox,
   Claim,
@@ -11,7 +11,7 @@ import {
   EmailSendToName,
   getEnumStringOptions,
   Grid,
-  IUserReportModel,
+  Modal,
   ReportDistributionFormatName,
   ReportStatusName,
   Row,
@@ -20,6 +20,7 @@ import {
   Spinner,
   Text,
   useApiAdminUsers,
+  useModal,
   validateEmail,
 } from 'tno-core';
 
@@ -31,38 +32,98 @@ export const ReportEditSubscribersForm = () => {
   const [{ userInfo }] = useApp();
   const { findUsers } = useApiAdminUsers();
   const [emailForAdd, setEmailForAdd] = React.useState('');
+  const [emailForRequest, setEmailForRequest] = React.useState('');
+  const { toggle, isShowing } = useModal();
+  const [modalContent, setModalContent] = React.useState({
+    headerText: '',
+    body: '',
+    onConfirm: () => {},
+  });
 
   const instance = values.instances.length ? values.instances[0] : undefined;
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
   const formatOptions = getEnumStringOptions(ReportDistributionFormatName);
   const sendToOptions = getEnumStringOptions(EmailSendToName, { splitOnCapital: false });
   const [selectedSubscribers, setSelectedSubscribers] = React.useState<number[]>([]);
+  const [, { RequestToSubscribe, RequestToUnsubscribe }] = useReports();
+  const fetchUsersByEmail = async (email: string) => {
+    try {
+      const response = await findUsers({ email });
+      return response.data.items;
+    } catch (error) {
+      toast.error('Error fetching users.');
+      return [];
+    }
+  };
 
   const addSubscriber = React.useCallback(
     async (email: string) => {
-      try {
-        const response = await findUsers({ email });
-        const users = response.data;
-        if (users.items.length) {
-          const subscribers: IUserReportModel[] = users.items
-            .filter((user) => !values.subscribers.some((s) => s.userId === user.id))
-            .map<IUserReportModel>((user) => ({
-              ...user,
-              userId: user.id,
-              reportId: values.id,
-              isSubscribed: true,
-              format: ReportDistributionFormatName.FullText,
-              sendTo: EmailSendToName.To,
-              version: 0,
-            }));
-          setFieldValue('subscribers', [...values.subscribers, ...subscribers]);
-        } else {
-          toast.warning(`No users found for the specified email "${email}".`);
-        }
-      } catch {}
+      const users = await fetchUsersByEmail(email);
+      if (users.length) {
+        const subscribers = users
+          .filter((user) => !values.subscribers.some((s) => s.userId === user.id))
+          .map((user) => ({
+            ...user,
+            userId: user.id,
+            reportId: values.id,
+            isSubscribed: true,
+            format: ReportDistributionFormatName.FullText,
+            sendTo: EmailSendToName.To,
+            version: 0,
+          }));
+        setFieldValue('subscribers', [...values.subscribers, ...subscribers]);
+      } else {
+        toast.warning(`No users found for the specified email "${email}".`);
+      }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [findUsers, setFieldValue, values.id, values.subscribers],
   );
+
+  const addSubscriberRequest = React.useCallback(
+    async (email: string) => {
+      const users = await fetchUsersByEmail(email);
+      if (!instance?.reportId) {
+        toast.error('Report not found.');
+        return;
+      }
+      if (users.length) {
+        const user = users[0];
+        const isSubscribed = values.subscribers.some((s) => s.userId === user.id);
+
+        setModalContent({
+          headerText: isSubscribed ? 'Confirm Unsubscribe' : 'Confirm Subscribe',
+          body: isSubscribed
+            ? `The user ${user.displayName} - ${user.email} is already subscribed. Do you want to unsubscribe?`
+            : `The user ${user.displayName} - ${user.email} is not subscribed. Do you want to subscribe?`,
+          onConfirm: async () => {
+            if (isSubscribed) {
+              RequestToUnsubscribe(instance.reportId, email);
+              toast.success('Unsubscribe request submitted.');
+            } else {
+              RequestToSubscribe(instance.reportId, email);
+              toast.success('Subscribed request submitted.');
+            }
+            toggle();
+          },
+        });
+
+        toggle();
+      } else {
+        toast.warning(`No users found for the specified email "${email}".`);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      instance?.reportId,
+      values.subscribers,
+      setFieldValue,
+      toggle,
+      fetchUsersByEmail,
+      addSubscriber,
+    ],
+  );
+
   const handleSelectSubscriber = (userId: any) => {
     setSelectedSubscribers((prevSelected: any) =>
       prevSelected.includes(userId)
@@ -132,6 +193,41 @@ export const ReportEditSubscribersForm = () => {
           </Col>
         </Row>
       </Show>
+      <Row gap="1rem">
+        <Col flex="1">
+          <div className="subscriber-block">
+            <div>
+              <FaUserPlus size={20} />
+            </div>
+            <Col>
+              <div className="subscriber-title">Request to Add a Subscriber</div>
+              <div className="subscriber-describe">
+                Subscribers will receive this report by email each time it is sent out. To be added,
+                a person must have an active MMI account (direct or indirect).
+              </div>{' '}
+              <Text
+                name="email"
+                label="Add a Subscriber"
+                value={emailForRequest}
+                onChange={(e) => setEmailForRequest(e.target.value)}
+                width="300px"
+              >
+                <Button
+                  className="request-button"
+                  variant="secondary"
+                  disabled={!validateEmail(emailForRequest)}
+                  onClick={async () => {
+                    await addSubscriberRequest(emailForRequest);
+                  }}
+                  style={{ backgroundColor: 'transparent' }}
+                >
+                  Send Request
+                </Button>
+              </Text>
+            </Col>
+          </div>
+        </Col>
+      </Row>
       <Row>
         <div className="subscriber-block">
           <FaUsers size={20} />
@@ -255,6 +351,15 @@ export const ReportEditSubscribersForm = () => {
           </Col>
         </div>
       </Row>
+      <Modal
+        headerText={modalContent.headerText}
+        body={modalContent.body}
+        isShowing={isShowing}
+        hide={toggle}
+        type="default"
+        confirmText="Yes"
+        onConfirm={modalContent.onConfirm}
+      />
     </styled.ReportEditSubscribersForm>
   );
 };

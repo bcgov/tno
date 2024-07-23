@@ -104,5 +104,15 @@ export const useApiSubscriberReports = (
         `/subscriber/reports/all-content`,
       );
     },
+    RequestToSubscribe: (reportId: number, applicantEmail: string) => {
+      return api.post<never, AxiosResponse<any>, any>(
+        `/subscriber/reports/${reportId}/subscription?applicantEmail=${applicantEmail}`,
+      );
+    },
+    RequestToUnsubscribe: (reportId: number, applicantEmail: string) => {
+      return api.post<never, AxiosResponse<any>, any>(
+        `/subscriber/reports/${reportId}/unsubscription?applicantEmail=${applicantEmail}`,
+      );
+    },
   }).current;
 };
