@@ -187,7 +187,7 @@ public class WorkOrderController : ControllerBase
             var result = new
             {
                 StatusCode = HttpStatusCode.OK,
-                Status = "Approved",
+                TranscriptionStatus = "Approved",
             };
             return new JsonResult(result);
         }
@@ -214,7 +214,7 @@ public class WorkOrderController : ControllerBase
             var result = new
             {
                 StatusCode = HttpStatusCode.OK,
-                Status = "Requested",
+                TranscriptionStatus = "Requested",
             };
             return new JsonResult(result);
         }

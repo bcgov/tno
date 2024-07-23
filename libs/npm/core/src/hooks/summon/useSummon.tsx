@@ -30,11 +30,13 @@ export interface ISummonProps extends AxiosRequestConfig<any> {
  * Wrapper for axios to include authentication token and error handling.
  * @param param0 Axios parameters.
  */
-export const useSummon = (
-  { lifecycleToasts, selector, envelope = defaultEnvelope, baseURL, ...rest }: ISummonProps = {},
-  useAuth: boolean = true,
-) => {
-  console.log('testLayoutAnonymous', 'useAuth', useAuth);
+export const useSummon = ({
+  lifecycleToasts,
+  selector,
+  envelope = defaultEnvelope,
+  baseURL,
+  ...rest
+}: ISummonProps = {}) => {
   const state = React.useContext(SummonContext);
   let loadingToastId: React.ReactText | undefined = undefined;
 
@@ -54,9 +56,7 @@ export const useSummon = (
     });
 
     summon.interceptors.request.use((config) => {
-      if (useAuth) {
-        (config.headers! as RawAxiosRequestHeaders).Authorization = `Bearer ${getToken()}`;
-      }
+      (config.headers! as RawAxiosRequestHeaders).Authorization = `Bearer ${getToken()}`;
       if (selector !== undefined) {
         const storedValue = selector(state);
 
@@ -97,7 +97,6 @@ export const useSummon = (
     );
 
     (axiosInstances as any)[baseURL ?? 'default'] = summon;
-    console.log('testLayoutAnonymous', 'summon', summon);
     return summon;
   }
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import { useWorkOrders } from 'store/hooks';
 import { Col, Row } from 'tno-core';
 
@@ -19,15 +18,14 @@ export const TranscriptionRequest: React.FC = () => {
 
   const handleTranscribe = React.useCallback(
     async (contentId: number, uid: number) => {
-      console.log('testLayoutAnonymous', contentId, uid);
       try {
-        const response = await transcribeAnonymous(contentId, uid);
-        console.log('testLayoutAnonymous', response);
+        const response: any = await transcribeAnonymous(contentId, uid);
 
-        if (response.status === 200) toast.success('A transcript has been requested');
-        if (response.status === 208)
-          toast.success('You will receive an email when the transcript is available');
-        // In case of failure no message will be displayed to the Subscriber application user.
+        if (response.transcriptionStatus === 'Approved') {
+          setRequested(true);
+        } else {
+          setRequested(false);
+        }
       } catch {
         // Ignore this failure it is handled by our global ajax requests.
       }

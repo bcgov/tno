@@ -12,8 +12,7 @@ export const useApi = (
     envelope?: typeof defaultEnvelope;
     baseURL?: string;
   } = {},
-  useAuth: boolean = true,
 ) => {
-  const summon = useSummon({ ...options, baseURL: options.baseURL ?? Settings.ApiPath }, useAuth);
+  const summon = useSummon({ ...options, baseURL: options.baseURL ?? Settings.ApiPath });
   return summon;
 };

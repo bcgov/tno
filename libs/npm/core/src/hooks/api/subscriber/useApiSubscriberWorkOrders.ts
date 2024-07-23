@@ -18,7 +18,6 @@ export const useApiSubscriberWorkOrders = (
   } = {},
 ) => {
   const api = useApi(options);
-  const anonymousApi = useApi(options, false);
 
   return React.useRef({
     findWorkOrders: (filter: IWorkOrderFilter) => {
@@ -32,8 +31,7 @@ export const useApiSubscriberWorkOrders = (
       );
     },
     transcribeAnonymous: (contentId: number, uid: number) => {
-      console.log('testLayoutAnonymous', anonymousApi);
-      return anonymousApi.get<never, AxiosResponse<any>, any>(
+      return api.get<never, AxiosResponse<any>, any>(
         `/subscriber/work/orders/transcribe/${contentId}?uid=${uid}`,
       );
     },
