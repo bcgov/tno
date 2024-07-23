@@ -112,13 +112,6 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
     }
   }, [workOrders, transcribe, content]);
 
-  //TOOD: Sroll to top of screen when content changes
-
-  React.useEffect(() => {
-    console.log('scrolling to top');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [id]);
-
   React.useEffect(() => {
     if (!ministers.length) {
       api.getMinisters().then((data) => {
