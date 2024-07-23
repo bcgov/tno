@@ -184,8 +184,12 @@ public class WorkOrderController : ControllerBase
         if (content.IsApproved || content.ContentType != Entities.ContentType.AudioVideo || !content.FileReferences.Any())
         {
             // The transcript has already been approved, do not allow new requests.
-            // TODO: Respond differently depending on whether the transcript has already been completed.
-            return new OkResult();
+            var result = new
+            {
+                StatusCode = HttpStatusCode.OK,
+                TranscriptionStatus = "Approved",
+            };
+            return new JsonResult(result);
         }
         else
         {
@@ -207,8 +211,12 @@ public class WorkOrderController : ControllerBase
                 await _kafkaProducer.SendMessageAsync(_kafkaOptions.NotificationTopic, request);
             }
 
-            // TODO: Respond differently depending on whether the transcript has already been completed.
-            return new OkResult();
+            var result = new
+            {
+                StatusCode = HttpStatusCode.OK,
+                TranscriptionStatus = "Requested",
+            };
+            return new JsonResult(result);
         }
     }
     #endregion

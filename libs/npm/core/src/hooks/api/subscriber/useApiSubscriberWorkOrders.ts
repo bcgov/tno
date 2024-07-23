@@ -30,5 +30,10 @@ export const useApiSubscriberWorkOrders = (
         `/subscriber/work/orders/transcribe/${content.id}`,
       );
     },
+    transcribeAnonymous: (contentId: number, uid: number) => {
+      return api.get<never, AxiosResponse<any>, any>(
+        `/subscriber/work/orders/transcribe/${contentId}?uid=${uid}`,
+      );
+    },
   }).current;
 };
