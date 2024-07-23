@@ -107,42 +107,21 @@ spec:
                 configMapKeyRef:
                   name: keycloak
                   key: KEYCLOAK_ISSUER
-            - name: Keycloak__Secret
+            - name: Keycloak__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_CLIENT_ID
+            - name: Keycloak__ServiceAccount__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_SERVICEACCOUNT_AUTHORITY
+            - name: Keycloak__ServiceAccount__Secret
               valueFrom:
                 secretKeyRef:
                   name: keycloak
                   key: KEYCLOAK_CLIENT_SECRET
-
-            - name: CSS__IntegrationId
-              valueFrom:
-                configMapKeyRef:
-                  name: keycloak
-                  key: CSS_INTEGRATION_ID
-            - name: CSS__Environment
-              valueFrom:
-                configMapKeyRef:
-                  name: keycloak
-                  key: CSS_ENVIRONMENT
-            - name: CSS__ApiUrl
-              valueFrom:
-                configMapKeyRef:
-                  name: keycloak
-                  key: CSS_API_URL
-            - name: CSS__Authority
-              valueFrom:
-                configMapKeyRef:
-                  name: keycloak
-                  key: CSS_AUTHORITY
-            - name: CSS__ClientId
-              valueFrom:
-                configMapKeyRef:
-                  name: keycloak
-                  key: CSS_CLIENT_ID
-            - name: CSS__Secret
-              valueFrom:
-                secretKeyRef:
-                  name: keycloak
-                  key: CSS_SECRET
 
             - name: KAFKA_BOOTSTRAP_SERVERS
               valueFrom:
