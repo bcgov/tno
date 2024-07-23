@@ -141,28 +141,29 @@ export const ReportViewForm: React.FC = () => {
             </Row>
           </Col>
         </Row>
-        <Row gap="1rem">
-          <Col flex="1">
-            <Row alignItems="baseline" gap="0.5rem">
-              <FaTelegramPlane />
-              <div className="preview-block-headline">Send Report</div>
-            </Row>
-
-            <Row alignItems="flex-start" className="preview-send-details-row">
-              <Button
-                disabled={
-                  isSubmitting || !instance || instance?.status === ReportStatusName.Submitted
-                }
-                onClick={() => toggleSend()}
-                variant="success"
-              >
-                Send to subscribers
-                <FaTelegramPlane />
-              </Button>
-            </Row>
-          </Col>
-        </Row>
       </Show>
+
+      <Row gap="1rem">
+        <Col flex="1">
+          <Row alignItems="baseline" gap="0.5rem">
+            <FaTelegramPlane />
+            <div className="preview-block-headline">Send Report</div>
+          </Row>
+
+          <Row alignItems="flex-start" className="preview-send-details-row">
+            <Button
+              disabled={
+                isSubmitting || !instance || instance?.status === ReportStatusName.Submitted
+              }
+              onClick={() => toggleSend()}
+              variant="success"
+            >
+              Send to subscribers
+              <FaTelegramPlane />
+            </Button>
+          </Row>
+        </Col>
+      </Row>
       <Modal
         headerText="Send Report to Subscribers"
         body={`Do you want to send an email to the subscribers of this report? ${
