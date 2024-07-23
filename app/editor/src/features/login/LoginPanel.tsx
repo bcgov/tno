@@ -31,7 +31,7 @@ export const LoginPanel: React.FC = () => {
         <Col alignItems="center" gap="1em">
           <p>Sign In</p>
           <Show visible={!isLocal}>
-            <Button className="white azure-logo" onClick={() => login('azure-entra')}>
+            <Button className="white azure-logo" onClick={() => login('css-oidc')}>
               IDIR
             </Button>
             <Button className="white azure-logo" onClick={() => login('azure-entra')}>

@@ -16,6 +16,7 @@ scale () {
 # Stop everyting
 # scale api 0 sts
 scale charts-api 0 dc $env
+scale api-services 0 dc $env
 scale editor 0 dc $env
 scale subscriber 0 dc $env
 
