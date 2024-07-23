@@ -79,7 +79,7 @@ export const PreviousResults: React.FC<IPreviousResultsProps> = ({
 
   return (
     <styled.PreviousResults>
-      <p>
+      <p className="no-results">
         There are no results for your specified filter. If there are results for your filter in the
         past 7 days, they will be listed below.
       </p>

@@ -12,8 +12,9 @@ export const ContentActionBar = styled(Row)`
   font-size: 0.9em;
   width: 100%;
   svg {
-    height: 1.25em;
-    width: 1.25em;
+    height: 1.5em;
+    width: 1.5em;
+    margin-left: 0.5em;
   }
   .left-side-items {
     margin-left: 0.5em;
@@ -37,7 +38,6 @@ export const ContentActionBar = styled(Row)`
   }
 
   .right-side-items {
-    margin-left: auto;
     color: ${(props) => props.theme.css.btnBkPrimary};
     @media (max-width: 768px) {
       span {
@@ -85,13 +85,17 @@ export const ContentActionBar = styled(Row)`
     border: 1px solid ${(props) => props.theme.css.lineTertiaryColor};
     padding: 0em;
     .select-all {
+      label {
+        align-self: center;
+      }
       .check-area {
         @media (max-width: 768px) {
           margin-left: 0.5em;
         }
         display: flex;
+        margin-top: auto;
+        margin-bottom: auto;
         flex-direction: row;
-        padding: 0.5em 0.5em 0.5em 0em;
       }
       height: 2.5em;
       background-color: ${(props) => props.theme.css.bkQuaternary};

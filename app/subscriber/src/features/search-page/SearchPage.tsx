@@ -232,11 +232,6 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
                 <div className="filter-name">{activeFilter?.name}</div>
               </div>
             </Show>
-            <Show visible={!currDateResults.length}>
-              <Row className="helper-text" justifyContent="center">
-                Please refine search criteria and click "search".
-              </Row>
-            </Show>
             <ContentList
               onContentSelected={handleContentSelected}
               content={currDateResults}

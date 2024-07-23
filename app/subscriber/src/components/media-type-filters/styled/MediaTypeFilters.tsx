@@ -10,12 +10,14 @@ export const HomeFilters = styled(Row)`
     margin-top: 1em;
   }
   font-size: 0.3em;
+  margin-top: auto;
+  margin-bottom: auto;
   align-items: center;
+
   button {
     min-width: fit-content;
     font-weight: bold;
     border: none;
-    display: flex;
     justify-content: center;
     &.active {
       background-color: ${(props) => props.theme.css.btnRedColor};

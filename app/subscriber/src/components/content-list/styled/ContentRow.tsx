@@ -172,11 +172,13 @@ export const ContentRow = styled(Col)`
     &.with-grip {
       margin-left: 5.75rem;
     }
+    max-height: 2.75rem;
     color: ${(props) => props.theme.css.btnSecondaryColor};
     margin-left: 4rem;
     background-color: ${(props) => props.theme.css.teaserBackground};
     font-family: ${(props) => props.theme.css.fPrimary};
     font-size: 1rem;
+    overflow: hidden;
     font-weight: 400;
     border-radius: 0.25rem;
     padding: 0.2rem;

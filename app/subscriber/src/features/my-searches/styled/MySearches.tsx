@@ -10,6 +10,10 @@ export const MySearches = styled(Col)`
     }
   }
 
+  .grid-table.grid-header {
+    display: none;
+  }
+
   .search-row-options {
     display: flex;
     margin-left: auto;

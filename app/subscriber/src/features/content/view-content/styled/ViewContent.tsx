@@ -1,6 +1,10 @@
 import styled from 'styled-components';
 
 export const ViewContent = styled.div`
+  h3 {
+    margin-bottom: 0;
+    margin-left: 0.25em;
+  }
   .summary {
     font-family: ${(props) => props.theme.css.fPrimary};
     p {

@@ -399,7 +399,14 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
       </Show>
       <Show visible={isAV && !isTranscribing && !!content.body?.length}>
         <hr />
-        <h3>Transcription:</h3>
+        <Row>
+          <img
+            className="transcript-feather"
+            src={`${process.env.PUBLIC_URL}/assets/transcript_feather.svg`}
+            alt="Transcript"
+          />
+          <h3 className="transcipt-heading">Transcript:</h3>
+        </Row>
         <Col>{content && parse(showTranscription(content))}</Col>
       </Show>
       <Show
