@@ -1,8 +1,8 @@
 {
-  "realm": "tno",
+  "realm": "mmi",
   "auth-server-url": "http://localhost:40001/",
   "ssl-required": "external",
-  "resource": "tno-app",
+  "resource": "mmi-app",
   "public-client": true,
   "confidential-port": 0
 }

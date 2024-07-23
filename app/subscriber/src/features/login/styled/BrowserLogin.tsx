@@ -62,7 +62,6 @@ export const BrowserLogin = styled.div`
     padding-top: 2%;
     text-align: center;
     height: fit-content;
-    float: left;
     @media (max-width: 1450px) {
       min-width: 50em;
     }
@@ -101,7 +100,7 @@ export const BrowserLogin = styled.div`
       background-color: ${(props) => props.theme.css.bkWhite};
       &:hover {
         border: 2px solid #a61c29;
-        color: ${(props) => props.theme.css.redHeadingColor};
+        color: ${(props) => props.theme.css.hPrimaryColor};
       }
     }
   }

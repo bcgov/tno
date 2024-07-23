@@ -12,6 +12,9 @@ export const AccessRequest = styled.div`
     overflow-x: auto;
     overflow-y: hidden;
     height: auto;
+
+    justify-items: center;
+    align-items: center;
   }
 
   .app-logo {
@@ -80,6 +83,14 @@ export const AccessRequest = styled.div`
     margin-right: auto;
     overflow: hidden;
     width: 110em;
+    border-radius: 1rem;
+
+    > p {
+      margin-left: auto;
+      margin-right: auto;
+      padding: 1rem;
+    }
+
     @media (min-width: 850px) {
       max-width: 70em;
     }
@@ -95,7 +106,7 @@ export const AccessRequest = styled.div`
       margin: 0;
       background-color: ${(props) => props.theme.css.dialogBoxBkPrimary};
       color: white;
-      padding: 0.5em;
+      padding: 1rem;
       font-size: 18px;
       font-weight: 400;
       line-height: 22px;

@@ -13,7 +13,7 @@ export interface IContentListProviderProps {
   children: ReactNode;
 }
 export const ContentListProvider: React.FC<IContentListProviderProps> = ({ children }) => {
-  const [, { authenticated }] = useApp();
+  const [, { initialized }] = useApp();
   const [viewOptions, setViewOptions] = useState<IToggleStates>({
     date: false,
     section: true,
@@ -33,7 +33,7 @@ export const ContentListProvider: React.FC<IContentListProviderProps> = ({ child
   const [activeFileReference, setActiveFileReference] = useState<IFileReferenceModel>();
 
   React.useEffect(() => {
-    if (authenticated) {
+    if (initialized) {
       getAllContentInMyReports()
         .then((reportContent) => {
           storeReportContent(reportContent);
@@ -42,7 +42,7 @@ export const ContentListProvider: React.FC<IContentListProviderProps> = ({ child
     }
     // Only interested in making this request when the page is initialized.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authenticated]);
+  }, [initialized]);
 
   return (
     <ContentListContext.Provider

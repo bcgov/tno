@@ -9,7 +9,7 @@ public static class IdentityExtensions
     /// </summary>
     /// <param name="user"></param>
     /// <returns></returns>
-    public static string? GetName(this ClaimsPrincipal user)
+    public static string? GetIdentifier(this ClaimsPrincipal user)
     {
         return user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     }
@@ -25,6 +25,8 @@ public static class IdentityExtensions
             ?? user.FindFirst("idir_username")?.Value
             ?? user.FindFirst("github_username")?.Value
             ?? user.FindFirst("bceid_username")?.Value
+            ?? user.FindFirst("bcgov_username")?.Value
+            ?? user.FindFirst("user_principal_name")?.Value
             ?? user.FindFirst("preferred_username")?.Value;
     }
 
@@ -39,16 +41,6 @@ public static class IdentityExtensions
     }
 
     /// <summary>
-    /// Get the currently logged in user's 'preferred_username'.
-    /// </summary>
-    /// <param name="user"></param>
-    /// <returns></returns>
-    public static string? GetKey(this ClaimsPrincipal user)
-    {
-        return user.FindFirst("preferred_username")?.Value;
-    }
-
-    /// <summary>
     /// Get the currently logged in user's 'uid'
     /// </summary>
     /// <param name="user"></param>
@@ -57,7 +49,9 @@ public static class IdentityExtensions
     {
         return user.FindFirst("idir_user_guid")?.Value
             ?? user.FindFirst("github_id")?.Value
-            ?? user.FindFirst("bceid_user_guid")?.Value;
+            ?? user.FindFirst("bceid_user_guid")?.Value
+            ?? user.FindFirst("bcgov_guid")?.Value
+            ?? user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     }
 
     /// <summary>
@@ -68,6 +62,7 @@ public static class IdentityExtensions
     public static string? GetDisplayName(this ClaimsPrincipal user)
     {
         return user.FindFirst("display_name")?.Value
+            ?? user.FindFirst("displayName")?.Value
             ?? user.FindFirst("name")?.Value;
     }
 

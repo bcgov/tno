@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from 'store/hooks';
-import { Col, Loader, Row, Show, useKeycloakWrapper, UserStatusName } from 'tno-core';
+import { Col, Show, useKeycloakWrapper, UserStatusName } from 'tno-core';
 
 import { ApprovalDenied } from './ApprovalDenied';
 import { ApprovalStatus } from './ApprovalStatus';
@@ -16,14 +16,10 @@ export const AccessRequest: React.FC = () => {
   const [{ userInfo }] = useApp();
   const navigate = useNavigate();
   const location = useLocation();
-  const [showLoader, setShowLoader] = React.useState(false);
 
   React.useEffect(() => {
     // The user has been approved, redirect back to home page.
     if (keycloak.hasClaim() && location.pathname === '/welcome') navigate('/');
-    setTimeout(() => {
-      setShowLoader(true);
-    }, 5000);
   }, [keycloak, location.pathname, navigate]);
 
   return (
@@ -36,27 +32,36 @@ export const AccessRequest: React.FC = () => {
       </Show>
       <Show
         visible={
-          userInfo?.status !== UserStatusName.Requested &&
-          userInfo?.status !== UserStatusName.Denied
+          userInfo &&
+          [UserStatusName.Preapproved, UserStatusName.Approved].includes(userInfo.status)
         }
       >
-        <Col>
+        <Col alignContent="center">
           <img alt="MMI Logo" className="app-logo" src="/assets/MMinsights_logo_dark_text.svg" />
-          <Loader visible={showLoader}>Loading</Loader>
-          <Row className="containing-row">
-            <Col className="main-box">
-              <p className="top-bar-box">
-                Welcome {keycloak.getDisplayName()}, If this is the first time signing into Media
-                Monitoring Insights & Analysis, your approval is being processed.
-              </p>
-              <div className={'containing-box'}>
-                <Col className="message-box">
-                  <h1>Please wait while your user information is being set up.</h1>
-                  <h2>You will be redirected automatically.</h2>
-                </Col>
-              </div>
-            </Col>
-          </Row>
+          <Col className="main-box">
+            <p className="top-bar-box">
+              Welcome {keycloak.getDisplayName()}, If this is the first time signing into Media
+              Monitoring Insights, your approval is being processed.
+            </p>
+            <p>
+              If you are not redirected to the application, please contact{' '}
+              <a href="mailto:scott.ryckman@gov.bc.ca">Scott.Ryckman@gov.bc.ca</a>
+            </p>
+          </Col>
+        </Col>
+      </Show>
+      <Show visible={userInfo?.status === UserStatusName.Activated}>
+        <Col alignContent="center">
+          <img alt="MMI Logo" className="app-logo" src="/assets/MMinsights_logo_dark_text.svg" />
+          <Col className="main-box">
+            <p className="top-bar-box">
+              Welcome {keycloak.getDisplayName()}. To gain access to Media Monitoring Insights you
+              will need a paid subscription.
+            </p>
+            <p>
+              Please contact <a href="mailto:scott.ryckman@gov.bc.ca">Scott.Ryckman@gov.bc.ca</a>
+            </p>
+          </Col>
         </Col>
       </Show>
     </styled.AccessRequest>

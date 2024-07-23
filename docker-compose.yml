@@ -142,28 +142,6 @@ services:
     networks:
       - tno
 
-  ####################### Azure Storage #######################
-  azure-storage:
-    image: tno:azure-storage
-    profiles:
-      - all
-      - data
-      - service
-    restart: "no"
-    container_name: tno-azure-storage
-    build:
-      context: db/azure-storage
-    env_file:
-      - db/azure-storage/.env
-    ports:
-      - ${AZURE_BLOB_PORT:-40006}:10000
-      - ${AZURE_QUEUE_PORT:-40007}:10001
-      - ${AZURE_TABLE_PORT:-40008}:10002
-    volumes:
-      - tno-azure-storage-data:/data
-    networks:
-      - tno
-
   ####################### API #######################
   api:
     image: tno:api
@@ -345,32 +323,6 @@ services:
       - api
       - editor
       - subscriber
-    networks:
-      - tno
-
-  ####################### API #######################
-  css:
-    image: tno:css
-    profiles:
-      - all
-      - api
-      - editor
-      - subscriber
-      - service
-      - main
-    restart: "no"
-    container_name: tno-css
-    build:
-      context: ./
-      dockerfile: tools/css-api/Dockerfile
-    env_file: tools/css-api/.env
-    ports:
-      - ${CSS_HTTP_PORT:-40012}:8080
-      - ${CSS_HTTPS_PORT:-40013}:443
-    extra_hosts:
-      - host.docker.internal:host-gateway
-    depends_on:
-      - keycloak
     networks:
       - tno
 

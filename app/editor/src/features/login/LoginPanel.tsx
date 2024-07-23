@@ -7,7 +7,6 @@ export const LoginPanel: React.FC = () => {
   const isLocal =
     new URL(authority).host.startsWith('localhost') ||
     new URL(authority).host.startsWith('host.docker.internal');
-  const isProd = new URL(authority).host === 'editor.mmi.gov.bc.ca';
 
   const login = (hint?: string) => {
     const params = new URLSearchParams(window.location.search);
@@ -32,14 +31,15 @@ export const LoginPanel: React.FC = () => {
         <Col alignItems="center" gap="1em">
           <p>Sign In</p>
           <Show visible={!isLocal}>
-            <Button className="signIn" onClick={() => login(isLocal ? 'gcpe-oidc' : 'idir')}>
+            <Button className="white azure-logo" onClick={() => login('azure-entra')}>
               IDIR
             </Button>
-            <Show visible={!isProd}>
-              <Button className="signIn" onClick={() => login(isLocal ? 'gcpe-oidc' : 'azureidir')}>
-                Azure
-              </Button>
-            </Show>
+            <Button className="white azure-logo" onClick={() => login('azure-entra')}>
+              Microsoft
+            </Button>
+            <Button className="signIn" onClick={() => login()}>
+              Other
+            </Button>
           </Show>
           <Show visible={isLocal}>
             <Button className="signIn" onClick={() => login()}>

@@ -14,12 +14,14 @@ patches:
       - op: replace
         path: /data/keycloak.json
         value: '{
-          "realm": "standard",
-          "auth-server-url": "https://dev.loginproxy.gov.bc.ca/auth",
-          "ssl-required": "external",
-          "resource": "media-monitoring-mmia-3671",
-          "public-client": true,
-          "confidential-port": 0
+            "realm": "mmi",
+            "auth-server-url": "https://dev.loginproxy.gov.bc.ca/auth/",
+            "ssl-required": "external",
+            "resource": "mmi-app",
+            "public-client": true,
+            "verify-token-audience": true,
+            "use-resource-role-mappings": true,
+            "confidential-port": 0
           }'
   - target:
       kind: Route

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.User;
-using TNO.API.CSS;
+using TNO.API.Keycloak;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.DAL.Services;
@@ -33,7 +33,8 @@ public class UserController : ControllerBase
 {
     #region Variables
     private readonly IUserService _userService;
-    private readonly ICssHelper _cssHelper;
+    private readonly IKeycloakService _keycloakService;
+    private readonly IKeycloakHelper _keycloakHelper;
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly INotificationService _notificationService;
     private readonly IReportService _reportService;
@@ -44,19 +45,22 @@ public class UserController : ControllerBase
     /// Creates a new instance of a UserController object, initializes with specified parameters.
     /// </summary>
     /// <param name="userService"></param>
-    /// <param name="cssHelper"></param>
+    /// <param name="keycloakService"></param>
+    /// <param name="keycloakHelper"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="notificationService"></param>
     /// <param name="reportService"></param>
     public UserController(
         IUserService userService,
-        ICssHelper cssHelper,
+        IKeycloakService keycloakService,
+        IKeycloakHelper keycloakHelper,
         IOptions<JsonSerializerOptions> serializerOptions,
         INotificationService notificationService,
         IReportService reportService)
     {
         _userService = userService;
-        _cssHelper = cssHelper;
+        _keycloakService = keycloakService;
+        _keycloakHelper = keycloakHelper;
         _serializerOptions = serializerOptions.Value;
         _notificationService = notificationService;
         _reportService = reportService;
@@ -128,7 +132,14 @@ public class UserController : ControllerBase
     [SwaggerOperation(Tags = new[] { "User" })]
     public async Task<IActionResult> UpdateAsync(UserModel model)
     {
-        await _cssHelper.UpdateUserRolesAsync(model.Key, model.Roles.ToArray());
+        if (!Guid.TryParse(model.Key, out Guid key)) throw new InvalidOperationException($"User key must be a guid: {model.Key}");
+
+        var kUser = await _keycloakService.GetUserAsync(key);
+        if (kUser != null)
+        {
+            await _keycloakHelper.UpdateUserRolesAsync(key, model.Roles.ToArray());
+        }
+
         var user = _userService.UpdateAndSave((Entities.User)model);
         if (!model.IsEnabled)
         {
@@ -151,7 +162,7 @@ public class UserController : ControllerBase
     [SwaggerOperation(Tags = new[] { "User" })]
     public async Task<IActionResult> DeleteAsync(UserModel model)
     {
-        await _cssHelper.DeleteUserAsync((User)model);
+        await _keycloakHelper.DeleteUserAsync((User)model);
         return new JsonResult(model);
     }
 

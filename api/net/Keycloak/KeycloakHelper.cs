@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Admin.Models.User;
 using TNO.Core.Exceptions;
@@ -17,6 +19,7 @@ public class KeycloakHelper : IKeycloakHelper
     private readonly IKeycloakService _keycloakService;
     private readonly IUserService _userService;
     private readonly Config.KeycloakOptions _options;
+    private readonly ILogger<KeycloakHelper> _logger;
     #endregion
 
     #region Constructors
@@ -26,11 +29,17 @@ public class KeycloakHelper : IKeycloakHelper
     /// <param name="keycloakService"></param>
     /// <param name="userService"></param>
     /// <param name="options"></param>
-    public KeycloakHelper(IKeycloakService keycloakService, IUserService userService, IOptions<Config.KeycloakOptions> options)
+    /// <param name="logger"></param>
+    public KeycloakHelper(
+        IKeycloakService keycloakService,
+        IUserService userService,
+        IOptions<Config.KeycloakOptions> options,
+        ILogger<KeycloakHelper> logger)
     {
         _keycloakService = keycloakService;
         _userService = userService;
         _options = options.Value;
+        _logger = logger;
     }
     #endregion
 
@@ -93,8 +102,7 @@ public class KeycloakHelper : IKeycloakHelper
         user.LastName = kUser.LastName ?? user.LastName;
         user.EmailVerified = kUser.EmailVerified ?? false;
         user.IsEnabled = kUser.Enabled;
-        var displayName = kUser.Attributes?["displayName"]?.FirstOrDefault();
-        user.DisplayName = displayName ?? user.DisplayName;
+        user.DisplayName = kUser.GetDisplayName() ?? user.DisplayName;
 
         // Fetch the roles for the user
         var roles = await _keycloakService.GetUserClientRolesAsync(kUser.Id, _options.ClientId.Value);
@@ -112,40 +120,51 @@ public class KeycloakHelper : IKeycloakHelper
     /// If the user exists in TNO, activate user by linking to Keycloak and updating Keycloak.
     /// </summary>
     /// <param name="principal"></param>
+    /// <param name="location"></param>
     /// <returns></returns>
-    public async Task<Entities.User?> ActivateAsync(ClaimsPrincipal principal)
+    public async Task<Tuple<Entities.User?, Models.Auth.AccountAuthState>> ActivateAsync(ClaimsPrincipal principal, Models.Auth.LocationModel? location = null)
     {
         if (!_options.ClientId.HasValue) throw new ConfigurationException("Keycloak clientId has not been configured");
+        var auth = Models.Auth.AccountAuthState.Authorized;
 
-        var key = new Guid(principal.GetKey() ?? Guid.Empty.ToString());
-        var username = principal.GetUsername() ?? throw new InvalidOperationException("Username is required but missing from token");
-        var user = _userService.FindByKey(key);
+        if (!Guid.TryParse(principal.GetIdentifier(), out Guid keycloakUid)) throw new NotAuthorizedException("The 'sub' is required but missing from token");
+        var user = _userService.FindByUserKey(keycloakUid.ToString());
+
+        // Check if the account exists with the old key from the shared keycloak realm.
+        // We need to do this because we're migrating over to the new custom realm.
+        if (user == null)
+        {
+            var uid = principal.GetUid();
+            user = _userService.FindByUserKey($"{uid}@idir") ?? _userService.FindByUserKey($"{uid}@bceidbasic") ?? _userService.FindByUserKey($"{uid}");
+        }
 
         // If user doesn't exist, add them to the database.
         if (user == null)
         {
+            _logger.LogTrace("Could not find an existing user using key:[{key}]", keycloakUid);
+
+            var username = principal.GetUsername() ?? throw new InvalidOperationException("Username is required but missing from token");
             var email = principal.GetEmail() ?? throw new InvalidOperationException("Email is required but missing from token");
 
             // Check if the user has been manually added by their email address.
-            var users = _userService.FindByEmail(email);
-
             // If only one account has the email, we can assume it's a preapproved user.
             // However if it isn't we need to see if there is a match for the username instead (which is unlikely).
+            var users = _userService.FindByEmail(email);
             if (users.Count() == 1) user = users.First();
             else user = _userService.FindByUsername(username);
 
             // Fetch the roles for the user
-            var roles = await _keycloakService.GetUserClientRolesAsync(key, _options.ClientId.Value);
+            var roles = await _keycloakService.GetUserClientRolesAsync(keycloakUid, _options.ClientId.Value);
 
             if (user == null)
             {
-                var kUser = await _keycloakService.GetUserAsync(key);
-                if (kUser == null) throw new InvalidOperationException("The user does not exist in keycloak");
+                _logger.LogTrace("Need to create a new MMI user with username:[{username}]", username);
+                var kUser = await _keycloakService.GetUserAsync(keycloakUid) ?? throw new InvalidOperationException("The user does not exist in keycloak");
 
                 // Add the user to the database.
-                user = _userService.AddAndSave(new Entities.User(username, email, key.ToString())
+                user = _userService.AddAndSave(new Entities.User(username, email, keycloakUid.ToString())
                 {
-                    DisplayName = kUser.Attributes?["displayName"].FirstOrDefault() ?? principal.GetDisplayName() ?? "",
+                    DisplayName = kUser.GetDisplayName() ?? principal.GetDisplayName() ?? "",
                     FirstName = kUser.FirstName ?? principal.GetFirstName() ?? "",
                     LastName = kUser.LastName ?? principal.GetLastName() ?? "",
                     IsEnabled = kUser.Enabled,
@@ -158,27 +177,47 @@ public class KeycloakHelper : IKeycloakHelper
             }
             else if (user != null)
             {
+                _logger.LogTrace("Found existing user with username:[{username}]. Update Status and Roles", username);
+
+                var rolesInDb = user.Roles.Replace("[", "").Replace("]", "").Split(",").Select(r => r.Trim()).Order();
+                var rolesFromKeycloak = await UpdateUserRolesAsync(keycloakUid, rolesInDb.ToArray());
+
                 // Update the user in the database and reference the keycloak uid.
                 // The user was created in TNO initially, but now the user has logged in and activated their account.
-                user.Key = key.ToString();
+                user.Key = keycloakUid.ToString();
                 user.Username = username;
                 user.Email = email;
+                user.EmailVerified = principal.GetEmailVerified() ?? false;
                 user.FirstName = principal.GetFirstName() ?? "";
                 user.LastName = principal.GetLastName() ?? "";
                 user.LastLoginOn = DateTime.UtcNow;
                 user.Status = Entities.UserStatus.Approved;
-                user.Roles = String.Join(",", roles.Select(r => $"[{r.Name?.ToLower()}]"));
+                user.Roles = String.Join(",", rolesFromKeycloak.Select(r => $"[{r.ToLower()}]"));
                 var model = await UpdateUserAsync(new UserModel(user));
-                return (Entities.User)model;
+                user = (Entities.User)model;
             }
         }
         else
         {
+            _logger.LogTrace("Found existing user with key:[{key}], check Roles in Keycloak vs DB", keycloakUid);
+            var roles = await _keycloakService.GetUserClientRolesAsync(keycloakUid, _options.ClientId.Value);
+            var rolesInKeycloak = roles.Select(r => r.Name).Order();
+            var rolesInDb = user.Roles.Replace("[", "").Replace("]", "").Split(",").Select(r => r.Trim()).Order();
+            if (!rolesInKeycloak.SequenceEqual(rolesInDb))
+            {
+                _logger.LogTrace("User with key:[{key}] has mis-matched roles. Keycloak:[{rolesInCss}] DB:[{rolesInDb}]. Keycloak will be updated.", keycloakUid, String.Join(",", rolesInKeycloak), String.Join(",", rolesInDb));
+                await UpdateUserRolesAsync(keycloakUid, rolesInDb.ToArray());
+            }
+
+            if (user.Key != keycloakUid.ToString())
+                user.Key = keycloakUid.ToString();
             user.LastLoginOn = DateTime.UtcNow;
             _userService.UpdateAndSave(user);
         }
 
-        return user;
+        if (user != null) auth = AuthorizeLocation(user, location);
+
+        return Tuple.Create(user, auth);
     }
 
     /// <summary>
@@ -197,8 +236,8 @@ public class KeycloakHelper : IKeycloakHelper
             if (kUser != null)
             {
                 // Update attributes.
-                if (kUser.Attributes == null) kUser.Attributes = new Dictionary<string, string[]>();
-                kUser.Attributes["displayName"] = new[] { user.DisplayName };
+                kUser.Attributes ??= new Dictionary<string, string[]>();
+                kUser.SetDisplayName(user.DisplayName);
                 kUser.EmailVerified = user.EmailVerified;
                 kUser.Enabled = user.IsEnabled;
                 await _keycloakService.UpdateUserAsync(kUser);
@@ -245,6 +284,168 @@ public class KeycloakHelper : IKeycloakHelper
     {
         _userService.DeleteAndSave(entity);
         if (Guid.TryParse(entity.Key, out Guid key)) await _keycloakService.DeleteUserAsync(key);
+    }
+    #endregion
+
+    #region Location Methods
+    /// <summary>
+    /// Remove the specified location.
+    /// </summary>
+    /// <param name="principal"></param>
+    /// <param name="deviceKey"></param>
+    public void RemoveLocation(ClaimsPrincipal principal, string? deviceKey = null)
+    {
+        // CSS uses the preferred_username value as a username, but it's not the actual username...
+        var key = principal.GetUid() ?? throw new NotAuthorizedException("The 'sub' is required but missing from token");
+        var user = _userService.FindByUserKey(key);
+        if (user != null && deviceKey != null)
+        {
+            Models.Auth.LocationModel[]? userLocations = null;
+            var locations = user.Preferences.GetElementValue<Models.Auth.LocationModel[]>(".locations");
+            if (locations != null)
+            {
+                userLocations = locations.Where(l => l.Key != deviceKey).ToArray();
+                var preferences = JsonNode.Parse(user.Preferences.ToJson())?.AsObject();
+                if (preferences != null)
+                {
+                    preferences.Remove("locations");
+                    var arrayNode = new JsonArray();
+                    userLocations.ForEach(location => arrayNode.Add(location));
+                    preferences.Add("locations", arrayNode);
+                    user.Preferences = JsonDocument.Parse(preferences.ToJsonString());
+                    _userService.UpdateAndSave(user);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Keep the specified location and remove all others.
+    /// </summary>
+    /// <param name="principal"></param>
+    /// <param name="deviceKey"></param>
+    public void RemoveOtherLocations(ClaimsPrincipal principal, string? deviceKey = null)
+    {
+        // CSS uses the preferred_username value as a username, but it's not the actual username...
+        var key = principal.GetUid() ?? throw new NotAuthorizedException("The 'sub' is required but missing from token");
+        var user = _userService.FindByUserKey(key);
+        if (user != null && deviceKey != null)
+        {
+            Models.Auth.LocationModel[]? userLocations = null;
+            var locations = user.Preferences.GetElementValue<Models.Auth.LocationModel[]>(".locations");
+            if (locations != null)
+            {
+                userLocations = locations.Where(l => l.Key == deviceKey).ToArray();
+                var preferences = JsonNode.Parse(user.Preferences.ToJson())?.AsObject();
+                if (preferences != null)
+                {
+                    preferences.Remove("locations");
+                    var arrayNode = new JsonArray();
+                    userLocations.ForEach(location => arrayNode.Add(location));
+                    preferences.Add("locations", arrayNode);
+                    user.Preferences = JsonDocument.Parse(preferences.ToJsonString());
+                    _userService.UpdateAndSave(user);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// If a location is provided it will add it to the user preferences property.
+    /// Determine if the user has logged into too many devices at the same time.
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="location"></param>
+    /// <returns></returns>
+    private static Models.Auth.AccountAuthState AuthorizeLocation(Entities.User user, Models.Auth.LocationModel? location = null)
+    {
+        var state = Models.Auth.AccountAuthState.Authorized;
+        if (location != null)
+        {
+            location.LastLoginOn = DateTime.UtcNow;
+            var reasonableTimeSpan = location.LastLoginOn.Value.AddMinutes(-5);
+            var locations = user.Preferences.GetElementValue<Models.Auth.LocationModel[]>(".locations");
+            Models.Auth.LocationModel[]? userLocations = null;
+            if (locations == null)
+            {
+                // The first location captured.
+                userLocations = new[] { location };
+            }
+            else if (!locations.Any(l => l?.IPv4 == location?.IPv4) == true)
+            {
+                // Place new location at the top of the array.
+                userLocations = new Models.Auth.LocationModel[locations.Length + 1];
+                userLocations[0] = location;
+                Array.Copy(locations, 0, userLocations, 1, locations.Length);
+
+                // Multiple IP address may indicate a possible shared account if the login timestamps are close.
+                if (userLocations.Count(l => l.LastLoginOn >= reasonableTimeSpan) > 1)
+                {
+                    // TODO: It's possible the same device has moved to a new IP.
+                    // Inform action on shared account over multiple locations.
+                    state = Models.Auth.AccountAuthState.MultipleIPs;
+                }
+            }
+            else
+            {
+                // This IP has already been captured, it needs to be updated with the latest information.
+                // Multiple devices with the same IP may indicate a possible shared account if the key are different.
+                // It could also simply mean the same account logged into multiple devices.
+                var add = true;
+                for (var i = 0; i < locations.Length; i++)
+                {
+                    if (locations[i].IPv4 == location.IPv4)
+                    {
+                        if (locations[i].Key == location.Key)
+                        {
+                            locations[i].LastLoginOn = location.LastLoginOn;
+                            add = false;
+                        }
+                        else if (location.LastLoginOn >= reasonableTimeSpan)
+                        {
+                            // A different key may indicate different devices.
+                            // Each browser will generate a unique key.
+                            // Keys can get reset when cache is cleared.
+                            state = Models.Auth.AccountAuthState.MultipleDevices;
+                        }
+                    }
+                }
+                if (add)
+                {
+                    // Place new device at the top of the array.
+                    userLocations = new Models.Auth.LocationModel[locations.Length + 1];
+                    userLocations[0] = location;
+                    Array.Copy(locations, 0, userLocations, 1, locations.Length);
+                }
+                else
+                {
+                    userLocations = locations;
+                }
+            }
+
+            if (user.UniqueLogins == 0) state = Models.Auth.AccountAuthState.Authorized;
+            if ((state == Models.Auth.AccountAuthState.MultipleIPs && userLocations.Length > user.UniqueLogins) ||
+                (state == Models.Auth.AccountAuthState.MultipleDevices && userLocations.Length > user.UniqueLogins)) state = Models.Auth.AccountAuthState.Unauthorized;
+
+            // Update user preferences with location data.
+            var preferences = JsonNode.Parse(user.Preferences.ToJson())?.AsObject();
+            if (preferences != null)
+            {
+                // Remove older locations otherwise when a user attempts to login with a new device key it will always fail.
+                var length = user.UniqueLogins > 0 ? user.UniqueLogins : userLocations.Length;
+                userLocations = userLocations.Where(l => l.LastLoginOn >= location.LastLoginOn.Value.AddMonths(-1)).Take(length).ToArray();
+
+                preferences.Remove("locations");
+                var arrayNode = new JsonArray();
+                userLocations.ForEach(location => arrayNode.Add(location));
+                preferences.Add("locations", arrayNode);
+                user.Preferences = JsonDocument.Parse(preferences.ToJsonString());
+            }
+
+            return state;
+        }
+
+        return state;
     }
     #endregion
 }

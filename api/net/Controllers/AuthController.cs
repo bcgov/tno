@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.User;
-using TNO.API.CSS;
+using TNO.API.Keycloak;
 using TNO.API.Models;
 using TNO.API.Models.Auth;
 using TNO.Core.Exceptions;
@@ -27,7 +27,7 @@ namespace TNO.API.Controllers;
 public class AuthController : ControllerBase
 {
     #region Variables
-    private readonly ICssHelper _cssHelper;
+    private readonly IKeycloakHelper _keycloakHelper;
     private readonly IUserService _userService;
     #endregion
 
@@ -35,13 +35,12 @@ public class AuthController : ControllerBase
     /// <summary>
     /// Creates a new instance of a AuthController object, initializes with specified parameters.
     /// </summary>
-    /// <param name="cssHelper"></param>
+    /// <param name="keycloakHelper"></param>
     /// <param name="userService"></param>
-    public AuthController(ICssHelper cssHelper, IUserService userService)
+    public AuthController(IKeycloakHelper keycloakHelper, IUserService userService)
     {
-        _cssHelper = cssHelper;
+        _keycloakHelper = keycloakHelper;
         _userService = userService;
-
     }
     #endregion
 
@@ -51,6 +50,7 @@ public class AuthController : ControllerBase
     /// If the user doesn't currently exist in TNO, activate a new user by adding them to TNO.
     /// If the user exists in TNO, activate user by linking to Keycloak and updating Keycloak.
     /// </summary>
+    /// <param name="location"></param>
     /// <returns></returns>
     [HttpPost("userinfo")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -58,7 +58,7 @@ public class AuthController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Auth" })]
     public async Task<IActionResult> UserInfoAsync(LocationModel? location)
     {
-        var state = await _cssHelper.ActivateAsync(this.User, location);
+        var state = await _keycloakHelper.ActivateAsync(this.User, location);
         return new JsonResult(new PrincipalModel(this.User, state.Item1, state.Item2));
     }
 
@@ -67,6 +67,7 @@ public class AuthController : ControllerBase
     /// If the user doesn't currently exist in TNO, activate a new user by adding them to TNO.
     /// If the user exists in TNO, activate user by linking to Keycloak and updating Keycloak.
     /// </summary>
+    /// <param name="location"></param>
     /// <returns></returns>
     [HttpPost("logout")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -74,7 +75,7 @@ public class AuthController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Auth" })]
     public IActionResult Logout(LocationModel? location)
     {
-        _cssHelper.RemoveLocation(this.User, location?.Key);
+        _keycloakHelper.RemoveLocation(this.User, location?.Key);
         return Ok();
     }
 
@@ -112,7 +113,8 @@ public class AuthController : ControllerBase
             user.Code = "";
             user.Status = UserStatus.Approved;
             user.Roles = preapproved.Roles;
-            await _cssHelper.UpdateUserRolesAsync(user.Key, preapproved.Roles.Split(",").Select(r => r[1..^1]).ToArray());
+            var key = Guid.Parse(user.Key);
+            await _keycloakHelper.UpdateUserRolesAsync(key, preapproved.Roles.Split(",").Select(r => r[1..^1]).ToArray());
             _userService.UpdateAndSave(user);
             _userService.DeleteAndSave(preapproved);
             return new JsonResult(new RegisterModel(model.Email, user.Status, $"An email has been sent to {model.Email}"));
@@ -142,9 +144,7 @@ public class AuthController : ControllerBase
     {
         // Only allow a user to update their own account.
         var username = this.User.GetUsername() ?? throw new NotAuthorizedException("Cannot update user");
-        var original = _userService.FindByUsername(username);
-        if (original == null) throw new InvalidOperationException("Cannot update user");
-
+        var original = _userService.FindByUsername(username) ?? throw new InvalidOperationException("Cannot update user");
         original.Note = model.Note;
         original.Status = Entities.UserStatus.Requested;
         var result = _userService.UpdateAndSave(original);

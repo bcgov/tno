@@ -2,7 +2,7 @@
 
 # Check if a command-line argument was provided
 if [ $# -eq 0 ]; then
-    echo "Please provide the secret as an argument. You can find it in keycloak admin => tno realm => clients => tno-service-account. "
+    echo "Please provide the secret as an argument. You can find it in keycloak admin => mmi realm => clients => mmi-service-account. "
     exit 1
 fi
 
@@ -13,7 +13,7 @@ account_secret="$1"
 script_path="$(realpath "$0")"
 
 # Find the tno directory in the path
-regex="(.*/tno)/"
+regex="(.*/mmi)/"
 if [[ $script_path =~ $regex ]]; then
     tno_root="${BASH_REMATCH[1]}"
 else

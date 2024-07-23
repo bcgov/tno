@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Subscriber.Models.User;
-using TNO.API.CSS;
 using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
@@ -34,7 +33,6 @@ public class UserController : ControllerBase
     #region Variables
     private readonly IUserService _userService;
     private readonly IUserColleagueService _userColleagueService;
-    private readonly ICssHelper _cssHelper;
     private readonly IImpersonationHelper _impersonate;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
@@ -47,18 +45,15 @@ public class UserController : ControllerBase
     /// <param name="impersonateHelper"></param>
     /// <param name="userColleagueService"></param>
     /// <param name="serializerOptions"></param>
-    /// <param name="cssHelper"></param>
     public UserController(
         IUserService userService,
         IImpersonationHelper impersonateHelper,
         IUserColleagueService userColleagueService,
-        ICssHelper cssHelper,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _userService = userService;
         _impersonate = impersonateHelper;
         _userColleagueService = userColleagueService;
-        _cssHelper = cssHelper;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion

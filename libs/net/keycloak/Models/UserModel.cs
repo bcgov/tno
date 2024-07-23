@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TNO.Keycloak.Models
 {
@@ -63,6 +64,38 @@ namespace TNO.Keycloak.Models
         /// get/set - A dictionary of user attributes.
         /// </summary>
         public Dictionary<string, string[]>? Attributes { get; set; }
+        #endregion
+
+        #region Methods
+        /// <summary>
+        /// Get the display name from the attributes.
+        /// </summary>
+        /// <returns></returns>
+        public string? GetDisplayName()
+        {
+            if (this.Attributes?.ContainsKey("displayName") == true)
+                return this.Attributes?["displayName"]?.FirstOrDefault();
+            else if (this.Attributes?.ContainsKey("display_name") == true)
+                return this.Attributes?["display_name"]?.FirstOrDefault();
+            else if (this.Attributes?.ContainsKey("name") == true)
+                return this.Attributes?["name"]?.FirstOrDefault();
+
+            return null;
+        }
+
+        /// <summary>
+        /// Set the display name in the attributes.
+        /// </summary>
+        /// <param name="name"></param>
+        public void SetDisplayName(string name)
+        {
+            if (this.Attributes?.ContainsKey("displayName") == true)
+                this.Attributes["displayName"] = new[] { name };
+            if (this.Attributes?.ContainsKey("display_name") == true)
+                this.Attributes["display_name"] = new[] { name };
+            if (this.Attributes?.ContainsKey("name") == true)
+                this.Attributes["name"] = new[] { name };
+        }
         #endregion
     }
 }

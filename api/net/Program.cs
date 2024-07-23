@@ -19,15 +19,14 @@ using Prometheus;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using TNO.API.BackgroundWorkItem;
 using TNO.API.Config;
-using TNO.API.CSS;
 using TNO.API.Helpers;
+using TNO.API.Keycloak;
 using TNO.API.Middleware;
 using TNO.API.SignalR;
 using TNO.Ches;
 using TNO.Core.Converters;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
-using TNO.CSS;
 using TNO.DAL;
 using TNO.Kafka;
 using TNO.Keycloak;
@@ -37,6 +36,8 @@ DotNetEnv.Env.Load();
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
 var builder = WebApplication.CreateBuilder(args);
+using var factory = LoggerFactory.Create(builder => builder.AddConsole());
+var logger = factory.CreateLogger<Program>();
 
 builder
     .Configuration
@@ -206,8 +207,9 @@ builder.Services
     .AddHttpClient()
     .AddTransient<JwtSecurityTokenHandler>()
     .AddTransient<IHttpRequestClient, HttpRequestClient>()
-    .AddTransient<ICssHelper, CssHelper>()
-    .AddCssEnvironmentService(config.GetSection("CSS"));
+    .AddTransient<IKeycloakHelper, KeycloakHelper>()
+    .AddScoped<IOpenIdConnectRequestClient, OpenIdConnectRequestClient>()
+    .AddKeycloakService(config.GetSection("Keycloak:ServiceAccount"));
 
 builder.Services.AddApiVersioning(options =>
 {

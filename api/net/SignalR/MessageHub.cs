@@ -1,8 +1,6 @@
-using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Options;
-using TNO.API.CSS;
+using TNO.API.Keycloak;
 
 namespace TNO.API.SignalR;
 
@@ -14,23 +12,17 @@ namespace TNO.API.SignalR;
 public class MessageHub : Hub
 {
     #region Variables
-    private readonly ICssHelper _cssHelper;
-    private readonly JsonSerializerOptions _serializerOptions;
-    private readonly ILogger _logger;
+    private readonly IKeycloakHelper _keycloakHelper;
     #endregion
 
     #region Constructors
     /// <summary>
     /// Creates a new instance of a MessageHub, initializes with specified parameters.
     /// </summary>
-    /// <param name="cssHelper"></param>
-    /// <param name="serializerOptions"></param>
-    /// <param name="logger"></param>
-    public MessageHub(ICssHelper cssHelper, IOptions<JsonSerializerOptions> serializerOptions, ILogger<MessageHub> logger)
+    /// <param name="keycloakHelper"></param>
+    public MessageHub(IKeycloakHelper keycloakHelper)
     {
-        _cssHelper = cssHelper;
-        _serializerOptions = serializerOptions.Value;
-        _logger = logger;
+        _keycloakHelper = keycloakHelper;
     }
     #endregion
 
@@ -79,7 +71,7 @@ public class MessageHub : Hub
     public Task LogoutAsync(string username, string? deviceKey = null)
     {
         if (this.Context.User != null)
-            _cssHelper.RemoveOtherLocations(this.Context.User, deviceKey);
+            _keycloakHelper.RemoveOtherLocations(this.Context.User, deviceKey);
         return this.Clients.User(username).SendAsync("Logout");
     }
     #endregion
