@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
 import { useLookup, useSettings } from 'store/hooks';
 import { useAppStore } from 'store/slices';
-import { Checkbox, IContentModel, Row, Settings, Show } from 'tno-core';
+import { Checkbox, Claim, IContentModel, Row, Settings, Show } from 'tno-core';
 
 import { AddToFolderMenu } from './AddToFolderMenu';
 import { AddToReportMenu } from './AddToReportMenu';
@@ -80,7 +80,7 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
 
   return (
     <styled.ContentActionBar className={className}>
-      <Show visible={viewingContent && userInfo?.roles.includes('editor')}>
+      <Show visible={viewingContent}>
         <div className="action left-side-items" onClick={() => (onBack ? onBack() : navigate(-1))}>
           <img
             className="back-button"
@@ -125,21 +125,23 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
             {disableAddToFolder ? null : <AddToFolderMenu onClear={onClear} content={content} />}
             <AddToReportMenu content={content} onClear={onClear} />
             {!!removeFolderItem && <RemoveFromFolder onClick={removeFolderItem} />}
-            {viewingContent && (
-              <button
-                className="editor-button"
-                onClick={() => {
-                  if (editorUrl) {
-                    window.open(`${editorUrl}/contents/${contentId}`, '_blank');
-                  } else {
-                    toast.error('Editor URL not found, please set and try again.');
-                  }
-                }}
-              >
-                <FaArrowUpRightFromSquare />
-                Edit Story
-              </button>
-            )}
+            {viewingContent &&
+              (userInfo?.roles.includes(Claim.administrator) ||
+                userInfo?.roles.includes(Claim.editor)) && (
+                <button
+                  className="editor-button"
+                  onClick={() => {
+                    if (editorUrl) {
+                      window.open(`${editorUrl}/contents/${contentId}`, '_blank');
+                    } else {
+                      toast.error('Editor URL not found, please set and try again.');
+                    }
+                  }}
+                >
+                  <FaArrowUpRightFromSquare />
+                  Edit Story
+                </button>
+              )}
           </Row>
         </div>
       )}
