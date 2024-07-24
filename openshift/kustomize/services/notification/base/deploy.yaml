@@ -144,7 +144,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: reporting-shared
-                  key: REPORTING_BASE_URL
+                  key: REPORTING_SUBSCRIBER_URL
             - name: Reporting__ViewContentUrl
               valueFrom:
                 configMapKeyRef:

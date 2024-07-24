@@ -57,7 +57,7 @@ patches:
       name: reporting-shared
     patch: |-
       - op: replace
-        path: /data/REPORTING_BASE_URL
+        path: /data/REPORTING_SUBSCRIBER_URL
         value: https://test.mmi.gov.bc.ca/
   - target:
       kind: ConfigMap
@@ -72,7 +72,7 @@ patches:
     patch: |-
       - op: replace
         path: /data/REPORTING_REQUEST_TRANSCRIPT_URL
-        value: https://test.mmi.gov.bc.ca/api/subscriber/work/orders/transcribe/
+        value: https://test.mmi.gov.bc.ca/transcribe/
   - target:
       kind: ConfigMap
       name: reporting-shared
