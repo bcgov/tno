@@ -4,7 +4,7 @@ import { Navbar } from 'components/navbar';
 import { navbarOptions } from 'components/navbar/NavbarItems';
 import { UnauthenticatedHome, UserInfo } from 'features/login';
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useToastError } from 'store/hooks';
 import { useApiHub } from 'store/hooks/signalr';
@@ -35,6 +35,7 @@ export interface ILayoutProps extends React.HTMLAttributes<HTMLDivElement> {
 export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => {
   const keycloak = useKeycloakWrapper();
   const { setToken } = React.useContext(SummonContext);
+  const { popout } = useParams();
   useToastError();
   const hub = useApiHub();
 
@@ -68,10 +69,13 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
   });
 
   return (
-    <styled.Layout className={!keycloak.authenticated ? 'unauth' : ''} {...rest}>
+    <styled.Layout
+      className={`${!keycloak.authenticated && 'unauth'} ${!!popout && 'popout'}`}
+      {...rest}
+    >
       <UserInfo />
       <Show visible={keycloak.authenticated}>
-        <Show visible={keycloak.hasClaim()}>
+        <Show visible={keycloak.hasClaim() && !popout}>
           <div className="grid-container">
             <div className="nav-bar">
               <Navbar options={navbarOptions} />
@@ -86,6 +90,13 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
               </main>
             </LayoutErrorBoundary>
           </div>
+        </Show>
+        <Show visible={!!popout}>
+          <LayoutErrorBoundary>
+            <main>
+              <Outlet />
+            </main>
+          </LayoutErrorBoundary>
         </Show>
         <Show visible={!keycloak.hasClaim()}>
           <LayoutErrorBoundary>

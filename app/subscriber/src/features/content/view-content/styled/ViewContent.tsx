@@ -5,6 +5,35 @@ export const ViewContent = styled.div`
     margin-bottom: 0;
     margin-left: 0.25em;
   }
+
+  .summary-container {
+    margin-right: auto;
+  }
+  .popout-transcribe-row {
+    width: 100%;
+    .transcribe-button {
+      position: absolute;
+      right: 0;
+    }
+  }
+  .actions-popout {
+    padding: 0;
+    position: absolute;
+    bottom: 6.5em;
+  }
+
+  .copyright-text {
+    hr {
+      margin-top: 3em;
+    }
+    font-size: 0.8em;
+    margin-top: 1em;
+    margin-left: 0.5em;
+    svg {
+      margin-right: 0.5em;
+    }
+  }
+
   .summary {
     font-family: ${(props) => props.theme.css.fPrimary};
     p {
@@ -74,6 +103,19 @@ export const ViewContent = styled.div`
 
   .transcribe-button {
     margin-left: auto;
+    padding: 0.5em;
+    color: ${(props) => props.theme.css.fPrimaryColor};
+    background-color: ${(props) => props.theme.css.btnEditColor};
+    border: solid 2px ${(props) => props.theme.css.btnEditBorderColor};
+    svg {
+      color: ${(props) => props.theme.css.btnEditBorderColor};
+    }
+    height: 2em;
+    border-radius: 0.85em;
+    &:hover {
+      background-color: ${(props) => props.theme.css.btnEditHoverColor};
+      cursor: pointer;
+    }
   }
 
   img {

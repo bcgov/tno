@@ -1,10 +1,13 @@
 import { Bar } from 'components/bar';
 import { Button } from 'components/button';
 import { Sentiment } from 'components/sentiment';
+import { ContentActionBar } from 'components/tool-bar';
 import { formatSearch } from 'features/search-page/utils';
 import { formatDate, showTranscription } from 'features/utils';
 import parse from 'html-react-parser';
 import React from 'react';
+import { FaFeather } from 'react-icons/fa';
+import { FaCopyright } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApiHub, useContent, useWorkOrders } from 'store/hooks';
@@ -42,14 +45,15 @@ export interface IStream {
 export interface IViewContentProps {
   /** set active content */
   setActiveContent?: (content: IContentModel[]) => void;
+  activeContent?: IContentModel[];
 }
 
 /**
  * Component to display content when navigating to it from the landing page list view, responsive and adaptive to screen size
  * @returns ViewContent component
  */
-export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) => {
-  const { id } = useParams();
+export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, activeContent }) => {
+  const { id, popout } = useParams();
   const [
     {
       search: { filter },
@@ -276,7 +280,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
   }, [cleanBody, cleanSummary]);
 
   return (
-    <styled.ViewContent>
+    <styled.ViewContent className={`${!!popout && 'popout'}`}>
       <div className="headline">{formattedHeadline}</div>
       <Bar className="info-bar" vanilla>
         <Show visible={!!content?.byline}>
@@ -341,8 +345,8 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
         </Row>
       </Show>
       <Row id="summary" className="summary">
-        <Show visible={isAV && !!content?.summary && !isTranscribing && isDifferent}>
-          <Col>
+        <Show visible={isAV && !!content?.summary && !isTranscribing && isDifferent && !popout}>
+          <Col className="summary-container">
             <span>{formattedSummary}</span>
             <Show visible={!!content?.sourceUrl}>
               <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
@@ -353,7 +357,11 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
         </Show>
         <Show visible={!isAV && !!content}>
           <Col>
-            {!!content?.body?.length ? <div>{formattedBody}</div> : <span>{formattedSummary}</span>}
+            {!!content?.body?.length && !popout ? (
+              <div>{formattedBody}</div>
+            ) : (
+              <span>{formattedSummary}</span>
+            )}
             <Show visible={!!content?.sourceUrl}>
               <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
                 More...
@@ -361,32 +369,48 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
             </Show>
           </Col>
         </Show>
-        <Show
-          visible={
-            isAV &&
-            !content?.source?.disableTranscribe &&
-            !content.isApproved &&
-            !isTranscriptRequestor
-          }
-        >
-          <Button
-            onClick={() => handleTranscribe()}
-            variant={isTranscribing ? 'warn' : 'primary'}
-            className="transcribe-button"
-            disabled={
-              (!!content?.fileReferences && !content?.fileReferences.length) ||
-              (!!content?.fileReferences &&
-                content?.fileReferences.length > 0 &&
-                !content?.fileReferences[0].isUploaded)
+        <Row className={`${!!popout && 'popout-transcribe-row'}`}>
+          <Show
+            visible={
+              isAV &&
+              !content?.source?.disableTranscribe &&
+              !content.isApproved &&
+              !isTranscriptRequestor
             }
           >
-            <Show visible={!isTranscribing}>Request Transcript</Show>
-            <Show visible={isTranscribing && !isTranscriptRequestor}>
-              Request Email when Transcript Complete
-            </Show>
-          </Button>
-        </Show>
+            <Button
+              onClick={() => handleTranscribe()}
+              variant={isTranscribing ? 'warn' : 'primary'}
+              className="transcribe-button"
+              disabled={
+                (!!content?.fileReferences && !content?.fileReferences.length) ||
+                (!!content?.fileReferences &&
+                  content?.fileReferences.length > 0 &&
+                  !content?.fileReferences[0].isUploaded)
+              }
+            >
+              <Show visible={!isTranscribing}>
+                <FaFeather /> Request Transcript
+              </Show>
+              <Show visible={isTranscribing && !isTranscriptRequestor}>
+                Request Email when Transcript Complete
+              </Show>
+            </Button>
+            {!!popout && (
+              <ContentActionBar className="actions-popout" content={activeContent ?? []} />
+            )}
+          </Show>
+        </Row>
       </Row>
+      <Show visible={!!popout}>
+        <div className="copyright-text">
+          <hr />
+          <FaCopyright />
+          Copyright protected and owned by broadcaster. Your licence is limited to internal,
+          non-commercial, government use. All reproduction, broadcast, transmission, or other use of
+          this work is prohibited and subject to licence.
+        </div>
+      </Show>
       <Show visible={isAV && isTranscribing}>
         <hr />
         <h3>Transcription:</h3>
@@ -397,7 +421,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent }) =
           {isTranscriptRequestor && <p>You will receive an email once available.</p>}
         </Col>
       </Show>
-      <Show visible={isAV && !isTranscribing && !!content.body?.length}>
+      <Show visible={isAV && !isTranscribing && !!content.body?.length && !popout}>
         <hr />
         <Row>
           <img

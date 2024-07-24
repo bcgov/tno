@@ -147,7 +147,7 @@ export const AppRouter: React.FC = () => {
           }
         />
         <Route
-          path="/view/:id"
+          path="/view/:id/:popout?"
           element={<PrivateRoute claims={Claim.subscriber} element={<Landing />}></PrivateRoute>}
         />
         <Route
