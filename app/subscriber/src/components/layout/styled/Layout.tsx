@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { ILayoutProps } from '..';
 
 export const Layout = styled.div<ILayoutProps>`
-  &:not(.unauth) {
+  &:not(.unauth):not(.popout) {
     main {
       overflow: clip auto;
       height: calc(100dvh - 4.75rem);

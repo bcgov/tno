@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { Row } from 'tno-core';
 
 export const ContentActionBar = styled(Row)`
+  max-width: fit-content;
   &.search {
     .check-area {
       margin-left: 1em;

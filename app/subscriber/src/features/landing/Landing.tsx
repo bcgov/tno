@@ -28,7 +28,7 @@ import * as styled from './styled';
  * @returns Component containing the main "box" that will correspond to the selected item in the left navigation bar. Secondary column displaying commentary and front pages.
  */
 export const Landing: React.FC = () => {
-  const { id } = useParams();
+  const { id, popout } = useParams();
   const [activeItem, setActiveItem] = React.useState<INavbarOptionItem | undefined>(
     NavbarOptions.home,
   );
@@ -42,79 +42,84 @@ export const Landing: React.FC = () => {
   return (
     <styled.Landing className="main-container">
       <FilterOptionsProvider>
+        <Show visible={!!popout}>
+          <ViewContent activeContent={activeContent} setActiveContent={setActiveContent} />
+        </Show>
         <Row className="contents-container">
-          <PageSection
-            ignoreMinWidth
-            activeContent={activeContent}
-            header={
-              <>
-                <Show visible={!!activeItem}>
-                  {activeItem?.icon && <div className="page-icon">{activeItem?.icon}</div>}
-                  {activeItem === NavbarOptions.settings
-                    ? 'Settings | My Minister'
-                    : activeItem?.label}
+          <Show visible={!popout}>
+            <PageSection
+              ignoreMinWidth
+              activeContent={activeContent}
+              header={
+                <>
+                  <Show visible={!!activeItem}>
+                    {activeItem?.icon && <div className="page-icon">{activeItem?.icon}</div>}
+                    {activeItem === NavbarOptions.settings
+                      ? 'Settings | My Minister'
+                      : activeItem?.label}
+                  </Show>
+                  {!!activeItem?.reduxFilterStore && (
+                    <>
+                      <FilterOptions filterStoreName={activeItem?.reduxFilterStore} />
+                      <ViewOptions />
+                    </>
+                  )}
+                </>
+              }
+              className="main-panel"
+              includeContentActions={!activeItem && !popout}
+            >
+              <div className="content">
+                {/* Home is default selected navigation item on login*/}
+                <Show visible={activeItem === NavbarOptions.home}>
+                  <Home />
                 </Show>
-                {!!activeItem?.reduxFilterStore && (
-                  <>
-                    <FilterOptions filterStoreName={activeItem?.reduxFilterStore} />
-                    <ViewOptions />
-                  </>
-                )}
-              </>
-            }
-            className="main-panel"
-            includeContentActions={!activeItem}
-          >
-            <div className="content">
-              {/* Home is default selected navigation item on login*/}
-              <Show visible={activeItem === NavbarOptions.home}>
-                <Home />
-              </Show>
-              <Show visible={!activeItem}>
-                <ViewContent setActiveContent={setActiveContent} />
-              </Show>
-              <Show visible={activeItem === NavbarOptions.settings}>
-                <MyMinisterSettings />
-              </Show>
-              <Show visible={activeItem === NavbarOptions.myMinister}>
-                <MyMinister />
-              </Show>
-              <Show visible={activeItem === NavbarOptions.todaysCommentary}>
-                <TodaysCommentary />
-              </Show>
-              <Show visible={activeItem === NavbarOptions.todaysFrontPages}>
-                <TodaysFrontPages />
-              </Show>
-              <Show visible={activeItem === NavbarOptions.topStories}>
-                <TopStories />
-              </Show>
-              <Show visible={activeItem === NavbarOptions.myProducts}>
-                <MyProducts />
-              </Show>
-              <Show visible={activeItem === NavbarOptions.pressGallery}>
-                <PressGallery />
-              </Show>
-              <Show visible={activeItem === NavbarOptions.mySearches}>
-                <MySearches />
-              </Show>
-              <Show visible={activeItem === NavbarOptions.eventOfTheDay}>
-                <EventOfTheDayPreview />
+                <Show visible={!activeItem}>
+                  <ViewContent setActiveContent={setActiveContent} />
+                </Show>
+                <Show visible={activeItem === NavbarOptions.settings}>
+                  <MyMinisterSettings />
+                </Show>
+                <Show visible={activeItem === NavbarOptions.myMinister}>
+                  <MyMinister />
+                </Show>
+                <Show visible={activeItem === NavbarOptions.todaysCommentary}>
+                  <TodaysCommentary />
+                </Show>
+                <Show visible={activeItem === NavbarOptions.todaysFrontPages}>
+                  <TodaysFrontPages />
+                </Show>
+                <Show visible={activeItem === NavbarOptions.topStories}>
+                  <TopStories />
+                </Show>
+                <Show visible={activeItem === NavbarOptions.myProducts}>
+                  <MyProducts />
+                </Show>
+                <Show visible={activeItem === NavbarOptions.pressGallery}>
+                  <PressGallery />
+                </Show>
+                <Show visible={activeItem === NavbarOptions.mySearches}>
+                  <MySearches />
+                </Show>
+                <Show visible={activeItem === NavbarOptions.eventOfTheDay}>
+                  <EventOfTheDayPreview />
+                </Show>
+                <Show visible={activeItem === NavbarOptions.eveningOverview}>
+                  <AVOverviewPreview />
+                </Show>
+              </div>
+            </PageSection>
+            {/* unsure of whether these items will change depending on selected item */}
+            <Col className="right-panel">
+              <Show visible={activeItem !== NavbarOptions.eveningOverview && !popout}>
+                <Commentary />
+                <TopDomains />
               </Show>
               <Show visible={activeItem === NavbarOptions.eveningOverview}>
-                <AVOverviewPreview />
+                <MediaOverviewIcons />
               </Show>
-            </div>
-          </PageSection>
-          {/* unsure of whether these items will change depending on selected item */}
-          <Col className="right-panel">
-            <Show visible={activeItem !== NavbarOptions.eveningOverview}>
-              <Commentary />
-              <TopDomains />
-            </Show>
-            <Show visible={activeItem === NavbarOptions.eveningOverview}>
-              <MediaOverviewIcons />
-            </Show>
-          </Col>
+            </Col>
+          </Show>
         </Row>
       </FilterOptionsProvider>
     </styled.Landing>
