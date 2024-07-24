@@ -85,17 +85,29 @@ export const TodaysCommentary: React.FC = () => {
   }, [filter, storeFilter]);
 
   const handleReset = React.useCallback(() => {
-    const dateKey = filter.startDate || moment().startOf('day').toISOString();
-    setStateByDate((prevState) => ({
-      ...prevState,
-      [dateKey]: {
-        ...prevState[dateKey],
-        selected: [],
-        isSelectAllChecked: false,
-      },
-    }));
+    setStateByDate((prevState) => {
+      const newState: {
+        [key: string]: {
+          selected: IContentModel[];
+          isSelectAllChecked: boolean;
+          [key: string]: any;
+        };
+      } = {};
+      for (const dateKey in prevState) {
+        if (prevState[dateKey].selected.length > 0) {
+          newState[dateKey] = {
+            ...prevState[dateKey],
+            selected: [],
+            isSelectAllChecked: false,
+          };
+        } else {
+          newState[dateKey] = prevState[dateKey];
+        }
+      }
+      return newState;
+    });
     resetDateFilter();
-  }, [filter.startDate, resetDateFilter]);
+  }, [resetDateFilter]);
 
   const handleSelectAll = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
