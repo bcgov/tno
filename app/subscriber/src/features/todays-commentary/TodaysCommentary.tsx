@@ -23,12 +23,25 @@ export const TodaysCommentary: React.FC = () => {
   const getActionFilters = useActionFilters();
   const { commentaryActionId } = useSettings();
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
-  const [selected, setSelected] = React.useState<IContentModel[]>([]);
+  const [stateByDate, setStateByDate] = React.useState<{
+    [date: string]: { selected: IContentModel[]; isSelectAllChecked: boolean };
+  }>({});
   const [loading, setLoading] = React.useState(false);
-  const handleContentSelected = React.useCallback((content: IContentModel[]) => {
-    setSelected(content);
-    setLoading(false);
-  }, []);
+
+  const handleContentSelected = React.useCallback(
+    (selectedContent: IContentModel[]) => {
+      const dateKey = filter.startDate || moment().startOf('day').toISOString();
+      setStateByDate((prevState) => ({
+        ...prevState,
+        [dateKey]: {
+          ...prevState[dateKey],
+          selected: selectedContent,
+        },
+      }));
+      setLoading(false);
+    },
+    [filter.startDate],
+  );
 
   React.useEffect(() => {
     if (commentaryActionId) {
@@ -60,13 +73,66 @@ export const TodaysCommentary: React.FC = () => {
         .catch();
     }
   }, [commentaryActionId, filter, findContentWithElasticsearch, getActionFilters]);
+  const resetDateFilter = React.useCallback(() => {
+    const defaultStartDate = moment().startOf('day').toISOString();
+    const defaultEndDate = moment().endOf('day').toISOString();
+    storeFilter({
+      ...filter,
+      startDate: defaultStartDate,
+      endDate: defaultEndDate,
+      dateOffset: undefined,
+    });
+  }, [filter, storeFilter]);
+
+  const handleReset = React.useCallback(() => {
+    const dateKey = filter.startDate || moment().startOf('day').toISOString();
+    setStateByDate((prevState) => ({
+      ...prevState,
+      [dateKey]: {
+        ...prevState[dateKey],
+        selected: [],
+        isSelectAllChecked: false,
+      },
+    }));
+    resetDateFilter();
+  }, [filter.startDate, resetDateFilter]);
+
+  const handleSelectAll = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const dateKey = filter.startDate || moment().startOf('day').toISOString();
+      setStateByDate((prevState) => ({
+        ...prevState,
+        [dateKey]: {
+          ...prevState[dateKey],
+          selected: e.target.checked ? content : [],
+          isSelectAllChecked: e.target.checked,
+        },
+      }));
+    },
+    [content, filter.startDate],
+  );
+
+  const dateKey = filter.startDate || moment().startOf('day').toISOString();
+  const currentSelected = stateByDate[dateKey]?.selected || [];
+  const currentIsSelectAllChecked = stateByDate[dateKey]?.isSelectAllChecked || false;
+  const allSelectedContent = Object.values(stateByDate).flatMap((state) => state.selected);
 
   return (
     <styled.TodaysCommentary>
       <ContentListActionBar
-        content={selected}
-        onClear={() => setSelected([])}
-        onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
+        content={allSelectedContent}
+        onClear={() =>
+          setStateByDate((prevState) => ({
+            ...prevState,
+            [dateKey]: {
+              ...prevState[dateKey],
+              selected: [],
+            },
+          }))
+        }
+        onSelectAll={handleSelectAll}
+        isSelectAllChecked={currentIsSelectAllChecked}
+        onReset={handleReset}
       />
       <DateFilter filter={filter} storeFilter={storeFilter} />
       <Show visible={loading}>
@@ -74,7 +140,7 @@ export const TodaysCommentary: React.FC = () => {
       </Show>
       <ContentList
         content={content}
-        selected={selected}
+        selected={currentSelected}
         showSeries
         showDate
         showTime
