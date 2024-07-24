@@ -13,7 +13,7 @@ metadata:
     component: reporting-shared
     managed-by: kustomize
 data:
-  REPORTING_BASE_URL: ""
-  REPORTING_VIEW_CONTENT_URL: ""
-  REPORTING_REQUEST_TRANSCRIPT_URL: ""
   REPORTING_ADD_TO_REPORT_URL: ""
+  REPORTING_SUBSCRIBER_URL: https://dev.mmi.gov.bc.ca
+  REPORTING_REQUEST_TRANSCRIPT_URL: https://dev.mmi.gov.bc.ca/transcribe/
+  REPORTING_VIEW_CONTENT_URL: https://dev.mmi.gov.bc.ca/view/
