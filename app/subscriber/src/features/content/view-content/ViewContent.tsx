@@ -346,7 +346,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
       </Show>
       <Row id="summary" className="summary">
         <Show visible={isAV && !!content?.summary && !isTranscribing && isDifferent && !popout}>
-          <Col>
+          <Col className="summary-container">
             <span>{formattedSummary}</span>
             <Show visible={!!content?.sourceUrl}>
               <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
@@ -369,7 +369,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
             </Show>
           </Col>
         </Show>
-        <Row>
+        <Row className={`${!!popout && 'popout-transcribe-row'}`}>
           <Show
             visible={
               isAV &&
@@ -403,8 +403,8 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
         </Row>
       </Row>
       <Show visible={!!popout}>
-        <hr />
         <div className="copyright-text">
+          <hr />
           <FaCopyright />
           Copyright protected and owned by broadcaster. Your licence is limited to internal,
           non-commercial, government use. All reproduction, broadcast, transmission, or other use of

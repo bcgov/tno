@@ -6,11 +6,26 @@ export const ViewContent = styled.div`
     margin-left: 0.25em;
   }
 
+  .summary-container {
+    margin-right: auto;
+  }
+  .popout-transcribe-row {
+    width: 100%;
+    .transcribe-button {
+      position: absolute;
+      right: 0;
+    }
+  }
   .actions-popout {
     padding: 0;
+    position: absolute;
+    bottom: 6.5em;
   }
 
   .copyright-text {
+    hr {
+      margin-top: 3em;
+    }
     font-size: 0.8em;
     margin-top: 1em;
     margin-left: 0.5em;

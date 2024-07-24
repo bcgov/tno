@@ -3,6 +3,18 @@ import styled from 'styled-components';
 import { ILayoutProps } from '..';
 
 export const Layout = styled.div<ILayoutProps>`
+  &.popout {
+    .headline {
+      margin-bottom: 0;
+      padding-left: 0.25em;
+    }
+    .info-bar {
+      margin-left: 0;
+      margin-right: 0;
+      padding-left: 0.5em;
+      padding-right: 0.5em;
+    }
+  }
   &:not(.unauth):not(.popout) {
     main {
       overflow: clip auto;
