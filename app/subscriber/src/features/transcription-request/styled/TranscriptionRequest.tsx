@@ -12,6 +12,11 @@ export const TranscriptionRequest = styled.div`
     width: 100%;
   }
 
+  .containing-col {
+    width: 100%;
+    display: flow;
+  }
+
   .containing-row {
     overflow-x: auto;
     overflow-y: hidden;
@@ -28,16 +33,11 @@ export const TranscriptionRequest = styled.div`
       max-height: 25em;
     }
     @media (max-width: 850px) {
-      max-width: 30em;
+      max-width: 25em;
       max-height: 15em;
     }
     max-width: 50em;
     max-height: 25em;
-
-    @media (max-width: 1450px) {
-      margin-left: auto;
-      margin-right: auto;
-    }
     margin-top: 2.5%;
 
     margin-bottom: 2.5%;
