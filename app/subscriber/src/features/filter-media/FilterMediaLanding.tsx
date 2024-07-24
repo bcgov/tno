@@ -183,6 +183,8 @@ export const FilterMediaLanding: React.FC = () => {
         ...filter,
         sourceIds,
         seriesIds,
+        startDate: moment(new Date()).startOf('day').toISOString(),
+        endDate: moment(new Date()).endOf('day').toISOString(),
         mediaTypeIds: [mediaGroup.key],
         activeSubGroup: mediaGroup.label,
       });
