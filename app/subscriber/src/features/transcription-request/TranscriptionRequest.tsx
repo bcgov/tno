@@ -41,7 +41,7 @@ export const TranscriptionRequest: React.FC = () => {
 
   return (
     <styled.TranscriptionRequest>
-      <Col>
+      <Col className="containing-col">
         <img alt="MMI Logo" className="app-logo" src="/assets/MMinsights_logo_dark_text.svg" />
         <Row className="containing-row">
           <Col className="main-box">
