@@ -82,7 +82,10 @@ export const ContentRow: React.FC<IContentRowProps> = ({
             alt="Transcript"
           />
         )}
-        <Link to={`/view${!!item.ministerName && '/my-minister'}/${item.id}`} className="headline">
+        <Link
+          to={`/view${!!item.ministerName ? '/my-minister' : ''}/${item.id}`}
+          className="headline"
+        >
           <>
             {headerTermHighlighted.length > 0 ? (
               headerTermHighlighted.map((part, index) => (
