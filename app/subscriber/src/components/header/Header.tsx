@@ -1,7 +1,8 @@
 import { BasicSearch } from 'components/basic-search';
 import { UserProfile } from 'components/user-profile';
 import React from 'react';
-import { Link, Row, Show, useWindowSize } from 'tno-core';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Row, Show, useWindowSize } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -25,11 +26,36 @@ export const Header: React.FC<IHeaderProps> = ({
   showLogo = true,
 }) => {
   const { width } = useWindowSize();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [prevPath, setPrevPath] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (location.pathname !== '/') {
+      setPrevPath(location.pathname);
+    }
+  }, [location.pathname]);
+
+  const handleLogoClick = () => {
+    if (prevPath) {
+      navigate(prevPath);
+      window.location.reload();
+    } else {
+      navigate('/landing/home');
+      window.location.reload();
+    }
+  };
+
   return (
     <styled.Header className="header">
       <Row>
         {showLogo && (
-          <Link to="/landing/home" title="MMI Home page" className="logo-container">
+          <div
+            onClick={handleLogoClick}
+            title="MMI Home page"
+            className="logo-container"
+            style={{ cursor: 'pointer' }}
+          >
             <img
               className="mm-logo"
               src={process.env.PUBLIC_URL + '/assets/MMinsights_logo_black.svg'}
@@ -41,7 +67,7 @@ export const Header: React.FC<IHeaderProps> = ({
               alt="MMinsights logo"
               width="80"
             />
-          </Link>
+          </div>
         )}
         {children}
       </Row>
