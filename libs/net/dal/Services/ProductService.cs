@@ -263,7 +263,6 @@ public class ProductService : BaseService<Product, int>, IProductService
     /// <returns></returns>
     public async Task<int> Subscribe(int userId, int productId)
     {
-        Console.WriteLine("yyyy Subscribe");
         var saveChanges = false;
         var targetProduct = FindById(productId) ?? throw new NoContentException("Report does not exist");
         var subscriberRecord = targetProduct.Subscribers.FirstOrDefault(s => s.Id == userId);
