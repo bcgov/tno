@@ -7,6 +7,63 @@ export const MyProducts = styled(Col)`
     margin-bottom: 1em;
   }
 
+  .product-container {
+    svg {
+      margin-right: 0.5em;
+    }
+    .action {
+      label {
+        width: 6.5em;
+      }
+    }
+    h2 {
+      display: flex;
+    }
+    .info-text {
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+    }
+    padding: 1em;
+    .product-card {
+      border-top: 1px solid ${(props) => props.theme.css.iconGrayColor};
+      border-bottom: 1px solid ${(props) => props.theme.css.iconGrayColor};
+      padding: 0.5em 0 0.5em 0;
+    }
+    .product-description {
+      background-color: ${(props) => props.theme.css.teaserBackground};
+      border-radius: 0.5em;
+      padding: 0.5em;
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+    }
+    svg {
+      align-self: center;
+    }
+    .product-section-title {
+      margin: 0;
+      font-size: 1.5em;
+      color: ${(props) => props.theme.css.darkHeaderColor};
+      border-bottom: 1px solid ${(props) => props.theme.css.darkHeaderColor};
+      product-icon {
+        margin-right: 0.5em;
+      }
+    }
+    .product-section-title:not(:first-child) {
+      margin-top: 1em;
+    }
+    .product-row {
+      color: ${(props) => props.theme.css.linkPrimaryColor};
+      svg {
+        height: 1.25em;
+        width: 1.25em;
+      }
+    }
+    .product-name {
+      font-size: 1.25em;
+      margin-right: auto;
+    }
+  }
+
   .header {
     .create-new {
       margin-left: auto;
@@ -37,11 +94,11 @@ export const MyProducts = styled(Col)`
   }
   .action-subscribe > svg,
   .action-subscribe > label {
-    color: green;
+    color: ${(props) => props.theme.css.btnBkSuccess};
   }
   .action-unsubscribe > svg,
   .action-unsubscribe > label {
-    color: red;
+    color: ${(props) => props.theme.css.btnRedColor};
   }
   .folder-name {
     height: 1.5em;
