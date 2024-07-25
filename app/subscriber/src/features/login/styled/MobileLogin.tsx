@@ -90,6 +90,7 @@ export const MobileLogin = styled.div`
 
     .idir-logo {
       padding: 1%;
+      background-image: url('/assets/Logos_IDIR.png');
       background-position: center;
       background-repeat: no-repeat;
       background-size: cover;
