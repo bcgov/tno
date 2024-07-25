@@ -88,14 +88,6 @@ export const MobileLogin = styled.div`
       color: ${(props) => props.theme.css.fRedColor};
     }
 
-    .bceid-logo {
-      padding: 1%;
-      background-image: url('/assets/bceid_default_logo.jpg');
-      background-position: center;
-      background-repeat: no-repeat;
-      background-size: cover;
-    }
-
     .idir-logo {
       padding: 1%;
       background-position: center;

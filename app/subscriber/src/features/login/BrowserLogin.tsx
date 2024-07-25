@@ -1,9 +1,8 @@
 import React from 'react';
-import { Button, Col, Row, Show, useKeycloakWrapper } from 'tno-core';
+import { Col, Show } from 'tno-core';
 
-import { Copyright } from './Copyright';
+import { IDPOptions } from './IDPOptions';
 import * as styled from './styled';
-import { SystemMessage } from './SystemMessage';
 
 export interface IBrowserLoginProps {
   login: (hint?: string) => void;
@@ -15,63 +14,23 @@ export interface IBrowserLoginProps {
  * @returns BrowserLogin component.
  */
 export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
-  const keycloak = useKeycloakWrapper();
-  const authority = keycloak.instance.authServerUrl?.replace(/\/$/, '') ?? window.location.href;
-  const isLocal =
-    new URL(authority).host.startsWith('localhost') ||
-    new URL(authority).host.startsWith('host.docker.internal');
-
   const [showModal, setShowModal] = React.useState(false);
 
   return (
     <styled.BrowserLogin>
       <Col>
         <img alt="MMI Logo" className="app-logo" src="/assets/MMinsights_logo_dark_text.svg" />
-        <Row className="containing-row">
-          <Col className="main-box">
-            <p className="top-bar-box">
-              Media Monitoring is a paid service offered through the BC Government that allows
-              subscribers to see British Columbia’s news at a glance.
-            </p>
-            <div className={'containing-box'}>
-              <Col className="login-box">
-                <b>Login to your MMI account with your BCeID or IDIR: </b>
-                <div>
-                  <div className="buttons">
-                    <Show visible={!isLocal}>
-                      <Button
-                        className="white idir-logo"
-                        onClick={() => login('css-oidc')}
-                      ></Button>
-                      <Button className="white azure-logo" onClick={() => login('azure-entra')}>
-                        Microsoft
-                      </Button>
-                      <Button className="white signIn" onClick={() => login()}>
-                        Other
-                      </Button>
-                    </Show>
-                    <Show visible={isLocal}>
-                      <Button className="white" onClick={() => login()}>
-                        Local
-                      </Button>
-                    </Show>
-                    <br />
-                    <span
-                      className="modalOpen"
-                      onClick={() => {
-                        setShowModal(true);
-                      }}
-                    >
-                      Learn more about obtaining a subscription...
-                    </span>
-                  </div>
-                </div>
-                <Copyright />
-              </Col>
-              <SystemMessage />
-            </div>
-          </Col>
-        </Row>
+        <IDPOptions login={login}>
+          <br />
+          <span
+            className="modalOpen"
+            onClick={() => {
+              setShowModal(true);
+            }}
+          >
+            Learn more about obtaining a subscription...
+          </span>
+        </IDPOptions>
       </Col>
       <Show visible={showModal}>
         <div id="myModal" className="modal">
