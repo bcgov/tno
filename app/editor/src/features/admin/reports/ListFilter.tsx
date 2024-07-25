@@ -23,16 +23,15 @@ export const ListFilter: React.FC<IAdminFilterProps> = ({ onFilterChange, onSear
         placeholder="Search by keyword"
         name="search"
         value={reportFilter}
-      >
-        {!!onSearch && (
-          <IconButton
-            iconType="search"
-            onClick={() => {
-              onSearch?.(reportFilter);
-            }}
-          />
-        )}
-      </Text>
+      ></Text>
+      {!!onSearch && (
+        <IconButton
+          iconType="search"
+          onClick={() => {
+            onSearch?.(reportFilter);
+          }}
+        />
+      )}
       <IconButton
         iconType="reset"
         onClick={() => {

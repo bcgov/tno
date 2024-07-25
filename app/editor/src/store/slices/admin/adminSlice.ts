@@ -28,6 +28,7 @@ import {
   ITagModel,
   ITopicModel,
   ITopicScoreRuleModel,
+  IUserFilter,
   IUserModel,
   IWorkOrderModel,
 } from 'tno-core';
@@ -66,6 +67,7 @@ export const initialAdminState: IAdminState = {
   notifications: [],
   notificationTemplates: [],
   reportFilter: '',
+  reportSubscriberFilter: {},
   reports: [],
   reportTemplates: [],
   rules: [],
@@ -196,6 +198,9 @@ export const adminSlice = createSlice({
     storeReportFilter(state: IAdminState, action: PayloadAction<string>) {
       state.reportFilter = action.payload;
     },
+    storeReportSubscriberFilter(state: IAdminState, action: PayloadAction<IUserFilter>) {
+      state.reportSubscriberFilter = action.payload;
+    },
     storeReports(state: IAdminState, action: PayloadAction<IReportModel[]>) {
       state.reports = action.payload;
     },
@@ -282,6 +287,7 @@ export const {
   storeProductFilter: storeAdminProductFilter,
   storeProducts: storeAdminProducts,
   storeReportFilter: storeAdminReportFilter,
+  storeReportSubscriberFilter: storeAdminReportSubscriberFilter,
   storeReports: storeAdminReports,
   storeReportTemplates: storeAdminReportTemplates,
   storeSeriesFilter: storeAdminSeriesFilter,

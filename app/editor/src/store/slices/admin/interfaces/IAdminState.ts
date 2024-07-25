@@ -27,6 +27,7 @@ import {
   ITagModel,
   ITopicModel,
   ITopicScoreRuleModel,
+  IUserFilter,
   IUserModel,
   IWorkOrderModel,
 } from 'tno-core';
@@ -63,6 +64,7 @@ export interface IAdminState {
   productFilter: string;
   products: IProductModel[];
   reportFilter: string;
+  reportSubscriberFilter: IUserFilter;
   reports: IReportModel[];
   reportTemplates: IReportTemplateModel[];
   rules: ITopicScoreRuleModel[];

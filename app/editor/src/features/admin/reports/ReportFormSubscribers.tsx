@@ -16,7 +16,7 @@ import {
   SortDirection,
 } from 'tno-core';
 
-import { ListFilter } from './ListFilter';
+import { ReportSubscriberFilter } from './ReportSubscriberFilter';
 
 /**
  * The page used to view and edit reports.
@@ -62,9 +62,9 @@ export const ReportFormSubscribers: React.FC = () => {
   return (
     <>
       <h2>{values.name}</h2>
-      <ListFilter
-        onSearch={async (value: string) => {
-          await findUsers({ page: 1, quantity: users.quantity, keyword: value });
+      <ReportSubscriberFilter
+        onSearch={async (value?: IUserFilter) => {
+          await findUsers({ ...value, page: 1, quantity: users.quantity });
         }}
       />
       <Grid
@@ -87,7 +87,11 @@ export const ReportFormSubscribers: React.FC = () => {
           }));
         }}
         renderHeader={() => [
-          { name: 'isSubscribed', label: '', size: '30px' },
+          {
+            name: 'isSubscribed',
+            label: '',
+            size: '30px',
+          },
           { name: 'username', label: 'Username', sortable: true },
           { name: 'lastName', label: 'Last Name', sortable: true },
           { name: 'firstName', label: 'First Name', sortable: true },
@@ -97,7 +101,7 @@ export const ReportFormSubscribers: React.FC = () => {
         ]}
         renderColumns={(row: IUserReportModel, rowIndex) => [
           <Checkbox
-            key=""
+            key="1"
             name={`chk-${row.userId}`}
             checked={values.subscribers.some((u) => u.userId === row.userId && u.isSubscribed)}
             onChange={(e) => {
@@ -110,9 +114,9 @@ export const ReportFormSubscribers: React.FC = () => {
               else setFieldValue('subscribers', [user, ...values.subscribers]);
             }}
           />,
-          <CellEllipsis key="">{row.username}</CellEllipsis>,
-          <CellEllipsis key="">{row.lastName}</CellEllipsis>,
-          <CellEllipsis key="">{row.firstName}</CellEllipsis>,
+          <CellEllipsis key="2">{row.username}</CellEllipsis>,
+          <CellEllipsis key="3">{row.lastName}</CellEllipsis>,
+          <CellEllipsis key="4">{row.firstName}</CellEllipsis>,
           <>
             <CellEllipsis>{row.email}</CellEllipsis>
             {row.preferredEmail ? (
@@ -122,7 +126,7 @@ export const ReportFormSubscribers: React.FC = () => {
             )}
           </>,
           <FormikSelect
-            key=""
+            key="6"
             name={`subscribers.${rowIndex}.format`}
             options={formatOptions}
             value={formatOptions.find((o) => o.value === row.format) ?? ''}
@@ -148,7 +152,7 @@ export const ReportFormSubscribers: React.FC = () => {
             isClearable={false}
           />,
           <FormikSelect
-            key=""
+            key="7"
             name={`subscribers.${rowIndex}.format`}
             options={sendToOptions}
             value={sendToOptions.find((o) => o.value === row.sendTo) ?? ''}

@@ -29,6 +29,7 @@ import {
   ITagModel,
   ITopicModel,
   ITopicScoreRuleModel,
+  IUserFilter,
   IUserModel,
   IWorkOrderModel,
 } from 'tno-core';
@@ -66,6 +67,7 @@ import {
   storeAdminProducts,
   storeAdminReportFilter,
   storeAdminReports,
+  storeAdminReportSubscriberFilter,
   storeAdminReportTemplates,
   storeAdminSeries,
   storeAdminSeriesFilter,
@@ -129,6 +131,7 @@ export interface IAdminStore {
   storeProductFilter: (filter: string | ActionDelegate<string>) => void;
   storeProducts: (products: IProductModel[] | ActionDelegate<IProductModel[]>) => void;
   storeReportFilter: (filter: string | ActionDelegate<string>) => void;
+  storeReportSubscriberFilter: (filter: IUserFilter | ActionDelegate<IUserFilter>) => void;
   storeReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => void;
   storeReportTemplates: (
     reportTemplates: IReportTemplateModel[] | ActionDelegate<IReportTemplateModel[]>,
@@ -331,6 +334,11 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
           dispatch(storeAdminReportFilter(filter(state.reportFilter)));
         } else dispatch(storeAdminReportFilter(filter));
       },
+      storeReportSubscriberFilter: (filter: IUserFilter | ActionDelegate<IUserFilter>) => {
+        if (typeof filter === 'function') {
+          dispatch(storeAdminReportSubscriberFilter(filter(state.reportSubscriberFilter)));
+        } else dispatch(storeAdminReportSubscriberFilter(filter));
+      },
       storeReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => {
         if (typeof reports === 'function') {
           dispatch(storeAdminReports(reports(state.reports)));
@@ -448,8 +456,6 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       state.ingestTypes,
       state.licenseFilter,
       state.licenses,
-      state.mediaTypeFilter,
-      state.mediaTypes,
       state.ministerFilter,
       state.ministers,
       state.notificationFilter,
@@ -457,9 +463,12 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       state.notificationTemplates,
       state.organizationFilter,
       state.organizations,
+      state.mediaTypeFilter,
+      state.mediaTypes,
       state.productFilter,
       state.products,
       state.reportFilter,
+      state.reportSubscriberFilter,
       state.reports,
       state.reportTemplates,
       state.seriesFilter,

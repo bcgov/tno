@@ -15,6 +15,7 @@ public class UserFilter : PageFilter
     public string? LastName { get; set; }
     public string? Name { get; set; }
     public bool? IsEnabled { get; set; }
+    public int? IsSubscribedToReportId { get; set; }
     public Entities.UserStatus? Status { get; set; }
     public bool? IsSystemAccount { get; set; }
     public Entities.UserAccountType[] AccountTypes { get; set; } = Array.Empty<Entities.UserAccountType>();
@@ -37,6 +38,7 @@ public class UserFilter : PageFilter
         this.LastName = filter.GetStringValue(nameof(this.LastName));
         this.Name = filter.GetStringValue(nameof(this.Name));
         this.IsEnabled = filter.GetBoolNullValue(nameof(this.IsEnabled));
+        this.IsSubscribedToReportId = filter.GetIntNullValue(nameof(this.IsSubscribedToReportId));
         this.Status = filter.GetEnumNullValue<Entities.UserStatus>(nameof(this.Status));
         this.IsSystemAccount = filter.GetBoolNullValue(nameof(this.IsSystemAccount));
         this.AccountTypes = filter.GetEnumArrayValue<Entities.UserAccountType>(nameof(this.AccountTypes));
