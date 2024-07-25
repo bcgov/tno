@@ -4,7 +4,7 @@ import React from 'react';
 import { FaEnvelope, FaUserPlus } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useProducts } from 'store/hooks';
-import { IProductSubscriberModel, Loading, Row, Show, useModal } from 'tno-core';
+import { IProductSubscriberModel, Loading, Show, useModal } from 'tno-core';
 
 import { ProductCard } from './ProductCard';
 import * as styled from './styled';
