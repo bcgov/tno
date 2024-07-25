@@ -26,7 +26,7 @@ export const BrowserLogin = styled.div`
 
   .idir-logo {
     padding: 0;
-    background-image: url('/assets/Logos_IDIR.png');
+    background-image: url('/assets/Logos_IDIR.svg');
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
