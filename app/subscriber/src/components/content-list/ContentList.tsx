@@ -154,7 +154,7 @@ export const ContentList: React.FC<IContentListProps> = ({
           <Droppable droppableId="droppable">
             {(provided) => (
               <div {...provided.droppableProps} ref={provided.innerRef}>
-                {content.map((item: IContentModel, index: number) => (
+                {content.map((item: IContentSearchResult, index: number) => (
                   <Draggable key={item.id} draggableId={String(item.id)} index={index}>
                     {(provided) => (
                       <div

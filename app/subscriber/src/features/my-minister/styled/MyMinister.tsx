@@ -1,67 +1,8 @@
 import styled from 'styled-components';
 
 export const MyMinister = styled.div`
-  .table {
+  .content-list {
     width: 100%;
-    .group {
-      background-color: #f9f9f9 !important;
-    }
-    .header {
-      background-color: #f5f6fa;
-      /* box shadow only on bottom */
-      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
-      border: none;
-      color: #7c7e8a;
-
-      .column {
-        background-color: #f5f6fa;
-      }
-    }
-    .rows {
-      cursor: pointer;
-    }
-  }
-  // tone column
-  .column.col-1 {
-    width: 2.5rem;
-    flex: unset;
-    div {
-      width: 100%;
-      justify-content: center;
-      svg.tone-icon {
-        margin-left: unset;
-      }
-    }
-  }
-
-  // headline column
-  .column.col-2 {
-    width: 35rem;
-    flex: unset;
-    div {
-      width: 100%;
-      justify-content: center;
-      svg.tone-icon {
-        margin-left: unset;
-      }
-    }
-  }
-
-  .headline {
-    /* link color */
-    color: #3847aa;
-  }
-  .tableHeadline {
-    width: 100%;
-    table-layout: fixed;
-  }
-
-  .dateColumn {
-    width: 30%;
-  }
-
-  .headlineColumn {
-    width: 70%;
   }
 
   .td-date {

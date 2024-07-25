@@ -1,4 +1,5 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
+import { ContentList } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
 import { ContentListActionBar } from 'components/tool-bar';
 import { filterFormat } from 'features/search-page/utils';
@@ -6,23 +7,12 @@ import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useApp, useContent } from 'store/hooks';
 import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 import { useMinisters } from 'store/hooks/subscriber/useMinisters';
 import { useProfileStore } from 'store/slices';
-import {
-  Checkbox,
-  FlexboxTable,
-  generateQuery,
-  IContentModel,
-  ITableInternalRow,
-  Loading,
-  Row,
-  Show,
-} from 'tno-core';
+import { Checkbox, generateQuery, IContentModel, Loading, Row, Show } from 'tno-core';
 
-import { determineColumns } from './constants';
 import * as styled from './styled';
 
 export const MyMinister: React.FC = () => {
@@ -34,17 +24,14 @@ export const MyMinister: React.FC = () => {
   ] = useContent();
   const [{ userInfo }] = useApp();
   const [, api] = useMinisters();
-  const navigate = useNavigate();
   const [{ impersonate }] = useProfileStore();
 
-  const [selected, setSelected] = React.useState<IContentSearchResult[]>([]);
+  const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [filteredContent, setFilteredContent] = React.useState<IContentSearchResult[]>([]);
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
   const [userMinisters, setUserMinisters] = React.useState<IMinisterModel[]>([]);
   const [loading, setLoading] = React.useState(false);
-
-  const selectedIds = selected.map((i) => i.id.toString());
 
   const makeSimpleQueryString = (terms: string[]) => {
     if (terms.length === 1) return `"${terms[0]}"`;
@@ -88,6 +75,10 @@ export const MyMinister: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
+
+  const handleContentSelected = React.useCallback((content: IContentModel[]) => {
+    setSelected(content);
+  }, []);
 
   React.useEffect(() => {
     const fillMentions = (r: IContentSearchResult, ministerName: string) => {
@@ -174,17 +165,6 @@ export const MyMinister: React.FC = () => {
     setFilteredContent(content);
   }, [content]);
 
-  /** controls the checking and unchecking of rows in the list view */
-  const handleSelectedRowsChanged = (row: ITableInternalRow<IContentSearchResult>) => {
-    if (row.isSelected) {
-      setSelected(
-        row.table.rows.filter((r) => r.isSelected).map((r) => castToSearchResult(r.original)),
-      );
-    } else {
-      setSelected((selected) => selected.filter((r) => r.id !== row.original.id));
-    }
-  };
-
   const hideGroup = (minister: IMinisterModel, hide: boolean) => {
     const ministersList = [...userMinisters];
     const m = ministersList.find((m) => m.id === minister.id);
@@ -229,19 +209,10 @@ export const MyMinister: React.FC = () => {
         <Loading />
       </Show>
       <Row className="table-container">
-        <FlexboxTable
-          rowId="id"
-          columns={determineColumns('all')}
-          onSelectedChanged={handleSelectedRowsChanged}
-          selectedRowIds={selectedIds}
-          isMulti
-          groupBy={(item) => item.original.ministerName ?? ''}
-          onRowClick={(e: any) => {
-            navigate(`/view/my-minister/${e.original.id}`);
-          }}
-          data={filteredContent}
-          pageButtons={5}
-          showPaging={false}
+        <ContentList
+          content={filteredContent}
+          onContentSelected={handleContentSelected}
+          selected={selected}
         />
       </Row>
     </styled.MyMinister>

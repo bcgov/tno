@@ -1,4 +1,5 @@
 import { formatSearch } from 'features/search-page/utils';
+import { IContentSearchResult } from 'features/utils/interfaces';
 import React from 'react';
 import { FaCopyright, FaEyeSlash, FaX } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
@@ -13,7 +14,7 @@ import { highlightTerms } from './utils/highlightTerms';
 
 export interface IContentRowProps extends IColProps {
   selected: IContentModel[];
-  item: IContentModel;
+  item: IContentSearchResult;
   highlighTerms?: string[];
   canDrag?: boolean;
   showDate?: boolean;
@@ -81,7 +82,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
             alt="Transcript"
           />
         )}
-        <Link to={`/view/${item.id}`} className="headline">
+        <Link to={`/view${!!item.ministerName && '/my-minister'}/${item.id}`} className="headline">
           <>
             {headerTermHighlighted.length > 0 ? (
               headerTermHighlighted.map((part, index) => (

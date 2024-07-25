@@ -1,14 +1,15 @@
 import { formatDate } from 'features/utils';
+import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import * as React from 'react';
 import { useLookup, useSettings } from 'store/hooks';
-import { ContentTypeName, IContentModel, Row, Show } from 'tno-core';
+import { ContentTypeName, Row, Show } from 'tno-core';
 
 import { highlightTerms } from './utils/highlightTerms';
 
 export interface IAttributesProps {
   /** The content item */
-  item: IContentModel;
+  item: IContentSearchResult;
   /** List of terms to be highlighted */
   highlighTerms: string[];
   /** Whether to show the date */
@@ -77,6 +78,19 @@ export const Attributes: React.FC<IAttributesProps> = ({
       <Show visible={viewOptions?.section}>
         {item.section && <div className="section">{item.section}</div>}
         {item.page && <div className="page-number">{item.page}</div>}
+      </Show>
+      <Show visible={!!item.ministerMentions?.length}>
+        <div className="mentionsColumn">
+          <div className="mentions">
+            {item.ministerMentions?.map((m) => {
+              return (
+                <div key={`${item.id}-${m}`} className="mentionTag">
+                  {m}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </Show>
     </Row>
   );
