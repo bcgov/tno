@@ -540,27 +540,43 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             {
                 instanceModel.Subject = subject;
                 instanceModel.Body = fullTextFormatBody;
-                // Update the report instance.
                 if (request.SendToSubscribers)
-                    instanceModel.SentOn = instanceModel.Status == ReportStatus.Accepted ? DateTime.UtcNow : null;
+                    instanceModel.SentOn = DateTime.UtcNow; // We track when it was sent, even if it failed.
                 if (instanceModel.PublishedOn == null) instanceModel.PublishedOn = DateTime.UtcNow;
             }
         }
 
         if (instanceModel != null && request.GenerateInstance)
         {
-            // We're getting optimistic errors here, most likely due to changes occurring from the UI.  Since we only need to change values related to status, we can get the latest and reapply.
-            var latestInstanceModel = await this.Api.GetReportInstanceAsync(instanceModel.Id) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
-            if (latestInstanceModel.Version != instanceModel.Version)
+            // Need to keep trying until successful.
+            // TODO: limit number of attempts.
+            var isUpdated = false;
+            while (!isUpdated)
             {
-                latestInstanceModel.Subject = instanceModel.Subject;
-                latestInstanceModel.Body = instanceModel.Body;
-                latestInstanceModel.SentOn = instanceModel.SentOn;
-                latestInstanceModel.Status = instanceModel.Status;
-                instanceModel = await this.Api.UpdateReportInstanceAsync(latestInstanceModel) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+                try
+                {
+                    // We're getting optimistic errors here, most likely due to changes occurring from the UI.  Since we only need to change values related to status, we can get the latest and reapply.
+                    var latestInstanceModel = await this.Api.GetReportInstanceAsync(instanceModel.Id) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+                    if (latestInstanceModel.Version != instanceModel.Version)
+                    {
+                        latestInstanceModel.Subject = instanceModel.Subject;
+                        latestInstanceModel.Body = instanceModel.Body;
+                        latestInstanceModel.SentOn = instanceModel.SentOn;
+                        latestInstanceModel.Status = instanceModel.Status;
+                        latestInstanceModel.Response = instanceModel.Response;
+                        latestInstanceModel.PublishedOn = instanceModel.PublishedOn;
+                        instanceModel = await this.Api.UpdateReportInstanceAsync(latestInstanceModel) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+                    }
+                    else
+                        instanceModel = await this.Api.UpdateReportInstanceAsync(instanceModel) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+
+                    isUpdated = true;
+                }
+                catch (Exception ex)
+                {
+                    this.Logger.LogError(ex, "Failed to update report instance. ReportId:{reportId} InstanceId:{instanceId}", instanceModel.ReportId, instanceModel.Id);
+                }
             }
-            else
-                instanceModel = await this.Api.UpdateReportInstanceAsync(instanceModel) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
         }
 
         if (request.GenerateInstance && report.Settings.Content.ClearFolders && request.SendToSubscribers)
@@ -667,14 +683,42 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
             if (request.GenerateInstance && !resending)
             {
-                // Update the report instance.
                 instance.Subject = subject;
                 instance.Body = fullTextFormatBody;
-                if (request.SendToSubscribers)
-                    instance.SentOn = instance.Status == ReportStatus.Accepted ? DateTime.UtcNow : null;
                 instance.Content = searchResults;
                 if (instance.PublishedOn == null) instance.PublishedOn = DateTime.UtcNow;
-                await this.Api.UpdateReportInstanceAsync(instance);
+                if (request.SendToSubscribers)
+                    instance.SentOn = DateTime.UtcNow;
+
+                // Need to keep trying until successful.
+                // TODO: limit number of attempts.
+                var isUpdated = false;
+                while (!isUpdated)
+                {
+                    try
+                    {
+                        // We're getting optimistic errors here, most likely due to changes occurring from the UI.  Since we only need to change values related to status, we can get the latest and reapply.
+                        var latestInstanceModel = await this.Api.GetReportInstanceAsync(instance.Id) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+                        if (latestInstanceModel.Version != instance.Version)
+                        {
+                            latestInstanceModel.Subject = instance.Subject;
+                            latestInstanceModel.Body = instance.Body;
+                            latestInstanceModel.SentOn = instance.SentOn;
+                            latestInstanceModel.Status = instance.Status;
+                            latestInstanceModel.Response = instance.Response;
+                            latestInstanceModel.PublishedOn = instance.PublishedOn;
+                            instance = await this.Api.UpdateReportInstanceAsync(latestInstanceModel) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+                        }
+                        else
+                            instance = await this.Api.UpdateReportInstanceAsync(instance) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+
+                        isUpdated = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Logger.LogError(ex, "Failed to update report instance. ReportId:{reportId} InstanceId:{instanceId}", instance.ReportId, instance.Id);
+                    }
+                }
             }
         }
 

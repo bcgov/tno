@@ -97,7 +97,7 @@ public class ReportService : BaseService<Report, int>, IReportService
                 .Take(filter.Quantity.Value);
         }
 
-        return query.ToArray();
+        return query.AsSplitQuery().ToArray();
     }
 
     /// <summary>
@@ -116,6 +116,7 @@ public class ReportService : BaseService<Report, int>, IReportService
             .Include(r => r.Sections).ThenInclude(s => s.ChartTemplatesManyToMany).ThenInclude(c => c.ChartTemplate)
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
             .Include(r => r.Events).ThenInclude(s => s.Schedule)
+            .AsSplitQuery()
             .FirstOrDefault(r => r.Id == id);
 
         // Reorganize sections.
@@ -593,7 +594,7 @@ public class ReportService : BaseService<Report, int>, IReportService
     {
         var query = this.Context.ReportInstances
             .AsNoTracking()
-            .OrderByDescending(i => i.Id)
+            .AsSplitQuery()
             .Where(i => i.ReportId == id);
 
         if (ownerId.HasValue == true)
@@ -610,7 +611,7 @@ public class ReportService : BaseService<Report, int>, IReportService
         else
             query = query.Include(i => i.ContentManyToMany);
 
-        return query.FirstOrDefault();
+        return query.OrderByDescending(i => i.Id).FirstOrDefault();
     }
 
     /// <summary>

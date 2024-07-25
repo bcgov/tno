@@ -63,7 +63,7 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
       let noContentToastText = 'Report content is empty. Please add content before sending.';
       if (preview.body && preview.body === '\n') {
         toast.error(
-          `Report tempalte is inactive, check the settings ReportID with value ${reportID}.`,
+          `Report template is inactive, check the settings ReportID with value ${reportID}.`,
         );
         return false;
       } else {
