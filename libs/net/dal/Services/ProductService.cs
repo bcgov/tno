@@ -155,7 +155,7 @@ public class ProductService : BaseService<Product, int>, IProductService
     {
         var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
 
-        // Add/Update/Delete report subscribers.
+        // Add/Update/Delete subscribers.
         var originalSubscribers = original.SubscribersManyToMany.ToArray();
         originalSubscribers.Except(entity.SubscribersManyToMany).ForEach(s =>
         {
@@ -169,35 +169,7 @@ public class ProductService : BaseService<Product, int>, IProductService
                 original.SubscribersManyToMany.Add(s);
 
                 // Update linked subscription products
-                if (entity.ProductType == ProductType.Report)
-                {
-                    var subscription = this.Context.UserReports.FirstOrDefault(r => r.ReportId == entity.TargetProductId && r.UserId == s.UserId);
-                    if (subscription == null)
-                        this.Context.UserReports.Add(new UserReport(s.UserId, entity.TargetProductId, s.IsSubscribed)); // TODO: Add formatting.
-                    else if (subscription.IsSubscribed != s.IsSubscribed)
-                        subscription.IsSubscribed = s.IsSubscribed;
-                }
-                else if (entity.ProductType == ProductType.Notification)
-                {
-                    var subscription = this.Context.UserNotifications.FirstOrDefault(n => n.NotificationId == entity.TargetProductId && n.UserId == s.UserId);
-                    if (subscription == null)
-                        this.Context.UserNotifications.Add(new UserNotification(s.UserId, entity.TargetProductId, s.IsSubscribed));
-                    else if (subscription.IsSubscribed != s.IsSubscribed)
-                        subscription.IsSubscribed = s.IsSubscribed;
-                }
-                else if (entity.ProductType == ProductType.EveningOverview)
-                {
-                    var subscriptions = this.Context.UserAVOverviews.Where(av => av.UserId == s.UserId).ToArray();
-                    if (!subscriptions.Any())
-                    {
-                        this.Context.UserAVOverviews.Add(new UserAVOverview(s.UserId, AVOverviewTemplateType.Weekday, s.IsSubscribed));
-                        this.Context.UserAVOverviews.Add(new UserAVOverview(s.UserId, AVOverviewTemplateType.Weekend, s.IsSubscribed));
-                    }
-                    else if (subscriptions.Any(s => s.IsSubscribed != s.IsSubscribed))
-                    {
-                        subscriptions.ForEach(s => s.IsSubscribed = s.IsSubscribed);
-                    }
-                }
+                UpdateLinkedSubscription(entity, s);
             }
             else
             {
@@ -209,27 +181,7 @@ public class ProductService : BaseService<Product, int>, IProductService
                     originalSubscriber.SubscriptionChangeActioned = s.SubscriptionChangeActioned;
 
                 // Update linked subscription products
-                if (entity.ProductType == ProductType.Report)
-                {
-                    var subscription = this.Context.UserReports.FirstOrDefault(r => r.ReportId == entity.TargetProductId && r.UserId == originalSubscriber.UserId);
-                    if (subscription != null && subscription.IsSubscribed != s.IsSubscribed)
-                    {
-                        subscription.IsSubscribed = s.IsSubscribed;
-                        // subscription.Format = s.Format; TODO: Need to apply the format to the report subscription.
-                    }
-                }
-                else if (entity.ProductType == ProductType.Notification)
-                {
-                    var subscription = this.Context.UserNotifications.FirstOrDefault(n => n.NotificationId == entity.TargetProductId && n.UserId == originalSubscriber.UserId);
-                    if (subscription != null && subscription.IsSubscribed != s.IsSubscribed)
-                        subscription.IsSubscribed = s.IsSubscribed;
-                }
-                else if (entity.ProductType == ProductType.EveningOverview)
-                {
-                    var subscriptions = this.Context.UserAVOverviews.Where(av => av.UserId == originalSubscriber.UserId).ToArray();
-                    if (subscriptions.Any(s => s.IsSubscribed != s.IsSubscribed))
-                        subscriptions.ForEach((s) => s.IsSubscribed = s.IsSubscribed);
-                }
+                UpdateLinkedSubscription(entity, originalSubscriber);
             }
         });
 
@@ -244,6 +196,26 @@ public class ProductService : BaseService<Product, int>, IProductService
         this.Context.ResetVersion(original);
 
         return base.Update(original);
+    }
+
+    private void UpdateLinkedSubscription(Product entity, UserProduct subscriber)
+    {
+        if (entity.ProductType == ProductType.Report)
+        {
+            var subscription = this.Context.UserReports.FirstOrDefault(r => r.ReportId == entity.TargetProductId && r.UserId == subscriber.UserId);
+            if (subscription == null)
+                this.Context.UserReports.Add(new UserReport(subscriber.UserId, entity.TargetProductId, subscriber.IsSubscribed));
+            else if (subscription.IsSubscribed != subscriber.IsSubscribed)
+                subscription.IsSubscribed = subscriber.IsSubscribed;
+        }
+        else if (entity.ProductType == ProductType.Notification)
+        {
+            var subscription = this.Context.UserNotifications.FirstOrDefault(n => n.NotificationId == entity.TargetProductId && n.UserId == subscriber.UserId);
+            if (subscription == null)
+                this.Context.UserNotifications.Add(new UserNotification(subscriber.UserId, entity.TargetProductId, subscriber.IsSubscribed));
+            else if (subscription.IsSubscribed != subscriber.IsSubscribed)
+                subscription.IsSubscribed = subscriber.IsSubscribed;
+        }
     }
 
     /// <summary>
