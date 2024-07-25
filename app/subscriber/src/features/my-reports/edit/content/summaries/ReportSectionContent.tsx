@@ -10,6 +10,8 @@ export interface IReportSectionContentProps extends React.AllHTMLAttributes<HTML
   icon?: React.ReactNode;
   /** Form is disabled. */
   disabled?: boolean;
+  /** Content associated to the report */
+  reportContent?: { label: string; url: string; section: string }[];
 }
 
 /**
@@ -19,6 +21,7 @@ export interface IReportSectionContentProps extends React.AllHTMLAttributes<HTML
  */
 export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
   sectionIndex,
+  reportContent,
   disabled,
 }) => {
   const { values } = useReportEditContext();
@@ -37,6 +40,7 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
       <FormikWysiwyg
         name={`sections.${sectionIndex}.description`}
         className="frm-in"
+        urlOptions={reportContent}
         label="Summary text:"
         disabled={disabled}
       />
