@@ -35,7 +35,10 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
             </p>
             <div className={'containing-box'}>
               <Col className="login-box">
-                <b>Login to your MMI account with your BCeID or IDIR: </b>
+                <b>
+                  Login to your MMI account with one of the following accounts: IDIR, Microsoft
+                  Azure account, or custom email account:
+                </b>
                 <div>
                   <div className="buttons">
                     <Show visible={!isLocal}>

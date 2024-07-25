@@ -24,17 +24,9 @@ export const BrowserLogin = styled.div`
     cursor: pointer;
   }
 
-  .bceid-logo {
-    padding: 1%;
-    background-image: url('/assets/bceid_default_logo.jpg');
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-  }
-
   .idir-logo {
-    padding: 1%;
-    background-image: url('/assets/Logos_IDIR.svg');
+    padding: 0;
+    background-image: url('/assets/Logos_IDIR.png');
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -42,7 +34,6 @@ export const BrowserLogin = styled.div`
 
   .azure-logo {
     padding: 1%;
-    /* background-image: url('/assets/Logos_IDIR.svg'); */
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;

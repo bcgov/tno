@@ -50,10 +50,10 @@ export const UserFormDistribution: React.FC = () => {
 
   const addresses: IUserEmailModel[] = values.preferences?.addresses ?? [];
   const sortedAddresses = [...addresses].sort((address1, address2) => {
-    if (address1.email < address2.email) {
+    if (address1.email.toLowerCase() < address2.email.toLowerCase()) {
       return -1;
     }
-    if (address1.email > address2.email) {
+    if (address1.email.toLowerCase() > address2.email.toLowerCase()) {
       return 1;
     }
     return 0;
