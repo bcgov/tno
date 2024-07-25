@@ -105,7 +105,7 @@ public class ReportController : ControllerBase
     /// Get the current instance for the specified report 'id'.
     /// </summary>
     /// <param name="id"></param>
-    /// <param name="requestorId"></param>
+    /// <param name="ownerId"></param>
     /// <returns></returns>
     [HttpGet("{id}/instance")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -113,9 +113,9 @@ public class ReportController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult GetCurrentInstance(int id, int? requestorId)
+    public IActionResult GetCurrentInstance(int id, int? ownerId)
     {
-        var instance = _service.GetCurrentReportInstance(id, requestorId, true);
+        var instance = _service.GetCurrentReportInstance(id, ownerId, true);
         if (instance == null) return NoContent();
         var report = _service.FindById(id);
         instance.Report = report;

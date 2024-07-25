@@ -20,19 +20,23 @@ export const Action = styled.div<IActionProps>`
   &:hover:not([disabled]) * {
     color: ${(props) => props.theme.css.linkPrimaryHoverColor};
     filter: ${(props) => props.theme.css.dropShadow};
+    cursor: pointer;
   }
 
   &:hover:not([disabled]) svg * {
     color: ${(props) => props.theme.css.linkPrimaryHoverColor};
     filter: ${(props) => props.theme.css.dropShadow};
+    cursor: pointer;
   }
 
   &:active:not([disabled]) * {
     color: ${(props) => props.theme.css.linkPrimaryActiveColor};
+    cursor: pointer;
   }
 
   &:active:not([disabled]) svg * {
     color: ${(props) => props.theme.css.linkPrimaryActiveColor};
+    cursor: pointer;
   }
 
   label {

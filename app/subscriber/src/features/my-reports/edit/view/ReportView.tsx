@@ -12,16 +12,17 @@ export const ReportView = () => {
   const [{ requests }] = useApp();
   const [{ reportOutput }, { storeReportOutput }] = useProfileStore();
   const [{ viewReportInstance }] = useReportInstances();
-  const instanceId = values.instances.length ? values.instances[0].id : undefined;
-  const updatedOn = values.instances.length ? values.instances[0].updatedOn : undefined;
+  const instance = values.instances.length ? values.instances[0] : undefined;
+  const instanceId = instance?.id;
+  const updatedOn = instance?.updatedOn;
   const isLoading = requests.some((r) => r.group.includes('view-report'));
 
   const handleViewReport = React.useCallback(
-    async (instanceId: any) => {
+    async (instanceId: any, regenerate: boolean) => {
       if (!instanceId) return;
 
       try {
-        const response = await viewReportInstance(instanceId, true);
+        const response = await viewReportInstance(instanceId, regenerate);
         storeReportOutput({ ...response, instanceId });
       } catch {}
     },
@@ -31,11 +32,11 @@ export const ReportView = () => {
   React.useEffect(() => {
     if (instanceId && updatedOn !== previewLastUpdatedOn) {
       setPreviewLastUpdatedOn(updatedOn);
-      handleViewReport(instanceId);
+      handleViewReport(instanceId, !instance.sentOn);
     }
     // Initialize every time this component is displayed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [instanceId, updatedOn]);
+  }, [instanceId, updatedOn, instance?.sentOn]);
 
   return (
     <styled.ReportView className="report-edit-section">

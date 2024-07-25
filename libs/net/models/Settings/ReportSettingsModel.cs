@@ -6,10 +6,29 @@ namespace TNO.API.Models.Settings;
 public class ReportSettingsModel
 {
     #region Properties
+    /// <summary>
+    /// get/set - Subject configuration settings.
+    /// </summary>
     public ReportSubjectSettingsModel Subject { get; set; } = new();
+
+    /// <summary>
+    /// get/set - Headline configuration settings.
+    /// </summary>
     public ReportHeadlineSettingsModel Headline { get; set; } = new();
+
+    /// <summary>
+    /// get/set - Content configuration settings.
+    /// </summary>
     public ReportContentSettingsModel Content { get; set; } = new();
+
+    /// <summary>
+    /// get/set - Section configuration settings.
+    /// </summary>
     public ReportSectionsSettingsModel Sections { get; set; } = new();
+
+    /// <summary>
+    /// get/set - Treat the report as if it was sent, but do not email it out.
+    /// </summary>
     public bool DoNotSendEmail { get; set; } = false;
     #endregion
 

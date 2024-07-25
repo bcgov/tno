@@ -222,9 +222,10 @@ public class ReportController : ControllerBase
 
         var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, report.Id, new { })
         {
-            RequestorId = user.Id
+            RequestorId = user.Id,
+            SendToSubscribers = true,
         };
-        await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{report.Id}", request);
+        await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, request);
         return new OkResult();
     }
     #endregion
