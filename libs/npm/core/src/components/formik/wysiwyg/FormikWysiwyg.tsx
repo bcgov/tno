@@ -1,7 +1,6 @@
 import 'react-quill/dist/quill.snow.css';
 
 import { getIn, useFormikContext } from 'formik';
-import React from 'react';
 
 import { Error, IWysiwygProps, Wysiwyg } from '../../form';
 
@@ -20,6 +19,7 @@ export const FormikWysiwyg = <T extends any>({
   className,
   onChange,
   onBlur,
+  urlOptions,
   ...rest
 }: IFormikWysiwygProps<T>) => {
   const { values, setFieldValue, errors, touched } = useFormikContext<T>();
@@ -35,6 +35,7 @@ export const FormikWysiwyg = <T extends any>({
       <Wysiwyg
         name={name.toString()}
         value={text}
+        urlOptions={urlOptions}
         onChange={onChange}
         className={`frm-in${className ? ` ${className}` : ''}`}
         {...rest}

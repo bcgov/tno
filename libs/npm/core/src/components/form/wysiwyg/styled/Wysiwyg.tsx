@@ -22,6 +22,9 @@ export const Wysiwyg = styled.div<IWysiwygProps>`
 
     .toolbar {
       margin-bottom: 0.5em;
+      input {
+        width: 80%;
+      }
     }
 
     z-index: 1000;
@@ -40,7 +43,6 @@ export const Wysiwyg = styled.div<IWysiwygProps>`
       align-self: center;
       height: 15px;
       width: 15px;
-      margin-left: 2em;
     }
     .content-option {
       &:hover {

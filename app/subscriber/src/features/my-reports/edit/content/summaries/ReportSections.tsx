@@ -40,6 +40,15 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({ disabled }) => 
     },
     [instance, setFieldValue],
   );
+  const reportContent: { label: string; url: string; section: string }[] = values.instances.length
+    ? values.instances[0].content.map((c) => {
+        return {
+          label: c.content?.headline || '', // Provide a default value in case headline is undefined
+          url: `/view/${c.content?.id}` || '', // Provide a default value in case id is undefined
+          section: values.sections.find((s) => s.name === c.sectionName)?.settings.label || '',
+        };
+      })
+    : [];
 
   return (
     <styled.ReportSections className="sections">
@@ -58,7 +67,11 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({ disabled }) => 
                 <ReportSectionText sectionIndex={index} disabled={disabled} />
               </Show>
               <Show visible={section.sectionType === ReportSectionTypeName.Content}>
-                <ReportSectionContent sectionIndex={index} disabled={disabled} />
+                <ReportSectionContent
+                  reportContent={reportContent}
+                  sectionIndex={index}
+                  disabled={disabled}
+                />
               </Show>
               <Show visible={section.sectionType === ReportSectionTypeName.MediaAnalytics}>
                 <ReportSectionMediaAnalytics sectionIndex={index} disabled={disabled} />
