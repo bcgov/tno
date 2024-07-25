@@ -54,7 +54,8 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
         var sanitizedBody = TNO.Core.Extensions.StringExtensions.ConvertTextToParagraphs(newsItem.Transcript, @"\r\n?|\n|\|");
 
         // Scrum/Events place their transcript in the summary.
-        if (!String.IsNullOrWhiteSpace(newsItem.Text) && mediaType.Name == "Events") sanitizedBody = TNO.Core.Extensions.StringExtensions.ConvertTextToParagraphs(newsItem.Text, @"\r\n?|\n|\|"); ;
+        if (!String.IsNullOrWhiteSpace(newsItem.Text) && mediaType.Name == "Events")
+            sanitizedBody = TNO.Core.Extensions.StringExtensions.ConvertTextToParagraphs(newsItem.Text, @"\r\n?|\n|\|");
 
         var content = new SourceContent(
             this.Options.DataLocation,

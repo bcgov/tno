@@ -6,6 +6,7 @@ import {
   Button,
   ButtonVariant,
   Col,
+  formatDate,
   FormikCheckbox,
   FormikDatePicker,
   FormikStringEnumCheckbox,
@@ -26,6 +27,8 @@ export interface IReportScheduleProps {
 
 export const ReportSchedule: React.FC<IReportScheduleProps> = ({ label, index }) => {
   const { values, setFieldValue } = useFormikContext<IReportModel>();
+
+  const event = values.events.length >= index ? values.events[index] : undefined;
 
   return (
     <styled.ReportSchedule>
@@ -110,7 +113,12 @@ export const ReportSchedule: React.FC<IReportScheduleProps> = ({ label, index })
           />
         </Col>
         <Col>
-          <FormikText name={`events.${index}.requestSentOn`} label="Last Request Sent On" disabled>
+          <FormikText
+            name={`events.${index}.requestSentOn`}
+            label="Last Request Sent On"
+            disabled
+            value={formatDate(event?.requestSentOn ?? '', 'YYYY-MM-DD h:mm:ss a')}
+          >
             <Button
               variant={ButtonVariant.danger}
               tooltip="Clear last request sent on"
@@ -119,7 +127,12 @@ export const ReportSchedule: React.FC<IReportScheduleProps> = ({ label, index })
               <FaEraser />
             </Button>
           </FormikText>
-          <FormikText name={`events.${index}.lastRanOn`} label="Last Ran On" disabled />
+          <FormikText
+            name={`events.${index}.lastRanOn`}
+            label="Last Ran On"
+            disabled
+            value={formatDate(event?.lastRanOn ?? '', 'YYYY-MM-DD h:mm:ss a')}
+          />
         </Col>
       </Row>
     </styled.ReportSchedule>
