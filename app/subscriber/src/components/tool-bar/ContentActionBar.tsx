@@ -1,7 +1,6 @@
 import { ShareMenu } from 'components/share-menu';
 import React, { useState } from 'react';
 import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
-import { IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
@@ -12,6 +11,7 @@ import { Checkbox, Claim, IContentModel, Row, Settings, Show } from 'tno-core';
 import { AddToFolderMenu } from './AddToFolderMenu';
 import { AddToReportMenu } from './AddToReportMenu';
 import { RemoveFromFolder } from './RemoveFromFolder';
+import { ResetFilters } from './ResetFilters';
 import * as styled from './styled';
 
 export interface IContentActionBarProps {
@@ -110,17 +110,10 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
         </Row>
         <div className="arrow" />
       </Show>
-      {onReset && (
-        <IoMdRefresh
-          className="reset"
-          data-tooltip-id="main-tooltip"
-          data-tooltip-content="Reset filters"
-          onClick={() => onReset?.()}
-        />
-      )}
       {showActionsItems && (
         <div className="right-side-items">
           <Row>
+            {onReset && <ResetFilters onReset={onReset} />}
             <ShareMenu content={content} />
             {disableAddToFolder ? null : <AddToFolderMenu onClear={onClear} content={content} />}
             <AddToReportMenu content={content} onClear={onClear} />
