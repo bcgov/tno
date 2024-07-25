@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Claims;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
@@ -67,6 +68,8 @@ public class UserService : BaseService<User, int>, IUserService
             predicate = predicate.And(c => c.IsSystemAccount == filter.IsSystemAccount);
         if (filter.AccountTypes?.Any() == true)
             predicate = predicate.And(c => filter.AccountTypes.Contains(c.AccountType));
+        if (filter.IsSubscribedToReportId.HasValue)
+            predicate = predicate.And(c => c.ReportSubscriptionsManyToMany.Any(rs => rs.IsSubscribed && rs.ReportId == filter.IsSubscribedToReportId.Value));
 
         if (filter.IncludeUserId.HasValue)
             predicate = PredicateBuilder.Or<User>(u => u.Id == filter.IncludeUserId, predicate);
