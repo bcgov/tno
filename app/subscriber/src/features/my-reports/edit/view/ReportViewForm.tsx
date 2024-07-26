@@ -153,7 +153,10 @@ export const ReportViewForm: React.FC = () => {
           <Row alignItems="flex-start" className="preview-send-details-row">
             <Button
               disabled={
-                isSubmitting || !instance || instance?.status === ReportStatusName.Submitted
+                isSubmitting ||
+                !instance ||
+                instance?.status === ReportStatusName.Submitted ||
+                instance?.status === ReportStatusName.Accepted
               }
               onClick={() => toggleSend()}
               variant="success"
