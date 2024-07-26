@@ -681,7 +681,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
             }
 
-            if (request.GenerateInstance && !resending)
+            if (request.GenerateInstance)
             {
                 instance.Subject = subject;
                 instance.Body = fullTextFormatBody;
