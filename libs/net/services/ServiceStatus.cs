@@ -27,4 +27,12 @@ public enum ServiceStatus
     /// Sleeping can occur if failures have reached their maximum.
     /// </summary>
     Sleeping = 4,
+    /// <summary>
+    /// The service has a failure and must stop.
+    /// </summary>
+    RequestFailed = 5,
+    /// <summary>
+    /// The service has failed.
+    /// </summary>
+    Failed = 6,
 }

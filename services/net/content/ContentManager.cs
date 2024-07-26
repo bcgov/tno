@@ -87,7 +87,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         // Always keep looping until an unexpected failure occurs.
         while (true)
         {
-            if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause)
+            if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause || this.State.Status == ServiceStatus.RequestFailed)
             {
                 // An API request or failures have requested the service to stop.
                 this.Logger.LogInformation("The service is stopping: '{Status}'", this.State.Status);
@@ -352,11 +352,14 @@ public class ContentManager : ServiceManager<ContentOptions>
             content.PublishedOn = model.PublishedOn;
             content.Section = model.Section;
             content.Byline = string.Join(",", model.Authors.Select(a => a.Name[0..Math.Min(a.Name.Length, 200)])); // TODO: Temporary workaround to deal with regression issue in Syndication Service.
-            if (!string.IsNullOrEmpty(content.Byline)) {
+            if (!string.IsNullOrEmpty(content.Byline))
+            {
                 var contributors = lookups?.Contributors;
-                if (contributors != null && contributors.Any()) {
+                if (contributors != null && contributors.Any())
+                {
                     var contributor = FindMatchedContributor(contributors, content.Byline);
-                    if (contributor != null) {
+                    if (contributor != null)
+                    {
                         content.Contributor = new ContributorModel((Contributor)contributor);
                         content.ContributorId = content.Contributor.Id;
                     }
@@ -591,7 +594,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         }
         else
         {
-            var index = nameString.LastIndexOf(" ", nameString.Length-1, nameString.Length, StringComparison.OrdinalIgnoreCase);
+            var index = nameString.LastIndexOf(" ", nameString.Length - 1, nameString.Length, StringComparison.OrdinalIgnoreCase);
             if (index == -1)
             {
                 return nameString;

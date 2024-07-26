@@ -45,7 +45,7 @@ public class ServiceState
     {
         this.Failures++;
 
-        if (this.Failures >= this.MaxFailureLimit) this.Status = ServiceStatus.RequestSleep;
+        if (this.Failures >= this.MaxFailureLimit && this.Status != ServiceStatus.Failed) this.Status = ServiceStatus.RequestFailed;
         return this.Failures;
     }
 
@@ -82,6 +82,8 @@ public class ServiceState
             this.Status = ServiceStatus.Sleeping;
         else if (this.Status == ServiceStatus.RequestPause)
             this.Status = ServiceStatus.Paused;
+        else if (this.Status == ServiceStatus.RequestFailed)
+            this.Status = ServiceStatus.Failed;
         else Sleep();
     }
 

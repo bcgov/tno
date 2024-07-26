@@ -1,17 +1,17 @@
+using System.Web;
+using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.Services.Managers;
-using TNO.Services.FileCopy.Config;
-using TNO.Kafka.Models;
-using Confluent.Kafka;
-using TNO.Kafka;
-using TNO.Core.Extensions;
-using TNO.Core.Exceptions;
-using TNO.Entities;
-using TNO.Models.Extensions;
-using System.Web;
 using TNO.Ches;
 using TNO.Ches.Configuration;
+using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
+using TNO.Entities;
+using TNO.Kafka;
+using TNO.Kafka.Models;
+using TNO.Models.Extensions;
+using TNO.Services.FileCopy.Config;
+using TNO.Services.Managers;
 
 namespace TNO.Services.FileCopy;
 
@@ -73,7 +73,7 @@ public class FileCopyManager : ServiceManager<FileCopyOptions>
         // Always keep looping until an unexpected failure occurs.
         while (true)
         {
-            if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause)
+            if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause || this.State.Status == ServiceStatus.RequestFailed)
             {
                 // An API request or failures have requested the service to stop.
                 this.Logger.LogInformation("The service is stopping: '{Status}'", this.State.Status);

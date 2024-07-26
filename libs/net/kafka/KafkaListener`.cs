@@ -283,7 +283,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// <param name="partitions"></param>
     public void Resume(IEnumerable<TopicPartition> partitions)
     {
-        if (this.IsPaused)
+        if (this.IsPaused || !this.IsConsuming)
         {
             _logger.LogDebug("Resuming consumption: {topics}", String.Join(", ", partitions.Select(p => p.Topic).Distinct()));
             this.IsPaused = false;
