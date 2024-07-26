@@ -29,7 +29,6 @@ export const settingsSlice = createSlice({
       state.excludeBylineIds = action.payload.excludeBylineIds;
       state.excludeSourceIds = action.payload.excludeSourceIds;
       state.eventOfTheDayReportId = action.payload.eventOfTheDayReportId;
-      state.mediaTypesIdsAllSources = action.payload.mediaTypesIdsAllSources;
     },
   },
 });

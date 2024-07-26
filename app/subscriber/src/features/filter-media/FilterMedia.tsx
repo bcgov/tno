@@ -1,12 +1,11 @@
-import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { ContentList } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
 import { ContentListActionBar } from 'components/tool-bar';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
-import { useContent, useSettings } from 'store/hooks';
-import { generateQuery, IContentModel, Loading, Show } from 'tno-core';
+import { useContent } from 'store/hooks';
+import { generateQuery, IContentModel, IFilterSettingsModel, Loading, Show } from 'tno-core';
 
 import { PreviousResults } from './PreviousResults';
 import * as styled from './styled';
@@ -40,36 +39,26 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({
     },
     { findContentWithElasticsearch, storeMediaTypeFilter: storeFilter },
   ] = useContent();
-  const { mediaTypesIdsAllSources } = useSettings();
-
   const [currDateResults, setCurrDateResults] = React.useState<IContentSearchResult[]>([]);
   const [prevDateResults, setPrevDateResults] = React.useState<IContentSearchResult[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
   const fetchResults = React.useCallback(
-    async (requestFilter: MsearchMultisearchBody) => {
+    async (filter: IFilterSettingsModel) => {
       if (!filter.startDate) return;
-      const dayInMillis = 24 * 60 * 60 * 1000; // Hours*Minutes*Seconds*Milliseconds
+      const dayInMs = 24 * 60 * 60 * 1000; // Hours*Minutes*Seconds*Milliseconds
       const currStartDate = new Date(filter.startDate);
-      const prevStartDate = new Date(currStartDate.getTime() - 5 * dayInMillis);
-      const currEndDate = new Date(currStartDate.getTime() + dayInMillis - 1);
+      const prevStartDate = new Date(currStartDate.getTime() - 5 * dayInMs);
+      const currEndDate = new Date(currStartDate.getTime() + dayInMs - 1);
       const query = generateQuery({
         ...filter,
-        mediaTypeIds: filter.mediaTypeIds ?? [],
-        sourceIds: mediaTypesIdsAllSources?.some((id) => filter.mediaTypeIds?.includes(id))
-          ? []
-          : filter.sourceIds ?? [],
-        seriesIds: filter.seriesIds ?? [],
+        mediaTypeIds: filter.mediaTypeIds,
+        sourceIds: filter.sourceIds,
+        seriesIds: filter.seriesIds,
         startDate: prevStartDate.toISOString(),
         endDate: currEndDate.toISOString(),
       });
       try {
-        const emptyFilters = filter.sourceIds?.length === 0 && filter.seriesIds?.length === 0;
-        if (emptyFilters) {
-          setCurrDateResults([]);
-          setPrevDateResults([]);
-          return;
-        }
         setIsLoading(true);
         const res: any = await findContentWithElasticsearch(query, false);
         const currDateResults: IContentSearchResult[] = [],
@@ -98,9 +87,7 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({
         setIsLoading(false);
       }
     },
-    // only run on filter change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [filter],
+    [findContentWithElasticsearch],
   );
 
   React.useEffect(() => {
