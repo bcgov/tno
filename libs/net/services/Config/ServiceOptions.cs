@@ -25,9 +25,19 @@ public class ServiceOptions
     public int RetryDelayMS { get; set; } = 5000;
 
     /// <summary>
-    /// get/set - Default millisecond delay between process cycle.  This stops run-away threads (default: 30 second).
+    /// get/set - Default millisecond delay between process cycle.  This stops run-away threads (default: 30 seconds).
     /// </summary>
     public int DefaultDelayMS { get; set; } = 30000;
+
+    /// <summary>
+    /// get/set - Whether to restart a service after a critical sequence of failures.
+    /// </summary>
+    public bool AutoRestartAfterFailure { get; set; } = true;
+
+    /// <summary>
+    /// get/set - Number of millisecond delay before restarting service after a critical sequence of failures (default: 30 seconds).
+    /// </summary>
+    public int RetryAfterFailedDelayMS { get; set; } = 30000;
 
     /// <summary>
     /// get/set - The URL to the API.

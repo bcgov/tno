@@ -97,7 +97,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         // Always keep looping until an unexpected failure occurs.
         while (true)
         {
-            if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause)
+            if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause || this.State.Status == ServiceStatus.RequestFailed)
             {
                 // An API request or failures have requested the service to stop.
                 this.Logger.LogInformation("The service is stopping: '{Status}'", this.State.Status);
@@ -105,12 +105,24 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
                 // The service is stopping or has stopped, consume should stop too.
                 this.Listener.Stop();
+                _cancelToken?.Cancel();
+            }
+            else if (this.State.Status == ServiceStatus.Failed)
+            {
+                this.Logger.LogDebug("The service has failed: '{Status}'", this.State.Status);
+                if (this.Options.AutoRestartAfterFailure)
+                {
+                    await Task.Delay(this.Options.RetryAfterFailedDelayMS);
+                    this.State.Resume();
+                    this.Listener.Resume();
+                }
             }
             else if (this.State.Status != ServiceStatus.Running)
             {
                 this.Logger.LogDebug("The service is not running: '{Status}'", this.State.Status);
             }
-            else
+
+            if (this.State.Status == ServiceStatus.Running)
             {
                 try
                 {
@@ -232,27 +244,40 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 _retries = 0;
             }
         }
+        catch (ReportingException ex)
+        {
+            // Failures will require retrying the report.  However, depending on the error the report instance could be in a unique state.
+            // Resending a failure can result in cascading failures however, so it should limit the number of attempts.
+            // TODO: Limit number of retries.
+            this.Logger.LogError(ex, "Failed to handle message");
+            await this.SendEmailAsync("Failed to handle message", ex);
+            ListenerErrorHandler(this, new ErrorEventArgs(ex));
+
+            await this.Api.SendMessageAsync(result.Message.Value);
+        }
+        catch (HttpClientRequestException ex)
+        {
+            this.Logger.LogError(ex, "HTTP exception while consuming. {response}", ex.Data["body"] ?? "");
+            await this.SendEmailAsync("HTTP exception while consuming. {response}", ex);
+            ListenerErrorHandler(this, new ErrorEventArgs(ex));
+
+            await this.Api.SendMessageAsync(result.Message.Value);
+        }
         catch (Exception ex)
         {
-            if (ex is HttpClientRequestException httpEx)
-            {
-                this.Logger.LogError(ex, "HTTP exception while consuming. {response}", httpEx.Data["body"] ?? "");
-                await this.SendEmailAsync("HTTP exception while consuming. {response}", ex);
-            }
-            else
-            {
-                this.Logger.LogError(ex, "Failed to handle message");
-                await this.SendEmailAsync("Failed to handle message", ex);
-            }
+            this.Logger.LogError(ex, "Failed to handle message");
+            await this.SendEmailAsync("Failed to handle message", ex);
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
+
+            await this.Api.SendMessageAsync(result.Message.Value);
         }
         finally
         {
+            // Inform Kafka this message is completed.
+            // We do this regardless of whether it failed or succeeded.
+            this.Listener.Commit(result);
             if (State.Status == ServiceStatus.Running)
             {
-                // Inform Kafka this message is completed.
-                // We do this regardless of whether it failed or succeeded.
-                this.Listener.Commit(result);
                 this.Listener.Resume();
             }
         }
@@ -343,112 +368,143 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <exception cref="InvalidOperationException"></exception>
     private async Task<(API.Areas.Services.Models.ReportInstance.ReportInstanceModel?, Dictionary<string, ReportSectionModel>)> PopulateReportInstance(ReportRequestModel request, API.Areas.Services.Models.Report.ReportModel report)
     {
-        API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instanceModel;
         var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
         var sectionContent = new Dictionary<string, ReportSectionModel>();
-        var reportInstanceModel = await this.Api.GetCurrentReportInstanceAsync(report.Id, request.RequestorId);
+        API.Areas.Services.Models.Report.ReportInstanceModel? reportInstanceModel = null;
 
-        // If we don't clear the prior report we must append new content to it.
-        var currentSectionContent = new Dictionary<string, ReportSectionModel>();
-        if (reportInstanceModel != null && !reportInstanceModel.SentOn.HasValue && !report.Settings.Content.ClearOnStartNewReport)
+        try
         {
-            // Extract the section content from the current instance.
-            currentSectionContent = sections.ToDictionary(s => s.Name, section =>
-            {
-                section.Content = reportInstanceModel.Content.Where(ric => ric.SectionName == section.Name && ric.Content != null).Select(ric => new ContentModel(ric.Content!, ric.SortOrder, ric.SectionName));
-                return section;
-            });
+            reportInstanceModel = await this.Api.GetCurrentReportInstanceAsync(report.Id, request.RequestorId);
+        }
+        catch (Exception ex)
+        {
+            throw new ReportingException(ReportingErrors.FailedToGetInstance, $"Failed to fetch current report instance. ReportId:{report.Id}", ex);
         }
 
-        // Generate a new instance, or accumulate new content each time the report is run.
-        if (reportInstanceModel == null || reportInstanceModel.SentOn.HasValue
-            || !(!report.Settings.Content.ClearOnStartNewReport && !report.Settings.Content.CopyPriorInstance))
+        try
         {
-            // Fetch content for every section within the report.  This will include folders and filters.
-            var searchResults = await this.Api.FindContentForReportIdAsync(report.Id, request.RequestorId);
-            sectionContent = sections.ToDictionary(section => section.Name, section =>
+            // If we don't clear the prior report we must append new content to it.
+            var currentSectionContent = new Dictionary<string, ReportSectionModel>();
+            if (reportInstanceModel != null && !reportInstanceModel.SentOn.HasValue && !report.Settings.Content.ClearOnStartNewReport)
             {
-                if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
+                // Extract the section content from the current instance.
+                currentSectionContent = sections.ToDictionary(s => s.Name, section =>
                 {
-                    var sortOrder = 0;
-                    var newContent = results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).OrderBy(c => c.SortOrder).ToArray();
-                    IEnumerable<ContentModel> distinctContent;
-                    if (report.Settings.Content.CopyPriorInstance)
-                        distinctContent = (
-                        currentSectionContent.TryGetValue(section.Name, out ReportSectionModel? currentSection)
-                            ? currentSection?.Content.ToArray().AppendRange(newContent).DistinctBy(c => c.Id)
-                            : newContent
-                        ) ?? Array.Empty<ContentModel>();
-                    else
-                        distinctContent = newContent;
+                    section.Content = reportInstanceModel.Content.Where(ric => ric.SectionName == section.Name && ric.Content != null).Select(ric => new ContentModel(ric.Content!, ric.SortOrder, ric.SectionName));
+                    return section;
+                });
+            }
 
-                    section.Content = ReportEngine.OrderBySectionField(distinctContent, section.Settings.SortBy, section.Settings.SortDirection);
-                    if (results.Aggregations != null)
+            // Generate a new instance, or accumulate new content each time the report is run.
+            if (reportInstanceModel == null || reportInstanceModel.SentOn.HasValue
+                || !(!report.Settings.Content.ClearOnStartNewReport && !report.Settings.Content.CopyPriorInstance))
+            {
+                // Fetch content for every section within the report.  This will include folders and filters.
+                var searchResults = await this.Api.FindContentForReportIdAsync(report.Id, request.RequestorId);
+                sectionContent = sections.ToDictionary(section => section.Name, section =>
+                {
+                    if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
                     {
-                        section.Aggregations = new Dictionary<string, TNO.TemplateEngine.Models.Reports.AggregationRootModel>();
-                        foreach (var aggregation in results.Aggregations)
+                        var sortOrder = 0;
+                        var newContent = results.Hits.Hits.Select(h => new ContentModel(h.Source, sortOrder++)).OrderBy(c => c.SortOrder).ToArray();
+                        IEnumerable<ContentModel> distinctContent;
+                        if (report.Settings.Content.CopyPriorInstance)
+                            distinctContent = (
+                            currentSectionContent.TryGetValue(section.Name, out ReportSectionModel? currentSection)
+                                ? currentSection?.Content.ToArray().AppendRange(newContent).DistinctBy(c => c.Id)
+                                : newContent
+                            ) ?? Array.Empty<ContentModel>();
+                        else
+                            distinctContent = newContent;
+
+                        section.Content = ReportEngine.OrderBySectionField(distinctContent, section.Settings.SortBy, section.Settings.SortDirection);
+                        if (results.Aggregations != null)
                         {
-                            section.Aggregations.Add(aggregation.Key, aggregation.Value.Convert());
+                            section.Aggregations = new Dictionary<string, TNO.TemplateEngine.Models.Reports.AggregationRootModel>();
+                            foreach (var aggregation in results.Aggregations)
+                            {
+                                section.Aggregations.Add(aggregation.Key, aggregation.Value.Convert());
+                            }
                         }
                     }
-                }
-                return section;
-            });
-        }
-        else
-        {
-            // Copy the prior report content into the new instance.
-            sectionContent = currentSectionContent;
-        }
-
-        // Fetch all image data.  Need to do this in a separate step because of async+await.
-        // TODO: Review this implementation due to performance issues.
-        foreach (var section in sectionContent)
-        {
-            foreach (var content in section.Value.Content.Where(c => c.ContentType == Entities.ContentType.Image))
-            {
-                content.ImageContent = await this.Api.GetImageFile(content.Id);
+                    return section;
+                });
             }
-        }
+            else
+            {
+                // Copy the prior report content into the new instance.
+                sectionContent = currentSectionContent;
+            }
 
-        // KGM: this logic should be removed once the underlying problem of malformed data for report content is found
-        // filter out Content with no valid ContentId
-        var reportInstanceContents = sectionContent.SelectMany(s => s.Value.Content.Where(c => c.Id > 0).Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray();
-        var reportInstanceContentsBad = sectionContent.SelectMany(s => s.Value.Content.Where(c => c.Id == 0).Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray();
-        if (reportInstanceContentsBad.Any())
-        {
-            this.Logger.LogWarning("Report [{name}] {generateInstance} has malformed content. It will be generated, but may not match expectations.", report.Name, request.GenerateInstance);
+            // Fetch all image data.  Need to do this in a separate step because of async+await.
+            // TODO: Review this implementation due to performance issues.
             foreach (var section in sectionContent)
             {
-                sectionContent[section.Key].Content = section.Value.Content.Where(c => c.Id > 0);
+                foreach (var content in section.Value.Content.Where(c => c.ContentType == Entities.ContentType.Image))
+                {
+                    content.ImageContent = await this.Api.GetImageFile(content.Id);
+                }
+            }
+
+            // KGM: this logic should be removed once the underlying problem of malformed data for report content is found
+            // filter out Content with no valid ContentId
+            var reportInstanceContents = sectionContent.SelectMany(s => s.Value.Content.Where(c => c.Id > 0).Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray();
+            var reportInstanceContentsBad = sectionContent.SelectMany(s => s.Value.Content.Where(c => c.Id == 0).Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)).ToArray()).ToArray();
+            if (reportInstanceContentsBad.Any())
+            {
+                this.Logger.LogWarning("Report [{name}] {generateInstance} has malformed content. It will be generated, but may not match expectations.", report.Name, request.GenerateInstance);
+                foreach (var section in sectionContent)
+                {
+                    sectionContent[section.Key].Content = section.Value.Content.Where(c => c.Id > 0);
+                }
             }
         }
+        catch (Exception ex)
+        {
+            throw new ReportingException(ReportingErrors.FailedToGetContent, $"Failed to fetch content for report. ReportId:{report.Id}", ex);
+        }
 
+        API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instanceModel = null;
         if (reportInstanceModel == null || reportInstanceModel.SentOn.HasValue)
         {
-            // A new report instance will need to be created.
-            var instanceContent = sectionContent.SelectMany(s => s.Value.Content.Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)));
-            var instance = new ReportInstance(
-                report.Id,
-                request.RequestorId,
-                instanceContent
-                )
+            try
             {
-                OwnerId = request.RequestorId ?? report.OwnerId,
-                PublishedOn = DateTime.UtcNow,
-            };
-            instanceModel = request.GenerateInstance ? (await this.Api.AddReportInstanceAsync(new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions))
-                ?? throw new InvalidOperationException("Report instance failed to be returned by API")) : null;
+                // A new report instance will need to be created.
+                var instanceContent = sectionContent.SelectMany(s => s.Value.Content.Select(c => new ReportInstanceContent(0, c.Id, s.Key, c.SortOrder)));
+                var instance = new ReportInstance(
+                    report.Id,
+                    request.RequestorId,
+                    instanceContent
+                    )
+                {
+                    OwnerId = request.RequestorId ?? report.OwnerId,
+                    PublishedOn = DateTime.UtcNow,
+                };
+                instanceModel = request.GenerateInstance ? (await this.Api.AddReportInstanceAsync(new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions))
+                    ?? throw new InvalidOperationException($"Report instance failed to be returned by API. ReportId:{report.Id}")) : null;
+            }
+            catch (Exception ex)
+            {
+                throw new ReportingException(ReportingErrors.FailedToAddInstance, $"Failed to add instance to report. ReportId:{report.Id}", ex);
+            }
         }
         else
         {
-            var instanceContent = sectionContent.SelectMany(s => s.Value.Content.Select(c => new API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel(reportInstanceModel.Id, c.Id, s.Key, c.SortOrder)));
-            instanceModel = new API.Areas.Services.Models.ReportInstance.ReportInstanceModel((Entities.ReportInstance)reportInstanceModel, _serializationOptions)
+            try
             {
-                OwnerId = request.RequestorId ?? report.OwnerId,
-                PublishedOn = DateTime.UtcNow,
-                Content = instanceContent,
-            };
+                var instanceContent = sectionContent.SelectMany(s => s.Value.Content.Select(c => new API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel(reportInstanceModel.Id, c.Id, s.Key, c.SortOrder)));
+                instanceModel = new API.Areas.Services.Models.ReportInstance.ReportInstanceModel((Entities.ReportInstance)reportInstanceModel, _serializationOptions)
+                {
+                    OwnerId = request.RequestorId ?? report.OwnerId,
+                    PublishedOn = DateTime.UtcNow,
+                    Content = instanceContent,
+                };
+                instanceModel = await this.Api.UpdateReportInstanceAsync(instanceModel) ?? throw new InvalidOperationException($"Report instance failed to be returned by API. ReportId:{instanceModel.ReportId}, InstanceId:{instanceModel.Id}");
+            }
+            catch (Exception ex)
+            {
+                throw new ReportingException(ReportingErrors.FailedToUpdateInstance, $"Failed to updated instance for report. ReportId:{report.Id}, InstanceId:{instanceModel?.Id}", ex);
+            }
         }
 
         return (instanceModel, sectionContent);
@@ -467,82 +523,117 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <exception cref="ArgumentException"></exception>
     private async Task GenerateReportAsync(ReportRequestModel request, API.Areas.Services.Models.Report.ReportModel report)
     {
-        (var instanceModel, var sectionContent) = await PopulateReportInstance(request, report);
-
-        var subject = await this.ReportEngine.GenerateReportSubjectAsync(report, instanceModel, sectionContent, false, false);
-
-        // Generate and send report to subscribers who want an email with a link to the website.
-        // We do this first because we don't want to save the output of this in the instance.
-        var linkOnlyFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && LinkOnlyFormats.Contains(s.Format)).ToArray();
-        var linkOnlyFormatBody = linkOnlyFormatSubscribers.Any() ? await this.ReportEngine.GenerateReportBodyAsync(report, instanceModel, sectionContent, GetLinkedReportAsync, null, true, false) : "";
-        var linkOnlyFormatTo = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-        var linkOnlyFormatCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-        var linkOnlyFormatBCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-
-        // Generate and send report to subscribers who want an email format.
-        var fullTextFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && FullTextFormats.Contains(s.Format)).ToArray();
-        var fullTextFormatBody = await this.ReportEngine.GenerateReportBodyAsync(report, instanceModel, sectionContent, GetLinkedReportAsync, null, false, false);
-        var fullTextFormatTo = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-        var fullTextFormatCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-        var fullTextFormatBCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-
-        if (request.SendToSubscribers || !String.IsNullOrEmpty(request.To))
+        API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instanceModel = null;
+        Dictionary<string, ReportSectionModel>? sectionContent = null;
+        ReportingException? failure = null;
+        try
         {
-            // TODO: This implementation can result in one set of emails being successful and the second failing.
-            var responseModel = new ReportEmailResponseModel();
+            (instanceModel, sectionContent) = await PopulateReportInstance(request, report);
+        }
+        catch (ReportingException ex)
+        {
+            // A failure has resulted in the report in an failed and possibly incomplete state.
+            // If the the report instance exists and has an ID it means it was saved successfully in the DB but was not able to send.
+            failure = ex;
+        }
+
+        if (failure == null && sectionContent != null)
+        {
+            var linkOnlyFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && LinkOnlyFormats.Contains(s.Format)).ToArray();
+            var fullTextFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && FullTextFormats.Contains(s.Format)).ToArray();
+            string subject = "", linkOnlyFormatBody = "", fullTextFormatBody = "";
             try
             {
-                if (!report.Settings.DoNotSendEmail && String.IsNullOrEmpty(request.To) && (linkOnlyFormatTo.Any() || linkOnlyFormatCC.Any() || linkOnlyFormatBCC.Any()))
-                {
-                    // Send the email.
-                    var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, linkOnlyFormatCC, linkOnlyFormatBCC, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
-                    responseModel.LinkOnlyFormatResponse = responseLinkOnly != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions)) : JsonDocument.Parse("{}");
-                }
+                subject = await this.ReportEngine.GenerateReportSubjectAsync(report, instanceModel, sectionContent, false, false);
 
-                if (!report.Settings.DoNotSendEmail && (fullTextFormatTo.Any() || fullTextFormatCC.Any() || fullTextFormatBCC.Any() || !String.IsNullOrEmpty(request.To)))
-                {
-                    // Send the email.
-                    var responseFullText = await SendEmailAsync(request, fullTextFormatTo, fullTextFormatCC, fullTextFormatBCC, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
-                    responseModel.FullTextFormatResponse = responseFullText != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions)) : JsonDocument.Parse("{}");
-                }
+                // Generate and send report to subscribers who want an email with a link to the website.
+                // We do this first because we don't want to save the output of this in the instance.
+                linkOnlyFormatBody = linkOnlyFormatSubscribers.Any() ? await this.ReportEngine.GenerateReportBodyAsync(report, instanceModel, sectionContent, GetLinkedReportAsync, null, true, false) : "";
 
-                if (instanceModel != null)
-                {
-                    instanceModel.Status = ReportStatus.Accepted;
-                    instanceModel.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
-                }
-            }
-            catch (ChesException ex)
-            {
-                this.Logger.LogError(ex, "Failed to send report ID: {id}, InstanceId: {instance}", instanceModel?.ReportId, instanceModel?.Id);
-                if (responseModel.LinkOnlyFormatResponse != null)
-                    responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
-                else
-                    responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
-
-                if (instanceModel != null)
-                {
-                    instanceModel.Status = ReportStatus.Failed;
-                    instanceModel.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
-                }
+                // Generate and send report to subscribers who want an email format.
+                fullTextFormatBody = await this.ReportEngine.GenerateReportBodyAsync(report, instanceModel, sectionContent, GetLinkedReportAsync, null, false, false);
             }
             catch (Exception ex)
             {
-                this.Logger.LogError(ex, "Failed to send report ID: {id}, InstanceId: {instance}", instanceModel?.ReportId, instanceModel?.Id);
                 if (instanceModel != null)
                 {
                     instanceModel.Status = ReportStatus.Failed;
-                    instanceModel.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+                    instanceModel.Response = JsonDocument.Parse(JsonSerializer.Serialize(new { Error = ex.GetAllMessages() }, _serializationOptions));
                 }
+
+                failure = new ReportingException(ReportingErrors.FailedToGenerateOutput, $"Failed to generate output for report.  ReportId:{report.Id}, InstanceId:{instanceModel?.Id}", ex);
             }
 
-            if (instanceModel != null && request.GenerateInstance)
+            if (failure == null)
             {
-                instanceModel.Subject = subject;
-                instanceModel.Body = fullTextFormatBody;
-                if (request.SendToSubscribers)
-                    instanceModel.SentOn = DateTime.UtcNow; // We track when it was sent, even if it failed.
-                if (instanceModel.PublishedOn == null) instanceModel.PublishedOn = DateTime.UtcNow;
+                var linkOnlyFormatTo = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+                var linkOnlyFormatCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+                var linkOnlyFormatBCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+                var fullTextFormatTo = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+                var fullTextFormatCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+                var fullTextFormatBCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+
+                if (request.SendToSubscribers || !String.IsNullOrEmpty(request.To))
+                {
+                    // TODO: This implementation can result in one set of emails being successful and the second failing.
+                    var responseModel = new ReportEmailResponseModel();
+                    try
+                    {
+                        if (!report.Settings.DoNotSendEmail && String.IsNullOrEmpty(request.To) && (linkOnlyFormatTo.Any() || linkOnlyFormatCC.Any() || linkOnlyFormatBCC.Any()))
+                        {
+                            // Send the email.
+                            var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, linkOnlyFormatCC, linkOnlyFormatBCC, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
+                            responseModel.LinkOnlyFormatResponse = responseLinkOnly != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions)) : JsonDocument.Parse("{}");
+                        }
+
+                        if (!report.Settings.DoNotSendEmail && (fullTextFormatTo.Any() || fullTextFormatCC.Any() || fullTextFormatBCC.Any() || !String.IsNullOrEmpty(request.To)))
+                        {
+                            // Send the email.
+                            var responseFullText = await SendEmailAsync(request, fullTextFormatTo, fullTextFormatCC, fullTextFormatBCC, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
+                            responseModel.FullTextFormatResponse = responseFullText != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions)) : JsonDocument.Parse("{}");
+                        }
+
+                        if (instanceModel != null)
+                        {
+                            instanceModel.Status = ReportStatus.Accepted;
+                            instanceModel.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+                        }
+                    }
+                    catch (ChesException ex)
+                    {
+                        this.Logger.LogError(ex, "Failed to send report ID: {id}, InstanceId: {instance}", instanceModel?.ReportId, instanceModel?.Id);
+                        if (responseModel.LinkOnlyFormatResponse != null)
+                            responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
+                        else
+                            responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
+
+                        if (instanceModel != null)
+                        {
+                            instanceModel.Status = ReportStatus.Failed;
+                            instanceModel.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+                        }
+                        failure = new ReportingException(ReportingErrors.FailedToEmail, $"Failed to email report.  ReportId:{report.Id}, InstanceId:{instanceModel?.Id}", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Logger.LogError(ex, "Failed to send report ID: {id}, InstanceId: {instance}", instanceModel?.ReportId, instanceModel?.Id);
+                        if (instanceModel != null)
+                        {
+                            instanceModel.Status = ReportStatus.Failed;
+                            instanceModel.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+                        }
+                        failure = new ReportingException(ReportingErrors.FailedToEmail, $"Failed to email report.  ReportId:{report.Id}, InstanceId:{instanceModel?.Id}", ex);
+                    }
+
+                    if (instanceModel != null && request.GenerateInstance)
+                    {
+                        instanceModel.Subject = subject;
+                        instanceModel.Body = fullTextFormatBody;
+                        if (request.SendToSubscribers)
+                            instanceModel.SentOn = DateTime.UtcNow; // We track when it was sent, even if it failed.
+                        if (instanceModel.PublishedOn == null) instanceModel.PublishedOn = DateTime.UtcNow;
+                    }
+                }
             }
         }
 
@@ -579,10 +670,21 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             }
         }
 
-        if (request.GenerateInstance && report.Settings.Content.ClearFolders && request.SendToSubscribers)
+        // Only clear folders if the instance was successfully saved.
+        if (request.GenerateInstance && report.Settings.Content.ClearFolders && request.SendToSubscribers &&
+            (failure == null ||
+            failure.Error != ReportingErrors.FailedToGetInstance &&
+            failure.Error != ReportingErrors.FailedToGetContent))
         {
-            // Make a request to clear content from folders in this report.
             await this.Api.ClearFoldersInReport(report.Id);
+        }
+
+        if (failure != null)
+        {
+            // Set the report instance ID so that retries will be able to continue successfully.
+            request.ReportInstanceId = instanceModel?.Id;
+            request.Data = new { Error = failure.Error };
+            throw failure;
         }
     }
 
@@ -597,10 +699,17 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <exception cref="ArgumentException"></exception>
     private async Task GenerateReportAsync(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance)
     {
+        ReportingException? failure = null;
         var resending = instance.SentOn.HasValue && !String.IsNullOrWhiteSpace(instance.Subject) && !String.IsNullOrWhiteSpace(instance.Body);
-        // TODO: Control when a report is sent through configuration.
         var report = instance.Report ?? throw new ArgumentException("Report instance must include the report model.");
         var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
+
+        // If this request is a retry due to a failure, we need to determine at which point the failure occurred.
+        var reportingError = request.Data?.Error as ReportingErrors?;
+        if (reportingError != null)
+        {
+            this.Logger.LogInformation("Retrying a failed report. ReportId:{reportId}, InstanceId:{instanceId}", instance.ReportId, instance.Id);
+        }
 
         var searchResults = !resending ? await this.Api.GetContentForReportInstanceIdAsync(instance.Id) : Array.Empty<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>();
         var sectionContent = sections.ToDictionary(s => s.Name, section =>
@@ -622,66 +731,84 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             }
         }
 
-        var subject = !resending ? await this.ReportEngine.GenerateReportSubjectAsync(instance.Report, instance, sectionContent, false, false) : instance.Subject;
-
-        // Generate and send report to subscribers who want an email with a link to the website.
-        // We do this first because we don't want to save the output of this in the instance.
         var linkOnlyFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && LinkOnlyFormats.Contains(s.Format)).ToArray();
-        var linkOnlyFormatTo = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-        var linkOnlyFormatCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-        var linkOnlyFormatBCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-        var linkOnlyFormatBody = linkOnlyFormatTo.Any() ? await this.ReportEngine.GenerateReportBodyAsync(instance.Report, instance, sectionContent, GetLinkedReportAsync, null, true, false) : "";
-
-        // Generate and send report to subscribers who want an email format.
         var fullTextFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && FullTextFormats.Contains(s.Format)).ToArray();
-        var fullTextFormatTo = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-        var fullTextFormatCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-        var fullTextFormatBCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-        var fullTextFormatBody = !resending ? await this.ReportEngine.GenerateReportBodyAsync(instance.Report, instance, sectionContent, GetLinkedReportAsync, null, false, false) : instance.Body;
+        string subject = "", linkOnlyFormatBody = "", fullTextFormatBody = "";
 
-        if (request.SendToSubscribers || !String.IsNullOrWhiteSpace(request.To))
+        try
         {
-            // TODO: This implementation can result in one set of emails being successful and the second failing.
-            var responseModel = new ReportEmailResponseModel();
-            try
+            subject = !resending ? await this.ReportEngine.GenerateReportSubjectAsync(instance.Report, instance, sectionContent, false, false) : instance.Subject;
+
+            // Generate and send report to subscribers who want an email with a link to the website.
+            // We do this first because we don't want to save the output of this in the instance.
+            linkOnlyFormatBody = linkOnlyFormatSubscribers.Any() ? await this.ReportEngine.GenerateReportBodyAsync(instance.Report, instance, sectionContent, GetLinkedReportAsync, null, true, false) : "";
+
+            // Generate and send report to subscribers who want an email format.
+            fullTextFormatBody = !resending ? await this.ReportEngine.GenerateReportBodyAsync(instance.Report, instance, sectionContent, GetLinkedReportAsync, null, false, false) : instance.Body;
+        }
+        catch (Exception ex)
+        {
+            instance.Status = ReportStatus.Failed;
+            instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(new { Error = ex.GetAllMessages() }, _serializationOptions));
+            failure = new ReportingException(ReportingErrors.FailedToGenerateOutput, $"Failed to generate output for report.  ReportId:{report.Id}, InstanceId:{instance.Id}", ex);
+        }
+
+        if (failure == null)
+        {
+            var linkOnlyFormatTo = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+            var linkOnlyFormatCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+            var linkOnlyFormatBCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+
+            var fullTextFormatTo = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+            var fullTextFormatCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+            var fullTextFormatBCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+
+            if (request.SendToSubscribers || !String.IsNullOrWhiteSpace(request.To))
             {
-                if (!report.Settings.DoNotSendEmail && request.SendToSubscribers && (linkOnlyFormatTo.Any() || linkOnlyFormatCC.Any() || linkOnlyFormatBCC.Any()))
+                // TODO: This implementation can result in one set of emails being successful and the second failing.
+                var responseModel = new ReportEmailResponseModel();
+                try
                 {
-                    // Send the email.
-                    var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, linkOnlyFormatCC, linkOnlyFormatBCC, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
-                    responseModel.LinkOnlyFormatResponse = responseLinkOnly != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions)) : JsonDocument.Parse("{}");
-                }
+                    if (!report.Settings.DoNotSendEmail && request.SendToSubscribers && (linkOnlyFormatTo.Any() || linkOnlyFormatCC.Any() || linkOnlyFormatBCC.Any()))
+                    {
+                        // Send the email.
+                        var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, linkOnlyFormatCC, linkOnlyFormatBCC, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
+                        responseModel.LinkOnlyFormatResponse = responseLinkOnly != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions)) : JsonDocument.Parse("{}");
+                    }
 
-                if (!report.Settings.DoNotSendEmail && (fullTextFormatTo.Any() || fullTextFormatCC.Any() || fullTextFormatBCC.Any() || !String.IsNullOrEmpty(request.To)))
+                    if (!report.Settings.DoNotSendEmail && (fullTextFormatTo.Any() || fullTextFormatCC.Any() || fullTextFormatBCC.Any() || !String.IsNullOrEmpty(request.To)))
+                    {
+                        // Send the email.
+                        var responseFullText = await SendEmailAsync(request, fullTextFormatTo, fullTextFormatCC, fullTextFormatBCC, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
+                        responseModel.FullTextFormatResponse = responseFullText != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions)) : JsonDocument.Parse("{}");
+
+                    }
+
+                    instance.Status = ReportStatus.Accepted;
+                    instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+                }
+                catch (ChesException ex)
                 {
-                    // Send the email.
-                    var responseFullText = await SendEmailAsync(request, fullTextFormatTo, fullTextFormatCC, fullTextFormatBCC, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
-                    responseModel.FullTextFormatResponse = responseFullText != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions)) : JsonDocument.Parse("{}");
+                    this.Logger.LogError(ex, "Failed to send report ID: {id}, InstanceId: {instance}", instance.ReportId, instance.Id);
+                    if (responseModel.LinkOnlyFormatResponse != null)
+                        responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
+                    else
+                        responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
 
+                    instance.Status = ReportStatus.Failed;
+                    instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+                    failure = new ReportingException(ReportingErrors.FailedToEmail, $"Failed to email report.  ReportId:{report.Id}, InstanceId:{instance.Id}", ex);
                 }
-
-                instance.Status = ReportStatus.Accepted;
-                instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
-            }
-            catch (ChesException ex)
-            {
-                this.Logger.LogError(ex, "Failed to send report ID: {id}, InstanceId: {instance}", instance.ReportId, instance.Id);
-                if (responseModel.LinkOnlyFormatResponse != null)
-                    responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
-                else
-                    responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
-
-                instance.Status = ReportStatus.Failed;
-                instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
-            }
-            catch (Exception ex)
-            {
-                this.Logger.LogError(ex, "Failed to send report ID: {id}, InstanceId: {instance}", instance.ReportId, instance.Id);
-                instance.Status = ReportStatus.Failed;
-                instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+                catch (Exception ex)
+                {
+                    this.Logger.LogError(ex, "Failed to send report ID: {id}, InstanceId: {instance}", instance.ReportId, instance.Id);
+                    instance.Status = ReportStatus.Failed;
+                    instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+                    failure = new ReportingException(ReportingErrors.FailedToEmail, $"Failed to email report.  ReportId:{report.Id}, InstanceId:{instance.Id}", ex);
+                }
             }
 
-            if (request.GenerateInstance && !resending)
+            if (request.GenerateInstance)
             {
                 instance.Subject = subject;
                 instance.Body = fullTextFormatBody;
@@ -722,10 +849,19 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             }
         }
 
-        if (report.Settings.Content.ClearFolders && request.SendToSubscribers && !resending)
+        if (report.Settings.Content.ClearFolders && request.SendToSubscribers &&
+            (failure == null ||
+            failure.Error != ReportingErrors.FailedToGetInstance &&
+            failure.Error != ReportingErrors.FailedToGetContent))
         {
             // Make a request to clear content from folders in this report.
             await this.Api.ClearFoldersInReport(report.Id);
+        }
+
+        if (failure != null)
+        {
+            request.Data = new { Error = failure.Error };
+            throw failure;
         }
     }
 
