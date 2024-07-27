@@ -13,7 +13,6 @@ const ContributorForm = lazy(() => import('features/admin/contributors/Contribut
 const ContributorList = lazy(() => import('features/admin/contributors/ContributorList'));
 const DataLocationForm = lazy(() => import('features/admin/data-locations/DataLocationForm'));
 const DataLocationList = lazy(() => import('features/admin/data-locations/DataLocationList'));
-const EventOfTheDayList = lazy(() => import('features/admin/event-of-the-day/EventOfTheDayList'));
 const FilterForm = lazy(() => import('features/admin/filters/FilterForm'));
 const FilterList = lazy(() => import('features/admin/filters/FilterList'));
 const FolderForm = lazy(() => import('features/admin/folders/FolderForm'));
@@ -73,8 +72,6 @@ export const AdminRouter: React.FC = () => {
 
         <Route path="topics" element={<TopicList />} />
         <Route path="topics/:id" element={<TopicList />} />
-
-        <Route path="event-of-the-day" element={<EventOfTheDayList />} />
 
         <Route path="topic-scores" element={<TopicScoreRuleList />} />
 

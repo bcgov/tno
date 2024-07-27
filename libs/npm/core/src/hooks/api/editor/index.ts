@@ -5,6 +5,7 @@ export * from './useApiEditorCache';
 export * from './useApiEditorContents';
 export * from './useApiEditorContributors';
 export * from './useApiEditorDataLocations';
+export * from './useApiEditorFolders';
 export * from './useApiEditorIngests';
 export * from './useApiEditorIngestSchedules';
 export * from './useApiEditorIngestTypes';

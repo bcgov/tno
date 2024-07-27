@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Container } from '../container';
+import { Box } from '../box';
 import { Text } from '../form';
 import { getSortId, ITableProps, SortFlag, TablePager, useTable } from '.';
 import * as styled from './styled';
@@ -70,7 +70,7 @@ export const FlexboxTable = <T extends object>({
 
   return (
     <styled.FlexboxTable {...style}>
-      <Container isLoading={isLoading}>
+      <Box isLoading={isLoading}>
         {table.showFilter && (
           <div className="filter">
             <div>
@@ -212,7 +212,7 @@ export const FlexboxTable = <T extends object>({
         </div>
         {table.options.showFooter && <footer className="footer"></footer>}
         {!table.groupBy && <TablePager table={table} />}
-      </Container>
+      </Box>
     </styled.FlexboxTable>
   );
 };

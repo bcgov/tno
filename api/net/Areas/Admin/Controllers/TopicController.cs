@@ -17,7 +17,7 @@ namespace TNO.API.Areas.Admin.Controllers;
 /// <summary>
 /// TopicController class, provides topic endpoints for the admin api.
 /// </summary>
-[ClientRoleAuthorize(ClientRole.Administrator)]
+[ClientRoleAuthorize(new[] { ClientRole.Editor, ClientRole.Administrator })]
 [ApiController]
 [Area("admin")]
 [ApiVersion("1.0")]

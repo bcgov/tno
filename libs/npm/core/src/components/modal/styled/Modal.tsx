@@ -33,7 +33,7 @@ export const Modal = styled(Col)<IModalProps>`
     }
   }
 
-  .modal {
+  .modal-popup {
     display: flex;
     flex-direction: column;
     align-items: stretch;

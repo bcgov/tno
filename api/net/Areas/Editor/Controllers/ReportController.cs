@@ -105,12 +105,15 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult FindById(int id)
     {
-        var result = _reportService.FindById(id) ?? throw new NoContentException();
+        var report = _reportService.FindById(id) ?? throw new NoContentException();
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
-        if (result.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to view this report");
+        if (!user.Roles.Split(',').Contains($"[{ClientRole.Administrator.GetName()}]") && // User is not an admin
+            report.OwnerId != user.Id && // User does not own the report
+            !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) && // User is not subscribed to the report
+            !report.IsPublic) throw new NotAuthorizedException("Not authorized to view this report"); // Report is not public
 
-        return new JsonResult(new ReportModel(result, _serializerOptions));
+        return new JsonResult(new ReportModel(report, _serializerOptions));
     }
 
     /// <summary>
@@ -209,7 +212,7 @@ public class ReportController : ControllerBase
     /// <returns></returns>
     [HttpPost("{id}/publish")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
@@ -226,7 +229,7 @@ public class ReportController : ControllerBase
             SendToSubscribers = true,
         };
         await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, request);
-        return new OkResult();
+        return new JsonResult(new ReportModel(report, _serializerOptions));
     }
     #endregion
 }

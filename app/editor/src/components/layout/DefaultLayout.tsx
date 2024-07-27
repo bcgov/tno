@@ -1,6 +1,6 @@
 import { UnauthenticatedHome } from 'features/home';
 import { UserInfo } from 'features/login';
-import { NavBar } from 'features/navbar';
+import { Menu } from 'features/navbar';
 import React from 'react';
 import { Link, Outlet, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -121,11 +121,11 @@ const DefaultLayout: React.FC<ILayoutProps> = ({
             Sign Out
           </Button>
         </Header>
+        <Show visible={showNav}>
+          <Menu />
+        </Show>
         <div className="main-window">
           <LayoutErrorBoundary>
-            <Show visible={showNav}>
-              <NavBar />
-            </Show>
             <main>
               <Outlet />
             </main>

@@ -1,6 +1,6 @@
 import { Formik, FormikConfig, FormikValues } from 'formik';
 import { useApp } from 'store/hooks';
-import { Container, SpinnerVariant } from 'tno-core';
+import { Box, SpinnerVariant } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -46,7 +46,7 @@ export const FormikForm = <Values extends FormikValues = FormikValues>({
 
   return (
     <styled.FormikForm className={`form${rest.className ? ` ${rest.className}` : ''}`}>
-      <Container isLoading={typeof loading === 'function' ? requests.some(loading) : loading}>
+      <Box isLoading={typeof loading === 'function' ? requests.some(loading) : loading}>
         <Formik enableReinitialize={enableReinitialize} {...rest}>
           {(props) => (
             <form onSubmit={props.handleSubmit}>
@@ -54,7 +54,7 @@ export const FormikForm = <Values extends FormikValues = FormikValues>({
             </form>
           )}
         </Formik>
-      </Container>
+      </Box>
     </styled.FormikForm>
   );
 };

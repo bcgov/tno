@@ -8,12 +8,10 @@ export const FlexboxTable = styled.div<ITableStyleProps>`
   flex-grow: 1;
   padding: 0.25rem;
 
-  .container {
+  .box {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    width: unset;
-    height: unset;
     .rows {
       flex-grow: 1;
     }
@@ -71,7 +69,7 @@ export const FlexboxTable = styled.div<ITableStyleProps>`
       flex-wrap: nowrap;
       gap: 0.25rem;
       background-color: #fff;
-      padding: 0.25rem 0;
+      margin: 0.25rem 0;
 
       ${(props) =>
         !props.disableZebraStriping

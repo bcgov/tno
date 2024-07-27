@@ -22,6 +22,7 @@ const PrivateRoute = lazy(() => import('features/router/PrivateRoute'));
 const TranscriptionList = lazy(
   () => import('features/work-orders/transcription/TranscriptionList'),
 );
+const EventOfTheDayList = lazy(() => import('features/admin/event-of-the-day/EventOfTheDayList'));
 
 export interface IAppRouter {
   name: string;
@@ -134,6 +135,7 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
             }
           />
 
+          <Route path="reports/event-of-the-day" element={<EventOfTheDayList />} />
           <Route
             path="reports/av/evening-overview"
             element={<PrivateRoute claims={Claim.editor} element={<AVOverview />}></PrivateRoute>}
