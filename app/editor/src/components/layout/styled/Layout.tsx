@@ -39,12 +39,6 @@ export const Layout = styled.div`
     }};
   }
 
-  .navbar {
-    & > div {
-      margin-left: 5em;
-    }
-  }
-
   .error-boundary {
     width: 100%;
     height: 100%;

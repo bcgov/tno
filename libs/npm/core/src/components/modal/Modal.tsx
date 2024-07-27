@@ -56,7 +56,7 @@ export const Modal: React.FC<IModalProps> = ({
         <styled.Modal hasHeight={hasHeight}>
           <div className="modal-overlay">
             <div className="modal-wrapper" aria-modal aria-hidden tabIndex={-1} role="dialog">
-              <div className={className ?? 'modal'}>
+              <div className={className ?? 'modal-popup'}>
                 {!!headerText && (
                   <Row className="modal-header">
                     <h1>{headerText}</h1>
