@@ -162,6 +162,9 @@ export const ReportViewForm: React.FC = () => {
               <FaTelegramPlane />
             </Button>
           </Row>
+          {values.settings.doNotSendEmail && (
+            <p className="info">You currently have the email preference to not send emails.</p>
+          )}
         </Col>
       </Row>
       <Modal

@@ -75,7 +75,7 @@ namespace TNO.Core.Http
         /// <returns></returns>
         public async Task<TModel?> DeserializeAsync<TModel>(HttpResponseMessage response)
         {
-            using var responseStream = await response.Content.ReadAsStreamAsync();
+            var responseStream = await response.Content.ReadAsStreamAsync();
             // var data = await response.Content.ReadAsByteArrayAsync();
             var contentType = response.Content.Headers.ContentType;
             try
@@ -457,7 +457,7 @@ namespace TNO.Core.Http
         /// <returns></returns>
         public virtual async Task<TModel?> SendAsync<TModel>(string url, HttpMethod? method, HttpRequestHeaders? headers, HttpContent? content = null, Func<HttpResponseMessage, bool>? onError = null)
         {
-            using var response = await SendAsync(url, method, headers, content);
+            var response = await SendAsync(url, method, headers, content);
 
             if (response.IsSuccessStatusCode)
             {

@@ -67,6 +67,7 @@ export const FilterMediaLanding: React.FC = () => {
           startDate: moment(new Date()).startOf('day').toISOString(),
           endDate: moment(new Date()).endOf('day').toISOString(),
           mediaTypeIds: [activeSubMediaGroup.key],
+          sort: [{ publishedOn: 'desc' }],
         };
         storeFilter(newFilter);
       }
@@ -172,6 +173,7 @@ export const FilterMediaLanding: React.FC = () => {
         endDate: moment(new Date()).endOf('day').toISOString(),
         mediaTypeIds: [mediaGroup.key],
         activeSubGroup: mediaGroup.label,
+        sort: [{ publishedOn: 'desc' }],
       });
       setActiveFilter(mediaGroup);
       setParentClicked(true);
