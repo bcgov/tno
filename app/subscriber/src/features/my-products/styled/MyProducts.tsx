@@ -13,7 +13,7 @@ export const MyProducts = styled(Col)`
     }
     .action {
       label {
-        width: 6.5em;
+        min-width: 6.5em;
       }
     }
     h2 {

@@ -102,7 +102,7 @@ export const MyProducts: React.FC = () => {
             <FaUserPlus /> <span>Available products</span>
           </h2>
           <p className="info-text">
-            You may request subscription to the following automated products. Susbscribed products
+            You may request subscription to the following automated products. Subscribed products
             are sent by email on a scheduled basis.
           </p>
           <div>

@@ -705,10 +705,17 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
 
         // If this request is a retry due to a failure, we need to determine at which point the failure occurred.
-        var reportingError = request.Data?.Error as ReportingErrors?;
-        if (reportingError != null)
+        try
         {
-            this.Logger.LogInformation("Retrying a failed report. ReportId:{reportId}, InstanceId:{instanceId}", instance.ReportId, instance.Id);
+            var reportingError = request.Data?.Error as ReportingErrors?;
+            if (reportingError != null)
+            {
+                this.Logger.LogInformation("Retrying a failed report. ReportId:{reportId}, InstanceId:{instanceId}", instance.ReportId, instance.Id);
+            }
+        }
+        catch (Exception)
+        {
+            // Ignore for now.
         }
 
         var searchResults = !resending ? await this.Api.GetContentForReportInstanceIdAsync(instance.Id) : Array.Empty<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>();
@@ -737,6 +744,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
         try
         {
+
+            this.Logger.LogDebug("Report is generating body. ReportId:{reportId}, InstanceId:{instanceId}", report.Id, instance.Id);
             subject = !resending ? await this.ReportEngine.GenerateReportSubjectAsync(instance.Report, instance, sectionContent, false, false) : instance.Subject;
 
             // Generate and send report to subscribers who want an email with a link to the website.
@@ -751,10 +760,12 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             instance.Status = ReportStatus.Failed;
             instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(new { Error = ex.GetAllMessages() }, _serializationOptions));
             failure = new ReportingException(ReportingErrors.FailedToGenerateOutput, $"Failed to generate output for report.  ReportId:{report.Id}, InstanceId:{instance.Id}", ex);
+            this.Logger.LogError(ex, "Failed to generate output for report.  ReportId:{reportId}, InstanceId:{instanceId}", report.Id, instance.Id);
         }
 
         if (failure == null)
         {
+            this.Logger.LogDebug("Report is generating subscriber lists. ReportId:{reportId}, InstanceId:{instanceId}, SendToSubscribers:{send}", report.Id, instance.Id, request.SendToSubscribers);
             var linkOnlyFormatTo = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
             var linkOnlyFormatCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
             var linkOnlyFormatBCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
@@ -771,6 +782,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 {
                     if (!report.Settings.DoNotSendEmail && request.SendToSubscribers && (linkOnlyFormatTo.Any() || linkOnlyFormatCC.Any() || linkOnlyFormatBCC.Any()))
                     {
+                        this.Logger.LogDebug("Report is sending link only email. ReportId:{reportId}, InstanceId:{instanceId}", report.Id, instance.Id);
                         // Send the email.
                         var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, linkOnlyFormatCC, linkOnlyFormatBCC, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
                         responseModel.LinkOnlyFormatResponse = responseLinkOnly != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions)) : JsonDocument.Parse("{}");
@@ -778,6 +790,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
                     if (!report.Settings.DoNotSendEmail && (fullTextFormatTo.Any() || fullTextFormatCC.Any() || fullTextFormatBCC.Any() || !String.IsNullOrEmpty(request.To)))
                     {
+                        this.Logger.LogDebug("Report is sending full text email. ReportId:{reportId}, InstanceId:{instanceId}", report.Id, instance.Id);
                         // Send the email.
                         var responseFullText = await SendEmailAsync(request, fullTextFormatTo, fullTextFormatCC, fullTextFormatBCC, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
                         responseModel.FullTextFormatResponse = responseFullText != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions)) : JsonDocument.Parse("{}");
