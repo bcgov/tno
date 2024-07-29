@@ -52,8 +52,8 @@ export const Button: React.FC<IButtonProps> = ({
       type={type}
       variant={variant}
       onClick={onClickHandler}
-      className={`btn ${className ?? ''}`}
-      data-tooltip-id={`btn-tip-${uniqueId}`}
+      className={`button ${className ?? ''}`}
+      data-tooltip-id={`button-tip-${uniqueId}`}
       data-tooltip-content={tooltip}
       {...rest}
     >
@@ -65,7 +65,7 @@ export const Button: React.FC<IButtonProps> = ({
         <Tooltip
           style={{ zIndex: '999' }}
           variant="info"
-          id={`btn-tip-${uniqueId}`}
+          id={`button-tip-${uniqueId}`}
           place="top"
           float
         />

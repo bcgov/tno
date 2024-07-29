@@ -94,7 +94,7 @@ export const MySearches = () => {
                       value={editing?.name ?? ''}
                       onChange={(e) => setEditing({ ...editing, name: e.target.value })}
                     >
-                      <Col className="txt-btn">
+                      <Col className="txt-button">
                         <Action icon={<FaSave />} onClick={() => handleSave(editing)} />
                       </Col>
                     </Text>

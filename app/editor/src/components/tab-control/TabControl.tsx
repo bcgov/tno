@@ -15,21 +15,21 @@ export const TabControl: React.FC = () => {
     <>
       <Show visible={options?.open === undefined || options?.open === NavigateOptions.NewTab}>
         <FaExternalLinkAlt
-          className="btn btn-link"
+          className="button button-link"
           title="Open in new tab"
           onClick={() => storeUserOptions?.({ ...options, open: NavigateOptions.OnPage })}
         />
       </Show>
       <Show visible={options?.open === NavigateOptions.OnPage}>
         <FaExternalLinkSquareAlt
-          className="btn btn-link"
+          className="button button-link"
           title="Open on page"
           onClick={() => storeUserOptions?.({ ...options, open: NavigateOptions.TwoTabView })}
         />
       </Show>
       <Show visible={options?.open === NavigateOptions.TwoTabView}>
         <FaRegClone
-          className="btn btn-link"
+          className="button button-link"
           title="Two tabs"
           onClick={() => storeUserOptions?.({ ...options, open: NavigateOptions.NewTab })}
         />

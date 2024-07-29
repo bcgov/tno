@@ -146,14 +146,14 @@ export const TranscriptionList: React.FC = () => {
       <Row>
         <Show visible={row.status === WorkOrderStatusName.InProgress}>
           <FaStop
-            className="btn btn-link red"
+            className="button button-link red"
             title="Cancel"
             onClick={() => handleCancel?.({ ...row, status: WorkOrderStatusName.Cancelled })}
           />
         </Show>
         <Show visible={row.status === WorkOrderStatusName.Completed && !row.content?.isApproved}>
           <FaPen
-            className="btn btn-link completed"
+            className="button button-link completed"
             title="Review"
             onClick={() => navigate(row.contentId ?? 0, '/contents')}
           />

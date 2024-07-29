@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const Area = styled.div`
-  .back-btn {
+  .back-button {
     width: fit-content;
   }
 

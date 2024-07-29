@@ -8,12 +8,12 @@ export const ReportEditSubscribersForm = styled.div`
   .select-column {
     width: 5rem;
   }
-  .selected-all-btn {
+  .selected-all-button {
     margin-top: 0.25rem;
     margin-bottom: 0.25rem;
     width: 10rem;
   }
-  .select-all-btn {
+  .select-all-button {
     margin-top: 0.25rem;
     margin-bottom: 0.25rem;
     margin-left: 0.25rem;

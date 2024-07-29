@@ -55,7 +55,7 @@ export const ToggleButton = ({
 
   return (
     <styled.ToggleButton
-      className={`btn-toggle${className ? ` ${className}` : ''}`}
+      className={`button-toggle${className ? ` ${className}` : ''}`}
       disabled={disabled}
       labelPosition={labelPosition}
       {...rest}

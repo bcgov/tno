@@ -149,14 +149,14 @@ export const Dashboard: React.FC = () => {
                         <div>
                           <FaEdit
                             title="Edit"
-                            className="btn-link"
+                            className="button-link"
                             onClick={() => navigate(`/admin/ingests/${ingest.id}`)}
                           />
                         </div>
                         <div>
                           <FaBugSlash
                             title="Reset"
-                            className="btn-link"
+                            className="button-link"
                             onClick={() => handleReset(ingest.id)}
                           />
                         </div>
