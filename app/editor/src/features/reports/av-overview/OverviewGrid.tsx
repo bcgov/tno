@@ -12,6 +12,7 @@ import {
   FormikSelect,
   FormikTextArea,
   FormikTimeInput,
+  generateQuery,
   IAVOverviewInstanceModel,
   IAVOverviewSectionItemModel,
   IAVOverviewTemplateSectionItemModel,
@@ -39,7 +40,7 @@ interface Suggestion {
 /** OverviewGrid contains the table of items displayed for each overview section. */
 export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, index }) => {
   const { values, setFieldValue } = useFormikContext<IAVOverviewInstanceModel>();
-  const [, { findContent }] = useContent();
+  const [, { findContentWithElasticsearch }] = useContent();
   const [contentItems, setContentItems] = React.useState<IContentModel[]>();
 
   const [showAutoCompleteForIndex, setShowAutoCompleteForIndex] = React.useState<null | number>(
@@ -69,31 +70,41 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
   /** fetch pieces of content that are related to the series to display as options for associated clips, search for clips published after the start time if it is specified - otherwise filter based on that day.*/
   React.useEffect(() => {
     if (shouldFetch) {
-      findContent({
-        seriesId: values.sections[index].seriesId,
-        publishedStartOn: !!values.sections[index].startTime
-          ? moment(queryDate)
-              .set({
-                hour: Number(startTime[0]),
-                minute: Number(startTime[1]),
-                second: Number(startTime[2]),
-                millisecond: 0,
-              })
-              .toISOString()
-          : moment(queryDate).startOf('day').toISOString(),
-        contentTypes: [],
-        sort: ['publishedOn asc'],
-      })
+      const seriesIds: number[] =
+        values.sections.length > index && values.sections[index].seriesId
+          ? [values.sections[index].seriesId!]
+          : [];
+      const startDate = !!values.sections[index].startTime
+        ? moment(queryDate)
+            .set({
+              hour: Number(startTime[0]),
+              minute: Number(startTime[1]),
+              second: Number(startTime[2]),
+              millisecond: 0,
+            })
+            .toISOString()
+        : moment(queryDate).startOf('day').toISOString();
+      findContentWithElasticsearch(
+        generateQuery({
+          searchUnpublished: false,
+          size: 20,
+          seriesIds,
+          startDate,
+          sort: [{ publishedOn: 'asc' }],
+        }),
+        false,
+      )
         .then((data) => {
-          setContentItems(data.items);
-          const newClips = data.items.map((c) => {
+          const results: IContentModel[] = data.hits.hits.map((h) => h._source!);
+          setContentItems(results);
+          const newClips = results.map((c) => {
             const publishedOnTime = c.publishedOn
               ? `${moment(c.publishedOn).format('HH:mm')} `
               : '';
             const itemHeadline = `${publishedOnTime}${c.headline}`;
             return new OptionItem(itemHeadline, c.id);
           }) as IOptionItem[];
-          // check if any previously selected clips are no longer available, if not, unselec them
+          // check if any previously selected clips are no longer available, if not, unselect them
           items.forEach((item, itemIndex) => {
             if (item.contentId && !newClips.some((clip) => clip.value === item.contentId)) {
               setFieldValue(`sections.${index}.items.${itemIndex}.contentId`, null);

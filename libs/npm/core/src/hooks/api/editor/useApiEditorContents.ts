@@ -5,12 +5,10 @@ import React from 'react';
 import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
 import {
-  IContentFilter,
   IContentListModel,
   IContentModel,
   IContentTopicModel,
   INotificationInstanceModel,
-  IPaged,
   IWorkOrderModel,
   useApi,
 } from '..';
@@ -30,15 +28,6 @@ export const useApiEditorContents = (
   const api = useApi(options);
 
   return React.useRef({
-    findContent: (filter?: IContentFilter) => {
-      const params = {
-        ...filter,
-        actions: filter?.actions?.length ? filter.actions : undefined,
-      };
-      return api.get<never, AxiosResponse<IPaged<IContentModel>>, any>(
-        `/editor/contents?${toQueryString(params)}`,
-      );
-    },
     findContentWithElasticsearch: (
       filter: MsearchMultisearchBody,
       includeUnpublishedContent: boolean = false,

@@ -5,19 +5,16 @@ import { ActionDelegate } from 'store';
 import { useContentStore } from 'store/slices';
 import { IContentProps, IContentState } from 'store/slices/content';
 import {
-  IContentFilter,
   IContentListModel,
   IContentModel,
   IContentTopicModel,
   INotificationInstanceModel,
-  IPaged,
   useApiEditorContents,
 } from 'tno-core';
 
 import { useAjaxWrapper } from '..';
 
 interface IContentController {
-  findContent: (filter: IContentFilter) => Promise<IPaged<IContentModel>>;
   findContentWithElasticsearch: (
     filter: MsearchMultisearchBody,
     includeUnpublishedContent: boolean,
@@ -52,10 +49,6 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
 
   const controller = React.useMemo(() => {
     return {
-      findContent: async (filter: IContentFilter) => {
-        const response = await dispatch('find-contents', () => api.findContent(filter));
-        return response.data;
-      },
       findContentWithElasticsearch: async (
         filter: MsearchMultisearchBody,
         includeUnpublishedContent: boolean,

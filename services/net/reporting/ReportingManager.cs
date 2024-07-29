@@ -744,7 +744,6 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
         try
         {
-
             this.Logger.LogDebug("Report is generating body. ReportId:{reportId}, InstanceId:{instanceId}", report.Id, instance.Id);
             subject = !resending ? await this.ReportEngine.GenerateReportSubjectAsync(instance.Report, instance, sectionContent, false, false) : instance.Subject;
 

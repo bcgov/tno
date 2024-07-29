@@ -140,29 +140,6 @@ public class ContentController : ControllerBase
 
     /// <summary>
     /// Find a page of content for the specified query filter.
-    /// TODO: The model stored in Elasticsearch is a little confusing based on the controller using it.  Need to clean up.
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IPaged<Services.Models.Content.ContentModel>), (int)HttpStatusCode.OK)]
-    [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> FindWithElasticsearchAsync()
-    {
-        var uri = new Uri(this.Request.GetDisplayUrl());
-        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-        var filter = new ContentFilter(query);
-        var result = await _contentService.FindWithElasticsearchAsync(_elasticOptions.UnpublishedIndex, filter);
-        var page = new Paged<Services.Models.Content.ContentModel>(
-            result.Items,
-            result.Page,
-            result.Quantity,
-            result.Total);
-        return new JsonResult(page);
-    }
-
-    /// <summary>
-    /// Find a page of content for the specified query filter.
     /// </summary>
     /// <param name="includeUnpublishedContent"></param>
     /// <param name="filter"></param>

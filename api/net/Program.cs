@@ -205,9 +205,9 @@ builder.Services
     .AddTemplateEngine(config)
     .AddKafkaMessenger(config)
     .AddHttpClient()
-    .AddTransient<JwtSecurityTokenHandler>()
+    .AddScoped<JwtSecurityTokenHandler>()
     .AddTransient<IHttpRequestClient, HttpRequestClient>()
-    .AddTransient<IKeycloakHelper, KeycloakHelper>()
+    .AddScoped<IKeycloakHelper, KeycloakHelper>()
     .AddScoped<IOpenIdConnectRequestClient, OpenIdConnectRequestClient>()
     .AddKeycloakService(config.GetSection("Keycloak:ServiceAccount"));
 
