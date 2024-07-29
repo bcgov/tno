@@ -40,6 +40,23 @@ export const AVOverview = styled(FormPage)`
     display: flex;
     gap: 0.5rem;
 
+    .date-filter {
+      gap: 0.15rem;
+      flex-wrap: nowrap;
+
+      .frm-in {
+        padding: 0;
+        margin-right: 0;
+        max-width: 14ch;
+
+        .react-datepicker-wrapper {
+          * {
+            box-sizing: unset;
+          }
+        }
+      }
+    }
+
     .save-items {
       margin-left: auto;
       .spinner {

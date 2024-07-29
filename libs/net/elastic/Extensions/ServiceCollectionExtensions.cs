@@ -23,9 +23,9 @@ public static class ServiceCollectionExtensions
     {
         var options = config.GetSection("Elastic");
         services
-            .AddScoped<IHttpRequestClient, HttpRequestClient>()
-            .AddScoped<IElasticClient, TNOElasticClient>()
-            .AddScoped<ITNOElasticClient, TNOElasticClient>()
+            .AddTransient<IHttpRequestClient, HttpRequestClient>()
+            .AddTransient<IElasticClient, TNOElasticClient>()
+            .AddTransient<ITNOElasticClient, TNOElasticClient>()
             .Configure<ElasticOptions>(options)
             .AddOptions<ElasticOptions>()
                 .Bind(options)

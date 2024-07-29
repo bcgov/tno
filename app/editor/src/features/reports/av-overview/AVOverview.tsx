@@ -1,7 +1,13 @@
 import { FormikForm } from 'components/formik';
 import moment, { Moment } from 'moment';
 import React from 'react';
-import { FaBinoculars, FaPaperPlane, FaSpinner } from 'react-icons/fa';
+import {
+  FaArrowAltCircleLeft,
+  FaArrowAltCircleRight,
+  FaBinoculars,
+  FaPaperPlane,
+  FaSpinner,
+} from 'react-icons/fa';
 import { MdAdd, MdSave } from 'react-icons/md';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -107,17 +113,42 @@ const AVOverview: React.FC = () => {
         {({ isSubmitting, values, setFieldValue }) => (
           <>
             <Row className="buttons">
-              <SelectDate
-                name="publishedOn"
-                placeholderText="mm/dd/yyyy"
-                selected={publishedOn.toDate()}
-                width="8em"
-                onChange={(date) => {
-                  const value = moment(date);
-                  setPublishedOn(value);
-                  window.history.pushState({}, '', `?date=${value.format('yyyy/MM/DD')}`);
-                }}
-              />
+              <Row className="date-filter">
+                <Button
+                  variant={ButtonVariant.secondary}
+                  onClick={() => {
+                    setPublishedOn((value) => {
+                      const result = value.add(-1, 'd').clone();
+                      window.history.pushState({}, '', `?date=${result.format('yyyy/MM/DD')}`);
+                      return result;
+                    });
+                  }}
+                >
+                  <FaArrowAltCircleLeft />
+                </Button>
+                <SelectDate
+                  name="publishedOn"
+                  placeholderText="mm/dd/yyyy"
+                  selected={publishedOn.toDate()}
+                  onChange={(date) => {
+                    const value = moment(date);
+                    setPublishedOn(value);
+                    window.history.pushState({}, '', `?date=${value.format('yyyy/MM/DD')}`);
+                  }}
+                />
+                <Button
+                  variant={ButtonVariant.secondary}
+                  onClick={() => {
+                    setPublishedOn((value) => {
+                      const result = value.add(1, 'd').clone();
+                      window.history.pushState({}, '', `?date=${result.format('yyyy/MM/DD')}`);
+                      return result;
+                    });
+                  }}
+                >
+                  <FaArrowAltCircleRight />
+                </Button>
+              </Row>
               <Col justifyContent="center">
                 <h2>{values.templateType}</h2>
               </Col>
