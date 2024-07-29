@@ -80,16 +80,16 @@ export const Attributes: React.FC<IAttributesProps> = ({
         {item.page && <div className="page-number">{item.page}</div>}
       </Show>
       <Show visible={!!item.ministerMentions?.length}>
-        <div className="mentionsColumn">
-          <div className="mentions">
-            {item.ministerMentions?.map((m) => {
-              return (
-                <div key={`${item.id}-${m}`} className="mentionTag">
+        <div className="mentions">
+          {item.ministerMentions?.map((m) => {
+            return (
+              <Show visible={!!m} key={`${item.id}-${m}`}>
+                <div key={`${item.id}-${m}`} className="mention-tag">
                   {m}
                 </div>
-              );
-            })}
-          </div>
+              </Show>
+            );
+          })}
         </div>
       </Show>
     </Row>

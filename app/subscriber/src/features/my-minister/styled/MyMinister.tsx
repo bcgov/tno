@@ -22,7 +22,7 @@ export const MyMinister = styled.div`
     display: flex;
   }
 
-  .mentionTag {
+  .mention-tag {
     display: flex;
     border-radius: 4px;
     background: ${(props) => props.theme.css.tagBackgroundColor};
