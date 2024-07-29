@@ -656,7 +656,7 @@ exports[`renders correctly... 1`] = `
               </div>
             </div>
             <button
-              class="sc-eCYdqJ GWhWw btn "
+              class="sc-eCYdqJ GWhWw button "
               data-tooltip-id="main-tooltip"
               name="search"
               type="button"
@@ -666,7 +666,7 @@ exports[`renders correctly... 1`] = `
               </div>
             </button>
             <button
-              class="sc-eCYdqJ jrZZUV btn "
+              class="sc-eCYdqJ jrZZUV button "
               data-tooltip-id="main-tooltip"
               name="clear"
               type="button"
@@ -864,7 +864,7 @@ exports[`renders correctly... 1`] = `
                 direction="row"
               >
                 <button
-                  class="sc-eCYdqJ jGzYem btn "
+                  class="sc-eCYdqJ jGzYem button "
                   data-tooltip-id="main-tooltip"
                   disabled=""
                   name="firstPage"
@@ -887,7 +887,7 @@ exports[`renders correctly... 1`] = `
                   </div>
                 </button>
                 <button
-                  class="sc-eCYdqJ jGzYem btn active"
+                  class="sc-eCYdqJ jGzYem button active"
                   data-tooltip-id="main-tooltip"
                   disabled=""
                   type="button"
@@ -897,7 +897,7 @@ exports[`renders correctly... 1`] = `
                   </div>
                 </button>
                 <button
-                  class="sc-eCYdqJ jGzYem btn "
+                  class="sc-eCYdqJ jGzYem button "
                   data-tooltip-id="main-tooltip"
                   disabled=""
                   name="lastPage"
@@ -928,7 +928,7 @@ exports[`renders correctly... 1`] = `
           direction="row"
         >
           <button
-            class="sc-eCYdqJ jrZZUV btn "
+            class="sc-eCYdqJ jrZZUV button "
             data-tooltip-id="main-tooltip"
             name="create"
             type="button"
@@ -938,7 +938,7 @@ exports[`renders correctly... 1`] = `
             </div>
           </button>
           <button
-            class="sc-eCYdqJ jrZZUV btn "
+            class="sc-eCYdqJ jrZZUV button "
             data-tooltip-id="main-tooltip"
             name="create"
             type="button"

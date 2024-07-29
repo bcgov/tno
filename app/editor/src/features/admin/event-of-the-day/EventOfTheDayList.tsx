@@ -4,8 +4,8 @@ import React from 'react';
 import { FaBinoculars, FaPaperPlane } from 'react-icons/fa';
 import { FaArrowsSpin } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { useContent, useLookup } from 'store/hooks';
-import { useFolders, useReports, useTopics } from 'store/hooks/admin';
+import { useContent, useFolders, useLookup, useReports } from 'store/hooks';
+import { useTopics } from 'store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -32,12 +32,10 @@ import * as styled from './styled';
 const EventOfTheDayList: React.FC = () => {
   const [{ isReady, settings }] = useLookup();
   const [, { findAllTopics, updateTopic, addTopic }] = useTopics();
-  const [, { getReport, publishReport }] = useReports();
-
-  const { toggle, isShowing } = useModal();
-
-  const [, { getContentInFolder }] = useFolders();
+  const [{ getReport, publishReport }] = useReports();
+  const { getContentInFolder } = useFolders();
   const [, { updateContentTopics }] = useContent();
+  const { toggle, isShowing } = useModal();
 
   const [eventOfTheDayFolderId, setEventOfTheDayFolderId] = React.useState(0);
   const [eventOfTheDayReportId, setEventOfTheDayReportId] = React.useState(0);
@@ -150,7 +148,9 @@ const EventOfTheDayList: React.FC = () => {
 
   const handlePublish = async () => {
     try {
-      await getReport(eventOfTheDayReportId).then((report: IReportModel) => publishReport(report));
+      await getReport(eventOfTheDayReportId).then(
+        (report?: IReportModel) => report && publishReport(report.id),
+      );
       toast.success('Event of the Day report has been successfully requested.');
     } catch {}
   };

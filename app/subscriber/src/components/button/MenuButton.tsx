@@ -19,7 +19,7 @@ export const MenuButton = ({
 }: IMenuButtonProps) => {
   return (
     <styled.MenuButton
-      className={`btn-menu${className ? ` ${className}` : ''}`}
+      className={`button-menu${className ? ` ${className}` : ''}`}
       active={active}
       disabled={disabled}
       onClick={onClick}

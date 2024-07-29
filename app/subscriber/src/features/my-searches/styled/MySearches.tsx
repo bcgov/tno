@@ -28,7 +28,7 @@ export const MySearches = styled(Col)`
     .frm-in {
       padding-bottom: unset;
     }
-    .txt-btn {
+    .txt-button {
       margin: 0.25rem;
     }
   }

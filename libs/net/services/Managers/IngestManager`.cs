@@ -74,7 +74,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
         // Always keep looping until an unexpected failure occurs.
         while (true)
         {
-            if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause)
+            if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause || this.State.Status == ServiceStatus.RequestFailed)
             {
                 await StopAllAsync();
                 this.State.Stop();
@@ -106,7 +106,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                     var manager = _ingests[ingest.Id];
 
                     // Ask all live threads to stop.
-                    if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause)
+                    if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause || this.State.Status == ServiceStatus.RequestFailed)
                     {
                         await StopAllAsync();
                         this.State.Stop();
@@ -139,21 +139,27 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                     {
                         if (ingest.FailedAttempts >= ingest.RetryLimit)
                         {
-                            if(ingest.ResetRetryAfterDelayMs > 0) {
+                            if (ingest.ResetRetryAfterDelayMs > 0)
+                            {
                                 // Ingest is configured for auto-reset
                                 // Check whether we should reset or wait longer.
-                                if (ingest.LastRanOn.HasValue 
-                                    && ingest.LastRanOn.Value.AddMilliseconds(ingest.ResetRetryAfterDelayMs) <= DateTime.UtcNow) {
+                                if (ingest.LastRanOn.HasValue
+                                    && ingest.LastRanOn.Value.AddMilliseconds(ingest.ResetRetryAfterDelayMs) <= DateTime.UtcNow)
+                                {
                                     this.Logger.LogInformation("Ingest [{name}] failure auto reset after [{resetRetryDelay}] seconds", ingest.Name, ingest.ResetRetryAfterDelayMs);
                                     manager.Ingest.FailedAttempts = 0;
                                     // reset the Service.State.Failures as well, or the Service will be stuck
                                     this.State.ResetFailures();
-                                } else {
+                                }
+                                else
+                                {
                                     // Auto-reset time delay hasnt passed yet.
                                     this.Logger.LogWarning("Ingest [{name}] has reached maximum failure limit. Auto-reset will occur at [{timestamp}]", ingest.Name, ingest.LastRanOn!.Value.AddMilliseconds(ingest.ResetRetryAfterDelayMs).ToLocalTime());
                                     continue;
                                 }
-                            } else {
+                            }
+                            else
+                            {
                                 // Ingest is NOT configured for auto-reset
                                 this.Logger.LogWarning("Ingest [{name}] has reached maximum failure limit and is NOT configured for Auto-reset.  Ingest is stopped as of [{lastRan}].", ingest.Name, ingest.LastRanOn!.Value.ToLocalTime());
                                 continue;
@@ -168,7 +174,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                     }
                     catch (HttpRequestException ex)
                     {
-                        this.Logger.LogError(ex, "Ingest [{name}] failed to run. This is failure [{failures}] out of [{maxFailures}] maximum retries. Response: {Data}", ingest.Name, manager.Ingest.FailedAttempts+1,manager.Ingest.RetryLimit, ex.Data["Body"]);
+                        this.Logger.LogError(ex, "Ingest [{name}] failed to run. This is failure [{failures}] out of [{maxFailures}] maximum retries. Response: {Data}", ingest.Name, manager.Ingest.FailedAttempts + 1, manager.Ingest.RetryLimit, ex.Data["Body"]);
 
                         // Update ingest with failure.
                         await manager.RecordFailureAsync(ex);
@@ -181,7 +187,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                     }
                     catch (Exception ex)
                     {
-                        this.Logger.LogError(ex, "Ingest [{name}] failed to run. This is failure [{failures}] out of [{maxFailures}] maximum retries.", ingest.Name, manager.Ingest.FailedAttempts+1,manager.Ingest.RetryLimit);
+                        this.Logger.LogError(ex, "Ingest [{name}] failed to run. This is failure [{failures}] out of [{maxFailures}] maximum retries.", ingest.Name, manager.Ingest.FailedAttempts + 1, manager.Ingest.RetryLimit);
 
                         // Update ingest with failure.
                         await manager.RecordFailureAsync(ex);
@@ -200,7 +206,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
             // It could also result in a longer than planned delay if the action manager is awaited (currently it is).
             this.Logger.LogDebug("Service sleeping for {delay:n0} ms", delay);
             await Task.Delay(delay);
-            
+
             // after the service has slept after a number of failures it needs to be woken up
             this.State.Resume();
 

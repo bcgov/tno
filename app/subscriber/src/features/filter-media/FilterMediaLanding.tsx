@@ -29,9 +29,9 @@ export const FilterMediaLanding: React.FC = () => {
   ] = useContent();
   const [{ sources, mediaTypes, series }] = useLookup();
   const { subMediaGroups = [] } = useSubMediaGroups(sources, series, mediaTypes);
+
   const [mediaGroups, setMediaGroups] = React.useState<ISubMediaGroupItem[]>();
   const [activeFilter, setActiveFilter] = React.useState<ISubMediaGroupItem>();
-
   const [activeLetter, setActiveLetter] = React.useState<string>('All');
   const [narrowedOptions, setNarrowedOptions] = React.useState<IGroupOption[]>([]);
   const [activeSource, setActiveSource] = React.useState<IGroupOption | null>(null);
@@ -62,21 +62,12 @@ export const FilterMediaLanding: React.FC = () => {
         setActiveSource(null);
         setNarrowedOptions(activeSubMediaGroup?.options ?? []);
         checkAllOptions(activeSubMediaGroup, true);
-        let seriesIds: number[] = [];
-        let sourceIds: number[] = [];
-        if (activeSubMediaGroup?.listOption === ListOptionName.Series) {
-          seriesIds = activeSubMediaGroup.options.map((x) => x.id);
-        }
-        if (activeSubMediaGroup?.listOption === ListOptionName.Source) {
-          sourceIds = activeSubMediaGroup.options.map((x) => x.id);
-        }
         const newFilter: IFilterSettingsModel = {
           ...filter,
           startDate: moment(new Date()).startOf('day').toISOString(),
           endDate: moment(new Date()).endOf('day').toISOString(),
           mediaTypeIds: [activeSubMediaGroup.key],
-          seriesIds,
-          sourceIds,
+          sort: [{ publishedOn: 'desc' }],
         };
         storeFilter(newFilter);
       }
@@ -96,12 +87,13 @@ export const FilterMediaLanding: React.FC = () => {
   const handleClick = React.useCallback(
     (opt: IGroupOption, checkbox?: HTMLInputElement) => {
       setActiveSource(opt);
-      // if checkboxed is checked or if there is no checkbox (meaning the user clicked the row)
+      // if checkbox is checked or if there is no checkbox (meaning the user clicked the row)
       if (!!checkbox?.checked || !checkbox) {
         opt.selected = true;
       } else {
         opt.selected = false;
       }
+
       const sourceIds = activeFilter
         ? activeFilter?.options
             .filter((x) => x.selected && x.listOption === ListOptionName.Source)
@@ -116,7 +108,7 @@ export const FilterMediaLanding: React.FC = () => {
         storeFilter({
           ...filter,
           seriesIds: [],
-          sourceIds: sourceIds.length > 0 ? sourceIds : [9999],
+          sourceIds: sourceIds.length > 0 ? sourceIds : [],
         });
       } else if (opt.listOption === ListOptionName.Series) {
         storeFilter({
@@ -173,20 +165,15 @@ export const FilterMediaLanding: React.FC = () => {
       else if (mediaGroup.label === 'Online') setActiveLetter('B');
       else setActiveLetter('All');
       checkAllOptions(mediaGroup, true);
-      let sourceIds = mediaGroup.options
-        .filter((x) => x.listOption === ListOptionName.Source && x.selected === true)
-        .map((x) => x.id);
-      let seriesIds = mediaGroup.options
-        .filter((x) => x.listOption === ListOptionName.Series && x.selected === true)
-        .map((x) => x.id);
       storeFilter({
         ...filter,
-        sourceIds,
-        seriesIds,
+        sourceIds: [],
+        seriesIds: [],
         startDate: moment(new Date()).startOf('day').toISOString(),
         endDate: moment(new Date()).endOf('day').toISOString(),
         mediaTypeIds: [mediaGroup.key],
         activeSubGroup: mediaGroup.label,
+        sort: [{ publishedOn: 'desc' }],
       });
       setActiveFilter(mediaGroup);
       setParentClicked(true);
@@ -204,24 +191,18 @@ export const FilterMediaLanding: React.FC = () => {
         }
         storeFilter({
           ...filter,
-          sourceIds: [],
-          seriesIds: [],
+          sourceIds: [], // This behaves the same as as show all...
+          seriesIds: [], // This behaves the same as as show all...
         });
       } else {
         // need to iterate through and check the options to their corresponding source or series id
         if (activeFilter) {
           checkAllOptions(activeFilter, true);
         }
-        const sourceIds = activeFilter?.options
-          .filter((x) => x.listOption === ListOptionName.Source)
-          .map((c) => c.id);
-        const seriesIds = activeFilter?.options
-          .filter((x) => x.listOption === ListOptionName.Series)
-          .map((c) => c.id);
         storeFilter({
           ...filter,
-          sourceIds,
-          seriesIds,
+          sourceIds: [], // When selecting all we just remove this condition.
+          seriesIds: [], // When selecting all we just remove this condition.
         });
       }
     },

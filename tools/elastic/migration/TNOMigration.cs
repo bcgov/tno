@@ -4,8 +4,8 @@ using Elastic.Transport;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Content;
-using TNO.Models.Filters;
 using TNO.DAL.Services;
+using TNO.Models.Filters;
 
 namespace TNO.Elastic.Migration;
 
@@ -73,7 +73,7 @@ public abstract class TNOMigration : Migration
                         {
                             if (response.TryGetOriginalException(out Exception? ex))
                                 throw ex!;
-                            throw new Exception($"Failed to index. Error {response.ElasticsearchServerError.Error.Reason}");
+                            throw new Exception($"Failed to index. Error {response.ElasticsearchServerError?.Error.Reason}");
                         }
 
                         if (item.Status == Entities.ContentStatus.Published)
@@ -84,7 +84,7 @@ public abstract class TNOMigration : Migration
                             {
                                 if (response.TryGetOriginalException(out Exception? ex))
                                     throw ex!;
-                                throw new Exception($"Failed to index. Error {response.ElasticsearchServerError.Error.Reason}");
+                                throw new Exception($"Failed to index. Error {response.ElasticsearchServerError?.Error.Reason}");
                             }
                         }
 

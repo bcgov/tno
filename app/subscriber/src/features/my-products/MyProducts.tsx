@@ -4,7 +4,7 @@ import React from 'react';
 import { FaEnvelope, FaUserPlus } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useProducts } from 'store/hooks';
-import { IProductSubscriberModel, Loading, Row, Show, useModal } from 'tno-core';
+import { IProductSubscriberModel, Loading, Show, useModal } from 'tno-core';
 
 import { ProductCard } from './ProductCard';
 import * as styled from './styled';
@@ -51,8 +51,8 @@ export const MyProducts: React.FC = () => {
 
   return (
     <styled.MyProducts>
-      <PageSection header="MMI Products" includeHeaderIcon>
-        <div>
+      <PageSection header="Media Monitoring Products" includeHeaderIcon>
+        <div className="product-container">
           <p>
             Access to all products is managed by the MMI Admin team. You may request to subscribe or
             unsubscribe by clicking on the relevant action next to the product. If you wish to
@@ -67,10 +67,10 @@ export const MyProducts: React.FC = () => {
                 (p.requestedIsSubscribedStatus !== undefined && p.requestedIsSubscribedStatus),
             )}
           >
-            <Row className="page-section-title">
-              <FaEnvelope className="page-section-icon" /> Subscribed
-            </Row>
-            <p>
+            <h2 className="product-section-title">
+              <FaEnvelope /> <span>Subscribed</span>
+            </h2>
+            <p className="info-text">
               You are currently subscribed, or are awaiting approval for subscription to the
               following products.
             </p>
@@ -98,11 +98,11 @@ export const MyProducts: React.FC = () => {
                 })}
             </div>
           </Show>
-          <Row className="page-section-title">
-            <FaUserPlus className="page-section-icon" /> Available products
-          </Row>
-          <p>
-            You may request subscription to the following automated products. Susbscribed products
+          <h2 className="product-section-title">
+            <FaUserPlus /> <span>Available products</span>
+          </h2>
+          <p className="info-text">
+            You may request subscription to the following automated products. Subscribed products
             are sent by email on a scheduled basis.
           </p>
           <div>

@@ -24,6 +24,7 @@
     "@types/quill": "2.0.14",
     "axios": "1.7.2",
     "axios-mock-adapter": "1.22.0",
+    "bootstrap": "5.3.3",
     "chart.js": "4.4.3",
     "dequal": "2.0.3",
     "formik": "2.4.6",
@@ -38,6 +39,7 @@
     "prismjs": "1.29.0",
     "react": "18.3.1",
     "react-beautiful-dnd": "13.1.1",
+    "react-bootstrap": "2.10.4",
     "react-chartjs-2": "5.2.0",
     "react-datepicker": "6.9.0",
     "react-dom": "18.3.1",
@@ -59,7 +61,7 @@
     "redux-logger": "3.0.6",
     "styled-components": "6.1.11",
     "stylis": "4.3.2",
-    "tno-core": "0.1.115"
+    "tno-core": "0.1.118"
   },
   "devDependencies": {
     "@simbathesailor/use-what-changed": "2.0.0",

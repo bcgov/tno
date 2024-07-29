@@ -11,7 +11,7 @@ export const PaperToolbar = styled.div`
     }
   }
 
-  svg.action-button.btn-preview {
+  svg.action-button.button-preview {
     width: 2rem;
     height: 2rem;
   }

@@ -50,7 +50,7 @@ export const ChartTemplatePreview = () => {
         </Col>
         <Row gap="0.5rem">
           <FaPlay
-            className="icon-btn"
+            className="icon-button"
             title="Generate Chart"
             onClick={() =>
               handleGenerateBase64({
@@ -61,7 +61,7 @@ export const ChartTemplatePreview = () => {
             }
           />
           <FaEraser
-            className="icon-btn"
+            className="icon-button"
             title="Clear Chart"
             onClick={() => {
               setChartRequestForm({ ...chartRequestForm, chartBase64: '' });

@@ -220,9 +220,6 @@ public class ReportController : ControllerBase
         {
             RequestorId = user.Id,
             To = to,
-            // no longer utilized, the caching mechanism
-            // determines whether to update or not
-            // UpdateCache = true,
             GenerateInstance = false
         };
         await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{report.Id}-test", request);
@@ -251,7 +248,7 @@ public class ReportController : ControllerBase
         {
             RequestorId = user.Id
         };
-        await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{report.Id}", request);
+        await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, request);
         return new JsonResult(new ReportModel(report, _serializerOptions));
     }
 

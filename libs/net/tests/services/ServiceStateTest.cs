@@ -48,7 +48,7 @@ public class ServiceStateTest
 
         // Assert
         Assert.Equal(state.MaxFailureLimit, state.Failures);
-        Assert.Equal(ServiceStatus.RequestSleep, state.Status);
+        Assert.Equal(ServiceStatus.RequestFailed, state.Status);
     }
 
     [Fact]

@@ -115,7 +115,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
       </Show>
       <Show visible={!!onRemove && !!row.content}>
         <div className="delete">
-          <FaX className="btn btn-link red" onClick={() => onRemove?.(row)} title="Remove" />
+          <FaX className="button button-link red" onClick={() => onRemove?.(row)} title="Remove" />
         </div>
       </Show>
     </styled.ContentRow>

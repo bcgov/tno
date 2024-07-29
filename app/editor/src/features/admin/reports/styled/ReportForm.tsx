@@ -142,7 +142,7 @@ export const ReportForm = styled(FormPage)`
     }
   }
 
-  .btn.btn-error {
+  .button.button-error {
     &:hover {
       cursor: pointer;
       color: red;
@@ -150,7 +150,7 @@ export const ReportForm = styled(FormPage)`
     }
   }
 
-  .btn.btn-primary {
+  .button.button-primary {
     &:hover {
       cursor: pointer;
       color: ${(props) => props.theme.css.primaryColor};

@@ -61,6 +61,7 @@ public class ReportRequestModel
 
     /// <summary>
     /// get/set - Whether this request will generate an instance.
+    /// This can be used to test as it won't result in a change in the database.
     /// </summary>
     public bool GenerateInstance { get; set; } = true;
 

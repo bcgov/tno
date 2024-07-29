@@ -16,7 +16,7 @@ export const Tags = styled(Row)`
     margin-right: 0.5em;
   }
   border-radius: 0.25em;
-  .btn {
+  .button {
     max-height: 2.4em;
   }
 `;

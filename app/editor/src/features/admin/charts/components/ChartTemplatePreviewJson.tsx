@@ -65,7 +65,7 @@ export const ChartTemplatePreviewJson = () => {
         <span>Execute the configured data source, or manually enter chart JSON data.</span>
         <Row gap="0.5rem">
           <FaPlay
-            className="icon-btn"
+            className="icon-button"
             title="Generate JSON"
             onClick={() =>
               handleGenerateJson({
@@ -75,7 +75,7 @@ export const ChartTemplatePreviewJson = () => {
             }
           />
           <FaEraser
-            className="icon-btn"
+            className="icon-button"
             title="Clear JSON"
             onClick={() => {
               setChartData('');

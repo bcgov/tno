@@ -1,12 +1,13 @@
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using TNO.Core.Exceptions;
+using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Net;
-using System.Net.Mime;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 
 namespace TNO.Core.Http
 {
@@ -74,15 +75,17 @@ namespace TNO.Core.Http
         /// <returns></returns>
         public async Task<TModel?> DeserializeAsync<TModel>(HttpResponseMessage response)
         {
-            var data = await response.Content.ReadAsByteArrayAsync();
+            var responseStream = await response.Content.ReadAsStreamAsync();
+            // var data = await response.Content.ReadAsByteArrayAsync();
             var contentType = response.Content.Headers.ContentType;
             try
             {
                 if (contentType?.MediaType?.Contains("json", StringComparison.InvariantCultureIgnoreCase) == true)
-                    return JsonSerializer.Deserialize<TModel>(data, _serializeOptions);
+                    return JsonSerializer.Deserialize<TModel>(responseStream, _serializeOptions);
             }
             catch (Exception ex)
             {
+                var data = responseStream.ReadAllBytes();
                 var body = Encoding.Default.GetString(data);
                 _logger.LogError(ex, "Failed to deserialize response: {body}", body);
                 throw;
@@ -174,7 +177,7 @@ namespace TNO.Core.Http
 
             _logger.LogDebug("HTTP request made: {method}:{uri} (User-Agent: {userAgent})",
                 message.Method, message.RequestUri, userAgent);
-            return await this.Client.SendAsync(message);
+            return await this.Client.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
         }
 
         /// <summary>

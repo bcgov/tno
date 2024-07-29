@@ -97,7 +97,7 @@ export const useColumns = ({ onCancel }: IColumnsProps): ITableHookColumn<IWorkO
         <Row>
           <Show visible={cell.original.status === WorkOrderStatusName.InProgress}>
             <FaStop
-              className="btn btn-link red"
+              className="button button-link red"
               title="Cancel"
               onClick={() =>
                 onCancel?.({ ...cell.original, status: WorkOrderStatusName.Cancelled })
@@ -111,7 +111,7 @@ export const useColumns = ({ onCancel }: IColumnsProps): ITableHookColumn<IWorkO
             }
           >
             <FaPen
-              className="btn btn-link completed"
+              className="button button-link completed"
               title="Review"
               onClick={() => navigate(cell.original.contentId ?? 0, '/contents')}
             />

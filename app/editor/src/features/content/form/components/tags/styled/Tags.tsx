@@ -47,7 +47,7 @@ export const Tags = styled(Row)`
     min-width: 30em;
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
   }
-  .btn {
+  .button {
     max-height: 2.4em;
   }
 

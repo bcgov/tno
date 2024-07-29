@@ -253,6 +253,10 @@ export const ReportEditPreferencesForm = () => {
               }}
             />
           </Col>
+          <p className="info">
+            Use this option when you want a report to run and act like it was sent out, but not
+            actually send the email. Useful when testing a new report.
+          </p>
         </Row>
       </div>
     </styled.ReportEditPreferencesForm>
