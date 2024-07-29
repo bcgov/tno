@@ -246,11 +246,11 @@ export const ReportEditSubscribersForm = () => {
             </Row>
 
             {selectedSubscribers.length > 0 ? (
-              <Button className="selected-all-btn" onClick={handleCopySelected}>
+              <Button className="selected-all-button" onClick={handleCopySelected}>
                 <FaCopy /> Copy Selected
               </Button>
             ) : (
-              <Button className="select-all-btn" disabled={true}>
+              <Button className="select-all-button" disabled={true}>
                 <FaCopy />
               </Button>
             )}

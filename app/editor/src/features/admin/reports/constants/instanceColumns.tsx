@@ -36,7 +36,7 @@ export const instanceColumns = (options: {
     width: '25px',
     cell: (cell) => (
       <FaFileInvoice
-        className="btn btn-primary"
+        className="button button-primary"
         onClick={() => options.onPreview?.(cell.original)}
         title="View Report"
       />
@@ -48,7 +48,7 @@ export const instanceColumns = (options: {
     width: '25px',
     cell: (cell) => (
       <FaPaperPlane
-        className="btn btn-primary"
+        className="button button-primary"
         onClick={() => options.onResend?.(cell.original)}
         title="Resend Report"
       />
@@ -60,7 +60,7 @@ export const instanceColumns = (options: {
     width: '25px',
     cell: (cell) => (
       <FaTrash
-        className="btn btn-error"
+        className="button button-error"
         onClick={() => options.onDelete?.(cell.original)}
         title="Delete Report Instance"
       />

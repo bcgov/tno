@@ -96,7 +96,7 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
         <AdvancedFilter onSearch={onSearch} filter={filter} onFilterChange={onFilterChange} />
         <ToolBarSection label="Preview">
           <FaFileImage
-            className="action-button btn-preview"
+            className="action-button button-preview"
             title="Front Page Images"
             onClick={(e) => {
               if (frontPageImagesReportId) {
@@ -109,7 +109,7 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
             }}
           />
           <FaFileInvoice
-            className="action-button btn-preview"
+            className="action-button button-preview"
             title="Morning Report"
             onClick={(e) => {
               if (morningReportId) {
@@ -124,7 +124,7 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
             <Spinner />
           ) : (
             <FaFileImage
-              className="action-button btn-preview"
+              className="action-button button-preview"
               title="Front Page Images"
               onClick={async (e) => {
                 if (frontPageImagesReportId) {
@@ -141,7 +141,7 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
             />
           )}
           <FaFileArrowUp
-            className="action-button btn-preview"
+            className="action-button button-preview"
             title="Top Stories"
             onClick={(e) => {
               if (topStoryAlertId) {
@@ -155,7 +155,7 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
             }}
           />
           <FaFileInvoice
-            className="action-button btn-preview"
+            className="action-button button-preview"
             title="Morning Report"
             onClick={(e) => {
               if (morningReportId) {

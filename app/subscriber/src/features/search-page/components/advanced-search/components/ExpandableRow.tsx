@@ -30,7 +30,7 @@ export const ExpandableRow: React.FC<IExpandableRowProps> = ({
         <Tooltip
           style={{ zIndex: '999' }}
           variant="info"
-          id={`btn-tip-${uniqueId}`}
+          id={`button-tip-${uniqueId}`}
           place="top"
           float
         />
@@ -40,7 +40,7 @@ export const ExpandableRow: React.FC<IExpandableRowProps> = ({
           {hasValues ? (
             <FaWater
               className="active-filter-icon"
-              data-tooltip-id={`btn-tip-${uniqueId}`}
+              data-tooltip-id={`button-tip-${uniqueId}`}
               data-tooltip-content="Expand to see current filter settings"
             />
           ) : (
@@ -50,14 +50,14 @@ export const ExpandableRow: React.FC<IExpandableRowProps> = ({
             <IoIosArrowDroprightCircle
               onClick={() => setExpanded(true)}
               className="drop-icon"
-              data-tooltip-id={`btn-tip-${uniqueId}`}
+              data-tooltip-id={`button-tip-${uniqueId}`}
               data-tooltip-content="Expand"
             />
           ) : (
             <IoIosArrowDropdownCircle
               onClick={() => setExpanded(false)}
               className="drop-icon"
-              data-tooltip-id={`btn-tip-${uniqueId}`}
+              data-tooltip-id={`button-tip-${uniqueId}`}
               data-tooltip-content="Collapse"
             />
           )}

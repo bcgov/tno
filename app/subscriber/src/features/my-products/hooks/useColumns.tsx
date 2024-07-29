@@ -30,7 +30,7 @@ export const useColumns = (
       cell: (cell) => (
         <Row gap="0.5rem">
           <FaCog
-            className="btn-link"
+            className="button-link"
             onClick={() => handleToggleSubscription(cell.original)}
             title={cell.original.isSubscribed ? 'Unsubscribe' : 'Subscribe'}
           />

@@ -60,7 +60,7 @@ export const ChartForm = styled(FormPage)`
     width: 100%;
   }
 
-  .icon-btn {
+  .icon-button {
     padding: 0.15rem;
     color: ${(props) => props.theme.css.primaryColor};
     border: solid 1px ${(props) => props.theme.css.primaryColor};
