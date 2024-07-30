@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const MyReports = styled.div`
   .section-label {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
   }
   .next-scheduled {
     margin-right: 1.5rem;
