@@ -253,7 +253,7 @@ public class ReportEngine : IReportEngine
             ?? throw new InvalidOperationException("Template does not exist");
 
         var model = new ReportEngineContentModel(report, reportInstance, sectionContent, this.TemplateOptions);
-        return await template.RunAsync(instance =>
+        var subject = await template.RunAsync(instance =>
         {
             instance.ReportId = report.Id;
             instance.ReportInstanceId = reportInstance?.Id;
@@ -269,6 +269,8 @@ public class ReportEngine : IReportEngine
             instance.RequestTranscriptUrl = this.TemplateOptions.RequestTranscriptUrl;
             instance.AddToReportUrl = this.TemplateOptions.AddToReportUrl;
         });
+
+        return subject.RemoveInvalidCharacters();
     }
 
     /// <summary>
@@ -367,7 +369,7 @@ public class ReportEngine : IReportEngine
             });
         }
 
-        return body;
+        return body.RemoveInvalidCharacters();
     }
 
     /// <summary>

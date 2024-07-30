@@ -86,7 +86,7 @@ public static class StringExtensions
 
     /// <summary>
     /// Convert the specified 'value' from default to UTF8 encoding.
-    /// Replace linebreaks with spaces.
+    /// Replace line breaks with spaces.
     /// </summary>
     /// <param name="value"></param>
     /// <param name="replaceLineBreaks"></param>
@@ -406,5 +406,40 @@ public static class StringExtensions
             return false;
         }
         return true;
+    }
+
+    /// <summary>
+    /// Replace invalid characters in text with the specified value.
+    /// </summary>
+    /// <param name="text"></param>
+    /// <param name="replaceWith"></param>
+    /// <returns></returns>
+    public static string RemoveInvalidCharacters(this string text, string? replaceWith = null)
+    {
+        return RemoveInvalidCharacters(text, replaceWith ?? String.Empty, Encoding.UTF8, Encoding.ASCII);
+    }
+
+    /// <summary>
+    /// Replace invalid characters in text with the specified value.
+    /// </summary>
+    /// <param name="text"></param>
+    /// <param name="replaceWith"></param>
+    /// <param name="originalEncoding"></param>
+    /// <param name="outputEncoding"></param>
+    /// <returns></returns>
+    public static string RemoveInvalidCharacters(this string text, string? replaceWith, Encoding originalEncoding, Encoding outputEncoding)
+    {
+        var asAscii = outputEncoding.GetString(
+            Encoding.Convert(
+                originalEncoding,
+                Encoding.GetEncoding(
+                    outputEncoding.EncodingName,
+                    new EncoderReplacementFallback(replaceWith ?? String.Empty),
+                    new DecoderExceptionFallback()
+                    ),
+                originalEncoding.GetBytes(text)
+            )
+        );
+        return asAscii;
     }
 }
