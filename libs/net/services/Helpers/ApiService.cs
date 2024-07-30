@@ -56,6 +56,7 @@ public class ApiService : IApiService
     {
         _serializerOptions = serializerOptions.Value;
         this.OpenClient = client;
+        client.Client.Timeout = new TimeSpan(0, 0, 0, 0, options.Value.HttpRequestTimeoutMs);
         this.Options = options.Value;
         this.Logger = logger;
     }
