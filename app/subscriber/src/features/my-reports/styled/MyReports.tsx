@@ -1,10 +1,47 @@
 import styled from 'styled-components';
 
 export const MyReports = styled.div`
+  .section-label {
+    font-size: 1.5rem;
+  }
+  .next-scheduled {
+    margin-right: 1.5rem;
+  }
+  .report-tag {
+    min-width: 3.5em;
+    max-width: fit-content;
+  }
+  .media-analytics {
+    svg {
+      height: 1.25em;
+      width: 1.25em;
+      margin-right: 0.25em;
+    }
+  }
+  .create-new-button {
+    padding: 0.25rem 0.75rem;
+    height: auto;
+  }
+  button:not(.create-new-button) {
+    background-color: white;
+    &:hover {
+      box-shadow: 0 0 0 1px ${(props) => props.theme.css.linkPrimaryColor};
+    }
+    color: ${(props) => props.theme.css.linkPrimaryColor};
+    svg {
+      color: ${(props) => props.theme.css.linkPrimaryColor};
+    }
+    border: 1px solid ${(props) => props.theme.css.linkPrimaryColor};
+  }
   display: flex;
 
   > div {
     flex: 1;
+  }
+
+  .txt {
+    border-radius: 1.5rem;
+    width: 25em;
   }
 
   .icon-close {
@@ -16,12 +53,29 @@ export const MyReports = styled.div`
     max-width: 14px;
   }
 
+  .create-new-button {
+    background-color: ${(props) => props.theme.css.btnBkPrimary};
+    border: none;
+    svg {
+      color: white;
+      height: 16px;
+      width: 16px;
+    }
+    .action {
+      label {
+        color: white;
+      }
+    }
+  }
+
   .txt-filter {
     flex-direction: row;
     align-items: center;
     flex: 1;
     text-transform: uppercase;
 
+    max-width: fit-content;
+    margin-left: auto;
     @media only screen and (max-width: 500px) {
       flex-direction: column;
       align-items: flex-start;
@@ -131,8 +185,8 @@ export const MyReports = styled.div`
       h3 {
         &.upper {
           text-transform: uppercase;
+          margin-bottom: 0.5rem;
         }
-        margin-bottom: 0;
       }
 
       > div {

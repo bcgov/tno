@@ -10,6 +10,7 @@ import {
   FaPen,
   FaPlus,
   FaTrash,
+  FaWandSparkles,
   FaX,
 } from 'react-icons/fa6';
 
@@ -38,7 +39,8 @@ export interface IActionProps extends React.HTMLAttributes<HTMLDivElement> {
     | 'undo'
     | 'redo'
     | 'plus'
-    | 'minus';
+    | 'minus'
+    | 'create-new';
   /** Size of icon */
   size?: string;
 }
@@ -54,7 +56,7 @@ export const Action: React.FC<IActionProps> = ({
   className,
   children,
   variant = 'icon',
-  size = '20px',
+  size = '1em',
   onClick,
   ...rest
 }) => {
@@ -71,6 +73,7 @@ export const Action: React.FC<IActionProps> = ({
   else if (variant === 'redo') variantIcon = <FaArrowRotateRight />;
   else if (variant === 'plus') variantIcon = <FaPlus />;
   else if (variant === 'minus') variantIcon = <FaMinus />;
+  else if (variant === 'create-new') variantIcon = <FaWandSparkles />;
 
   return (
     <styled.Action

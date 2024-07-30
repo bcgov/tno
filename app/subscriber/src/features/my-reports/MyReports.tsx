@@ -3,11 +3,11 @@ import { Bar } from 'components/bar';
 import { Modal } from 'components/modal';
 import { PageSection } from 'components/section';
 import React from 'react';
-import { FaClipboard } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApiHub, useApp, useReportInstances, useReports } from 'store/hooks';
 import {
+  Button,
   IReportMessageModel,
   IReportModel,
   Loading,
@@ -80,13 +80,15 @@ export const MyReports: React.FC = () => {
     <styled.MyReports>
       <PageSection header="My Reports" includeHeaderIcon className="my-reports">
         <Bar>
-          <ReportFilter />
           <Row flex="1" justifyContent="flex-end">
-            <Action
-              label="Create New"
-              icon={<FaClipboard />}
-              onClick={() => navigate('/reports/0')}
-            />
+            <Button className="create-new-button">
+              <Action
+                label="New Report"
+                variant="create-new"
+                onClick={() => navigate('/reports/0')}
+              />
+            </Button>
+            <ReportFilter />
           </Row>
         </Bar>
         <div className="my-reports-content">
