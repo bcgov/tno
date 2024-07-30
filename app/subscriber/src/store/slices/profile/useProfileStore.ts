@@ -18,12 +18,12 @@ import {
   storeMyColleagues,
   storeMyFilters,
   storeMyFolders,
+  storeMyMessages,
   storeMyProfile,
   storeMyReports,
   storeReportContent,
   storeReportOutput,
   storeReportsFilter,
-  storeSystemMessages,
 } from '.';
 import { IProfileState } from './interfaces';
 
@@ -51,8 +51,8 @@ export interface IProfileStore {
   storeReportContent: (
     output: { [reportId: number]: number[] } | ActionDelegate<{ [reportId: number]: number[] }>,
   ) => void;
-  storeSystemMessages: (
-    ministers: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
+  storeMyMessages: (
+    messages: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
   ) => void;
 }
 
@@ -131,12 +131,12 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
           dispatch(storeContributors(contributors(state.contributors)));
         } else dispatch(storeContributors(contributors));
       },
-      storeSystemMessages: (
-        systemMessages: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
+      storeMyMessages: (
+        messages: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
       ) => {
-        if (typeof systemMessages === 'function') {
-          dispatch(storeSystemMessages(systemMessages(state.systemMessages)));
-        } else dispatch(storeSystemMessages(systemMessages));
+        if (typeof messages === 'function') {
+          dispatch(storeMyMessages(messages(state.messages)));
+        } else dispatch(storeMyMessages(messages));
       },
     }),
     [
@@ -152,7 +152,7 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
       state.reportOutput,
       state.reportContent,
       state.contributors,
-      state.systemMessages,
+      state.messages,
     ],
   );
 

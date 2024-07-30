@@ -1,4 +1,3 @@
-export * from './useAnonSystemMessages';
 export * from './useAVOverviewInstances';
 export * from './useContent';
 export * from './useFolders';
@@ -6,5 +5,6 @@ export * from './usehooks-ts';
 export * from './useNotifications';
 export * from './useReportInstances';
 export * from './useReports';
+export * from './useSystemMessages';
 export * from './useUsers';
 export * from './useWorkOrders';

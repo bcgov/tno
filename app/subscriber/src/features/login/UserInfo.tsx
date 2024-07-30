@@ -6,7 +6,7 @@ import {
   AccountAuthStateName,
   Button,
   Col,
-  MessageTargetName,
+  MessageTargetKey,
   useKeycloakWrapper,
   useModal,
 } from 'tno-core';
@@ -45,7 +45,7 @@ export const UserInfo: React.FC<IUserInfoProps> = ({ children }) => {
     }
   }, [app, appStore, keycloak.authenticated, init, toggle]);
 
-  hub.useHubEffect(MessageTargetName.Logout, () => {
+  hub.useHubEffect(MessageTargetKey.Logout, () => {
     if (!isShowing) toggle();
     else keycloak.instance.logout();
   });

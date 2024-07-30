@@ -4,25 +4,25 @@ import { IProfileState, useProfileStore } from 'store/slices';
 import { ISystemMessageModel, useApiSubscriberSystemMessages } from 'tno-core';
 
 interface ISystemMessageController {
-  findSystemMessage: () => Promise<ISystemMessageModel>;
+  findSystemMessages: () => Promise<ISystemMessageModel[]>;
 }
 
 export const useSystemMessages = (): [IProfileState, ISystemMessageController] => {
-  const api = useApiSubscriberSystemMessages();
+  const { findSystemMessages } = useApiSubscriberSystemMessages();
   const dispatch = useAjaxWrapper();
   const [state, store] = useProfileStore();
 
   const controller = React.useMemo(
     () => ({
-      findSystemMessage: async () => {
-        const response = await dispatch<ISystemMessageModel>('find-system-message', () =>
-          api.findSystemMessage(),
+      findSystemMessages: async () => {
+        const response = await dispatch<ISystemMessageModel[]>('find-system-messages', () =>
+          findSystemMessages(),
         );
-        store.storeSystemMessages([response.data]);
+        store.storeMyMessages(response.data);
         return response.data;
       },
     }),
-    [api, dispatch, store],
+    [findSystemMessages, dispatch, store],
   );
 
   return [state, controller];

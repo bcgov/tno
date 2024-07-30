@@ -1,5 +1,7 @@
 import { BasicSearch } from 'components/basic-search';
+import { Button } from 'components/button';
 import { Header } from 'components/header';
+import { Modal } from 'components/modal';
 import { Navbar } from 'components/navbar';
 import { navbarOptions } from 'components/navbar/NavbarItems';
 import { UnauthenticatedHome, UserInfo } from 'features/login';
@@ -10,11 +12,13 @@ import { useToastError } from 'store/hooks';
 import { useApiHub } from 'store/hooks/signalr';
 import {
   IReportMessageModel,
-  MessageTargetName,
+  ISystemMessageModel,
+  MessageTargetKey,
   ReportStatusName,
   Show,
   SummonContext,
   useKeycloakWrapper,
+  useModal,
 } from 'tno-core';
 
 import { LayoutErrorBoundary } from '.';
@@ -36,8 +40,11 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
   const keycloak = useKeycloakWrapper();
   const { setToken } = React.useContext(SummonContext);
   const { popout } = useParams();
-  useToastError();
   const hub = useApiHub();
+  const { toggle: toggleSystemMessage, isShowing: showSystemMessage } = useModal();
+  useToastError();
+
+  const [systemMessage, setSystemMessage] = React.useState<ISystemMessageModel>();
 
   React.useEffect(() => {
     keycloak.instance.onTokenExpired = () => {
@@ -58,7 +65,7 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
     };
   }, [keycloak, setToken]);
 
-  hub.useHubEffect(MessageTargetName.ReportStatus, async (message: IReportMessageModel) => {
+  hub.useHubEffect(MessageTargetKey.ReportStatus, async (message: IReportMessageModel) => {
     // Report has been updated, go fetch latest.
     try {
       if (message.status === ReportStatusName.Accepted)
@@ -67,6 +74,16 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
         toast.error(`Report "${message.subject}" failed to be sent out by email.`);
     } catch {}
   });
+
+  const onSystemMessage = React.useCallback(
+    (data: ISystemMessageModel) => {
+      setSystemMessage(data);
+      !showSystemMessage && toggleSystemMessage();
+    },
+    [showSystemMessage, toggleSystemMessage],
+  );
+
+  hub.useHubEffect(MessageTargetKey.SystemMessage, onSystemMessage);
 
   return (
     <styled.Layout
@@ -113,6 +130,23 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
           </main>
         </div>
       </Show>
+      <Modal
+        headerText={systemMessage?.name ?? 'System Message'}
+        body={systemMessage?.message}
+        isShowing={showSystemMessage}
+        hide={toggleSystemMessage}
+        type="custom"
+        customButtons={
+          <Button
+            variant="secondary"
+            onClick={() => {
+              toggleSystemMessage();
+            }}
+          >
+            Okay
+          </Button>
+        }
+      />
     </styled.Layout>
   );
 };

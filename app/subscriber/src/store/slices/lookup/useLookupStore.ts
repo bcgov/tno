@@ -16,6 +16,7 @@ import {
   ISettingModel,
   ISourceActionModel,
   ISourceModel,
+  ISystemMessageModel,
   ITagModel,
   ITonePoolModel,
   ITopicModel,
@@ -42,6 +43,7 @@ import {
   storeSettingsFrontPageImagesMediaTypeId,
   storeSourceActions,
   storeSources,
+  storeSystemMessages,
   storeTags,
   storeTonePools,
   storeTopics,
@@ -72,6 +74,7 @@ export interface ILookupStore {
   storeMetrics: (metrics: IMetricModel[]) => void;
   storeUsers: (users: IUserModel[]) => void;
   storeDataLocations: (dataLocations: IDataLocationModel[]) => void;
+  storeSystemMessages: (systemMessages: ISystemMessageModel[]) => void;
   storeSettings: (settings: ISettingModel[]) => void;
   storeSettingsFrontPageImagesMediaTypeId: (id: number) => void;
 }
@@ -138,6 +141,9 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       },
       storeDataLocations: (dataLocations: IDataLocationModel[]) => {
         dispatch(storeDataLocations(dataLocations));
+      },
+      storeSystemMessages: (systemMessages: ISystemMessageModel[]) => {
+        dispatch(storeSystemMessages(systemMessages));
       },
       storeSettings: (settings: ISettingModel[]) => {
         dispatch(storeSettings(settings));

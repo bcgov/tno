@@ -11,7 +11,7 @@ import {
   IReportMessageModel,
   IReportModel,
   Loading,
-  MessageTargetName,
+  MessageTargetKey,
   ReportStatusName,
   Row,
   Show,
@@ -45,7 +45,7 @@ export const MyReports: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo]);
 
-  hub.useHubEffect(MessageTargetName.ReportStatus, async (message: IReportMessageModel) => {
+  hub.useHubEffect(MessageTargetKey.ReportStatus, async (message: IReportMessageModel) => {
     if (report) {
       try {
         if (message.status === ReportStatusName.Accepted) {

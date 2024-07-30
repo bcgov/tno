@@ -28,5 +28,5 @@ export interface IProfileState {
   reportOutput?: IReportResultForm;
   reportContent: { [reportId: number]: number[] };
   contributors: IContributorModel[];
-  systemMessages: ISystemMessageModel[];
+  messages: ISystemMessageModel[];
 }

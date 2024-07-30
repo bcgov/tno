@@ -20,7 +20,7 @@ export const initialProfileState: IProfileState = {
   myColleagues: [],
   reportsFilter: '',
   reportContent: {},
-  systemMessages: [],
+  messages: [],
   init: {
     myFilters: false,
     myFolders: false,
@@ -76,8 +76,8 @@ export const profileSlice = createSlice({
     contributors(state: IProfileState, action: PayloadAction<IContributorModel[]>) {
       state.contributors = action.payload;
     },
-    storeSystemMessages(state: IProfileState, action: PayloadAction<ISystemMessageModel[]>) {
-      state.systemMessages = action.payload;
+    storeMyMessages(state: IProfileState, action: PayloadAction<ISystemMessageModel[]>) {
+      state.messages = action.payload;
     },
   },
 });
@@ -93,5 +93,5 @@ export const {
   storeReportsFilter,
   storeReportOutput,
   storeReportContent,
-  storeSystemMessages,
+  storeMyMessages,
 } = profileSlice.actions;

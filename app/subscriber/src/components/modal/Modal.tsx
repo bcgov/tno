@@ -73,7 +73,7 @@ export const Modal: React.FC<IModalProps> = ({
                   </Row>
                 )}
                 <Col alignItems="flex-start" className="modal-body">
-                  {body}
+                  {body && <div dangerouslySetInnerHTML={{ __html: body.toString() }}></div>}
                 </Col>
                 <Row className="button-row">
                   {!customButtons ? (

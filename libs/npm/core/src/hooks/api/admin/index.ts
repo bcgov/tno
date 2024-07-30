@@ -7,6 +7,7 @@ export * from './useApiAdminContributors';
 export * from './useApiAdminDataLocations';
 export * from './useApiAdminFilters';
 export * from './useApiAdminFolders';
+export * from './useApiAdminHub';
 export * from './useApiAdminIngests';
 export * from './useApiAdminIngestTypes';
 export * from './useApiAdminLicenses';

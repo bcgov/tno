@@ -132,8 +132,8 @@ export const Menu: React.FC = () => {
                 <NavDropdown.Item as={Link} to="/admin/users">
                   Manage Users
                 </NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/admin/system-message">
-                  System Message
+                <NavDropdown.Item as={Link} to="/admin/system-messages">
+                  System Messages
                 </NavDropdown.Item>
                 <NavDropdown.Item as={Link} to="/admin/notifications">
                   Notifications

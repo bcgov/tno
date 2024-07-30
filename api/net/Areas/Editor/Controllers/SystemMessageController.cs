@@ -3,9 +3,8 @@ using System.Net.Mime;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using TNO.API.Areas.Admin.Models.SystemMessage;
+using TNO.API.Areas.Editor.Models.SystemMessage;
 using TNO.API.Models;
-using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 
 namespace TNO.API.Areas.Editor.Controllers;
@@ -17,10 +16,10 @@ namespace TNO.API.Areas.Editor.Controllers;
 [Area("editor")]
 [AllowAnonymous]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/[area]/system-message")]
-[Route("api/[area]/system-message")]
-[Route("v{version:apiVersion}/[area]/system-message")]
-[Route("[area]/system-message")]
+[Route("api/v{version:apiVersion}/[area]/system-messages")]
+[Route("api/[area]/system-messages")]
+[Route("v{version:apiVersion}/[area]/system-messages")]
+[Route("[area]/system-messages")]
 [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.Unauthorized)]
 [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.Forbidden)]
 public class SystemMessageController : ControllerBase
@@ -42,7 +41,7 @@ public class SystemMessageController : ControllerBase
 
     #region Endpoints
     /// <summary>
-    /// Find a page of system message for the specified query filter.
+    /// Find all system messages.
     /// </summary>
     /// <returns></returns>
     [HttpGet]
@@ -50,11 +49,10 @@ public class SystemMessageController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<SystemMessageModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "System Message" })]
-    public IActionResult FindSystemMessage()
+    public IActionResult FindAll()
     {
-        var result = _service.FindSystemMessage();
-        if (result == null) return new NoContentResult();
-        return new JsonResult(new SystemMessageModel(result));
+        var result = _service.FindAll();
+        return new JsonResult(result.Select(m => new SystemMessageModel(m)));
     }
     #endregion
 }

@@ -14,6 +14,7 @@ import {
   ISettingModel,
   ISourceActionModel,
   ISourceModel,
+  ISystemMessageModel,
   ITagModel,
   ITonePoolModel,
   ITopicModel,
@@ -41,6 +42,7 @@ export interface ILookupState {
   metrics: IMetricModel[];
   users: IUserModel[];
   dataLocations: IDataLocationModel[];
+  systemMessages: ISystemMessageModel[];
   settings: ISettingModel[];
   rules: ITopicScoreRuleModel[];
   frontPageImagesMediaTypeId?: number;

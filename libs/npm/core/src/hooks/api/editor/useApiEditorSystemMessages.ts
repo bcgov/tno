@@ -7,7 +7,7 @@ import { defaultEnvelope, ILifecycleToasts, ISystemMessageModel, useApi } from '
  * Common hook to make requests to the API.
  * @returns CustomAxios object setup for the API.
  */
-export const useApiEditorAnonSystemMessages = (
+export const useApiEditorSystemMessages = (
   options: {
     lifecycleToasts?: ILifecycleToasts;
     selector?: Function;
@@ -18,10 +18,8 @@ export const useApiEditorAnonSystemMessages = (
   const api = useApi(options);
 
   return React.useRef({
-    findSystemMessage: () => {
-      return api.get<ISystemMessageModel, AxiosResponse<ISystemMessageModel>, any>(
-        `/editor/system-message`,
-      );
+    findSystemMessages: () => {
+      return api.get<unknown, AxiosResponse<ISystemMessageModel[]>, any>(`/editor/system-messages`);
     },
   }).current;
 };
