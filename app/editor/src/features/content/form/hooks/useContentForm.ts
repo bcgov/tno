@@ -21,7 +21,7 @@ import {
   IContentModel,
   IResponseErrorModel,
   IWorkOrderMessageModel,
-  MessageTargetName,
+  MessageTargetKey,
   WorkOrderStatusName,
   WorkOrderTypeName,
 } from 'tno-core';
@@ -140,7 +140,7 @@ export const useContentForm = ({
     [fetchContent, form],
   );
 
-  hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrder);
+  hub.useHubEffect(MessageTargetKey.WorkOrder, onWorkOrder);
 
   React.useEffect(() => {
     setIsProcessing(
@@ -165,7 +165,7 @@ export const useContentForm = ({
     [form],
   );
 
-  hub.useHubEffect(MessageTargetName.ContentActionUpdated, onContentAction);
+  hub.useHubEffect(MessageTargetKey.ContentActionUpdated, onContentAction);
 
   const onContentUpdated = React.useCallback(
     async (message: IContentMessageModel) => {
@@ -194,7 +194,7 @@ export const useContentForm = ({
     [fetchContent, form, getContent],
   );
 
-  hub.useHubEffect(MessageTargetName.ContentUpdated, onContentUpdated);
+  hub.useHubEffect(MessageTargetKey.ContentUpdated, onContentUpdated);
 
   React.useEffect(() => {
     if (!!id && +id > 0) {

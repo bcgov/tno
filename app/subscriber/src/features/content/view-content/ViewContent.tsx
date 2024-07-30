@@ -21,7 +21,7 @@ import {
   IQuoteModel,
   IWorkOrderMessageModel,
   IWorkOrderModel,
-  MessageTargetName,
+  MessageTargetKey,
   Row,
   Show,
   Spinner,
@@ -249,7 +249,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
     [fetchContent, content],
   );
 
-  hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrder);
+  hub.useHubEffect(MessageTargetKey.WorkOrder, onWorkOrder);
 
   //Remove HTML tags, square brackets and line breaks before comparison.
   const cleanString = (str: string | undefined) => str?.replace(/<[^>]*>?|\[|\]|\n/gm, '').trim();

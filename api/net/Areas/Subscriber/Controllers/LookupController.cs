@@ -41,6 +41,7 @@ public class LookupController : ControllerBase
     private readonly ITagService _tagService;
     private readonly ISettingService _settingService;
     private readonly ITonePoolService _tonePoolService;
+    private readonly ISystemMessageService _systemMessageService;
     #endregion
 
     #region Constructors
@@ -58,6 +59,7 @@ public class LookupController : ControllerBase
     /// <param name="tonePoolService"></param>
     /// <param name="ministerService"></param>
     /// <param name="contributorService"></param>
+    /// <param name="systemMessageService"></param>
     /// <param name="serializerOptions"></param>
     public LookupController(
         IActionService actionService,
@@ -71,6 +73,7 @@ public class LookupController : ControllerBase
         ITagService tagService,
         ISettingService settingService,
         ITonePoolService tonePoolService,
+        ISystemMessageService systemMessageService,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _actionService = actionService;
@@ -84,6 +87,7 @@ public class LookupController : ControllerBase
         _settingService = settingService;
         _tonePoolService = tonePoolService;
         _contributorService = contributorService;
+        _systemMessageService = systemMessageService;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -113,6 +117,7 @@ public class LookupController : ControllerBase
         var tagServices = _tagService.FindAll();
         var settings = _settingService.FindAll();
         var tonePools = _tonePoolService.FindAll();
+        var systemMessages = _systemMessageService.FindAll();
         return new JsonResult(new LookupModel(
             actions,
             topics,
@@ -125,6 +130,7 @@ public class LookupController : ControllerBase
             tonePools,
             ministers,
             contributors,
+            systemMessages,
             _serializerOptions
             ));
     }

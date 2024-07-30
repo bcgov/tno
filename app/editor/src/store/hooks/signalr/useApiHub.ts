@@ -6,7 +6,7 @@ import {
 } from '@microsoft/signalr';
 import React from 'react';
 import { useAppStore } from 'store/slices';
-import { MessageTargetName, Settings, useKeycloakWrapper } from 'tno-core';
+import { MessageTargetKey, Settings, useKeycloakWrapper } from 'tno-core';
 
 const url = Settings.ApiPath + '/hub';
 let hub: HubConnection | null = null;
@@ -23,9 +23,9 @@ export interface IHubController {
   /** Stop the connection. */
   stop: () => Promise<void>;
   /** Add event listener and return function to remove listener. */
-  listen: (target: MessageTargetName, newMethod: (...args: any[]) => void) => () => void;
+  listen: (target: MessageTargetKey, newMethod: (...args: any[]) => void) => () => void;
   /** Add event listener and return function to remove listener. */
-  useHubEffect: (target: MessageTargetName, newMethod: (...args: any[]) => void) => void;
+  useHubEffect: (target: MessageTargetKey, newMethod: (...args: any[]) => void) => void;
   /** Send a message to the hub */
   send: (target: string, args: any[]) => Promise<void>;
   /** Invoke a message to the hub */
@@ -89,13 +89,13 @@ export const useApiHub = (): IHubController => {
     on: (target: string, callback: (...args: any[]) => void) => hub?.on(target, callback),
     off: (target: string, callback: (...args: any[]) => void) => hub?.off(target, callback),
     stop: () => hub?.stop() ?? Promise.resolve(),
-    listen: (target: MessageTargetName, callback: (...args: any[]) => void) => {
+    listen: (target: MessageTargetKey, callback: (...args: any[]) => void) => {
       hub?.on(target, callback);
       return () => {
         hub?.off(target, callback);
       };
     },
-    useHubEffect: (target: MessageTargetName, callback: (...args: any[]) => void) => {
+    useHubEffect: (target: MessageTargetKey, callback: (...args: any[]) => void) => {
       React.useEffect(() => {
         hub?.on(target, callback);
         return () => {

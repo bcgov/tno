@@ -13,6 +13,7 @@ import {
   ISettingModel,
   ISourceActionModel,
   ISourceModel,
+  ISystemMessageModel,
   ITagModel,
   ITonePoolModel,
   ITopicModel,
@@ -40,4 +41,5 @@ export interface ILookupModel {
   settings: ISettingModel[];
   holidays: IHolidayModel[];
   ministers: IMinisterModel[];
+  systemMessages: ISystemMessageModel[];
 }

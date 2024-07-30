@@ -4,7 +4,8 @@ import { IAdminState, useAdminStore } from 'store/slices';
 import { ISystemMessageModel, useApiAdminSystemMessages } from 'tno-core';
 
 interface IAlertController {
-  findSystemMessage: () => Promise<ISystemMessageModel>;
+  findSystemMessages: () => Promise<ISystemMessageModel[]>;
+  findSystemMessage: (id: number) => Promise<ISystemMessageModel>;
   addSystemMessage: (model: ISystemMessageModel) => Promise<ISystemMessageModel>;
   updateSystemMessage: (model: ISystemMessageModel) => Promise<ISystemMessageModel>;
   deleteSystemMessage: (model: ISystemMessageModel) => Promise<ISystemMessageModel>;
@@ -18,11 +19,22 @@ export const useSystemMessages = (): [IAdminState, IAlertController] => {
 
   const controller = React.useMemo(
     () => ({
-      findSystemMessage: async () => {
-        const response = await dispatch<ISystemMessageModel>('find-system-message', () =>
-          api.findSystemMessage(),
+      findSystemMessages: async () => {
+        const response = await dispatch<ISystemMessageModel[]>('find-system-messages', () =>
+          api.findSystemMessages(),
         );
-        store.storeSystemMessages([response.data]);
+        store.storeSystemMessages(response.data);
+        return response.data;
+      },
+      findSystemMessage: async (id: number) => {
+        const response = await dispatch<ISystemMessageModel>('find-system-message', () =>
+          api.findSystemMessage(id),
+        );
+        store.storeSystemMessages((messages) => {
+          const found = messages.some((m) => m.id === id);
+          if (found) return messages.map((m) => (m.id === id ? response.data : m));
+          return [...messages, response.data];
+        });
         return response.data;
       },
       addSystemMessage: async (model: ISystemMessageModel) => {

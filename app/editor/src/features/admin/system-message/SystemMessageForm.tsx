@@ -2,7 +2,7 @@ import { FormikForm } from 'components/formik';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useSystemMessages } from 'store/hooks/admin';
 import {
@@ -15,12 +15,14 @@ import {
   FormikText,
   FormikTextArea,
   FormikWysiwyg,
+  HubEventsName,
   IconButton,
   ISystemMessageModel,
-  LabelPosition,
+  MessageTargetName,
   Modal,
   Row,
   Show,
+  useApiAdminHub,
   useModal,
 } from 'tno-core';
 
@@ -29,45 +31,49 @@ import * as styled from './styled';
 
 /** The page used to view and edit tags in the administrative section. */
 const SystemMessageForm: React.FC = () => {
-  const [, api] = useSystemMessages();
+  const { id } = useParams();
+  const { sendMessage } = useApiAdminHub();
+  const [, { findSystemMessage, addSystemMessage, updateSystemMessage, deleteSystemMessage }] =
+    useSystemMessages();
   const navigate = useNavigate();
   const [systemMessage, setSystemMessage] =
     React.useState<ISystemMessageModel>(defaultSystemMessage);
-  const { toggle, isShowing } = useModal();
-
-  const systemMessageId = !!systemMessage.id ? systemMessage.id : 0;
+  const { toggle: toggleConfirmDelete, isShowing: showConfirmDelete } = useModal();
+  const { toggle: toggleConfirmMessage, isShowing: showConfirmMessage } = useModal();
 
   React.useEffect(() => {
-    api
-      .findSystemMessage()
-      .then((data) => {
-        if (!!data) setSystemMessage(data);
-      })
-      .catch(() => {});
+    if (id && +id > 0) {
+      findSystemMessage(+id)
+        .then((data) => {
+          if (!!data) setSystemMessage(data);
+        })
+        .catch(() => {});
+    }
     // only want to run on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [id]);
 
-  const handleSubmit = async (values: ISystemMessageModel) => {
-    try {
-      const originalId = values.id;
-      const result =
-        systemMessageId === 0
-          ? await api.addSystemMessage(values)
-          : await api.updateSystemMessage(values);
-      setSystemMessage(result);
-      toast.success(`${result.name} has successfully been saved.`);
-      if (originalId !== values.id) navigate(`/admin/tags/${result.id}`);
-    } catch {}
-  };
+  const handleSubmit = React.useCallback(
+    async (values: ISystemMessageModel) => {
+      try {
+        const originalId = values.id;
+        const result =
+          values?.id === 0 ? await addSystemMessage(values) : await updateSystemMessage(values);
+        setSystemMessage(result);
+        toast.success(`${result.name} has successfully been saved.`);
+        if (originalId !== values.id) navigate(`/admin/tags/${result.id}`);
+      } catch {}
+    },
+    [addSystemMessage, navigate, updateSystemMessage],
+  );
 
   return (
     <styled.SystemMessageForm>
       <IconButton
         iconType="back"
-        label="Back to Home"
+        label="Back to Messages"
         className="back-button"
-        onClick={() => navigate('/admin/tags')}
+        onClick={() => navigate('/admin/system-messages')}
       />
       <FormikForm
         initialValues={systemMessage}
@@ -79,21 +85,20 @@ const SystemMessageForm: React.FC = () => {
         {({ isSubmitting, values, errors }) => (
           <div className="form-container">
             <Col className="form-inputs">
-              <FormikText name="name" label="System Message Name" width={FieldSize.Medium} />
-              <FormikTextArea
-                name="description"
-                disabled
-                label="Description"
-                width={FieldSize.Large}
-                value={defaultSystemMessage.description}
+              <Row gap="1rem" alignItems="center">
+                <FormikText name="name" label="Name" width={FieldSize.Medium} required />
+                <FormikCheckbox label="Is Enabled" name="isEnabled" />
+              </Row>
+              <FormikTextArea name="description" label="Description" />
+              <FormikWysiwyg name="message" label="Message" required />
+              <FormikText
+                width={FieldSize.Tiny}
+                name="sortOrder"
+                label="Sort Order"
+                type="number"
+                className="sort-order"
               />
-              <FormikWysiwyg name="message" label="Message" />
 
-              <FormikCheckbox
-                labelPosition={LabelPosition.Top}
-                label="Is Enabled"
-                name="isEnabled"
-              />
               <Show visible={!!values.id}>
                 <Row>
                   <FormikText
@@ -138,25 +143,53 @@ const SystemMessageForm: React.FC = () => {
                 Save
               </Button>
               <Show visible={!!values.id}>
-                <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
+                <Button
+                  onClick={toggleConfirmDelete}
+                  variant={ButtonVariant.danger}
+                  disabled={isSubmitting}
+                >
                   Delete
                 </Button>
               </Show>
+              <Button
+                variant={ButtonVariant.secondary}
+                disabled={isSubmitting}
+                onClick={async () => {
+                  toggleConfirmMessage();
+                }}
+              >
+                Send message to all users
+              </Button>
             </Row>
             <Modal
               headerText="Confirm Removal"
               body="Are you sure you wish to remove this system message?"
-              isShowing={isShowing}
-              hide={toggle}
+              isShowing={showConfirmDelete}
+              hide={toggleConfirmDelete}
               type="delete"
               confirmText="Yes, Remove It"
               onConfirm={async () => {
                 try {
-                  await api.deleteSystemMessage(systemMessage);
+                  await deleteSystemMessage(systemMessage);
                   toast.success(`${systemMessage.name} has successfully been deleted.`);
                   navigate('/admin/tags');
                 } finally {
-                  toggle();
+                  toggleConfirmDelete();
+                }
+              }}
+            />
+            <Modal
+              headerText="Confirm Send Message"
+              body="Are you sure you wish to send this message to all users currently logged in?"
+              isShowing={showConfirmMessage}
+              hide={toggleConfirmMessage}
+              type="default"
+              confirmText="Yes, Send It"
+              onConfirm={async () => {
+                try {
+                  await sendMessage(HubEventsName.SendAll, MessageTargetName.SystemMessage, values);
+                } finally {
+                  toggleConfirmMessage();
                 }
               }}
             />

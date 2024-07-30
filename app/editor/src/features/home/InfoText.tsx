@@ -1,17 +1,15 @@
-import { defaultSystemMessage } from 'features/admin/system-message/constants';
-import parse from 'html-react-parser';
 import React from 'react';
-import { useAnonSystemMessages } from 'store/hooks';
+import { useSystemMessages } from 'store/hooks';
 import { ISystemMessageModel, Show } from 'tno-core';
 
 export const InfoText: React.FC = () => {
-  const [, api] = useAnonSystemMessages();
-  const [systemMessage, setSystemMessage] =
-    React.useState<ISystemMessageModel>(defaultSystemMessage);
+  const [, { findSystemMessages }] = useSystemMessages();
+  const [systemMessage, setSystemMessage] = React.useState<ISystemMessageModel>();
 
   React.useEffect(() => {
-    api.findSystemMessage().then((data) => {
-      if (!!data) setSystemMessage(data);
+    findSystemMessages().then((data) => {
+      const message = data.find((m) => m.isEnabled);
+      if (!!message) setSystemMessage(message);
     });
     // only want to run on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -28,10 +26,11 @@ export const InfoText: React.FC = () => {
         <li>BC’s top stories as they break.</li>
         <li>Articles related to major stories.</li>
       </ul>
-      <Show visible={systemMessage.isEnabled}>
-        <p className="system-message">
-          {systemMessage.message ? parse(systemMessage.message) : ''}
-        </p>
+      <Show visible={systemMessage?.isEnabled && !!systemMessage?.message}>
+        <div className="system-message">
+          <h2>{systemMessage?.name}</h2>
+          <div dangerouslySetInnerHTML={{ __html: systemMessage?.message ?? '' }}></div>
+        </div>
       </Show>
     </div>
   );

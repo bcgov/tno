@@ -12,7 +12,7 @@ import {
   Col,
   IIngestMessageModel,
   IIngestModel,
-  MessageTargetName,
+  MessageTargetKey,
   Row,
   Section,
   Select,
@@ -79,7 +79,7 @@ export const Dashboard: React.FC = () => {
     };
   }, [ingests, type]);
 
-  hub.useHubEffect(MessageTargetName.IngestUpdated, (message: IIngestMessageModel) => {
+  hub.useHubEffect(MessageTargetKey.IngestUpdated, (message: IIngestMessageModel) => {
     // Update the ingest status.
     storeIngest(
       ingests.map((i) =>

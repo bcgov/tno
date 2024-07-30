@@ -273,8 +273,8 @@ export const NavBar: React.FC = () => {
               level={1}
             />
             <NavBarItem
-              navigateTo="/admin/system-message"
-              label="System Message"
+              navigateTo="/admin/system-messages"
+              label="System Messages"
               claim={Claim.administrator}
               level={1}
             />

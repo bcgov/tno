@@ -18,10 +18,10 @@ namespace TNO.API.Areas.Admin.Controllers;
 [ClientRoleAuthorize(ClientRole.Administrator)]
 [Area("admin")]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/[area]/system-message")]
-[Route("api/[area]/system-message")]
-[Route("v{version:apiVersion}/[area]/system-message")]
-[Route("[area]/system-message")]
+[Route("api/v{version:apiVersion}/[area]/system-messages")]
+[Route("api/[area]/system-messages")]
+[Route("v{version:apiVersion}/[area]/system-messages")]
+[Route("[area]/system-messages")]
 [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.Unauthorized)]
 [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.Forbidden)]
 public class SystemMessageController : ControllerBase
@@ -43,22 +43,37 @@ public class SystemMessageController : ControllerBase
 
     #region Endpoints
     /// <summary>
-    /// Find a page of system message for the specified query filter.
+    /// Find all system messages.
     /// </summary>
     /// <returns></returns>
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<SystemMessageModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "System Message" })]
+    public IActionResult FindAll()
+    {
+        var result = _service.FindAll();
+        return new JsonResult(result.Select(m => new SystemMessageModel(m)));
+    }
+
+    /// <summary>
+    /// Find the system message for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<SystemMessageModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "System Message" })]
-    public IActionResult FindSystemMessage()
+    public IActionResult FindById(int id)
     {
-        var result = _service.FindSystemMessage() ?? throw new NoContentException();
+        var result = _service.FindById(id) ?? throw new NoContentException();
         return new JsonResult(new SystemMessageModel(result));
     }
 
     /// <summary>
-    /// Add system message for the specified 'id'.
+    /// Add system message.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -70,7 +85,7 @@ public class SystemMessageController : ControllerBase
     public IActionResult Add(SystemMessageModel model)
     {
         var result = _service.AddAndSave((SystemMessage)model);
-        return CreatedAtAction(nameof(FindSystemMessage), new { id = result.Id }, new SystemMessageModel(result));
+        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new SystemMessageModel(result));
     }
 
     /// <summary>

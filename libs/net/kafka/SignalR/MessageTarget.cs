@@ -30,4 +30,7 @@ public enum MessageTarget
 
     [Display(Name = "logout")]
     Logout = 8,
+
+    [Display(Name = "system-message")]
+    SystemMessage = 9,
 }

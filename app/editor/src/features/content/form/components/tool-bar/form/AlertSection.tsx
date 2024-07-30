@@ -8,7 +8,7 @@ import {
   Col,
   IContentActionMessageModel,
   INotificationInstanceModel,
-  MessageTargetName,
+  MessageTargetKey,
   NotificationStatusName,
   Row,
   Settings,
@@ -46,7 +46,7 @@ export const AlertSection = React.forwardRef<HTMLDivElement, IAlertSectionProps>
       [getNotificationsFor, values.id],
     );
 
-    hub.useHubEffect(MessageTargetName.ContentActionUpdated, onContentAction);
+    hub.useHubEffect(MessageTargetKey.ContentActionUpdated, onContentAction);
 
     React.useEffect(() => {
       if (values.id)

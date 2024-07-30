@@ -1,7 +1,6 @@
 using System.Text.Json;
 using TNO.API.Areas.Admin.Models.Setting;
 using TNO.API.Areas.Subscriber.Models.Content;
-using TNO.Entities;
 
 namespace TNO.API.Areas.Subscriber.Models.Lookup;
 
@@ -66,6 +65,11 @@ public class LookupModel
     /// </summary>
     public IEnumerable<TonePool.TonePoolModel> TonePools { get; set; } = Array.Empty<TonePool.TonePoolModel>();
 
+    /// <summary>
+    /// get/set - An array of all system messages.
+    /// </summary>
+    public IEnumerable<SystemMessage.SystemMessageModel> SystemMessages { get; set; } = Array.Empty<SystemMessage.SystemMessageModel>();
+
     #endregion
 
     #region Constructors
@@ -88,6 +92,7 @@ public class LookupModel
     /// <param name="tonePools"></param>
     /// <param name="ministers"></param>
     /// <param name="contributors"></param>
+    /// <param name="systemMessages"></param>
     /// <param name="options"></param>
 
     public LookupModel(
@@ -102,6 +107,7 @@ public class LookupModel
         IEnumerable<Entities.TonePool> tonePools,
         IEnumerable<Entities.Minister> ministers,
         IEnumerable<Entities.Contributor> contributors,
+        IEnumerable<Entities.SystemMessage> systemMessages,
         JsonSerializerOptions options)
     {
         this.Actions = actions.Select(a => new Action.ActionModel(a));
@@ -115,6 +121,7 @@ public class LookupModel
         this.TonePools = tonePools.Select(a => new TonePool.TonePoolModel(a));
         this.Ministers = ministers.Select(a => new Minister.MinisterModel(a));
         this.Contributors = contributors.Select(a => new ContributorModel(a));
+        this.SystemMessages = systemMessages.Select(a => new SystemMessage.SystemMessageModel(a));
     }
     #endregion
 }

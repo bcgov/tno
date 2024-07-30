@@ -178,6 +178,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
                 settings: getFromLocalStorage<ISettingModel[]>(StorageKeys.Settings, []),
                 holidays: getFromLocalStorage<IHolidayModel[]>(StorageKeys.Holidays, []),
                 ministers: getFromLocalStorage<IMinisterModel[]>(StorageKeys.Ministers, []),
+                systemMessages: [],
               };
               store.storeActions(lookups.actions);
               store.storeTopics(lookups.topics);
