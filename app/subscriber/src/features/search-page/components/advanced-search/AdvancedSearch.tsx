@@ -111,7 +111,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
   const [{ sources, series, mediaTypes }] = useLookup();
   const [initialState, setInitialState] = React.useState<IFilterSettingsModel | null>(null);
   const [isFirstLoad, setIsFirstLoad] = React.useState<boolean>(false);
-  const [controlled, setController] = React.useState('');
+  const [controlled, setController] = React.useState<string>(search?.search ?? '');
 
   const isDiff = React.useMemo(
     () => JSON.stringify(initialState) !== JSON.stringify(search),
@@ -215,7 +215,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
     () =>
       debounce((value) => {
         memoizedStoreSearchFilter({ ...search, search: value });
-      }, 1000),
+      }, 150),
     [search, memoizedStoreSearchFilter],
   );
 
