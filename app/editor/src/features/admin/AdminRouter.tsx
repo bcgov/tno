@@ -37,6 +37,7 @@ const ProductList = lazy(() => import('features/admin/products/ProductList'));
 const ReachEarnedMedia = lazy(() => import('features/admin/sources/ReachEarnedMedia'));
 const ReportAdmin = lazy(() => import('features/admin/reports/ReportAdmin'));
 const ReportForm = lazy(() => import('features/admin/reports/ReportForm'));
+const ReportDashboard = lazy(() => import('features/admin/reports/ReportDashboard'));
 const ReportTemplateForm = lazy(() => import('features/admin/report-templates/ReportTemplateForm'));
 const SeriesDetails = lazy(() => import('features/admin/series/SeriesDetails'));
 const SeriesForm = lazy(() => import('features/admin/series/SeriesForm'));
@@ -136,6 +137,7 @@ export const AdminRouter: React.FC = () => {
         <Route path="products/:id" element={<ProductForm />} />
 
         <Route path="reports" element={<ReportAdmin />} />
+        <Route path="reports/dashboard" element={<ReportDashboard />} />
         <Route path="reports/:id" element={<ReportForm />} />
         <Route path="report/templates/:id" element={<ReportTemplateForm />} />
         <Route path="report/:path" element={<ReportAdmin />} />

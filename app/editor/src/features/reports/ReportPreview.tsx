@@ -1,7 +1,8 @@
 import React from 'react';
+import { FaCopy } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
 import { useReports } from 'store/hooks';
-import { Col, IReportResultModel, Loading, Show } from 'tno-core';
+import { Button, ButtonVariant, Col, IReportResultModel, Loading, Show } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -27,6 +28,13 @@ const ReportPreview: React.FC = () => {
     [previewReport, setPreview],
   );
 
+  const copy = React.useCallback((report: IReportResultModel) => {
+    const htmlBlob = new Blob([report.body], { type: 'text/html' });
+    const textBlob = new Blob([report.body], { type: 'text/plain' });
+    const clip = new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob });
+    navigator.clipboard.write([clip]);
+  }, []);
+
   React.useEffect(() => {
     handlePreviewReport(reportId);
   }, [handlePreviewReport, reportId]);
@@ -38,10 +46,18 @@ const ReportPreview: React.FC = () => {
       </Show>
       <Show visible={!isLoading}>
         <Col className="preview-report">
-          <div
-            className="preview-subject"
-            dangerouslySetInnerHTML={{ __html: preview?.subject ?? '' }}
-          ></div>
+          <div className="preview-subject">
+            <div dangerouslySetInnerHTML={{ __html: preview?.subject ?? '' }}></div>
+            <div>
+              <Button
+                variant={ButtonVariant.link}
+                title="Copy"
+                onClick={() => preview && copy(preview)}
+              >
+                <FaCopy />
+              </Button>
+            </div>
+          </div>
           <div
             className="preview-body"
             dangerouslySetInnerHTML={{ __html: preview?.body ?? '' }}

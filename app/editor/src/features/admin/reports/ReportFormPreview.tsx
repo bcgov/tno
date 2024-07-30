@@ -40,6 +40,7 @@ export const ReportFormPreview: React.FC<IReportFormPreviewProps> = () => {
         const response = error.response;
         const data = response?.data as any;
         setPreview({
+          reportId: model.id,
           subject: data.error,
           body: `${data.details}<div>${data.stackTrace}</div>`,
           data: {},

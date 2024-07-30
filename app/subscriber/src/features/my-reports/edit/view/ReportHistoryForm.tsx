@@ -41,7 +41,12 @@ export const ReportHistoryForm = () => {
 
   const handleViewReport = React.useCallback(
     (instance: IReportInstanceModel) => {
-      storeReportView({ instanceId: instance.id, subject: instance.subject, body: instance.body });
+      storeReportView({
+        reportId: instance.reportId,
+        instanceId: instance.id,
+        subject: instance.subject,
+        body: instance.body,
+      });
       setActiveInstance(instance);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

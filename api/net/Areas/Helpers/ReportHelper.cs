@@ -233,7 +233,7 @@ public class ReportHelper : IReportHelper
         var subject = await _reportEngine.GenerateReportSubjectAsync(report, reportInstance, sections, viewOnWebOnly, isPreview);
         var body = await _reportEngine.GenerateReportBodyAsync(report, reportInstance, sections, GetLinkedReportContent, _storageOptions.GetUploadPath(), viewOnWebOnly, isPreview);
 
-        return new ReportResultModel(subject, body);
+        return new ReportResultModel() { ReportId = report.Id, InstanceId = reportInstance?.Id, Subject = subject, Body = body };
     }
 
     #region AV Overview
@@ -274,7 +274,7 @@ public class ReportHelper : IReportHelper
         var subject = await _reportEngine.GenerateReportSubjectAsync(reportTemplate, instance, isPreview);
         var body = await _reportEngine.GenerateReportBodyAsync(reportTemplate, instance, isPreview);
 
-        return new ReportResultModel(subject, body);
+        return new ReportResultModel() { Subject = subject, Body = body };
     }
     #endregion
     #endregion

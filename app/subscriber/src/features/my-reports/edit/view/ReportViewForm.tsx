@@ -1,5 +1,5 @@
 import { Button } from 'components/button';
-import { calcNextReportSend, getLastSent } from 'features/my-reports/utils';
+import { calcNextReportSend, getLastSent, getStatus } from 'features/my-reports/utils';
 import React from 'react';
 import { FaTelegramPlane } from 'react-icons/fa';
 import { FaRegClock } from 'react-icons/fa6';
@@ -85,6 +85,10 @@ export const ReportViewForm: React.FC = () => {
                 <div className="preview-block-headline">Status</div>
               </Row>
               <div className="preview-send-details-row">
+                <Row gap="1rem">
+                  <label className="b7">Status:</label>
+                  <span>{instance ? getStatus(instance.status) : 'Draft'}</span>
+                </Row>
                 <Row gap="1rem">
                   <label className="b7">Last sent:</label>
                   <span>{getLastSent(values)}</span>
