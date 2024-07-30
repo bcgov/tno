@@ -1,5 +1,4 @@
 using System.Text.Json;
-using TNO.Core.Extensions;
 
 namespace TNO.API.Areas.Services.Models.AVOverview;
 
@@ -98,19 +97,10 @@ public class UserModel
     /// Get the preferred email if it has been set.
     /// </summary>
     /// <returns></returns>
-    public string[] GetEmails()
+    public string GetEmail()
     {
-        if (this.AccountType == Entities.UserAccountType.Distribution)
-        {
-            var addresses = this.Preferences.GetElementValue<API.Models.UserEmailModel[]?>(".addresses");
-            if (addresses != null) return addresses.Select(a => a.Email).ToArray();
-            return Array.Empty<string>();
-        }
-        else
-        {
-            var email = String.IsNullOrWhiteSpace(this.PreferredEmail) ? this.Email : this.PreferredEmail;
-            return new string[] { email };
-        }
+        if (this.AccountType == Entities.UserAccountType.Distribution) throw new InvalidOperationException("Unable to get email for distribution lists");
+        return String.IsNullOrWhiteSpace(this.PreferredEmail) ? this.Email : this.PreferredEmail;
     }
     #endregion
 }

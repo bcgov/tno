@@ -16,7 +16,7 @@ public class AVOverviewInstance : AuditColumns
     /// </summary>
     [Key]
     [Column("id")]
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     /// <summary>
     /// get/set - The type of template.
@@ -50,6 +50,11 @@ public class AVOverviewInstance : AuditColumns
     /// get - A collection of sections in this overview instance.
     /// </summary>
     public List<AVOverviewSection> Sections { get; } = new List<AVOverviewSection>();
+
+    /// <summary>
+    /// get - Collection of user report instance, used to identify who it was sent to.
+    /// </summary>
+    public virtual List<UserAVOverviewInstance> UserInstances { get; } = new List<UserAVOverviewInstance>();
     #endregion
 
     #region Constructors

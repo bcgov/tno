@@ -288,6 +288,13 @@ public interface IApiService
     /// <param name="id"></param>
     /// <returns></returns>
     Task<API.Areas.Services.Models.User.UserModel?> GetUserAsync(int id);
+
+    /// <summary>
+    /// Make a request to the API to fetch all the users in a distribution list for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.User.UserModel>> GetDistributionListAsync(int id);
     #endregion
 
     #region Ministers
@@ -378,8 +385,9 @@ public interface IApiService
     /// Make a request to the API and update a report instance.
     /// </summary>
     /// <param name="instance"></param>
+    /// <param name="updateContent"></param>
     /// <returns></returns>
-    Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> UpdateReportInstanceAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance);
+    Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> UpdateReportInstanceAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance, bool updateContent);
 
     /// <summary>
     /// Make a request to the API to clear all content from folders in this report.
@@ -387,6 +395,27 @@ public interface IApiService
     /// <param name="instance"></param>
     /// <returns></returns>
     Task<API.Areas.Services.Models.Report.ReportModel?> ClearFoldersInReport(int reportId);
+
+    /// <summary>
+    /// Get user report instance for the specified 'id'.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>> GetUserReportInstancesAsync(long instanceId);
+
+    /// <summary>
+    /// Add or update user report instance.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel?> AddOrUpdateUserReportInstanceAsync(API.Areas.Services.Models.ReportInstance.UserReportInstanceModel instance);
+
+    /// <summary>
+    /// Add or update user report instances.
+    /// </summary>
+    /// <param name="instances"></param>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>> AddOrUpdateUserReportInstancesAsync(IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel> instances);
     #endregion
 
     #region Event Schedules
@@ -417,7 +446,7 @@ public interface IApiService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    Task<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?> GetAVOverviewInstanceAsync(int id);
+    Task<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?> GetAVOverviewInstanceAsync(long id);
 
     /// <summary>
     /// Make a request to the API to update the evening overview instance for the specified 'model'.
@@ -425,6 +454,28 @@ public interface IApiService
     /// <param name="model"></param>
     /// <returns></returns>
     Task<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?> UpdateAVOverviewInstanceAsync(API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel model);
+
+
+    /// <summary>
+    /// Get user report instance for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel>> GetUserAVOverviewInstancesAsync(long id);
+
+    /// <summary>
+    /// Add or update user report instance.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel?> AddOrUpdateUserAVOverviewInstanceAsync(API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel instance);
+
+    /// <summary>
+    /// Add or update user report instances.
+    /// </summary>
+    /// <param name="instances"></param>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel>> AddOrUpdateUserAVOverviewInstancesAsync(IEnumerable<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel> instances);
     #endregion
 
     #region Folders

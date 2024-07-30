@@ -80,6 +80,8 @@ public class TNOContext : DbContext
     public DbSet<UserMediaType> UserMediaTypes => Set<UserMediaType>();
 
     public DbSet<UserColleague> UserColleagues => Set<UserColleague>();
+
+    public DbSet<UserDistribution> UserDistributions => Set<UserDistribution>();
     #endregion
 
     #region Reports
@@ -95,6 +97,7 @@ public class TNOContext : DbContext
     public DbSet<ReportInstance> ReportInstances => Set<ReportInstance>();
     public DbSet<ReportInstanceContent> ReportInstanceContents => Set<ReportInstanceContent>();
     public DbSet<UserReport> UserReports => Set<UserReport>();
+    public DbSet<UserReportInstance> UserReportInstances => Set<UserReportInstance>();
 
     public DbSet<AVOverviewSection> AVOverviewSections => Set<AVOverviewSection>();
     public DbSet<AVOverviewSectionItem> AVOverviewSectionItems => Set<AVOverviewSectionItem>();
@@ -103,6 +106,7 @@ public class TNOContext : DbContext
     public DbSet<AVOverviewTemplateSection> AVOverviewTemplateSections => Set<AVOverviewTemplateSection>();
     public DbSet<AVOverviewTemplateSectionItem> AVOverviewTemplateSectionItems => Set<AVOverviewTemplateSectionItem>();
     public DbSet<UserAVOverview> UserAVOverviews => Set<UserAVOverview>();
+    public DbSet<UserAVOverviewInstance> UserAVOverviewInstances => Set<UserAVOverviewInstance>();
 
     public DbSet<EventSchedule> EventSchedules => Set<EventSchedule>();
     #endregion

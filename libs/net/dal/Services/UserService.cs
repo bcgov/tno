@@ -498,5 +498,18 @@ public class UserService : BaseService<User, int>, IUserService
 
         return user;
     }
+
+    /// <summary>
+    /// Get all the users in the specified distribution list.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public IEnumerable<User> GetDistributionList(int userId)
+    {
+        return (from ud in this.Context.UserDistributions
+                join u in this.Context.Users on ud.LinkedUserId equals u.Id
+                where ud.UserId == userId
+                select u).ToArray();
+    }
     #endregion
 }

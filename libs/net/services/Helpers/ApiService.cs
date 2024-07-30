@@ -721,11 +721,46 @@ public class ApiService : IApiService
     /// Make a request to the API and update a report instance.
     /// </summary>
     /// <param name="instance"></param>
+    /// <param name="updateContent"></param>
     /// <returns></returns>
-    public async Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> UpdateReportInstanceAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance)
+    public async Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> UpdateReportInstanceAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance, bool updateContent)
     {
-        var url = this.Options.ApiUrl.Append($"services/report/instances/{instance.Id}");
+        var url = this.Options.ApiUrl.Append($"services/report/instances/{instance.Id}?updateContent={updateContent}");
         return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(url, JsonContent.Create(instance)));
+    }
+
+    /// <summary>
+    /// Get user report instance for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>> GetUserReportInstancesAsync(long id)
+    {
+        var url = this.Options.ApiUrl.Append($"services/report/instances/{id}/responses");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>>(url))
+            ?? Array.Empty<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>();
+    }
+
+    /// <summary>
+    /// Add or update user report instance.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel?> AddOrUpdateUserReportInstanceAsync(API.Areas.Services.Models.ReportInstance.UserReportInstanceModel instance)
+    {
+        var url = this.Options.ApiUrl.Append($"services/report/instances/response");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>(url, JsonContent.Create(instance)));
+    }
+
+    /// <summary>
+    /// Add or update user report instances.
+    /// </summary>
+    /// <param name="instances"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>> AddOrUpdateUserReportInstancesAsync(IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel> instances)
+    {
+        var url = this.Options.ApiUrl.Append($"services/report/instances/responses");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>>(url, JsonContent.Create(instances))) ?? Array.Empty<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>();
     }
     #endregion
 
@@ -739,6 +774,18 @@ public class ApiService : IApiService
     {
         var url = this.Options.ApiUrl.Append($"services/users/{id}");
         return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.User.UserModel?>(url));
+    }
+
+
+    /// <summary>
+    /// Make a request to the API to fetch all the users in a distribution list for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.User.UserModel>> GetDistributionListAsync(int id)
+    {
+        var url = this.Options.ApiUrl.Append($"services/users/{id}/distribution");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.User.UserModel>>(url)) ?? Array.Empty<API.Areas.Services.Models.User.UserModel>();
     }
     #endregion
 
@@ -795,7 +842,7 @@ public class ApiService : IApiService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?> GetAVOverviewInstanceAsync(int id)
+    public async Task<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?> GetAVOverviewInstanceAsync(long id)
     {
         var url = this.Options.ApiUrl.Append($"services/reports/av/overviews/{id}");
         return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?>(url));
@@ -810,6 +857,40 @@ public class ApiService : IApiService
     {
         var url = this.Options.ApiUrl.Append($"services/reports/av/overviews/{model.Id}");
         return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?>(url, JsonContent.Create(model)));
+    }
+
+    /// <summary>
+    /// Get user report instance for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel>> GetUserAVOverviewInstancesAsync(long id)
+    {
+        var url = this.Options.ApiUrl.Append($"services/reports/av/overviews/{id}/responses");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel>>(url))
+            ?? Array.Empty<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel>();
+    }
+
+    /// <summary>
+    /// Add or update user report instance.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel?> AddOrUpdateUserAVOverviewInstanceAsync(API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel instance)
+    {
+        var url = this.Options.ApiUrl.Append($"services/reports/av/overviews/response");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel>(url, JsonContent.Create(instance)));
+    }
+
+    /// <summary>
+    /// Add or update user report instances.
+    /// </summary>
+    /// <param name="instances"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel>> AddOrUpdateUserAVOverviewInstancesAsync(IEnumerable<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel> instances)
+    {
+        var url = this.Options.ApiUrl.Append($"services/reports/av/overviews/responses");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<IEnumerable<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel>>(url, JsonContent.Create(instances))) ?? Array.Empty<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel>();
     }
     #endregion
 

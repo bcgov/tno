@@ -77,6 +77,10 @@ export const UserFormDistribution: React.FC = () => {
     <div className="form-container">
       <Section className="frm-in">
         <label>Account Information</label>
+        <p className="info">
+          DO NOT ADD/EDIT DISTRIBUTION LISTS UNTIL I COMPLETE THE MOST RECENT CHANGES TO REPORTS.
+        </p>
+        <p className="info">THEY DO NO CURRENTLY WORK BECAUSE OF CHES ISSUES.</p>
         <Row gap="1rem">
           <Col>
             <FormikSelect

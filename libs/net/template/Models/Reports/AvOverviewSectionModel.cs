@@ -14,7 +14,7 @@ public class AVOverviewSectionModel
     /// <summary>
     /// get/set - Foreign key to the instance.
     /// </summary>
-    public int InstanceId { get; set; }
+    public long InstanceId { get; set; }
 
     /// <summary>
     /// get/set - The source reference.

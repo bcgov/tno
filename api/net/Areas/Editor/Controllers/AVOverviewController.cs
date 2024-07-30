@@ -80,7 +80,7 @@ public class AVOverviewController : ControllerBase
     [ProducesResponseType(typeof(AVOverviewInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
-    public IActionResult FindByDate([FromQuery]DateTime? publishedOn = null)
+    public IActionResult FindByDate([FromQuery] DateTime? publishedOn = null)
     {
         Entities.AVOverviewInstance? instance;
         if (publishedOn != null)
@@ -113,7 +113,7 @@ public class AVOverviewController : ControllerBase
     [ProducesResponseType(typeof(AVOverviewInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
-    public IActionResult FindById(int instanceId)
+    public IActionResult FindById(long instanceId)
     {
         var result = _overviewInstanceService.FindById(instanceId) ?? throw new NoContentException();
         return new JsonResult(new AVOverviewInstanceModel(result));
@@ -178,8 +178,8 @@ public class AVOverviewController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(TemplateEngine.Models.Reports.ReportResultModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "Report" })]
-    public async Task<IActionResult> View(int instanceId)
+    [SwaggerOperation(Tags = new[] { "Evening Overview" })]
+    public async Task<IActionResult> View(long instanceId)
     {
         var instance = _overviewInstanceService.FindById(instanceId) ?? throw new NoContentException($"AV overview instance '{instanceId}' not found");
         var model = new TemplateEngine.Models.Reports.AVOverviewInstanceModel(instance);
@@ -196,18 +196,18 @@ public class AVOverviewController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "Report" })]
-    public async Task<IActionResult> Publish(int instanceId)
+    [SwaggerOperation(Tags = new[] { "Evening Overview" })]
+    public async Task<IActionResult> Publish(long instanceId)
     {
         var instance = _overviewInstanceService.FindById(instanceId) ?? throw new NoContentException($"AV overview instance '{instanceId}' not found");
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
-        var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.AVOverview, instance.Id, new { })
+        var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.AVOverview, 0, instance.Id, new { })
         {
             RequestorId = user.Id
         };
-        await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{instance.Id}", request);
+        await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, request);
         return new OkResult();
     }
     #endregion
