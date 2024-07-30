@@ -55,7 +55,7 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
 
   const eveningOverviewItemTypeOptions = castEnumToOptions(AVOverviewItemTypeName);
   const items = values.sections[index].items;
-  const queryDate = values.publishedOn ? moment(values.publishedOn) : moment(Date.now());
+  const queryDate = values.publishedOn ? new Date(values.publishedOn) : new Date();
   const startTime = values.sections[index]?.startTime?.split(':');
 
   /** flag to keep track of when new complete start time is entered and trigger another search
@@ -74,26 +74,26 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
         values.sections.length > index && values.sections[index].seriesId
           ? [values.sections[index].seriesId!]
           : [];
-      const startDate = !!values.sections[index].startTime
-        ? moment(queryDate)
-            .set({
-              hour: Number(startTime[0]),
-              minute: Number(startTime[1]),
-              second: Number(startTime[2]),
-              millisecond: 0,
-            })
-            .toISOString()
-        : moment(queryDate).startOf('day').toISOString();
-      findContentWithElasticsearch(
-        generateQuery({
-          searchUnpublished: false,
-          size: 20,
-          seriesIds,
-          startDate,
-          sort: [{ publishedOn: 'asc' }],
-        }),
-        false,
-      )
+      const sourceIds: number[] =
+        values.sections.length > index && values.sections[index].sourceId
+          ? [values.sections[index].sourceId!]
+          : [];
+      const startDate = queryDate;
+      if (values.sections[index].startTime) {
+        startDate.setHours(Number(startTime[0]), Number(startTime[1]), Number(startTime[2]));
+      }
+      const endDate = new Date(startDate);
+      endDate.setHours(23, 59, 59);
+      const query = generateQuery({
+        searchUnpublished: false,
+        size: 0,
+        seriesIds,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        sourceIds,
+        sort: [{ publishedOn: 'asc' }],
+      });
+      findContentWithElasticsearch(query, false)
         .then((data) => {
           const results: IContentModel[] = data.hits.hits.map((h) => h._source!);
           setContentItems(results);
