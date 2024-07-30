@@ -13,5 +13,10 @@ public class ReportingOptions : ServiceOptions
     /// get/set - A comma separated list of topics to consume.
     /// </summary>
     public string Topics { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Whether to use the mail merge option.
+    /// </summary>
+    public bool UseMailMerge { get; set; } = true;
     #endregion
 }
