@@ -2,7 +2,7 @@ import { PageSection } from 'components/section';
 import { useElastic } from 'features/my-searches/hooks';
 import { useSearchPageContext } from 'features/search-page/SearchPageContext';
 import { filterFormat } from 'features/search-page/utils';
-import { handleEnterPressed } from 'features/utils';
+import { debounce } from 'lodash';
 import React from 'react';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
 import { FaCaretSquareDown, FaCheckSquare, FaPlay, FaRegSmile } from 'react-icons/fa';
@@ -77,6 +77,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
     },
     { storeSearchFilter },
   ] = useContent();
+  const memoizedStoreSearchFilter = React.useCallback(storeSearchFilter, [storeSearchFilter]);
 
   const genQuery = useElastic();
   const { expanded, setExpanded } = useSearchPageContext();
@@ -110,6 +111,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
   const [{ sources, series, mediaTypes }] = useLookup();
   const [initialState, setInitialState] = React.useState<IFilterSettingsModel | null>(null);
   const [isFirstLoad, setIsFirstLoad] = React.useState<boolean>(false);
+  const [controlled, setController] = React.useState('');
 
   const isDiff = React.useMemo(
     () => JSON.stringify(initialState) !== JSON.stringify(search),
@@ -209,6 +211,26 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
     myFilters,
   ]);
 
+  const updateSearchText = React.useMemo(
+    () =>
+      debounce((value) => {
+        memoizedStoreSearchFilter({ ...search, search: value });
+      }, 1000),
+    [search, memoizedStoreSearchFilter],
+  );
+
+  React.useEffect(() => {
+    return () => {
+      updateSearchText.cancel(); // Cleanup debounce on unmount
+    };
+  }, [updateSearchText]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setController(value);
+    updateSearchText(value);
+  };
+
   return (
     <styled.AdvancedSearch expanded={expanded}>
       <PageSection
@@ -282,13 +304,10 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
               <ElasticQueryHelp queryType={search.queryType} />
               <Col className="text-area-container">
                 <TextArea
-                  value={search.search}
+                  value={controlled}
                   className="text-area"
-                  onKeyDown={(e) => handleEnterPressed(e, () => onSearch?.(search), true)}
                   name="search"
-                  onChange={(e) => {
-                    storeSearchFilter({ ...search, search: e.target.value });
-                  }}
+                  onChange={handleInputChange}
                 />
                 <SearchInGroup />
               </Col>
