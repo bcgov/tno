@@ -8,6 +8,18 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   border-radius: 20px;
 
   width: 100%;
+
+  // add ability to control shadow
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.15);
+
+  // home page usage
+  margin: ${(props) => props.className === 'home' && 0};
+  position: ${(props) => props.className === 'home' && 'absolute'};
+  top: ${(props) => props.className === 'home' && '50%'};
+  left: ${(props) => props.className === 'home' && '50%'};
+  -ms-transform: ${(props) => props.className === 'home' && 'translate(-50%, -50%)'};
+  transform: ${(props) => props.className === 'home' && 'translate(-50%, -50%)'};
+
   @media only screen and (max-width: 1024px) {
     flex-direction: column;
     top: ${(props) =>
@@ -54,14 +66,9 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
     height: ${(props) => props.height};
   }
 
-  // add ability to control shadow
-  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.15);
-
-  // home page usage
-  margin: ${(props) => props.className === 'home' && 0};
-  position: ${(props) => props.className === 'home' && 'absolute'};
-  top: ${(props) => props.className === 'home' && '50%'};
-  left: ${(props) => props.className === 'home' && '50%'};
-  -ms-transform: ${(props) => props.className === 'home' && 'translate(-50%, -50%)'};
-  transform: ${(props) => props.className === 'home' && 'translate(-50%, -50%)'};
+  .system-message {
+    background-color: ${(props) => props.theme.css.accentColor};
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+  }
 `;

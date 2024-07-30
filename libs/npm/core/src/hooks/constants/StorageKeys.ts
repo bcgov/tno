@@ -18,4 +18,5 @@ export enum StorageKeys {
   DataLocations = 'data_locations',
   Settings = 'settings',
   Holidays = 'holidays',
+  SystemMessages = 'system_messages',
 }

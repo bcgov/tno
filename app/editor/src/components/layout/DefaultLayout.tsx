@@ -7,12 +7,16 @@ import { toast } from 'react-toastify';
 import { IWorkOrderToast, useApiHub, useToastError } from 'store/hooks';
 import {
   Button,
+  ButtonVariant,
   Header,
+  ISystemMessageModel,
   IWorkOrderMessageModel,
-  MessageTargetName,
+  MessageTargetKey,
+  Modal,
   Show,
   SummonContext,
   useKeycloakWrapper,
+  useModal,
   WorkOrderStatusName,
   WorkOrderTypeName,
 } from 'tno-core';
@@ -45,9 +49,11 @@ const DefaultLayout: React.FC<ILayoutProps> = ({
   var hub = useApiHub();
   useToastError();
   const [searchParams] = useSearchParams({ showNav: 'true' });
+  const { toggle: toggleSystemMessage, isShowing: showSystemMessage } = useModal();
 
   const [toastIds, setToastIds] = React.useState<IWorkOrderToast[]>([]);
   const showNav = initShowNav ?? searchParams.get('showNav') === 'true';
+  const [systemMessage, setSystemMessage] = React.useState<ISystemMessageModel>();
 
   React.useEffect(() => {
     keycloak.instance.onTokenExpired = () => {
@@ -110,7 +116,17 @@ const DefaultLayout: React.FC<ILayoutProps> = ({
     [toastIds],
   );
 
-  hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrderMessage);
+  hub.useHubEffect(MessageTargetKey.WorkOrder, onWorkOrderMessage);
+
+  const onSystemMessage = React.useCallback(
+    (data: ISystemMessageModel) => {
+      setSystemMessage(data);
+      !showSystemMessage && toggleSystemMessage();
+    },
+    [showSystemMessage, toggleSystemMessage],
+  );
+
+  hub.useHubEffect(MessageTargetKey.SystemMessage, onSystemMessage);
 
   return (
     <styled.Layout {...rest}>
@@ -139,6 +155,23 @@ const DefaultLayout: React.FC<ILayoutProps> = ({
           </main>
         </div>
       </Show>
+      <Modal
+        headerText={systemMessage?.name ?? 'System Message'}
+        body={systemMessage?.message}
+        isShowing={showSystemMessage}
+        hide={toggleSystemMessage}
+        type="custom"
+        customButtons={
+          <Button
+            variant={ButtonVariant.primary}
+            onClick={() => {
+              toggleSystemMessage();
+            }}
+          >
+            Okay
+          </Button>
+        }
+      />
     </styled.Layout>
   );
 };

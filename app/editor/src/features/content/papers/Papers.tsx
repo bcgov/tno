@@ -16,7 +16,7 @@ import {
   IContentModel,
   IGridHeaderColumnProps,
   LogicalOperator,
-  MessageTargetName,
+  MessageTargetKey,
   Page,
   replaceQueryParams,
   Row,
@@ -76,7 +76,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
   const [currentResultsPage, setCurrentResultsPage] = React.useState(defaultPage);
   const [totals, setTotals] = React.useState<ITotalsInfo>(defaultTotals);
 
-  hub.useHubEffect(MessageTargetName.ContentUpdated, (message) => {
+  hub.useHubEffect(MessageTargetKey.ContentUpdated, (message) => {
     getContent(message.id)
       .then((content) => {
         if (content) {

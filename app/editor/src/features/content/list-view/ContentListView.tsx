@@ -22,7 +22,7 @@ import {
   IWorkOrderMessageModel,
   IWorkOrderModel,
   LogicalOperator,
-  MessageTargetName,
+  MessageTargetKey,
   Page,
   replaceQueryParams,
   Row,
@@ -130,7 +130,7 @@ const ContentListView: React.FC = () => {
     },
     [castContentToSearchResult, currentResultsPage, getContent],
   );
-  hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrder);
+  hub.useHubEffect(MessageTargetKey.WorkOrder, onWorkOrder);
 
   const onContentAdded = React.useCallback(
     async (message: IContentMessageModel) => {
@@ -151,7 +151,7 @@ const ContentListView: React.FC = () => {
     },
     [userId, getContent, currentResultsPage, castContentToSearchResult],
   );
-  hub.useHubEffect(MessageTargetName.ContentAdded, onContentAdded);
+  hub.useHubEffect(MessageTargetKey.ContentAdded, onContentAdded);
 
   const onContentUpdated = React.useCallback(
     async (message: IContentMessageModel) => {
@@ -177,7 +177,7 @@ const ContentListView: React.FC = () => {
     },
     [castContentToSearchResult, currentResultsPage, getContent],
   );
-  hub.useHubEffect(MessageTargetName.ContentUpdated, onContentUpdated);
+  hub.useHubEffect(MessageTargetKey.ContentUpdated, onContentUpdated);
 
   const onContentDeleted = React.useCallback(
     async (message: IContentMessageModel) => {
@@ -194,7 +194,7 @@ const ContentListView: React.FC = () => {
     },
     [currentResultsPage],
   );
-  hub.useHubEffect(MessageTargetName.ContentDeleted, onContentDeleted);
+  hub.useHubEffect(MessageTargetKey.ContentDeleted, onContentDeleted);
 
   React.useEffect(() => {
     // Required because the first time this page is loaded directly the user has not been set.

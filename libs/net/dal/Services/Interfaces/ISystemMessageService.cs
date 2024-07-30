@@ -3,5 +3,5 @@ namespace TNO.DAL.Services;
 
 public interface ISystemMessageService : IBaseService<SystemMessage, int>
 {
-    SystemMessage? FindSystemMessage();
+    IEnumerable<SystemMessage> FindAll();
 }

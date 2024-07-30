@@ -12,7 +12,7 @@ import {
   useSettings,
 } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Col, IReportMessageModel, MessageTargetName, ReportStatusName, Show } from 'tno-core';
+import { Col, IReportMessageModel, MessageTargetKey, ReportStatusName, Show } from 'tno-core';
 
 import { defaultReport } from '../constants';
 import { IReportForm } from '../interfaces';
@@ -149,7 +149,7 @@ export const ReportEditPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, myReports.length, userInfo]);
 
-  hub.useHubEffect(MessageTargetName.ReportStatus, async (message: IReportMessageModel) => {
+  hub.useHubEffect(MessageTargetKey.ReportStatus, async (message: IReportMessageModel) => {
     // Report has been updated, go fetch latest.
     // TODO: This can blow away a users' changes.
     try {

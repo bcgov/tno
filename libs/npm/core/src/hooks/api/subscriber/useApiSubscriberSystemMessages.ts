@@ -18,8 +18,10 @@ export const useApiSubscriberSystemMessages = (
   const api = useApi(options);
 
   return React.useRef({
-    findSystemMessage: () => {
-      return api.get<never, AxiosResponse<ISystemMessageModel>, any>(`/subscriber/system-message`);
+    findSystemMessages: () => {
+      return api.get<never, AxiosResponse<ISystemMessageModel[]>, any>(
+        `/subscriber/system-messages`,
+      );
     },
   }).current;
 };

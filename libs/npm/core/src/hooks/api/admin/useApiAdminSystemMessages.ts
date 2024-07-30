@@ -19,24 +19,29 @@ export const useApiAdminSystemMessages = (
   const api = useApi(options);
 
   return React.useRef({
-    findSystemMessage: () => {
-      return api.get<never, AxiosResponse<ISystemMessageModel>, any>(`/admin/system-message`);
+    findSystemMessages: () => {
+      return api.get<never, AxiosResponse<ISystemMessageModel[]>, any>(`/admin/system-messages`);
+    },
+    findSystemMessage: (id: number) => {
+      return api.get<never, AxiosResponse<ISystemMessageModel>, any>(
+        `/admin/system-messages/${id}`,
+      );
     },
     addSystemMessage: (model: ISystemMessageModel) => {
       return api.post<ISystemMessageModel, AxiosResponse<ISystemMessageModel>, any>(
-        `/admin/system-message`,
+        `/admin/system-messages`,
         model,
       );
     },
     updateSystemMessage: (model: ISystemMessageModel) => {
       return api.put<ISystemMessageModel, AxiosResponse<ISystemMessageModel>, any>(
-        `/admin/system-message/${model.id}`,
+        `/admin/system-messages/${model.id}`,
         model,
       );
     },
     deleteSystemMessage: (model: ISystemMessageModel) => {
       return api.delete<ISystemMessageModel, AxiosResponse<ISystemMessageModel>, any>(
-        `/admin/system-message/${model.id}`,
+        `/admin/system-messages/${model.id}`,
         {
           data: model,
         },

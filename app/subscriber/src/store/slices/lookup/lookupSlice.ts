@@ -15,6 +15,7 @@ import {
   ISettingModel,
   ISourceActionModel,
   ISourceModel,
+  ISystemMessageModel,
   ITagModel,
   ITonePoolModel,
   ITopicModel,
@@ -44,6 +45,7 @@ export const initialLookupState: ILookupState = {
   metrics: [],
   users: [],
   dataLocations: [],
+  systemMessages: [],
   settings: [],
   rules: [],
 };
@@ -120,6 +122,9 @@ export const lookupSlice = createSlice({
     storeDataLocations(state: ILookupState, action: PayloadAction<IDataLocationModel[]>) {
       state.dataLocations = action.payload;
     },
+    storeSystemMessages(state: ILookupState, action: PayloadAction<ISystemMessageModel[]>) {
+      state.systemMessages = action.payload;
+    },
     storeSettings(state: ILookupState, action: PayloadAction<ISettingModel[]>) {
       state.settings = action.payload;
     },
@@ -150,6 +155,7 @@ export const {
   storeMinisters,
   storeHolidays,
   storeSettings,
+  storeSystemMessages,
   storeUsers,
   storeMetrics,
   storeRoles,

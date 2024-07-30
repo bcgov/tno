@@ -1,20 +1,22 @@
 export enum MessageTargetName {
   /** Content messages */
-  ContentAdded = 'content-added',
+  ContentAdded = 'ContentAdded',
   /** Content messages */
-  ContentUpdated = 'content-updated',
+  ContentUpdated = 'ContentUpdated',
   /** Content messages */
-  ContentDeleted = 'content-deleted',
+  ContentDeleted = 'ContentDeleted',
   /** Work order messages */
-  WorkOrder = 'work-order',
+  WorkOrder = 'WorkOrder',
   /** Content action message */
-  ContentActionUpdated = 'content-action-updated',
+  ContentActionUpdated = 'ContentActionUpdated',
   /** Ingest updated */
-  IngestUpdated = 'ingest-updated',
+  IngestUpdated = 'IngestUpdated',
   /** Ingest deleted */
-  IngestDeleted = 'ingest-deleted',
+  IngestDeleted = 'IngestDeleted',
   /** Report status updated */
-  ReportStatus = 'report-status',
+  ReportStatus = 'ReportStatus',
   /** Request for the user to be logged out automatically */
-  Logout = 'logout',
+  Logout = 'Logout',
+  /** A system message. */
+  SystemMessage = 'SystemMessage',
 }

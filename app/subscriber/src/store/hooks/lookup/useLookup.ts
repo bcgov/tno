@@ -16,6 +16,7 @@ import {
   ISettingModel,
   ISourceActionModel,
   ISourceModel,
+  ISystemMessageModel,
   ITagModel,
   ITonePoolModel,
   ITopicModel,
@@ -73,6 +74,11 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               saveToLocalStorage(StorageKeys.Tags, results.tags, store.storeTags);
               saveToLocalStorage(StorageKeys.Settings, results.settings, store.storeSettings);
               saveToLocalStorage(StorageKeys.TonePools, results.tonePools, store.storeTonePools);
+              saveToLocalStorage(
+                StorageKeys.SystemMessages,
+                results.systemMessages,
+                store.storeSystemMessages,
+              );
               return results;
             } else {
               const lookups: ILookupModel = {
@@ -104,6 +110,10 @@ export const useLookup = (): [ILookupState, ILookupController] => {
                 ),
                 settings: getFromLocalStorage<ISettingModel[]>(StorageKeys.Settings, []),
                 holidays: getFromLocalStorage<IHolidayModel[]>(StorageKeys.Holidays, []),
+                systemMessages: getFromLocalStorage<ISystemMessageModel[]>(
+                  StorageKeys.SystemMessages,
+                  [],
+                ),
               };
               store.storeActions(lookups.actions);
               store.storeTopics(lookups.topics);
@@ -124,6 +134,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               store.storeDataLocations(lookups.dataLocations);
               store.storeSettings(lookups.settings);
               store.storeHolidays(lookups.holidays);
+              store.storeSystemMessages(lookups.systemMessages);
               return lookups;
             }
           },

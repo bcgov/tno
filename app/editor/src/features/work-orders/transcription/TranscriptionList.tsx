@@ -13,7 +13,7 @@ import {
   IWorkOrderFilter,
   IWorkOrderMessageModel,
   IWorkOrderModel,
-  MessageTargetName,
+  MessageTargetKey,
   Page,
   Row,
   Show,
@@ -71,7 +71,7 @@ export const TranscriptionList: React.FC = () => {
     [page],
   );
 
-  hub.useHubEffect(MessageTargetName.WorkOrder, onWorkOrder);
+  hub.useHubEffect(MessageTargetKey.WorkOrder, onWorkOrder);
 
   const handleCancel = React.useCallback(
     async (workOrder: IWorkOrderModel) => {

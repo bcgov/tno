@@ -12,7 +12,7 @@ import {
   generateQuery,
   IContentMessageModel,
   IContentModel,
-  MessageTargetName,
+  MessageTargetKey,
   Row,
 } from 'tno-core';
 
@@ -95,8 +95,8 @@ export const Commentary: React.FC = () => {
     },
     [commentaryActionId],
   );
-  hub.useHubEffect(MessageTargetName.ContentUpdated, onContentReceived);
-  hub.useHubEffect(MessageTargetName.ContentAdded, onContentReceived);
+  hub.useHubEffect(MessageTargetKey.ContentUpdated, onContentReceived);
+  hub.useHubEffect(MessageTargetKey.ContentAdded, onContentReceived);
 
   return (
     <styled.Commentary className="commentary-box">

@@ -47,6 +47,7 @@ const SettingList = lazy(() => import('features/admin/settings/SettingList'));
 const SourceDetails = lazy(() => import('features/admin/sources/SourceDetails'));
 const SourceForm = lazy(() => import('features/admin/sources/SourceForm'));
 const SourceList = lazy(() => import('features/admin/sources/SourceList'));
+const SystemMessageList = lazy(() => import('features/admin/system-message/SystemMessageList'));
 const SystemMessageForm = lazy(() => import('features/admin/system-message/SystemMessageForm'));
 const TagList = lazy(() => import('features/admin/tags/TagList'));
 const TagsForm = lazy(() => import('features/admin/tags/TagsForm'));
@@ -78,7 +79,8 @@ export const AdminRouter: React.FC = () => {
         <Route path="tags" element={<TagList />} />
         <Route path="tags/:id" element={<TagsForm />} />
 
-        <Route path="system-message" element={<SystemMessageForm />} />
+        <Route path="system-messages" element={<SystemMessageList />} />
+        <Route path="system-messages/:id" element={<SystemMessageForm />} />
 
         {/* <Route path="programs" element={<SeriesList />} />
         <Route path="programs/:id" element={<SeriesForm />} /> */}

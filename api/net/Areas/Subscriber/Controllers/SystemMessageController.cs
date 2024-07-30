@@ -3,7 +3,7 @@ using System.Net.Mime;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using TNO.API.Areas.Admin.Models.SystemMessage;
+using TNO.API.Areas.Subscriber.Models.SystemMessage;
 using TNO.API.Models;
 using TNO.DAL.Services;
 
@@ -17,9 +17,9 @@ namespace TNO.API.Areas.Subscriber.Controllers;
 [Area("subscriber")]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[area]/system-message")]
-[Route("api/[area]/system-message")]
-[Route("v{version:apiVersion}/[area]/system-message")]
-[Route("[area]/system-message")]
+[Route("api/[area]/system-messages")]
+[Route("v{version:apiVersion}/[area]/system-messages")]
+[Route("[area]/system-messages")]
 [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.Unauthorized)]
 [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.Forbidden)]
 public class SystemMessageController : ControllerBase
@@ -47,13 +47,11 @@ public class SystemMessageController : ControllerBase
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<SystemMessageModel>), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "System Message" })]
-    public IActionResult FindSystemMessage()
+    public IActionResult FindAll()
     {
-        var result = _service.FindSystemMessage();
-        if (result == null) return new NoContentResult();
-        return new JsonResult(new SystemMessageModel(result));
+        var result = _service.FindAll();
+        return new JsonResult(result.Select(m => new SystemMessageModel(m)));
     }
     #endregion
 }
