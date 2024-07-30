@@ -51,9 +51,8 @@ const ReportInstancePreview: React.FC = () => {
       const textBlob = new Blob([email.body], { type: 'text/plain' });
       const clip = new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob });
       navigator.clipboard.write([clip]);
-      window.location.href = `mailto:${to}?bcc=${subscribers.join('; ')}&subject=${
-        email.subject
-      }&body=Click Paste - Keep Source Formatting`;
+      const bcc = subscribers.length ? `bcc=${subscribers.join('; ')}` : '';
+      window.location.href = `mailto:${to}?${bcc}&subject=${email.subject}&body=Click Paste - Keep Source Formatting`;
     },
     [],
   );
