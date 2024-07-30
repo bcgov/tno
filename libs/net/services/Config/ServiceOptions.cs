@@ -59,5 +59,10 @@ public class ServiceOptions
     /// get/set - Who to send email failures to.
     /// </summary>
     public string EmailTo { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Number of millisecond timeout for HTTP requests.
+    /// </summary>
+    public int HttpRequestTimeoutMs { get; set; } = 300000;
     #endregion
 }
