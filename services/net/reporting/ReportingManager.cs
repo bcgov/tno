@@ -583,14 +583,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                         {
                             // Send the email.
                             var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, linkOnlyFormatCC, linkOnlyFormatBCC, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
-                            responseModel.LinkOnlyFormatResponse = responseLinkOnly != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions)) : JsonDocument.Parse("{}");
+                            responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions));
                         }
 
                         if (!report.Settings.DoNotSendEmail && (fullTextFormatTo.Any() || fullTextFormatCC.Any() || fullTextFormatBCC.Any() || !String.IsNullOrEmpty(request.To)))
                         {
                             // Send the email.
                             var responseFullText = await SendEmailAsync(request, fullTextFormatTo, fullTextFormatCC, fullTextFormatBCC, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
-                            responseModel.FullTextFormatResponse = responseFullText != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions)) : JsonDocument.Parse("{}");
+                            responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions));
                         }
 
                         if (instanceModel != null)
@@ -784,7 +784,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                         this.Logger.LogDebug("Report is sending link only email. ReportId:{reportId}, InstanceId:{instanceId}", report.Id, instance.Id);
                         // Send the email.
                         var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, linkOnlyFormatCC, linkOnlyFormatBCC, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
-                        responseModel.LinkOnlyFormatResponse = responseLinkOnly != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions)) : JsonDocument.Parse("{}");
+                        responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions));
                     }
 
                     if (!report.Settings.DoNotSendEmail && (fullTextFormatTo.Any() || fullTextFormatCC.Any() || fullTextFormatBCC.Any() || !String.IsNullOrEmpty(request.To)))
@@ -792,7 +792,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                         this.Logger.LogDebug("Report is sending full text email. ReportId:{reportId}, InstanceId:{instanceId}", report.Id, instance.Id);
                         // Send the email.
                         var responseFullText = await SendEmailAsync(request, fullTextFormatTo, fullTextFormatCC, fullTextFormatBCC, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
-                        responseModel.FullTextFormatResponse = responseFullText != null ? JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions)) : JsonDocument.Parse("{}");
+                        responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions));
 
                     }
 
@@ -909,7 +909,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 var response = await SendEmailAsync(request, to, cc, bcc, subject, body, $"{instance.TemplateType}-{instance.Id}");
 
                 // Update the report instance with the email response.
-                instance.Response = response != null ? JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions)) : JsonDocument.Parse("{}");
+                instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
             }
 
             instance.IsPublished = true;
@@ -928,7 +928,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <param name="body"></param>
     /// <param name="tag"></param>
     /// <returns></returns>
-    private async Task<EmailResponseModel?> SendEmailAsync(ReportRequestModel request, IEnumerable<string> to, IEnumerable<string> cc, IEnumerable<string> bcc, string subject, string body, string tag)
+    private async Task<EmailResponseModel[]> SendEmailAsync(ReportRequestModel request, IEnumerable<string> to, IEnumerable<string> cc, IEnumerable<string> bcc, string subject, string body, string tag)
     {
         await HandleChesEmailOverrideAsync(request.RequestorId);
 
@@ -970,20 +970,42 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             }
         }
 
-        if (!contexts.Any()) return null;
+        if (!contexts.Any()) return Array.Empty<EmailResponseModel>();
 
-        var merge = new EmailMergeModel(this.ChesOptions.From, contexts, subject, body)
+        if (this.Options.UseMailMerge)
         {
-            // TODO: Extract values from report settings.
-            Encoding = EmailEncodings.Utf8,
-            BodyType = EmailBodyTypes.Html,
-            Priority = EmailPriorities.Normal,
-        };
+            var merge = new EmailMergeModel(this.ChesOptions.From, contexts, subject, body)
+            {
+                // TODO: Extract values from report settings.
+                Encoding = EmailEncodings.Utf8,
+                BodyType = EmailBodyTypes.Html,
+                Priority = EmailPriorities.Normal,
+            };
 
-        var response = await this.Ches.SendEmailAsync(merge);
-        this.Logger.LogInformation("Report sent to CHES.  ReportId:{report}, InstanceId:{instance}", request.ReportId, request.ReportInstanceId);
+            var response = await this.Ches.SendEmailAsync(merge);
+            this.Logger.LogInformation("Report sent to CHES.  ReportId:{report}, InstanceId:{instance}", request.ReportId, request.ReportInstanceId);
 
-        return response;
+            return new[] { response };
+        }
+        else
+        {
+            var responses = new List<EmailResponseModel>();
+            foreach (var context in contexts)
+            {
+                var email = new EmailModel(this.ChesOptions.From, context.To.ToArray(), subject, body)
+                {
+                    Cc = context.Cc.ToArray(),
+                    Bcc = context.Bcc.ToArray(),
+                    // TODO: Extract values from report settings.
+                    Encoding = EmailEncodings.Utf8,
+                    BodyType = EmailBodyTypes.Html,
+                    Priority = EmailPriorities.Normal,
+                };
+                var response = await this.Ches.SendEmailAsync(email);
+                responses.Add(response);
+            }
+            return responses.ToArray();
+        }
     }
 
     /// <summary>
