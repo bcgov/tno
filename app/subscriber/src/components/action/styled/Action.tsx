@@ -18,13 +18,6 @@ export const Action = styled.div<IActionProps>`
   max-height: 26px;
 
   &:hover:not([disabled]) * {
-    color: ${(props) => props.theme.css.linkPrimaryHoverColor};
-    filter: ${(props) => props.theme.css.dropShadow};
-    cursor: pointer;
-  }
-
-  &:hover:not([disabled]) svg * {
-    color: ${(props) => props.theme.css.linkPrimaryHoverColor};
     filter: ${(props) => props.theme.css.dropShadow};
     cursor: pointer;
   }
@@ -43,7 +36,7 @@ export const Action = styled.div<IActionProps>`
     color: ${(props) =>
       !props.disabled ? props.theme.css.linkPrimaryColor : props.theme.css.linkGrayColor};
     text-transform: uppercase;
-    cursor: ${(props) => (!props.disabled ? 'cursor' : 'default')};
+    cursor: ${(props) => (!props.disabled ? 'pointer' : 'default')};
   }
 
   svg {
@@ -56,9 +49,5 @@ export const Action = styled.div<IActionProps>`
     min-width: ${(props) => props.size};
     color: ${(props) =>
       !props.disabled ? props.theme.css.iconPrimaryColor : props.theme.css.iconGrayColor};
-
-    &:hover {
-      cursor: ${(props) => (!props.disabled ? 'cursor' : 'default')};
-    }
   }
 `;
