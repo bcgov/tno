@@ -52,9 +52,11 @@ export const Modal: React.FC<IModalProps> = ({
   isSubmitting: initIsSubmitting,
 }) => {
   const [isSubmitting, setIsSubmitting] = React.useState(initIsSubmitting);
+
   React.useEffect(() => {
     setIsSubmitting(initIsSubmitting);
   }, [initIsSubmitting]);
+
   return isShowing
     ? ReactDOM.createPortal(
         <styled.Modal hasHeight={hasHeight}>
@@ -73,7 +75,11 @@ export const Modal: React.FC<IModalProps> = ({
                   </Row>
                 )}
                 <Col alignItems="flex-start" className="modal-body">
-                  {body && <div dangerouslySetInnerHTML={{ __html: body.toString() }}></div>}
+                  {typeof body === 'string' ? (
+                    <div dangerouslySetInnerHTML={{ __html: body as any }}></div>
+                  ) : (
+                    body
+                  )}
                 </Col>
                 <Row className="button-row">
                   {!customButtons ? (

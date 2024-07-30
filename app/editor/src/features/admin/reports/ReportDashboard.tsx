@@ -7,3 +7,5 @@ export const ReportDashboard: React.FC = () => {
     </styled.ReportDashboard>
   );
 };
+
+export default ReportDashboard;

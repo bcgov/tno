@@ -9,8 +9,10 @@ export const ReportPreview = styled.div`
     margin: 2rem;
 
     > .preview-subject {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
       flex: 1;
-      max-width: calc(100% - 2rem);
       background-color: white;
       padding: 1rem;
       border-top-right-radius: 0.5rem;
@@ -21,7 +23,6 @@ export const ReportPreview = styled.div`
 
     > .preview-body {
       flex: 1;
-      max-width: calc(100% - 2rem);
       background-color: white;
       padding: 1rem;
       border-bottom-right-radius: 0.5rem;
@@ -31,6 +32,10 @@ export const ReportPreview = styled.div`
       img {
         max-width: 80%;
       }
+    }
+
+    .email-body {
+      display: none;
     }
   }
 `;

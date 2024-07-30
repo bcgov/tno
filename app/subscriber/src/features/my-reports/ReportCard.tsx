@@ -9,7 +9,7 @@ import { useApp, useReports } from 'store/hooks';
 import { Col, IReportModel, ReportSectionTypeName, Row, Show, Spinner } from 'tno-core';
 
 import { ReportKindIcon } from './components';
-import { calcNextScheduleSend, getLastSent } from './utils';
+import { calcNextScheduleSend, getLastSent, getStatus } from './utils';
 
 export interface IReportCardProps {
   /** The report to display on this card. */
@@ -35,6 +35,8 @@ export const ReportCard: React.FC<IReportCardProps> = ({
 }) => {
   const [, { getReport }] = useReports();
   const [{ requests }] = useApp();
+
+  const instance = report.instances.length ? report.instances[0] : undefined;
 
   const fetchReport = React.useCallback(
     async (id: number) => {
@@ -88,6 +90,12 @@ export const ReportCard: React.FC<IReportCardProps> = ({
             </div>
             <div>
               <h3 className="upper">Status</h3>
+              <Show visible={!!instance}>
+                <Row>
+                  <Col>Status:</Col>
+                  <Col flex="1">{getStatus(instance!.status)}</Col>
+                </Row>
+              </Show>
               <Row>
                 <Col>Last sent:</Col>
                 <Col flex="1">{getLastSent(report)}</Col>

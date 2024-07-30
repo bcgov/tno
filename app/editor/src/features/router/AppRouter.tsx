@@ -156,10 +156,6 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
             path="reports/*"
             element={<PrivateRoute claims={Claim.administrator} element={<ReportsRouter />} />}
           />
-          <Route
-            path="reports/*"
-            element={<PrivateRoute claims={Claim.administrator} element={<ReportsRouter />} />}
-          />
           <Route path="demo" element={<DemoPage />} />
           <Route path="error" element={<InternalServerError />} />
           <Route path="*" element={<NotFound />} />
