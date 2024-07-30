@@ -93,7 +93,7 @@ export const ReportCard: React.FC<IReportCardProps> = ({
               <Show visible={!!instance}>
                 <Row>
                   <Col>Status:</Col>
-                  <Col flex="1">{getStatus(instance!.status)}</Col>
+                  <Col flex="1">{instance ? getStatus(instance.status) : 'Draft'}</Col>
                 </Row>
               </Show>
               <Row>
