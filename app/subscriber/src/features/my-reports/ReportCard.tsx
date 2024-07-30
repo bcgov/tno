@@ -3,8 +3,8 @@ import { Button } from 'components/button';
 import { Section } from 'components/section';
 import { formatDate } from 'features/utils';
 import React from 'react';
-import { FaChartPie, FaNewspaper, FaSquarePollVertical, FaTrashCan } from 'react-icons/fa6';
-import { Link } from 'react-router-dom';
+import { FaChartPie, FaEye, FaGear, FaTrashCan } from 'react-icons/fa6';
+import { useNavigate } from 'react-router-dom';
 import { useApp, useReports } from 'store/hooks';
 import { Col, IReportModel, ReportSectionTypeName, Row, Show, Spinner } from 'tno-core';
 
@@ -35,6 +35,7 @@ export const ReportCard: React.FC<IReportCardProps> = ({
 }) => {
   const [, { getReport }] = useReports();
   const [{ requests }] = useApp();
+  const navigate = useNavigate();
 
   const instance = report.instances.length ? report.instances[0] : undefined;
 
@@ -49,29 +50,31 @@ export const ReportCard: React.FC<IReportCardProps> = ({
 
   const isLoading = requests.some((r) => r.url === `get-report-${report.id}`);
 
+  const includesMediaAnalytics = React.useMemo(() => {
+    return report.sections.some(
+      (section) => section.sectionType === ReportSectionTypeName.MediaAnalytics,
+    );
+  }, [report.sections]);
+
   return (
     <Section
       key={report.id}
       className={`report-card${className ? ` ${className}` : ''}`}
-      icon={
-        report.sections.some(
-          (section) => section.sectionType === ReportSectionTypeName.MediaAnalytics,
-        ) ? (
-          <FaChartPie />
-        ) : (
-          <FaNewspaper />
-        )
-      }
       label={
-        <Row gap="1rem" alignItems="center" justifyContent="space-between">
-          {report.name}
+        <Row gap="1rem" alignItems="center">
           <ReportKindIcon report={report} />
+          <span className="report-name">{report.name}</span>
         </Row>
       }
       actions={
-        <Button onClick={() => onClick?.(report)}>
-          View report <FaSquarePollVertical />
-        </Button>
+        <>
+          <Button onClick={() => onClick?.(report)}>
+            View report <FaEye />
+          </Button>
+          <Button onClick={() => navigate(`/reports/${report.id}`)}>
+            <FaGear />
+          </Button>
+        </>
       }
       onChange={async (open) => {
         if (open) {
@@ -83,11 +86,17 @@ export const ReportCard: React.FC<IReportCardProps> = ({
         <Row gap="1rem">
           <Col flex="1" gap="1rem">
             <div>
-              <div>
+              <Show visible={!!report.description}>
                 <h3 className="upper">Report Description</h3>
-                <p>{report.description ? report.description : 'NO DESCRIPTION PROVIDED'}</p>
-              </div>
+                <p>{report.description}</p>
+              </Show>
             </div>
+            {includesMediaAnalytics && (
+              <Row className="media-analytics">
+                <FaChartPie />
+                <span>Includes Media Analytics</span>
+              </Row>
+            )}
             <div>
               <h3 className="upper">Status</h3>
               <Show visible={!!instance}>
@@ -109,13 +118,9 @@ export const ReportCard: React.FC<IReportCardProps> = ({
             </div>
           </Col>
           <Col flex="1" gap="1rem" className="report-card-schedule">
-            <div>
-              <h3 className="upper">Settings</h3>
-              <Link to={`/reports/${report.id}`}>edit settings</Link>
-            </div>
-            <Show visible={!report.events.some((e) => e.isEnabled)}>
-              <Row>Manual Report</Row>
-            </Show>
+            <Row className="report-type-info">
+              <ReportKindIcon includeDescription report={report} />
+            </Row>
             <Show visible={report.events.some((e) => e.isEnabled)}>
               {report.events.map((schedule, index) => {
                 const nextSend = formatDate(calcNextScheduleSend(report, schedule) ?? '', true);
@@ -130,15 +135,12 @@ export const ReportCard: React.FC<IReportCardProps> = ({
                           <span className="report-schedule-disabled">disabled</span>
                         )}
                       </Col>
-                      {schedule.settings.autoSend ? <Col>auto send</Col> : <Col>auto</Col>}
                     </Row>
                     <Row>
-                      <Col flex="1">
+                      <div className="next-scheduled">
                         Next scheduled {schedule.settings.autoSend ? 'send' : 'run'}:
-                      </Col>
-                      <Col flex="1" alignItems="flex-end">
-                        {nextSend}
-                      </Col>
+                      </div>
+                      <div>{!!nextSend ? nextSend : 'n/a'}</div>
                     </Row>
                   </div>
                 );

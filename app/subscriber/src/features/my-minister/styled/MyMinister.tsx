@@ -20,6 +20,7 @@ export const MyMinister = styled.div`
 
   .mentions {
     display: flex;
+    max-height: fit-content;
   }
 
   .mention-tag {
@@ -28,7 +29,6 @@ export const MyMinister = styled.div`
     background: ${(props) => props.theme.css.tagBackgroundColor};
     padding: 4px 4px;
     justify-content: center;
-    align-items: center;
     gap: 2px;
     color: #000;
     text-align: center;
@@ -38,6 +38,5 @@ export const MyMinister = styled.div`
     font-weight: 600;
     line-height: 12px; /* 100% */
     text-transform: uppercase;
-    margin-right: 6px;
   }
 `;
