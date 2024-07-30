@@ -44,6 +44,9 @@ export const Menu: React.FC = () => {
               </NavDropdown>
               <NavDropdown title="Report Building" id="basic-nav-dropdown">
                 <Container>
+                  <MenuDropdownItem claim={Claim.administrator} to="/admin/reports/dashboard">
+                    Dashboard
+                  </MenuDropdownItem>
                   <MenuDropdownItem claim={Claim.administrator} to="/admin/filters">
                     Filters
                   </MenuDropdownItem>

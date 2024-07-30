@@ -195,7 +195,7 @@ public class ReportInstanceController : ControllerBase
             return new JsonResult(result);
         }
 
-        return new JsonResult(new ReportResultModel(instance.Subject, instance.Body, null));
+        return new JsonResult(new ReportResultModel(instance));
     }
 
     /// <summary>

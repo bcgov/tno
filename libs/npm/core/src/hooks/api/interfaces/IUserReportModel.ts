@@ -1,8 +1,11 @@
 import { EmailSendToName, ReportDistributionFormatName } from '../constants';
+import { IUserModel } from './IUserModel';
 
 export interface IUserReportModel {
   /** Foreign key to user */
   userId: number;
+  /** User object */
+  user?: IUserModel;
   /** Foreign key to report */
   reportId: number;
 

@@ -7,6 +7,16 @@ public class ReportResultModel
 {
     #region Properties
     /// <summary>
+    /// get/set - The report primary key.
+    /// </summary>
+    public int ReportId { get; set; }
+
+    /// <summary>
+    /// get/set - The report instance primary key.
+    /// </summary>
+    public long? InstanceId { get; set; }
+
+    /// <summary>
     /// get/set -
     /// </summary>
     public string Subject { get; set; } = "";
@@ -34,10 +44,12 @@ public class ReportResultModel
     /// <param name="subject"></param>
     /// <param name="body"></param>
     /// <param name="data"></param>
-    public ReportResultModel(string subject, string body, object? data = null)
+    public ReportResultModel(Entities.ReportInstance instance, object? data = null)
     {
-        this.Subject = subject;
-        this.Body = body;
+        this.ReportId = instance.ReportId;
+        this.InstanceId = instance.Id;
+        this.Subject = instance.Subject;
+        this.Body = instance.Body;
         this.Data = data;
     }
     #endregion
