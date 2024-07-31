@@ -9,9 +9,9 @@ export interface IElasticQueryHelpProps {
 }
 
 /** Component that displays help text for elastic search queries */
-export const ElasticQueryHelp: React.FC<IElasticQueryHelpProps> = ({ queryType }) => {
-  if (!queryType) return null;
-
+export const ElasticQueryHelp: React.FC<IElasticQueryHelpProps> = ({
+  queryType = 'simple-query-string',
+}) => {
   return (
     <styled.ElasticInfo className="elastic-info">
       <FaInfoCircle data-tooltip-id="elastic-info" className="info-icon" />
