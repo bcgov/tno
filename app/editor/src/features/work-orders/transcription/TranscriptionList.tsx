@@ -116,9 +116,8 @@ export const TranscriptionList: React.FC = () => {
     (column: IGridHeaderColumnProps, direction: SortDirection) => {
       if (column.name) {
         const sort =
-          direction === SortDirection.None
-            ? []
-            : [`${column.name}:${direction === SortDirection.Descending ? 'desc' : 'asc'}`];
+          direction === SortDirection.Descending ? [`${column.name} desc`] : [column.name];
+
         storeFilter({ ...filter, sort });
       }
     },
@@ -171,6 +170,7 @@ export const TranscriptionList: React.FC = () => {
           pageIndex={page.pageIndex}
           itemsPerPage={page.pageSize}
           totalItems={page.total}
+          isOneBasedIndexing={true}
           showPaging
           onNavigatePage={async (page) => {
             handlePageChange(page);
@@ -182,7 +182,7 @@ export const TranscriptionList: React.FC = () => {
             handleSortChange(column, direction);
           }}
           renderHeader={() => [
-            { name: 'configuration.headline', label: 'Headline', size: '40%', sortable: true },
+            { name: 'configuration.headline', label: 'Headline', size: '40%', sortable: false },
             { name: 'content.otherSource', label: 'Source', size: '14%', sortable: true },
             { name: 'content.mediaType', label: 'Media Type', size: '13%', sortable: true },
             { name: 'requestor.username', label: 'Requested By', size: '11%', sortable: true },

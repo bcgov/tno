@@ -25,6 +25,7 @@ interface IGridProps<T> {
   pageIndex?: number;
   itemsPerPage?: number;
   totalItems?: number;
+  isOneBasedIndexing?: boolean;
   renderHeader?: () => (React.ReactNode | IGridHeaderColumnProps)[];
   showPaging?: boolean;
   renderColumns: (row: T, index?: number) => (React.ReactNode | IGridColumnProps)[];
@@ -45,6 +46,7 @@ export const Grid = <T,>({
   totalItems,
   showPaging,
   className,
+  isOneBasedIndexing = false,
   renderHeader,
   renderColumns,
   onNavigatePage,
@@ -113,11 +115,12 @@ export const Grid = <T,>({
       </div>
       {showPaging && (
         <GridPager
-          pageIndex={pageIndex}
+          pageIndex={isOneBasedIndexing ? pageIndex + 1 : pageIndex}
           itemsPerPage={itemsPerPage}
           totalItems={totalItems}
           onNavigatePage={onNavigatePage}
           onQuantityChange={onQuantityChange}
+          isOneBasedIndexing={isOneBasedIndexing}
         />
       )}
     </styled.Grid>

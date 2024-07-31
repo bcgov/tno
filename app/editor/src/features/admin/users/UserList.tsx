@@ -78,10 +78,10 @@ const UserList: React.FC = () => {
 
   const handlePageChange = React.useCallback(
     (page: number) => {
-      if (userFilter.page !== page - 1) {
+      if (userFilter.page !== page) {
         const newFilter = {
           ...userFilter,
-          page: page - 1,
+          page: page,
         };
         storeFilter(newFilter);
       }
@@ -138,7 +138,7 @@ const UserList: React.FC = () => {
           { name: 'lastName', label: 'Last Name', size: '14%', sortable: true },
           { name: 'firstName', label: 'First Name', size: '14%', sortable: true },
           { name: 'roles', label: 'Role(s)', size: '15%', sortable: true },
-          { name: 'lastLogin', label: 'Last Login', sortable: true },
+          { name: 'lastLoginOn', label: 'Last Login', sortable: true },
           { name: 'isEnabled', label: 'Enabled', size: '7%', sortable: true },
           { name: 'status', label: 'Status', size: '8%', sortable: true },
         ]}
