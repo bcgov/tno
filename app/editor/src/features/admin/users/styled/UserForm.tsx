@@ -29,6 +29,17 @@ export const UserForm = styled(FormPage)`
       width: calc(100% - 1rem);
       max-height: 500px;
       overflow-y: scroll;
+
+      > div {
+        padding: 0.25rem;
+        gap: 0.25rem;
+
+        > div {
+          padding: 0.25rem;
+          background-color: ${(props) => props.theme.css.beigeBackgroundColor};
+          border-radius: 0.25rem;
+        }
+      }
     }
   }
 

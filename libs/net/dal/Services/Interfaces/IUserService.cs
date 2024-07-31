@@ -13,7 +13,9 @@ public interface IUserService : IBaseService<User, int>
 
     User? FindByUserKey(string key);
 
-    User? UpdatePreferences(User user);
+    User UpdateDistributionList(User entity);
+
+    User UpdatePreferences(User user);
 
     User? FindByUsername(string username);
     IEnumerable<User> FindByEmail(string email);
