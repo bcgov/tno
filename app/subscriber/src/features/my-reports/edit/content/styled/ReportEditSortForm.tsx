@@ -13,6 +13,11 @@ export const ReportEditSortForm = styled.div`
     gap: 0.5rem;
     flex-wrap: nowrap;
 
+    &:hover {
+      background-color: ${(props) => props.theme.css.lineSecondaryColor};
+      cursor: pointer;
+    }
+
     > div {
       justify-content: center;
     }
