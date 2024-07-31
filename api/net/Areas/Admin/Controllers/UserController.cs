@@ -140,7 +140,7 @@ public class UserController : ControllerBase
             await _keycloakHelper.UpdateUserRolesAsync(key, model.Roles.ToArray());
         }
 
-        var user = _userService.UpdateAndSave((Entities.User)model);
+        var user = _userService.UpdateDistributionList((Entities.User)model);
         if (!model.IsEnabled)
         {
             await _notificationService.Unsubscribe(model.Id);
@@ -180,6 +180,22 @@ public class UserController : ControllerBase
     {
         var result = _userService.TransferAccount(model) ?? throw new NoContentException();
         return new JsonResult(new UserModel(result, _serializerOptions));
+    }
+
+    /// <summary>
+    /// Find all the users in the distribution list for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/distribution")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<UserModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "User" })]
+    public IActionResult FindDistributionListById(int id)
+    {
+        var result = _userService.GetDistributionList(id);
+        return new JsonResult(result.Select(r => new UserModel(r)));
     }
     #endregion
 }

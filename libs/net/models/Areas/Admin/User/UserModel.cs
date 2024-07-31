@@ -123,6 +123,11 @@ public class UserModel : AuditColumnsModel
     /// get/set - An array of media types not accessible to this user.
     /// </summary>
     public IEnumerable<int> MediaTypes { get; set; } = Array.Empty<int>();
+
+    /// <summary>
+    /// get/set - An array of users in a distribution list.
+    /// </summary>
+    public IEnumerable<UserModel> Distribution { get; set; } = Array.Empty<UserModel>();
     #endregion
 
     #region Constructors
@@ -163,6 +168,7 @@ public class UserModel : AuditColumnsModel
         this.Filters = entity.Filters.Select(f => new FilterModel(f, serializerOptions ?? JsonSerializerOptions.Default));
         this.Sources = entity.SourcesManyToMany.Select(s => s.SourceId).ToArray();
         this.MediaTypes = entity.MediaTypesManyToMany.Select(s => s.MediaTypeId).ToArray();
+        this.Distribution = entity.Distribution.Where(d => d.LinkedUser != null).Select(d => new UserModel(d.LinkedUser!)).ToArray();
     }
     #endregion
 
@@ -229,6 +235,7 @@ public class UserModel : AuditColumnsModel
         entity.OrganizationsManyToMany.AddRange(model.Organizations.Select(o => new Entities.UserOrganization(entity.Id, o.Id)));
         entity.SourcesManyToMany.AddRange(model.Sources.Select(s => new Entities.UserSource(entity.Id, s)));
         entity.MediaTypesManyToMany.AddRange(model.MediaTypes.Select(s => new Entities.UserMediaType(entity.Id, s)));
+        entity.Distribution.AddRange(model.Distribution.Select(d => new Entities.UserDistribution(entity.Id, d.Id)));
 
         return entity;
     }
