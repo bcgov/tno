@@ -6,7 +6,7 @@ using TNO.Entities;
 
 namespace TNO.DAL.Services;
 
-public class AVOverviewInstanceService : BaseService<AVOverviewInstance, int>, IAVOverviewInstanceService
+public class AVOverviewInstanceService : BaseService<AVOverviewInstance, long>, IAVOverviewInstanceService
 {
     #region Variables
     #endregion
@@ -22,7 +22,7 @@ public class AVOverviewInstanceService : BaseService<AVOverviewInstance, int>, I
     #endregion
 
     #region Methods
-    public override AVOverviewInstance? FindById(int id)
+    public override AVOverviewInstance? FindById(long id)
     {
         return this.Context.AVOverviewInstances
             .AsNoTracking()
@@ -133,6 +133,77 @@ public class AVOverviewInstanceService : BaseService<AVOverviewInstance, int>, I
             }
         });
         return base.Update(entity);
+    }
+
+    public IEnumerable<UserAVOverviewInstance> GetUserAVOverviewInstances(long instanceId)
+    {
+        return this.Context.UserAVOverviewInstances
+            .AsNoTracking()
+            .Include(uri => uri.User)
+            .Where(uri => uri.InstanceId == instanceId)
+            .ToArray();
+    }
+
+    public UserAVOverviewInstance Add(UserAVOverviewInstance entity)
+    {
+        this.Context.Add(entity);
+        return entity;
+    }
+
+    public UserAVOverviewInstance AddAndSave(UserAVOverviewInstance entity)
+    {
+        this.Add(entity);
+        this.CommitTransaction();
+        return entity;
+    }
+
+    public UserAVOverviewInstance Update(UserAVOverviewInstance entity)
+    {
+        this.Context.Update(entity);
+        return entity;
+    }
+
+    public UserAVOverviewInstance UpdateAndSave(UserAVOverviewInstance entity)
+    {
+        this.Update(entity);
+        this.CommitTransaction();
+        return entity;
+    }
+
+    public IEnumerable<UserAVOverviewInstance> UpdateAndSave(IEnumerable<UserAVOverviewInstance> entities)
+    {
+        var instanceIds = entities.Select(e => e.InstanceId).Distinct().ToArray();
+        var originalInstances = this.Context.UserAVOverviewInstances.Where(uri => instanceIds.Contains(uri.InstanceId)).ToArray();
+        foreach (var entity in entities)
+        {
+            var original = originalInstances.FirstOrDefault(uri => uri.UserId == entity.UserId && uri.InstanceId == entity.InstanceId);
+            if (original == null)
+            {
+                this.Context.Add(entity);
+            }
+            else
+            {
+                original.Status = entity.Status;
+                original.SentOn = entity.SentOn;
+                original.Response = entity.Response;
+                this.Context.Update(original);
+            }
+        }
+        this.CommitTransaction();
+        return entities;
+    }
+
+    public UserAVOverviewInstance Delete(UserAVOverviewInstance entity)
+    {
+        this.Context.Remove(entity);
+        return entity;
+    }
+
+    public UserAVOverviewInstance DeleteAndSave(UserAVOverviewInstance entity)
+    {
+        this.Delete(entity);
+        this.CommitTransaction();
+        return entity;
     }
     #endregion
 }

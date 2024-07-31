@@ -9,7 +9,7 @@ public class AVOverviewInstanceModel : AuditColumnsModel
     /// <summary>
     /// get/set - Primary key.
     /// </summary>
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     // <summary>
     // get/set - The template type.

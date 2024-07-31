@@ -44,5 +44,13 @@ public interface IReportInstanceService : IBaseService<ReportInstance, long>
     /// <param name="updateChildren"></param>
     /// <returns></returns>
     ReportInstance UpdateAndSave(ReportInstance entity, bool updateChildren = false);
-    
+
+    IEnumerable<UserReportInstance> GetUserReportInstances(long instanceId);
+    UserReportInstance Add(UserReportInstance entity);
+    UserReportInstance AddAndSave(UserReportInstance entity);
+    UserReportInstance Update(UserReportInstance entity);
+    UserReportInstance UpdateAndSave(UserReportInstance entity);
+    IEnumerable<UserReportInstance> UpdateAndSave(IEnumerable<UserReportInstance> entities);
+    UserReportInstance Delete(UserReportInstance entity);
+    UserReportInstance DeleteAndSave(UserReportInstance entity);
 }

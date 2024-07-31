@@ -87,6 +87,11 @@ public class ReportInstance : AuditColumns
     /// get - Collection of content associated with this report instance.
     /// </summary>
     public virtual List<Content> Content { get; } = new List<Content>();
+
+    /// <summary>
+    /// get - Collection of user report instance, used to identify who it was sent to.
+    /// </summary>
+    public virtual List<UserReportInstance> UserInstances { get; } = new List<UserReportInstance>();
     #endregion
 
     #region Constructors

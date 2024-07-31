@@ -318,5 +318,81 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
         this.CommitTransaction();
         return report;
     }
+
+
+    public IEnumerable<UserReportInstance> GetUserReportInstances(long instanceId)
+    {
+        return this.Context.UserReportInstances
+            .AsNoTracking()
+            .Include(uri => uri.User)
+            .Where(uri => uri.InstanceId == instanceId)
+            .ToArray();
+    }
+
+    public UserReportInstance Add(UserReportInstance entity)
+    {
+        this.Context.Add(entity);
+        return entity;
+    }
+
+
+    public UserReportInstance AddAndSave(UserReportInstance entity)
+    {
+        this.Add(entity);
+        this.CommitTransaction();
+        return entity;
+    }
+
+    public UserReportInstance Update(UserReportInstance entity)
+    {
+        this.Context.Update(entity);
+        return entity;
+    }
+
+    public UserReportInstance UpdateAndSave(UserReportInstance entity)
+    {
+        this.Update(entity);
+        this.CommitTransaction();
+        return entity;
+    }
+
+    public IEnumerable<UserReportInstance> UpdateAndSave(IEnumerable<UserReportInstance> entities)
+    {
+        var instanceIds = entities.Select(e => e.InstanceId).Distinct().ToArray();
+        var originalInstances = this.Context.UserReportInstances.Where(uri => instanceIds.Contains(uri.InstanceId)).ToArray();
+        foreach (var entity in entities)
+        {
+            var original = originalInstances.FirstOrDefault(uri => uri.UserId == entity.UserId && uri.InstanceId == entity.InstanceId);
+            if (original == null)
+            {
+                this.Context.Add(entity);
+            }
+            else
+            {
+                original.LinkStatus = entity.LinkStatus;
+                original.LinkSentOn = entity.LinkSentOn;
+                original.LinkResponse = entity.LinkResponse;
+                original.TextStatus = entity.TextStatus;
+                original.TextSentOn = entity.TextSentOn;
+                original.TextResponse = entity.TextResponse;
+                this.Context.Update(original);
+            }
+        }
+        this.CommitTransaction();
+        return entities;
+    }
+
+    public UserReportInstance Delete(UserReportInstance entity)
+    {
+        this.Context.Remove(entity);
+        return entity;
+    }
+
+    public UserReportInstance DeleteAndSave(UserReportInstance entity)
+    {
+        this.Delete(entity);
+        this.CommitTransaction();
+        return entity;
+    }
     #endregion
 }

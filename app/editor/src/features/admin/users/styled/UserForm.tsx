@@ -6,6 +6,12 @@ export const UserForm = styled(FormPage)`
   flex-direction: column;
   align-items: center;
 
+  .info {
+    padding: 2rem;
+    background-color: red;
+    color: white;
+  }
+
   .back-button {
     align-self: start;
   }

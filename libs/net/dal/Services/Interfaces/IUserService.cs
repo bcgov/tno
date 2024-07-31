@@ -19,4 +19,6 @@ public interface IUserService : IBaseService<User, int>
     IEnumerable<User> FindByEmail(string email);
     IEnumerable<User> FindByRoles(IEnumerable<string> roles);
     User? TransferAccount(API.Areas.Admin.Models.User.TransferAccountModel account);
+
+    IEnumerable<User> GetDistributionList(int userId);
 }

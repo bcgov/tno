@@ -90,5 +90,56 @@ public class AVOverviewController : ControllerBase
         var instance = _overviewInstanceService.FindById(result.Id) ?? throw new NoContentException("Overview Section does not exist");
         return new JsonResult(new AVOverviewInstanceModel(instance, _serializerOptions));
     }
+
+    /// <summary>
+    /// Get all user report instances for the specified instance 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/responses")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<UserAVOverviewInstanceModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult GetUserAVOverviewInstancesAsync(long id)
+    {
+        var content = _overviewInstanceService.GetUserAVOverviewInstances(id);
+        return new JsonResult(content.Select(c => new UserAVOverviewInstanceModel(c)));
+    }
+
+    /// <summary>
+    /// Add or update an array of user report instances.
+    /// These keep track of who a report was sent to and the status.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost("response")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(UserAVOverviewInstanceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "ReportInstance" })]
+    public IActionResult AddOrUpdate(UserAVOverviewInstanceModel model)
+    {
+        var result = _overviewInstanceService.UpdateAndSave((Entities.UserAVOverviewInstance)model);
+        return new JsonResult(new UserAVOverviewInstanceModel(result));
+    }
+
+    /// <summary>
+    /// Add or update an array of user report instances.
+    /// These keep track of who a report was sent to and the status.
+    /// </summary>
+    /// <param name="models"></param>
+    /// <returns></returns>
+    [HttpPost("responses")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<UserAVOverviewInstanceModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "ReportInstance" })]
+    public IActionResult AddOrUpdate(IEnumerable<UserAVOverviewInstanceModel> models)
+    {
+        var entities = models.Select(m => (Entities.UserAVOverviewInstance)m);
+        var result = _overviewInstanceService.UpdateAndSave(entities);
+        return new JsonResult(result.Select(r => new UserAVOverviewInstanceModel(r)));
+    }
     #endregion
 }
