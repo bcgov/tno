@@ -41,4 +41,5 @@ export interface IUserModel extends IAuditColumnsModel {
   colleagues?: IUserColleagueModel[];
   sources?: number[];
   mediaTypes?: number[];
+  distribution?: IUserModel[];
 }

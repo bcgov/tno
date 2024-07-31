@@ -11,12 +11,12 @@ import {
   FormikText,
   FormikTextArea,
   getEnumStringOptions,
-  IUserEmailModel,
   IUserModel,
   OptionItem,
   Row,
   Section,
   Select,
+  sortObject,
   Text,
   UserAccountTypeName,
 } from 'tno-core';
@@ -27,7 +27,7 @@ import {
  */
 export const UserFormDistribution: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IUserModel>();
-  const [, { findUsers }] = useUsers();
+  const [, { getDistributionListById, findUsers }] = useUsers();
 
   const [keyword, setKeyword] = React.useState('');
   const [users, setUsers] = React.useState<IUserModel[]>([]);
@@ -36,28 +36,25 @@ export const UserFormDistribution: React.FC = () => {
   const accountTypeOptions = getEnumStringOptions(UserAccountTypeName).filter(
     (o) => o.value !== UserAccountTypeName.SystemAccount,
   );
-  const userOptions = users.map(
-    (u) =>
-      new OptionItem(
-        `${u.preferredEmail ? u.preferredEmail : u.email} - ${
-          [UserAccountTypeName.Direct].includes(u.accountType)
-            ? u.username
-            : u.accountType.toString()
-        }`,
-        u.id,
-      ),
-  );
+  const userOptions = users
+    .filter((u) =>
+      [UserAccountTypeName.Direct, UserAccountTypeName.Indirect].includes(u.accountType),
+    )
+    .map(
+      (u) =>
+        new OptionItem(
+          `${u.preferredEmail ? u.preferredEmail : u.email} - ${
+            [UserAccountTypeName.Direct].includes(u.accountType)
+              ? u.username
+              : u.accountType.toString()
+          }`,
+          u.id,
+        ),
+    );
 
-  const addresses: IUserEmailModel[] = values.preferences?.addresses ?? [];
-  const sortedAddresses = [...addresses].sort((address1, address2) => {
-    if (address1.email.toLowerCase() < address2.email.toLowerCase()) {
-      return -1;
-    }
-    if (address1.email.toLowerCase() > address2.email.toLowerCase()) {
-      return 1;
-    }
-    return 0;
-  });
+  const sortedDistributionList = values.distribution
+    ? [...values.distribution].sort(sortObject((u) => u.email.toLowerCase()))
+    : [];
 
   const handleFindUsers = React.useCallback(
     async (keyword: string) => {
@@ -73,14 +70,22 @@ export const UserFormDistribution: React.FC = () => {
     [findUsers],
   );
 
+  React.useEffect(() => {
+    if (values.id) {
+      getDistributionListById(values.id)
+        .then((users) => {
+          setFieldValue('distribution', users);
+        })
+        .catch(() => {});
+    }
+    // Only on init.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [values.id]);
+
   return (
     <div className="form-container">
       <Section className="frm-in">
         <label>Account Information</label>
-        <p className="info">
-          DO NOT ADD/EDIT DISTRIBUTION LISTS UNTIL I COMPLETE THE MOST RECENT CHANGES TO REPORTS.
-        </p>
-        <p className="info">THEY DO NO CURRENTLY WORK BECAUSE OF CHES ISSUES.</p>
         <Row gap="1rem">
           <Col>
             <FormikSelect
@@ -132,13 +137,9 @@ export const UserFormDistribution: React.FC = () => {
                 disabled={!selectedUser}
                 onClick={(e) => {
                   const user = users.find((u) => u.id === selectedUser);
-                  const found = user && addresses.some((a) => a.userId === user.id);
+                  const found = user && sortedDistributionList.some((a) => a.id === user.id);
                   if (user && !found) {
-                    const email = user.preferredEmail ? user.preferredEmail : user.email;
-                    setFieldValue('preferences', {
-                      ...values.preferences,
-                      addresses: [{ userId: user.id, email: email }, ...addresses],
-                    });
+                    setFieldValue('distribution', [...sortedDistributionList, user]);
                   }
                   setSelectedUser(0);
                 }}
@@ -149,18 +150,18 @@ export const UserFormDistribution: React.FC = () => {
             <label>Email Addresses</label>
             <Section className="addresses">
               <Col gap="0.5rem">
-                {sortedAddresses.map((address) => {
+                {sortedDistributionList.map((user) => {
                   return (
-                    <Row key={address.userId} gap="0.5rem" alignItems="center">
-                      <Col flex="1">{address.email}</Col>
+                    <Row key={user.id} alignItems="center" nowrap>
+                      <Col flex="1">{user.email}</Col>
                       <Button
                         title="Remove"
                         variant={ButtonVariant.red}
                         onClick={(e) => {
-                          setFieldValue('preferences', {
-                            ...values.preferences,
-                            addresses: sortedAddresses.filter((a) => a.userId !== address.userId),
-                          });
+                          setFieldValue(
+                            'distribution',
+                            sortedDistributionList.filter((a) => a.id !== user.id),
+                          );
                         }}
                       >
                         <FaTrash />

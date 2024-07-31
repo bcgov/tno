@@ -11,6 +11,7 @@ interface IUserController {
   updateUser: (model: IUserModel) => Promise<IUserModel>;
   deleteUser: (model: IUserModel) => Promise<IUserModel>;
   transferAccount: (model: ITransferAccount) => Promise<IUserModel>;
+  getDistributionListById: (id: number) => Promise<IUserModel[]>;
   storeFilter: (filter: IUserListFilter) => void;
 }
 
@@ -81,6 +82,12 @@ export const useUsers = (): [IAdminState, IUserController] => {
             return ds;
           }),
         }));
+        return response.data;
+      },
+      getDistributionListById: async (id: number) => {
+        const response = await dispatch<IUserModel[]>('get-distribution-list', () =>
+          api.getDistributionListById(id),
+        );
         return response.data;
       },
       storeFilter: store.storeUserFilter,

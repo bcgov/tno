@@ -45,5 +45,8 @@ export const useApiAdminUsers = (
         model,
       );
     },
+    getDistributionListById: (id: number) => {
+      return api.get<never, AxiosResponse<IUserModel[]>, any>(`/admin/users/${id}/distribution`);
+    },
   }).current;
 };

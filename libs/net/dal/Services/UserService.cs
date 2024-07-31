@@ -137,6 +137,11 @@ public class UserService : BaseService<User, int>, IUserService
             mediaType.User = entity;
             this.Context.Entry(mediaType).State = EntityState.Added;
         });
+        entity.Distribution.ForEach(user =>
+        {
+            user.User = entity;
+            this.Context.Entry(user).State = EntityState.Added;
+        });
 
         base.AddAndSave(entity);
         return FindById(entity.Id)!;
@@ -198,6 +203,29 @@ public class UserService : BaseService<User, int>, IUserService
 
         base.UpdateAndSave(original);
         return FindById(entity.Id)!;
+    }
+
+    public User UpdateDistributionList(User entity)
+    {
+        var originalDistributions = this.Context.UserDistributions.Where(d => d.UserId == entity.Id).ToArray();
+        originalDistributions.Except(entity.Distribution).ForEach((user) =>
+        {
+            this.Context.Entry(user).State = EntityState.Deleted;
+        });
+        entity.Distribution.ForEach((user) =>
+        {
+            var originalDistribution = originalDistributions.FirstOrDefault(s => s.LinkedUserId == user.LinkedUserId);
+            if (originalDistribution == null)
+            {
+                user.UserId = entity.Id;
+                this.Context.Entry(user).State = EntityState.Added;
+            }
+        });
+
+        entity = this.UpdateAndSave(entity);
+        entity.Distribution.Clear();
+        entity.Distribution.AddRange(this.Context.UserDistributions.Include(d => d.LinkedUser).Where(d => d.UserId == entity.Id));
+        return entity;
     }
 
     public User UpdatePreferences(User model)
