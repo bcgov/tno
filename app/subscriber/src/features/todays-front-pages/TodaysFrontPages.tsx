@@ -9,6 +9,7 @@ import * as styled from './styled';
 
 /** Component that displays front pages defaulting to today's date and adjustable via a date filter. */
 export const TodaysFrontPages: React.FC = () => {
+  window.snowplow('trackPageView');
   const [
     {
       frontPage: { filter: frontPageFilter },
