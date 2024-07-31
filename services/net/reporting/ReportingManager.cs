@@ -1196,13 +1196,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         else
         {
             var responses = new List<EmailResponseModel>();
-            var i = 0;
             foreach (var (user, context) in contexts)
             {
                 var allUsers = new[] { user }.Concat(user.CC.Concat(user.BCC)).Distinct();
                 try
                 {
-                    if (i++ > 1) throw new InvalidOperationException("Testing mid failure");
                     var email = new EmailModel(this.ChesOptions.From, context.To.ToArray(), subject, body)
                     {
                         Cc = context.Cc.ToArray(),
