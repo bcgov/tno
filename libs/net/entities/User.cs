@@ -263,6 +263,11 @@ public class User : AuditColumns
     /// get - List of content notifications this user is subscriber to.
     /// </summary>
     public virtual List<UserContentNotification> ContentNotifications { get; } = new List<UserContentNotification>();
+
+    /// <summary>
+    /// get - A collection of users linked to this user.
+    /// </summary>
+    public virtual List<UserDistribution> Distribution { get; } = new List<UserDistribution>();
     #endregion
 
     #region Constructors

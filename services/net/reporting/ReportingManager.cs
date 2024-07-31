@@ -36,6 +36,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     private readonly ClaimsPrincipal _user;
     static readonly ReportDistributionFormat[] LinkOnlyFormats = new[] { ReportDistributionFormat.LinkOnly, ReportDistributionFormat.ReceiveBoth };
     static readonly ReportDistributionFormat[] FullTextFormats = new[] { ReportDistributionFormat.FullText, ReportDistributionFormat.ReceiveBoth };
+    static readonly ReportStatus[] _successfulEmailStatuses = new[] { ReportStatus.Accepted, ReportStatus.Completed };
     #endregion
 
     #region Properties
@@ -303,7 +304,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                         await GenerateReportAsync(request, instance);
                     }
                     else
-                        this.Logger.LogWarning("Report instance does not exist.  Report Instance: {instance}", request.ReportInstanceId);
+                        this.Logger.LogWarning("Report instance does not exist.  Report Instance: {id}", request.ReportInstanceId);
                 }
                 else
                 {
@@ -313,18 +314,18 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                         await GenerateReportAsync(request, report);
                     }
                     else
-                        this.Logger.LogWarning("Report does not exist.  Report: {report}", request.ReportId);
+                        this.Logger.LogWarning("Report does not exist.  Report: {id}", request.ReportId);
                 }
             }
             else if (request.ReportType == Entities.ReportType.AVOverview)
             {
-                var instance = await this.Api.GetAVOverviewInstanceAsync(request.ReportId);
+                var instance = await this.Api.GetAVOverviewInstanceAsync(request.ReportInstanceId ?? request.ReportId);
                 if (instance != null)
                 {
                     await GenerateReportAsync(request, instance);
                 }
                 else
-                    this.Logger.LogWarning("AV overview instance does not exist.  Instance: {report}", request.ReportId);
+                    this.Logger.LogWarning("AV overview instance does not exist.  Instance: {id}", request.ReportInstanceId);
             }
             else throw new NotImplementedException($"Report template type '{request.ReportType.GetName()}' has not been implemented");
         }
@@ -499,7 +500,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                     PublishedOn = DateTime.UtcNow,
                     Content = instanceContent,
                 };
-                instanceModel = await this.Api.UpdateReportInstanceAsync(instanceModel) ?? throw new InvalidOperationException($"Report instance failed to be returned by API. ReportId:{instanceModel.ReportId}, InstanceId:{instanceModel.Id}");
+                instanceModel = await this.Api.UpdateReportInstanceAsync(instanceModel, true) ?? throw new InvalidOperationException($"Report instance failed to be returned by API. ReportId:{instanceModel.ReportId}, InstanceId:{instanceModel.Id}");
             }
             catch (Exception ex)
             {
@@ -566,12 +567,36 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
             if (failure == null)
             {
-                var linkOnlyFormatTo = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-                var linkOnlyFormatCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-                var linkOnlyFormatBCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-                var fullTextFormatTo = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-                var fullTextFormatCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-                var fullTextFormatBCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+                var userReportInstances = new List<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>();
+                if (!this.Options.UseMailMerge && instanceModel?.Id > 0)
+                {
+                    // Get users who have either received the email, or failed.
+                    userReportInstances.AddRange(await this.Api.GetUserReportInstancesAsync(instanceModel.Id));
+                }
+
+                var linkOnlyFormatTo = new List<UserEmail>();
+                var linkOnlyFormatCC = new List<UserEmail>();
+                var linkOnlyFormatBCC = new List<UserEmail>();
+                foreach (var user in linkOnlyFormatSubscribers)
+                {
+                    // Only include users who have not received an email yet.
+                    var (a, b, c) = await GetEmailAddressesAsync(user.UserId, user.User!.GetEmail(), user.User!.AccountType, user.SendTo);
+                    linkOnlyFormatTo.AddRange(a.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
+                    linkOnlyFormatCC.AddRange(b.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
+                    linkOnlyFormatBCC.AddRange(c.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
+                }
+
+                var fullTextFormatTo = new List<UserEmail>();
+                var fullTextFormatCC = new List<UserEmail>();
+                var fullTextFormatBCC = new List<UserEmail>();
+                foreach (var user in fullTextFormatSubscribers)
+                {
+                    // Only include users who have not received an email yet.
+                    var (a, b, c) = await GetEmailAddressesAsync(user.UserId, user.User!.GetEmail(), user.User!.AccountType, user.SendTo);
+                    fullTextFormatTo.AddRange(a.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.TextStatus))));
+                    fullTextFormatCC.AddRange(b.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.TextStatus))));
+                    fullTextFormatBCC.AddRange(c.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.TextStatus))));
+                }
 
                 if (request.SendToSubscribers || !String.IsNullOrEmpty(request.To))
                 {
@@ -582,21 +607,53 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                         if (!report.Settings.DoNotSendEmail && String.IsNullOrEmpty(request.To) && (linkOnlyFormatTo.Any() || linkOnlyFormatCC.Any() || linkOnlyFormatBCC.Any()))
                         {
                             // Send the email.
-                            var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, linkOnlyFormatCC, linkOnlyFormatBCC, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
+                            var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, linkOnlyFormatCC, linkOnlyFormatBCC, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly",
+                            async (users, status, response) =>
+                            {
+                                if (instanceModel?.Id > 0)
+                                {
+                                    var userReportInstances = users.Select((user) => new API.Areas.Services.Models.ReportInstance.UserReportInstanceModel(user.UserId, instanceModel.Id)
+                                    {
+                                        LinkStatus = status,
+                                        LinkSentOn = DateTime.UtcNow,
+                                        LinkResponse = response,
+                                    });
+                                    await this.Api.AddOrUpdateUserReportInstancesAsync(userReportInstances);
+                                }
+                            });
                             responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions));
+
+                            if (instanceModel != null)
+                            {
+                                instanceModel.Status = ReportStatus.Accepted;
+                                instanceModel.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+                            }
                         }
 
                         if (!report.Settings.DoNotSendEmail && (fullTextFormatTo.Any() || fullTextFormatCC.Any() || fullTextFormatBCC.Any() || !String.IsNullOrEmpty(request.To)))
                         {
                             // Send the email.
-                            var responseFullText = await SendEmailAsync(request, fullTextFormatTo, fullTextFormatCC, fullTextFormatBCC, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
+                            var responseFullText = await SendEmailAsync(request, fullTextFormatTo, fullTextFormatCC, fullTextFormatBCC, subject, fullTextFormatBody, $"{report.Name}-{report.Id}",
+                            async (users, status, response) =>
+                            {
+                                if (instanceModel?.Id > 0)
+                                {
+                                    var userReportInstances = users.Select((user) => new API.Areas.Services.Models.ReportInstance.UserReportInstanceModel(user.UserId, instanceModel.Id)
+                                    {
+                                        TextStatus = status,
+                                        TextSentOn = DateTime.UtcNow,
+                                        TextResponse = response,
+                                    });
+                                    await this.Api.AddOrUpdateUserReportInstancesAsync(userReportInstances);
+                                }
+                            });
                             responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions));
-                        }
 
-                        if (instanceModel != null)
-                        {
-                            instanceModel.Status = ReportStatus.Accepted;
-                            instanceModel.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+                            if (instanceModel != null)
+                            {
+                                instanceModel.Status = ReportStatus.Accepted;
+                                instanceModel.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+                            }
                         }
                     }
                     catch (ChesException ex)
@@ -639,35 +696,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
         if (instanceModel != null && request.GenerateInstance)
         {
-            // Need to keep trying until successful.
-            // TODO: limit number of attempts.
-            var isUpdated = false;
-            while (!isUpdated)
-            {
-                try
-                {
-                    // We're getting optimistic errors here, most likely due to changes occurring from the UI.  Since we only need to change values related to status, we can get the latest and reapply.
-                    var latestInstanceModel = await this.Api.GetReportInstanceAsync(instanceModel.Id) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
-                    if (latestInstanceModel.Version != instanceModel.Version)
-                    {
-                        latestInstanceModel.Subject = instanceModel.Subject;
-                        latestInstanceModel.Body = instanceModel.Body;
-                        latestInstanceModel.SentOn = instanceModel.SentOn;
-                        latestInstanceModel.Status = instanceModel.Status;
-                        latestInstanceModel.Response = instanceModel.Response;
-                        latestInstanceModel.PublishedOn = instanceModel.PublishedOn;
-                        instanceModel = await this.Api.UpdateReportInstanceAsync(latestInstanceModel) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
-                    }
-                    else
-                        instanceModel = await this.Api.UpdateReportInstanceAsync(instanceModel) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
-
-                    isUpdated = true;
-                }
-                catch (Exception ex)
-                {
-                    this.Logger.LogError(ex, "Failed to update report instance. ReportId:{reportId} InstanceId:{instanceId}", instanceModel.ReportId, instanceModel.Id);
-                }
-            }
+            await UpdateReportInstanceAsync(instanceModel, true);
         }
 
         // Only clear folders if the instance was successfully saved.
@@ -683,7 +712,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         {
             // Set the report instance ID so that retries will be able to continue successfully.
             request.ReportInstanceId = instanceModel?.Id;
-            request.Data = new { Error = failure.Error };
+            request.Data = new { failure.Error };
             throw failure;
         }
     }
@@ -703,20 +732,6 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var resending = instance.SentOn.HasValue && !String.IsNullOrWhiteSpace(instance.Subject) && !String.IsNullOrWhiteSpace(instance.Body);
         var report = instance.Report ?? throw new ArgumentException("Report instance must include the report model.");
         var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
-
-        // If this request is a retry due to a failure, we need to determine at which point the failure occurred.
-        try
-        {
-            var reportingError = request.Data?.Error as ReportingErrors?;
-            if (reportingError != null)
-            {
-                this.Logger.LogInformation("Retrying a failed report. ReportId:{reportId}, InstanceId:{instanceId}", instance.ReportId, instance.Id);
-            }
-        }
-        catch (Exception)
-        {
-            // Ignore for now.
-        }
 
         var searchResults = !resending ? await this.Api.GetContentForReportInstanceIdAsync(instance.Id) : Array.Empty<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>();
         var sectionContent = sections.ToDictionary(s => s.Name, section =>
@@ -764,14 +779,37 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
         if (failure == null)
         {
-            this.Logger.LogDebug("Report is generating subscriber lists. ReportId:{reportId}, InstanceId:{instanceId}, SendToSubscribers:{send}", report.Id, instance.Id, request.SendToSubscribers);
-            var linkOnlyFormatTo = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-            var linkOnlyFormatCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-            var linkOnlyFormatBCC = linkOnlyFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+            var userReportInstances = new List<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>();
+            if (!this.Options.UseMailMerge && instance.Id > 0)
+            {
+                // Get users who have either received the email, or failed.
+                userReportInstances.AddRange(await this.Api.GetUserReportInstancesAsync(instance.Id));
+            }
 
-            var fullTextFormatTo = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-            var fullTextFormatCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
-            var fullTextFormatBCC = fullTextFormatSubscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.User!.GetEmails()).Distinct().ToArray();
+            this.Logger.LogDebug("Report is generating subscriber lists. ReportId:{reportId}, InstanceId:{instanceId}, SendToSubscribers:{send}", report.Id, instance.Id, request.SendToSubscribers);
+            var linkOnlyFormatTo = new List<UserEmail>();
+            var linkOnlyFormatCC = new List<UserEmail>();
+            var linkOnlyFormatBCC = new List<UserEmail>();
+            foreach (var user in linkOnlyFormatSubscribers)
+            {
+                // Only include users who have not received an email yet.
+                var (a, b, c) = await GetEmailAddressesAsync(user.UserId, user.User!.GetEmail(), user.User!.AccountType, user.SendTo);
+                linkOnlyFormatTo.AddRange(a.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
+                linkOnlyFormatCC.AddRange(b.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
+                linkOnlyFormatBCC.AddRange(c.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
+            }
+
+            var fullTextFormatTo = new List<UserEmail>();
+            var fullTextFormatCC = new List<UserEmail>();
+            var fullTextFormatBCC = new List<UserEmail>();
+            foreach (var user in fullTextFormatSubscribers)
+            {
+                // Only include users who have not received an email yet.
+                var (a, b, c) = await GetEmailAddressesAsync(user.UserId, user.User!.GetEmail(), user.User!.AccountType, user.SendTo);
+                fullTextFormatTo.AddRange(a.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.TextStatus))));
+                fullTextFormatCC.AddRange(b.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.TextStatus))));
+                fullTextFormatBCC.AddRange(c.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.TextStatus))));
+            }
 
             if (request.SendToSubscribers || !String.IsNullOrWhiteSpace(request.To))
             {
@@ -783,21 +821,48 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                     {
                         this.Logger.LogDebug("Report is sending link only email. ReportId:{reportId}, InstanceId:{instanceId}", report.Id, instance.Id);
                         // Send the email.
-                        var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, linkOnlyFormatCC, linkOnlyFormatBCC, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly");
+                        var responseLinkOnly = await SendEmailAsync(request, linkOnlyFormatTo, linkOnlyFormatCC, linkOnlyFormatBCC, subject, linkOnlyFormatBody, $"{report.Name}-{report.Id}-linkOnly",
+                            async (users, status, response) =>
+                            {
+                                if (instance.Id > 0)
+                                {
+                                    var userReportInstances = users.Select((user) => new API.Areas.Services.Models.ReportInstance.UserReportInstanceModel(user.UserId, instance.Id)
+                                    {
+                                        LinkStatus = status,
+                                        LinkSentOn = DateTime.UtcNow,
+                                        LinkResponse = response,
+                                    });
+                                    await this.Api.AddOrUpdateUserReportInstancesAsync(userReportInstances);
+                                }
+                            });
                         responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions));
+                        instance.Status = ReportStatus.Accepted;
+                        instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
                     }
 
                     if (!report.Settings.DoNotSendEmail && (fullTextFormatTo.Any() || fullTextFormatCC.Any() || fullTextFormatBCC.Any() || !String.IsNullOrEmpty(request.To)))
                     {
                         this.Logger.LogDebug("Report is sending full text email. ReportId:{reportId}, InstanceId:{instanceId}", report.Id, instance.Id);
                         // Send the email.
-                        var responseFullText = await SendEmailAsync(request, fullTextFormatTo, fullTextFormatCC, fullTextFormatBCC, subject, fullTextFormatBody, $"{report.Name}-{report.Id}");
+                        var responseFullText = await SendEmailAsync(request, fullTextFormatTo, fullTextFormatCC, fullTextFormatBCC, subject, fullTextFormatBody, $"{report.Name}-{report.Id}",
+                            async (users, status, response) =>
+                            {
+                                if (instance.Id > 0)
+                                {
+                                    var userReportInstances = users.Select((user) => new API.Areas.Services.Models.ReportInstance.UserReportInstanceModel(user.UserId, instance.Id)
+                                    {
+                                        TextStatus = status,
+                                        TextSentOn = DateTime.UtcNow,
+                                        TextResponse = response,
+                                    });
+                                    await this.Api.AddOrUpdateUserReportInstancesAsync(userReportInstances);
+                                }
+                            });
                         responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions));
-
+                        instance.Status = ReportStatus.Accepted;
+                        instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
                     }
 
-                    instance.Status = ReportStatus.Accepted;
-                    instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
                 }
                 catch (ChesException ex)
                 {
@@ -824,40 +889,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             {
                 instance.Subject = subject;
                 instance.Body = fullTextFormatBody;
-                instance.Content = searchResults;
                 if (instance.PublishedOn == null) instance.PublishedOn = DateTime.UtcNow;
                 if (request.SendToSubscribers)
                     instance.SentOn = DateTime.UtcNow;
 
-                // Need to keep trying until successful.
-                // TODO: limit number of attempts.
-                var isUpdated = false;
-                while (!isUpdated)
-                {
-                    try
-                    {
-                        // We're getting optimistic errors here, most likely due to changes occurring from the UI.  Since we only need to change values related to status, we can get the latest and reapply.
-                        var latestInstanceModel = await this.Api.GetReportInstanceAsync(instance.Id) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
-                        if (latestInstanceModel.Version != instance.Version)
-                        {
-                            latestInstanceModel.Subject = instance.Subject;
-                            latestInstanceModel.Body = instance.Body;
-                            latestInstanceModel.SentOn = instance.SentOn;
-                            latestInstanceModel.Status = instance.Status;
-                            latestInstanceModel.Response = instance.Response;
-                            latestInstanceModel.PublishedOn = instance.PublishedOn;
-                            instance = await this.Api.UpdateReportInstanceAsync(latestInstanceModel) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
-                        }
-                        else
-                            instance = await this.Api.UpdateReportInstanceAsync(instance) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
-
-                        isUpdated = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        this.Logger.LogError(ex, "Failed to update report instance. ReportId:{reportId} InstanceId:{instanceId}", instance.ReportId, instance.Id);
-                    }
-                }
+                await UpdateReportInstanceAsync(instance, false);
             }
         }
 
@@ -872,9 +908,140 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
         if (failure != null)
         {
-            request.Data = new { Error = failure.Error };
+            request.Data = new { failure.Error };
             throw failure;
         }
+    }
+
+    /// <summary>
+    /// Update the specified report instance.
+    /// Keep looping until successful.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <param name="updateContent"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    private async Task UpdateReportInstanceAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance, bool updateContent)
+    {
+        // Need to keep trying until successful.
+        // TODO: limit number of attempts.
+        var isUpdated = false;
+        while (!isUpdated)
+        {
+            try
+            {
+                // We're getting optimistic errors here, most likely due to changes occurring from the UI.  Since we only need to change values related to status, we can get the latest and reapply.
+                var latestInstanceModel = await this.Api.GetReportInstanceAsync(instance.Id) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+                if (latestInstanceModel.Version != instance.Version)
+                {
+                    latestInstanceModel.Subject = instance.Subject;
+                    latestInstanceModel.Body = instance.Body;
+                    latestInstanceModel.SentOn = instance.SentOn;
+                    latestInstanceModel.Status = instance.Status;
+                    latestInstanceModel.Response = instance.Response;
+                    latestInstanceModel.PublishedOn = instance.PublishedOn;
+                    instance = await this.Api.UpdateReportInstanceAsync(latestInstanceModel, updateContent) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+                }
+                else
+                    instance = await this.Api.UpdateReportInstanceAsync(instance, updateContent) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+
+                isUpdated = true;
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Failed to update report instance. ReportId:{reportId} InstanceId:{instanceId}", instance.ReportId, instance.Id);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Update the specified report instance.
+    /// Keep looping until successful.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    private async Task UpdateReportInstanceAsync(API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel instance)
+    {
+        // Need to keep trying until successful.
+        // TODO: limit number of attempts.
+        var isUpdated = false;
+        while (!isUpdated)
+        {
+            try
+            {
+                // We're getting optimistic errors here, most likely due to changes occurring from the UI.  Since we only need to change values related to status, we can get the latest and reapply.
+                var latestInstanceModel = await this.Api.GetAVOverviewInstanceAsync(instance.Id) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+                if (latestInstanceModel.Version != instance.Version)
+                {
+                    // latestInstanceModel.Subject = instance.Subject;
+                    // latestInstanceModel.Body = instance.Body;
+                    // latestInstanceModel.SentOn = instance.SentOn;
+                    // latestInstanceModel.Status = instance.Status;
+                    latestInstanceModel.Response = instance.Response;
+                    latestInstanceModel.PublishedOn = instance.PublishedOn;
+                    instance = await this.Api.UpdateAVOverviewInstanceAsync(latestInstanceModel) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+                }
+                else
+                    instance = await this.Api.UpdateAVOverviewInstanceAsync(instance) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
+
+                isUpdated = true;
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Failed to update AV overview report instance. InstanceId:{instanceId}", instance.Id);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Get users in distribution lists.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="email"></param>
+    /// <param name="accountType"></param>
+    /// <param name="sendTo"></param>
+    /// <returns></returns>
+    private async Task<(IEnumerable<UserEmail> to, IEnumerable<UserEmail> cc, IEnumerable<UserEmail> bcc)> GetEmailAddressesAsync(int userId, string email, UserAccountType accountType, EmailSentTo sendTo)
+    {
+        var to = new List<UserEmail>();
+        var cc = new List<UserEmail>();
+        var bcc = new List<UserEmail>();
+        // If the user is a distribution list, fetch the rest of the users.
+        if (accountType == UserAccountType.Distribution)
+        {
+            var users = await this.Api.GetDistributionListAsync(userId);
+            var emails = users.Select(u => new UserEmail(u.Id, u.GetEmail()));
+            switch (sendTo)
+            {
+                case EmailSentTo.To:
+                    to.AddRange(emails);
+                    break;
+                case EmailSentTo.CC:
+                    cc.AddRange(emails);
+                    break;
+                case EmailSentTo.BCC:
+                    bcc.AddRange(emails);
+                    break;
+            }
+        }
+        else
+        {
+            switch (sendTo)
+            {
+                case EmailSentTo.To:
+                    to.Add(new UserEmail(userId, email));
+                    break;
+                case EmailSentTo.CC:
+                    cc.Add(new UserEmail(userId, email));
+                    break;
+                case EmailSentTo.BCC:
+                    bcc.Add(new UserEmail(userId, email));
+                    break;
+            }
+        }
+
+        return (to, cc, bcc);
     }
 
     /// <summary>
@@ -892,33 +1059,56 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var model = new AVOverviewInstanceModel(instance);
         var template = instance.Template ?? throw new InvalidOperationException($"Report template was not included in model.");
 
-        var subscribers = instance.Subscribers.Where(s => s.IsSubscribed).ToArray();
-        var to = subscribers.Where(s => s.SendTo == EmailSentTo.To).SelectMany(s => s.GetEmails()).Distinct().ToArray();
-        var cc = subscribers.Where(s => s.SendTo == EmailSentTo.CC).SelectMany(s => s.GetEmails()).Distinct().ToArray();
-        var bcc = subscribers.Where(s => s.SendTo == EmailSentTo.BCC).SelectMany(s => s.GetEmails()).Distinct().ToArray();
-
         // No need to send an email if there are no subscribers.
         if (request.SendToSubscribers)
         {
-            if (to.Length > 0 || !String.IsNullOrEmpty(request.To))
+            var userReportInstances = new List<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel>();
+            if (!this.Options.UseMailMerge && instance.Id > 0)
+            {
+                userReportInstances.AddRange(await this.Api.GetUserAVOverviewInstancesAsync(instance.Id));
+            }
+
+            var subscribers = instance.Subscribers.Where(s => s.IsSubscribed).ToArray();
+            var to = new List<UserEmail>();
+            var cc = new List<UserEmail>();
+            var bcc = new List<UserEmail>();
+            foreach (var user in subscribers)
+            {
+                // Determine which users have already received the email.
+                var (a, b, c) = await GetEmailAddressesAsync(user.Id, user.GetEmail(), user.AccountType, user.SendTo);
+                to.AddRange(a.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.Status))));
+                cc.AddRange(b.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.Status))));
+                bcc.AddRange(c.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.Status))));
+            }
+
+            if (to.Any() || !String.IsNullOrEmpty(request.To))
             {
                 var subject = await this.ReportEngine.GenerateReportSubjectAsync(template, model, false);
                 var body = await this.ReportEngine.GenerateReportBodyAsync(template, model, false);
 
                 // Send the email.
-                var response = await SendEmailAsync(request, to, cc, bcc, subject, body, $"{instance.TemplateType}-{instance.Id}");
+                var response = await SendEmailAsync(request, to, cc, bcc, subject, body, $"{instance.TemplateType}-{instance.Id}", async (users, status, response) =>
+                {
+                    if (instance.Id > 0)
+                    {
+                        var userReportInstances = users.Select((user) => new API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel(user.UserId, instance.Id, DateTime.UtcNow, status, response));
+                        await this.Api.AddOrUpdateUserAVOverviewInstancesAsync(userReportInstances);
+                    }
+                });
 
                 // Update the report instance with the email response.
                 instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
             }
 
             instance.IsPublished = true;
-            await this.Api.UpdateAVOverviewInstanceAsync(instance);
+            await UpdateReportInstanceAsync(instance);
         }
     }
 
     /// <summary>
     /// Send an email to CHES.
+    /// Also update user report instances to identify who has received an email.
+    /// Handles sending email as a mail merge, or individually.
     /// </summary>
     /// <param name="request"></param>
     /// <param name="to"></param>
@@ -928,19 +1118,27 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <param name="body"></param>
     /// <param name="tag"></param>
     /// <returns></returns>
-    private async Task<EmailResponseModel[]> SendEmailAsync(ReportRequestModel request, IEnumerable<string> to, IEnumerable<string> cc, IEnumerable<string> bcc, string subject, string body, string tag)
+    private async Task<EmailResponseModel[]> SendEmailAsync(
+        ReportRequestModel request,
+        IEnumerable<UserEmail> to,
+        IEnumerable<UserEmail> cc,
+        IEnumerable<UserEmail> bcc,
+        string subject,
+        string body,
+        string tag,
+        Func<IEnumerable<UserEmail>, ReportStatus, JsonDocument, Task> updateCallbackAsync)
     {
         await HandleChesEmailOverrideAsync(request.RequestorId);
 
-        var contexts = new List<EmailContextModel>();
+        var contexts = new List<(UserEmail User, EmailContextModel Context)>();
         if (!String.IsNullOrWhiteSpace(request.To) && request.To.IsValidEmail())
         {
             // Add a context for the requested list of users.
             var toAddresses = request.To.Split(",").Select(v => v.Trim()).ToArray();
-            contexts.Add(new EmailContextModel(toAddresses, new Dictionary<string, object>(), DateTime.Now)
+            contexts.Add((new UserEmail(0, request.To), new EmailContextModel(toAddresses, new Dictionary<string, object>(), DateTime.Now)
             {
                 Tag = tag,
-            });
+            }));
         }
         else
         {
@@ -949,24 +1147,26 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             var requestorEmail = !String.IsNullOrWhiteSpace(requestor?.PreferredEmail) ? requestor.PreferredEmail : requestor?.Email;
 
             // Do not send multiple emails to the requestor if there is also a CC/BCC list.
-            var toAddresses = String.IsNullOrWhiteSpace(requestorEmail) ? to : to.Where(v => v != requestorEmail);
+            var toAddresses = String.IsNullOrWhiteSpace(requestorEmail) ? to.Distinct() : to.Distinct().Where(v => v.To != requestorEmail);
             var toContexts = toAddresses
-                .Where(v => v.IsValidEmail())
-                .Select(v => new EmailContextModel(new[] { v }, new Dictionary<string, object>(), DateTime.Now)
+                .Where(v => v.To.IsValidEmail())
+                .Select(v => (v, new EmailContextModel(new[] { v.To }, new Dictionary<string, object>(), DateTime.Now)
                 {
                     Tag = tag,
-                }).ToArray();
+                })).ToArray();
             contexts.AddRange(toContexts);
 
             // If there are BCC and CC options then they must be sent with an email that is sent to the requestor.
             if (sendToRequestorSeparately && !String.IsNullOrWhiteSpace(requestorEmail))
             {
-                contexts.Add(new EmailContextModel(new[] { requestorEmail }, new Dictionary<string, object>(), DateTime.Now)
+                var cc1 = cc.Distinct().Where(a => a.To.IsValidEmail()).ToArray();
+                var bcc1 = bcc.Distinct().Where(a => a.To.IsValidEmail()).ToArray();
+                contexts.Add((new UserEmail(request.RequestorId!.Value, requestorEmail, cc1, bcc1), new EmailContextModel(new[] { requestorEmail }, new Dictionary<string, object>(), DateTime.Now)
                 {
-                    Cc = cc,
-                    Bcc = bcc,
+                    Cc = cc1.Select(v => v.To),
+                    Bcc = bcc1.Select(v => v.To),
                     Tag = tag,
-                });
+                }));
             }
         }
 
@@ -974,7 +1174,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
         if (this.Options.UseMailMerge)
         {
-            var merge = new EmailMergeModel(this.ChesOptions.From, contexts, subject, body)
+            var merge = new EmailMergeModel(this.ChesOptions.From, contexts.Select(c => c.Context), subject, body)
             {
                 // TODO: Extract values from report settings.
                 Encoding = EmailEncodings.Utf8,
@@ -985,25 +1185,66 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             var response = await this.Ches.SendEmailAsync(merge);
             this.Logger.LogInformation("Report sent to CHES.  ReportId:{report}, InstanceId:{instance}", request.ReportId, request.ReportInstanceId);
 
+            if (request.ReportInstanceId.HasValue)
+            {
+                var document = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+                await updateCallbackAsync(contexts.Select(c => c.User), ReportStatus.Accepted, document);
+            }
+
             return new[] { response };
         }
         else
         {
             var responses = new List<EmailResponseModel>();
-            foreach (var context in contexts)
+            var i = 0;
+            foreach (var (user, context) in contexts)
             {
-                var email = new EmailModel(this.ChesOptions.From, context.To.ToArray(), subject, body)
+                var allUsers = new[] { user }.Concat(user.CC.Concat(user.BCC)).Distinct();
+                try
                 {
-                    Cc = context.Cc.ToArray(),
-                    Bcc = context.Bcc.ToArray(),
-                    // TODO: Extract values from report settings.
-                    Encoding = EmailEncodings.Utf8,
-                    BodyType = EmailBodyTypes.Html,
-                    Priority = EmailPriorities.Normal,
-                };
-                var response = await this.Ches.SendEmailAsync(email);
-                responses.Add(response);
+                    if (i++ > 1) throw new InvalidOperationException("Testing mid failure");
+                    var email = new EmailModel(this.ChesOptions.From, context.To.ToArray(), subject, body)
+                    {
+                        Cc = context.Cc.ToArray(),
+                        Bcc = context.Bcc.ToArray(),
+                        // TODO: Extract values from report settings.
+                        Encoding = EmailEncodings.Utf8,
+                        BodyType = EmailBodyTypes.Html,
+                        Priority = EmailPriorities.Normal,
+                    };
+                    var response = await this.Ches.SendEmailAsync(email);
+                    responses.Add(response);
+
+                    if (user.UserId != 0)
+                    {
+                        // Save the status of each email sent.
+                        var document = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+                        await updateCallbackAsync(allUsers, ReportStatus.Accepted, document);
+                    }
+                }
+                catch (ChesException ex)
+                {
+                    if (user.UserId != 0)
+                    {
+                        // Save the status of each email sent.
+                        var document = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
+                        await updateCallbackAsync(allUsers, ReportStatus.Failed, document);
+                    }
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    if (user.UserId != 0)
+                    {
+                        // Save the status of each email sent.
+                        var document = JsonDocument.Parse(JsonSerializer.Serialize(new { Error = ex.GetAllMessages() }, _serializationOptions));
+                        await updateCallbackAsync(allUsers, ReportStatus.Failed, document);
+                    }
+                    throw;
+                }
             }
+            this.Logger.LogInformation("Report sent to CHES. ReportId:{report}, InstanceId:{instance}", request.ReportId, request.ReportInstanceId);
+
             return responses.ToArray();
         }
     }

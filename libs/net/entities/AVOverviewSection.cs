@@ -33,7 +33,7 @@ public class AVOverviewSection : AuditColumns
     /// get/set - The foreign key to the overview instance.
     /// </summary>
     [Column("av_overview_instance_id")]
-    public int InstanceId { get; set; }
+    public long InstanceId { get; set; }
 
     /// <summary>
     /// get/set - The evening instance.
@@ -115,7 +115,7 @@ public class AVOverviewSection : AuditColumns
     /// <param name="instanceId"></param>
     /// <param name="otherSource"></param>
     /// <param name="startTime"></param>
-    public AVOverviewSection(string name, int instanceId, string otherSource, string startTime)
+    public AVOverviewSection(string name, long instanceId, string otherSource, string startTime)
     {
         this.Name = name;
         this.InstanceId = instanceId;
@@ -170,7 +170,7 @@ public class AVOverviewSection : AuditColumns
     /// <param name="source"></param>
     /// <param name="otherSource"></param>
     /// <param name="startTime"></param>
-    public AVOverviewSection(string name, int instanceId, int sourceId, string otherSource, string startTime)
+    public AVOverviewSection(string name, long instanceId, int sourceId, string otherSource, string startTime)
     {
         this.Name = name;
         this.InstanceId = instanceId;
@@ -188,7 +188,7 @@ public class AVOverviewSection : AuditColumns
     /// <param name="otherSource"></param>
     /// <param name="seriesId"></param>
     /// <param name="startTime"></param>
-    public AVOverviewSection(string name, int instanceId, int sourceId, string otherSource, int seriesId, string startTime)
+    public AVOverviewSection(string name, long instanceId, int sourceId, string otherSource, int seriesId, string startTime)
     {
         this.Name = name;
         this.InstanceId = instanceId;
@@ -225,7 +225,7 @@ public class AVOverviewSection : AuditColumns
     /// <param name="name"></param>
     /// <param name="instanceId"></param>
     /// <param name="section"></param>
-    public AVOverviewSection(string name, int instanceId, AVOverviewTemplateSection section)
+    public AVOverviewSection(string name, long instanceId, AVOverviewTemplateSection section)
     {
         this.Name = name;
         this.InstanceId = instanceId;

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.User;
 using TNO.API.Models;
-using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
 
@@ -42,7 +41,7 @@ public class UserController : ControllerBase
 
     #region Endpoints
     /// <summary>
-    /// Find the work order for the specified 'id'.
+    /// Find the user for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
@@ -57,6 +56,22 @@ public class UserController : ControllerBase
         var result = _service.FindById(id);
         if (result == null) return NoContent();
         return new JsonResult(new UserModel(result));
+    }
+
+    /// <summary>
+    /// Find all the users in the distribution list for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/distribution")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<UserModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "User" })]
+    public IActionResult FindDistributionListById(int id)
+    {
+        var result = _service.GetDistributionList(id);
+        return new JsonResult(result.Select(r => new UserModel(r)));
     }
     #endregion
 }

@@ -101,15 +101,16 @@ public class ReportInstanceController : ControllerBase
     /// Update report instance for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
+    /// <param name="updateContent"></param>
     /// <returns></returns>
     [HttpPut("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
-    public async Task<IActionResult> UpdateAsync(ReportInstanceModel model)
+    public async Task<IActionResult> UpdateAsync(ReportInstanceModel model, bool updateContent = true)
     {
-        var result = _reportInstanceService.UpdateAndSave((Entities.ReportInstance)model, true) ?? throw new NoContentException();
+        var result = _reportInstanceService.UpdateAndSave((Entities.ReportInstance)model, updateContent) ?? throw new NoContentException();
         var ownerId = result.OwnerId ?? result.Report?.OwnerId;
         if (ownerId.HasValue)
         {
@@ -134,6 +135,58 @@ public class ReportInstanceController : ControllerBase
     {
         var content = _reportInstanceService.GetContentForInstance(id);
         return new JsonResult(content.Select(c => new ReportInstanceContentModel(c)));
+    }
+
+
+    /// <summary>
+    /// Get all user report instances for the specified instance 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/responses")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<UserReportInstanceModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult GetUserReportInstancesAsync(long id)
+    {
+        var content = _reportInstanceService.GetUserReportInstances(id);
+        return new JsonResult(content.Select(c => new UserReportInstanceModel(c)));
+    }
+
+    /// <summary>
+    /// Add or update an array of user report instances.
+    /// These keep track of who a report was sent to and the status.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost("response")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(UserReportInstanceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "ReportInstance" })]
+    public IActionResult AddOrUpdate(UserReportInstanceModel model)
+    {
+        var result = _reportInstanceService.UpdateAndSave((Entities.UserReportInstance)model);
+        return new JsonResult(new UserReportInstanceModel(result));
+    }
+
+    /// <summary>
+    /// Add or update an array of user report instances.
+    /// These keep track of who a report was sent to and the status.
+    /// </summary>
+    /// <param name="models"></param>
+    /// <returns></returns>
+    [HttpPost("responses")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<UserReportInstanceModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "ReportInstance" })]
+    public IActionResult AddOrUpdate(IEnumerable<UserReportInstanceModel> models)
+    {
+        var entities = models.Select(m => (Entities.UserReportInstance)m);
+        var result = _reportInstanceService.UpdateAndSave(entities);
+        return new JsonResult(result.Select(r => new UserReportInstanceModel(r)));
     }
     #endregion
 }
