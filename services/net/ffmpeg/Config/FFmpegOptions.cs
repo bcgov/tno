@@ -23,5 +23,10 @@ public class FFmpegOptions : ServiceOptions
     /// get/set - An array of converter configuration options.
     /// </summary>
     public ConverterOptions[] Converters { get; set; } = Array.Empty<ConverterOptions>();
+
+    /// <summary>
+    /// get/set - Number of retry attempts to update content.
+    /// </summary>
+    public int RetryUpdateLimit { get; set; } = 6;
     #endregion
 }

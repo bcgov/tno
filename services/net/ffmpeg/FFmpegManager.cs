@@ -269,17 +269,31 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
                         if (!String.IsNullOrEmpty(newFile))
                         {
                             this.Logger.LogInformation("Content has been processed.  Content ID: {id}, Path: {path}", request.ContentId, fileRef.Path);
+                            var retryCount = 1;
 
-                            content = await this.Api.FindContentByIdAsync(request.ContentId) ?? throw new InvalidOperationException("Unable to fetch latest version of content");
-                            fileRef = content.FileReferences.FirstOrDefault() ?? throw new InvalidOperationException("Content is missing a file reference");
-                            fileRef.Path = fileRef.Path.Replace(process.FromFormat, process.ToFormat);
-                            fileRef.FileName = Path.GetFileName(fileRef.Path);
-                            fileRef.ContentType = contentType;
+                            while (workOrder.Status != WorkOrderStatus.Completed || retryCount <= this.Options.RetryUpdateLimit)
+                            {
+                                // keep trying until successful or give up after retry limit.
+                                // Optimistic concurrency is causing issues.
+                                try
+                                {
+                                    content = await this.Api.FindContentByIdAsync(request.ContentId) ?? throw new InvalidOperationException("Unable to fetch latest version of content");
+                                    fileRef = content.FileReferences.FirstOrDefault() ?? throw new InvalidOperationException("Content is missing a file reference");
+                                    fileRef.Path = fileRef.Path.Replace(process.FromFormat, process.ToFormat);
+                                    fileRef.FileName = Path.GetFileName(fileRef.Path);
+                                    fileRef.ContentType = contentType;
 
-                            await this.Api.UpdateFileAsync(content, true, request.RequestorId);
-                            workOrder.Status = WorkOrderStatus.Completed;
-                            await this.Api.UpdateWorkOrderAsync(workOrder);
-                            // File.Delete(sourcePath); // TODO: Delete old file
+                                    await this.Api.UpdateFileAsync(content, true, request.RequestorId);
+                                    workOrder.Status = WorkOrderStatus.Completed;
+                                    await this.Api.UpdateWorkOrderAsync(workOrder);
+                                    // File.Delete(sourcePath); // TODO: Delete old file
+                                    retryCount++;
+                                }
+                                catch (Exception ex)
+                                {
+                                    this.Logger.LogError(ex, "Update content failed.  Content ID: {id}, Path: {path}", request.ContentId, fileRef.Path);
+                                }
+                            }
                         }
                     }
                     catch (Exception ex)
