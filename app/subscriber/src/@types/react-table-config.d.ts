@@ -119,3 +119,9 @@ declare module 'react-table' {
 }
 
 export type TableMouseEventHandler = (instance: TableInstance<T>) => MouseEventHandler;
+
+declare global {
+  interface Window {
+  snowplow: any;
+ }
+}
