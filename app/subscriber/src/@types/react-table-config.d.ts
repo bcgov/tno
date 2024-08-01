@@ -122,6 +122,6 @@ export type TableMouseEventHandler = (instance: TableInstance<T>) => MouseEventH
 
 declare global {
   interface Window {
-  snowplow: any;
- }
+    snowplow: any;
+  }
 }
