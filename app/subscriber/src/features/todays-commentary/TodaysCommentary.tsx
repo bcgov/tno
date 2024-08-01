@@ -14,6 +14,7 @@ import * as styled from './styled';
 
 /** Component that displays commentary defaulting to today's date and adjustable via a date filter. */
 export const TodaysCommentary: React.FC = () => {
+  window.snowplow('trackPageView');
   const [
     {
       todaysCommentary: { filter },

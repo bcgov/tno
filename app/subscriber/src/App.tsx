@@ -39,9 +39,10 @@ function App() {
       setKeycloak(result);
     });
   }, []);
-
+  window.snowplow('trackPageView');
   return (
     <BrowserRouter>
+      <script>window.snowplow('trackPageView');</script>
       <StyleSheetManager shouldForwardProp={shouldForwardProp}>
         <Show visible={!!keycloak}>
           <ReactKeycloakProvider
