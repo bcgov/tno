@@ -1,4 +1,4 @@
-import { EmailSendToName, ReportDistributionFormatName } from '../constants';
+import { EmailSendToName, ReportDistributionFormatName, ReportStatusName } from '../constants';
 import { IUserModel } from './IUserModel';
 
 export interface IUserReportModel {
@@ -25,6 +25,10 @@ export interface IUserReportModel {
   format: ReportDistributionFormatName;
   /** How to send the email to this subscriber. */
   sendTo: EmailSendToName;
+  /** Email status */
+  status?: ReportStatusName;
+  /** Email response */
+  response?: any;
   /** Table row version */
   version: number;
 }

@@ -101,6 +101,7 @@ public class ReportController : ControllerBase
         var result = _reportService.Find(new TNO.Models.Filters.ReportFilter(query));
         return new JsonResult(result.Select(ds => new ReportModel(ds, _serializerOptions)));
     }
+
     /// <summary>
     /// Find all reports - only return partial model.
     /// </summary>
@@ -297,6 +298,52 @@ public class ReportController : ControllerBase
         });
 
         return Ok("Report template compilation in progress.");
+    }
+
+    /// <summary>
+    /// Find all reports.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("dashboard")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<ReportModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult Dashboard()
+    {
+        var result = _reportService.GetDashboard();
+        var reports = new List<ReportModel>();
+        foreach (var report in result.Reports)
+        {
+            var subscribers = report.SubscribersManyToMany.Where(s => s.User!.AccountType != Entities.UserAccountType.Distribution).Select(s => new UserReportModel(s)).ToList();
+            var distributions = report.SubscribersManyToMany.Where(s => s.User!.AccountType == Entities.UserAccountType.Distribution).ToArray();
+            foreach (var distribution in distributions)
+            {
+                // Flatten the list of subscribers by extracting users in a distribution list.
+                subscribers.AddRange(distribution.User!.Distribution.Select(d => new UserReportModel(distribution, d.LinkedUser!)));
+            }
+            subscribers = subscribers.Distinct().ToList();  // Remove duplicates.
+            var instance = report.Instances.OrderByDescending(r => r.Id).FirstOrDefault();
+            if (instance != null)
+            {
+                foreach (var email in instance.UserInstances)
+                {
+                    // Apply the response to each subscriber.
+                    var user = subscribers.FirstOrDefault(s => s.Id == email.UserId);
+                    if (user != null)
+                    {
+                        user.Response = user.Format == Entities.ReportDistributionFormat.LinkOnly ? email.LinkResponse : email.TextResponse;
+                        user.Status = user.Format == Entities.ReportDistributionFormat.LinkOnly ? email.LinkStatus : email.TextStatus;
+                    }
+                }
+            }
+            var model = new ReportModel(report, _serializerOptions)
+            {
+                Subscribers = subscribers
+            };
+            reports.Add(model);
+        }
+        var overviews = result.Overviews;
+        return new JsonResult(new { Reports = reports, Overviews = overviews });
     }
     #endregion
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 import {
+  IReportDashboard,
   IReportFilter,
   IReportInstanceModel,
   IReportModel,
@@ -24,6 +25,7 @@ interface IReportController {
   primeReportCache: (model: IReportModel) => Promise<IReportResultModel>;
   deleteReportInstance: (model: IReportInstanceModel) => Promise<IReportInstanceModel>;
   publishReportInstance: (model: IReportInstanceModel) => Promise<IReportInstanceModel>;
+  getDashboard: () => Promise<IReportDashboard>;
 }
 
 export const useReports = (): [IAdminState & { initialized: boolean }, IReportController] => {
@@ -131,6 +133,12 @@ export const useReports = (): [IAdminState & { initialized: boolean }, IReportCo
       primeReportCache: async (model: IReportModel) => {
         const response = await dispatch<IReportResultModel>('prime-report-cache', () =>
           api.primeReportCache(model),
+        );
+        return response.data;
+      },
+      getDashboard: async () => {
+        const response = await dispatch<IReportDashboard>('get-dashboard', () =>
+          api.getDashboard(),
         );
         return response.data;
       },
