@@ -16,6 +16,7 @@ import * as styled from './styled';
  * Home component that will be rendered when the user is logged in.
  */
 export const Home: React.FC = () => {
+  window.snowplow('trackPageView');
   const [
     {
       home: { filter },
