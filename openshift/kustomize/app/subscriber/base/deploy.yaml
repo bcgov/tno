@@ -61,6 +61,8 @@ spec:
             - name: subscriber-keycloak
               mountPath: /usr/share/nginx/html/keycloak.json
               subPath: keycloak.json
+            - name: subscriber-public-storage
+              mountPath: /public/videos
           livenessProbe:
             httpGet:
               path: "/nginx-status"
