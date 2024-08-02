@@ -615,22 +615,22 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     {
         if (sources.Count == 0) // Self published
         {
-            return ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code.");
+            return ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' Paper name '{paperName}' is missing source code.");
         }
         else
         {
             if (sources.TryGetValue(paperName, out string? code))
             {
                 if (String.IsNullOrWhiteSpace(code))
-                    return ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code.");
+                    return ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' Paper name '{paperName}' is missing source code.");
                 return code;
             }
             else
             {
                 var source = ingest.GetConfigurationValue("defaultSource");
-                this.Logger.LogWarning("Paper name '{name}' does not have a mapped source.", paperName);
+                this.Logger.LogWarning($"Ingest '{ingest.Name}' Paper name '{paperName}' does not have a mapped source.");
                 if (String.IsNullOrWhiteSpace(source))
-                    return ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code.");
+                    return ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' Paper name '{paperName}' is missing source code.");
                 return source;
             }
         }
