@@ -35,6 +35,11 @@ public class ReportFilter : PageFilter
     public int? SubscriberUserId { get; set; }
 
     /// <summary>
+    /// get/set - Whether the report is enabled.
+    /// </summary>
+    public bool? IsEnabled { get; set; }
+
+    /// <summary>
     /// get/set - An array of report ids to return.
     /// </summary>
     public int[]? Ids { get; set; }
@@ -50,6 +55,7 @@ public class ReportFilter : PageFilter
         this.Name = filter.GetStringValue(nameof(this.Name));
         this.OwnerId = filter.GetIntNullValue(nameof(this.OwnerId));
         this.IsPublic = filter.GetBoolNullValue(nameof(this.IsPublic));
+        this.IsEnabled = filter.GetBoolNullValue(nameof(this.IsEnabled));
         this.IsPublicOrOwner = filter.GetBoolNullValue(nameof(this.IsPublicOrOwner));
         this.Ids = filter.GetIntArrayValue(nameof(this.Ids));
         this.SubscriberUserId = filter.GetIntNullValue(nameof(this.SubscriberUserId));

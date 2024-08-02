@@ -64,6 +64,8 @@ public class ReportService : BaseService<Report, int>, IReportService
 
         if (filter.IsPublic.HasValue)
             query = query.Where(r => r.IsPublic);
+        if (filter.IsEnabled.HasValue)
+            query = query.Where(r => r.IsEnabled);
 
         if (filter.OwnerId.HasValue && filter.IsPublicOrOwner == true)
             query = query.Where(r => r.OwnerId == filter.OwnerId || r.IsPublic);
@@ -124,6 +126,68 @@ public class ReportService : BaseService<Report, int>, IReportService
         report?.Sections.Clear();
         report?.Sections.AddRange(sections);
         return report;
+    }
+
+    /// <summary>
+    /// Get all enable reports and related content for the dashboard.
+    /// </summary>
+    /// <returns></returns>
+    public (IEnumerable<Report> Reports, IEnumerable<AVOverviewInstance> Overviews) GetDashboard()
+    {
+        var reports = this.Context.Reports
+            .AsNoTracking()
+            .Include(r => r.Owner)
+            .Include(r => r.Events).ThenInclude(e => e.Schedule)
+            .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User).ThenInclude(u => u!.Distribution).ThenInclude(d => d.LinkedUser)
+            .OrderBy(r => r.Name)
+            .Where(r => r.IsEnabled)
+            .ToArray();
+
+        // Fetch only the most recent report instances for each report.
+        var reportIds = reports.Select(r => r.Id).ToArray();
+        var instances = (
+            from ri in this.Context.ReportInstances
+            where reportIds.Contains(ri.ReportId)
+            group ri by ri.ReportId into rig
+            select rig.OrderByDescending(ri => ri.Id).Take(2))
+            .AsNoTracking()
+            .ToArray();
+
+        // Fetch all subscriber email results.
+        var instanceIds = instances.SelectMany(i => i.OrderByDescending(i => i.Id).Take(1).Select(i => i.Id)).Distinct().ToArray();
+        var emails = (
+            from uri in this.Context.UserReportInstances.Include(m => m.User).ThenInclude(u => u!.Distribution).ThenInclude(d => d.LinkedUser)
+            where instanceIds.Contains(uri.InstanceId)
+            select uri
+        ).AsNoTracking().ToArray();
+
+        foreach (var report in reports)
+        {
+            var reportInstances = instances.FirstOrDefault(i => i.Any(i2 => i2.ReportId == report.Id)) ?? Array.Empty<ReportInstance>();
+            foreach (var instance in reportInstances)
+            {
+                instance.UserInstances.AddRange(emails.Where(e => e.InstanceId == instance.Id));
+            }
+            report.Instances.AddRange(reportInstances);
+        }
+
+        // Fetch AV Overview.
+        var avWeekly = (
+            from av in this.Context.AVOverviewInstances
+                .Include(m => m.UserInstances).ThenInclude(u => u.User)
+            where av.TemplateType == AVOverviewTemplateType.Weekday
+            orderby av.Id descending
+            select av
+        ).Take(2).AsNoTracking().ToArray();
+        var avWeekend = (
+            from av in this.Context.AVOverviewInstances
+                .Include(m => m.UserInstances).ThenInclude(u => u.User)
+            where av.TemplateType == AVOverviewTemplateType.Weekday
+            orderby av.Id descending
+            select av
+        ).Take(2).AsNoTracking().ToArray();
+
+        return (reports, avWeekly.Concat(avWeekend));
     }
 
     /// <summary>

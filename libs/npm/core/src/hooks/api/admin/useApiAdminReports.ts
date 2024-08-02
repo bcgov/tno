@@ -3,7 +3,14 @@ import React from 'react';
 
 import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { IReportFilter, IReportInstanceModel, IReportModel, IReportResultModel, useApi } from '..';
+import {
+  IReportDashboard,
+  IReportFilter,
+  IReportInstanceModel,
+  IReportModel,
+  IReportResultModel,
+  useApi,
+} from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -73,6 +80,9 @@ export const useApiAdminReports = (
         `/admin/reports/preview/prime`,
         model,
       );
+    },
+    getDashboard: () => {
+      return api.get<never, AxiosResponse<IReportDashboard>, any>(`/admin/reports/dashboard`);
     },
   }).current;
 };

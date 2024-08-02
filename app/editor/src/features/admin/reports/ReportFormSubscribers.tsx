@@ -39,6 +39,7 @@ export const ReportFormSubscribers: React.FC = () => {
       isSubscribed: subscriber?.isSubscribed ?? false,
       format: subscriber?.format ?? ReportDistributionFormatName.LinkOnly,
       sendTo: subscriber?.sendTo ?? EmailSendToName.To,
+      status: undefined,
       version: 0,
     };
   });

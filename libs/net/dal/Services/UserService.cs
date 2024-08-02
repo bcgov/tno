@@ -160,14 +160,15 @@ public class UserService : BaseService<User, int>, IUserService
         original.IsEnabled = entity.IsEnabled;
         original.FirstName = entity.FirstName;
         original.LastName = entity.LastName;
-        original.Version = entity.Version;
         original.Status = entity.Status;
         original.Note = entity.Note;
         original.Code = entity.Code;
         original.Roles = entity.Roles;
-        original.Preferences = entity.Preferences;
         original.UniqueLogins = entity.UniqueLogins;
-        original.LastLoginOn = entity.LastLoginOn;
+
+        // Always allow updating.
+        original.Version = entity.Version;
+
         if (String.IsNullOrWhiteSpace(entity.Code)) original.CodeCreatedOn = null;
         else if (original.Code != entity.Code) original.CodeCreatedOn = DateTime.UtcNow;
 
@@ -267,8 +268,11 @@ public class UserService : BaseService<User, int>, IUserService
             this.Context.Update(wo);
         });
 
+        // We want to delete the user even if the account version is old.
+        var original = this.Context.Users.FirstOrDefault(u => u.Id == entity.Id) ?? throw new NoContentException();
+
         // Unlink
-        base.Delete(entity);
+        base.Delete(original);
     }
 
     /// <summary>

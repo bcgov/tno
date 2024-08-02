@@ -37,7 +37,7 @@ const ProductList = lazy(() => import('features/admin/products/ProductList'));
 const ReachEarnedMedia = lazy(() => import('features/admin/sources/ReachEarnedMedia'));
 const ReportAdmin = lazy(() => import('features/admin/reports/ReportAdmin'));
 const ReportForm = lazy(() => import('features/admin/reports/ReportForm'));
-const ReportDashboard = lazy(() => import('features/admin/reports/ReportDashboard'));
+const ReportDashboard = lazy(() => import('features/admin/reports/dashboard/ReportDashboard'));
 const ReportTemplateForm = lazy(() => import('features/admin/report-templates/ReportTemplateForm'));
 const SeriesDetails = lazy(() => import('features/admin/series/SeriesDetails'));
 const SeriesForm = lazy(() => import('features/admin/series/SeriesForm'));

@@ -2,14 +2,17 @@ import React from 'react';
 import { FaPaperPlane } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
 import { useApp, useReportInstances, useReports } from 'store/hooks';
+import { useUsers } from 'store/hooks/admin';
 import {
   Button,
   ButtonVariant,
   Col,
+  getDistinct,
   IReportModel,
   IReportResultModel,
   Loading,
   Show,
+  UserAccountTypeName,
 } from 'tno-core';
 
 import * as styled from './styled';
@@ -17,6 +20,7 @@ import * as styled from './styled';
 const ReportInstancePreview: React.FC = () => {
   const [{ getReport }] = useReports();
   const [{ viewReportInstance }] = useReportInstances();
+  const [, { getDistributionListById }] = useUsers();
   const { id } = useParams();
   const instanceId = parseInt(id ?? '');
   const [{ userInfo }] = useApp();
@@ -42,19 +46,35 @@ const ReportInstancePreview: React.FC = () => {
   );
 
   const prepareEmail = React.useCallback(
-    (to: string, report: IReportModel, email: IReportResultModel) => {
+    async (to: string, report: IReportModel, email: IReportResultModel) => {
       const subscribers = report.subscribers
-        .filter((s) => s.isSubscribed)
-        .map((s) => (s.user?.preferredEmail ? s.user?.preferredEmail : s.user?.email))
-        .filter((s) => s);
+        .filter((s) => s.isSubscribed && s.user?.accountType !== UserAccountTypeName.Distribution)
+        .map((s) => s.user);
+      const distributions = report.subscribers.filter(
+        (s) => s.isSubscribed && s.user?.accountType === UserAccountTypeName.Distribution,
+      );
+
+      // Fetch distribution list
+      await Promise.all(
+        distributions.map(async (distribution) => {
+          const users = await getDistributionListById(distribution.userId);
+          subscribers.push(...users);
+        }),
+      );
+
+      const emails = getDistinct(
+        subscribers.map((s) => (s?.preferredEmail ? s.preferredEmail : s?.email)),
+        (v) => v,
+      );
+
       const htmlBlob = new Blob([email.body], { type: 'text/html' });
       const textBlob = new Blob([email.body], { type: 'text/plain' });
       const clip = new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob });
       navigator.clipboard.write([clip]);
-      const bcc = subscribers.length ? `bcc=${subscribers.join('; ')}` : '';
+      const bcc = subscribers.length ? `bcc=${emails.join('; ')}` : '';
       window.location.href = `mailto:${to}?${bcc}&subject=${email.subject}&body=Click Paste - Keep Source Formatting`;
     },
-    [],
+    [getDistributionListById],
   );
 
   React.useEffect(() => {
