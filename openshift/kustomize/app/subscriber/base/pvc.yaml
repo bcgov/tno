@@ -1,0 +1,22 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: subscriber-public-storage
+  namespace: default
+  labels:
+    name: subscriber
+    part-of: tno
+    version: 1.0.0
+    component: subscriber
+    managed-by: kustomize
+    created-by: felipe.barreta
+spec:
+  # Storage class name is the type of storage [netapp-file-standard, netapp-file-extended, netapp-file-backup, netapp-block-standard, netapp-block-extended]
+  storageClassName: netapp-file-backup
+  # Storage access mode [ReadWriteOnce, ReadWriteMany]
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
