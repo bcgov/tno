@@ -1,9 +1,10 @@
 import { OptionItem } from '../../../components';
 
 export const ReportSectionOrderByOptions = [
+  new OptionItem('Headline', 'Headline'),
   new OptionItem('Published On', 'PublishedOn'),
   new OptionItem('Media Type', 'MediaType'),
-  new OptionItem('Series', 'Series'),
+  new OptionItem('Program/Show', 'Series'),
   new OptionItem('Source', 'Source'),
   new OptionItem('Sentiment', 'Sentiment'),
   new OptionItem('Byline', 'Byline'),

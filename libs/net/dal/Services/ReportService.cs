@@ -490,6 +490,7 @@ public class ReportService : BaseService<Report, int>, IReportService
         {
             results = sortBy switch
             {
+                "Headline" => content.OrderByDescending(c => c.Content?.Headline),
                 "PublishedOn" => content.OrderByDescending(c => c.Content?.PublishedOn),
                 "MediaType" => content.OrderByDescending(c => c.Content?.MediaType?.Name),
                 "Series" => content.OrderByDescending(c => c.Content?.Series?.Name),
@@ -505,6 +506,7 @@ public class ReportService : BaseService<Report, int>, IReportService
         {
             results = sortBy switch
             {
+                "Headline" => content.OrderBy(c => c.Content?.Headline),
                 "PublishedOn" => content.OrderBy(c => c.Content?.PublishedOn),
                 "MediaType" => content.OrderBy(c => c.Content?.MediaType?.Name),
                 "Series" => content.OrderBy(c => c.Content?.Series?.Name),
