@@ -1,7 +1,7 @@
 import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { ContentList } from 'components/content-list';
 import { ContentListActionBar } from 'components/tool-bar';
-import { castToSearchResult, createFilterSettings, formatDate } from 'features/utils';
+import { castToSearchResult, createFilterSettings } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
@@ -19,7 +19,7 @@ import {
   Show,
 } from 'tno-core';
 
-import { IDateOptions, IGroupedDates, IPressMember } from './interfaces';
+import { IDateOptions, IPressMember } from './interfaces';
 import * as styled from './styled';
 import { generateDates } from './utils';
 
@@ -38,7 +38,6 @@ export const PressGallery: React.FC = () => {
   const [dateOptions, setDateOptions] = React.useState<IDateOptions[]>([]);
   const [pressMemberNames, setPressMembersNames] = React.useState<string[]>([]);
   const [loading, setLoading] = React.useState(false);
-  const [contentByDate, setContentByDate] = React.useState<IGroupedDates | undefined>();
   const [pressSettings] = React.useState<IFilterSettingsModel>(
     createFilterSettings(`${moment().startOf('day')}`, `${moment().subtract('2', 'weeks')}`),
   );
@@ -70,21 +69,6 @@ export const PressGallery: React.FC = () => {
     const dates = generateDates();
     setDateOptions(dates);
   }, []);
-
-  // group content by date on the frontend instead of addtioanl fetches for each date
-  React.useEffect(() => {
-    if (!!content.length) {
-      const grouped = content.reduce((acc: any, content) => {
-        const date = formatDate(content.publishedOn);
-        if (!acc[date]) {
-          acc[date] = [];
-        }
-        acc[date].push(content);
-        return acc;
-      }, {});
-      setContentByDate(grouped);
-    }
-  }, [content]);
 
   React.useEffect(() => {
     api.findAllContributors().then((contributors) => {
@@ -187,11 +171,7 @@ export const PressGallery: React.FC = () => {
           isClearable={false}
           options={dateOptions.map((d) => {
             return {
-              label: `${d.label} ${
-                !pressGalleryFilter.dateFilter
-                  ? `(${contentByDate?.[d.label as keyof IGroupedDates]?.length ?? 0})`
-                  : ''
-              }`,
+              label: `${d.label}`,
               value: d.value,
             };
           })}
@@ -223,7 +203,7 @@ export const PressGallery: React.FC = () => {
             }
           }}
           name="date-select"
-          width={FieldSize.Medium}
+          width={'9em'}
         />
         <FaFilterCircleXmark
           className="reset"
