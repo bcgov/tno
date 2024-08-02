@@ -34,10 +34,28 @@ export const Landing: React.FC = () => {
   );
   /* active content will be stored from this context in order to inject into subsequent components */
   const [activeContent, setActiveContent] = React.useState<IContentModel[]>();
+  const [isFullScreen, setIsFullScreen] = React.useState(false);
   /* keep active item in sync with url */
   React.useEffect(() => {
     if (id) setActiveItem(navbarOptions.find((item) => item.path.includes(id ?? '')));
   }, [id]);
+
+  const checkFullScreen = React.useCallback((item: INavbarOptionItem | undefined) => {
+    return (
+      item === NavbarOptions.todaysFrontPages ||
+      item === NavbarOptions.topStories ||
+      item === NavbarOptions.home ||
+      !item
+    );
+  }, []);
+
+  React.useEffect(() => {
+    if (checkFullScreen(activeItem)) {
+      setIsFullScreen(false);
+    } else {
+      setIsFullScreen(true);
+    }
+  }, [activeItem, checkFullScreen]);
 
   return (
     <styled.Landing className="main-container">
@@ -66,7 +84,7 @@ export const Landing: React.FC = () => {
                   )}
                 </>
               }
-              className="main-panel"
+              className={`main-panel ${isFullScreen ? 'full-screen' : ''}`}
               includeContentActions={!activeItem && !popout}
             >
               <div className="content">
@@ -111,7 +129,7 @@ export const Landing: React.FC = () => {
             </PageSection>
             {/* unsure of whether these items will change depending on selected item */}
             <Col className="right-panel">
-              <Show visible={activeItem !== NavbarOptions.eveningOverview && !popout}>
+              <Show visible={!isFullScreen && !popout}>
                 <Commentary />
                 <TopDomains />
               </Show>
