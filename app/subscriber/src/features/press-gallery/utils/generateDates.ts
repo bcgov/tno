@@ -5,7 +5,7 @@ export const generateDates = () => {
   const dates: any = Array.from({ length: 7 }, (_, i) => {
     const date = moment().subtract(i, 'days');
     return {
-      label: date.format('MMMM DD - YYYY'),
+      label: date.format('YYYY-MM-DD'),
       value: date.format(),
     };
   });

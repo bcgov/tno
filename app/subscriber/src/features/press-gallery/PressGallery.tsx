@@ -187,11 +187,7 @@ export const PressGallery: React.FC = () => {
           isClearable={false}
           options={dateOptions.map((d) => {
             return {
-              label: `${d.label} ${
-                !pressGalleryFilter.dateFilter
-                  ? `(${contentByDate?.[d.label as keyof IGroupedDates]?.length ?? 0})`
-                  : ''
-              }`,
+              label: `${d.label}`,
               value: d.value,
             };
           })}
@@ -223,7 +219,7 @@ export const PressGallery: React.FC = () => {
             }
           }}
           name="date-select"
-          width={FieldSize.Medium}
+          width={FieldSize.Small}
         />
         <FaFilterCircleXmark
           className="reset"
