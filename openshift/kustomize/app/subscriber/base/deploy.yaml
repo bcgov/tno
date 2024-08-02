@@ -43,6 +43,9 @@ spec:
             items:
               - key: keycloak.json
                 path: keycloak.json
+        - name: subscriber-public-storage
+          persistentVolumeClaim:
+            claimName: subscriber-public-storage
       containers:
         - name: subscriber
           image: ""
@@ -62,7 +65,7 @@ spec:
               mountPath: /usr/share/nginx/html/keycloak.json
               subPath: keycloak.json
             - name: subscriber-public-storage
-              mountPath: /public/videos
+              mountPath: /usr/share/nginx/html/public/videos
           livenessProbe:
             httpGet:
               path: "/nginx-status"
