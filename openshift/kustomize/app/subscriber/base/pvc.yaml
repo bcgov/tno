@@ -5,10 +5,10 @@ metadata:
   name: subscriber-public-storage
   namespace: default
   labels:
-    name: subscriber
+    name: subscriber-public-storage
     part-of: tno
     version: 1.0.0
-    component: subscriber
+    component: subscriber-public-storage
     managed-by: kustomize
     created-by: felipe.barreta
 spec:
