@@ -4,6 +4,7 @@ export const ReportEditForm = styled.div`
   display: flex;
   flex-direction: column;
   overflow-x: clip;
+  min-height: 89vh;
 
   .preview-report {
     border: solid 2px ${(props) => props.theme.css.linePrimaryColor};
