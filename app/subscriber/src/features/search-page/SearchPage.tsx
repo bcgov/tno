@@ -178,6 +178,13 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     fetchResults(filter);
   }, [fetchResults, filter]);
 
+  const handleAdvancedSearch = React.useCallback(
+    async (updatedFilterSettings: IFilterSettingsModel) => {
+      fetchResults(updatedFilterSettings);
+    },
+    [fetchResults],
+  );
+
   const executeSearch = React.useCallback(
     async (filter: IFilterSettingsModel) => {
       fetchResults(filter);
@@ -191,7 +198,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         {/* LEFT SIDE */}
         <Show visible={showAdvanced}>
           <Col className="adv-search-container">
-            <AdvancedSearch onSearch={() => handleSearch()} />
+            <AdvancedSearch onSearch={handleAdvancedSearch} />
           </Col>
         </Show>
         {/* RIGHT SIDE */}
