@@ -139,6 +139,7 @@ public class ReportEngine : IReportEngine
         {
             results = sortBy switch
             {
+                "Headline" => content.OrderByDescending(c => c.Headline),
                 "PublishedOn" => content.OrderByDescending(c => c.PublishedOn),
                 "MediaType" => content.OrderByDescending(c => c.MediaType?.Name),
                 "Series" => content.OrderByDescending(c => c.Series?.Name),
@@ -154,6 +155,7 @@ public class ReportEngine : IReportEngine
         {
             results = sortBy switch
             {
+                "Headline" => content.OrderBy(c => c.Headline),
                 "PublishedOn" => content.OrderBy(c => c.PublishedOn),
                 "MediaType" => content.OrderBy(c => c.MediaType?.Name),
                 "Series" => content.OrderBy(c => c.Series?.Name),
