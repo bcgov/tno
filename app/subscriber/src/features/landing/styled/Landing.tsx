@@ -82,4 +82,8 @@ export const Landing = styled(Col)`
       overflow-x: clip;
     }
   }
+
+  .full-screen {
+    width: 98%;
+  }
 `;
