@@ -1,6 +1,6 @@
 import { OptionItem } from '../../../components';
 
-const ReportSectionOrderByOptions = [
+export const ReportSectionOrderByOptions = [
   new OptionItem('Headline', 'Headline'),
   new OptionItem('Published On', 'PublishedOn'),
   new OptionItem('Media Type', 'MediaType'),
