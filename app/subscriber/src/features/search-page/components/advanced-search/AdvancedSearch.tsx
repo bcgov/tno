@@ -2,7 +2,6 @@ import { PageSection } from 'components/section';
 import { useElastic } from 'features/my-searches/hooks';
 import { useSearchPageContext } from 'features/search-page/SearchPageContext';
 import { filterFormat } from 'features/search-page/utils';
-import { debounce } from 'lodash';
 import React from 'react';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
 import { FaCaretSquareDown, FaCheckSquare, FaPlay, FaRegSmile } from 'react-icons/fa';
@@ -77,7 +76,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
     },
     { storeSearchFilter },
   ] = useContent();
-  const memoizedStoreSearchFilter = React.useCallback(storeSearchFilter, [storeSearchFilter]);
 
   const genQuery = useElastic();
   const { expanded, setExpanded } = useSearchPageContext();
@@ -127,6 +125,17 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
       search.size !== 500
     );
   }, [search]);
+
+  const handleSearch = async () => {
+    const updatedFilterSettings = {
+      ...search,
+      search: controlled,
+    };
+
+    storeSearchFilter(updatedFilterSettings);
+
+    onSearch?.(updatedFilterSettings);
+  };
 
   React.useEffect(() => {
     if (activeFilter) {
@@ -211,24 +220,9 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
     myFilters,
   ]);
 
-  const updateSearchText = React.useMemo(
-    () =>
-      debounce((value) => {
-        memoizedStoreSearchFilter({ ...search, search: value });
-      }, 150),
-    [search, memoizedStoreSearchFilter],
-  );
-
-  React.useEffect(() => {
-    return () => {
-      updateSearchText.cancel(); // Cleanup debounce on unmount
-    };
-  }, [updateSearchText]);
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const value = e.target.value;
     setController(value);
-    updateSearchText(value);
   };
 
   return (
@@ -499,12 +493,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
             <button className="save-cloud" onClick={() => saveSearch()}>
               <FaSave />
             </button>
-            <Button
-              onClick={() => {
-                onSearch?.(search);
-              }}
-              className="search-button"
-            >
+            <Button onClick={handleSearch} className="search-button">
               Search
               <FaPlay />
             </Button>
