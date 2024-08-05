@@ -169,7 +169,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
           .sort(sortContent(filter.sort))
           .map((c) => castContentToSearchResult(c));
         const page = new Page(
-          1,
+          filter.pageIndex,
           filter.pageSize,
           items,
           (results.hits?.total as SearchTotalHits).value,
@@ -303,13 +303,12 @@ const Papers: React.FC<IPapersProps> = (props) => {
 
   const handlePageChange = React.useCallback(
     (page: number) => {
-      if (filter.pageIndex !== page - 1) {
+      if (filter.pageIndex !== page) {
         const newFilter = {
           ...filter,
-          pageIndex: page - 1,
+          pageIndex: page,
         };
         storeFilterPaper(newFilter);
-        replaceQueryParams(newFilter, { includeEmpty: false });
       }
     },
     [filter, storeFilterPaper],
@@ -360,7 +359,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
         <Row className="content-list">
           <Grid
             items={currentResultsPage.items}
-            pageIndex={currentResultsPage.pageIndex - 1}
+            pageIndex={currentResultsPage.pageIndex}
             itemsPerPage={currentResultsPage.pageSize}
             totalItems={currentResultsPage.total}
             showPaging

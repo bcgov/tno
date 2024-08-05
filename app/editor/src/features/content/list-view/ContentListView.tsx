@@ -24,7 +24,6 @@ import {
   LogicalOperator,
   MessageTargetKey,
   Page,
-  replaceQueryParams,
   Row,
   Show,
   SortDirection,
@@ -263,7 +262,7 @@ const ContentListView: React.FC = () => {
           }
 
           const page = new Page(
-            1,
+            filter.pageIndex,
             filter.pageSize,
             items,
             (searchResults.hits?.total as SearchTotalHits).value,
@@ -291,13 +290,12 @@ const ContentListView: React.FC = () => {
 
   const handlePageChange = React.useCallback(
     (page: number) => {
-      if (filter.pageIndex !== page - 1) {
+      if (filter.pageIndex !== page) {
         const newFilter = {
           ...filter,
-          pageIndex: page - 1,
+          pageIndex: page,
         };
         storeFilter(newFilter);
-        replaceQueryParams(newFilter, { includeEmpty: false });
       }
     },
     [filter, storeFilter],
@@ -412,7 +410,7 @@ const ContentListView: React.FC = () => {
           <Row className="content-list">
             <Grid
               items={currentResultsPage.items}
-              pageIndex={currentResultsPage.pageIndex - 1}
+              pageIndex={currentResultsPage.pageIndex}
               itemsPerPage={currentResultsPage.pageSize}
               totalItems={currentResultsPage.total}
               showPaging

@@ -60,10 +60,10 @@ const WorkOrderList = () => {
 
   const handlePageChange = React.useCallback(
     (page: number) => {
-      if (workOrderFilter.pageIndex !== page - 1) {
+      if (workOrderFilter.pageIndex !== page) {
         const newFilter = {
           ...workOrderFilter,
-          pageIndex: page - 1,
+          pageIndex: page,
         };
         storeFilter(newFilter);
       }
@@ -104,7 +104,7 @@ const WorkOrderList = () => {
       <WorkOrderListFilter />
       <Grid
         items={page.items}
-        pageIndex={page.pageIndex - 1}
+        pageIndex={page.pageIndex}
         itemsPerPage={workOrderFilter.pageSize}
         totalItems={page.total}
         showPaging

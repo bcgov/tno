@@ -7,6 +7,7 @@ interface IGridPagerProps {
   pageIndex: number;
   itemsPerPage: number;
   totalItems?: number;
+  isOneBasedIndexing?: boolean;
   onNavigatePage?: (page: number) => void;
   onQuantityChange?: (quantity: number) => void;
 }
@@ -20,6 +21,7 @@ export const GridPager = ({
   pageIndex,
   itemsPerPage,
   totalItems,
+  isOneBasedIndexing = false,
   onNavigatePage,
   onQuantityChange,
 }: IGridPagerProps) => {
@@ -27,7 +29,7 @@ export const GridPager = ({
 
   const numberOfPages = itemsPerPage > 0 && totalItems ? Math.ceil(totalItems / itemsPerPage) : 1;
   const infinitePages = !totalItems;
-  const page = pageIndex + 1;
+  const page = isOneBasedIndexing ? pageIndex : pageIndex + 1;
 
   React.useEffect(() => {
     setQuantity(itemsPerPage);
@@ -42,14 +44,19 @@ export const GridPager = ({
         <FaBackwardFast
           title="first"
           className={page === 1 ? 'disabled' : ''}
-          onClick={() => page > 1 && onNavigatePage?.(1)}
+          onClick={() => onNavigatePage?.(isOneBasedIndexing ? 1 : 0)}
         />
       </div>
       <div>
         <FaCaretLeft
           title="previous"
           className={page === 1 ? 'disabled' : ''}
-          onClick={() => page > 1 && onNavigatePage?.(page - 1)}
+          onClick={() => {
+            const prevPage = pageIndex - 1;
+            if (prevPage >= 0) {
+              onNavigatePage?.(prevPage);
+            }
+          }}
         />
       </div>
       <div>{page}</div>
@@ -57,14 +64,22 @@ export const GridPager = ({
         <FaCaretRight
           title="next"
           className={page === numberOfPages && !infinitePages ? 'disabled' : ''}
-          onClick={() => (page < numberOfPages || infinitePages) && onNavigatePage?.(page + 1)}
+          onClick={() => {
+            const nextPage = pageIndex + 1;
+            if (
+              (isOneBasedIndexing ? nextPage < numberOfPages + 1 : nextPage < numberOfPages) ||
+              infinitePages
+            ) {
+              onNavigatePage?.(nextPage);
+            }
+          }}
         />
       </div>
       <div>
         <FaForwardFast
           title="last"
           className={page === numberOfPages ? 'disabled' : ''}
-          onClick={() => (page < numberOfPages || infinitePages) && onNavigatePage?.(numberOfPages)}
+          onClick={() => onNavigatePage?.(isOneBasedIndexing ? numberOfPages : numberOfPages - 1)}
         />
       </div>
       <div>
