@@ -205,7 +205,8 @@ export const ReportEditSendForm = ({ onPublish, onGenerate }: IReportEditSendFor
             </Show>
             <Show visible={!values.settings.content.copyPriorInstance}>
               <p className="info">
-                When you generate the next report it will empty out any content.
+                When you generate the next report it will empty out any content in the current
+                unsent report.
               </p>
             </Show>
           </Col>

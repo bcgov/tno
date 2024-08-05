@@ -146,12 +146,14 @@ public class ReportInstanceController : ControllerBase
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
-        instance.Status = instance.Status == Entities.ReportStatus.Pending ? Entities.ReportStatus.Submitted : instance.Status;
+        var resend = instance.Status == ReportStatus.Reopen;
+        instance.Status = new[] { Entities.ReportStatus.Pending, Entities.ReportStatus.Reopen }.Contains(instance.Status) ? Entities.ReportStatus.Submitted : instance.Status;
         instance = _reportInstanceService.UpdateAndSave(instance);
 
         var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, instance.ReportId, instance.Id, new { })
         {
-            RequestorId = user.Id
+            RequestorId = user.Id,
+            Resend = resend,
         };
         await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{instance.ReportId}", request);
         return new JsonResult(new ReportInstanceModel(instance));

@@ -25,7 +25,15 @@ export const ReportHistoryForm = () => {
     async (reportId: number) => {
       try {
         const instances = await findInstancesForReportId(reportId);
-        setInstances(instances.filter((i) => i.status !== ReportStatusName.Pending));
+        setInstances(
+          instances.filter(
+            (i, index) =>
+              !(
+                index === 0 &&
+                [ReportStatusName.Pending, ReportStatusName.Reopen].includes(i.status)
+              ),
+          ),
+        );
       } catch {}
     },
     [findInstancesForReportId],

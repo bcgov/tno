@@ -7,15 +7,19 @@ import { ReportStatusName } from 'tno-core';
  */
 export const getStatus = (status: ReportStatusName) => {
   switch (status) {
-    case ReportStatusName.Pending:
-      return 'Draft';
     case ReportStatusName.Submitted:
       return 'Sending';
     case ReportStatusName.Failed:
       return 'Failed to Send';
+    case ReportStatusName.Cancelled:
+      return 'Cancelled';
     case ReportStatusName.Accepted:
     case ReportStatusName.Completed:
-    default:
       return 'Sent';
+    case ReportStatusName.Reopen:
+      return 'Reopened';
+    case ReportStatusName.Pending:
+    default:
+      return 'Draft';
   }
 };

@@ -47,7 +47,9 @@ export const ReportEditPage = () => {
   );
 
   const instance = report.instances.length ? report.instances[0] : undefined;
-  const canEdit = instance ? instance.status === ReportStatusName.Pending : true;
+  const canEdit = instance
+    ? [ReportStatusName.Pending, ReportStatusName.Reopen].includes(instance.status)
+    : true;
 
   React.useEffect(() => {
     if (!myReports?.length) {
@@ -191,7 +193,11 @@ export const ReportEditPage = () => {
             };
           }
           const report = originalId
-            ? await updateReport(values, instance?.status === ReportStatusName.Pending)
+            ? await updateReport(
+                values,
+                instance &&
+                  [ReportStatusName.Pending, ReportStatusName.Reopen].includes(instance.status),
+              )
             : await addReport({
                 ...values,
                 ownerId: values.ownerId ?? userInfo?.id ?? 0,
@@ -233,7 +239,7 @@ export const ReportEditPage = () => {
     },
     [
       addReport,
-      instance?.status,
+      instance,
       myReports,
       navigate,
       path1,
