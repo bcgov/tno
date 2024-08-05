@@ -28,4 +28,9 @@ export enum ReportStatusName {
   /// Report failed to send.
   /// </summary>
   Failed = 'Failed',
+
+  /// <summary>
+  /// Report has been reopened after being sent.
+  /// </summary>
+  Reopen = 'Reopen',
 }

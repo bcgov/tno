@@ -32,5 +32,10 @@ public enum ReportStatus
     /// <summary>
     /// Report failed to send.
     /// </summary>
-    Failed = 5
+    Failed = 5,
+
+    /// <summary>
+    /// Report has been reopened after being sent.
+    /// </summary>
+    Reopen = 6,
 }

@@ -69,6 +69,11 @@ public class ReportRequestModel
     /// get/set - Whether the report will be sent to subscribers.
     /// </summary>
     public bool SendToSubscribers { get; set; } = true;
+
+    /// <summary>
+    /// get/set - Whether to resend to subscribers even if already sent.
+    /// </summary>
+    public bool Resend { get; set; } = false;
     #endregion
 
     #region Constructors

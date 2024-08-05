@@ -477,7 +477,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                   name="publishedOnTime"
                                   label="Time"
                                   disabled={!props.values.publishedOn}
-                                  width="7em"
+                                  width="8em"
                                   value={
                                     !!props.values.publishedOn ? props.values.publishedOnTime : ''
                                   }

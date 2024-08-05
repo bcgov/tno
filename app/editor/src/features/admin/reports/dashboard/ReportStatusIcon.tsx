@@ -24,6 +24,7 @@ export const ReportStatusIcon: React.FC<IReportStatusIconProps> = ({ status, onC
     case ReportStatusName.Failed:
       return <FaCircleExclamation className="error" onClick={onClick} />;
     case ReportStatusName.Pending:
+    case ReportStatusName.Reopen:
     default:
       return <FaRegCircle onClick={onClick} />;
   }

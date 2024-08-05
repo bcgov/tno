@@ -581,9 +581,9 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 {
                     // Only include users who have not received an email yet.
                     var (a, b, c) = await GetEmailAddressesAsync(user.UserId, user.User!.GetEmail(), user.User!.AccountType, user.SendTo);
-                    linkOnlyFormatTo.AddRange(a.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
-                    linkOnlyFormatCC.AddRange(b.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
-                    linkOnlyFormatBCC.AddRange(c.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
+                    linkOnlyFormatTo.AddRange(a.Where(s => request.Resend || !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
+                    linkOnlyFormatCC.AddRange(b.Where(s => request.Resend || !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
+                    linkOnlyFormatBCC.AddRange(c.Where(s => request.Resend || !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
                 }
 
                 var fullTextFormatTo = new List<UserEmail>();
@@ -593,9 +593,9 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 {
                     // Only include users who have not received an email yet.
                     var (a, b, c) = await GetEmailAddressesAsync(user.UserId, user.User!.GetEmail(), user.User!.AccountType, user.SendTo);
-                    fullTextFormatTo.AddRange(a.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.TextStatus))));
-                    fullTextFormatCC.AddRange(b.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.TextStatus))));
-                    fullTextFormatBCC.AddRange(c.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.TextStatus))));
+                    fullTextFormatTo.AddRange(a.Where(s => request.Resend || !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.TextStatus))));
+                    fullTextFormatCC.AddRange(b.Where(s => request.Resend || !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.TextStatus))));
+                    fullTextFormatBCC.AddRange(c.Where(s => request.Resend || !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.TextStatus))));
                 }
 
                 if (request.SendToSubscribers || !String.IsNullOrEmpty(request.To))
@@ -794,9 +794,9 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             {
                 // Only include users who have not received an email yet.
                 var (a, b, c) = await GetEmailAddressesAsync(user.UserId, user.User!.GetEmail(), user.User!.AccountType, user.SendTo);
-                linkOnlyFormatTo.AddRange(a.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
-                linkOnlyFormatCC.AddRange(b.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
-                linkOnlyFormatBCC.AddRange(c.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
+                linkOnlyFormatTo.AddRange(a.Where(s => request.Resend || !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
+                linkOnlyFormatCC.AddRange(b.Where(s => request.Resend || !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
+                linkOnlyFormatBCC.AddRange(c.Where(s => request.Resend || !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
             }
 
             var fullTextFormatTo = new List<UserEmail>();
@@ -806,9 +806,9 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             {
                 // Only include users who have not received an email yet.
                 var (a, b, c) = await GetEmailAddressesAsync(user.UserId, user.User!.GetEmail(), user.User!.AccountType, user.SendTo);
-                fullTextFormatTo.AddRange(a.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.TextStatus))));
-                fullTextFormatCC.AddRange(b.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.TextStatus))));
-                fullTextFormatBCC.AddRange(c.Where(s => !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.TextStatus))));
+                fullTextFormatTo.AddRange(a.Where(s => request.Resend || !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.TextStatus))));
+                fullTextFormatCC.AddRange(b.Where(s => request.Resend || !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.TextStatus))));
+                fullTextFormatBCC.AddRange(c.Where(s => request.Resend || !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.TextStatus))));
             }
 
             if (request.SendToSubscribers || !String.IsNullOrWhiteSpace(request.To))
