@@ -8,11 +8,11 @@ import { FaCaretSquareDown, FaCheckSquare, FaPlay, FaRegSmile } from 'react-icon
 import { FaSave } from 'react-icons/fa';
 import {
   FaBookmark,
-  FaCheck,
   FaDownLeftAndUpRightToCenter,
   FaGears,
   FaIcons,
   FaNewspaper,
+  FaSquarePlus,
   FaTag,
   FaTv,
   FaUpRightAndDownLeftFromCenter,
@@ -107,14 +107,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
 
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
   const [{ sources, series, mediaTypes }] = useLookup();
-  const [initialState, setInitialState] = React.useState<IFilterSettingsModel | null>(null);
-  const [isFirstLoad, setIsFirstLoad] = React.useState<boolean>(false);
-  const [controlled, setController] = React.useState<string>(search?.search ?? '');
-
-  const isDiff = React.useMemo(
-    () => JSON.stringify(initialState) !== JSON.stringify(search),
-    [initialState, search],
-  );
+  const [searchTerms, setSearchTerms] = React.useState<string>(search?.search ?? '');
 
   const checkDisplayOptions = React.useCallback((): boolean => {
     return (
@@ -129,13 +122,21 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
   const handleSearch = async () => {
     const updatedFilterSettings = {
       ...search,
-      search: controlled,
+      search: searchTerms,
     };
 
     storeSearchFilter(updatedFilterSettings);
 
     onSearch?.(updatedFilterSettings);
   };
+
+  React.useEffect(() => {
+    if (activeFilter) setSearchName(activeFilter.name);
+  }, [activeFilter]);
+
+  React.useEffect(() => {
+    if (search) setSearchTerms(search.search ?? '');
+  }, [search]);
 
   React.useEffect(() => {
     if (activeFilter) {
@@ -145,85 +146,78 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
     } else setSearchName('');
   }, [activeFilter, setOriginalFilterSettings]);
 
-  React.useEffect(() => {
-    if (initialState === null && search?.search) {
-      setInitialState(search);
-      setIsFirstLoad(true);
-    } else if (isDiff) {
-      setIsFirstLoad(false);
-    }
-  }, [initialState, isDiff, search]);
+  const updateSearch = React.useCallback(
+    async (name?: string) => {
+      const settings = filterFormat(search);
+      const query = genQuery(settings);
 
-  const updateSearch = React.useCallback(async () => {
-    const settings = filterFormat(search);
-    const query = genQuery(settings);
+      const filter: IFilterModel = {
+        ...activeFilter,
+        id: activeFilter?.id ?? 0,
+        name: name ?? activeFilter?.name ?? '',
+        description: activeFilter?.description ?? '',
+        sortOrder: activeFilter?.sortOrder ?? 0,
+        isEnabled: activeFilter?.isEnabled ?? true,
+        query,
+        settings,
+        reports: activeFilter?.reports ?? [],
+        folders: activeFilter?.folders ?? [],
+      };
 
-    const filter: IFilterModel = {
-      ...activeFilter,
-      id: activeFilter?.id ?? 0,
-      name: activeFilter?.name ?? '',
-      description: activeFilter?.description ?? '',
-      sortOrder: activeFilter?.sortOrder ?? 0,
-      isEnabled: activeFilter?.isEnabled ?? true,
-      query,
-      settings,
-      reports: activeFilter?.reports ?? [],
-      folders: activeFilter?.folders ?? [],
-    };
+      if (filter.id) {
+        if (!filter.name) {
+          toast.error('Please enter a name for your search.');
+          return;
+        }
+        await updateFilter(filter)
+          .then((data) => {
+            toast.success(`${data.name} has successfully been updated.`);
+            storeFilter(data);
+            storeSearchFilter(data.settings);
+          })
+          .catch(() => {});
+      }
+    },
+    [search, genQuery, activeFilter, updateFilter, storeFilter, storeSearchFilter],
+  );
 
-    if (filter.id) {
-      if (!searchName) {
+  const addSearch = React.useCallback(
+    async (name: string) => {
+      const settings = filterFormat(search);
+      const query = genQuery(settings);
+      const filter: IFilterModel = { ...defaultFilter, name, query, settings };
+
+      if (!name) {
         toast.error('Please enter a name for your search.');
         return;
       }
-      await updateFilter(filter)
+      if (myFilters.some((f) => f.name === name)) {
+        toast.error('A filter with this name already exists.');
+        return;
+      }
+      await addFilter(filter)
         .then((data) => {
-          toast.success(`${data.name} has successfully been updated.`);
+          toast.success(`${data.name} has successfully been created.`);
           storeFilter(data);
           storeSearchFilter(data.settings);
-          setInitialState(data.settings);
+          navigate(`/search/advanced/${data.id}`);
         })
         .catch(() => {});
-    }
-  }, [search, genQuery, activeFilter, searchName, updateFilter, storeFilter, storeSearchFilter]);
+    },
+    [search, genQuery, addFilter, storeFilter, storeSearchFilter, navigate, myFilters],
+  );
 
-  const saveSearch = React.useCallback(async () => {
-    const settings = filterFormat(search);
-    const query = genQuery(settings);
-    const filter: IFilterModel = { ...defaultFilter, name: searchName, query, settings };
-
-    if (!searchName) {
-      toast.error('Please enter a name for your search.');
-      return;
-    }
-    if (myFilters.some((f) => f.name === searchName)) {
-      toast.error('A filter with this name already exists.');
-      return;
-    }
-    await addFilter(filter)
-      .then((data) => {
-        toast.success(`${data.name} has successfully been created.`);
-        storeFilter(data);
-        storeSearchFilter(data.settings);
-        setInitialState(null);
-        navigate(`/search/advanced/${data.id}`);
-      })
-      .catch(() => {});
-  }, [
-    search,
-    genQuery,
-    searchName,
-    addFilter,
-    storeFilter,
-    storeSearchFilter,
-    navigate,
-    myFilters,
-  ]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const value = e.target.value;
-    setController(value);
-  };
+  const handleSearchTermsChanged = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const value = e.target.value;
+      setSearchTerms(value);
+      storeSearchFilter({ ...search, search: value });
+      storeFilter((filter) =>
+        filter ? { ...filter, settings: { ...filter?.settings, search: value } } : undefined,
+      );
+    },
+    [search, storeFilter, storeSearchFilter],
+  );
 
   return (
     <styled.AdvancedSearch expanded={expanded}>
@@ -277,17 +271,10 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
                 <FaBookmark />
                 <div className="filter-name">{activeFilter?.name}</div>
                 <div className="status">
-                  {!isFirstLoad && !isDiff ? (
-                    <>
-                      <FaCheck className="status_check_mark" />
-                      <span className="status_saved">Saved</span>
-                    </>
-                  ) : !isFirstLoad && isDiff ? (
+                  {activeFilter?.id && (
                     <button className="status_save_changes" onClick={() => updateSearch()}>
                       Save Changes
                     </button>
-                  ) : (
-                    ' '
                   )}
                 </div>
               </div>
@@ -298,10 +285,10 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
               <ElasticQueryHelp queryType={search.queryType} />
               <Col className="text-area-container">
                 <TextArea
-                  value={controlled}
+                  value={searchTerms}
                   className="text-area"
                   name="search"
-                  onChange={handleInputChange}
+                  onChange={handleSearchTermsChanged}
                 />
                 <SearchInGroup />
               </Col>
@@ -482,7 +469,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
           </div>
           {/* FOOTER */}
           <Row className="adv-toolbar">
-            <div className="label">SAVE AS NEW:</div>
+            <div className="label">SAVE:</div>
             <Text
               onChange={(e) => {
                 setSearchName(e.target.value);
@@ -490,9 +477,18 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
               name="searchName"
               value={searchName}
             />
-            <button className="save-cloud" onClick={() => saveSearch()}>
+            <button
+              className="save-cloud"
+              onClick={() => (activeFilter?.id ? updateSearch(searchName) : addSearch(searchName))}
+              title="Save"
+            >
               <FaSave />
             </button>
+            {activeFilter?.id && (
+              <button className="save-cloud" onClick={() => addSearch(searchName)} title="Add new">
+                <FaSquarePlus />
+              </button>
+            )}
             <Button onClick={handleSearch} className="search-button">
               Search
               <FaPlay />
