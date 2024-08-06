@@ -22,8 +22,9 @@ export const useToastError = () => {
     errors.forEach((e) => {
       toast.error(
         <Col>
+          {e.status && <h3>{`${e.status}${e.statusText ? ` - ${e.statusText}` : ''}`}</h3>}
           <p>{e.message}</p>
-          <p>{e.detail}</p>
+          {e.detail && <p>{e.detail}</p>}
         </Col>,
         {},
       );
