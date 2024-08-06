@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 
 export const ReportInstanceView = styled.div`
+  display: flex;
+  flex-direction: column;
   padding: 1rem;
 
   .preview-subject {
@@ -11,14 +13,19 @@ export const ReportInstanceView = styled.div`
   }
 
   p {
-    /* Need this to stop the paragraph from making the div wider than it should be */
-    width: 0;
-    min-width: 100%;
+    width: 100%;
   }
 
   .article {
-    /* Need this to stop the paragraph from making the div wider than it should be */
-    width: 0;
-    min-width: 100%;
+    width: 100%;
+  }
+
+  .preview-body {
+    word-wrap: break-word;
+    width: 100%;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
   }
 `;
