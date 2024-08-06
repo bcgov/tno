@@ -45,10 +45,12 @@ export const MyFolders: React.FC<IMyFoldersProps> = () => {
         content: [],
         reports: [],
         events: [],
-      }).then((data) => {
-        setNewFolderName('');
-        toast.success(`${data.name} created successfully`);
-      });
+      })
+        .then((data) => {
+          setNewFolderName('');
+          toast.success(`${data.name} created successfully`);
+        })
+        .catch(() => {});
     else toast.warning(`Folder name is required.`);
   };
 

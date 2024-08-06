@@ -119,7 +119,7 @@ namespace TNO.API.Middleware
             {
                 code = HttpStatusCode.BadRequest;
                 if (ex.InnerException?.Message.Contains("23505: duplicate key value violates unique constraint") == true)
-                    message = "A record already exists with this key.";
+                    message = "A record already exists with this key.  Try a different name and save again.";
                 else
                     message = "A database error occurred while updating.";
 
