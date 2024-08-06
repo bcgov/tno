@@ -131,16 +131,50 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// <summary>
     /// Get all enable reports and related content for the dashboard.
     /// </summary>
+    /// <param name="filter"></param>
     /// <returns></returns>
-    public (IEnumerable<Report> Reports, IEnumerable<AVOverviewInstance> Overviews) GetDashboard()
+    public (IEnumerable<Report> Reports, IEnumerable<AVOverviewInstance> Overviews) GetDashboard(DashboardFilter filter)
     {
-        var reports = this.Context.Reports
+        var query = this.Context.Reports
             .AsNoTracking()
             .Include(r => r.Owner)
             .Include(r => r.Events).ThenInclude(e => e.Schedule)
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User).ThenInclude(u => u!.Distribution).ThenInclude(d => d.LinkedUser)
+            .AsQueryable();
+
+
+        if (filter.IsEnabled.HasValue)
+            query = query.Where(r => r.IsEnabled == filter.IsEnabled.Value);
+        if (filter.IsPublic.HasValue)
+            query = query.Where(r => r.IsPublic == filter.IsPublic.Value);
+        if (!String.IsNullOrWhiteSpace(filter.Name))
+            query = query.Where(c => EF.Functions.Like(c.Name.ToLower(), $"%{filter.Name.ToLower()}%"));
+        if (!String.IsNullOrWhiteSpace(filter.Keyword))
+            query = query.Where(c =>
+                EF.Functions.Like(c.Name.ToLower(), $"%{filter.Keyword.ToLower()}%") ||
+                EF.Functions.Like(c.Owner!.Username.ToLower(), $"%{filter.Keyword.ToLower()}%") ||
+                EF.Functions.Like(c.Owner!.Email.ToLower(), $"%{filter.Keyword.ToLower()}%") ||
+                EF.Functions.Like(c.Owner!.PreferredEmail.ToLower(), $"%{filter.Keyword.ToLower()}%") ||
+                EF.Functions.Like(c.Owner!.FirstName.ToLower(), $"%{filter.Keyword.ToLower()}%") ||
+                EF.Functions.Like(c.Owner!.LastName.ToLower(), $"%{filter.Keyword.ToLower()}%"));
+        if (filter.OwnerId.HasValue)
+            query = query.Where(r => r.OwnerId == filter.OwnerId.Value);
+        if (filter.Status?.Any() == true)
+            query = query.Where(r => r.Instances.OrderByDescending(i => i.Id).Take(1).Any(i => filter.Status.Contains(i.Status)));
+        if (filter.StartDate.HasValue && filter.EndDate.HasValue)
+            query = query.Where(r => r.Instances.OrderByDescending(i => i.Id).Take(1).Any(i => i.SentOn >= filter.StartDate.Value && i.SentOn < filter.EndDate.Value));
+        else if (filter.StartDate.HasValue)
+            query = query.Where(r => r.Instances.OrderByDescending(i => i.Id).Take(1).Any(i => i.SentOn >= filter.StartDate.Value));
+        else if (filter.EndDate.HasValue)
+            query = query.Where(r => r.Instances.OrderByDescending(i => i.Id).Take(1).Any(i => i.SentOn < filter.EndDate.Value));
+
+        var page = filter.Page ?? 1;
+        var quantity = filter.Quantity ?? 10;
+        var skip = (page - 1) * quantity;
+        var reports = query
             .OrderBy(r => r.Name)
-            .Where(r => r.IsEnabled)
+            .Skip(skip)
+            .Take(quantity)
             .ToArray();
 
         // Fetch only the most recent report instances for each report.

@@ -4,6 +4,7 @@ import React from 'react';
 import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
 import {
+  IDashboardFilter,
   IReportDashboard,
   IReportFilter,
   IReportInstanceModel,
@@ -81,8 +82,11 @@ export const useApiAdminReports = (
         model,
       );
     },
-    getDashboard: () => {
-      return api.get<never, AxiosResponse<IReportDashboard>, any>(`/admin/reports/dashboard`);
+    getDashboard: (filter: IDashboardFilter) => {
+      var query = toQueryString(filter ?? {});
+      return api.get<never, AxiosResponse<IReportDashboard>, any>(
+        `/admin/reports/dashboard?${query}`,
+      );
     },
   }).current;
 };

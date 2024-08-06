@@ -6,10 +6,10 @@ export const ReportDashboard = styled.div`
   .header {
     display: grid;
     grid-template-columns: 1fr 1fr 120px 1fr 1fr 50px;
-    grid-column-gap: 1rem;
+    grid-column-gap: 0.25rem;
 
     > div {
-      padding-left: 0.5rem;
+      font-weight: 800;
     }
   }
 

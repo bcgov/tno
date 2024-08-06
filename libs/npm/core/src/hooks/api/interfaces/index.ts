@@ -30,6 +30,7 @@ export * from './IContentTonePoolModel';
 export * from './IContentTopicModel';
 export * from './IContentVersionModel';
 export * from './IContributorModel';
+export * from './IDashboardFilter';
 export * from './IDataLocationModel';
 export * from './IDirectoryModel';
 export * from './IEarnedMediaModel';
