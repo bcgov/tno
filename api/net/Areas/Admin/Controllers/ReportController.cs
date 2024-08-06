@@ -310,7 +310,10 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult Dashboard()
     {
-        var result = _reportService.GetDashboard();
+        var uri = new Uri(this.Request.GetDisplayUrl());
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+
+        var result = _reportService.GetDashboard(new TNO.Models.Filters.DashboardFilter(query));
         var reports = new List<ReportModel>();
         foreach (var report in result.Reports)
         {

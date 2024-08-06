@@ -37,8 +37,9 @@ public interface IReportService : IBaseService<Report, int>
     /// <summary>
     /// Get all enable reports and related content for the dashboard.
     /// </summary>
+    /// <param name="filter"></param>
     /// <returns></returns>
-    (IEnumerable<Report> Reports, IEnumerable<AVOverviewInstance> Overviews) GetDashboard();
+    (IEnumerable<Report> Reports, IEnumerable<AVOverviewInstance> Overviews) GetDashboard(DashboardFilter filter);
 
     /// <summary>
     /// Generate an instance of the report.
