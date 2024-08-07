@@ -509,9 +509,13 @@ public class ReportService : BaseService<Report, int>, IReportService
                     // Apply the search results to the report instance.
                     var settings = JsonSerializer.Deserialize<ReportSectionSettingsModel>(section.Settings, _serializerOptions);
                     var sortOrder = 0;
-                    instanceContent.AddRange(OrderBySectionField(results.Hits.Hits.Select(c => new ReportInstanceContent(instanceId ?? 0, c.Source.Id, section.Name, sortOrder++)
+                    instanceContent.AddRange(OrderBySectionField(results.Hits.Hits.Select(c =>
                     {
-                        Content = c.Source?.ToContent()
+                        var content = c.Source.ToContent();
+                        return new ReportInstanceContent(instanceId ?? 0, c.Source.Id, section.Name, sortOrder++)
+                        {
+                            Content = content
+                        };
                     }), settings?.SortBy, settings?.SortDirection));
                 }
             });
@@ -1007,7 +1011,6 @@ public class ReportService : BaseService<Report, int>, IReportService
             // Determine index.
             var defaultIndex = filterSettings.SearchUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex;
             var content = await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query);
-            var contentHits = content.Hits.Hits.ToArray();
 
             // Fetch custom content versions for the requestor.
             var contentIds = content.Hits.Hits.Select(h => h.Source.Id).Distinct().ToArray();
