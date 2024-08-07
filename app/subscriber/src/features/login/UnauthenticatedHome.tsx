@@ -1,7 +1,7 @@
 import React from 'react';
 import { useKeycloakWrapper } from 'tno-core';
 
-import { BrowserLogin, MobileLogin } from '.';
+import { AppLogin } from '.';
 import * as styled from './styled';
 
 export interface IUnauthenticatedHomeProps {
@@ -39,8 +39,6 @@ export interface IUnauthenticatedHomeProps {
 export const UnauthenticatedHome: React.FC<IUnauthenticatedHomeProps> = () => {
   const keycloak = useKeycloakWrapper();
 
-  const [isMobile, setIsMobile] = React.useState(false);
-
   const login = (hint?: string) => {
     const params = new URLSearchParams(window.location.search);
     const redirectTo = params.get('redirectTo');
@@ -55,24 +53,9 @@ export const UnauthenticatedHome: React.FC<IUnauthenticatedHomeProps> = () => {
     keycloak.instance.login({ idpHint: hint, redirectUri: redirect, scope: 'openid' });
   };
 
-  React.useEffect(() => {
-    const mobileMediaQuery = window.matchMedia('(max-width: 767px)'); // Adjust the breakpoint as needed
-
-    const handleMobileChange = (event: MediaQueryListEvent) => {
-      setIsMobile(event.matches);
-    };
-
-    mobileMediaQuery.addEventListener('change', handleMobileChange);
-    setIsMobile(mobileMediaQuery.matches);
-
-    return () => {
-      mobileMediaQuery.removeEventListener('change', handleMobileChange);
-    };
-  }, []);
-
   return (
     <styled.UnauthenticatedHome>
-      {isMobile ? <MobileLogin login={login} /> : <BrowserLogin login={login} />}
+      <AppLogin login={login} />
     </styled.UnauthenticatedHome>
   );
 };

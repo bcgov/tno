@@ -16,52 +16,8 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
     height: auto;
   }
 
-  .app-logo {
-    padding: 1%;
-    @media (min-width: 1450px) {
-      margin-left: 5%;
-    }
-    @media (min-width: 850px) {
-      max-width: 50em;
-      max-height: 25em;
-    }
-    @media (max-width: 850px) {
-      max-width: 30em;
-      max-height: 15em;
-    }
-    max-width: 50em;
-    max-height: 25em;
-
-    @media (max-width: 1450px) {
-      margin-left: auto;
-      margin-right: auto;
-    }
-    margin-top: 2.5%;
-
-    margin-bottom: 2.5%;
-  }
-
   a {
     margin-bottom: 2%;
-  }
-
-  .containing-box {
-    padding: 2%;
-    display: flex;
-    justify-content: center;
-    max-height: fit-content;
-    overflow: hidden;
-    @media (max-width: 1550px) {
-      display: inline-block;
-      margin-left: 5em;
-    }
-  }
-
-  .centered-login-box {
-    @media (min-width: 1450px) {
-      margin-left: auto;
-      margin-right: auto;
-    }
   }
 
   .mm-logo {
@@ -78,37 +34,6 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   .logo-row {
     justify-content: flex-end;
     img {
-    }
-  }
-
-  .main-box {
-    box-shadow: 0px 2px 6px #0000000a;
-    background-color: #ffffff;
-    max-height: fit-content;
-    margin-right: 1em;
-    overflow: hidden;
-    width: 110em;
-    @media (min-width: 850px) {
-      max-width: 70em;
-    }
-    @media (max-width: 1550px) {
-      min-width: 50em;
-      margin-left: 1%;
-      margin-bottom: 1%;
-    }
-    @media (min-width: 1450px) {
-      max-width: 130em;
-    }
-    .top-bar-box {
-      margin: 0;
-      background-color: ${(props) => props.theme.css.dialogBoxBkPrimary};
-      color: white;
-      padding: 0.5em;
-      font-size: 18px;
-      font-weight: 400;
-      line-height: 22px;
-      letter-spacing: 0em;
-      text-align: center;
     }
   }
 `;

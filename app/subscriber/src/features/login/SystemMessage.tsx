@@ -1,4 +1,5 @@
 import React from 'react';
+import { FaBell } from 'react-icons/fa6';
 import { useSystemMessages } from 'store/hooks';
 import { Col, ISystemMessageModel, Show } from 'tno-core';
 
@@ -19,11 +20,16 @@ export const SystemMessage: React.FC = () => {
 
   return (
     <styled.SystemMessage>
-      <Show visible={!!systemMessage?.message && systemMessage.isEnabled}>
+      <Show visible={!!systemMessage && systemMessage.isEnabled}>
         <Col className="system-message-box">
           <div className="system-message-containing-box">
             <b className="alert-title">System Alerts &amp; Info</b>
-            <div dangerouslySetInnerHTML={{ __html: systemMessage?.message ?? '' }}></div>
+            <FaBell className="bell-icon" />
+            <div
+              dangerouslySetInnerHTML={{
+                __html: systemMessage?.message ?? '',
+              }}
+            ></div>
           </div>
         </Col>
       </Show>
