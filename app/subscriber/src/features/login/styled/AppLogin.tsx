@@ -35,7 +35,7 @@ export const AppLogin = styled(Col)`
       margin-left: auto;
       margin-right: auto;
       margin-top: 3em;
-      &:hover {
+      &:hover {v
         cursor: pointer;
       }
     }
@@ -51,7 +51,7 @@ export const AppLogin = styled(Col)`
     margin-left: auto;
     margin-right: auto;
     @media (max-width: 768px) {
-      margin-top: 5em;
+      margin-top: 0;
     }
     @media (min-width: 768px) {
       margin-top: 10em;
