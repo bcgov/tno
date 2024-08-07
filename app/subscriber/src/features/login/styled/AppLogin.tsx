@@ -3,6 +3,7 @@ import { Col } from 'tno-core';
 
 export const AppLogin = styled(Col)`
   height: 100dvh;
+  overflow-y: auto;
   .app-logo {
     padding-left: 2.5%;
     padding-top: 2.5%;
