@@ -19,13 +19,13 @@ export const AppLogin: React.FC<IAppLoginProps> = ({ login }) => {
           Media Monitoring is a paid service offered through the BC Government that allows
           subscribers to see British Columbia’s news at a glance.
         </div>
+        <SystemMessage />
         <IDPOptions login={login}>
           <div className="learn-more" onClick={() => setShowModal(true)}>
             Learn more about obtaining a subscription...
           </div>
         </IDPOptions>
       </div>
-      <SystemMessage />
       <LightweightModal open={showModal} close={() => setShowModal(false)}>
         <div className="modal-content">
           <div>
