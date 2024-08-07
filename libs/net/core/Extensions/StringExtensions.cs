@@ -442,4 +442,40 @@ public static class StringExtensions
         );
         return asAscii;
     }
+
+    /// <summary>
+    /// Remove any invalid UTF-8 characters.
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public static string RemoveInvalidUtf8Characters(this string input)
+    {
+        // Convert the input string to a byte array
+        byte[] bytes = Encoding.UTF8.GetBytes(input);
+        // Use a StringBuilder to construct the valid string
+        var validString = new StringBuilder();
+
+        // Decode the byte array while ignoring invalid bytes
+        Decoder utf8Decoder = Encoding.UTF8.GetDecoder();
+        int charCount = utf8Decoder.GetCharCount(bytes, 0, bytes.Length, true);
+        char[] chars = new char[charCount];
+        utf8Decoder.GetChars(bytes, 0, bytes.Length, chars, 0, true);
+
+        // Construct a string from the valid characters
+        validString.Append(chars);
+        return validString.ToString();
+    }
+
+    /// <summary>
+    /// Remove the specified invalid unicode characters.
+    /// Default removal of �
+    /// </summary>
+    /// <param name="text"></param>
+    /// <param name="invalidChars"></param>
+    /// <returns></returns>
+    public static string RemoveInvalidUnicodeCharacters(this string text, params char[] invalidChars)
+    {
+        if (!invalidChars.Any()) invalidChars = new[] { '\uFFFD' };
+        return invalidChars.Aggregate(text, (c1, c2) => c1.Replace(c2.ToString(), String.Empty));
+    }
 }
