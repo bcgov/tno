@@ -3,9 +3,8 @@ import styled from 'styled-components';
 export const SystemMessage = styled.div`
   .system-message-box {
     border: 1px solid ${(props) => props.theme.css.btnBkPrimary};
-    max-width: 73em;
-    margin-right: auto;
-    margin-left: auto;
+    margin-right: 1em;
+    margin-left: 1em;
     border-radius: 0.5em;
     padding: 0.5em;
   }
