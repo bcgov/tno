@@ -17,10 +17,15 @@ export const AppLogin = styled(Col)`
     .login-info {
       margin-left: auto;
       margin-right: auto;
-      margin-bottom: 0.5em;
+      margin-bottom: 1em;
     }
     .button-box {
       margin-top: 1em;
+      .idir-logo {
+        background: url('/assets/Logos_IDIR.svg') no-repeat;
+        border: 1px solid ${(props) => props.theme.css.btnBkPrimary};
+        background-size: 100% 100%;
+      }
     }
     .learn-more {
       color: ${(props) => props.theme.css.fRedColor};
@@ -36,12 +41,12 @@ export const AppLogin = styled(Col)`
     button {
       margin-left: auto;
       margin-right: auto;
-      width: 10em;
+      width: 7.5em;
       height: 3em;
       margin-bottom: 0.5em;
     }
     border-radius: 0.5em;
-    max-width: 100em;
+    max-width: 75em;
     margin-left: auto;
     margin-right: auto;
     @media (max-width: 768px) {
