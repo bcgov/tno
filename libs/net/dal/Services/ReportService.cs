@@ -129,19 +129,17 @@ public class ReportService : BaseService<Report, int>, IReportService
     }
 
     /// <summary>
-    /// Get all enable reports and related content for the dashboard.
+    /// Get reports based on the filter for the dashboard.
     /// </summary>
     /// <param name="filter"></param>
     /// <returns></returns>
-    public (IEnumerable<Report> Reports, IEnumerable<AVOverviewInstance> Overviews) GetDashboard(DashboardFilter filter)
+    public IEnumerable<Report> GetDashboard(DashboardFilter filter)
     {
         var query = this.Context.Reports
             .AsNoTracking()
             .Include(r => r.Owner)
             .Include(r => r.Events).ThenInclude(e => e.Schedule)
-            .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User).ThenInclude(u => u!.Distribution).ThenInclude(d => d.LinkedUser)
             .AsQueryable();
-
 
         if (filter.IsEnabled.HasValue)
             query = query.Where(r => r.IsEnabled == filter.IsEnabled.Value);
@@ -187,41 +185,53 @@ public class ReportService : BaseService<Report, int>, IReportService
             .AsNoTracking()
             .ToArray();
 
-        // Fetch all subscriber email results.
-        var instanceIds = instances.SelectMany(i => i.OrderByDescending(i => i.Id).Take(1).Select(i => i.Id)).Distinct().ToArray();
-        var emails = (
-            from uri in this.Context.UserReportInstances.Include(m => m.User).ThenInclude(u => u!.Distribution).ThenInclude(d => d.LinkedUser)
-            where instanceIds.Contains(uri.InstanceId)
-            select uri
-        ).AsNoTracking().ToArray();
-
         foreach (var report in reports)
         {
             var reportInstances = instances.FirstOrDefault(i => i.Any(i2 => i2.ReportId == report.Id)) ?? Array.Empty<ReportInstance>();
-            foreach (var instance in reportInstances)
-            {
-                instance.UserInstances.AddRange(emails.Where(e => e.InstanceId == instance.Id));
-            }
             report.Instances.AddRange(reportInstances);
         }
 
-        // Fetch AV Overview.
-        var avWeekly = (
-            from av in this.Context.AVOverviewInstances
-                .Include(m => m.UserInstances).ThenInclude(u => u.User)
-            where av.TemplateType == AVOverviewTemplateType.Weekday
-            orderby av.Id descending
-            select av
-        ).Take(2).AsNoTracking().ToArray();
-        var avWeekend = (
-            from av in this.Context.AVOverviewInstances
-                .Include(m => m.UserInstances).ThenInclude(u => u.User)
-            where av.TemplateType == AVOverviewTemplateType.Weekday
-            orderby av.Id descending
-            select av
-        ).Take(2).AsNoTracking().ToArray();
+        return reports;
+    }
 
-        return (reports, avWeekly.Concat(avWeekend));
+    /// <summary>
+    /// Get the specified report for the dashboard.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public Report GetDashboardReport(int id)
+    {
+        var report = this.Context.Reports
+            .AsNoTracking()
+            .Include(r => r.Owner)
+            .Include(r => r.Events).ThenInclude(e => e.Schedule)
+            .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User).ThenInclude(u => u!.Distribution).ThenInclude(d => d.LinkedUser)
+            .Where(r => r.Id == id)
+            .FirstOrDefault() ?? throw new NoContentException();
+
+        var instances = (
+            from ri in this.Context.ReportInstances
+            where ri.ReportId == id
+            select ri)
+            .AsNoTracking()
+            .OrderByDescending(ri => ri.Id)
+            .Take(2)
+            .ToArray();
+
+        var instanceId = instances.Take(1).Select(ri => ri.Id).FirstOrDefault();
+        var emails = (
+            from uri in this.Context.UserReportInstances.Include(m => m.User).ThenInclude(u => u!.Distribution).ThenInclude(d => d.LinkedUser)
+            where uri.InstanceId == instanceId
+            select uri
+        ).AsNoTracking().ToArray();
+
+        foreach (var instance in instances)
+        {
+            instance.UserInstances.AddRange(emails.Where(e => e.InstanceId == instance.Id));
+        }
+        report.Instances.AddRange(instances);
+
+        return report;
     }
 
     /// <summary>

@@ -35,11 +35,18 @@ public interface IReportService : IBaseService<Report, int>
     Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentWithElasticsearchAsync(ReportInstance reportInstance, ReportSection section, int? requestorId);
 
     /// <summary>
-    /// Get all enable reports and related content for the dashboard.
+    /// Get reports based on the filter for the dashboard.
     /// </summary>
     /// <param name="filter"></param>
     /// <returns></returns>
-    (IEnumerable<Report> Reports, IEnumerable<AVOverviewInstance> Overviews) GetDashboard(DashboardFilter filter);
+    IEnumerable<Report> GetDashboard(DashboardFilter filter);
+
+    /// <summary>
+    /// Get the specified report for the dashboard.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Report GetDashboardReport(int id);
 
     /// <summary>
     /// Generate an instance of the report.

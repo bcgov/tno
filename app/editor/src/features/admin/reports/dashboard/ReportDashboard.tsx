@@ -22,7 +22,7 @@ export const ReportDashboard: React.FC = () => {
   const [search, setSearch] = React.useState('');
   const [filter, setFilter] = React.useState<IDashboardFilter>({
     page: 1,
-    quantity: 10,
+    quantity: 50,
     isEnabled: true,
     status: [ReportStatusName.Failed],
   });
@@ -31,8 +31,8 @@ export const ReportDashboard: React.FC = () => {
   const fetchReports = React.useCallback(
     async (filter: IDashboardFilter) => {
       try {
-        const response = await getDashboard(filter);
-        setReports(response.reports);
+        const results = await getDashboard(filter);
+        setReports(results);
       } catch {}
     },
     [getDashboard],
