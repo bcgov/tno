@@ -1,4 +1,9 @@
-@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
+DO $$
+BEGIN
+
+-- Update custom report with latest template.
+UPDATE public."report_template" SET
+    "body" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
 @using System
 @using System.Linq
 @using TNO.Entities
@@ -167,11 +172,13 @@
         for (var i = 0; i < sectionContent.Length; i++)
         {
           var content = sectionContent[i];
-          if (Settings.Content.HighlightKeywords) ReportExtensions.MarkKeywords(section.Value, content);
           var sentiment = ReportExtensions.GetSentiment(content, Model, true);
-          var headline = ReportExtensions.GetHeadline(content, Model);
-          var body = ReportExtensions.GetBody(content, Model);
-          var byline= ReportExtensions.GetByline(content, Model);
+          var rawHeadline = ReportExtensions.GetHeadline(content, Model);
+          var headline = Settings.Content.HighlightKeywords ? ReportExtensions.HighlightKeyWords(section.Value.Filter, rawHeadline, "headline")  : rawHeadline;
+          var rawBody = ReportExtensions.GetBody(content, Model);
+          var body = Settings.Content.HighlightKeywords ? ReportExtensions.HighlightKeyWords(section.Value.Filter, rawBody, "body")  : rawBody;
+          var rawByline = ReportExtensions.GetByline(content, Model);
+          var byline= Settings.Content.HighlightKeywords ? ReportExtensions.HighlightKeyWords(section.Value.Filter, rawByline, "byline")  : rawByline;
           var hasPrev = contentCount > 0;
           var prev = hasPrev ? contentCount - 1 : 0;
           var hasNext = (contentCount  + 1) < allContent.Length;
@@ -346,3 +353,7 @@
     </p>
   </div>
 </div>
+'
+WHERE "name" = 'Custom Report';
+
+END $$;

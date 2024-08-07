@@ -2,6 +2,7 @@ namespace TNO.TemplateEngine;
 using System.Text.RegularExpressions;
 using TemplateEngine.Models;
 using TemplateEngine.Models.Reports;
+using TNO.Elastic;
 
 /// <summary>
 /// ReportExtensions static class, provides extension methods for report templates.
@@ -107,62 +108,28 @@ public static partial class ReportExtensions
     }
 
     /// <summary>
-    /// Highlight a string with the HTML <mark> tag with the query's keywords based on the field type.
-    /// Otherwise get the body.
+    /// Extract keywords from filter and mark them in the content summary and body.
     /// </summary>
-    /// <param name="filter">Section filter object</param>
-    /// <param name="text">Text to be high lighted</param>
-    /// <param name="field">Field to be highlighted (headline, byline or story)</param>
-    /// <returns></returns>
-    public static string HighlightKeyWords(this FilterModel filter, string text, string field)
+    /// <param name="section"></param>
+    /// <param name="content"></param>
+    public static void MarkKeywords(this TNO.TemplateEngine.Models.Reports.ReportSectionModel section, TNO.TemplateEngine.Models.ContentModel content)
     {
-        return text;
+        // No need to mark keywords if there is no filter with keywords to search for.
+        if (section.Filter == null) return;
+        var settings = section.Filter.Settings;
+        var search = settings?.Search;
+        if (String.IsNullOrWhiteSpace(search)) return;
 
-        // string keywords = "";
-        // string highlightedText = text;
+        var keywords = settings!.Search!.ExtractKeywords(settings.QueryType);
+        var headline = content.Headline.MarkKeywords(keywords);
+        var summary = content.Summary.MarkKeywords(keywords);
+        var body = content.Body.MarkKeywords(keywords);
+        var byline = content.Byline.MarkKeywords(keywords);
 
-        // TODO: There is no reason to parse the Elastic query since we have the filter.Settings properties that give us access to the relevant values.
-        // if (filter?.Query != null &&
-        //     filter.Query.RootElement.TryGetProperty("query", out JsonElement query) &&
-        //     query.TryGetProperty("bool", out JsonElement queryBool) &&
-        //     queryBool.TryGetProperty("must", out JsonElement queryBoolMust))
-        // {
-        //     foreach (var c in queryBoolMust.EnumerateArray())
-        //     {
-        //         if (c.TryGetProperty("simple_query_string", out JsonElement simpleQueryString) && simpleQueryString.TryGetProperty("query", out JsonElement simpleQueryStringValue))
-        //         {
-        //             keywords += simpleQueryStringValue;
-        //             bool fieldExists = false;
-        //             if (simpleQueryString.TryGetProperty("fields", out JsonElement simpleQueryStringFields))
-        //             {
-        //                 foreach (var f in simpleQueryStringFields.EnumerateArray())
-        //                 {
-        //                     if (f.ToString().StartsWith(field))
-        //                     {
-        //                         fieldExists = true;
-        //                     }
-        //                 }
-        //             }
-        //             if (!fieldExists)
-        //             {
-        //                 return text;
-        //             }
-        //         }
-        //     }
-        // }
-
-        // TODO: None of this will actually work correctly because it doesn't account for escaping characters, or double pipes.
-        // char[] delimiterChars = { '|', '+', '-' };
-        // string[] reservedStrings = new string[] { "*", "( and )", "~N", "\"" };
-        // foreach (var s in reservedStrings)
-        // {
-        //     keywords = keywords.Replace(s, "");
-        // }
-        // foreach (string word in keywords.Split(delimiterChars))
-        // {
-        //     highlightedText = word != "" ? highlightedText.Replace(word.Trim(), "<mark>" + word.Trim() + "</mark>") : highlightedText;
-        // }
-        // return highlightedText;
+        content.Headline = headline;
+        content.Summary = summary;
+        content.Body = body;
+        content.Byline = byline;
     }
 
     /// <summary>
