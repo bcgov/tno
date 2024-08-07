@@ -272,7 +272,7 @@ public class ReportEngine : IReportEngine
             instance.AddToReportUrl = this.TemplateOptions.AddToReportUrl;
         });
 
-        return subject.RemoveInvalidCharacters();
+        return subject.RemoveInvalidUtf8Characters().RemoveInvalidUnicodeCharacters();
     }
 
     /// <summary>
@@ -371,7 +371,7 @@ public class ReportEngine : IReportEngine
             });
         }
 
-        return body.RemoveInvalidCharacters();
+        return body.RemoveInvalidUtf8Characters().RemoveInvalidUnicodeCharacters();
     }
 
     /// <summary>
