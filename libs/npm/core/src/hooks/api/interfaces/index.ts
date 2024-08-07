@@ -74,7 +74,6 @@ export * from './IProductSubscriberModel';
 export * from './IQuoteModel';
 export * from './IRegisterModel';
 export * from './IReportContentSettingsModel';
-export * from './IReportDashboard';
 export * from './IReportFilter';
 export * from './IReportHeadlineSettingsModel';
 export * from './IReportInstanceContentModel';

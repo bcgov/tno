@@ -301,7 +301,7 @@ public class ReportController : ControllerBase
     }
 
     /// <summary>
-    /// Find all reports.
+    /// Find all reports for the dashboard that match the filter.
     /// </summary>
     /// <returns></returns>
     [HttpGet("dashboard")]
@@ -313,40 +313,53 @@ public class ReportController : ControllerBase
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
 
-        var result = _reportService.GetDashboard(new TNO.Models.Filters.DashboardFilter(query));
-        var reports = new List<ReportModel>();
-        foreach (var report in result.Reports)
+        var reports = _reportService.GetDashboard(new TNO.Models.Filters.DashboardFilter(query));
+        return new JsonResult(reports.Select(r => new ReportModel(r, _serializerOptions)));
+    }
+
+    /// <summary>
+    /// Get the report for the specified 'id' to add to the dashboard.
+    /// This endpoint also returns the report subscribers and email results.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("dashboard/{id}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult GetDashboardReport(int id)
+    {
+        var report = _reportService.GetDashboardReport(id);
+
+        var subscribers = report.SubscribersManyToMany.Where(s => s.User!.AccountType != Entities.UserAccountType.Distribution).Select(s => new UserReportModel(s)).ToList();
+        var distributions = report.SubscribersManyToMany.Where(s => s.User!.AccountType == Entities.UserAccountType.Distribution).ToArray();
+        foreach (var distribution in distributions)
         {
-            var subscribers = report.SubscribersManyToMany.Where(s => s.User!.AccountType != Entities.UserAccountType.Distribution).Select(s => new UserReportModel(s)).ToList();
-            var distributions = report.SubscribersManyToMany.Where(s => s.User!.AccountType == Entities.UserAccountType.Distribution).ToArray();
-            foreach (var distribution in distributions)
+            // Flatten the list of subscribers by extracting users in a distribution list.
+            subscribers.AddRange(distribution.User!.Distribution.Select(d => new UserReportModel(distribution, d.LinkedUser!)));
+        }
+        subscribers = subscribers.Distinct().ToList();  // Remove duplicates.
+        var instance = report.Instances.OrderByDescending(r => r.Id).FirstOrDefault();
+        if (instance != null)
+        {
+            foreach (var email in instance.UserInstances)
             {
-                // Flatten the list of subscribers by extracting users in a distribution list.
-                subscribers.AddRange(distribution.User!.Distribution.Select(d => new UserReportModel(distribution, d.LinkedUser!)));
-            }
-            subscribers = subscribers.Distinct().ToList();  // Remove duplicates.
-            var instance = report.Instances.OrderByDescending(r => r.Id).FirstOrDefault();
-            if (instance != null)
-            {
-                foreach (var email in instance.UserInstances)
+                // Apply the response to each subscriber.
+                var user = subscribers.FirstOrDefault(s => s.Id == email.UserId);
+                if (user != null)
                 {
-                    // Apply the response to each subscriber.
-                    var user = subscribers.FirstOrDefault(s => s.Id == email.UserId);
-                    if (user != null)
-                    {
-                        user.Response = user.Format == Entities.ReportDistributionFormat.LinkOnly ? email.LinkResponse : email.TextResponse;
-                        user.Status = user.Format == Entities.ReportDistributionFormat.LinkOnly ? email.LinkStatus : email.TextStatus;
-                    }
+                    user.Response = user.Format == Entities.ReportDistributionFormat.LinkOnly ? email.LinkResponse : email.TextResponse;
+                    user.Status = user.Format == Entities.ReportDistributionFormat.LinkOnly ? email.LinkStatus : email.TextStatus;
                 }
             }
-            var model = new ReportModel(report, _serializerOptions)
-            {
-                Subscribers = subscribers
-            };
-            reports.Add(model);
         }
-        var overviews = result.Overviews;
-        return new JsonResult(new { Reports = reports, Overviews = overviews });
+        var model = new ReportModel(report, _serializerOptions)
+        {
+            Subscribers = subscribers
+        };
+
+        return new JsonResult(model);
     }
     #endregion
 }

@@ -5,7 +5,6 @@ import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
 import {
   IDashboardFilter,
-  IReportDashboard,
   IReportFilter,
   IReportInstanceModel,
   IReportModel,
@@ -84,9 +83,12 @@ export const useApiAdminReports = (
     },
     getDashboard: (filter: IDashboardFilter) => {
       var query = toQueryString(filter ?? {});
-      return api.get<never, AxiosResponse<IReportDashboard>, any>(
+      return api.get<never, AxiosResponse<IReportModel[]>, any>(
         `/admin/reports/dashboard?${query}`,
       );
+    },
+    getDashboardReport: (id: number) => {
+      return api.get<never, AxiosResponse<IReportModel>, any>(`/admin/reports/dashboard/${id}`);
     },
   }).current;
 };

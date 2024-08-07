@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaCircleChevronDown, FaCircleChevronUp } from 'react-icons/fa6';
+import { useReports } from 'store/hooks/admin';
 import { IReportModel, IUserReportModel, Link, ReportStatusName } from 'tno-core';
 
 import { ReportStatusIcon } from './ReportStatusIcon';
@@ -9,17 +10,39 @@ export interface IReportCardProps {
   report: IReportModel;
 }
 
-export const ReportCard: React.FC<IReportCardProps> = ({ report }) => {
-  const instance = report.instances.length ? report.instances[0] : undefined;
+export const ReportCard: React.FC<IReportCardProps> = ({ report: initReport }) => {
+  const [, { getDashboardReport }] = useReports();
 
   const [expand, setExpand] = React.useState(false);
   const [expandResponse, setExpandResponse] = React.useState<Record<number, boolean>>({});
   const [expandUserResponse, setExpandUserResponse] = React.useState<Record<number, boolean>>({});
   const [subscribers, setSubscribers] = React.useState<IUserReportModel[]>([]);
+  const [report, setReport] = React.useState<IReportModel>(initReport);
+
+  const instance = report.instances.length ? report.instances[0] : undefined;
+
+  const stringifyResponse = React.useCallback((data: any) => {
+    try {
+      return data ? JSON.stringify(data) : '';
+    } catch {
+      return '';
+    }
+  }, []);
 
   React.useEffect(() => {
     setSubscribers(report.subscribers.filter((s) => s.isSubscribed));
   }, [report.subscribers]);
+
+  React.useEffect(() => {
+    if (expand)
+      getDashboardReport(report.id)
+        .then((result) => {
+          setReport(result);
+        })
+        .catch(() => {});
+    // Only fetch when expanding report.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expand]);
 
   return (
     <div className={`report-card`}>
@@ -51,9 +74,7 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report }) => {
                 {expandResponse[report.id] ? <FaCircleChevronUp /> : <FaCircleChevronDown />}
               </div>
             </div>
-            {expandResponse[report.id] && (
-              <div>{instance?.response && JSON.stringify(instance.response)}</div>
-            )}
+            {expandResponse[report.id] && <div>{stringifyResponse(instance?.response)}</div>}
           </div>
           <h3>Subscribers</h3>
           <div className="subscribers">
@@ -76,9 +97,7 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report }) => {
                     />
                   </div>
                   {expandUserResponse[subscriber.userId] && (
-                    <div className="response">
-                      {subscriber.response && JSON.stringify(subscriber.response)}
-                    </div>
+                    <div className="response">{stringifyResponse(subscriber.response)}</div>
                   )}
                 </div>
               );

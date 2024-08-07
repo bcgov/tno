@@ -3,7 +3,6 @@ import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 import {
   IDashboardFilter,
-  IReportDashboard,
   IReportFilter,
   IReportInstanceModel,
   IReportModel,
@@ -26,7 +25,8 @@ interface IReportController {
   primeReportCache: (model: IReportModel) => Promise<IReportResultModel>;
   deleteReportInstance: (model: IReportInstanceModel) => Promise<IReportInstanceModel>;
   publishReportInstance: (model: IReportInstanceModel) => Promise<IReportInstanceModel>;
-  getDashboard: (filter: IDashboardFilter) => Promise<IReportDashboard>;
+  getDashboard: (filter: IDashboardFilter) => Promise<IReportModel[]>;
+  getDashboardReport: (id: number) => Promise<IReportModel>;
 }
 
 export const useReports = (): [IAdminState & { initialized: boolean }, IReportController] => {
@@ -138,8 +138,14 @@ export const useReports = (): [IAdminState & { initialized: boolean }, IReportCo
         return response.data;
       },
       getDashboard: async (filter: IDashboardFilter) => {
-        const response = await dispatch<IReportDashboard>('get-dashboard', () =>
+        const response = await dispatch<IReportModel[]>('get-dashboard', () =>
           api.getDashboard(filter),
+        );
+        return response.data;
+      },
+      getDashboardReport: async (id: number) => {
+        const response = await dispatch<IReportModel>('get-dashboard-report', () =>
+          api.getDashboardReport(id),
         );
         return response.data;
       },
