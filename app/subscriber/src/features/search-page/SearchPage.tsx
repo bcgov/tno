@@ -57,6 +57,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   const [init, setInit] = React.useState(true); // React hooks are horrible...
 
   const [filterId, setFilterId] = React.useState(0);
+  const [searchFilter, setSearchFilter] = React.useState<IFilterSettingsModel | null>(null);
 
   React.useEffect(() => {
     const parsedId = id ? parseInt(id) : 0;
@@ -198,7 +199,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         {/* LEFT SIDE */}
         <Show visible={showAdvanced}>
           <Col className="adv-search-container">
-            <AdvancedSearch onSearch={handleAdvancedSearch} />
+            <AdvancedSearch onSearch={handleAdvancedSearch} setSearchFilter={setSearchFilter} />
           </Col>
         </Show>
         {/* RIGHT SIDE */}
@@ -247,7 +248,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
               showTime
               showSeries
               scrollWithin
-              filter={filter}
+              filter={searchFilter ?? undefined}
             />
             <Show visible={!currDateResults.length}>
               <PreviousResults
