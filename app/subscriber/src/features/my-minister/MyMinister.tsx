@@ -97,7 +97,7 @@ export const MyMinister: React.FC = () => {
           if (r.summary.includes(m.name) || r.body.includes(m.name)) {
             includeMention = true;
           }
-          if (includeMention && m.name !== ministerName) {
+          if (includeMention) {
             mentions.push(!!aliases ? aliases[0] : m.name);
           }
         });
@@ -151,7 +151,9 @@ export const MyMinister: React.FC = () => {
               }
             }
           }
-          setContent(contentList);
+          const ids = contentList.map(({ id }) => id);
+          const grouped = contentList.filter(({ id }, index) => !ids.includes(id, index + 1));
+          setContent(grouped);
           setUserMinisters(ministerModels);
         }
       }
@@ -173,11 +175,21 @@ export const MyMinister: React.FC = () => {
     }
     setUserMinisters(ministersList);
     let filteredContent = [...content];
-    ministersList
+    const mentionsToHide = ministersList
       .filter((m) => m.hide)
-      .forEach((m) => {
-        filteredContent = filteredContent.filter((c) => c.ministerName !== m.name);
+      .map((m) => {
+        const aliases = m.aliases.split(',');
+        return !!aliases ? aliases[0] : m.name;
       });
+    filteredContent = filteredContent.filter((c) => {
+      let count = 0;
+      mentionsToHide.forEach((h) => {
+        if (c.ministerMentions?.includes(h)) {
+          count++;
+        }
+      });
+      return count !== c.ministerMentions?.length;
+    });
     setFilteredContent(filteredContent);
   };
 
@@ -193,15 +205,17 @@ export const MyMinister: React.FC = () => {
         <span className="option">SHOW:</span>
         {userMinisters.map((m) => {
           return (
-            <Checkbox
-              key={m.id}
-              label={`${m.name} (${m.contentCount})`}
-              className="option"
-              checked={!m.hide}
-              onChange={(e) => {
-                hideGroup(m, !(e.target as HTMLInputElement).checked);
-              }}
-            />
+            <>
+              <Checkbox
+                key={m.id}
+                className="option"
+                checked={!m.hide}
+                onChange={(e) => {
+                  hideGroup(m, !(e.target as HTMLInputElement).checked);
+                }}
+              />
+              <span className="check-label">{`${m.name} (${m.contentCount})`}</span>
+            </>
           );
         })}
       </div>
