@@ -8,6 +8,7 @@ import { FaCaretSquareDown, FaCheckSquare, FaPlay, FaRegSmile } from 'react-icon
 import { FaSave } from 'react-icons/fa';
 import {
   FaBookmark,
+  FaCheck,
   FaDownLeftAndUpRightToCenter,
   FaGears,
   FaIcons,
@@ -60,6 +61,9 @@ import * as styled from './styled';
 export interface IAdvancedSearchProps {
   /** Event fires when search button is clicked. */
   onSearch?: (filter: IFilterSettingsModel) => void;
+
+  /** Function to update the search terms state */
+  setSearchFilter: React.Dispatch<React.SetStateAction<IFilterSettingsModel | null>>;
 }
 
 /***
@@ -67,7 +71,7 @@ export interface IAdvancedSearchProps {
  * @param expanded - determines whether the advanced search form is expanded or not
  * @param setExpanded - function that controls the expanded state of the advanced search form
  */
-export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => {
+export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch, setSearchFilter }) => {
   const navigate = useNavigate();
   const [{ myFilters }, { addFilter, updateFilter }] = useFilters();
   const [
@@ -107,7 +111,16 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
 
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
   const [{ sources, series, mediaTypes }] = useLookup();
+  const [initialState, setInitialState] = React.useState<IFilterSettingsModel | null>(search);
+  const [isFirstLoad, setIsFirstLoad] = React.useState<boolean>(true);
   const [searchTerms, setSearchTerms] = React.useState<string>(search?.search ?? '');
+
+  const isDiff = React.useMemo(
+    () =>
+      initialState?.search !== searchTerms ||
+      JSON.stringify(initialState) !== JSON.stringify(search),
+    [initialState, search, searchTerms],
+  );
 
   const checkDisplayOptions = React.useCallback((): boolean => {
     return (
@@ -126,6 +139,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
     };
 
     storeSearchFilter(updatedFilterSettings);
+    setSearchFilter(updatedFilterSettings);
 
     onSearch?.(updatedFilterSettings);
   };
@@ -135,10 +149,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
   }, [activeFilter]);
 
   React.useEffect(() => {
-    if (search) setSearchTerms(search.search ?? '');
-  }, [search]);
-
-  React.useEffect(() => {
     if (activeFilter) {
       setSearchName(activeFilter.name);
       // save default setting that can be reverted to...
@@ -146,9 +156,29 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
     } else setSearchName('');
   }, [activeFilter, setOriginalFilterSettings]);
 
+  React.useEffect(() => {
+    if (initialState?.search === '' && searchTerms !== '') {
+      const updatedInitialState = {
+        ...initialState,
+        search: searchTerms,
+      };
+      setInitialState(updatedInitialState);
+      setIsFirstLoad(true);
+    } else if (isDiff) {
+      setIsFirstLoad(false);
+    } else if (initialState?.search === '' && searchTerms === '') {
+      setIsFirstLoad(true);
+    }
+  }, [initialState, isDiff, search, searchTerms]);
+
   const updateSearch = React.useCallback(
     async (name?: string) => {
-      const settings = filterFormat(search);
+      // Create a new search object with updated searchTerms
+      const updatedSearch = {
+        ...search,
+        search: searchTerms ?? search.search,
+      };
+      const settings = filterFormat(updatedSearch);
       const query = genQuery(settings);
 
       const filter: IFilterModel = {
@@ -174,11 +204,16 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
             toast.success(`${data.name} has successfully been updated.`);
             storeFilter(data);
             storeSearchFilter(data.settings);
+            const updatedInitialState: IFilterSettingsModel = {
+              ...data.settings,
+              search: searchTerms,
+            };
+            setInitialState(updatedInitialState);
           })
           .catch(() => {});
       }
     },
-    [search, genQuery, activeFilter, updateFilter, storeFilter, storeSearchFilter],
+    [search, genQuery, activeFilter, updateFilter, storeFilter, storeSearchFilter, searchTerms],
   );
 
   const addSearch = React.useCallback(
@@ -200,6 +235,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
           toast.success(`${data.name} has successfully been created.`);
           storeFilter(data);
           storeSearchFilter(data.settings);
+          setInitialState(null);
           navigate(`/search/advanced/${data.id}`);
         })
         .catch(() => {});
@@ -210,13 +246,11 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
   const handleSearchTermsChanged = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const value = e.target.value;
+
+      // Update the state with the new search terms object
       setSearchTerms(value);
-      storeSearchFilter({ ...search, search: value });
-      storeFilter((filter) =>
-        filter ? { ...filter, settings: { ...filter?.settings, search: value } } : undefined,
-      );
     },
-    [search, storeFilter, storeSearchFilter],
+    [setSearchTerms],
   );
 
   return (
@@ -271,10 +305,17 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch }) => 
                 <FaBookmark />
                 <div className="filter-name">{activeFilter?.name}</div>
                 <div className="status">
-                  {activeFilter?.id && (
+                  {!isFirstLoad && !isDiff ? (
+                    <>
+                      <FaCheck className="status_check_mark" />
+                      <span className="status_saved">Saved</span>
+                    </>
+                  ) : !isFirstLoad && isDiff ? (
                     <button className="status_save_changes" onClick={() => updateSearch()}>
                       Save Changes
                     </button>
+                  ) : (
+                    ' '
                   )}
                 </div>
               </div>
