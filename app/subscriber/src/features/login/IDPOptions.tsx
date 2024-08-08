@@ -13,10 +13,9 @@ export interface IIDPOptionsProps {
 export const IDPOptions: React.FC<IIDPOptionsProps> = ({ login, children }) => {
   const keycloak = useKeycloakWrapper();
   const authority = keycloak.instance.authServerUrl?.replace(/\/$/, '') ?? window.location.href;
-  // const isLocal =
-  //   new URL(authority).host.startsWith('localhost') ||
-  //   new URL(authority).host.startsWith('host.docker.internal');
-  const isLocal = false;
+  const isLocal =
+    new URL(authority).host.startsWith('localhost') ||
+    new URL(authority).host.startsWith('host.docker.internal');
   return (
     <Row className="containing-row">
       <div className="containing-box">
