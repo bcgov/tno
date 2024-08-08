@@ -5,6 +5,7 @@ import { useActionFilters } from 'features/search-page/hooks';
 import { filterFormat } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
+import { noop } from 'lodash';
 import React from 'react';
 import { FaArrowsSpin } from 'react-icons/fa6';
 import { useApiHub, useContent, useSettings } from 'store/hooks';
@@ -110,7 +111,7 @@ export const Commentary: React.FC = () => {
           </Row>
         }
       >
-        <ContentList content={commentary} simpleView />
+        <ContentList selected={[]} onContentSelected={noop} content={commentary} simpleView />
       </PageSection>
     </styled.Commentary>
   );

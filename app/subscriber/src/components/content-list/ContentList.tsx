@@ -16,7 +16,7 @@ export interface IContentListProps {
   /** array of terms to be highlighted in body */
   highlighTerms?: string[];
   /** array of selected content */
-  selected?: IContentModel[];
+  selected: IContentModel[];
   /** prop to determine whether to style the content based on user settings */
   styleOnSettings?: boolean;
   /** determine whether to show date next to the sentiment icon */
@@ -34,7 +34,7 @@ export interface IContentListProps {
   /** filter settings for contents */
   filter?: IFilterSettingsModel;
   /** determine the selected content based on the checkbox */
-  onContentSelected?: (content: IContentModel[]) => void;
+  onContentSelected: (content: IContentModel[]) => void;
   /** Event fires when content is removed. */
   onContentRemove?: (content: IContentModel) => void;
   /** Simplified content list view (no attributes, just title and media buttons), used in places like the commentary block */
@@ -64,7 +64,7 @@ export const ContentList: React.FC<IContentListProps> = ({
 
   // just on init we want to see if anything in local storage
   React.useEffect(() => {
-    if (!cacheCheck || !onContentSelected) return;
+    if (!cacheCheck) return;
     const existing = localStorage.getItem('selected');
     // remove selected items when user navigates away from page or refreshes, etc.
     const handleBeforeUnload = () => {
@@ -101,7 +101,6 @@ export const ContentList: React.FC<IContentListProps> = ({
 
   const handleCheckboxChange = React.useCallback(
     (item: IContentModel, isChecked: boolean) => {
-      if (!onContentSelected || !selected) return;
       if (isChecked) {
         onContentSelected([...selected, item]);
       } else {
