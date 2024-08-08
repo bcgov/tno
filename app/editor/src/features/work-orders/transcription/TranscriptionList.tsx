@@ -1,8 +1,6 @@
 import { FormPage } from 'components/formpage';
 import { useTab } from 'components/tab-control';
 import React from 'react';
-import { FaBug, FaCheckCircle, FaClock, FaPen, FaStop } from 'react-icons/fa';
-import { FaCirclePause, FaRegCircleRight } from 'react-icons/fa6';
 import { useApiHub, useWorkOrders } from 'store/hooks';
 import {
   CellDate,
@@ -15,16 +13,14 @@ import {
   IWorkOrderModel,
   MessageTargetKey,
   Page,
-  Row,
-  Show,
   SortDirection,
-  Spinner,
-  WorkOrderStatusName,
   WorkOrderTypeName,
 } from 'tno-core';
 
 import { WorkOrderFilter } from '../WorkOrderFilter';
 import * as styled from './styled';
+import { WorkOrderActions } from './WorkOrderActions';
+import { WorkOrderStatus } from './WorkOrderStatus';
 
 export const TranscriptionList: React.FC = () => {
   const [
@@ -124,43 +120,6 @@ export const TranscriptionList: React.FC = () => {
     [filter, storeFilter],
   );
 
-  const renderStatusColumn = (row: IWorkOrderModel) => {
-    if (row.status === WorkOrderStatusName.InProgress)
-      return <Spinner size="8px" title="Transcribing" />;
-    if (row.status === WorkOrderStatusName.Completed && !row.content?.isApproved)
-      return <FaRegCircleRight className="completed" title="Ready to review" />;
-    if (row.status === WorkOrderStatusName.Completed && row.content?.isApproved)
-      return <FaCheckCircle className="completed" title="Completed" />;
-    if (row.status === WorkOrderStatusName.Submitted)
-      return <FaClock className="submitted" title="Submitted" />;
-    if (row.status === WorkOrderStatusName.Failed)
-      return <FaBug className="failed" title="Failed" />;
-    if (row.status === WorkOrderStatusName.Cancelled)
-      return <FaCirclePause className="cancelled" title="Cancelled" />;
-    return row.status;
-  };
-
-  const renderActionsColumn = (row: IWorkOrderModel) => {
-    return (
-      <Row>
-        <Show visible={row.status === WorkOrderStatusName.InProgress}>
-          <FaStop
-            className="button button-link red"
-            title="Cancel"
-            onClick={() => handleCancel?.({ ...row, status: WorkOrderStatusName.Cancelled })}
-          />
-        </Show>
-        <Show visible={row.status === WorkOrderStatusName.Completed && !row.content?.isApproved}>
-          <FaPen
-            className="button button-link completed"
-            title="Review"
-            onClick={() => navigate(row.contentId ?? 0, '/contents')}
-          />
-        </Show>
-      </Row>
-    );
-  };
-
   return (
     <styled.TranscriptionList>
       <FormPage>
@@ -195,51 +154,51 @@ export const TranscriptionList: React.FC = () => {
               {
                 column: (
                   <div
-                    key=""
+                    key="1"
                     className="clickable"
                     onClick={() => navigate(row.contentId ?? 0, '/contents')}
                   >
-                    <CellEllipsis key="">{row.configuration.headline}</CellEllipsis>
+                    <CellEllipsis>{row.configuration.headline}</CellEllipsis>
                   </div>
                 ),
               },
               {
                 column: (
                   <div
-                    key=""
+                    key="2"
                     className="clickable"
                     onClick={() => navigate(row.contentId ?? 0, '/contents')}
                   >
-                    <CellEllipsis key="">{row.content?.otherSource}</CellEllipsis>
+                    <CellEllipsis>{row.content?.otherSource}</CellEllipsis>
                   </div>
                 ),
               },
               {
                 column: (
                   <div
-                    key=""
+                    key="3"
                     className="clickable"
                     onClick={() => navigate(row.contentId ?? 0, '/contents')}
                   >
-                    <CellEllipsis key="">{row.content?.mediaType}</CellEllipsis>
+                    <CellEllipsis>{row.content?.mediaType}</CellEllipsis>
                   </div>
                 ),
               },
               {
                 column: (
                   <div
-                    key=""
+                    key="4"
                     className="clickable"
                     onClick={() => navigate(row.contentId ?? 0, '/contents')}
                   >
-                    <CellEllipsis key="">{row.requestor?.username}</CellEllipsis>
+                    <CellEllipsis>{row.requestor?.username}</CellEllipsis>
                   </div>
                 ),
               },
               {
                 column: (
                   <div
-                    key=""
+                    key="5"
                     className="clickable"
                     onClick={() => navigate(row.contentId ?? 0, '/contents')}
                   >
@@ -249,15 +208,23 @@ export const TranscriptionList: React.FC = () => {
               },
               {
                 column: (
-                  <div key="" onClick={() => navigate(row.contentId ?? 0, '/contents')}>
-                    <CellEllipsis key="">{renderStatusColumn(row)}</CellEllipsis>
+                  <div
+                    key="6"
+                    className="clickable"
+                    onClick={() => navigate(row.contentId ?? 0, '/contents')}
+                  >
+                    <CellEllipsis>
+                      <WorkOrderStatus row={row} />
+                    </CellEllipsis>
                   </div>
                 ),
               },
               {
                 column: (
-                  <div key="">
-                    <CellEllipsis key="">{renderActionsColumn(row)}</CellEllipsis>
+                  <div key="7">
+                    <CellEllipsis>
+                      <WorkOrderActions row={row} onCancel={handleCancel} />
+                    </CellEllipsis>
                   </div>
                 ),
               },

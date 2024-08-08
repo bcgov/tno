@@ -33,12 +33,38 @@ export const WorkOrderFilter = ({ filter, onFilterChange }: IWorkOrderFilterProp
       <Checkbox
         name="ready"
         label="Ready for review"
-        checked={filter.status?.includes(WorkOrderStatusName.Completed)}
+        checked={filter.status?.includes(WorkOrderStatusName.Completed) === true}
         onChange={(e) =>
           onFilterChange({
             ...filter,
             isApproved: e.target.checked ? false : undefined,
             status: e.target.checked ? [WorkOrderStatusName.Completed] : undefined,
+          })
+        }
+      />
+      <Checkbox
+        name="inProgress"
+        label="In progress"
+        checked={filter.status?.includes(WorkOrderStatusName.InProgress) === true}
+        onChange={(e) =>
+          onFilterChange({
+            ...filter,
+            isApproved: undefined,
+            status: e.target.checked
+              ? [WorkOrderStatusName.Submitted, WorkOrderStatusName.InProgress]
+              : undefined,
+          })
+        }
+      />
+      <Checkbox
+        name="failed"
+        label="Failed"
+        checked={filter.status?.includes(WorkOrderStatusName.Failed) === true}
+        onChange={(e) =>
+          onFilterChange({
+            ...filter,
+            isApproved: undefined,
+            status: e.target.checked ? [WorkOrderStatusName.Failed] : undefined,
           })
         }
       />
@@ -50,6 +76,7 @@ export const WorkOrderFilter = ({ filter, onFilterChange }: IWorkOrderFilterProp
           onChange={(e) =>
             onFilterChange({
               ...filter,
+              isApproved: undefined,
               mediaTypeIds: e.target.checked ? newsRadioMediaTypeFilter : undefined,
             })
           }
