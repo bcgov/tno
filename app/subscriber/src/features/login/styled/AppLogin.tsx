@@ -2,15 +2,20 @@ import styled from 'styled-components';
 import { Col } from 'tno-core';
 
 export const AppLogin = styled(Col)`
-  height: 100dvh;
   overflow-y: auto;
   .app-logo {
-    padding-left: 2.5%;
-    padding-top: 2.5%;
+    @media (min-width: 768px) {
+      padding-top: 2.5%;
+      padding-left: 2.5%;
+    }
     width: fit-content;
     @media (max-width: 768px) {
       height: fit-content;
-      width: 25em;
+      width: 22em;
+    }
+    @media (max-width: 768px) {
+      padding: 1%;
+      margin-bottom: 1em;
     }
   }
   .login-box {
@@ -35,7 +40,7 @@ export const AppLogin = styled(Col)`
       margin-left: auto;
       margin-right: auto;
       margin-top: 3em;
-      &:hover {v
+      &:hover {
         cursor: pointer;
       }
     }
@@ -60,7 +65,12 @@ export const AppLogin = styled(Col)`
       padding: 0.75em;
       border-radius: 0.5em 0.5em 0 0;
       background-color: ${(props) => props.theme.css.darkHeaderColor};
-      font-size: 1.25em;
+      @media (max-width: 768px) {
+        font-size: 1em;
+      }
+      @media (min-width: 768px) {
+        font-size: 1.25em;
+      }
       color: ${(props) => props.theme.css.fPrimaryInvertColor};
     }
   }
