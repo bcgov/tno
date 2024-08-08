@@ -30,9 +30,6 @@ export const TranscriptionList = styled.div`
     margin-right: -17px;
 
     .grid-column {
-      > .clickable {
-        cursor: pointer;
-      }
       > div {
         width: 100%;
       }
@@ -41,5 +38,9 @@ export const TranscriptionList = styled.div`
 
   .grid {
     width: 100%;
+  }
+
+  .clickable {
+    cursor: pointer;
   }
 `;
