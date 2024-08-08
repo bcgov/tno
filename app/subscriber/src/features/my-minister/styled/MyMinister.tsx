@@ -39,4 +39,9 @@ export const MyMinister = styled.div`
     line-height: 12px; /* 100% */
     text-transform: uppercase;
   }
+
+  .check-label {
+    margin-top: 0.35em;
+    margin-right: 1em;
+  }
 `;
