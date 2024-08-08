@@ -5,14 +5,12 @@ import { IUnauthenticatedHomeProps } from '..';
 export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   position: relative;
   overflow-x: auto;
-  overflow-y: hidden;
   background: ${(props) => props.theme.css.bkPrimary};
   width: 100%;
   height: 100dvh;
 
   .containing-row {
     overflow-x: auto;
-    overflow-y: hidden;
     height: auto;
   }
 
