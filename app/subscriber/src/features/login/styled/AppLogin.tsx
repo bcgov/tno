@@ -40,7 +40,7 @@ export const AppLogin = styled(Col)`
       margin-left: auto;
       margin-right: auto;
       margin-top: 3em;
-      &:hover {v
+      &:hover {
         cursor: pointer;
       }
     }
