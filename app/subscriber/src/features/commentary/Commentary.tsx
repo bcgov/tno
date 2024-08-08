@@ -1,13 +1,13 @@
 import { Action } from 'components/action';
+import { ContentList } from 'components/content-list';
 import { PageSection } from 'components/section';
-import { Sentiment } from 'components/sentiment';
 import { useActionFilters } from 'features/search-page/hooks';
 import { filterFormat } from 'features/search-page/utils';
 import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import React from 'react';
 import { FaArrowsSpin } from 'react-icons/fa6';
-import { useApiHub, useContent, useNavigateAndScroll, useSettings } from 'store/hooks';
+import { useApiHub, useContent, useSettings } from 'store/hooks';
 import {
   generateQuery,
   IContentMessageModel,
@@ -16,7 +16,6 @@ import {
   Row,
 } from 'tno-core';
 
-import { DetermineContentIcon } from './components';
 import * as styled from './styled';
 import {
   castToSearchResult as castMessageToSearchResult,
@@ -32,7 +31,6 @@ import {
 export const Commentary: React.FC = () => {
   const [, { findContentWithElasticsearch }] = useContent();
   const [commentary, setCommentary] = React.useState<IContentSearchResult[]>([]);
-  const navigateAndScroll = useNavigateAndScroll();
   const { commentaryActionId } = useSettings();
   const getActionFilters = useActionFilters();
   const hub = useApiHub();
@@ -112,19 +110,7 @@ export const Commentary: React.FC = () => {
           </Row>
         }
       >
-        <div className="content">
-          {commentary.map((x) => {
-            return (
-              <Row key={x.id} className="content-row">
-                <Sentiment value={x.tonePools?.length ? x.tonePools[0].value : 0} />
-                <DetermineContentIcon contentType={x.contentType} />
-                <div className="headline" onClick={() => navigateAndScroll(`/view/${x.id}`)}>
-                  {x.headline}
-                </div>
-              </Row>
-            );
-          })}
-        </div>
+        <ContentList content={commentary} simpleView />
       </PageSection>
     </styled.Commentary>
   );

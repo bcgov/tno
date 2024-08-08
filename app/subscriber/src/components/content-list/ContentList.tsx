@@ -16,7 +16,7 @@ export interface IContentListProps {
   /** array of terms to be highlighted in body */
   highlighTerms?: string[];
   /** array of selected content */
-  selected: IContentModel[];
+  selected?: IContentModel[];
   /** prop to determine whether to style the content based on user settings */
   styleOnSettings?: boolean;
   /** determine whether to show date next to the sentiment icon */
@@ -34,9 +34,11 @@ export interface IContentListProps {
   /** filter settings for contents */
   filter?: IFilterSettingsModel;
   /** determine the selected content based on the checkbox */
-  onContentSelected: (content: IContentModel[]) => void;
+  onContentSelected?: (content: IContentModel[]) => void;
   /** Event fires when content is removed. */
   onContentRemove?: (content: IContentModel) => void;
+  /** Simplified content list view (no attributes, just title and media buttons), used in places like the commentary block */
+  simpleView?: boolean;
 }
 
 export const ContentList: React.FC<IContentListProps> = ({
@@ -52,6 +54,7 @@ export const ContentList: React.FC<IContentListProps> = ({
   filter,
   onContentSelected,
   onContentRemove,
+  simpleView = false,
 }) => {
   const navigate = useNavigate();
   const { groupBy, setActiveStream, activeFileReference } = React.useContext(ContentListContext);
@@ -61,7 +64,7 @@ export const ContentList: React.FC<IContentListProps> = ({
 
   // just on init we want to see if anything in local storage
   React.useEffect(() => {
-    if (!cacheCheck) return;
+    if (!cacheCheck || !onContentSelected) return;
     const existing = localStorage.getItem('selected');
     // remove selected items when user navigates away from page or refreshes, etc.
     const handleBeforeUnload = () => {
@@ -88,7 +91,7 @@ export const ContentList: React.FC<IContentListProps> = ({
     } else {
       array = [];
     }
-    if (array.length !== selected.length) {
+    if (array.length !== selected?.length) {
       array = selected;
     }
     localStorage.setItem('selected', JSON.stringify(array));
@@ -98,6 +101,7 @@ export const ContentList: React.FC<IContentListProps> = ({
 
   const handleCheckboxChange = React.useCallback(
     (item: IContentModel, isChecked: boolean) => {
+      if (!onContentSelected || !selected) return;
       if (isChecked) {
         onContentSelected([...selected, item]);
       } else {
@@ -121,7 +125,7 @@ export const ContentList: React.FC<IContentListProps> = ({
 
   return (
     <styled.ContentList className="content-list" scrollWithin={scrollWithin}>
-      <Show visible={!handleDrop}>
+      <Show visible={!handleDrop && !simpleView}>
         {Object.keys(grouped).map((group) => (
           <div key={group} className="grouped-content">
             <h2 className="group-title">{group}</h2>
@@ -131,10 +135,10 @@ export const ContentList: React.FC<IContentListProps> = ({
                 .map((item) => (
                   <ContentRow
                     className={`${
-                      selected.some((selectedItem) => selectedItem.id === item.id) ? 'checked' : ''
+                      selected?.some((selectedItem) => selectedItem.id === item.id) ? 'checked' : ''
                     }`}
                     key={item.id}
-                    selected={selected}
+                    selected={selected ?? []}
                     popOutIds={popOutIds}
                     showSeries={showSeries}
                     showDate={showDate}
@@ -149,7 +153,7 @@ export const ContentList: React.FC<IContentListProps> = ({
           </div>
         ))}
       </Show>
-      <Show visible={!!handleDrop}>
+      <Show visible={!!handleDrop || simpleView}>
         <DragDropContext onDragEnd={handleDrop}>
           <Droppable droppableId="droppable">
             {(provided) => (
@@ -165,7 +169,7 @@ export const ContentList: React.FC<IContentListProps> = ({
                       >
                         <ContentRow
                           className={`${
-                            selected.some((selectedItem) => selectedItem.id === item.id)
+                            selected?.some((selectedItem) => selectedItem.id === item.id)
                               ? 'checked'
                               : ''
                           }`}
@@ -173,13 +177,14 @@ export const ContentList: React.FC<IContentListProps> = ({
                           showDate={showDate}
                           showTime={showTime}
                           showSeries={showSeries}
+                          simpleView={simpleView}
                           onClick={(e) => {
                             // Ensure the target is an Element and use .closest to check if the click was inside a checkbox (see comment below)
                             if (!(e.target instanceof Element) || !e.target.closest('.checkbox')) {
                               navigate(`/view/${item.id}`);
                             }
                           }}
-                          selected={selected}
+                          selected={selected ?? []}
                           canDrag
                           item={item}
                           onCheckboxChange={handleCheckboxChange}

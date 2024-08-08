@@ -24,6 +24,7 @@ export interface IContentRowProps extends IColProps {
   filter?: any;
   onCheckboxChange: (item: IContentModel, checked: boolean) => void;
   onRemove?: (item: IContentModel) => void;
+  simpleView?: boolean;
 }
 
 export const ContentRow: React.FC<IContentRowProps> = ({
@@ -38,6 +39,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
   filter,
   onCheckboxChange,
   onRemove,
+  simpleView,
   ...rest
 }) => {
   const {
@@ -60,18 +62,20 @@ export const ContentRow: React.FC<IContentRowProps> = ({
   const headerTermHighlighted = highlightTerms(headline as string, highlighTerms ?? []);
 
   return (
-    <styled.ContentRow {...rest}>
+    <styled.ContentRow simpleView={simpleView} {...rest}>
       <Row className="parent-row">
-        <Checkbox
-          className="checkbox"
-          checked={selected.some((selectedItem) => selectedItem.id === item.id)}
-          onChange={(e) => {
-            // TODO
-            // e.stopPropagation() does not work, so above we check if the click was inside a checkbox
-            onCheckboxChange(item, e.target.checked);
-          }}
-        />
-        <Show visible={canDrag}>
+        <Show visible={!simpleView}>
+          <Checkbox
+            className="checkbox"
+            checked={selected.some((selectedItem) => selectedItem.id === item.id)}
+            onChange={(e) => {
+              // TODO
+              // e.stopPropagation() does not work, so above we check if the click was inside a checkbox
+              onCheckboxChange(item, e.target.checked);
+            }}
+          />
+        </Show>
+        <Show visible={canDrag && !simpleView}>
           <img src={`${process.env.PUBLIC_URL}/assets/elipsis.svg`} alt="Drag" className="grip" />
         </Show>
         {viewOptions.sentiment && determineToneIcon(item.tonePools[0])}
@@ -96,14 +100,16 @@ export const ContentRow: React.FC<IContentRowProps> = ({
             )}
           </>
         </Link>
-        <Attributes
-          item={item}
-          highlighTerms={highlighTerms ?? []}
-          showDate={showDate}
-          showTime={showTime}
-          showSeries={showSeries}
-          viewOptions={viewOptions}
-        />
+        <Show visible={!simpleView}>
+          <Attributes
+            item={item}
+            highlighTerms={highlighTerms ?? []}
+            showDate={showDate}
+            showTime={showTime}
+            showSeries={showSeries}
+            viewOptions={viewOptions}
+          />
+        </Show>
         <Row className="icon-row" nowrap>
           {popOutIds?.includes(String(item.mediaTypeId)) ? (
             <img
@@ -165,27 +171,31 @@ export const ContentRow: React.FC<IContentRowProps> = ({
           <ContentReportPin contentId={item.id} />
         </Row>
       </Row>
-      <Attributes
-        mobile
-        item={item}
-        highlighTerms={highlighTerms ?? []}
-        showDate={showDate}
-        showTime={showTime}
-        showSeries={showSeries}
-        viewOptions={viewOptions}
-      />
+      <Show visible={!simpleView}>
+        <Attributes
+          mobile
+          item={item}
+          highlighTerms={highlighTerms ?? []}
+          showDate={showDate}
+          showTime={showTime}
+          showSeries={showSeries}
+          viewOptions={viewOptions}
+        />
+      </Show>
       <Row>
-        {viewOptions.teaser && (!!item.body || !!item.summary) && (
-          <div className="teaser">
-            {bodyTermHighlighted.length > 0 ? (
-              bodyTermHighlighted.map((part, index) => (
-                <React.Fragment key={index}>{part}</React.Fragment>
-              ))
-            ) : (
-              <div className="teaser-content">{body}</div>
-            )}
-          </div>
-        )}
+        <Show visible={!simpleView}>
+          {viewOptions.teaser && (!!item.body || !!item.summary) && (
+            <div className="teaser">
+              {bodyTermHighlighted.length > 0 ? (
+                bodyTermHighlighted.map((part, index) => (
+                  <React.Fragment key={index}>{part}</React.Fragment>
+                ))
+              ) : (
+                <div className="teaser-content">{body}</div>
+              )}
+            </div>
+          )}
+        </Show>
         <Show visible={!!activeStream?.source && activeStream.id === item.id}>
           <Col className="media-playback">
             {activeFileReference?.contentType.includes('audio') && (
