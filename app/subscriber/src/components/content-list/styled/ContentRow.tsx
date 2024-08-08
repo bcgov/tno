@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { Col } from 'tno-core';
 
-export const ContentRow = styled(Col)`
+export const ContentRow = styled(Col)<{ simpleView?: boolean }>`
   margin-bottom: 0.5rem;
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
@@ -98,15 +98,16 @@ export const ContentRow = styled(Col)`
   }
 
   .media-playback {
+    width: 100%;
     video {
-      height: 270px;
-      width: 480px;
-      margin-left: auto;
       margin-right: auto;
+      margin-left: auto;
+      height: ${(props) => (props.simpleView ? '135px' : '270px')};
+      width: ${(props) => (props.simpleView ? '240px' : '480px')};
     }
-    audio {
-      margin-left: auto;
+    .audio {
       margin-right: auto;
+      margin-left: auto;
     }
     .copyright-text {
       margin-top: 0.5rem;
@@ -118,6 +119,7 @@ export const ContentRow = styled(Col)`
       svg {
         margin-right: 0.25rem;
       }
+      max-width: ${(props) => (props.simpleView ? '35em' : '')};
     }
   }
   .positive {
