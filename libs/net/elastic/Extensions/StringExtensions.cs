@@ -9,14 +9,15 @@ namespace TNO.Elastic;
 public static class StringExtensions
 {
     #region Variables
-    static readonly Regex RangeRegex = new Regex(@":([\[\{])");
-    static readonly Regex BoostOrProximityRegex = new Regex(@"[\^\~][0-9]*$");
-    static readonly Regex WildCardRegex = new Regex(@"[\*\?]");
+    static readonly Regex RangeRegex = RegexSettings.RangeRegex();
+    static readonly Regex BoostOrProximityRegex = RegexSettings.BoostOrProximityRegex();
+    static readonly Regex WildCardRegex = RegexSettings.WildCardRegex();
     #endregion
 
     #region Methods
     /// <summary>
     /// Extract keywords and phrases from the Elasticsearch query 'search'.
+    /// This does not currently handle escaped characters.
     /// </summary>
     /// <param name="search"></param>
     /// <param name="queryType"></param>
@@ -47,6 +48,7 @@ public static class StringExtensions
                 var isTokenOperator = tokenOperators.Any(o => token.Equals(o, StringComparison.InvariantCultureIgnoreCase));
                 if (isTokenOperator) continue;
 
+                // TODO: No need to include tokens that are related to a NOT
                 var isNot = token[0] == '!';
                 if (isNot) continue;
 
@@ -61,11 +63,12 @@ public static class StringExtensions
                     cleanToken = cleanToken.Replace("*", "").Replace("?", "");
 
                 // TODO: This doesn't handle escaped characters.
-                // TODO: Handle grouping.
-                cleanToken = cleanToken.Replace("(", "").Replace(")", "").Replace("\"", "");
+                cleanToken = cleanToken.Replace("(", "").Replace(")", "");
 
-                startOfPhrase = startOfPhrase == -1 && token[0] == '"' ? i : startOfPhrase;
-                endOfPhrase = token[token.Length - 1] == '"' && !token.EndsWith("\\\"") ? i : -1;
+                startOfPhrase = startOfPhrase == -1 && cleanToken[0] == '"' ? i : startOfPhrase;
+                endOfPhrase = cleanToken[^1] == '"' && !cleanToken.EndsWith("\\\"") ? i : -1;
+
+                cleanToken = cleanToken.Replace("\"", "");
 
                 if (startOfPhrase == -1)
                 {
@@ -75,8 +78,8 @@ public static class StringExtensions
                 else if (endOfPhrase > -1)
                 {
                     // Reset and add these words to a phrase.
-                    phrase.Append(cleanToken);
-                    keywords.Add(phrase.ToString());
+                    phrase.Append($" {cleanToken}");
+                    keywords.Add(phrase.ToString().Trim());
                     phrase.Clear();
 
                     startOfPhrase = -1;
@@ -84,7 +87,7 @@ public static class StringExtensions
                 }
                 else
                 {
-                    phrase.Append(cleanToken);
+                    phrase.Append($" {cleanToken}");
                 }
             }
         }
@@ -105,6 +108,7 @@ public static class StringExtensions
                 var isTokenOperator = tokenOperators.Any(o => token.Equals(o, StringComparison.InvariantCultureIgnoreCase));
                 if (isTokenOperator) continue;
 
+                // TODO: No need to include tokens that are related to a NOT
                 var isNot = token[0] == '-';
                 if (isNot) continue;
 
@@ -119,11 +123,12 @@ public static class StringExtensions
                     cleanToken = cleanToken.Replace("*", "").Replace("?", "");
 
                 // TODO: This doesn't handle escaped characters.
-                // TODO: Handle grouping.
-                cleanToken = cleanToken.Replace("(", "").Replace(")", "").Replace("\"", "").Replace("|", "").Replace("+", "");
+                cleanToken = cleanToken.Replace("(", "").Replace(")", "").Replace("|", "").Replace("+", "");
 
-                startOfPhrase = startOfPhrase == -1 && token[0] == '"' ? i : startOfPhrase;
-                endOfPhrase = token[token.Length - 1] == '"' && !token.EndsWith("\\\"") ? i : -1;
+                startOfPhrase = startOfPhrase == -1 && cleanToken[0] == '"' ? i : startOfPhrase;
+                endOfPhrase = cleanToken[^1] == '"' && !cleanToken.EndsWith("\\\"") ? i : -1;
+
+                cleanToken = cleanToken.Replace("\"", "");
 
                 if (startOfPhrase == -1)
                 {
@@ -133,8 +138,8 @@ public static class StringExtensions
                 else if (endOfPhrase > -1)
                 {
                     // Reset and add these words to a phrase.
-                    phrase.Append(cleanToken);
-                    keywords.Add(phrase.ToString());
+                    phrase.Append($" {cleanToken}");
+                    keywords.Add(phrase.ToString().Trim());
                     phrase.Clear();
 
                     startOfPhrase = -1;
@@ -142,7 +147,7 @@ public static class StringExtensions
                 }
                 else
                 {
-                    phrase.Append(cleanToken);
+                    phrase.Append($" {cleanToken}");
                 }
             }
         }
