@@ -38,7 +38,13 @@ for to_import_item in to_import_array:
             to_update['license'] = to_import_item['license']
         #mediaTypeId
         #mediaType
-        if to_update['mediaTypeId'] != to_import_item['mediaTypeId']:
+        if "mediaTypeId" in to_update and "mediaTypeId" in to_import_item:
+            if to_update['mediaTypeId'] != to_import_item['mediaTypeId']:
+                if has_changes is False:
+                    has_changes = True
+                to_update['mediaTypeId'] = to_import_item['mediaTypeId']
+                to_update['mediaType'] = to_import_item['mediaType']
+        elif "mediaTypeId" in to_import_item:
             if has_changes is False:
                 has_changes = True
             to_update['mediaTypeId'] = to_import_item['mediaTypeId']
