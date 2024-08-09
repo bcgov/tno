@@ -10,4 +10,13 @@ export const Commentary = styled.div`
   .content-list {
     padding: 1em;
   }
+
+  a.headline {
+    @media (min-width: 1825px) {
+      width: 20em;
+    }
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 `;
