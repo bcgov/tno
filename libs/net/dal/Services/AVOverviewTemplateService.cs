@@ -76,7 +76,22 @@ public class AVOverviewTemplateService : BaseService<AVOverviewTemplate, AVOverv
             var originalSubscriber = originalSubscribers.FirstOrDefault(rs => rs.UserId == s.UserId);
             if (originalSubscriber == null)
             {
-                this.Context.UserAVOverviews.Add(s);
+                // Check if the entity is already being tracked
+                var trackedEntity = this.Context.ChangeTracker.Entries<UserAVOverview>()
+                    .FirstOrDefault(e => e.Entity.UserId == s.UserId && e.Entity.TemplateType == s.TemplateType &&
+                    (e.State == EntityState.Added || e.State == EntityState.Modified))?.Entity;
+
+                if (trackedEntity == null)
+                {
+                    // Entity is not tracked, so we can safely add it
+                    this.Context.UserAVOverviews.Add(s);
+                }
+                else
+                {
+                    // The entity is already being tracked, so update its properties
+                    trackedEntity.IsSubscribed = s.IsSubscribed;
+                    trackedEntity.SendTo = s.SendTo;
+                }
             }
             else if (originalSubscriber.IsSubscribed != s.IsSubscribed || originalSubscriber.SendTo != s.SendTo)
             {
