@@ -26,9 +26,13 @@ export interface IUserReportModel {
   /** How to send the email to this subscriber. */
   sendTo: EmailSendToName;
   /** Email status */
-  status?: ReportStatusName;
+  linkStatus?: ReportStatusName;
   /** Email response */
-  response?: any;
+  linkResponse?: any;
+  /** Email status */
+  textStatus?: ReportStatusName;
+  /** Email response */
+  textResponse?: any;
   /** Table row version */
   version: number;
 }

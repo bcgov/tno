@@ -1,7 +1,10 @@
 import styled from 'styled-components';
 
 export const ReportDashboard = styled.div`
+  display: flex;
+  flex-direction: column;
   padding: 1rem;
+  height: 100%;
 
   .header {
     display: grid;
@@ -11,6 +14,11 @@ export const ReportDashboard = styled.div`
     > div {
       font-weight: 800;
     }
+  }
+
+  .reports {
+    position: relative;
+    flex: 1;
   }
 
   .report-cards {
@@ -108,6 +116,7 @@ export const ReportDashboard = styled.div`
         flex-direction: row;
         flex-wrap: wrap;
         gap: 0.25rem;
+        position: relative;
 
         > .subscriber {
           flex: 1;
@@ -123,10 +132,6 @@ export const ReportDashboard = styled.div`
             flex-direction: row;
             flex-wrap: nowrap;
             gap: 0.5rem;
-
-            svg {
-              cursor: pointer;
-            }
           }
 
           .success {
@@ -141,6 +146,13 @@ export const ReportDashboard = styled.div`
             background-color: ${(props) => props.theme.css.tableColor};
             padding: 0.5rem;
             border-radius: 0.5rem;
+          }
+
+          .report-status {
+            border: solid 1px ${(props) => props.theme.css.tableColor};
+            border-radius: 0.5rem;
+            padding: 0 0.25rem;
+            cursor: pointer;
           }
         }
       }

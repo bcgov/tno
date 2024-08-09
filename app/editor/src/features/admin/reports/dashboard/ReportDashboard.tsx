@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaArrowAltCircleLeft, FaArrowAltCircleRight } from 'react-icons/fa';
+import { useApp } from 'store/hooks';
 import { useReports } from 'store/hooks/admin';
 import {
   Button,
@@ -8,6 +9,7 @@ import {
   IconButton,
   IDashboardFilter,
   IReportModel,
+  Loader,
   ReportStatusName,
   Row,
   Text,
@@ -18,15 +20,18 @@ import * as styled from './styled';
 
 export const ReportDashboard: React.FC = () => {
   const [, { getDashboard }] = useReports();
+  const [{ requests }] = useApp();
 
   const [search, setSearch] = React.useState('');
   const [filter, setFilter] = React.useState<IDashboardFilter>({
     page: 1,
-    quantity: 50,
+    quantity: 10,
     isEnabled: true,
     status: [ReportStatusName.Failed],
   });
   const [reports, setReports] = React.useState<IReportModel[]>([]);
+
+  const isLoading = requests.some((r) => r.url === 'get-dashboard');
 
   const fetchReports = React.useCallback(
     async (filter: IDashboardFilter) => {
@@ -74,10 +79,13 @@ export const ReportDashboard: React.FC = () => {
         <div>Next Run</div>
         <div></div>
       </div>
-      <div className="report-cards">
-        {reports.map((report) => {
-          return <ReportCard key={report.id} report={report} />;
-        })}
+      <div className="reports">
+        <Loader visible={isLoading} />
+        <div className="report-cards">
+          {reports.map((report) => {
+            return <ReportCard key={report.id} report={report} />;
+          })}
+        </div>
       </div>
       <Row justifyContent="center">
         {filter.page && filter.page > 1 && (

@@ -1,7 +1,16 @@
 import React from 'react';
 import { FaCircleChevronDown, FaCircleChevronUp } from 'react-icons/fa6';
+import { useApp } from 'store/hooks';
 import { useReports } from 'store/hooks/admin';
-import { IReportModel, IUserReportModel, Link, ReportStatusName } from 'tno-core';
+import {
+  IReportModel,
+  IUserReportModel,
+  Link,
+  Loader,
+  ReportStatusName,
+  Row,
+  TextArea,
+} from 'tno-core';
 
 import { ReportStatusIcon } from './ReportStatusIcon';
 import { getLastSent, getNextSchedule, getStatus } from './utils';
@@ -12,18 +21,20 @@ export interface IReportCardProps {
 
 export const ReportCard: React.FC<IReportCardProps> = ({ report: initReport }) => {
   const [, { getDashboardReport }] = useReports();
+  const [{ requests }] = useApp();
 
   const [expand, setExpand] = React.useState(false);
   const [expandResponse, setExpandResponse] = React.useState<Record<number, boolean>>({});
-  const [expandUserResponse, setExpandUserResponse] = React.useState<Record<number, boolean>>({});
+  const [expandUserResponse, setExpandUserResponse] = React.useState<Record<string, boolean>>({});
   const [subscribers, setSubscribers] = React.useState<IUserReportModel[]>([]);
   const [report, setReport] = React.useState<IReportModel>(initReport);
 
   const instance = report.instances.length ? report.instances[0] : undefined;
+  const isLoading = requests.some((r) => r.url === `get-dashboard-report-${report.id}`);
 
   const stringifyResponse = React.useCallback((data: any) => {
     try {
-      return data ? JSON.stringify(data) : '';
+      return data ? JSON.stringify(data, undefined, `\t`) : '';
     } catch {
       return '';
     }
@@ -74,10 +85,15 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report: initReport }) =
                 {expandResponse[report.id] ? <FaCircleChevronUp /> : <FaCircleChevronDown />}
               </div>
             </div>
-            {expandResponse[report.id] && <div>{stringifyResponse(instance?.response)}</div>}
+            {expandResponse[report.id] && (
+              <div>
+                <TextArea name="response" value={stringifyResponse(instance?.response)} />
+              </div>
+            )}
           </div>
           <h3>Subscribers</h3>
           <div className="subscribers">
+            <Loader visible={isLoading} />
             {!subscribers.length && (
               <div className="subscriber">{!subscribers.length && 'No Subscribers'}</div>
             )}
@@ -86,18 +102,46 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report: initReport }) =
                 <div key={subscriber.userId} className="subscriber">
                   <div>
                     {subscriber.email}
-                    <ReportStatusIcon
-                      status={subscriber?.status}
-                      onClick={() =>
-                        setExpandUserResponse((expand) => ({
-                          ...expand,
-                          [subscriber.userId]: !expand[subscriber.userId],
-                        }))
-                      }
-                    />
+                    <Row>
+                      <ReportStatusIcon
+                        label="Link"
+                        status={subscriber?.linkStatus}
+                        onClick={() =>
+                          setExpandUserResponse((expand) => ({
+                            ...expand,
+                            [`${subscriber.userId}Link`]: !expand[`${subscriber.userId}Link`],
+                          }))
+                        }
+                      />
+                    </Row>
+                    <Row>
+                      <ReportStatusIcon
+                        label="Text"
+                        status={subscriber?.textStatus}
+                        onClick={() =>
+                          setExpandUserResponse((expand) => ({
+                            ...expand,
+                            [`${subscriber.userId}Text`]: !expand[`${subscriber.userId}Text`],
+                          }))
+                        }
+                      />
+                    </Row>
                   </div>
-                  {expandUserResponse[subscriber.userId] && (
-                    <div className="response">{stringifyResponse(subscriber.response)}</div>
+                  {expandUserResponse[`${subscriber.userId}Link`] && (
+                    <div className="response">
+                      <TextArea
+                        name={`subscriber-response-${subscriber.userId}-link`}
+                        value={stringifyResponse(subscriber.linkResponse)}
+                      />
+                    </div>
+                  )}
+                  {expandUserResponse[`${subscriber.userId}Text`] && (
+                    <div className="response">
+                      <TextArea
+                        name={`subscriber-response-${subscriber.userId}-text`}
+                        value={stringifyResponse(subscriber.textResponse)}
+                      />
+                    </div>
                   )}
                 </div>
               );

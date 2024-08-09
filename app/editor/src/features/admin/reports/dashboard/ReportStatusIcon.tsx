@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   FaCircleCheck,
   FaCircleExclamation,
@@ -5,27 +6,43 @@ import {
   FaClock,
   FaRegCircle,
 } from 'react-icons/fa6';
-import { ReportStatusName } from 'tno-core';
+import { ReportStatusName, Row } from 'tno-core';
 
 export interface IReportStatusIconProps {
+  label?: string;
   status?: ReportStatusName;
-  onClick?: React.MouseEventHandler<SVGElement>;
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
 
-export const ReportStatusIcon: React.FC<IReportStatusIconProps> = ({ status, onClick }) => {
-  switch (status) {
-    case ReportStatusName.Submitted:
-      return <FaClock onClick={onClick} />;
-    case ReportStatusName.Accepted:
-    case ReportStatusName.Completed:
-      return <FaCircleCheck className="success" onClick={onClick} />;
-    case ReportStatusName.Cancelled:
-      return <FaCircleStop onClick={onClick} />;
-    case ReportStatusName.Failed:
-      return <FaCircleExclamation className="error" onClick={onClick} />;
-    case ReportStatusName.Pending:
-    case ReportStatusName.Reopen:
-    default:
-      return <FaRegCircle onClick={onClick} />;
-  }
+export const ReportStatusIcon: React.FC<IReportStatusIconProps> = ({ label, status, onClick }) => {
+  const getIcon = React.useCallback((status?: ReportStatusName) => {
+    switch (status) {
+      case ReportStatusName.Submitted:
+        return <FaClock />;
+      case ReportStatusName.Accepted:
+      case ReportStatusName.Completed:
+        return <FaCircleCheck className="success" />;
+      case ReportStatusName.Cancelled:
+        return <FaCircleStop />;
+      case ReportStatusName.Failed:
+        return <FaCircleExclamation className="error" />;
+      case ReportStatusName.Pending:
+      case ReportStatusName.Reopen:
+      default:
+        return <FaRegCircle />;
+    }
+  }, []);
+
+  return (
+    <Row
+      gap="0.5rem"
+      nowrap
+      alignItems="center"
+      className="report-status"
+      onClick={(e) => onClick?.(e)}
+    >
+      {label}
+      {getIcon(status)}
+    </Row>
+  );
 };

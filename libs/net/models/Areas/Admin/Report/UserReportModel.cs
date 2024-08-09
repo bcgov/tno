@@ -36,12 +36,22 @@ public class UserReportModel : UserModel
     /// <summary>
     /// get/set - The status of the report for this specific subscriber.
     /// </summary>
-    public Entities.ReportStatus? Status { get; set; }
+    public Entities.ReportStatus? LinkStatus { get; set; }
 
     /// <summary>
     /// get/set - The response from CHES for this specific subscriber.
     /// </summary>
-    public JsonDocument? Response { get; set; }
+    public JsonDocument? LinkResponse { get; set; }
+
+    /// <summary>
+    /// get/set - The status of the report for this specific subscriber.
+    /// </summary>
+    public Entities.ReportStatus? TextStatus { get; set; }
+
+    /// <summary>
+    /// get/set - The response from CHES for this specific subscriber.
+    /// </summary>
+    public JsonDocument? TextResponse { get; set; }
     #endregion
 
     #region Constructors

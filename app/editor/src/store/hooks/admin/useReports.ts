@@ -144,7 +144,7 @@ export const useReports = (): [IAdminState & { initialized: boolean }, IReportCo
         return response.data;
       },
       getDashboardReport: async (id: number) => {
-        const response = await dispatch<IReportModel>('get-dashboard-report', () =>
+        const response = await dispatch<IReportModel>(`get-dashboard-report-${id}`, () =>
           api.getDashboardReport(id),
         );
         return response.data;
