@@ -31,6 +31,7 @@ export const AppRouter: React.FC = () => {
   const navigate = useNavigate();
 
   React.useEffect(() => {
+    window.snowplow('trackPageView');
     // There is a race condition, when keycloak is ready state related to user claims will not be.
     // Additionally, when the user is not authenticated keycloak also is not initialized (which makes no sense).
     if (
