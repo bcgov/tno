@@ -349,8 +349,10 @@ public class ReportController : ControllerBase
                 var user = subscribers.FirstOrDefault(s => s.Id == email.UserId);
                 if (user != null)
                 {
-                    user.Response = user.Format == Entities.ReportDistributionFormat.LinkOnly ? email.LinkResponse : email.TextResponse;
-                    user.Status = user.Format == Entities.ReportDistributionFormat.LinkOnly ? email.LinkStatus : email.TextStatus;
+                    user.LinkResponse = email.LinkResponse;
+                    user.LinkStatus = email.LinkStatus;
+                    user.TextResponse = email.TextResponse;
+                    user.TextStatus = email.TextStatus;
                 }
             }
         }
