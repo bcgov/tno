@@ -197,7 +197,14 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
         </div>
         {form && !!form.content.id && (
           <Bar className="content-bar">
-            <Col className="byline">by {form.content.byline}</Col>
+            <Col className="byline">
+              by{' '}
+              {form.content.versions?.[userId]?.byline
+                ? form.content.versions?.[userId]?.byline
+                : form.content.byline
+                ? form.content.byline
+                : ''}
+            </Col>
             <Col className="date">{formatDate(form.content.publishedOn, true)}</Col>
             <Col flex="1"></Col>
             <Col className="source">

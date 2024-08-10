@@ -38,6 +38,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const userId = userInfo?.id ?? 0;
   const isAV = content.contentType === ContentTypeName.AudioVideo;
   const versions = content.versions?.[userId] ?? {
+    byline: content.byline,
     headline: content.headline,
     summary: '',
     body: isAV
@@ -46,6 +47,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
         : content.summary
       : content.body,
   };
+  const byline = versions.byline ?? '';
   const headline = versions.headline ?? '';
   const summary = versions.summary ?? '';
   const body =
@@ -56,6 +58,31 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     <Col className={`edit-content${className ? ` ${className}` : ''}`} {...rest}>
       <Show visible={loading}>
         <Loading />
+      </Show>
+      <Show visible={show === 'all'}>
+        <TextArea
+          name={`byline`}
+          label="Byline"
+          rows={1}
+          disabled={disabled}
+          onChange={(e) => {
+            const values = {
+              ...content,
+              versions: {
+                ...content.versions,
+                [userId]: {
+                  ...content.versions?.[userId],
+                  byline: e.target.value,
+                  headline: headline,
+                  summary: summary,
+                  body: body,
+                },
+              },
+            };
+            onContentChange?.(values);
+          }}
+          value={byline}
+        />
       </Show>
       <Show visible={show === 'all'}>
         <TextArea
@@ -70,6 +97,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 ...content.versions,
                 [userId]: {
                   ...content.versions?.[userId],
+                  byline: byline,
                   headline: e.target.value,
                   summary: summary,
                   body: body,
@@ -95,6 +123,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 ...content.versions,
                 [userId]: {
                   ...content.versions?.[userId],
+                  byline: byline,
                   headline: headline,
                   summary: text,
                   body: body,

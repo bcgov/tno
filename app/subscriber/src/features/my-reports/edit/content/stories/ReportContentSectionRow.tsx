@@ -90,7 +90,7 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
           </span>
         </Col>
         <Col className="story-details">
-          <ReportContentInlineText row={row} />
+          <ReportContentInlineText row={row} userId={userId} />
         </Col>
         {!disabled && showSortOrder && (
           <Col className="story-sortOrder">
