@@ -40,8 +40,9 @@ public interface IContentMigrator
     /// </summary>
     /// <param name="lookup"></param>
     /// <param name="newsItemType"></param>
+    /// <param name="source"></param>
     /// <returns></returns>
-    MediaTypeModel? GetMediaTypeMapping(IEnumerable<MediaTypeModel> lookup, string newsItemType);
+    MediaTypeModel? GetMediaTypeMapping(IEnumerable<MediaTypeModel> lookup, string newsItemType, SourceModel source);
 
     /// <summary>
     /// Creates an ContentReferenceModel from a NewsItem
