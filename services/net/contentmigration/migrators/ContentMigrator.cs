@@ -215,12 +215,19 @@ public abstract partial class ContentMigrator<TOptions> : IContentMigrator
     /// <param name="lookup"></param>
     /// <param name="newsItemMediaType"></param>
     /// <returns></returns>
-    public MediaTypeModel? GetMediaTypeMapping(IEnumerable<MediaTypeModel> lookup, string newsItemMediaType)
+    public MediaTypeModel? GetMediaTypeMapping(IEnumerable<MediaTypeModel> lookup, string newsItemMediaType, SourceModel source)
     {
         // TODO: KGM - what to do if we have no mapping - make nullable so we can skip it on migration
         var mediaType = lookup.Where(s => s.Name == newsItemMediaType).FirstOrDefault();
 
-        // if the Name doesn't match one of our media types, use the extra mappings from the config
+        // if the Name doesn't match one of our media types, use the source code mappings from the config
+        if (mediaType == null)
+        {
+            MigratorOptions.SourceCodeMediaTypeMappings.TryGetValue(source.Code, out string? customMapping);
+            mediaType = lookup.Where(s => s.Name == customMapping).FirstOrDefault();
+        }
+
+        // if the Name doesn't match one of our media types and the source code mappings, use the extra mappings from the config
         if (mediaType == null)
         {
             MigratorOptions.MediaTypeMappings.TryGetValue(newsItemMediaType, out string? customMapping);
