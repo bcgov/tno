@@ -1,5 +1,6 @@
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-tooltip/dist/react-tooltip.css';
+import './components/snowplow/snowplow';
 
 import isPropValid from '@emotion/is-prop-valid';
 import { ReactKeycloakProvider } from '@react-keycloak/web';
