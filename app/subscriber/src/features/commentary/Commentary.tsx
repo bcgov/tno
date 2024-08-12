@@ -7,7 +7,7 @@ import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import { noop } from 'lodash';
 import React from 'react';
-import { FaArrowsSpin } from 'react-icons/fa6';
+import { FaArrowsRotate, FaArrowsSpin } from 'react-icons/fa6';
 import { useApiHub, useContent, useSettings } from 'store/hooks';
 import {
   generateQuery,
@@ -105,7 +105,7 @@ export const Commentary: React.FC = () => {
             Commentary
             <Action
               title="Refresh"
-              icon={<FaArrowsSpin />}
+              icon={<FaArrowsRotate onClick={}/>}
               onClick={() => commentaryActionId && fetchCommentary(commentaryActionId)}
             />
           </Row>
