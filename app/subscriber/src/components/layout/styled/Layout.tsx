@@ -30,6 +30,8 @@ export const Layout = styled.div<ILayoutProps>`
 
     .nav-bar {
       grid-area: nav-bar;
+      max-height: calc(100dvh - 11.5em);
+      overflow: auto;
     }
 
     .contents-container {
