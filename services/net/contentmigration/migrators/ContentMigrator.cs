@@ -214,6 +214,7 @@ public abstract partial class ContentMigrator<TOptions> : IContentMigrator
     /// </summary>
     /// <param name="lookup"></param>
     /// <param name="newsItemMediaType"></param>
+    /// <param name="source"></param>
     /// <returns></returns>
     public MediaTypeModel? GetMediaTypeMapping(IEnumerable<MediaTypeModel> lookup, string newsItemMediaType, SourceModel source)
     {
