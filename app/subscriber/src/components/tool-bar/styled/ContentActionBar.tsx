@@ -37,6 +37,12 @@ export const ContentActionBar = styled(Row)`
     }
   }
 
+  @media (max-width: 320px) {
+    .select-all-label {
+      display: none;
+    }
+  }
+
   .right-side-items {
     color: ${(props) => props.theme.css.btnBkPrimary};
     @media (max-width: 768px) {

@@ -67,6 +67,7 @@ export const Landing = styled(Col)`
     }
     @media (max-width: 768px) {
       .page-section-title {
+        max-width: calc(100vw - 55px);
         margin: 0.25em;
       }
     }
@@ -76,6 +77,7 @@ export const Landing = styled(Col)`
     .content {
       background-color: white;
       @media (max-width: 500px) {
+        max-width: calc(100vw - 50px);
         padding: 0.25em;
       }
       @media (min-width: 500px) {

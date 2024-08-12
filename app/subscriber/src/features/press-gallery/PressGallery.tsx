@@ -203,7 +203,7 @@ export const PressGallery: React.FC = () => {
             }
           }}
           name="date-select"
-          width={'9em'}
+          width={FieldSize.Small}
         />
         <FaFilterCircleXmark
           className="reset"
