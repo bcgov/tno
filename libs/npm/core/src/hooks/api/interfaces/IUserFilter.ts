@@ -10,6 +10,8 @@ export interface IUserFilter extends ISortPageFilter {
   lastName?: string;
   isEnabled?: boolean;
   isSubscribedToReportId?: number;
+  isSubscribedToNotificationId?: number;
+  isSubscribedToProductId?: number;
   isSystemAccount?: boolean;
   accountTypes?: UserAccountTypeName[];
   status?: UserStatusName;
