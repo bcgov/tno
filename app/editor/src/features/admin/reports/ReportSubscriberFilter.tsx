@@ -33,6 +33,7 @@ export const ReportSubscriberFilter: React.FC<IAdminFilterProps> = ({
       <Checkbox
         name="isSubscribed"
         label="Is subscribed"
+        checked={!!reportSubscriberFilter.isSubscribedToReportId}
         onChange={(e) => {
           const filter = {
             ...reportSubscriberFilter,
@@ -40,6 +41,7 @@ export const ReportSubscriberFilter: React.FC<IAdminFilterProps> = ({
           };
           storeReportSubscriberFilter(filter);
           onFilterChange?.(filter);
+          onSearch?.(filter);
         }}
       />
       {!!onSearch && (

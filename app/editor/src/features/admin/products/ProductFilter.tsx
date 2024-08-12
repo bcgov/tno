@@ -42,6 +42,7 @@ export const ProductFilter: React.FC<IAdminFilterProps> = ({
           name="isSubscribed"
           label="Is subscribed"
           className="checkbox-filter"
+          checked={!!isSubscribedId}
           onChange={(e) => {
             const s = e.target.checked ? productId : undefined;
             setIsSubscribedId(s);
@@ -52,6 +53,7 @@ export const ProductFilter: React.FC<IAdminFilterProps> = ({
       <IconButton
         iconType="reset"
         onClick={() => {
+          setIsSubscribedId(undefined);
           setFilter('');
           onFilterChange?.('');
           onSearch?.('', undefined);
