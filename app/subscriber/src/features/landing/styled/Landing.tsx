@@ -65,12 +65,19 @@ export const Landing = styled(Col)`
     @media (min-width: 1000px) {
       width: 70%;
     }
+    @media (max-width: 768px) {
+      .page-section-title {
+        max-width: calc(100vw - 55px);
+        margin: 0.25em;
+      }
+    }
     flex-grow: 1;
     margin: 0 0 0.75rem 0.75rem;
 
     .content {
       background-color: white;
       @media (max-width: 500px) {
+        max-width: calc(100vw - 50px);
         padding: 0.25em;
       }
       @media (min-width: 500px) {

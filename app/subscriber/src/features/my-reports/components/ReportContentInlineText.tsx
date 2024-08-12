@@ -5,9 +5,13 @@ import { IReportInstanceContentForm } from '../interfaces';
 
 export interface IReportContentInlineTextProps {
   row: IReportInstanceContentForm;
+  userId: number;
 }
 
-export const ReportContentInlineText: React.FC<IReportContentInlineTextProps> = ({ row }) => {
+export const ReportContentInlineText: React.FC<IReportContentInlineTextProps> = ({
+  row,
+  userId,
+}) => {
   if (!row || !row.content) return null;
 
   let contentDetails = '';
@@ -22,7 +26,13 @@ export const ReportContentInlineText: React.FC<IReportContentInlineTextProps> = 
   } else {
     // General Content format
     contentDetails =
-      `${row.content.byline ? `${row.content.byline} | ` : ''}` +
+      `${
+        row.content.versions?.[userId]?.byline
+          ? `${row.content.versions[userId].byline ?? ''} | `
+          : row.content.byline
+          ? `${row.content.byline} | `
+          : ''
+      }` +
       `${row.content.otherSource ? `${row.content.otherSource} | ` : ''}` +
       `${row.content.page ? `P.${row.content.page} | ` : ''}` +
       `${row.content.publishedOn ? moment(row.content.publishedOn).format('DD-MMM-YYYY') : ''}`;

@@ -104,7 +104,9 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
           <div className="check-area">
             <Row gap="0.25rem">
               <Checkbox id="select-all" checked={isSelectAllChecked} onChange={onSelectAll} />
-              <label htmlFor="select-all">SELECT ALL</label>
+              <label htmlFor="select-all" className="select-all-label">
+                SELECT ALL
+              </label>
             </Row>
           </div>
         </Row>

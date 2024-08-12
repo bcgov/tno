@@ -2,7 +2,6 @@ import styled from 'styled-components';
 import { Col } from 'tno-core';
 
 export const Navbar = styled(Col)<{ $expanded: boolean }>`
-  height: calc(100dvh); // 100% height of section
   svg:not(.expand-control) {
     height: ${(props) => (props.$expanded ? '' : '1.5em')};
     width: ${(props) => (props.$expanded ? '' : '1.5em')};
