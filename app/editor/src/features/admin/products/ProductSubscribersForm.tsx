@@ -52,8 +52,14 @@ export const ProductSubscribersForm = () => {
   return (
     <styled.ProductSubscribersForm>
       <ProductFilter
-        onSearch={async (value: string) => {
-          await findUsers({ page: 1, quantity: users.quantity, keyword: value });
+        productId={values.id}
+        onSearch={async (value: string, isSubscribedToProductId) => {
+          await findUsers({
+            page: 1,
+            quantity: users.quantity,
+            keyword: value,
+            isSubscribedToProductId: isSubscribedToProductId,
+          });
         }}
       />
       <Grid

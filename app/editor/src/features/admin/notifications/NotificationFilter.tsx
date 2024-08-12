@@ -2,7 +2,7 @@ import React from 'react';
 import { Checkbox, IconButton, Row, Text } from 'tno-core';
 
 interface IAdminFilterProps {
-  notificationId: number;
+  notificationId?: number;
   onFilterChange?: (value: string) => void;
   onSearch?: (value: string, isSubscribedToNotificationId: number | undefined) => void;
 }
@@ -13,7 +13,7 @@ export const NotificationFilter: React.FC<IAdminFilterProps> = ({
   onSearch,
 }) => {
   const [filter, setFilter] = React.useState<string>('');
-  const [isSubscribed, setIsSubscribed] = React.useState<number>();
+  const [isSubscribedId, setIsSubscribedId] = React.useState<number>();
   return (
     <Row className="filter-bar" justifyContent="center">
       <Text
@@ -22,7 +22,7 @@ export const NotificationFilter: React.FC<IAdminFilterProps> = ({
           onFilterChange?.(e.target.value);
         }}
         onKeyUp={(e) => {
-          if (e.code === 'Enter') onSearch?.(filter, isSubscribed);
+          if (e.code === 'Enter') onSearch?.(filter, isSubscribedId);
         }}
         placeholder="Search by keyword"
         name="search"
@@ -32,20 +32,23 @@ export const NotificationFilter: React.FC<IAdminFilterProps> = ({
           <IconButton
             iconType="search"
             onClick={() => {
-              onSearch?.(filter, isSubscribed);
+              onSearch?.(filter, isSubscribedId);
             }}
           />
         )}
       </Text>
-      <Checkbox
-        name="isSubscribed"
-        label="Is subscribed"
-        onChange={(e) => {
-          const s = e.target.checked ? notificationId : undefined;
-          setIsSubscribed(s);
-          onSearch?.(filter, s);
-        }}
-      />
+      {notificationId && (
+        <Checkbox
+          name="isSubscribed"
+          label="Is subscribed"
+          className="checkbox-filter"
+          onChange={(e) => {
+            const s = e.target.checked ? notificationId : undefined;
+            setIsSubscribedId(s);
+            onSearch?.(filter, s);
+          }}
+        />
+      )}
       <IconButton
         iconType="reset"
         onClick={() => {
