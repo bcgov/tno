@@ -19,6 +19,7 @@ import { TodaysFrontPages } from 'features/todays-front-pages';
 import { TopStories } from 'features/top-stories';
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import useMobile from 'store/hooks/app/useMobile';
 import { Col, IContentModel, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
@@ -32,6 +33,7 @@ export const Landing: React.FC = () => {
   const [activeItem, setActiveItem] = React.useState<INavbarOptionItem | undefined>(
     NavbarOptions.home,
   );
+  const isMobile = useMobile();
   /* active content will be stored from this context in order to inject into subsequent components */
   const [activeContent, setActiveContent] = React.useState<IContentModel[]>();
   const [isFullScreen, setIsFullScreen] = React.useState(false);
@@ -48,6 +50,12 @@ export const Landing: React.FC = () => {
       !item
     );
   }, []);
+
+  React.useEffect(() => {
+    if (isMobile) {
+      window.scrollTo(0, 0);
+    }
+  }, [id]);
 
   React.useEffect(() => {
     if (checkFullScreen(activeItem)) {
