@@ -8,7 +8,7 @@ import {
 } from 'features/my-reports/utils';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
-import { FaArrowsSpin, FaPlus } from 'react-icons/fa6';
+import { FaArrowsRotate, FaPlus } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useLookup } from 'store/hooks';
 import {
@@ -86,7 +86,7 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
             originalIndex: instance.content.findIndex(
               (oi) => oi.contentId === c.contentId && oi.sectionName === c.sectionName,
             ),
-          } as IReportInstanceContentForm),
+          }) as IReportInstanceContentForm,
       ) ?? [];
   const sectionOptions = values.sections
     .filter((s) => s.sectionType === ReportSectionTypeName.Content)
@@ -206,7 +206,8 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
                   <Col flex="1">
                     <Row justifyContent="flex-end">
                       <Action
-                        icon={<FaArrowsSpin />}
+                        className="icon-refresh"
+                        icon={<FaArrowsRotate />}
                         label="Regenerate section"
                         disabled={isSubmitting}
                         onClick={(e) => toggle()}

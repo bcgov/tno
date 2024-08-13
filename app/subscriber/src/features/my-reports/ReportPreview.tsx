@@ -135,7 +135,7 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
             disabled={isSubmitting}
           >
             Refresh
-            <FaArrowsRotate />
+            <FaArrowsRotate className="icon-refresh" />
           </Button>
         </Show>
         <Show visible={!!instance?.sentOn}>

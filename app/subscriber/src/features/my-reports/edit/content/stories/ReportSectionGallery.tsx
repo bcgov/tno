@@ -4,7 +4,7 @@ import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/int
 import { sortContent, sortReportContent } from 'features/my-reports/utils';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
-import { FaArrowsSpin } from 'react-icons/fa6';
+import { FaArrowsRotate } from 'react-icons/fa6';
 import {
   Col,
   FormikText,
@@ -65,7 +65,7 @@ export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
             originalIndex: instance.content.findIndex(
               (oi) => oi.contentId === c.contentId && oi.sectionName === c.sectionName,
             ),
-          } as IReportInstanceContentForm),
+          }) as IReportInstanceContentForm,
       ) ?? [];
   const sectionOptions = values.sections
     .filter((s) => s.sectionType === ReportSectionTypeName.Content)
@@ -130,7 +130,8 @@ export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
         <Col flex="1">
           <Row justifyContent="flex-end">
             <Action
-              icon={<FaArrowsSpin />}
+              className="icon-refresh"
+              icon={<FaArrowsRotate />}
               label="Regenerate section"
               disabled={isSubmitting}
               onClick={(e) => toggle()}
