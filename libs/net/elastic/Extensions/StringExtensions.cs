@@ -12,6 +12,11 @@ public static class StringExtensions
     static readonly Regex RangeRegex = RegexSettings.RangeRegex();
     static readonly Regex BoostOrProximityRegex = RegexSettings.BoostOrProximityRegex();
     static readonly Regex WildCardRegex = RegexSettings.WildCardRegex();
+    static readonly Regex StartOfQuote = RegexSettings.StartOfQuoteRegex();
+    static readonly Regex EndOfQuote = RegexSettings.EndOfQuoteRegex();
+    static readonly Regex RemoveSimpleKeywords = RegexSettings.RemoveSimpleKeywordsRegex();
+    static readonly Regex RemoveAdvancedKeywords = RegexSettings.RemoveAdvancedKeywordsRegex();
+
     #endregion
 
     #region Methods
@@ -26,14 +31,14 @@ public static class StringExtensions
     {
         var isAdvanced = queryType == "query-string";
         var keywords = new List<string>();
-        var tokens = search.Split(" ", StringSplitOptions.RemoveEmptyEntries);
         var startOfPhrase = -1;
         var endOfPhrase = -1;
         var phrase = new StringBuilder();
 
         if (isAdvanced)
         {
-            var tokenOperators = new string[] { "and", "&&", "or", "||", "not", "!" };
+            var cleanSearch = RemoveAdvancedKeywords.Replace(search, " ");
+            var tokens = cleanSearch.Split(" ", StringSplitOptions.RemoveEmptyEntries);
 
             // Iterate through each token to determine whether it is a keyword that should be marked.
             for (var i = 0; i < tokens.Length; i++)
@@ -44,9 +49,6 @@ public static class StringExtensions
 
                 var isRangeStatement = RangeRegex.IsMatch(token);
                 if (isRangeStatement) continue;
-
-                var isTokenOperator = tokenOperators.Any(o => token.Equals(o, StringComparison.InvariantCultureIgnoreCase));
-                if (isTokenOperator) continue;
 
                 // TODO: No need to include tokens that are related to a NOT
                 var isNot = token[0] == '!';
@@ -65,10 +67,11 @@ public static class StringExtensions
                 // TODO: This doesn't handle escaped characters.
                 cleanToken = cleanToken.Replace("(", "").Replace(")", "");
 
-                startOfPhrase = startOfPhrase == -1 && cleanToken[0] == '"' ? i : startOfPhrase;
-                endOfPhrase = cleanToken[^1] == '"' && !cleanToken.EndsWith("\\\"") ? i : -1;
+                startOfPhrase = startOfPhrase == -1 && StartOfQuote.IsMatch(cleanToken) ? i : startOfPhrase;
+                endOfPhrase = EndOfQuote.IsMatch(cleanToken) && !cleanToken.EndsWith("\\\"") ? i : -1;
 
-                cleanToken = cleanToken.Replace("\"", "");
+                cleanToken = cleanToken.Replace("\"", "").Trim();
+                if (String.IsNullOrWhiteSpace(cleanToken)) continue;
 
                 if (startOfPhrase == -1)
                 {
@@ -93,7 +96,8 @@ public static class StringExtensions
         }
         else
         {
-            var tokenOperators = new string[] { "|", "+", "-" };
+            var cleanSearch = RemoveSimpleKeywords.Replace(search, " ");
+            var tokens = cleanSearch.Split(" ", StringSplitOptions.RemoveEmptyEntries);
 
             // Iterate through each token to determine whether it is a keyword that should be marked.
             for (var i = 0; i < tokens.Length; i++)
@@ -104,9 +108,6 @@ public static class StringExtensions
 
                 var isRangeStatement = RangeRegex.IsMatch(token);
                 if (isRangeStatement) continue;
-
-                var isTokenOperator = tokenOperators.Any(o => token.Equals(o, StringComparison.InvariantCultureIgnoreCase));
-                if (isTokenOperator) continue;
 
                 // TODO: No need to include tokens that are related to a NOT
                 var isNot = token[0] == '-';
@@ -125,10 +126,11 @@ public static class StringExtensions
                 // TODO: This doesn't handle escaped characters.
                 cleanToken = cleanToken.Replace("(", "").Replace(")", "").Replace("|", "").Replace("+", "");
 
-                startOfPhrase = startOfPhrase == -1 && cleanToken[0] == '"' ? i : startOfPhrase;
-                endOfPhrase = cleanToken[^1] == '"' && !cleanToken.EndsWith("\\\"") ? i : -1;
+                endOfPhrase = startOfPhrase != -1 && EndOfQuote.IsMatch(cleanToken) && !cleanToken.EndsWith("\\\"") ? i : -1;
+                startOfPhrase = startOfPhrase == -1 && StartOfQuote.IsMatch(cleanToken) ? i : startOfPhrase;
 
-                cleanToken = cleanToken.Replace("\"", "");
+                cleanToken = cleanToken.Replace("\"", "").Trim();
+                if (String.IsNullOrWhiteSpace(cleanToken)) continue;
 
                 if (startOfPhrase == -1)
                 {
