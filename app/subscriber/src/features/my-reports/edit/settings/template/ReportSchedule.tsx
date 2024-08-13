@@ -19,10 +19,8 @@ export interface IReportScheduleProps {
 
 export const ReportSchedule: React.FC<IReportScheduleProps> = ({ index, label }) => {
   const { values, setFieldValue, errors } = useReportEditContext();
-
   const schedule = values.events.length > index ? values.events[index] : undefined;
 
-  console.log(schedule);
   return (
     <Row gap="1rem" className="schedule" nowrap>
       <Col gap="0.25rem" className="frm-in">
