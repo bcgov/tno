@@ -52,13 +52,13 @@ export const ElasticQueryHelp: React.FC<IElasticQueryHelpProps> = ({
             The keywords query supports the following operators:
             <ul>
               <Row className="row">
-                <code>AND</code> <code>+</code> signifies AND operation
+                <code>AND</code> <code>&&</code> <code>+</code> signifies AND operation
               </Row>
               <Row className="row">
                 <code>OR</code> <code>||</code> signifies OR operation
               </Row>
               <Row className="row">
-                <code>NOT</code> <code>-</code> negates a single token
+                <code>NOT</code> <code>!</code> <code>-</code> negates a single token
               </Row>
               <Row className="row">
                 <code>"</code> wraps a number of tokens to signify a phrase for searching
