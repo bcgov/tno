@@ -22,6 +22,7 @@ export const ReportSchedule: React.FC<IReportScheduleProps> = ({ index, label })
 
   const schedule = values.events.length > index ? values.events[index] : undefined;
 
+  console.log(schedule);
   return (
     <Row gap="1rem" className="schedule" nowrap>
       <Col gap="0.25rem" className="frm-in">
@@ -44,8 +45,9 @@ export const ReportSchedule: React.FC<IReportScheduleProps> = ({ index, label })
           </p>
         </Col>
       </Col>
-      <Col className="frm-in">
+      <Col className="frm-in run-on">
         <label>Run On</label>
+        <div role="alert">{getIn(errors, `events.${index}.runOnWeekDays`)}</div>
         <FormikStringEnumCheckbox<ScheduleWeekDayName>
           label="Monday"
           name={`events.${index}.runOnWeekDays`}
