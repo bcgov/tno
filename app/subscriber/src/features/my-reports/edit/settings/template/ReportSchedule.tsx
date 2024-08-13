@@ -19,7 +19,6 @@ export interface IReportScheduleProps {
 
 export const ReportSchedule: React.FC<IReportScheduleProps> = ({ index, label }) => {
   const { values, setFieldValue, errors } = useReportEditContext();
-
   const schedule = values.events.length > index ? values.events[index] : undefined;
 
   return (
@@ -44,8 +43,9 @@ export const ReportSchedule: React.FC<IReportScheduleProps> = ({ index, label })
           </p>
         </Col>
       </Col>
-      <Col className="frm-in">
+      <Col className="frm-in run-on">
         <label>Run On</label>
+        <div role="alert">{getIn(errors, `events.${index}.runOnWeekDays`)}</div>
         <FormikStringEnumCheckbox<ScheduleWeekDayName>
           label="Monday"
           name={`events.${index}.runOnWeekDays`}

@@ -67,4 +67,9 @@ export const NotificationForm = styled(FormPage)`
   .grid {
     margin-bottom: 1rem;
   }
+
+  .checkbox-filter {
+    margin-left: 0.1em;
+    margin-right: 1em;
+  }
 `;

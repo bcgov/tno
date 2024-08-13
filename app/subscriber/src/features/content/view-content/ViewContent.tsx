@@ -11,6 +11,7 @@ import { FaCopyright } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApiHub, useContent, useWorkOrders } from 'store/hooks';
+import useMobile from 'store/hooks/app/useMobile';
 import { useMinisters } from 'store/hooks/subscriber/useMinisters';
 import { useProfileStore } from 'store/slices';
 import {
@@ -65,6 +66,8 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
   const [, api] = useMinisters();
   const [, { transcribe, findWorkOrders }] = useWorkOrders();
   const hub = useApiHub();
+  const isMobile = useMobile();
+  const topRef = React.useRef<HTMLDivElement>(null);
 
   // flag to keep track of the bolding completion in my minister view
   const [boldingComplete, setBoldingComplete] = React.useState(false);
@@ -119,6 +122,13 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
       // Ignore this failure it is handled by our global ajax requests.
     }
   }, [workOrders, transcribe, content]);
+
+  // scroll to top when navigating to new content from a mobile device
+  React.useEffect(() => {
+    if (isMobile && topRef.current) {
+      topRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [id, isMobile]);
 
   React.useEffect(() => {
     if (!ministers.length) {
@@ -280,7 +290,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
   }, [cleanBody, cleanSummary]);
 
   return (
-    <styled.ViewContent className={`${!!popout && 'popout'}`}>
+    <styled.ViewContent className={`${!!popout && 'popout'}`} ref={topRef}>
       <div className="headline">{formattedHeadline}</div>
       <Bar className="info-bar" vanilla>
         <Show visible={!!content?.byline}>

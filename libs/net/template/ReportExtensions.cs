@@ -120,16 +120,23 @@ public static partial class ReportExtensions
         var search = settings?.Search;
         if (String.IsNullOrWhiteSpace(search)) return;
 
-        var keywords = settings!.Search!.ExtractKeywords(settings.QueryType);
-        var headline = content.Headline.MarkKeywords(keywords);
-        var summary = content.Summary.MarkKeywords(keywords);
-        var body = content.Body.MarkKeywords(keywords);
-        var byline = content.Byline.MarkKeywords(keywords);
+        try
+        {
+            var keywords = settings!.Search!.ExtractKeywords(settings.QueryType);
+            var headline = content.Headline.MarkKeywords(keywords);
+            var summary = content.Summary.MarkKeywords(keywords);
+            var body = content.Body.MarkKeywords(keywords);
+            var byline = content.Byline.MarkKeywords(keywords);
 
-        content.Headline = headline;
-        content.Summary = summary;
-        content.Body = body;
-        content.Byline = byline;
+            content.Headline = headline;
+            content.Summary = summary;
+            content.Body = body;
+            content.Byline = byline;
+        }
+        catch
+        {
+            // Ignore errors for now
+        }
     }
 
     /// <summary>

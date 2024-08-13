@@ -330,7 +330,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                     return;
                 }
             }
-            var mediaType = contentMigrator.GetMediaTypeMapping(_lookups.MediaTypes, newsItem.Type);
+            var mediaType = contentMigrator.GetMediaTypeMapping(_lookups.MediaTypes, newsItem.Type, source);
             if (mediaType == null)
             {
                 this.Logger.LogWarning("Couldn't map to Media Type for NewsItem with type '{sourceName}'", newsItem.Type);

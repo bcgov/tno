@@ -19,4 +19,9 @@ export const ProductForm = styled(FormPage)`
     border-radius: 0.5rem;
     background: ${(props) => props.theme.css.lightAccentColor};
   }
+
+  .checkbox-filter {
+    margin-left: 0.1em;
+    margin-right: 1em;
+  }
 `;

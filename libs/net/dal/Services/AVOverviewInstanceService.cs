@@ -40,7 +40,8 @@ public class AVOverviewInstanceService : BaseService<AVOverviewInstance, long>, 
     /// <returns></returns>
     public AVOverviewInstance? FindByDate(DateTime publishedOn)
     {
-        var date = new DateTime(publishedOn.Year, publishedOn.Month, publishedOn.Day, 0, 0, 0, DateTimeKind.Utc);
+        var startDate = new DateTime(publishedOn.Year, publishedOn.Month, publishedOn.Day, 0, 0, 0, DateTimeKind.Utc);
+        var endDate = new DateTime(publishedOn.Year, publishedOn.Month, publishedOn.Day, 23, 59, 59, DateTimeKind.Utc);
         return this.Context.AVOverviewInstances
             .AsNoTracking()
             .Include(i => i.Template)
@@ -48,7 +49,7 @@ public class AVOverviewInstanceService : BaseService<AVOverviewInstance, long>, 
             .Include(i => i.Sections).ThenInclude(s => s.Series)
             .Include(i => i.Sections).ThenInclude(s => s.Items).ThenInclude(i => i.Content).ThenInclude(c => c!.FileReferences)
             .OrderByDescending(r => r.PublishedOn)
-            .Where(i => i.PublishedOn == date)
+            .Where(i => i.PublishedOn >= startDate && i.PublishedOn <= endDate)
             .FirstOrDefault();
     }
 

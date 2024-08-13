@@ -77,6 +77,14 @@ export const ReportEditForm = styled.div`
   }
 
   .report-edit-section {
+    div[role='alert'] {
+      color: ${(props) => props.theme.css.fRedColor};
+    }
+    .run-on {
+      p[role='alert'] {
+        display: none;
+      }
+    }
     flex: 1;
     position: relative;
 

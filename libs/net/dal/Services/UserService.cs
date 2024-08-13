@@ -70,6 +70,10 @@ public class UserService : BaseService<User, int>, IUserService
             predicate = predicate.And(c => filter.AccountTypes.Contains(c.AccountType));
         if (filter.IsSubscribedToReportId.HasValue)
             predicate = predicate.And(c => c.ReportSubscriptionsManyToMany.Any(rs => rs.IsSubscribed && rs.ReportId == filter.IsSubscribedToReportId.Value));
+        if (filter.IsSubscribedToNotificationId.HasValue)
+            predicate = predicate.And(c => c.NotificationSubscriptionsManyToMany.Any(rs => rs.IsSubscribed && rs.NotificationId == filter.IsSubscribedToNotificationId.Value));
+        if (filter.IsSubscribedToProductId.HasValue)
+            predicate = predicate.And(c => c.ProductSubscriptionsManyToMany.Any(rs => rs.IsSubscribed && rs.ProductId == filter.IsSubscribedToProductId.Value));
 
         if (filter.IncludeUserId.HasValue)
             predicate = PredicateBuilder.Or<User>(u => u.Id == filter.IncludeUserId, predicate);
