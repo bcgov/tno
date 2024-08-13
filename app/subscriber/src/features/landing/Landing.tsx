@@ -55,6 +55,8 @@ export const Landing: React.FC = () => {
     if (isMobile) {
       window.scrollTo(0, 0);
     }
+    // only want to fire when id changes (user navigates to a new section)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   React.useEffect(() => {
