@@ -280,8 +280,8 @@ public static class StringExtensions
             Regex tagRegex = new Regex(@"<\s*([^ >]+)[^>]*>.*?<\s*/\s*\1\s*>");
             const string PARAGRAPH_MARKER = "##paragraph_end##`";
 
-            // Add space after punctuation mark
-            sanitizedString = Regex.Replace(sanitizedString, @"[\?\.\!\;\,\:]\s*", "$0 ");
+            // Add space after the punctuation mark, except there is space/new line/quote after the punctuation mark
+            sanitizedString = Regex.Replace(sanitizedString, @"[\?\.\!\;\,\:](?![\n|""|'|\r|\r\n|\s+])", "$0 ");
 
             // if the input string is not markup, sanitize it
             if (!tagRegex.IsMatch(sanitizedString))
