@@ -1,4 +1,9 @@
-import { EmailSendToName, ReportDistributionFormatName, ReportStatusName } from '../constants';
+import {
+  EmailSendToName,
+  ReportDistributionFormatName,
+  ReportStatusName,
+  UserAccountTypeName,
+} from '../constants';
 import { IUserModel } from './IUserModel';
 
 export interface IUserReportModel {
@@ -18,6 +23,7 @@ export interface IUserReportModel {
   firstName: string;
   lastName: string;
   isEnabled: boolean;
+  accountType: UserAccountTypeName;
 
   /** Whether the user is subscribed to this report. */
   isSubscribed: boolean;
