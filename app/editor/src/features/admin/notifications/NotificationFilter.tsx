@@ -1,13 +1,19 @@
 import React from 'react';
-import { IconButton, Row, Text } from 'tno-core';
+import { Checkbox, IconButton, Row, Text } from 'tno-core';
 
 interface IAdminFilterProps {
+  notificationId?: number;
   onFilterChange?: (value: string) => void;
-  onSearch?: (value: string) => void;
+  onSearch?: (value: string, isSubscribedToNotificationId: number | undefined) => void;
 }
 
-export const NotificationFilter: React.FC<IAdminFilterProps> = ({ onFilterChange, onSearch }) => {
+export const NotificationFilter: React.FC<IAdminFilterProps> = ({
+  notificationId,
+  onFilterChange,
+  onSearch,
+}) => {
   const [filter, setFilter] = React.useState<string>('');
+  const [isSubscribedId, setIsSubscribedId] = React.useState<number>();
   return (
     <Row className="filter-bar" justifyContent="center">
       <Text
@@ -16,7 +22,7 @@ export const NotificationFilter: React.FC<IAdminFilterProps> = ({ onFilterChange
           onFilterChange?.(e.target.value);
         }}
         onKeyUp={(e) => {
-          if (e.code === 'Enter') onSearch?.(filter);
+          if (e.code === 'Enter') onSearch?.(filter, isSubscribedId);
         }}
         placeholder="Search by keyword"
         name="search"
@@ -26,17 +32,31 @@ export const NotificationFilter: React.FC<IAdminFilterProps> = ({ onFilterChange
           <IconButton
             iconType="search"
             onClick={() => {
-              onSearch?.(filter);
+              onSearch?.(filter, isSubscribedId);
             }}
           />
         )}
       </Text>
+      {notificationId && (
+        <Checkbox
+          name="isSubscribed"
+          label="Is subscribed"
+          className="checkbox-filter"
+          checked={!!isSubscribedId}
+          onChange={(e) => {
+            const s = e.target.checked ? notificationId : undefined;
+            setIsSubscribedId(s);
+            onSearch?.(filter, s);
+          }}
+        />
+      )}
       <IconButton
         iconType="reset"
         onClick={() => {
+          setIsSubscribedId(undefined);
           setFilter('');
           onFilterChange?.('');
-          onSearch?.('');
+          onSearch?.('', undefined);
         }}
       />
     </Row>

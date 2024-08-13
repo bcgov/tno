@@ -30,8 +30,14 @@ export const NotificationSubscribersForm = () => {
   return (
     <div>
       <NotificationFilter
-        onSearch={async (value: string) => {
-          await findUsers({ page: 1, quantity: users.quantity, keyword: value });
+        notificationId={values.id}
+        onSearch={async (value: string, isSubscribedToNotificationId: number | undefined) => {
+          await findUsers({
+            page: 1,
+            quantity: users.quantity,
+            keyword: value,
+            isSubscribedToNotificationId: isSubscribedToNotificationId,
+          });
         }}
       />
       <Grid
@@ -62,7 +68,7 @@ export const NotificationSubscribersForm = () => {
         ]}
         renderColumns={(row: IUserModel) => [
           <Checkbox
-            key=""
+            key="1"
             name={`chk-${row.id}`}
             checked={values.subscribers.some((u) => u.id === row.id && u.isSubscribed)}
             onChange={(e) => {
@@ -75,9 +81,9 @@ export const NotificationSubscribersForm = () => {
               else setFieldValue('subscribers', [user, ...values.subscribers]);
             }}
           />,
-          <CellEllipsis key="">{row.username}</CellEllipsis>,
-          <CellEllipsis key="">{row.lastName}</CellEllipsis>,
-          <CellEllipsis key="">{row.firstName}</CellEllipsis>,
+          <CellEllipsis key="2">{row.username}</CellEllipsis>,
+          <CellEllipsis key="3">{row.lastName}</CellEllipsis>,
+          <CellEllipsis key="4">{row.firstName}</CellEllipsis>,
           <>
             <CellEllipsis>{row.email}</CellEllipsis>
             {row.preferredEmail ? (
