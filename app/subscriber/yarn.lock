@@ -10670,7 +10670,7 @@ __metadata:
     sheetjs: "file:packages/xlsx-0.20.1.tgz"
     styled-components: 6.1.11
     stylis: 4.3.2
-    tno-core: ./tno-core-0.1.131.tgz
+    tno-core: 0.1.132
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -14702,46 +14702,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@file:./tno-core-0.1.131.tgz::locator=mmi-subscriber-app%40workspace%3A.":
-  version: 0.1.131
-  resolution: "tno-core@file:./tno-core-0.1.131.tgz::locator=mmi-subscriber-app%40workspace%3A."
-  dependencies:
-    "@elastic/elasticsearch": ^8.13.1
-    "@fortawesome/free-solid-svg-icons": ^6.4.2
-    "@fortawesome/react-fontawesome": ^0.2.0
-    "@headlessui/react": ^2.0.4
-    "@react-keycloak/web": ^3.4.0
-    axios: ^1.7.2
-    dequal: ^2.0.3
-    formik: ^2.4.6
-    js-beautify: ^1.14.11
-    keycloak-js: ^24.0.4
-    lodash: ^4.17.21
-    lodash.throttle: ^4.1.1
-    moment: ^2.29.4
-    moment-timezone: ^0.5.41
-    rc-slider: ^10.2.1
-    react: ^18.2.0
-    react-beautiful-dnd: ^13.1.1
-    react-datepicker: ^6.9.0
-    react-dom: ^18.2.0
-    react-icons: ^5.2.1
-    react-inlinesvg: ^4.1.3
-    react-quill: ^2.0.0
-    react-router-dom: ^6.9.0
-    react-select: ^5.8.0
-    react-table: ^7.8.0
-    react-text-mask: ^5.5.0
-    react-toastify: ^10.0.5
-    react-tooltip: ^5.10.0
-    styled-components: ^6.1.11
-    stylis: ^4.3.2
-    tno-core: 0.1.121
-    yup: ^1.1.1
-  checksum: fd35f09563386afe76ce2098be6508aea0ac93e87db0186ffb5d91500b8354d1a6a7c4f033dd8358a8ae38b623b82fc118fb87603550138102ae312c052a7979
-  languageName: node
-  linkType: hard
-
 "tno-core@npm:0.1.121":
   version: 0.1.121
   resolution: "tno-core@npm:0.1.121"
@@ -14778,6 +14738,46 @@ __metadata:
     stylis: ^4.3.2
     yup: ^1.1.1
   checksum: 6340d9078452e1567f87aef9f5533d9404456706f9a9e78b254575bf7b9d527ff6cb51ae7426431f4bed0a444818fabe95311942133dde7c81e3ab6495ae2059
+  languageName: node
+  linkType: hard
+
+"tno-core@npm:0.1.132":
+  version: 0.1.132
+  resolution: "tno-core@npm:0.1.132"
+  dependencies:
+    "@elastic/elasticsearch": ^8.13.1
+    "@fortawesome/free-solid-svg-icons": ^6.4.2
+    "@fortawesome/react-fontawesome": ^0.2.0
+    "@headlessui/react": ^2.0.4
+    "@react-keycloak/web": ^3.4.0
+    axios: ^1.7.2
+    dequal: ^2.0.3
+    formik: ^2.4.6
+    js-beautify: ^1.14.11
+    keycloak-js: ^24.0.4
+    lodash: ^4.17.21
+    lodash.throttle: ^4.1.1
+    moment: ^2.29.4
+    moment-timezone: ^0.5.41
+    rc-slider: ^10.2.1
+    react: ^18.2.0
+    react-beautiful-dnd: ^13.1.1
+    react-datepicker: ^6.9.0
+    react-dom: ^18.2.0
+    react-icons: ^5.2.1
+    react-inlinesvg: ^4.1.3
+    react-quill: ^2.0.0
+    react-router-dom: ^6.9.0
+    react-select: ^5.8.0
+    react-table: ^7.8.0
+    react-text-mask: ^5.5.0
+    react-toastify: ^10.0.5
+    react-tooltip: ^5.10.0
+    styled-components: ^6.1.11
+    stylis: ^4.3.2
+    tno-core: 0.1.121
+    yup: ^1.1.1
+  checksum: 5fd1f0a93f87c370018c0eb41f079401ffdc9b6e2265fb6acdcddef1835e0a75e9d24919a44a14abb1e4e3de9dfdd7c60564646819aaf900ab20d56fb49164d3
   languageName: node
   linkType: hard
 
