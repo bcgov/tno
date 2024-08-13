@@ -63,7 +63,7 @@ export const ReportContentSectionRow: React.FC<IReportContentSectionRowProps> = 
   if (!row.content) return <></>;
 
   const headline = row.content.versions?.[userId]?.headline
-    ? (row.content.versions[userId].headline ?? '')
+    ? row.content.versions[userId].headline ?? ''
     : row.content.headline;
   const sentiment = row.content.tonePools?.length ? row.content.tonePools[0].value : undefined;
 
