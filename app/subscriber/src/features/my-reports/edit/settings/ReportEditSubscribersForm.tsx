@@ -3,7 +3,7 @@ import { Button } from 'components/button';
 import React from 'react';
 import { FaCopy, FaTrash, FaUserPlus, FaUsers } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { useApp, useReports } from 'store/hooks';
+import { useApp, useReports, useUsers } from 'store/hooks';
 import {
   Checkbox,
   Claim,
@@ -21,6 +21,7 @@ import {
   Text,
   useApiAdminUsers,
   useModal,
+  UserAccountTypeName,
   validateEmail,
 } from 'tno-core';
 
@@ -31,6 +32,7 @@ export const ReportEditSubscribersForm = () => {
   const { values, setFieldValue } = useReportEditContext();
   const [{ userInfo }] = useApp();
   const { findUsers } = useApiAdminUsers();
+  const { getDistributionListById } = useUsers();
   const [emailForAdd, setEmailForAdd] = React.useState('');
   const [emailForRequest, setEmailForRequest] = React.useState('');
   const { toggle, isShowing } = useModal();
@@ -139,12 +141,49 @@ export const ReportEditSubscribersForm = () => {
     }
   };
 
-  const handleCopySelected = () => {
-    const selectedData = values.subscribers
-      .filter((subscriber) => selectedSubscribers.includes(subscriber.userId))
-      .map(({ email }) => email)
-      .join(',');
-    navigator.clipboard.writeText(selectedData);
+  const handleCopySelected = async () => {
+    const selectedSubscribersData = values.subscribers.filter((subscriber) =>
+      selectedSubscribers.includes(subscriber.userId),
+    );
+
+    const allEmails = await Promise.all(
+      selectedSubscribersData.map(async (subscriber) => {
+        if (subscriber.accountType === UserAccountTypeName.Distribution) {
+          // Fetch emails related to a distribution list.
+          const users = await getDistributionListById(subscriber.userId);
+          return users.map((user: { email: string }) => ({
+            email: user.email,
+            userId: subscriber.userId,
+          }));
+        } else {
+          // Regular subscriber
+          return [
+            {
+              email: subscriber.email,
+              userId: subscriber.userId,
+            },
+          ];
+        }
+      }),
+    );
+
+    const flattenedEmails = allEmails.flat();
+
+    // Remove duplicates based on the 'email' field
+    const uniqueEmails = flattenedEmails.reduce(
+      (acc: Array<{ email: string; userId: number }>, current) => {
+        const x = acc.find((item) => item.email === current.email);
+        if (!x) {
+          acc.push(current);
+        }
+        return acc;
+      },
+      [],
+    );
+
+    const emailString = uniqueEmails.map((item) => item.email).join(',');
+
+    navigator.clipboard.writeText(emailString);
     toast.success('Selected subscribers copied to clipboard.');
   };
 
