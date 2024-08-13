@@ -1,7 +1,7 @@
 import {
   FaArrowRotateLeft,
   FaArrowRotateRight,
-  FaArrowsSpin,
+  FaArrowsRotate,
   FaArrowUpRightFromSquare,
   FaChevronDown,
   FaChevronUp,
@@ -66,7 +66,7 @@ export const Action: React.FC<IActionProps> = ({
   else if (variant === 'trash') variantIcon = <FaTrash />;
   else if (variant === 'pen') variantIcon = <FaPen />;
   else if (variant === 'open') variantIcon = <FaArrowUpRightFromSquare />;
-  else if (variant === 'refresh') variantIcon = <FaArrowsSpin />;
+  else if (variant === 'refresh') variantIcon = <FaArrowsRotate />;
   else if (variant === 'chevron-up') variantIcon = <FaChevronUp />;
   else if (variant === 'chevron-down') variantIcon = <FaChevronDown />;
   else if (variant === 'undo') variantIcon = <FaArrowRotateLeft />;
