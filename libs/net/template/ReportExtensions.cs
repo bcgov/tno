@@ -135,6 +135,7 @@ public static partial class ReportExtensions
         }
         catch
         {
+            // TODO: Log errors so that they can be resolved.
             // Ignore errors for now
         }
     }

@@ -1,0 +1,85 @@
+---
+# How the app will be deployed to the pod.
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: oracle-db
+  namespace: default
+  annotations:
+    description: Defines how to deploy oracle-db
+  labels:
+    name: oracle-db
+    part-of: tno
+    version: 1.0.0
+    component: oracle-db
+    managed-by: kustomize
+spec:
+  replicas: 1
+  selector:
+    name: oracle-db
+    part-of: tno
+    component: oracle-db
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      name: oracle-db
+      labels:
+        name: oracle-db
+        part-of: tno
+        component: oracle-db
+    spec:
+      volumes:
+        - name: oracle-db
+          persistentVolumeClaim:
+            claimName: oracle-db
+      containers:
+        - name: oracle-db
+          image: ""
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: oracle-db
+              mountPath: /opt/oracle/oradata
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 20000Mi
+            requests:
+              cpu: 1000m
+              memory: 20000Mi
+          env:
+            # .NET Configuration
+            - name: ORACLE_SID
+              value: TNO
+            - name: ORACLE_CHARACTERSET
+              value: WE8ISO8859P1
+            - name: ORACLE_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: oracle-db
+                  key: ORACLE_PWD
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - oracle-db
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: oracle-db:prod

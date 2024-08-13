@@ -88,13 +88,14 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
             predicate = predicate.And(ni => ni.UpdatedOn <= importDateEnd.Value.ToUniversalTime());
 
         return _sourceContext.Set<T>()
+            .AsNoTracking()
             .Include(m => m.Topics)
             .Include(m => m.Tones)
             .Where(predicate)
             .OrderBy(ni => ni.UpdatedOn) // oldest first
             .ThenBy(ni => ni.ItemTime) // oldest first
             .ThenBy(ni => ni.RSN)
-            .AsSplitQuery();
+            .AsSingleQuery();
     }
 
     /// <summary>
@@ -111,7 +112,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     /// <param name="skip"></param>
     /// <returns></returns>
     private NewsItem[] GetNewsItems(
-        TNO.Entities.ContentType contentType,
+        ContentType contentType,
         ImportMigrationType importMigrationType,
         IContentMigrator contentMigrator,
         bool publishedOnly,

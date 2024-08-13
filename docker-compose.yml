@@ -353,7 +353,6 @@ services:
     profiles:
       - all
       - utility
-      - elastic
       - service
     restart: "no"
     container_name: tno-oracle
@@ -365,6 +364,7 @@ services:
       - ${ORACLE_DATABASE_PORT:-41521}:1521
     volumes:
       - tno-oracle-data:/opt/oracle/oradata
+      - /d/TNO-Backup:/data
     extra_hosts:
       - host.docker.internal:host-gateway
     networks:
