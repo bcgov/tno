@@ -4,7 +4,7 @@ import { StartNextReportInfo } from 'features/my-reports/components';
 import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import { toForm } from 'features/my-reports/utils';
 import React from 'react';
-import { FaArrowsSpin, FaToggleOff, FaToggleOn } from 'react-icons/fa6';
+import { FaArrowsRotate, FaToggleOff, FaToggleOn } from 'react-icons/fa6';
 import { FaAngleDown, FaMinus } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
 import { useReports, useUsers } from 'store/hooks';
@@ -108,7 +108,8 @@ export const ReportEditContentForm = React.forwardRef<
         <div>
           <Show visible={!disabled}>
             <Action
-              icon={<FaArrowsSpin />}
+              className="icon-refresh"
+              icon={<FaArrowsRotate />}
               label="Regenerate report"
               disabled={isSubmitting}
               onClick={(e) => toggle()}

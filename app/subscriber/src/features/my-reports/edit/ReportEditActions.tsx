@@ -3,7 +3,13 @@ import { Button } from 'components/button';
 import { Modal } from 'components/modal';
 import React from 'react';
 import { FaSave } from 'react-icons/fa';
-import { FaArrowsSpin, FaCaretRight, FaFileCirclePlus, FaLockOpen, FaTrash } from 'react-icons/fa6';
+import {
+  FaArrowsRotate,
+  FaCaretRight,
+  FaFileCirclePlus,
+  FaLockOpen,
+  FaTrash,
+} from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { useReportInstances } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
@@ -108,7 +114,8 @@ export const ReportEditActions = ({
       <Show visible={!instance?.sentOn && active?.startsWith(ReportMainMenuOption.View)}>
         <Col flex="1" alignItems="flex-start">
           <Action
-            icon={<FaArrowsSpin className="icon-green" />}
+            className="icon-refresh"
+            icon={<FaArrowsRotate />}
             label="Refresh Preview"
             onClick={() => instance && handleViewReport(instance.id, true)}
           />
