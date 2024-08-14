@@ -16,9 +16,6 @@ export const SearchPage = styled.div<{ expanded: boolean }>`
   }
   .header-row {
     width: 100%;
-    .view-options {
-      margin-left: auto;
-    }
   }
   .result-total {
     font-size: 0.5em;

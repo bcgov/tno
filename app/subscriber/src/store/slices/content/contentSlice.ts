@@ -45,6 +45,9 @@ export const contentSlice = createSlice({
     storeTopStoriesFilter(state: IContentState, action: PayloadAction<IFilterSettingsModel>) {
       state.topStories.filter = action.payload;
     },
+    storeSearchResultsFilter(state: IContentState, action: PayloadAction<IFilterSettingsModel>) {
+      state.searchResults.filter = action.payload;
+    },
     storeSearchContent(
       state: IContentState,
       action: PayloadAction<KnnSearchResponse<IContentModel> | undefined>,
@@ -109,4 +112,5 @@ export const {
   storeTodaysCommentaryContent,
   storeTopStoriesContent,
   storeMediaTypeFilter,
+  storeSearchResultsFilter,
 } = contentSlice.actions;

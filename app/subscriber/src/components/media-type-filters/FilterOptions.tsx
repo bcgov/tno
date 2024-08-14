@@ -33,7 +33,8 @@ export interface IMediaTypeFiltersProps {
     | 'topStories'
     | 'avOverview'
     | 'eventOfTheDay'
-    | 'pressGalleryFilter';
+    | 'pressGalleryFilter'
+    | 'searchResults';
 }
 
 /**

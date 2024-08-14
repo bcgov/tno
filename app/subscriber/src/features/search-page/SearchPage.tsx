@@ -1,6 +1,7 @@
 import { BasicSearch } from 'components/basic-search';
 import { ContentList, ViewOptions } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
+import { FilterOptions } from 'components/media-type-filters';
 import { PageSection } from 'components/section';
 import { ContentListActionBar } from 'components/tool-bar';
 import { useElastic } from 'features/my-searches/hooks';
@@ -37,8 +38,9 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   const [
     {
       search: { filter, content },
+      searchResults: { filter: secondaryFilter },
     },
-    { findContentWithElasticsearch, storeSearchFilter },
+    { findContentWithElasticsearch, storeSearchFilter, storeSearchResultsFilter },
   ] = useContent();
   const [{ frontPageImagesMediaTypeId }] = useLookup();
   const { width } = useWindowSize();
@@ -77,7 +79,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   }, [activeFilter, getFilter, filterId, init, storeFilter, storeSearchFilter, id]);
 
   const groupResults = React.useCallback(
-    (res: any, currStartDate: Date, currEndDate: Date, prevStartDate: Date) => {
+    (res: any, currStartDate: Date, currEndDate: Date, groupStoredContent: boolean) => {
       const currDateResults: IContentSearchResult[] = [],
         prevDateResults: IContentSearchResult[] = [];
       res.hits.hits.forEach((h: { _source: IContentSearchResult }) => {
@@ -95,13 +97,45 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
       setCurrDateResults(currDateResults);
       setPrevDateResults(prevDateResults);
       setTotalResults(currDateResults.length + prevDateResults.length);
-      if (res.hits.total.value === 0) toast.warn('No results found.');
-      if (res.hits.total.value >= 500)
-        toast.warn(
-          'Search returned 500+ results, only showing first 500. Please consider refining your search.',
-        );
+      if (!groupStoredContent) {
+        if (res.hits.total.value === 0) toast.warn('No results found.');
+        if (res.hits.total.value >= 500)
+          toast.warn(
+            'Search returned 500+ results, only showing first 500. Please consider refining your search.',
+          );
+      }
     },
     [],
+  );
+
+  // Check the secondary filter (FilterOptions component) and merge the options according to each search criteria.
+  const mergeFilters = React.useCallback(
+    (currentFilter: IFilterSettingsModel) => {
+      const newFilter = { ...currentFilter };
+      if (newFilter.contentTypes) {
+        const contentTypesArray = [...newFilter.contentTypes];
+        secondaryFilter.contentTypes?.forEach((c) => {
+          contentTypesArray.push(c);
+        });
+        newFilter.contentTypes = contentTypesArray;
+      }
+      if (
+        newFilter.mediaTypeIds &&
+        secondaryFilter.mediaTypeIds &&
+        secondaryFilter.mediaTypeIds.length > 0
+      ) {
+        newFilter.mediaTypeIds = secondaryFilter.mediaTypeIds;
+      }
+      if (
+        newFilter.sourceIds &&
+        secondaryFilter.sourceIds &&
+        secondaryFilter.sourceIds.length > 0
+      ) {
+        newFilter.sourceIds = secondaryFilter.sourceIds;
+      }
+      return newFilter;
+    },
+    [secondaryFilter],
   );
 
   const fetchResults = React.useCallback(
@@ -135,23 +169,32 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
             endDate: currEndDate.toISOString(),
           };
         }
+        newFilter = mergeFilters(newFilter);
         const settings = filterFormat(newFilter);
         const query = genQuery(settings);
         let res;
+        let groupStoredContent = false;
         if (!storedContent) {
           res = await findContentWithElasticsearch(query, filter.searchUnpublished, 'search');
         } else {
           res = storedContent;
+          groupStoredContent = true;
         }
-
-        groupResults(res, currStartDate, currEndDate, prevStartDate);
+        groupResults(res, currStartDate, currEndDate, groupStoredContent);
       } catch {
       } finally {
         setIsLoading(false);
       }
     },
-    [findContentWithElasticsearch, genQuery, groupResults],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [findContentWithElasticsearch, genQuery, groupResults, mergeFilters],
   );
+
+  React.useEffect(() => {
+    storeSearchResultsFilter(secondaryFilter);
+    fetchResults(filter);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [secondaryFilter]);
 
   React.useEffect(() => {
     // only fetch this when there's no call to the elastic search
@@ -212,6 +255,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
               <Col className="header-col">
                 <Row className="header-row">
                   <div className="title">{`Search Results`}</div>
+                  <FilterOptions filterStoreName={'searchResults'} />
                   <ViewOptions />
                 </Row>
                 {!!totalResults && (
