@@ -109,6 +109,10 @@ export const Papers = styled(FormPage)`
         padding: 0 0.15rem;
       }
     }
+    .shortcut-key {
+      text-decoration: underline;
+      font-weight: bold;
+    }
   }
 
   .grid-table:nth-child(2) {
