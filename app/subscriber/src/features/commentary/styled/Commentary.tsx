@@ -27,7 +27,7 @@ export const Commentary = styled.div`
   .action-refresh:hover svg {
     transform: rotate(-90deg);
   }
-  &:active svg {
+  action-refresh:active svg {
     color: #26e194 !important;
   }
 `;
