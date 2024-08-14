@@ -21,6 +21,7 @@ import {
   IWorkOrderFilter,
   IWorkOrderMessageModel,
   IWorkOrderModel,
+  Loading,
   LogicalOperator,
   MessageTargetKey,
   Page,
@@ -594,6 +595,9 @@ const ContentListView: React.FC = () => {
         </Row>
         <Show visible={combined}>
           <hr />
+          <Show visible={isLoading}>
+            <Loading />
+          </Show>
           <Row className="bottom-pane" id="bottom-pane">
             <ContentForm contentType={contentType} />
           </Row>
