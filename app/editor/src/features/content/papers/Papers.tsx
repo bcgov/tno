@@ -68,7 +68,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
   const [, setCurrentItems] = useLocalStorage('currentContent', {} as IContentSearchResult[]);
   const [currentItemId, setCurrentItemId] = useLocalStorage('currentContentItemId', -1);
 
-  const [, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
   const [isFilterLoading, setIsFilterLoading] = React.useState(true);
   const [selected, setSelected] = React.useState<IContentSearchResult[]>([]);
   const [focusedRowIndex, setFocusedRowIndex] = React.useState(id);
