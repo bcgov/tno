@@ -16,7 +16,9 @@ import {
   ValueType,
 } from 'tno-core';
 
+import { ActionNames } from './constants/actionsEnum';
 import { IContentForm } from './interfaces';
+import { StyledShortcutKey } from './styled';
 import { getDefaultCommentaryExpiryValue } from './utils';
 
 export interface IContentActionsProps {
@@ -136,14 +138,19 @@ export const ContentActions = React.forwardRef<HTMLDivElement, IContentActionsPr
 
         if (e.ctrlKey) {
           switch (e.code) {
-            case 'KeyC':
-              handleToggleAction('Commentary');
+            case 'KeyM':
+              handleToggleAction(ActionNames.Commentary);
               break;
-            case 'KeyO':
-              handleToggleAction('Top Story');
+            case 'KeyI':
+              handleToggleAction(ActionNames.TopStory);
               break;
-            case 'KeyF':
-              handleToggleAction('Featured Story');
+            case 'KeyU':
+              e.preventDefault();
+              handleToggleAction(ActionNames.FeaturedStory);
+              break;
+            case 'KeyL':
+              e.preventDefault();
+              handleToggleAction(ActionNames.NonQualifiedSubject);
               break;
             default:
               break;
@@ -163,12 +170,41 @@ export const ContentActions = React.forwardRef<HTMLDivElement, IContentActionsPr
     const inputs = options.map((a, rowIndex) => {
       const actionIndex = formActions.findIndex((ca) => ca.id === a.id);
       const found = formActions[actionIndex];
+      const labelContent = (() => {
+        if (a.name === 'Top Story') {
+          return (
+            <div>
+              Top Stor<StyledShortcutKey>i</StyledShortcutKey>es
+            </div>
+          );
+        } else if (a.name === 'Commentary') {
+          return (
+            <div>
+              Co<StyledShortcutKey>m</StyledShortcutKey>mentary
+            </div>
+          );
+        } else if (a.name === 'Featured Story') {
+          return (
+            <div>
+              Feat<StyledShortcutKey>u</StyledShortcutKey>red Stories
+            </div>
+          );
+        } else if (a.name === 'Non Qualified Subject') {
+          return (
+            <div>
+              Non Qua<StyledShortcutKey>l</StyledShortcutKey>ified Subject
+            </div>
+          );
+        } else {
+          return a.name;
+        }
+      })();
       return (
         <React.Fragment key={a.id}>
           {addRowOn?.(a, rowIndex) && <div className="forceFlexRow"></div>}
           {a.valueType === ValueType.Boolean && (
             <FormikCheckbox
-              label={a.name}
+              label={labelContent}
               name={field('value', actionIndex)}
               value="true"
               checked={found?.value === 'true'}
@@ -180,7 +216,7 @@ export const ContentActions = React.forwardRef<HTMLDivElement, IContentActionsPr
           )}
           {a.valueType !== ValueType.Boolean && (
             <Checkbox
-              label={a.name}
+              label={labelContent}
               name={field('placeholder', actionIndex)}
               value={true}
               checked={!!hidden.find((h) => h.id === a.id)?.value}
