@@ -43,4 +43,7 @@ export interface IContentState {
   eventOfTheDay: {
     filter: IFilterSettingsModel;
   };
+  searchResults: {
+    filter: IFilterSettingsModel;
+  };
 }

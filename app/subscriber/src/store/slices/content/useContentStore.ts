@@ -18,6 +18,7 @@ import {
   storeMyMinisterFilter,
   storeSearchContent,
   storeSearchFilter,
+  storeSearchResultsFilter,
   storeTodaysCommentaryContent,
   storeTodaysCommentaryFilter,
   storeTopStoriesContent,
@@ -40,6 +41,7 @@ export interface IContentStore {
   storeMyMinisterFilter: (filter: IFilterSettingsModel) => void;
   storeTodaysCommentaryFilter: (filter: IFilterSettingsModel) => void;
   storeHomeFilter: (filter: IFilterSettingsModel) => void;
+  storeSearchResultsFilter: (filter: IFilterSettingsModel) => void;
   storeTopStoriesFilter: (filter: IFilterSettingsModel) => void;
   storeSearchContent: (content: KnnSearchResponse<IContentModel>) => void;
   storeFrontPageContent: (content: KnnSearchResponse<IContentModel>) => void;
@@ -88,6 +90,9 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
       },
       storeMediaTypeFilter: (filter: IFilterSettingsModel) => {
         dispatch(storeMediaTypeFilter(filter));
+      },
+      storeSearchResultsFilter: (filter: IFilterSettingsModel) => {
+        dispatch(storeSearchResultsFilter(filter));
       },
       storeSearchContent: (content: KnnSearchResponse<IContentModel>) => {
         dispatch(storeSearchContent(content));

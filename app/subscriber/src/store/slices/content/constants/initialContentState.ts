@@ -48,4 +48,7 @@ export const initialContentState: IContentState = {
   eventOfTheDay: {
     filter: defaultContentFilter,
   },
+  searchResults: {
+    filter: defaultContentFilter,
+  },
 };
