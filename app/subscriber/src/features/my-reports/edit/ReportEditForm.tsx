@@ -8,6 +8,7 @@ import {
   Checkbox,
   Col,
   getReportKind,
+  IReportInstanceModel,
   ReportKindName,
   ReportStatusName,
   Show,
@@ -100,14 +101,14 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
     ]);
 
     const handlePublish = React.useCallback(
-      async (id: number) => {
+      async (instance: IReportInstanceModel) => {
         try {
           setSubmitting(true);
-          const updatedInstance = await publishReportInstance(id);
+          const updatedInstance = await publishReportInstance(instance.id, !!instance.sentOn);
           setFieldValue(
             'instances',
             values.instances.map((i) =>
-              i.id === id ? { ...updatedInstance, content: instance?.content } : i,
+              i.id === instance.id ? { ...updatedInstance, content: instance?.content } : i,
             ),
           );
           toast.success(
@@ -118,7 +119,7 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
           setSubmitting(false);
         }
       },
-      [instance?.content, publishReportInstance, setFieldValue, setSubmitting, values.instances],
+      [publishReportInstance, setFieldValue, setSubmitting, values.instances],
     );
 
     const handleStartNewReport = React.useCallback(
@@ -160,7 +161,6 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
         <Show visible={active === ReportSettingsMenuOption.Subscribers}>
           <ReportEditSubscribersForm />
         </Show>
-
         <Show visible={active === ReportSettingsMenuOption.Send}>
           <ReportEditSendForm
             onPublish={() => toggleSend()}
@@ -226,7 +226,7 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
           confirmText="Yes, send report to subscribers"
           onConfirm={async () => {
             try {
-              if (instance) await handlePublish(instance.id);
+              if (instance) await handlePublish(instance);
             } finally {
               toggleSend();
             }

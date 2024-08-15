@@ -43,7 +43,7 @@ export const ReportFormInstance: React.FC = () => {
   const handleResend = React.useCallback(
     async (model: IReportInstanceModel) => {
       try {
-        const instance = await publishReportInstance(model);
+        const instance = await publishReportInstance(model, true);
         setInstances((instances) =>
           instances.map((i) => {
             if (i.id === instance.id) return instance;

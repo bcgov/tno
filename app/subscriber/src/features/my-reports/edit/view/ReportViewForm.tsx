@@ -1,4 +1,5 @@
 import { Button } from 'components/button';
+import { Modal } from 'components/modal';
 import { calcNextReportSend, getLastSent, getStatus } from 'features/my-reports/utils';
 import React from 'react';
 import { FaTelegramPlane } from 'react-icons/fa';
@@ -8,7 +9,7 @@ import { useApp, useReportInstances } from 'store/hooks';
 import {
   Claim,
   Col,
-  Modal,
+  IReportInstanceModel,
   ReportStatusName,
   Row,
   Show,
@@ -53,14 +54,14 @@ export const ReportViewForm: React.FC = () => {
   );
 
   const handlePublish = React.useCallback(
-    async (id: number) => {
+    async (instance: IReportInstanceModel) => {
       try {
         setSubmitting(true);
-        const updatedInstance = await publishReportInstance(id);
+        const updatedInstance = await publishReportInstance(instance.id, !!instance.sentOn);
         setFieldValue(
           'instances',
           values.instances.map((i) =>
-            i.id === id ? { ...updatedInstance, content: instance?.content } : i,
+            i.id === instance.id ? { ...updatedInstance, content: instance?.content } : i,
           ),
         );
         toast.success(
@@ -71,7 +72,7 @@ export const ReportViewForm: React.FC = () => {
         setSubmitting(false);
       }
     },
-    [instance?.content, publishReportInstance, setFieldValue, setSubmitting, values.instances],
+    [publishReportInstance, setFieldValue, setSubmitting, values.instances],
   );
 
   return (
@@ -182,7 +183,7 @@ export const ReportViewForm: React.FC = () => {
         confirmText="Yes, send report to subscribers"
         onConfirm={async () => {
           try {
-            if (instance) await handlePublish(instance.id);
+            if (instance) await handlePublish(instance);
           } finally {
             toggleSend();
           }
