@@ -232,7 +232,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
         <Show visible={!!activeStream?.source && activeStream.id === item.id}>
           <Col className="media-playback">
             {activeFileReference?.contentType.includes('audio') && (
-              <audio controls src={activeStream?.source} />
+              <audio controls src={activeStream?.source} ref={audioRef} />
             )}
             {activeFileReference?.contentType.includes('video') && (
               <video controls src={activeStream?.source} ref={videoRef} />
