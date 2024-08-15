@@ -51,6 +51,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
   } = React.useContext(ContentListContext);
 
   const videoRef = React.useRef<HTMLVideoElement>(null);
+  const audioRef = React.useRef<HTMLAudioElement>(null);
 
   const body = React.useMemo(() => {
     const truncated = truncateTeaser(item.body || item.summary, 250);
@@ -67,6 +68,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
    * once the user clicks the inline play button. */
   React.useEffect(() => {
     const videoElement = videoRef.current;
+    const audioElement = audioRef.current;
     if (!!videoElement && activeStream?.source) {
       const handleCanPlay = () => {
         videoElement.play().catch((e) => console.error('Failed to play video', e));
@@ -77,6 +79,17 @@ export const ContentRow: React.FC<IContentRowProps> = ({
 
       return () => {
         videoElement.removeEventListener('canplay', handleCanPlay);
+      };
+    }
+    if (!!audioElement && activeStream?.source) {
+      const handleCanPlay = () => {
+        audioElement.play().catch((e) => console.error('Failed to play audio', e));
+      };
+
+      audioElement.addEventListener('canplay', handleCanPlay);
+
+      return () => {
+        audioElement.removeEventListener('canplay', handleCanPlay);
       };
     }
   }, [activeStream]);
