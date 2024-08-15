@@ -133,27 +133,27 @@ public class ReportInstanceController : ControllerBase
     /// Publish the report instance and send to all subscribers.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="resend"></param>
     /// <returns></returns>
     [HttpPost("{id}/publish")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
-    public async Task<IActionResult> Publish(int id)
+    public async Task<IActionResult> Publish(int id, bool resend = false)
     {
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException();
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
-        var resend = instance.Status == ReportStatus.Reopen;
         instance.Status = new[] { Entities.ReportStatus.Pending, Entities.ReportStatus.Reopen }.Contains(instance.Status) ? Entities.ReportStatus.Submitted : instance.Status;
         instance = _reportInstanceService.UpdateAndSave(instance);
 
         var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, instance.ReportId, instance.Id, new { })
         {
             RequestorId = user.Id,
-            Resend = resend,
+            Resend = resend || instance.Status == ReportStatus.Reopen,
         };
         await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{instance.ReportId}", request);
         return new JsonResult(new ReportInstanceModel(instance));

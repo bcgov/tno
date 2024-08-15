@@ -1,4 +1,9 @@
-@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
+DO $$
+BEGIN
+
+-- Update custom report with latest template.
+UPDATE public."report_template" SET
+    "body" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
 @using System
 @using System.Linq
 @using TNO.Entities
@@ -281,32 +286,32 @@
     else if (section.Value.SectionType == ReportSectionType.Gallery)
     {
       @* Gallery Section *@
+      var imageDictionary = new Dictionary<string,string>();
+      for (var i = 0; i < sectionContent.Length; i++)
+      {
+        var content = sectionContent[i];
+        if (!string.IsNullOrEmpty(content.ImageContent))
+        {
+          imageDictionary.Add(content.FileReferences.FirstOrDefault()?.FileName ?? content.Id.ToString(),$"data:{content.ContentType};base64," + content.ImageContent);
+        }
+      }
+
       if (section.Value.Settings.Direction == "row" && section.Value.Settings.ShowImage)
       {
         <div style="display:flex;flex-wrap:wrap;">
-          @for (var i = 0; i < sectionContent.Length; i++)
+          @foreach(KeyValuePair<string, string> entry in imageDictionary)
           {
-            var content = sectionContent[i];
-            var fileName = content.FileReferences.FirstOrDefault()?.FileName ?? content.Id.ToString();
-            var src = $"data:{content.ContentType};base64," + content.ImageContent;
-
-            <img style="height:min-content" src="@src" alt="@fileName" />
+            <img style="height:min-content" src="@entry.Value" alt="@entry.Key" />
           }
         </div>
       }
       else if (section.Value.Settings.ShowImage)
       {
-        for (var i = 0; i < sectionContent.Length; i++)
+        @foreach(KeyValuePair<string, string> entry in imageDictionary)
         {
-          var content = sectionContent[i];
-          var fileName = content.FileReferences.FirstOrDefault()?.FileName ?? content.Id.ToString();
-          var src = $"data:{content.ContentType};base64," + content.ImageContent;
-          if (!string.IsNullOrEmpty(content.ImageContent))
-          {
-            <div>
-              <img style="height:min-content" src="@src" alt="@fileName" />
-            </div>
-          }
+          <div>
+            <img style="height:min-content" src="@entry.Value" alt="@entry.Key" />
+          </div>
         }
       }
     }
@@ -345,4 +350,7 @@
       <b>Copying, retransmitting, archiving, redistributing, selling, licensing, or emailing the material to any third party or any employee of the Province who is not authorized to access the material is prohibited.</b>
     </p>
   </div>
-</div>
+</div>'
+WHERE "name" = 'Custom Report';
+
+END $$;
