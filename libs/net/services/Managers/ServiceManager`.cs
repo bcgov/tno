@@ -90,7 +90,7 @@ public abstract class ServiceManager<TOption> : IServiceManager
     /// <returns></returns>
     public async Task SendEmailAsync(string subject, string message)
     {
-        if (this.Options.SendEmailOnFailure)
+        if (this.Options.SendEmailOnFailure && !string.IsNullOrEmpty(this.Options.EmailTo))
         {
             try
             {
