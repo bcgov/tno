@@ -48,7 +48,12 @@ export const ReportEditPage = () => {
 
   const instance = report.instances.length ? report.instances[0] : undefined;
   const canEdit = instance
-    ? [ReportStatusName.Pending, ReportStatusName.Reopen].includes(instance.status)
+    ? [
+        ReportStatusName.Pending,
+        ReportStatusName.Reopen,
+        ReportStatusName.Failed,
+        ReportStatusName.Cancelled,
+      ].includes(instance.status)
     : true;
 
   React.useEffect(() => {
