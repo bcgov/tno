@@ -66,18 +66,19 @@ export const ContentRow: React.FC<IContentRowProps> = ({
   /** This is a workaround for the autoplay attribute on <video>. Most chromium browser do not allow autoplay with the muted attribute included; however, we can avoid this issue by programatically calling play. The logic below will play the video
    * once the user clicks the inline play button. */
   React.useEffect(() => {
-    if (!videoRef.current) return;
-    const handleCanPlay = () => {
-      !!videoRef.current &&
-        videoRef.current.play().catch((e) => console.error('Failed to play video', e));
-    };
+    const videoElement = videoRef.current;
+    if (!!videoElement && activeStream?.source) {
+      const handleCanPlay = () => {
+        videoElement.play().catch((e) => console.error('Failed to play video', e));
+      };
 
-    // need to have an event listener to trigger the play, otherwise it will error out on the play call (calls too early)
-    videoRef.current.addEventListener('canplay', handleCanPlay);
+      // need to have an event listener to trigger the play, otherwise it will error out on the play call (calls too early)
+      videoElement.addEventListener('canplay', handleCanPlay);
 
-    return () => {
-      videoRef.current && videoRef.current.removeEventListener('canplay', handleCanPlay);
-    };
+      return () => {
+        videoElement.removeEventListener('canplay', handleCanPlay);
+      };
+    }
   }, [activeStream]);
 
   return (
