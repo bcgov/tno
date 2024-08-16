@@ -1,4 +1,9 @@
-@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
+DO $$
+BEGIN
+
+-- Update custom report with latest template.
+UPDATE public."report_template" SET
+    "body" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
 @using System
 @using System.Linq
 @using TNO.Entities
@@ -27,7 +32,7 @@
   <div style="font-size:22px; font-weight:500;"><p>@(Settings.Subject.ShowTodaysDate ? $" {ReportExtensions.GetTodaysDate():dd-MMM-yyyy}" : "")</p></div>
 </a>
 
-@if (Content.Count() == 0 && !ViewOnWebOnly)
+@if (Content.Count() == 0)
 {
   <p>There is no content in this report.</p>
 }
@@ -311,7 +316,6 @@
       }
     }
 
-
     @if (!horizontalCharts && !endChartGroup)
     {
       @:</div>
@@ -345,4 +349,7 @@
       <b>Copying, retransmitting, archiving, redistributing, selling, licensing, or emailing the material to any third party or any employee of the Province who is not authorized to access the material is prohibited.</b>
     </p>
   </div>
-</div>
+</div>'
+WHERE "name" = 'Custom Report';
+
+END $$;

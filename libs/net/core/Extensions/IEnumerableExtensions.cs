@@ -65,4 +65,31 @@ public static class IEnumerableExtensions
         result.AddRange(add);
         return result;
     }
+
+    /// <summary>
+    /// Handle async select.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TResult"></typeparam>
+    /// <param name="enumeration"></param>
+    /// <param name="func"></param>
+    /// <returns></returns>
+    public static async Task<IEnumerable<TResult>> SelectAsync<T, TResult>(
+        this IEnumerable<T> enumeration, Func<T, Task<TResult>> method)
+    {
+        return await Task.WhenAll(enumeration.Select(async s => await method(s)));
+    }
+
+    /// <summary>
+    /// Handle async select many.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T1"></typeparam>
+    /// <param name="enumeration"></param>
+    /// <param name="func"></param>
+    /// <returns></returns>
+    public static async Task<IEnumerable<TResult>> SelectManyAsync<T, TResult>(this IEnumerable<T> enumeration, Func<T, Task<IEnumerable<TResult>>> func)
+    {
+        return (await Task.WhenAll(enumeration.Select(func))).SelectMany(s => s);
+    }
 }

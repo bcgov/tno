@@ -673,7 +673,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 userReportInstances.AddRange(await this.Api.GetUserReportInstancesAsync(instance.Id));
             }
 
-            var (linkEmails, fullEmails) = await GetEmailAddressesAsync(request, report, instance, userReportInstances);
+            var (linkEmails, fullEmails) = await GetEmailAddressesAsync(request, report, userReportInstances);
 
             if (instance != null && request.GenerateInstance)
             {
@@ -883,13 +883,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// </summary>
     /// <param name="request"></param>
     /// <param name="report"></param>
-    /// <param name="instance"></param>
     /// <param name="userReportInstances"></param>
     /// <returns></returns>
     private async Task<(Dictionary<EmailSentTo, List<UserEmail>> link, Dictionary<EmailSentTo, List<UserEmail>> full)> GetEmailAddressesAsync(
             ReportRequestModel request,
             API.Areas.Services.Models.Report.ReportModel report,
-            API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instance,
             IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel> userReportInstances)
     {
         var linkOnlyFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && LinkOnlyFormats.Contains(s.Format)).ToArray();
