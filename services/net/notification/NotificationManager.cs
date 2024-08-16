@@ -7,6 +7,7 @@ using TNO.Ches;
 using TNO.Ches.Configuration;
 using TNO.Ches.Models;
 using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Kafka;
 using TNO.Kafka.Models;
@@ -380,6 +381,40 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     }
 
     /// <summary>
+    /// Get all the subscribers for the specified 'notification' and 'content'.
+    /// </summary>
+    /// <param name="notification"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    private async Task<IEnumerable<API.Areas.Services.Models.Notification.UserModel>> GetNotificationSubscribersAsync(API.Areas.Services.Models.Notification.NotificationModel notification, API.Areas.Services.Models.Content.ContentModel content)
+    {
+        // Get all the subscribers for this notification.
+        // Expand any distribution lists.
+        var subscribers = new List<API.Areas.Services.Models.Notification.UserModel>();
+        subscribers.AddRange(await notification.Subscribers.Where(s => s.IsSubscribed).SelectManyAsync(async subscriber =>
+        {
+            if (subscriber.User == null) return Array.Empty<API.Areas.Services.Models.Notification.UserModel>();
+
+            if (subscriber.User.AccountType == UserAccountType.Distribution)
+            {
+                var users = await this.Api.GetDistributionListAsync(subscriber.UserId);
+                return users.Select(u => new API.Areas.Services.Models.Notification.UserModel());
+            }
+            else
+            {
+                return new[] { subscriber.User };
+            }
+        }));
+
+        // Add any users who are subscribed to the content.
+        // Users can subscriber to content by asking for a transcript.
+        subscribers.AddRange(content.UserNotifications.Where(cun => cun.User != null && cun.IsSubscribed && cun.User.AccountType != UserAccountType.Distribution)
+            .Select(cun => new API.Areas.Services.Models.Notification.UserModel(cun.User!)));
+
+        return subscribers;
+    }
+
+    /// <summary>
     /// Send an email merge to CHES.
     /// This will send out a separate email to each context provided.
     /// </summary>
@@ -392,6 +427,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     {
         await HandleChesEmailOverrideAsync(request);
 
+        var subscribers = await GetNotificationSubscribersAsync(notification, content);
         var contexts = new List<EmailContextModel>();
         if (!String.IsNullOrWhiteSpace(request.To))
         {
@@ -401,14 +437,16 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         }
         else
         {
-            // TODO: Control when a notification is sent through delay configuration.
-            contexts.AddRange(this.NotificationValidator.GetSubscriberEmails());
+            contexts.AddRange(this.NotificationValidator.GetSubscriberEmails(subscribers));
         }
 
         // There are no subscribers, or a notification has been sent for this content to all the subscribers.
         if (!contexts.Any())
         {
-            this.Logger.LogInformation("Notification '{name}' does not have subscribers.", notification.Name);
+            if (!notification.Subscribers.Any(s => s.IsSubscribed))
+                this.Logger.LogInformation("Notification '{name}' does not have subscribers.", notification.Name);
+            else
+                this.Logger.LogInformation("Notification '{name}' is not sent because all users have already received this content.", notification.Name);
             return;
         }
 
@@ -423,7 +461,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         };
 
         // Add the subscribers to the notification validator so that they don't receive more than one email for a specific content item.
-        this.NotificationValidator.AddUsers(notification.Subscribers);
+        this.NotificationValidator.AddUsers(subscribers);
 
         try
         {

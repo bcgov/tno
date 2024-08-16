@@ -142,7 +142,7 @@ public class ImageAction : IngestAction<ImageOptions>
                 }
             }
 
-            // Directory gets created as part of unzip action, if it doesnt exist, then no files will be there...
+            // Directory gets created as part of unzip action, if it doesn't exist, then no files will be there...
             if (Directory.Exists(outputPath))
             {
                 bool isNewSourceContent = false;

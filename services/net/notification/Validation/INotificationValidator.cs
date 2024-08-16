@@ -50,8 +50,8 @@ public interface INotificationValidator
     /// <summary>
     /// Add users who have received a notification for this content.
     /// </summary>
-    /// <param name="subscribers"></param>
-    void AddUsers(IEnumerable<API.Areas.Services.Models.Notification.UserNotificationModel> subscribers);
+    /// <param name="users"></param>
+    void AddUsers(IEnumerable<API.Areas.Services.Models.Notification.UserModel> users);
 
     /// <summary>
     /// Validates whether this notification should be sent to the specified user.
@@ -64,7 +64,8 @@ public interface INotificationValidator
     /// <summary>
     /// Get all valid subscribers who have not received a notification yet.
     /// </summary>
+    /// <param name="users"></param>
     /// <returns></returns>
-    IEnumerable<EmailContextModel> GetSubscriberEmails();
+    IEnumerable<EmailContextModel> GetSubscriberEmails(IEnumerable<API.Areas.Services.Models.Notification.UserModel> users);
     #endregion
 }
