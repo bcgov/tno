@@ -257,6 +257,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
             result.Message.Value.ReportInstanceId = ex.InstanceId;
             result.Message.Value.Data = new { ex.Error };
+            result.Message.Value.Resend = false;
             await this.Api.SendMessageAsync(result.Message.Value);
         }
         catch (HttpClientRequestException ex)
@@ -265,6 +266,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             await this.SendEmailAsync("HTTP exception while consuming. {response}", ex);
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
 
+            result.Message.Value.Resend = false;
             await this.Api.SendMessageAsync(result.Message.Value);
         }
         catch (Exception ex)
@@ -273,6 +275,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             await this.SendEmailAsync("Failed to handle message", ex);
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
 
+            result.Message.Value.Resend = false;
             await this.Api.SendMessageAsync(result.Message.Value);
         }
         finally
@@ -659,28 +662,28 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         string linkBody,
         string fullBody)
     {
-        var userReportInstances = new List<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>();
-        if (!this.Options.UseMailMerge && instance?.Id > 0)
-        {
-            // Get users who have either received the email, or failed.
-            userReportInstances.AddRange(await this.Api.GetUserReportInstancesAsync(instance.Id));
-        }
-
-        var (linkEmails, fullEmails) = await GetEmailAddressesAsync(request, report, instance, userReportInstances);
-
-        if (instance != null && request.GenerateInstance)
-        {
-            instance.Subject = subject;
-            instance.Body = fullBody;
-            if (instance.PublishedOn == null) instance.PublishedOn = DateTime.UtcNow;
-            if (request.SendToSubscribers)
-                instance.SentOn = DateTime.UtcNow; // We track when it was sent, even if it failed.
-        }
-
         // TODO: This implementation can result in one set of emails being successful and the second failing.
         var responseModel = new ReportEmailResponseModel();
         try
         {
+            var userReportInstances = new List<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>();
+            if (!this.Options.UseMailMerge && instance?.Id > 0)
+            {
+                // Get users who have either received the email, or failed.
+                userReportInstances.AddRange(await this.Api.GetUserReportInstancesAsync(instance.Id));
+            }
+
+            var (linkEmails, fullEmails) = await GetEmailAddressesAsync(request, report, instance, userReportInstances);
+
+            if (instance != null && request.GenerateInstance)
+            {
+                instance.Subject = subject;
+                instance.Body = fullBody;
+                if (instance.PublishedOn == null) instance.PublishedOn = DateTime.UtcNow;
+                if (request.SendToSubscribers)
+                    instance.SentOn = DateTime.UtcNow; // We track when it was sent, even if it failed.
+            }
+
             if (!report.Settings.DoNotSendEmail && String.IsNullOrEmpty(request.To) && (linkEmails[EmailSentTo.To].Any() || linkEmails[EmailSentTo.CC].Any() || linkEmails[EmailSentTo.BCC].Any()))
             {
                 // Send the email.
