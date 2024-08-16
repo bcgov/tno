@@ -290,28 +290,24 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                     if (request.NotificationId.HasValue)
                     {
                         var notification = await this.Api.GetNotificationAsync(request.NotificationId.Value);
-                        if (notification != null)
+                        if (notification != null && notification.IsEnabled)
                         {
-                            if (notification.IsEnabled)
-                            {
-                                this.NotificationValidator.InitializeNotification(notification);
-                                if (request.IgnoreValidation || await this.NotificationValidator.ConfirmSendAsync())
-                                    await SendNotificationAsync(request, notification, content);
-                                else
-                                    this.Logger.LogInformation("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
-                            }
+                            this.NotificationValidator.InitializeNotification(notification);
+                            if (request.IgnoreValidation || await this.NotificationValidator.ConfirmSendAsync())
+                                await SendNotificationAsync(request, notification, content);
                             else
-                                this.Logger.LogDebug("Notification is disabled.  Notification: {notification}", notification.Id);
+                                this.Logger.LogInformation("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
                         }
                         else
-                            this.Logger.LogDebug("Notification does not exist.  Notification: {notification}", request.NotificationId);
+                            this.Logger.LogDebug("Notification does not exist or is disabled.  Notification: {notification}", request.NotificationId);
                     }
                     else
                     {
                         // Only fetch notifications that are configured to alert on index.
                         var notifications = await this.Api.FindNotificationsAsync(new TNO.Models.Filters.NotificationFilter()
                         {
-                            AlertOnIndex = true
+                            AlertOnIndex = true,
+                            IsEnabled = true,
                         });
                         foreach (var notification in notifications)
                         {
@@ -411,7 +407,8 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         subscribers.AddRange(content.UserNotifications.Where(cun => cun.User != null && cun.IsSubscribed && cun.User.AccountType != UserAccountType.Distribution)
             .Select(cun => new API.Areas.Services.Models.Notification.UserModel(cun.User!)));
 
-        return subscribers;
+        // Remove duplicate subscribers.  This can occur if a user is both subscribed to the content and the notification.
+        return subscribers.GroupBy(s => s.Id).Select(s => s.First());
     }
 
     /// <summary>
@@ -431,7 +428,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         var contexts = new List<EmailContextModel>();
         if (!String.IsNullOrWhiteSpace(request.To))
         {
-            // Add a context for the requested list of users in addition to the subscribers.
+            // When a notification request has specified 'To' it means only send it to the emails in that property.
             var requestTo = request.To.Split(",").Select(v => v.Trim());
             contexts.Add(new EmailContextModel(requestTo, new Dictionary<string, object>(), DateTime.Now));
         }
@@ -443,7 +440,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         // There are no subscribers, or a notification has been sent for this content to all the subscribers.
         if (!contexts.Any())
         {
-            if (!notification.Subscribers.Any(s => s.IsSubscribed))
+            if (!subscribers.Any())
                 this.Logger.LogInformation("Notification '{name}' does not have subscribers.", notification.Name);
             else
                 this.Logger.LogInformation("Notification '{name}' is not sent because all users have already received this content.", notification.Name);

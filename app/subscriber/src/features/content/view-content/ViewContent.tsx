@@ -385,7 +385,8 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
               isAV &&
               !content?.source?.disableTranscribe &&
               !content.isApproved &&
-              !isTranscriptRequestor
+              !isTranscriptRequestor &&
+              !!content?.fileReferences.length
             }
           >
             <Button
