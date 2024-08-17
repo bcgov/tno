@@ -60,6 +60,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
 
   const [filterId, setFilterId] = React.useState(0);
   const [searchFilter, setSearchFilter] = React.useState<IFilterSettingsModel | null>(null);
+  const [showResults, setShowResults] = React.useState(false);
 
   React.useEffect(() => {
     const parsedId = id ? parseInt(id) : 0;
@@ -142,6 +143,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     async (filter: IFilterSettingsModel, storedContent?: any) => {
       try {
         setIsLoading(true);
+        setShowResults(false);
         let newFilter = filter;
         if (filter.dateOffset !== undefined) {
           newFilter = {
@@ -184,6 +186,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
       } catch {
       } finally {
         setIsLoading(false);
+        setShowResults(true);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -222,13 +225,6 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
     fetchResults(filter);
   }, [fetchResults, filter]);
 
-  const handleAdvancedSearch = React.useCallback(
-    async (updatedFilterSettings: IFilterSettingsModel) => {
-      fetchResults(updatedFilterSettings);
-    },
-    [fetchResults],
-  );
-
   const executeSearch = React.useCallback(
     async (filter: IFilterSettingsModel) => {
       fetchResults(filter);
@@ -242,7 +238,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         {/* LEFT SIDE */}
         <Show visible={showAdvanced}>
           <Col className="adv-search-container">
-            <AdvancedSearch onSearch={handleAdvancedSearch} setSearchFilter={setSearchFilter} />
+            <AdvancedSearch onSearch={executeSearch} setSearchFilter={setSearchFilter} />
           </Col>
         </Show>
         {/* RIGHT SIDE */}
@@ -284,16 +280,18 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
                 <div className="filter-name">{activeFilter?.name}</div>
               </div>
             </Show>
-            <ContentList
-              onContentSelected={handleContentSelected}
-              content={currDateResults}
-              selected={selected}
-              showDate
-              showTime
-              showSeries
-              scrollWithin
-              filter={searchFilter ?? undefined}
-            />
+            <Show visible={showResults && !!currDateResults.length}>
+              <ContentList
+                onContentSelected={handleContentSelected}
+                content={currDateResults}
+                selected={selected}
+                showDate
+                showTime
+                showSeries
+                scrollWithin
+                filter={searchFilter ?? undefined}
+              />
+            </Show>
             <Show visible={!currDateResults.length}>
               <PreviousResults
                 currDateResults={currDateResults}
