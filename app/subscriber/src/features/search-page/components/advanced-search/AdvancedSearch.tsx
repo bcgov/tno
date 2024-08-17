@@ -138,10 +138,9 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch, setSe
       search: searchTerms,
     };
 
+    onSearch?.(updatedFilterSettings);
     storeSearchFilter(updatedFilterSettings);
     setSearchFilter(updatedFilterSettings);
-
-    onSearch?.(updatedFilterSettings);
   };
 
   React.useEffect(() => {
