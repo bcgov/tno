@@ -70,7 +70,6 @@ export * from './IPaged';
 export * from './IPageFilter';
 export * from './IProductFilter';
 export * from './IProductModel';
-export * from './IProductSubscriberModel';
 export * from './IQuoteModel';
 export * from './IRegisterModel';
 export * from './IReportContentSettingsModel';

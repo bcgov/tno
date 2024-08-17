@@ -6,8 +6,8 @@ namespace TNO.Entities;
 /// Product class, provides a database entity model to manage a list of products/offerings.
 /// </summary>
 [Table("product")]
-public class Product : BaseType<int> {
-
+public class Product : BaseType<int>
+{
     /// <summary>
     /// get/set - Each type of product is this.
     /// </summary>
@@ -21,6 +21,12 @@ public class Product : BaseType<int> {
     public int TargetProductId { get; set; }
 
     /// <summary>
+    /// get/set - Whether this product is public to all users.
+    /// </summary>
+    [Column("is_public")]
+    public bool IsPublic { get; set; } = false;
+
+    /// <summary>
     /// get - List of users who are subscribed to this report (many-to-many).
     /// </summary>
     public virtual List<UserProduct> SubscribersManyToMany { get; } = new List<UserProduct>();
@@ -29,12 +35,6 @@ public class Product : BaseType<int> {
     /// get - List of users who are subscribed to this product.
     /// </summary>
     public virtual List<User> Subscribers { get; } = new List<User>();
-
-    /// <summary>
-    /// get/set - Whether this product is public to all users.
-    /// </summary>
-    [Column("is_public")]
-    public bool IsPublic { get; set; } = false;
 
     #region Constructors
     /// <summary>

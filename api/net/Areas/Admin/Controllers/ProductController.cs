@@ -28,6 +28,7 @@ public class ProductController : ControllerBase
     #region Variables
     private readonly IProductService _productService;
     private readonly IReportService _reportService;
+    private readonly INotificationService _notificationService;
     private readonly ILogger<ProductController> _logger;
     #endregion
 
@@ -37,14 +38,17 @@ public class ProductController : ControllerBase
     /// </summary>
     /// <param name="productService"></param>
     /// <param name="reportService"></param>
+    /// <param name="notificationService"></param>
     /// <param name="logger"></param>
     public ProductController(
         IProductService productService,
         IReportService reportService,
+        INotificationService notificationService,
         ILogger<ProductController> logger)
     {
         _productService = productService;
         _reportService = reportService;
+        _notificationService = notificationService;
         _logger = logger;
     }
     #endregion
@@ -62,10 +66,8 @@ public class ProductController : ControllerBase
     {
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-        var result = _productService.Find(new TNO.Models.Filters.ProductFilter(query));
-        var reportIds = result.Where(p => p.ProductType == Entities.ProductType.Report).Select(p => p.TargetProductId).ToArray();
-        var reports = reportIds.Any() ? _reportService.Find(new TNO.Models.Filters.ReportFilter() { Ids = reportIds }) : Array.Empty<Entities.Report>();
-        return new JsonResult(result.Select(ds => new ProductModel(ds, ds.ProductType == Entities.ProductType.Report ? reports.FirstOrDefault(r => r.Id == ds.TargetProductId) : null)));
+        var products = _productService.Find(new TNO.Models.Filters.ProductFilter(query));
+        return new JsonResult(products.Select(p => new ProductModel(p)));
     }
 
     /// <summary>
@@ -77,13 +79,12 @@ public class ProductController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ProductModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Product" })]
     public IActionResult FindById(int id)
     {
-        var result = _productService.FindById(id);
-        if (result == null) return new NoContentResult();
-        var report = result.ProductType == Entities.ProductType.Report ? _reportService.FindById(result.TargetProductId) : null;
-        return new JsonResult(new ProductModel(result, report));
+        var product = _productService.FindById(id, true) ?? throw new NoContentException("Product does not exist");
+        return new JsonResult(new ProductModel(product));
     }
 
     /// <summary>
@@ -99,10 +100,9 @@ public class ProductController : ControllerBase
     public IActionResult Add(ProductModel model)
     {
         // TODO: Update the notification or report subscribers.
-        var result = _productService.AddAndSave(model.ToEntity());
-        var product = _productService.FindById(result.Id) ?? throw new NoContentException("Product does not exist");
-        var report = result.ProductType == Entities.ProductType.Report ? _reportService.FindById(result.TargetProductId) : null;
-        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ProductModel(product, report));
+        var product = _productService.AddAndSave(model.ToEntity());
+        product = _productService.FindById(product.Id, true) ?? throw new NoContentException("Product does not exist");
+        return new JsonResult(new ProductModel(product));
     }
 
     /// <summary>
@@ -118,10 +118,9 @@ public class ProductController : ControllerBase
     public IActionResult Update(ProductModel model)
     {
         // TODO: Update the notification or report subscribers.
-        var result = _productService.UpdateAndSave(model.ToEntity());
-        var product = _productService.FindById(result.Id) ?? throw new NoContentException("Product does not exist");
-        var report = result.ProductType == Entities.ProductType.Report ? _reportService.FindById(result.TargetProductId) : null;
-        return new JsonResult(new ProductModel(product, report));
+        var product = _productService.UpdateAndSave(model.ToEntity());
+        product = _productService.FindById(product.Id, true) ?? throw new NoContentException("Product does not exist");
+        return new JsonResult(new ProductModel(product));
     }
 
     /// <summary>
@@ -139,6 +138,5 @@ public class ProductController : ControllerBase
         _productService.DeleteAndSave(model.ToEntity());
         return new JsonResult(model);
     }
-
     #endregion
 }

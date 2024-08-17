@@ -1,7 +1,7 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
-import { defaultEnvelope, ILifecycleToasts, IProductSubscriberModel, useApi } from '../..';
+import { defaultEnvelope, ILifecycleToasts, IProductModel, IUserProductModel, useApi } from '../..';
 
 /**
  * Common hook to make requests to the API.
@@ -19,11 +19,11 @@ export const useApiSubscriberProducts = (
 
   return React.useRef({
     getProducts: () => {
-      return api.get<never, AxiosResponse<IProductSubscriberModel[]>, any>(`/subscriber/products`);
+      return api.get<never, AxiosResponse<IProductModel[]>, any>(`/subscriber/products`);
     },
-    toggleSubscription: (model: IProductSubscriberModel) => {
-      return api.put<IProductSubscriberModel, AxiosResponse<IProductSubscriberModel>, any>(
-        `/subscriber/products/${model.id}/togglesubscription`,
+    toggleSubscription: (model: IUserProductModel) => {
+      return api.put<IUserProductModel, AxiosResponse<IUserProductModel>, any>(
+        `/subscriber/products/${model.productId}/subscription`,
         model,
       );
     },

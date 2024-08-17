@@ -71,6 +71,8 @@ public class NotificationService : BaseService<Notification, int>, INotification
             query = query.Where(n => n.SubscribersManyToMany.Any(ns => ns.IsSubscribed && ns.UserId == filter.SubscriberUserId.Value));
         if (filter.IsEnabled.HasValue)
             query = query.Where(n => n.IsEnabled == filter.IsEnabled);
+        if (filter.Ids?.Any() == true)
+            query = query.Where(n => filter.Ids.Contains(n.Id));
 
         if (filter.Sort?.Any() == true)
         {

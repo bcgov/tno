@@ -11,9 +11,7 @@ public class UserProductConfiguration : AuditColumnsConfiguration<UserProduct>
         builder.HasKey(m => new { m.UserId, m.ProductId });
         builder.Property(m => m.UserId).IsRequired().ValueGeneratedNever();
         builder.Property(m => m.ProductId).IsRequired().ValueGeneratedNever();
-        builder.Property(m => m.IsSubscribed).IsRequired();
-        builder.Property(m => m.RequestedIsSubscribedStatus);
-        builder.Property(m => m.SubscriptionChangeActioned);
+        builder.Property(m => m.Status).IsRequired();
 
         builder.HasOne(m => m.User).WithMany(m => m.ProductSubscriptionsManyToMany).HasForeignKey(m => m.UserId).OnDelete(DeleteBehavior.Cascade);
 

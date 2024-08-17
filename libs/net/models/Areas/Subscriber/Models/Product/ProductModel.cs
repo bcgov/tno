@@ -1,4 +1,5 @@
 using TNO.API.Models;
+using TNO.Entities;
 
 namespace TNO.API.Areas.Subscriber.Models.Product;
 
@@ -8,21 +9,25 @@ namespace TNO.API.Areas.Subscriber.Models.Product;
 public class ProductModel : BaseTypeWithAuditColumnsModel<int>
 {
     #region Properties
+    /// <summary>
+    /// get/set - Each type of product is this.
+    /// </summary>
+    public ProductType ProductType { get; set; }
 
     /// <summary>
-    /// get/set - Foreign key to the product.
+    /// get/set - Primary key and foreign key to the product.
     /// </summary>
-    public bool IsSubscribed { get; set; }
+    public int TargetProductId { get; set; }
 
     /// <summary>
-    /// get/set - Has an admin approved the status change?
+    /// get/set - Whether this product is public to all users.
     /// </summary>
-    public bool? SubscriptionChangeActioned { get; set; }
-    /// <summary>
-    /// get/set - Has an admin approved the status change?
-    /// </summary>
-    public bool? RequestedIsSubscribedStatus { get; set; }
+    public bool IsPublic { get; set; } = false;
 
+    /// <summary>
+    /// get - List of users who are subscribed to this product.
+    /// </summary>
+    public virtual IEnumerable<UserProductModel> Subscribers { get; set; } = Array.Empty<UserProductModel>();
     #endregion
 
     #region Constructors
@@ -36,16 +41,12 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
     /// </summary>
     /// <param name="entity"></param>
     /// <param name="options"></param>
-    public ProductModel(Entities.Product entity, int userId) : base(entity)
+    public ProductModel(Entities.Product entity) : base(entity)
     {
-        var userRecord = entity.SubscribersManyToMany.FirstOrDefault(s => s.UserId == userId);
-        if (userRecord != null) {
-            this.IsSubscribed = userRecord.IsSubscribed;
-            this.RequestedIsSubscribedStatus = userRecord.RequestedIsSubscribedStatus;
-            this.SubscriptionChangeActioned = userRecord.SubscriptionChangeActioned;
-        } else {
-            this.IsSubscribed = false;
-        }
+        this.ProductType = entity.ProductType;
+        this.TargetProductId = entity.TargetProductId;
+        this.IsPublic = entity.IsPublic;
+        this.Subscribers = entity.SubscribersManyToMany.Select(s => new UserProductModel(s)).ToArray();
     }
     #endregion
 

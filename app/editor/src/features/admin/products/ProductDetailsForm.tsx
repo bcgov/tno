@@ -2,8 +2,9 @@ import { useFormikContext } from 'formik';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
-import { useNotifications, useReports } from 'store/hooks/admin';
+import { useAVOverviewTemplates, useNotifications, useReports } from 'store/hooks/admin';
 import {
+  AVOverviewTemplateTypeName,
   Col,
   FieldSize,
   FormikCheckbox,
@@ -27,47 +28,49 @@ import {
 export const ProductDetailsForm: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IProductModel>();
 
-  const [, apiNotifications] = useNotifications();
-  const [, apiReports] = useReports();
+  const [, { findNotifications }] = useNotifications();
+  const [, { findAllReportsHeadersOnly }] = useReports();
+  const [{ findAllAVOverview }] = useAVOverviewTemplates();
   const [targetProductOptions, setTargetProductOptions] = React.useState<IOptionItem[]>([]);
 
   const productTypeOptions = getEnumStringOptions(ProductTypeName);
 
-  const changeTargetProduct = React.useCallback(
-    (targetProduct: ProductTypeName | undefined) => {
-      if (!targetProduct) return;
-      switch (targetProduct) {
-        case ProductTypeName.Report:
-          // set using reports
-          apiReports.findAllReportsHeadersOnly().then((data) => {
-            setTargetProductOptions(
-              data.map((s) => new OptionItem(`${s.name} - [${s.owner?.displayName}]`, s.id)),
-            );
-          });
-          break;
-        case ProductTypeName.EveningOverview:
-          // set list to empty
-          setTargetProductOptions([]);
-          setFieldValue('targetProductId', -1);
-          break;
-        case ProductTypeName.Notification:
-          // set using notifications
-          apiNotifications.findNotifications().then((data) => {
-            setTargetProductOptions(data.map((s) => new OptionItem(s.name, s.id)));
-          });
-          break;
+  const getTargetProducts = React.useCallback(
+    (productType: ProductTypeName) => {
+      if (productType === ProductTypeName.Report) {
+        findAllReportsHeadersOnly().then((data) => {
+          setTargetProductOptions(
+            data.map((s) => new OptionItem(`${s.name} - [${s.owner?.displayName}]`, s.id)),
+          );
+        });
+      } else if (productType === ProductTypeName.Notification) {
+        findNotifications().then((data) => {
+          setTargetProductOptions(data.map((s) => new OptionItem(s.name, s.id)));
+        });
+      } else if (productType === ProductTypeName.EveningOverview) {
+        findAllAVOverview().then((data) => {
+          setTargetProductOptions(
+            data.map(
+              (s) =>
+                new OptionItem(
+                  s.templateType,
+                  s.templateType === AVOverviewTemplateTypeName.Weekday ? 0 : 1,
+                ),
+            ),
+          );
+        });
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [apiReports, apiNotifications], // KGM: Skipped 'setFieldValue' to avoid circular dependecy issue
+    [findNotifications, findAllReportsHeadersOnly, findAllAVOverview],
   );
 
   React.useEffect(() => {
-    if (values?.productType && values?.targetProductId >= 0) {
-      changeTargetProduct(values.productType);
+    if (values?.productType) {
+      getTargetProducts(values.productType);
     }
+    // Only update when the product type changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [values?.productType, values?.targetProductId]); // KGM: Skipped 'changeTargetProduct' to avoid circular dependecy issue
+  }, [values.productType]);
 
   return (
     <>
@@ -80,7 +83,8 @@ export const ProductDetailsForm: React.FC = () => {
           required
           options={productTypeOptions}
           value={productTypeOptions.find((o) => o.value === values.productType)}
-          onChange={(e: any) => changeTargetProduct(e?.value)}
+          onChange={(e: any) => setFieldValue('productType', e.value)}
+          isClearable={false}
         />
         <Show visible={targetProductOptions.length >= 1}>
           <FormikSelect
@@ -90,8 +94,9 @@ export const ProductDetailsForm: React.FC = () => {
             options={targetProductOptions}
             value={targetProductOptions.find((o) => o.value === values.targetProductId) || ''}
             onChange={(e: any) => {
-              setFieldValue('targetProductId', e?.value);
+              setFieldValue('targetProductId', e.value);
             }}
+            isClearable={false}
           />
         </Show>
         <Row alignItems="center">

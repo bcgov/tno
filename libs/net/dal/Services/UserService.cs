@@ -68,12 +68,26 @@ public class UserService : BaseService<User, int>, IUserService
             predicate = predicate.And(c => c.IsSystemAccount == filter.IsSystemAccount);
         if (filter.AccountTypes?.Any() == true)
             predicate = predicate.And(c => filter.AccountTypes.Contains(c.AccountType));
-        if (filter.IsSubscribedToReportId.HasValue)
-            predicate = predicate.And(c => c.ReportSubscriptionsManyToMany.Any(rs => rs.IsSubscribed && rs.ReportId == filter.IsSubscribedToReportId.Value));
-        if (filter.IsSubscribedToNotificationId.HasValue)
-            predicate = predicate.And(c => c.NotificationSubscriptionsManyToMany.Any(rs => rs.IsSubscribed && rs.NotificationId == filter.IsSubscribedToNotificationId.Value));
         if (filter.IsSubscribedToProductId.HasValue)
-            predicate = predicate.And(c => c.ProductSubscriptionsManyToMany.Any(rs => rs.IsSubscribed && rs.ProductId == filter.IsSubscribedToProductId.Value));
+        {
+            // Only return users who are subscribed to the specified product.
+            var product = this.Context.Products.FirstOrDefault(p => p.Id == filter.IsSubscribedToProductId.Value);
+            if (product != null)
+            {
+                if (product.ProductType == ProductType.Report)
+                    predicate = predicate.And(c => c.ReportSubscriptionsManyToMany.Any(s => s.ReportId == product.TargetProductId && s.IsSubscribed));
+                else if (product.ProductType == ProductType.Notification)
+                    predicate = predicate.And(c => c.NotificationSubscriptionsManyToMany.Any(s => s.NotificationId == product.TargetProductId && s.IsSubscribed));
+                else if (product.ProductType == ProductType.EveningOverview)
+                    predicate = predicate.And(c => c.AVOverviewSubscriptionsManyToMany.Any(s => (int)s.TemplateType == product.TargetProductId && s.IsSubscribed));
+            }
+        }
+        if (filter.IsSubscribedToReportId.HasValue)
+            predicate = predicate.And(u => u.ReportSubscriptionsManyToMany.Any(s => s.IsSubscribed && s.ReportId == filter.IsSubscribedToReportId));
+        if (filter.IsSubscribedToNotificationId.HasValue)
+            predicate = predicate.And(u => u.NotificationSubscriptionsManyToMany.Any(s => s.IsSubscribed && s.NotificationId == filter.IsSubscribedToNotificationId));
+        if (filter.IsSubscribedToEveningOverview.HasValue)
+            predicate = predicate.And(u => u.AVOverviewSubscriptionsManyToMany.Any(s => s.IsSubscribed && s.TemplateType == filter.IsSubscribedToEveningOverview));
 
         if (filter.IncludeUserId.HasValue)
             predicate = PredicateBuilder.Or<User>(u => u.Id == filter.IncludeUserId, predicate);
@@ -351,7 +365,7 @@ public class UserService : BaseService<User, int>, IUserService
                     var fromSubscription = subscriptions.FirstOrDefault(s => s.UserId == account.FromAccountId);
                     if (!isToSubscribed)
                     {
-                        this.Context.Add(new UserProduct(account.ToAccountId, transfer.OriginalId, true));
+                        this.Context.Add(new UserProduct(account.ToAccountId, transfer.OriginalId));
                     }
                     if (fromSubscription != null)
                     {
@@ -439,7 +453,7 @@ public class UserService : BaseService<User, int>, IUserService
                     var isToSubscribed = this.Context.UserProducts.Any(un => un.ProductId == copy.OriginalId && (un.UserId == account.ToAccountId));
                     if (!isToSubscribed)
                     {
-                        this.Context.Add(new UserProduct(account.ToAccountId, copy.OriginalId, true));
+                        this.Context.Add(new UserProduct(account.ToAccountId, copy.OriginalId));
                     }
                 }
             }

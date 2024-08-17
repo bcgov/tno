@@ -1,11 +1,9 @@
-using TNO.API.Models;
-
-namespace TNO.API.Areas.Subscriber.Models.Product;
+namespace TNO.API.Areas.Admin.Models.Product;
 
 /// <summary>
-/// UserProductModel class, provides a model that represents a subscriber to a product.
+/// UserProductModel class, provides a model that represents an user product.
 /// </summary>
-public class UserProductModel : AuditColumnsModel
+public class UserProductModel
 {
     #region Properties
     /// <summary>
@@ -80,8 +78,8 @@ public class UserProductModel : AuditColumnsModel
     /// <summary>
     /// Creates a new instance of an UserProductModel, initializes with specified parameter.
     /// </summary>
-    /// <param name="entity"></param>
-    public UserProductModel(Entities.UserProduct entity) : base(entity)
+    /// <param name="product"></param>
+    public UserProductModel(Entities.UserProduct entity)
     {
         if (entity.Product == null) throw new ArgumentNullException(nameof(entity));
         if (entity.User == null) throw new ArgumentNullException(nameof(entity));
@@ -121,20 +119,6 @@ public class UserProductModel : AuditColumnsModel
             this.IsSubscribed = subscription?.IsSubscribed ?? false;
             this.SendTo = subscription?.SendTo;
         }
-    }
-    #endregion
-
-    #region Methods
-    /// <summary>
-    /// Explicit conversion to entity.
-    /// </summary>
-    /// <param name="model"></param>
-    public static explicit operator Entities.UserProduct(UserProductModel model)
-    {
-        return new Entities.UserProduct(model.UserId, model.ProductId, model.Status)
-        {
-            Version = model.Version ?? 0
-        };
     }
     #endregion
 }

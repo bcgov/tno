@@ -57,8 +57,8 @@ public class ReportFilter : PageFilter
         this.IsPublic = filter.GetBoolNullValue(nameof(this.IsPublic));
         this.IsEnabled = filter.GetBoolNullValue(nameof(this.IsEnabled));
         this.IsPublicOrOwner = filter.GetBoolNullValue(nameof(this.IsPublicOrOwner));
-        this.Ids = filter.GetIntArrayValue(nameof(this.Ids));
         this.SubscriberUserId = filter.GetIntNullValue(nameof(this.SubscriberUserId));
+        this.Ids = filter.GetIntArrayValue(nameof(this.Ids));
     }
     #endregion
 }

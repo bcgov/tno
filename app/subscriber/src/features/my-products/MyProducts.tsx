@@ -4,19 +4,32 @@ import React from 'react';
 import { FaEnvelope, FaUserPlus } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useProducts } from 'store/hooks';
-import { IProductSubscriberModel, Loading, Show, useModal } from 'tno-core';
+import {
+  IProductModel,
+  IUserProductModel,
+  Loading,
+  ProductRequestStatusName,
+  Show,
+  useModal,
+} from 'tno-core';
 
 import { ProductCard } from './ProductCard';
 import * as styled from './styled';
+
+interface ISelectedProduct {
+  product: IProductModel;
+  userProduct: IUserProductModel;
+}
 
 export const MyProducts: React.FC = () => {
   const [{ getProducts, toggleSubscription }] = useProducts();
   const { toggle, isShowing } = useModal();
   const [{ userInfo }] = useApp();
 
-  const [products, setProducts] = React.useState<IProductSubscriberModel[]>([]);
-  const [product, setProduct] = React.useState<IProductSubscriberModel>();
+  const [products, setProducts] = React.useState<IProductModel[]>([]);
+  const [active, setActive] = React.useState<ISelectedProduct>();
   const [isLoading, setIsLoading] = React.useState(true);
+
   React.useEffect(() => {
     if (userInfo && !products.length) {
       setIsLoading(true);
@@ -29,24 +42,34 @@ export const MyProducts: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo]);
 
+  const selectProduct = React.useCallback(
+    (product: IProductModel, userProduct: IUserProductModel) => {
+      setActive({
+        product,
+        userProduct,
+      });
+    },
+    [],
+  );
+
   const handleToggleSubscription = React.useCallback(
-    (product: IProductSubscriberModel) => {
-      if (!!product) {
-        toggleSubscription(product)
+    (product: IProductModel, userProduct: IUserProductModel) => {
+      if (!!userProduct) {
+        toggleSubscription(userProduct)
           .then((data) => {
-            toast.success(`Successfully change subscription status for product '${data.name}'.`);
-            // TODO: Why doesnt the checkbox value get updated?
-            setProducts(
-              products.map((ds) => {
-                if (ds.id === data.id) return data;
-                return ds;
+            toast.success(`Successfully change subscription status for product '${product.name}'.`);
+            setProducts((products) =>
+              products.map((product) => {
+                if (product.id === data.productId)
+                  return { ...product, subscribers: [userProduct] };
+                return product;
               }),
             );
           })
           .catch(() => {});
       }
     },
-    [toggleSubscription, products],
+    [toggleSubscription],
   );
 
   return (
@@ -59,12 +82,12 @@ export const MyProducts: React.FC = () => {
             cancel your request, you can click on the cancel action.
           </p>
           <Show
-            visible={products.some(
-              (p) =>
-                // products which the user *IS* subscribed to
-                p.isSubscribed ||
-                // OR products which the user has a request to subscribed
-                (p.requestedIsSubscribedStatus !== undefined && p.requestedIsSubscribedStatus),
+            visible={products.some((product) =>
+              // products which the user *IS* subscribed to
+              // OR products which the user has a request to subscribed
+              product.subscribers.some(
+                (s) => s.isSubscribed || s.status === ProductRequestStatusName.RequestSubscription,
+              ),
             )}
           >
             <h2 className="product-section-title">
@@ -76,21 +99,22 @@ export const MyProducts: React.FC = () => {
             </p>
             <div>
               {products
-                .filter(
-                  (product) =>
-                    // products which the user *IS* subscribed to
-                    (product.isSubscribed && product.requestedIsSubscribedStatus === undefined) ||
-                    // OR products which the user has a request to subscribed
-                    (product.requestedIsSubscribedStatus !== undefined &&
-                      product.requestedIsSubscribedStatus),
+                .filter((product) =>
+                  // products which the user *IS* subscribed to
+                  // OR products which the user has a request to subscribed
+                  product.subscribers.some(
+                    (s) =>
+                      s.isSubscribed || s.status === ProductRequestStatusName.RequestSubscription,
+                  ),
                 )
                 .map((product) => {
                   return (
                     <ProductCard
                       key={product.id}
+                      userId={userInfo?.id}
                       product={product}
-                      onToggleSubscription={(product) => {
-                        setProduct(product);
+                      onToggleSubscription={(userProduct) => {
+                        selectProduct(product, userProduct);
                         toggle();
                       }}
                     />
@@ -110,21 +134,21 @@ export const MyProducts: React.FC = () => {
               <Loading />
             </Show>
             {products
-              .filter(
-                (product) =>
-                  // products which the user *IS NOT* unsubscribed to
-                  (!product.isSubscribed && product.requestedIsSubscribedStatus === undefined) ||
-                  // *OR products which the user has a request to unsubscribe from
-                  (product.requestedIsSubscribedStatus !== undefined &&
-                    !product.requestedIsSubscribedStatus),
+              .filter((product) =>
+                // products which the user *IS NOT* unsubscribed to
+                product.subscribers.some(
+                  (s) =>
+                    !s.isSubscribed && s.status !== ProductRequestStatusName.RequestSubscription,
+                ),
               )
               .map((product) => {
                 return (
                   <ProductCard
                     key={product.id}
+                    userId={userInfo?.id}
                     product={product}
-                    onToggleSubscription={(product) => {
-                      setProduct(product);
+                    onToggleSubscription={(userProduct) => {
+                      selectProduct(product, userProduct);
                       toggle();
                     }}
                   />
@@ -136,26 +160,28 @@ export const MyProducts: React.FC = () => {
       <Modal
         headerText={`Confirm change`}
         body={
-          product?.requestedIsSubscribedStatus === undefined
+          (active?.userProduct.status === ProductRequestStatusName.NA
             ? `Are you sure you wish to ${
-                product?.isSubscribed ? 'unsubscribe from' : 'subscribe to'
-              } "${product?.name}"?`
+                active.userProduct.isSubscribed ? 'unsubscribe from' : 'subscribe to'
+              }`
             : `Are you sure you wish to cancel your pending request to ${
-                product?.requestedIsSubscribedStatus ? 'unsubscribe from' : 'subscribe to'
-              } "${product?.name}"?`
+                active?.userProduct.isSubscribed ? 'unsubscribe from' : 'subscribe to'
+              }`) + `"${active?.product.name}"?`
         }
         isShowing={isShowing}
         hide={toggle}
         type="default"
         confirmText={
-          product?.requestedIsSubscribedStatus === undefined
-            ? `Yes, ${product?.isSubscribed ? 'request to unsubscribe' : 'request to subscribe'}`
+          active?.userProduct.status === ProductRequestStatusName.NA
+            ? `Yes, ${
+                active.userProduct.isSubscribed ? 'request to unsubscribe' : 'request to subscribe'
+              }`
             : `Yes, cancel my pending request to ${
-                product?.requestedIsSubscribedStatus ? 'unsubscribe' : 'subscribe'
+                active?.userProduct.isSubscribed ? 'unsubscribe' : 'subscribe'
               }`
         }
         onConfirm={() => {
-          if (product) handleToggleSubscription(product);
+          if (active) handleToggleSubscription(active.product, active.userProduct);
           toggle();
         }}
       />
