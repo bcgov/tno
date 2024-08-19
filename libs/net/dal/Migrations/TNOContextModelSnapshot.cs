@@ -5650,17 +5650,9 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("created_on")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<bool>("IsSubscribed")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_subscribed");
-
-                    b.Property<bool?>("RequestedIsSubscribedStatus")
-                        .HasColumnType("boolean")
-                        .HasColumnName("requested_is_subscribed_status");
-
-                    b.Property<bool?>("SubscriptionChangeActioned")
-                        .HasColumnType("boolean")
-                        .HasColumnName("subscription_change_actioned");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()

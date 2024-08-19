@@ -1,5 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { AxiosError } from 'axios';
+import { ActionNames } from 'features/content/form/constants/actionsEnum';
 import { getDefaultCommentaryExpiryValue } from 'features/content/form/utils';
 import { IContentListFilter } from 'features/content/interfaces';
 import * as React from 'react';
@@ -79,16 +80,16 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
     (action: string) => {
       let actionId;
       switch (action) {
-        case 'Commentary':
+        case ActionNames.Commentary:
           actionId = commentaryActionId;
           break;
-        case 'Top Story':
+        case ActionNames.TopStory:
           actionId = topStoryActionId;
           break;
-        case 'Featured Story':
+        case ActionNames.FeaturedStory:
           actionId = featuredStoryActionId;
           break;
-        case 'Published Selected':
+        case ActionNames.PublishedSelectected:
           break;
         default:
           return;
@@ -112,17 +113,18 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
       if (e.ctrlKey) {
         e.preventDefault();
         switch (e.code) {
-          case 'KeyC':
-            handleToggleAction('Commentary');
+          case 'KeyM':
+            handleToggleAction(ActionNames.Commentary);
             break;
-          case 'KeyO':
-            handleToggleAction('Top Story');
+          case 'KeyI':
+            handleToggleAction(ActionNames.TopStory);
             break;
-          case 'KeyF':
-            handleToggleAction('Featured Story');
+          case 'KeyU':
+            e.preventDefault();
+            handleToggleAction(ActionNames.FeaturedStory);
             break;
-          case 'KeyP':
-            handleToggleAction('Published Selected');
+          case 'KeyB':
+            handleToggleAction(ActionNames.PublishedSelectected);
             break;
           default:
             break;

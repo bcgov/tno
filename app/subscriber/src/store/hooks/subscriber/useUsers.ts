@@ -14,10 +14,11 @@ interface IUserController {
   getUser: () => Promise<ISubscriberUserModel>;
   findUsers: (filter: IUserFilter) => Promise<IPaged<IUserModel>>;
   updateUser: (model: ISubscriberUserModel, impersonate?: boolean) => Promise<ISubscriberUserModel>;
+  getDistributionListById: (id: number) => Promise<IUserModel[]>;
 }
 
 export const useUsers = (): IUserController => {
-  const { findUsers } = useApiAdminUsers();
+  const { findUsers, getDistributionListById } = useApiAdminUsers();
   const { getUser, updateUser } = useApiSubscriberUsers();
   const dispatch = useAjaxWrapper();
   const [, { storeMyProfile, storeImpersonate }] = useProfileStore();
@@ -41,6 +42,12 @@ export const useUsers = (): IUserController => {
         if (userInfo) storeUserInfo({ ...userInfo, preferences: response.data.preferences });
         return response.data;
       },
+      getDistributionListById: async (id: number) => {
+        const response = await dispatch<IUserModel[]>('get-distribution-list', () =>
+          getDistributionListById(id),
+        );
+        return response.data;
+      },
     }),
     [
       dispatch,
@@ -51,6 +58,7 @@ export const useUsers = (): IUserController => {
       userInfo,
       storeUserInfo,
       updateUser,
+      getDistributionListById,
     ],
   );
 

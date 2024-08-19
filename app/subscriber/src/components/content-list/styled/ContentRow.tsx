@@ -105,7 +105,7 @@ export const ContentRow = styled(Col)<{ simpleView?: boolean }>`
       height: ${(props) => (props.simpleView ? '135px' : '270px')};
       width: ${(props) => (props.simpleView ? '240px' : '480px')};
     }
-    .audio {
+    audio {
       margin-right: auto;
       margin-left: auto;
     }

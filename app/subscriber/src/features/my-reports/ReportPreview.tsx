@@ -1,6 +1,7 @@
 import { Action } from 'components/action';
 import { Bar } from 'components/bar';
 import { Button } from 'components/button';
+import { Modal } from 'components/modal';
 import { RefreshButton } from 'components/refresh-button/styled';
 import { PageSection } from 'components/section';
 import React from 'react';
@@ -9,10 +10,22 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useReportInstances, useReports } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { getReportKind, IReportModel, ReportKindName, Row, Show } from 'tno-core';
+import {
+  Col,
+  getReportKind,
+  IReportInstanceModel,
+  IReportModel,
+  ReportKindName,
+  ReportStatusName,
+  Row,
+  Show,
+  Spinner,
+  useModal,
+} from 'tno-core';
 
 import { ReportKindIcon } from './components';
 import { ReportInstanceView } from './ReportInstanceView';
+import { getStatus } from './utils';
 
 export interface IReportPreviewProps {
   report?: IReportModel;
@@ -25,6 +38,7 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
   const [{ viewReportInstance, publishReportInstance }] = useReportInstances();
   const [, { storeReportOutput }] = useProfileStore();
   const [, { getReport, generateReport }] = useReports();
+  const { isShowing: showSend, toggle: toggleSend } = useModal();
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -93,14 +107,14 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
   );
 
   const handleSend = React.useCallback(
-    async (report: IReportModel, instanceId: number) => {
+    async (report: IReportModel, instance: IReportInstanceModel) => {
       try {
         setIsSubmitting(true);
-        const updatedInstance = await publishReportInstance(instanceId);
+        const updatedInstance = await publishReportInstance(instance.id, !!instance.sentOn);
         onFetch?.({
           ...report,
           instances: report.instances.map((i) =>
-            i.id === instanceId ? { ...updatedInstance, content: instance?.content ?? [] } : i,
+            i.id === instance.id ? { ...updatedInstance, content: instance?.content ?? [] } : i,
           ),
         });
         toast.success('Report has been submitted.');
@@ -109,7 +123,7 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
         setIsSubmitting(false);
       }
     },
-    [instance?.content, onFetch, publishReportInstance],
+    [onFetch, publishReportInstance],
   );
 
   if (!report) return null;
@@ -129,7 +143,23 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
         <ReportKindIcon report={report} />
       </div>
       <Bar>
-        <Show visible={!instance?.sentOn}>
+        <Row>Status: {instance ? getStatus(instance.status) : 'Draft'}</Row>
+        <Show visible={instance?.status === ReportStatusName.Submitted}>
+          <Col>
+            <Spinner />
+          </Col>
+        </Show>
+        <Show
+          visible={
+            instance &&
+            !instance.sentOn &&
+            ![
+              ReportStatusName.Submitted,
+              ReportStatusName.Accepted,
+              ReportStatusName.Completed,
+            ].includes(instance.status)
+          }
+        >
           <Button
             variant="secondary"
             onClick={() => instance?.id && handleRefresh(instance?.id, true).catch(() => {})}
@@ -158,11 +188,14 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
           </Button>
         </Show>
         <Show visible={!!instance}>
-          <Show visible={!instance?.sentOn}>
-            <Button
-              onClick={() => report && instance && handleSend(report, instance.id).catch(() => {})}
-              disabled={isSubmitting}
-            >
+          <Show
+            visible={
+              instance &&
+              !instance.sentOn &&
+              ![ReportStatusName.Submitted].includes(instance.status)
+            }
+          >
+            <Button onClick={() => report && instance && toggleSend()} disabled={isSubmitting}>
               Send
               <FaPaperPlane />
             </Button>
@@ -182,6 +215,18 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
         </Show>
       </Bar>
       <ReportInstanceView instanceId={instance?.id ?? 0} />
+      <Modal
+        headerText="Confirm Send"
+        body={`Do you want to send this report to all subscribers?`}
+        isShowing={showSend}
+        hide={toggleSend}
+        type="default"
+        confirmText="Yes, Send It"
+        onConfirm={() => {
+          if (instance) handleSend(report, instance);
+          toggleSend();
+        }}
+      />
     </PageSection>
   );
 };

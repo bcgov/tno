@@ -29,6 +29,15 @@ public class NotificationFilter : PageFilter
     /// get/set - Only include content owned by this user.
     /// </summary>
     public int? SubscriberUserId { get; set; }
+
+    /// <summary>
+    /// get/set - Only include notifications that are enabled.
+    public bool? IsEnabled { get; set; }
+
+    /// <summary>
+    /// get/set - An array of notification ids to return.
+    /// </summary>
+    public int[]? Ids { get; set; }
     #endregion
 
     #region Constructors
@@ -42,6 +51,8 @@ public class NotificationFilter : PageFilter
         this.NotificationType = filter.GetEnumNullValue<NotificationType>(nameof(this.NotificationType));
         this.OwnerId = filter.GetIntNullValue(nameof(this.OwnerId));
         this.SubscriberUserId = filter.GetIntNullValue(nameof(this.SubscriberUserId));
+        this.IsEnabled = filter.GetBoolNullValue(nameof(this.IsEnabled));
+        this.Ids = filter.GetIntArrayValue(nameof(this.Ids));
     }
     #endregion
 }

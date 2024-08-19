@@ -16,40 +16,50 @@ public interface IProductService : IBaseService<Product, int>
     /// </summary>
     /// <param name="filter"></param>
     /// <returns></returns>
-    IEnumerable<Product> Find(ProductFilter? filter = null);
+    IEnumerable<Product> Find(ProductFilter filter);
 
     /// <summary>
-    /// Subscribe the specified user to the product.
+    /// Find the report for the specified 'id'.
+    /// Also include the user subscriptions to the linked product types.
     /// </summary>
-    /// <param name="userId"></param>
+    /// <param name="id"></param>
+    /// <param name="includeSubscriptions"></param>
     /// <returns></returns>
-    Task<int> Subscribe(int userId, int productId);
+    Product? FindById(int id, bool includeSubscriptions);
 
     /// <summary>
-    /// Creates a request for an admin to subscribe product for the specified user.
+    /// Add the user product.
     /// </summary>
-    /// <param name="userId"></param>
-    /// <returns></returns>
-    Task<int> RequestSubscribe(int userId, int productId);
+    /// <param name="subscription"></param>
+    void AddAndSave(UserProduct subscription);
 
     /// <summary>
-    /// Unsubscribe product for the specified user.
+    /// Update the user product.
     /// </summary>
-    /// <param name="userId"></param>
-    /// <returns></returns>
-    Task<int> Unsubscribe(int userId, int productId);
+    /// <param name="subscription"></param>
+    void UpdateAndSave(UserProduct subscription);
 
     /// <summary>
-    /// Creates a request for an admin to unsubscribe product for the specified user.
+    /// Unsubscribe to the specified user product.
     /// </summary>
     /// <param name="userId"></param>
+    /// <param name="productId"></param>
     /// <returns></returns>
-    Task<int> RequestUnsubscribe(int userId, int productId);
+    UserProduct Unsubscribe(int userId, int productId);
 
     /// <summary>
-    /// Cancels a request to change subscription status.
+    /// Subscribe to the specified user product.
     /// </summary>
     /// <param name="userId"></param>
+    /// <param name="productId"></param>
     /// <returns></returns>
-    Task<int> CancelSubscriptionStatusChangeRequest(int userId, int productId);
+    UserProduct Subscribe(int userId, int productId);
+
+    /// <summary>
+    /// Send email to administrator to identify a subscription request or cancellation request.
+    /// </summary>
+    /// <param name="subscription"></param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    Task SendSubscriptionRequestEmailAsync(UserProduct subscription);
 }

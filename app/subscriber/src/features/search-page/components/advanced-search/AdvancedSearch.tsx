@@ -138,10 +138,9 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch, setSe
       search: searchTerms,
     };
 
+    onSearch?.(updatedFilterSettings);
     storeSearchFilter(updatedFilterSettings);
     setSearchFilter(updatedFilterSettings);
-
-    onSearch?.(updatedFilterSettings);
   };
 
   React.useEffect(() => {
@@ -218,7 +217,11 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch, setSe
 
   const addSearch = React.useCallback(
     async (name: string) => {
-      const settings = filterFormat(search);
+      const updatedSearch = {
+        ...search,
+        search: searchTerms ?? search.search,
+      };
+      const settings = filterFormat(updatedSearch);
       const query = genQuery(settings);
       const filter: IFilterModel = { ...defaultFilter, name, query, settings };
 
@@ -240,7 +243,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch, setSe
         })
         .catch(() => {});
     },
-    [search, genQuery, addFilter, storeFilter, storeSearchFilter, navigate, myFilters],
+    [search, searchTerms, genQuery, myFilters, addFilter, storeFilter, storeSearchFilter, navigate],
   );
 
   const handleSearchTermsChanged = React.useCallback(

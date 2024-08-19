@@ -183,7 +183,7 @@ public class WorkOrderController : ControllerBase
         if (content.Source?.DisableTranscribe == true) return BadRequest("Cannot request transcription");
         if (content.IsApproved || content.ContentType != Entities.ContentType.AudioVideo || !content.FileReferences.Any())
         {
-            // The transcript has already been approved, do not allow new requests.
+            // The transcript has already been approved, or this request is invalid, do not allow new requests.
             var result = new
             {
                 StatusCode = HttpStatusCode.OK,

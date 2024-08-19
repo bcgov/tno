@@ -3,12 +3,11 @@ const regex24hour = /^(?:[01][0-9]|2[0-3]):[0-5][0-9](?::[0-5][0-9])?$/;
 export const ReportFormScheduleSchema = object().shape(
   {
     isEnabled: boolean(),
-    runOnWeekDays: string()
-      .when('isEnabled', {
-        is: true,
-        then: (schema) => schema.required('Schedule must have at least one weekday when Enabled.'),
-      })
-      .notOneOf(['NA'], 'Schedule must have at least one weekday when Enabled.'),
+    runOnWeekDays: string().when('isEnabled', {
+      is: true,
+      then: (schema) =>
+        schema.notOneOf(['NA'], 'Schedule must have at least one weekday when Enabled.'),
+    }),
     startAt: string().when('isEnabled', {
       is: true,
       then: (schema) =>

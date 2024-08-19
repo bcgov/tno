@@ -68,9 +68,10 @@ export const useApiSubscriberReportInstances = (
         `/subscriber/report/instances/${id}/send?to=${to}`,
       );
     },
-    publishReportInstance: (id: number) => {
+    publishReportInstance: (id: number, resend: boolean) => {
+      const query = { resend };
       return api.post<never, AxiosResponse<IReportInstanceModel>, any>(
-        `/subscriber/report/instances/${id}/publish`,
+        `/subscriber/report/instances/${id}/publish?${toQueryString(query)}`,
       );
     },
   }).current;

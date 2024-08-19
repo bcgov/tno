@@ -50,6 +50,11 @@ public class UserModel
     /// get/set - Whether the user email is verified.
     /// </summary>
     public bool EmailVerified { get; set; }
+
+    /// <summary>
+    /// get/set - Account type
+    /// </summary>
+    public Entities.UserAccountType AccountType {get; set;}
     #endregion
 
     #region Constructors
@@ -75,6 +80,7 @@ public class UserModel
             this.LastName = entity.LastName;
             this.IsEnabled = entity.IsEnabled;
             this.EmailVerified = entity.EmailVerified;
+            this.AccountType = entity.AccountType;
         }
     }
     #endregion

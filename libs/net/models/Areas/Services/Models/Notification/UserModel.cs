@@ -95,6 +95,23 @@ public class UserModel
         this.AccountType = entity.AccountType;
         this.Preferences = entity.Preferences;
     }
+
+    /// <summary>
+    /// Creates a new instance of an UserModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="model"></param>
+    public UserModel(API.Areas.Services.Models.Content.UserModel model)
+    {
+        this.Id = model.Id;
+        this.Username = model.Username;
+        this.Email = model.Email;
+        this.PreferredEmail = model.PreferredEmail;
+        this.DisplayName = model.DisplayName;
+        this.FirstName = model.FirstName;
+        this.LastName = model.LastName;
+        this.AccountType = model.AccountType;
+        this.Preferences = model.Preferences;
+    }
     #endregion
 
     #region Methods

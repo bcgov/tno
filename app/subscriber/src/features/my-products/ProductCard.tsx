@@ -1,13 +1,22 @@
 import { Action } from 'components/action';
 import React from 'react';
 import { FaFileLines, FaRotateLeft, FaUserMinus, FaUserPlus } from 'react-icons/fa6';
-import { Col, IProductSubscriberModel, Row, Show } from 'tno-core';
+import {
+  Col,
+  IProductModel,
+  IUserProductModel,
+  ProductRequestStatusName,
+  Row,
+  Show,
+} from 'tno-core';
 
 export interface IProductCardProps {
+  /** The user ID */
+  userId?: number;
   /** The product to display on this card. */
-  product: IProductSubscriberModel;
+  product: IProductModel;
   /** Event fires when user requests to delete product. This event does not delete the product itself. */
-  onToggleSubscription?: (product: IProductSubscriberModel) => void;
+  onToggleSubscription?: (userProduct: IUserProductModel) => void;
 }
 
 /**
@@ -15,29 +24,42 @@ export interface IProductCardProps {
  * @param param0 Component properties.
  * @returns Component.
  */
-export const ProductCard: React.FC<IProductCardProps> = ({ product, onToggleSubscription }) => {
+export const ProductCard: React.FC<IProductCardProps> = ({
+  userId,
+  product,
+  onToggleSubscription,
+}) => {
+  const userProduct = product.subscribers.find((s) => s.userId === userId);
+
   return (
     <Col className="product-card">
       <Row className="product-row">
         <FaFileLines />
         <span className="product-name">{product.name}</span>
-        <Show visible={product.requestedIsSubscribedStatus !== undefined}>
+        <Show visible={userProduct?.status !== ProductRequestStatusName.NA}>
           <Action
             className={`action-cancel-request`}
             icon={<FaRotateLeft />}
             label={`Cancel pending request`}
             onClick={() => {
-              onToggleSubscription?.(product);
+              userProduct &&
+                onToggleSubscription?.({ ...userProduct, status: ProductRequestStatusName.NA });
             }}
           />
         </Show>
-        <Show visible={product.requestedIsSubscribedStatus === undefined}>
+        <Show visible={userProduct?.status === ProductRequestStatusName.NA}>
           <Action
-            className={product.isSubscribed ? `action-unsubscribe` : `action-subscribe`}
-            icon={product.isSubscribed ? <FaUserMinus /> : <FaUserPlus />}
-            label={product.isSubscribed ? `Unsubscribe` : `Subscribe`}
+            className={userProduct?.isSubscribed ? `action-unsubscribe` : `action-subscribe`}
+            icon={userProduct?.isSubscribed ? <FaUserMinus /> : <FaUserPlus />}
+            label={userProduct?.isSubscribed ? `Unsubscribe` : `Subscribe`}
             onClick={() => {
-              onToggleSubscription?.(product);
+              userProduct &&
+                onToggleSubscription?.({
+                  ...userProduct,
+                  status: !userProduct.isSubscribed
+                    ? ProductRequestStatusName.RequestSubscription
+                    : ProductRequestStatusName.RequestUnsubscribe,
+                });
             }}
           />
         </Show>

@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
+import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
 import { IReportInstanceModel, useApi } from '..';
 
@@ -44,9 +45,10 @@ export const useApiAdminReportInstances = (
         },
       );
     },
-    publishReportInstance: (model: IReportInstanceModel) => {
+    publishReportInstance: (model: IReportInstanceModel, resend: boolean) => {
+      var query = toQueryString({ resend });
       return api.post<IReportInstanceModel, AxiosResponse<IReportInstanceModel>, any>(
-        `/admin/report/instances/${model.id}/publish`,
+        `/admin/report/instances/${model.id}/publish?${query}`,
       );
     },
   }).current;

@@ -189,7 +189,9 @@ public class NotificationValidator : INotificationValidator
             // Send every time published.
             Entities.ResendOption.Republished => this.Content.Status == Entities.ContentStatus.Published,
             // Send every time published an approved transcript
-            Entities.ResendOption.Transcribed => this.Content.Status == Entities.ContentStatus.Published && this.Content.IsApproved,
+            Entities.ResendOption.Transcribed => this.Content.ContentType == ContentType.AudioVideo &&
+                this.Content.Status == Entities.ContentStatus.Published &&
+                this.Content.IsApproved,
             _ => false,
         });
 
@@ -281,13 +283,12 @@ public class NotificationValidator : INotificationValidator
     /// <summary>
     /// Add users who have received a notification for this content.
     /// </summary>
-    /// <param name="subscribers"></param>
-    public void AddUsers(IEnumerable<API.Areas.Services.Models.Notification.UserNotificationModel> subscribers)
+    /// <param name="users"></param>
+    public void AddUsers(IEnumerable<API.Areas.Services.Models.Notification.UserModel> users)
     {
-        var users = subscribers.Where(s => s.IsSubscribed);
         users.ForEach(u =>
         {
-            if (!this.SentToUsers.Contains(u.UserId)) this.SentToUsers.Add(u.UserId);
+            if (!this.SentToUsers.Contains(u.Id)) this.SentToUsers.Add(u.Id);
         });
     }
 
@@ -306,61 +307,27 @@ public class NotificationValidator : INotificationValidator
     /// <summary>
     /// Get all valid subscribers who have not received a notification yet.
     /// </summary>
+    /// <param name="users"></param>
     /// <returns></returns>
-    public IEnumerable<EmailContextModel> GetSubscriberEmails()
+    public IEnumerable<EmailContextModel> GetSubscriberEmails(IEnumerable<API.Areas.Services.Models.Notification.UserModel> users)
     {
         var now = DateTime.Now;
         var emails = new List<EmailContextModel>();
         if (this.Notification == null) return Array.Empty<EmailContextModel>();
-        if (this.Content != null)
+
+        // Remove any subscribers who have already received a notification for the current process execution.
+        return users.Where(u => !this.SentToUsers.Contains(u.Id)).Select(user =>
         {
-            emails.AddRange(this.Content.UserNotifications.Where(un => un.User!.AccountType != UserAccountType.Distribution).Select(un =>
+            var context = new Dictionary<string, object>() {
+                { "id", user.Id },
+                { "firstName", user.FirstName ?? "" },
+                { "lastName", user.LastName ?? "" },
+            };
+            return new EmailContextModel(new[] { user.GetEmail() }, context, now)
             {
-                var email = un.User!.GetEmail();
-                var context = new Dictionary<string, object>() {
-                    { "id", un.UserId },
-                    { "firstName", un.User?.FirstName ?? "" },
-                    { "lastName", un.User?.LastName ?? "" },
-                };
-                return new EmailContextModel(new[] { email }, context, now)
-                {
-                    Tag = $"{this.Notification.Name}-{this.Content.Id}",
-                };
-            }));
-        }
-        emails.AddRange(this.Notification.Subscribers
-            .Where(s => s.User!.AccountType != UserAccountType.Distribution
-                && !String.IsNullOrWhiteSpace(s.User?.GetEmail()) && s.IsSubscribed && !this.SentToUsers.Contains(s.UserId))
-            .Select(s =>
-            {
-                var email = s.User!.GetEmail();
-                var context = new Dictionary<string, object>() {
-                    { "id", s.UserId },
-                    { "firstName", s.User?.FirstName ?? "" },
-                    { "lastName", s.User?.LastName ?? "" },
-                };
-                return new EmailContextModel(new[] { email }, context, now)
-                {
-                    Tag = $"{this.Notification.Name}",
-                };
-            }));
-        var distributions = this.Notification.Subscribers.Where(s => s.User!.AccountType == UserAccountType.Distribution
-            && s.IsSubscribed && !this.SentToUsers.Contains(s.UserId));
-        emails.AddRange(distributions.SelectMany((u) =>
-        {
-            var addresses = u.User!.Preferences.GetElementValue<API.Models.UserEmailModel[]?>(".addresses");
-            return addresses?.Select((a) =>
-            {
-                var context = new Dictionary<string, object>() {
-                    { "id", a.UserId },
-                };
-                return new EmailContextModel(new[] { a.Email }, context, now)
-                {
-                    Tag = $"{this.Notification.Name}",
-                };
-            }) ?? Array.Empty<EmailContextModel>();
-        }));
-        return emails.GroupBy(context => String.Join(",", context.To)).Select(group => group.First());
+                Tag = $"{this.Notification.Name}",
+            };
+        });
     }
 
     /// <summary>

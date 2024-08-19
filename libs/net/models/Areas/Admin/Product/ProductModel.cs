@@ -22,13 +22,12 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// get/set - List of users who are subscribed to this product (many-to-many).
     /// </summary>
-    public IEnumerable<UserModel> Subscribers { get; set; } = Array.Empty<UserModel>();
+    public IEnumerable<UserProductModel> Subscribers { get; set; } = Array.Empty<UserProductModel>();
 
     /// <summary>
     /// get/set - Is this product, visible to all subscribers.
     /// </summary>
     public bool IsPublic { get; set; }
-
     #endregion
 
     #region Constructors
@@ -42,21 +41,12 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
     /// </summary>
     /// <param name="entity"></param>
     /// <param name="report"></param>
-    public ProductModel(Entities.Product entity, Entities.Report? report) : base(entity)
+    public ProductModel(Entities.Product entity) : base(entity)
     {
         this.TargetProductId = entity.TargetProductId;
         this.ProductType = entity.ProductType;
         this.IsPublic = entity.IsPublic;
-        this.Subscribers = entity.SubscribersManyToMany
-            .Where(s => s.User != null)
-            .Select(s => new UserModel(
-                s.User!,
-                s.IsSubscribed,
-                entity.ProductType == ProductType.Report ? report?.SubscribersManyToMany.FirstOrDefault(r => r.UserId == s.UserId)?.Format : null,
-                entity.ProductType == ProductType.Report ? report?.SubscribersManyToMany.FirstOrDefault(r => r.UserId == s.UserId)?.SendTo : null,
-                s.SubscriptionChangeActioned,
-                s.RequestedIsSubscribedStatus))
-            .ToArray();
+        this.Subscribers = entity.SubscribersManyToMany.Select(s => new UserProductModel(s)).ToArray();
     }
     #endregion
 
@@ -89,7 +79,52 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
             Version = model.Version ?? 0
         };
 
-        entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(us => new Entities.UserProduct(us.Id, entity.Id, us.IsSubscribed)));
+        // Extract the user subscriptions to the actual products.
+        if (entity.ProductType == ProductType.Report)
+        {
+            entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(us =>
+            {
+                var userProduct = new UserProduct(us.UserId, entity.Id, us.Status);
+                var subscription = new UserReport(
+                    us.UserId,
+                    entity.TargetProductId,
+                    us.IsSubscribed,
+                    us.Format ?? ReportDistributionFormat.FullText,
+                    us.SendTo ?? EmailSentTo.To);
+                userProduct.User = new Entities.User(subscription);
+
+                return userProduct;
+            }));
+        }
+        else if (entity.ProductType == ProductType.Notification)
+        {
+            entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(us =>
+            {
+                var userProduct = new UserProduct(us.UserId, entity.Id, us.Status);
+                var subscription = new UserNotification(
+                    us.UserId,
+                    entity.TargetProductId,
+                    us.IsSubscribed);
+                userProduct.User = new Entities.User(subscription);
+
+                return userProduct;
+            }));
+        }
+        else if (entity.ProductType == ProductType.EveningOverview)
+        {
+            entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(us =>
+            {
+                var userProduct = new UserProduct(us.UserId, entity.Id, us.Status);
+                var subscription = new UserAVOverview(
+                    us.UserId,
+                    (AVOverviewTemplateType)entity.TargetProductId,
+                    us.IsSubscribed,
+                    us.SendTo ?? EmailSentTo.To);
+                userProduct.User = new Entities.User(subscription);
+
+                return userProduct;
+            }));
+        }
 
         return entity;
     }

@@ -305,5 +305,35 @@ public class User : AuditColumns
         this.DisplayName = username;
         this.AccountType = accountType;
     }
+
+    /// <summary>
+    /// Creates a new instance of a User object.
+    /// </summary>
+    /// <param name="subscription"></param>
+    public User(UserReport subscription)
+    {
+        this.Id = subscription.UserId;
+        this.ReportSubscriptionsManyToMany.Add(subscription);
+    }
+
+    /// <summary>
+    /// Creates a new instance of a User object.
+    /// </summary>
+    /// <param name="subscription"></param>
+    public User(UserNotification subscription)
+    {
+        this.Id = subscription.UserId;
+        this.NotificationSubscriptionsManyToMany.Add(subscription);
+    }
+
+    /// <summary>
+    /// Creates a new instance of a User object.
+    /// </summary>
+    /// <param name="subscription"></param>
+    public User(UserAVOverview subscription)
+    {
+        this.Id = subscription.UserId;
+        this.AVOverviewSubscriptionsManyToMany.Add(subscription);
+    }
     #endregion
 }

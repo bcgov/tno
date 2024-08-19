@@ -308,4 +308,15 @@ export const MyReports = styled.div`
       }
     }
   }
+
+  .icon-refresh svg {
+    color: #04814d !important;
+    transition: color 0.3s ease;
+  }
+  .icon-refresh:hover svg {
+    transform: rotate(-90deg);
+  }
+  .icon-refresh:active svg {
+    color: #26e194 !important;
+  }
 `;
