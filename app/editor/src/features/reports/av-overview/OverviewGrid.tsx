@@ -111,7 +111,8 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
     if (fetch) {
       searchClips();
     }
-  }, [index, searchClips, values?.id, values?.sections]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, searchClips, values.id, values?.sections[index].startTime]);
 
   /** function that runs after a user drops an item in the list */
   const handleDrop = (droppedItem: any) => {
