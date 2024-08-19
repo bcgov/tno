@@ -1,18 +1,36 @@
-import { EmailSendToName } from '../constants';
-import { ReportDistributionFormatName } from '../constants/ReportDistributionFormatName';
-import { IUserModel } from '.';
+import {
+  EmailSendToName,
+  ProductRequestStatusName,
+  ReportDistributionFormatName,
+  UserAccountTypeName,
+} from '../constants';
 
-export interface IUserProductModel extends IUserModel {
-  /** Whether the user is subscribed to this product. */
+export interface IUserProductModel {
+  /** Foreign key to user */
+  userId: number;
+  /** Foreign key to report */
+  productId: number;
+  /** The status of the user product. */
+  status: ProductRequestStatusName;
+
+  /** Whether the user is subscribed to this report. */
   isSubscribed: boolean;
   /** Which distribution format they want to receive. */
   format?: ReportDistributionFormatName;
   /** How to send the email to this subscriber. */
-  sendTo: EmailSendToName;
+  sendTo?: EmailSendToName;
 
-  // TODO: These are for subscribers requesting to receive a product.
-  /** Whether the user has requested to be subscribed. */
-  requestedIsSubscribedStatus?: boolean; // TODO: I find this status confusing
-  /** Whether the user has requested a change to their subscription. */
-  subscriptionChangeActioned?: boolean; // TODO: I find this status confusing
+  /** User properties */
+  username: string;
+  email: string;
+  preferredEmail: string;
+  emailVerified: boolean;
+  displayName: string;
+  firstName: string;
+  lastName: string;
+  isEnabled: boolean;
+  accountType: UserAccountTypeName;
+
+  /** Table row version */
+  version?: number;
 }

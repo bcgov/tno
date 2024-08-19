@@ -8,13 +8,23 @@ export const ProductList = styled.div`
   .filter-bar {
     display: flex;
     align-items: center;
+    background-color: #f5f5f5;
+    align-items: center;
+    gap: 1rem;
+
     input {
       margin-top: 3.5%;
     }
     button {
       background-color: white;
     }
-    background-color: #f5f5f5;
+
+    .frm-in {
+      padding: 0;
+      input {
+        margin-top: 0;
+      }
+    }
   }
 
   div.row {

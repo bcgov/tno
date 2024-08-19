@@ -1,14 +1,13 @@
 using System.Security.Claims;
-using System.Text.Json;
-using System.Text.Json.Nodes;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.API.Models.Settings;
+using TNO.Ches;
+using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Extensions;
-using TNO.Elastic;
 using TNO.Entities;
 using TNO.Models.Filters;
 
@@ -17,24 +16,30 @@ namespace TNO.DAL.Services;
 public class ProductService : BaseService<Product, int>, IProductService
 {
     #region Variables
-    private readonly ElasticOptions _elasticOptions;
-    private readonly ITNOElasticClient _elasticClient;
-    private readonly JsonSerializerOptions _serializerOptions;
+    private readonly IChesService _chesService;
+    private readonly ChesOptions _chesOptions;
     #endregion
 
     #region Constructors
+    /// <summary>
+    /// Creates a new instance of a ProductService object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="dbContext"></param>
+    /// <param name="principal"></param>
+    /// <param name="chesService"></param>
+    /// <param name="chesOptions"></param>
+    /// <param name="serviceProvider"></param>
+    /// <param name="logger"></param>
     public ProductService(
         TNOContext dbContext,
         ClaimsPrincipal principal,
-        ITNOElasticClient elasticClient,
-        IOptions<ElasticOptions> elasticOptions,
+        IChesService chesService,
+        IOptions<ChesOptions> chesOptions,
         IServiceProvider serviceProvider,
-        IOptions<JsonSerializerOptions> serializerOptions,
         ILogger<ProductService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
-        _elasticClient = elasticClient;
-        _elasticOptions = elasticOptions.Value;
-        _serializerOptions = serializerOptions.Value;
+        _chesService = chesService;
+        _chesOptions = chesOptions.Value;
     }
     #endregion
 
@@ -69,23 +74,26 @@ public class ProductService : BaseService<Product, int>, IProductService
     /// </summary>
     /// <param name="filter"></param>
     /// <returns></returns>
-    public IEnumerable<Product> Find(ProductFilter? filter = null)
+    public IEnumerable<Product> Find(ProductFilter filter)
     {
-        var query = this.Context.Products
-            .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
-            .AsNoTracking();
+        var query = filter.IsAvailableToUserId.HasValue == true ?
+            this.Context.Products.AsNoTracking() :
+            this.Context.Products.Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User).AsNoTracking();
 
-        if (!String.IsNullOrWhiteSpace(filter?.Name))
+        if (!String.IsNullOrWhiteSpace(filter.Name))
             query = query.Where(r => EF.Functions.Like(r.Name, $"%{filter.Name}%"));
 
-        if (filter?.IsPublic.HasValue == true)
+        if (filter.IsEnabled.HasValue == true)
+            query = query.Where(r => r.IsEnabled == filter.IsEnabled.Value);
+        if (filter.IsPublic.HasValue == true)
             query = query.Where(r => r.IsPublic == filter.IsPublic.Value);
-
         // brings back products which the user is subscriber to but are not public
-        if (filter?.SubscriberUserId.HasValue == true)
-            query = query.Where(r => r.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == filter.SubscriberUserId.Value));
+        if (filter.SubscriberUserId.HasValue == true)
+            query = query.Where(r => r.SubscribersManyToMany.Any(s => s.UserId == filter.SubscriberUserId.Value));
+        if (filter.IsAvailableToUserId.HasValue == true)
+            query = query.Where(r => r.IsPublic || r.SubscribersManyToMany.Any(s => s.UserId == filter.IsAvailableToUserId.Value));
 
-        if (filter?.Sort?.Any() == true)
+        if (filter.Sort?.Any() == true)
         {
             query = query.OrderByProperty(filter.Sort.First());
             foreach (var sort in filter.Sort.Skip(1))
@@ -96,7 +104,7 @@ public class ProductService : BaseService<Product, int>, IProductService
         else
             query = query.OrderBy(q => q.SortOrder).OrderBy(u => u.Name);
 
-        if (filter != null && filter.Page.HasValue && filter.Quantity.HasValue)
+        if (filter.Page.HasValue && filter.Quantity.HasValue)
         {
             var skip = (filter.Page.Value - 1) * filter.Quantity.Value;
             query = query
@@ -104,7 +112,38 @@ public class ProductService : BaseService<Product, int>, IProductService
                 .Take(filter.Quantity.Value);
         }
 
-        return query.ToArray();
+        var products = query.ToArray();
+
+        if (filter.IsAvailableToUserId.HasValue == true)
+        {
+            // When request products for the specific user we only want to return references to that specific user.
+            // Get all the actual subscription records.
+            var user = this.Context.Users
+                .AsNoTracking()
+                .Include(u => u.ReportSubscriptionsManyToMany)
+                .Include(u => u.NotificationSubscriptionsManyToMany)
+                .Include(u => u.AVOverviewSubscriptionsManyToMany)
+                .FirstOrDefault(u => u.Id == filter.IsAvailableToUserId.Value) ?? throw new NoContentException();
+
+            // Fetch product subscribers only for the specified user.
+            var subscribers = this.Context.UserProducts.AsNoTracking().Where(up => up.UserId == filter.IsAvailableToUserId.Value).ToArray();
+
+            // For each product add the actual subscription records.
+            foreach (var product in products)
+            {
+                product.SubscribersManyToMany.AddRange(subscribers.Where(s => s.ProductId == product.Id));
+                var subscriber = product.SubscribersManyToMany.FirstOrDefault(s => s.UserId == filter.IsAvailableToUserId.Value);
+                if (subscriber != null)
+                {
+                    subscriber.Product = product;
+                    subscriber.User = user;
+                }
+                else
+                    product.SubscribersManyToMany.Add(new UserProduct(user, product));
+            }
+        }
+
+        return products;
     }
 
     /// <summary>
@@ -120,15 +159,65 @@ public class ProductService : BaseService<Product, int>, IProductService
     }
 
     /// <summary>
-    /// Find the products for the specified user.
+    /// Find the report for the specified 'id'.
+    /// Also include the user subscriptions to the linked product types.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="includeSubscriptions"></param>
+    /// <returns></returns>
+    public Product? FindById(int id, bool includeSubscriptions)
+    {
+        var product = this.Context.Products
+            .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
+            .FirstOrDefault(r => r.Id == id);
+
+        if (product != null && includeSubscriptions)
+        {
+            // Fetch the user subscriptions for this product.
+            if (product.ProductType == ProductType.Report)
+            {
+                var userSubscriptions = this.Context.UserReports.AsNoTracking()
+                    .Where(ur => ur.ReportId == product.TargetProductId).ToArray();
+                product.SubscribersManyToMany.ForEach(ps =>
+                {
+                    var subscriptions = userSubscriptions.Where(s => s.UserId == ps.UserId);
+                    ps.User!.ReportSubscriptionsManyToMany.AddRange(subscriptions);
+                });
+            }
+            else if (product.ProductType == ProductType.Notification)
+            {
+                var userSubscriptions = this.Context.UserNotifications.AsNoTracking()
+                    .Where(ur => ur.NotificationId == product.TargetProductId).ToArray();
+                product.SubscribersManyToMany.ForEach(ps =>
+                {
+                    var subscriptions = userSubscriptions.Where(s => s.UserId == ps.UserId);
+                    ps.User!.NotificationSubscriptionsManyToMany.AddRange(subscriptions);
+                });
+            }
+            else if (product.ProductType == ProductType.EveningOverview)
+            {
+                var userSubscriptions = this.Context.UserAVOverviews.AsNoTracking().ToArray();
+                product.SubscribersManyToMany.ForEach(ps =>
+                {
+                    var subscriptions = userSubscriptions.Where(s => s.UserId == ps.UserId);
+                    ps.User!.AVOverviewSubscriptionsManyToMany.AddRange(subscriptions);
+                });
+            }
+        }
+
+        return product;
+    }
+
+    /// <summary>
+    /// Find the products for the specified user.
+    /// </summary>
+    /// <param name="userId"></param>
     /// <returns></returns>
     public IEnumerable<Product> FindProductsByUser(int userId)
     {
         return this.Context.Products
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
-            .Where(f => f.SubscribersManyToMany.Exists(s => s.UserId == userId && s.IsSubscribed))
+            .Where(f => f.SubscribersManyToMany.Exists(s => s.UserId == userId))
             .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
     }
 
@@ -141,6 +230,77 @@ public class ProductService : BaseService<Product, int>, IProductService
     public override Product Add(Product entity)
     {
         this.Context.AddRange(entity.SubscribersManyToMany);
+
+        // Add subscriptions to the product if required.
+        if (entity.ProductType == ProductType.Report)
+        {
+            // Fetch current subscriptions.
+            var currentSubscriptions = this.Context.UserReports.Where(ur => ur.ReportId == entity.TargetProductId).ToArray();
+            foreach (var subscriber in entity.SubscribersManyToMany)
+            {
+                if (subscriber.User != null)
+                {
+                    foreach (var subscription in subscriber.User.ReportSubscriptionsManyToMany)
+                    {
+                        var currentSubscription = currentSubscriptions.FirstOrDefault(cs => cs.UserId == subscriber.UserId);
+                        if (currentSubscription == null)
+                            this.Context.Entry(subscription).State = EntityState.Added;
+                        else
+                        {
+                            currentSubscription.IsSubscribed = subscription.IsSubscribed;
+                            currentSubscription.Format = subscription.Format;
+                            currentSubscription.SendTo = subscription.SendTo;
+                            this.Context.Entry(subscription).State = EntityState.Modified;
+                        }
+                    }
+                }
+            }
+        }
+        if (entity.ProductType == ProductType.Notification)
+        {
+            // Fetch current subscriptions.
+            var currentSubscriptions = this.Context.UserNotifications.Where(ur => ur.NotificationId == entity.TargetProductId).ToArray();
+            foreach (var subscriber in entity.SubscribersManyToMany)
+            {
+                if (subscriber.User != null)
+                {
+                    foreach (var subscription in subscriber.User.NotificationSubscriptionsManyToMany)
+                    {
+                        var currentSubscription = currentSubscriptions.FirstOrDefault(cs => cs.UserId == subscriber.UserId);
+                        if (currentSubscription == null)
+                            this.Context.Entry(subscription).State = EntityState.Added;
+                        else
+                        {
+                            currentSubscription.IsSubscribed = subscription.IsSubscribed;
+                            this.Context.Entry(subscription).State = EntityState.Modified;
+                        }
+                    }
+                }
+            }
+        }
+        if (entity.ProductType == ProductType.EveningOverview)
+        {
+            // Fetch current subscriptions.
+            var currentSubscriptions = this.Context.UserAVOverviews.Where(ur => (int)ur.TemplateType == entity.TargetProductId).ToArray();
+            foreach (var subscriber in entity.SubscribersManyToMany)
+            {
+                if (subscriber.User != null)
+                {
+                    foreach (var subscription in subscriber.User.AVOverviewSubscriptionsManyToMany)
+                    {
+                        var currentSubscription = currentSubscriptions.FirstOrDefault(cs => cs.UserId == subscriber.UserId);
+                        if (currentSubscription == null)
+                            this.Context.Entry(subscription).State = EntityState.Added;
+                        else
+                        {
+                            currentSubscription.IsSubscribed = subscription.IsSubscribed;
+                            currentSubscription.SendTo = subscription.SendTo;
+                            this.Context.Entry(subscription).State = EntityState.Modified;
+                        }
+                    }
+                }
+            }
+        }
         return base.Add(entity);
     }
 
@@ -153,106 +313,158 @@ public class ProductService : BaseService<Product, int>, IProductService
     /// <exception cref="NoContentException"></exception>
     public override Product Update(Product entity)
     {
-        var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
-
         // Add/Update/Delete subscribers.
-        var originalSubscribers = original.SubscribersManyToMany.ToArray();
+        var originalSubscribers = this.Context.UserProducts.Where(up => up.ProductId == entity.Id).ToArray();
         originalSubscribers.Except(entity.SubscribersManyToMany).ForEach(s =>
         {
             this.Context.Entry(s).State = EntityState.Deleted;
         });
-        entity.SubscribersManyToMany.ForEach(s =>
+        entity.SubscribersManyToMany.ForEach(userProduct =>
         {
-            var originalSubscriber = originalSubscribers.FirstOrDefault(rs => rs.UserId == s.UserId);
+            var originalSubscriber = originalSubscribers.FirstOrDefault(rs => rs.UserId == userProduct.UserId);
             if (originalSubscriber == null)
             {
-                original.SubscribersManyToMany.Add(s);
-
-                // Update linked subscription products
-                UpdateLinkedSubscription(entity, s);
+                this.Context.Entry(userProduct).State = EntityState.Added;
             }
             else
             {
-                if (originalSubscriber.IsSubscribed != s.IsSubscribed)
-                    originalSubscriber.IsSubscribed = s.IsSubscribed;
-                if (originalSubscriber.RequestedIsSubscribedStatus != s.RequestedIsSubscribedStatus)
-                    originalSubscriber.RequestedIsSubscribedStatus = s.RequestedIsSubscribedStatus;
-                if (originalSubscriber.SubscriptionChangeActioned != s.SubscriptionChangeActioned)
-                    originalSubscriber.SubscriptionChangeActioned = s.SubscriptionChangeActioned;
-
-                // Update linked subscription products
-                UpdateLinkedSubscription(entity, originalSubscriber);
+                if (originalSubscriber.Status != userProduct.Status)
+                {
+                    originalSubscriber.Status = userProduct.Status;
+                }
             }
         });
 
-        original.Name = entity.Name;
-        original.Description = entity.Description;
-        original.ProductType = entity.ProductType;
-        original.TargetProductId = entity.TargetProductId;
-        original.IsEnabled = entity.IsEnabled;
-        original.IsPublic = entity.IsPublic;
-        original.SortOrder = entity.SortOrder;
-        original.Version = entity.Version;
-        this.Context.ResetVersion(original);
-
-        return base.Update(original);
-    }
-
-    private void UpdateLinkedSubscription(Product entity, UserProduct subscriber)
-    {
+        // Add subscriptions to the product if required.
         if (entity.ProductType == ProductType.Report)
         {
-            var subscription = this.Context.UserReports.FirstOrDefault(r => r.ReportId == entity.TargetProductId && r.UserId == subscriber.UserId);
-            if (subscription == null)
-                this.Context.UserReports.Add(new UserReport(subscriber.UserId, entity.TargetProductId, subscriber.IsSubscribed));
-            else if (subscription.IsSubscribed != subscriber.IsSubscribed)
-                subscription.IsSubscribed = subscriber.IsSubscribed;
+            // Fetch current subscriptions.
+            var currentSubscriptions = this.Context.UserReports.Where(ur => ur.ReportId == entity.TargetProductId).ToArray();
+            foreach (var subscriber in entity.SubscribersManyToMany)
+            {
+                if (subscriber.User != null)
+                {
+                    foreach (var subscription in subscriber.User.ReportSubscriptionsManyToMany)
+                    {
+                        var currentSubscription = currentSubscriptions.FirstOrDefault(cs => cs.UserId == subscriber.UserId);
+                        if (currentSubscription == null)
+                        {
+                            this.Context.Entry(subscription).State = EntityState.Added;
+                        }
+                        else if (currentSubscription.IsSubscribed != subscription.IsSubscribed ||
+                            currentSubscription.Format != subscription.Format ||
+                            currentSubscription.SendTo != subscription.SendTo)
+                        {
+                            currentSubscription.IsSubscribed = subscription.IsSubscribed;
+                            currentSubscription.Format = subscription.Format;
+                            currentSubscription.SendTo = subscription.SendTo;
+                            this.Context.Entry(currentSubscription).State = EntityState.Modified;
+                        }
+                    }
+                }
+            }
         }
         else if (entity.ProductType == ProductType.Notification)
         {
-            var subscription = this.Context.UserNotifications.FirstOrDefault(n => n.NotificationId == entity.TargetProductId && n.UserId == subscriber.UserId);
-            if (subscription == null)
-                this.Context.UserNotifications.Add(new UserNotification(subscriber.UserId, entity.TargetProductId, subscriber.IsSubscribed));
-            else if (subscription.IsSubscribed != subscriber.IsSubscribed)
-                subscription.IsSubscribed = subscriber.IsSubscribed;
+            // Fetch current subscriptions.
+            var currentSubscriptions = this.Context.UserNotifications.Where(ur => ur.NotificationId == entity.TargetProductId).ToArray();
+            foreach (var subscriber in entity.SubscribersManyToMany)
+            {
+                if (subscriber.User != null)
+                {
+                    foreach (var subscription in subscriber.User.NotificationSubscriptionsManyToMany)
+                    {
+                        var currentSubscription = currentSubscriptions.FirstOrDefault(cs => cs.UserId == subscriber.UserId);
+                        if (currentSubscription == null)
+                        {
+                            this.Context.Entry(subscription).State = EntityState.Added;
+                        }
+                        else if (currentSubscription.IsSubscribed != subscription.IsSubscribed)
+                        {
+                            currentSubscription.IsSubscribed = subscription.IsSubscribed;
+                            this.Context.Entry(currentSubscription).State = EntityState.Modified;
+                        }
+                    }
+                }
+            }
         }
+        else if (entity.ProductType == ProductType.EveningOverview)
+        {
+            // Fetch current subscriptions.
+            var currentSubscriptions = this.Context.UserAVOverviews.Where(ur => (int)ur.TemplateType == entity.TargetProductId).ToArray();
+            foreach (var subscriber in entity.SubscribersManyToMany)
+            {
+                if (subscriber.User != null)
+                {
+                    foreach (var subscription in subscriber.User.AVOverviewSubscriptionsManyToMany)
+                    {
+                        var currentSubscription = currentSubscriptions.FirstOrDefault(cs => cs.UserId == subscriber.UserId);
+                        if (currentSubscription == null)
+                        {
+                            this.Context.Entry(subscription).State = EntityState.Added;
+                        }
+                        else if (currentSubscription.IsSubscribed != subscription.IsSubscribed ||
+                            currentSubscription.SendTo != subscription.SendTo)
+                        {
+                            currentSubscription.IsSubscribed = subscription.IsSubscribed;
+                            currentSubscription.SendTo = subscription.SendTo;
+                            this.Context.Entry(currentSubscription).State = EntityState.Modified;
+                        }
+                    }
+                }
+            }
+        }
+
+        return base.Update(entity);
+    }
+
+    /// <summary>
+    /// Add the user product.
+    /// </summary>
+    /// <param name="subscription"></param>
+    public void AddAndSave(UserProduct subscription)
+    {
+        this.Context.Add(subscription);
+        this.Context.SaveChanges();
+    }
+
+    /// <summary>
+    /// Update the user product.
+    /// </summary>
+    /// <param name="subscription"></param>
+    public void UpdateAndSave(UserProduct subscription)
+    {
+        this.Context.Update(subscription);
+        this.Context.SaveChanges();
     }
 
     /// <summary>
     /// Unsubscribe the specified 'userId' from the target product.
     /// </summary>
     /// <param name="userId"></param>
+    /// <param name="productId"></param>
     /// <returns></returns>
-    public async Task<int> Unsubscribe(int userId, int productId)
+    public UserProduct Unsubscribe(int userId, int productId)
     {
-        var saveChanges = false;
-        UserProduct? userProduct = await this.Context.UserProducts.FirstOrDefaultAsync(x => x.UserId == userId && x.ProductId == productId && x.IsSubscribed);
-
-        if (userProduct != null)
+        var userProduct = this.Context.UserProducts.Include(up => up.Product).FirstOrDefault(x => x.UserId == userId && x.ProductId == productId) ?? throw new NoContentException();
+        userProduct.Status = ProductRequestStatus.NA;
+        if (userProduct.Product?.ProductType == ProductType.Report)
         {
-            userProduct.IsSubscribed = false;
-            saveChanges = true;
+            var subscription = this.Context.UserReports.FirstOrDefault(ur => ur.UserId == userId && ur.ReportId == userProduct.Product!.TargetProductId) ?? throw new NoContentException();
+            subscription.IsSubscribed = false;
         }
-        return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
-    }
-
-    /// <summary>
-    /// Unsubscribe the specified 'userId' from the target product.
-    /// </summary>
-    /// <param name="userId"></param>
-    /// <returns></returns>
-    public async Task<int> RequestUnsubscribe(int userId, int productId)
-    {
-        var saveChanges = false;
-        UserProduct? userProduct = await this.Context.UserProducts.FirstOrDefaultAsync(x => x.UserId == userId && x.ProductId == productId && x.IsSubscribed);
-
-        if (userProduct != null)
+        else if (userProduct.Product?.ProductType == ProductType.Notification)
         {
-            userProduct.RequestedIsSubscribedStatus = false;
-            userProduct.SubscriptionChangeActioned = false;
-            saveChanges = true;
+            var subscription = this.Context.UserNotifications.FirstOrDefault(ur => ur.UserId == userId && ur.NotificationId == userProduct.Product!.TargetProductId) ?? throw new NoContentException();
+            subscription.IsSubscribed = false;
         }
-        return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
+        else if (userProduct.Product?.ProductType == ProductType.EveningOverview)
+        {
+            var subscription = this.Context.UserAVOverviews.FirstOrDefault(ur => ur.UserId == userId && (int)ur.TemplateType == userProduct.Product!.TargetProductId) ?? throw new NoContentException();
+            subscription.IsSubscribed = false;
+        }
+        this.Context.SaveChanges();
+        return userProduct;
     }
 
     /// <summary>
@@ -261,71 +473,82 @@ public class ProductService : BaseService<Product, int>, IProductService
     /// <param name="userId"></param>
     /// <param name="productId"></param>
     /// <returns></returns>
-    public async Task<int> Subscribe(int userId, int productId)
+    public UserProduct Subscribe(int userId, int productId)
     {
-        var saveChanges = false;
-        var targetProduct = FindById(productId) ?? throw new NoContentException("Report does not exist");
-        var subscriberRecord = targetProduct.Subscribers.FirstOrDefault(s => s.Id == userId);
-        if (subscriberRecord != null)
+        var userProduct = this.Context.UserProducts.Include(up => up.Product).FirstOrDefault(x => x.UserId == userId && x.ProductId == productId) ?? throw new NoContentException();
+        userProduct.Status = ProductRequestStatus.NA;
+        if (userProduct.Product?.ProductType == ProductType.Report)
         {
-            UserProduct? userProduct = await this.Context.UserProducts.FirstOrDefaultAsync(x => x.UserId == userId && x.ProductId == productId && !x.IsSubscribed);
-            if (userProduct != null)
-            {
-                userProduct.IsSubscribed = true;
-                saveChanges = true;
-            }
+            var subscription = this.Context.UserReports.FirstOrDefault(ur => ur.UserId == userId && ur.ReportId == userProduct.Product!.TargetProductId) ?? throw new NoContentException();
+            subscription.IsSubscribed = true;
         }
-        else
+        else if (userProduct.Product?.ProductType == ProductType.Notification)
         {
-            this.Context.UserProducts.Add(new UserProduct(userId, productId, true));
+            var subscription = this.Context.UserNotifications.FirstOrDefault(ur => ur.UserId == userId && ur.NotificationId == userProduct.Product!.TargetProductId) ?? throw new NoContentException();
+            subscription.IsSubscribed = true;
         }
-        return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
+        else if (userProduct.Product?.ProductType == ProductType.EveningOverview)
+        {
+            var subscription = this.Context.UserAVOverviews.FirstOrDefault(ur => ur.UserId == userId && (int)ur.TemplateType == userProduct.Product!.TargetProductId) ?? throw new NoContentException();
+            subscription.IsSubscribed = true;
+        }
+        this.Context.SaveChanges();
+        return userProduct;
     }
 
     /// <summary>
-    /// Subscribe the specified 'userId' to the specified product.
+    /// Send email to administrator to identify a subscription request or cancellation request.
     /// </summary>
-    /// <param name="userId"></param>
-    /// <param name="productId"></param>
+    /// <param name="subscription"></param>
     /// <returns></returns>
-    public async Task<int> RequestSubscribe(int userId, int productId)
+    /// <exception cref="NoContentException"></exception>
+    public async Task SendSubscriptionRequestEmailAsync(UserProduct subscription)
     {
-        var saveChanges = false;
-        var targetProduct = FindById(productId) ?? throw new NoContentException("Report does not exist");
-        var subscriberRecord = targetProduct.Subscribers.FirstOrDefault(s => s.Id == userId);
-        if (subscriberRecord != null)
+        var user = this.Context.Users.FirstOrDefault(u => u.Id == subscription.UserId) ?? throw new NoContentException();
+        var product = this.Context.Products.FirstOrDefault(p => p.Id == subscription.ProductId) ?? throw new NoContentException();
+
+        string subject = string.Empty;
+        var message = new StringBuilder();
+        message.AppendLine("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">");
+        message.AppendLine("<HTML>");
+        message.AppendLine("<BODY>");
+        message.AppendLine($"<p><strong>User Name</strong>: {user.DisplayName}</p>");
+        message.AppendLine($"<p><strong>User Email</strong>: {user.Email}</p>");
+        message.AppendLine($"<p><strong>Product</strong>: {product.Name}</p>");
+
+        if (subscription.Status == ProductRequestStatus.RequestSubscription)
         {
-            UserProduct? userProduct = await this.Context.UserProducts.FirstOrDefaultAsync(x => x.UserId == userId && x.ProductId == productId && !x.IsSubscribed);
-            if (userProduct != null)
+            subject = $"MMI: Product Subscription request - [{product.Name}]";
+            message.AppendLine($"<p><strong>Action</strong>: SUBSCRIBE</p>");
+        }
+        else if (subscription.Status == ProductRequestStatus.RequestUnsubscribe)
+        {
+            subject = $"MMI: Product Subscription cancellation request - [{product.Name}]";
+            message.AppendLine($"<p><strong>Action</strong>: UNSUBSCRIBE</p>");
+        }
+
+        message.AppendLine("</BODY>");
+        message.AppendLine("</HTML>");
+
+        try
+        {
+            var productSubscriptionManagerEmail = this.Context.Settings.FirstOrDefault(s => s.Name.ToLower() == AdminConfigurableSettingNames.ProductSubscriptionManagerEmail.ToString().ToLower());
+            if (productSubscriptionManagerEmail != null)
             {
-                userProduct.RequestedIsSubscribedStatus = true;
-                userProduct.SubscriptionChangeActioned = false;
-                saveChanges = true;
+                var emailAddresses = productSubscriptionManagerEmail.Value.Split(new char[] { ';', ',' }, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, emailAddresses, subject, message.ToString());
+                var response = await _chesService.SendEmailAsync(email);
+                this.Logger.LogInformation("Product subscription request email to [${email}] queued: ${transactionId}", productSubscriptionManagerEmail.Value, response.TransactionId);
+            }
+            else
+            {
+                this.Logger.LogError("Couldn't send product subscription request email: [ProductSubscriptionManagerEmail] not set.");
             }
         }
-        else
+        catch (Exception ex)
         {
-            this.Context.UserProducts.Add(new UserProduct(userId, productId) { IsSubscribed = false, RequestedIsSubscribedStatus = true, SubscriptionChangeActioned = false });
-            saveChanges = true;
+            this.Logger.LogError(ex, "Email failed to send");
         }
-        return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
-    }
-
-    public async Task<int> CancelSubscriptionStatusChangeRequest(int userId, int productId)
-    {
-        var saveChanges = false;
-        var targetProduct = FindById(productId) ?? throw new NoContentException("Report does not exist");
-        var subscriberRecord = targetProduct.Subscribers.FirstOrDefault(s => s.Id == userId);
-        if (subscriberRecord == null) throw new NoContentException("User has no subscribe/unsubscribe requests for the report");
-
-        UserProduct? userProduct = await this.Context.UserProducts.FirstOrDefaultAsync(x => x.UserId == userId && x.ProductId == productId && x.RequestedIsSubscribedStatus.HasValue);
-        if (userProduct != null)
-        {
-            userProduct.RequestedIsSubscribedStatus = null;
-            userProduct.SubscriptionChangeActioned = null;
-            saveChanges = true;
-        }
-        return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
     }
     #endregion
 }

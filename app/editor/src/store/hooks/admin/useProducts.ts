@@ -51,10 +51,6 @@ export const useProducts = (): [IAdminState, IProductController] => {
         // if any subscription requests have been actioned, reset the
         // properties related to status change requests
         model.subscribers = model.subscribers.map((item) => {
-          if (item.subscriptionChangeActioned) {
-            item.subscriptionChangeActioned = undefined;
-            item.requestedIsSubscribedStatus = undefined;
-          }
           return item;
         });
         const response = await dispatch<IProductModel>('update-product', () =>

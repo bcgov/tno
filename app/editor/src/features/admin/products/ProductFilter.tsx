@@ -1,62 +1,63 @@
 import React from 'react';
-import { Checkbox, IconButton, Row, Text } from 'tno-core';
+import { Checkbox, IconButton, IUserFilter, Row, Show, Text } from 'tno-core';
 
 interface IAdminFilterProps {
   productId?: number;
-  onFilterChange?: (value: string) => void;
-  onSearch?: (value: string, isSubscribedToProductId: number | undefined) => void;
+  filter: IUserFilter;
+  onChange?: (filter: IUserFilter) => void;
+  onSearch?: (filter: IUserFilter) => void;
 }
 
 export const ProductFilter: React.FC<IAdminFilterProps> = ({
   productId,
-  onFilterChange,
+  filter,
+  onChange,
   onSearch,
 }) => {
-  const [filter, setFilter] = React.useState<string>('');
-  const [isSubscribedId, setIsSubscribedId] = React.useState<number>();
+  const [keywords, setKeywords] = React.useState('');
+
   return (
     <Row className="filter-bar" justifyContent="center">
+      <Show visible={productId !== undefined}>
+        <Checkbox
+          name="isSubscribed"
+          label="Is subscribed"
+          className="checkbox-filter"
+          checked={!!filter?.isSubscribedToProductId}
+          onChange={(e) => {
+            onSearch?.({
+              ...filter,
+              isSubscribedToProductId: e.target.checked ? productId : undefined,
+            });
+          }}
+        />
+      </Show>
       <Text
         onChange={(e) => {
-          setFilter(e.target.value);
-          onFilterChange?.(e.target.value);
+          setKeywords(e.target.value);
+          onChange?.({ ...filter, keyword: keywords });
         }}
         onKeyUp={(e) => {
-          if (e.code === 'Enter') onSearch?.(filter, isSubscribedId);
+          if (e.code === 'Enter') onSearch?.({ ...filter, keyword: keywords });
         }}
         placeholder="Search by keyword"
         name="search"
-        value={filter}
+        value={keywords}
       >
         {!!onSearch && (
           <IconButton
             iconType="search"
             onClick={() => {
-              onSearch?.(filter, isSubscribedId);
+              onSearch?.({ ...filter, keyword: keywords });
             }}
           />
         )}
       </Text>
-      {productId && (
-        <Checkbox
-          name="isSubscribed"
-          label="Is subscribed"
-          className="checkbox-filter"
-          checked={!!isSubscribedId}
-          onChange={(e) => {
-            const s = e.target.checked ? productId : undefined;
-            setIsSubscribedId(s);
-            onSearch?.(filter, s);
-          }}
-        />
-      )}
       <IconButton
         iconType="reset"
         onClick={() => {
-          setIsSubscribedId(undefined);
-          setFilter('');
-          onFilterChange?.('');
-          onSearch?.('', undefined);
+          setKeywords('');
+          onSearch?.({ ...filter, keyword: '', isSubscribedToProductId: undefined });
         }}
       />
     </Row>

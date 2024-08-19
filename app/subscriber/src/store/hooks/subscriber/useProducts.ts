@@ -1,10 +1,10 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
-import { IProductSubscriberModel, useApiSubscriberProducts } from 'tno-core';
+import { IProductModel, IUserProductModel, useApiSubscriberProducts } from 'tno-core';
 
 interface IProductController {
-  getProducts: () => Promise<IProductSubscriberModel[]>;
-  toggleSubscription: (model: IProductSubscriberModel) => Promise<IProductSubscriberModel>;
+  getProducts: () => Promise<IProductModel[]>;
+  toggleSubscription: (model: IUserProductModel) => Promise<IUserProductModel>;
 }
 
 export const useProducts = (): [IProductController] => {
@@ -14,15 +14,12 @@ export const useProducts = (): [IProductController] => {
   const controller = React.useMemo(
     () => ({
       getProducts: async () => {
-        const response = await dispatch<IProductSubscriberModel[]>('get-products', () =>
-          api.getProducts(),
-        );
+        const response = await dispatch<IProductModel[]>('get-products', () => api.getProducts());
         return response.data;
       },
-      toggleSubscription: async (model: IProductSubscriberModel) => {
-        const response = await dispatch<IProductSubscriberModel>(
-          'toggle-product-subscription',
-          () => api.toggleSubscription(model),
+      toggleSubscription: async (model: IUserProductModel) => {
+        const response = await dispatch<IUserProductModel>('toggle-product-subscription', () =>
+          api.toggleSubscription(model),
         );
         return response.data;
       },
