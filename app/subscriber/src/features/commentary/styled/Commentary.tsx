@@ -19,15 +19,4 @@ export const Commentary = styled.div`
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-
-  .action-refresh svg {
-    color: #04814d !important;
-    transition: color 0.3s ease;
-  }
-  .action-refresh:hover svg {
-    transform: rotate(-90deg);
-  }
-  action-refresh:active svg {
-    color: #26e194 !important;
-  }
 `;

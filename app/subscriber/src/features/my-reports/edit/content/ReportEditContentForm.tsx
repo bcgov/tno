@@ -1,5 +1,6 @@
 import { Action } from 'components/action';
 import { Modal } from 'components/modal';
+import { RefreshButton } from 'components/refresh-button';
 import { StartNextReportInfo } from 'features/my-reports/components';
 import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import { toForm } from 'features/my-reports/utils';
@@ -107,8 +108,7 @@ export const ReportEditContentForm = React.forwardRef<
         </div>
         <div>
           <Show visible={!disabled}>
-            <Action
-              className="icon-refresh"
+            <RefreshButton
               icon={<FaArrowsRotate />}
               label="Regenerate report"
               disabled={isSubmitting}

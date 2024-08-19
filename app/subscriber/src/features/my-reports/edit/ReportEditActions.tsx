@@ -1,6 +1,7 @@
 import { Action } from 'components/action';
 import { Button } from 'components/button';
 import { Modal } from 'components/modal';
+import { RefreshButton } from 'components/refresh-button';
 import React from 'react';
 import { FaSave } from 'react-icons/fa';
 import {
@@ -113,8 +114,7 @@ export const ReportEditActions = ({
       </Show>{' '}
       <Show visible={!instance?.sentOn && active?.startsWith(ReportMainMenuOption.View)}>
         <Col flex="1" alignItems="flex-start">
-          <Action
-            className="icon-refresh"
+          <RefreshButton
             icon={<FaArrowsRotate />}
             label="Refresh Preview"
             onClick={() => instance && handleViewReport(instance.id, true)}

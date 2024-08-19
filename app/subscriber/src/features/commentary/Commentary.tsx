@@ -1,5 +1,5 @@
-import { Action } from 'components/action';
 import { ContentList } from 'components/content-list';
+import { RefreshButton } from 'components/refresh-button';
 import { PageSection } from 'components/section';
 import { useActionFilters } from 'features/search-page/hooks';
 import { filterFormat } from 'features/search-page/utils';
@@ -103,8 +103,7 @@ export const Commentary: React.FC = () => {
         header={
           <Row justifyContent="space-between" flex="1">
             Commentary
-            <Action
-              className="action-refresh"
+            <RefreshButton
               title="Refresh"
               icon={<FaArrowsRotate />}
               onClick={() => commentaryActionId && fetchCommentary(commentaryActionId)}

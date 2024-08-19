@@ -1,5 +1,6 @@
 import { Action } from 'components/action';
 import { Modal } from 'components/modal';
+import { RefreshButton } from 'components/refresh-button';
 import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import {
   createReportInstanceContent,
@@ -86,7 +87,7 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
             originalIndex: instance.content.findIndex(
               (oi) => oi.contentId === c.contentId && oi.sectionName === c.sectionName,
             ),
-          } as IReportInstanceContentForm),
+          }) as IReportInstanceContentForm,
       ) ?? [];
   const sectionOptions = values.sections
     .filter((s) => s.sectionType === ReportSectionTypeName.Content)
@@ -205,8 +206,7 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
                 {!!section.id && !disabled && (section.filterId || section.folderId) ? (
                   <Col flex="1">
                     <Row justifyContent="flex-end">
-                      <Action
-                        className="icon-refresh"
+                      <RefreshButton
                         icon={<FaArrowsRotate />}
                         label="Regenerate section"
                         disabled={isSubmitting}
