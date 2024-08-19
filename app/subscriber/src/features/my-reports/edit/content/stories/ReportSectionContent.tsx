@@ -87,7 +87,7 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
             originalIndex: instance.content.findIndex(
               (oi) => oi.contentId === c.contentId && oi.sectionName === c.sectionName,
             ),
-          }) as IReportInstanceContentForm,
+          } as IReportInstanceContentForm),
       ) ?? [];
   const sectionOptions = values.sections
     .filter((s) => s.sectionType === ReportSectionTypeName.Content)
