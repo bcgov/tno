@@ -169,7 +169,7 @@ public class ProductService : BaseService<Product, int>, IProductService
                 original.SubscribersManyToMany.Add(s);
 
                 // Update linked subscription products
-                UpdateLinkedSubscription(entity, s);
+                UpdateLinkedSubscription(entity, s, originalSubscriber);
             }
             else
             {
@@ -181,7 +181,7 @@ public class ProductService : BaseService<Product, int>, IProductService
                     originalSubscriber.SubscriptionChangeActioned = s.SubscriptionChangeActioned;
 
                 // Update linked subscription products
-                UpdateLinkedSubscription(entity, originalSubscriber);
+                UpdateLinkedSubscription(entity, s, originalSubscriber);
             }
         });
 
@@ -198,23 +198,46 @@ public class ProductService : BaseService<Product, int>, IProductService
         return base.Update(original);
     }
 
-    private void UpdateLinkedSubscription(Product entity, UserProduct subscriber)
+    private void UpdateLinkedSubscription(Product entity, UserProduct subscriber, UserProduct? originalSubscriber)
     {
-        if (entity.ProductType == ProductType.Report)
+        if (originalSubscriber == null)
         {
-            var subscription = this.Context.UserReports.FirstOrDefault(r => r.ReportId == entity.TargetProductId && r.UserId == subscriber.UserId);
-            if (subscription == null)
-                this.Context.UserReports.Add(new UserReport(subscriber.UserId, entity.TargetProductId, subscriber.IsSubscribed));
-            else if (subscription.IsSubscribed != subscriber.IsSubscribed)
-                subscription.IsSubscribed = subscriber.IsSubscribed;
+            if (entity.ProductType == ProductType.Report)
+            {
+                var subscription = this.Context.UserReports.FirstOrDefault(r => r.ReportId == entity.TargetProductId && r.UserId == subscriber.UserId);
+                if (subscription == null)
+                    this.Context.UserReports.Add(new UserReport(subscriber.UserId, entity.TargetProductId, subscriber.IsSubscribed));
+                else if (subscription.IsSubscribed != subscriber.IsSubscribed)
+                    subscription.IsSubscribed = subscriber.IsSubscribed;
+            }
+            else if (entity.ProductType == ProductType.Notification)
+            {
+                var subscription = this.Context.UserNotifications.FirstOrDefault(n => n.NotificationId == entity.TargetProductId && n.UserId == subscriber.UserId);
+                if (subscription == null)
+                    this.Context.UserNotifications.Add(new UserNotification(subscriber.UserId, entity.TargetProductId, subscriber.IsSubscribed));
+                else if (subscription.IsSubscribed != subscriber.IsSubscribed)
+                    subscription.IsSubscribed = subscriber.IsSubscribed;
+            }
+
         }
-        else if (entity.ProductType == ProductType.Notification)
+        else
         {
-            var subscription = this.Context.UserNotifications.FirstOrDefault(n => n.NotificationId == entity.TargetProductId && n.UserId == subscriber.UserId);
-            if (subscription == null)
-                this.Context.UserNotifications.Add(new UserNotification(subscriber.UserId, entity.TargetProductId, subscriber.IsSubscribed));
-            else if (subscription.IsSubscribed != subscriber.IsSubscribed)
-                subscription.IsSubscribed = subscriber.IsSubscribed;
+            if (entity.ProductType == ProductType.Report)
+            {
+                var subscription = this.Context.UserReports.FirstOrDefault(r => r.ReportId == entity.TargetProductId && r.UserId == originalSubscriber.UserId);
+                if (subscription != null && subscription.IsSubscribed != subscriber.IsSubscribed)
+                {
+                    subscription.IsSubscribed = subscriber.IsSubscribed;
+                }
+            }
+            else if (entity.ProductType == ProductType.Notification)
+            {
+                var subscription = this.Context.UserNotifications.FirstOrDefault(n => n.NotificationId == entity.TargetProductId && n.UserId == originalSubscriber.UserId);
+                if (subscription != null && subscription.IsSubscribed != subscriber.IsSubscribed)
+                    subscription.IsSubscribed = subscriber.IsSubscribed;
+            }
+
+
         }
     }
 
