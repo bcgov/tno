@@ -13,9 +13,15 @@ export interface IUserApproveDenyProps {
   user: IUserProductModel;
   product?: IProductModel;
   setProduct: React.Dispatch<React.SetStateAction<IProductModel | undefined>>;
+  onUserUpdate: (updatedUser: IUserProductModel) => void;
 }
 
-export const UserApproveDeny: React.FC<IUserApproveDenyProps> = ({ user, product, setProduct }) => {
+export const UserApproveDeny: React.FC<IUserApproveDenyProps> = ({
+  user,
+  product,
+  setProduct,
+  onUserUpdate,
+}) => {
   const [, { updateProduct }] = useProducts();
   const handleApprove = async (user: IUserProductModel) => {
     if (!product) return;
@@ -32,6 +38,7 @@ export const UserApproveDeny: React.FC<IUserApproveDenyProps> = ({ user, product
       subscribers: product.subscribers.map((u) => (u.id === user.id ? updatedUser : u)),
     }).then((result) => {
       setProduct(result);
+      onUserUpdate(updatedUser);
       toast.success(`Subscription request approved for ${user.firstName} ${user.lastName}`);
     });
   };
@@ -49,6 +56,7 @@ export const UserApproveDeny: React.FC<IUserApproveDenyProps> = ({ user, product
       subscribers: product.subscribers.map((u) => (u.id === user.id ? updatedUser : u)),
     }).then((result) => {
       setProduct(result);
+      onUserUpdate(updatedUser);
       toast.success(`Subscription request rejected for ${user.firstName} ${user.lastName}`);
     });
   };

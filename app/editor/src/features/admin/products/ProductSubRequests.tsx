@@ -16,43 +16,55 @@ export const ProductSubRequests: React.FC = () => {
 
   React.useEffect(() => {
     if (Number(id) && !product) {
-      getProduct(Number(id)).then((result) => setProduct(result));
+      getProduct(Number(id)).then((result) => {
+        setProduct(result);
+        setFlaggedUsers(result.subscribers.filter((user) => user.requestedIsSubscribedStatus));
+      });
     }
-    // only run when id changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, getProduct, product]);
 
-  React.useEffect(() => {
-    if (!!product) {
-      const flagged = product.subscribers.filter((user) => user.requestedIsSubscribedStatus);
-      setFlaggedUsers(flagged);
-    }
-    // only run when product changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [product]);
+  const handleUserUpdate = (updatedUser: IUserProductModel) => {
+    setFlaggedUsers((prevUsers) => prevUsers.filter((user) => user.id !== updatedUser.id));
+    setProduct((prevProduct) => {
+      if (!prevProduct) return prevProduct;
+      return {
+        ...prevProduct,
+        subscribers: prevProduct.subscribers.map((user) =>
+          user.id === updatedUser.id ? updatedUser : user,
+        ),
+      };
+    });
+  };
 
-  // split it into two groups subscription requests and unsubscribe requests
   return (
     <styled.ProductSubRequests>
       <h3>Subscription Requests</h3>
       {flaggedUsers
         ?.filter((user) => !user.isSubscribed)
-        .map((user) => {
-          return (
-            <UserApproveDeny user={user} product={product} setProduct={setProduct} key={user.id} />
-          );
-        })}
+        .map((user) => (
+          <UserApproveDeny
+            key={user.id}
+            user={user}
+            product={product}
+            setProduct={setProduct}
+            onUserUpdate={handleUserUpdate}
+          />
+        ))}
       <Show visible={flaggedUsers.filter((u) => !u.isSubscribed).length === 0}>
         <div className="user-row">No subscribe requests to review</div>
       </Show>
       <h3 className="unsub">Unsubscribe Requests</h3>
       {flaggedUsers
         ?.filter((user) => user.isSubscribed)
-        .map((user) => {
-          return (
-            <UserApproveDeny user={user} product={product} setProduct={setProduct} key={user.id} />
-          );
-        })}
+        .map((user) => (
+          <UserApproveDeny
+            key={user.id}
+            user={user}
+            product={product}
+            setProduct={setProduct}
+            onUserUpdate={handleUserUpdate}
+          />
+        ))}
       <Show visible={flaggedUsers.filter((u) => u.isSubscribed).length === 0}>
         <div className="user-row">No unsubscribe requests to review</div>
       </Show>
