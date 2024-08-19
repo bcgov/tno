@@ -57,62 +57,67 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ editable = true, in
   const items = values.sections[index].items;
   const queryDate = values.publishedOn ? new Date(values.publishedOn) : new Date();
   const startTime = values.sections[index]?.startTime?.split(':');
+  const seriesId = values?.sections[index].seriesId;
+  const sourceId = values?.sections[index].sourceId;
 
   /** fetch pieces of content that are related to the series to display as options for associated clips, search for clips published after the start time if it is specified - otherwise filter based on that day.*/
-  const searchClips = React.useCallback(() => {
-    const seriesIds: number[] =
-      values.sections.length > index && values.sections[index].seriesId
-        ? [values.sections[index].seriesId!]
-        : [];
-    const sourceIds: number[] =
-      values.sections.length > index && values.sections[index].sourceId
-        ? [values.sections[index].sourceId!]
-        : [];
-    const startDate = queryDate;
-    if (values.sections[index].startTime) {
-      startDate.setHours(Number(startTime[0]), Number(startTime[1]), Number(startTime[2]));
-    }
-    const endDate = new Date(startDate);
-    endDate.setHours(23, 59, 59);
-    const query = generateQuery({
-      searchUnpublished: false,
-      size: 0,
-      seriesIds,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-      sourceIds,
-      sort: [{ publishedOn: 'asc' }],
-    });
-    findContentWithElasticsearch(query, false)
-      .then((data) => {
-        const results: IContentModel[] = data.hits.hits.map((h) => h._source!);
-        setContentItems(results);
-        const newClips = results.map((c) => {
-          const publishedOnTime = c.publishedOn ? `${moment(c.publishedOn).format('HH:mm')} ` : '';
-          const itemHeadline = `${publishedOnTime}${c.headline}`;
-          return new OptionItem(itemHeadline, c.id);
-        }) as IOptionItem[];
-        // check if any previously selected clips are no longer available, if not, unselect them
-        items.forEach((item, itemIndex) => {
-          if (item.contentId && !newClips.some((clip) => clip.value === item.contentId)) {
-            setFieldValue(`sections.${index}.items.${itemIndex}.contentId`, null);
-          }
-        });
-        setClips(newClips);
-      })
-      .catch(() => {});
+  const searchClips = React.useCallback(
+    (sourceId: number | undefined, seriesId: number | undefined) => {
+      const seriesIds: number[] = seriesId ? [seriesId] : [];
+      const sourceIds: number[] = sourceId ? [sourceId] : [];
+      const startDate = queryDate;
+      if (values.sections[index].startTime) {
+        startDate.setHours(Number(startTime[0]), Number(startTime[1]), Number(startTime[2]));
+      }
+      const endDate = new Date(startDate);
+      endDate.setHours(23, 59, 59);
+      const query = generateQuery({
+        searchUnpublished: false,
+        size: 0,
+        seriesIds,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        sourceIds,
+        sort: [{ publishedOn: 'asc' }],
+      });
+      findContentWithElasticsearch(query, false)
+        .then((data) => {
+          const results: IContentModel[] = data.hits.hits.map((h) => h._source!);
+          setContentItems(results);
+          const newClips = results.map((c) => {
+            const publishedOnTime = c.publishedOn
+              ? `${moment(c.publishedOn).format('HH:mm')} `
+              : '';
+            const itemHeadline = `${publishedOnTime}${c.headline}`;
+            return new OptionItem(itemHeadline, c.id);
+          }) as IOptionItem[];
+          // check if any previously selected clips are no longer available, if not, unselect them
+          items.forEach((item, itemIndex) => {
+            if (item.contentId && !newClips.some((clip) => clip.value === item.contentId)) {
+              setFieldValue(`sections.${index}.items.${itemIndex}.contentId`, null);
+            }
+          });
+          setClips(newClips);
+        })
+        .catch(() => {});
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    [],
+  );
 
   // only want to fire on id change, and when start time is changed and completed
   React.useEffect(() => {
     const fetch =
-      !!values?.sections[index]?.startTime && !values?.sections[index]?.startTime?.includes('_');
+      !!values?.sections[index]?.startTime &&
+      !values?.sections[index]?.startTime?.includes('_') &&
+      sourceId;
     if (fetch) {
-      searchClips();
+      searchClips(sourceId, seriesId);
+    } else {
+      setClips([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [index, searchClips, values.id, values?.sections[index].startTime]);
+  }, [index, searchClips, values.id, sourceId, seriesId]);
 
   /** function that runs after a user drops an item in the list */
   const handleDrop = (droppedItem: any) => {
