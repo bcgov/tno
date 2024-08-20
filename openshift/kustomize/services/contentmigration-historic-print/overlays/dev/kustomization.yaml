@@ -1,0 +1,37 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: 9b301c-dev
+
+resources:
+  - ../../base
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+patches:
+  - target:
+      kind: DeploymentConfig
+      name: contentmigration-historic-service
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 1
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: 25m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: 128Mi
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: 150m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: 350Mi
+      - op: replace
+        path: /spec/triggers/1/imageChangeParams/from/name
+        value: contentmigration-service:dev
+      - op: replace
+        path: /spec/template/spec/containers/0/env/0/value
+        value: Development
