@@ -127,7 +127,7 @@ export const Menu: React.FC = () => {
                 <NavDropdown.Item as={Link} to="/admin/data/locations">
                   Data Locations
                 </NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/admin/connection">
+                <NavDropdown.Item as={Link} to="/admin/connections">
                   Data Connections
                 </NavDropdown.Item>
               </MenuDropdown>

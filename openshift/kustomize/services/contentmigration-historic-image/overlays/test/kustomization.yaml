@@ -1,7 +1,7 @@
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: 9b301c-prod
+namespace: 9b301c-test
 
 resources:
   - ../../base
@@ -12,14 +12,14 @@ generatorOptions:
 patches:
   - target:
       kind: ConfigMap
-      name: contentmigration-historic-service
+      name: contentmigration-historic-image-service
     patch: |-
       - op: replace
         path: /data/GENERATE_ALERTS_ON_CONTENT_MIGRATION
         value: "false"
   - target:
       kind: DeploymentConfig
-      name: contentmigration-historic-service
+      name: contentmigration-historic-image-service
     patch: |-
       - op: replace
         path: /spec/replicas
@@ -38,7 +38,7 @@ patches:
         value: 350Mi
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
-        value: contentmigration-service:prod
+        value: contentmigration-service:test
       - op: replace
         path: /spec/template/spec/containers/0/env/0/value
-        value: Production
+        value: Staging

@@ -1,0 +1,26 @@
+---
+# Open up ports to communicate with the app.
+kind: Service
+apiVersion: v1
+metadata:
+  name: oracle-db
+  namespace: default
+  annotations:
+    description: Oracle database
+  labels:
+    name: oracle-db
+    part-of: tno
+    version: 1.0.0
+    component: oracle-db
+    managed-by: kustomize
+spec:
+  ports:
+    - name: 1521-tcp
+      port: 1521
+      protocol: TCP
+      targetPort: 1521
+  selector:
+    part-of: tno
+    component: oracle-db
+  sessionAffinity: None
+  type: ClusterIP
