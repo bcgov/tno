@@ -15,16 +15,24 @@ import {
 
 import { defaultAVOverviewSectionItem } from './constants';
 import { EditBroadcastDetails } from './EditBroadcastDetails';
-import { OverviewGrid } from './OverviewGrid';
+import { OverviewSectionForm } from './OverviewSectionForm';
 import * as styled from './styled';
+import { ISectionSummary } from './utils';
 
 export interface IOverviewSectionProps {
   editable?: boolean;
   index: number;
+  summaries: ISectionSummary[];
+  setSummaries: React.Dispatch<React.SetStateAction<ISectionSummary[]>>;
 }
 
 /** This section includes the overview grid, as well as the broadcast details. */
-export const OverviewSection: React.FC<IOverviewSectionProps> = ({ editable = true, index }) => {
+export const OverviewSection: React.FC<IOverviewSectionProps> = ({
+  editable = true,
+  index,
+  summaries,
+  setSummaries,
+}) => {
   const { values, setFieldValue } = useFormikContext<IAVOverviewInstanceModel>();
   const { toggle, isShowing } = useModal();
   const section = values.sections[index];
@@ -60,7 +68,12 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({ editable = tr
         editable={editable}
         open={!section.sourceId && !section.otherSource && !section.seriesId}
       />
-      <OverviewGrid index={index} editable={editable} />
+      <OverviewSectionForm
+        index={index}
+        editable={editable}
+        summaries={summaries}
+        setSummaries={setSummaries}
+      />
       <Show visible={editable}>
         <Row className="buttons">
           <Row flex="1">
