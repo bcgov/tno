@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { generateQuery } from 'tno-core';
 
 /**
@@ -9,27 +10,31 @@ import { generateQuery } from 'tno-core';
  * @returns string
  */
 export const generateElasticsearchQuery = (
-  startDate: Date,
+  startDate: string | Date,
   startTime: string,
   seriesId?: number,
   sourceId?: number,
 ) => {
-  const startTimeParts = startTime.split(':');
   const seriesIds: number[] = seriesId ? [seriesId!] : [];
   const sourceIds: number[] = sourceId ? [sourceId!] : [];
+
+  let startDateValue = moment.utc(startDate);
   if (startTime) {
-    startDate.setHours(
-      Number(startTimeParts[0]),
-      Number(startTimeParts[1]),
-      Number(startTimeParts[2]),
-    );
+    const startTimeParts = startTime.split(':');
+    startDateValue = startDateValue
+      .add(startTimeParts[0], 'hours')
+      .add(startTimeParts[1], 'minutes')
+      .add(startTimeParts[2], 'seconds');
   }
+  const endDate = moment(startDateValue).add(24, 'hours');
+  console.debug(startDate, startTime, startDateValue.toISOString(), endDate.toISOString());
 
   return generateQuery({
     searchUnpublished: false,
     size: 0,
     seriesIds,
-    startDate: startDate.toISOString(),
+    startDate: startDateValue.toISOString(),
+    endDate: endDate.toISOString(),
     sourceIds,
     sort: [{ publishedOn: 'asc' }],
   });

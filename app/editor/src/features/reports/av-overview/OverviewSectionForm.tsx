@@ -74,12 +74,7 @@ export const OverviewSectionForm: React.FC<IOverviewSectionFormProps> = ({
   const findClips = React.useCallback(
     async (startDate: string | Date, startTime: string, seriesId?: number, sourceId?: number) => {
       try {
-        const query = generateElasticsearchQuery(
-          new Date(startDate),
-          startTime,
-          seriesId,
-          sourceId,
-        );
+        const query = generateElasticsearchQuery(startDate, startTime, seriesId, sourceId);
         const data = await findContentWithElasticsearch(query, false);
         const results: IContentModel[] = data.hits.hits.map((h) => h._source!);
         setContentItems(results);
