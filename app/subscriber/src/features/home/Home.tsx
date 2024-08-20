@@ -1,14 +1,12 @@
-import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { ContentList } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
 import { ContentListActionBar } from 'components/tool-bar';
-import { filterFormat } from 'features/search-page/utils';
-import { createFilterSettings, getBooleanActionValue } from 'features/utils';
-import { IContentSearchResult } from 'features/utils/interfaces';
+import { PreviousResults } from 'features/previous-results';
+import { getBooleanActionValue } from 'features/utils';
 import moment from 'moment';
 import React from 'react';
-import { useApp, useContent, useSettings } from 'store/hooks';
-import { generateQuery, IContentModel, Loading, Row, Show } from 'tno-core';
+import { useContent, useFetchResults, useSettings } from 'store/hooks';
+import { IContentModel, Loading, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -16,20 +14,30 @@ import * as styled from './styled';
  * Home component that will be rendered when the user is logged in.
  */
 export const Home: React.FC = () => {
+  const { currDateResults, prevDateResults, fetchResults, isLoading, setIsLoading } =
+    useFetchResults();
   const [
     {
       home: { filter },
     },
-    { findContentWithElasticsearch, storeHomeFilter: storeFilter },
+    { storeHomeFilter: storeFilter },
   ] = useContent();
-  const [{ userInfo }] = useApp();
 
-  const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const { featuredStoryActionId } = useSettings(true);
   const [stateByDate, setStateByDate] = React.useState<{
     [date: string]: { selected: IContentModel[]; isSelectAllChecked: boolean };
   }>({});
-  const [loading, setLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!featuredStoryActionId || isLoading) return;
+    fetchResults({
+      ...filter,
+      actions: [getBooleanActionValue(featuredStoryActionId)],
+      startDate: filter.startDate ?? moment().startOf('day').toISOString(),
+    }).then(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter, featuredStoryActionId]);
+
   const handleContentSelected = React.useCallback(
     (selectedContent: IContentModel[]) => {
       const dateKey = filter.startDate || moment().startOf('day').toISOString();
@@ -40,45 +48,11 @@ export const Home: React.FC = () => {
           selected: selectedContent,
         },
       }));
-      setLoading(false);
+      setIsLoading(false);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [filter.startDate],
   );
-
-  const fetchResults = React.useCallback(
-    async (filter: MsearchMultisearchBody) => {
-      try {
-        setLoading(true);
-        const res: any = await findContentWithElasticsearch(filter, false);
-        setContent(res.hits.hits.map((h: { _source: IContentModel }) => h._source));
-      } catch {
-      } finally {
-        setLoading(false);
-      }
-    },
-    [findContentWithElasticsearch],
-  );
-
-  React.useEffect(() => {
-    // stops invalid requests before filter is synced with date
-    // wait for userinfo incase applying previously viewed filter
-    if (!!featuredStoryActionId && !!userInfo) {
-      fetchResults(
-        generateQuery(
-          filterFormat({
-            ...createFilterSettings(
-              filter.startDate ?? moment().startOf('day').toISOString(),
-              filter.endDate ?? moment().endOf('day').toISOString(),
-            ),
-            actions: [getBooleanActionValue(featuredStoryActionId)],
-            contentTypes: filter.contentTypes ?? [],
-            mediaTypeIds: filter.mediaTypeIds ?? [],
-            sourceIds: filter.sourceIds ?? [],
-          }),
-        ),
-      );
-    }
-  }, [filter, fetchResults, userInfo, featuredStoryActionId]);
 
   const resetDateFilter = React.useCallback(() => {
     const defaultStartDate = moment().startOf('day').toISOString();
@@ -123,12 +97,12 @@ export const Home: React.FC = () => {
         ...prevState,
         [dateKey]: {
           ...prevState[dateKey],
-          selected: e.target.checked ? content : [],
+          selected: e.target.checked ? currDateResults : [],
           isSelectAllChecked: e.target.checked,
         },
       }));
     },
-    [content, filter.startDate],
+    [currDateResults, filter.startDate],
   );
 
   const dateKey = filter.startDate || moment().startOf('day').toISOString();
@@ -156,7 +130,7 @@ export const Home: React.FC = () => {
         />
       </Row>
       <DateFilter filter={filter} storeFilter={storeFilter} />
-      <Show visible={loading}>
+      <Show visible={isLoading}>
         <Loading />
       </Show>
       <ContentList
@@ -165,8 +139,17 @@ export const Home: React.FC = () => {
         showSeries
         showTime
         selected={currentSelected}
-        content={content}
+        content={currDateResults}
       />
+      <Show visible={!currDateResults.length && !isLoading}>
+        <PreviousResults
+          currDateResults={currDateResults}
+          prevDateResults={prevDateResults}
+          loaded={!!featuredStoryActionId}
+          filter={filter}
+          storeFilter={storeFilter}
+        />
+      </Show>
     </styled.Home>
   );
 };

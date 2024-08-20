@@ -13,6 +13,8 @@ import { groupContent } from './utils';
 export interface IContentListProps {
   /** content is an array of content objects to be displayed and manipulated by the content list*/
   content: IContentSearchResult[];
+  /** Previous content (not narrowed by date filter, and only used when we want to display previous hits) */
+  previousContent?: IContentSearchResult[];
   /** array of terms to be highlighted in body */
   highlighTerms?: string[];
   /** array of selected content */
@@ -55,6 +57,7 @@ export const ContentList: React.FC<IContentListProps> = ({
   onContentSelected,
   onContentRemove,
   simpleView = false,
+  previousContent,
 }) => {
   const navigate = useNavigate();
   const { groupBy, setActiveStream, activeFileReference } = React.useContext(ContentListContext);

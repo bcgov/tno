@@ -1,30 +1,25 @@
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
-import { useContent } from 'store/hooks';
-import { Row } from 'tno-core';
+import { IFilterSettingsModel, Row } from 'tno-core';
 
 import { IPreviousDate } from './interfaces';
 import * as styled from './styled';
 
 export interface IPreviousResultsProps {
-  loaded: boolean;
+  loaded?: boolean;
   currDateResults: IContentSearchResult[];
   prevDateResults: IContentSearchResult[];
-  setResults: React.Dispatch<React.SetStateAction<IContentSearchResult[]>>;
+  filter: IFilterSettingsModel;
+  storeFilter: (filter: IFilterSettingsModel) => void;
 }
 export const PreviousResults: React.FC<IPreviousResultsProps> = ({
   loaded,
   currDateResults,
   prevDateResults,
+  filter,
+  storeFilter,
 }) => {
-  const [
-    {
-      mediaType: { filter },
-    },
-    { storeMediaTypeFilter: storeFilter },
-  ] = useContent();
-
   const [prevResults, setPrevResults] = React.useState<IPreviousDate[]>([]);
 
   React.useEffect(() => {
@@ -33,7 +28,7 @@ export const PreviousResults: React.FC<IPreviousResultsProps> = ({
     createDateRanges(filter.startDate);
     // only want to run when start date or source ids change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter.startDate, filter.sourceIds, currDateResults, prevDateResults]);
+  }, [filter.startDate, filter.sourceIds, currDateResults, prevDateResults, loaded]);
 
   const createDateRanges = (startDateStr: string) => {
     // Parse the input strings into Date objects
