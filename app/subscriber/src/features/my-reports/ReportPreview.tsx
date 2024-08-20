@@ -2,6 +2,7 @@ import { Action } from 'components/action';
 import { Bar } from 'components/bar';
 import { Button } from 'components/button';
 import { Modal } from 'components/modal';
+import { RefreshButton } from 'components/refresh-button/styled';
 import { PageSection } from 'components/section';
 import React from 'react';
 import { FaArrowsRotate, FaFileCirclePlus, FaPaperPlane, FaPen, FaX } from 'react-icons/fa6';
@@ -165,7 +166,7 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
             disabled={isSubmitting}
           >
             Refresh
-            <FaArrowsRotate className="icon-refresh" />
+            <RefreshButton icon={<FaArrowsRotate />} />
           </Button>
         </Show>
         <Show visible={!!instance?.sentOn}>

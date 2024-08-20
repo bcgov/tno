@@ -1,5 +1,5 @@
-import { Action } from 'components/action';
 import { Modal } from 'components/modal';
+import { RefreshButton } from 'components/refresh-button';
 import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import { sortContent, sortReportContent } from 'features/my-reports/utils';
 import React from 'react';
@@ -129,12 +129,11 @@ export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
       {!!section.id && !disabled && (section.filterId || section.folderId) && (
         <Col flex="1">
           <Row justifyContent="flex-end">
-            <Action
-              className="icon-refresh"
+            <RefreshButton
               icon={<FaArrowsRotate />}
               label="Regenerate section"
               disabled={isSubmitting}
-              onClick={(e) => toggle()}
+              onClick={() => toggle()}
               direction="row-reverse"
             />
           </Row>

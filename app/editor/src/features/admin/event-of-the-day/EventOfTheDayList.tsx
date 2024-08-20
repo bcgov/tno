@@ -2,7 +2,7 @@ import { FormPage } from 'components/formpage';
 import { getPreviewReportRoute } from 'features/content';
 import React from 'react';
 import { FaBinoculars, FaPaperPlane } from 'react-icons/fa';
-import { FaArrowsSpin } from 'react-icons/fa6';
+import { FaArrowsRotate } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useContent, useFolders, useLookup, useReports } from 'store/hooks';
 import { useTopics } from 'store/hooks/admin';
@@ -166,7 +166,7 @@ const EventOfTheDayList: React.FC = () => {
               variant={ButtonVariant.secondary}
               onClick={() => eventOfTheDayFolderId && fetch(eventOfTheDayFolderId)}
             >
-              <FaArrowsSpin />
+              <FaArrowsRotate className="icon-refresh" />
             </Button>
             <Button
               onClick={() =>
