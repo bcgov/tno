@@ -3,16 +3,16 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: contentmigration-historic-service
+  name: contentmigration-historic-online-service
   namespace: default
   annotations:
     description: Exposes and load balances the application pods.
-    created-by: kyle.morris
+    created-by: jeremy.foster
   labels:
-    name: contentmigration-historic-service
+    name: contentmigration-historic-online-service
     part-of: tno
     version: 1.0.0
-    component: contentmigration-historic-service
+    component: contentmigration-historic-online-service
     managed-by: kustomize
 spec:
   ports:
@@ -22,6 +22,6 @@ spec:
       targetPort: 8080
   selector:
     part-of: tno
-    component: contentmigration-historic-service
+    component: contentmigration-historic-online-service
   sessionAffinity: None
   type: ClusterIP

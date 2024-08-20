@@ -12,14 +12,14 @@ generatorOptions:
 patches:
   - target:
       kind: ConfigMap
-      name: contentmigration-historic-service
+      name: contentmigration-historic-image-service
     patch: |-
       - op: replace
         path: /data/GENERATE_ALERTS_ON_CONTENT_MIGRATION
         value: "false"
   - target:
       kind: DeploymentConfig
-      name: contentmigration-historic-service
+      name: contentmigration-historic-image-service
     patch: |-
       - op: replace
         path: /spec/replicas
