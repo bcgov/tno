@@ -2,8 +2,10 @@ import { InputHTMLAttributes } from 'react';
 import styled from 'styled-components';
 
 export const TimeInput = styled.div<InputHTMLAttributes<HTMLInputElement>>`
-  margin-right: 0.5em;
-  width: ${(props) => props.width};
+  & {
+    margin-right: 0.5em;
+    width: ${(props) => props.width};
+  }
 
   label {
     font-weight: 700;

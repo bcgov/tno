@@ -180,7 +180,7 @@ export const OverviewSectionForm: React.FC<IOverviewSectionFormProps> = ({
   }, [contentItems]);
 
   return (
-    <styled.OverviewGrid>
+    <styled.OverviewSectionForm>
       <Show visible={!section.items.length}>
         <div className="no-items">
           There are no items in this section, add a source then click "New story" to begin.
@@ -189,6 +189,7 @@ export const OverviewSectionForm: React.FC<IOverviewSectionFormProps> = ({
       <Show visible={!!section.items.length}>
         <div className="grid">
           <Row className="header">
+            <div></div>
             <Col className="placement-header">Placement</Col>
             <Col className="time-header">Time</Col>
             <Col className="summary-header" flex="1">
@@ -259,11 +260,11 @@ export const OverviewSectionForm: React.FC<IOverviewSectionFormProps> = ({
                                     }}
                                   />
                                 </Col>
-                                <Col>
+                                <Col className="frm-time">
                                   <FormikTimeInput
                                     key={itemIndex}
                                     name={`sections.${index}.items.${itemIndex}.time`}
-                                    width={FieldSize.Small}
+                                    width="14ch"
                                     placeholder="hh:mm:ss"
                                     disabled={!editable}
                                   />
@@ -368,6 +369,6 @@ export const OverviewSectionForm: React.FC<IOverviewSectionFormProps> = ({
           </div>
         </div>
       </Show>
-    </styled.OverviewGrid>
+    </styled.OverviewSectionForm>
   );
 };

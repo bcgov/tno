@@ -16,7 +16,6 @@ export const FormikTimeInput = <T,>({
   id,
   name,
   value,
-  className,
   disabled,
   onChange,
   onBlur,
