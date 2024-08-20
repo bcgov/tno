@@ -32,23 +32,10 @@ public class UserProduct : AuditColumns
     public Product? Product { get; set; }
 
     /// <summary>
-    /// get/set - The actual subscription status for the product.
+    /// get/set - The status of a user's request.
     /// </summary>
-    [Column("is_subscribed")]
-    public bool IsSubscribed { get; set; }
-
-    /// <summary>
-    /// get/set - The target subscription status for the product.
-    /// </summary>
-    [Column("requested_is_subscribed_status")]
-    public bool? RequestedIsSubscribedStatus { get; set; }
-
-    /// <summary>
-    /// get/set - Has an admin approved the status change?
-    /// </summary>
-    [Column("subscription_change_actioned")]
-    public bool? SubscriptionChangeActioned { get; set; }
-
+    [Column("status")]
+    public ProductRequestStatus Status { get; set; }
     #endregion
 
     #region Constructors
@@ -57,14 +44,14 @@ public class UserProduct : AuditColumns
     /// </summary>
     /// <param name="user"></param>
     /// <param name="product"></param>
-    /// <param name="isSubscribed"></param>
-    public UserProduct(User user, Product product, bool isSubscribed = true)
+    /// <param name="status"></param>
+    public UserProduct(User user, Product product, ProductRequestStatus status = ProductRequestStatus.NA)
     {
         this.User = user ?? throw new ArgumentNullException(nameof(user));
         this.UserId = user.Id;
         this.Product = product ?? throw new ArgumentNullException(nameof(product));
         this.ProductId = product.Id;
-        this.IsSubscribed = isSubscribed;
+        this.Status = status;
     }
 
     /// <summary>
@@ -72,12 +59,12 @@ public class UserProduct : AuditColumns
     /// </summary>
     /// <param name="userId"></param>
     /// <param name="productId"></param>
-    /// <param name="isSubscribed"></param>
-    public UserProduct(int userId, int productId, bool isSubscribed = true)
+    /// <param name="status"></param>
+    public UserProduct(int userId, int productId, ProductRequestStatus status = ProductRequestStatus.NA)
     {
         this.UserId = userId;
         this.ProductId = productId;
-        this.IsSubscribed = isSubscribed;
+        this.Status = status;
     }
     #endregion
 

@@ -31,7 +31,7 @@ import {
 } from './constants';
 import { OverviewSection } from './OverviewSection';
 import * as styled from './styled';
-import { getIsEditable } from './utils';
+import { generateListOfSummaries, getIsEditable, ISectionSummary } from './utils';
 
 /** Evening overview section, contains table of items, and list of overview sections */
 const AVOverview: React.FC = () => {
@@ -44,6 +44,7 @@ const AVOverview: React.FC = () => {
   const [instance, setInstance] = React.useState<IAVOverviewInstanceModel>(
     defaultAVOverviewInstance(defaultAVOverviewTemplate, publishedOn.toDate()),
   );
+  const [summaries, setSummaries] = React.useState<ISectionSummary[]>([]);
   // Unlock Evening Overview to allow editing prior days
   const [isEditable] = React.useState(true || !instance.isPublished || getIsEditable(publishedOn));
 
@@ -66,6 +67,11 @@ const AVOverview: React.FC = () => {
       })
       .catch(() => {});
   }, [api, instance.isPublished, publishedOn]);
+
+  React.useEffect(() => {
+    const summaryList = generateListOfSummaries(instance.sections);
+    setSummaries(summaryList);
+  }, [instance]);
 
   const handleSubmit = React.useCallback(
     async (values: IAVOverviewInstanceModel) => {
@@ -168,7 +174,13 @@ const AVOverview: React.FC = () => {
               </Button>
             </Row>
             {values.sections?.map((section, index) => (
-              <OverviewSection key={index} index={index} editable={isEditable} />
+              <OverviewSection
+                key={index}
+                index={index}
+                editable={isEditable}
+                summaries={summaries}
+                setSummaries={setSummaries}
+              />
             ))}
             <Row className="buttons">
               <Button

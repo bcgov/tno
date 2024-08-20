@@ -30,6 +30,7 @@ export interface IContentController {
   storeAvOverviewDateFilter: (filter: IFilterSettingsModel) => void;
   storeEventofTheDayDateFilter: (filter: IFilterSettingsModel) => void;
   storeMediaTypeFilter: (filter: IFilterSettingsModel) => void;
+  storeSearchResultsFilter: (filter: IFilterSettingsModel) => void;
   stream: (path: string) => Promise<string>;
   addContent: (content: IContentModel) => Promise<IContentModel | undefined>;
   updateContent: (content: IContentModel) => Promise<IContentModel | undefined>;
@@ -100,6 +101,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       storeFrontPageFilter: actions.storeFrontPageFilter,
       storeMediaTypeFilter: actions.storeMediaTypeFilter,
       storeMyMinisterFilter: actions.storeMyMinisterFilter,
+      storeSearchResultsFilter: actions.storeSearchResultsFilter,
       addContent: async (content: IContentModel) => {
         const response = await dispatch('add-content', () => api.addContent(content), 'content');
         return response.data;

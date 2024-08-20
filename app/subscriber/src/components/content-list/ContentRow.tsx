@@ -50,6 +50,9 @@ export const ContentRow: React.FC<IContentRowProps> = ({
     activeStream,
   } = React.useContext(ContentListContext);
 
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const audioRef = React.useRef<HTMLAudioElement>(null);
+
   const body = React.useMemo(() => {
     const truncated = truncateTeaser(item.body || item.summary, 250);
     return formatSearch(truncated, filter);
@@ -60,6 +63,36 @@ export const ContentRow: React.FC<IContentRowProps> = ({
 
   const bodyTermHighlighted = highlightTerms(body as string, highlighTerms ?? []);
   const headerTermHighlighted = highlightTerms(headline as string, highlighTerms ?? []);
+
+  /** This is a workaround for the autoplay attribute on <video>. Most chromium browser do not allow autoplay with the muted attribute included; however, we can avoid this issue by programatically calling play. The logic below will play the video
+   * once the user clicks the inline play button. */
+  React.useEffect(() => {
+    const videoElement = videoRef.current;
+    const audioElement = audioRef.current;
+    if (!!videoElement && activeStream?.source) {
+      const handleCanPlay = () => {
+        videoElement.play().catch((e) => console.error('Failed to play video', e));
+      };
+
+      // need to have an event listener to trigger the play, otherwise it will error out on the play call (calls too early)
+      videoElement.addEventListener('canplay', handleCanPlay);
+
+      return () => {
+        videoElement.removeEventListener('canplay', handleCanPlay);
+      };
+    }
+    if (!!audioElement && activeStream?.source) {
+      const handleCanPlay = () => {
+        audioElement.play().catch((e) => console.error('Failed to play audio', e));
+      };
+
+      audioElement.addEventListener('canplay', handleCanPlay);
+
+      return () => {
+        audioElement.removeEventListener('canplay', handleCanPlay);
+      };
+    }
+  }, [activeStream]);
 
   return (
     <styled.ContentRow simpleView={simpleView} {...rest}>
@@ -199,10 +232,10 @@ export const ContentRow: React.FC<IContentRowProps> = ({
         <Show visible={!!activeStream?.source && activeStream.id === item.id}>
           <Col className="media-playback">
             {activeFileReference?.contentType.includes('audio') && (
-              <audio controls src={activeStream?.source} />
+              <audio controls src={activeStream?.source} ref={audioRef} />
             )}
             {activeFileReference?.contentType.includes('video') && (
-              <video controls src={activeStream?.source} />
+              <video controls src={activeStream?.source} ref={videoRef} />
             )}
             <div className="copyright-text">
               <FaCopyright />

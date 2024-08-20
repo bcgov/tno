@@ -8,6 +8,8 @@ export const determineStore = (target: keyof IContentState) => {
       return 'storeTodaysCommentaryFilter';
     case 'topStories':
       return 'storeTopStoriesFilter';
+    case 'searchResults':
+      return 'storeSearchResultsFilter';
     default:
       return 'storeHomeFilter';
   }

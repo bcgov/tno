@@ -307,9 +307,9 @@ public class ContentManager : ServiceManager<ContentOptions>
         if (content != null)
         {
             if (updateContent)
-                Logger.LogInformation("Received updated content from TNO. Forcing an update to the MMI Content : {Source}:{Title}", model.Source, model.Title);
+                Logger.LogInformation("Received updated content. Forcing an update to the MMI Content : {Source}:{Title}", model.Source, model.Title);
             else
-                Logger.LogInformation("Received updated content from TNO, but AllowUpdate is disabled : {Source}:{Title}", model.Source, model.Title);
+                Logger.LogInformation("Received updated content, but AllowUpdate is disabled : {Source}:{Title}", model.Source, model.Title);
         }
 
         if (content == null || updateContent)

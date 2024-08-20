@@ -27,7 +27,7 @@
   <div style="font-size:22px; font-weight:500;"><p>@(Settings.Subject.ShowTodaysDate ? $" {ReportExtensions.GetTodaysDate():dd-MMM-yyyy}" : "")</p></div>
 </a>
 
-@if (Content.Count() == 0)
+@if (Content.Count() == 0 && !ViewOnWebOnly)
 {
   <p>There is no content in this report.</p>
 }
@@ -281,32 +281,32 @@
     else if (section.Value.SectionType == ReportSectionType.Gallery)
     {
       @* Gallery Section *@
-      var imageDictionary = new Dictionary<string,string>();
-      for (var i = 0; i < sectionContent.Length; i++)
-      {
-        var content = sectionContent[i];
-        if (!string.IsNullOrEmpty(content.ImageContent))
-        {
-          imageDictionary.Add(content.FileReferences.FirstOrDefault()?.FileName ?? content.Id.ToString(),$"data:{content.ContentType};base64," + content.ImageContent);
-        }
-      }
-
       if (section.Value.Settings.Direction == "row" && section.Value.Settings.ShowImage)
       {
         <div style="display:flex;flex-wrap:wrap;">
-          @foreach(KeyValuePair<string, string> entry in imageDictionary)
+          @for (var i = 0; i < sectionContent.Length; i++)
           {
-            <img style="height:min-content" src="@entry.Value" alt="@entry.Key" />
+            var content = sectionContent[i];
+            var fileName = content.FileReferences.FirstOrDefault()?.FileName ?? content.Id.ToString();
+            var src = $"data:{content.ContentType};base64," + content.ImageContent;
+
+            <img style="height:min-content" src="@src" alt="@fileName" />
           }
         </div>
       }
       else if (section.Value.Settings.ShowImage)
       {
-        @foreach(KeyValuePair<string, string> entry in imageDictionary)
+        for (var i = 0; i < sectionContent.Length; i++)
         {
-          <div>
-            <img style="height:min-content" src="@entry.Value" alt="@entry.Key" />
-          </div>
+          var content = sectionContent[i];
+          var fileName = content.FileReferences.FirstOrDefault()?.FileName ?? content.Id.ToString();
+          var src = $"data:{content.ContentType};base64," + content.ImageContent;
+          if (!string.IsNullOrEmpty(content.ImageContent))
+          {
+            <div>
+              <img style="height:min-content" src="@src" alt="@fileName" />
+            </div>
+          }
         }
       }
     }

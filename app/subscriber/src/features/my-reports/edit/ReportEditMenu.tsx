@@ -40,7 +40,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
           </div>
         </div>
         <Row nowrap gap="0.5rem">
-          <label>Last Sent:</label>
+          <label>Last sent:</label>
           <span>{lastSent ? lastSent : 'Never'}</span>
         </Row>
       </div>

@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
-using TNO.Elastic;
 using TNO.TemplateEngine.Config;
 using TNO.TemplateEngine.Models;
 using TNO.TemplateEngine.Models.Charts;

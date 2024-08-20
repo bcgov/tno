@@ -34,6 +34,8 @@ export * from './NotificationStatus';
 export * from './NotificationStatusName';
 export * from './NotificationType';
 export * from './NotificationTypeName';
+export * from './ProductRequestStatus';
+export * from './ProductRequestStatusName';
 export * from './ProductType';
 export * from './ProductTypeName';
 export * from './ReportDistributionFormat';

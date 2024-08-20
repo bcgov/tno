@@ -18,7 +18,7 @@ interface IReportInstanceController {
   deleteReportInstance: (model: IReportInstanceModel) => Promise<IReportInstanceModel>;
   viewReportInstance: (id: number, regenerate?: boolean) => Promise<IReportResultModel>;
   sendReportInstance: (id: number, to: string) => Promise<IReportInstanceModel>;
-  publishReportInstance: (id: number) => Promise<IReportInstanceModel>;
+  publishReportInstance: (id: number, resend: boolean) => Promise<IReportInstanceModel>;
   exportReport: (id: number, reportName: string) => Promise<IReportInstanceModel>;
 }
 
@@ -138,9 +138,9 @@ export const useReportInstances = (): [IReportInstanceController] => {
         );
         return response.data;
       },
-      publishReportInstance: async (id: number) => {
+      publishReportInstance: async (id: number, resend: boolean) => {
         const response = await dispatch<IReportInstanceModel>('publish-report-instance', () =>
-          api.publishReportInstance(id),
+          api.publishReportInstance(id, resend),
         );
         return response.data;
       },

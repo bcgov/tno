@@ -340,19 +340,27 @@ const Papers: React.FC<IPapersProps> = (props) => {
         <PaperToolbar onSearch={fetch} />
         <div className="paper-totals">
           <div>
-            <div>Top Stories:</div>
+            <div>
+              Top Stor<span className="shortcut-key">i</span>es:
+            </div>
             <div>{totals.topStories}</div>
           </div>
           <div>
-            <div>Commentary:</div>
+            <div>
+              Co<span className="shortcut-key">m</span>mentary:
+            </div>
             <div>{totals.commentary}</div>
           </div>
           <div>
-            <div>Featured Stories:</div>
+            <div>
+              Feat<span className="shortcut-key">u</span>red Stories:
+            </div>
             <div>{totals.featuredStories}</div>
           </div>
           <div>
-            <div>Published:</div>
+            <div>
+              Pu<span className="shortcut-key">b</span>lished:
+            </div>
             <div>{totals.published}</div>
           </div>
         </div>

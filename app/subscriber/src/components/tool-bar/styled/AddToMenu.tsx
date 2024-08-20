@@ -16,7 +16,7 @@ export const AddToMenu = styled.div`
     color: ${(props) => props.theme.css.btnBkPrimary};
   }
   .report-name {
-    margin-left: 1.25em;
+    margin-left: 1.5em;
   }
   .react-tooltip {
     font-size: 1.1em;
@@ -37,7 +37,7 @@ export const AddToMenu = styled.div`
       position: absolute;
       left: 2.85em;
     }
-    margin-left: 3em;
+    margin-left: 3.5em;
     &:not(:hover) {
       .active-section {
         display: none;
