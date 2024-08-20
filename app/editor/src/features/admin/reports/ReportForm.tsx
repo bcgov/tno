@@ -12,6 +12,7 @@ import {
   hasErrors,
   IconButton,
   IReportModel,
+  IUserReportModel,
   Modal,
   Row,
   Show,
@@ -102,6 +103,10 @@ const ReportForm: React.FC = () => {
     } catch {}
   };
 
+  const hasSubscribers = (subscribers: IUserReportModel[]) => {
+    return subscribers.some((s) => s.isSubscribed);
+  };
+
   return (
     <styled.ReportForm>
       <FormikForm
@@ -132,7 +137,11 @@ const ReportForm: React.FC = () => {
               >
                 Save
               </Button>
-              <Button variant={ButtonVariant.secondary} onClick={() => handlePublish(values)}>
+              <Button
+                variant={ButtonVariant.secondary}
+                onClick={() => handlePublish(values)}
+                disabled={!hasSubscribers(values.subscribers)}
+              >
                 Send
               </Button>
               <Show visible={!!values.id}>
@@ -278,7 +287,11 @@ const ReportForm: React.FC = () => {
                     >
                       Save
                     </Button>
-                    <Button variant={ButtonVariant.secondary} onClick={() => handlePublish(values)}>
+                    <Button
+                      variant={ButtonVariant.secondary}
+                      onClick={() => handlePublish(values)}
+                      disabled={!hasSubscribers(values.subscribers)}
+                    >
                       Send
                     </Button>
                     <Show visible={!!values.id}>

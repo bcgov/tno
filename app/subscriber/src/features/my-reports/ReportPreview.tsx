@@ -43,6 +43,7 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const instance = report?.instances.length ? report.instances[0] : undefined;
+  const hasSubscribers = report?.subscribers?.some((s) => s.isSubscribed === true) ?? false;
 
   const fetchReport = React.useCallback(
     async (id: number) => {
@@ -194,10 +195,18 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
               ![ReportStatusName.Submitted].includes(instance.status)
             }
           >
-            <Button onClick={() => report && instance && toggleSend()} disabled={isSubmitting}>
+            <Button
+              onClick={() => report && instance && toggleSend()}
+              disabled={isSubmitting || !hasSubscribers}
+              title={
+                !hasSubscribers
+                  ? 'There are no subscribers for this report. Add subscribers to enable sending.'
+                  : ''
+              }
+            >
               Send
               <FaPaperPlane />
-            </Button>
+            </Button>{' '}
           </Show>
           <Show visible={!!instance?.sentOn}>
             <Show visible={getReportKind(report) === ReportKindName.Manual}>
