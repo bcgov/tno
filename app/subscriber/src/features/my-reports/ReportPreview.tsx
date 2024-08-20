@@ -206,7 +206,7 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
             >
               Send
               <FaPaperPlane />
-            </Button>{' '}
+            </Button>
           </Show>
           <Show visible={!!instance?.sentOn}>
             <Show visible={getReportKind(report) === ReportKindName.Manual}>
