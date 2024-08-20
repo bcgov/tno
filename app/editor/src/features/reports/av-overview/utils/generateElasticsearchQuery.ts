@@ -27,7 +27,6 @@ export const generateElasticsearchQuery = (
       .add(startTimeParts[2], 'seconds');
   }
   const endDate = moment(startDateValue).add(24, 'hours');
-  console.debug(startDate, startTime, startDateValue.toISOString(), endDate.toISOString());
 
   return generateQuery({
     searchUnpublished: false,

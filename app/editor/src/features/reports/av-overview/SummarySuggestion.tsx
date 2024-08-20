@@ -29,7 +29,9 @@ export const SummarySuggestion: React.FC<ISummarySuggestionProps> = ({
   const item = values.sections[sectionIndex].items[itemIndex];
   const items =
     suggestions?.filter(
-      (s) => s.key !== `${sectionIndex}-${itemIndex}` && s.text.startsWith(item.summary),
+      (s) =>
+        s.key !== `${sectionIndex}-${itemIndex}` &&
+        s.text.toLocaleLowerCase().startsWith(item.summary.toLocaleLowerCase()),
     ) ?? [];
 
   return (
