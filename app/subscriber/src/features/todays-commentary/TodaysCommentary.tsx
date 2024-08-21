@@ -38,6 +38,7 @@ export const TodaysCommentary: React.FC = () => {
       }));
       setIsLoading(false);
     },
+    // only update when the start date changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [filter.startDate],
   );

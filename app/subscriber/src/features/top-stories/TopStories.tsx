@@ -39,6 +39,7 @@ export const TopStories: React.FC = () => {
           startDate: filter.startDate ?? moment().startOf('day').toISOString(),
         });
     }
+    // react does not like dependencies that are from a hook
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, getActionFilters, isReady, topStoryActionId]);
 
@@ -54,6 +55,7 @@ export const TopStories: React.FC = () => {
       }));
       setIsLoading(false);
     },
+    // only want to re-run when the start date changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [filter.startDate],
   );

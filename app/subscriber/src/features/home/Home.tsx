@@ -35,6 +35,8 @@ export const Home: React.FC = () => {
       actions: [getBooleanActionValue(featuredStoryActionId)],
       startDate: filter.startDate ?? moment().startOf('day').toISOString(),
     }).then(() => {});
+    // only want to fire when filter changes, or when the featured story action id changes
+    // react does not like dependencies that are from a hook it seems.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, featuredStoryActionId]);
 
@@ -50,6 +52,7 @@ export const Home: React.FC = () => {
       }));
       setIsLoading(false);
     },
+    // only want to re-trigger when the start date changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [filter.startDate],
   );
