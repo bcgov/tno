@@ -571,6 +571,35 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     }
 
     /// <summary>
+    /// Checks if a report has any subscribers, including those in distribution lists.
+    /// </summary>
+    /// <param name="report">The report model to check for subscribers.</param>
+    /// <returns>True if there are any subscribers, false otherwise.</returns>
+    private async Task<bool> CheckForSubscribersAsync(API.Areas.Services.Models.Report.ReportModel report)
+    {
+        var subscribers = report.Subscribers.Where(s => s.IsSubscribed).ToArray();
+        if (subscribers.Any())
+        {
+            return true;
+        }
+
+        // If there are no direct subscribers, check for distribution lists
+        foreach (var subscriber in report.Subscribers)
+        {
+            if (subscriber.User?.AccountType == UserAccountType.Distribution)
+            {
+                var distributionList = await this.Api.GetDistributionListAsync(subscriber.UserId);
+                if (distributionList.Any())
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Generate the report output and send it to all subscribers.
     /// Ensure the instance is updated with the results.
     /// </summary>
@@ -591,6 +620,18 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
             if (request.SendToSubscribers || !String.IsNullOrEmpty(request.To))
             {
+                var hasSubscribers = await CheckForSubscribersAsync(report);
+                if (!hasSubscribers)
+                {
+                    if (instance != null)
+                    {
+                        instance.Status = ReportStatus.Failed;
+                        instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(new { Error = "No subscribers found for this report." }, _serializationOptions));
+                    }
+                    this.Logger.LogWarning("No subscribers found for report. ReportId:{reportId}", report.Id);
+                    return;
+                }
+
                 await SendEmailsAsync(request, report, instance, subject, linkBody, fullBody);
             }
 

@@ -41,6 +41,7 @@ export const ReportViewForm: React.FC = () => {
 
   const instance = values.instances.length ? values.instances[0] : undefined;
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
+  const isSubscribed = values.subscribers.some((s) => s.isSubscribed === true);
   const [{ publishReportInstance }] = useReportInstances();
 
   const handleSend = React.useCallback(
@@ -158,7 +159,10 @@ export const ReportViewForm: React.FC = () => {
           <Row alignItems="flex-start" className="preview-send-details-row">
             <Button
               disabled={
-                isSubmitting || !instance || instance?.status === ReportStatusName.Submitted
+                isSubmitting ||
+                !instance ||
+                instance?.status === ReportStatusName.Submitted ||
+                !isSubscribed
               }
               onClick={() => toggleSend()}
               variant="success"
