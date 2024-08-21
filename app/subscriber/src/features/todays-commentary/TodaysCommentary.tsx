@@ -1,19 +1,19 @@
 import { ContentList } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
 import { ContentListActionBar } from 'components/tool-bar';
+import { PreviousResults } from 'features/previous-results';
 import { useActionFilters } from 'features/search-page/hooks';
-import { filterFormat } from 'features/search-page/utils';
-import { castToSearchResult } from 'features/utils';
-import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
-import { useContent, useSettings } from 'store/hooks';
-import { generateQuery, IContentModel, Loading, Show } from 'tno-core';
+import { useContent, useFetchResults, useSettings } from 'store/hooks';
+import { IContentModel, Loading, Show } from 'tno-core';
 
 import * as styled from './styled';
 
 /** Component that displays commentary defaulting to today's date and adjustable via a date filter. */
 export const TodaysCommentary: React.FC = () => {
+  const { setIsLoading, fetchResults, prevDateResults, currDateResults, isLoading } =
+    useFetchResults();
   const [
     {
       todaysCommentary: { filter },
@@ -22,11 +22,9 @@ export const TodaysCommentary: React.FC = () => {
   ] = useContent();
   const getActionFilters = useActionFilters();
   const { commentaryActionId } = useSettings();
-  const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [stateByDate, setStateByDate] = React.useState<{
     [date: string]: { selected: IContentModel[]; isSelectAllChecked: boolean };
   }>({});
-  const [loading, setLoading] = React.useState(false);
 
   const handleContentSelected = React.useCallback(
     (selectedContent: IContentModel[]) => {
@@ -38,8 +36,10 @@ export const TodaysCommentary: React.FC = () => {
           selected: selectedContent,
         },
       }));
-      setLoading(false);
+      setIsLoading(false);
     },
+    // only update when the start date changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [filter.startDate],
   );
 
@@ -47,31 +47,17 @@ export const TodaysCommentary: React.FC = () => {
     if (commentaryActionId) {
       let actionFilters = getActionFilters();
       const commentaryAction = actionFilters.find((a) => a.id === commentaryActionId);
-      setLoading(true);
-      findContentWithElasticsearch(
-        generateQuery(
-          filterFormat({
-            ...filter,
-            actions: commentaryAction ? [commentaryAction] : [],
-            startDate: filter.startDate ?? moment().startOf('day').toISOString(),
-            endDate: filter.endDate ?? moment().endOf('day').toISOString(),
-            searchUnpublished: false,
-            size: 500,
-          }),
-        ),
-        false,
-      )
-        .then((res) => {
-          setContent(
-            res.hits.hits.map((r) => {
-              const content = r._source as IContentModel;
-              return castToSearchResult(content);
-            }),
-          );
-          setLoading(false);
-        })
-        .catch();
+      setIsLoading(true);
+      commentaryAction &&
+        fetchResults({
+          ...filter,
+          actions: [commentaryAction],
+          startDate: filter.startDate ?? moment().startOf('day').toISOString(),
+          searchUnpublished: false,
+          size: 500,
+        });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commentaryActionId, filter, findContentWithElasticsearch, getActionFilters]);
   const resetDateFilter = React.useCallback(() => {
     const defaultStartDate = moment().startOf('day').toISOString();
@@ -116,12 +102,12 @@ export const TodaysCommentary: React.FC = () => {
         ...prevState,
         [dateKey]: {
           ...prevState[dateKey],
-          selected: e.target.checked ? content : [],
+          selected: e.target.checked ? currDateResults : [],
           isSelectAllChecked: e.target.checked,
         },
       }));
     },
-    [content, filter.startDate],
+    [currDateResults, filter.startDate],
   );
 
   const dateKey = filter.startDate || moment().startOf('day').toISOString();
@@ -147,17 +133,26 @@ export const TodaysCommentary: React.FC = () => {
         onReset={handleReset}
       />
       <DateFilter filter={filter} storeFilter={storeFilter} />
-      <Show visible={loading}>
+      <Show visible={isLoading}>
         <Loading />
       </Show>
       <ContentList
-        content={content}
+        content={currDateResults}
         selected={currentSelected}
         showSeries
         showDate
         showTime
         onContentSelected={handleContentSelected}
       />
+      <Show visible={!!prevDateResults.length}>
+        <PreviousResults
+          currDateResults={currDateResults}
+          prevDateResults={prevDateResults}
+          loaded={!!commentaryActionId}
+          filter={filter}
+          storeFilter={storeFilter}
+        />
+      </Show>
     </styled.TodaysCommentary>
   );
 };
