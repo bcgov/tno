@@ -1,6 +1,16 @@
 import React from 'react';
 import { useApp } from 'store/hooks';
-import { Col, ContentTypeName, IContentModel, Loading, Show, TextArea, Wysiwyg } from 'tno-core';
+import { useProfileStore } from 'store/slices';
+import {
+  Col,
+  ContentTypeName,
+  IContentModel,
+  Loading,
+  Show,
+  Text,
+  TextArea,
+  Wysiwyg,
+} from 'tno-core';
 
 export interface IContentFormProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'content'> {
   /** The content being edited */
@@ -32,10 +42,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   ...rest
 }) => {
   const [{ userInfo }] = useApp();
+  const [{ impersonate }] = useProfileStore();
 
   if (!content) return null;
 
-  const userId = userInfo?.id ?? 0;
+  const userId = impersonate?.id ?? userInfo?.id ?? 0;
   const isAV = content.contentType === ContentTypeName.AudioVideo;
   const versions = content.versions?.[userId] ?? {
     byline: content.byline,
@@ -47,42 +58,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({
         : content.summary
       : content.body,
   };
-  const byline = versions.byline ?? '';
-  const headline = versions.headline ?? '';
-  const summary = versions.summary ?? '';
-  const body =
-    versions.body ??
-    (isAV ? (content.isApproved && content.body ? content.body : content.summary) : content.body);
 
   return show === 'none' ? null : (
     <Col className={`edit-content${className ? ` ${className}` : ''}`} {...rest}>
       <Show visible={loading}>
         <Loading />
-      </Show>
-      <Show visible={show === 'all'}>
-        <TextArea
-          name={`byline`}
-          label="Byline"
-          rows={1}
-          disabled={disabled}
-          onChange={(e) => {
-            const values = {
-              ...content,
-              versions: {
-                ...content.versions,
-                [userId]: {
-                  ...content.versions?.[userId],
-                  byline: e.target.value,
-                  headline: headline,
-                  summary: summary,
-                  body: body,
-                },
-              },
-            };
-            onContentChange?.(values);
-          }}
-          value={byline}
-        />
       </Show>
       <Show visible={show === 'all'}>
         <TextArea
@@ -97,16 +77,34 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 ...content.versions,
                 [userId]: {
                   ...content.versions?.[userId],
-                  byline: byline,
+                  ...versions,
                   headline: e.target.value,
-                  summary: summary,
-                  body: body,
                 },
               },
             };
             onContentChange?.(values);
           }}
-          value={headline}
+          value={versions.headline}
+        />
+        <Text
+          name={`byline`}
+          label="Byline"
+          disabled={disabled}
+          onChange={(e) => {
+            const values = {
+              ...content,
+              versions: {
+                ...content.versions,
+                [userId]: {
+                  ...content.versions?.[userId],
+                  ...versions,
+                  byline: e.target.value,
+                },
+              },
+            };
+            onContentChange?.(values);
+          }}
+          value={versions.byline}
         />
       </Show>
       <Show visible={['all', 'summary'].includes(show)}>
@@ -114,7 +112,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
           name={`summary`}
           label="Summary"
           urlOptions={reportContent}
-          value={summary}
+          value={versions.summary}
           disabled={disabled}
           onChange={(text) => {
             const values = {
@@ -123,10 +121,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 ...content.versions,
                 [userId]: {
                   ...content.versions?.[userId],
-                  byline: byline,
-                  headline: headline,
+                  ...versions,
                   summary: text,
-                  body: body,
                 },
               },
             };
@@ -138,7 +134,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
         <Wysiwyg
           name={`body`}
           label="Body"
-          value={body}
+          value={versions.body}
           disabled={disabled}
           urlOptions={reportContent}
           onChange={(text) => {
@@ -148,8 +144,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 ...content.versions,
                 [userId]: {
                   ...content.versions?.[userId],
-                  headline: headline,
-                  summary: summary,
+                  ...versions,
                   body: text,
                 },
               },
