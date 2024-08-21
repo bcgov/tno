@@ -23,9 +23,9 @@ export const PreviousResults: React.FC<IPreviousResultsProps> = ({
   const [prevResults, setPrevResults] = React.useState<IPreviousDate[]>([]);
 
   React.useEffect(() => {
-    // wait for startDate, and also do not want to fetch if results are returned
-    if (!loaded || !filter.startDate || !!currDateResults.length) return;
-    createDateRanges(filter.startDate);
+    // not want to fetch if results are returned
+    if (!loaded || !!currDateResults.length) return;
+    createDateRanges(filter.startDate ?? moment().startOf('day').toISOString());
     // only want to run when start date or source ids change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter.startDate, filter.sourceIds, currDateResults, prevDateResults, loaded]);
