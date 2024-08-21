@@ -1,7 +1,7 @@
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
-import { IFilterSettingsModel, Row } from 'tno-core';
+import { IFilterSettingsModel, Row, Show } from 'tno-core';
 
 import { IPreviousDate } from './interfaces';
 import * as styled from './styled';
@@ -33,7 +33,6 @@ export const PreviousResults: React.FC<IPreviousResultsProps> = ({
   const createDateRanges = (startDateStr: string) => {
     // Parse the input strings into Date objects
     const startDate = new Date(startDateStr);
-
     const dayInMillis = 24 * 60 * 60 * 1000; // Hours*Minutes*Seconds*Milliseconds
 
     // Previous 5 days that will be used to fetch in a filter
@@ -70,6 +69,9 @@ export const PreviousResults: React.FC<IPreviousResultsProps> = ({
         There are no results for your specified filter. If there are results for your filter in the
         past 5 days, they will be listed below.
       </p>
+      <Show visible={!loaded}>
+        <div className="loading" />
+      </Show>
       {prevResults
         .filter((x) => x.hits > 0)
         .map((x) => {

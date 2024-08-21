@@ -35,4 +35,34 @@ export const PreviousResults = styled(Col)`
 
     color: ${(props) => props.theme.css.btnBkPrimary};
   }
+
+  .loading {
+    color: ${(props) => props.theme.css.btnBkPrimary};
+    font-size: 1.5rem;
+    margin-left: 0.25rem;
+  }
+
+  .loading:after {
+    display: inline-block;
+    animation: dotty steps(1, end) 1s infinite;
+    content: '';
+  }
+
+  @keyframes dotty {
+    0% {
+      content: '';
+    }
+    25% {
+      content: '.';
+    }
+    50% {
+      content: '..';
+    }
+    75% {
+      content: '...';
+    }
+    100% {
+      content: '';
+    }
+  }
 `;
