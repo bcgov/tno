@@ -12,6 +12,7 @@ public static partial class ReportExtensions
     #region Variables
     [GeneratedRegex("<img[^>]*>")]
     private static partial Regex StripHtmlImagesRegex();
+    private static string[] DefaultColors = new[] { "#36A2EB", "#FF6384", "#4BC0C0", "#FF9F40", "#9966FF", "#FFCD56", "#C9CBCF", "#AA0DFE", "#3283FE", "#85660D", "#782AB6", "#565656", "#1C8356", "#16FF32", "#F7E1A0", "#1CBE4F", "#C4451C", "#DEA0FD", "#FE00FA", "#325A9B", "#FEAF16", "#F8A19F", "#90AD1C", "#F6222E", "#1CFFCE", "#2ED9FF", "#FBE426" };
     #endregion
 
     #region Methods
@@ -437,6 +438,7 @@ public static partial class ReportExtensions
     /// <returns></returns>
     public static string GetColorFromName(string targetValue, string[] knownValues, string[] colorLookup)
     {
+        colorLookup = colorLookup?.Length > 0 ? colorLookup : DefaultColors;
         if (knownValues.Length != colorLookup.Length)
             throw new ArgumentException("Array length mismatch.  Each known value must have a corresponding color");
         int indexOfValue = knownValues.ToList().FindIndex(x => x.ToLower() == targetValue.ToLower());
@@ -532,9 +534,9 @@ public static partial class ReportExtensions
             // Extract report sections and then group content into the sections.
             var sectionsKeys = sections.OrderBy(s => s.Value.SortOrder).Select(s => (s.Value.Name, s.Value.Settings.Label));
             var sectionDict = new Dictionary<string, IEnumerable<ContentModel>>();
-            foreach (var section in sectionsKeys)
+            foreach (var (Name, Label) in sectionsKeys)
             {
-                sectionDict.Add(section.Name, content.Where(c => c.SectionName == section.Name));
+                sectionDict.Add(Name, content.Where(c => c.SectionName == Name));
             }
             var spread = sectionDict.SelectMany(d => d.Value.Select(v => new KeyValuePair<string, ContentModel>(d.Key, v)));
             return spread.GroupBy(s => s.Key, s => s.Value);
@@ -588,8 +590,9 @@ public static partial class ReportExtensions
     /// </summary>
     /// <param name="colors"></param>
     /// <returns></returns>
-    public static string GetSentimentColorScript(string[] colors)
+    public static string GetSentimentColorScript(string[]? colors)
     {
+        colors ??= DefaultColors;
         return "(ctx,options) => {{ " +
             "const index = ctx.dataIndex; " +
             "const value = ctx.dataset.data[index]; " +
@@ -606,10 +609,9 @@ public static partial class ReportExtensions
     /// <param name="datasetName"></param>
     /// <param name="datasetValueProp"></param>
     /// <returns></returns>
-    public static string[] GetColors(string[] colors, int index, string dataset, string datasetName, string datasetValueProp)
+    public static string[] GetColors(string[]? colors, int index, string dataset, string datasetName, string datasetValueProp)
     {
-        var defaultColors = new[] { "#36A2EB", "#FF6384", "#4BC0C0", "#FF9F40", "#9966FF", "#FFCD56", "#C9CBCF", "#AA0DFE", "#3283FE", "#85660D", "#782AB6", "#565656", "#1C8356", "#16FF32", "#F7E1A0", "#1CBE4F", "#C4451C", "#DEA0FD", "#FE00FA", "#325A9B", "#FEAF16", "#F8A19F", "#90AD1C", "#F6222E", "#1CFFCE", "#2ED9FF", "#FBE426" };
-        colors = colors.Length > 0 ? colors : defaultColors;
+        colors = colors?.Length > 0 ? colors : DefaultColors;
 
         if (dataset == "" && datasetValueProp == "sentiment")
         {

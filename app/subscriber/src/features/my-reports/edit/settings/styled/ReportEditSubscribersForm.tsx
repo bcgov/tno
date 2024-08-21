@@ -5,6 +5,7 @@ export const ReportEditSubscribersForm = styled.div`
   flex-direction: column;
   margin: 1rem;
   gap: 1rem;
+
   .select-column {
     width: 5rem;
   }

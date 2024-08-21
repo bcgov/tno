@@ -466,7 +466,7 @@ public class ContentManager : ServiceManager<ContentOptions>
             // Upload the file to the API.
             if (!String.IsNullOrWhiteSpace(model.FilePath))
             {
-                // A service needs to know it's context so that it can import files.
+                // A service needs to know its context so that it can import files.
                 // If this service is running in the same location as the content it will be local.
                 var dataLocation = this.Options.DataLocation == model.DataLocation ? null : (await this.Api.GetDataLocationAsync(model.DataLocation))
                     ?? throw new ConfigurationException("Service data location is not configured correctly");

@@ -6,22 +6,28 @@ import { IOptionItem } from '../form';
 import { Show } from '../show';
 import * as styled from './styled';
 
-interface IToggleOption {
+export interface IToggleOption {
   id?: string | number;
   /** the label for the toggle button or menu, will be used to identify default selected if id is not set */
-  label: string;
+  label: React.ReactNode;
   /** An icon to display */
   icon?: React.ReactNode;
   dropDownOptions?: IOptionItem[];
-  onClick?: (value?: number) => void;
+  /** Event fires when option is clicked. */
+  onClick?: (
+    event?: React.MouseEvent<HTMLButtonElement | HTMLDivElement, MouseEvent>,
+    subValue?: IOptionItem,
+  ) => void;
 }
 
-export interface IToggleGroupProps extends IRowProps {
-  label?: string;
+export interface IToggleGroupProps extends Omit<IRowProps, 'onChange'> {
+  label?: React.ReactNode;
   options: IToggleOption[];
   defaultSelected?: string | number;
   disabled?: boolean;
   activeColor?: string;
+  /** Event fires when option is clicked. */
+  onChange?: (newValue?: IToggleOption, subValue?: IOptionItem) => void;
 }
 
 /**
@@ -36,6 +42,7 @@ export const ToggleGroup: React.FC<IToggleGroupProps> = ({
   options,
   defaultSelected = '',
   disabled,
+  onChange,
   ...rest
 }) => {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -65,16 +72,19 @@ export const ToggleGroup: React.FC<IToggleGroupProps> = ({
   return (
     <styled.ToggleGroup {...rest}>
       {label && <label>{label}</label>}
-      {options?.map((option) => (
+      {options?.map((option, index) => (
         <button
-          key={option.id ?? option.label}
+          key={option.id ?? (typeof option.label === 'string' ? option.label : `option-${index}`)}
           disabled={disabled}
           className={`toggle-item ${activeToggle === (option.id ?? option.label) ? 'active' : ''}`}
           type="button"
-          onClick={() => {
-            setActiveToggle(option.id ?? option.label);
+          onClick={(e) => {
+            setActiveToggle(
+              option.id ?? (typeof option.label === 'string' ? option.label : `option-${index}`),
+            );
             if (option.label === 'OTHER') setShowDropDown(!showDropDown);
-            option.onClick?.();
+            option.onClick?.(e);
+            onChange?.(option);
           }}
         >
           <Col>
@@ -86,16 +96,19 @@ export const ToggleGroup: React.FC<IToggleGroupProps> = ({
             <Show visible={!!option.dropDownOptions && showDropDown}>
               <div ref={ref} className="dd-menu">
                 <Col>
-                  {option.dropDownOptions?.map((x) => (
+                  {option.dropDownOptions?.map((item) => (
                     <div
-                      key={x.value}
+                      key={item.value}
                       className="dd-item"
-                      onClick={() => {
-                        if (typeof x.value === 'number') option.onClick?.(x.value);
+                      onClick={(e) => {
+                        if (typeof item.value === 'number') {
+                          option.onClick?.(e, item);
+                          onChange?.(option, item);
+                        }
                         setShowDropDown(false);
                       }}
                     >
-                      {x.label}
+                      {item.label}
                     </div>
                   ))}
                 </Col>

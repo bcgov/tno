@@ -16,6 +16,16 @@ public class ChartSectionSettingsModel
     public int? Height { get; set; }
 
     /// <summary>
+    /// get/set - Whether width and height should force aspect ratio.
+    /// </summary>
+    public bool? MaintainAspectRatio { get; set; }
+
+    /// <summary>
+    /// get/set - The chart aspect ratio.
+    /// </summary>
+    public int? AspectRatio { get; set; }
+
+    /// <summary>
     /// get/set - Alternate text to display in the img element.
     /// </summary>
     public string AltText { get; set; } = "Image";
@@ -53,17 +63,17 @@ public class ChartSectionSettingsModel
     /// <summary>
     /// get/set - An array of colour to use for this chart datasets.
     /// </summary>
-    public string[] DatasetColors { get; set; } = Array.Empty<string>();
+    public string[]? DatasetColors { get; set; }
 
     /// <summary>
     /// get/set - An array of colour to use for this chart datasets borders.
     /// </summary>
-    public string[] DatasetBorderColors { get; set; } = Array.Empty<string>();
+    public string[]? DatasetBorderColors { get; set; }
 
     /// <summary>
     /// get/set - An array of colour to use for this chart data labels.
     /// </summary>
-    public string[] DataLabelColors { get; set; } = Array.Empty<string>();
+    public string[]? DataLabelColors { get; set; }
 
     /// <summary>
     /// get/set - Override whether the chart is horizontal.
