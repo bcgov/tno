@@ -239,7 +239,6 @@ const ContentListView: React.FC = () => {
             .map((wo) => wo.contentId!);
         }
 
-        setIsLoading(true);
         const doSearch =
           !filter.pendingTranscript || (filter.pendingTranscript && workOrders.items.length);
         const searchResults: KnnSearchResponse<IContentModel> = doSearch
@@ -267,6 +266,7 @@ const ContentListView: React.FC = () => {
           items,
           (searchResults.hits?.total as SearchTotalHits).value,
         );
+        setIsLoading(false);
         setCurrentResultsPage(page);
         return page;
       } catch {
