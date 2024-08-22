@@ -42,16 +42,19 @@ const sortArray = <T,>(items: T[], predicate: keyof T | (keyof T)[] | ((item: T)
 const SourceList: React.FC<ISourceListProps> = (props) => {
   const navigate = useNavigate();
   const [{ sources }, api] = useSources();
-
+  const [isReady, setIsReady] = React.useState(false);
   const [items, setItems] = React.useState<ISourceModel[]>([]);
 
   React.useEffect(() => {
+    setIsReady(true);
     if (sources.length) {
       setItems(sortArray(sources, ['sortOrder', 'name', 'code']));
+      setIsReady(false);
     } else {
       api.findAllSources().then((data) => {
         setItems(sortArray(data, ['sortOrder', 'name', 'code']));
       });
+      setIsReady(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

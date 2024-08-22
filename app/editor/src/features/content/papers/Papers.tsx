@@ -371,6 +371,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
             itemsPerPage={currentResultsPage.pageSize}
             totalItems={currentResultsPage.total}
             showPaging
+            isLoading={isLoading}
             onNavigatePage={async (page) => {
               handlePageChange(page);
             }}

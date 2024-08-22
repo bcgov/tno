@@ -64,6 +64,7 @@ const NotificationList: React.FC = () => {
           columns={columns}
           showSort={true}
           onRowClick={(row) => navigate(`${row.original.id}`)}
+          isLoading={isReady}
           pagingEnabled={false}
         />
       </FormPage>
