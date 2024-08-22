@@ -95,6 +95,7 @@ const SourceList: React.FC<ISourceListProps> = (props) => {
         columns={columns}
         showSort={true}
         pagingEnabled={false}
+        isLoading={isReady}
       />
     </styled.SourceList>
   );
