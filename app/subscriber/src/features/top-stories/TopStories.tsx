@@ -37,7 +37,9 @@ export const TopStories: React.FC = () => {
           ...filter,
           actions: [topStoryAction],
           startDate: filter.startDate ?? moment().startOf('day').toISOString(),
-        });
+          size: 500,
+          sort: [{ publishedOn: 'desc' }],
+        }).catch();
     }
     // react does not like dependencies that are from a hook
     // eslint-disable-next-line react-hooks/exhaustive-deps

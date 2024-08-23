@@ -34,7 +34,9 @@ export const Home: React.FC = () => {
       ...filter,
       actions: [getBooleanActionValue(featuredStoryActionId)],
       startDate: filter.startDate ?? moment().startOf('day').toISOString(),
-    }).then(() => {});
+      size: 500,
+      sort: [{ publishedOn: 'desc' }],
+    }).catch();
     // only want to fire when filter changes, or when the featured story action id changes
     // react does not like dependencies that are from a hook it seems.
     // eslint-disable-next-line react-hooks/exhaustive-deps

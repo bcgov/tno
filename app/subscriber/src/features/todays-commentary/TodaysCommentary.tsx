@@ -47,15 +47,15 @@ export const TodaysCommentary: React.FC = () => {
     if (commentaryActionId) {
       let actionFilters = getActionFilters();
       const commentaryAction = actionFilters.find((a) => a.id === commentaryActionId);
-      setIsLoading(true);
       commentaryAction &&
         fetchResults({
           ...filter,
           actions: [commentaryAction],
           startDate: filter.startDate ?? moment().startOf('day').toISOString(),
           searchUnpublished: false,
+          sort: [{ publishedOn: 'desc' }],
           size: 500,
-        });
+        }).catch();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commentaryActionId, filter, findContentWithElasticsearch, getActionFilters]);
