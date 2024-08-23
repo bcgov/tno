@@ -67,7 +67,6 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
   const [, { transcribe, findWorkOrders }] = useWorkOrders();
   const hub = useApiHub();
   const isMobile = useMobile();
-  const topRef = React.useRef<HTMLDivElement>(null);
 
   // flag to keep track of the bolding completion in my minister view
   const [boldingComplete, setBoldingComplete] = React.useState(false);
@@ -123,12 +122,16 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
     }
   }, [workOrders, transcribe, content]);
 
-  // scroll to top when navigating to new content from a mobile device
   React.useEffect(() => {
-    if (isMobile && topRef.current) {
-      topRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (isMobile) {
+      const mainElement = document.querySelector('main');
+      if (mainElement) {
+        mainElement.scrollTo(0, 0);
+      }
     }
-  }, [id, isMobile]);
+    // only want to fire when id changes (user navigates to a new section)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   React.useEffect(() => {
     if (!ministers.length) {
@@ -290,7 +293,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
   }, [cleanBody, cleanSummary]);
 
   return (
-    <styled.ViewContent className={`${!!popout && 'popout'}`} ref={topRef}>
+    <styled.ViewContent className={`${!!popout && 'popout'}`}>
       <div className="headline">{formattedHeadline}</div>
       <Bar className="info-bar" vanilla>
         <Show visible={!!content?.byline}>
