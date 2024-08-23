@@ -34,6 +34,7 @@ export const Home: React.FC = () => {
       ...filter,
       actions: [getBooleanActionValue(featuredStoryActionId)],
       startDate: filter.startDate ?? moment().startOf('day').toISOString(),
+      size: 500,
       sort: [{ publishedOn: 'desc' }],
     }).catch();
     // only want to fire when filter changes, or when the featured story action id changes
