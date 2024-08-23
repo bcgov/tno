@@ -54,7 +54,7 @@ export const TodaysCommentary: React.FC = () => {
           actions: [commentaryAction],
           startDate: filter.startDate ?? moment().startOf('day').toISOString(),
           searchUnpublished: false,
-          size: 500,
+          sort: [{ publishedOn: 'desc' }],
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

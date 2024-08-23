@@ -37,6 +37,7 @@ export const TopStories: React.FC = () => {
           ...filter,
           actions: [topStoryAction],
           startDate: filter.startDate ?? moment().startOf('day').toISOString(),
+          sort: [{ publishedOn: 'desc' }],
         });
     }
     // react does not like dependencies that are from a hook
