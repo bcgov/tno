@@ -535,6 +535,17 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     }
 
     /// <summary>
+    /// Determine if this request is to resend the report.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="instance"></param>
+    /// <returns></returns>
+    private bool IsResend(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instance)
+    {
+        return (request.Resend || instance?.SentOn.HasValue == true) && !String.IsNullOrWhiteSpace(instance?.Subject) && !String.IsNullOrWhiteSpace(instance?.Body);
+    }
+
+    /// <summary>
     /// Send out emails for the specified report instance.
     /// </summary>
     /// <param name="request"></param>
@@ -543,7 +554,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <exception cref="ArgumentException"></exception>
     private async Task GenerateAndSendReportAsync(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance)
     {
-        var resending = instance.SentOn.HasValue && !String.IsNullOrWhiteSpace(instance.Subject) && !String.IsNullOrWhiteSpace(instance.Body);
+        var resending = IsResend(request, instance);
         var report = instance.Report ?? throw new ArgumentException("Report instance must include the report model.");
         var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
 
@@ -616,7 +627,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     {
         try
         {
-            var (subject, linkBody, fullBody) = await GenerateReportOutputAsync(report, instance, sectionContent);
+            var (subject, linkBody, fullBody) = await GenerateReportOutputAsync(request, report, instance, sectionContent);
 
             if (request.SendToSubscribers || !String.IsNullOrEmpty(request.To))
             {
@@ -654,21 +665,23 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <summary>
     /// Generate the subject, and both email body messages based on the report template and content.
     /// </summary>
+    /// <param name="request"></param>
     /// <param name="report"></param>
     /// <param name="instance"></param>
     /// <param name="sectionContent"></param>
     /// <returns></returns>
     /// <exception cref="ReportingException"></exception>
     private async Task<(string subject, string linkBody, string fullBody)> GenerateReportOutputAsync(
+        ReportRequestModel request,
         API.Areas.Services.Models.Report.ReportModel report,
         API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instance,
         Dictionary<string, ReportSectionModel> sectionContent)
     {
         try
         {
-            var subject = await this.ReportEngine.GenerateReportSubjectAsync(report, instance, sectionContent, false, false);
+            var subject = IsResend(request, instance) ? instance!.Subject : await this.ReportEngine.GenerateReportSubjectAsync(report, instance, sectionContent, false, false);
             var linkOnlyFormatBody = await this.ReportEngine.GenerateReportBodyAsync(report, instance, sectionContent, GetLinkedReportAsync, null, true, false);
-            var fullTextFormatBody = await this.ReportEngine.GenerateReportBodyAsync(report, instance, sectionContent, GetLinkedReportAsync, null, false, false);
+            var fullTextFormatBody = IsResend(request, instance) ? instance!.Body : await this.ReportEngine.GenerateReportBodyAsync(report, instance, sectionContent, GetLinkedReportAsync, null, false, false);
 
             return (subject, linkOnlyFormatBody, fullTextFormatBody);
         }
@@ -899,10 +912,6 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 var latestInstanceModel = await this.Api.GetAVOverviewInstanceAsync(instance.Id) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
                 if (latestInstanceModel.Version != instance.Version)
                 {
-                    // latestInstanceModel.Subject = instance.Subject;
-                    // latestInstanceModel.Body = instance.Body;
-                    // latestInstanceModel.SentOn = instance.SentOn;
-                    // latestInstanceModel.Status = instance.Status;
                     latestInstanceModel.Response = instance.Response;
                     latestInstanceModel.PublishedOn = instance.PublishedOn;
                     instance = await this.Api.UpdateAVOverviewInstanceAsync(latestInstanceModel) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
