@@ -30,13 +30,22 @@ export const ProductCard: React.FC<IProductCardProps> = ({
   onToggleSubscription,
 }) => {
   const userProduct = product.subscribers.find((s) => s.userId === userId);
+  const isSubscribed = userProduct?.isSubscribed ?? false;
+  const isRequesting =
+    userProduct &&
+    !userProduct.isSubscribed &&
+    userProduct.status === ProductRequestStatusName.RequestSubscription;
+  const isCancelling =
+    userProduct &&
+    userProduct.isSubscribed &&
+    userProduct.status === ProductRequestStatusName.RequestUnsubscribe;
 
   return (
     <Col className="product-card">
       <Row className="product-row">
         <FaFileLines />
         <span className="product-name">{product.name}</span>
-        <Show visible={userProduct?.status !== ProductRequestStatusName.NA}>
+        <Show visible={isRequesting || isCancelling}>
           <Action
             className={`action-cancel-request`}
             icon={<FaRotateLeft />}
@@ -47,11 +56,11 @@ export const ProductCard: React.FC<IProductCardProps> = ({
             }}
           />
         </Show>
-        <Show visible={userProduct?.status === ProductRequestStatusName.NA}>
+        <Show visible={!isRequesting && !isCancelling}>
           <Action
-            className={userProduct?.isSubscribed ? `action-unsubscribe` : `action-subscribe`}
-            icon={userProduct?.isSubscribed ? <FaUserMinus /> : <FaUserPlus />}
-            label={userProduct?.isSubscribed ? `Unsubscribe` : `Subscribe`}
+            className={isSubscribed ? `action-unsubscribe` : `action-subscribe`}
+            icon={isSubscribed ? <FaUserMinus /> : <FaUserPlus />}
+            label={isSubscribed ? `Unsubscribe` : `Subscribe`}
             onClick={() => {
               userProduct &&
                 onToggleSubscription?.({
