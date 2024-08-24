@@ -160,7 +160,7 @@ export const MyProducts: React.FC = () => {
       <Modal
         headerText={`Confirm change`}
         body={
-          (active?.userProduct.status === ProductRequestStatusName.NA
+          (active?.userProduct.status === ProductRequestStatusName.RequestSubscription
             ? `Are you sure you wish to ${
                 active.userProduct.isSubscribed ? 'unsubscribe from' : 'subscribe to'
               }`
@@ -172,7 +172,7 @@ export const MyProducts: React.FC = () => {
         hide={toggle}
         type="default"
         confirmText={
-          active?.userProduct.status === ProductRequestStatusName.NA
+          active?.userProduct.status === ProductRequestStatusName.RequestSubscription
             ? `Yes, ${
                 active.userProduct.isSubscribed ? 'request to unsubscribe' : 'request to subscribe'
               }`
