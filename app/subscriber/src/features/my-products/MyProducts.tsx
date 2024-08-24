@@ -4,6 +4,7 @@ import React from 'react';
 import { FaEnvelope, FaUserPlus } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useProducts } from 'store/hooks';
+import { useProfileStore } from 'store/slices';
 import {
   IProductModel,
   IUserProductModel,
@@ -25,10 +26,13 @@ export const MyProducts: React.FC = () => {
   const [{ getProducts, toggleSubscription }] = useProducts();
   const { toggle, isShowing } = useModal();
   const [{ userInfo }] = useApp();
+  const [{ impersonate }] = useProfileStore();
 
   const [products, setProducts] = React.useState<IProductModel[]>([]);
   const [active, setActive] = React.useState<ISelectedProduct>();
   const [isLoading, setIsLoading] = React.useState(true);
+
+  const userId = impersonate?.id ?? userInfo?.id ?? 0;
 
   React.useEffect(() => {
     if (userInfo && !products.length) {
@@ -111,7 +115,7 @@ export const MyProducts: React.FC = () => {
                   return (
                     <ProductCard
                       key={product.id}
-                      userId={userInfo?.id}
+                      userId={userId}
                       product={product}
                       onToggleSubscription={(userProduct) => {
                         selectProduct(product, userProduct);
