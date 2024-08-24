@@ -1,6 +1,7 @@
 import { Action } from 'components/action';
 import React from 'react';
 import { FaFileLines, FaRotateLeft, FaUserMinus, FaUserPlus } from 'react-icons/fa6';
+import { useApp } from 'store/hooks';
 import {
   Col,
   IProductModel,
@@ -8,6 +9,7 @@ import {
   ProductRequestStatusName,
   Row,
   Show,
+  UserAccountTypeName,
 } from 'tno-core';
 
 export interface IProductCardProps {
@@ -29,16 +31,29 @@ export const ProductCard: React.FC<IProductCardProps> = ({
   product,
   onToggleSubscription,
 }) => {
-  const userProduct = product.subscribers.find((s) => s.userId === userId);
-  const isSubscribed = userProduct?.isSubscribed ?? false;
+  const [{ userInfo }] = useApp();
+
+  const userProduct: IUserProductModel = product.subscribers.find((s) => s.userId === userId) ?? {
+    userId: userId ?? 0,
+    productId: product.id,
+    status: ProductRequestStatusName.NA,
+    isSubscribed: false,
+    username: userInfo?.username ?? '',
+    email: userInfo?.email ?? '',
+    preferredEmail: userInfo?.preferredEmail ?? '',
+    emailVerified: false,
+    displayName: userInfo?.displayName ?? '',
+    firstName: userInfo?.firstName ?? '',
+    lastName: userInfo?.lastName ?? '',
+    isEnabled: userInfo?.isEnabled ?? true,
+    accountType: UserAccountTypeName.Direct,
+  };
+  const isSubscribed = userProduct.isSubscribed;
   const isRequesting =
-    userProduct &&
     !userProduct.isSubscribed &&
     userProduct.status === ProductRequestStatusName.RequestSubscription;
   const isCancelling =
-    userProduct &&
-    userProduct.isSubscribed &&
-    userProduct.status === ProductRequestStatusName.RequestUnsubscribe;
+    userProduct.isSubscribed && userProduct.status === ProductRequestStatusName.RequestUnsubscribe;
 
   return (
     <Col className="product-card">
@@ -65,7 +80,7 @@ export const ProductCard: React.FC<IProductCardProps> = ({
               userProduct &&
                 onToggleSubscription?.({
                   ...userProduct,
-                  status: !userProduct.isSubscribed
+                  status: !isSubscribed
                     ? ProductRequestStatusName.RequestSubscription
                     : ProductRequestStatusName.RequestUnsubscribe,
                 });
