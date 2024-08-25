@@ -39,8 +39,6 @@ export const defaultReportSection = (
     groupBy: 'otherSource',
     sortBy: '',
     sortDirection: '',
-    datasetColors: [],
-    dataLabelColors: [],
   },
   chartTemplates: [],
 });

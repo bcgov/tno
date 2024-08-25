@@ -221,11 +221,13 @@ public class ReportEngine : IReportEngine
 
         // Send request to Charts API to generate base64
         var body = new StringContent(dataJson, Encoding.UTF8, System.Net.Mime.MediaTypeNames.Application.Json);
+        var width = model.ChartTemplate.SectionSettings.Width.HasValue ? $"width={model.ChartTemplate.SectionSettings.Width.Value}" : "";
+        var height = model.ChartTemplate.SectionSettings.Height.HasValue ? $"&height={model.ChartTemplate.SectionSettings.Height.Value}" : "";
         var response = await this.HttpClient.PostAsync(
             this.ChartsOptions.Url.Append(
                 this.ChartsOptions.Base64Path,
                 model.ChartTemplate.SectionSettings.ChartType ?? "bar",
-                $"?width={model.ChartTemplate.SectionSettings.Width ?? 250}&height={model.ChartTemplate.SectionSettings.Height ?? 250}&options={optionsBase64}"),
+                $"?{width}{height}&options={optionsBase64}"),
             body);
         return await response.Content.ReadAsStringAsync();
     }

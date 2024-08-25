@@ -1,7 +1,7 @@
 import { OptionItem } from '../../../components';
 
 export const datasetOptions = [
-  new OptionItem('Default', ''),
+  new OptionItem('Single Dataset', ''),
   new OptionItem('Media Type', 'mediaType'),
   new OptionItem('Source', 'source'),
   new OptionItem('Show/Program', 'series'),

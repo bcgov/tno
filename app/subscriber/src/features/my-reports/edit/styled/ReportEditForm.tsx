@@ -53,10 +53,6 @@ export const ReportEditForm = styled.div`
   .section-options {
     padding-bottom: 1rem;
     border-bottom: solid 1px ${(props) => props.theme.css.lineTertiaryColor};
-
-    .frm-in {
-      padding: 0;
-    }
   }
 
   .frm-in:not(.chk) {

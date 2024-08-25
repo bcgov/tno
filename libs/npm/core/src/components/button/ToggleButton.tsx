@@ -25,6 +25,10 @@ export interface IToggleButtonProps {
   label?: React.ReactNode;
   /** Position of the label. */
   labelPosition?: 'left' | 'right' | 'top' | 'bottom';
+  /** The labels are titles. */
+  labelIsTitle?: boolean;
+  /** Title hover text. */
+  title?: string;
   /** Event fires when button clicked. */
   onClick?: React.MouseEventHandler<HTMLDivElement>;
 }

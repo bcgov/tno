@@ -86,12 +86,25 @@ export const ReportEditTemplateForm = styled.div`
       }
     }
 
-    .charts {
-      > div {
-        border-radius: 0.5rem;
-        border: solid 1px ${(props) => props.theme.css.tableEvenRow};
+    .add-chart {
+      gap: 1rem;
+
+      > div:first-child {
+        flex: 1;
+
+        > div.frm-in div {
+          display: flex;
+          flex-direction: row;
+          flex-wrap: nowrap;
+        }
       }
 
+      > div:last-child {
+        flex: 2;
+      }
+    }
+
+    .charts {
       .chart-header {
         background: ${(props) => props.theme.css.tableHoverRow};
         padding: 0.25rem 1rem;
@@ -100,23 +113,22 @@ export const ReportEditTemplateForm = styled.div`
       }
 
       .chart-settings {
-        padding: 1rem;
+        padding: 0.5rem;
         gap: 1rem;
+        border-left: solid 1px ${(props) => props.theme.css.tableHoverRow};
+        border-right: solid 1px ${(props) => props.theme.css.tableHoverRow};
+        border-bottom: solid 1px ${(props) => props.theme.css.tableHoverRow};
+        border-bottom-left-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
       }
 
-      .chart {
-        > div:nth-child(2) {
-          display: flex;
-          flex-direction: row;
-          align-items: stretch;
-
-          > div {
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            border: solid 1px ${(props) => props.theme.css.tableHoverRow};
-          }
-        }
+      .frm-in {
+        padding: 0;
       }
+    }
+
+    #dataset-colours {
+      z-index: 1000;
     }
   }
 `;
