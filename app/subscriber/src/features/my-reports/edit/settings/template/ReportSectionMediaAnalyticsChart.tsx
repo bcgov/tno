@@ -33,8 +33,7 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
   HTMLDivElement,
   IReportSectionMediaAnalyticsChartProps
 >(({ showConfig: initShowConfig, sectionIndex, chartIndex, onDisableDrag, ...rest }, ref) => {
-  const { values, setFieldValue, testData, regenerateTestData, showReportData, toggleReportData } =
-    useReportEditContext();
+  const { values, setFieldValue, testData, regenerateTestData } = useReportEditContext();
 
   const section = values.sections[sectionIndex];
   const chart = section.chartTemplates[chartIndex];
@@ -44,6 +43,16 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
   const [reportContent, setReportContent] = React.useState(
     values.instances ? values.instances[0].content : [],
   );
+  const [showReportData, setShowReportData] = React.useState(
+    values.instances.length > 0 && values.instances[0].content.length > 0,
+  );
+
+  const toggleReportData = React.useCallback(() => setShowReportData((show) => !show), []);
+
+  React.useEffect(() => {
+    // If there is data, then show it in the charts.
+    setShowReportData(values.instances.length > 0 && values.instances[0].content.length > 0);
+  }, [values.instances]);
 
   React.useEffect(() => {
     setData(generateChartData(chart, showReportData ? reportContent : testData, values.sections));

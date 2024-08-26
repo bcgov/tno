@@ -34,7 +34,7 @@ ChartJS.register(
   ChartDataLabels,
 );
 
-let myChart: ChartJS;
+let myChart: Record<string, ChartJS> = {};
 
 export interface IChartViewerProps extends IChartSectionProps {
   /** Chart data */
@@ -53,14 +53,15 @@ export const ChartViewer: React.FC<IChartViewerProps> = ({ sectionIndex, chartIn
 
   const section = values.sections[sectionIndex];
   const chart = section.chartTemplates[chartIndex];
+  const uid = `${section.id}_${sectionIndex}`;
 
   React.useEffect(() => {
     if (canvasRef.current !== null && data) {
-      myChart?.destroy();
+      myChart[uid]?.destroy();
       if (chart.sectionSettings.height) canvasRef.current.height = chart.sectionSettings.height;
       if (chart.sectionSettings.width) canvasRef.current.width = chart.sectionSettings.width;
 
-      myChart = new ChartJS(canvasRef.current, {
+      myChart[uid] = new ChartJS(canvasRef.current, {
         type: chart.sectionSettings.chartType as keyof ChartTypeRegistry,
         data: {
           ...data,
@@ -84,13 +85,13 @@ export const ChartViewer: React.FC<IChartViewerProps> = ({ sectionIndex, chartIn
         },
         options: generateChartOptions(data, chart.sectionSettings),
       });
-      myChart.resize(chart.sectionSettings.width, chart.sectionSettings.height);
+      myChart[uid].resize(chart.sectionSettings.width, chart.sectionSettings.height);
     }
-  }, [chart.sectionSettings, data, values.sections]);
+  }, [chart.sectionSettings, data, values.sections, uid]);
 
   return (
     <div>
-      <canvas ref={canvasRef} id="my-chart" />
+      <canvas ref={canvasRef} id={`my-chart-${uid}`} />
     </div>
   );
 };
