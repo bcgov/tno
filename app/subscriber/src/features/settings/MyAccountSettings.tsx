@@ -9,38 +9,44 @@ import * as styled from './styled';
 
 const MyAccountSettings = () => {
   const { updateUser } = useUsers();
-  const [{ profile, impersonate }, { storeMyProfile, storeImpersonate }] = useProfileStore();
+  const [{ profile, impersonate }] = useProfileStore();
   const isVacationMode: boolean = !!impersonate
     ? impersonate?.preferences?.isVacationMode ?? false
     : profile?.preferences?.isVacationMode ?? false;
 
-  const toggleVacationMode = React.useCallback(async () => {
-    if (!profile) {
-      toast.error('User information is missing. Please try again later');
-      return;
-    }
-    const baseProfile = impersonate ?? profile;
-    const createUser = (): ISubscriberUserModel => {
-      // use impersonate if it exists, otherwise use profile
-      return {
-        ...baseProfile,
-        preferences: {
-          ...baseProfile.preferences,
-          isVacationMode: !isVacationMode,
-        },
+  const toggleVacationMode = React.useCallback(
+    async (
+      profile: ISubscriberUserModel | undefined,
+      impersonate: ISubscriberUserModel | undefined,
+      isVacationMode: boolean,
+    ) => {
+      if (!profile) {
+        toast.error('User information is missing. Please try again later');
+        return;
+      }
+      const baseProfile = impersonate ?? profile;
+      const createUser = (): ISubscriberUserModel => {
+        // use impersonate if it exists, otherwise use profile
+        return {
+          ...baseProfile,
+          preferences: {
+            ...baseProfile.preferences,
+            isVacationMode: isVacationMode,
+          },
+        };
       };
-    };
-    const user = createUser();
+      const user = createUser();
 
-    try {
-      !!impersonate ? storeImpersonate(user) : storeMyProfile(user);
-      await updateUser(user, !!impersonate);
-      toast.success('Vacation mode has successfully been updated.');
-    } catch (error) {
-      // Handle the error, if needed
-      console.error('Failed to update user:', error);
-    }
-  }, [profile, impersonate, isVacationMode, storeImpersonate, storeMyProfile, updateUser]);
+      try {
+        await updateUser(user, !!impersonate);
+        toast.success('Vacation mode has successfully been updated.');
+      } catch (error) {
+        // Handle the error, if needed
+        console.error('Failed to update user:', error);
+      }
+    },
+    [updateUser],
+  );
 
   return (
     <styled.MyAccountSettings>
@@ -56,7 +62,7 @@ const MyAccountSettings = () => {
         <ToggleButton
           on={<FaToggleOn />}
           off={<FaToggleOff />}
-          onClick={toggleVacationMode}
+          onClick={() => toggleVacationMode(profile, impersonate, !isVacationMode)}
           width="25px"
           height="25px"
           color="#008000"

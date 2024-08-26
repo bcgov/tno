@@ -974,7 +974,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             if (user.User == null) throw new InvalidOperationException("Report subscriber is missing user information");
 
             // Only include users who have not received an email yet.
-            var (a, b, c) = await GetEmailAddressesAsync(user.UserId, user.User.GetEmail(), user.User.AccountType, user.SendTo);
+            var (a, b, c) = await GetEmailAddressesAsync(user.UserId, user.User.GetEmail(), user.User.IsVacationMode(), user.User.AccountType, user.SendTo);
             emails[EmailSentTo.To].AddRange(a.Where(s => request.Resend || !instances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
             emails[EmailSentTo.CC].AddRange(b.Where(s => request.Resend || !instances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
             emails[EmailSentTo.BCC].AddRange(c.Where(s => request.Resend || !instances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
@@ -988,10 +988,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// </summary>
     /// <param name="userId"></param>
     /// <param name="email"></param>
+    /// <param name="isVacationMode"></param>
     /// <param name="accountType"></param>
     /// <param name="sendTo"></param>
     /// <returns></returns>
-    private async Task<(IEnumerable<UserEmail> to, IEnumerable<UserEmail> cc, IEnumerable<UserEmail> bcc)> GetEmailAddressesAsync(int userId, string email, UserAccountType accountType, EmailSentTo sendTo)
+    private async Task<(IEnumerable<UserEmail> to, IEnumerable<UserEmail> cc, IEnumerable<UserEmail> bcc)> GetEmailAddressesAsync(int userId, string email, bool isVacationMode, UserAccountType accountType, EmailSentTo sendTo)
     {
         var to = new List<UserEmail>();
         var cc = new List<UserEmail>();
@@ -1017,8 +1018,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         }
         else
         {
-            var user = await this.Api.GetUserAsync(userId);
-            if (user != null && !user.IsVacationMode())
+            if (!isVacationMode)
             {
                 switch (sendTo)
                 {
@@ -1070,7 +1070,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             foreach (var user in subscribers)
             {
                 // Determine which users have already received the email.
-                var (a, b, c) = await GetEmailAddressesAsync(user.Id, user.GetEmail(), user.AccountType, user.SendTo);
+                var (a, b, c) = await GetEmailAddressesAsync(user.Id, user.GetEmail(), user.IsVacationMode(), user.AccountType, user.SendTo);
                 to.AddRange(a.Where(s => request.Resend || !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.Status))));
                 cc.AddRange(b.Where(s => request.Resend || !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.Status))));
                 bcc.AddRange(c.Where(s => request.Resend || !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.Status))));

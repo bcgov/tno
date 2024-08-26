@@ -62,6 +62,20 @@ public class UserModel
     /// get/set - How the email will be sent to the subscriber.
     /// </summary>
     public Entities.EmailSentTo SendTo { get; set; }
+
+    /// <summary>
+    /// Get the value of the isVacationMode property from Preferences.
+    /// </summary>
+    /// <returns>Returns true if isVacationMode is set to true, otherwise false.</returns>
+    public bool IsVacationMode()
+    {
+        if (Preferences.RootElement.TryGetProperty("isVacationMode", out JsonElement isVacationModeElement))
+        {
+            return isVacationModeElement.GetBoolean();
+        }
+        return false;
+    }
+
     #endregion
 
     #region Constructors

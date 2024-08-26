@@ -2541,6 +2541,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@kurkle/color@npm:^0.3.0":
+  version: 0.3.2
+  resolution: "@kurkle/color@npm:0.3.2"
+  checksum: 79e97b31f8f6efb28c69d373f94b0c7480226fe8ec95221f518ac998e156444a496727ce47de6d728eb5c3369288e794cba82cae34253deb0d472d3bfe080e49
+  languageName: node
+  linkType: hard
+
 "@leichtgewicht/ip-codec@npm:^2.0.1":
   version: 2.0.5
   resolution: "@leichtgewicht/ip-codec@npm:2.0.5"
@@ -5253,6 +5260,24 @@ __metadata:
   version: 2.0.1
   resolution: "char-regex@npm:2.0.1"
   checksum: 8524c03fd7e58381dccf33babe885fe62731ae20755528b19c39945b8203479184f35247210dc9eeeef279cdbdd6511cd3182e0e1db8e4549bf2586470b7c204
+  languageName: node
+  linkType: hard
+
+"chart.js@npm:4.4.4":
+  version: 4.4.4
+  resolution: "chart.js@npm:4.4.4"
+  dependencies:
+    "@kurkle/color": ^0.3.0
+  checksum: cbca10d97e2fcdff3d718e8ac770d382bc0e84bc2939a0d0e33868761ac39940f77a2a90da69c399006e8c3684ffdab3c6fafa5be306ff767290d5c11cf770fb
+  languageName: node
+  linkType: hard
+
+"chartjs-plugin-datalabels@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "chartjs-plugin-datalabels@npm:2.2.0"
+  peerDependencies:
+    chart.js: ">=3.0.0"
+  checksum: 26086a908a8e88507959b7aaf798b2d9794ea95f7a5889b8bb9f6b9f3437a7e2fdf18952d3ba403b2ff78e5b70452439fb323bd0dfe76e9d7d1dae1328dacb99
   languageName: node
   linkType: hard
 
@@ -10632,6 +10657,8 @@ __metadata:
     "@typescript-eslint/eslint-plugin": 5.55.0
     "@typescript-eslint/parser": 5.55.0
     axios: 1.7.2
+    chart.js: 4.4.4
+    chartjs-plugin-datalabels: ^2.2.0
     compression-webpack-plugin: 11.1.0
     eslint: 8.36.0
     eslint-config-prettier: 8.7.0
@@ -10670,7 +10697,7 @@ __metadata:
     sheetjs: "file:packages/xlsx-0.20.1.tgz"
     styled-components: 6.1.11
     stylis: 4.3.2
-    tno-core: ./tno-core-0.1.134.tgz
+    tno-core: ./tno-core-0.1.135.tgz
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -14702,9 +14729,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@file:./tno-core-0.1.134.tgz::locator=mmi-subscriber-app%40workspace%3A.":
-  version: 0.1.134
-  resolution: "tno-core@file:./tno-core-0.1.134.tgz::locator=mmi-subscriber-app%40workspace%3A."
+"tno-core@file:./tno-core-0.1.135.tgz::locator=mmi-subscriber-app%40workspace%3A.":
+  version: 0.1.135
+  resolution: "tno-core@file:./tno-core-0.1.135.tgz::locator=mmi-subscriber-app%40workspace%3A."
   dependencies:
     "@elastic/elasticsearch": ^8.13.1
     "@fortawesome/free-solid-svg-icons": ^6.4.2
@@ -14738,7 +14765,7 @@ __metadata:
     stylis: ^4.3.2
     tno-core: 0.1.121
     yup: ^1.1.1
-  checksum: 8288ebf2bf8c3d416777f7053e2bcbae93a9f368982dd406a3645a3ed9995a009a37cb328c4e3778cb5bf9322ebdaa5e58f31509852f1e244a80e70f3a417da9
+  checksum: 173bc8738382c6b0ed19d1a93b206c3d769beb344778691fc5529461a229da8f2ce90cb1d2f5a3863096234d61bf4a069442f138244f673bc4dbd203ed15b497
   languageName: node
   linkType: hard
 
