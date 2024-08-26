@@ -358,7 +358,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
         </Row>
       </Show>
       <Row id="summary" className="summary">
-        <Show visible={isAV && !!content?.summary && !isTranscribing && isDifferent && !popout}>
+        <Show visible={isAV && !!content?.summary && isDifferent && !popout}>
           <Col className="summary-container">
             <span>{formattedSummary}</span>
             <Show visible={!!content?.sourceUrl}>
