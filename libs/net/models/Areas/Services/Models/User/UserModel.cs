@@ -68,6 +68,19 @@ public class UserModel
     /// get/set - The user preferences.
     /// </summary>
     public JsonDocument Preferences { get; set; } = JsonDocument.Parse("{}");
+
+    /// <summary>
+    /// Get the value of the isVacationMode property from Preferences.
+    /// </summary>
+    /// <returns>Returns true if isVacationMode is set to true, otherwise false.</returns>
+    public bool IsVacationMode()
+    {
+        if (Preferences.RootElement.TryGetProperty("isVacationMode", out JsonElement isVacationModeElement))
+        {
+            return isVacationModeElement.GetBoolean();
+        }
+        return false;
+    }
     #endregion
 
     #region Constructors

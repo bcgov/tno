@@ -588,7 +588,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <returns>True if there are any subscribers, false otherwise.</returns>
     private async Task<bool> CheckForSubscribersAsync(API.Areas.Services.Models.Report.ReportModel report)
     {
-        var subscribers = report.Subscribers.Where(s => s.IsSubscribed).ToArray();
+        var subscribers = report.Subscribers.Where(s => s.IsSubscribed && s.User != null && s.User.IsVacationMode() != true).ToArray();
         if (subscribers.Any())
         {
             return true;
@@ -940,8 +940,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             API.Areas.Services.Models.Report.ReportModel report,
             IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel> userReportInstances)
     {
-        var linkOnlyFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && LinkOnlyFormats.Contains(s.Format)).ToArray();
-        var fullTextFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && FullTextFormats.Contains(s.Format)).ToArray();
+        var linkOnlyFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && s.User != null && LinkOnlyFormats.Contains(s.Format)).ToArray();
+        var fullTextFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && s.User != null && FullTextFormats.Contains(s.Format)).ToArray();
 
         var linkEmails = await GetEmailAddressesAsync(request, linkOnlyFormatSubscribers, userReportInstances);
         var fullEmails = await GetEmailAddressesAsync(request, fullTextFormatSubscribers, userReportInstances);
@@ -988,6 +988,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// </summary>
     /// <param name="userId"></param>
     /// <param name="email"></param>
+    /// <param name="isVacationMode"></param>
     /// <param name="accountType"></param>
     /// <param name="sendTo"></param>
     /// <returns></returns>
@@ -1000,7 +1001,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         if (accountType == UserAccountType.Distribution)
         {
             var users = await this.Api.GetDistributionListAsync(userId);
-            var emails = users.Select(u => new UserEmail(u.Id, u.GetEmail()));
+            var filteredUsers = users.Where(u => !u.IsVacationMode()).ToList();
+            var emails = filteredUsers.Select(u => new UserEmail(u.Id, u.GetEmail()));
             switch (sendTo)
             {
                 case EmailSentTo.To:
