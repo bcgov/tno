@@ -394,17 +394,21 @@ public class NotificationManager : ServiceManager<NotificationOptions>
             if (subscriber.User.AccountType == UserAccountType.Distribution)
             {
                 var users = await this.Api.GetDistributionListAsync(subscriber.UserId);
-                return users.Select(u => new API.Areas.Services.Models.Notification.UserModel());
+                var filteredUsers = users.Where(u => !u.IsVacationMode());
+
+                return filteredUsers.Select(u => new API.Areas.Services.Models.Notification.UserModel(u));
             }
             else
             {
-                return new[] { subscriber.User };
+                return !subscriber.User.IsVacationMode()
+                ? new[] { subscriber.User }
+                : Array.Empty<API.Areas.Services.Models.Notification.UserModel>();
             }
         }));
 
         // Add any users who are subscribed to the content.
         // Users can subscriber to content by asking for a transcript.
-        subscribers.AddRange(content.UserNotifications.Where(cun => cun.User != null && cun.IsSubscribed && cun.User.AccountType != UserAccountType.Distribution)
+        subscribers.AddRange(content.UserNotifications.Where(cun => cun.User != null && cun.IsSubscribed && cun.User.AccountType != UserAccountType.Distribution && !cun.User.IsVacationMode())
             .Select(cun => new API.Areas.Services.Models.Notification.UserModel(cun.User!)));
 
         // Remove duplicate subscribers.  This can occur if a user is both subscribed to the content and the notification.

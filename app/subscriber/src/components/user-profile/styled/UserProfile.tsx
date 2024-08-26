@@ -7,6 +7,27 @@ export const UserProfile = styled.div`
   align-items: center;
   margin-left: auto;
 
+  .vacation-mode-label {
+    color: #008000;
+    display: flex;
+    align-items: center;
+
+    .icon {
+      margin-right: 5px;
+    }
+
+    .close-button {
+      color: red;
+      margin-left: 5px;
+      cursor: pointer;
+      font-weight: bold;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
   .username-info {
     display: flex;
     align-items: center;
