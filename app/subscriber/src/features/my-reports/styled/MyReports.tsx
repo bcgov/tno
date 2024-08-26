@@ -57,13 +57,13 @@ export const MyReports = styled.div`
     background-color: ${(props) => props.theme.css.btnBkPrimary};
     border: none;
     svg {
-      color: white;
+      color: ${(props) => props.theme.css.bkWhite};
       height: 16px;
       width: 16px;
     }
     .action {
       label {
-        color: white;
+        color: ${(props) => props.theme.css.bkWhite};
       }
     }
   }
@@ -73,17 +73,30 @@ export const MyReports = styled.div`
     align-items: center;
     flex: 1;
     text-transform: uppercase;
+    background: ${(props) => props.theme.css.bkWhite};
+    border-radius: 1.5rem;
+    border-color: ${(props) => props.theme.css.linePrimaryColor};
+    padding: 0 0.5rem 0 0.5rem;
+    input {
+      outline: none;
+      border: none;
+      box-shadow: none;
+    }
+    svg {
+      margin-top: auto;
+      margin-bottom: auto;
+      margin-right: 0.5rem;
+      color: ${(props) => props.theme.css.btnBkPrimary};
+      &:hover {
+        cursor: pointer;
+      }
+    }
 
     max-width: fit-content;
     margin-left: auto;
     @media only screen and (max-width: 500px) {
       flex-direction: column;
       align-items: flex-start;
-    }
-
-    label {
-      color: ${(props) => props.theme.css.fPrimaryColor};
-      font-weight: 400;
     }
 
     > div {
@@ -93,6 +106,7 @@ export const MyReports = styled.div`
 
       input {
         min-width: 200px;
+        border: none;
       }
     }
   }
