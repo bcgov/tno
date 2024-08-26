@@ -8,6 +8,7 @@ import ReactQuill from 'react-quill';
 import { CustomToolbar } from './CustomToolbar';
 import * as styled from './styled';
 import { IUrlOption } from './interfaces';
+import { FaX } from 'react-icons/fa6';
 
 const formats = [
   'header',
@@ -47,7 +48,6 @@ export interface IWysiwygProps {
   height?: string;
   /** className */
   className?: string;
-  expandModal?: (show: boolean) => void;
   onChange?: (text: string) => void;
   onBlur?: (
     previousSelection: ReactQuill.Range,
@@ -60,36 +60,26 @@ export interface IWysiwygProps {
  * @param props Component props.
  * @returns A component.
  */
-export const Wysiwyg: React.FC<IWysiwygProps> = ({
-  id,
-  name,
-  label,
-  value,
-  disabled,
-  required,
-  className,
-  expandModal,
-  onChange,
-  onBlur,
-  urlOptions,
-}) => {
+export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
   const [toolBarNode, setToolBarNode] = React.useState();
 
   const quill = React.useRef<ReactQuill>(null);
   const [state, setState] = React.useState({
     html: '',
-    text: value ?? '',
+    text: props.value ?? '',
   });
   const [showRaw, setShowRaw] = React.useState(false);
+  const [expand, setExpand] = React.useState(false);
+  const dialogRef = React.useRef<HTMLDialogElement>(null);
 
   React.useEffect(() => {
     setState({
       ...state,
-      html: value?.replace(/\n+/g, '<br>') ?? '',
+      html: props.value?.replace(/\n+/g, '<br>') ?? '',
     });
     // Only update when the value changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }, [props.value]);
 
   // carry over editor value to raw html or v.v when toggling
   const syncViews = (htmlFromRaw: boolean) => {
@@ -119,21 +109,21 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
         .replaceAll('[/p]', '</p>')
         .replaceAll('[br]', '<br>') || '';
     setState({ ...state, html: doc.body.textContent });
-    onChange?.(doc.body.textContent);
-  }, [onChange, state]);
+    props.onChange?.(doc.body.textContent);
+  }, [props.onChange, state]);
 
   const onClickFormatRaw = () => {
     const text = html_beautify(state.text);
     setState({ ...state, text });
-    onChange?.(text);
+    props.onChange?.(text);
   };
 
   const handleChange = (html: string) => {
     setState({ ...state, html: html });
     if (html === '<p><br></p>') {
-      onChange?.('');
+      props.onChange?.('');
     } else {
-      onChange?.(html);
+      props.onChange?.(html);
     }
   };
 
@@ -156,6 +146,14 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
     return config;
   }, [toolBarNode]);
 
+  React.useEffect(() => {
+    if (expand) {
+      dialogRef.current?.showModal();
+    } else {
+      dialogRef.current?.close();
+    }
+  }, [expand]);
+
   const onChangeContentSelect = (value: IUrlOption) => {
     if (!quill.current) return;
     try {
@@ -170,18 +168,16 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
     }
   };
   return (
-    <styled.Wysiwyg viewRaw={showRaw} className={className}>
-      {label && <label className={required ? 'required' : ''}>{label}</label>}
+    <styled.Wysiwyg viewRaw={showRaw} className={props.className}>
+      {props.label && <label className={props.required ? 'required' : ''}>{props.label}</label>}
       <CustomToolbar
         onClickRaw={onClickRaw}
         onChangeContentSelect={onChangeContentSelect}
-        urlOptions={urlOptions}
+        urlOptions={props.urlOptions}
         onClickRemoveFormat={stripHtml}
         onClickFormatRaw={onClickFormatRaw}
         onClickClear={() => setState({ ...state, html: '', text: '' })}
-        onClickExpand={() => {
-          if (expandModal) expandModal(true);
-        }}
+        onClickExpand={() => setExpand(true)}
         innerRef={setToolBarNode}
       />
       {!!toolBarNode && (
@@ -194,18 +190,24 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
             modules={modules}
             formats={formats}
             ref={quill}
-            onBlur={onBlur}
-            readOnly={disabled}
+            onBlur={props.onBlur}
+            readOnly={props.disabled}
           />
           <textarea
-            id={id}
-            name={name}
-            disabled={disabled}
+            id={props.id}
+            name={props.name}
+            disabled={props.disabled}
             className="raw-editor"
             onChange={(e) => setState({ ...state, text: e.target.value })}
             value={state.text}
           />
         </>
+      )}
+      {expand && !!toolBarNode && (
+        <dialog id="expand-modal" ref={dialogRef}>
+          <FaX className="exit" onClick={() => setExpand(false)} />
+          <Wysiwyg {...props} />
+        </dialog>
       )}
     </styled.Wysiwyg>
   );
