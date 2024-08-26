@@ -1,6 +1,6 @@
 import { Button } from 'components/button';
 import React from 'react';
-import { FaFilter } from 'react-icons/fa6';
+import { FaFilter, FaX } from 'react-icons/fa6';
 import { useProfileStore } from 'store/slices';
 import { Row, Text } from 'tno-core';
 
@@ -14,20 +14,21 @@ export const ReportFilter: React.FC = () => {
   const [filter, setFilter] = React.useState(reportsFilter);
 
   return (
-    <Row gap="1rem" flex="2">
+    <Row className="report-filter" gap="1rem" flex="2">
       <Text
-        label="Find Report:"
         name="filter"
         className="txt-filter"
+        placeholder="Filter reports..."
         value={filter}
         onKeyDown={(e) => e.code === 'Enter' && storeReportsFilter(filter)}
         onChange={(e) => setFilter(e.target.value)}
       >
-        <Button onClick={() => storeReportsFilter(filter)}>
-          Filter
-          <FaFilter />
-        </Button>
+        <FaX className="clear" onClick={() => setFilter('')} />
       </Text>
+      <Button onClick={() => storeReportsFilter(filter)}>
+        Filter
+        <FaFilter />
+      </Button>
     </Row>
   );
 };
