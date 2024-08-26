@@ -61,7 +61,7 @@ export const ProductReportSubscribersForm: React.FC<IProductReportSubscribersFor
         { name: 'username', label: 'Username', size: '15%', sortable: true },
         { name: 'lastName', label: 'Last Name', size: 'calc(15% - 15px)', sortable: true },
         { name: 'firstName', label: 'First Name', size: 'calc(15% - 15px)', sortable: true },
-        { name: 'email', label: 'Email', size: '30%', sortable: true },
+        { name: 'email', label: 'Email', size: '20%', sortable: true },
       ]}
       renderColumns={(row: IUserProductModel, rowIndex) => {
         return [

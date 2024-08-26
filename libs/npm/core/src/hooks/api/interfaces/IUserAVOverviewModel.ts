@@ -1,4 +1,4 @@
-import { EmailSendToName } from '../constants';
+import { AVOverviewTemplateTypeName, EmailSendToName } from '../constants';
 import { IUserModel } from './IUserModel';
 
 export interface IUserAVOverviewModel extends IUserModel {
@@ -6,4 +6,6 @@ export interface IUserAVOverviewModel extends IUserModel {
   isSubscribed: boolean;
   /** How to send the email to this subscriber. */
   sendTo: EmailSendToName;
+  /** Evening Overview template type */
+  templateType: AVOverviewTemplateTypeName;
 }
