@@ -1,4 +1,4 @@
-import { Spinner } from '../spinners';
+import { Loading } from '../loading/Loading';
 import * as styled from './styled';
 
 export interface IBoxProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -16,7 +16,7 @@ export const Box: React.FC<IBoxProps> = ({ isLoading, className, children, ...re
     <styled.Box className={`box${className ? ` ${className}` : ''}`} {...rest}>
       {isLoading && (
         <div className="overlay">
-          <Spinner />
+          <Loading />
         </div>
       )}
       {children}

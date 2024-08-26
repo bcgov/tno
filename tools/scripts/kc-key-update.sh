@@ -13,7 +13,7 @@ account_secret="$1"
 script_path="$(realpath "$0")"
 
 # Find the tno directory in the path
-regex="(.*/tno)/"
+regex="(.*/TNO)/"
 if [[ $script_path =~ $regex ]]; then
     tno_root="${BASH_REMATCH[1]}"
 else
