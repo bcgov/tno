@@ -60,8 +60,6 @@ export interface IReportEditContext {
   setPreviewLastUpdatedOn: React.Dispatch<React.SetStateAction<string | undefined>>;
   testData: IReportInstanceContentModel[];
   regenerateTestData: () => void;
-  showReportData: boolean;
-  toggleReportData: () => void;
 }
 
 /**
@@ -86,8 +84,6 @@ export const ReportEditContext = React.createContext<IReportEditContext>({
   setPreviewLastUpdatedOn: () => {},
   testData: [],
   regenerateTestData: () => {},
-  showReportData: true,
-  toggleReportData: () => {},
 });
 
 /**
@@ -135,20 +131,12 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
   const instance = values.instances.length ? values.instances[0] : undefined;
   const [activeInstance, setActiveInstance] = React.useState<IReportInstanceModel>();
   const [previewLastUpdatedOn, setPreviewLastUpdatedOn] = React.useState<string | undefined>();
-  const [showReportData, setShowReportData] = React.useState(
-    values.instances.length > 0 && values.instances[0].content.length > 0,
-  );
   const [testData, setTestData] = React.useState(
     generateReportInstanceContents({
       sections: { min: 1, max: 10 },
       content: { min: 20, max: 50 },
     }),
   );
-
-  React.useEffect(() => {
-    // If there is data, then show it in the charts.
-    setShowReportData(values.instances.length > 0 && values.instances[0].content.length > 0);
-  }, [values.instances]);
 
   React.useEffect(() => {
     // Set the active form based on the route.
@@ -261,8 +249,6 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
     );
   }, []);
 
-  const toggleReportData = React.useCallback(() => setShowReportData((show) => !show), []);
-
   return (
     <ReportEditContext.Provider
       value={{
@@ -289,8 +275,6 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
         setPreviewLastUpdatedOn,
         testData,
         regenerateTestData,
-        showReportData,
-        toggleReportData,
       }}
     >
       {children}
