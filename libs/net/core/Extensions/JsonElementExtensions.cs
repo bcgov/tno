@@ -77,17 +77,29 @@ public static class JsonElementExtensions
 
         if (property == null) return defaultValue;
         var node = (JsonElement)property;
+        var type = typeof(T);
         return node.ValueKind switch
         {
-            JsonValueKind.String => !typeof(T).IsEnum ?
-                (T)Convert.ChangeType($"{node.GetString()}".Trim(), typeof(T)) :
-                (T)Enum.Parse(typeof(T), node.GetString() ?? ""),
+            JsonValueKind.String => ((Func<T?>)(() =>
+            {
+                var isNullableEnum = type.IsNullable() && Nullable.GetUnderlyingType(type)?.IsEnum == true;
+                if (isNullableEnum)
+                {
+                    var eType = Nullable.GetUnderlyingType(type);
+                    if (eType != null && Enum.TryParse(eType, node.GetString(), true, out var value))
+                    {
+                        return (T)value;
+                    }
+                    return defaultValue;
+                }
+                return type.IsEnum ? (T)Enum.Parse(type, node.GetString() ?? "") : (T)Convert.ChangeType($"{node.GetString()}".Trim(), type);
+            }))(),
             JsonValueKind.Null or JsonValueKind.Undefined => defaultValue,
             JsonValueKind.Number => node.ConvertNumberTo<T>(),
             JsonValueKind.True or JsonValueKind.False => (T)(object)node.GetBoolean(),
             JsonValueKind.Object => node.Deserialize<T>(options),
             JsonValueKind.Array => node.Deserialize<T>(options),
-            _ => (T)Convert.ChangeType($"{node}", typeof(T)),
+            _ => (T)Convert.ChangeType($"{node}", type),
         };
     }
 

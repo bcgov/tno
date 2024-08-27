@@ -102,6 +102,12 @@ export interface IReportEditContextProviderProps {
   children?: React.ReactNode;
 }
 
+let isGenerating = false;
+const testDataConfig = {
+  sections: { min: 3, max: 20 },
+  content: { min: 10, max: 50 },
+};
+
 /**
  * ReportEditContextProvider provides a component to wrap elements that need access to shared state.
  * @param param0 Component properties.
@@ -131,12 +137,15 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
   const instance = values.instances.length ? values.instances[0] : undefined;
   const [activeInstance, setActiveInstance] = React.useState<IReportInstanceModel>();
   const [previewLastUpdatedOn, setPreviewLastUpdatedOn] = React.useState<string | undefined>();
-  const [testData, setTestData] = React.useState(
-    generateReportInstanceContents({
-      sections: { min: 1, max: 10 },
-      content: { min: 20, max: 50 },
-    }),
-  );
+  const [testData, setTestData] = React.useState<IReportInstanceContentModel[]>([]);
+
+  React.useEffect(() => {
+    if (!isGenerating) {
+      isGenerating = true;
+      setTestData(generateReportInstanceContents(testDataConfig));
+      isGenerating = false;
+    }
+  }, []);
 
   React.useEffect(() => {
     // Set the active form based on the route.
@@ -241,12 +250,7 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
   };
 
   const regenerateTestData = React.useCallback(() => {
-    setTestData(
-      generateReportInstanceContents({
-        sections: { min: 1, max: 10 },
-        content: { min: 20, max: 50 },
-      }),
-    );
+    setTestData(generateReportInstanceContents(testDataConfig));
   }, []);
 
   return (

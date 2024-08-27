@@ -4,6 +4,7 @@ export const ChartWizard = styled.div`
   flex: 1;
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   gap: 1rem;
 
   > div:first-child {
@@ -53,13 +54,17 @@ export const ChartWizard = styled.div`
     padding: 0.25rem;
     justify-content: center;
     align-items: center;
-    overflow: auto;
     position: relative;
 
-    canvas {
-      display: block;
-      background-color: white;
-      border-radius: 0.5rem;
+    > div {
+      position: relative;
+      overflow: auto;
+
+      canvas {
+        display: block;
+        background-color: white;
+        border-radius: 0.5rem;
+      }
     }
   }
 

@@ -53,6 +53,19 @@ public class UserModel
     /// get/set - The user preferences.
     /// </summary>
     public JsonDocument Preferences { get; set; } = JsonDocument.Parse("{}");
+
+    /// <summary>
+    /// Get the value of the isVacationMode property from Preferences.
+    /// </summary>
+    /// <returns>Returns true if isVacationMode is set to true, otherwise false.</returns>
+    public bool IsVacationMode()
+    {
+        if (Preferences.RootElement.TryGetProperty("isVacationMode", out JsonElement isVacationModeElement))
+        {
+            return isVacationModeElement.GetBoolean();
+        }
+        return false;
+    }
     #endregion
 
     #region Constructors
@@ -104,25 +117,6 @@ public class UserModel
     public string GetEmail()
     {
         return String.IsNullOrWhiteSpace(this.PreferredEmail) ? this.Email : this.PreferredEmail;
-    }
-
-    /// <summary>
-    /// Get the preferred email if it has been set.
-    /// </summary>
-    /// <returns></returns>
-    public string[] GetEmails()
-    {
-        if (this.AccountType == Entities.UserAccountType.Distribution)
-        {
-            var addresses = this.Preferences.GetElementValue<API.Models.UserEmailModel[]?>(".addresses");
-            if (addresses != null) return addresses.Select(a => a.Email).ToArray();
-            return Array.Empty<string>();
-        }
-        else
-        {
-            var email = String.IsNullOrWhiteSpace(this.PreferredEmail) ? this.Email : this.PreferredEmail;
-            return new string[] { email };
-        }
     }
     #endregion
 }
