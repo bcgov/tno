@@ -47,15 +47,12 @@ const SourceList: React.FC<ISourceListProps> = (props) => {
   const [{ requests }] = useApp();
 
   React.useEffect(() => {
-    setIsReady(true);
     if (sources.length) {
       setItems(sortArray(sources, ['sortOrder', 'name', 'code']));
-      setIsReady(false);
     } else {
       api.findAllSources().then((data) => {
         setItems(sortArray(data, ['sortOrder', 'name', 'code']));
       });
-      setIsReady(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
