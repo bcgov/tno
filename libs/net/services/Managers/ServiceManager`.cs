@@ -122,7 +122,7 @@ public abstract class ServiceManager<TOption> : IServiceManager
     /// <param name="subject"></param>
     /// <param name="ex"></param>
     /// <returns></returns>
-    public async Task SendEmailAsync(string subject, Exception ex)
+    public async Task SendErrorEmailAsync(string subject, Exception ex)
     {
         string env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
         string? serviceName = GetType().FullName ?? "Service";
