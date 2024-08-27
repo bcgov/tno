@@ -48,7 +48,7 @@ const ContentForm = lazy(() => import('../form/ContentForm'));
  * @returns Component
  */
 const ContentListView: React.FC = () => {
-  const [{ userInfo }] = useApp();
+  const [{ requests, userInfo }] = useApp();
   const { id } = useParams();
   const [
     { filter, filterAdvanced },
@@ -67,7 +67,6 @@ const ContentListView: React.FC = () => {
   const castContentToSearchResult = useCastContentToSearchResult();
 
   const [contentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
-  const [isLoading, setIsLoading] = React.useState(false);
 
   const [, { findWorkOrders }] = useWorkOrders();
   // This configures the shared storage between this list and any content tabs
@@ -206,8 +205,6 @@ const ContentListView: React.FC = () => {
   const fetch = React.useCallback(
     async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
       try {
-        setIsLoading(true);
-
         let workOrders: IPaged<IWorkOrderModel> = {
           page: 0,
           quantity: 0,
@@ -266,13 +263,9 @@ const ContentListView: React.FC = () => {
           items,
           (searchResults.hits?.total as SearchTotalHits).value,
         );
-        setIsLoading(false);
         setCurrentResultsPage(page);
         return page;
-      } catch {
-      } finally {
-        setIsLoading(false);
-      }
+      } catch {}
     },
     [castContentToSearchResult, findContentWithElasticsearch, toFilter, findWorkOrders],
   );
@@ -411,7 +404,9 @@ const ContentListView: React.FC = () => {
               itemsPerPage={currentResultsPage.pageSize}
               totalItems={currentResultsPage.total}
               showPaging
-              isLoading={isLoading}
+              isLoading={requests.some(
+                (r) => r.url === 'find-work-orders' || r.url === 'find-contents-with-elasticsearch',
+              )}
               onNavigatePage={async (page) => {
                 handlePageChange(page);
               }}

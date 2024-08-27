@@ -20,15 +20,12 @@ const MinisterList: React.FC = () => {
   const [{ requests }] = useApp();
 
   React.useEffect(() => {
-    // setIsLoading(true);
     if (!ministers.length) {
       api.findAllMinisters().then((data) => {
         setItems(data);
-        // setIsLoading(false);
       });
     } else {
       setItems(ministers);
-      // setIsLoading(false);
     }
   }, [api, ministers]);
 
@@ -69,7 +66,7 @@ const MinisterList: React.FC = () => {
         showSort={true}
         onRowClick={(row) => navigate(`${row.original.id}`)}
         pagingEnabled={false}
-        isLoading={!!requests.length}
+        isLoading={!!requests.some((r) => r.url === 'find-all-ministers')}
       />
     </styled.MinisterList>
   );
