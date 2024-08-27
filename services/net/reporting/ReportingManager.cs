@@ -258,7 +258,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             result.Message.Value.ReportInstanceId = ex.InstanceId;
             result.Message.Value.Data = new { ex.Error };
             result.Message.Value.Resend = false;
-            await this.Api.SendMessageAsync(result.Message.Value);
+            if (this.Options.ResendOnFailure)
+                await this.Api.SendMessageAsync(result.Message.Value);
         }
         catch (HttpClientRequestException ex)
         {
@@ -267,7 +268,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
 
             result.Message.Value.Resend = false;
-            await this.Api.SendMessageAsync(result.Message.Value);
+            if (this.Options.ResendOnFailure)
+                await this.Api.SendMessageAsync(result.Message.Value);
         }
         catch (Exception ex)
         {
@@ -276,7 +278,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
 
             result.Message.Value.Resend = false;
-            await this.Api.SendMessageAsync(result.Message.Value);
+            if (this.Options.ResendOnFailure)
+                await this.Api.SendMessageAsync(result.Message.Value);
         }
         finally
         {
