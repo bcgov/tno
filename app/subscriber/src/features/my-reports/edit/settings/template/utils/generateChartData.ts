@@ -25,7 +25,7 @@ export const generateChartData = (
   };
 
   let datasets = getDatasets(chart, content, params);
-  let result = groupData(chart, datasets, sections, params);
+  let data = groupData(chart, datasets, sections, params);
 
-  return result;
+  return data;
 };

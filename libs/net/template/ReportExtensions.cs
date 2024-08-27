@@ -12,7 +12,6 @@ public static partial class ReportExtensions
     #region Variables
     [GeneratedRegex("<img[^>]*>")]
     private static partial Regex StripHtmlImagesRegex();
-    private static string[] DefaultColors = new[] { "#36A2EB", "#FF6384", "#4BC0C0", "#FF9F40", "#9966FF", "#FFCD56", "#C9CBCF", "#AA0DFE", "#3283FE", "#85660D", "#782AB6", "#565656", "#1C8356", "#16FF32", "#F7E1A0", "#1CBE4F", "#C4451C", "#DEA0FD", "#FE00FA", "#325A9B", "#FEAF16", "#F8A19F", "#90AD1C", "#F6222E", "#1CFFCE", "#2ED9FF", "#FBE426" };
     #endregion
 
     #region Methods
@@ -436,9 +435,9 @@ public static partial class ReportExtensions
     /// <param name="knownValues">what are the values we want to have colors for</param>
     /// <param name="colorLookup">what are the corresponding colors for the known values</param>
     /// <returns></returns>
-    public static string GetColorFromName(string targetValue, string[] knownValues, string[] colorLookup)
+    public static string? GetColorFromName(string targetValue, string[] knownValues, string[]? colorLookup)
     {
-        colorLookup = colorLookup?.Length > 0 ? colorLookup : DefaultColors;
+        if (colorLookup == null || colorLookup.Length == 0) return null;
         if (knownValues.Length != colorLookup.Length)
             throw new ArgumentException("Array length mismatch.  Each known value must have a corresponding color");
         int indexOfValue = knownValues.ToList().FindIndex(x => x.ToLower() == targetValue.ToLower());
@@ -543,24 +542,26 @@ public static partial class ReportExtensions
         }
 
         var excludeEmptyValues = settings?.ExcludeEmptyValues ?? false;
+        var isSentiment = settings?.DatasetValue == "sentiment";
 
         var groups = groupBy switch
         {
             "mediaType" => content.GroupBy(c => c.MediaType?.Name ?? "Other").OrderBy(group => group.Key),
             "contentType" => content.GroupBy(c => c.ContentType.ToString()).OrderBy(group => group.Key),
-            "byline" => content.GroupBy(c => string.IsNullOrWhiteSpace(c.Byline) ? "Unknown" : c.Byline).Where((g) => excludeEmptyValues ? g.Key != "Unknown" : true).OrderBy(group => group.Key),
-            "series" => content.GroupBy(c => c.SeriesId?.ToString() ?? "NA").OrderBy(group => group.Key).Where((g) => excludeEmptyValues ? g.Key != "NA" : true),
-            "sentiment" => content.GroupBy(c => GetSentimentValue(c)?.ToString() ?? "0").OrderByDescending(group => group.Key),
-            "sentimentSimple" => content.GroupBy(c => GetSentimentRating(c)).OrderBy(group => group.Key),
+            "byline" => content.GroupBy(c => string.IsNullOrWhiteSpace(c.Byline) ? "Unknown" : c.Byline).Where((g) => !excludeEmptyValues || g.Key != "Unknown").OrderBy(group => group.Key),
+            "series" => content.GroupBy(c => c.SeriesId?.ToString() ?? "NA").OrderBy(group => group.Key).Where((g) => !excludeEmptyValues || g.Key != "NA"),
+            "sentiment" => content.GroupBy(c => GetSentimentValue(c)?.ToString() ?? "null").Where((v) => !excludeEmptyValues || v.Key != "null").OrderByDescending(group => group.Key),
+            "sentimentSimple" => content.GroupBy(c => GetSentimentRating(c) ?? "null").Where((v) => !excludeEmptyValues || v.Key != "null").OrderBy(group => group.Key),
             "source" => content.GroupBy(c => c.OtherSource).OrderBy(group => group.Key),
             "dayMonthYear" => content.GroupBy(c => $"{c.PublishedOn:dd-MM-yyyy}").OrderBy(group => group.Key),
             "monthDay" => content.GroupBy(c => $"{c.PublishedOn:MMM-dd}").OrderBy(group => group.Key),
             "monthYear" => content.GroupBy(c => $"{c.PublishedOn:MM-yyyy}").OrderBy(group => group.Key),
             "year" => content.GroupBy(c => $"{c.PublishedOn:yyyy}").OrderBy(group => group.Key),
-            _ => content.GroupBy(c => "Totals"),
+            _ => content.GroupBy(c => isSentiment ? "Average Sentiment" : "Story Count"),
         };
 
-        return groups;
+        // If excluding empty values is on, then remove any groups that only contain content without a value.
+        return groups.Where(g => !excludeEmptyValues || !isSentiment || g.Any(c => GetSentimentValue(c) != null));
     }
 
     /// <summary>
@@ -592,12 +593,15 @@ public static partial class ReportExtensions
     /// <returns></returns>
     public static string GetSentimentColorScript(string[]? colors)
     {
-        colors ??= DefaultColors;
-        return "(ctx,options) => {{ " +
+        var positive = colors?.Length > 0 ? colors[0] : "green";
+        var neutral = colors?.Length > 1 ? colors[1] : "gold";
+        var negative = colors?.Length > 2 ? colors[2] : "red";
+
+        return "\"(ctx,options) => {{ " +
             "const index = ctx.dataIndex; " +
             "const value = ctx.dataset.data[index]; " +
-            $"if (typeof value === 'number') return value === null ? null : value > 0 ? '{colors[0]}' : value === 0 ? '{colors[1]}' : '{colors[2]}'; " +
-            "}}";
+            $"if (typeof value === 'number') return value === null ? null : value > 0 ? '{positive}' : value === 0 ? '{neutral}' : '{negative}'; " +
+            "}}\"";
     }
 
     /// <summary>
@@ -609,47 +613,41 @@ public static partial class ReportExtensions
     /// <param name="datasetName"></param>
     /// <param name="datasetValueProp"></param>
     /// <returns></returns>
-    public static string[] GetColors(string[]? colors, int index, string dataset, string datasetName, string datasetValueProp)
+    public static string? GetColors(string[]? colors, int index, string dataset, string datasetName, string datasetValueProp)
     {
-        colors = colors?.Length > 0 ? colors : DefaultColors;
-
         if (dataset == "" && datasetValueProp == "sentiment")
         {
-            // A chart using sentiment for the values needs to apply the correct color based on the value.
-            if (colors.Length < 3)
-                colors = new[] { "green", "gold", "red" };
-
-            return new[] { GetSentimentColorScript(colors) };
+            return GetSentimentColorScript(colors);
         }
 
         if (dataset == "sentiment" || dataset == "sentimentSimple")
         {
             // A chart with a dataset for each sentiment should choose the color associated with the sentiment value.
-            if (colors.Length < 3)
+            if (colors == null || colors.Length < 3)
                 colors = new[] { "green", "gold", "red" };
 
             if (int.TryParse(datasetName, out int value))
-                return new[] { value > 0 ? colors[0] : value == 0 ? colors[1] : colors[2] };
+                return $"[\"{(value > 0 ? colors[0] : value == 0 ? colors[1] : colors[2])}\"]";
             else
             {
-                return new[] {datasetName switch
+                return $"[\"{datasetName switch
                 {
                     "Positive" => colors[0],
                     "Neutral" => colors[1],
                     "Negative" => colors[2],
                     _ => colors[0],
-                }};
+                }}\"]";
             }
         }
 
         // This will return a colour for each value in the dataset.
-        if (index < 0) return colors;
+        if (index < 0 || colors == null) return colors == null ? "null" : $"[{String.Join(",", colors.Select(c => $"\"{c}\""))}]";
 
         // Use the index of the dataset to pick the colour.
         index = index >= 0 ? index : 0;
         var length = colors.Length;
         var position = index < length ? index : index % length;
-        return new[] { colors[position] };
+        return $"[\"{colors[position]}\"]";
     }
 
     /// <summary>
@@ -697,12 +695,13 @@ public static partial class ReportExtensions
     /// </summary>
     /// <param name="content"></param>
     /// <returns></returns>
-    public static string GetSentimentRating(ContentModel content)
+    public static string? GetSentimentRating(ContentModel content)
     {
         var value = GetSentimentValue(content);
         if (value < 0) return "Negative";
+        if (value == 0) return "Neutral";
         if (value > 0) return "Positive";
-        return "Neutral";
+        return null;
     }
 
     /// <summary>
@@ -728,7 +727,7 @@ public static partial class ReportExtensions
                 "contentType" => content.Where(c => c.ContentType.ToString() == label),
                 "byline" => content.Where(c => (string.IsNullOrWhiteSpace(c.Byline) ? "Unknown" : c.Byline) == label),
                 "series" => content.Where(c => (c.SeriesId?.ToString() ?? "NA") == label),
-                "sentiment" => content.Where(c => (GetSentimentValue(c)?.ToString() ?? "0") == label),
+                "sentiment" => content.Where(c => (GetSentimentValue(c)?.ToString()) == label),
                 "sentimentSimple" => content.Where(c => GetSentimentRating(c) == label),
                 "source" => content.Where(c => c.OtherSource == label),
                 "dayMonthYear" => content.Where(c => $"{c.PublishedOn:dd-MM-yyyy}" == label),
@@ -741,7 +740,7 @@ public static partial class ReportExtensions
 
             if (datasetValue == "sentiment")
             {
-                var avg = items.Any() ? items.Average(item => GetSentimentValue(item) ?? null) : null;
+                var avg = items.Any() ? items.Select(c => GetSentimentValue(c)).Where(v => v != null).Average(v => v) : null;
                 if (avg.HasValue)
                     values.Add((int)Math.Round(avg.Value, MidpointRounding.AwayFromZero));
                 else values.Add(null);

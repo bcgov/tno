@@ -39,6 +39,8 @@ const defaultColors = [
   '#FBE426',
 ];
 
+const defaultSentimentColors = ['green', 'gold', 'red'];
+
 export interface IConfigureColoursProps extends IChartSectionProps {
   onDisableDrag?: (disable: boolean) => void;
 }
@@ -69,6 +71,7 @@ export const ConfigureColours: React.FC<IConfigureColoursProps> = ({
               `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
               mergeChartSettings(chart.settings.options, chart.sectionSettings, {
                 datasetColors: defaultColors,
+                datasetBorderColors: defaultColors,
               }),
             );
           }}
@@ -81,7 +84,8 @@ export const ConfigureColours: React.FC<IConfigureColoursProps> = ({
             setFieldValue(
               `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
               mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                datasetColors: ['green', 'gold', 'red'],
+                datasetColors: defaultSentimentColors,
+                datasetBorderColors: defaultSentimentColors,
               }),
             );
           }}
