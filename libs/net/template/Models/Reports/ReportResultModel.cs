@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace TNO.TemplateEngine.Models.Reports;
 
 /// <summary>
@@ -29,7 +31,7 @@ public class ReportResultModel
     /// <summary>
     /// get/set - JSON data that was used to generate the report.
     /// </summary>
-    public object? Data { get; set; }
+    public JsonDocument? Data { get; set; }
     #endregion
 
     #region Constructors
@@ -44,7 +46,7 @@ public class ReportResultModel
     /// <param name="subject"></param>
     /// <param name="body"></param>
     /// <param name="data"></param>
-    public ReportResultModel(Entities.ReportInstance instance, object? data = null)
+    public ReportResultModel(Entities.ReportInstance instance, JsonDocument? data = null)
     {
         this.ReportId = instance.ReportId;
         this.InstanceId = instance.Id;

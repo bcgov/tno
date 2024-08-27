@@ -252,7 +252,8 @@ public class NotificationValidator : INotificationValidator
             (filter.Actions == null || filter.Actions?.Any() == false || Content.Actions.Any(
                 ca => filter.Actions?.Any(a => a.Id == ca.Id) == true &&
                 ((ca.ValueType == Entities.ValueType.Boolean && ca.Value == "true") ||
-                 (ca.ValueType != Entities.ValueType.Boolean && !string.IsNullOrWhiteSpace(ca.Value)))));
+                 (ca.ValueType != Entities.ValueType.Boolean && !string.IsNullOrWhiteSpace(ca.Value))))) &&
+            (filter.Tags == null || filter.Tags?.Any() == false || Content.Tags.Any(ca => filter.Tags?.Any(a => a == ca.Code) == true));
 
         if (!String.IsNullOrWhiteSpace(filter.Search) && (filter.InHeadline == true || filter.InByline == true || filter.InStory == true))
         {

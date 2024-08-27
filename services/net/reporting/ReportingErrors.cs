@@ -7,5 +7,5 @@ public enum ReportingErrors
     FailedToAddInstance = 2,
     FailedToUpdateInstance = 3,
     FailedToGenerateOutput = 4,
-    FailedToEmail = 4,
+    FailedToEmail = 5,
 }

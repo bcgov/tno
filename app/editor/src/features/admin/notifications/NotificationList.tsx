@@ -1,6 +1,7 @@
 import { FormPage } from 'components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useApp } from 'store/hooks';
 import { useNotifications } from 'store/hooks/admin';
 import { Col, FlexboxTable, IconButton, INotificationModel, Row } from 'tno-core';
 
@@ -11,6 +12,7 @@ import * as styled from './styled';
 const NotificationList: React.FC = () => {
   const navigate = useNavigate();
   const [{ notifications }, api] = useNotifications();
+  const [{ requests }] = useApp();
 
   const [isReady, setIsReady] = React.useState(false);
   const [items, setItems] = React.useState<INotificationModel[]>([]);
@@ -64,7 +66,7 @@ const NotificationList: React.FC = () => {
           columns={columns}
           showSort={true}
           onRowClick={(row) => navigate(`${row.original.id}`)}
-          isLoading={isReady}
+          isLoading={requests.some((r) => r.url === 'find-Notifications')}
           pagingEnabled={false}
         />
       </FormPage>

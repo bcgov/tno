@@ -141,7 +141,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                 {
                     this.Logger.LogError(ex, "Service had an unexpected failure.");
                     this.State.RecordFailure();
-                    await this.SendEmailAsync("Service had an Unexpected Failure", ex);
+                    await this.SendErrorEmailAsync("Service had an Unexpected Failure", ex);
                 }
             }
 
@@ -251,12 +251,12 @@ public class NotificationManager : ServiceManager<NotificationOptions>
             if (ex is HttpClientRequestException httpEx)
             {
                 this.Logger.LogError(ex, "HTTP exception while consuming. {response}", httpEx.Data["body"] ?? "");
-                await this.SendEmailAsync("HTTP exception while consuming. {response}", ex);
+                await this.SendErrorEmailAsync("HTTP exception while consuming. {response}", ex);
             }
             else
             {
                 this.Logger.LogError(ex, "Failed to handle message");
-                await this.SendEmailAsync("Failed to handle message", ex);
+                await this.SendErrorEmailAsync("Failed to handle message", ex);
             }
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
         }
@@ -315,7 +315,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                             if (request.IgnoreValidation || await this.NotificationValidator.ConfirmSendAsync())
                                 await SendNotificationAsync(request, notification, content);
                             else
-                                this.Logger.LogInformation("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
+                                this.Logger.LogDebug("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
                         }
                     }
 
@@ -424,7 +424,10 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <param name="content"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    private async Task SendNotificationAsync(NotificationRequestModel request, API.Areas.Services.Models.Notification.NotificationModel notification, API.Areas.Services.Models.Content.ContentModel content)
+    private async Task SendNotificationAsync(
+        NotificationRequestModel request,
+        API.Areas.Services.Models.Notification.NotificationModel notification,
+        API.Areas.Services.Models.Content.ContentModel content)
     {
         await HandleChesEmailOverrideAsync(request);
 
@@ -445,9 +448,9 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         if (!contexts.Any())
         {
             if (!subscribers.Any())
-                this.Logger.LogInformation("Notification '{name}' does not have subscribers.", notification.Name);
+                this.Logger.LogDebug("Notification does not have subscribers. Notification: {notificationId}", notification.Id);
             else
-                this.Logger.LogInformation("Notification '{name}' is not sent because all users have already received this content.", notification.Name);
+                this.Logger.LogInformation("Notification is not sent because all users have already received this content. Notification: {notificationId}", notification.Id);
             return;
         }
 
@@ -463,11 +466,12 @@ public class NotificationManager : ServiceManager<NotificationOptions>
 
         // Add the subscribers to the notification validator so that they don't receive more than one email for a specific content item.
         this.NotificationValidator.AddUsers(subscribers);
+        var allEmails = String.Join(", ", contexts.Select(c => String.Join(", ", c.To)));
 
         try
         {
             var response = await this.Ches.SendEmailAsync(merge);
-            this.Logger.LogInformation("Notification sent to CHES.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
+            this.Logger.LogInformation("Notification sent to CHES.  Notification: {notification}, Content ID: {contentId}, Emails: {emails}", notification.Id, content.Id, allEmails);
 
             if (!request.IsPreview)
             {
@@ -486,6 +490,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         }
         catch (ChesException ex)
         {
+            this.Logger.LogError(ex, "Failed to send email.  Notification: {notificationId}, Content ID: {contentId}, Emails: {emails}", notification.Id, content.Id, allEmails);
             if (!request.IsPreview)
             {
                 var instance = new NotificationInstance(notification.Id, content.Id)

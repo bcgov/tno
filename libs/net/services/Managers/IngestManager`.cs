@@ -153,7 +153,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                                 }
                                 else
                                 {
-                                    // Auto-reset time delay hasnt passed yet.
+                                    // Auto-reset time delay hasn't passed yet.
                                     this.Logger.LogWarning("Ingest [{name}] has reached maximum failure limit. Auto-reset will occur at [{timestamp}]", ingest.Name, ingest.LastRanOn!.Value.AddMilliseconds(ingest.ResetRetryAfterDelayMs).ToLocalTime());
                                     continue;
                                 }
@@ -182,7 +182,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                         // Reached limit return to ingest manager, send email.
                         if (manager.Ingest.FailedAttempts >= manager.Ingest.RetryLimit)
                         {
-                            await this.SendEmailAsync($"Ingest [{ingest.Name}] failed. Reached [{manager.Ingest.RetryLimit}] maximum retries.", ex);
+                            await this.SendErrorEmailAsync($"Ingest [{ingest.Name}] failed. Reached [{manager.Ingest.RetryLimit}] maximum retries.", ex);
                         }
                     }
                     catch (Exception ex)
@@ -195,7 +195,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                         // Reached limit return to ingest manager, send email.
                         if (manager.Ingest.FailedAttempts >= manager.Ingest.RetryLimit)
                         {
-                            await this.SendEmailAsync($"Ingest ['{ingest.Name}'] failed. Reached [{manager.Ingest.RetryLimit}] maximum retries.", ex);
+                            await this.SendErrorEmailAsync($"Ingest ['{ingest.Name}'] failed. Reached [{manager.Ingest.RetryLimit}] maximum retries.", ex);
                         }
                     }
                 }
@@ -281,7 +281,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
             {
                 this.Logger.LogError(ex, "Failed to fetch ingests for ingest type '{type}'", ingestType);
                 this.State.RecordFailure();
-                await this.SendEmailAsync($"Failed to fetch ingests for ingest type '{ingestType}", ex);
+                await this.SendErrorEmailAsync($"Failed to fetch ingests for ingest type '{ingestType}", ex);
             }
         }
 

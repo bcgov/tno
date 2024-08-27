@@ -143,7 +143,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 {
                     this.Logger.LogError(ex, "Service had an unexpected failure.");
                     this.State.RecordFailure();
-                    await this.SendEmailAsync("Service had an Unexpected Failure", ex);
+                    await this.SendErrorEmailAsync("Service had an Unexpected Failure", ex);
                 }
             }
 
@@ -228,6 +228,16 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <returns></returns>
     private async Task HandleMessageAsync(ConsumeResult<string, ReportRequestModel> result)
     {
+        var failureCount = result.Message.Value.Data.GetElementValue<int?>(".failureCount") ?? 0;
+        var errorStatus = result.Message.Value.Data.GetElementValue<ReportingErrors?>(".error");
+        if (errorStatus != null)
+        {
+            this.Logger.LogInformation("Retrying report after failure. ReportId:{reportId} InstanceId:{instanceId} FailureStatus:{status} RetryCount:{count}",
+                result.Message.Value.ReportId,
+                result.Message.Value.ReportInstanceId,
+                errorStatus,
+                failureCount);
+        }
         try
         {
             // The service has stopped, so to should consuming messages.
@@ -249,36 +259,39 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         {
             // Failures will require retrying the report.  However, depending on the error the report instance could be in a unique state.
             // Resending a failure can result in cascading failures however, so it should limit the number of attempts.
-            // TODO: Limit number of retries.
-
             this.Logger.LogError(ex, "Failed to handle message");
-            await this.SendEmailAsync("Failed to handle message", ex);
+            await this.SendErrorEmailAsync("Failed to handle message", ex);
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
 
             result.Message.Value.ReportInstanceId = ex.InstanceId;
-            result.Message.Value.Data = new { ex.Error };
+            result.Message.Value.Data = JsonDocument.Parse(JsonSerializer.Serialize(new { ex.Error, FailureCount = failureCount + 1 }, _serializationOptions));
             result.Message.Value.Resend = false;
-            if (this.Options.ResendOnFailure)
+            // Add the report request back to Kafka so that it runs again.
+            if (this.Options.ResendOnFailure && failureCount < this.Options.ResendAttemptLimit)
                 await this.Api.SendMessageAsync(result.Message.Value);
         }
         catch (HttpClientRequestException ex)
         {
             this.Logger.LogError(ex, "HTTP exception while consuming. {response}", ex.Data["body"] ?? "");
-            await this.SendEmailAsync("HTTP exception while consuming. {response}", ex);
+            await this.SendErrorEmailAsync("HTTP exception while consuming. {response}", ex);
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
 
             result.Message.Value.Resend = false;
-            if (this.Options.ResendOnFailure)
+            result.Message.Value.Data = JsonDocument.Parse(JsonSerializer.Serialize(new { FailureCount = failureCount + 1 }, _serializationOptions));
+            // Add the report request back to Kafka so that it runs again.
+            if (this.Options.ResendOnFailure && failureCount < this.Options.ResendAttemptLimit)
                 await this.Api.SendMessageAsync(result.Message.Value);
         }
         catch (Exception ex)
         {
             this.Logger.LogError(ex, "Failed to handle message");
-            await this.SendEmailAsync("Failed to handle message", ex);
+            await this.SendErrorEmailAsync("Failed to handle message", ex);
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
 
             result.Message.Value.Resend = false;
-            if (this.Options.ResendOnFailure)
+            result.Message.Value.Data = JsonDocument.Parse(JsonSerializer.Serialize(new { FailureCount = failureCount + 1 }, _serializationOptions));
+            // Add the report request back to Kafka so that it runs again.
+            if (this.Options.ResendOnFailure && failureCount < this.Options.ResendAttemptLimit)
                 await this.Api.SendMessageAsync(result.Message.Value);
         }
         finally
@@ -543,9 +556,9 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <param name="request"></param>
     /// <param name="instance"></param>
     /// <returns></returns>
-    private bool IsResend(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instance)
+    private static bool IsResend(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instance)
     {
-        return (request.Resend || instance?.SentOn.HasValue == true) && !String.IsNullOrWhiteSpace(instance?.Subject) && !String.IsNullOrWhiteSpace(instance?.Body);
+        return request.Resend && !String.IsNullOrWhiteSpace(instance?.Subject) && !String.IsNullOrWhiteSpace(instance?.Body);
     }
 
     /// <summary>
@@ -730,7 +743,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 userReportInstances.AddRange(await this.Api.GetUserReportInstancesAsync(instance.Id));
             }
 
-            var (linkEmails, fullEmails) = await GetEmailAddressesAsync(request, report, userReportInstances);
+            var (linkEmails, fullEmails) = await GetEmailAddressesAsync(request, report, instance, userReportInstances);
 
             if (instance != null && request.GenerateInstance)
             {
@@ -744,12 +757,20 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             if (!report.Settings.DoNotSendEmail && String.IsNullOrEmpty(request.To) && (linkEmails[EmailSentTo.To].Any() || linkEmails[EmailSentTo.CC].Any() || linkEmails[EmailSentTo.BCC].Any()))
             {
                 // Send the email.
-                var responseLinkOnly = await SendEmailAsync(request, linkEmails[EmailSentTo.To], linkEmails[EmailSentTo.CC], linkEmails[EmailSentTo.BCC], subject, linkBody, $"{report.Name}-{report.Id}-linkOnly", UpdateUserReportInstances(report, instance, userReportInstances, false));
+                var (linkOnlyStatus, responseLinkOnly) = await SendEmailAsync(
+                    request,
+                    linkEmails[EmailSentTo.To],
+                    linkEmails[EmailSentTo.CC],
+                    linkEmails[EmailSentTo.BCC],
+                    subject,
+                    linkBody,
+                    $"{report.Name}-{report.Id}-linkOnly",
+                    UpdateUserReportInstances(report, instance, userReportInstances, false));
                 responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions));
 
                 if (instance != null)
                 {
-                    instance.Status = ReportStatus.Accepted;
+                    instance.Status = linkOnlyStatus;
                     instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
                 }
             }
@@ -757,12 +778,20 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             if (!report.Settings.DoNotSendEmail && (fullEmails[EmailSentTo.To].Any() || fullEmails[EmailSentTo.CC].Any() || fullEmails[EmailSentTo.BCC].Any() || !String.IsNullOrEmpty(request.To)))
             {
                 // Send the email.
-                var responseFullText = await SendEmailAsync(request, fullEmails[EmailSentTo.To], fullEmails[EmailSentTo.CC], fullEmails[EmailSentTo.BCC], subject, fullBody, $"{report.Name}-{report.Id}", UpdateUserReportInstances(report, instance, userReportInstances, true));
+                var (fullTextStatus, responseFullText) = await SendEmailAsync(
+                    request,
+                    fullEmails[EmailSentTo.To],
+                    fullEmails[EmailSentTo.CC],
+                    fullEmails[EmailSentTo.BCC],
+                    subject,
+                    fullBody,
+                    $"{report.Name}-{report.Id}",
+                    UpdateUserReportInstances(report, instance, userReportInstances, true));
                 responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions));
 
                 if (instance != null)
                 {
-                    instance.Status = ReportStatus.Accepted;
+                    instance.Status = fullTextStatus;
                     instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
                 }
             }
@@ -805,8 +834,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     private async Task UpdateReportInstanceAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance, bool updateContent)
     {
         // Need to keep trying until successful.
-        // TODO: limit number of attempts.
         var isUpdated = false;
+        var count = 0;
         while (!isUpdated)
         {
             try
@@ -830,7 +859,10 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             }
             catch (Exception ex)
             {
+                count++;
                 this.Logger.LogError(ex, "Failed to update report instance. ReportId:{reportId} InstanceId:{instanceId}", instance.ReportId, instance.Id);
+                if (count >= this.Options.RetryConcurrencyFailureLimit)
+                    throw;
             }
         }
     }
@@ -905,7 +937,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     private async Task UpdateReportInstanceAsync(API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel instance)
     {
         // Need to keep trying until successful.
-        // TODO: limit number of attempts.
+        var count = 0;
         var isUpdated = false;
         while (!isUpdated)
         {
@@ -926,25 +958,48 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             }
             catch (Exception ex)
             {
+                count++;
                 this.Logger.LogError(ex, "Failed to update AV overview report instance. InstanceId:{instanceId}", instance.Id);
+                if (count >= this.Options.RetryConcurrencyFailureLimit)
+                    throw;
             }
         }
     }
 
     /// <summary>
     /// Get all the emails that both the link and full text report should be sent to.
+    /// Do not include subscribers that have already received this report unless this is a resend.
     /// </summary>
     /// <param name="request"></param>
     /// <param name="report"></param>
+    /// <param name="instance"></param>
     /// <param name="userReportInstances"></param>
     /// <returns></returns>
     private async Task<(Dictionary<EmailSentTo, List<UserEmail>> link, Dictionary<EmailSentTo, List<UserEmail>> full)> GetEmailAddressesAsync(
             ReportRequestModel request,
             API.Areas.Services.Models.Report.ReportModel report,
+            API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instance,
             IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel> userReportInstances)
     {
-        var linkOnlyFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && s.User != null && LinkOnlyFormats.Contains(s.Format)).ToArray();
-        var fullTextFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && s.User != null && FullTextFormats.Contains(s.Format)).ToArray();
+
+        var linkOnlyFormatSubscribers = report.Subscribers.Where(s =>
+            s.IsSubscribed &&
+            s.User != null &&
+            LinkOnlyFormats.Contains(s.Format) &&
+            (request.Resend ||
+                !userReportInstances.Any(uri =>
+                    uri.UserId == s.UserId &&
+                    _successfulEmailStatuses.Contains(uri.LinkStatus) &&
+                    (instance == null || uri.InstanceId == instance.Id)))).ToArray();
+        var fullTextFormatSubscribers = report.Subscribers.Where(s =>
+            s.IsSubscribed &&
+            s.User != null &&
+            FullTextFormats.Contains(s.Format) &&
+            (request.Resend ||
+                !userReportInstances.Any(uri =>
+                    uri.UserId == s.UserId &&
+                    _successfulEmailStatuses.Contains(uri.LinkStatus) &&
+                    (instance == null || uri.InstanceId == instance.Id)))).ToArray();
 
         var linkEmails = await GetEmailAddressesAsync(request, linkOnlyFormatSubscribers, userReportInstances);
         var fullEmails = await GetEmailAddressesAsync(request, fullTextFormatSubscribers, userReportInstances);
@@ -958,12 +1013,12 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// </summary>
     /// <param name="request"></param>
     /// <param name="subscribers"></param>
-    /// <param name="instances"></param>
+    /// <param name="userReportInstances"></param>
     /// <returns></returns>
     private async Task<Dictionary<EmailSentTo, List<UserEmail>>> GetEmailAddressesAsync(
         ReportRequestModel request,
         API.Areas.Services.Models.Report.UserReportModel[] subscribers,
-        IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel> instances)
+        IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel> userReportInstances)
     {
         var emails = new Dictionary<EmailSentTo, List<UserEmail>>()
         {
@@ -978,9 +1033,9 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
             // Only include users who have not received an email yet.
             var (a, b, c) = await GetEmailAddressesAsync(user.UserId, user.User.GetEmail(), user.User.AccountType, user.SendTo);
-            emails[EmailSentTo.To].AddRange(a.Where(s => request.Resend || !instances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
-            emails[EmailSentTo.CC].AddRange(b.Where(s => request.Resend || !instances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
-            emails[EmailSentTo.BCC].AddRange(c.Where(s => request.Resend || !instances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
+            emails[EmailSentTo.To].AddRange(a.Where(s => request.Resend || !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
+            emails[EmailSentTo.CC].AddRange(b.Where(s => request.Resend || !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
+            emails[EmailSentTo.BCC].AddRange(c.Where(s => request.Resend || !userReportInstances.Any(uri => uri.UserId == s.UserId && _successfulEmailStatuses.Contains(uri.LinkStatus))));
         }
 
         return emails;
@@ -1004,7 +1059,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         if (accountType == UserAccountType.Distribution)
         {
             var users = await this.Api.GetDistributionListAsync(userId);
-            var filteredUsers = users.Where(u => !u.IsVacationMode()).ToList();
+            var filteredUsers = users.Where(u => !u.IsVacationMode() && u.GetEmail().IsValidEmail()).ToList();
             var emails = filteredUsers.Select(u => new UserEmail(u.Id, u.GetEmail()));
             switch (sendTo)
             {
@@ -1019,7 +1074,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                     break;
             }
         }
-        else
+        else if (email.IsValidEmail())
         {
             switch (sendTo)
             {
@@ -1033,6 +1088,10 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                     bcc.Add(new UserEmail(userId, email));
                     break;
             }
+        }
+        else
+        {
+            this.Logger.LogError("Email address is invalid {email}", email);
         }
 
         return (to.Distinct(), cc.Distinct(), bcc.Distinct());
@@ -1082,7 +1141,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 var body = await this.ReportEngine.GenerateReportBodyAsync(template, model, false);
 
                 // Send the email.
-                var response = await SendEmailAsync(request, to, cc, bcc, subject, body, $"{instance.TemplateType}-{instance.Id}", async (users, status, response) =>
+                var (status, response) = await SendEmailAsync(request, to, cc, bcc, subject, body, $"{instance.TemplateType}-{instance.Id}", async (users, status, response) =>
                 {
                     if (instance.Id > 0)
                     {
@@ -1113,7 +1172,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <param name="body"></param>
     /// <param name="tag"></param>
     /// <returns></returns>
-    private async Task<EmailResponseModel[]> SendEmailAsync(
+    private async Task<(ReportStatus status, EmailResponseModel[] response)> SendEmailAsync(
         ReportRequestModel request,
         IEnumerable<UserEmail> to,
         IEnumerable<UserEmail> cc,
@@ -1165,7 +1224,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             }
         }
 
-        if (!contexts.Any()) return Array.Empty<EmailResponseModel>();
+        if (!contexts.Any()) return (ReportStatus.Cancelled, Array.Empty<EmailResponseModel>());
 
         if (this.Options.UseMailMerge)
         {
@@ -1186,11 +1245,12 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 await updateCallbackAsync(contexts.Select(c => c.User), ReportStatus.Accepted, document);
             }
 
-            return new[] { response };
+            return (ReportStatus.Accepted, new[] { response });
         }
         else
         {
             var responses = new List<EmailResponseModel>();
+            var hasFailure = false;
             foreach (var (user, context) in contexts)
             {
                 var allUsers = new[] { user }.Concat(user.CC.Concat(user.BCC)).Distinct();
@@ -1217,28 +1277,32 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 }
                 catch (ChesException ex)
                 {
+                    hasFailure = true;
                     if (user.UserId != 0)
                     {
                         // Save the status of each email sent.
                         var document = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
                         await updateCallbackAsync(allUsers, ReportStatus.Failed, document);
                     }
-                    throw;
+                    if (!this.Options.SendToAllSubscribersBeforeFailing)
+                        throw;
                 }
                 catch (Exception ex)
                 {
+                    hasFailure = true;
                     if (user.UserId != 0)
                     {
                         // Save the status of each email sent.
                         var document = JsonDocument.Parse(JsonSerializer.Serialize(new { Error = ex.GetAllMessages() }, _serializationOptions));
                         await updateCallbackAsync(allUsers, ReportStatus.Failed, document);
                     }
-                    throw;
+                    if (!this.Options.SendToAllSubscribersBeforeFailing)
+                        throw;
                 }
             }
             this.Logger.LogInformation("Report sent to CHES. ReportId:{report}, InstanceId:{instance}", request.ReportId, request.ReportInstanceId);
 
-            return responses.ToArray();
+            return (hasFailure ? ReportStatus.Failed : ReportStatus.Accepted, responses.ToArray());
         }
     }
 

@@ -118,24 +118,5 @@ public class UserModel
     {
         return String.IsNullOrWhiteSpace(this.PreferredEmail) ? this.Email : this.PreferredEmail;
     }
-
-    /// <summary>
-    /// Get the preferred email if it has been set.
-    /// </summary>
-    /// <returns></returns>
-    public string[] GetEmails()
-    {
-        if (this.AccountType == Entities.UserAccountType.Distribution)
-        {
-            var addresses = this.Preferences.GetElementValue<API.Models.UserEmailModel[]?>(".addresses");
-            if (addresses != null) return addresses.Select(a => a.Email).ToArray();
-            return Array.Empty<string>();
-        }
-        else
-        {
-            var email = String.IsNullOrWhiteSpace(this.PreferredEmail) ? this.Email : this.PreferredEmail;
-            return new string[] { email };
-        }
-    }
     #endregion
 }

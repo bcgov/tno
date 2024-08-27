@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Mime;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
@@ -203,7 +204,7 @@ public class AVOverviewController : ControllerBase
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
 
-        var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.AVOverview, 0, instance.Id, new { })
+        var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.AVOverview, 0, instance.Id, JsonDocument.Parse("{}"))
         {
             RequestorId = user.Id
         };

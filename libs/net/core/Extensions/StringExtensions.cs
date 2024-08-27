@@ -392,6 +392,7 @@ public static class StringExtensions
 
     /// <summary>
     /// Determines if the email address is valid.
+    /// Regrettably the following email "name@name" is valid, but will fail in most cases.
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>

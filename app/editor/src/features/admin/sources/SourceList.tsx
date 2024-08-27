@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useApp } from 'store/hooks';
 import { useSources } from 'store/hooks/admin';
 import { Col, FlexboxTable, IconButton, ISourceModel, Row } from 'tno-core';
 
@@ -42,8 +43,8 @@ const sortArray = <T,>(items: T[], predicate: keyof T | (keyof T)[] | ((item: T)
 const SourceList: React.FC<ISourceListProps> = (props) => {
   const navigate = useNavigate();
   const [{ sources }, api] = useSources();
-  const [isReady, setIsReady] = React.useState(false);
   const [items, setItems] = React.useState<ISourceModel[]>([]);
+  const [{ requests }] = useApp();
 
   React.useEffect(() => {
     setIsReady(true);
@@ -95,7 +96,7 @@ const SourceList: React.FC<ISourceListProps> = (props) => {
         columns={columns}
         showSort={true}
         pagingEnabled={false}
-        isLoading={isReady}
+        isLoading={requests.some((r) => r.url === 'find-all-sources')}
       />
     </styled.SourceList>
   );

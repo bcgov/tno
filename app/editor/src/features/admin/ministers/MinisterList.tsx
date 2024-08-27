@@ -69,7 +69,7 @@ const MinisterList: React.FC = () => {
         showSort={true}
         onRowClick={(row) => navigate(`${row.original.id}`)}
         pagingEnabled={false}
-        isLoading={!!requests.length}
+        isLoading={!!requests.some((r) => r.url === 'find-all-ministers')}
       />
     </styled.MinisterList>
   );

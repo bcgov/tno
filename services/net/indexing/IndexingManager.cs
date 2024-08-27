@@ -127,7 +127,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                 {
                     this.Logger.LogError(ex, "Service had an unexpected failure.");
                     this.State.RecordFailure();
-                    await this.SendEmailAsync("Service had an Unexpected Failure", ex);
+                    await this.SendErrorEmailAsync("Service had an Unexpected Failure", ex);
                 }
             }
 
@@ -252,12 +252,12 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             if (ex is HttpClientRequestException httpEx)
             {
                 this.Logger.LogError(ex, "HTTP exception while consuming. {response}", httpEx.Data["body"] ?? "");
-                await this.SendEmailAsync("HTTP exception while consuming. {response}", ex);
+                await this.SendErrorEmailAsync("HTTP exception while consuming. {response}", ex);
             }
             else
             {
                 this.Logger.LogError(ex, "Failed to handle message");
-                await this.SendEmailAsync("Failed to handle message", ex);
+                await this.SendErrorEmailAsync("Failed to handle message", ex);
             }
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
         }
