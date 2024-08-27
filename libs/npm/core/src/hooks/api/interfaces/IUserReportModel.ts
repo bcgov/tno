@@ -4,15 +4,19 @@ import {
   ReportStatusName,
   UserAccountTypeName,
 } from '../constants';
+import { IAuditColumnsModel } from './IAuditColumnsModel';
+import { IReportModel } from './IReportModel';
 import { IUserModel } from './IUserModel';
 
-export interface IUserReportModel {
+export interface IUserReportModel extends IAuditColumnsModel {
   /** Foreign key to user */
   userId: number;
   /** User object */
   user?: IUserModel;
   /** Foreign key to report */
   reportId: number;
+  /** The report. */
+  report?: IReportModel;
 
   /** User properties */
   username: string;
@@ -39,6 +43,4 @@ export interface IUserReportModel {
   textStatus?: ReportStatusName;
   /** Email response */
   textResponse?: any;
-  /** Table row version */
-  version: number;
 }

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.EventSchedule;
@@ -98,7 +99,7 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
                 {
                     this.Logger.LogError(ex, "Service had an unexpected failure.");
                     this.State.RecordFailure();
-                    await this.SendEmailAsync("Service had an Unexpected Failure", ex);
+                    await this.SendErrorEmailAsync("Service had an Unexpected Failure", ex);
                 }
             }
 
@@ -171,7 +172,7 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
         var autoSend = scheduledEvent.Settings.GetDictionaryJsonValue<bool?>("autoSend") ?? false;
 
         if (reportId == null || reportId == 0) throw new InvalidOperationException($"Event schedule configuration must have a valid report {scheduledEvent.Id}:{scheduledEvent.Name}");
-        var request = new ReportRequestModel(destination, reportType, reportId.Value, data)
+        var request = new ReportRequestModel(destination, reportType, reportId.Value, JsonDocument.Parse(JsonSerializer.Serialize(data)))
         {
             EventScheduleId = scheduledEvent.Id,
             ReportInstanceId = reportInstanceId,

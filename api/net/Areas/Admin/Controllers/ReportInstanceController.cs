@@ -150,7 +150,7 @@ public class ReportInstanceController : ControllerBase
         instance.Status = new[] { Entities.ReportStatus.Pending, Entities.ReportStatus.Reopen }.Contains(instance.Status) ? Entities.ReportStatus.Submitted : instance.Status;
         instance = _reportInstanceService.UpdateAndSave(instance);
 
-        var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, instance.ReportId, instance.Id, new { })
+        var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, instance.ReportId, instance.Id, JsonDocument.Parse("{}"))
         {
             RequestorId = user.Id,
             Resend = resend || instance.Status == ReportStatus.Reopen,

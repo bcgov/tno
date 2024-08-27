@@ -3,7 +3,17 @@ import React from 'react';
 
 import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { IPaged, ITransferAccount, IUserFilter, IUserModel, useApi } from '..';
+import {
+  IPaged,
+  ITransferAccount,
+  IUserAVOverviewModel,
+  IUserFilter,
+  IUserModel,
+  IUserNotificationModel,
+  IUserProductModel,
+  IUserReportModel,
+  useApi,
+} from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -47,6 +57,26 @@ export const useApiAdminUsers = (
     },
     getDistributionListById: (id: number) => {
       return api.get<never, AxiosResponse<IUserModel[]>, any>(`/admin/users/${id}/distribution`);
+    },
+    getUserProductSubscriptions: (id: number) => {
+      return api.get<never, AxiosResponse<IUserProductModel[]>, any>(
+        `/admin/users/${id}/product/subscriptions`,
+      );
+    },
+    getUserReportSubscriptions: (id: number) => {
+      return api.get<never, AxiosResponse<IUserReportModel[]>, any>(
+        `/admin/users/${id}/report/subscriptions`,
+      );
+    },
+    getUserEveningOverviewSubscriptions: (id: number) => {
+      return api.get<never, AxiosResponse<IUserAVOverviewModel[]>, any>(
+        `/admin/users/${id}/evening/overview/subscriptions`,
+      );
+    },
+    getUserNotificationSubscriptions: (id: number) => {
+      return api.get<never, AxiosResponse<IUserNotificationModel[]>, any>(
+        `/admin/users/${id}/notification/subscriptions`,
+      );
     },
   }).current;
 };

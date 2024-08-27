@@ -80,7 +80,7 @@ public class UserReportModel : UserModel
     /// <param name="entity"></param>
     public UserReportModel(Entities.UserReport entity, Entities.User user) : base(user)
     {
-        this.UserId = entity.UserId;
+        this.UserId = user.Id;
         this.ReportId = entity.ReportId;
         this.IsSubscribed = entity.IsSubscribed;
         this.Format = entity.Format;

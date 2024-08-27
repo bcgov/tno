@@ -71,4 +71,14 @@ export const SettingsLanding = styled(Row)<{ split?: boolean }>`
       width: 1.2rem;
     }
   }
+  @media (max-width: 768px) {
+    .page-section {
+      padding-bottom: 50px;
+    }
+  }
+  @media (max-width: 853px) {
+    .page-section {
+      padding-bottom: 60px;
+    }
+  }
 `;

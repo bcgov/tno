@@ -147,7 +147,9 @@ public class WorkOrderController : ControllerBase
                     NotificationId = notificationId,
                     ContentId = contentId,
                     RequestorId = workOrder.RequestorId,
-                    To = !String.IsNullOrWhiteSpace(user.PreferredEmail) ? user.PreferredEmail : user.Email,
+                    To = user != null && !user.IsVacationMode()
+                        ? (!string.IsNullOrWhiteSpace(user.PreferredEmail) ? user.PreferredEmail : user.Email) ?? string.Empty
+                        : "",
                 };
                 await _kafkaProducer.SendMessageAsync(_kafkaOptions.NotificationTopic, request);
             }

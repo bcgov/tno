@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace TNO.Kafka.Models;
 
 /// <summary>
@@ -37,7 +39,7 @@ public class ReportRequestModel
     /// <summary>
     /// get/set - JSON object with data to be passed to the report template.
     /// </summary>
-    public dynamic Data { get; set; } = new { };
+    public JsonDocument Data { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
     /// get/set - Foreign key to user who requested the report.
@@ -89,7 +91,7 @@ public class ReportRequestModel
     /// <param name="type"></param>
     /// <param name="reportId"></param>
     /// <param name="data"></param>
-    public ReportRequestModel(ReportDestination destination, Entities.ReportType type, int reportId, object data)
+    public ReportRequestModel(ReportDestination destination, Entities.ReportType type, int reportId, JsonDocument data)
     {
         this.ReportType = type;
         this.Destination = destination;
@@ -106,7 +108,7 @@ public class ReportRequestModel
     /// <param name="data"></param>
     /// <param name="assignedId"></param>
     /// <param name="to"></param>
-    public ReportRequestModel(ReportDestination destination, Entities.ReportType type, int reportId, object data, int assignedId, string to = "")
+    public ReportRequestModel(ReportDestination destination, Entities.ReportType type, int reportId, JsonDocument data, int assignedId, string to = "")
         : this(destination, type, reportId, data)
     {
         this.AssignedId = assignedId;
@@ -123,7 +125,7 @@ public class ReportRequestModel
     /// <param name="requestorId"></param>
     /// <param name="assignedId"></param>
     /// <param name="to"></param>
-    public ReportRequestModel(ReportDestination destination, Entities.ReportType type, int reportId, object data, int requestorId, int assignedId, string to = "")
+    public ReportRequestModel(ReportDestination destination, Entities.ReportType type, int reportId, JsonDocument data, int requestorId, int assignedId, string to = "")
         : this(destination, type, reportId, data, assignedId, to)
     {
         this.RequestorId = requestorId;
@@ -137,7 +139,7 @@ public class ReportRequestModel
     /// <param name="reportId"></param>
     /// <param name="reportInstanceId"></param>
     /// <param name="data"></param>
-    public ReportRequestModel(ReportDestination destination, Entities.ReportType type, int reportId, long reportInstanceId, object data)
+    public ReportRequestModel(ReportDestination destination, Entities.ReportType type, int reportId, long reportInstanceId, JsonDocument data)
         : this(destination, type, reportId, data)
     {
         this.ReportInstanceId = reportInstanceId;
@@ -153,7 +155,7 @@ public class ReportRequestModel
     /// <param name="data"></param>
     /// <param name="assignedId"></param>
     /// <param name="to"></param>
-    public ReportRequestModel(ReportDestination destination, Entities.ReportType type, int reportId, long reportInstanceId, object data, int assignedId, string to = "")
+    public ReportRequestModel(ReportDestination destination, Entities.ReportType type, int reportId, long reportInstanceId, JsonDocument data, int assignedId, string to = "")
         : this(destination, type, reportId, reportInstanceId, data)
     {
         this.AssignedId = assignedId;
@@ -171,7 +173,7 @@ public class ReportRequestModel
     /// <param name="requestorId"></param>
     /// <param name="assignedId"></param>
     /// <param name="to"></param>
-    public ReportRequestModel(ReportDestination destination, Entities.ReportType type, int reportId, long reportInstanceId, object data, int requestorId, int assignedId, string to = "")
+    public ReportRequestModel(ReportDestination destination, Entities.ReportType type, int reportId, long reportInstanceId, JsonDocument data, int requestorId, int assignedId, string to = "")
         : this(destination, type, reportId, reportInstanceId, data, assignedId, to)
     {
         this.RequestorId = requestorId;

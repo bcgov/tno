@@ -58,8 +58,9 @@ export const ChartViewer: React.FC<IChartViewerProps> = ({ sectionIndex, chartIn
   React.useEffect(() => {
     if (canvasRef.current !== null && data) {
       myChart[uid]?.destroy();
+      const widthValue = chart.sectionSettings.width ? chart.sectionSettings.width : 500;
       if (chart.sectionSettings.height) canvasRef.current.height = chart.sectionSettings.height;
-      if (chart.sectionSettings.width) canvasRef.current.width = chart.sectionSettings.width;
+      if (chart.sectionSettings.width) canvasRef.current.width = widthValue;
 
       myChart[uid] = new ChartJS(canvasRef.current, {
         type: chart.sectionSettings.chartType as keyof ChartTypeRegistry,
@@ -85,13 +86,15 @@ export const ChartViewer: React.FC<IChartViewerProps> = ({ sectionIndex, chartIn
         },
         options: generateChartOptions(data, chart.sectionSettings),
       });
-      myChart[uid].resize(chart.sectionSettings.width, chart.sectionSettings.height);
+      myChart[uid].resize(widthValue, chart.sectionSettings.height);
     }
   }, [chart.sectionSettings, data, values.sections, uid]);
 
   return (
     <div>
-      <canvas ref={canvasRef} id={`my-chart-${uid}`} />
+      <div>
+        <canvas ref={canvasRef} id={`my-chart-${uid}`} />
+      </div>
     </div>
   );
 };

@@ -561,5 +561,68 @@ public class UserService : BaseService<User, int>, IUserService
                 where ud.UserId == userId
                 select u).ToArray();
     }
+
+    /// <summary>
+    /// Get all product subscriptions for specified 'userId'.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public IEnumerable<UserProduct> GetUserProductSubscriptions(int userId)
+    {
+        return this.Context.UserProducts
+            .Include(up => up.Product)
+            .Include(up => up.Product)
+            .Include(up => up.User).ThenInclude(u => u!.NotificationSubscriptionsManyToMany)
+            .Include(up => up.User).ThenInclude(u => u!.ReportSubscriptionsManyToMany)
+            .Include(up => up.User).ThenInclude(u => u!.AVOverviewSubscriptionsManyToMany)
+            .Where(up => up.UserId == userId &&
+                ((up.Product!.ProductType == ProductType.Report && this.Context.UserReports.Any(ur => ur.UserId == userId && ur.ReportId == up.Product.TargetProductId && ur.IsSubscribed)) ||
+                (up.Product!.ProductType == ProductType.Notification && this.Context.UserNotifications.Any(un => un.UserId == userId && un.NotificationId == up.Product.TargetProductId && un.IsSubscribed)) ||
+                (up.Product!.ProductType == ProductType.EveningOverview && this.Context.UserAVOverviews.Any(av => av.UserId == userId && av.IsSubscribed)))
+            )
+            .OrderBy(up => up.Product!.Name)
+            .ToArray();
+    }
+
+    /// <summary>
+    /// Get all report subscriptions for specified 'userId'.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public IEnumerable<UserReport> GetUserReportSubscriptions(int userId)
+    {
+        return this.Context.UserReports
+            .Include(ur => ur.Report)
+            .Where(ur => ur.UserId == userId && ur.IsSubscribed)
+            .OrderBy(up => up.Report!.Name)
+            .ToArray();
+    }
+
+    /// <summary>
+    /// Get all evening overview subscriptions for specified 'userId'.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public IEnumerable<UserAVOverview> GetUserEveningOverviewSubscriptions(int userId)
+    {
+        return this.Context.UserAVOverviews
+            .Where(ur => ur.UserId == userId)
+            .OrderBy(up => up.TemplateType)
+            .ToArray();
+    }
+
+    /// <summary>
+    /// Get all notification subscriptions for specified 'userId'.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public IEnumerable<UserNotification> GetUserNotificationSubscriptions(int userId)
+    {
+        return this.Context.UserNotifications
+            .Include(un => un.Notification)
+            .Where(un => un.UserId == userId && un.IsSubscribed)
+            .OrderBy(up => up.Notification!.Name)
+            .ToArray();
+    }
     #endregion
 }
