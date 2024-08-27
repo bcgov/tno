@@ -4,7 +4,22 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
-import { FaHouse } from 'react-icons/fa6';
+import { FaClipboard, FaCogs, FaSearch } from 'react-icons/fa';
+import {
+  FaClipboardList,
+  FaCloudArrowDown,
+  FaEnvelope,
+  FaExclamation,
+  FaFeather,
+  FaFolder,
+  FaHouse,
+  FaMessage,
+  FaMoneyBillWave,
+  FaMoon,
+  FaNewspaper,
+  FaSun,
+  FaUsers,
+} from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
 import { Claim, Row, useKeycloakWrapper } from 'tno-core';
 
@@ -35,11 +50,11 @@ export const Menu: React.FC = () => {
                   All Content
                 </NavDropdown.Item>
                 <NavDropdown.Item as={Link} to="/papers">
-                  Papers
+                  <FaNewspaper /> Papers
                 </NavDropdown.Item>
                 <NavDropdown.Divider />
                 <NavDropdown.Item as={Link} to="/transcriptions">
-                  Transcript Queue
+                  <FaFeather /> Transcript Queue
                 </NavDropdown.Item>
               </NavDropdown>
               <NavDropdown title="Report Building" id="basic-nav-dropdown">
@@ -47,45 +62,39 @@ export const Menu: React.FC = () => {
                   <MenuDropdownItem claim={Claim.administrator} to="/admin/reports/dashboard">
                     Dashboard
                   </MenuDropdownItem>
+                  <MenuDropdownItem claim={Claim.administrator} to="/admin/products">
+                    <FaEnvelope /> MMI Products
+                  </MenuDropdownItem>
+                  <MenuDropdownItem claim={Claim.administrator} to="/admin/reports">
+                    <FaClipboard /> Reports
+                  </MenuDropdownItem>
                   <MenuDropdownItem claim={Claim.administrator} to="/admin/filters">
-                    Filters
+                    <FaSearch /> Filters
                   </MenuDropdownItem>
                   <MenuDropdownItem claim={Claim.administrator} to="/admin/folders">
-                    Folders
+                    <FaFolder /> Folders
                   </MenuDropdownItem>
-                  <NavDropdown.Item as={Link} to="/reports/av/evening-overview">
-                    Evening Overview
-                  </NavDropdown.Item>
-                  {!isAdmin && (
-                    <NavDropdown.Item as={Link} to="/reports/event-of-the-day">
-                      Event of the Day
-                    </NavDropdown.Item>
-                  )}
-                  <MenuDropdown title="Event of the Day" claim={Claim.administrator}>
-                    <NavDropdown.Item as={Link} to="/reports/event-of-the-day">
-                      Event of the Day
-                    </NavDropdown.Item>
-                    <MenuDropdownItem claim={Claim.administrator} to="/admin/topics">
-                      Edit Topics
-                    </MenuDropdownItem>
-                    <MenuDropdownItem claim={Claim.administrator} to="/admin/topic-scores">
-                      Configure Topic Scoring
-                    </MenuDropdownItem>
-                  </MenuDropdown>
-                  <MenuDropdownItem claim={Claim.administrator} to="/admin/products">
-                    MMI Products
+                  {isAdmin && <NavDropdown.Divider />}
+                  <MenuDropdownItem to="/reports/event-of-the-day">
+                    <FaSun /> Event of the Day
                   </MenuDropdownItem>
+                  <MenuDropdownItem claim={Claim.administrator} to="/admin/topics">
+                    Edit Topics
+                  </MenuDropdownItem>
+                  <MenuDropdownItem claim={Claim.administrator} to="/admin/topic-scores">
+                    Configure Topic Scoring
+                  </MenuDropdownItem>
+                  <NavDropdown.Divider />
+                  <MenuDropdownItem to="/reports/av/evening-overview">
+                    <FaMoon /> Evening Overview
+                  </MenuDropdownItem>
+                  <MenuDropdownItem claim={Claim.administrator} to="/admin/av/evening-overview">
+                    Evening Overview Templates
+                  </MenuDropdownItem>
+                  {isAdmin && <NavDropdown.Divider />}
                   <MenuDropdownItem claim={Claim.administrator} to="/reports/cbra">
-                    CBRA Report
+                    <FaMoneyBillWave /> CBRA Report
                   </MenuDropdownItem>
-                  <MenuDropdown title="Report Configuration" claim={Claim.administrator}>
-                    <NavDropdown.Item as={Link} to="/admin/reports">
-                      Manage Reports
-                    </NavDropdown.Item>
-                    <NavDropdown.Item as={Link} to="/admin/av/evening-overview">
-                      Evening Overview Templates
-                    </NavDropdown.Item>
-                  </MenuDropdown>
                 </Container>
               </NavDropdown>
               <MenuDropdown title="Content Configuration" claim={Claim.administrator}>
@@ -116,7 +125,7 @@ export const Menu: React.FC = () => {
                   Services Dashboard
                 </NavDropdown.Item>
                 <NavDropdown.Item as={Link} to="/admin/ingests">
-                  Ingest Services
+                  <FaCloudArrowDown /> Ingest Services
                 </NavDropdown.Item>
                 <NavDropdown.Item as={Link} to="/admin/ingest/types">
                   Ingest Types
@@ -127,25 +136,27 @@ export const Menu: React.FC = () => {
                 <NavDropdown.Item as={Link} to="/admin/data/locations">
                   Data Locations
                 </NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/admin/connection">
+                <NavDropdown.Item as={Link} to="/admin/connections">
                   Data Connections
                 </NavDropdown.Item>
               </MenuDropdown>
               <MenuDropdown title="System Settings" claim={Claim.administrator}>
                 <NavDropdown.Item as={Link} to="/admin/users">
-                  Manage Users
+                  <FaUsers /> Manage Users
                 </NavDropdown.Item>
                 <NavDropdown.Item as={Link} to="/admin/system-messages">
+                  <FaExclamation />
                   System Messages
                 </NavDropdown.Item>
                 <NavDropdown.Item as={Link} to="/admin/notifications">
-                  Notifications
+                  <FaMessage /> Notifications
                 </NavDropdown.Item>
                 <NavDropdown.Item as={Link} to="/admin/work/orders">
+                  <FaClipboardList />
                   Work Orders
                 </NavDropdown.Item>
                 <NavDropdown.Item as={Link} to="/admin/settings">
-                  System Configuration
+                  <FaCogs /> System Configuration
                 </NavDropdown.Item>
               </MenuDropdown>
             </Nav>

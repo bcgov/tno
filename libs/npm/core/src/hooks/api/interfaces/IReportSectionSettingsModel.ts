@@ -11,6 +11,6 @@ export interface IReportSectionSettingsModel {
   groupBy: string;
   sortBy: string;
   sortDirection: '' | 'asc' | 'desc';
-  datasetColors: string[];
-  dataLabelColors: string[];
+  datasetColors?: string[];
+  dataLabelColors?: string[];
 }

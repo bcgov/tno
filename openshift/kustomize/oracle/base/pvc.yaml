@@ -1,0 +1,22 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: oracle-db
+  namespace: default
+  labels:
+    name: oracle-db
+    part-of: tno
+    version: 1.0.0
+    component: database
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  # Storage class name is the type of storage [netapp-file-standard, netapp-file-extended, netapp-file-backup, netapp-block-standard, netapp-block-extended]
+  storageClassName: netapp-file-standard
+  # Storage access mode [ReadWriteOnce, ReadWriteMany]
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi

@@ -3,6 +3,10 @@ export interface IChartSectionSettingsModel {
   width?: number;
   /** Height of the chart image. */
   height?: number;
+  /** Whether width and height should force aspect ratio */
+  maintainAspectRatio?: boolean;
+  /** The chart aspect ratio */
+  aspectRatio?: number;
   /** The chart type to generate [bar|line|pie|doughnut|scatter|bubble|radar|polararea] */
   chartType: string;
   /** The property to group results in [otherSource|series|mediaType|contentType|sentiment|sentimentSimple|byline|section] */

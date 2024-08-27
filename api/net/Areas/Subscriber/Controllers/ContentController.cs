@@ -211,10 +211,6 @@ public class ContentController : ControllerBase
         var user = _impersonate.GetCurrentUser();
         var content = _contentService.FindById(model.Id) ?? throw new NoContentException("Content does not exist");
 
-        // If user does not own the content and hasn't submitted a version.
-        if (content.OwnerId != user.Id && !model.Versions.ContainsKey(user.Id)) throw new NotAuthorizedException("User does not own content");
-        _contentService.ClearChangeTracker();
-
         if (content.OwnerId == user.Id)
         {
             // If user owns the content they can update it.

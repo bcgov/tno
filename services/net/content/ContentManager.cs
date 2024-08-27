@@ -283,6 +283,17 @@ public class ContentManager : ServiceManager<ContentOptions>
         }
     }
 
+    /// <summary>
+    /// Clean up HTML issues in the text.
+    /// </summary>
+    /// <param name="text"></param>
+    /// <returns></returns>
+    private string FixHTMLIssues(string? text)
+    {
+        if (String.IsNullOrWhiteSpace(text)) return text?.Trim() ?? "";
+        return text.Replace("<![CDATA[", "").Replace("]]>", "").Replace("]]&gt;", "");
+    }
+
     private async Task ProcessSourceContentAsync(ConsumeResult<string, SourceContent> result)
     {
         this.Logger.LogInformation("Importing Content from Topic: {topic}, Uid: {key}", result.Topic, result.Message.Key);
@@ -324,6 +335,8 @@ public class ContentManager : ServiceManager<ContentOptions>
             var tonePools = lookups?.TonePools;
             var topics = lookups?.Topics;
             var series = lookups?.Series;
+            var summary = FixHTMLIssues(model.Summary);
+            var body = FixHTMLIssues(model.Body);
 
             if (model.MediaTypeId == 0)
             {
@@ -345,8 +358,8 @@ public class ContentManager : ServiceManager<ContentOptions>
             content.OwnerId = model.RequestedById ?? source?.OwnerId;
             content.Headline = model.Title;
             content.Page = model.Page[0..Math.Min(model.Page.Length, 10)]; // TODO: Temporary workaround to deal FileMonitor Service.
-            content.Summary = String.IsNullOrWhiteSpace(model.Summary) ? "" : model.Summary;
-            content.Body = !String.IsNullOrWhiteSpace(model.Body) ? model.Body : model.ContentType == ContentType.AudioVideo ? "" : model.Summary;
+            content.Summary = String.IsNullOrWhiteSpace(summary) ? "" : summary;
+            content.Body = !String.IsNullOrWhiteSpace(body) ? body : model.ContentType == ContentType.AudioVideo ? "" : summary;
             content.IsApproved = model.ContentType == ContentType.AudioVideo && model.PublishedOn.HasValue && model.Status == ContentStatus.Publish && !String.IsNullOrWhiteSpace(model.Body);
             content.SourceUrl = model.Link;
             content.PublishedOn = model.PublishedOn;
@@ -466,7 +479,7 @@ public class ContentManager : ServiceManager<ContentOptions>
             // Upload the file to the API.
             if (!String.IsNullOrWhiteSpace(model.FilePath))
             {
-                // A service needs to know it's context so that it can import files.
+                // A service needs to know its context so that it can import files.
                 // If this service is running in the same location as the content it will be local.
                 var dataLocation = this.Options.DataLocation == model.DataLocation ? null : (await this.Api.GetDataLocationAsync(model.DataLocation))
                     ?? throw new ConfigurationException("Service data location is not configured correctly");

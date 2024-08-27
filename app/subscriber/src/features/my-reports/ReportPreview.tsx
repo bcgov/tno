@@ -2,6 +2,7 @@ import { Action } from 'components/action';
 import { Bar } from 'components/bar';
 import { Button } from 'components/button';
 import { Modal } from 'components/modal';
+import { RefreshButton } from 'components/refresh-button/styled';
 import { PageSection } from 'components/section';
 import React from 'react';
 import { FaArrowsRotate, FaFileCirclePlus, FaPaperPlane, FaPen, FaX } from 'react-icons/fa6';
@@ -43,6 +44,7 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const instance = report?.instances.length ? report.instances[0] : undefined;
+  const hasSubscribers = report?.subscribers?.some((s) => s.isSubscribed === true) ?? false;
 
   const fetchReport = React.useCallback(
     async (id: number) => {
@@ -165,7 +167,7 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
             disabled={isSubmitting}
           >
             Refresh
-            <FaArrowsRotate className="icon-refresh" />
+            <RefreshButton icon={<FaArrowsRotate />} />
           </Button>
         </Show>
         <Show visible={!!instance?.sentOn}>
@@ -194,7 +196,15 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
               ![ReportStatusName.Submitted].includes(instance.status)
             }
           >
-            <Button onClick={() => report && instance && toggleSend()} disabled={isSubmitting}>
+            <Button
+              onClick={() => report && instance && toggleSend()}
+              disabled={isSubmitting || !hasSubscribers}
+              title={
+                !hasSubscribers
+                  ? 'There are no subscribers for this report. Add subscribers to enable sending.'
+                  : ''
+              }
+            >
               Send
               <FaPaperPlane />
             </Button>

@@ -258,7 +258,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             result.Message.Value.ReportInstanceId = ex.InstanceId;
             result.Message.Value.Data = new { ex.Error };
             result.Message.Value.Resend = false;
-            await this.Api.SendMessageAsync(result.Message.Value);
+            if (this.Options.ResendOnFailure)
+                await this.Api.SendMessageAsync(result.Message.Value);
         }
         catch (HttpClientRequestException ex)
         {
@@ -267,7 +268,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
 
             result.Message.Value.Resend = false;
-            await this.Api.SendMessageAsync(result.Message.Value);
+            if (this.Options.ResendOnFailure)
+                await this.Api.SendMessageAsync(result.Message.Value);
         }
         catch (Exception ex)
         {
@@ -276,7 +278,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
 
             result.Message.Value.Resend = false;
-            await this.Api.SendMessageAsync(result.Message.Value);
+            if (this.Options.ResendOnFailure)
+                await this.Api.SendMessageAsync(result.Message.Value);
         }
         finally
         {
@@ -535,6 +538,17 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     }
 
     /// <summary>
+    /// Determine if this request is to resend the report.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="instance"></param>
+    /// <returns></returns>
+    private bool IsResend(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instance)
+    {
+        return (request.Resend || instance?.SentOn.HasValue == true) && !String.IsNullOrWhiteSpace(instance?.Subject) && !String.IsNullOrWhiteSpace(instance?.Body);
+    }
+
+    /// <summary>
     /// Send out emails for the specified report instance.
     /// </summary>
     /// <param name="request"></param>
@@ -543,7 +557,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <exception cref="ArgumentException"></exception>
     private async Task GenerateAndSendReportAsync(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance)
     {
-        var resending = instance.SentOn.HasValue && !String.IsNullOrWhiteSpace(instance.Subject) && !String.IsNullOrWhiteSpace(instance.Body);
+        var resending = IsResend(request, instance);
         var report = instance.Report ?? throw new ArgumentException("Report instance must include the report model.");
         var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
 
@@ -571,6 +585,35 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     }
 
     /// <summary>
+    /// Checks if a report has any subscribers, including those in distribution lists.
+    /// </summary>
+    /// <param name="report">The report model to check for subscribers.</param>
+    /// <returns>True if there are any subscribers, false otherwise.</returns>
+    private async Task<bool> CheckForSubscribersAsync(API.Areas.Services.Models.Report.ReportModel report)
+    {
+        var subscribers = report.Subscribers.Where(s => s.IsSubscribed && s.User != null && s.User.IsVacationMode() != true).ToArray();
+        if (subscribers.Any())
+        {
+            return true;
+        }
+
+        // If there are no direct subscribers, check for distribution lists
+        foreach (var subscriber in report.Subscribers)
+        {
+            if (subscriber.User?.AccountType == UserAccountType.Distribution)
+            {
+                var distributionList = await this.Api.GetDistributionListAsync(subscriber.UserId);
+                if (distributionList.Any())
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Generate the report output and send it to all subscribers.
     /// Ensure the instance is updated with the results.
     /// </summary>
@@ -587,10 +630,22 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     {
         try
         {
-            var (subject, linkBody, fullBody) = await GenerateReportOutputAsync(report, instance, sectionContent);
+            var (subject, linkBody, fullBody) = await GenerateReportOutputAsync(request, report, instance, sectionContent);
 
             if (request.SendToSubscribers || !String.IsNullOrEmpty(request.To))
             {
+                var hasSubscribers = await CheckForSubscribersAsync(report);
+                if (!hasSubscribers)
+                {
+                    if (instance != null)
+                    {
+                        instance.Status = ReportStatus.Failed;
+                        instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(new { Error = "No subscribers found for this report." }, _serializationOptions));
+                    }
+                    this.Logger.LogWarning("No subscribers found for report. ReportId:{reportId}", report.Id);
+                    return;
+                }
+
                 await SendEmailsAsync(request, report, instance, subject, linkBody, fullBody);
             }
 
@@ -613,21 +668,23 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <summary>
     /// Generate the subject, and both email body messages based on the report template and content.
     /// </summary>
+    /// <param name="request"></param>
     /// <param name="report"></param>
     /// <param name="instance"></param>
     /// <param name="sectionContent"></param>
     /// <returns></returns>
     /// <exception cref="ReportingException"></exception>
     private async Task<(string subject, string linkBody, string fullBody)> GenerateReportOutputAsync(
+        ReportRequestModel request,
         API.Areas.Services.Models.Report.ReportModel report,
         API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instance,
         Dictionary<string, ReportSectionModel> sectionContent)
     {
         try
         {
-            var subject = await this.ReportEngine.GenerateReportSubjectAsync(report, instance, sectionContent, false, false);
+            var subject = IsResend(request, instance) ? instance!.Subject : await this.ReportEngine.GenerateReportSubjectAsync(report, instance, sectionContent, false, false);
             var linkOnlyFormatBody = await this.ReportEngine.GenerateReportBodyAsync(report, instance, sectionContent, GetLinkedReportAsync, null, true, false);
-            var fullTextFormatBody = await this.ReportEngine.GenerateReportBodyAsync(report, instance, sectionContent, GetLinkedReportAsync, null, false, false);
+            var fullTextFormatBody = IsResend(request, instance) ? instance!.Body : await this.ReportEngine.GenerateReportBodyAsync(report, instance, sectionContent, GetLinkedReportAsync, null, false, false);
 
             return (subject, linkOnlyFormatBody, fullTextFormatBody);
         }
@@ -858,10 +915,6 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 var latestInstanceModel = await this.Api.GetAVOverviewInstanceAsync(instance.Id) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
                 if (latestInstanceModel.Version != instance.Version)
                 {
-                    // latestInstanceModel.Subject = instance.Subject;
-                    // latestInstanceModel.Body = instance.Body;
-                    // latestInstanceModel.SentOn = instance.SentOn;
-                    // latestInstanceModel.Status = instance.Status;
                     latestInstanceModel.Response = instance.Response;
                     latestInstanceModel.PublishedOn = instance.PublishedOn;
                     instance = await this.Api.UpdateAVOverviewInstanceAsync(latestInstanceModel) ?? throw new InvalidOperationException("Report instance failed to be returned by API");
@@ -890,8 +943,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             API.Areas.Services.Models.Report.ReportModel report,
             IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel> userReportInstances)
     {
-        var linkOnlyFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && LinkOnlyFormats.Contains(s.Format)).ToArray();
-        var fullTextFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && FullTextFormats.Contains(s.Format)).ToArray();
+        var linkOnlyFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && s.User != null && LinkOnlyFormats.Contains(s.Format)).ToArray();
+        var fullTextFormatSubscribers = report.Subscribers.Where(s => s.IsSubscribed && s.User != null && FullTextFormats.Contains(s.Format)).ToArray();
 
         var linkEmails = await GetEmailAddressesAsync(request, linkOnlyFormatSubscribers, userReportInstances);
         var fullEmails = await GetEmailAddressesAsync(request, fullTextFormatSubscribers, userReportInstances);
@@ -938,6 +991,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// </summary>
     /// <param name="userId"></param>
     /// <param name="email"></param>
+    /// <param name="isVacationMode"></param>
     /// <param name="accountType"></param>
     /// <param name="sendTo"></param>
     /// <returns></returns>
@@ -950,7 +1004,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         if (accountType == UserAccountType.Distribution)
         {
             var users = await this.Api.GetDistributionListAsync(userId);
-            var emails = users.Select(u => new UserEmail(u.Id, u.GetEmail()));
+            var filteredUsers = users.Where(u => !u.IsVacationMode()).ToList();
+            var emails = filteredUsers.Select(u => new UserEmail(u.Id, u.GetEmail()));
             switch (sendTo)
             {
                 case EmailSentTo.To:

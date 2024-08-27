@@ -95,4 +95,15 @@ export const EventOfTheDayList = styled.div`
     transition: all 1s;
     transform: rotateY(180deg);
   }
+
+  .icon-refresh {
+    color: #04814d !important;
+    transition: color 0.3s ease;
+  }
+  .icon-refresh:hover {
+    transform: rotate(-90deg);
+  }
+  .icon-refresh:active svg {
+    color: #26e194 !important;
+  }
 `;

@@ -4,7 +4,6 @@ import { defaultChartJSOptions } from '.';
 export const defaultChartRequestForm: IChartRequestForm = {
   settings: {
     width: 500,
-    height: 500,
     chartType: 'bar',
     groupBy: 'otherSource',
     dataset: '',

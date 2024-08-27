@@ -27,8 +27,6 @@ export const createReportSection = (
           ? 'row'
           : 'column',
       groupBy: 'otherSource',
-      datasetColors: [],
-      dataLabelColors: [],
       sortBy: '',
       sortDirection: '',
     },

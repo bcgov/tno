@@ -1,61 +1,49 @@
 import { ContentList } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
 import { ContentListActionBar } from 'components/tool-bar';
+import { PreviousResults } from 'features/previous-results';
 import { useActionFilters } from 'features/search-page/hooks';
-import { filterFormat } from 'features/search-page/utils';
-import { castToSearchResult } from 'features/utils';
-import { IContentSearchResult } from 'features/utils/interfaces';
 import moment from 'moment';
 import React from 'react';
-import { useContent, useSettings } from 'store/hooks';
-import { generateQuery, IContentModel, Loading, Show } from 'tno-core';
+import { useContent, useFetchResults, useSettings } from 'store/hooks';
+import { IContentModel, Loading, Show } from 'tno-core';
 
 import * as styled from './styled';
 
 /** Component that displays top stories defaulting to today's date and adjustable via a date filter. */
 export const TopStories: React.FC = () => {
+  const { setIsLoading, fetchResults, prevDateResults, currDateResults, isLoading } =
+    useFetchResults();
   const [
     {
       topStories: { filter },
     },
-    { findContentWithElasticsearch, storeTopStoriesFilter: storeFilter },
+    { storeTopStoriesFilter: storeFilter },
   ] = useContent();
   const getActionFilters = useActionFilters();
   const { topStoryActionId, isReady } = useSettings();
 
-  const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [stateByDate, setStateByDate] = React.useState<{
     [date: string]: { selected: IContentModel[]; isSelectAllChecked: boolean };
   }>({});
-  const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     // stops invalid requests before filter is synced with date
     if (isReady) {
       let actionFilters = getActionFilters();
       const topStoryAction = actionFilters.find((a) => a.id === topStoryActionId);
-      setLoading(true);
-      findContentWithElasticsearch(
-        generateQuery(
-          filterFormat({
-            ...filter,
-            startDate: filter.startDate ?? moment().startOf('day').toISOString(),
-            endDate: filter.endDate ?? moment().endOf('day').toISOString(),
-            actions: topStoryAction ? [topStoryAction] : [],
-          }),
-        ),
-        false,
-      ).then((res) => {
-        setContent(
-          res.hits.hits.map((r) => {
-            const content = r._source as IContentModel;
-            return castToSearchResult(content);
-          }),
-        );
-        setLoading(false);
-      });
+      topStoryAction &&
+        fetchResults({
+          ...filter,
+          actions: [topStoryAction],
+          startDate: filter.startDate ?? moment().startOf('day').toISOString(),
+          size: 500,
+          sort: [{ publishedOn: 'desc' }],
+        }).catch();
     }
-  }, [filter, findContentWithElasticsearch, getActionFilters, isReady, topStoryActionId]);
+    // react does not like dependencies that are from a hook
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter, getActionFilters, isReady, topStoryActionId]);
 
   const handleContentSelected = React.useCallback(
     (selectedContent: IContentModel[]) => {
@@ -67,8 +55,10 @@ export const TopStories: React.FC = () => {
           selected: selectedContent,
         },
       }));
-      setLoading(false);
+      setIsLoading(false);
     },
+    // only want to re-run when the start date changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [filter.startDate],
   );
 
@@ -115,12 +105,12 @@ export const TopStories: React.FC = () => {
         ...prevState,
         [dateKey]: {
           ...prevState[dateKey],
-          selected: e.target.checked ? content : [],
+          selected: e.target.checked ? currDateResults : [],
           isSelectAllChecked: e.target.checked,
         },
       }));
     },
-    [content, filter.startDate],
+    [currDateResults, filter.startDate],
   );
 
   const dateKey = filter.startDate || moment().startOf('day').toISOString();
@@ -146,17 +136,26 @@ export const TopStories: React.FC = () => {
         onReset={handleReset}
       />
       <DateFilter filter={filter} storeFilter={storeFilter} />
-      <Show visible={loading}>
+      <Show visible={isLoading}>
         <Loading />
       </Show>
       <ContentList
-        content={content}
+        content={currDateResults}
         onContentSelected={handleContentSelected}
         showTime
         showDate
         showSeries
         selected={currentSelected}
       />
+      <Show visible={!currDateResults.length}>
+        <PreviousResults
+          currDateResults={currDateResults}
+          loaded={!!topStoryActionId}
+          prevDateResults={prevDateResults}
+          filter={filter}
+          storeFilter={storeFilter}
+        />
+      </Show>
     </styled.TopStories>
   );
 };

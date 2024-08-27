@@ -32,13 +32,13 @@ export const Sentiment: React.FC<ISentimentProps> = ({
           <FaCircle className="tone-icon" color="#E0E0E0" title={title} />
         </Show>
         <Show visible={value !== undefined && value < 0}>
-          <FaFrown className="tone-icon" color="#DC3545" title={title} />
+          <FaFrown className="tone-icon" color="#EB8585" title={title} />
         </Show>
         <Show visible={value !== undefined && value === 0}>
-          <FaMeh className="tone-icon" color="#FFC107" title={title} />
+          <FaMeh className="tone-icon" color="#F1C02D" title={title} />
         </Show>
         <Show visible={value !== undefined && value > 0}>
-          <FaSmile className="tone-icon" color="#20C997" title={title} />
+          <FaSmile className="tone-icon" color="#59E9BE" title={title} />
         </Show>
       </Show>
       {showValue && <span>{value}</span>}

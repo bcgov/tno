@@ -126,7 +126,8 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = () => 
                     {
                       label: 'OTHER',
                       dropDownOptions: filterEnabledOptions(userOptions),
-                      onClick: (value) => onOtherClick(filter, value),
+                      onClick: (e, option) =>
+                        onOtherClick(filter, option?.value ? +option.value : undefined),
                     },
                   ]}
                 />

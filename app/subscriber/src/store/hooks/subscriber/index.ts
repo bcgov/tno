@@ -1,6 +1,7 @@
 export * from './useAVOverviewInstances';
 export * from './useColleagues';
 export * from './useContent';
+export * from './useFetchResults';
 export * from './useFilters';
 export * from './useFolders';
 export * from './useNavigateAndScroll';

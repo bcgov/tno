@@ -25,8 +25,14 @@ export interface IToggleButtonProps {
   label?: React.ReactNode;
   /** Position of the label. */
   labelPosition?: 'left' | 'right' | 'top' | 'bottom';
+  /** The labels are titles. */
+  labelIsTitle?: boolean;
+  /** Title hover text. */
+  title?: string;
   /** Event fires when button clicked. */
   onClick?: React.MouseEventHandler<HTMLDivElement>;
+  /** Custom color */
+  color?: string;
 }
 
 /**
@@ -44,6 +50,7 @@ export const ToggleButton = ({
   className,
   label,
   labelPosition = 'right',
+  color,
   onClick,
   ...rest
 }: IToggleButtonProps) => {
@@ -58,6 +65,8 @@ export const ToggleButton = ({
       className={`button-toggle${className ? ` ${className}` : ''}`}
       disabled={disabled}
       labelPosition={labelPosition}
+      color={color} // Pass the color prop to the styled component
+      value={show} // Pass the show state to the styled component to manage the background color
       {...rest}
     >
       <div

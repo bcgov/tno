@@ -18,6 +18,8 @@
     "@react-keycloak/web": "3.4.0",
     "@reduxjs/toolkit": "2.2.5",
     "axios": "1.7.2",
+    "chart.js": "4.4.4",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "formik": "2.4.6",
     "html-react-parser": "5.1.10",
     "keycloak-js": "24.0.4",
@@ -42,7 +44,7 @@
     "sheetjs": "file:packages/xlsx-0.20.1.tgz",
     "styled-components": "6.1.11",
     "stylis": "4.3.2",
-    "tno-core": "./tno-core-0.1.134.tgz"
+    "tno-core": "0.1.138"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "6.4.5",

@@ -30,9 +30,9 @@ export const IDPOptions: React.FC<IIDPOptionsProps> = ({ login, children }) => {
                 <Button className="white idir-logo" onClick={() => login('css-oidc')}>
                   &nbsp;
                 </Button>
-                <Button className="white azure-logo" onClick={() => login('azure-entra')}>
+                {/* <Button className="white azure-logo" onClick={() => login('azure-entra')}>
                   Microsoft
-                </Button>
+                </Button> */}
                 <Button className="white signIn" onClick={() => login()}>
                   Other
                 </Button>
