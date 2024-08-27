@@ -315,7 +315,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                             if (request.IgnoreValidation || await this.NotificationValidator.ConfirmSendAsync())
                                 await SendNotificationAsync(request, notification, content);
                             else
-                                this.Logger.LogInformation("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
+                                this.Logger.LogDebug("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
                         }
                     }
 
