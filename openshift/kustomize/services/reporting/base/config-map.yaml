@@ -20,3 +20,4 @@ data:
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"
   CHARTS_URL: http://charts-api:8080
+  RESEND_ON_FAILURE: "true"

@@ -124,7 +124,7 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
                 {
                     Logger.LogError(ex, "Service had an unexpected failure.");
                     State.RecordFailure();
-                    await SendEmailAsync("Service had an Unexpected Failure", ex);
+                    await SendErrorEmailAsync("Service had an Unexpected Failure", ex);
                 }
             }
 
@@ -235,12 +235,12 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
             if (ex is HttpClientRequestException httpEx)
             {
                 Logger.LogError(ex, "HTTP exception while consuming. {response}", httpEx.Data["body"] ?? "");
-                await SendEmailAsync("HTTP exception while consuming. {response}", ex);
+                await SendErrorEmailAsync("HTTP exception while consuming. {response}", ex);
             }
             else
             {
                 Logger.LogError(ex, "Failed to handle message");
-                await SendEmailAsync("Failed to handle message", ex);
+                await SendErrorEmailAsync("Failed to handle message", ex);
             }
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
         }
