@@ -4,6 +4,8 @@ import { SortDirection } from './constants';
 import { GridPager } from './GridPager';
 import { SortAction } from './SortAction';
 import * as styled from './styled';
+import { Show } from '../show/Show';
+import { Loading } from '../loading/Loading';
 
 export interface IGridHeaderColumnProps {
   name?: string;
@@ -32,6 +34,7 @@ interface IGridProps<T> {
   onNavigatePage?: (page: number) => void;
   onQuantityChange?: (quantity: number) => void;
   onSortChange?: (column: IGridHeaderColumnProps, direction: SortDirection) => void;
+  isLoading?: boolean;
 }
 
 /**
@@ -47,6 +50,7 @@ export const Grid = <T,>({
   showPaging,
   className,
   isOneBasedIndexing = false,
+  isLoading,
   renderHeader,
   renderColumns,
   onNavigatePage,
@@ -93,6 +97,9 @@ export const Grid = <T,>({
           })}
         </div>
         <div className="grid-table">
+          <Show visible={isLoading}>
+              <Loading className="grid-loading"/>
+          </Show>
           {items?.map((item, rowIndex) =>
             renderColumns(item, rowIndex).map((column, columnIndex) => {
               const _column = column as IGridColumnProps;

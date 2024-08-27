@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useApp } from 'store/hooks';
 import { useMinisters } from 'store/hooks/admin';
 import { Col, FlexboxTable, IconButton, IMinisterModel, Row } from 'tno-core';
 
@@ -16,6 +17,7 @@ const MinisterList: React.FC = () => {
   const [{ ministers }, api] = useMinisters();
 
   const [items, setItems] = React.useState<IMinisterModel[]>([]);
+  const [{ requests }] = useApp();
 
   React.useEffect(() => {
     if (!ministers.length) {
@@ -64,6 +66,7 @@ const MinisterList: React.FC = () => {
         showSort={true}
         onRowClick={(row) => navigate(`${row.original.id}`)}
         pagingEnabled={false}
+        isLoading={!!requests.some((r) => r.url === 'find-all-ministers')}
       />
     </styled.MinisterList>
   );
