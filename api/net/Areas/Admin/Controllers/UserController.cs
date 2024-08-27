@@ -197,5 +197,69 @@ public class UserController : ControllerBase
         var result = _userService.GetDistributionList(id);
         return new JsonResult(result.Select(r => new UserModel(r)));
     }
+
+    /// <summary>
+    /// Find all the reports specified user is subscribed to.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/product/subscriptions")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<UserProductModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "User" })]
+    public IActionResult FindProductSubscriptions(int id)
+    {
+        var result = _userService.GetUserProductSubscriptions(id);
+        return new JsonResult(result.Select(r => new UserProductModel(r)));
+    }
+
+    /// <summary>
+    /// Find all the reports specified user is subscribed to.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/report/subscriptions")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<UserReportModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "User" })]
+    public IActionResult FindReportSubscriptions(int id)
+    {
+        var result = _userService.GetUserReportSubscriptions(id);
+        return new JsonResult(result.Select(r => new UserReportModel(r)));
+    }
+
+    /// <summary>
+    /// Find all the reports specified user is subscribed to.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/evening/overview/subscriptions")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<UserAVOverviewModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "User" })]
+    public IActionResult FindEveningOverviewSubscriptions(int id)
+    {
+        var result = _userService.GetUserEveningOverviewSubscriptions(id);
+        return new JsonResult(result.Select(r => new UserAVOverviewModel(r)));
+    }
+
+    /// <summary>
+    /// Find all the notifications specified user is subscribed to.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/notification/subscriptions")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<UserNotificationModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "User" })]
+    public IActionResult FindNotificationSubscriptions(int id)
+    {
+        var result = _userService.GetUserNotificationSubscriptions(id);
+        return new JsonResult(result.Select(r => new UserNotificationModel(r)));
+    }
     #endregion
 }

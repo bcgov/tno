@@ -23,4 +23,32 @@ public interface IUserService : IBaseService<User, int>
     User? TransferAccount(API.Areas.Admin.Models.User.TransferAccountModel account);
 
     IEnumerable<User> GetDistributionList(int userId);
+
+    /// <summary>
+    /// Get all product subscriptions for specified 'userId'.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    IEnumerable<UserProduct> GetUserProductSubscriptions(int userId);
+
+    /// <summary>
+    /// Get all report subscriptions for specified 'userId'.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    IEnumerable<UserReport> GetUserReportSubscriptions(int userId);
+
+    /// <summary>
+    /// Get all evening overview subscriptions for specified 'userId'.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    IEnumerable<UserAVOverview> GetUserEveningOverviewSubscriptions(int userId);
+
+    /// <summary>
+    /// Get all notification subscriptions for specified 'userId'.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    IEnumerable<UserNotification> GetUserNotificationSubscriptions(int userId);
 }

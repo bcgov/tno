@@ -1,5 +1,6 @@
 import { Button } from 'components/button';
 import React from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import { FaCaretRight } from 'react-icons/fa';
 import { FaCaretLeft } from 'react-icons/fa6';
 import { Row, Show } from 'tno-core';
@@ -107,7 +108,16 @@ export const ReportSectionMediaAnalyticsChartWizard = React.forwardRef<
           </Row>
         </div>
       </div>
-      <ChartViewer sectionIndex={sectionIndex} chartIndex={chartIndex} data={data} />
+      <ErrorBoundary
+        fallback={
+          <div>
+            <p>An unexpected error has occurred.</p>
+            <p>You will need to close and reopen this chart.</p>
+          </div>
+        }
+      >
+        <ChartViewer sectionIndex={sectionIndex} chartIndex={chartIndex} data={data} />
+      </ErrorBoundary>
     </styled.ChartWizard>
   );
 });

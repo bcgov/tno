@@ -2,6 +2,7 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { useUsers } from 'store/hooks/admin';
 import {
+  AVOverviewTemplateTypeName,
   CellEllipsis,
   Checkbox,
   EmailSendToName,
@@ -51,11 +52,15 @@ export const OverviewSubscribers: React.FC = () => {
         }}
       />
       <Grid
-        items={users.items.map<IUserAVOverviewModel>((u) => ({
-          ...u,
-          isSubscribed: values.subscribers.some((s) => s.id === u.id && s.isSubscribed),
-          sendTo: values.subscribers.find((s) => s.id === u.id)?.sendTo ?? EmailSendToName.To,
-        }))}
+        items={users.items.map<IUserAVOverviewModel>((u) => {
+          const subscription = values.subscribers.find((s) => s.id === u.id);
+          return {
+            ...u,
+            isSubscribed: subscription?.isSubscribed ?? false,
+            sendTo: subscription?.sendTo ?? EmailSendToName.To,
+            templateType: subscription?.templateType ?? AVOverviewTemplateTypeName.Weekday,
+          };
+        })}
         pageIndex={users.page - 1}
         itemsPerPage={users.quantity}
         totalItems={users.total}
