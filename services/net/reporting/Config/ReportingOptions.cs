@@ -18,5 +18,10 @@ public class ReportingOptions : ServiceOptions
     /// get/set - Whether to use the mail merge option.
     /// </summary>
     public bool UseMailMerge { get; set; } = true;
+
+    /// <summary>
+    /// get/set- Whether a failure should make the report resend.
+    /// </summary>
+    public bool ResendOnFailure { get; set; }
     #endregion
 }
