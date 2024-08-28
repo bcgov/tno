@@ -104,4 +104,27 @@ export const UserForm = styled(FormPage)`
       }
     }
   }
+
+  .form {
+    width: 100%;
+
+    .form-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      > div {
+        min-width: 50%;
+      }
+    }
+  }
+
+  .subscriber-list {
+    display: flex;
+    flex-direction: column;
+
+    > div {
+      flex: 1;
+    }
+  }
 `;

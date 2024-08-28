@@ -48,7 +48,7 @@ const ContentForm = lazy(() => import('../form/ContentForm'));
  * @returns Component
  */
 const ContentListView: React.FC = () => {
-  const [{ userInfo }] = useApp();
+  const [{ requests, userInfo }] = useApp();
   const { id } = useParams();
   const [
     { filter, filterAdvanced },
@@ -67,7 +67,6 @@ const ContentListView: React.FC = () => {
   const castContentToSearchResult = useCastContentToSearchResult();
 
   const [contentType] = React.useState(formType ?? ContentTypeName.AudioVideo);
-  const [isLoading, setIsLoading] = React.useState(false);
 
   const [, { findWorkOrders }] = useWorkOrders();
   // This configures the shared storage between this list and any content tabs
@@ -206,78 +205,69 @@ const ContentListView: React.FC = () => {
   const fetch = React.useCallback(
     async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
       try {
-        if (!isLoading) {
-          setIsLoading(true);
-
-          let workOrders: IPaged<IWorkOrderModel> = {
-            page: 0,
-            quantity: 0,
-            total: 0,
-            items: [],
+        let workOrders: IPaged<IWorkOrderModel> = {
+          page: 0,
+          quantity: 0,
+          total: 0,
+          items: [],
+        };
+        if (filter.pendingTranscript) {
+          // Make a request for transcript work orders.
+          const startDate = moment().add(-3, 'day').startOf('day');
+          const endDate = moment().endOf('day');
+          const woFilter: IWorkOrderFilter = {
+            page: 1,
+            quantity: 1000,
+            createdStartOn: startDate.toISOString(),
+            createdEndOn: endDate.toISOString(),
+            workType: WorkOrderTypeName.Transcription,
+            status: [
+              WorkOrderStatusName.Submitted,
+              WorkOrderStatusName.InProgress,
+              WorkOrderStatusName.Completed,
+              WorkOrderStatusName.Failed,
+            ],
           };
-          if (filter.pendingTranscript) {
-            // Make a request for transcript work orders.
-            const startDate = moment().add(-3, 'day').startOf('day');
-            const endDate = moment().endOf('day');
-            const woFilter: IWorkOrderFilter = {
-              page: 1,
-              quantity: 1000,
-              createdStartOn: startDate.toISOString(),
-              createdEndOn: endDate.toISOString(),
-              workType: WorkOrderTypeName.Transcription,
-              status: [
-                WorkOrderStatusName.Submitted,
-                WorkOrderStatusName.InProgress,
-                WorkOrderStatusName.Completed,
-                WorkOrderStatusName.Failed,
-              ],
-            };
 
-            const response = await findWorkOrders(woFilter);
-            workOrders = response.data;
-            filter.contentIds = workOrders.items
-              .filter((wo) => !!wo.contentId)
-              .map((wo) => wo.contentId!);
-          }
-
-          const doSearch =
-            !filter.pendingTranscript || (filter.pendingTranscript && workOrders.items.length);
-          const searchResults: KnnSearchResponse<IContentModel> = doSearch
-            ? await findContentWithElasticsearch(toFilter(filter), true)
-            : ({
-                hits: { hits: [], total: { value: 0 } },
-              } as unknown as KnnSearchResponse<IContentModel>);
-          let items = searchResults.hits?.hits?.map((h) =>
-            castContentToSearchResult(h._source as IContentModel),
-          );
-
-          if (filter.pendingTranscript) {
-            // Apply the transcript work order to the content.
-            items = items
-              .filter((content) => !content.isApproved)
-              .map((content) => {
-                const workOrder = workOrders.items.find((wo) => wo.contentId === content.id);
-                return { ...content, transcriptStatus: workOrder?.status };
-              });
-          }
-
-          const page = new Page(
-            filter.pageIndex,
-            filter.pageSize,
-            items,
-            (searchResults.hits?.total as SearchTotalHits).value,
-          );
-          setCurrentResultsPage(page);
-          return page;
+          const response = await findWorkOrders(woFilter);
+          workOrders = response.data;
+          filter.contentIds = workOrders.items
+            .filter((wo) => !!wo.contentId)
+            .map((wo) => wo.contentId!);
         }
-      } catch {
-      } finally {
-        setIsLoading(false);
-      }
+
+        const doSearch =
+          !filter.pendingTranscript || (filter.pendingTranscript && workOrders.items.length);
+        const searchResults: KnnSearchResponse<IContentModel> = doSearch
+          ? await findContentWithElasticsearch(toFilter(filter), true)
+          : ({
+              hits: { hits: [], total: { value: 0 } },
+            } as unknown as KnnSearchResponse<IContentModel>);
+        let items = searchResults.hits?.hits?.map((h) =>
+          castContentToSearchResult(h._source as IContentModel),
+        );
+
+        if (filter.pendingTranscript) {
+          // Apply the transcript work order to the content.
+          items = items
+            .filter((content) => !content.isApproved)
+            .map((content) => {
+              const workOrder = workOrders.items.find((wo) => wo.contentId === content.id);
+              return { ...content, transcriptStatus: workOrder?.status };
+            });
+        }
+
+        const page = new Page(
+          filter.pageIndex,
+          filter.pageSize,
+          items,
+          (searchResults.hits?.total as SearchTotalHits).value,
+        );
+        setCurrentResultsPage(page);
+        return page;
+      } catch {}
     },
-    // 'isLoading' will result in an infinite loop for some reason.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [findContentWithElasticsearch, toFilter],
+    [castContentToSearchResult, findContentWithElasticsearch, toFilter, findWorkOrders],
   );
 
   React.useEffect(() => {
@@ -414,6 +404,9 @@ const ContentListView: React.FC = () => {
               itemsPerPage={currentResultsPage.pageSize}
               totalItems={currentResultsPage.total}
               showPaging
+              isLoading={requests.some(
+                (r) => r.url === 'find-work-orders' || r.url === 'find-contents-with-elasticsearch',
+              )}
               onNavigatePage={async (page) => {
                 handlePageChange(page);
               }}

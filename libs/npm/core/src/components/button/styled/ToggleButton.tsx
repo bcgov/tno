@@ -5,7 +5,11 @@ import { IToggleButtonProps } from '../ToggleButton';
 export const ToggleButton = styled.div<Partial<IToggleButtonProps>>`
   display: flex;
   color: ${(props) =>
-    props.disabled ? props.theme.css.linkGrayColor : props.theme.css.linkPrimaryColor};
+    props.color
+      ? props.color
+      : props.disabled
+      ? props.theme.css.linkGrayColor
+      : props.theme.css.linkPrimaryColor}; // If not disabled, use the primary color from the theme
 
   > div {
     display: flex;
@@ -22,7 +26,11 @@ export const ToggleButton = styled.div<Partial<IToggleButtonProps>>`
 
     &:hover {
       color: ${(props) =>
-        props.disabled ? props.theme.css.linkGrayColor : props.theme.css.linkPrimaryHoverColor};
+        props.color
+          ? props.color
+          : props.disabled
+          ? props.theme.css.linkGrayColor
+          : props.theme.css.linkPrimaryHoverColor};
       cursor: ${(props) => (props.disabled ? 'unset' : 'pointer')};
     }
 

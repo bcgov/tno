@@ -2,7 +2,17 @@ import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
-import { IPaged, ITransferAccount, IUserFilter, IUserModel, useApiAdminUsers } from 'tno-core';
+import {
+  IPaged,
+  ITransferAccount,
+  IUserAVOverviewModel,
+  IUserFilter,
+  IUserModel,
+  IUserNotificationModel,
+  IUserProductModel,
+  IUserReportModel,
+  useApiAdminUsers,
+} from 'tno-core';
 
 interface IUserController {
   findUsers: (filter: IUserFilter, isSilent?: boolean) => Promise<IPaged<IUserModel>>;
@@ -12,6 +22,10 @@ interface IUserController {
   deleteUser: (model: IUserModel) => Promise<IUserModel>;
   transferAccount: (model: ITransferAccount) => Promise<IUserModel>;
   getDistributionListById: (id: number) => Promise<IUserModel[]>;
+  getUserProductSubscriptions: (id: number) => Promise<IUserProductModel[]>;
+  getUserReportSubscriptions: (id: number) => Promise<IUserReportModel[]>;
+  getUserEveningOverviewSubscriptions: (id: number) => Promise<IUserAVOverviewModel[]>;
+  getUserNotificationSubscriptions: (id: number) => Promise<IUserNotificationModel[]>;
   storeFilter: (filter: IUserListFilter) => void;
 }
 
@@ -87,6 +101,32 @@ export const useUsers = (): [IAdminState, IUserController] => {
       getDistributionListById: async (id: number) => {
         const response = await dispatch<IUserModel[]>('get-distribution-list', () =>
           api.getDistributionListById(id),
+        );
+        return response.data;
+      },
+      getUserProductSubscriptions: async (id: number) => {
+        const response = await dispatch<IUserProductModel[]>('get-user-product-subscriptions', () =>
+          api.getUserProductSubscriptions(id),
+        );
+        return response.data;
+      },
+      getUserReportSubscriptions: async (id: number) => {
+        const response = await dispatch<IUserReportModel[]>('get-user-report-subscriptions', () =>
+          api.getUserReportSubscriptions(id),
+        );
+        return response.data;
+      },
+      getUserEveningOverviewSubscriptions: async (id: number) => {
+        const response = await dispatch<IUserAVOverviewModel[]>(
+          'get-user-evening-overview-subscriptions',
+          () => api.getUserEveningOverviewSubscriptions(id),
+        );
+        return response.data;
+      },
+      getUserNotificationSubscriptions: async (id: number) => {
+        const response = await dispatch<IUserNotificationModel[]>(
+          'get-user-notification-subscriptions',
+          () => api.getUserNotificationSubscriptions(id),
         );
         return response.data;
       },

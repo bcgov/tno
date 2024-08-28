@@ -50,9 +50,21 @@ export const getChartData = (
   // Extract unique values to map to the axis labels.
   const groups =
     options.groups ??
-    getDistinct(content, (d) => options.groupOn(d)).map((s) => options.groupOn(s));
+    getDistinct(content, (d) => options.groupOn(d))
+      .map((s) => options.groupOn(s))
+      .sort((a, b) => {
+        if ((a === undefined || a === null) && (b === undefined || b === null)) return 0;
+        if (a === undefined || a === null) return -1;
+        if (b === undefined || b === null) return 1;
+        if (a < b) return -1;
+        if (a > b) return 1;
+        return 0;
+      });
+
+  // Extract the appropriate label for each grouping.
+  // Sort by the label name by default.
+  // Need to align the content values with the new sort order.
   const labels = groups.map((group) => {
-    // For each group get the label text.
     const label =
       options.getLabel?.(content.find((item) => options.isInGroup?.(item, group))) ??
       (group ? `${group}` : undefined) ??

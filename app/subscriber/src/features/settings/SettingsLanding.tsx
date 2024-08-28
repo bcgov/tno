@@ -6,6 +6,7 @@ import { FaCog } from 'react-icons/fa';
 import { Col, Row, Show } from 'tno-core';
 
 import { SettingsSessionEnum } from './constants/SettingsSessionEnum';
+import MyAccountSettings from './MyAccountSettings';
 import { MyMinisterSettings } from './MyMinisterSettings';
 import * as styled from './styled';
 
@@ -21,6 +22,16 @@ export const SettingsLanding: React.FC<{}> = () => {
       <Col className="left-side">
         <PageSection header="Settings" includeHeaderIcon className="menuPanel">
           <div className="link-box-container">
+            <div className="link-box" onClick={() => show(SettingsSessionEnum.MyAccount)}>
+              <h2>
+                <FaCog className="list-icon" />
+                <span>My Account</span>
+              </h2>
+              <div className="description">
+                Alerts are configurable search queries that will send stories to you when they meet
+                your query criteria.
+              </div>
+            </div>
             <div className="link-box" onClick={() => show(SettingsSessionEnum.MyMinister)}>
               <h2>
                 <FaCog className="list-icon" />
@@ -47,6 +58,24 @@ export const SettingsLanding: React.FC<{}> = () => {
       </Col>
       <Show visible={true}>
         <Col className="right-side">
+          <Show visible={session === SettingsSessionEnum.MyAccount}>
+            <PageSection
+              header={
+                <Row className="header-row">
+                  <div className="title">My Account</div>
+                  <Action
+                    variant="close"
+                    className="close-button"
+                    title="Revert"
+                    onClick={() => setSession('')}
+                  />
+                </Row>
+              }
+              includeHeaderIcon
+            >
+              <MyAccountSettings />
+            </PageSection>
+          </Show>
           <Show visible={session === SettingsSessionEnum.MyMinister}>
             <PageSection
               header={

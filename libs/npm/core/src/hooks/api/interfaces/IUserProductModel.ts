@@ -4,12 +4,16 @@ import {
   ReportDistributionFormatName,
   UserAccountTypeName,
 } from '../constants';
+import { IAuditColumnsModel } from './IAuditColumnsModel';
+import { IProductModel } from './IProductModel';
 
-export interface IUserProductModel {
+export interface IUserProductModel extends IAuditColumnsModel {
   /** Foreign key to user */
   userId: number;
   /** Foreign key to report */
   productId: number;
+  /** The product. */
+  product?: IProductModel;
   /** The status of the user product. */
   status: ProductRequestStatusName;
 
@@ -30,7 +34,4 @@ export interface IUserProductModel {
   lastName: string;
   isEnabled: boolean;
   accountType: UserAccountTypeName;
-
-  /** Table row version */
-  version?: number;
 }

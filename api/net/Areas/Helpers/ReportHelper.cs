@@ -207,7 +207,7 @@ public class ReportHelper : IReportHelper
         });
 
         var result = await GenerateReportAsync(model, null, sections, viewOnWebOnly, isPreview);
-        result.Data = elasticResults;
+        result.Data = JsonDocument.Parse(JsonSerializer.Serialize(elasticResults));
         return result;
 
         throw new NotImplementedException($"Report template type '{model.Template.ReportType.GetName()}' has not been implemented");
@@ -254,7 +254,7 @@ public class ReportHelper : IReportHelper
         var template = _overviewTemplateService.FindById(instance.TemplateType) ?? throw new InvalidOperationException($"AV overview template '{instance.TemplateType.GetName()}' not found.");
         if (template.Template == null) throw new InvalidOperationException($"Report template '{instance.TemplateType.GetName()}' not found.");
         var result = await GenerateReportAsync(new Areas.Services.Models.AVOverview.ReportTemplateModel(template.Template, _serializerOptions), instance, isPreview);
-        result.Data = instance;
+        result.Data = JsonDocument.Parse(JsonSerializer.Serialize(instance));
         return result;
     }
 

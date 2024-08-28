@@ -99,20 +99,6 @@ export const ChartPicker: React.FC<IChartSectionProps> = ({ sectionIndex, chartI
 
         <Col className="frm-in">
           <label>Axis</label>
-          <p>Choose how your chart axis is displayed.</p>
-          <FormikCheckbox
-            label="Stack Dataset"
-            name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.stacked`}
-            checked={!!chart.sectionSettings.stacked}
-            onChange={(e) => {
-              setFieldValue(
-                `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
-                mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                  stacked: e.target.checked,
-                }),
-              );
-            }}
-          />
           <FormikCheckbox
             label="Flip X and Y axis"
             name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.isHorizontal`}

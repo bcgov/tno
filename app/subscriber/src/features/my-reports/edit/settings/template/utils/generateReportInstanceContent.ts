@@ -15,7 +15,7 @@ export const generateReportInstanceContent = (
 ): IReportInstanceContentModel => {
   const ric: IReportInstanceContentModel = {
     instanceId: 0,
-    sectionName: `Section ${generateRandom(1, 10)}`,
+    sectionName: `Section ${options._id}`,
     contentId: options.content?.id ?? 0,
     content: options.content,
     sortOrder: 0,
@@ -35,23 +35,24 @@ interface IGenerateReportInstanceContentsOptions {
 }
 
 export const generateReportInstanceContents = (options: IGenerateReportInstanceContentsOptions) => {
-  const quantity = Math.ceil(
-    Math.random() * (options.sections.max - options.sections.min) + options.sections.min,
-  );
+  const quantity = generateRandom(options.sections.min, options.sections.max);
   const sections = Array.from(Array(quantity).keys()).map((key) => {
     return generateReportSection({ _id: key });
   });
-  const sectionsFlat: Record<string, IReportInstanceContentModel[]> = {};
+  const sectionDict: Record<string, IReportInstanceContentModel[]> = {};
 
   // Flatten sections into array of content.
   sections.forEach((section) => {
     // Generate random content for this section.
-    const content = generateContents(options.content.min, options.content.max);
+    const content = generateContents(options.content.min, options.content.max).sort((a, b) =>
+      a.sourceId ?? 0 < (b.sourceId ?? 0) ? -1 : a.sourceId ?? 0 > (b.sourceId ?? 0) ? 1 : 0,
+    );
     const ric = content.map((c) => generateReportInstanceContent({ _id: section.id, content: c }));
-    sectionsFlat[section.name] = ric;
+    sectionDict[section.name] = ric;
   });
 
-  return Object.entries(sectionsFlat)
+  return Object.entries(sectionDict)
     .map(([k, v]) => v)
-    .flat();
+    .flat()
+    .sort((a, b) => (a.sectionName < b.sectionName ? -1 : a.sectionName > b.sectionName ? 1 : 0));
 };

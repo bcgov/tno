@@ -88,4 +88,10 @@ export const Grid = styled.div<IGridProps>`
       }
     }
   }
+
+  .grid-loading {
+    top: initial;
+    left: initial;
+    height: initial;
+  }
 `;

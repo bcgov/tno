@@ -150,6 +150,11 @@ spec:
                 configMapKeyRef:
                   name: reporting-service
                   key: MAX_FAIL_LIMIT
+            - name: Service__ResendOnFailure
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-service
+                  key: RESEND_ON_FAILURE
             - name: Service__Topics
               valueFrom:
                 configMapKeyRef:

@@ -93,6 +93,19 @@ export const ConfigureDataset: React.FC<IChartSectionProps> = ({ sectionIndex, c
             isClearable={false}
             required
           />
+          <FormikCheckbox
+            label="Stack Dataset"
+            name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.stacked`}
+            checked={!!chart.sectionSettings.stacked}
+            onChange={(e) => {
+              setFieldValue(
+                `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                  stacked: e.target.checked,
+                }),
+              );
+            }}
+          />
         </Show>
         <Show visible={!!chart.settings.groupBy.length}>
           <p>

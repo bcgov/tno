@@ -132,7 +132,7 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
                 {
                     this.Logger.LogError(ex, "Service had an unexpected failure.");
                     this.State.RecordFailure();
-                    await this.SendEmailAsync("Service had an Unexpected Failure", ex);
+                    await this.SendErrorEmailAsync("Service had an Unexpected Failure", ex);
                 }
             }
 
@@ -243,7 +243,7 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
         catch (HttpClientRequestException ex)
         {
             this.Logger.LogError(ex, "HTTP exception while consuming. {response}", ex.Data["body"] ?? "");
-            await this.SendEmailAsync("HTTP exception while consuming. {response}", ex);
+            await this.SendErrorEmailAsync("HTTP exception while consuming. {response}", ex);
         }
     }
 

@@ -83,7 +83,6 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
                           isHorizontal: false,
                           showDataLabels: false,
                           width: 500,
-                          height: 500,
                           options: { ...chart.settings?.options },
                         },
                       };

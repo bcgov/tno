@@ -123,6 +123,19 @@ public class User : AuditColumns
     public JsonDocument Preferences { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
+    /// Get the value of the isVacationMode property from Preferences.
+    /// </summary>
+    /// <returns>Returns true if isVacationMode is set to true, otherwise false.</returns>
+    public bool IsVacationMode()
+    {
+        if (Preferences.RootElement.TryGetProperty("isVacationMode", out JsonElement isVacationModeElement))
+        {
+            return isVacationModeElement.GetBoolean();
+        }
+        return false;
+    }
+
+    /// <summary>
     /// get/set - Number of allowed unique logins (0 means infinite).
     /// </summary>
     [Column("unique_logins")]

@@ -215,7 +215,7 @@ public class ReportInstanceController : ControllerBase
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to send this report"); // User does not own the report
 
-        var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, instance.ReportId, instance.Id, new { })
+        var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, instance.ReportId, instance.Id, JsonDocument.Parse("{}"))
         {
             RequestorId = user.Id,
             To = to,
@@ -247,7 +247,7 @@ public class ReportInstanceController : ControllerBase
         instance.Status = new[] { Entities.ReportStatus.Pending, Entities.ReportStatus.Reopen }.Contains(instance.Status) ? Entities.ReportStatus.Submitted : instance.Status;
         instance = _reportInstanceService.UpdateAndSave(instance);
 
-        var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, instance.ReportId, instance.Id, new { })
+        var request = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, instance.ReportId, instance.Id, JsonDocument.Parse("{}"))
         {
             RequestorId = user.Id,
             Resend = resend || instance.Status == Entities.ReportStatus.Reopen,

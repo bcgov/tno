@@ -1,7 +1,7 @@
 import { ScreenSizes } from 'components/layout/constants';
 import React from 'react';
 import { BiLogOut } from 'react-icons/bi';
-import { FaChevronCircleDown, FaUserCircle } from 'react-icons/fa';
+import { FaChevronCircleDown, FaUmbrellaBeach, FaUserCircle } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 import { useUsers } from 'store/hooks';
@@ -20,6 +20,11 @@ export const UserProfile: React.FC = () => {
   const { getUser } = useUsers();
 
   const [profileMenu, setProfileMenu] = React.useState(false);
+
+  const isVacationMode: boolean = !!impersonate
+    ? impersonate?.preferences?.isVacationMode ?? false
+    : profile?.preferences?.isVacationMode ?? false;
+  const [showVacationMode, setShowVacationMode] = React.useState(false);
 
   const isAdmin = keycloak.hasClaim(Claim.administrator);
 
@@ -41,8 +46,29 @@ export const UserProfile: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.preferences?.impersonate, impersonate, storeImpersonate]);
 
+  React.useEffect(() => {
+    if (isVacationMode !== undefined) {
+      setShowVacationMode(isVacationMode);
+    }
+  }, [isVacationMode]);
+
+  const handleVacationModeToggle = React.useCallback(() => {
+    setShowVacationMode(false);
+  }, [setShowVacationMode]);
+
   return (
     <styled.UserProfile>
+      <Row>
+        {showVacationMode && (
+          <span className="vacation-mode-label">
+            <FaUmbrellaBeach className="icon" />
+            Vacation mode enabled
+            <span className="close-button" onClick={handleVacationModeToggle}>
+              [x]
+            </span>
+          </span>
+        )}
+      </Row>
       <Row
         data-tooltip-id="my-info"
         direction="row"
