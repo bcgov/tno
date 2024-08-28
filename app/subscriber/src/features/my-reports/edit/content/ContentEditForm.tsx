@@ -7,8 +7,11 @@ import { toForm } from 'features/my-reports/utils';
 import { formatDate } from 'features/utils';
 import React from 'react';
 import { useApp, useContent, useReports } from 'store/hooks';
-import { Col, ContentTypeName, IContentModel } from 'tno-core';
+import { useTonePool } from 'store/hooks/subscriber/useTonePool';
+import { useProfileStore } from 'store/slices';
+import { Col, ContentTypeName, IContentModel, IContentTonePoolModel } from 'tno-core';
 
+import { defaultTonePool } from '../constants/defaultTonePool';
 import { useReportEditContext } from '../ReportEditContext';
 import { ContentActions, ContentForm, UserContentForm } from './stories';
 import * as styled from './styled';
@@ -27,16 +30,66 @@ export interface IContentEditFormProps {
 export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentEditFormProps>(
   ({ disabled }, ref) => {
     const [{ userInfo }] = useApp();
+    const [{ myTonePool, init }, { storeMyTonePool }] = useProfileStore();
     const [, { updateReport }] = useReports();
     const [, { addContent, updateContentSilent, getContent }] = useContent();
+    const [, { addMyTonePool, getMyTonePool }] = useTonePool();
     const { values, onNavigate, isSubmitting, setSubmitting, setValues, activeRow, setActiveRow } =
       useReportEditContext();
 
     const [form, setForm] = React.useState<IReportInstanceContentForm | undefined>(activeRow);
     const [errors, setErrors] = React.useState<IContentValidationErrors>();
+    const [userFormTonePool, setUserFormTonePool] = React.useState<
+      IContentTonePoolModel | undefined
+    >(undefined);
 
     const instance = values.instances.length ? values.instances[0] : undefined;
     const userId = userInfo?.id ?? 0;
+
+    React.useEffect(() => {
+      const getTonePool = async () => {
+        try {
+          if (!init.myTonePool && userId !== 0) {
+            const response = await getMyTonePool(userId);
+            if (response?.id) {
+              storeMyTonePool(response);
+            } else {
+              // If no valid tone pool exists, proceed to create one
+              await createTonePool(userId);
+            }
+          }
+        } catch (error) {
+          console.error('Error loading tone pool:', error);
+        } finally {
+        }
+      };
+
+      const createTonePool = async (userId: number) => {
+        try {
+          await addMyTonePool({
+            ...defaultTonePool,
+            name: `${userId}`,
+            ownerId: userId,
+          });
+          const newTonePool = await getMyTonePool(userId);
+          storeMyTonePool(newTonePool);
+        } catch (error) {
+          console.error('Error creating tone pool:', error);
+        } finally {
+        }
+      };
+
+      if (myTonePool.id === 0) {
+        getTonePool();
+      }
+    }, [getMyTonePool, addMyTonePool, myTonePool.id, userId, init.myTonePool, storeMyTonePool]);
+
+    React.useEffect(() => {
+      const updatedUserFormTonePool =
+        form?.content?.tonePools?.find((pool) => pool.ownerId === userId) || undefined;
+
+      setUserFormTonePool(updatedUserFormTonePool);
+    }, [form?.content?.tonePools, userId]);
 
     React.useEffect(() => {
       setForm(activeRow);
@@ -257,7 +310,13 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
             </Col>
             <Col className="sentiment">
               <Sentiment
-                value={form.content.tonePools.length ? form.content.tonePools[0].value : undefined}
+                value={
+                  userFormTonePool
+                    ? userFormTonePool.value
+                    : form?.content?.tonePools && form.content.tonePools.length > 0
+                    ? form.content.tonePools[0].value
+                    : undefined
+                }
                 showValue
               />
             </Col>

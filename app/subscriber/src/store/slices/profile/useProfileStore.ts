@@ -8,6 +8,7 @@ import {
   IReportModel,
   ISubscriberUserModel,
   ISystemMessageModel,
+  ITonePoolModel,
   IUserColleagueModel,
 } from 'tno-core';
 
@@ -21,6 +22,7 @@ import {
   storeMyMessages,
   storeMyProfile,
   storeMyReports,
+  storeMyTonePool,
   storeReportContent,
   storeReportOutput,
   storeReportsFilter,
@@ -54,6 +56,7 @@ export interface IProfileStore {
   storeMyMessages: (
     messages: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
   ) => void;
+  storeMyTonePool: (tonePool: ITonePoolModel | ActionDelegate<ITonePoolModel>) => void;
 }
 
 export const useProfileStore = (): [IProfileState, IProfileStore] => {
@@ -138,6 +141,13 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
           dispatch(storeMyMessages(messages(state.messages)));
         } else dispatch(storeMyMessages(messages));
       },
+      storeMyTonePool: (tonePool: ITonePoolModel | ActionDelegate<ITonePoolModel>) => {
+        if (typeof tonePool === 'function') {
+          dispatch(storeMyTonePool(tonePool(state.myTonePool)));
+        } else {
+          dispatch(storeMyTonePool(tonePool));
+        }
+      },
     }),
     [
       dispatch,
@@ -153,6 +163,7 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
       state.reportContent,
       state.contributors,
       state.messages,
+      state.myTonePool,
     ],
   );
 

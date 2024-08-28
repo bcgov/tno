@@ -25,6 +25,7 @@ import {
   StorageKeys,
   useApiSubscriberCache,
   useApiSubscriberMinisters,
+  useApiSubscriberTonePools,
 } from 'tno-core';
 
 import { useAjaxWrapper } from '..';
@@ -44,6 +45,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
   const cache = useApiSubscriberCache();
   const lookups = useApiLookups();
   const ministers = useApiSubscriberMinisters();
+  const tonePools = useApiSubscriberTonePools();
 
   const controller = React.useMemo(
     () => ({
@@ -156,13 +158,27 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           'lookup',
         );
       },
+      getTonePools: async () => {
+        return await fetchIfNoneMatch<ITonePoolModel[]>(
+          StorageKeys.TonePools,
+          dispatch,
+          (etag) => tonePools.getTonePools(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeTonePools(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
       init: async () => {
         // TODO: Handle failures
         await controller.getLookups();
         store.storeIsReady(true);
       },
     }),
-    [cache, dispatch, lookups, ministers, store],
+    [cache, dispatch, lookups, ministers, tonePools, store],
   );
 
   return [state, controller];

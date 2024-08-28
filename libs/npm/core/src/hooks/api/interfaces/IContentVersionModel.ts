@@ -9,4 +9,5 @@ export interface IContentVersionModel extends IAuditColumnsModel {
   page?: string;
   summary?: string;
   body?: string;
+  tone?: number;
 }

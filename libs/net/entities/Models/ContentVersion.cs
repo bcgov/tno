@@ -56,6 +56,10 @@ public class ContentVersion
     /// </summary>
     public bool IsPrivate { get; set; } = false;
 
+    /// <summary>
+    /// get/set - Tone for the content
+    /// </summary>
+    public int? Tone {get;set;}
 
     #endregion
 
@@ -82,6 +86,7 @@ public class ContentVersion
         this.Body = content.Body;
         this.SourceUrl = content.SourceUrl;
         this.IsPrivate = content.IsPrivate;
+        this.Tone = content.TonePools.Count > 0 ? (int?)content.TonePools[0].Id : null;
     }
 
     /// <summary>

@@ -163,6 +163,8 @@ public static class ContentExtensions
             }
         });
 
+        var tonePoolsToAdd = new List<ContentTonePool>();
+
         oTonePools.Except(updated.TonePoolsManyToMany).ForEach(a =>
         {
             context.Entry(a).State = EntityState.Deleted;
@@ -171,14 +173,23 @@ public static class ContentExtensions
         {
             var current = a.TonePoolId != 0 ? oTonePools.FirstOrDefault(o => o.TonePoolId == a.TonePoolId) : null;
             if (current == null)
-                original.TonePoolsManyToMany.Add(a);
+            {
+                a.TonePool ??= context.TonePools.FirstOrDefault(tp => tp.Id == a.TonePoolId);
+                tonePoolsToAdd.Add(a);
+            }
             else if (current.Value != a.Value)
             {
                 current.Value = a.Value;
                 current.Version = a.Version;
             }
         });
-
+        tonePoolsToAdd.ForEach(a => {
+            if (a.TonePool != null &&
+                !original.TonePoolsManyToMany.Any(x => x.TonePool != null && x.TonePool.Id == a.TonePool.Id))
+            {
+                original.TonePoolsManyToMany.Add(a);
+            }
+        });
         oTimeTrackings.Except(updated.TimeTrackings).ForEach(a =>
         {
             context.Entry(a).State = EntityState.Deleted;

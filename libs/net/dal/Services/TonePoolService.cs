@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TNO.DAL.Extensions;
 using TNO.Entities;
 
 namespace TNO.DAL.Services;
@@ -23,5 +24,19 @@ public class TonePoolService : BaseService<TonePool, int>, ITonePoolService
             .AsNoTracking()
             .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
     }
+
+    public TonePool? FindByUserId(int userId)
+    {
+        return this.Context.TonePools.FirstOrDefault(tp => tp.OwnerId == userId && tp.IsPublic == true);
+    }
+
+    public override TonePool AddAndSave(TonePool entity)
+    {
+        entity.AddToContext(this.Context);
+        var result = base.AddAndSave(entity);
+
+        return result;
+    }
+
     #endregion
 }
