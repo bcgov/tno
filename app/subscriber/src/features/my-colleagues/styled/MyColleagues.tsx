@@ -1,6 +1,30 @@
 import styled from 'styled-components';
 
 export const MyColleagues = styled.div`
+  .header-row {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    color: #333;
+    margin-top: 0.5rem;
+    margin-bottom: 0.25rem;
+    margin-left: 0.75rem;
+    border-bottom: 1px solid #ccc;
+
+    .icon {
+      font-size: 1.2rem;
+      margin-right: 0.75rem;
+    }
+
+    .header-text {
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+  }
+
+  .description {
+    margin-left: 2.8rem;
+  }
   .txt-filter {
     flex-direction: row;
     align-items: center;

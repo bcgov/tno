@@ -109,7 +109,7 @@ export const SettingsLanding: React.FC<{}> = () => {
               }
               includeHeaderIcon
             >
-              <MyColleaguesLanding inFrame={true} />
+              <MyColleaguesLanding />
             </PageSection>
           </Show>
         </Col>
