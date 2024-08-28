@@ -98,8 +98,8 @@ export const UserProfile: React.FC = () => {
         <hr />
         <ul>
           <li>
-            <Link to="/colleagues" onClick={(e) => setProfileMenu(false)}>
-              Colleagues
+            <Link to="/settings" onClick={(e) => setProfileMenu(false)}>
+              Settings
             </Link>
           </li>
           {isAdmin && (
