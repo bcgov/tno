@@ -50,4 +50,10 @@ export const FormikSentiment = styled.div.attrs<IFormikSentimentProps<any>>(({ r
       color: red;
     }
   }
+
+  .tone-icon {
+    font-size: 1.4rem;
+    margin-bottom: 0rem;
+    margin-left: 0.5rem;
+  }
 `;

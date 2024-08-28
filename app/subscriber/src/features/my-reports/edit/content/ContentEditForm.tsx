@@ -215,7 +215,14 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
             </Col>
             <Col className="sentiment">
               <Sentiment
-                value={form.content.tonePools.length ? form.content.tonePools[0].value : undefined}
+                value={
+                  form.content.versions?.[userId]?.tone !== undefined &&
+                  form.content.versions?.[userId]?.tone !== null
+                    ? form.content.versions?.[userId]?.tone
+                    : form.content.tonePools.length
+                    ? form.content.tonePools[0].value
+                    : undefined
+                }
                 showValue
               />
             </Col>

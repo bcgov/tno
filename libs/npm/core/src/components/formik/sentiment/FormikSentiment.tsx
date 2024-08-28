@@ -1,5 +1,6 @@
 import { getIn, useFormikContext } from 'formik';
 import React from 'react';
+import { FaFrown, FaMeh, FaSmile } from 'react-icons/fa';
 
 import FaceFrownOpen from '../../../assets/face-frown-open.svg';
 import FaceGrinWide from '../../../assets/face-grin-wide.svg';
@@ -17,10 +18,14 @@ export interface IFormikSentimentProps<T> {
   label?: string;
   /** Sentiment options. */
   options: ITonePoolModel[];
+  /** Sentiment icon colored */
+  coloredIcon?: boolean;
   /** The name of the default tone pool */
   defaultTonePoolName?: string;
   /** The id of the default tone pool */
   defaultTonePoolId?: number;
+  /** Update upper form */
+  onSentimentChange?: (tonePools: any) => void;
   /** Whether this field is required. */
   required?: boolean;
 }
@@ -34,8 +39,10 @@ export const FormikSentiment = <T extends object>({
   name,
   label = 'Sentiment',
   options,
+  coloredIcon = false,
   defaultTonePoolId,
   defaultTonePoolName = 'Default',
+  onSentimentChange,
   ...rest
 }: IFormikSentimentProps<T>) => {
   const { values, setFieldValue, touched, errors } = useFormikContext<T>();
@@ -44,8 +51,10 @@ export const FormikSentiment = <T extends object>({
     name,
     label,
     options,
+    coloredIcon,
     defaultTonePoolId,
     defaultTonePoolName,
+    onSentimentChange,
     ...rest,
   };
   const defaultTonePool = options.find(
@@ -68,11 +77,23 @@ export const FormikSentiment = <T extends object>({
 
   const determineIndicator = (option: number) => {
     if (option === 5) {
-      return <img alt={option.toString()} src={FaceGrinWide} />;
+      return coloredIcon ? (
+        <FaSmile className="tone-icon" color="#59E9BE" />
+      ) : (
+        <img alt={option.toString()} src={FaceGrinWide} />
+      );
     } else if (option === 0) {
-      return <img alt={option.toString()} src={FaceMeh} />;
+      return coloredIcon ? (
+        <FaMeh className="tone-icon" color="#F1C02D" />
+      ) : (
+        <img alt={option.toString()} src={FaceMeh} />
+      );
     } else if (option === -5) {
-      return <img alt={option.toString()} src={FaceFrownOpen} />;
+      return coloredIcon ? (
+        <FaFrown className="tone-icon" color="#EB8585" />
+      ) : (
+        <img alt={option.toString()} src={FaceFrownOpen} />
+      );
     } else {
       return <span className="blank">&nbsp;</span>;
     }
@@ -92,11 +113,11 @@ export const FormikSentiment = <T extends object>({
               key={option}
               onClick={() => {
                 setActive(option);
-                setFieldValue(
-                  name.toString(),
-                  !!defaultTonePool ? [{ ...defaultTonePool, value: option }] : [],
-                  true,
-                );
+                const updatedTonePools = !!defaultTonePool
+                  ? [{ ...defaultTonePool, value: option }]
+                  : [];
+                setFieldValue(name.toString(), updatedTonePools, true);
+                onSentimentChange?.(updatedTonePools);
               }}
             >
               {option}

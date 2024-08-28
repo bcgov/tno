@@ -1,9 +1,11 @@
+import { Form, Formik } from 'formik';
 import React from 'react';
-import { useApp } from 'store/hooks';
+import { useApp, useLookup } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 import {
   Col,
   ContentTypeName,
+  FormikSentiment,
   IContentModel,
   Loading,
   Show,
@@ -11,6 +13,8 @@ import {
   TextArea,
   Wysiwyg,
 } from 'tno-core';
+
+import { sentimentFormSchema } from '../../validation/SentimentFormSchema';
 
 export interface IContentFormProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'content'> {
   /** The content being edited */
@@ -43,20 +47,47 @@ export const ContentForm: React.FC<IContentFormProps> = ({
 }) => {
   const [{ userInfo }] = useApp();
   const [{ impersonate }] = useProfileStore();
+  const [{ tonePools }] = useLookup();
 
   if (!content) return null;
 
   const userId = impersonate?.id ?? userInfo?.id ?? 0;
   const isAV = content.contentType === ContentTypeName.AudioVideo;
-  const versions = content.versions?.[userId] ?? {
-    byline: content.byline,
-    headline: content.headline,
-    summary: '',
-    body: isAV
-      ? content.isApproved && content.body
-        ? content.body
-        : content.summary
-      : content.body,
+
+  const sentiment =
+    content.versions?.[userId]?.tone !== undefined && content.versions?.[userId]?.tone != null
+      ? content.versions?.[userId]?.tone
+      : content.tonePools.length
+      ? content.tonePools[0].value
+      : undefined;
+
+  const versions = {
+    ...content.versions?.[userId],
+    byline: content.versions?.[userId]?.byline ?? content.byline,
+    headline: content.versions?.[userId]?.headline ?? content.headline,
+    summary: content.versions?.[userId]?.summary ?? '',
+    body:
+      content.versions?.[userId]?.body ??
+      (isAV ? (content.isApproved && content.body ? content.body : content.summary) : content.body),
+    tonePools:
+      sentiment !== undefined && sentiment !== null
+        ? [{ value: sentiment, id: tonePools[0].id }]
+        : [],
+  };
+
+  const handleSentimentChange = (newTonePools: any) => {
+    const validTonePools = Array.isArray(newTonePools) ? newTonePools : [];
+    const updatedContent = {
+      ...content,
+      versions: {
+        ...content.versions,
+        [userId]: {
+          ...content.versions?.[userId],
+          tone: validTonePools[0]?.value,
+        },
+      },
+    };
+    onContentChange?.(updatedContent);
   };
 
   return show === 'none' ? null : (
@@ -152,6 +183,19 @@ export const ContentForm: React.FC<IContentFormProps> = ({
             onContentChange?.(values);
           }}
         />
+        <Formik initialValues={versions} validationSchema={sentimentFormSchema} onSubmit={() => {}}>
+          {() => (
+            <Form>
+              <FormikSentiment
+                name="tonePools"
+                options={tonePools}
+                coloredIcon={true}
+                onSentimentChange={handleSentimentChange}
+                required
+              />
+            </Form>
+          )}
+        </Formik>
       </Show>
     </Col>
   );
