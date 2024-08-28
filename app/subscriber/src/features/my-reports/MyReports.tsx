@@ -12,7 +12,6 @@ import {
   IReportModel,
   Loading,
   MessageTargetKey,
-  ReportStatusName,
   Row,
   Show,
   useModal,
@@ -48,14 +47,12 @@ export const MyReports: React.FC = () => {
   hub.useHubEffect(MessageTargetKey.ReportStatus, async (message: IReportMessageModel) => {
     if (report) {
       try {
-        if (message.status === ReportStatusName.Accepted) {
-          const instance = await getReportInstance(message.id, false);
-          if (instance) {
-            setReport({
-              ...report,
-              instances: report.instances.map((i) => (i.id === message.id ? instance : i)),
-            });
-          }
+        const instance = await getReportInstance(message.id, false);
+        if (instance) {
+          setReport({
+            ...report,
+            instances: report.instances.map((i) => (i.id === message.id ? instance : i)),
+          });
         }
       } catch {}
     }

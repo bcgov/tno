@@ -221,6 +221,35 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     }
 
     /// <summary>
+    /// Add the request back to the queue.
+    /// </summary>
+    /// <typeparam name="ET"></typeparam>
+    /// <param name="message"></param>
+    /// <param name="ex"></param>
+    /// <returns></returns>
+    private async Task AddRequestToQueue<ET>(Message<string, ReportRequestModel> message, ET? ex = null)
+        where ET : Exception
+    {
+        var failureCount = message.Value.Data.GetElementValue<int?>(".failureCount") ?? 0;
+        if (this.Options.ResendOnFailure && failureCount < this.Options.ResendAttemptLimit)
+        {
+            message.Value.Resend = false;
+            var reportingException = ex as ReportingException;
+            if (reportingException != null)
+            {
+                message.Value.ReportInstanceId = reportingException.InstanceId;
+                message.Value.Data = JsonDocument.Parse(JsonSerializer.Serialize(new { reportingException.Error, FailureCount = failureCount + 1 }, _serializationOptions));
+            }
+            else
+            {
+                message.Value.Data = JsonDocument.Parse(JsonSerializer.Serialize(new { FailureCount = failureCount + 1 }, _serializationOptions));
+            }
+            // Add the report request back to Kafka so that it runs again.
+            await this.Api.SendMessageAsync(message.Value);
+        }
+    }
+
+    /// <summary>
     /// Retrieve a file from storage and send to Microsoft Cognitive Services. Obtain
     /// the report and update the content record accordingly.
     /// </summary>
@@ -228,10 +257,10 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <returns></returns>
     private async Task HandleMessageAsync(ConsumeResult<string, ReportRequestModel> result)
     {
-        var failureCount = result.Message.Value.Data.GetElementValue<int?>(".failureCount") ?? 0;
         var errorStatus = result.Message.Value.Data.GetElementValue<ReportingErrors?>(".error");
         if (errorStatus != null)
         {
+            var failureCount = result.Message.Value.Data.GetElementValue<int?>(".failureCount") ?? 0;
             this.Logger.LogInformation("Retrying report after failure. ReportId:{reportId} InstanceId:{instanceId} FailureStatus:{status} RetryCount:{count}",
                 result.Message.Value.ReportId,
                 result.Message.Value.ReportInstanceId,
@@ -263,12 +292,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             await this.SendErrorEmailAsync("Failed to handle message", ex);
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
 
-            result.Message.Value.ReportInstanceId = ex.InstanceId;
-            result.Message.Value.Data = JsonDocument.Parse(JsonSerializer.Serialize(new { ex.Error, FailureCount = failureCount + 1 }, _serializationOptions));
-            result.Message.Value.Resend = false;
             // Add the report request back to Kafka so that it runs again.
-            if (this.Options.ResendOnFailure && failureCount < this.Options.ResendAttemptLimit)
-                await this.Api.SendMessageAsync(result.Message.Value);
+            await AddRequestToQueue(result.Message, ex);
         }
         catch (HttpClientRequestException ex)
         {
@@ -276,11 +301,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             await this.SendErrorEmailAsync("HTTP exception while consuming. {response}", ex);
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
 
-            result.Message.Value.Resend = false;
-            result.Message.Value.Data = JsonDocument.Parse(JsonSerializer.Serialize(new { FailureCount = failureCount + 1 }, _serializationOptions));
             // Add the report request back to Kafka so that it runs again.
-            if (this.Options.ResendOnFailure && failureCount < this.Options.ResendAttemptLimit)
-                await this.Api.SendMessageAsync(result.Message.Value);
+            await AddRequestToQueue(result.Message, ex);
         }
         catch (Exception ex)
         {
@@ -288,11 +310,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             await this.SendErrorEmailAsync("Failed to handle message", ex);
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
 
-            result.Message.Value.Resend = false;
-            result.Message.Value.Data = JsonDocument.Parse(JsonSerializer.Serialize(new { FailureCount = failureCount + 1 }, _serializationOptions));
             // Add the report request back to Kafka so that it runs again.
-            if (this.Options.ResendOnFailure && failureCount < this.Options.ResendAttemptLimit)
-                await this.Api.SendMessageAsync(result.Message.Value);
+            await AddRequestToQueue(result.Message, ex);
         }
         finally
         {
@@ -324,6 +343,9 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                     if (instance != null)
                     {
                         await GenerateAndSendReportAsync(request, instance);
+
+                        if (instance.Status == ReportStatus.Failed)
+                            await AddRequestToQueue<Exception>(result.Message);
                     }
                     else
                         this.Logger.LogWarning("Report instance does not exist.  Report Instance: {id}", request.ReportInstanceId);
@@ -333,7 +355,10 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                     var report = await this.Api.GetReportAsync(request.ReportId);
                     if (report != null)
                     {
-                        await GenerateAndSendReportAsync(request, report);
+                        var instance = await GenerateAndSendReportAsync(request, report);
+
+                        if (instance != null && instance.Status == ReportStatus.Failed)
+                            await AddRequestToQueue<Exception>(result.Message);
                     }
                     else
                         this.Logger.LogWarning("Report does not exist.  Report: {id}", request.ReportId);
@@ -544,14 +569,16 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <param name="report"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    private async Task GenerateAndSendReportAsync(ReportRequestModel request, API.Areas.Services.Models.Report.ReportModel report)
+    private async Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> GenerateAndSendReportAsync(ReportRequestModel request, API.Areas.Services.Models.Report.ReportModel report)
     {
         (var instanceModel, var sectionContent) = await PopulateReportInstance(request, report);
         await SendReportAsync(request, report, instanceModel, sectionContent);
+        return instanceModel;
     }
 
     /// <summary>
     /// Determine if this request is to resend the report.
+    /// A resend will result in a report being sent to all subscribers again.
     /// </summary>
     /// <param name="request"></param>
     /// <param name="instance"></param>
@@ -559,6 +586,18 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     private static bool IsResend(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instance)
     {
         return request.Resend && !String.IsNullOrWhiteSpace(instance?.Subject) && !String.IsNullOrWhiteSpace(instance?.Body);
+    }
+
+    /// <summary>
+    /// Determine if this request is a retry.
+    /// A retry will result in a report being sent only to failed subscribers.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="instance"></param>
+    /// <returns></returns>
+    private static bool IsRetry(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instance)
+    {
+        return !IsResend(request, instance) && !String.IsNullOrWhiteSpace(instance?.Subject) && !String.IsNullOrWhiteSpace(instance?.Body);
     }
 
     /// <summary>
@@ -571,17 +610,18 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     private async Task GenerateAndSendReportAsync(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance)
     {
         var resending = IsResend(request, instance);
+        var retry = IsRetry(request, instance);
         var report = instance.Report ?? throw new ArgumentException("Report instance must include the report model.");
         var sections = report.Sections.OrderBy(s => s.SortOrder).Select(s => new ReportSectionModel(s));
 
-        var searchResults = !resending ? await this.Api.GetContentForReportInstanceIdAsync(instance.Id) : Array.Empty<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>();
+        var searchResults = !resending && !retry ? await this.Api.GetContentForReportInstanceIdAsync(instance.Id) : Array.Empty<API.Areas.Services.Models.ReportInstance.ReportInstanceContentModel>();
         var sectionContent = sections.ToDictionary(s => s.Name, section =>
         {
             section.Content = searchResults.Where(sr => sr.SectionName == section.Name && sr.Content != null).Select(ri => new ContentModel(ri.Content!, ri.SortOrder)).ToArray();
             return section;
         });
 
-        if (!resending)
+        if (!resending && !retry)
         {
             // Fetch all image data.  Need to do this in a separate step because of async+await.
             // TODO: Review this implementation due to performance issues.
@@ -652,7 +692,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 {
                     if (instance != null)
                     {
-                        instance.Status = ReportStatus.Failed;
+                        instance.Status = ReportStatus.Cancelled;
                         instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(new { Error = "No subscribers found for this report." }, _serializationOptions));
                     }
                     this.Logger.LogWarning("No subscribers found for report. ReportId:{reportId}", report.Id);
@@ -663,7 +703,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             }
 
             // Only clear folders if the instance was successfully saved.
-            if (instance != null && report.Settings.Content.ClearFolders && request.SendToSubscribers)
+            if (instance != null && report.Settings.Content.ClearFolders && request.SendToSubscribers && !IsResend(request, instance) && !IsRetry(request, instance))
             {
                 // TODO: On a failure or a resend this could result in removing content in a folder that is not part of the report (due to timing).
                 await this.Api.ClearFoldersInReport(report.Id);
@@ -680,6 +720,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
     /// <summary>
     /// Generate the subject, and both email body messages based on the report template and content.
+    /// Only regenerate the report if required.
     /// </summary>
     /// <param name="request"></param>
     /// <param name="report"></param>
@@ -695,9 +736,12 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     {
         try
         {
-            var subject = IsResend(request, instance) ? instance!.Subject : await this.ReportEngine.GenerateReportSubjectAsync(report, instance, sectionContent, false, false);
+            var resend = IsResend(request, instance);
+            var retry = IsRetry(request, instance);
+            var subject = resend || retry ? instance!.Subject : await this.ReportEngine.GenerateReportSubjectAsync(report, instance, sectionContent, false, false);
+            // We regenerate the link only email because we don't save it.  This could be an issue if the template needed content information in it.
             var linkOnlyFormatBody = await this.ReportEngine.GenerateReportBodyAsync(report, instance, sectionContent, GetLinkedReportAsync, null, true, false);
-            var fullTextFormatBody = IsResend(request, instance) ? instance!.Body : await this.ReportEngine.GenerateReportBodyAsync(report, instance, sectionContent, GetLinkedReportAsync, null, false, false);
+            var fullTextFormatBody = resend || retry ? instance!.Body : await this.ReportEngine.GenerateReportBodyAsync(report, instance, sectionContent, GetLinkedReportAsync, null, false, false);
 
             return (subject, linkOnlyFormatBody, fullTextFormatBody);
         }
@@ -794,6 +838,18 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                     instance.Status = fullTextStatus;
                     instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
                 }
+            }
+
+            // If the report wasn't sent out due to having no subscribers, update the status based on the current status.
+            if (instance != null && !linkEmails[EmailSentTo.To].Any() && !linkEmails[EmailSentTo.CC].Any() && !linkEmails[EmailSentTo.BCC].Any() &&
+                !fullEmails[EmailSentTo.To].Any() && !fullEmails[EmailSentTo.CC].Any() && !fullEmails[EmailSentTo.BCC].Any())
+            {
+                // A report without subscribers is cancelled (it should never have gotten this far).
+                // All other statuses are considered complete, as there is no more work to do.
+                if (instance.Status == ReportStatus.Submitted)
+                    instance.Status = ReportStatus.Cancelled;
+                else
+                    instance.Status = ReportStatus.Completed;
             }
         }
         catch (ChesException ex)
@@ -919,8 +975,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                     updateUserReportInstances.Add(userReportInstance);
                 }
                 var toEmails = String.Join(",", users.Select(u => u.To));
-                var ccEmails = String.Join(",", users.Select(u => u.CC));
-                var bccEmails = String.Join(",", users.Select(u => u.BCC));
+                var ccEmails = String.Join(",", users.SelectMany(u => u.CC.Select(v => v.To)));
+                var bccEmails = String.Join(",", users.SelectMany(u => u.BCC.Select(v => v.To)));
                 this.Logger.LogDebug("Saving email responses.  reportId:{reportId}, InstanceId:{instanceId}, Status:{status}, To:{to}, CC:{cc}, BCC:{bcc}", report.Id, instance.Id, status, toEmails, ccEmails, bccEmails);
                 await this.Api.AddOrUpdateUserReportInstancesAsync(updateUserReportInstances);
             }
@@ -981,7 +1037,6 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instance,
             IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel> userReportInstances)
     {
-
         var linkOnlyFormatSubscribers = report.Subscribers.Where(s =>
             s.IsSubscribed &&
             s.User != null &&
@@ -998,7 +1053,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             (request.Resend ||
                 !userReportInstances.Any(uri =>
                     uri.UserId == s.UserId &&
-                    _successfulEmailStatuses.Contains(uri.LinkStatus) &&
+                    _successfulEmailStatuses.Contains(uri.TextStatus) &&
                     (instance == null || uri.InstanceId == instance.Id)))).ToArray();
 
         var linkEmails = await GetEmailAddressesAsync(request, linkOnlyFormatSubscribers, userReportInstances);
@@ -1236,73 +1291,123 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 Priority = EmailPriorities.Normal,
             };
 
-            var response = await this.Ches.SendEmailAsync(merge);
-            this.Logger.LogInformation("Report sent to CHES.  ReportId:{report}, InstanceId:{instance}", request.ReportId, request.ReportInstanceId);
-
-            if (request.ReportInstanceId.HasValue)
+            var failureCount = 0;
+            while (true)
             {
-                var document = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
-                await updateCallbackAsync(contexts.Select(c => c.User), ReportStatus.Accepted, document);
-            }
+                try
+                {
+                    var response = await this.Ches.SendEmailAsync(merge);
+                    this.Logger.LogInformation("Report sent to CHES.  ReportId:{report}, InstanceId:{instance}", request.ReportId, request.ReportInstanceId);
 
-            return (ReportStatus.Accepted, new[] { response });
+                    if (request.ReportInstanceId.HasValue)
+                    {
+                        var document = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+                        await updateCallbackAsync(contexts.Select(c => c.User), ReportStatus.Accepted, document);
+                    }
+
+                    return (ReportStatus.Accepted, new[] { response });
+                }
+                catch (ChesException ex)
+                {
+                    // Retry X times before giving up.
+                    failureCount++;
+                    if (failureCount >= this.Options.RetryLimit)
+                        throw;
+                    else
+                        this.Logger.LogError(ex, "Failed to send report to CHES. ReportId:{report}, InstanceId:{instance}", request.ReportId, request.ReportInstanceId);
+
+                    // Wait before trying again.
+                    await Task.Delay(this.Options.DefaultDelayMS);
+                }
+            }
         }
         else
         {
             var responses = new List<EmailResponseModel>();
-            var hasFailure = false;
+            var failureCount = 0; // Keep track of each failed subscriber email.
             foreach (var (user, context) in contexts)
             {
+                failureCount++;
+                var retryCount = 0;
                 var allUsers = new[] { user }.Concat(user.CC.Concat(user.BCC)).Distinct();
-                try
+                var allEmails = String.Join(", ", allUsers.Select(u => u.To));
+                while (true)
                 {
-                    var email = new EmailModel(this.ChesOptions.From, context.To.ToArray(), subject, body)
+                    try
                     {
-                        Cc = context.Cc.ToArray(),
-                        Bcc = context.Bcc.ToArray(),
-                        // TODO: Extract values from report settings.
-                        Encoding = EmailEncodings.Utf8,
-                        BodyType = EmailBodyTypes.Html,
-                        Priority = EmailPriorities.Normal,
-                    };
-                    var response = await this.Ches.SendEmailAsync(email);
-                    responses.Add(response);
+                        var email = new EmailModel(this.ChesOptions.From, context.To.ToArray(), subject, body)
+                        {
+                            Cc = context.Cc.ToArray(),
+                            Bcc = context.Bcc.ToArray(),
+                            // TODO: Extract values from report settings.
+                            Encoding = EmailEncodings.Utf8,
+                            BodyType = EmailBodyTypes.Html,
+                            Priority = EmailPriorities.Normal,
+                        };
 
-                    if (user.UserId != 0)
-                    {
-                        // Save the status of each email sent.
-                        var document = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
-                        await updateCallbackAsync(allUsers, ReportStatus.Accepted, document);
+                        var response = await this.Ches.SendEmailAsync(email);
+                        responses.Add(response);
+
+                        failureCount--; // Success, remove from failure count.
+                        if (user.UserId != 0)
+                        {
+                            // Save the status of each email sent.
+                            var document = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+                            await updateCallbackAsync(allUsers, ReportStatus.Accepted, document);
+                        }
+                        break;
                     }
-                }
-                catch (ChesException ex)
-                {
-                    hasFailure = true;
-                    if (user.UserId != 0)
+                    catch (ChesException ex)
                     {
-                        // Save the status of each email sent.
-                        var document = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
-                        await updateCallbackAsync(allUsers, ReportStatus.Failed, document);
+                        if (user.UserId != 0)
+                        {
+                            // Save the status of each email sent.
+                            var document = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
+                            await updateCallbackAsync(allUsers, ReportStatus.Failed, document);
+                        }
+
+                        retryCount++;
+                        if (retryCount >= this.Options.RetryLimit)
+                        {
+                            // Escape from retry loop.
+                            if (!this.Options.SendToAllSubscribersBeforeFailing)
+                                throw;
+                            break;
+                        }
+                        else
+                            this.Logger.LogError(ex, "Failed to send report to CHES. ReportId:{report}, InstanceId:{instance}, Emails:{emails}", request.ReportId, request.ReportInstanceId, allEmails);
+
+                        // Wait before trying again.
+                        await Task.Delay(this.Options.RetryDelayMS);
                     }
-                    if (!this.Options.SendToAllSubscribersBeforeFailing)
-                        throw;
-                }
-                catch (Exception ex)
-                {
-                    hasFailure = true;
-                    if (user.UserId != 0)
+                    catch (Exception ex)
                     {
-                        // Save the status of each email sent.
-                        var document = JsonDocument.Parse(JsonSerializer.Serialize(new { Error = ex.GetAllMessages() }, _serializationOptions));
-                        await updateCallbackAsync(allUsers, ReportStatus.Failed, document);
+                        if (user.UserId != 0)
+                        {
+                            // Save the status of each email sent.
+                            var document = JsonDocument.Parse(JsonSerializer.Serialize(new { Error = ex.GetAllMessages() }, _serializationOptions));
+                            await updateCallbackAsync(allUsers, ReportStatus.Failed, document);
+                        }
+
+                        retryCount++;
+                        if (retryCount >= this.Options.RetryLimit)
+                        {
+                            // Escape from retry loop.
+                            if (!this.Options.SendToAllSubscribersBeforeFailing)
+                                throw;
+                            break;
+                        }
+                        else
+                            this.Logger.LogError(ex, "Failed to send report to CHES. ReportId:{report}, InstanceId:{instance}, Emails:{emails}", request.ReportId, request.ReportInstanceId, allEmails);
+
+                        // Wait before trying again.
+                        await Task.Delay(this.Options.RetryDelayMS);
                     }
-                    if (!this.Options.SendToAllSubscribersBeforeFailing)
-                        throw;
                 }
             }
             this.Logger.LogInformation("Report sent to CHES. ReportId:{report}, InstanceId:{instance}", request.ReportId, request.ReportInstanceId);
 
-            return (hasFailure ? ReportStatus.Failed : ReportStatus.Accepted, responses.ToArray());
+            return (failureCount > 0 ? ReportStatus.Failed : ReportStatus.Accepted, responses.ToArray());
         }
     }
 
