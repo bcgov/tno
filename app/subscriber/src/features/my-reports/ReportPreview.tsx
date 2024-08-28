@@ -25,7 +25,7 @@ import {
 
 import { ReportKindIcon } from './components';
 import { ReportInstanceView } from './ReportInstanceView';
-import { getStatus } from './utils';
+import { ReportStatus } from './ReportStatus';
 
 export interface IReportPreviewProps {
   report?: IReportModel;
@@ -39,6 +39,7 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
   const [, { storeReportOutput }] = useProfileStore();
   const [, { getReport, generateReport }] = useReports();
   const { isShowing: showSend, toggle: toggleSend } = useModal();
+  const { isShowing: showResend, toggle: toggleResend } = useModal();
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -108,10 +109,10 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
   );
 
   const handleSend = React.useCallback(
-    async (report: IReportModel, instance: IReportInstanceModel) => {
+    async (report: IReportModel, instance: IReportInstanceModel, resend: boolean) => {
       try {
         setIsSubmitting(true);
-        const updatedInstance = await publishReportInstance(instance.id, !!instance.sentOn);
+        const updatedInstance = await publishReportInstance(instance.id, resend);
         onFetch?.({
           ...report,
           instances: report.instances.map((i) =>
@@ -144,7 +145,9 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
         <ReportKindIcon report={report} />
       </div>
       <Bar>
-        <Row>Status: {instance ? getStatus(instance.status) : 'Draft'}</Row>
+        <Row>
+          Status: <ReportStatus status={instance?.status} />
+        </Row>
         <Show visible={instance?.status === ReportStatusName.Submitted}>
           <Col>
             <Spinner />
@@ -209,6 +212,21 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
               <FaPaperPlane />
             </Button>
           </Show>
+          <Show visible={instance && [ReportStatusName.Failed].includes(instance.status)}>
+            <Button
+              onClick={() => report && instance && toggleResend()}
+              disabled={isSubmitting || !hasSubscribers}
+              variant="warn"
+              title={
+                !hasSubscribers
+                  ? 'There are no subscribers for this report. Add subscribers to enable sending.'
+                  : ''
+              }
+            >
+              Retry
+              <FaPaperPlane />
+            </Button>
+          </Show>
           <Show visible={!!instance?.sentOn}>
             <Show visible={getReportKind(report) === ReportKindName.Manual}>
               <Button
@@ -232,8 +250,20 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
         type="default"
         confirmText="Yes, Send It"
         onConfirm={() => {
-          if (instance) handleSend(report, instance);
+          if (instance) handleSend(report, instance, !!instance.sentOn);
           toggleSend();
+        }}
+      />
+      <Modal
+        headerText="Confirm Retry"
+        body={`Do you want to retry sending this report to subscribers who have not received the report?`}
+        isShowing={showResend}
+        hide={toggleResend}
+        type="default"
+        confirmText="Yes, Send It"
+        onConfirm={() => {
+          if (instance) handleSend(report, instance, false);
+          toggleResend();
         }}
       />
     </PageSection>

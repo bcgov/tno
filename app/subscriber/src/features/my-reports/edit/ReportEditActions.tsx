@@ -91,12 +91,7 @@ export const ReportEditActions = ({
 
   return (
     <styled.ReportEditActions className="report-edit-actions">
-      <Show
-        visible={
-          active?.startsWith(ReportMainMenuOption.Settings) &&
-          !active?.startsWith(ReportSettingsMenuOption.Subscribers)
-        }
-      >
+      <Show visible={active?.startsWith(ReportMainMenuOption.Settings)}>
         <Col flex="1" alignItems="flex-start">
           <ReportExporter />
         </Col>
@@ -159,9 +154,8 @@ export const ReportEditActions = ({
       </Show>
       <Show
         visible={
-          (active?.startsWith(ReportMainMenuOption.Settings) ||
-            active?.startsWith(ReportMainMenuOption.Content)) &&
-          !active?.startsWith(ReportSettingsMenuOption.Subscribers)
+          active?.startsWith(ReportMainMenuOption.Settings) ||
+          active?.startsWith(ReportMainMenuOption.Content)
         }
       >
         <Button
@@ -174,6 +168,8 @@ export const ReportEditActions = ({
             else if (active === ReportSettingsMenuOption.DataSources)
               navigate(`/reports/${values.id}/${ReportSettingsMenuOption.Preferences}`);
             else if (active === ReportSettingsMenuOption.Preferences)
+              navigate(`/reports/${values.id}/${ReportSettingsMenuOption.Subscribers}`);
+            else if (active === ReportSettingsMenuOption.Subscribers)
               navigate(`/reports/${values.id}/${ReportSettingsMenuOption.Send}`);
             else if (active === ReportSettingsMenuOption.Send)
               navigate(`/reports/${values.id}/${ReportMainMenuOption.Content}`);

@@ -9,7 +9,8 @@ import { useApp, useReports } from 'store/hooks';
 import { Col, IReportModel, ReportSectionTypeName, Row, Show, Spinner } from 'tno-core';
 
 import { ReportKindIcon } from './components';
-import { calcNextScheduleSend, getLastSent, getStatus } from './utils';
+import { ReportStatus } from './ReportStatus';
+import { calcNextScheduleSend, getLastSent } from './utils';
 
 export interface IReportCardProps {
   /** The report to display on this card. */
@@ -102,7 +103,9 @@ export const ReportCard: React.FC<IReportCardProps> = ({
               <Show visible={!!instance}>
                 <Row>
                   <Col>Status:</Col>
-                  <Col flex="1">{instance ? getStatus(instance.status) : 'Draft'}</Col>
+                  <Col>
+                    <ReportStatus status={instance?.status} />
+                  </Col>
                 </Row>
               </Show>
               <Row>

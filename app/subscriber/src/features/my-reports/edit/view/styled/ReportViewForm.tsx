@@ -5,6 +5,7 @@ export const ReportViewForm = styled.div`
   flex-direction: column;
   margin: 1rem;
   gap: 1rem;
+
   .send-test-button {
     margin-left: 1rem;
   }
@@ -14,8 +15,8 @@ export const ReportViewForm = styled.div`
   }
   .preview-send-details-row {
     margin-left: 1.5rem;
+    gap: 1rem;
   }
-
   .hide {
     display: none;
   }

@@ -256,7 +256,6 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
               if (instance) {
                 const result = await updateReportInstance({
                   ...instance,
-                  sentOn: undefined,
                   status: ReportStatusName.Reopen,
                 });
                 const updatedInstance = { ...result, content: instance.content };

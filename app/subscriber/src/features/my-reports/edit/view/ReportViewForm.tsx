@@ -1,6 +1,7 @@
 import { Button } from 'components/button';
 import { Modal } from 'components/modal';
-import { calcNextReportSend, getLastSent, getStatus } from 'features/my-reports/utils';
+import { ReportStatus } from 'features/my-reports/ReportStatus';
+import { calcNextReportSend, getLastSent } from 'features/my-reports/utils';
 import React from 'react';
 import { FaTelegramPlane } from 'react-icons/fa';
 import { FaRegClock } from 'react-icons/fa6';
@@ -38,6 +39,7 @@ export const ReportViewForm: React.FC = () => {
 
   const [to, setTo] = React.useState('');
   const { toggle: toggleSend, isShowing: isShowingSend } = useModal();
+  const { toggle: toggleResend, isShowing: isShowingResend } = useModal();
 
   const instance = values.instances.length ? values.instances[0] : undefined;
   const isAdmin = userInfo?.roles.includes(Claim.administrator);
@@ -55,10 +57,10 @@ export const ReportViewForm: React.FC = () => {
   );
 
   const handlePublish = React.useCallback(
-    async (instance: IReportInstanceModel) => {
+    async (instance: IReportInstanceModel, resend: boolean) => {
       try {
         setSubmitting(true);
-        const updatedInstance = await publishReportInstance(instance.id, !!instance.sentOn);
+        const updatedInstance = await publishReportInstance(instance.id, resend);
         setFieldValue(
           'instances',
           values.instances.map((i) =>
@@ -89,7 +91,7 @@ export const ReportViewForm: React.FC = () => {
               <div className="preview-send-details-row">
                 <Row gap="1rem">
                   <label className="b7">Status:</label>
-                  <span>{instance ? getStatus(instance.status) : 'Draft'}</span>
+                  <ReportStatus status={instance?.status} />
                 </Row>
                 <Row gap="1rem">
                   <label className="b7">Last sent:</label>
@@ -167,9 +169,29 @@ export const ReportViewForm: React.FC = () => {
               onClick={() => toggleSend()}
               variant="success"
             >
-              Send to subscribers
+              Send to all subscribers
               <FaTelegramPlane />
             </Button>
+            <Show
+              visible={
+                !!instance &&
+                [ReportStatusName.Cancelled, ReportStatusName.Failed].includes(instance.status)
+              }
+            >
+              <Button
+                disabled={
+                  isSubmitting ||
+                  !instance ||
+                  instance?.status === ReportStatusName.Submitted ||
+                  !isSubscribed
+                }
+                onClick={() => toggleResend()}
+                variant="warn"
+              >
+                Retry
+                <FaTelegramPlane />
+              </Button>
+            </Show>
           </Row>
           {values.settings.doNotSendEmail && (
             <p className="info">You currently have the email preference to not send emails.</p>
@@ -187,9 +209,24 @@ export const ReportViewForm: React.FC = () => {
         confirmText="Yes, send report to subscribers"
         onConfirm={async () => {
           try {
-            if (instance) await handlePublish(instance);
+            if (instance) await handlePublish(instance, !!instance.sentOn);
           } finally {
             toggleSend();
+          }
+        }}
+      />
+      <Modal
+        headerText="Retry Sending Report to Subscribers"
+        body={`Do you want to send an email to the only the subscribers of this report that failed on the prior attempt?`}
+        isShowing={isShowingResend}
+        hide={toggleResend}
+        type="default"
+        confirmText="Yes, send report to subscribers"
+        onConfirm={async () => {
+          try {
+            if (instance) await handlePublish(instance, false);
+          } finally {
+            toggleResend();
           }
         }}
       />

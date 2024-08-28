@@ -2,7 +2,15 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useReports } from 'store/hooks/admin';
-import { FlexboxTable, IReportInstanceModel, IReportModel, Modal, useModal } from 'tno-core';
+import {
+  Checkbox,
+  FlexboxTable,
+  IReportInstanceModel,
+  IReportModel,
+  Modal,
+  ReportStatusName,
+  useModal,
+} from 'tno-core';
 
 import { instanceColumns } from './constants';
 
@@ -19,6 +27,7 @@ export const ReportFormInstance: React.FC = () => {
 
   const [instances, setInstances] = React.useState<IReportInstanceModel[]>([]);
   const [instance, setInstance] = React.useState<IReportInstanceModel>();
+  const [resend, setResend] = React.useState(false);
 
   React.useEffect(() => {
     findInstancesForReportId(values.id).then((instances) => {
@@ -41,9 +50,9 @@ export const ReportFormInstance: React.FC = () => {
   );
 
   const handleResend = React.useCallback(
-    async (model: IReportInstanceModel) => {
+    async (model: IReportInstanceModel, resend: boolean) => {
       try {
-        const instance = await publishReportInstance(model, true);
+        const instance = await publishReportInstance(model, resend);
         setInstances((instances) =>
           instances.map((i) => {
             if (i.id === instance.id) return instance;
@@ -78,6 +87,9 @@ export const ReportFormInstance: React.FC = () => {
             toggleDelete();
           },
           onResend: (instance) => {
+            setResend(
+              ![ReportStatusName.Cancelled, ReportStatusName.Failed].includes(instance.status),
+            );
             setInstance(instance);
             toggleResend();
           },
@@ -108,7 +120,20 @@ export const ReportFormInstance: React.FC = () => {
       />
       <Modal
         headerText="Confirm Resend"
-        body="Are you sure you wish to resend this report instance?"
+        component={
+          <div>
+            <p>Are you sure you wish to resend this report to subscribers?</p>
+            <p>
+              Leave unchecked if you only want to send to subscribers who have not received it yet.
+            </p>
+            <Checkbox
+              name="resend"
+              label="Resend to all subscribers"
+              checked={resend}
+              onChange={(e) => setResend(e.target.checked)}
+            />
+          </div>
+        }
         isShowing={showResend}
         hide={toggleResend}
         type="default"
@@ -116,7 +141,7 @@ export const ReportFormInstance: React.FC = () => {
         onConfirm={async () => {
           try {
             if (instance) {
-              await handleResend(instance);
+              await handleResend(instance, resend);
               toast.success(`Request to resend Report instance has successfully been sent.`);
             }
           } catch {
