@@ -34,19 +34,27 @@ export const evalScripts = (
     for (let i = 0; i < data.datasets.length; i++) {
       const dataset = data.datasets[i];
       try {
-        const bkColor = dataset.backgroundColor;
-        const isArray = Array.isArray(bkColor);
-        if (bkColor && !isArray && typeof bkColor === 'string' && bkColor[0] === '(')
-          dataset.backgroundColor = eval(bkColor);
+        const isArray = Array.isArray(dataset.backgroundColor);
+        if (
+          dataset.backgroundColor &&
+          !isArray &&
+          typeof dataset.backgroundColor === 'string' &&
+          dataset.backgroundColor[0] === '('
+        )
+          dataset.backgroundColor = eval(dataset.backgroundColor);
       } catch (ex) {
         console.error('Failed to eval dataset.backgroundColor', ex);
         dataset.backgroundColor = undefined;
       }
       try {
-        const bColor = dataset.borderColor;
-        const isArray = Array.isArray(bColor);
-        if (bColor && !isArray && typeof bColor === 'string' && bColor[0] === '(')
-          dataset.borderColor = eval(bColor);
+        const isArray = Array.isArray(dataset.borderColor);
+        if (
+          dataset.borderColor &&
+          !isArray &&
+          typeof dataset.borderColor === 'string' &&
+          dataset.borderColor[0] === '('
+        )
+          dataset.borderColor = eval(dataset.borderColor);
       } catch (ex) {
         console.error('Failed to eval dataset.borderColor', ex);
         dataset.borderColor = undefined;

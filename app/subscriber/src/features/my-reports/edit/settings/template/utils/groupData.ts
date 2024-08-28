@@ -40,7 +40,7 @@ export const groupData = (
     result = getChartData(chart, datasets, sections, {
       ...options,
       groupOn: (c) => c?.content?.otherSource,
-      getLabel: (c) => c?.content?.source?.name,
+      getLabel: (c) => c?.content?.otherSource,
     });
   } else if (groupBy === 'series') {
     result = getChartData(chart, datasets, sections, {
