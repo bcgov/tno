@@ -4,11 +4,13 @@ import {
   INotificationInstanceModel,
   INotificationTemplateModel,
   ISortableModel,
+  IUserModel,
   IUserNotificationModel,
 } from '.';
 
 export interface INotificationModel extends ISortableModel<number> {
   ownerId?: number;
+  owner?: IUserModel;
   notificationType: NotificationTypeName;
   settings: IFilterSettingsModel;
   query: any;

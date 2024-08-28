@@ -38,6 +38,9 @@ const ReachEarnedMedia = lazy(() => import('features/admin/sources/ReachEarnedMe
 const ReportAdmin = lazy(() => import('features/admin/reports/ReportAdmin'));
 const ReportForm = lazy(() => import('features/admin/reports/ReportForm'));
 const ReportDashboard = lazy(() => import('features/admin/reports/dashboard/ReportDashboard'));
+const NotificationsDashboard = lazy(
+  () => import('features/admin/notifications/dashboard/NotificationsDashboard'),
+);
 const ReportTemplateForm = lazy(() => import('features/admin/report-templates/ReportTemplateForm'));
 const SeriesDetails = lazy(() => import('features/admin/series/SeriesDetails'));
 const SeriesForm = lazy(() => import('features/admin/series/SeriesForm'));
@@ -156,6 +159,7 @@ export const AdminRouter: React.FC = () => {
 
         <Route path="notifications" element={<NotificationList />} />
         <Route path="notifications/:id" element={<NotificationForm />} />
+        <Route path="notifications/dashboard" element={<NotificationsDashboard />} />
 
         <Route path="av/evening-overview" element={<AVOverview />} />
 

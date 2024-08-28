@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Notification;
+using TNO.API.Areas.Admin.Models.NotificationInstance;
 using TNO.API.Config;
 using TNO.API.Helpers;
 using TNO.API.Models;
@@ -209,6 +210,23 @@ public class NotificationController : ControllerBase
         };
         await _kafkaProducer.SendMessageAsync(_kafkaOptions.NotificationTopic, request);
         return new JsonResult(new NotificationModel(notification, _serializerOptions));
+    }
+
+    /// <summary>
+    /// Find all notifications for the dashboard that match the filter.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("dashboard")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<NotificationInstanceModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult Dashboard()
+    {
+        var uri = new Uri(this.Request.GetDisplayUrl());
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+
+        var notifications = _notificationService.GetDashboard(new TNO.Models.Filters.DashboardFilter(query));
+        return new JsonResult(notifications.Select(r => new NotificationInstanceModel(r, _serializerOptions)));
     }
     #endregion
 }

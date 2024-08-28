@@ -3,7 +3,14 @@ import React from 'react';
 
 import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { INotificationFilter, INotificationModel, INotificationResultModel, useApi } from '..';
+import {
+  IDashboardFilter,
+  INotificationFilter,
+  INotificationInstanceModel,
+  INotificationModel,
+  INotificationResultModel,
+  useApi,
+} from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -58,6 +65,12 @@ export const useApiAdminNotifications = (
     sendNotification: (model: INotificationModel, to: string, contentId?: number) => {
       return api.post<INotificationModel, AxiosResponse<INotificationModel>, any>(
         `/admin/notifications/${model.id}/send${contentId ? `/${contentId}` : ''}?to=${to}`,
+      );
+    },
+    getDashboard: (filter: IDashboardFilter) => {
+      var query = toQueryString(filter ?? {});
+      return api.get<never, AxiosResponse<INotificationInstanceModel[]>, any>(
+        `/admin/notifications/dashboard?${query}`,
       );
     },
   }).current;

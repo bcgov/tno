@@ -63,7 +63,7 @@ export const Modal: React.FC<IModalProps> = ({
                   </Row>
                 )}
                 <Row className="modal-body">
-                  {body && <div dangerouslySetInnerHTML={{ __html: body }}></div>}
+                  {body && <div dangerouslySetInnerHTML={{ __html: body as any }}></div>}
                 </Row>
                 {!!component && <Row className="modal-body">{component}</Row>}
                 {type !== 'custom' && (

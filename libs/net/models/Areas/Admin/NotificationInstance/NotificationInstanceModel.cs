@@ -1,4 +1,5 @@
 using System.Text.Json;
+using TNO.API.Areas.Admin.Models.Notification;
 using TNO.API.Models;
 
 namespace TNO.API.Areas.Admin.Models.NotificationInstance;
@@ -18,6 +19,11 @@ public class NotificationInstanceModel : AuditColumnsModel
     /// get/set - Foreign key to the notification definition.
     /// </summary>
     public int NotificationId { get; set; }
+
+    /// <summary>
+    /// get/set - Foreign key to the notification definition.
+    /// </summary>
+    public NotificationModel? Notification { get; set; }
 
     /// <summary>
     /// get - Foreign key to the content related to the notification.
@@ -43,6 +49,16 @@ public class NotificationInstanceModel : AuditColumnsModel
     /// get - The compiled body of the notification.
     /// </summary>
     public string Body { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The status of this notification.
+    /// </summary>
+    public Entities.NotificationStatus Status { get; set; }
+
+    /// <summary>
+    /// get/set - The date and time the notification was sent on.
+    /// </summary>
+    public DateTime? SentOn { get; set; }
     #endregion
 
     #region Constructors
@@ -65,6 +81,9 @@ public class NotificationInstanceModel : AuditColumnsModel
         this.Response = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Response, options) ?? new Dictionary<string, object>();
         this.Subject = entity.Subject;
         this.Body = entity.Body;
+        this.Status = entity.Status;
+        this.SentOn = entity.SentOn;
+        this.Notification = entity.Notification != null ? new NotificationModel(entity.Notification, options) : null;
     }
     #endregion
 

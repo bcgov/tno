@@ -15,6 +15,11 @@ public class DashboardFilter : PageFilter
     public int? OwnerId { get; set; }
 
     /// <summary>
+    /// get/set - Only include this notification.
+    /// </summary>
+    public int? NotificationId { get; set; }
+
+    /// <summary>
     /// get/set - The name of the report.
     /// </summary>
     public string? Name { get; set; }
@@ -48,6 +53,11 @@ public class DashboardFilter : PageFilter
     /// get/set - Only include report instances with the following status.
     /// </summary>
     public Entities.ReportStatus[]? Status { get; set; }
+
+    /// <summary>
+    /// get/set - Only include report instances with the following status.
+    /// </summary>
+    public Entities.NotificationStatus[]? NotificationStatus { get; set; }
     #endregion
 
     #region Constructors
@@ -57,12 +67,14 @@ public class DashboardFilter : PageFilter
     {
         var filter = new Dictionary<string, StringValues>(queryParams, StringComparer.OrdinalIgnoreCase);
 
+        this.NotificationId = filter.GetIntNullValue(nameof(this.NotificationId));
         this.Name = filter.GetStringValue(nameof(this.Name));
         this.Keyword = filter.GetStringValue(nameof(this.Keyword));
         this.OwnerId = filter.GetIntNullValue(nameof(this.OwnerId));
         this.IsPublic = filter.GetBoolNullValue(nameof(this.IsPublic));
         this.IsEnabled = filter.GetBoolNullValue(nameof(this.IsEnabled));
         this.Status = filter.GetEnumArrayValue<Entities.ReportStatus>(nameof(this.Status));
+        this.NotificationStatus = filter.GetEnumArrayValue<Entities.NotificationStatus>(nameof(this.NotificationStatus));
         this.StartDate = filter.GetDateTimeNullValue(nameof(this.StartDate));
         this.EndDate = filter.GetDateTimeNullValue(nameof(this.EndDate));
     }

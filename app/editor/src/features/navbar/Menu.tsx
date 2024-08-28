@@ -151,6 +151,9 @@ export const Menu: React.FC = () => {
                 <NavDropdown.Item as={Link} to="/admin/notifications">
                   <FaMessage /> Notifications
                 </NavDropdown.Item>
+                <MenuDropdownItem claim={Claim.administrator} to="/admin/notifications/dashboard">
+                  Notifications Dashboard
+                </MenuDropdownItem>
                 <NavDropdown.Item as={Link} to="/admin/work/orders">
                   <FaClipboardList />
                   Work Orders
