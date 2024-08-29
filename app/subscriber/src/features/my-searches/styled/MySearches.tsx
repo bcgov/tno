@@ -2,6 +2,13 @@ import styled from 'styled-components';
 import { Col } from 'tno-core';
 
 export const MySearches = styled(Col)`
+  .grid {
+    margin-top: 0.75rem;
+    .grid-header {
+      border-top: none;
+      border-bottom: 1px solid ${(props) => props.theme.css.linePrimaryColor};
+    }
+  }
   /* option items in the tooltip menu */
   .option {
     cursor: pointer;
@@ -36,7 +43,7 @@ export const MySearches = styled(Col)`
   .keywords-row {
     display: flex;
     align-items: center;
-    padding: 0.5rem;
+    cursor: pointer;
   }
   .copy-icon {
     opacity: 0;

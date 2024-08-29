@@ -77,15 +77,15 @@ export const MySearches = () => {
       <Grid
         items={sortedMyFilters}
         renderHeader={() => [
-          { name: 'name', label: '', size: '2fr' },
-          { name: 'actions', label: '', size: '1fr' },
+          { name: 'name', label: 'Name', size: '3fr' },
+          { name: 'keywords', label: 'Keywords', size: '10fr' },
         ]}
         renderColumns={(row: IFilterModel, rowIndex) => {
           const keywords = row.settings?.search ? row.settings.search : '';
-          const truncatedKeywords = truncateTeaser(keywords, 20);
+          const truncatedKeywords = truncateTeaser(keywords, 200);
 
           return [
-            <Row key="1" flex="1" gap="1rem">
+            <Row className="name" key="1" flex="1" gap="1rem">
               <Action icon={<FaBookmark />} onClick={() => handleClick(row)}>
                 <Col flex="1" className="link">
                   {editing?.id === row.id ? (
@@ -107,14 +107,14 @@ export const MySearches = () => {
             <Row key="2" justifyContent="flex-end" flex="1" gap="1rem">
               <Col flex="1">
                 {truncatedKeywords ? (
-                  <Row className="keywords-row">
+                  <Row
+                    className="keywords-row"
+                    onClick={() => handleCopyKeywords(row.settings?.search)}
+                    data-tooltip-content="Click to copy keywords to clipboard"
+                    data-tooltip-id={'main-tooltip'}
+                    data-tooltip-place="left-start"
+                  >
                     {truncatedKeywords}
-                    <Action
-                      icon={<FaRegClipboard />}
-                      title="Copy Keywords"
-                      className="copy-icon"
-                      onClick={() => handleCopyKeywords(row.settings?.search)}
-                    />
                   </Row>
                 ) : null}
               </Col>
