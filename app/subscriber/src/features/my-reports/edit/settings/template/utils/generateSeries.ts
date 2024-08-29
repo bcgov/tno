@@ -8,7 +8,7 @@ interface IGenerateSeriesOptions {
 export const generateSeries = (options: IGenerateSeriesOptions) => {
   const entity: ISeriesModel = {
     id: options._id ?? 0,
-    name: `Media Type ${options?._id ?? 0}`,
+    name: `Program ${options?._id ?? 0}`,
     description: '',
     sortOrder: 0,
     isEnabled: true,

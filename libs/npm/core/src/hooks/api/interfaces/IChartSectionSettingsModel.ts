@@ -3,6 +3,8 @@ export interface IChartSectionSettingsModel {
   width?: number;
   /** Height of the chart image. */
   height?: number;
+  /** Automatically resize chart based on data. */
+  autoResize?: boolean;
   /** Whether width and height should force aspect ratio */
   maintainAspectRatio?: boolean;
   /** The chart aspect ratio */

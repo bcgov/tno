@@ -6,7 +6,7 @@ import {
   TopicTypeName,
 } from 'tno-core';
 
-import { IGenerateChartDataOptions } from './generateChartData';
+import { IConvertToChartOptions } from './convertToChart';
 import { getSentimentLabel } from './getSentimentLabel';
 import { getSentimentValue } from './getSentimentValue';
 import { isStoryCount } from './isStoryCount';
@@ -15,7 +15,7 @@ import { separateDatasets } from './separateDatasets';
 export const getDatasets = (
   chart: IReportSectionChartTemplateModel,
   content: IReportInstanceContentModel[],
-  options?: IGenerateChartDataOptions,
+  options?: IConvertToChartOptions,
 ) => {
   const count = isStoryCount(chart);
   const key = chart.sectionSettings.dataset;
@@ -31,7 +31,7 @@ export const getDatasets = (
   // Separate content into datasets.
   if (key === '') {
     // All content goes into a single dataset.
-    results[count ? 'Stories' : 'Average Sentiment'] = data;
+    results[count ? 'Story Count' : 'Average Sentiment'] = data;
   } else if (key === 'mediaType') {
     results = separateDatasets(data, {
       ...options,

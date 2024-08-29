@@ -19,7 +19,6 @@ export const mergeChartSettings = (
   };
   const override = { ...initSettings, ...overrideSettings };
   const { xScales, yScales } = setScales(initSettings, override);
-
   return {
     ...initSettings,
     chartType: override.chartType,
@@ -29,6 +28,9 @@ export const mergeChartSettings = (
     excludeEmptyValues: override.excludeEmptyValues,
     height: override.height,
     width: override.width,
+    autoResize: override.autoResize,
+    aspectRatio: override.aspectRatio,
+    maintainAspectRatio: override.maintainAspectRatio,
     title: override.title,
     titleFontSize: override.titleFontSize,
     subtitle: override.subtitle,
@@ -47,7 +49,7 @@ export const mergeChartSettings = (
     yLegend: override.yLegend,
     yLegendFontSize: override.yLegendFontSize,
     yShowAxisLabels: override.yShowAxisLabels,
-    isHorizontal: override.isHorizontal,
+    isHorizontal: override.isHorizontal ?? true,
     dataLabelColors: override.dataLabelColors,
     applyColorToValue: override.applyColorToValue,
     datasetColors: override.datasetColors,
@@ -61,7 +63,7 @@ export const mergeChartSettings = (
     minBarLength: override.minBarLength,
     options: {
       ...initSettings.options,
-      indexAxis: override.isHorizontal ? 'y' : 'x',
+      indexAxis: override.isHorizontal || override.isHorizontal === undefined ? 'x' : 'y',
       plugins: {
         ...initSettings.options.plugins,
         colors: {

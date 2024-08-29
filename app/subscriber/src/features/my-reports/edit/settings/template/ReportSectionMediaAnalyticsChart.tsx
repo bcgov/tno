@@ -15,7 +15,7 @@ import { Col, Row, Show, ToggleButton } from 'tno-core';
 import { useReportEditContext } from '../../ReportEditContext';
 import { ReportSectionMediaAnalyticsChartAdvanced } from './ReportSectionMediaAnalyticsChartAdvanced';
 import { ReportSectionMediaAnalyticsChartWizard } from './ReportSectionMediaAnalyticsChartWizard';
-import { generateChartData, IChartData } from './utils';
+import { convertToChart, IChartData } from './utils';
 
 export interface IReportSectionMediaAnalyticsChartProps {
   sectionIndex: number;
@@ -55,7 +55,7 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
   }, [values.instances]);
 
   React.useEffect(() => {
-    setData(generateChartData(chart, showReportData ? reportContent : testData, values.sections));
+    setData(convertToChart(chart, showReportData ? reportContent : testData, values.sections));
   }, [chart, reportContent, showReportData, testData, values.sections]);
 
   React.useEffect(() => {
@@ -65,10 +65,12 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
   return (
     <Col key={chart.id} className="chart">
       <Row className="chart-header">
-        <Col flex="1">
+        <Col flex="1" onClick={() => setShowConfig((show) => !show)}>
           <b>{chart.name}</b>
         </Col>
-        <Col flex="2">{chart.description}</Col>
+        <Col flex="2" onClick={() => setShowConfig((show) => !show)}>
+          {chart.description}
+        </Col>
         <Row gap="1.5rem">
           <ToggleButton
             title={showReportData ? 'Using report data' : 'Using test data'}

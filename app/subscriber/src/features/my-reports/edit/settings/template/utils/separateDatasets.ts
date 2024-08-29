@@ -1,8 +1,8 @@
 import { getDistinct, IReportInstanceContentModel } from 'tno-core';
 
-import { IGenerateChartDataOptions } from './generateChartData';
+import { IConvertToChartOptions } from './convertToChart';
 
-interface ISeparateDatasetsOptions extends IGenerateChartDataOptions {
+interface ISeparateDatasetsOptions extends IConvertToChartOptions {
   // An array of groups to divide content.
   groups?: (string | number)[];
   // Predicate to identify groups from the content.
