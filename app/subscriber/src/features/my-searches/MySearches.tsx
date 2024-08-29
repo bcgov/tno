@@ -2,7 +2,7 @@ import { Action } from 'components/action';
 import { Modal } from 'components/modal';
 import React from 'react';
 import { FaCheck, FaSave } from 'react-icons/fa';
-import { FaBookmark, FaGear, FaPen, FaRegClipboard, FaTrash } from 'react-icons/fa6';
+import { FaBookmark, FaGear, FaPen, FaTrash } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useFilters } from 'store/hooks';
