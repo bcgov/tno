@@ -23,10 +23,10 @@ export const generateChartOptions = (
       x: {
         stacked: chartSectionSettings.stacked,
         display: chartSectionSettings.xShowAxisLabels,
-        suggestedMin: chartSectionSettings.isHorizontal
+        suggestedMin: !chartSectionSettings.isHorizontal
           ? chartSectionSettings.scaleSuggestedMin
           : undefined,
-        suggestedMax: chartSectionSettings.isHorizontal
+        suggestedMax: !chartSectionSettings.isHorizontal
           ? chartSectionSettings.scaleSuggestedMax ?? scaleCalcMax
           : undefined,
         title: {
@@ -46,10 +46,10 @@ export const generateChartOptions = (
       y: {
         stacked: chartSectionSettings.stacked,
         display: chartSectionSettings.yShowAxisLabels,
-        suggestedMin: !chartSectionSettings.isHorizontal
+        suggestedMin: chartSectionSettings.isHorizontal
           ? chartSectionSettings.scaleSuggestedMin
           : undefined,
-        suggestedMax: !chartSectionSettings.isHorizontal
+        suggestedMax: chartSectionSettings.isHorizontal
           ? chartSectionSettings.scaleSuggestedMax ?? scaleCalcMax
           : undefined,
         title: {

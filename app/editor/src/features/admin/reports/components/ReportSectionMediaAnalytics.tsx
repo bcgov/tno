@@ -234,7 +234,7 @@ export const ReportSectionMediaAnalytics = ({ index }: IReportSectionMediaAnalyt
                         ? chart.settings.datasetValue[0]
                         : '',
                       excludeEmptyValues: false,
-                      isHorizontal: false,
+                      isHorizontal: true,
                       showDataLabels: false,
                       width: 500,
                       options: { ...chart.settings?.options },

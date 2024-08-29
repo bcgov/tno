@@ -97,8 +97,6 @@ export const getChartData = (
     };
   });
 
-  console.debug(labels, groups, results);
-
   return {
     labels,
     datasets: results,

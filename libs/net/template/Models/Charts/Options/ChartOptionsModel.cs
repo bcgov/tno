@@ -25,5 +25,17 @@ public class ChartOptionsModel
     /// </summary>
     [JsonPropertyName("indexAxis")]
     public string? IndexAxis { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    [JsonPropertyName("aspectRatio")]
+    public string? AspectRatio { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    [JsonPropertyName("maintainAspectRatio")]
+    public string? MaintainAspectRatio { get; set; }
     #endregion
 }
