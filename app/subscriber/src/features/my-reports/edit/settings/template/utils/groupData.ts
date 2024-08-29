@@ -40,7 +40,7 @@ export const groupData = (
   } else if (groupBy === 'source') {
     result = getChartData(chart, datasets, sections, {
       ...options,
-      groupOn: (c) => c?.content?.otherSource,
+      groupOn: (c) => c?.content?.otherSource.toLocaleLowerCase(),
       getLabel: (c) => c?.content?.otherSource,
     });
   } else if (groupBy === 'series') {
@@ -53,7 +53,7 @@ export const groupData = (
   } else if (groupBy === 'byline') {
     result = getChartData(chart, datasets, sections, {
       ...options,
-      groupOn: (c) => c?.content?.byline,
+      groupOn: (c) => c?.content?.byline.toLocaleLowerCase(),
       labelValueWhenEmpty: 'Unknown',
     });
   } else if (groupBy === 'contentType') {
