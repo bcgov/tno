@@ -214,6 +214,7 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
   .option-row {
     display: flex;
     justify-content: center;
+    cursor: pointer;
     align-items: center;
     padding: 0.5em 0.5em 0.5em 0.5em;
     color: ${(props) => props.theme.css.btnSecondaryColor};
