@@ -63,6 +63,8 @@ export const mergeChartSettings = (
     minBarLength: override.minBarLength,
     options: {
       ...initSettings.options,
+      maintainAspectRatio: override.maintainAspectRatio,
+      aspectRatio: override.aspectRatio,
       indexAxis: override.isHorizontal || override.isHorizontal === undefined ? 'x' : 'y',
       plugins: {
         ...initSettings.options.plugins,

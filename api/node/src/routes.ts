@@ -1,5 +1,14 @@
 import { Router } from 'express';
-import { CategoryScale, Colors } from 'chart.js';
+import {
+  CategoryScale,
+  Colors,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+} from 'chart.js';
 import Chart from 'chart.js/auto';
 import { getString, convertChartJsConfigToBase64String, generateBase64, sendImage } from './utils';
 import { ChartTypes } from './charts';
@@ -9,8 +18,16 @@ Chart.register(CategoryScale);
 Chart.defaults.animation = false;
 Chart.defaults.responsive = false;
 Chart.defaults.maintainAspectRatio = true;
-Chart.register(Colors);
-Chart.register(ChartDataLabels);
+Chart.register(
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ChartDataLabels,
+  Colors,
+);
 
 const routes = Router();
 
