@@ -30,7 +30,7 @@ import * as styled from './styled';
 import { createReportSection } from './utils';
 
 export const ReportFormSections = () => {
-  const { values, setFieldValue } = useFormikContext<IReportModel>();
+  const { values, setFieldValue, setValues } = useFormikContext<IReportModel>();
   const [{ filters }, { findFilters }] = useFilters();
   const [{ folders }, { findFolders }] = useFolders();
 
@@ -85,16 +85,33 @@ export const ReportFormSections = () => {
   };
 
   const handleDelete = (index: number) => {
-    var sections = [...values.sections];
-    sections.splice(index, 1);
-    if (index === section?.sortOrder) setSection(undefined);
-    setFieldValue(
-      `sections`,
-      sections.map((s, i) => ({
-        ...s,
-        sortOrder: i,
-      })),
-    );
+    if (!section) return;
+
+    // Remove the content from the removed section in the current instance.
+    const instance = values.instances.length ? { ...values.instances[0] } : undefined;
+    if (instance) {
+      const sectionNames = values.sections
+        .filter((s) => s.name !== section.name)
+        .map((s) => s.name);
+      const content = instance
+        ? instance.content.filter((c) => sectionNames.includes(c.sectionName))
+        : [];
+      instance.content = content;
+    }
+
+    if (index === section.sortOrder) setSection(undefined);
+    setValues({
+      ...values,
+      sections: values.sections
+        .filter((s, i) => i !== index)
+        .map((section, index) => ({
+          ...section,
+          sortOrder: index,
+        })),
+      instances: instance
+        ? values.instances.map((original, index) => (index === 0 ? instance : original))
+        : values.instances,
+    });
   };
 
   return (

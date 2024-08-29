@@ -37,17 +37,35 @@ export const ReportEditTemplateForm = () => {
 
   const removeSection = React.useCallback(
     (index: number) => {
-      setFieldValue(
-        'sections',
-        values.sections
+      const section = values.sections.length > index ? values.sections[index] : undefined;
+      if (!section) return;
+
+      // Remove the content from the removed section in the current instance.
+      const instance = values.instances.length ? { ...values.instances[0] } : undefined;
+      if (instance) {
+        const sectionNames = values.sections
+          .filter((s) => s.name !== section.name)
+          .map((s) => s.name);
+        const content = instance
+          ? instance.content.filter((c) => sectionNames.includes(c.sectionName))
+          : [];
+        instance.content = content;
+      }
+
+      setValues({
+        ...values,
+        sections: values.sections
           .filter((s, i) => i !== index)
           .map((section, index) => ({
             ...section,
             sortOrder: index,
           })),
-      );
+        instances: instance
+          ? values.instances.map((original, index) => (index === 0 ? instance : original))
+          : values.instances,
+      });
     },
-    [setFieldValue, values.sections],
+    [setValues, values],
   );
 
   /** function that runs after a user drops an item in the list */

@@ -227,7 +227,7 @@ public class ReportEngine : IReportEngine
         // Send request to Charts API to generate base64
         var body = new StringContent(dataJson, Encoding.UTF8, System.Net.Mime.MediaTypeNames.Application.Json);
         var width = model.ChartTemplate.SectionSettings.Width.HasValue ? $"width={model.ChartTemplate.SectionSettings.Width.Value}" : "";
-        var height = model.ChartTemplate.SectionSettings.Height.HasValue ? $"&height={model.ChartTemplate.SectionSettings.Height.Value}" : "";
+        var height = model.ChartTemplate.SectionSettings.Height.HasValue ? $"{(String.IsNullOrWhiteSpace(width) ? "" : "&")}height={model.ChartTemplate.SectionSettings.Height.Value}" : "";
         var response = await this.HttpClient.PostAsync(
             this.ChartsOptions.Url.Append(
                 this.ChartsOptions.Base64Path,
@@ -244,7 +244,7 @@ public class ReportEngine : IReportEngine
     /// <param name="settings"></param>
     /// <param name="minAxisColumnWidth"></param>
     /// <returns></returns>
-    private static bool ShouldResize(ChartDataModel data, API.Models.Settings.ChartSectionSettingsModel settings, int minAxisColumnWidth)
+    private bool ShouldResize(ChartDataModel data, API.Models.Settings.ChartSectionSettingsModel settings, int minAxisColumnWidth)
     {
         var axisLabelCount = data.Labels.Length;
         var size = settings.IsHorizontal == false ? settings.Height : settings.Width;
@@ -410,7 +410,7 @@ public class ReportEngine : IReportEngine
                         settings.UseAllContent ? null : content);
                     var chartRequestModel = new ChartRequestModel(chartModel);
                     var base64Image = await this.GenerateBase64ImageAsync(chartRequestModel);
-                    this.Logger.LogDebug("Chart generated, sectionId:{sectionId} chartId:{chartId}", section.Id, chart.Id);
+                    this.Logger.LogDebug("Chart generated, reportId:{reportId} instanceId:{instance} sectionId:{sectionId} chartId:{chartId}", report.Id, reportInstance?.Id, section.Id, chart.Id);
 
                     // Replace Chart Stubs with the generated image.
                     body = body.Replace(ReportSectionModel.GenerateChartUid(section.Id, chart.Id), base64Image);
