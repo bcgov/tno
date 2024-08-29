@@ -16,6 +16,11 @@ public class ChartSectionSettingsModel
     public int? Height { get; set; }
 
     /// <summary>
+    /// get/set - Automatically resize chart based on data.
+    /// </summary>
+    public bool? AutoResize { get; set; }
+
+    /// <summary>
     /// get/set - Whether width and height should force aspect ratio.
     /// </summary>
     public bool? MaintainAspectRatio { get; set; }

@@ -7,7 +7,7 @@ import {
   TopicTypeName,
 } from 'tno-core';
 
-import { IGenerateChartDataOptions } from './generateChartData';
+import { IConvertToChartOptions } from './convertToChart';
 import { getChartData } from './getChartData';
 import { getSentimentLabel } from './getSentimentLabel';
 import { getSentimentValue } from './getSentimentValue';
@@ -18,7 +18,7 @@ export const groupData = (
   chart: IReportSectionChartTemplateModel,
   datasets: Record<string, IReportInstanceContentModel[]>,
   sections: IReportSectionModel[],
-  options?: IGenerateChartDataOptions,
+  options?: IConvertToChartOptions,
 ) => {
   const count = isStoryCount(chart);
   const groupBy = chart.sectionSettings.groupBy;
@@ -28,13 +28,14 @@ export const groupData = (
   if (groupBy === '') {
     result = getChartData(chart, datasets, sections, {
       ...options,
-      groupOn: (c) => (count ? 'Stories' : 'Average Sentiment'),
+      groupOn: (c) => (count ? 'Story Count' : 'Average Sentiment'),
     });
   } else if (groupBy === 'mediaType') {
     result = getChartData(chart, datasets, sections, {
       ...options,
       groupOn: (c) => c?.content?.mediaTypeId,
       getLabel: (c) => c?.content?.mediaType?.name,
+      labelValueWhenEmpty: 'Other',
     });
   } else if (groupBy === 'source') {
     result = getChartData(chart, datasets, sections, {
@@ -47,11 +48,13 @@ export const groupData = (
       ...options,
       groupOn: (c) => c?.content?.seriesId,
       getLabel: (c) => c?.content?.series?.name,
+      labelValueWhenEmpty: 'None',
     });
   } else if (groupBy === 'byline') {
     result = getChartData(chart, datasets, sections, {
       ...options,
       groupOn: (c) => c?.content?.byline,
+      labelValueWhenEmpty: 'Unknown',
     });
   } else if (groupBy === 'contentType') {
     result = getChartData(chart, datasets, sections, {
@@ -64,6 +67,7 @@ export const groupData = (
       groups: [TopicTypeName.Proactive, TopicTypeName.Issues],
       groupOn: (c) => undefined,
       isInGroup: (c, g) => c?.content?.topics.some((t) => t.topicType === g) ?? false,
+      labelValueWhenEmpty: 'None',
     });
   } else if (groupBy === 'topicName') {
     const items = Object.entries(datasets)
@@ -77,16 +81,19 @@ export const groupData = (
       groups: topics,
       groupOn: (c) => undefined,
       isInGroup: (c, g) => c?.content?.topics.some((t) => t.name === g) ?? false,
+      labelValueWhenEmpty: 'None',
     });
   } else if (groupBy === 'sentiment') {
     result = getChartData(chart, datasets, sections, {
       ...options,
       groupOn: (c) => getSentimentValue(c?.content),
+      labelValueWhenEmpty: 'None',
     });
   } else if (groupBy === 'sentimentSimple') {
     result = getChartData(chart, datasets, sections, {
       ...options,
       groupOn: (c) => getSentimentLabel(c?.content),
+      labelValueWhenEmpty: 'None',
     });
   } else if (groupBy === 'dayMonthYear') {
     result = getChartData(chart, datasets, sections, {

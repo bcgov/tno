@@ -2,6 +2,7 @@ import { useReportEditContext } from 'features/my-reports/edit/ReportEditContext
 import React from 'react';
 import {
   chartTypeOptions,
+  Checkbox,
   Col,
   FormikCheckbox,
   FormikSelect,
@@ -92,6 +93,11 @@ export const ChartPicker: React.FC<IChartSectionProps> = ({ sectionIndex, chartI
           </Row>
         </Row>
         <FormikCheckbox
+          label="Auto resize chart to fit data"
+          name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.autoResize`}
+          checked={chart.sectionSettings.autoResize ?? false}
+        />
+        <FormikCheckbox
           label="Maintain Canvas Aspect Ratio when Resizing"
           name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.maintainAspectRatio`}
           checked={chart.sectionSettings.maintainAspectRatio ?? false}
@@ -99,15 +105,15 @@ export const ChartPicker: React.FC<IChartSectionProps> = ({ sectionIndex, chartI
 
         <Col className="frm-in">
           <label>Axis</label>
-          <FormikCheckbox
+          <Checkbox
             label="Flip X and Y axis"
             name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.isHorizontal`}
-            checked={!!chart.sectionSettings.isHorizontal}
+            checked={!chart.sectionSettings.isHorizontal}
             onChange={(e) => {
               setFieldValue(
                 `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                 mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                  isHorizontal: e.target.checked,
+                  isHorizontal: !e.target.checked,
                 }),
               );
             }}

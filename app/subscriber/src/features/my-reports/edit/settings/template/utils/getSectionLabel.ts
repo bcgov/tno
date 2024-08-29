@@ -1,7 +1,7 @@
 import { IChartSectionSettingsModel, IReportSectionModel } from 'tno-core';
 
 export const getSectionLabel = (
-  name: string,
+  name: string | undefined | null,
   chartSectionSettings: IChartSectionSettingsModel,
   sections: IReportSectionModel[],
 ) => {

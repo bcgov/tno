@@ -16,7 +16,9 @@ export const generateChartOptions = (
     responsive: false,
     maintainAspectRatio: chartSectionSettings.maintainAspectRatio,
     aspectRatio: chartSectionSettings.aspectRatio,
-    indexAxis: (chartSectionSettings.isHorizontal ? 'y' : 'x') as any, // Need this due to some oddity with Typescript and Chart.js
+    indexAxis: (chartSectionSettings.isHorizontal === undefined || chartSectionSettings.isHorizontal
+      ? 'x'
+      : 'y') as any, // Need this due to some oddity with Typescript and Chart.js
     scales: {
       x: {
         stacked: chartSectionSettings.stacked,
