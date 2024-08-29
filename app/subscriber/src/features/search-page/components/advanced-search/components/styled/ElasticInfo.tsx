@@ -7,6 +7,20 @@ export const ElasticInfo = styled.div`
     margin-right: 0.25em;
   }
 
+  .react-draggable {
+    position: absolute;
+    width: 30em;
+    background: ${(props) => props.theme.css.bkWhite};
+    border: 1px solid ${(props) => props.theme.css.linePrimaryColor};
+    border-radius: 0.25em;
+    z-index: 1000;
+    padding: 0.5em;
+    cursor: move;
+    .close-icon {
+      margin-left: auto;
+    }
+  }
+
   code {
     font-size: 1em;
     background: ${(props) => props.theme.css.codeBlockColor};
