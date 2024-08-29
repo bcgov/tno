@@ -1,4 +1,4 @@
-import { ReportStatusName } from '../constants';
+import { NotificationStatusName, ReportStatusName } from '../constants';
 import { ISortPageFilter } from './ISortPageFilter';
 
 export interface IDashboardFilter extends ISortPageFilter {
@@ -10,4 +10,6 @@ export interface IDashboardFilter extends ISortPageFilter {
   startDate?: string;
   endDate?: string;
   status?: ReportStatusName[];
+  notificationStatus?: NotificationStatusName[];
+  notificationId?: number;
 }

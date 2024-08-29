@@ -2,7 +2,9 @@ import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 import {
+  IDashboardFilter,
   INotificationFilter,
+  INotificationInstanceModel,
   INotificationModel,
   INotificationResultModel,
   useApiAdminNotifications,
@@ -23,6 +25,7 @@ interface INotificationController {
     to: string,
     contentId?: number,
   ) => Promise<INotificationModel>;
+  getDashboard: (filter: IDashboardFilter) => Promise<INotificationInstanceModel[]>;
 }
 
 export const useNotifications = (): [IAdminState, INotificationController] => {
@@ -92,6 +95,12 @@ export const useNotifications = (): [IAdminState, INotificationController] => {
       sendNotification: async (model: INotificationModel, to: string, contentId?: number) => {
         const response = await dispatch<INotificationModel>('send-Notification', () =>
           api.sendNotification(model, to, contentId),
+        );
+        return response.data;
+      },
+      getDashboard: async (filter: IDashboardFilter) => {
+        const response = await dispatch<INotificationInstanceModel[]>('get-dashboard', () =>
+          api.getDashboard(filter),
         );
         return response.data;
       },

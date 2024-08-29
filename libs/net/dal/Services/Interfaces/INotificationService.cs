@@ -33,4 +33,11 @@ public interface INotificationService : IBaseService<Notification, int>
     /// <param name="userId"></param>
     /// <param name="contentId"></param>
     void SubscriberUserToContent(int userId, long contentId);
+
+    /// <summary>
+    /// Get notifications based on the filter for the dashboard.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <returns></returns>
+    public IEnumerable<NotificationInstance> GetDashboard(DashboardFilter filter);
 }

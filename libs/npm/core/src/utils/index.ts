@@ -8,6 +8,7 @@ export * from './extractFileName';
 export * from './extractResponseData';
 export * from './fetchIfNoneMatch';
 export * from './filterEnabledOptions';
+export * from './formatDashboardDate';
 export * from './formatIdir';
 export * from './getCookie';
 export * from './getDirectoryName';

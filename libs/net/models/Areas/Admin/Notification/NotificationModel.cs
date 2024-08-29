@@ -1,4 +1,5 @@
 using System.Text.Json;
+using TNO.API.Areas.Admin.Models.NotificationInstance;
 using TNO.API.Models;
 using TNO.API.Models.Settings;
 using TNO.Entities;
@@ -35,6 +36,11 @@ public class NotificationModel : BaseTypeWithAuditColumnsModel<int>
     /// get/set - Foreign key to user who owns this notification.
     /// </summary>
     public int? OwnerId { get; set; }
+
+    /// <summary>
+    /// get/set - Foreign key to user who owns this notification.
+    /// </summary>
+    public UserModel? Owner { get; set; }
 
     /// <summary>
     /// get/set - Whether this notification is public to all users.
@@ -80,6 +86,7 @@ public class NotificationModel : BaseTypeWithAuditColumnsModel<int>
         this.Template = entity.Template != null ? new NotificationTemplateModel(entity.Template, options) : null;
         this.Resend = entity.Resend;
         this.OwnerId = entity.OwnerId;
+        this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.IsPublic = entity.IsPublic;
         this.AlertOnIndex = entity.AlertOnIndex;
         this.Settings = JsonSerializer.Deserialize<FilterSettingsModel>(entity.Settings, options) ?? new();

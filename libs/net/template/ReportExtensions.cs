@@ -646,6 +646,7 @@ public static partial class ReportExtensions
         // Use the index of the dataset to pick the colour.
         index = index >= 0 ? index : 0;
         var length = colors.Length;
+        if (length == 0) return "null";
         var position = index < length ? index : index % length;
         return $"[\"{colors[position]}\"]";
     }

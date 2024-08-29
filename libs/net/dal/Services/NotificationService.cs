@@ -313,5 +313,60 @@ public class NotificationService : BaseService<Notification, int>, INotification
             this.Context.CommitTransaction();
         }
     }
+
+    /// <summary>
+    /// Get notifications based on the filter for the dashboard.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <returns></returns>
+    public IEnumerable<NotificationInstance> GetDashboard(DashboardFilter filter)
+    {
+        var query = this.Context.NotificationInstances
+            .AsNoTracking()
+            .Include(r => r.Notification)
+            .Include(r => r.Notification).ThenInclude(r => r!.Owner)
+            .Include(r => r.Notification).ThenInclude(r => r!.SubscribersManyToMany).ThenInclude(u => u.User)
+            .AsQueryable();
+
+        if (filter.NotificationId.HasValue)
+            query = query.Where(r => r.NotificationId == filter.NotificationId.Value);
+        if (filter.IsEnabled.HasValue)
+            query = query.Where(r => r.Notification!.IsEnabled == filter.IsEnabled.Value);
+        if (filter.IsPublic.HasValue)
+            query = query.Where(r => r.Notification!.IsPublic == filter.IsPublic.Value);
+        if (!String.IsNullOrWhiteSpace(filter.Name))
+            query = query.Where(c => EF.Functions.Like(c.Notification!.Name.ToLower(), $"%{filter.Name.ToLower()}%"));
+        if (!String.IsNullOrWhiteSpace(filter.Keyword))
+            query = query.Where(c =>
+                EF.Functions.Like(c.Notification!.Name.ToLower(), $"%{filter.Keyword.ToLower()}%") ||
+                EF.Functions.Like(c.Subject!.ToLower(), $"%{filter.Keyword.ToLower()}%") ||
+                EF.Functions.Like(c.Notification.Owner!.Username.ToLower(), $"%{filter.Keyword.ToLower()}%") ||
+                EF.Functions.Like(c.Notification.Owner!.Email.ToLower(), $"%{filter.Keyword.ToLower()}%") ||
+                EF.Functions.Like(c.Notification.Owner!.PreferredEmail.ToLower(), $"%{filter.Keyword.ToLower()}%") ||
+                EF.Functions.Like(c.Notification.Owner!.FirstName.ToLower(), $"%{filter.Keyword.ToLower()}%") ||
+                EF.Functions.Like(c.Notification.Owner!.LastName.ToLower(), $"%{filter.Keyword.ToLower()}%")
+                );
+        if (filter.OwnerId.HasValue)
+            query = query.Where(r => r.OwnerId == filter.OwnerId.Value);
+        if (filter.StartDate.HasValue && filter.EndDate.HasValue)
+            query = query.Where(i => i.SentOn >= filter.StartDate.Value.ToUniversalTime() && i.SentOn < filter.EndDate.Value.ToUniversalTime());
+        else if (filter.StartDate.HasValue)
+            query = query.Where(i => i.SentOn >= filter.StartDate.Value.ToUniversalTime());
+        else if (filter.EndDate.HasValue)
+            query = query.Where(i => i.SentOn < filter.EndDate.Value.ToUniversalTime());
+        if (filter.NotificationStatus?.Any() == true)
+            query = query.Where(i => filter.NotificationStatus.Contains(i.Status));
+
+        var page = filter.Page ?? 1;
+        var quantity = filter.Quantity ?? 10;
+        var skip = (page - 1) * quantity;
+        var notifications = query
+            .OrderBy(r => r.Notification!.Name)
+            .Skip(skip)
+            .Take(quantity)
+            .ToArray();
+
+        return notifications;
+    }
     #endregion
 }

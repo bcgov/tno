@@ -1,8 +1,7 @@
 import moment from 'moment';
-import { IReportModel } from 'tno-core';
+import { formatDashboardDate, IReportModel } from 'tno-core';
 
 import { calcNextScheduleSend } from './calcNextScheduleSend';
-import { formatDate } from './formatDate';
 
 export const getNextSchedule = (report: IReportModel) => {
   if (!report.events.length) return undefined;
@@ -16,10 +15,10 @@ export const getNextSchedule = (report: IReportModel) => {
   const second = calcNextScheduleSend(report, report.events[1]);
   if (first && second) return moment.min(first, second).format('yyyy-MM-DD hh:mm:ssA');
   if (first) {
-    return formatDate(first.format('yyyy-MM-DD hh:mm:ssA'), true);
+    return formatDashboardDate(first.format('yyyy-MM-DD hh:mm:ssA'), true);
   }
   if (second) {
-    return formatDate(second.format('yyyy-MM-DD hh:mm:ssA'), true);
+    return formatDashboardDate(second.format('yyyy-MM-DD hh:mm:ssA'), true);
   }
   return undefined;
 };

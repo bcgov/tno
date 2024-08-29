@@ -21,6 +21,11 @@ public class NotificationFilter : PageFilter
     public NotificationType? NotificationType { get; set; }
 
     /// <summary>
+    /// get/set - The notification status.
+    /// </summary>
+    public NotificationStatus? NotificationStatus { get; set; }
+
+    /// <summary>
     /// get/set - The owner of the notification.
     /// </summary>
     public int? OwnerId { get; set; }
@@ -53,6 +58,7 @@ public class NotificationFilter : PageFilter
         this.SubscriberUserId = filter.GetIntNullValue(nameof(this.SubscriberUserId));
         this.IsEnabled = filter.GetBoolNullValue(nameof(this.IsEnabled));
         this.Ids = filter.GetIntArrayValue(nameof(this.Ids));
+        this.NotificationStatus = filter.GetEnumNullValue<NotificationStatus>(nameof(this.NotificationStatus));
     }
     #endregion
 }
