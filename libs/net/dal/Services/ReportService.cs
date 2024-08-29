@@ -827,7 +827,7 @@ public class ReportService : BaseService<Report, int>, IReportService
                 if (sectionSettings.RemoveDuplicates)
                     query = query.Where(fc => !excludeAboveSectionContentIds.Contains(fc.ContentId));
 
-                if (excludeContentIds.Any() && !sectionSettings.OverrideExcludeHistorical)
+                if (excludeContentIds.Any())
                     query = query.Where(fc => !excludeContentIds.Contains(fc.ContentId));
 
                 var content = query
@@ -851,9 +851,9 @@ public class ReportService : BaseService<Report, int>, IReportService
 
                 // Modify the query to exclude content.
                 var excludeOnlyTheseContentIds = excludeContentIds.Any() && !sectionSettings.OverrideExcludeHistorical ? excludeContentIds : Array.Empty<long>();
-                var excludeAboveAndHistorical = sectionSettings.RemoveDuplicates
+                var excludeAboveAndHistorical = sectionSettings.OverrideExcludeHistorical
                     ? excludeOnlyTheseContentIds.AppendRange(excludeAboveSectionContentIds).Distinct().ToArray()
-                    : Array.Empty<long>();
+                    : excludeOnlyTheseContentIds;
                 var query = excludeAboveAndHistorical.Any()
                     ? section.Filter.Query.AddExcludeContent(excludeAboveAndHistorical)
                     : section.Filter.Query;
