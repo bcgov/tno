@@ -3,15 +3,7 @@ import 'react-quill/dist/quill.snow.css';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useLookup } from 'store/hooks';
-import {
-  Button,
-  ButtonVariant,
-  ContentTypeName,
-  FormikContentWysiwyg,
-  Modal,
-  Show,
-  useWindowSize,
-} from 'tno-core';
+import { ContentTypeName, FormikContentWysiwyg, Show } from 'tno-core';
 
 import { useExtractTags } from './hooks';
 import { IContentForm } from './interfaces';
@@ -36,8 +28,6 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   setParsedTags,
 }) => {
   const { values } = useFormikContext<IContentForm>();
-  const [showExpandModal, setShowExpandModal] = React.useState(false);
-  const { height } = useWindowSize();
   const [{ tags }] = useLookup();
   const getTags = useExtractTags({ setParsedTags });
 
@@ -58,11 +48,7 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
           contentType === ContentTypeName.Image || contentType === ContentTypeName.AudioVideo
         }
       >
-        <MediaSummary
-          setShowExpandModal={setShowExpandModal}
-          isSummaryRequired={summaryRequired}
-          getTags={getTags}
-        />
+        <MediaSummary isSummaryRequired={summaryRequired} getTags={getTags} />
       </Show>
       <Show
         visible={
@@ -77,53 +63,10 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
               : 'Summary'
           }
           name="body"
-          expandModal={setShowExpandModal}
           tags={tags}
           onChange={(text) => getTags('body', text)}
         />
       </Show>
-      <Modal
-        body={
-          <FormikContentWysiwyg
-            className="modal-quill"
-            label={
-              contentType === ContentTypeName.PrintContent ||
-              contentType === ContentTypeName.Internet
-                ? 'Story'
-                : 'Summary'
-            }
-            required={summaryRequired}
-            height={height}
-            name={
-              contentType === ContentTypeName.PrintContent ||
-              contentType === ContentTypeName.Internet
-                ? 'body'
-                : 'summary'
-            }
-            tags={tags}
-            onChange={(text) =>
-              getTags(
-                contentType === ContentTypeName.PrintContent ||
-                  contentType === ContentTypeName.Internet
-                  ? 'body'
-                  : 'summary',
-                text,
-              )
-            }
-          />
-        }
-        isShowing={showExpandModal}
-        hide={() => setShowExpandModal(!showExpandModal)}
-        className="modal-full"
-        customButtons={
-          <Button
-            variant={ButtonVariant.secondary}
-            onClick={() => setShowExpandModal(!showExpandModal)}
-          >
-            Close
-          </Button>
-        }
-      />
     </styled.ContentStoryForm>
   );
 };

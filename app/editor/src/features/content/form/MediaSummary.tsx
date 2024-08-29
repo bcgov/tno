@@ -5,7 +5,6 @@ import { FormikContentWysiwyg } from 'tno-core';
 import * as styled from './styled';
 
 export interface IMediaSummaryProps {
-  setShowExpandModal?: (show: boolean) => void;
   isSummaryRequired: boolean;
   getTags: Function;
 }
@@ -14,11 +13,7 @@ export interface IMediaSummaryProps {
  * Provides a way to view/edit images/snippets and the summary.
  * @returns the MediaSummary
  */
-export const MediaSummary: React.FC<IMediaSummaryProps> = ({
-  setShowExpandModal,
-  isSummaryRequired,
-  getTags,
-}) => {
+export const MediaSummary: React.FC<IMediaSummaryProps> = ({ isSummaryRequired, getTags }) => {
   const [{ tags }] = useLookup();
 
   return (
@@ -28,7 +23,6 @@ export const MediaSummary: React.FC<IMediaSummaryProps> = ({
         label="Summary"
         required={isSummaryRequired}
         name="summary"
-        expandModal={setShowExpandModal}
         tags={tags}
         onChange={(e) => getTags('summary', e)}
       />
