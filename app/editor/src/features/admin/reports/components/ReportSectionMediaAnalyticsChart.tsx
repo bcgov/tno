@@ -89,22 +89,55 @@ export const ReportSectionMediaAnalyticsChart = ({
               options={chartTypeOptions.filter((o) => chart.settings.chartTypes.includes(o.value))}
               isClearable={false}
             />
+            <FormikText
+              label="Width"
+              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.width`}
+              value={chart.sectionSettings.width ?? 500}
+              type="number"
+              width="10ch"
+            />
             <Row justifyContent="space-around">
               <FormikText
-                label="Width"
-                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.width`}
-                value={chart.sectionSettings.width ?? 500}
+                label="Aspect Ratio"
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.aspectRatio`}
+                value={chart.sectionSettings.aspectRatio ?? ''}
+                onChange={(e) => {
+                  const value = e.target.value.trim();
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.aspectRatio`,
+                    value ? +value : undefined,
+                  );
+                }}
                 type="number"
                 width="10ch"
+                disabled={!!chart.sectionSettings.height}
               />
+              <Col>or</Col>
               <FormikText
                 label="Height"
                 name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.height`}
-                value={chart.sectionSettings.height ?? 500}
+                value={chart.sectionSettings.height ?? ''}
+                onChange={(e) => {
+                  const value = e.target.value.trim();
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    {
+                      ...chart.sectionSettings,
+                      height: value ? +value : undefined,
+                      aspectRatio: value ? undefined : 1,
+                    },
+                  );
+                }}
                 type="number"
                 width="10ch"
+                disabled={!!chart.sectionSettings.aspectRatio}
               />
             </Row>
+            <FormikCheckbox
+              label="Auto resize chart to fit data"
+              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.autoResize`}
+              checked={chart.sectionSettings.autoResize ?? false}
+            />
             <Col>
               <Checkbox
                 name="applyColorToValue"
@@ -355,15 +388,15 @@ export const ReportSectionMediaAnalyticsChart = ({
                     );
                   }}
                 />
-                <FormikCheckbox
+                <Checkbox
                   label="Flip X and Y axis"
                   name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.isHorizontal`}
-                  checked={!!chart.sectionSettings.isHorizontal}
+                  checked={!chart.sectionSettings.isHorizontal}
                   onChange={(e) => {
                     setFieldValue(
                       `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                       mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                        isHorizontal: e.target.checked,
+                        isHorizontal: !e.target.checked,
                       }),
                     );
                   }}

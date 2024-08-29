@@ -21,16 +21,16 @@ public class ChartDatasetModel
     public double?[] Data { get; set; } = Array.Empty<double?>();
 
     /// <summary>
-    /// get/set -
+    /// get/set - Either an array of colours, or a function.
     /// </summary>
     [JsonPropertyName("backgroundColor")]
-    public string[]? BackgroundColor { get; set; }
+    public object? BackgroundColor { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - Either an array of colours, or a function.
     /// </summary>
     [JsonPropertyName("borderColor")]
-    public string[]? BorderColor { get; set; }
+    public object? BorderColor { get; set; }
 
     /// <summary>
     /// get/set -

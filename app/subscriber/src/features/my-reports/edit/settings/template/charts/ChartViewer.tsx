@@ -16,12 +16,14 @@ import React from 'react';
 import { useModal } from 'tno-core';
 
 import {
+  calcAutoSize,
   determineBackgroundColor,
   determineBorderColor,
   generateChartOptions,
   getSectionLabel,
   IChartData,
   IChartDataset,
+  shouldResizeChart,
 } from '../utils';
 import { IChartSectionProps } from './IChartSectionProps';
 
@@ -65,9 +67,11 @@ export const ChartViewer: React.FC<IChartViewerProps> = ({
   const uid = `${section.id}_${sectionIndex}`;
 
   React.useEffect(() => {
-    const axisColumnWidth =
-      data && chart.sectionSettings.width ? chart.sectionSettings.width / data.labels.length : 0;
-    if (data && chart.sectionSettings.autoResize && axisColumnWidth < minAxisColumnWidth) {
+    if (
+      data &&
+      chart.sectionSettings.autoResize &&
+      shouldResizeChart(data.labels.length, chart.sectionSettings, minAxisColumnWidth)
+    ) {
       toggleModal();
     }
     // Only update when values change in data or chart.
@@ -75,6 +79,7 @@ export const ChartViewer: React.FC<IChartViewerProps> = ({
   }, [
     chart.sectionSettings.autoResize,
     chart.sectionSettings.width,
+    chart.sectionSettings.height,
     data?.labels.length,
     minAxisColumnWidth,
   ]);
@@ -135,17 +140,15 @@ export const ChartViewer: React.FC<IChartViewerProps> = ({
           if (data) {
             // Calculate a new size for the chart based on the number of labels on the axis.
             // Handle the direction of the axis, and aspect ratio.
-            const isHorizontal =
-              chart.sectionSettings.isHorizontal ||
-              chart.sectionSettings.isHorizontal === undefined;
-            const size = data.labels.length * minAxisColumnWidth;
-            const height = isHorizontal ? chart.sectionSettings.height : size;
-            setFieldValue(`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`, {
-              ...chart.sectionSettings,
-              width: isHorizontal ? size : chart.sectionSettings.width,
-              height: height,
-              aspectRatio: height ? undefined : chart.sectionSettings.aspectRatio,
-            });
+            const settings = calcAutoSize(
+              data.labels.length,
+              chart.sectionSettings,
+              minAxisColumnWidth,
+            );
+            setFieldValue(
+              `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+              settings,
+            );
           }
           toggleModal();
         }}

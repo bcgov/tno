@@ -190,26 +190,40 @@ public class ReportEngine : IReportEngine
         // Get the Chart JSON data.
         var data = model.ChartData ?? (await this.GenerateJsonAsync(model, isPreview)).Json;
         var dataJson = data.ToJson();
+        var dataModel = JsonSerializer.Deserialize<ChartDataModel>(dataJson, this.SerializerOptions);
 
         // If chart settings require auto scale
         if (model.ChartTemplate.SectionSettings.ScaleCalcMax.HasValue)
         {
             // Determine the maximum scale and add the auto max to it.
-            var dataModel = JsonSerializer.Deserialize<ChartDataModel>(dataJson, this.SerializerOptions);
             var max = dataModel?.Datasets.Any() == true ? dataModel?.Datasets.Max(ds => ds.Data.Any() ? ds.Data.Max(v => v ?? 0) : 0) : null;
             if (max.HasValue)
             {
-                var suggestedMax = (int)max + model.ChartTemplate.SectionSettings.ScaleCalcMax.Value;
                 var sectionJsonText = model.ChartTemplate.SectionSettings.Options.ToJson();
                 if (sectionJsonText != "{}")
                 {
                     var chartOptions = JsonSerializer.Deserialize<ChartOptionsModel>(model.ChartTemplate.SectionSettings.Options);
                     if (chartOptions != null)
                     {
+                        var suggestedMax = (int)max + model.ChartTemplate.SectionSettings.ScaleCalcMax.Value;
                         chartOptions.Scales.X.SuggestedMax = suggestedMax;
                         chartOptions.Scales.Y.SuggestedMax = suggestedMax;
                         model.ChartTemplate.SectionSettings.Options = JsonDocument.Parse(JsonSerializer.Serialize(chartOptions, this.SerializerOptions));
                     }
+                }
+            }
+        }
+        if (dataModel != null && model.ChartTemplate.SectionSettings.AutoResize == true && ShouldResize(dataModel, model.ChartTemplate.SectionSettings, 30))
+        {
+            // If the chart should be resized, calculate the new size and update the options.
+            UpdateChartSize(dataModel, model.ChartTemplate.SectionSettings, 30);
+            var sectionJsonText = model.ChartTemplate.SectionSettings.Options.ToJson();
+            if (sectionJsonText != "{}")
+            {
+                var chartOptions = JsonSerializer.Deserialize<ChartOptionsModel>(model.ChartTemplate.SectionSettings.Options);
+                if (chartOptions != null)
+                {
+                    model.ChartTemplate.SectionSettings.Options = JsonDocument.Parse(JsonSerializer.Serialize(chartOptions, this.SerializerOptions));
                 }
             }
         }
@@ -230,6 +244,45 @@ public class ReportEngine : IReportEngine
                 $"?{width}{height}&options={optionsBase64}"),
             body);
         return await response.Content.ReadAsStringAsync();
+    }
+
+    /// <summary>
+    /// Determine if the chart should be resized, based on the number of axis labels.
+    /// </summary>
+    /// <param name="data"></param>
+    /// <param name="settings"></param>
+    /// <param name="minAxisColumnWidth"></param>
+    /// <returns></returns>
+    private bool ShouldResize(ChartDataModel data, API.Models.Settings.ChartSectionSettingsModel settings, int minAxisColumnWidth)
+    {
+        var axisLabelCount = data.Labels.Length;
+        var size = settings.IsHorizontal == false ? settings.Height : settings.Width;
+        if (size == null || size <= 0 || axisLabelCount <= 0) return false;
+        var currentAxisColumnWidth = size / axisLabelCount;
+        return currentAxisColumnWidth < minAxisColumnWidth;
+    }
+
+    /// <summary>
+    /// Resize the chart based on the number of axis labels.
+    /// </summary>
+    /// <param name="data"></param>
+    /// <param name="settings"></param>
+    /// <param name="minAxisColumnWidth"></param>
+    private void UpdateChartSize(ChartDataModel data, API.Models.Settings.ChartSectionSettingsModel settings, int minAxisColumnWidth)
+    {
+        var axisLabelCount = data.Labels.Length;
+        var size = settings.IsHorizontal == false ? settings.Height : settings.Width;
+        if (size == null || size <= 0 || axisLabelCount <= 0) return;
+        var currentAxisColumnWidth = size / axisLabelCount;
+        if (currentAxisColumnWidth < minAxisColumnWidth)
+        {
+            var newSize = minAxisColumnWidth * axisLabelCount;
+            var width = settings.IsHorizontal == false ? settings.Width : newSize;
+            var height = settings.IsHorizontal == false ? newSize : settings.Height;
+            settings.Width = width;
+            settings.Height = height;
+            settings.AspectRatio = height.HasValue ? null : settings.AspectRatio;
+        }
     }
 
     #region Content

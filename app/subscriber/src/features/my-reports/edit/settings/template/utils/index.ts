@@ -1,3 +1,4 @@
+export * from './calcAutoSize';
 export * from './calcAverageSentiment';
 export * from './calcDataPoint';
 export * from './convertToChart';
@@ -26,3 +27,4 @@ export * from './selectColorForDataset';
 export * from './selectSentimentColorForDataset';
 export * from './selectSentimentColorForValue';
 export * from './separateDatasets';
+export * from './shouldResizeChart';
