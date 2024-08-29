@@ -8,9 +8,7 @@ import ReactQuill from 'react-quill';
 import { CustomToolbar } from './CustomToolbar';
 import * as styled from './styled';
 import { IUrlOption } from './interfaces';
-import { FaX } from 'react-icons/fa6';
 import { ExpandedWysiwyg } from './ExpandedWysiwyg';
-import { useWysiwygContext, WysiwygProvider } from './WysiwygContextProvider';
 
 const formats = [
   'header',
@@ -72,21 +70,18 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
   const [toolBarNode, setToolBarNode] = React.useState();
 
   const quill = React.useRef<ReactQuill>(null);
-  const { normalState, setNormalState, expandedState, setExpandedState, expand, setExpand } =
-    useWysiwygContext();
+  // need to keep track of expanded state separately, issues persist with sharing while two instances of quill are open
+  const [normalState, setNormalState] = React.useState<IStateProps>({
+    html: '',
+    text: '',
+  });
+  const [expandedState, setExpandedState] = React.useState<IStateProps>({
+    html: '',
+    text: '',
+  });
+  const [expand, setExpand] = React.useState(false);
   const [showRaw, setShowRaw] = React.useState(false);
   const dialogRef = React.useRef<HTMLDialogElement>(null);
-
-  React.useEffect(() => {
-    if (props.value && props.value !== normalState.html) {
-      setNormalState({
-        ...normalState,
-        html: props.value?.replace(/\n+/g, '<br>') ?? '',
-      });
-    }
-    // only update when value changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.value]);
 
   // carry over editor value to raw html or v.v when toggling
   const syncViews = (htmlFromRaw: boolean) => {
@@ -153,14 +148,6 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
     return config;
   }, [toolBarNode]);
 
-  React.useEffect(() => {
-    if (expand) {
-      dialogRef.current?.showModal();
-    } else {
-      dialogRef.current?.close();
-    }
-  }, [expand]);
-
   const onChangeContentSelect = (value: IUrlOption) => {
     if (!quill.current) return;
     try {
@@ -175,57 +162,94 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
     }
   };
 
+  const handleClear = () => {
+    if (expand) {
+      setExpandedState({ text: '', html: '' });
+    } else {
+      setNormalState({ text: '', html: '' });
+    }
+  };
+
   React.useEffect(() => {
-    if (expand && !expandedState.html) {
-      setExpandedState({ ...normalState });
+    if (props.value && props.value !== normalState.html) {
+      setNormalState({
+        ...normalState,
+        html: props.value?.replace(/\n+/g, '<br>') ?? '',
+      });
+    }
+    // only update when value changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.value]);
+
+  // sync expanded state with normal state
+  React.useEffect(() => {
+    if (!!expandedState.html) {
+      setNormalState({ ...normalState, html: expandedState.html });
+    }
+    // only want to update when expanded state changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expandedState.html]);
+
+  React.useEffect(() => {
+    if (expand) {
+      dialogRef.current?.showModal();
+    } else {
+      dialogRef.current?.close();
     }
   }, [expand]);
+
   return (
     <styled.Wysiwyg viewRaw={showRaw} className={props.className}>
-      <WysiwygProvider>
-        {props.label && <label className={props.required ? 'required' : ''}>{props.label}</label>}
-        <CustomToolbar
-          onClickRaw={onClickRaw}
-          onChangeContentSelect={onChangeContentSelect}
-          urlOptions={props.urlOptions}
-          onClickRemoveFormat={stripHtml}
-          onClickFormatRaw={onClickFormatRaw}
-          onClickClear={() => setNormalState({ ...normalState, html: '', text: '' })}
-          onClickExpand={() => {
-            setExpand(true);
-          }}
-          innerRef={setToolBarNode}
-        />
-        {!!toolBarNode && (
-          <>
-            <ReactQuill
-              className="editor"
-              value={normalState.html}
-              onChange={handleChange}
-              theme="snow"
-              modules={modules}
-              formats={formats}
-              ref={quill}
-              onBlur={props.onBlur}
-              readOnly={props.disabled}
-              onKeyDown={props.onKeyDown}
-            />
-            <textarea
-              id={props.id}
-              name={props.name}
-              disabled={props.disabled}
-              className="raw-editor"
-              onChange={(e) => setNormalState({ ...normalState, text: e.target.value })}
-              value={normalState.text}
-            />
-          </>
-        )}
-        {expand && !!toolBarNode && (
-          <dialog id="expand-modal" ref={dialogRef}>
-            <ExpandedWysiwyg {...props} />
-          </dialog>
-        )}
-      </WysiwygProvider>
+      {props.label && <label className={props.required ? 'required' : ''}>{props.label}</label>}
+      <CustomToolbar
+        onClickRaw={onClickRaw}
+        onChangeContentSelect={onChangeContentSelect}
+        urlOptions={props.urlOptions}
+        onClickRemoveFormat={stripHtml}
+        onClickFormatRaw={onClickFormatRaw}
+        onClickClear={handleClear}
+        onClickExpand={() => {
+          setExpand(true);
+        }}
+        innerRef={setToolBarNode}
+      />
+      {!!toolBarNode && (
+        <>
+          <ReactQuill
+            className="editor"
+            value={normalState.html}
+            onChange={handleChange}
+            theme="snow"
+            modules={modules}
+            formats={formats}
+            ref={quill}
+            onBlur={props.onBlur}
+            readOnly={props.disabled}
+            onKeyDown={props.onKeyDown}
+          />
+          <textarea
+            id={props.id}
+            name={props.name}
+            disabled={props.disabled}
+            className="raw-editor"
+            onChange={(e) => setNormalState({ ...normalState, text: e.target.value })}
+            value={normalState.text}
+          />
+        </>
+      )}
+      {expand && !!toolBarNode && (
+        <dialog id="expand-modal" ref={dialogRef}>
+          <ExpandedWysiwyg
+            {...props}
+            normalState={normalState}
+            setNormalState={setNormalState}
+            expand={expand}
+            setExpand={setExpand}
+            expandedState={expandedState}
+            setExpandedState={setExpandedState}
+          />
+        </dialog>
+      )}
     </styled.Wysiwyg>
   );
 };
