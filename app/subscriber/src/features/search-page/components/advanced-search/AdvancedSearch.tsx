@@ -405,10 +405,13 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch, setSe
               </div>
               {/* DATE RANGE */}
               <Col className={`date-range-group space-top`}>
-                <Row className="option-row">
-                  <BsCalendarEvent /> Date range
-                </Row>
-                <DateSection />
+                <ExpandableRow
+                  icon={<BsCalendarEvent />}
+                  title="Date range"
+                  hasValues={!!search.startDate || !!search.dateOffset}
+                >
+                  <DateSection />
+                </ExpandableRow>
               </Col>
               {/* MEDIA SOURCE SECTION */}
               <Col className={`media-group`}>
