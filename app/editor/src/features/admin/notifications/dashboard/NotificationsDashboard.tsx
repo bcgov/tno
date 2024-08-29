@@ -69,6 +69,7 @@ export const NotificationsDashboard: React.FC = () => {
         getNotificationOptions(data, filter.notificationId ? filter.notificationId : 0),
       );
     });
+    // Only load when first render
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

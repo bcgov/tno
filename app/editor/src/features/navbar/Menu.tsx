@@ -97,14 +97,16 @@ export const Menu: React.FC = () => {
                   </MenuDropdownItem>
                 </Container>
               </NavDropdown>
-              <NavDropdown title="Notifications Building" id="basic-nav-dropdown">
-                <MenuDropdownItem claim={Claim.administrator} to="/admin/notifications/dashboard">
-                  Dashboard
-                </MenuDropdownItem>
-                <NavDropdown.Item as={Link} to="/admin/notifications">
-                  <FaMessage /> Notifications
-                </NavDropdown.Item>
-              </NavDropdown>
+              {isAdmin && (
+                <NavDropdown title="Notifications Building" id="basic-nav-dropdown">
+                  <MenuDropdownItem claim={Claim.administrator} to="/admin/notifications/dashboard">
+                    Dashboard
+                  </MenuDropdownItem>
+                  <NavDropdown.Item as={Link} to="/admin/notifications">
+                    <FaMessage /> Notifications
+                  </NavDropdown.Item>
+                </NavDropdown>
+              )}
               <MenuDropdown title="Content Configuration" claim={Claim.administrator}>
                 <NavDropdown.Item as={Link} to="/admin/sources">
                   Media Sources

@@ -219,7 +219,7 @@ public class NotificationController : ControllerBase
     [HttpGet("dashboard")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<NotificationInstanceModel>), (int)HttpStatusCode.OK)]
-    [SwaggerOperation(Tags = new[] { "Report" })]
+    [SwaggerOperation(Tags = new[] { "Notification" })]
     public IActionResult Dashboard()
     {
         var uri = new Uri(this.Request.GetDisplayUrl());

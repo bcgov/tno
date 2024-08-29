@@ -1,9 +1,7 @@
-import { INotificationInstanceModel } from 'tno-core';
-
-import { formatDate } from './formatDate';
+import { formatDashboardDate, INotificationInstanceModel } from 'tno-core';
 
 export const getLastSent = (instance: INotificationInstanceModel) => {
   const sentOn = instance?.sentOn;
   if (!sentOn) return 'Never';
-  return formatDate(sentOn, true);
+  return formatDashboardDate(sentOn, true);
 };

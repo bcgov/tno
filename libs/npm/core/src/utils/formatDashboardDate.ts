@@ -5,7 +5,10 @@ import moment from 'moment';
  * @returns {string} - The formatted date
  * @description - This function takes a date and returns a formatted date string
  */
-export const formatDate = (date: string | Date | undefined, includeTime?: boolean): string => {
+export const formatDashboardDate = (
+  date: string | Date | undefined,
+  includeTime?: boolean,
+): string => {
   if (date === undefined) return '';
   const result = moment(date);
   if (!result.isValid()) return '';
