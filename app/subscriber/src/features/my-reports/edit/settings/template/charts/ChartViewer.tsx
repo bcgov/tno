@@ -1,6 +1,7 @@
 import {
   CategoryScale,
   ChartTypeRegistry,
+  Colors,
   Legend,
   LinearScale,
   LineElement,
@@ -36,6 +37,7 @@ ChartJS.register(
   Tooltip,
   Legend,
   ChartDataLabels,
+  Colors,
 );
 
 let myChart: Record<string, ChartJS> = {};

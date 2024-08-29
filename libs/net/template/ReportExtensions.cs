@@ -245,7 +245,7 @@ public static partial class ReportExtensions
             "contentType" => content.ContentType.ToString(),
             "topicType" => content.Topics.FirstOrDefault()?.TopicType.ToString() ?? "",
             "topicName" => content.Topics.FirstOrDefault()?.Name ?? "",
-            "byline" => content.Byline,
+            "byline" => content.Byline.Replace("<mark>", "").Replace("</mark>", ""),
             "series" => content.Series?.Name ?? "",
             "sentiment" => GetSentimentIcon(content.TonePools.FirstOrDefault()?.Value ?? 0),
             _ => content.OtherSource,
@@ -548,7 +548,7 @@ public static partial class ReportExtensions
         {
             "mediaType" => content.GroupBy(c => c.MediaType?.Name ?? "Other").OrderBy(group => group.Key),
             "contentType" => content.GroupBy(c => c.ContentType.ToString()).OrderBy(group => group.Key),
-            "byline" => content.GroupBy(c => string.IsNullOrWhiteSpace(c.Byline) ? "Unknown" : c.Byline).Where((g) => !excludeEmptyValues || g.Key != "Unknown").OrderBy(group => group.Key),
+            "byline" => content.GroupBy(c => string.IsNullOrWhiteSpace(c.Byline) ? "Unknown" : c.Byline.Replace("<mark>", "").Replace("</mark>", "")).Where((g) => !excludeEmptyValues || g.Key != "Unknown").OrderBy(group => group.Key),
             "series" => content.GroupBy(c => c.Series?.Name ?? c.OtherSeries ?? "None").Where((g) => !excludeEmptyValues || g.Key != "None").OrderBy(group => group.Key),
             "sentiment" => content.GroupBy(c => GetSentimentValue(c)?.ToString() ?? "None").Where((v) => !excludeEmptyValues || v.Key != "None").OrderByDescending(group => group.Key),
             "sentimentSimple" => content.GroupBy(c => GetSentimentRating(c) ?? "None").Where((v) => !excludeEmptyValues || v.Key != "None").OrderBy(group => group.Key),
@@ -726,7 +726,7 @@ public static partial class ReportExtensions
             {
                 "mediaType" => content.Where(c => (c.MediaType?.Name ?? "Other") == label),
                 "contentType" => content.Where(c => c.ContentType.ToString() == label),
-                "byline" => content.Where(c => (string.IsNullOrWhiteSpace(c.Byline) ? "Unknown" : c.Byline) == label),
+                "byline" => content.Where(c => (string.IsNullOrWhiteSpace(c.Byline) ? "Unknown" : c.Byline.Replace("<mark>", "").Replace("</mark>", "")) == label),
                 "series" => content.Where(c => (c.Series?.Name ?? "None") == label),
                 "sentiment" => content.Where(c => (GetSentimentValue(c)?.ToString() ?? "None") == label),
                 "sentimentSimple" => content.Where(c => (GetSentimentRating(c) ?? "None") == label),

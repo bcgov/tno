@@ -217,15 +217,6 @@ public class ReportEngine : IReportEngine
         {
             // If the chart should be resized, calculate the new size and update the options.
             UpdateChartSize(dataModel, model.ChartTemplate.SectionSettings, 30);
-            var sectionJsonText = model.ChartTemplate.SectionSettings.Options.ToJson();
-            if (sectionJsonText != "{}")
-            {
-                var chartOptions = JsonSerializer.Deserialize<ChartOptionsModel>(model.ChartTemplate.SectionSettings.Options);
-                if (chartOptions != null)
-                {
-                    model.ChartTemplate.SectionSettings.Options = JsonDocument.Parse(JsonSerializer.Serialize(chartOptions, this.SerializerOptions));
-                }
-            }
         }
 
         var optionsJson = model.ChartTemplate.SectionSettings.Options != null ? JsonSerializer.Serialize(MergeChartOptions(model.ChartTemplate.Settings, model.ChartTemplate.SectionSettings)) : "{}";
@@ -253,7 +244,7 @@ public class ReportEngine : IReportEngine
     /// <param name="settings"></param>
     /// <param name="minAxisColumnWidth"></param>
     /// <returns></returns>
-    private bool ShouldResize(ChartDataModel data, API.Models.Settings.ChartSectionSettingsModel settings, int minAxisColumnWidth)
+    private static bool ShouldResize(ChartDataModel data, API.Models.Settings.ChartSectionSettingsModel settings, int minAxisColumnWidth)
     {
         var axisLabelCount = data.Labels.Length;
         var size = settings.IsHorizontal == false ? settings.Height : settings.Width;
@@ -268,7 +259,7 @@ public class ReportEngine : IReportEngine
     /// <param name="data"></param>
     /// <param name="settings"></param>
     /// <param name="minAxisColumnWidth"></param>
-    private void UpdateChartSize(ChartDataModel data, API.Models.Settings.ChartSectionSettingsModel settings, int minAxisColumnWidth)
+    private static void UpdateChartSize(ChartDataModel data, API.Models.Settings.ChartSectionSettingsModel settings, int minAxisColumnWidth)
     {
         var axisLabelCount = data.Labels.Length;
         var size = settings.IsHorizontal == false ? settings.Height : settings.Width;
@@ -455,6 +446,22 @@ public class ReportEngine : IReportEngine
                 if (defaultJson.ContainsKey("indexAxis"))
                     defaultJson.Remove("indexAxis");
                 defaultJson.Add("indexAxis", sectionIndexAxis.CopyNode());
+            }
+
+            // There appears to be no way to modify a value...
+            if (sectionJson.TryGetPropertyValue("maintainAspectRatio", out JsonNode? sectionMaintainAspectRatio))
+            {
+                if (defaultJson.ContainsKey("maintainAspectRatio"))
+                    defaultJson.Remove("maintainAspectRatio");
+                defaultJson.Add("maintainAspectRatio", sectionMaintainAspectRatio.CopyNode());
+            }
+
+            // There appears to be no way to modify a value...
+            if (sectionJson.TryGetPropertyValue("aspectRatio", out JsonNode? sectionAspectRatio))
+            {
+                if (defaultJson.ContainsKey("aspectRatio"))
+                    defaultJson.Remove("aspectRatio");
+                defaultJson.Add("aspectRatio", sectionAspectRatio.CopyNode());
             }
 
             if (sectionJson.TryGetPropertyValue("scales", out JsonNode? sectionScales))
