@@ -70,7 +70,12 @@ export const CustomToolbar: React.FC<ICustomToolbarProps> = ({
         <button className="ql-image" title="Insert image"></button>
       </span>
       <span className="ql-formats">
-        <button type="button" onClick={onClickExpand} title="Popout editor">
+        <button
+          type="button"
+          onClick={onClickExpand}
+          className="expand-button"
+          title="Popout editor"
+        >
           <FaExpandAlt className="custom-icon" />
         </button>
       </span>

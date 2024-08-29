@@ -3,6 +3,27 @@ import styled from 'styled-components';
 import { IWysiwygProps } from '../Wysiwyg';
 
 export const Wysiwyg = styled.div<IWysiwygProps>`
+  .exit {
+    float: right;
+    &:hover {
+      cursor: pointer;
+      transform: scale(1.1);
+    }
+  }
+  dialog {
+    border: none;
+    width: 100%;
+    height: 85%;
+    .frm-in {
+      height: 85%;
+      .expand-button {
+        display: none;
+      }
+      .editor {
+        height: 100%;
+      }
+    }
+  }
   .ql-custom {
     width: 25em;
     .ql-picker-label:before,
