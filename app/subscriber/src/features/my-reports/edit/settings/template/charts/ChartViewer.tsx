@@ -13,7 +13,7 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Modal } from 'components/modal';
 import { useReportEditContext } from 'features/my-reports/edit/ReportEditContext';
 import React from 'react';
-import { useModal } from 'tno-core';
+import { IChartSectionSettingsModel, useModal } from 'tno-core';
 
 import {
   calcAutoSize,
@@ -72,7 +72,8 @@ export const ChartViewer: React.FC<IChartViewerProps> = ({
       chart.sectionSettings.autoResize &&
       shouldResizeChart(data.labels.length, chart.sectionSettings, minAxisColumnWidth)
     ) {
-      toggleModal();
+      // toggleModal();
+      // Commented out temporarily until I can present the fact the chart is being resized in a better way.
     }
     // Only update when values change in data or chart.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,12 +88,28 @@ export const ChartViewer: React.FC<IChartViewerProps> = ({
   React.useEffect(() => {
     if (canvasRef.current !== null && data) {
       myChart[uid]?.destroy();
-      const widthValue = chart.sectionSettings.width ? chart.sectionSettings.width : 500;
-      if (chart.sectionSettings.height) canvasRef.current.height = chart.sectionSettings.height;
-      if (chart.sectionSettings.width) canvasRef.current.width = widthValue;
+
+      // Auto resize if it's on
+      let chartSectionSettings: IChartSectionSettingsModel = {
+        ...chart.sectionSettings,
+        width: chart.sectionSettings.width ? chart.sectionSettings.width : 500,
+      };
+      if (
+        chart.sectionSettings.autoResize &&
+        shouldResizeChart(data.labels.length, chart.sectionSettings, minAxisColumnWidth)
+      ) {
+        chartSectionSettings = calcAutoSize(
+          data.labels.length,
+          chart.sectionSettings,
+          minAxisColumnWidth,
+        );
+      }
+
+      if (chartSectionSettings.height) canvasRef.current.height = chartSectionSettings.height;
+      if (chartSectionSettings.width) canvasRef.current.width = chartSectionSettings.width;
 
       myChart[uid] = new ChartJS(canvasRef.current, {
-        type: chart.sectionSettings.chartType as keyof ChartTypeRegistry,
+        type: chartSectionSettings.chartType as keyof ChartTypeRegistry,
         data: {
           ...data,
           datasets:
@@ -100,24 +117,24 @@ export const ChartViewer: React.FC<IChartViewerProps> = ({
               (dataset: IChartDataset, index: number) =>
                 ({
                   ...dataset,
-                  label: getSectionLabel(dataset.label, chart.sectionSettings, values.sections),
-                  minBarLength: chart.sectionSettings.minBarLength,
+                  label: getSectionLabel(dataset.label, chartSectionSettings, values.sections),
+                  minBarLength: chartSectionSettings.minBarLength,
                   borderWidth: 2,
                   spanGaps: true,
                   backgroundColor: determineBackgroundColor(
                     index,
                     dataset.label,
-                    chart.sectionSettings,
+                    chartSectionSettings,
                   ),
-                  borderColor: determineBorderColor(index, dataset.label, chart.sectionSettings),
+                  borderColor: determineBorderColor(index, dataset.label, chartSectionSettings),
                 } as any),
             ) ?? [],
         },
-        options: generateChartOptions(data, chart.sectionSettings),
+        options: generateChartOptions(data, chartSectionSettings),
       });
-      myChart[uid].resize(widthValue, chart.sectionSettings.height);
+      myChart[uid].resize(chartSectionSettings.width, chartSectionSettings.height);
     }
-  }, [chart.sectionSettings, data, values.sections, uid]);
+  }, [chart.sectionSettings, data, values.sections, uid, minAxisColumnWidth]);
 
   return (
     <div>
