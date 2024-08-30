@@ -3,6 +3,8 @@ import { Col } from 'tno-core';
 
 export const PreviousResults = styled(Col)`
   .prev-result-row {
+    padding-left: 1rem;
+    padding-bottom: 0.5rem;
     &:hover {
       cursor: pointer;
       .hits {
