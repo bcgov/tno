@@ -172,9 +172,10 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
 
   React.useEffect(() => {
     if (props.value && props.value !== normalState.html) {
+      const formattedValue = props.value.replace(/\n+/g, '<br>') ?? '';
       setNormalState({
-        ...normalState,
-        html: props.value?.replace(/\n+/g, '<br>') ?? '',
+        text: formattedValue,
+        html: formattedValue,
       });
     }
     // only update when value changes
