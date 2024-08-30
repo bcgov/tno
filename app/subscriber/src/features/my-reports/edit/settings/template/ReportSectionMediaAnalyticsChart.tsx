@@ -41,7 +41,7 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
   const [showConfig, setShowConfig] = React.useState(initShowConfig ?? true);
   const [data, setData] = React.useState<IChartData>();
   const [reportContent, setReportContent] = React.useState(
-    values.instances ? values.instances[0].content : [],
+    values.instances.length ? values.instances[0].content : [],
   );
   const [showReportData, setShowReportData] = React.useState(
     values.instances.length > 0 && values.instances[0].content.length > 0,
@@ -66,9 +66,7 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
 
   React.useEffect(() => {
     setReportContent(
-      values.instances && values.instances.length && values.instances[0]
-        ? values.instances[0].content
-        : [],
+      values.instances.length && values.instances[0] ? values.instances[0].content : [],
     );
   }, [values.instances]);
 
