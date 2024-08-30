@@ -27,10 +27,10 @@ export const ElasticQueryHelp: React.FC<IElasticQueryHelpProps> = ({
       <Show visible={show}>
         <Draggable nodeRef={nodeRef}>
           <div ref={nodeRef}>
+            <Row>
+              <FaX onClick={() => setShow(false)} className="close-icon" />
+            </Row>
             <Show visible={queryType === 'simple-query-string'}>
-              <Row>
-                <FaX onClick={() => setShow(false)} className="close-icon" />
-              </Row>
               <Col>
                 The keywords query supports the following operators:
                 <ul>
