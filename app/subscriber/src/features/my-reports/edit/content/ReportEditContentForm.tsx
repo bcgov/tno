@@ -10,7 +10,7 @@ import { FaAngleDown, FaMinus } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
 import { useReports, useUsers } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Checkbox, Show, ToggleButton, useModal } from 'tno-core';
+import { Checkbox, Loading, Show, ToggleButton, useModal } from 'tno-core';
 
 import { useReportEditContext } from '../ReportEditContext';
 import { ReportSections } from './stories';
@@ -155,6 +155,9 @@ export const ReportEditContentForm = React.forwardRef<
                   setExcludeContentInUnsentReport(!excludeContentInUnsentReport);
                 }}
               />
+            </Show>
+            <Show visible={isSubmitting}>
+              <Loading />
             </Show>
             <p>Do you want to proceed?</p>
           </>

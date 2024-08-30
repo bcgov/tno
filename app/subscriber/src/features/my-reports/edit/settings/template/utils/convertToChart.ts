@@ -14,6 +14,7 @@ export interface IConvertToChartOptions {
 
 /**
  * Convert specified data into chart data for chart.js.
+ * @param section The section the chart belongs in.
  * @param chart The chart to populate.
  * @param content An array of report instance content.
  * @param sections An array of sections in the report.
@@ -21,6 +22,7 @@ export interface IConvertToChartOptions {
  * @returns Chart data.
  */
 export const convertToChart = (
+  section: IReportSectionModel,
   chart: IReportSectionChartTemplateModel,
   content: IReportInstanceContentModel[],
   sections: IReportSectionModel[],

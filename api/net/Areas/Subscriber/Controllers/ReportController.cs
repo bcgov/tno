@@ -1,6 +1,7 @@
 
 using System.Net;
 using System.Net.Mime;
+using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -11,15 +12,14 @@ using TNO.API.Config;
 using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.API.Models.SignalR;
+using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.DAL.Services;
+using TNO.Entities;
 using TNO.Kafka;
 using TNO.Kafka.SignalR;
 using TNO.Keycloak;
 using TNO.Models.Filters;
-using System.Text;
-using TNO.Entities;
-using TNO.Ches.Configuration;
 namespace TNO.API.Areas.Subscriber.Controllers;
 using TNO.Ches;
 using TNO.Core.Extensions;
@@ -356,7 +356,7 @@ public class ReportController : ControllerBase
         else if (regenerate && currentInstance.SentOn.HasValue)
         {
             // Generate a new instance because the prior was sent to CHES.
-            currentInstance = await _reportService.GenerateReportInstanceAsync(id, user.Id);
+            currentInstance = await _reportService.GenerateReportInstanceAsync(id, user.Id, null, regenerate);
             _reportInstanceService.ClearChangeTracker();
             currentInstance = _reportInstanceService.AddAndSave(currentInstance);
             instances = _reportService.GetLatestInstances(id, user.Id);
@@ -368,7 +368,7 @@ public class ReportController : ControllerBase
         else if (regenerate && currentInstance.SentOn.HasValue == false)
         {
             // Regenerate the current instance, but do not create a new instance.
-            var regeneratedInstance = await _reportService.GenerateReportInstanceAsync(id, user.Id, currentInstance.Id);
+            var regeneratedInstance = await _reportService.GenerateReportInstanceAsync(id, user.Id, currentInstance.Id, regenerate);
             _reportInstanceService.ClearChangeTracker();
             currentInstance.ContentManyToMany.Clear();
             var count = 0;
