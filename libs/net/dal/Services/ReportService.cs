@@ -483,17 +483,19 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// <param name="id"></param>
     /// <param name="requestorId"></param>
     /// <param name="instanceId"></param>
+    /// <param name="regenerate"></param>
     /// <returns></returns>
     public async Task<ReportInstance> GenerateReportInstanceAsync(
         int id,
         int? requestorId = null,
-        long? instanceId = null)
+        long? instanceId = null,
+        bool regenerate = false)
     {
         // Fetch content for every section within the report.  This will include folders and filters.
         var report = FindById(id) ?? throw new NoContentException("Report does not exist");
         var reportSettings = JsonSerializer.Deserialize<ReportSettingsModel>(report.Settings, _serializerOptions) ?? new ReportSettingsModel();
         List<ReportInstanceContent> instanceContent;
-        if (reportSettings.Content.CopyPriorInstance)
+        if (reportSettings.Content.CopyPriorInstance && !regenerate)
         {
             var currentInstance = GetCurrentReportInstance(report.Id, requestorId) ?? new ReportInstance(report.Id);
             instanceContent = currentInstance.ContentManyToMany.Select(c => new ReportInstanceContent(0, c.ContentId, c.SectionName, c.SortOrder)).ToList();

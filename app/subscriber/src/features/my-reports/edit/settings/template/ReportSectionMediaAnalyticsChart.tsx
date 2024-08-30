@@ -55,8 +55,14 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
   }, [values.instances]);
 
   React.useEffect(() => {
-    setData(convertToChart(chart, showReportData ? reportContent : testData, values.sections));
-  }, [chart, reportContent, showReportData, testData, values.sections]);
+    const sectionContent =
+      section.filterId || section.folderId || section.linkedReportId
+        ? reportContent.filter((rc) => rc.sectionName === section.name)
+        : reportContent;
+    setData(
+      convertToChart(section, chart, showReportData ? sectionContent : testData, values.sections),
+    );
+  }, [section, chart, reportContent, showReportData, testData, values.sections]);
 
   React.useEffect(() => {
     setReportContent(values.instances ? values.instances[0].content : []);

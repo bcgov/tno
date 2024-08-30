@@ -90,7 +90,7 @@ export const Modal: React.FC<IModalProps> = ({
                       <Button
                         variant={type === 'delete' ? 'error' : 'primary'}
                         onClick={onConfirm}
-                        disabled={isSubmitting && !enableConfirm}
+                        disabled={isSubmitting || !enableConfirm}
                       >
                         {confirmText ?? 'Continue'}
                       </Button>

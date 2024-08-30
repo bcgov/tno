@@ -54,11 +54,13 @@ public interface IReportService : IBaseService<Report, int>
     /// <param name="id"></param>
     /// <param name="requestorId"></param>
     /// <param name="instanceId"></param>
+    /// <param name="regenerate"></param>
     /// <returns></returns>
     public Task<ReportInstance> GenerateReportInstanceAsync(
         int id,
         int? requestorId = null,
-        long? instanceId = null);
+        long? instanceId = null,
+        bool regenerate = false);
 
     /// <summary>
     /// Regenerate the content for the current report instance for the specified report 'id' and 'sectionId'.
