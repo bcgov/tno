@@ -1,6 +1,7 @@
 import { Action } from 'components/action';
 import { Section } from 'components/section';
 import { SectionLabel } from 'features/my-reports/components';
+import { IReportForm } from 'features/my-reports/interfaces';
 import React from 'react';
 import { FaAngleDown, FaGripVertical, FaMinus } from 'react-icons/fa6';
 import { useFilters, useFolders, useReports } from 'store/hooks';
@@ -14,7 +15,14 @@ import {
 } from './data-sources';
 import * as styled from './styled';
 
-export const ReportEditDataSourcesForm = () => {
+export interface IReportEditDataSourcesFormProps {
+  /** Event to update the original report. */
+  updateForm: (values: IReportForm) => void;
+}
+
+export const ReportEditDataSourcesForm: React.FC<IReportEditDataSourcesFormProps> = ({
+  updateForm,
+}) => {
   const { values, setFieldValue } = useReportEditContext();
   const [{ myFolders }, { findMyFolders }] = useFolders();
   const [{ myFilters }, { findMyFilters }] = useFilters();
@@ -87,7 +95,7 @@ export const ReportEditDataSourcesForm = () => {
               </Show>
               {/* MEDIA ANALYTICS */}
               <Show visible={section.sectionType === ReportSectionTypeName.MediaAnalytics}>
-                <ReportSectionMediaAnalytics index={index} />
+                <ReportSectionMediaAnalytics index={index} updateForm={updateForm} />
               </Show>
               {/* FRONT PAGE IMAGES */}
               <Show visible={section.sectionType === ReportSectionTypeName.Gallery}>

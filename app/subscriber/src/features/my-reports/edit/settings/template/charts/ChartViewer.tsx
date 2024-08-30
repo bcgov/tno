@@ -14,7 +14,7 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Modal } from 'components/modal';
 import { useReportEditContext } from 'features/my-reports/edit/ReportEditContext';
 import React from 'react';
-import { IChartSectionSettingsModel, useModal } from 'tno-core';
+import { IChartSectionSettingsModel, Show, useModal } from 'tno-core';
 
 import {
   calcAutoSize,
@@ -141,7 +141,17 @@ export const ChartViewer: React.FC<IChartViewerProps> = ({
   return (
     <div>
       <div>
-        <canvas ref={canvasRef} id={`my-chart-${uid}`} />
+        <Show visible={!data?.labels.length}>
+          <p>You have no content to display for this section.</p>
+          <p>
+            Go to the Content tab and regenerate this{' '}
+            {section.filterId || section.folderId || section.linkedReportId ? 'section' : 'report'}{' '}
+            to pull in content.
+          </p>
+        </Show>
+        <Show visible={!!data?.labels.length}>
+          <canvas ref={canvasRef} id={`my-chart-${uid}`} />
+        </Show>
       </div>
       <Modal
         isShowing={showModal}
