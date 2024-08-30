@@ -12,6 +12,10 @@ export const ReportFilter: React.FC = () => {
   const [{ reportsFilter }, { storeReportsFilter }] = useProfileStore();
 
   const [filter, setFilter] = React.useState(reportsFilter);
+  const handleClear = () => {
+    setFilter('');
+    storeReportsFilter('');
+  };
 
   return (
     <Row className="report-filter" gap="1rem" flex="2">
@@ -23,7 +27,7 @@ export const ReportFilter: React.FC = () => {
         onKeyDown={(e) => e.code === 'Enter' && storeReportsFilter(filter)}
         onChange={(e) => setFilter(e.target.value)}
       >
-        <FaX className="clear" onClick={() => setFilter('')} />
+        <FaX className="clear" onClick={handleClear} />
       </Text>
       <Button onClick={() => storeReportsFilter(filter)}>
         Filter
