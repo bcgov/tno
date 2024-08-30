@@ -80,25 +80,6 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
 
   return (
     <styled.ContentActionBar className={className}>
-      <Show visible={viewingContent}>
-        <div className="action left-side-items" onClick={() => (onBack ? onBack() : navigate(-1))}>
-          <img
-            className="back-button"
-            src={'/assets/back-button.svg'}
-            alt="Back"
-            data-tooltip-id="back-button"
-          />
-          <Tooltip
-            clickable={false}
-            className="back-tooltip"
-            classNameArrow="back-tooltip-arrow"
-            id="back-button"
-            place="top"
-            noArrow={false}
-            content="Back"
-          />
-        </div>
-      </Show>
       <Show visible={!!onSelectAll}>
         <Row className="select-all">
           <div className="check-area">
@@ -113,16 +94,17 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
         <div className="arrow" />
       </Show>
       {showActionsItems && (
-        <div className="right-side-items">
+        <div className="content-buttons">
           <Row>
             {onReset && <ResetFilters onReset={onReset} />}
             <ShareMenu content={content} />
             {disableAddToFolder ? null : <AddToFolderMenu onClear={onClear} content={content} />}
             <AddToReportMenu content={content} onClear={onClear} />
             {!!removeFolderItem && <RemoveFromFolder onClick={removeFolderItem} />}
-            {viewingContent &&
+            {(viewingContent &&
               (userInfo?.roles.includes(Claim.administrator) ||
-                userInfo?.roles.includes(Claim.editor)) && (
+                userInfo?.roles.includes(Claim.editor))) ||
+              (true && (
                 <button
                   className="editor-button"
                   onClick={() => {
@@ -136,7 +118,7 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
                   <FaArrowUpRightFromSquare />
                   Edit Story
                 </button>
-              )}
+              ))}
           </Row>
         </div>
       )}

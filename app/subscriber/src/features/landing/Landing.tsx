@@ -18,7 +18,7 @@ import { TodaysCommentary } from 'features/todays-commentary';
 import { TodaysFrontPages } from 'features/todays-front-pages';
 import { TopStories } from 'features/top-stories';
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import useMobile from 'store/hooks/app/useMobile';
 import { Col, IContentModel, Row, Show } from 'tno-core';
 
@@ -34,6 +34,7 @@ export const Landing: React.FC = () => {
     NavbarOptions.home,
   );
   const isMobile = useMobile();
+  const navigate = useNavigate();
   /* active content will be stored from this context in order to inject into subsequent components */
   const [activeContent, setActiveContent] = React.useState<IContentModel[]>();
   const [isFullScreen, setIsFullScreen] = React.useState(false);
@@ -88,6 +89,20 @@ export const Landing: React.FC = () => {
                     {activeItem === NavbarOptions.settings
                       ? 'Settings | My Minister'
                       : activeItem?.label}
+                  </Show>
+                  <Show visible={!activeItem && !!activeContent}>
+                    <Row>
+                      <img
+                        className="back-button"
+                        src={'/assets/back-button.svg'}
+                        alt="Back"
+                        data-tooltip-id="back-button"
+                        onClick={() => navigate(-1)}
+                      />
+                      <span className="content-headline">
+                        {activeContent && activeContent[0]?.headline}
+                      </span>
+                    </Row>
                   </Show>
                   {!!activeItem?.reduxFilterStore && (
                     <>

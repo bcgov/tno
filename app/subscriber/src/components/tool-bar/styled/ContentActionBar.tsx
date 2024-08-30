@@ -43,8 +43,9 @@ export const ContentActionBar = styled(Row)`
     }
   }
 
-  .right-side-items {
+  .content-buttons {
     color: ${(props) => props.theme.css.btnBkPrimary};
+    width: 100%;
     @media (max-width: 768px) {
       span {
         display: none;
@@ -53,13 +54,13 @@ export const ContentActionBar = styled(Row)`
     animation: fade-in 0.5s linear;
   }
   .editor-button {
+    margin-left: auto;
     display: flex;
     svg {
       height: 12px;
       width: 12px;
     }
     align-items: center;
-    margin-right: 1em;
     svg {
       margin-right: 0.25em;
     }

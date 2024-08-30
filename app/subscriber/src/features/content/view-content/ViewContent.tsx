@@ -294,7 +294,6 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
 
   return (
     <styled.ViewContent className={`${!!popout && 'popout'}`}>
-      <div className="headline">{formattedHeadline}</div>
       <Bar className="info-bar" vanilla>
         <Show visible={!!content?.byline}>
           <div className="byline">{`BY ${content?.byline}`}</div>
@@ -324,6 +323,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
           )}
         </Row>
       </Bar>
+      <ContentActionBar className="actions" content={activeContent ?? []} viewingContent />
       <Show visible={!!avStream && isAV}>
         <Row justifyContent="center">
           <Show visible={isProcessing}>
