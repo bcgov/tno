@@ -65,7 +65,11 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
   }, [section, chart, reportContent, showReportData, testData, values.sections]);
 
   React.useEffect(() => {
-    setReportContent(values.instances ? values.instances[0].content : []);
+    setReportContent(
+      values.instances && values.instances.length && values.instances[0]
+        ? values.instances[0].content
+        : [],
+    );
   }, [values.instances]);
 
   return (

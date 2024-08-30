@@ -60,6 +60,10 @@ export const ConfigureDataset: React.FC<IChartSectionProps> = ({ sectionIndex, c
                     isSentiment && chart.sectionSettings.dataset === ''
                       ? ['green', 'gold', 'red']
                       : [],
+                  datasetBorderColors:
+                    isSentiment && chart.sectionSettings.dataset === ''
+                      ? ['green', 'gold', 'red']
+                      : [],
                   minBarLength: isSentiment ? 10 : undefined,
                 }),
               );

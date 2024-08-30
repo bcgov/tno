@@ -1,4 +1,5 @@
 import { DataSources } from 'features/my-reports/components';
+import { IReportForm } from 'features/my-reports/interfaces';
 import React from 'react';
 import { Col, FormikCheckbox, Row, Show } from 'tno-core';
 
@@ -6,6 +7,8 @@ import { useReportEditContext } from '../../ReportEditContext';
 
 export interface IReportSectionMediaAnalyticsProps {
   index: number;
+  /** Event to update the original report. */
+  updateForm: (values: IReportForm) => void;
 }
 
 /**
@@ -16,7 +19,7 @@ export interface IReportSectionMediaAnalyticsProps {
 export const ReportSectionMediaAnalytics = React.forwardRef<
   HTMLDivElement,
   IReportSectionMediaAnalyticsProps
->(({ index, ...rest }, ref) => {
+>(({ index, updateForm, ...rest }, ref) => {
   const { values, setFieldValue } = useReportEditContext();
 
   const section = values.sections[index];

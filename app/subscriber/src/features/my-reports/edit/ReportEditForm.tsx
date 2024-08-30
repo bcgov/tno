@@ -153,7 +153,7 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
           <ReportEditTemplateForm />
         </Show>
         <Show visible={active === ReportSettingsMenuOption.DataSources}>
-          <ReportEditDataSourcesForm />
+          <ReportEditDataSourcesForm updateForm={updateForm} />
         </Show>
         <Show visible={active === ReportSettingsMenuOption.Preferences}>
           <ReportEditPreferencesForm />

@@ -45,7 +45,7 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
       <Show visible={!values.template?.chartTemplates.length}>
         <p className="error">
           This template does not currently support charts. Update the template and add the charts it
-          supports.
+          supports. Save your report first to apply the template.
         </p>
       </Show>
       <Show visible={!!values.template?.chartTemplates.length}>
