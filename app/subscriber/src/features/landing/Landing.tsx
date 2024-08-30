@@ -13,12 +13,14 @@ import { MyMinister } from 'features/my-minister/MyMinister';
 import { MyProducts } from 'features/my-products';
 import { MySearches } from 'features/my-searches';
 import { PressGallery } from 'features/press-gallery';
+import { formatSearch } from 'features/search-page/utils';
 import { MyMinisterSettings } from 'features/settings';
 import { TodaysCommentary } from 'features/todays-commentary';
 import { TodaysFrontPages } from 'features/todays-front-pages';
 import { TopStories } from 'features/top-stories';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useContent } from 'store/hooks';
 import useMobile from 'store/hooks/app/useMobile';
 import { Col, IContentModel, Row, Show } from 'tno-core';
 
@@ -33,6 +35,11 @@ export const Landing: React.FC = () => {
   const [activeItem, setActiveItem] = React.useState<INavbarOptionItem | undefined>(
     NavbarOptions.home,
   );
+  const [
+    {
+      search: { filter },
+    },
+  ] = useContent();
   const isMobile = useMobile();
   const navigate = useNavigate();
   /* active content will be stored from this context in order to inject into subsequent components */
@@ -100,7 +107,7 @@ export const Landing: React.FC = () => {
                         onClick={() => navigate(-1)}
                       />
                       <span className="content-headline">
-                        {activeContent && activeContent[0]?.headline}
+                        {activeContent && formatSearch(activeContent[0].headline, filter)}
                       </span>
                     </Row>
                   </Show>

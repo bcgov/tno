@@ -1,9 +1,7 @@
 import { ShareMenu } from 'components/share-menu';
 import React, { useState } from 'react';
 import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Tooltip } from 'react-tooltip';
 import { useLookup, useSettings } from 'store/hooks';
 import { useAppStore } from 'store/slices';
 import { Checkbox, Claim, IContentModel, Row, Settings, Show } from 'tno-core';
@@ -41,7 +39,6 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
   className,
   content,
   viewingContent,
-  onBack,
   onSelectAll,
   isSelectAllChecked,
   onClear,
@@ -49,7 +46,6 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
   removeFolderItem,
   disableAddToFolder,
 }) => {
-  const navigate = useNavigate();
   const [{ frontPageImagesMediaTypeId, settings, isReady }] = useLookup();
   const { editorUrl } = useSettings();
   const [{ userInfo }] = useAppStore();
@@ -101,10 +97,9 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
             {disableAddToFolder ? null : <AddToFolderMenu onClear={onClear} content={content} />}
             <AddToReportMenu content={content} onClear={onClear} />
             {!!removeFolderItem && <RemoveFromFolder onClick={removeFolderItem} />}
-            {(viewingContent &&
+            {viewingContent &&
               (userInfo?.roles.includes(Claim.administrator) ||
-                userInfo?.roles.includes(Claim.editor))) ||
-              (true && (
+                userInfo?.roles.includes(Claim.editor)) && (
                 <button
                   className="editor-button"
                   onClick={() => {
@@ -118,7 +113,7 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
                   <FaArrowUpRightFromSquare />
                   Edit Story
                 </button>
-              ))}
+              )}
           </Row>
         </div>
       )}

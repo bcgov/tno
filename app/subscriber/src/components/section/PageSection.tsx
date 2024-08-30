@@ -1,5 +1,4 @@
 import { navbarOptions } from 'components/navbar/NavbarItems';
-import { ContentActionBar } from 'components/tool-bar';
 import { useLocation } from 'react-router-dom';
 import { IContentModel, Row } from 'tno-core';
 
