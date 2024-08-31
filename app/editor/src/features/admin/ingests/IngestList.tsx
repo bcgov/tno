@@ -18,6 +18,7 @@ import {
 import { IngestFilter } from './IngestFilter';
 import * as styled from './styled';
 import { getStatus } from './utils';
+import { sortData } from './utils/sortData';
 
 interface IIngestListProps {}
 
@@ -64,48 +65,25 @@ const IngestList: React.FC<IIngestListProps> = (props) => {
       setItems((items) => {
         switch (column.name) {
           case 'source.code':
-            return [...items].sort((a: any, b: any) => {
-              const aValue = a['source']['code'];
-              const bValue = b['source']['code'];
-              if (aValue > bValue) return direction === SortDirection.Ascending ? 1 : -1;
-              if (aValue < bValue) return direction === SortDirection.Ascending ? -1 : 1;
-              return 0;
-            });
+            return [...items].sort((a: any, b: any) =>
+              sortData(a['source']['code'], b['source']['code'], direction),
+            );
           case 'ingestType.name':
-            return [...items].sort((a: any, b: any) => {
-              const aValue = a['ingestType']['name'];
-              const bValue = b['ingestType']['name'];
-              if (aValue > bValue) return direction === SortDirection.Ascending ? 1 : -1;
-              if (aValue < bValue) return direction === SortDirection.Ascending ? -1 : 1;
-              return 0;
-            });
+            return [...items].sort((a: any, b: any) =>
+              sortData(a['ingestType']['name'], b['ingestType']['name'], direction),
+            );
           case 'status':
-            return [...items].sort((a: any, b: any) => {
-              const aValue = getStatus(a);
-              const bValue = getStatus(b);
-              if (aValue > bValue) return direction === SortDirection.Ascending ? 1 : -1;
-              if (aValue < bValue) return direction === SortDirection.Ascending ? -1 : 1;
-              return 0;
-            });
+            return [...items].sort((a: any, b: any) =>
+              sortData(getStatus(a), getStatus(b), direction),
+            );
           case 'isEnabled':
-            return [...items].sort((a: any, b: any) => {
-              const aValue = a[column.name!] as boolean;
-              const bValue = b[column.name!] as boolean;
-              if (aValue === bValue) return 0;
-              if (aValue) {
-                return direction === SortDirection.Ascending ? -1 : 1;
-              } else {
-                return direction === SortDirection.Ascending ? 1 : -1;
-              }
-            });
+            return [...items].sort((a: any, b: any) =>
+              sortData(a[column.name!] as boolean, b[column.name!] as boolean, direction),
+            );
           default:
-            return [...items].sort((a: any, b: any) => {
-              const aValue = a[column.name!] ?? '';
-              const bValue = b[column.name!] ?? '';
-              if (aValue > bValue) return direction === SortDirection.Ascending ? 1 : -1;
-              if (aValue < bValue) return direction === SortDirection.Ascending ? -1 : 1;
-              return 0;
-            });
+            return [...items].sort((a: any, b: any) =>
+              sortData(a[column.name!] ?? '', b[column.name!] ?? '', direction),
+            );
         }
       });
     } else {
@@ -149,42 +127,42 @@ const IngestList: React.FC<IIngestListProps> = (props) => {
           return [
             {
               column: (
-                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div key="1" className="clickable" onClick={() => navigate(`${row.id}`)}>
                   <CellEllipsis key="">{row.name}</CellEllipsis>
                 </div>
               ),
             },
             {
               column: (
-                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div key="2" className="clickable" onClick={() => navigate(`${row.id}`)}>
                   <CellEllipsis key="">{row.source?.code}</CellEllipsis>
                 </div>
               ),
             },
             {
               column: (
-                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div key="3" className="clickable" onClick={() => navigate(`${row.id}`)}>
                   <CellEllipsis key="">{row.description}</CellEllipsis>
                 </div>
               ),
             },
             {
               column: (
-                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div key="4" className="clickable" onClick={() => navigate(`${row.id}`)}>
                   <CellEllipsis key="">{row.ingestType?.name}</CellEllipsis>
                 </div>
               ),
             },
             {
               column: (
-                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div key="5" className="clickable" onClick={() => navigate(`${row.id}`)}>
                   <CellEllipsis key="">{getStatus(row)}</CellEllipsis>
                 </div>
               ),
             },
             {
               column: (
-                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div key="6" className="clickable" onClick={() => navigate(`${row.id}`)}>
                   <CellDate value={row.lastRanOn} />
                 </div>
               ),
@@ -192,14 +170,14 @@ const IngestList: React.FC<IIngestListProps> = (props) => {
             {
               column: (
                 <div
-                  key=""
+                  key="7"
                   className="clickable"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleEnabledClicked(e, row);
                   }}
                 >
-                  <CellCheckbox key="" checked={row.isEnabled} />
+                  <CellCheckbox key="8" checked={row.isEnabled} />
                 </div>
               ),
             },
