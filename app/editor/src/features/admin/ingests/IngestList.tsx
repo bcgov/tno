@@ -12,7 +12,6 @@ import {
   IconButton,
   IIngestModel,
   Row,
-  SortDirection,
 } from 'tno-core';
 
 import { IngestFilter } from './IngestFilter';
