@@ -1,4 +1,3 @@
-export * from './columns';
 export * from './contentReferenceColumns';
 export * from './defaultContentReferenceFilter';
 export * from './defaultContentReferencePage';
