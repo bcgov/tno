@@ -590,6 +590,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
     /// <summary>
     /// Determine if this request is a retry.
+    /// A retry is due to a failure in the prior attempt.
     /// A retry will result in a report being sent only to failed subscribers.
     /// </summary>
     /// <param name="request"></param>
@@ -597,7 +598,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <returns></returns>
     private static bool IsRetry(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel? instance)
     {
-        return !IsResend(request, instance) && !String.IsNullOrWhiteSpace(instance?.Subject) && !String.IsNullOrWhiteSpace(instance?.Body);
+        var errorStatus = request.Data.GetElementValue<ReportingErrors?>(".error");
+        return !IsResend(request, instance) && errorStatus.HasValue;
     }
 
     /// <summary>
@@ -703,7 +705,10 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             }
 
             // Only clear folders if the instance was successfully saved.
-            if (instance != null && report.Settings.Content.ClearFolders && request.SendToSubscribers && !IsResend(request, instance) && !IsRetry(request, instance))
+            if (instance != null &&
+                report.Settings.Content.ClearFolders &&
+                request.SendToSubscribers &&
+                !IsResend(request, instance))
             {
                 // TODO: On a failure or a resend this could result in removing content in a folder that is not part of the report (due to timing).
                 await this.Api.ClearFoldersInReport(report.Id);
