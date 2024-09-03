@@ -1,9 +1,7 @@
 import { ShareMenu } from 'components/share-menu';
 import React, { useState } from 'react';
 import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Tooltip } from 'react-tooltip';
 import { useLookup, useSettings } from 'store/hooks';
 import { useAppStore } from 'store/slices';
 import { Checkbox, Claim, IContentModel, Row, Settings, Show } from 'tno-core';
@@ -41,7 +39,6 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
   className,
   content,
   viewingContent,
-  onBack,
   onSelectAll,
   isSelectAllChecked,
   onClear,
@@ -49,7 +46,6 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
   removeFolderItem,
   disableAddToFolder,
 }) => {
-  const navigate = useNavigate();
   const [{ frontPageImagesMediaTypeId, settings, isReady }] = useLookup();
   const { editorUrl } = useSettings();
   const [{ userInfo }] = useAppStore();
@@ -79,26 +75,7 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
   }, [frontPageImagesMediaTypeId, settings, isReady, content]);
 
   return (
-    <styled.ContentActionBar className={className}>
-      <Show visible={viewingContent}>
-        <div className="action left-side-items" onClick={() => (onBack ? onBack() : navigate(-1))}>
-          <img
-            className="back-button"
-            src={'/assets/back-button.svg'}
-            alt="Back"
-            data-tooltip-id="back-button"
-          />
-          <Tooltip
-            clickable={false}
-            className="back-tooltip"
-            classNameArrow="back-tooltip-arrow"
-            id="back-button"
-            place="top"
-            noArrow={false}
-            content="Back"
-          />
-        </div>
-      </Show>
+    <styled.ContentActionBar viewingContent={viewingContent} className={className}>
       <Show visible={!!onSelectAll}>
         <Row className="select-all">
           <div className="check-area">
@@ -113,7 +90,7 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
         <div className="arrow" />
       </Show>
       {showActionsItems && (
-        <div className="right-side-items">
+        <div className="content-buttons">
           <Row>
             {onReset && <ResetFilters onReset={onReset} />}
             <ShareMenu content={content} />

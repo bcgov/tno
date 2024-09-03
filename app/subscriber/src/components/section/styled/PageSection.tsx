@@ -8,6 +8,17 @@ export const PageSection = styled.div<{ $ignoreMinWidth?: boolean; $ignoreLastCh
   align-self: stretch;
   min-width: ${(props) => (props.$ignoreMinWidth ? 'unset' : 'fit-content')};
 
+  .back-button {
+    margin-right: 1rem;
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  .content-headline {
+    margin-bottom: 0.25rem;
+  }
+
   @media (min-width: 500px) {
     margin: 0 0.75rem 0.75rem 0.75rem;
   }

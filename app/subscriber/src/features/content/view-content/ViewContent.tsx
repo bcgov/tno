@@ -267,10 +267,6 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
   //Remove HTML tags, square brackets and line breaks before comparison.
   const cleanString = (str: string | undefined) => str?.replace(/<[^>]*>?|\[|\]|\n/gm, '').trim();
 
-  const formattedHeadline = React.useMemo(
-    () => formatSearch(content?.headline ?? '', filter),
-    [content?.headline, filter],
-  );
   const formattedBody = React.useMemo(
     () => formatSearch(content?.body?.replace(/\n+/g, '<br><br>') ?? '', filter),
     [content?.body, filter],
@@ -294,7 +290,6 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
 
   return (
     <styled.ViewContent className={`${!!popout && 'popout'}`}>
-      <div className="headline">{formattedHeadline}</div>
       <Bar className="info-bar" vanilla>
         <Show visible={!!content?.byline}>
           <div className="byline">{`BY ${content?.byline}`}</div>
@@ -324,6 +319,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
           )}
         </Row>
       </Bar>
+      {!!content && <ContentActionBar className="actions" content={[content]} viewingContent />}
       <Show visible={!!avStream && isAV}>
         <Row justifyContent="center">
           <Show visible={isProcessing}>
