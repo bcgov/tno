@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { Row } from 'tno-core';
 
-export const ContentActionBar = styled(Row)`
+export const ContentActionBar = styled(Row)<{ viewingContent?: boolean }>`
   &.search {
     .check-area {
       margin-left: 1em;
@@ -45,7 +45,7 @@ export const ContentActionBar = styled(Row)`
 
   .content-buttons {
     color: ${(props) => props.theme.css.btnBkPrimary};
-    width: 100%;
+    width: ${(props) => (props.viewingContent ? '100%' : 'auto')};
     @media (max-width: 768px) {
       span {
         display: none;

@@ -267,8 +267,6 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
   //Remove HTML tags, square brackets and line breaks before comparison.
   const cleanString = (str: string | undefined) => str?.replace(/<[^>]*>?|\[|\]|\n/gm, '').trim();
 
-  console.log(activeContent);
-
   const formattedBody = React.useMemo(
     () => formatSearch(content?.body?.replace(/\n+/g, '<br><br>') ?? '', filter),
     [content?.body, filter],

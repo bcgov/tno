@@ -75,7 +75,7 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
   }, [frontPageImagesMediaTypeId, settings, isReady, content]);
 
   return (
-    <styled.ContentActionBar className={className}>
+    <styled.ContentActionBar viewingContent={viewingContent} className={className}>
       <Show visible={!!onSelectAll}>
         <Row className="select-all">
           <div className="check-area">
