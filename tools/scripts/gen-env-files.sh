@@ -898,3 +898,16 @@ Elastic__Url=http://host.docker.internal:$portElastic
 # Elastic__MigrationVersion=1.0.1" >> ./tools/elastic/migration/.env
     echo "./tools/elastic/migration/.env created"
 fi
+
+
+## Objects Backup
+if test -f "./tools/objects-backup/.env"; then
+    echo "./tools/objects-backup/.env exists"
+else
+echo \
+"S3_ENDPOINT={Find in s3 portal}
+S3_ACCESS_KEY={Your S3_ACCESS_KEY}
+S3_SECRET_KEY={Your S3_SECRET_KEY}
+S3_BUCKET={Your Bucket Name}" >> ./tools/objects-backup/.env
+    echo "./tools/objects-backup/.env created"
+fi
