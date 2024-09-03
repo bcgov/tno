@@ -1,10 +1,18 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from 'store/hooks';
 import { useSources } from 'store/hooks/admin';
-import { Col, FlexboxTable, IconButton, ISourceModel, Row } from 'tno-core';
+import {
+  CellCheckbox,
+  CellEllipsis,
+  Col,
+  Grid,
+  IconButton,
+  ISourceModel,
+  Link,
+  Row,
+} from 'tno-core';
 
-import { columns } from './constants';
+import { sortData } from '../ingests/utils/sortData';
 import { SourceFilter } from './SourceFilter';
 import * as styled from './styled';
 
@@ -44,7 +52,6 @@ const SourceList: React.FC<ISourceListProps> = (props) => {
   const navigate = useNavigate();
   const [{ sources }, api] = useSources();
   const [items, setItems] = React.useState<ISourceModel[]>([]);
-  const [{ requests }] = useApp();
 
   React.useEffect(() => {
     if (sources.length) {
@@ -56,6 +63,49 @@ const SourceList: React.FC<ISourceListProps> = (props) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleOnSorting = (column: any, direction: any) => {
+    if (direction && column.name) {
+      setItems((items) => {
+        switch (column.name) {
+          case 'mediaType':
+            return [...items].sort((a: any, b: any) =>
+              sortData(
+                a['mediaType'] ? a['mediaType']['name'] : '',
+                b['mediaType'] ? b['mediaType']['name'] : '',
+                direction,
+              ),
+            );
+          case 'configuration.isDailyPaper':
+            return [...items].sort((a: any, b: any) =>
+              sortData(
+                (a['configuration']
+                  ? a['configuration']['isDailyPaper'] ?? false
+                  : false) as boolean,
+                (b['configuration']
+                  ? b['configuration']['isDailyPaper'] ?? false
+                  : false) as boolean,
+                direction,
+              ),
+            );
+          case 'useInTopics':
+            return [...items].sort((a: any, b: any) =>
+              sortData(a[column.name!] as boolean, b[column.name!] as boolean, direction),
+            );
+          case 'isEnabled':
+            return [...items].sort((a: any, b: any) =>
+              sortData(a[column.name!] as boolean, b[column.name!] as boolean, direction),
+            );
+          default:
+            return [...items].sort((a: any, b: any) =>
+              sortData(a[column.name!] ?? '', b[column.name!] ?? '', direction),
+            );
+        }
+      });
+    } else {
+      setItems(sources);
+    }
+  };
 
   return (
     <styled.SourceList>
@@ -87,13 +137,72 @@ const SourceList: React.FC<ISourceListProps> = (props) => {
           }
         }}
       />
-      <FlexboxTable
-        rowId="id"
-        data={items}
-        columns={columns}
-        showSort={true}
-        pagingEnabled={false}
-        isLoading={requests.some((r) => r.url === 'find-all-sources')}
+      <Grid
+        items={items}
+        showPaging={false}
+        onSortChange={(column, direction) => handleOnSorting(column, direction)}
+        renderHeader={() => [
+          { name: 'name', label: 'Name', sortable: true },
+          { name: 'code', label: 'Code', size: '15%', sortable: true },
+          { name: 'mediaType', label: 'Media Type', size: '15%', sortable: true },
+          { name: 'sortOrder', label: 'Order', size: '10%', sortable: true },
+          { name: 'useInTopics', label: 'Topics', size: '10%', sortable: true },
+          { name: 'configuration.isDailyPaper', label: 'Paper', size: '10%', sortable: true },
+          { name: 'isEnabled', label: 'Enabled', size: '10%', sortable: true },
+        ]}
+        renderColumns={(row: ISourceModel, rowIndex) => {
+          return [
+            {
+              column: (
+                <div key="1">
+                  <Link to={`${row.id}`}>{row.name}</Link>
+                </div>
+              ),
+            },
+            {
+              column: (
+                <div key="2" className="clickable">
+                  <CellEllipsis key="">{row.code}</CellEllipsis>
+                </div>
+              ),
+            },
+            {
+              column: (
+                <div key="3" className="clickable">
+                  <CellEllipsis key="">{row.mediaType?.name}</CellEllipsis>
+                </div>
+              ),
+            },
+            {
+              column: (
+                <div key="4" className="clickable">
+                  <CellEllipsis key="">{row.sortOrder}</CellEllipsis>
+                </div>
+              ),
+            },
+            {
+              column: (
+                <div key="5" className="clickable">
+                  <CellCheckbox key="" checked={row.useInTopics} />
+                </div>
+              ),
+            },
+            {
+              column: (
+                <div key="6" className="clickable">
+                  <CellCheckbox key="" checked={row.configuration.isDailyPaper} />
+                </div>
+              ),
+            },
+            {
+              column: (
+                <div key="7" className="clickable">
+                  <CellCheckbox key="" checked={row.isEnabled} />
+                </div>
+              ),
+            },
+          ];
+        }}
       />
     </styled.SourceList>
   );
