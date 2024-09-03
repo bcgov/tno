@@ -1,43 +1,38 @@
 import styled from 'styled-components';
 
 export const MyColleagues = styled.div`
-  .txt-filter {
-    flex-direction: row;
-    align-items: center;
-    flex: 1;
+  .colleague-block {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.8em;
 
-    @media only screen and (max-width: 500px) {
-      flex-direction: column;
-      align-items: flex-start;
-    }
+    .colleague-title {
+      font-weight: bold;
+      font-size: 1.1rem;
+      border-bottom: 1px solid #ccc;
 
-    label {
-      color: ${(props) => props.theme.css.fPrimaryColor};
-      font-weight: 400;
-    }
-
-    > div {
-      flex: 1;
-      flex-wrap: nowrap;
-      gap: 1rem;
-
-      input {
-        min-width: 200px;
+      .icon {
+        font-size: 1.3rem;
+        margin-right: 0.5rem;
+        vertical-align: middle;
       }
     }
-  }
+    .colleague-describe {
+      font-size: 1rem;
+      margin-bottom: 0.8rem;
+    }
+    .request-button {
+      margin-left: 1em;
+    }
 
-  .b7 {
-    font-weight: 700;
-  }
+    .colleague-body {
+      margin-top: 0.8rem;
+      margin-left: 2.8rem;
+    }
 
-  .fs1 {
-    font-size: 0.75rem;
-  }
-
-  .back {
-    color: ${(props) => props.theme.css.linkGrayColor};
-    font-weight: 400;
-    cursor: pointer;
+    .colleague-table .grid-header {
+      border-top: none;
+      border-bottom: 1px solid #ccc;
+    }
   }
 `;

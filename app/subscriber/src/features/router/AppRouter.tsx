@@ -143,7 +143,7 @@ export const AppRouter: React.FC = () => {
           element={
             <PrivateRoute
               claims={Claim.subscriber}
-              element={<MyColleaguesLanding inFrame={false} />}
+              element={<MyColleaguesLanding />}
             ></PrivateRoute>
           }
         />

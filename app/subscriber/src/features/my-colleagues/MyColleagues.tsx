@@ -1,9 +1,8 @@
 import { Action } from 'components/action';
-import { Bar } from 'components/bar';
 import { Modal } from 'components/modal';
 import { PageSection } from 'components/section';
 import React from 'react';
-import { FaClipboard } from 'react-icons/fa6';
+import { FaClipboard, FaUserPlus } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useColleagues } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
@@ -41,15 +40,21 @@ export const MyColleagues: React.FC<IMyColleaguesProps> = ({ inFrame, changeActi
   return (
     <styled.MyColleagues>
       <PageSection header={!inFrame ? 'My Colleagues' : ''}>
-        <Bar>
-          <Row flex="1" justifyContent="flex-end">
-            <Action
-              label="Add Colleague"
-              icon={<FaClipboard />}
-              onClick={() => changeAction(ColleagueActionEnum.Edit)}
-            />
-          </Row>
-        </Bar>
+        <h2 className="product-section-title">
+          <FaUserPlus /> <span>Add a Colleague</span>
+        </h2>
+        <p className="info-text">
+          Add MMI users that you would like to be able to quickly share stories with. From any of
+          the story lists, or from the story itself, you can then choose to "share" and find your
+          colleagues in this list.
+        </p>
+        <Row flex="1" justifyContent="flex-end">
+          <Action
+            label="Add a Colleague"
+            icon={<FaClipboard />}
+            onClick={() => changeAction(ColleagueActionEnum.Edit)}
+          />
+        </Row>
         <div>
           {myColleagues.map((colleague, index) => {
             return (
