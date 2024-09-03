@@ -347,7 +347,20 @@ services:
       - host.docker.internal:host-gateway
     networks:
       - tno
-
+  ####################### back-service #######################
+  backup-service:
+    profiles:
+      - all
+    build:
+      context: tools/objects-backup
+      dockerfile: Dockerfile
+    volumes:
+      - tno-av-data:/av:ro
+    env_file:
+      - tools/objects-backup/.env
+    command: ["/bin/bash", "/scripts/entrypoint.sh"]
+    networks:
+      - tno
   ####################### Oracle #######################
   oracle:
     profiles:
@@ -429,3 +442,4 @@ volumes:
 
 # To inspect healthcheck
 # docker inspect --format='{{json .State.Health}}' tno-nlp
+
