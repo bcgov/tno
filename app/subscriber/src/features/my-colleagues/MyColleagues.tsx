@@ -1,5 +1,4 @@
 import { Action } from 'components/action';
-import { Bar } from 'components/bar';
 import { Modal } from 'components/modal';
 import { PageSection } from 'components/section';
 import React from 'react';
