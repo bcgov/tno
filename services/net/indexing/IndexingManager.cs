@@ -46,7 +46,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     protected ElasticsearchClient Client { get; private set; }
 
     private readonly IMemoryCache _cache;
-    private const string CacheKeyPrefix = "IndexedContent_";
+    private const string CacheKeyPrefix = "NotificationContent_";
     private const int CacheExpirationSecond = 5;
     #endregion
 
