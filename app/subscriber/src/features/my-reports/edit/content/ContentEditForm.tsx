@@ -28,7 +28,7 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
   ({ disabled }, ref) => {
     const [{ userInfo }] = useApp();
     const [, { updateReport }] = useReports();
-    const [, { addContent, updateContent }] = useContent();
+    const [, { addContent, updateContentSilent, getContent }] = useContent();
     const { values, onNavigate, isSubmitting, setSubmitting, setValues, activeRow, setActiveRow } =
       useReportEditContext();
 
@@ -60,18 +60,51 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
       return err;
     };
 
+    const isContentUpdated = React.useCallback(
+      async (userContent: IContentModel, updatedContent: IContentModel) => {
+        if (
+          updatedContent.version &&
+          userContent.version &&
+          updatedContent.version > userContent.version
+        ) {
+          const key: number = userId;
+          const userVersions = userContent.versions[userId];
+          const newVersions = userContent.versions;
+          newVersions[key] = userVersions;
+
+          return { ...updatedContent, versions: newVersions };
+        } else {
+          return userContent;
+        }
+      },
+      [userId],
+    );
+
     const handleAddUpdateContent = React.useCallback(
       async (values: IReportForm, row: IReportInstanceContentForm) => {
         try {
           setSubmitting(true);
           const content = row.content;
-          if (!content) return null;
+          if (!content || content === undefined) return null;
+          const originalId = content.id;
           const err = validate(content);
           if (err.hasErrors) return null;
-          const originalId = content.id;
-          const contentResult = !content.id
-            ? await addContent(content)
-            : await updateContent(content);
+          let contentResult: IContentModel | undefined;
+          try {
+            contentResult = !content.id
+              ? await addContent(content)
+              : await updateContentSilent(content);
+          } catch (err) {
+            // gets the edited content to check if the version was changed by another user
+            const updatedContent = await getContent(originalId);
+            // if the content was updated, set the changes to the user version and update the content version avoing data loss and concurrency errors
+            if (updatedContent) {
+              const newContent = await isContentUpdated(content, updatedContent);
+              contentResult = !content.id
+                ? await addContent(newContent)
+                : await updateContentSilent(newContent);
+            }
+          }
           if (contentResult) {
             const instanceContent: IReportInstanceContentForm = {
               contentId: contentResult.id,
@@ -124,7 +157,7 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
                     ? {
                         ...instance,
                         content: instance.content.map((c) =>
-                          c.contentId === contentResult.id ? { ...c, content: contentResult } : c,
+                          c.contentId === contentResult?.id ? { ...c, content: contentResult } : c,
                         ),
                       }
                     : instance,
@@ -137,7 +170,16 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
           setSubmitting(false);
         }
       },
-      [addContent, setActiveRow, setSubmitting, setValues, updateContent, updateReport],
+      [
+        addContent,
+        getContent,
+        isContentUpdated,
+        setActiveRow,
+        setSubmitting,
+        setValues,
+        updateContentSilent,
+        updateReport,
+      ],
     );
 
     const reportContent: { label: string; url: string; section: string }[] = values.instances.length

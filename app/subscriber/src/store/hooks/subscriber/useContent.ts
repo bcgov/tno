@@ -34,6 +34,7 @@ export interface IContentController {
   stream: (path: string) => Promise<string>;
   addContent: (content: IContentModel) => Promise<IContentModel | undefined>;
   updateContent: (content: IContentModel) => Promise<IContentModel | undefined>;
+  updateContentSilent: (content: IContentModel) => Promise<IContentModel | undefined>;
   deleteContent: (content: IContentModel) => Promise<IContentModel | undefined>;
 }
 
@@ -111,6 +112,16 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
           'update-content',
           () => api.updateContent(content),
           'content',
+        );
+        return response.data;
+      },
+      updateContentSilent: async (content: IContentModel) => {
+        const response = await dispatch(
+          'update-content',
+          () => api.updateContent(content),
+          'content',
+          true,
+          true,
         );
         return response.data;
       },
