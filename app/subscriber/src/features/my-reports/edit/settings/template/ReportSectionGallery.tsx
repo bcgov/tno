@@ -1,5 +1,5 @@
 import React from 'react';
-import { Col, FormikCheckbox, FormikSelect, FormikText, OptionItem, Row, Show } from 'tno-core';
+import { Col, FormikCheckbox, FormikSelect, FormikText, OptionItem, Row } from 'tno-core';
 
 import { useReportEditContext } from '../../ReportEditContext';
 
@@ -34,20 +34,18 @@ export const ReportSectionGallery = React.forwardRef<HTMLDivElement, IReportSect
                 (does not apply to charts that link to other reports)
               </span>
             </Row>
-            <Show visible={!!section.folderId || !!section.linkedReportId}>
-              <Row>
-                <FormikCheckbox
-                  name={`sections.${index}.settings.overrideExcludeHistorical`}
-                  label={`Include all content from linked ${
-                    section.folderId ? 'folder' : 'report'
-                  } even if in prior report`}
-                />
-                <span className="info">
-                  This overrides the report option "Exclude stories that have been sent out in
-                  previous report" for this section only.
-                </span>
-              </Row>
-            </Show>
+            <Row>
+              <FormikCheckbox
+                name={`sections.${index}.settings.overrideExcludeHistorical`}
+                label={`Include all content from linked ${
+                  section.folderId ? 'folder' : 'report'
+                } even if in prior report`}
+              />
+              <span className="info">
+                This overrides the report option "Exclude stories that have been sent out in
+                previous report" for this section only.
+              </span>
+            </Row>
             <FormikCheckbox
               name={`sections.${index}.settings.hideEmpty`}
               label="Hide this section in the report when empty"

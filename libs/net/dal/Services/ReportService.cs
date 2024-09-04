@@ -799,7 +799,6 @@ public class ReportService : BaseService<Report, int>, IReportService
             ? reportSettings.Content.ExcludeReports.SelectMany((reportId) => this.GetReportInstanceContentToExclude(reportId, ownerId)).Distinct().ToArray()
             : Array.Empty<long>();
 
-        var excludeContentIds = excludeHistoricalContentIds.AppendRange(excludeReportContentIds).Distinct().ToArray();
         var excludeAboveSectionContentIds = new List<long>();
 
         foreach (var section in report.Sections.OrderBy(s => s.SortOrder))
@@ -829,8 +828,14 @@ public class ReportService : BaseService<Report, int>, IReportService
                 if (sectionSettings.RemoveDuplicates)
                     query = query.Where(fc => !excludeAboveSectionContentIds.Contains(fc.ContentId));
 
-                if (excludeContentIds.Any() && !sectionSettings.OverrideExcludeHistorical)
-                    query = query.Where(fc => !excludeContentIds.Contains(fc.ContentId));
+                if (!sectionSettings.OverrideExcludeHistorical)
+                {
+                    var excludeContentIds = excludeHistoricalContentIds.AppendRange(excludeReportContentIds).Distinct().ToArray();
+                    if (excludeContentIds.Any())
+                        query = query.Where(fc => !excludeContentIds.Contains(fc.ContentId));
+                }
+                else if (excludeReportContentIds.Any())
+                    query = query.Where(fc => !excludeReportContentIds.Contains(fc.ContentId));
 
                 var content = query
                     .OrderBy(fc => fc.SortOrder)
@@ -852,10 +857,9 @@ public class ReportService : BaseService<Report, int>, IReportService
                 var filterSettings = JsonSerializer.Deserialize<FilterSettingsModel>(section.Filter.Settings.ToJson(), _serializerOptions) ?? new();
 
                 // Modify the query to exclude content.
-                var excludeOnlyTheseContentIds = excludeContentIds.Any() && !sectionSettings.OverrideExcludeHistorical ? excludeContentIds : Array.Empty<long>();
-                var excludeAboveAndHistorical = sectionSettings.OverrideExcludeHistorical
-                    ? excludeOnlyTheseContentIds.AppendRange(excludeAboveSectionContentIds).Distinct().ToArray()
-                    : excludeOnlyTheseContentIds;
+                var excludeContentIds = excludeHistoricalContentIds.AppendRange(excludeReportContentIds).Distinct().ToArray();
+                var excludeOnlyTheseContentIds = !sectionSettings.OverrideExcludeHistorical ? excludeContentIds : excludeReportContentIds;
+                var excludeAboveAndHistorical = sectionSettings.RemoveDuplicates ? excludeOnlyTheseContentIds.AppendRange(excludeAboveSectionContentIds).Distinct().ToArray() : excludeOnlyTheseContentIds;
                 var query = excludeAboveAndHistorical.Any()
                     ? section.Filter.Query.AddExcludeContent(excludeAboveAndHistorical)
                     : section.Filter.Query;
