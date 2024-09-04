@@ -829,7 +829,7 @@ public class ReportService : BaseService<Report, int>, IReportService
                 if (sectionSettings.RemoveDuplicates)
                     query = query.Where(fc => !excludeAboveSectionContentIds.Contains(fc.ContentId));
 
-                if (excludeContentIds.Any()&& !sectionSettings.OverrideExcludeHistorical)
+                if (excludeContentIds.Any() && !sectionSettings.OverrideExcludeHistorical)
                     query = query.Where(fc => !excludeContentIds.Contains(fc.ContentId));
 
                 var content = query
@@ -885,6 +885,10 @@ public class ReportService : BaseService<Report, int>, IReportService
 
                 searchResults.Add(section.Name, content);
                 excludeAboveSectionContentIds.AddRange(contentIds.Except(excludeAboveSectionContentIds));
+            }
+            else
+            {
+
             }
         }
 
