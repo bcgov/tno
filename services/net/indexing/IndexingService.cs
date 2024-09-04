@@ -1,5 +1,6 @@
 using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Caching.Memory;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.Indexing.Config;
@@ -44,7 +45,13 @@ public class IndexingService : KafkaConsumerService
             .Configure<AdminClientConfig>(this.Configuration.GetSection("Kafka:Admin"))
             .AddSingleton<IKafkaAdmin, KafkaAdmin>()
             .AddTransient<IKafkaListener<string, IndexRequestModel>, KafkaListener<string, IndexRequestModel>>()
-            .AddSingleton<IServiceManager, IndexingManager>();
+            .AddSingleton<IServiceManager, IndexingManager>()
+            .AddMemoryCache(
+                options =>
+                {
+                    options.SizeLimit = 100;
+                }
+            ); //  MemoryCache
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<IndexingOptions>()
