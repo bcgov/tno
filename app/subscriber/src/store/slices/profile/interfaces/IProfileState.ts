@@ -31,5 +31,5 @@ export interface IProfileState {
   reportContent: { [reportId: number]: number[] };
   contributors: IContributorModel[];
   messages: ISystemMessageModel[];
-  myTonePool: ITonePoolModel;
+  myTonePool: ITonePoolModel | undefined;
 }

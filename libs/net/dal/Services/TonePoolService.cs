@@ -27,7 +27,7 @@ public class TonePoolService : BaseService<TonePool, int>, ITonePoolService
 
     public TonePool? FindByUserId(int userId)
     {
-        return this.Context.TonePools.FirstOrDefault(tp => tp.OwnerId == userId && tp.IsPublic == true);
+        return this.Context.TonePools.FirstOrDefault(tp => tp.OwnerId == userId);
     }
 
     public override TonePool AddAndSave(TonePool entity)

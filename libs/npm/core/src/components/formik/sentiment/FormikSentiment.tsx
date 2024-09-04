@@ -1,12 +1,11 @@
 import { getIn, useFormikContext } from 'formik';
 import React from 'react';
-import { FaFrown, FaMeh, FaSmile } from 'react-icons/fa';
 
 import FaceFrownOpen from '../../../assets/face-frown-open.svg';
 import FaceGrinWide from '../../../assets/face-grin-wide.svg';
 import FaceMeh from '../../../assets/face-meh.svg';
 import { Col, Error, Row } from '../../../components';
-import { IContentTonePoolModel, ITonePoolModel } from '../../../hooks';
+import { ITonePoolModel } from '../../../hooks';
 import * as styled from './styled';
 
 const toningOptions = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5];
@@ -18,14 +17,10 @@ export interface IFormikSentimentProps<T> {
   label?: string;
   /** Sentiment options. */
   options: ITonePoolModel[];
-  /** Sentiment icon colored */
-  coloredIcon?: boolean;
   /** The name of the default tone pool */
   defaultTonePoolName?: string;
   /** The id of the default tone pool */
   defaultTonePoolId?: number;
-  /** Update upper form */
-  onSentimentChange?: (tonePools: any) => void;
   /** Whether this field is required. */
   required?: boolean;
 }
@@ -39,10 +34,8 @@ export const FormikSentiment = <T extends object>({
   name,
   label = 'Sentiment',
   options,
-  coloredIcon = false,
   defaultTonePoolId,
   defaultTonePoolName = 'Default',
-  onSentimentChange,
   ...rest
 }: IFormikSentimentProps<T>) => {
   const { values, setFieldValue, touched, errors } = useFormikContext<T>();
@@ -51,18 +44,14 @@ export const FormikSentiment = <T extends object>({
     name,
     label,
     options,
-    coloredIcon,
     defaultTonePoolId,
     defaultTonePoolName,
-    onSentimentChange,
     ...rest,
   };
   const defaultTonePool = options.find(
     (t) => t.id === defaultTonePoolId || t.name === defaultTonePoolName,
   );
-
-  const tonePools = getIn(values, name.toString()) as IContentTonePoolModel[] | undefined;
-
+  const tonePools = getIn(values, name.toString());
   const value =
     tonePools && Array.isArray(tonePools) && tonePools.length ? tonePools[0].value : undefined;
 
@@ -75,65 +64,40 @@ export const FormikSentiment = <T extends object>({
     if (active !== value) {
       setActive(value);
     }
-  }, [value, active]);
+  }, [active, value]);
 
   const determineIndicator = (option: number) => {
     if (option === 5) {
-      return coloredIcon ? (
-        <FaSmile className="tone-icon" color="#59E9BE" />
-      ) : (
-        <img alt={option.toString()} src={FaceGrinWide} />
-      );
+      return <img alt={option.toString()} src={FaceGrinWide} />;
     } else if (option === 0) {
-      return coloredIcon ? (
-        <FaMeh className="tone-icon" color="#F1C02D" />
-      ) : (
-        <img alt={option.toString()} src={FaceMeh} />
-      );
+      return <img alt={option.toString()} src={FaceMeh} />;
     } else if (option === -5) {
-      return coloredIcon ? (
-        <FaFrown className="tone-icon" color="#EB8585" />
-      ) : (
-        <img alt={option.toString()} src={FaceFrownOpen} />
-      );
+      return <img alt={option.toString()} src={FaceFrownOpen} />;
     } else {
       return <span className="blank">&nbsp;</span>;
     }
-  };
-
-  const handleOptionClick = (option: number) => {
-    if (!defaultTonePool) return;
-
-    setActive(option);
-
-    const existingTonePoolIndex = tonePools?.findIndex((pool) => pool.id === defaultTonePool.id);
-    let updatedTonePools;
-
-    if (existingTonePoolIndex !== undefined && existingTonePoolIndex >= 0) {
-      // Replace the existing TonePool value
-      updatedTonePools = tonePools?.map((pool, index) =>
-        index === existingTonePoolIndex ? { ...pool, value: option } : pool,
-      );
-    } else {
-      // Add a new TonePool entry
-      updatedTonePools = [...(tonePools || []), { ...defaultTonePool, value: option }];
-    }
-
-    setFieldValue(name.toString(), updatedTonePools, true);
-    onSentimentChange?.(updatedTonePools);
   };
 
   return (
     <styled.FormikSentiment className="frm-in multi-group" {...SentimentProps}>
       <label>{label}</label>
       <Row>
+        {' '}
         {toningOptions.map((option) => (
           <Col key={option}>
             {determineIndicator(option)}
             <button
               className={active === option ? 'active' : ''}
               type="button"
-              onClick={() => handleOptionClick(option)}
+              key={option}
+              onClick={() => {
+                setActive(option);
+                setFieldValue(
+                  name.toString(),
+                  !!defaultTonePool ? [{ ...defaultTonePool, value: option }] : [],
+                  true,
+                );
+              }}
             >
               {option}
             </button>

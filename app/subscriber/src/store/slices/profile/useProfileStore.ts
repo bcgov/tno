@@ -56,7 +56,7 @@ export interface IProfileStore {
   storeMyMessages: (
     messages: ISystemMessageModel[] | ActionDelegate<ISystemMessageModel[]>,
   ) => void;
-  storeMyTonePool: (tonePool: ITonePoolModel | ActionDelegate<ITonePoolModel>) => void;
+  storeMyTonePool: (tonePool: ITonePoolModel | ActionDelegate<ITonePoolModel | undefined>) => void;
 }
 
 export const useProfileStore = (): [IProfileState, IProfileStore] => {
@@ -141,10 +141,13 @@ export const useProfileStore = (): [IProfileState, IProfileStore] => {
           dispatch(storeMyMessages(messages(state.messages)));
         } else dispatch(storeMyMessages(messages));
       },
-      storeMyTonePool: (tonePool: ITonePoolModel | ActionDelegate<ITonePoolModel>) => {
+      storeMyTonePool: (tonePool: ITonePoolModel | ActionDelegate<ITonePoolModel | undefined>) => {
         if (typeof tonePool === 'function') {
-          dispatch(storeMyTonePool(tonePool(state.myTonePool)));
-        } else {
+          const updatedTonePool = tonePool(state.myTonePool);
+          if (updatedTonePool !== undefined) {
+            dispatch(storeMyTonePool(updatedTonePool));
+          }
+        } else if (tonePool !== undefined) {
           dispatch(storeMyTonePool(tonePool));
         }
       },

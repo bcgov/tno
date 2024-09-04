@@ -29,15 +29,7 @@ export const initialProfileState: IProfileState = {
     myColleagues: false,
     myTonePool: false,
   },
-  myTonePool: {
-    ownerId: 0,
-    isPublic: false,
-    id: 0,
-    name: '',
-    description: '',
-    sortOrder: 0,
-    isEnabled: false,
-  },
+  myTonePool: undefined,
 };
 
 export const profileSlice = createSlice({

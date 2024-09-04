@@ -7,10 +7,11 @@
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": false,
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "paths": {
-      "@assets/*": ["../../../../app/subscriber/public/assets/*"]
-    },
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -26,8 +27,13 @@
     "inlineSources": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "typeRoots": ["src/@types", "node_modules/@types"]
+    "typeRoots": [
+      "src/@types",
+      "node_modules/@types"
+    ]
   },
-  "include": ["src"],
+  "include": [
+    "src"
+  ],
   "exclude": ["node_modules", "dist"]
 }

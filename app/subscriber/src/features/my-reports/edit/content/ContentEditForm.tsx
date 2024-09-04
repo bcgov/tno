@@ -6,12 +6,12 @@ import { IContentValidationErrors } from 'features/my-reports/interfaces/IConten
 import { toForm } from 'features/my-reports/utils';
 import { formatDate } from 'features/utils';
 import React from 'react';
+import { FaToggleOff, FaToggleOn } from 'react-icons/fa';
 import { useApp, useContent, useReports } from 'store/hooks';
 import { useTonePool } from 'store/hooks/subscriber/useTonePool';
-import { useProfileStore } from 'store/slices';
-import { Col, ContentTypeName, IContentModel, IContentTonePoolModel } from 'tno-core';
+import { Col, ContentTypeName, IContentModel, IContentTonePoolModel, ToggleButton } from 'tno-core';
 
-import { defaultTonePool } from '../constants/defaultTonePool';
+import { defaultContentTonePool } from '../constants/defaultContentTonePool';
 import { useReportEditContext } from '../ReportEditContext';
 import { ContentActions, ContentForm, UserContentForm } from './stories';
 import * as styled from './styled';
@@ -30,10 +30,9 @@ export interface IContentEditFormProps {
 export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentEditFormProps>(
   ({ disabled }, ref) => {
     const [{ userInfo }] = useApp();
-    const [{ myTonePool, init }, { storeMyTonePool }] = useProfileStore();
     const [, { updateReport }] = useReports();
     const [, { addContent, updateContentSilent, getContent }] = useContent();
-    const [, { addMyTonePool, getMyTonePool }] = useTonePool();
+    const [, { addMyTonePool }] = useTonePool();
     const { values, onNavigate, isSubmitting, setSubmitting, setValues, activeRow, setActiveRow } =
       useReportEditContext();
 
@@ -45,44 +44,11 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
 
     const instance = values.instances.length ? values.instances[0] : undefined;
     const userId = userInfo?.id ?? 0;
+    const [isUserSentiment, setIsUserSentiment] = React.useState(false);
 
-    React.useEffect(() => {
-      const getTonePool = async () => {
-        try {
-          if (!init.myTonePool && userId !== 0) {
-            const response = await getMyTonePool(userId);
-            if (response?.id) {
-              storeMyTonePool(response);
-            } else {
-              // If no valid tone pool exists, proceed to create one
-              await createTonePool(userId);
-            }
-          }
-        } catch (error) {
-          console.error('Error loading tone pool:', error);
-        } finally {
-        }
-      };
-
-      const createTonePool = async (userId: number) => {
-        try {
-          await addMyTonePool({
-            ...defaultTonePool,
-            name: `${userId}`,
-            ownerId: userId,
-          });
-          const newTonePool = await getMyTonePool(userId);
-          storeMyTonePool(newTonePool);
-        } catch (error) {
-          console.error('Error creating tone pool:', error);
-        } finally {
-        }
-      };
-
-      if (myTonePool.id === 0) {
-        getTonePool();
-      }
-    }, [getMyTonePool, addMyTonePool, myTonePool.id, userId, init.myTonePool, storeMyTonePool]);
+    const toggleSentiment = React.useCallback(() => {
+      setIsUserSentiment((prev) => !prev);
+    }, []);
 
     React.useEffect(() => {
       const updatedUserFormTonePool =
@@ -93,6 +59,7 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
 
     React.useEffect(() => {
       setForm(activeRow);
+      setIsUserSentiment(false);
     }, [activeRow]);
 
     const validate = (values: IContentModel) => {
@@ -133,6 +100,23 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
       [userId],
     );
 
+    const createTonePool = React.useCallback(
+      async (userId: number) => {
+        try {
+          const newTonePool = await addMyTonePool({
+            ...defaultContentTonePool,
+            name: `${userId}`,
+            ownerId: userId,
+          });
+          return newTonePool;
+        } catch (error) {
+          console.error('Error creating tone pool:', error);
+        } finally {
+        }
+      },
+      [addMyTonePool],
+    );
+
     const handleAddUpdateContent = React.useCallback(
       async (values: IReportForm, row: IReportInstanceContentForm) => {
         try {
@@ -143,6 +127,25 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
           const err = validate(content);
           if (err.hasErrors) return null;
           let contentResult: IContentModel | undefined;
+          let userTonePool: IContentTonePoolModel =
+            content?.tonePools.find((tp) => tp.ownerId === userId) ?? defaultContentTonePool;
+          if (userTonePool.id === 0) {
+            const newTonePool = await createTonePool(userId);
+
+            if (newTonePool) {
+              userTonePool = {
+                ...userTonePool,
+                id: newTonePool.id,
+              };
+            }
+            if (content?.tonePools) {
+              content.tonePools = [
+                ...content.tonePools.filter((tp) => tp.ownerId !== userId),
+                userTonePool,
+              ];
+            }
+          }
+          if (err.hasErrors) return null;
           try {
             contentResult = !content.id
               ? await addContent(content)
@@ -225,6 +228,7 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
       },
       [
         addContent,
+        createTonePool,
         getContent,
         isContentUpdated,
         setActiveRow,
@@ -232,6 +236,7 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
         setValues,
         updateContentSilent,
         updateReport,
+        userId,
       ],
     );
 
@@ -308,11 +313,21 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
                 ? ` | ${form.content.page}`
                 : ''}
             </Col>
+            <ToggleButton
+              on={<FaToggleOn />}
+              off={<FaToggleOff />}
+              onClick={toggleSentiment}
+              width="25px"
+              height="25px"
+              color="#6750a4"
+              label="User Tone"
+              value={isUserSentiment}
+            />
             <Col className="sentiment">
               <Sentiment
                 value={
-                  userFormTonePool
-                    ? userFormTonePool.value
+                  isUserSentiment
+                    ? userFormTonePool?.value
                     : form?.content?.tonePools && form.content.tonePools.length > 0
                     ? form.content.tonePools[0].value
                     : undefined
@@ -347,6 +362,7 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
             onContentChange={(content) => {
               setForm({ ...form, content });
             }}
+            isUserSentiment={isUserSentiment}
             loading={isSubmitting}
             disabled={disabled}
           />

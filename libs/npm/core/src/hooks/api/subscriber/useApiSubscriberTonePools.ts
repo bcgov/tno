@@ -28,7 +28,6 @@ export const useApiSubscriberTonePools = (
       );
     },
     getMyTonePool: (userId: number) => {
-      console.log('getMyTonePool');
       return api.get<ITonePoolModel, AxiosResponse<ITonePoolModel>, any>(
         `/subscriber/tonePool/user/${userId}`,
       );

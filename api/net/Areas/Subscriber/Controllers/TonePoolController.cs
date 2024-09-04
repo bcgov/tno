@@ -48,7 +48,7 @@ public class TonePoolController: ControllerBase
 
     #region Endpoints
     /// <summary>
-    /// Return an array of TonePool.
+    /// Find all TonePools.
     /// </summary>
     /// <returns></returns>
     [HttpGet, HttpHead]
@@ -56,11 +56,24 @@ public class TonePoolController: ControllerBase
     [ProducesResponseType(typeof(IEnumerable<TonePoolModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotModified)]
     [SwaggerOperation(Tags = new[] { "TonePool" })]
-    [ETagCacheTableFilter("tone_pools")]
-    [ResponseCache(Duration = 5 * 60)]
+    public IActionResult FindAll()
+    {
+        return new JsonResult(_service.FindAll());
+    }
+
+    /// <summary>
+    /// Find a TonePool by 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(TonePoolModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "TonePool" })]
     public IActionResult FindById(int id)
     {
-        var result = _service.FindById(id) ?? throw new NoContentException();
+        var result = _service.FindById(id) ?? throw new NoContentException("TonePool does not exist");
         return new JsonResult(new TonePoolModel(result));
     }
 
@@ -95,8 +108,6 @@ public class TonePoolController: ControllerBase
     [ProducesResponseType(typeof(TonePoolModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "TonePool" })]
-    [ETagCacheTableFilter("tone_pools")]
-    [ResponseCache(Duration = 5 * 60)]
     public IActionResult Add(TonePoolModel model)
     {
         var tonePoolEntity = new TonePool(model.Name, model.OwnerId)

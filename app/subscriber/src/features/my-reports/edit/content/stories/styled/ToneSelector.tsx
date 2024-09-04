@@ -1,10 +1,13 @@
 import styled from 'styled-components';
 
-import { IFormikSentimentProps } from '../FormikSentiment';
+export interface IToneSelectorProps {
+  required?: boolean;
+  active?: boolean;
+}
 
-export const FormikSentiment = styled.div.attrs<IFormikSentimentProps<any>>(({ required }) => ({
+export const ToneSelector = styled.div.attrs<IToneSelectorProps>(({ required }) => ({
   required,
-}))<IFormikSentimentProps<any>>`
+}))<IToneSelectorProps>`
   display: flex;
   flex-direction: column;
 
@@ -13,6 +16,7 @@ export const FormikSentiment = styled.div.attrs<IFormikSentimentProps<any>>(({ r
     width: 20px;
     align-self: center;
   }
+
   button {
     background-color: #f2f2f2;
     border-radius: 15%;
@@ -36,7 +40,6 @@ export const FormikSentiment = styled.div.attrs<IFormikSentimentProps<any>>(({ r
   .active {
     background-color: #007af5;
     color: white;
-    // box-shadow: none;
     border: none;
     min-height: 2rem;
     min-width: 2rem;
@@ -49,5 +52,11 @@ export const FormikSentiment = styled.div.attrs<IFormikSentimentProps<any>>(({ r
       content: '${(props) => (props.required ? ' *' : '')}';
       color: red;
     }
+  }
+
+  .tone-icon {
+    font-size: 1.4rem;
+    margin-bottom: 0rem;
+    margin-left: 0.5rem;
   }
 `;

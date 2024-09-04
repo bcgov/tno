@@ -12,9 +12,6 @@ module.exports = {
     ],
   },
   resolve: {
-    alias: {
-      '@assets': path.resolve(__dirname, '../../../../app/subscriber/public/assets'),
-    },
     extensions: ['.tsx', '.ts', '.js'],
   },
   output: {
@@ -24,9 +21,3 @@ module.exports = {
   },
   devtool: 'source-map',
 };
-
-// Add this to print the resolved alias path
-console.log(
-  'Resolved @assets path:',
-  path.resolve(__dirname, '../../../../app/subscriber/public/assets'),
-);
