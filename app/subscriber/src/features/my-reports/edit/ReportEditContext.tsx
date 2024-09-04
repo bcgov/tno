@@ -60,6 +60,10 @@ export interface IReportEditContext {
   setPreviewLastUpdatedOn: React.Dispatch<React.SetStateAction<string | undefined>>;
   testData: IReportInstanceContentModel[];
   regenerateTestData: () => void;
+  linkedReportContent: Record<string, IReportInstanceContentModel[]>;
+  setLinkedReportContent: React.Dispatch<
+    React.SetStateAction<Record<string, IReportInstanceContentModel[]>>
+  >;
 }
 
 /**
@@ -84,6 +88,8 @@ export const ReportEditContext = React.createContext<IReportEditContext>({
   setPreviewLastUpdatedOn: () => {},
   testData: [],
   regenerateTestData: () => {},
+  linkedReportContent: {},
+  setLinkedReportContent: () => {},
 });
 
 /**
@@ -133,6 +139,7 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
 
   const [active, setActive] = React.useState<string>();
   const [activeRow, setActiveRow] = React.useState<IReportInstanceContentForm>();
+  const [linkedReportContent, setLinkedReportContent] = React.useState({});
 
   const instance = values.instances.length ? values.instances[0] : undefined;
   const [activeInstance, setActiveInstance] = React.useState<IReportInstanceModel>();
@@ -279,6 +286,8 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
         setPreviewLastUpdatedOn,
         testData,
         regenerateTestData,
+        linkedReportContent,
+        setLinkedReportContent,
       }}
     >
       {children}
