@@ -527,6 +527,7 @@ public class ProductService : BaseService<Product, int>, IProductService
             message.AppendLine($"<p><strong>Action</strong>: UNSUBSCRIBE</p>");
         }
 
+		message.AppendLine($"<p><a href=\"https://editor.mmi.gov.bc.ca/admin/products/{product.Id}\" target=\"_blank\">Link to request</a></p>");
         message.AppendLine("</BODY>");
         message.AppendLine("</HTML>");
 
