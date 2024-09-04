@@ -170,7 +170,16 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
           setSubmitting(false);
         }
       },
-      [addContent, setActiveRow, setSubmitting, setValues, updateContentSilent, updateReport],
+      [
+        addContent,
+        getContent,
+        isContentUpdated,
+        setActiveRow,
+        setSubmitting,
+        setValues,
+        updateContentSilent,
+        updateReport,
+      ],
     );
 
     const reportContent: { label: string; url: string; section: string }[] = values.instances.length
