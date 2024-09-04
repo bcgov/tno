@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Security.Claims;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
@@ -569,6 +568,11 @@ public class UserService : BaseService<User, int>, IUserService
     /// <returns></returns>
     public IEnumerable<UserProduct> GetUserProductSubscriptions(int userId)
     {
+        // Get all distribution lists this user is part of.
+        var distributionIds = this.Context.UserDistributions
+            .Where(ud => ud.LinkedUserId == userId)
+            .Select(ud => ud.UserId).ToArray();
+
         return this.Context.UserProducts
             .Include(up => up.Product)
             .Include(up => up.Product)
@@ -576,9 +580,15 @@ public class UserService : BaseService<User, int>, IUserService
             .Include(up => up.User).ThenInclude(u => u!.ReportSubscriptionsManyToMany)
             .Include(up => up.User).ThenInclude(u => u!.AVOverviewSubscriptionsManyToMany)
             .Where(up => up.UserId == userId &&
-                ((up.Product!.ProductType == ProductType.Report && this.Context.UserReports.Any(ur => ur.UserId == userId && ur.ReportId == up.Product.TargetProductId && ur.IsSubscribed)) ||
-                (up.Product!.ProductType == ProductType.Notification && this.Context.UserNotifications.Any(un => un.UserId == userId && un.NotificationId == up.Product.TargetProductId && un.IsSubscribed)) ||
-                (up.Product!.ProductType == ProductType.EveningOverview && this.Context.UserAVOverviews.Any(av => av.UserId == userId && av.IsSubscribed)))
+                ((up.Product!.ProductType == ProductType.Report &&
+                    this.Context.UserReports.Any(ur => ur.ReportId == up.Product.TargetProductId &&
+                        ur.IsSubscribed &&
+                        (ur.UserId == userId || distributionIds.Contains(ur.UserId)))) ||
+                (up.Product!.ProductType == ProductType.Notification &&
+                    this.Context.UserNotifications.Any(un => un.NotificationId == up.Product.TargetProductId &&
+                        un.IsSubscribed && (un.UserId == userId || distributionIds.Contains(un.UserId)))) ||
+                (up.Product!.ProductType == ProductType.EveningOverview &&
+                    this.Context.UserAVOverviews.Any(av => av.IsSubscribed && (av.UserId == userId || distributionIds.Contains(av.UserId)))))
             )
             .OrderBy(up => up.Product!.Name)
             .ToArray();
@@ -591,9 +601,14 @@ public class UserService : BaseService<User, int>, IUserService
     /// <returns></returns>
     public IEnumerable<UserReport> GetUserReportSubscriptions(int userId)
     {
+        // Get all distribution lists this user is part of.
+        var distributionIds = this.Context.UserDistributions
+            .Where(ud => ud.LinkedUserId == userId)
+            .Select(ud => ud.UserId).ToArray();
+
         return this.Context.UserReports
             .Include(ur => ur.Report)
-            .Where(ur => ur.UserId == userId && ur.IsSubscribed)
+            .Where(ur => ur.IsSubscribed && (ur.UserId == userId || distributionIds.Contains(ur.UserId)))
             .OrderBy(up => up.Report!.Name)
             .ToArray();
     }
@@ -605,8 +620,13 @@ public class UserService : BaseService<User, int>, IUserService
     /// <returns></returns>
     public IEnumerable<UserAVOverview> GetUserEveningOverviewSubscriptions(int userId)
     {
+        // Get all distribution lists this user is part of.
+        var distributionIds = this.Context.UserDistributions
+            .Where(ud => ud.LinkedUserId == userId)
+            .Select(ud => ud.UserId).ToArray();
+
         return this.Context.UserAVOverviews
-            .Where(ur => ur.UserId == userId)
+            .Where(ur => ur.UserId == userId || distributionIds.Contains(ur.UserId))
             .OrderBy(up => up.TemplateType)
             .ToArray();
     }
@@ -618,9 +638,14 @@ public class UserService : BaseService<User, int>, IUserService
     /// <returns></returns>
     public IEnumerable<UserNotification> GetUserNotificationSubscriptions(int userId)
     {
+        // Get all distribution lists this user is part of.
+        var distributionIds = this.Context.UserDistributions
+            .Where(ud => ud.LinkedUserId == userId)
+            .Select(ud => ud.UserId).ToArray();
+
         return this.Context.UserNotifications
             .Include(un => un.Notification)
-            .Where(un => un.UserId == userId && un.IsSubscribed)
+            .Where(un => un.IsSubscribed && (un.UserId == userId || distributionIds.Contains(un.UserId)))
             .OrderBy(up => up.Notification!.Name)
             .ToArray();
     }
