@@ -245,6 +245,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
             normalState={normalState}
             setNormalState={setNormalState}
             expand={expand}
+            className="expanded"
             setExpand={setExpand}
             expandedState={expandedState}
             setExpandedState={setExpandedState}

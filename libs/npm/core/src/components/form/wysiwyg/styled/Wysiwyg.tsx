@@ -10,18 +10,23 @@ export const Wysiwyg = styled.div<IWysiwygProps>`
       transform: scale(1.1);
     }
   }
+  .expanded {
+    height: 100%;
+  }
   dialog {
     border: none;
     width: 100%;
     height: 85%;
-    .frm-in {
-      height: 85%;
+    .toolbar {
       .expand-button {
         display: none;
       }
-      .editor {
-        height: 100%;
-      }
+    }
+    .editor {
+      height: 85%;
+    }
+    ql-editor {
+      height: 100%;
     }
   }
   .ql-custom {
