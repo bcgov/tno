@@ -137,6 +137,20 @@ public class WorkOrderHelper : IWorkOrderHelper
     }
 
     /// <summary>
+    /// Determine if the content has an existing transcript.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    public bool HasExistingTranscript(long contentId)
+    {
+        if (this.Content == null || this.Content.Id != contentId)
+            this.Content = _contentService.FindById(contentId);
+
+        return this.Content?.ContentType == Entities.ContentType.AudioVideo &&
+               !string.IsNullOrWhiteSpace(this.Content.Body);
+    }
+
+    /// <summary>
     /// Request a transcript for the specified 'contentId'.
     /// Only allow one active transcript request.
     /// </summary>
@@ -148,13 +162,14 @@ public class WorkOrderHelper : IWorkOrderHelper
     /// <exception cref="ConfigurationException"></exception>
     /// <exception cref="NotAuthorizedException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
-
     public async Task<Entities.WorkOrder> RequestTranscriptionAsync(long contentId, Entities.User requestor, bool force = false)
     {
         if (this.Content == null || this.Content.Id != contentId)
             this.Content = _contentService.FindById(contentId) ?? throw new NoContentException("Content does not exist");
         if (String.IsNullOrWhiteSpace(_kafkaOptions.TranscriptionTopic)) throw new ConfigurationException("Kafka transcription topic not configured.");
 
+        if (HasExistingTranscript(contentId) && !this.Content.IsApproved)
+            throw new InvalidOperationException("Editor is working on it, cannot request a new transcription.");
         if (this.Content.IsApproved && force == false) throw new InvalidOperationException("Content is already approved");
         // Only allow one work order transcript request at a time.
         // TODO: Handle blocked work orders stuck in progress.
