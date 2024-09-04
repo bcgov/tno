@@ -1,8 +1,10 @@
 using Confluent.Kafka;
 using Elastic.Clients.Elasticsearch;
 using Elastic.Transport;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.Ches;
 using TNO.Ches.Configuration;
@@ -42,6 +44,10 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// get - The Elasticsearch client.
     /// </summary>
     protected ElasticsearchClient Client { get; private set; }
+
+    private readonly IMemoryCache _cache;
+    private const string CacheKeyPrefix = "IndexedContent_";
+    private const int CacheExpirationSecond = 5;
     #endregion
 
     #region Constructors
@@ -55,6 +61,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <param name="chesOptions"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
+    /// <param name="memoryCache"></param>
     public IndexingManager(
         IKafkaAdmin kafkaAdmin,
         IKafkaListener<string, IndexRequestModel> listener,
@@ -62,7 +69,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         IChesService chesService,
         IOptions<ChesOptions> chesOptions,
         IOptions<IndexingOptions> options,
-        ILogger<IndexingManager> logger)
+        ILogger<IndexingManager> logger,
+        IMemoryCache memoryCache)
         : base(api, chesService, chesOptions, options, logger)
     {
         this.KafkaAdmin = kafkaAdmin;
@@ -75,6 +83,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         var connect = new ElasticsearchClientSettings(new Uri(options.Value.ElasticsearchUri))
             .Authentication(new BasicAuthentication(this.Options.ElasticsearchUsername, this.Options.ElasticsearchPassword));
         this.Client = new ElasticsearchClient(connect);
+
+        _cache = memoryCache;
     }
     #endregion
 
@@ -457,17 +467,31 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     {
         this.Logger.LogDebug($"SendNotifications:BEGIN:{content.Id}");
 
-        if (!String.IsNullOrWhiteSpace(this.Options.NotificationTopic))
+        var cacheKey = $"{CacheKeyPrefix}{content.Id}";
+
+        if (!_cache.TryGetValue(cacheKey, out _))
         {
-            // TODO: Make request to API to determine what notifications should be sent.
-            // TODO: Generate appropriate notification request.
-            var notification = new NotificationRequestModel(NotificationDestination.SignalR | NotificationDestination.NotificationService, content.Id)
+            if (!String.IsNullOrWhiteSpace(this.Options.NotificationTopic))
             {
-                RequestorId = request.RequestorId
-            };
-            _ = await this.Api.SendMessageAsync(notification)
-                ?? throw new HttpClientRequestException($"Failed to receive result from Kafka when sending message.  Topic: {this.Options.NotificationTopic}, Content ID: {content.Id}");
+                // TODO: Make request to API to determine what notifications should be sent.
+                // TODO: Generate appropriate notification request.
+                var notification = new NotificationRequestModel(NotificationDestination.SignalR | NotificationDestination.NotificationService, content.Id)
+                {
+                    RequestorId = request.RequestorId
+                };
+                _ = await this.Api.SendMessageAsync(notification)
+                    ?? throw new HttpClientRequestException($"Failed to receive result from Kafka when sending message.  Topic: {this.Options.NotificationTopic}, Content ID: {content.Id}");
+
+                // add to cache
+                _cache.Set(cacheKey, true, TimeSpan.FromSeconds(CacheExpirationSecond));
+                this.Logger.LogInformation($"Notification for Content {content.Id} was sent, added to cache.");
+            }
         }
+        else
+        {
+            this.Logger.LogInformation($"Notification for Content {content.Id} was recently sent, skipping this notification request.");
+        }
+
         this.Logger.LogDebug($"SendNotifications:END:{content.Id}");
     }
     #endregion
