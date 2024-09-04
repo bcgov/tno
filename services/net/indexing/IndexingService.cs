@@ -46,7 +46,12 @@ public class IndexingService : KafkaConsumerService
             .AddSingleton<IKafkaAdmin, KafkaAdmin>()
             .AddTransient<IKafkaListener<string, IndexRequestModel>, KafkaListener<string, IndexRequestModel>>()
             .AddSingleton<IServiceManager, IndexingManager>()
-            .AddMemoryCache(); //  MemoryCache 
+            .AddMemoryCache(
+                options =>
+                {
+                    options.SizeLimit = 100;
+                }
+            ); //  MemoryCache
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<IndexingOptions>()

@@ -47,7 +47,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
 
     private readonly IMemoryCache _cache;
     private const string CacheKeyPrefix = "NotificationContent_";
-    private const int CacheExpirationSecond = 5;
+    private const int CacheExpirationSeconds = 5;
+
     #endregion
 
     #region Constructors
@@ -482,8 +483,12 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                 _ = await this.Api.SendMessageAsync(notification)
                     ?? throw new HttpClientRequestException($"Failed to receive result from Kafka when sending message.  Topic: {this.Options.NotificationTopic}, Content ID: {content.Id}");
 
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(CacheExpirationSeconds))
+                    .SetSize(1);
+
                 // add to cache
-                _cache.Set(cacheKey, true, TimeSpan.FromSeconds(CacheExpirationSecond));
+                _cache.Set(cacheKey, true, cacheEntryOptions);
                 this.Logger.LogInformation($"Notification for Content {content.Id} was sent, added to cache.");
             }
         }
