@@ -472,6 +472,7 @@ public class ReportController : ControllerBase
         var result = _reportService.GetAllContentInMyReports(user.Id);
         return new JsonResult(result);
     }
+
     /// <summary>
     /// send a notification to the subscription manager.
     /// </summary>
@@ -490,7 +491,7 @@ public class ReportController : ControllerBase
         var isSubscribed = report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id);
         if (isSubscribed)
         {
-            _logger.LogInformation($"User is already subscribed to this report {report.Id}, no need to send a subscription request.");
+            _logger.LogInformation("User is already subscribed to this report {reportId}, no need to send a subscription request.", report.Id);
             return Ok();
         }
 
@@ -517,7 +518,7 @@ public class ReportController : ControllerBase
                 var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, emailAddresses, subject, message.ToString());
                 var emailRequest = await _ches.SendEmailAsync(email);
 
-                _logger.LogInformation($"report subscription request email to [${productSubscriptionManagerEmail.Value}] queued: ${emailRequest.TransactionId}");
+                _logger.LogInformation("report subscription request email to [{email}] queued: {txtId}", productSubscriptionManagerEmail.Value, emailRequest.TransactionId);
 
             }
             else
@@ -554,11 +555,10 @@ public class ReportController : ControllerBase
         var isSubscribed = report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id);
         if (!isSubscribed)
         {
-            _logger.LogInformation($"User is not subscribed to report {report.Id}, no need to send an unsubscription request.");
+            _logger.LogInformation("User is not subscribed to report {reportId}, no need to send an unsubscription request.", report.Id);
             return Ok();
 
         }
-
 
         StringBuilder message = new StringBuilder();
         message.AppendLine("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">");
@@ -582,7 +582,7 @@ public class ReportController : ControllerBase
                 var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, emailAddresses, subject, message.ToString());
                 var emailRequest = await _ches.SendEmailAsync(email);
 
-                _logger.LogInformation($"Report unsubscription request email to [{productSubscriptionManagerEmail.Value}] queued: {emailRequest.TransactionId}");
+                _logger.LogInformation("Report unsubscription request email to [{email}] queued: {txtId}", productSubscriptionManagerEmail.Value, emailRequest.TransactionId);
             }
             else
             {
@@ -596,9 +596,5 @@ public class ReportController : ControllerBase
 
         return Ok();
     }
-
-
-
-
     #endregion
 }

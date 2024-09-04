@@ -1,5 +1,6 @@
 import { Button } from 'components/button';
 import React from 'react';
+import { useReports } from 'store/hooks';
 import {
   Col,
   FormikCheckbox,
@@ -30,12 +31,38 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
   HTMLDivElement,
   IReportSectionMediaAnalyticsProps
 >(({ index, onDisableDrag, ...rest }, ref) => {
-  const { values, setFieldValue } = useReportEditContext();
+  const { values, setFieldValue, linkedReportContent, setLinkedReportContent } =
+    useReportEditContext();
+  const [, { getReport }] = useReports();
 
   const [chartOptions] = React.useState(getSortableOptions(values.template?.chartTemplates ?? []));
   const [chart, setChart] = React.useState<IChartTemplateModel>();
 
   const section = values.sections[index];
+
+  React.useEffect(() => {
+    if (
+      section.linkedReportId &&
+      (!linkedReportContent[section.name] || !linkedReportContent[section.name].length)
+    ) {
+      // Fetch linked report content.
+      getReport(section.linkedReportId, true)
+        .then((report) => {
+          if (report) {
+            let sectionContent = report.instances.length ? report.instances[0].content : [];
+            // change the section names to the labels for the chart.
+            sectionContent = sectionContent.map((sc) => {
+              const section = report.sections.find((s) => s.name === sc.sectionName);
+              return { ...sc, sectionName: section?.settings.label ?? sc.sectionName };
+            });
+            setLinkedReportContent((data) => ({ ...data, [section.name]: sectionContent }));
+          }
+        })
+        .catch(() => {});
+    }
+    // Only get linked report content when required.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [linkedReportContent, section.linkedReportId, section.name]);
 
   return (
     <Col gap="0.5rem">

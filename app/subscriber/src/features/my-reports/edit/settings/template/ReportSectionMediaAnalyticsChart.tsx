@@ -10,7 +10,7 @@ import {
   FaTrash,
   FaWandMagicSparkles,
 } from 'react-icons/fa6';
-import { Col, Row, Show, ToggleButton } from 'tno-core';
+import { Col, IReportInstanceContentModel, Row, Show, ToggleButton } from 'tno-core';
 
 import { useReportEditContext } from '../../ReportEditContext';
 import { ReportSectionMediaAnalyticsChartAdvanced } from './ReportSectionMediaAnalyticsChartAdvanced';
@@ -33,7 +33,14 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
   HTMLDivElement,
   IReportSectionMediaAnalyticsChartProps
 >(({ showConfig: initShowConfig, sectionIndex, chartIndex, onDisableDrag, ...rest }, ref) => {
-  const { values, setFieldValue, testData, regenerateTestData } = useReportEditContext();
+  const {
+    values,
+    setFieldValue,
+    testData,
+    regenerateTestData,
+    linkedReportContent,
+    setLinkedReportContent,
+  } = useReportEditContext();
 
   const section = values.sections[sectionIndex];
   const chart = section.chartTemplates[chartIndex];
@@ -55,14 +62,27 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
   }, [values.instances]);
 
   React.useEffect(() => {
-    const sectionContent =
-      section.filterId || section.folderId || section.linkedReportId
-        ? reportContent.filter((rc) => rc.sectionName === section.name)
-        : reportContent;
+    let sectionContent: IReportInstanceContentModel[] = [];
+    if (section.linkedReportId) {
+      sectionContent = linkedReportContent[section.name] ?? [];
+    } else {
+      sectionContent =
+        section.filterId || section.folderId
+          ? reportContent.filter((rc) => rc.sectionName === section.name)
+          : reportContent;
+    }
     setData(
       convertToChart(section, chart, showReportData ? sectionContent : testData, values.sections),
     );
-  }, [section, chart, reportContent, showReportData, testData, values.sections]);
+  }, [
+    section,
+    chart,
+    reportContent,
+    showReportData,
+    testData,
+    values.sections,
+    linkedReportContent,
+  ]);
 
   React.useEffect(() => {
     setReportContent(
@@ -81,23 +101,21 @@ export const ReportSectionMediaAnalyticsChart = React.forwardRef<
         </Col>
         <Row gap="1.5rem">
           <ToggleButton
-            title={showReportData ? 'Using report data' : 'Using test data'}
+            title={'Use test data'}
+            label="Use test data"
             on={<FaToggleOn />}
-            onLabel="Using report data"
             off={<FaToggleOff />}
-            offLabel="Using test data"
             onClick={() => toggleReportData()}
-            value={showReportData}
+            value={!showReportData}
           />
-          <Show visible={!showReportData}>
-            <Action
-              icon={<FaRotate />}
-              title="Randomize test data"
-              onClick={() => {
-                regenerateTestData();
-              }}
-            />
-          </Show>
+          <Action
+            icon={<FaRotate />}
+            title={!showReportData ? 'Randomize test data' : 'Refresh data'}
+            onClick={() => {
+              if (!showReportData) regenerateTestData();
+              else setLinkedReportContent((data) => ({ ...data, [section.name]: [] }));
+            }}
+          />
           <ToggleButton
             title={showAdvanced ? 'Chart Wizard' : 'Advanced Options'}
             on={<FaWandMagicSparkles />}
