@@ -1,4 +1,5 @@
 import { KnnSearchResponse, MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
+import { AxiosResponse } from 'axios';
 import React from 'react';
 import { useContentStore } from 'store/slices';
 import { IContentProps, IContentState } from 'store/slices/content';
@@ -32,6 +33,7 @@ export interface IContentController {
   storeMediaTypeFilter: (filter: IFilterSettingsModel) => void;
   storeSearchResultsFilter: (filter: IFilterSettingsModel) => void;
   stream: (path: string) => Promise<string>;
+  streamSilent: (path: string) => Promise<AxiosResponse<string>>;
   addContent: (content: IContentModel) => Promise<IContentModel | undefined>;
   updateContent: (content: IContentModel) => Promise<IContentModel | undefined>;
   updateContentSilent: (content: IContentModel) => Promise<IContentModel | undefined>;
@@ -90,6 +92,9 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       },
       stream: async (path: string) => {
         return (await dispatch('stream-content', () => api.stream(path), 'content')).data;
+      },
+      streamSilent: async (path: string) => {
+        return await dispatch('stream-content', () => api.stream(path), 'content', true, true);
       },
       storeSearchFilter: actions.storeSearchFilter,
       storeHomeFilter: actions.storeHomeFilter,

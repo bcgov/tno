@@ -1,9 +1,11 @@
+import { AxiosError } from 'axios';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
-import { IContentModel, IFilterSettingsModel, Settings, Show } from 'tno-core';
+import { IContentModel, IFileReferenceModel, IFilterSettingsModel, Settings, Show } from 'tno-core';
 
 import { ContentListContext } from './ContentListContext';
 import { ContentRow } from './ContentRow';
@@ -57,10 +59,16 @@ export const ContentList: React.FC<IContentListProps> = ({
   simpleView = false,
 }) => {
   const navigate = useNavigate();
-  const { groupBy, setActiveStream, activeFileReference } = React.useContext(ContentListContext);
+  const { groupBy } = React.useContext(ContentListContext);
   const grouped = groupContent(groupBy, [...content]);
-  const [, { stream }] = useContent();
+  const [, { streamSilent }] = useContent();
   const [{ settings }] = useLookup();
+
+  const [activeStream, setActiveStream] = React.useState<{ source: string; id: number }>({
+    id: 0,
+    source: '',
+  });
+  const [activeFileReference, setActiveFileReference] = React.useState<IFileReferenceModel>();
 
   // just on init we want to see if anything in local storage
   React.useEffect(() => {
@@ -112,11 +120,25 @@ export const ContentList: React.FC<IContentListProps> = ({
 
   React.useEffect(() => {
     if (!!activeFileReference) {
-      stream(activeFileReference.path).then((result) => {
-        setActiveStream({ source: result, id: activeFileReference.contentId });
-      });
+      streamSilent(activeFileReference.path)
+        .then((response) => {
+          setActiveStream({ source: response.data, id: activeFileReference.contentId });
+        })
+        .catch(async (ex) => {
+          if (ex instanceof AxiosError && ex.response && ex.response.data instanceof Blob) {
+            const text = await ex.response.data.text();
+            const error = JSON.parse(text);
+            if (error.type === 'NoContentException')
+              toast.error('Sorry file no longer exists, or has been archived.');
+          }
+          setActiveFileReference(undefined);
+          setActiveStream({
+            id: 0,
+            source: '',
+          });
+        });
     }
-  }, [activeFileReference, stream, setActiveStream]);
+  }, [activeFileReference, streamSilent, setActiveStream]);
 
   const popOutIds = React.useMemo(() => {
     return settings.find((setting) => setting.name === Settings.SearchPageResultsNewWindow)?.value;
@@ -146,6 +168,10 @@ export const ContentList: React.FC<IContentListProps> = ({
                     highlighTerms={highlighTerms || []}
                     onCheckboxChange={handleCheckboxChange}
                     filter={filter}
+                    activeStream={activeStream}
+                    setActiveStream={setActiveStream}
+                    activeFileReference={activeFileReference}
+                    setActiveFileReference={setActiveFileReference}
                   />
                 ))}
             </div>
@@ -189,6 +215,10 @@ export const ContentList: React.FC<IContentListProps> = ({
                           onCheckboxChange={handleCheckboxChange}
                           onRemove={onContentRemove}
                           filter={filter}
+                          activeStream={activeStream}
+                          setActiveStream={setActiveStream}
+                          activeFileReference={activeFileReference}
+                          setActiveFileReference={setActiveFileReference}
                         />
                       </div>
                     )}

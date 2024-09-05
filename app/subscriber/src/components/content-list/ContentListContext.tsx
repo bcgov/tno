@@ -2,7 +2,6 @@ import { createContext, ReactNode, useState } from 'react';
 import React from 'react';
 import { useApp, useReports } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { IFileReferenceModel } from 'tno-core';
 
 import { defaultValueListContext } from './constants';
 import { IContentListContext, IGroupByState, IToggleStates } from './interfaces';
@@ -26,11 +25,6 @@ export const ContentListProvider: React.FC<IContentListProviderProps> = ({ child
   const [, { storeReportContent }] = useProfileStore();
 
   const [groupBy, setGroupBy] = useState<IGroupByState>('source');
-  const [activeStream, setActiveStream] = useState<{ source: string; id: number }>({
-    id: 0,
-    source: '',
-  });
-  const [activeFileReference, setActiveFileReference] = useState<IFileReferenceModel>();
 
   React.useEffect(() => {
     if (initialized) {
@@ -51,10 +45,6 @@ export const ContentListProvider: React.FC<IContentListProviderProps> = ({ child
         setViewOptions,
         groupBy,
         setGroupBy,
-        activeStream,
-        setActiveStream,
-        activeFileReference,
-        setActiveFileReference,
       }}
     >
       {children}
