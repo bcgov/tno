@@ -137,6 +137,20 @@ public class WorkOrderHelper : IWorkOrderHelper
     }
 
     /// <summary>
+    /// Determine if the content has an existing transcript.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    public bool HasExistingTranscript(long contentId)
+    {
+        if (this.Content == null || this.Content.Id != contentId)
+            this.Content = _contentService.FindById(contentId);
+
+        return this.Content?.ContentType == Entities.ContentType.AudioVideo &&
+               !string.IsNullOrWhiteSpace(this.Content.Body);
+    }
+
+    /// <summary>
     /// Request a transcript for the specified 'contentId'.
     /// Only allow one active transcript request.
     /// </summary>
@@ -148,12 +162,18 @@ public class WorkOrderHelper : IWorkOrderHelper
     /// <exception cref="ConfigurationException"></exception>
     /// <exception cref="NotAuthorizedException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
-
     public async Task<Entities.WorkOrder> RequestTranscriptionAsync(long contentId, Entities.User requestor, bool force = false)
     {
         if (this.Content == null || this.Content.Id != contentId)
             this.Content = _contentService.FindById(contentId) ?? throw new NoContentException("Content does not exist");
         if (String.IsNullOrWhiteSpace(_kafkaOptions.TranscriptionTopic)) throw new ConfigurationException("Kafka transcription topic not configured.");
+        bool skipKafka = false;
+        string skipDescription = "User request transcription while editor is working on it. Automatic transcription is bypassed";
+
+        if (HasExistingTranscript(contentId) && !this.Content.IsApproved)
+        {
+            skipKafka = true;
+        }
 
         if (this.Content.IsApproved && force == false) throw new InvalidOperationException("Content is already approved");
         // Only allow one work order transcript request at a time.
@@ -171,12 +191,15 @@ public class WorkOrderHelper : IWorkOrderHelper
                 new Entities.WorkOrder(
                     Entities.WorkOrderType.Transcription,
                     requestor,
-                    "",
+                    skipKafka ? skipDescription : "",
                     this.Content,
                     configuration
                     ));
 
-            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.TranscriptionTopic, new TNO.Kafka.Models.TranscriptRequestModel(workOrder));
+            if (!skipKafka)
+            {
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.TranscriptionTopic, new TNO.Kafka.Models.TranscriptRequestModel(workOrder));
+            }
             return workOrder;
         }
         return workOrders.OrderByDescending(w => w.CreatedOn).First();
