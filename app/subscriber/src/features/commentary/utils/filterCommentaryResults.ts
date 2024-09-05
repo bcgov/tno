@@ -14,7 +14,12 @@ export const filterCommentaryResults = (
   commentaryActionId: number,
 ) => {
   return results.filter((content) => {
-    const cutoff = determineCommentaryTime(commentaryActionId, content.actions);
-    return content.postedOn && moment(content.postedOn) >= moment(cutoff);
+    const postedCutoff = determineCommentaryTime(commentaryActionId, content.actions);
+    const publishedCutoff = moment().subtract(1, 'month');
+    return (
+      content.postedOn &&
+      moment(content.postedOn) >= moment(postedCutoff) &&
+      moment(content.publishedOn) >= publishedCutoff
+    );
   });
 };
