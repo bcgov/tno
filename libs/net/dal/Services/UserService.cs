@@ -73,12 +73,7 @@ public class UserService : BaseService<User, int>, IUserService
             var product = this.Context.Products.FirstOrDefault(p => p.Id == filter.IsSubscribedToProductId.Value);
             if (product != null)
             {
-                if (product.ProductType == ProductType.Report)
-                    predicate = predicate.And(c => c.ReportSubscriptionsManyToMany.Any(s => s.ReportId == product.TargetProductId && s.IsSubscribed));
-                else if (product.ProductType == ProductType.Notification)
-                    predicate = predicate.And(c => c.NotificationSubscriptionsManyToMany.Any(s => s.NotificationId == product.TargetProductId && s.IsSubscribed));
-                else if (product.ProductType == ProductType.EveningOverview)
-                    predicate = predicate.And(c => c.AVOverviewSubscriptionsManyToMany.Any(s => (int)s.TemplateType == product.TargetProductId && s.IsSubscribed));
+                predicate = predicate.And(c => c.ProductSubscriptionsManyToMany.Any(s => s.ProductId == product.Id));
             }
         }
         if (filter.IsSubscribedToReportId.HasValue)
