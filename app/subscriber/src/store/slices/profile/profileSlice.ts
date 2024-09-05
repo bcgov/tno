@@ -7,6 +7,7 @@ import {
   IReportModel,
   ISubscriberUserModel,
   ISystemMessageModel,
+  ITonePoolModel,
   IUserColleagueModel,
 } from 'tno-core';
 
@@ -26,7 +27,9 @@ export const initialProfileState: IProfileState = {
     myFolders: false,
     myReports: false,
     myColleagues: false,
+    myTonePool: false,
   },
+  myTonePool: undefined,
 };
 
 export const profileSlice = createSlice({
@@ -79,6 +82,10 @@ export const profileSlice = createSlice({
     storeMyMessages(state: IProfileState, action: PayloadAction<ISystemMessageModel[]>) {
       state.messages = action.payload;
     },
+    storeMyTonePool(state: IProfileState, action: PayloadAction<ITonePoolModel>) {
+      state.myTonePool = action.payload;
+      state.init.myTonePool = true;
+    },
   },
 });
 
@@ -94,4 +101,5 @@ export const {
   storeReportOutput,
   storeReportContent,
   storeMyMessages,
+  storeMyTonePool,
 } = profileSlice.actions;

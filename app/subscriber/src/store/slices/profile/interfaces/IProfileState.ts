@@ -6,6 +6,7 @@ import {
   IReportModel,
   ISubscriberUserModel,
   ISystemMessageModel,
+  ITonePoolModel,
   IUserColleagueModel,
 } from 'tno-core';
 
@@ -23,10 +24,12 @@ export interface IProfileState {
     myFolders: boolean;
     myReports: boolean;
     myColleagues: boolean;
+    myTonePool: boolean;
   };
   reportsFilter: string;
   reportOutput?: IReportResultForm;
   reportContent: { [reportId: number]: number[] };
   contributors: IContributorModel[];
   messages: ISystemMessageModel[];
+  myTonePool: ITonePoolModel | undefined;
 }

@@ -1,16 +1,21 @@
 import React from 'react';
 import { useApp } from 'store/hooks';
+import { useTonePool } from 'store/hooks/subscriber/useTonePool';
 import { useProfileStore } from 'store/slices';
 import {
   Col,
   ContentTypeName,
   IContentModel,
+  IContentTonePoolModel,
   Loading,
   Show,
   Text,
   TextArea,
   Wysiwyg,
 } from 'tno-core';
+
+import { defaultContentTonePool } from '../../constants/defaultContentTonePool';
+import { ToneSelector } from './ToneSelector';
 
 export interface IContentFormProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'content'> {
   /** The content being edited */
@@ -23,6 +28,8 @@ export interface IContentFormProps extends Omit<React.HTMLAttributes<HTMLDivElem
   loading?: boolean;
   /** Event fires when content properties are changed. */
   onContentChange?: (content: IContentModel) => void;
+  /** User has tone pool defined*/
+  isUserSentiment: boolean;
   reportContent: { label: string; url: string; section: string }[];
 }
 
@@ -39,25 +46,87 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   className,
   reportContent,
   onContentChange,
+  isUserSentiment,
   ...rest
 }) => {
   const [{ userInfo }] = useApp();
-  const [{ impersonate }] = useProfileStore();
-
-  if (!content) return null;
+  const [{ impersonate, myTonePool }, { storeMyTonePool }] = useProfileStore();
+  const [, { getMyTonePool }] = useTonePool();
 
   const userId = impersonate?.id ?? userInfo?.id ?? 0;
-  const isAV = content.contentType === ContentTypeName.AudioVideo;
-  const versions = content.versions?.[userId] ?? {
-    byline: content.byline,
-    headline: content.headline,
+  const isAV = content?.contentType === ContentTypeName.AudioVideo;
+  const versions = content?.versions?.[userId] ?? {
+    byline: content?.byline,
+    headline: content?.headline,
     summary: '',
     body: isAV
       ? content.isApproved && content.body
         ? content.body
         : content.summary
-      : content.body,
+      : content?.body,
   };
+  const userDefaultContentTonePool = {
+    ...defaultContentTonePool,
+    ownerId: userId,
+    name: `${userId}`,
+  };
+
+  React.useEffect(() => {
+    let isMounted = true;
+
+    const getMyTones = async () => {
+      try {
+        const response = await getMyTonePool(userId);
+        if (isMounted && response) {
+          storeMyTonePool(response);
+        }
+      } catch (error) {
+        console.error('Error fetching tone pool:', error);
+      }
+    };
+
+    if (userId && !myTonePool) {
+      getMyTones();
+    }
+
+    // Cleanup function to run when the component unmounts
+    return () => {
+      isMounted = false;
+    };
+  }, [getMyTonePool, storeMyTonePool, userId, myTonePool]);
+
+  if (!content) return null;
+
+  const handleToneSelect = (value: number) => {
+    const updatedTonePool: IContentTonePoolModel = {
+      ...myTonePool,
+      ownerId:
+        myTonePool?.ownerId !== undefined && myTonePool?.ownerId !== 0
+          ? myTonePool.ownerId
+          : userId,
+      id: myTonePool?.id ?? 0,
+      isPublic: myTonePool?.isPublic ?? true,
+      name:
+        myTonePool?.name !== undefined && myTonePool?.name !== '' ? myTonePool?.name : `${userId}`,
+      value,
+      sortOrder: myTonePool?.sortOrder ?? 0,
+      isEnabled: myTonePool?.isEnabled ?? true,
+      description: myTonePool?.description ?? '',
+    };
+
+    if (content?.id) {
+      onContentChange?.({
+        ...content,
+        tonePools: [...(content.tonePools || []), updatedTonePool],
+      });
+    } else {
+      console.error('Content ID is missing or invalid.');
+    }
+  };
+
+  const userContentTonePool: IContentTonePoolModel =
+    content?.tonePools?.find((pool: IContentTonePoolModel) => pool.ownerId === userId) ||
+    userDefaultContentTonePool;
 
   return show === 'none' ? null : (
     <Col className={`edit-content${className ? ` ${className}` : ''}`} {...rest}>
@@ -74,9 +143,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
             const values = {
               ...content,
               versions: {
-                ...content.versions,
+                ...content?.versions,
                 [userId]: {
-                  ...content.versions?.[userId],
+                  ...content?.versions?.[userId],
                   ...versions,
                   headline: e.target.value,
                 },
@@ -94,9 +163,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
             const values = {
               ...content,
               versions: {
-                ...content.versions,
+                ...content?.versions,
                 [userId]: {
-                  ...content.versions?.[userId],
+                  ...content?.versions?.[userId],
                   ...versions,
                   byline: e.target.value,
                 },
@@ -118,9 +187,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
             const values = {
               ...content,
               versions: {
-                ...content.versions,
+                ...content?.versions,
                 [userId]: {
-                  ...content.versions?.[userId],
+                  ...content?.versions?.[userId],
                   ...versions,
                   summary: text,
                 },
@@ -141,9 +210,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
             const values = {
               ...content,
               versions: {
-                ...content.versions,
+                ...content?.versions,
                 [userId]: {
-                  ...content.versions?.[userId],
+                  ...content?.versions?.[userId],
                   ...versions,
                   body: text,
                 },
@@ -152,6 +221,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
             onContentChange?.(values);
           }}
         />
+        {isUserSentiment && (
+          <ToneSelector onSelect={handleToneSelect} myTonePool={userContentTonePool} />
+        )}
       </Show>
     </Col>
   );

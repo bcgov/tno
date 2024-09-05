@@ -13,5 +13,6 @@ export * from './useApiSubscriberReports';
 export * from './useApiSubscriberReportTemplates';
 export * from './useApiSubscriberSources';
 export * from './useApiSubscriberSystemMessages';
+export * from './useApiSubscriberTonePools';
 export * from './useApiSubscriberUsers';
 export * from './useApiSubscriberWorkOrders';
