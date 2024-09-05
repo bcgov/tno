@@ -33,6 +33,7 @@ The simple solution is to download and add the `ffmpeg` binary to the path.
 
 Choose "Folder Action"
 Select the `~/Movies/MMI-inbox` folder
+You should also add a "Filter Finder Items" and limit it to "Any" file kinds that are "music" or "movie".
 Add a "Run Shell Script", and set the "Pass input" to "as arguments", and enter the following.
 
 ```zsh
@@ -53,6 +54,7 @@ Save the Automator as "Auto Convert to mp4"
 
 Choose "Quick Actions"
 Select "Automatic (files or folders)" in "any application"
+You should also add a "Filter Finder Items" and limit it to "Any" file kinds that are "music" or "movie".
 Add a "Run Shell Script", and set the "Pass input" to "as arguments", and enter the following.
 
 ```zsh
