@@ -79,6 +79,7 @@ public class UserProductModel : AuditColumnsModel
 
     /// <summary>
     /// Creates a new instance of an UserProductModel, initializes with specified parameter.
+    /// An assumption is made in this model.  If a subscription exists for either the user or a distribution group, we assume the user is subscribed.
     /// </summary>
     /// <param name="entity"></param>
     public UserProductModel(Entities.UserProduct entity) : base(entity)
@@ -109,15 +110,13 @@ public class UserProductModel : AuditColumnsModel
         else if (entity.Product.ProductType == Entities.ProductType.Notification)
         {
             var subscription = entity.User.NotificationSubscriptionsManyToMany
-                .FirstOrDefault(s => s.UserId == entity.UserId &&
-                    s.NotificationId == entity.Product!.TargetProductId);
+                .FirstOrDefault(s => s.IsSubscribed && s.NotificationId == entity.Product!.TargetProductId);
             this.IsSubscribed = subscription?.IsSubscribed ?? false;
         }
         else if (entity.Product.ProductType == Entities.ProductType.EveningOverview)
         {
             var subscription = entity.User.AVOverviewSubscriptionsManyToMany
-                .FirstOrDefault(s => s.UserId == entity.UserId &&
-                    (int)s.TemplateType == entity.Product!.TargetProductId);
+                .FirstOrDefault(s => s.IsSubscribed && (int)s.TemplateType == entity.Product!.TargetProductId);
             this.IsSubscribed = subscription?.IsSubscribed ?? false;
             this.SendTo = subscription?.SendTo;
         }
