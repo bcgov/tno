@@ -54,6 +54,7 @@ import {
   ContentTranscriptForm,
 } from '.';
 import { ContentFormToolBar, IFile, Tags, TimeLogSection, Topic, Upload } from './components';
+import { defaultFormValues } from './constants';
 import { useContentForm } from './hooks';
 import { ImageSection } from './ImageSection';
 import { IContentForm } from './interfaces';
@@ -96,6 +97,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
     fileReference,
     stream,
     setStream,
+    setAvStream,
     download,
   } = useContentForm({
     contentType: initContentType,
@@ -144,6 +146,18 @@ const ContentForm: React.FC<IContentFormProps> = ({
       filteredSeriesOptions = filteredSeriesOptions.concat(new OptionItem(seriesOtherCreated, ''));
     setSeriesOtherOptions(filteredSeriesOptions);
   }, [series, seriesOtherCreated]);
+
+  React.useEffect(() => {
+    if (form.id > 0) {
+      fetchContent(form.id);
+    } else if (!form.id || form.id === 0) {
+      setForm((values) => ({ ...defaultFormValues(values.contentType) }));
+    }
+  }, [form.id, fetchContent, setForm]);
+
+  React.useEffect(() => {
+    setAvStream();
+  }, [setAvStream]);
 
   return (
     <styled.ContentForm className="content-form fvh" ref={refForm}>

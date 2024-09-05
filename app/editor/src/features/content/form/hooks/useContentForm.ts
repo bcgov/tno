@@ -196,14 +196,6 @@ export const useContentForm = ({
 
   hub.useHubEffect(MessageTargetKey.ContentUpdated, onContentUpdated);
 
-  React.useEffect(() => {
-    if (!!id && +id > 0) {
-      fetchContent(+id);
-    } else if (!id || +id === 0) {
-      setForm((values) => ({ ...defaultFormValues(values.contentType) }));
-    }
-  }, [id, fetchContent]);
-
   const resetForm = React.useCallback((values: IContentForm) => {
     // Reset form for next record.
     const parsedDate = moment(values.publishedOn);
@@ -235,10 +227,6 @@ export const useContentForm = ({
         .catch(() => {});
     }
   }, [getStream, fileReference?.contentType, path]);
-
-  React.useEffect(() => {
-    setAvStream();
-  }, [setAvStream]);
 
   const handleSubmit = React.useCallback(
     async (
@@ -457,6 +445,7 @@ export const useContentForm = ({
     file,
     fileReference,
     stream,
+    setAvStream,
     download,
     setStream,
   };

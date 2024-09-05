@@ -3,7 +3,16 @@ import { IContentSearchResult } from 'features/utils/interfaces';
 import React from 'react';
 import { FaCopyright, FaEyeSlash, FaX } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
-import { Checkbox, Col, ContentTypeName, IColProps, IContentModel, Row, Show } from 'tno-core';
+import {
+  Checkbox,
+  Col,
+  ContentTypeName,
+  IColProps,
+  IContentModel,
+  IFileReferenceModel,
+  Row,
+  Show,
+} from 'tno-core';
 
 import { Attributes } from './Attributes';
 import { ContentListContext } from './ContentListContext';
@@ -24,6 +33,10 @@ export interface IContentRowProps extends IColProps {
   filter?: any;
   onCheckboxChange: (item: IContentModel, checked: boolean) => void;
   onRemove?: (item: IContentModel) => void;
+  activeStream: { id: number; source: string };
+  setActiveStream: (stream: { id: number; source: string }) => void;
+  activeFileReference: IFileReferenceModel | undefined;
+  setActiveFileReference: (fileReference: IFileReferenceModel | undefined) => void;
   simpleView?: boolean;
 }
 
@@ -40,15 +53,13 @@ export const ContentRow: React.FC<IContentRowProps> = ({
   onCheckboxChange,
   onRemove,
   simpleView,
+  activeStream,
+  setActiveStream,
+  activeFileReference,
+  setActiveFileReference,
   ...rest
 }) => {
-  const {
-    viewOptions,
-    setActiveStream,
-    activeFileReference,
-    setActiveFileReference,
-    activeStream,
-  } = React.useContext(ContentListContext);
+  const { viewOptions } = React.useContext(ContentListContext);
 
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const audioRef = React.useRef<HTMLAudioElement>(null);

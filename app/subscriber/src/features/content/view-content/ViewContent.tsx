@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import { Bar } from 'components/bar';
 import { Button } from 'components/button';
 import { Sentiment } from 'components/sentiment';
@@ -59,7 +60,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
     {
       search: { filter },
     },
-    { getContent, stream },
+    { getContent, streamSilent },
   ] = useContent();
   const { width } = useWindowSize();
   const [{ profile }] = useProfileStore();
@@ -186,19 +187,29 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
   }, [content, aliases, boldingComplete]);
 
   React.useEffect(() => {
-    if (!!fileReference)
-      stream(fileReference.path).then((result) => {
-        setAVStream(
-          !!result
-            ? {
-                url: result,
-                type: fileReference.contentType,
-              }
-            : undefined,
-        );
-      });
-    else setAVStream(undefined);
-  }, [stream, fileReference]);
+    if (!!fileReference) {
+      streamSilent(fileReference.path)
+        .then((response) => {
+          setAVStream(
+            !!response.data
+              ? {
+                  url: response.data,
+                  type: fileReference.contentType,
+                }
+              : undefined,
+          );
+        })
+        .catch(async (ex) => {
+          if (ex instanceof AxiosError && ex.response && ex.response.data instanceof Blob) {
+            const text = await ex.response.data.text();
+            const error = JSON.parse(text);
+            if (error.type === 'NoContentException')
+              toast.error('Sorry file no longer exists, or has been archived.');
+          }
+          setAVStream(undefined);
+        });
+    } else setAVStream(undefined);
+  }, [streamSilent, fileReference]);
 
   React.useEffect(() => {
     if (avStream) {
@@ -439,7 +450,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
             src={`${process.env.PUBLIC_URL}/assets/transcript_feather.svg`}
             alt="Transcript"
           />
-          <h3 className="transcipt-heading">Transcript:</h3>
+          <h3 className="transcript-heading">Transcript:</h3>
         </Row>
         <Col>{content && parse(showTranscription(content))}</Col>
       </Show>
