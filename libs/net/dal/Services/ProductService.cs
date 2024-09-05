@@ -76,6 +76,7 @@ public class ProductService : BaseService<Product, int>, IProductService
     /// <returns></returns>
     public IEnumerable<Product> Find(ProductFilter filter)
     {
+        int[] distributionIds = Array.Empty<int>();
         var query = filter.IsAvailableToUserId.HasValue == true ?
             this.Context.Products.AsNoTracking() :
             this.Context.Products.Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User).AsNoTracking();
@@ -91,7 +92,16 @@ public class ProductService : BaseService<Product, int>, IProductService
         if (filter.SubscriberUserId.HasValue == true)
             query = query.Where(r => r.SubscribersManyToMany.Any(s => s.UserId == filter.SubscriberUserId.Value));
         if (filter.IsAvailableToUserId.HasValue == true)
-            query = query.Where(r => r.IsPublic || r.SubscribersManyToMany.Any(s => s.UserId == filter.IsAvailableToUserId.Value));
+        {
+            // Get all distribution lists this user is part of.
+            distributionIds = this.Context.UserDistributions
+                .Where(ud => ud.LinkedUserId == filter.IsAvailableToUserId.Value)
+                .Select(ud => ud.UserId).ToArray();
+
+            query = query.Where(r => r.IsPublic ||
+                r.SubscribersManyToMany.Any(s => s.UserId == filter.IsAvailableToUserId.Value) ||
+                r.SubscribersManyToMany.Any(s => distributionIds.Contains(s.UserId)));
+        }
 
         if (filter.Sort?.Any() == true)
         {
@@ -126,19 +136,22 @@ public class ProductService : BaseService<Product, int>, IProductService
                 .FirstOrDefault(u => u.Id == filter.IsAvailableToUserId.Value) ?? throw new NoContentException();
 
             // Fetch product subscribers only for the specified user.
-            var subscribers = this.Context.UserProducts.AsNoTracking().Where(up => up.UserId == filter.IsAvailableToUserId.Value).ToArray();
+            var subscribers = this.Context.UserProducts
+                .AsNoTracking()
+                .Include(s => s.Product)
+                .Include(s => s.User)
+                .Include(s => s.User).ThenInclude(u => u!.ReportSubscriptionsManyToMany)
+                .Include(s => s.User).ThenInclude(u => u!.NotificationSubscriptionsManyToMany)
+                .Include(s => s.User).ThenInclude(u => u!.AVOverviewSubscriptionsManyToMany)
+                .Where(up => up.UserId == filter.IsAvailableToUserId.Value || distributionIds.Contains(up.UserId))
+                .ToArray();
 
             // For each product add the actual subscription records.
             foreach (var product in products)
             {
                 product.SubscribersManyToMany.AddRange(subscribers.Where(s => s.ProductId == product.Id));
                 var subscriber = product.SubscribersManyToMany.FirstOrDefault(s => s.UserId == filter.IsAvailableToUserId.Value);
-                if (subscriber != null)
-                {
-                    subscriber.Product = product;
-                    subscriber.User = user;
-                }
-                else
+                if (!product.SubscribersManyToMany.Any())
                     product.SubscribersManyToMany.Add(new UserProduct(user, product));
             }
         }

@@ -118,6 +118,7 @@ export const MyProducts: React.FC = () => {
                       userId={userId}
                       product={product}
                       onToggleSubscription={(userProduct) => {
+                        console.debug(userProduct);
                         selectProduct(product, userProduct);
                         toggle();
                       }}
@@ -140,7 +141,7 @@ export const MyProducts: React.FC = () => {
             {products
               .filter((product) =>
                 // products which the user *IS NOT* unsubscribed to
-                product.subscribers.some(
+                product.subscribers.every(
                   (s) =>
                     !s.isSubscribed && s.status !== ProductRequestStatusName.RequestSubscription,
                 ),
@@ -152,6 +153,7 @@ export const MyProducts: React.FC = () => {
                     userId={userInfo?.id}
                     product={product}
                     onToggleSubscription={(userProduct) => {
+                      console.debug(userProduct);
                       selectProduct(product, userProduct);
                       toggle();
                     }}
@@ -163,27 +165,11 @@ export const MyProducts: React.FC = () => {
       </PageSection>
       <Modal
         headerText={`Confirm change`}
-        body={
-          (active?.userProduct.status === ProductRequestStatusName.RequestSubscription
-            ? `Are you sure you wish to ${
-                active.userProduct.isSubscribed ? 'unsubscribe from' : 'subscribe to'
-              }`
-            : `Are you sure you wish to cancel your pending request to ${
-                active?.userProduct.isSubscribed ? 'unsubscribe from' : 'subscribe to'
-              }`) + `"${active?.product.name}"?`
-        }
+        body={active && modalBody(active)}
         isShowing={isShowing}
         hide={toggle}
         type="default"
-        confirmText={
-          active?.userProduct.status === ProductRequestStatusName.RequestSubscription
-            ? `Yes, ${
-                active.userProduct.isSubscribed ? 'request to unsubscribe' : 'request to subscribe'
-              }`
-            : `Yes, cancel my pending request to ${
-                active?.userProduct.isSubscribed ? 'unsubscribe' : 'subscribe'
-              }`
-        }
+        confirmText={active && modalConfirmText(active)}
         onConfirm={() => {
           if (active) handleToggleSubscription(active.product, active.userProduct);
           toggle();
@@ -191,4 +177,40 @@ export const MyProducts: React.FC = () => {
       />
     </styled.MyProducts>
   );
+};
+
+const modalBody = (active: ISelectedProduct) => {
+  if (active.userProduct.isSubscribed) {
+    switch (active.userProduct.status) {
+      case ProductRequestStatusName.RequestUnsubscribe:
+        return `Are you sure you wish to unsubscribe to ${active.product.name}`;
+      default:
+        return `Are you sure you wish to cancel your pending request to unsubscribe to ${active.product.name}`;
+    }
+  } else {
+    switch (active.userProduct.status) {
+      case ProductRequestStatusName.RequestSubscription:
+        return `Are you sure you wish to subscribe to ${active.product.name}`;
+      default:
+        return `Are you sure you wish to cancel your pending request to subscribe to ${active.product.name}`;
+    }
+  }
+};
+
+const modalConfirmText = (active: ISelectedProduct) => {
+  if (active.userProduct.isSubscribed) {
+    switch (active.userProduct.status) {
+      case ProductRequestStatusName.RequestUnsubscribe:
+        return `Yes, request to unsubscribe`;
+      default:
+        return `Yes, cancel my pending request to unsubscribe`;
+    }
+  } else {
+    switch (active.userProduct.status) {
+      case ProductRequestStatusName.RequestSubscription:
+        return `Yes, request to subscribe`;
+      default:
+        return `Yes, cancel my pending request to subscribe`;
+    }
+  }
 };

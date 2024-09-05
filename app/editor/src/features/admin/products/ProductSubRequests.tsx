@@ -1,6 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { IProductModel, ProductRequestStatusName, Show } from 'tno-core';
+import { Col, IProductModel, ProductRequestStatusName, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
 import { UserApproveDeny } from './UserApproveDeny';
@@ -39,17 +39,26 @@ export const ProductSubRequests: React.FC = () => {
       {values.subscribers.map((user, index) => {
         if (user.status !== ProductRequestStatusName.RequestUnsubscribe) return null;
         return (
-          <UserApproveDeny
-            key={`user-request-cancellation-${user.userId}`}
-            user={user}
-            onChange={(approve) =>
-              setFieldValue(`subscribers.${index}`, {
-                ...user,
-                status: ProductRequestStatusName.NA,
-                isSubscribed: !approve,
-              })
-            }
-          />
+          <Row key={`user-request-cancellation-${user.userId}`} gap="1rem">
+            <Col flex="1">
+              <UserApproveDeny
+                user={user}
+                onChange={(approve) =>
+                  setFieldValue(`subscribers.${index}`, {
+                    ...user,
+                    status: ProductRequestStatusName.NA,
+                    isSubscribed: !approve,
+                  })
+                }
+              />
+            </Col>
+            <Col flex="2">
+              <p>
+                If this user is currently subscribed through a distribution list, you will need to
+                first remove them from the list and then approve this request.
+              </p>
+            </Col>
+          </Row>
         );
       })}
       <Show

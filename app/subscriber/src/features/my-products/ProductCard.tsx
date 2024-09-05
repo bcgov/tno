@@ -33,7 +33,9 @@ export const ProductCard: React.FC<IProductCardProps> = ({
 }) => {
   const [{ userInfo }] = useApp();
 
-  const userProduct: IUserProductModel = product.subscribers.find((s) => s.userId === userId) ?? {
+  let userProduct: IUserProductModel | undefined = product.subscribers.find(
+    (s) => s.userId === userId,
+  ) ?? {
     userId: userId ?? 0,
     productId: product.id,
     status: ProductRequestStatusName.NA,
@@ -48,6 +50,12 @@ export const ProductCard: React.FC<IProductCardProps> = ({
     isEnabled: userInfo?.isEnabled ?? true,
     accountType: UserAccountTypeName.Direct,
   };
+  // Check a distribution list to see if user is subscribed this way.
+  if (product.subscribers.length > 1 && !userProduct?.isSubscribed) {
+    const distribution = product.subscribers.find((s) => s.isSubscribed);
+    // Switch the subscription to the user from the distribution list.
+    if (distribution) userProduct = { ...distribution, userId: userId ?? 0 };
+  }
   const isSubscribed = userProduct.isSubscribed;
   const isRequesting =
     !userProduct.isSubscribed &&
