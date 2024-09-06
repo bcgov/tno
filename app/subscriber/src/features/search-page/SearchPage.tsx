@@ -97,7 +97,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
       });
       setCurrDateResults(currDateResults);
       setPrevDateResults(prevDateResults);
-      setTotalResults(currDateResults.length + prevDateResults.length);
+      setTotalResults(currDateResults.length);
       if (!groupStoredContent) {
         if (res.hits.total.value === 0) toast.warn('No results found.');
         if (currDateResults.length >= 500)
@@ -156,11 +156,19 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         let offSetDate = new Date();
         offSetDate.setDate(offSetDate.getDate() - offSet);
         offSetDate.setHours(0, 0, 0);
-        const currStartDate = filter.startDate ? new Date(filter.startDate) : offSetDate;
+        // if no date offset/ start date this means the user is looking for all content
+        // unix epoch used as a default start date for all content
+        const currStartDate = filter.startDate
+          ? new Date(filter.startDate)
+          : filter.dateOffset !== undefined
+          ? offSetDate
+          : new Date(1970, 0, 1);
         const prevStartDate = new Date(currStartDate.getTime() - 7 * dayInMs);
         const currEndDate = filter.endDate
           ? new Date(filter.endDate)
-          : new Date(currStartDate.getTime() + offSet * dayInMs - 1);
+          : filter.dateOffset !== undefined
+          ? new Date(currStartDate.getTime() + offSet * dayInMs - 1)
+          : new Date();
         currEndDate.setHours(23, 59, 59);
         setStartDate(currStartDate);
         if (filter.startDate && filter.endDate) {
