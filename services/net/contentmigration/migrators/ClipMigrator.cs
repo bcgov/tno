@@ -142,7 +142,6 @@ public class ClipMigrator : ContentMigrator<ContentMigrationOptions>, IContentMi
     {
         string[] targetTypes = new string[] { "Radio News", "TV News", "Talk Radio", "Scrum", "CC News" };
         return PredicateBuilder.New<T>()
-                .And(ni => targetTypes.Contains(ni.Type.ToString()))
-                .Or(ni => ni.ContentType!.Equals("video/quicktime"));
+                .And(ni => targetTypes.Contains(ni.Type.ToString()));
     }
 }
