@@ -383,7 +383,8 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
                 // AND ((it has been updated since it's original ingest)
                 //  OR (the published status of the TNO items has changed))
                 // THEN trigger an update to the content
-                if ((sourceContent.UpdatedOn > originalLastUpdateDate)
+                if (forceUpdate
+                    || (sourceContent.UpdatedOn > originalLastUpdateDate)
                     || (newsItem.Published != originalIsContentPublished)
                     || (newsItem.FrontPageStory != originalIsFeaturedStory)
                     || (newsItem.WapTopStory != originalIsTopStory)
