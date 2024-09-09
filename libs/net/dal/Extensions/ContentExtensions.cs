@@ -163,21 +163,17 @@ public static class ContentExtensions
             }
         });
 
+        oTonePools.Except(updated.TonePoolsManyToMany).ForEach(a =>
+        {
+            context.Entry(a).State = EntityState.Deleted;
+        });
         updated.TonePoolsManyToMany.ForEach(a =>
         {
             var current = a.TonePoolId != 0 ? oTonePools.FirstOrDefault(o => o.TonePoolId == a.TonePoolId) : null;
-            
+
             // If no matching tone pool exists, add it to the original list
             if (current == null)
-            {
-                a.TonePool ??= context.TonePools.FirstOrDefault(tp => tp.Id == a.TonePoolId);
-                
-                if (a.TonePool != null &&
-                    !original.TonePoolsManyToMany.Any(x => x.TonePool != null && x.TonePool.Id == a.TonePool.Id))
-                {
-                    original.TonePoolsManyToMany.Add(a);
-                }
-            }
+                original.TonePoolsManyToMany.Add(a);
             // If a matching tone pool is found but the values have changed, update the values
             else if (current.Value != a.Value)
             {

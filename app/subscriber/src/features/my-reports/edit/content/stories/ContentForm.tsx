@@ -6,16 +6,12 @@ import {
   Col,
   ContentTypeName,
   IContentModel,
-  IContentTonePoolModel,
   Loading,
   Show,
   Text,
   TextArea,
   Wysiwyg,
 } from 'tno-core';
-
-import { defaultContentTonePool } from '../../constants/defaultContentTonePool';
-import { ToneSelector } from './ToneSelector';
 
 export interface IContentFormProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'content'> {
   /** The content being edited */
@@ -65,11 +61,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({
         : content.summary
       : content?.body,
   };
-  const userDefaultContentTonePool = {
-    ...defaultContentTonePool,
-    ownerId: userId,
-    name: `${userId}`,
-  };
+  // const userDefaultContentTonePool = {
+  //   ...defaultContentTonePool,
+  //   ownerId: userId,
+  //   name: `${userId}`,
+  // };
 
   React.useEffect(() => {
     let isMounted = true;
@@ -97,36 +93,36 @@ export const ContentForm: React.FC<IContentFormProps> = ({
 
   if (!content) return null;
 
-  const handleToneSelect = (value: number) => {
-    const updatedTonePool: IContentTonePoolModel = {
-      ...myTonePool,
-      ownerId:
-        myTonePool?.ownerId !== undefined && myTonePool?.ownerId !== 0
-          ? myTonePool.ownerId
-          : userId,
-      id: myTonePool?.id ?? 0,
-      isPublic: myTonePool?.isPublic ?? true,
-      name:
-        myTonePool?.name !== undefined && myTonePool?.name !== '' ? myTonePool?.name : `${userId}`,
-      value,
-      sortOrder: myTonePool?.sortOrder ?? 0,
-      isEnabled: myTonePool?.isEnabled ?? true,
-      description: myTonePool?.description ?? '',
-    };
+  // const handleToneSelect = (value: number) => {
+  //   const updatedTonePool: IContentTonePoolModel = {
+  //     ...myTonePool,
+  //     ownerId:
+  //       myTonePool?.ownerId !== undefined && myTonePool?.ownerId !== 0
+  //         ? myTonePool.ownerId
+  //         : userId,
+  //     id: myTonePool?.id ?? 0,
+  //     isPublic: myTonePool?.isPublic ?? true,
+  //     name:
+  //       myTonePool?.name !== undefined && myTonePool?.name !== '' ? myTonePool?.name : `${userId}`,
+  //     value,
+  //     sortOrder: myTonePool?.sortOrder ?? 0,
+  //     isEnabled: myTonePool?.isEnabled ?? true,
+  //     description: myTonePool?.description ?? '',
+  //   };
 
-    if (content?.id) {
-      onContentChange?.({
-        ...content,
-        tonePools: [...(content.tonePools || []), updatedTonePool],
-      });
-    } else {
-      console.error('Content ID is missing or invalid.');
-    }
-  };
+  //   if (content?.id) {
+  //     onContentChange?.({
+  //       ...content,
+  //       tonePools: [...(content.tonePools || []), updatedTonePool],
+  //     });
+  //   } else {
+  //     console.error('Content ID is missing or invalid.');
+  //   }
+  // };
 
-  const userContentTonePool: IContentTonePoolModel =
-    content?.tonePools?.find((pool: IContentTonePoolModel) => pool.ownerId === userId) ||
-    userDefaultContentTonePool;
+  // const userContentTonePool: IContentTonePoolModel =
+  //   content?.tonePools?.find((pool: IContentTonePoolModel) => pool.ownerId === userId) ||
+  //   userDefaultContentTonePool;
 
   return show === 'none' ? null : (
     <Col className={`edit-content${className ? ` ${className}` : ''}`} {...rest}>
@@ -221,9 +217,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
             onContentChange?.(values);
           }}
         />
-        {isUserSentiment && (
+        {/* {isUserSentiment && (
           <ToneSelector onSelect={handleToneSelect} myTonePool={userContentTonePool} />
-        )}
+        )} */}
       </Show>
     </Col>
   );
