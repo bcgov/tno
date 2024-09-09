@@ -8,7 +8,6 @@ export const SearchPage = styled.div<{ expanded: boolean }>`
     margin-left: 0.5em;
     margin-right: 0.5em;
   }
-  max-height: 100vh;
   overflow: none;
 
   .header-col {
@@ -101,7 +100,7 @@ export const SearchPage = styled.div<{ expanded: boolean }>`
   }
 
   .page-section {
-    max-height: calc(100vh - 11em);
+    height: 90vh;
     overflow: hidden;
   }
   .adv-search-container > div {
