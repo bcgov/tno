@@ -48,6 +48,62 @@ public static class JsonDocumentExtensions
     }
 
     /// <summary>
+    /// Modify the Elasticsearch 'query' and add a 'must' filter to include the specified 'contentIds'.
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="contentIds"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public static JsonDocument IncludeOnlyLatestPostedAndContentIds(this JsonDocument query, IEnumerable<long> contentIds, DateTime? previousInstancePublishedOn)
+    {
+        var json = JsonNode.Parse(query.ToJson())?.AsObject();
+        if (json == null) return query;
+        JsonNode jMustTerms = null!;
+        JsonNode jIncludeOnlyLatestPosted = null!;
+        JsonNode jShouldQuery = null!;
+
+        if (contentIds != null && contentIds.Any())
+        {
+            jMustTerms = JsonNode.Parse($"{{ \"terms\": {{ \"id\": [{String.Join(',', contentIds)}] }}}}")?.AsObject() ?? throw new InvalidOperationException("Failed to parse JSON");
+            jShouldQuery = JsonNode.Parse($"{jMustTerms.ToJsonString()}")!;
+        }
+        if (previousInstancePublishedOn != null)
+        {
+            jIncludeOnlyLatestPosted = JsonNode.Parse($"{{ \"range\": {{ \"postedOn\": {{ \"gte\": \"{previousInstancePublishedOn.Value:yyyy-MM-ddTHH:mm:ss}\", \"time_zone\": \"US/Pacific\" }} }} }}")!;
+            if (jIncludeOnlyLatestPosted != null)
+            {
+                if (jShouldQuery != null)
+                {
+                    jShouldQuery = JsonNode.Parse($"[ {jShouldQuery.ToJsonString()}, {jIncludeOnlyLatestPosted.ToJsonString()} ]")!;
+                }
+                else
+                {
+                    jShouldQuery = JsonNode.Parse($"[ {jIncludeOnlyLatestPosted.ToJsonString()} ]")!;
+                }
+            }
+        }
+        if (json.TryGetPropertyValue("query", out JsonNode? jQuery))
+        {
+            if (jQuery?.AsObject().TryGetPropertyValue("bool", out JsonNode? jQueryBool) == true)
+            {
+                if (jShouldQuery != null)
+                {
+                    jQueryBool?.AsObject().Add("should", JsonNode.Parse($"{jShouldQuery.ToJsonString()}"));
+                }
+            }
+            else
+            {
+                jQuery?.AsObject().Add("bool", JsonNode.Parse($"{{ \"should\": [ {jShouldQuery.ToJsonString()} ]}}"));
+            }
+        }
+        else
+        {
+            json.Add("query", JsonNode.Parse($"{{ \"bool\": {{ \"should\": [ {jShouldQuery.ToJsonString()} ] }}}}"));
+        }
+        return JsonDocument.Parse(json.ToJsonString());
+    }
+
+    /// <summary>
     /// Modify the Elasticsearch 'query' and add a 'must' filter to exclude content posted before the last report instance published date.
     /// </summary>
     /// <param name="query"></param>
