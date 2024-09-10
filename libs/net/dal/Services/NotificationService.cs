@@ -23,7 +23,6 @@ public class NotificationService : BaseService<Notification, int>, INotification
     private readonly ISettingService _settingService;
     private const string TopStoryLastRunOn = "TopStoryLastRunOn";
     private const string TopStoryLastRunOnDescription = "The Top Stories Notification last run on time (UTC time).";
-
     private const string ActionTopStoryName = "Top Story";
     #endregion
 
@@ -330,7 +329,6 @@ public class NotificationService : BaseService<Notification, int>, INotification
             topStoryLastRunOnSetting.Value = DateTime.Now.ToUniversalTime().ToString();
             _settingService.UpdateAndSave(topStoryLastRunOnSetting);
         }
-        Console.WriteLine($"=====query is====={query.RootElement.ToString()}");
         return await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query);
     }
 

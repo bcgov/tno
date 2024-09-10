@@ -48,13 +48,14 @@ public static class JsonDocumentExtensions
     }
 
     /// <summary>
-    /// Modify the Elasticsearch 'query' and add a 'must' filter to include the specified 'contentIds'.
+    /// Modify the Elasticsearch 'query' and add a 'should' filter to include the specified 'contentIds' and the previous published on date time.
     /// </summary>
     /// <param name="query"></param>
     /// <param name="contentIds"></param>
+    /// <param name="previousInstancePublishedOn"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static JsonDocument IncludeOnlyLatestPostedAndContentIds(this JsonDocument query, IEnumerable<long> contentIds, DateTime? previousInstancePublishedOn)
+    public static JsonDocument IncludeOnlyLatestPostedAndContentIds(this JsonDocument query, IEnumerable<long> contentIds, DateTime? previousPublishedOn)
     {
         var json = JsonNode.Parse(query.ToJson())?.AsObject();
         if (json == null) return query;
@@ -67,9 +68,9 @@ public static class JsonDocumentExtensions
             jMustTerms = JsonNode.Parse($"{{ \"terms\": {{ \"id\": [{String.Join(',', contentIds)}] }}}}")?.AsObject() ?? throw new InvalidOperationException("Failed to parse JSON");
             jShouldQuery = JsonNode.Parse($"{jMustTerms.ToJsonString()}")!;
         }
-        if (previousInstancePublishedOn != null)
+        if (previousPublishedOn != null)
         {
-            jIncludeOnlyLatestPosted = JsonNode.Parse($"{{ \"range\": {{ \"postedOn\": {{ \"gte\": \"{previousInstancePublishedOn.Value:yyyy-MM-ddTHH:mm:ss}\", \"time_zone\": \"US/Pacific\" }} }} }}")!;
+            jIncludeOnlyLatestPosted = JsonNode.Parse($"{{ \"range\": {{ \"postedOn\": {{ \"gte\": \"{previousPublishedOn.Value:yyyy-MM-ddTHH:mm:ss}\", \"time_zone\": \"US/Pacific\" }} }} }}")!;
             if (jIncludeOnlyLatestPosted != null)
             {
                 if (jShouldQuery != null)
