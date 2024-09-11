@@ -6,6 +6,8 @@ using TNO.Core.Extensions;
 using TNO.DAL.Config;
 using TNO.Entities;
 using TNO.Models.Filters;
+using Amazon.S3;
+using Amazon.S3.Model;
 
 namespace TNO.DAL.Services;
 
@@ -170,6 +172,87 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
             File.Delete(path);
 
         base.DeleteAndSave(entity);
+    }
+
+    public async Task<bool> UploadToS3Async(string s3Key, Stream fileStream)
+    {
+        if (fileStream == null)
+        {
+            Logger.LogError("File stream is null for S3 key: {S3Key}", s3Key);
+            return false;
+        }
+
+        var accessKey = Environment.GetEnvironmentVariable("S3_ACCESS_KEY") ?? throw new InvalidOperationException("S3_ACCESS_KEY environment variable is not set");
+        var secretKey = Environment.GetEnvironmentVariable("S3_SECRET_KEY") ?? throw new InvalidOperationException("S3_SECRET_KEY environment variable is not set");
+        var bucketName = Environment.GetEnvironmentVariable("S3_BUCKET_NAME") ?? throw new InvalidOperationException("S3_BUCKET_NAME environment variable is not set");
+        var serviceUrl = Environment.GetEnvironmentVariable("S3_SERVICE_URL") ?? throw new InvalidOperationException("S3_SERVICE_URL environment variable is not set");
+
+        var config = new AmazonS3Config
+        {
+            ServiceURL = serviceUrl,
+            ForcePathStyle = true
+        };
+
+        using var s3Client = new AmazonS3Client(accessKey, secretKey, config);
+
+        var putRequest = new PutObjectRequest
+        {
+            BucketName = bucketName,
+            Key = s3Key,
+            InputStream = fileStream,
+        };
+
+        try
+        {
+            var response = await s3Client.PutObjectAsync(putRequest);
+
+            // Check if the request was successful
+            if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
+            {
+                Logger.LogInformation("File uploaded to S3 successfully: {S3Key}", s3Key);
+                return true;
+            }
+            else
+            {
+                Logger.LogError("Failed to upload file to S3: {S3Key}", s3Key);
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "An error occurred while uploading file to S3: {S3Key}", s3Key);
+            return false;
+        }
+    }
+
+    public async Task<IEnumerable<FileReference>> GetFiles(DateTime? updatedBefore = null, int limit = 100)
+    {
+        try
+        {
+            IQueryable<FileReference> query = this.Context.FileReferences;
+
+            if (updatedBefore.HasValue)
+            {
+                updatedBefore = updatedBefore.Value.ToUniversalTime();
+                query = query.Where(fr => fr.UpdatedOn < updatedBefore.Value);
+            }
+
+            // order by updated on descending
+            query = query.OrderByDescending(fr => fr.UpdatedOn);
+
+            // if limit is not -1, apply the limit, means get all
+            if (limit != -1)
+            {
+                query = query.Take(limit);
+            }
+
+            return await query.ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error getting files");
+            return Enumerable.Empty<FileReference>();
+        }
     }
     #endregion
 }
