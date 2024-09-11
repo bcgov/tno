@@ -118,6 +118,41 @@ public class ApiService : IApiService
             return await RetryRequestAsync<T>(callbackDelegate);
         }
     }
+
+    /// <summary>
+    /// Keep trying a request if the failure is caused by an optimistic concurrency error.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="callbackDelegate"></param>
+    /// <returns></returns>
+    public async Task<T> HandleConcurrencyAsync<T>(Func<Task<T>> callbackDelegate)
+    {
+        // Keep trying to update the record and handle concurrency errors.
+        while (true)
+        {
+            try
+            {
+                return await callbackDelegate();
+            }
+            catch (HttpClientRequestException ex)
+            {
+                // If it's a concurrency error, keep trying.  Otherwise throw the error.
+                this.Logger.LogError(ex, "Failed to complete request.  Determining if this is a concurrency error.");
+                var data = ex.Data["Body"] as string;
+                if (!String.IsNullOrWhiteSpace(data))
+                {
+                    var json = JsonSerializer.Deserialize<API.Models.ErrorResponseModel>(data, _serializerOptions);
+                    if (json != null && json.Type == nameof(Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException))
+                    {
+                        // A concurrency error can be resolved by loading the latest and reapplying the values.
+                        continue;
+                    }
+                }
+                // It wasn't a concurrency error, throw as a real failure.
+                throw;
+            }
+        }
+    }
     #endregion
 
     #region Kafka Methods
@@ -826,13 +861,19 @@ public class ApiService : IApiService
 
     /// <summary>
     /// Make a request to the API to update the event schedule for the specified 'model'.
+    /// The most common issue with this endpoint is concurrency errors.  Retrying won't fix that, so use the HandleConcurrency function and set retry = false.
     /// </summary>
     /// <param name="model"></param>
+    /// <param name="retry"></param>
     /// <returns></returns>
-    public async Task<API.Areas.Services.Models.EventSchedule.EventScheduleModel?> UpdateEventScheduleAsync(API.Areas.Services.Models.EventSchedule.EventScheduleModel model)
+    public async Task<API.Areas.Services.Models.EventSchedule.EventScheduleModel?> UpdateEventScheduleAsync(API.Areas.Services.Models.EventSchedule.EventScheduleModel model, bool retry = true)
     {
         var url = this.Options.ApiUrl.Append($"services/events/schedules/{model.Id}");
-        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.EventSchedule.EventScheduleModel?>(url, JsonContent.Create(model)));
+
+        if (retry)
+            return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.EventSchedule.EventScheduleModel?>(url, JsonContent.Create(model)));
+        else
+            return await this.OpenClient.PutAsync<API.Areas.Services.Models.EventSchedule.EventScheduleModel?>(url, JsonContent.Create(model));
     }
     #endregion
 
