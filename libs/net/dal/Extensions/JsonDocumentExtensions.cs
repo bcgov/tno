@@ -59,47 +59,52 @@ public static class JsonDocumentExtensions
     {
         var json = JsonNode.Parse(query.ToJson())?.AsObject();
         if (json == null) return query;
-        JsonNode jMustTerms = null!;
-        JsonNode jIncludeOnlyLatestPosted = null!;
-        JsonNode jShouldQuery = null!;
+        JsonNode? jShouldQuery = null;
 
         if (contentIds != null && contentIds.Any())
         {
-            jMustTerms = JsonNode.Parse($"{{ \"terms\": {{ \"id\": [{String.Join(',', contentIds)}] }}}}")?.AsObject() ?? throw new InvalidOperationException("Failed to parse JSON");
-            jShouldQuery = JsonNode.Parse($"{jMustTerms.ToJsonString()}")!;
+            jShouldQuery = JsonNode.Parse($"{{ \"terms\": {{ \"id\": [{String.Join(',', contentIds)}] }}}}")?.AsObject() ?? throw new InvalidOperationException("Failed to parse JSON");
         }
         if (previousPublishedOn != null)
         {
-            jIncludeOnlyLatestPosted = JsonNode.Parse($"{{ \"range\": {{ \"postedOn\": {{ \"gte\": \"{previousPublishedOn.Value:yyyy-MM-ddTHH:mm:ss}\", \"time_zone\": \"US/Pacific\" }} }} }}")!;
+            var jIncludeOnlyLatestPosted = JsonNode.Parse($"{{ \"range\": {{ \"postedOn\": {{ \"gte\": \"{previousPublishedOn.Value:yyyy-MM-ddTHH:mm:ss}\", \"time_zone\": \"US/Pacific\" }} }} }}")?.AsObject();
             if (jIncludeOnlyLatestPosted != null)
             {
                 if (jShouldQuery != null)
                 {
-                    jShouldQuery = JsonNode.Parse($"[ {jShouldQuery.ToJsonString()}, {jIncludeOnlyLatestPosted.ToJsonString()} ]")!;
+                    jShouldQuery = JsonNode.Parse($"{{ \"bool\": {{ \"should\": [ {jShouldQuery.ToJsonString()}, {jIncludeOnlyLatestPosted.ToJsonString()} ]}}}}")?.AsObject();
                 }
                 else
                 {
-                    jShouldQuery = JsonNode.Parse($"[ {jIncludeOnlyLatestPosted.ToJsonString()} ]")!;
+                    jShouldQuery = JsonNode.Parse($"{{ \"bool\": {{ \"should\": [ {jIncludeOnlyLatestPosted.ToJsonString()} ]}}}}")?.AsObject();
                 }
             }
         }
-        if (json.TryGetPropertyValue("query", out JsonNode? jQuery))
+        if (jShouldQuery != null)
         {
-            if (jQuery?.AsObject().TryGetPropertyValue("bool", out JsonNode? jQueryBool) == true)
+            if (json.TryGetPropertyValue("query", out JsonNode? jQuery))
             {
-                if (jShouldQuery != null)
+                if (jQuery?.AsObject().TryGetPropertyValue("bool", out JsonNode? jQueryBool) == true)
                 {
-                    jQueryBool?.AsObject().Add("should", JsonNode.Parse($"{jShouldQuery.ToJsonString()}"));
+                    if (jQueryBool?.AsObject().TryGetPropertyValue("must", out JsonNode? jQueryBoolMust) == true)
+                    {
+                        jQueryBoolMust?.AsArray().Add(jShouldQuery);
+                    }
+                    else
+                    {
+                        jQueryBool?.AsObject().Add("must", JsonNode.Parse($"[ {jShouldQuery.ToJsonString()} ]"));
+                    }
+                }
+                else
+                {
+                    jQuery?.AsObject().Add("bool", JsonNode.Parse($"{{ \"must\": [ {jShouldQuery.ToJsonString()} ]}}"));
                 }
             }
             else
             {
-                jQuery?.AsObject().Add("bool", JsonNode.Parse($"{{ \"should\": [ {jShouldQuery.ToJsonString()} ]}}"));
+                
+                json.Add("query", JsonNode.Parse($"{{ \"bool\": {{ \"must\": [ {jShouldQuery.ToJsonString()} ] }}}}"));
             }
-        }
-        else
-        {
-            json.Add("query", JsonNode.Parse($"{{ \"bool\": {{ \"should\": [ {jShouldQuery.ToJsonString()} ] }}}}"));
         }
         return JsonDocument.Parse(json.ToJsonString());
     }
