@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,10 @@ public class NotificationService : BaseService<Notification, int>, INotification
     private readonly ITNOElasticClient _elasticClient;
     private readonly ElasticOptions _elasticOptions;
     private readonly JsonSerializerOptions _serializerOptions;
+    private readonly ISettingService _settingService;
+    private const string TopStoryLastRunOn = "TopStoryLastRunOn";
+    private const string TopStoryLastRunOnDescription = "The Top Stories Notification last run on time (UTC time).";
+    private const string ActionTopStoryName = "Top Story";
     #endregion
 
     #region Constructors
@@ -39,11 +44,13 @@ public class NotificationService : BaseService<Notification, int>, INotification
         TNOContext dbContext,
         ClaimsPrincipal principal,
         IServiceProvider serviceProvider,
-        ILogger<NotificationService> logger) : base(dbContext, principal, serviceProvider, logger)
+        ILogger<NotificationService> logger,
+        ISettingService settingService) : base(dbContext, principal, serviceProvider, logger)
     {
         _elasticClient = elasticClient;
         _elasticOptions = elasticOptions.Value;
         _serializerOptions = serializerOptions.Value;
+        _settingService = settingService;
     }
     #endregion
 
@@ -276,6 +283,7 @@ public class NotificationService : BaseService<Notification, int>, INotification
 
         var defaultIndex = filter.SearchUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex;
         var query = notification.Query;
+        var topStoryLastRunOnSetting = _settingService.FindByName(TopStoryLastRunOn);
 
         // Fetch all notifications within the offset of the requested notification filter.
         // Need to identify all content already notified by this notification so that we don't resend.
@@ -292,10 +300,35 @@ public class NotificationService : BaseService<Notification, int>, INotification
                 && (settings.StartDate == null | ni.SentOn >= settings.StartDate))
                 .Select(ni => ni.ContentId).Distinct().ToArray();
 
+            if (topStoryLastRunOnSetting != null && topStoryLastRunOnSetting.Value != null)
+            {
+                var lastRunOnTime = DateTime.SpecifyKind(DateTime.Parse(topStoryLastRunOnSetting.Value), DateTimeKind.Utc);
+                var topStoryActionId = this.Context.Actions.Where(x => x.Name == ActionTopStoryName).FirstOrDefault()?.Id;
+                var actionContentIds = this.Context.ContentActions.Where(ca => ca.ActionId == topStoryActionId
+                    && !string.IsNullOrEmpty(ca.Value) && ca.Value.ToLower() == "true"
+                    && ca.UpdatedOn > lastRunOnTime)
+                    .Select(ca => ca.ContentId).Distinct().ToArray();
+            
+                DateTime localLastRunOn = DateTime.Parse(topStoryLastRunOnSetting.Value).ToLocalTime();
+                query = query.IncludeOnlyLatestPostedAndContentIds(actionContentIds, localLastRunOn);
+            }
+
             if (sentNotificationContentIds.Any())
                 query = query.AddExcludeContent(sentNotificationContentIds);
         }
 
+        // update top story last run on setting
+        if (topStoryLastRunOnSetting == null)
+        {
+            var newSetting = new Setting(TopStoryLastRunOn, DateTime.Now.ToUniversalTime().ToString());
+            newSetting.Description = TopStoryLastRunOnDescription;
+            _settingService.AddAndSave(newSetting);
+        }
+        else
+        {
+            topStoryLastRunOnSetting.Value = DateTime.Now.ToUniversalTime().ToString();
+            _settingService.UpdateAndSave(topStoryLastRunOnSetting);
+        }
         return await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query);
     }
 
