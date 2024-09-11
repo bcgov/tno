@@ -531,8 +531,15 @@ public class StorageController : ControllerBase
 
         if (!hasS3Credentials)
         {
-            _logger.LogError("S3 credentials are not set");
-            return BadRequest("S3 credentials are not set");
+            // make a string shows all the environment variables name if they are not set
+            var environmentVariables = new List<string>();
+            if (string.IsNullOrEmpty(accessKey)) environmentVariables.Add("S3_ACCESS_KEY");
+            if (string.IsNullOrEmpty(secretKey)) environmentVariables.Add("S3_SECRET_KEY");
+            if (string.IsNullOrEmpty(bucketName)) environmentVariables.Add("S3_BUCKET_NAME");
+            if (string.IsNullOrEmpty(serviceUrl)) environmentVariables.Add("S3_SERVICE_URL");
+            _logger.LogError("S3 credentials are not set: {EnvironmentVariables}", string.Join(", ", environmentVariables));
+
+            return BadRequest($"S3 credentials are not set: {string.Join(", ", environmentVariables)}");
         }
 
         foreach (var fileReference in fileReferences)
