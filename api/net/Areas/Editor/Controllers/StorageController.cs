@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Mime;
 using System.Web;
+using Amazon.S3;
+using Amazon.S3.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
@@ -12,6 +14,7 @@ using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
 using TNO.DAL.Helpers;
+using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Keycloak;
 using TNO.Models.Extensions;
@@ -37,6 +40,8 @@ public class StorageController : ControllerBase
     private readonly IConnectionHelper _connection;
     private readonly StorageOptions _storageOptions;
     private readonly ApiOptions _apiOptions;
+    private readonly IFileReferenceService _fileReferenceService;
+    private readonly ILogger<StorageController> _logger;
     #endregion
 
     #region Constructors
@@ -46,11 +51,15 @@ public class StorageController : ControllerBase
     /// <param name="connection"></param>
     /// <param name="storageOptions"></param>
     /// <param name="apiOptions"></param>
-    public StorageController(IConnectionHelper connection, IOptions<StorageOptions> storageOptions, IOptions<ApiOptions> apiOptions)
+    /// <param name="fileReferenceService"></param>
+    /// <param name="logger"></param>
+    public StorageController(IConnectionHelper connection, IOptions<StorageOptions> storageOptions, IOptions<ApiOptions> apiOptions, IFileReferenceService fileReferenceService, ILogger<StorageController> logger)
     {
         _connection = connection;
         _storageOptions = storageOptions.Value;
         _apiOptions = apiOptions.Value;
+        _fileReferenceService = fileReferenceService;
+        _logger = logger;
     }
     #endregion
 
@@ -495,6 +504,69 @@ public class StorageController : ControllerBase
             var file = await FfmpegHelper.JoinClipsAsync(safePath, prefix);
             return new JsonResult(new ItemModel(file, true));
         }
+    }
+    /// <summary>
+    /// upload files to s3
+    /// </summary>
+    /// <param name="updatedBefore">optional, only upload files updated before the specified date</param>
+    /// <param name="limit">optional, only upload limit files</param>
+    /// <returns>uploaded files and failed uploads</returns>
+    [HttpPost("upload-files-to-s3")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(Dictionary<string, List<string>>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Storage" })]
+    public async Task<IActionResult> UploadFilesToS3([FromQuery] DateTime? updatedBefore = null, [FromQuery] int? limit = null)
+    {
+        _logger.LogInformation("upload-files-to-s3");
+        var fileReferences = await _fileReferenceService.GetFiles(updatedBefore, limit ?? 100);
+        var uploadedFiles = new List<string>();
+        var failedUploads = new List<string>();
+        // check if s3 credentials are set
+        var accessKey = Environment.GetEnvironmentVariable("S3_ACCESS_KEY");
+        var secretKey = Environment.GetEnvironmentVariable("S3_SECRET_KEY");
+        var bucketName = Environment.GetEnvironmentVariable("S3_BUCKET_NAME");
+        var serviceUrl = Environment.GetEnvironmentVariable("S3_SERVICE_URL");
+        var hasS3Credentials = !string.IsNullOrEmpty(accessKey) && !string.IsNullOrEmpty(secretKey) && !string.IsNullOrEmpty(bucketName) && !string.IsNullOrEmpty(serviceUrl);
+
+        if (!hasS3Credentials)
+        {
+            _logger.LogError("S3 credentials are not set");
+            return BadRequest("S3 credentials are not set");
+        }
+
+        foreach (var fileReference in fileReferences)
+        {
+            try
+            {
+                var filePath = Path.Combine(_storageOptions.GetUploadPath(), fileReference.Path);
+
+                if (System.IO.File.Exists(filePath))
+                {
+                    using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+                    // use relative path as S3 key
+                    var s3Key = fileReference.Path.Replace("\\", "/"); // make sure use forward slash as path separator
+                    _logger.LogInformation($"uploading: {s3Key}");
+                    await _fileReferenceService.UploadToS3Async(s3Key, fileStream);
+                    uploadedFiles.Add(s3Key);
+                }
+                else
+                {
+                    failedUploads.Add($"{fileReference.Path} (file not found)");
+                }
+            }
+            catch (Exception ex)
+            {
+                failedUploads.Add($"{fileReference.Path} (error: {ex.Message})");
+            }
+        }
+
+        _logger.LogInformation("finished upload-all-to-s3");
+        return Ok(new
+        {
+            UploadedFiles = uploadedFiles,
+            FailedUploads = failedUploads,
+        });
     }
     #endregion
 }

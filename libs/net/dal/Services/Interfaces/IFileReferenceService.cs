@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Http;
 using TNO.Entities;
 using TNO.Models.Filters;
@@ -18,4 +17,8 @@ public interface IFileReferenceService : IBaseService<FileReference, long>
     FileReference Attach(ContentFileReference model, string folderPath);
 
     FileReference Attach(Content content, FileInfo file, string folderPath, bool deleteOriginal = true);
+
+    Task<IEnumerable<FileReference>> GetFiles(DateTime? updatedBefore = null, int limit = 3);
+
+    Task<bool> UploadToS3Async(string s3Key, Stream fileStream);
 }
