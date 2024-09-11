@@ -40,11 +40,16 @@ export const AccessRequest: React.FC = () => {
           <img alt="MMI Logo" className="app-logo" src="/assets/MMinsights_logo_dark_text.svg" />
           <Col className="main-box">
             <p className="top-bar-box">
-              Welcome {keycloak.getDisplayName()}, If this is the first time signing into Media
-              Monitoring Insights, your approval is being processed.
+              Welcome {keycloak.getDisplayName()}, if you reached this page after clicking on View
+              Article in a recently received MMI report, please return to the report.
             </p>
             <p>
-              If you are not redirected to the application, please contact{' '}
+              Only Direct Users have access to the View Article feature. If you wish to be upgraded
+              to a Direct User, please ensure that you have spending authority approval prior to
+              emailing.
+            </p>
+            <p>
+              Questions or concerns, please contact{' '}
               <a href="mailto:scott.ryckman@gov.bc.ca">Scott.Ryckman@gov.bc.ca</a>
             </p>
           </Col>
