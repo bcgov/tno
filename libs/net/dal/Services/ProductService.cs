@@ -444,6 +444,7 @@ public class ProductService : BaseService<Product, int>, IProductService
         } catch (Exception ex)
         {
             this.Logger.LogError(ex, $"ProductService - AddAndSave ProductId: {subscription.ProductId}, UserId: {subscription.UserId} throws exception.");
+            throw;
         }
     }
 
@@ -460,6 +461,7 @@ public class ProductService : BaseService<Product, int>, IProductService
         } catch (Exception ex)
         {
             this.Logger.LogError(ex, $"ProductService - UpdateAndSave ProductId: {subscription.ProductId}, UserId: {subscription.UserId} throws exception.");
+            throw;
         }
     }
 
@@ -494,6 +496,7 @@ public class ProductService : BaseService<Product, int>, IProductService
         } catch (Exception ex)
         {
             this.Logger.LogError(ex, $"ProductService - Unsubscribe userId: {userId}, productId: {productId} throws exception.");
+            throw;
         }
         return userProduct;
     }
@@ -529,6 +532,7 @@ public class ProductService : BaseService<Product, int>, IProductService
         } catch (Exception ex)
         {
             this.Logger.LogError(ex, $"ProductService - Subscribe userId: {userId}, productId: {productId} throws exception.");
+            throw;
         }
         return userProduct;
     }
