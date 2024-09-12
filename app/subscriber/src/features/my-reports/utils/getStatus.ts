@@ -5,7 +5,7 @@ import { ReportStatusName } from 'tno-core';
  * @param status The report status.
  * @returns A message that represents the status.
  */
-export const getStatus = (status: ReportStatusName) => {
+export const getStatus = (status?: ReportStatusName) => {
   switch (status) {
     case ReportStatusName.Submitted:
       return 'Sending';

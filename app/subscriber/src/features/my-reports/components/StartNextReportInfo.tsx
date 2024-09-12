@@ -1,6 +1,6 @@
 import { formatDate } from 'features/utils';
 import { FaInfoCircle } from 'react-icons/fa';
-import { getReportKind, ReportKindName, Row, Show } from 'tno-core';
+import { getReportKind, ReportKindName, ReportStatusName, Row, Show } from 'tno-core';
 
 import { useReportEditContext } from '../edit/ReportEditContext';
 
@@ -12,6 +12,15 @@ export const StartNextReportInfo = () => {
   const { values } = useReportEditContext();
 
   const instance = values.instances.length ? values.instances[0] : undefined;
+  const showReadonly =
+    instance &&
+    [
+      ReportStatusName.Submitted,
+      ReportStatusName.Accepted,
+      ReportStatusName.Cancelled,
+      ReportStatusName.Completed,
+      ReportStatusName.Failed,
+    ].includes(instance.status);
 
   return (
     <>
@@ -21,8 +30,9 @@ export const StartNextReportInfo = () => {
             <FaInfoCircle />
             <p>
               This report was sent to subscribers on{' '}
-              {`${formatDate(instance?.sentOn?.toLocaleString(), true)}`}. This report is{' '}
-              <strong>readonly</strong> until the next report is started.
+              {`${formatDate(instance?.sentOn?.toLocaleString(), true)}`}.
+              {showReadonly &&
+                'This report is <strong>readonly</strong> until the next report is started.'}
             </p>
           </Row>
         </div>
