@@ -1088,8 +1088,13 @@ public class ReportService : BaseService<Report, int>, IReportService
             var folderContent = this.Context.FolderContents.Where(fc => fc.FolderId == section.FolderId).ToArray();
             this.Context.RemoveRange(folderContent);
         });
-
-        this.Context.SaveChanges();
+        try
+        {
+            this.Context.SaveChanges();
+        } catch (Exception ex)
+        {
+            this.Logger.LogError(ex, $"ReportService - ClearFoldersInReport Report Id: {report.Id} throws exception.");
+        }
 
         return FindById(report.Id);
     }

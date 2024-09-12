@@ -438,7 +438,13 @@ public class ProductService : BaseService<Product, int>, IProductService
     public void AddAndSave(UserProduct subscription)
     {
         this.Context.Add(subscription);
-        this.Context.SaveChanges();
+        try
+        {
+            this.Context.SaveChanges();
+        } catch (Exception ex)
+        {
+            this.Logger.LogError(ex, $"ProductService - AddAndSave ProductId: {subscription.ProductId}, UserId: {subscription.UserId} throws exception.");
+        }
     }
 
     /// <summary>
@@ -448,7 +454,13 @@ public class ProductService : BaseService<Product, int>, IProductService
     public void UpdateAndSave(UserProduct subscription)
     {
         this.Context.Update(subscription);
-        this.Context.SaveChanges();
+        try
+        {
+            this.Context.SaveChanges();
+        } catch (Exception ex)
+        {
+            this.Logger.LogError(ex, $"ProductService - UpdateAndSave ProductId: {subscription.ProductId}, UserId: {subscription.UserId} throws exception.");
+        }
     }
 
     /// <summary>
@@ -476,7 +488,13 @@ public class ProductService : BaseService<Product, int>, IProductService
             var subscription = this.Context.UserAVOverviews.FirstOrDefault(ur => ur.UserId == userId && (int)ur.TemplateType == userProduct.Product!.TargetProductId) ?? throw new NoContentException();
             subscription.IsSubscribed = false;
         }
-        this.Context.SaveChanges();
+        try
+        {
+            this.Context.SaveChanges();
+        } catch (Exception ex)
+        {
+            this.Logger.LogError(ex, $"ProductService - Unsubscribe userId: {userId}, productId: {productId} throws exception.");
+        }
         return userProduct;
     }
 
@@ -505,7 +523,13 @@ public class ProductService : BaseService<Product, int>, IProductService
             var subscription = this.Context.UserAVOverviews.FirstOrDefault(ur => ur.UserId == userId && (int)ur.TemplateType == userProduct.Product!.TargetProductId) ?? throw new NoContentException();
             subscription.IsSubscribed = true;
         }
-        this.Context.SaveChanges();
+        try
+        {
+            this.Context.SaveChanges();
+        } catch (Exception ex)
+        {
+            this.Logger.LogError(ex, $"ProductService - Subscribe userId: {userId}, productId: {productId} throws exception.");
+        }
         return userProduct;
     }
 

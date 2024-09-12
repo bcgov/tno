@@ -729,7 +729,13 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             var match = _storyBody.Match(xml);
             if (match.Success)
             {
-                xml = xml.Replace(match.Groups["body"].Value, this.Options.FailedStoryBody);
+                try
+                {
+                    xml = xml.Replace(match.Groups["body"].Value, this.Options.FailedStoryBody);
+                } catch (Exception ex)
+                {
+                    this.Logger.LogError(ex, $"FixBlacksNewsgroupXml - process XML throws exceptions. The XML is: {xml}");
+                }
             }
 
             File.WriteAllText(filePath, xml);
