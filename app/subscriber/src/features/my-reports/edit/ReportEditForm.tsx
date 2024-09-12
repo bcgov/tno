@@ -85,6 +85,7 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
         !active?.startsWith(ReportMainMenuOption.Settings) &&
         instance &&
         instance.sentOn &&
+        ![ReportStatusName.Reopen].includes(instance.status) &&
         reportKind === ReportKindName.Manual
       ) {
         setShowStartNextReport(false);

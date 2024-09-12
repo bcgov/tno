@@ -6,6 +6,7 @@ import { ReportStatusName, Row, Show } from 'tno-core';
 
 import { ReportKindIcon } from '../components';
 import { getLastSent } from '../utils';
+import { getStatus } from './../utils/getStatus';
 import {
   ReportContentMenuOption,
   ReportHistoryMenuOption,
@@ -45,9 +46,15 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
             {values.name ? values.name : 'New Report'} <ReportKindIcon report={values} />
           </div>
         </div>
-        <Row nowrap gap="0.5rem">
-          <label>Last sent:</label>
-          <span>{lastSent ? lastSent : 'Never'}</span>
+        <Row gap="0.5rem">
+          <Row gap="0.5rem">
+            <label>Last sent:</label>
+            <span>{lastSent ? lastSent : 'Never'}</span>
+          </Row>
+          <Row gap="0.5rem">
+            <label>Status:</label>
+            <span>{getStatus(instance?.status)}</span>
+          </Row>
         </Row>
       </div>
 
