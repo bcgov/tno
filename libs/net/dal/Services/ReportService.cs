@@ -1094,6 +1094,7 @@ public class ReportService : BaseService<Report, int>, IReportService
         } catch (Exception ex)
         {
             this.Logger.LogError(ex, $"ReportService - ClearFoldersInReport Report Id: {report.Id} throws exception.");
+            throw;
         }
 
         return FindById(report.Id);

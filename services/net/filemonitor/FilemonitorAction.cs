@@ -735,6 +735,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 } catch (Exception ex)
                 {
                     this.Logger.LogError(ex, $"FixBlacksNewsgroupXml - process XML throws exceptions. The XML is: {xml}");
+                    throw;
                 }
             }
 
