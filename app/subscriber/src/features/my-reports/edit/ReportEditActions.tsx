@@ -107,7 +107,13 @@ export const ReportEditActions = ({
           <Action icon={<FaTrash />} label="Remove all stories" onClick={() => toggleRemove()} />
         </Col>
       </Show>{' '}
-      <Show visible={!instance?.sentOn && active?.startsWith(ReportMainMenuOption.View)}>
+      <Show
+        visible={
+          instance &&
+          [ReportStatusName.Pending, ReportStatusName.Reopen].includes(instance.status) &&
+          active?.startsWith(ReportMainMenuOption.View)
+        }
+      >
         <Col flex="1" alignItems="flex-start">
           <RefreshButton
             icon={<FaArrowsRotate />}
@@ -142,7 +148,19 @@ export const ReportEditActions = ({
           <FaSave />
         </Button>
       </Show>
-      <Show visible={!!instance?.sentOn && !active?.startsWith(ReportMainMenuOption.Settings)}>
+      <Show
+        visible={
+          instance &&
+          [
+            ReportStatusName.Submitted,
+            ReportStatusName.Accepted,
+            ReportStatusName.Cancelled,
+            ReportStatusName.Failed,
+            ReportStatusName.Completed,
+          ].includes(instance.status) &&
+          !active?.startsWith(ReportMainMenuOption.Settings)
+        }
+      >
         <Button disabled={isSubmitting} onClick={() => onUnlock()} variant="warn">
           Unlock report
           <FaLockOpen />

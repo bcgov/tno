@@ -12,6 +12,7 @@ using TNO.API.Config;
 using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.API.Models.SignalR;
+using TNO.Ches;
 using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.DAL.Services;
@@ -20,9 +21,8 @@ using TNO.Kafka;
 using TNO.Kafka.SignalR;
 using TNO.Keycloak;
 using TNO.Models.Filters;
+
 namespace TNO.API.Areas.Subscriber.Controllers;
-using TNO.Ches;
-using TNO.Core.Extensions;
 
 /// <summary>
 /// ReportController class, provides Report endpoints for the api.

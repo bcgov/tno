@@ -67,7 +67,7 @@ builder.Services.AddControllers(options =>
       options.JsonSerializerOptions.PropertyNamingPolicy = jsonSerializerOptions.PropertyNamingPolicy;
       options.JsonSerializerOptions.WriteIndented = jsonSerializerOptions.WriteIndented;
       options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-      options.JsonSerializerOptions.Converters.Add(new Int32ToStringJsonConverter());
+      //   options.JsonSerializerOptions.Converters.Add(new Int32ToStringJsonConverter());
   });
 
 builder.Services.AddOptions<KestrelServerOptions>().Bind(config.GetSection("Kestrel"));
@@ -251,7 +251,7 @@ builder.Services.AddSignalR(options =>
         options.PayloadSerializerOptions.PropertyNamingPolicy = jsonSerializerOptions.PropertyNamingPolicy;
         options.PayloadSerializerOptions.WriteIndented = jsonSerializerOptions.WriteIndented;
         options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        options.PayloadSerializerOptions.Converters.Add(new Int32ToStringJsonConverter());
+        // options.PayloadSerializerOptions.Converters.Add(new Int32ToStringJsonConverter());
     });
 
 builder.Services.AddHostedService<QueuedHostedService>();

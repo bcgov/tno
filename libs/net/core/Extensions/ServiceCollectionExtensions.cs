@@ -42,7 +42,7 @@ public static class ServiceCollectionExtensions
             options.PropertyNamingPolicy = jsonSerializerOptions.PropertyNamingPolicy;
             options.WriteIndented = jsonSerializerOptions.WriteIndented;
             options.Converters.Add(new JsonStringEnumConverter());
-            options.Converters.Add(new Int32ToStringJsonConverter());
+            // options.Converters.Add(new Int32ToStringJsonConverter());
         });
 
         return services;
