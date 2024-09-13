@@ -61,7 +61,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   const [filterId, setFilterId] = React.useState(0);
   const [searchFilter, setSearchFilter] = React.useState<IFilterSettingsModel | null>(null);
   const [showResults, setShowResults] = React.useState(false);
-
+  const [dateVisible, setDateVisible] = React.useState(true);
   React.useEffect(() => {
     const parsedId = id ? parseInt(id) : 0;
     setFilterId(parsedId);
@@ -152,6 +152,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
           };
         }
         const offSet = filter.dateOffset ? filter.dateOffset : 0;
+        setDateVisible(!(offSet > 1));
         const dayInMs = 24 * 60 * 60 * 1000; // Hours*Minutes*Seconds*Milliseconds
         let offSetDate = new Date();
         offSetDate.setDate(offSetDate.getDate() - offSet);
@@ -276,11 +277,13 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
               }
               className="search"
             />
-            <DateFilter
-              filter={filter}
-              storeFilter={storeSearchFilter}
-              onChangeDate={executeSearch}
-            />
+            <Show visible={dateVisible}>
+              <DateFilter
+                filter={filter}
+                storeFilter={storeSearchFilter}
+                onChangeDate={executeSearch}
+              />
+            </Show>
             <br />
             <Show visible={!!activeFilter}>
               <div className="viewed-name ">
