@@ -4,7 +4,7 @@ import { FormikProps } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import CreatableSelect from 'react-select/creatable';
 import { useLookup, useLookupOptions } from 'store/hooks';
 import { IAjaxRequest } from 'store/slices';
@@ -54,7 +54,6 @@ import {
   ContentTranscriptForm,
 } from '.';
 import { ContentFormToolBar, IFile, Tags, TimeLogSection, Topic, Upload } from './components';
-import { defaultFormValues } from './constants';
 import { useContentForm } from './hooks';
 import { ImageSection } from './ImageSection';
 import { IContentForm } from './interfaces';
@@ -107,10 +106,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
     useLookupOptions();
   const [{ tonePools }] = useLookup();
   const { setShowValidationToast } = useTabValidationToasts();
-
+  const { id } = useParams();
   const { isShowing: showDeleteModal, toggle: toggleDelete } = useModal();
   const { isShowing: showTranscribeModal, toggle: toggleTranscribe } = useModal();
   const { isShowing: showNLPModal, toggle: toggleNLP } = useModal();
+
   const refForm = React.useRef<HTMLDivElement>(null);
 
   const [size, setSize] = React.useState(1);
@@ -122,11 +122,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const [savePressed, setSavePressed] = React.useState(false);
   const [parsedTags, setParsedTags] = React.useState<string[]>([]);
   const [useTitleCase, setUseTitleCase] = React.useState(true);
-
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
   const [seriesOtherOptions, setSeriesOtherOptions] = React.useState<IOptionItem[]>([]);
   const [seriesOtherCreated, setSeriesOtherCreated] = React.useState<string>('');
 
+  const contentId = parseInt(id ?? '0');
   const urlParams = new URLSearchParams(window.location.search);
   const showPostedOn = ['', 'true'].includes(urlParams.get('showPostedOn') ?? 'false');
 
@@ -148,12 +148,10 @@ const ContentForm: React.FC<IContentFormProps> = ({
   }, [series, seriesOtherCreated]);
 
   React.useEffect(() => {
-    if (form.id > 0) {
-      fetchContent(form.id);
-    } else if (!form.id || form.id === 0) {
-      setForm((values) => ({ ...defaultFormValues(values.contentType) }));
+    if (contentId > 0 && contentId !== form.id) {
+      fetchContent(contentId);
     }
-  }, [form.id, fetchContent, setForm]);
+  }, [form.id, fetchContent, setForm, contentId]);
 
   React.useEffect(() => {
     setAvStream();

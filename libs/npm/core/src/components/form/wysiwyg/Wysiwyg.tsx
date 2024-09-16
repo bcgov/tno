@@ -1,14 +1,13 @@
-import 'react-quill/dist/quill.snow.css';
+import 'react-quill-new/dist/quill.snow.css';
 
 import { html_beautify } from 'js-beautify';
-import { Sources } from 'quill';
 import React from 'react';
-import ReactQuill from 'react-quill';
+import ReactQuill, { EmitterSource } from 'react-quill-new';
 
 import { CustomToolbar } from './CustomToolbar';
-import * as styled from './styled';
-import { IUrlOption } from './interfaces';
 import { ExpandedWysiwyg } from './ExpandedWysiwyg';
+import { IUrlOption } from './interfaces';
+import * as styled from './styled';
 
 const formats = [
   'header',
@@ -20,11 +19,11 @@ const formats = [
   'strike',
   'blockquote',
   'list',
-  'bullet',
   'indent',
   'link',
   'image',
   'color',
+  'align',
 ];
 
 export interface IStateProps {
@@ -57,7 +56,7 @@ export interface IWysiwygProps {
   onChange?: (text: string, editor?: any) => void;
   onBlur?: (
     previousSelection: ReactQuill.Range,
-    source: Sources,
+    source: EmitterSource,
     editor: ReactQuill.UnprivilegedEditor,
   ) => void;
 }
@@ -112,6 +111,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
         .replaceAll('[br]', '<br>') || '';
     setNormalState({ ...normalState, html: doc.body.textContent });
     props.onChange?.(doc.body.textContent);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.onChange, normalState]);
 
   const onClickFormatRaw = () => {
