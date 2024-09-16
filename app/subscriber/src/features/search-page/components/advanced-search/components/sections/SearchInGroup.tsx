@@ -1,6 +1,6 @@
 import React from 'react';
 import { useContent } from 'store/hooks';
-import { Checkbox, Col, Row } from 'tno-core';
+import { Col, Row, SmallCheckbox } from 'tno-core';
 
 export const SearchInGroup: React.FC = () => {
   const [
@@ -14,7 +14,7 @@ export const SearchInGroup: React.FC = () => {
     <Col>
       <label className="search-in-label">Search in: </label>
       <Row className="options expanded space-top">
-        <Checkbox
+        <SmallCheckbox
           id="chkInHeadline"
           label="Headline"
           checked={filter.inHeadline}
@@ -22,19 +22,19 @@ export const SearchInGroup: React.FC = () => {
             storeFilter({ ...filter, inHeadline: e.target.checked });
           }}
         />
-        <Checkbox
+        <SmallCheckbox
           id="chkInByline"
           label="Byline"
           checked={filter.inByline}
           onChange={(e) => storeFilter({ ...filter, inByline: e.target.checked })}
         />
-        <Checkbox
+        <SmallCheckbox
           id="chkInStory"
           label="Story text"
           checked={filter.inStory}
           onChange={(e) => storeFilter({ ...filter, inStory: e.target.checked })}
         />
-        <Checkbox
+        <SmallCheckbox
           id="chkInProgram"
           label="Program/Show"
           checked={filter.inProgram}

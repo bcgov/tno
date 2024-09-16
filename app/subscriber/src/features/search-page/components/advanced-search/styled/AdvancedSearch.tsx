@@ -19,6 +19,17 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     font-size: 0.9em;
   }
 
+  .toggle-button {
+    align-self: left;
+  }
+
+  input[type='radio'] {
+    margin-top: 0.3rem;
+    margin-right: 0.3rem;
+    height: 0.8em;
+    width: 0.8em;
+  }
+
   .narrow-filter-header {
     display: flex;
     justify-content: space-between;
