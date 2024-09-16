@@ -3613,16 +3613,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/quill@npm:2.0.14":
-  version: 2.0.14
-  resolution: "@types/quill@npm:2.0.14"
-  dependencies:
-    parchment: ^1.1.2
-    quill-delta: ^5.1.0
-  checksum: 05167f590f8d2bd7ededa819aa6df4004967b2988c6dbd571b24d595142e37d663d4acc26b62576c81dd3db3587fcb69f54a424ecf56ee3fa51c57cb8c58d0bb
-  languageName: node
-  linkType: hard
-
 "@types/quill@npm:^1.3.10":
   version: 1.3.10
   resolution: "@types/quill@npm:1.3.10"
@@ -7566,6 +7556,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eventemitter3@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "eventemitter3@npm:5.0.1"
+  checksum: 543d6c858ab699303c3c32e0f0f47fc64d360bf73c3daf0ac0b5079710e340d6fe9f15487f94e66c629f5f82cd1a8678d692f3dbb6f6fcd1190e1b97fcad36f8
+  languageName: node
+  linkType: hard
+
 "events@npm:^3.2.0":
   version: 3.3.0
   resolution: "events@npm:3.3.0"
@@ -11007,7 +11004,6 @@ __metadata:
     "@types/node": 20.12.12
     "@types/pretty": 2.0.3
     "@types/prismjs": 1.26.4
-    "@types/quill": 2.0.14
     "@types/react": 18.3.3
     "@types/react-beautiful-dnd": 13.1.8
     "@types/react-datepicker": 6.2.0
@@ -11056,7 +11052,7 @@ __metadata:
     react-draggable: 4.4.6
     react-error-boundary: 4.0.13
     react-icons: 5.2.1
-    react-quill: 2.0.0
+    react-quill-new: 3.3.1
     react-redux: 9.1.2
     react-reflex: 4.2.6
     react-router-dom: 6.23.1
@@ -11622,6 +11618,13 @@ __metadata:
   version: 1.1.4
   resolution: "parchment@npm:1.1.4"
   checksum: 47997567424d1ad8648046091a06b3a5423ed83f9dfa421d7fd93e0032e79aedd8db5499ff55327e08eebd89d8e927704a646f87d45d4bcfe63016aa5a88947d
+  languageName: node
+  linkType: hard
+
+"parchment@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "parchment@npm:3.0.0"
+  checksum: 4d7962442c00a9cccabd1da20e209ed0a747a12902f86862030e269e69f81462dfe3a592a985d516bb8a096b776c0cf236b8d7fc60c6ff115eafa5dbadaa81db
   languageName: node
   linkType: hard
 
@@ -12969,6 +12972,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"quill@npm:~2.0.2":
+  version: 2.0.2
+  resolution: "quill@npm:2.0.2"
+  dependencies:
+    eventemitter3: ^5.0.1
+    lodash-es: ^4.17.21
+    parchment: ^3.0.0
+    quill-delta: ^5.1.0
+  checksum: 3f5f20be6c4c2f2a1c60bbf59a76f49df4c2635fd0176198bb1f064aa6bea520fc771979dd25f432c708e0caa5ca8fc556c5a6a3036e22796374ab5e9ae981e3
+  languageName: node
+  linkType: hard
+
 "raf-schd@npm:^4.0.2":
   version: 4.0.3
   resolution: "raf-schd@npm:4.0.3"
@@ -13316,7 +13331,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-quill@npm:2.0.0, react-quill@npm:^2.0.0":
+"react-quill-new@npm:3.3.1":
+  version: 3.3.1
+  resolution: "react-quill-new@npm:3.3.1"
+  dependencies:
+    lodash: ^4.17.21
+    quill: ~2.0.2
+  peerDependencies:
+    quill-delta: ^5.1.0
+    react: ^16 || ^17 || ^18 || ^19
+    react-dom: ^16 || ^17 || ^18 || ^19
+  checksum: 963cc544fe0ffd40f994b71632ae3804fc81595f125582e23b21de6c9e14bd1c0d2ff0ee7a768538a0d1f1b86d325d5b0e29e21ffa2deaeed65e4a0dc5f1c881
+  languageName: node
+  linkType: hard
+
+"react-quill@npm:^2.0.0":
   version: 2.0.0
   resolution: "react-quill@npm:2.0.0"
   dependencies:
