@@ -240,7 +240,7 @@ public class StorageController : ControllerBase
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.PartialContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
-    public IActionResult Stream([FromRoute] int? locationId, [FromQuery] string path)
+    public async Task<IActionResult> Stream([FromRoute] int? locationId, [FromQuery] string path)
     {
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var dataLocation = locationId.HasValue ? _connection.GetDataLocation(locationId.Value) : null;
@@ -249,21 +249,45 @@ public class StorageController : ControllerBase
             if (dataLocation.Connection == null || dataLocation.Connection?.ConnectionType == ConnectionType.LocalVolume)
             {
                 var safePath = Path.Combine(_storageOptions.GetCapturePath(), path);
-                return GetResult(safePath, path);
+
+                return await GetResult(safePath, path);
             }
             else throw new NotImplementedException($"Location connection type '{dataLocation.Connection?.ConnectionType}' not implemented yet.");
         }
         else
         {
+            _logger.LogInformation("Getting stream for path: {Path}", path);
             var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
-            return GetResult(safePath, path);
+            return await GetResult(safePath, path);
         }
     }
 
-    private FileStreamResult GetResult(string safePath, string path)
-    {
-        if (!safePath.FileExists()) throw new NoContentException($"Stream does not exist: '{path}'");
 
+    private async Task<IActionResult> GetResult(string safePath, string path)
+    {
+        _logger.LogInformation("Getting stream for path: {Path}", path);
+        var fileReference = await _fileReferenceService.GetByS3PathAsync(path);
+        _logger.LogInformation("File reference: {FileReference}", fileReference);
+        if (fileReference == null)
+        {
+            return NotFound($"Stream does not exist: '{path}'");
+        }
+
+        if (fileReference.IsSyncedToS3)
+        {
+            try
+            {
+                var stream = await _fileReferenceService.DownloadFromS3Async(path);
+                return File(stream, "application/octet-stream", fileReference.FileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "error on stream file from s3: {Path}", path);
+                // if the file is not in s3, try to get it from the local file system
+            }
+        }
+
+        if (!safePath.FileExists()) throw new NoContentException($"Stream does not exist: '{path}'");
         var info = new ItemModel(safePath, true);
         var fileStream = System.IO.File.OpenRead(safePath);
         return File(fileStream, info.MimeType!);
@@ -510,16 +534,17 @@ public class StorageController : ControllerBase
     /// </summary>
     /// <param name="updatedBefore">optional, only upload files updated before the specified date</param>
     /// <param name="limit">optional, only upload limit files</param>
+    /// <param name="force">optional, force upload files</param>
     /// <returns>uploaded files and failed uploads</returns>
     [HttpPost("upload-files-to-s3")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(Dictionary<string, List<string>>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
-    public async Task<IActionResult> UploadFilesToS3([FromQuery] DateTime? updatedBefore = null, [FromQuery] int? limit = null)
+    public async Task<IActionResult> UploadFilesToS3([FromQuery] DateTime? updatedBefore = null, [FromQuery] int? limit = null, [FromQuery] bool force = false)
     {
         _logger.LogInformation("upload-files-to-s3");
-        var fileReferences = await _fileReferenceService.GetFiles(updatedBefore, limit ?? 100);
+        var fileReferences = await _fileReferenceService.GetFiles(updatedBefore, limit ?? 100, force);
         var uploadedFiles = new List<string>();
         var failedUploads = new List<string>();
         // check if s3 credentials are set
@@ -554,8 +579,22 @@ public class StorageController : ControllerBase
                     // use relative path as S3 key
                     var s3Key = fileReference.Path.Replace("\\", "/"); // make sure use forward slash as path separator
                     _logger.LogInformation($"uploading: {s3Key}");
-                    await _fileReferenceService.UploadToS3Async(s3Key, fileStream);
-                    uploadedFiles.Add(s3Key);
+                    var uploadSuccess = await _fileReferenceService.UploadToS3Async(s3Key, fileStream);
+
+                    if (uploadSuccess)
+                    {
+                        // update file reference with s3 path
+                        fileReference.S3Path = s3Key;
+                        fileReference.IsSyncedToS3 = true;
+                        fileReference.LastSyncedToS3On = DateTime.UtcNow;
+                        await _fileReferenceService.UpdateAsync(fileReference);
+
+                        uploadedFiles.Add(s3Key);
+                    }
+                    else
+                    {
+                        failedUploads.Add($"{fileReference.Path} (upload failed)");
+                    }
                 }
                 else
                 {

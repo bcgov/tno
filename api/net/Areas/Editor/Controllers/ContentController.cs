@@ -556,11 +556,15 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult DownloadFile(long id)
+    public async Task<IActionResult> DownloadFile(long id)
     {
         var fileReference = _fileReferenceService.FindByContentId(id).FirstOrDefault() ?? throw new NoContentException("File does not exist");
-        var stream = _fileReferenceService.Download(fileReference, _storageOptions.GetUploadPath());
-        return File(stream, fileReference.ContentType);
+
+        var (stream, fileName, contentType) = await _fileReferenceService.GetFileStreamAsync(fileReference.Path);
+
+        if (stream == null) throw new NoContentException("File does not exist");
+
+        return File(stream, contentType ?? "application/octet-stream", fileName ?? fileReference.FileName);
     }
 
     /// <summary>
@@ -573,15 +577,14 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.PartialContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult Stream([FromQuery] string path)
+    public async Task<IActionResult> Stream([FromQuery] string path)
     {
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
-        var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
-        if (!safePath.FileExists()) throw new NoContentException("File does not exist");
+        var (stream, fileName, contentType) = await _fileReferenceService.GetFileStreamAsync(path);
+        // log stream file name content type
+        if (stream == null) throw new NoContentException("File does not exist");
 
-        var info = new ItemModel(safePath);
-        var fileStream = System.IO.File.OpenRead(safePath);
-        return File(fileStream, info.MimeType!);
+        return File(stream, contentType ?? "application/octet-stream", fileName);
     }
 
     /// <summary>

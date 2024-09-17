@@ -225,7 +225,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
         }
     }
 
-    public async Task<IEnumerable<FileReference>> GetFiles(DateTime? updatedBefore = null, int limit = 100)
+    public async Task<IEnumerable<FileReference>> GetFiles(DateTime? updatedBefore = null, int limit = 100, bool force = false)
     {
         try
         {
@@ -237,8 +237,12 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
                 query = query.Where(fr => fr.UpdatedOn < updatedBefore.Value);
             }
 
-            // order by updated on descending
-            query = query.OrderByDescending(fr => fr.UpdatedOn);
+            if (!force)
+            {
+                query = query.Where(fr => !fr.IsSyncedToS3);
+            }
+
+            query = query.OrderBy(fr => fr.UpdatedOn);
 
             // if limit is not -1, apply the limit, means get all
             if (limit != -1)
@@ -254,5 +258,112 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
             return Enumerable.Empty<FileReference>();
         }
     }
-    #endregion
+
+    public async Task<Stream> DownloadFromS3Async(string s3Key)
+    {
+        var accessKey = Environment.GetEnvironmentVariable("S3_ACCESS_KEY") ?? throw new InvalidOperationException("S3_ACCESS_KEY environment variable is not set");
+        var secretKey = Environment.GetEnvironmentVariable("S3_SECRET_KEY") ?? throw new InvalidOperationException("S3_SECRET_KEY environment variable is not set");
+        var bucketName = Environment.GetEnvironmentVariable("S3_BUCKET_NAME") ?? throw new InvalidOperationException("S3_BUCKET_NAME environment variable is not set");
+        var serviceUrl = Environment.GetEnvironmentVariable("S3_SERVICE_URL") ?? throw new InvalidOperationException("S3_SERVICE_URL environment variable is not set");
+
+        var config = new AmazonS3Config
+        {
+            ServiceURL = serviceUrl,
+            ForcePathStyle = true
+        };
+
+        using var s3Client = new AmazonS3Client(accessKey, secretKey, config);
+
+        try
+        {
+            var request = new GetObjectRequest
+            {
+                BucketName = bucketName,
+                Key = s3Key
+            };
+
+            var response = await s3Client.GetObjectAsync(request);
+
+            if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var memoryStream = new MemoryStream();
+                await response.ResponseStream.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+                return memoryStream;
+            }
+            else
+            {
+                Logger.LogError("Failed to download file from S3: {S3Key}", s3Key);
+                throw new Exception($"Failed to download file from S3: {s3Key}");
+            }
+        }
+        catch (AmazonS3Exception ex)
+        {
+            Logger.LogError(ex, "Error retrieving file from S3: {S3Key}", s3Key);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Unexpected error when downloading file from S3: {S3Key}", s3Key);
+            throw;
+        }
+    }
+
+    public async Task<FileReference?> GetByS3PathAsync(string s3Path)
+    {
+        return await this.Context.FileReferences
+            .FirstOrDefaultAsync(fr => fr.S3Path == s3Path);
+    }
+
+    public async Task<FileReference?> GetByPathAsync(string path)
+    {
+        return await this.Context.FileReferences
+            .FirstOrDefaultAsync(fr => fr.Path == path);
+    }
+
+
+    public async Task<(Stream? Stream, string? FileName, string? ContentType)> GetFileStreamAsync(string path)
+    {
+        var fileReference = await GetByS3PathAsync(path);
+        if (fileReference == null)
+        {
+            fileReference = await GetByPathAsync(path);
+        }
+        if (fileReference == null)
+        {
+            Logger.LogInformation("File reference not found for path: {Path}", path);
+            return (null, null, null);
+        }
+
+        if (fileReference.IsSyncedToS3)
+        {
+            try
+            {
+                var stream = await DownloadFromS3Async(path);
+                return (stream, fileReference.FileName, fileReference.ContentType);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error on stream file from S3: {Path}", path);
+            }
+        }
+
+        var safePath = Path.Combine(_options.GetUploadPath(), path);
+        if (!File.Exists(safePath))
+        {
+            Logger.LogInformation("File does not exist: {Path}", safePath);
+            return (null, null, null);
+        }
+
+        var fileStream = File.OpenRead(safePath);
+        return (fileStream, fileReference.FileName, fileReference.ContentType);
+    }
+
+    public async Task<FileReference> UpdateAsync(FileReference entity)
+    {
+        this.Context.Update(entity);
+        await this.Context.SaveChangesAsync();
+        return entity;
+    }
 }
+#endregion
