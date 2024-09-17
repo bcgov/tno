@@ -365,5 +365,48 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
         await this.Context.SaveChangesAsync();
         return entity;
     }
+
+    public async Task<int> DeleteOldLocalFilesAsync(DateTime beforeDate)
+    {
+        Logger.LogInformation("Starting DeleteOldLocalFilesAsync with beforeDate: {BeforeDate}", beforeDate);
+
+        var filesToDelete = await this.Context.FileReferences
+            .Where(fr => fr.CreatedOn < beforeDate.ToUniversalTime()
+                         && fr.IsSyncedToS3
+                         && (fr.ContentType.StartsWith("audio/") || fr.ContentType.StartsWith("video/"))
+                         && !string.IsNullOrEmpty(fr.Path))
+            .ToListAsync();
+
+        Logger.LogInformation("Found {Count} files to delete", filesToDelete.Count);
+
+        int deletedCount = 0;
+
+        foreach (var file in filesToDelete)
+        {
+            var localPath = Path.Combine(_options.GetUploadPath(), file.Path.MakeRelativePath());
+            Logger.LogDebug("Checking file: {Path}", localPath);
+
+            if (File.Exists(localPath))
+            {
+                try
+                {
+                    File.Delete(localPath);
+                    deletedCount++;
+                    Logger.LogInformation("Deleted local file: {Path}", localPath);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Error deleting local file: {Path}", localPath);
+                }
+            }
+            else
+            {
+                Logger.LogWarning("File not found: {Path}", localPath);
+            }
+        }
+
+        Logger.LogInformation("DeleteOldLocalFilesAsync completed. Deleted {Count} files", deletedCount);
+        return deletedCount;
+    }
 }
 #endregion

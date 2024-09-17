@@ -614,5 +614,20 @@ public class StorageController : ControllerBase
             FailedUploads = failedUploads,
         });
     }
+
+    /// <summary>
+    /// Delete old local files
+    /// </summary>
+    /// <param name="beforeDate">only delete files updated before the specified date</param>
+    /// <returns>deleted file count</returns>
+    [HttpDelete("delete-old-local-files")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Storage" })]
+    public async Task<IActionResult> DeleteOldLocalFiles([FromQuery] DateTime beforeDate)
+    {
+        var deletedCount = await _fileReferenceService.DeleteOldLocalFilesAsync(beforeDate);
+        return Ok(deletedCount);
+    }
     #endregion
 }

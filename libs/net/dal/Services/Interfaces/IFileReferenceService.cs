@@ -31,4 +31,5 @@ public interface IFileReferenceService : IBaseService<FileReference, long>
     Task<(Stream? Stream, string? FileName, string? ContentType)> GetFileStreamAsync(string path);
 
     Task<FileReference> UpdateAsync(FileReference entity);
+    Task<int> DeleteOldLocalFilesAsync(DateTime beforeDate);
 }
