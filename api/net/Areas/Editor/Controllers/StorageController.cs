@@ -240,7 +240,7 @@ public class StorageController : ControllerBase
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.PartialContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
-    public async Task<IActionResult> Stream([FromRoute] int? locationId, [FromQuery] string path)
+    public async Task<IActionResult> StreamAsync([FromRoute] int? locationId, [FromQuery] string path)
     {
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var dataLocation = locationId.HasValue ? _connection.GetDataLocation(locationId.Value) : null;
@@ -250,7 +250,7 @@ public class StorageController : ControllerBase
             {
                 var safePath = Path.Combine(_storageOptions.GetCapturePath(), path);
 
-                return await GetResult(safePath, path);
+                return await GetResultAsync(safePath, path);
             }
             else throw new NotImplementedException($"Location connection type '{dataLocation.Connection?.ConnectionType}' not implemented yet.");
         }
@@ -258,12 +258,12 @@ public class StorageController : ControllerBase
         {
             _logger.LogInformation("Getting stream for path: {Path}", path);
             var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
-            return await GetResult(safePath, path);
+            return await GetResultAsync(safePath, path);
         }
     }
 
 
-    private async Task<IActionResult> GetResult(string safePath, string path)
+    private async Task<IActionResult> GetResultAsync(string safePath, string path)
     {
         _logger.LogInformation("Getting stream for path: {Path}", path);
         var fileReference = await _fileReferenceService.GetByS3PathAsync(path);
@@ -541,7 +541,7 @@ public class StorageController : ControllerBase
     [ProducesResponseType(typeof(Dictionary<string, List<string>>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
-    public async Task<IActionResult> UploadFilesToS3([FromQuery] DateTime? updatedBefore = null, [FromQuery] int? limit = null, [FromQuery] bool force = false)
+    public async Task<IActionResult> UploadFileToS3Async([FromQuery] DateTime? updatedBefore = null, [FromQuery] int? limit = null, [FromQuery] bool force = false)
     {
         _logger.LogInformation("upload-files-to-s3");
         var fileReferences = await _fileReferenceService.GetFiles(updatedBefore, limit ?? 100, force);
@@ -624,7 +624,7 @@ public class StorageController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
-    public async Task<IActionResult> DeleteOldLocalFiles([FromQuery] DateTime beforeDate)
+    public async Task<IActionResult> DeleteOldLocalFilesAsync([FromQuery] DateTime beforeDate)
     {
         var deletedCount = await _fileReferenceService.DeleteOldLocalFilesAsync(beforeDate);
         return Ok(deletedCount);

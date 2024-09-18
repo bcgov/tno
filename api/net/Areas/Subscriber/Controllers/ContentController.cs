@@ -146,7 +146,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> DownloadFile(long id)
+    public async Task<IActionResult> DownloadFileAsync(long id)
     {
         var fileReference = _fileReferenceService.FindByContentId(id).FirstOrDefault() ?? throw new NoContentException("File does not exist");
         var (stream, fileName, contentType) = await _fileReferenceService.GetFileStreamAsync(fileReference.Path);
@@ -166,7 +166,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.PartialContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> Stream([FromQuery] string path)
+    public async Task<IActionResult> StreamAsync([FromQuery] string path)
     {
 
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
