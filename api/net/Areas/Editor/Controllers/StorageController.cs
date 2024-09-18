@@ -590,6 +590,16 @@ public class StorageController : ControllerBase
                         await _fileReferenceService.UpdateAsync(fileReference);
 
                         uploadedFiles.Add(s3Key);
+
+                        try
+                        {
+                            System.IO.File.Delete(filePath);
+                            _logger.LogInformation("deleted local file: {FilePath}", filePath);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "delete local file failed: {FilePath}", filePath);
+                        }
                     }
                     else
                     {
@@ -615,19 +625,5 @@ public class StorageController : ControllerBase
         });
     }
 
-    /// <summary>
-    /// Delete old local files
-    /// </summary>
-    /// <param name="beforeDate">only delete files updated before the specified date</param>
-    /// <returns>deleted file count</returns>
-    [HttpDelete("delete-old-local-files")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
-    [SwaggerOperation(Tags = new[] { "Storage" })]
-    public async Task<IActionResult> DeleteOldLocalFilesAsync([FromQuery] DateTime beforeDate)
-    {
-        var deletedCount = await _fileReferenceService.DeleteOldLocalFilesAsync(beforeDate);
-        return Ok(deletedCount);
-    }
     #endregion
 }
