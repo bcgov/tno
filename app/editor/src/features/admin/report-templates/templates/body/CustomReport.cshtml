@@ -20,7 +20,7 @@
 <center><div style="margin-bottom: 25px; color:#FFFFF6;"><img src="@($"{SubscriberAppUrl}assets/reports/MMI_logo_white.png")" width="600"></div></center>
 
 @* This is the Do Not Forward disclaimer *@
-<div><p style="background-color: #FFF7E1; color: #876503; text-align: center; font-size: 1em; font-weight: 700; line-height: 1.1em; letter-spacing: 0.08px; padding: 10px 0px; margin: 6px 0px 20px 0px;">DO NOT FORWARD THIS EMAIL TO ANYONE</p></div>
+<div><p style="background-color: #FFF7E1; color: #876503; text-align: center; font-size: 1em; font-weight: 700; line-height: 1.1em; letter-spacing: 0.08px; padding: 10px 0px; margin: 6px 0px 20px 0px;">Reading this report on your phone? Struggling with navigation? Email <a href="mailto:scott.ryckman@gov.bc.ca">Scott Ryckman</a> to switch to the iPhone friendly version. </p></div>
 
 <a id="top" name="top">
   <h1 style="color: #971D29; font-size: 30px; line-height: 34px; margin: 0px; border-bottom: #971D29 1px solid;">@Settings.Subject.Text</h1>
@@ -83,7 +83,7 @@
       var tocCount = 0;
       @foreach (var tableSection in Sections.Where(s => new [] {ReportSectionType.Content, ReportSectionType.Gallery}.Contains(s.Value.SectionType)))
       {
-        if (!tableSection.Value.Settings.HideEmpty || tableSection.Value.Content.Any())
+        if ((!tableSection.Value.Settings.HideEmpty || tableSection.Value.Content.Any()) && tableSection.Value.IsEnabled)
         {
           <div id="toc" name="toc">
             <div style="border-bottom:1px solid #675f62; margin: 2px 0 4px 0;">
