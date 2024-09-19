@@ -9,6 +9,7 @@ using Npgsql;
 using TNO.DAL.Config;
 using TNO.DAL.Services;
 using TNO.Elastic;
+using Amazon.S3;
 
 namespace TNO.DAL;
 
@@ -85,6 +86,7 @@ public static class ServiceCollectionExtensions
 
         services.AddTNOContext(config, env)
             .AddStorageConfig(config)
+            .AddS3Config()
             .AddElastic(config, env)
             .AddScoped<IElasticsearchService, ElasticsearchService>();
 
@@ -115,6 +117,17 @@ public static class ServiceCollectionExtensions
             .Bind(config.GetSection("Storage"))
             .ValidateDataAnnotations()
             .ValidateOnStart();
+
+        return services;
+    }
+
+    public static IServiceCollection AddS3Config(this IServiceCollection services)
+    {
+        services.AddSingleton<IAmazonS3>(sp =>
+        {
+            var client = S3Options.S3Client;
+            return client;
+        });
 
         return services;
     }

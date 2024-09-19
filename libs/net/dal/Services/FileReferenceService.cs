@@ -15,6 +15,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
 {
     #region Properties
     private readonly StorageOptions _options;
+    private readonly IAmazonS3 _s3Client;
     #endregion
 
     #region Constructors
@@ -23,9 +24,11 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
         ClaimsPrincipal principal,
         IServiceProvider serviceProvider,
         StorageOptions options,
+        IAmazonS3 s3Client,
         ILogger<FileReferenceService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
         _options = options;
+        _s3Client = s3Client;
     }
     #endregion
 
@@ -182,29 +185,16 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
             return false;
         }
 
-        var accessKey = Environment.GetEnvironmentVariable("S3_ACCESS_KEY") ?? throw new InvalidOperationException("S3_ACCESS_KEY environment variable is not set");
-        var secretKey = Environment.GetEnvironmentVariable("S3_SECRET_KEY") ?? throw new InvalidOperationException("S3_SECRET_KEY environment variable is not set");
-        var bucketName = Environment.GetEnvironmentVariable("S3_BUCKET_NAME") ?? throw new InvalidOperationException("S3_BUCKET_NAME environment variable is not set");
-        var serviceUrl = Environment.GetEnvironmentVariable("S3_SERVICE_URL") ?? throw new InvalidOperationException("S3_SERVICE_URL environment variable is not set");
-
-        var config = new AmazonS3Config
-        {
-            ServiceURL = serviceUrl,
-            ForcePathStyle = true
-        };
-
-        using var s3Client = new AmazonS3Client(accessKey, secretKey, config);
-
         var putRequest = new PutObjectRequest
         {
-            BucketName = bucketName,
+            BucketName = S3Options.BucketName,
             Key = s3Key,
             InputStream = fileStream,
         };
 
         try
         {
-            var response = await s3Client.PutObjectAsync(putRequest);
+            var response = await _s3Client.PutObjectAsync(putRequest);
 
             // Check if the request was successful
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
@@ -261,28 +251,16 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
 
     public async Task<Stream> DownloadFromS3Async(string s3Key)
     {
-        var accessKey = Environment.GetEnvironmentVariable("S3_ACCESS_KEY") ?? throw new InvalidOperationException("S3_ACCESS_KEY environment variable is not set");
-        var secretKey = Environment.GetEnvironmentVariable("S3_SECRET_KEY") ?? throw new InvalidOperationException("S3_SECRET_KEY environment variable is not set");
-        var bucketName = Environment.GetEnvironmentVariable("S3_BUCKET_NAME") ?? throw new InvalidOperationException("S3_BUCKET_NAME environment variable is not set");
-        var serviceUrl = Environment.GetEnvironmentVariable("S3_SERVICE_URL") ?? throw new InvalidOperationException("S3_SERVICE_URL environment variable is not set");
-
-        var config = new AmazonS3Config
-        {
-            ServiceURL = serviceUrl,
-            ForcePathStyle = true
-        };
-
-        using var s3Client = new AmazonS3Client(accessKey, secretKey, config);
 
         try
         {
             var request = new GetObjectRequest
             {
-                BucketName = bucketName,
+                BucketName = S3Options.BucketName,
                 Key = s3Key
             };
 
-            var response = await s3Client.GetObjectAsync(request);
+            var response = await _s3Client.GetObjectAsync(request);
 
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {
