@@ -170,13 +170,19 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
     }
   };
 
+  const formatText = (text: string) => {
+    return text.replace(/\n+/g, '<br>') ?? '';
+  };
+
   React.useEffect(() => {
+    let formattedValue = '';
+    if (props.value) {
+      formattedValue = formatText(props.value);
+    }
     if (props.value && props.value !== normalState.html) {
-      const formattedValue = props.value.replace(/\n+/g, '<br>') ?? '';
-      setNormalState({
-        text: formattedValue,
-        html: formattedValue,
-      });
+      setNormalState({ ...normalState, text: formattedValue, html: formattedValue });
+    } else if (props.value && formattedValue !== normalState.text) {
+      setNormalState({ ...normalState, text: formattedValue });
     }
     // only update when value changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -189,7 +195,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
     }
     // only want to update when expanded state changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expandedState.html]);
+  }, [expandedState.html, expandedState.text]);
 
   React.useEffect(() => {
     if (expand) {
