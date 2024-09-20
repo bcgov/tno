@@ -265,26 +265,11 @@ public class StorageController : ControllerBase
 
     private async Task<IActionResult> GetResultAsync(string safePath, string path)
     {
-        _logger.LogInformation("Getting stream for path: {Path}", path);
-        var fileReference = await _fileReferenceService.GetByS3PathAsync(path);
-        _logger.LogInformation("File reference: {FileReference}", fileReference);
-        if (fileReference == null)
+        //find file from s3
+        var stream = await _fileReferenceService.DownloadFromS3Async(path);
+        if (stream != null)
         {
-            return NotFound($"Stream does not exist: '{path}'");
-        }
-
-        if (fileReference.IsSyncedToS3)
-        {
-            try
-            {
-                var stream = await _fileReferenceService.DownloadFromS3Async(path);
-                return File(stream, "application/octet-stream", fileReference.FileName);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "error on stream file from s3: {Path}", path);
-                // if the file is not in s3, try to get it from the local file system
-            }
+            return File(stream, "application/octet-stream");
         }
 
         if (!safePath.FileExists()) throw new NoContentException($"Stream does not exist: '{path}'");
@@ -548,25 +533,10 @@ public class StorageController : ControllerBase
         var uploadedFiles = new List<string>();
         var failedUploads = new List<string>();
         // check if s3 credentials are set
-        var accessKey = Environment.GetEnvironmentVariable("S3_ACCESS_KEY");
-        var secretKey = Environment.GetEnvironmentVariable("S3_SECRET_KEY");
-        var bucketName = Environment.GetEnvironmentVariable("S3_BUCKET_NAME");
-        var serviceUrl = Environment.GetEnvironmentVariable("S3_SERVICE_URL");
-        var hasS3Credentials = !string.IsNullOrEmpty(accessKey) && !string.IsNullOrEmpty(secretKey) && !string.IsNullOrEmpty(bucketName) && !string.IsNullOrEmpty(serviceUrl);
-
-        if (!hasS3Credentials)
+        if (!S3Options.IsS3Enabled)
         {
-            // make a string shows all the environment variables name if they are not set
-            var environmentVariables = new List<string>();
-            if (string.IsNullOrEmpty(accessKey)) environmentVariables.Add("S3_ACCESS_KEY");
-            if (string.IsNullOrEmpty(secretKey)) environmentVariables.Add("S3_SECRET_KEY");
-            if (string.IsNullOrEmpty(bucketName)) environmentVariables.Add("S3_BUCKET_NAME");
-            if (string.IsNullOrEmpty(serviceUrl)) environmentVariables.Add("S3_SERVICE_URL");
-            _logger.LogError("S3 credentials are not set: {EnvironmentVariables}", string.Join(", ", environmentVariables));
-
-            return BadRequest($"S3 credentials are not set: {string.Join(", ", environmentVariables)}");
+            return BadRequest("S3 is not enabled or credentials are not set");
         }
-
         foreach (var fileReference in fileReferences)
         {
             try
@@ -591,14 +561,17 @@ public class StorageController : ControllerBase
 
                         uploadedFiles.Add(s3Key);
 
-                        try
+                        if (fileReference.ContentType.StartsWith("video/") || fileReference.ContentType.StartsWith("audio/"))
                         {
-                            System.IO.File.Delete(filePath);
-                            _logger.LogInformation("deleted local file: {FilePath}", filePath);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, "delete local file failed: {FilePath}", filePath);
+                            try
+                            {
+                                System.IO.File.Delete(filePath);
+                                _logger.LogInformation("deleted local file: {FilePath}", filePath);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "failed to delete local file: {FilePath}", filePath);
+                            }
                         }
                     }
                     else

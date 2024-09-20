@@ -559,12 +559,14 @@ public class ContentController : ControllerBase
     public async Task<IActionResult> DownloadFileAsync(long id)
     {
         var fileReference = _fileReferenceService.FindByContentId(id).FirstOrDefault() ?? throw new NoContentException("File does not exist");
-
-        var (stream, fileName, contentType) = await _fileReferenceService.GetFileStreamAsync(fileReference.Path);
-
-        if (stream == null) throw new NoContentException("File does not exist");
-
-        return File(stream, contentType ?? "application/octet-stream", fileName ?? fileReference.FileName);
+        if (fileReference.IsSyncedToS3 && !string.IsNullOrWhiteSpace(fileReference.S3Path))
+        {
+            var s3Stream = await _fileReferenceService.DownloadFromS3Async(fileReference.S3Path);
+            if (s3Stream != null)
+                return File(s3Stream, fileReference.ContentType);
+        }
+        var stream = _fileReferenceService.Download(fileReference, _storageOptions.GetUploadPath());
+        return File(stream, fileReference.ContentType);
     }
 
     /// <summary>
@@ -580,11 +582,20 @@ public class ContentController : ControllerBase
     public async Task<IActionResult> StreamAsync([FromQuery] string path)
     {
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
-        var (stream, fileName, contentType) = await _fileReferenceService.GetFileStreamAsync(path);
-        // log stream file name content type
-        if (stream == null) throw new NoContentException("File does not exist");
+        //find file from s3
+        var stream = await _fileReferenceService.DownloadFromS3Async(path);
+        if (stream != null)
+        {
+            return File(stream, "application/octet-stream");
+        }
+        //find file from local
+        path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
+        var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
+        if (!safePath.FileExists()) throw new NoContentException("File does not exist");
 
-        return File(stream, contentType ?? "application/octet-stream", fileName);
+        var info = new ItemModel(safePath);
+        var fileStream = System.IO.File.OpenRead(safePath);
+        return File(fileStream, info.MimeType!);
     }
 
     /// <summary>
