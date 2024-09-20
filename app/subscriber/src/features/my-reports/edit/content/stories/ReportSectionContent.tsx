@@ -304,7 +304,7 @@ export const ReportSectionContent: React.FC<IReportSectionContentProps> = ({
           </>
         }
         isShowing={isShowing}
-        hide={toggle}
+        onClose={toggle}
         type="default"
         isSubmitting={isSubmitting}
         confirmText="Yes, Regenerate It"

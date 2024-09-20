@@ -10,13 +10,13 @@ import React from 'react';
 import { FaBookmark } from 'react-icons/fa6';
 import { useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useContent, useFilters, useLookup } from 'store/hooks';
+import { useApp, useContent, useFilters, useLookup } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 import {
   Col,
   IContentModel,
   IFilterSettingsModel,
-  Loading,
+  Loader,
   Row,
   Show,
   useWindowSize,
@@ -48,20 +48,20 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   const [, { getFilter }] = useFilters();
   const [{ filter: activeFilter }, { storeFilter }] = useProfileStore();
   const { pathname } = useLocation();
+  const [{ requests }] = useApp();
 
+  const [init, setInit] = React.useState(true); // React hooks are horrible...
   const [currDateResults, setCurrDateResults] = React.useState<IContentSearchResult[]>([]);
   const [prevDateResults, setPrevDateResults] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [totalResults, setTotalResults] = React.useState(0);
-  const [isLoading, setIsLoading] = React.useState(false);
   const { expanded } = useSearchPageContext();
   const [startDate, setStartDate] = React.useState<Date>(new Date());
-  const [init, setInit] = React.useState(true); // React hooks are horrible...
-
   const [filterId, setFilterId] = React.useState(0);
   const [searchFilter, setSearchFilter] = React.useState<IFilterSettingsModel | null>(null);
   const [showResults, setShowResults] = React.useState(false);
   const [dateVisible, setDateVisible] = React.useState(true);
+
   React.useEffect(() => {
     const parsedId = id ? parseInt(id) : 0;
     setFilterId(parsedId);
@@ -142,7 +142,6 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   const fetchResults = React.useCallback(
     async (filter: IFilterSettingsModel, storedContent?: any) => {
       try {
-        setIsLoading(true);
         setShowResults(false);
         let newFilter = filter;
         if (filter.dateOffset !== undefined) {
@@ -194,7 +193,6 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         groupResults(res, currStartDate, currEndDate, groupStoredContent);
       } catch {
       } finally {
-        setIsLoading(false);
         setShowResults(true);
       }
     },
@@ -210,7 +208,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
 
   React.useEffect(() => {
     // only fetch this when there's no call to the elastic search
-    if (isLoading || (id && !activeFilter)) return;
+    if (id && !activeFilter) return;
     fetchResults(filter, content);
     // Do not execute when changing the filters
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -312,7 +310,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
                 executeSearch={executeSearch}
               />
             </Show>
-            {isLoading && <Loading />}
+            <Loader visible={requests.some((r) => r.url === 'find-contents-with-elasticsearch')} />
           </PageSection>
         </Col>
       </Row>

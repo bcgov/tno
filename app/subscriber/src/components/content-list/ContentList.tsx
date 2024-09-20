@@ -4,8 +4,15 @@ import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useContent, useLookup } from 'store/hooks';
-import { IContentModel, IFileReferenceModel, IFilterSettingsModel, Settings, Show } from 'tno-core';
+import { useApp, useContent, useLookup } from 'store/hooks';
+import {
+  IContentModel,
+  IFileReferenceModel,
+  IFilterSettingsModel,
+  Loader,
+  Settings,
+  Show,
+} from 'tno-core';
 
 import { ContentListContext } from './ContentListContext';
 import { ContentRow } from './ContentRow';
@@ -63,6 +70,7 @@ export const ContentList: React.FC<IContentListProps> = ({
   const grouped = groupContent(groupBy, [...content]);
   const [, { streamSilent }] = useContent();
   const [{ settings }] = useLookup();
+  const [{ requests }] = useApp();
 
   const [activeStream, setActiveStream] = React.useState<{ source: string; id: number }>({
     id: 0,
@@ -146,6 +154,7 @@ export const ContentList: React.FC<IContentListProps> = ({
 
   return (
     <styled.ContentList className="content-list" scrollWithin={scrollWithin}>
+      <Loader visible={requests.some((r) => r.url === 'find-contents-with-elasticsearch')} />
       <Show visible={!handleDrop && !simpleView}>
         {Object.keys(grouped).map((group) => (
           <div key={group} className="grouped-content">

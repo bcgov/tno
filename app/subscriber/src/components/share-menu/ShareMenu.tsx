@@ -149,7 +149,7 @@ export const ShareMenu: React.FC<IShareSubMenuProps> = ({ content }) => {
         headerText="Share Content"
         body={message}
         isShowing={isShowing}
-        hide={toggle}
+        onClose={toggle}
         type="default"
         confirmText="Share"
         enableConfirm={content.length > 0 && (user?.colleague !== undefined || emailAddress !== '')}

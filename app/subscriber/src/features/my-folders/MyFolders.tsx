@@ -3,7 +3,7 @@ import { FaFolderPlus, FaWandMagicSparkles } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp } from 'store/hooks';
 import { useFolders } from 'store/hooks/subscriber/useFolders';
-import { Col, Loading, Row, Show, Text } from 'tno-core';
+import { Col, Loader, Row, Text } from 'tno-core';
 
 import { FolderList } from './FolderList';
 import * as styled from './styled';
@@ -80,9 +80,7 @@ export const MyFolders: React.FC<IMyFoldersProps> = () => {
           </button>
         </Row>
       </Col>
-      <Show visible={loading}>
-        <Loading />
-      </Show>
+      <Loader visible={loading} />
       <Row>
         <FolderList folders={myFolders} />
       </Row>

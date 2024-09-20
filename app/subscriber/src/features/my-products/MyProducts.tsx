@@ -8,7 +8,7 @@ import { useProfileStore } from 'store/slices';
 import {
   IProductModel,
   IUserProductModel,
-  Loading,
+  Loader,
   ProductRequestStatusName,
   Show,
   useModal,
@@ -135,9 +135,7 @@ export const MyProducts: React.FC = () => {
             are sent by email on a scheduled basis.
           </p>
           <div>
-            <Show visible={isLoading}>
-              <Loading />
-            </Show>
+            <Loader visible={isLoading} />
             {products
               .filter((product) =>
                 // products which the user *IS NOT* unsubscribed to
@@ -167,7 +165,7 @@ export const MyProducts: React.FC = () => {
         headerText={`Confirm change`}
         body={active && modalBody(active)}
         isShowing={isShowing}
-        hide={toggle}
+        onClose={toggle}
         type="default"
         confirmText={active && modalConfirmText(active)}
         onConfirm={() => {

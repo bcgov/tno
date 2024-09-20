@@ -30,9 +30,12 @@ export const StartNextReportInfo = () => {
             <FaInfoCircle />
             <p>
               This report was sent to subscribers on{' '}
-              {`${formatDate(instance?.sentOn?.toLocaleString(), true)}`}.
-              {showReadonly &&
-                'This report is <strong>readonly</strong> until the next report is started.'}
+              {`${formatDate(instance?.sentOn?.toLocaleString(), true)}`}.{' '}
+              {showReadonly && (
+                <span>
+                  This report is <strong>readonly</strong> until the next report is started.
+                </span>
+              )}
             </p>
           </Row>
         </div>

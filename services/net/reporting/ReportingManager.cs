@@ -859,6 +859,10 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 else
                     instance.Status = ReportStatus.Completed;
             }
+            else if (instance != null && report.Settings.DoNotSendEmail)
+            {
+                instance.Status = ReportStatus.Cancelled;
+            }
         }
         catch (ChesException ex)
         {

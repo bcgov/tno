@@ -62,7 +62,7 @@ export const UserInfo: React.FC<IUserInfoProps> = ({ children }) => {
           </Col>
         }
         isShowing={isShowing}
-        hide={toggle}
+        onClose={toggle}
         type="default"
         confirmText="Yes, Remove It"
         customButtons={

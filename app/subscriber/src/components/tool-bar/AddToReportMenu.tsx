@@ -4,7 +4,17 @@ import { FaAngleRight } from 'react-icons/fa';
 import { FaFileExport, FaSpinner } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useReports } from 'store/hooks';
-import { Col, IContentModel, IReportModel, Link, ReportSectionTypeName, Row, Show } from 'tno-core';
+import {
+  Col,
+  IContentModel,
+  IReportModel,
+  Link,
+  Loader,
+  ReportSectionTypeName,
+  ReportStatusName,
+  Row,
+  Show,
+} from 'tno-core';
 
 import * as styled from './styled';
 import { toInstanceContent } from './utils';
@@ -18,13 +28,17 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
   const [{ myReports }, { addContentToReport, findMyReports, getReport, generateReport }] =
     useReports();
   const [{ requests }] = useApp();
+
   const [activeReport, setActiveReport] = React.useState<IReportModel>();
-  const [reportId, setReportId] = React.useState<number | null>(null);
   const [inProgress, setInProgress] = React.useState({ sectionName: '', value: false });
-  const isLoading = requests.some((r) => r.url === 'find-my-reports');
+
+  const isLoading = requests.some(
+    (r) => ['find-my-reports', 'generate-report'].includes(r.url) || r.group.includes('get-report'),
+  );
+  const isAdding = requests.some((r) => r.url === 'add-content-to-report');
 
   React.useEffect(() => {
-    if (!myReports.length && !isLoading) {
+    if (!myReports.length) {
       findMyReports().catch(() => {});
     }
     // Only do this on initialization.
@@ -33,64 +47,57 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
 
   /** Adds the content to the active report. */
   const handleAddToReport = React.useCallback(
-    async (sectionName: string) => {
-      if (!activeReport) return;
-
+    async (report: IReportModel, sectionName: string, content: IContentModel[]) => {
       try {
         setInProgress({ sectionName, value: true });
-        var instance = activeReport.instances.length ? activeReport.instances[0] : undefined;
-        if (!instance || instance.sentOn) {
-          toast.error('Unable to generate a new report');
+        let currentReport: IReportModel | undefined = { ...report };
+        let instance = currentReport.instances.length ? currentReport.instances[0] : undefined;
+
+        if (!report.instances.length) {
+          // Fetch the report because the one in memory has no instances.
+          currentReport = await getReport(report.id);
+
+          // The report does not have an instance, we must create one to add content.
+          // This should only occur the first time after a new report is created.
+          if (!currentReport?.instances.length) {
+            currentReport = await generateReport(report.id, true);
+          }
+        }
+
+        if (
+          instance &&
+          [ReportStatusName.Accepted, ReportStatusName.Completed, ReportStatusName.Failed].includes(
+            instance.status,
+          )
+        ) {
+          // Start the next report.
+          currentReport = await generateReport(report.id, true);
+          instance = currentReport.instances.length ? currentReport.instances[0] : undefined;
+        }
+
+        if (!currentReport || !instance) {
+          toast.error('Failed to generate a new report');
           return;
         }
 
-        const convertedContent = toInstanceContent(
-          content,
-          activeReport.instances[0].id,
-          sectionName,
-          0,
-        );
-
-        const instances = activeReport.instances.map((i) =>
-          i.id === instance!.id ? { ...i, content: [...i.content, ...convertedContent] } : i,
-        );
-
-        const report = {
-          ...activeReport,
-          instances: instances,
-        };
-
-        await addContentToReport(report.id, convertedContent);
+        const convertedContent = toInstanceContent(content, instance.id, sectionName, 0);
+        await addContentToReport(currentReport.id, convertedContent);
 
         toast.success(() => (
           <div>
             {content.length} stories added to report:
-            <Link to={`reports/${report.id}/content`}>{report.name}</Link>
+            <Link to={`reports/${currentReport!.id}/content`}>{currentReport!.name}</Link>
           </div>
         ));
         onClear?.();
-      } catch {}
+      } catch {
+        // Errors are handled globally.
+      } finally {
+        setInProgress({ sectionName: '', value: false });
+      }
     },
-    [activeReport, content, addContentToReport, onClear],
+    [addContentToReport, onClear, getReport, generateReport],
   );
-
-  // ensure no concurrency errors rather than getting from profile store
-  React.useEffect(() => {
-    if (reportId) {
-      getReport(reportId, false)
-        .then(async (report) => {
-          setActiveReport(report);
-          // check for instances and if the report has been sent
-          if (!report?.instances?.length || !!report?.instances[0]?.sentOn) {
-            const result = await generateReport(reportId, true);
-            setActiveReport(result);
-          }
-        })
-        .catch(() => {});
-    }
-    // only want to get report when reportId changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reportId]);
 
   return (
     <styled.AddToMenu>
@@ -99,16 +106,15 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
         <TooltipMenu clickable openOnClick id="tooltip-add-to-report" place="bottom">
           <Row className="choose-report">Choose Report...</Row>
           <Col className="list">
+            <Loader visible={isLoading} />
             {myReports.map((report) => (
               <Show key={report.id} visible={!!report.sections.length}>
                 <Row
                   className="report-item"
                   onClick={() => {
                     // allow user to toggle close list of sections
-                    if (report.id === reportId) {
-                      setReportId(null);
-                      setActiveReport(undefined);
-                    } else setReportId(report.id);
+                    if (activeReport?.id === report.id) setActiveReport(undefined);
+                    else setActiveReport(report);
                   }}
                   data-tooltip-id={`tooltip-add-to-section`}
                 >
@@ -126,9 +132,10 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
                             key={section.id}
                             className="section"
                             onClick={() =>
-                              handleAddToReport(section.name)
-                                .then(() => setInProgress({ sectionName: '', value: false }))
-                                .catch(() => {})
+                              !isAdding &&
+                              content.length &&
+                              inProgress.sectionName !== section.name &&
+                              handleAddToReport(report, section.name, content)
                             }
                           >
                             <FaAngleRight className="active-section" />

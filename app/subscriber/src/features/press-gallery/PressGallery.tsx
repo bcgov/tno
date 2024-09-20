@@ -13,10 +13,8 @@ import {
   generateQuery,
   IContentModel,
   IFilterSettingsModel,
-  Loading,
   Row,
   Select,
-  Show,
 } from 'tno-core';
 
 import { IDateOptions, IPressMember } from './interfaces';
@@ -37,7 +35,6 @@ export const PressGallery: React.FC = () => {
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [dateOptions, setDateOptions] = React.useState<IDateOptions[]>([]);
   const [pressMemberNames, setPressMembersNames] = React.useState<string[]>([]);
-  const [loading, setLoading] = React.useState(false);
   const [pressSettings] = React.useState<IFilterSettingsModel>(
     createFilterSettings(`${moment().startOf('day')}`, `${moment().subtract('2', 'weeks')}`),
   );
@@ -45,20 +42,14 @@ export const PressGallery: React.FC = () => {
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
       try {
-        if (!loading) {
-          setLoading(true);
-          const res = await findContentWithElasticsearch(filter, false);
-          setContent(
-            res.hits.hits.map((r) => {
-              const content = r._source as IContentModel;
-              return castToSearchResult(content);
-            }),
-          );
-        }
-      } catch {
-      } finally {
-        setLoading(false);
-      }
+        const res = await findContentWithElasticsearch(filter, false);
+        setContent(
+          res.hits.hits.map((r) => {
+            const content = r._source as IContentModel;
+            return castToSearchResult(content);
+          }),
+        );
+      } catch {}
     },
     // do not want to trigger on loading change, will cause infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -116,7 +107,6 @@ export const PressGallery: React.FC = () => {
 
   const handleContentSelected = React.useCallback((content: IContentModel[]) => {
     setSelected(content);
-    setLoading(false);
   }, []);
 
   return (
@@ -222,9 +212,6 @@ export const PressGallery: React.FC = () => {
           }}
         />
       </Row>
-      <Show visible={loading}>
-        <Loading />
-      </Show>
       <ContentList
         onContentSelected={handleContentSelected}
         content={content}

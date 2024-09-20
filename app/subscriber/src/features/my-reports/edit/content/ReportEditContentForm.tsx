@@ -164,7 +164,7 @@ export const ReportEditContentForm = React.forwardRef<
         }
         isShowing={isShowing}
         isSubmitting={isSubmitting}
-        hide={toggle}
+        onClose={toggle}
         type="default"
         confirmText="Yes, Regenerate It"
         onConfirm={async () => {

@@ -246,7 +246,7 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
         headerText="Confirm Send"
         body={`Do you want to send this report to all subscribers?`}
         isShowing={showSend}
-        hide={toggleSend}
+        onClose={toggleSend}
         type="default"
         confirmText="Yes, Send It"
         onConfirm={() => {
@@ -258,7 +258,7 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
         headerText="Confirm Retry"
         body={`Do you want to retry sending this report to subscribers who have not received the report?`}
         isShowing={showResend}
-        hide={toggleResend}
+        onClose={toggleResend}
         type="default"
         confirmText="Yes, Send It"
         onConfirm={() => {

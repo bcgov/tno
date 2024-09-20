@@ -6,7 +6,7 @@ import { getBooleanActionValue } from 'features/utils';
 import moment from 'moment';
 import React from 'react';
 import { useContent, useFetchResults, useSettings } from 'store/hooks';
-import { IContentModel, Loading, Row, Show } from 'tno-core';
+import { IContentModel, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -135,9 +135,6 @@ export const Home: React.FC = () => {
         />
       </Row>
       <DateFilter filter={filter} storeFilter={storeFilter} />
-      <Show visible={isLoading}>
-        <Loading />
-      </Show>
       <ContentList
         onContentSelected={handleContentSelected}
         showDate
