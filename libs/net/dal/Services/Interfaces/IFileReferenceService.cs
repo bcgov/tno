@@ -22,14 +22,9 @@ public interface IFileReferenceService : IBaseService<FileReference, long>
 
     Task<bool> UploadToS3Async(string s3Key, Stream fileStream);
 
-    Task<Stream> DownloadFromS3Async(string s3Key);
-
-    Task<FileReference?> GetByS3PathAsync(string S3Path);
-
-    Task<FileReference?> GetByPathAsync(string path);
-
-    Task<(Stream? Stream, string? FileName, string? ContentType)> GetFileStreamAsync(string path);
+    Task<Stream?> DownloadFromS3Async(string s3Key);
 
     Task<FileReference> UpdateAsync(FileReference entity);
+
     Task<int> DeleteOldLocalFilesAsync(DateTime beforeDate);
 }

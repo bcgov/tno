@@ -6,7 +6,6 @@ using TNO.Core.Extensions;
 using TNO.DAL.Config;
 using TNO.Entities;
 using TNO.Models.Filters;
-using Amazon.S3;
 using Amazon.S3.Model;
 
 namespace TNO.DAL.Services;
@@ -15,7 +14,6 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
 {
     #region Properties
     private readonly StorageOptions _options;
-    private readonly IAmazonS3 _s3Client;
     #endregion
 
     #region Constructors
@@ -24,11 +22,9 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
         ClaimsPrincipal principal,
         IServiceProvider serviceProvider,
         StorageOptions options,
-        IAmazonS3 s3Client,
         ILogger<FileReferenceService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
         _options = options;
-        _s3Client = s3Client;
     }
     #endregion
 
@@ -184,6 +180,10 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
             Logger.LogError("File stream is null for S3 key: {S3Key}", s3Key);
             return false;
         }
+        if (!S3Options.IsS3Enabled || await S3Options.TestNetworkConnectionAsync() == false || S3Options.S3Client == null)
+        {
+            return false;
+        }
 
         var putRequest = new PutObjectRequest
         {
@@ -194,7 +194,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
 
         try
         {
-            var response = await _s3Client.PutObjectAsync(putRequest);
+            var response = await S3Options.S3Client.PutObjectAsync(putRequest);
 
             // Check if the request was successful
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
@@ -249,8 +249,12 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
         }
     }
 
-    public async Task<Stream> DownloadFromS3Async(string s3Key)
+    public async Task<Stream?> DownloadFromS3Async(string s3Key)
     {
+        if (!S3Options.IsS3Enabled || await S3Options.TestNetworkConnectionAsync() == false || S3Options.S3Client == null)
+        {
+            return null;
+        }
 
         try
         {
@@ -260,7 +264,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
                 Key = s3Key
             };
 
-            var response = await _s3Client.GetObjectAsync(request);
+            var response = await S3Options.S3Client.GetObjectAsync(request);
 
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -272,69 +276,13 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
             else
             {
                 Logger.LogError("Failed to download file from S3: {S3Key}", s3Key);
-                throw new Exception($"Failed to download file from S3: {s3Key}");
+                return null;
             }
         }
-        catch (AmazonS3Exception ex)
+        catch (Exception)
         {
-            Logger.LogError(ex, "Error retrieving file from S3: {S3Key}", s3Key);
-            throw;
+            return null;
         }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Unexpected error when downloading file from S3: {S3Key}", s3Key);
-            throw;
-        }
-    }
-
-    public async Task<FileReference?> GetByS3PathAsync(string s3Path)
-    {
-        return await this.Context.FileReferences
-            .FirstOrDefaultAsync(fr => fr.S3Path == s3Path);
-    }
-
-    public async Task<FileReference?> GetByPathAsync(string path)
-    {
-        return await this.Context.FileReferences
-            .FirstOrDefaultAsync(fr => fr.Path == path);
-    }
-
-
-    public async Task<(Stream? Stream, string? FileName, string? ContentType)> GetFileStreamAsync(string path)
-    {
-        var fileReference = await GetByS3PathAsync(path);
-        if (fileReference == null)
-        {
-            fileReference = await GetByPathAsync(path);
-        }
-        if (fileReference == null)
-        {
-            Logger.LogInformation("File reference not found for path: {Path}", path);
-            return (null, null, null);
-        }
-
-        if (fileReference.IsSyncedToS3)
-        {
-            try
-            {
-                var stream = await DownloadFromS3Async(path);
-                return (stream, fileReference.FileName, fileReference.ContentType);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Error on stream file from S3: {Path}", path);
-            }
-        }
-
-        var safePath = Path.Combine(_options.GetUploadPath(), path);
-        if (!File.Exists(safePath))
-        {
-            Logger.LogInformation("File does not exist: {Path}", safePath);
-            return (null, null, null);
-        }
-
-        var fileStream = File.OpenRead(safePath);
-        return (fileStream, fileReference.FileName, fileReference.ContentType);
     }
 
     public async Task<FileReference> UpdateAsync(FileReference entity)
