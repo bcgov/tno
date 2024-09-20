@@ -86,7 +86,6 @@ public static class ServiceCollectionExtensions
 
         services.AddTNOContext(config, env)
             .AddStorageConfig(config)
-            .AddS3Config()
             .AddElastic(config, env)
             .AddScoped<IElasticsearchService, ElasticsearchService>();
 
@@ -121,14 +120,4 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddS3Config(this IServiceCollection services)
-    {
-        services.AddSingleton<IAmazonS3>(sp =>
-        {
-            var client = S3Options.S3Client;
-            return client;
-        });
-
-        return services;
-    }
 }

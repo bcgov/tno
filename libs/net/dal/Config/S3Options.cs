@@ -22,21 +22,74 @@ public static class S3Options
         };
     }
 
-    private static AmazonS3Client? _s3Client;
-    public static AmazonS3Client S3Client
+    // test network connection to s3
+    public static async Task<bool> TestNetworkConnectionAsync()
     {
-        get
+        if (!IsS3Enabled)
         {
-            if (_s3Client == null)
-            {
-                _s3Client = new AmazonS3Client(GetAWSCredentials(), GetS3ClientConfig());
-            }
-            return _s3Client;
+            return false;
+        }
+
+
+        try
+        {
+            using var httpClient = new HttpClient();
+            httpClient.Timeout = TimeSpan.FromSeconds(2);
+
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+
+            var request = new HttpRequestMessage(HttpMethod.Get, ServiceUrl);
+            var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cts.Token);
+
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"network connection failed: {ex.Message}");
+            return false;
         }
     }
 
-    public static string BucketName => Environment.GetEnvironmentVariable("S3_BUCKET_NAME") ?? throw new InvalidOperationException("S3_BUCKET_NAME environment variable is not set");
-    public static string ServiceUrl => Environment.GetEnvironmentVariable("S3_SERVICE_URL") ?? throw new InvalidOperationException("S3_SERVICE_URL environment variable is not set");
-    private static string AccessKey => Environment.GetEnvironmentVariable("S3_ACCESS_KEY") ?? throw new InvalidOperationException("S3_ACCESS_KEY environment variable is not set");
-    private static string SecretKey => Environment.GetEnvironmentVariable("S3_SECRET_KEY") ?? throw new InvalidOperationException("S3_SECRET_KEY environment variable is not set");
+
+
+
+    // Check if S3 is enabled, which is determined by the presence of the S3_BUCKET_NAME, S3_SERVICE_URL, S3_ACCESS_KEY, and S3_SECRET_KEY environment variables.
+    // If any of these are missing, S3 is not enabled. 
+    public static bool IsS3Enabled
+    {
+        get
+        {
+            return !string.IsNullOrEmpty(BucketName) &&
+                   !string.IsNullOrEmpty(ServiceUrl) &&
+                   !string.IsNullOrEmpty(AccessKey) &&
+                   !string.IsNullOrEmpty(SecretKey);
+        }
+    }
+
+
+    private static AmazonS3Client? _s3Client;
+    // If S3 is enabled, create a new AmazonS3Client with the AWS credentials and S3 client configuration.
+    public static AmazonS3Client? S3Client
+    {
+        get
+        {
+            try
+            {
+
+                return _s3Client ??= new AmazonS3Client(GetAWSCredentials(), GetS3ClientConfig());
+            }
+            catch
+            {
+                return null;
+            }
+        }
+    }
+
+    public static string BucketName => Environment.GetEnvironmentVariable("S3_BUCKET_NAME") ?? "";
+    public static string ServiceUrl => Environment.GetEnvironmentVariable("S3_SERVICE_URL") ?? "";
+    private static string AccessKey => Environment.GetEnvironmentVariable("S3_ACCESS_KEY") ?? "";
+    private static string SecretKey => Environment.GetEnvironmentVariable("S3_SECRET_KEY") ?? "";
 }
