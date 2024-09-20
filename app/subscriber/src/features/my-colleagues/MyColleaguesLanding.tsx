@@ -132,7 +132,7 @@ export const MyColleaguesLanding = () => {
         headerText="Confirm Delete"
         body={`Are you sure you wish to delete this colleague: '${colleague?.colleague?.email}' ?`}
         isShowing={isShowing}
-        hide={toggle}
+        onClose={toggle}
         type="delete"
         confirmText="Yes, Remove It"
         onConfirm={() => {

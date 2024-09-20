@@ -155,7 +155,7 @@ export const ChartViewer: React.FC<IChartViewerProps> = ({
       </div>
       <Modal
         isShowing={showModal}
-        hide={() => toggleModal()}
+        onClose={() => toggleModal()}
         headerText="Chart Width Resized"
         body={
           <div>

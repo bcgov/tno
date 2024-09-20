@@ -3,7 +3,7 @@ import moment from 'moment';
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useContent, useReportInstances, useSettings } from 'store/hooks';
-import { Col, IReportResultModel, Loading, Show } from 'tno-core';
+import { Col, IReportResultModel, Loader, Show } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -74,9 +74,7 @@ const EventOfTheDayPreview: React.FC = () => {
 
   return (
     <styled.EventOfTheDayPreview>
-      <Show visible={isLoading}>
-        <Loading />
-      </Show>
+      <Loader visible={isLoading} />
       <Show visible={!isLoading}>
         <DateFilter filter={eventOfTheDayFilter} storeFilter={storeFilter} />
         <Show visible={!isLoading && !!preview}>

@@ -11,7 +11,7 @@ import { useApp, useContent } from 'store/hooks';
 import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 import { useMinisters } from 'store/hooks/subscriber/useMinisters';
 import { useProfileStore } from 'store/slices';
-import { Checkbox, generateQuery, IContentModel, Loading, Row, Show } from 'tno-core';
+import { Checkbox, generateQuery, IContentModel, Row } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -31,7 +31,6 @@ export const MyMinister: React.FC = () => {
   const [content, setContent] = React.useState<IContentSearchResult[]>([]);
   const [ministers, setMinisters] = React.useState<IMinisterModel[]>([]);
   const [userMinisters, setUserMinisters] = React.useState<IMinisterModel[]>([]);
-  const [loading, setLoading] = React.useState(false);
 
   const makeSimpleQueryString = (terms: string[]) => {
     if (terms.length === 1) return `"${terms[0]}"`;
@@ -56,20 +55,14 @@ export const MyMinister: React.FC = () => {
   const fetchResults = React.useCallback(
     async (filter: MsearchMultisearchBody) => {
       try {
-        if (!loading) {
-          setLoading(true);
-          const res = await findContentWithElasticsearch(filter, false);
-          const content = res.hits.hits.map((r) => {
-            const content = r._source as IContentModel;
-            const result = castToSearchResult(content);
-            return result;
-          });
-          return content;
-        }
-      } catch {
-      } finally {
-        setLoading(false);
-      }
+        const res = await findContentWithElasticsearch(filter, false);
+        const content = res.hits.hits.map((r) => {
+          const content = r._source as IContentModel;
+          const result = castToSearchResult(content);
+          return result;
+        });
+        return content;
+      } catch {}
     },
     // do not want to trigger on loading change, will cause infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -219,9 +212,6 @@ export const MyMinister: React.FC = () => {
           );
         })}
       </div>
-      <Show visible={loading}>
-        <Loading />
-      </Show>
       <Row className="table-container">
         <ContentList
           content={filteredContent}

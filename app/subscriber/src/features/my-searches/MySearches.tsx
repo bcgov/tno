@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useFilters } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
-import { Col, Grid, IFilterModel, Loading, Row, Show, Text, useModal } from 'tno-core';
+import { Col, Grid, IFilterModel, Loader, Row, Text, useModal } from 'tno-core';
 
 import { truncateTeaser } from '../../components/content-list/utils/truncateTeaser';
 import * as styled from './styled';
@@ -71,9 +71,7 @@ export const MySearches = () => {
 
   return (
     <styled.MySearches>
-      <Show visible={loading}>
-        <Loading />
-      </Show>
+      <Loader visible={loading} />
       <Grid
         items={sortedMyFilters}
         renderHeader={() => [
@@ -144,7 +142,7 @@ export const MySearches = () => {
         headerText="Confirm Removal"
         body={`Are you sure you want to delete the "${active?.name}" filter?`}
         isShowing={isShowing}
-        hide={toggle}
+        onClose={toggle}
         type="delete"
         confirmText="Yes, Remove It"
         onConfirm={() => {

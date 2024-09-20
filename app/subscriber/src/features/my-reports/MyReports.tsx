@@ -10,10 +10,9 @@ import {
   Button,
   IReportMessageModel,
   IReportModel,
-  Loading,
+  Loader,
   MessageTargetKey,
   Row,
-  Show,
   useModal,
 } from 'tno-core';
 
@@ -89,9 +88,7 @@ export const MyReports: React.FC = () => {
           </Row>
         </Bar>
         <div className="my-reports-content">
-          <Show visible={isLoading}>
-            <Loading />
-          </Show>
+          <Loader visible={isLoading} />
           {applyFilter(myReports, reportsFilter).map((item) => {
             return (
               <ReportCard
@@ -119,7 +116,7 @@ export const MyReports: React.FC = () => {
         headerText="Confirm Delete"
         body={`Are you sure you wish to delete the '${report?.name}' report?`}
         isShowing={isShowing}
-        hide={toggle}
+        onClose={toggle}
         type="delete"
         confirmText="Yes, Remove It"
         onConfirm={() => {
