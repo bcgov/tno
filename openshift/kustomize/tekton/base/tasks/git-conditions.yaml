@@ -72,7 +72,7 @@ spec:
           buildVar="${1/\-/\_}"
           # convert to uppercase
           buildVar="${buildVar^^}"
-          BUILD=BUILD_${buildVar}=true
+          BUILD_${buildVar}=true
           if grep -s services/net/$folderName <<< $DIFF; then
             echo $BUILD >> build.env
           elif grep -s libs/net/services <<< $DIFF; then

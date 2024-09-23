@@ -68,8 +68,8 @@ db-connect: ## Port forward to the database (e=environment, l=local port, r=remo
 	@cd ./scripts; ./database-connect.sh $(if $(e),$(e),dev) $(l) $(r)
 
 deploy: ## Deploy to environment (e=environment).
-	$(info Deploy to environment (e=environment) [e=$(if $(e),$(e),dev)])
-	@cd ./scripts; ./deploy.sh $(if $(e),$(e),dev)
+	$(info Deploy to environment (e=environment) [e=$(if $(e),$(e),dev), t=$(if $(t),$(t),latest)])
+	@cd ./scripts; ./deploy.sh $(if $(e),$(e),dev) $(if $(t),$(t),latest)
 
 stop: ## Stop environment (e=environment).
 	$(info Stop environment (e=environment) [e=$(if $(e),$(e),dev)])
