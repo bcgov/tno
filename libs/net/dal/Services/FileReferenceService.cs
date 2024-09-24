@@ -215,16 +215,16 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
         }
     }
 
-    public async Task<IEnumerable<FileReference>> GetFiles(DateTime? updatedBefore = null, int limit = 100, bool force = false)
+    public async Task<IEnumerable<FileReference>> GetFiles(DateTime? createdBefore = null, int limit = 100, bool force = false)
     {
         try
         {
             IQueryable<FileReference> query = this.Context.FileReferences;
 
-            if (updatedBefore.HasValue)
+            if (createdBefore.HasValue)
             {
-                updatedBefore = updatedBefore.Value.ToUniversalTime();
-                query = query.Where(fr => fr.UpdatedOn < updatedBefore.Value);
+                createdBefore = createdBefore.Value.ToUniversalTime();
+                query = query.Where(fr => fr.CreatedOn < createdBefore.Value);
             }
 
             if (!force)
@@ -232,7 +232,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
                 query = query.Where(fr => !fr.IsSyncedToS3);
             }
 
-            query = query.OrderBy(fr => fr.UpdatedOn);
+            query = query.OrderBy(fr => fr.CreatedOn);
 
             // if limit is not -1, apply the limit, means get all
             if (limit != -1)

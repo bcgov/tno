@@ -517,7 +517,7 @@ public class StorageController : ControllerBase
     /// <summary>
     /// upload files to s3
     /// </summary>
-    /// <param name="updatedBefore">optional, only upload files updated before the specified date</param>
+    /// <param name="createdBefore">optional, only upload files created before the specified date</param>
     /// <param name="limit">optional, only upload limit files</param>
     /// <param name="force">optional, force upload files</param>
     /// <returns>uploaded files and failed uploads</returns>
@@ -526,10 +526,10 @@ public class StorageController : ControllerBase
     [ProducesResponseType(typeof(Dictionary<string, List<string>>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
-    public async Task<IActionResult> UploadFileToS3Async([FromQuery] DateTime? updatedBefore = null, [FromQuery] int? limit = null, [FromQuery] bool force = false)
+    public async Task<IActionResult> UploadFileToS3Async([FromQuery] DateTime? createdBefore = null, [FromQuery] int? limit = null, [FromQuery] bool force = false)
     {
         _logger.LogInformation("upload-files-to-s3");
-        var fileReferences = await _fileReferenceService.GetFiles(updatedBefore, limit ?? 100, force);
+        var fileReferences = await _fileReferenceService.GetFiles(createdBefore, limit ?? 100, force);
         var uploadedFiles = new List<string>();
         var failedUploads = new List<string>();
         // check if s3 credentials are set

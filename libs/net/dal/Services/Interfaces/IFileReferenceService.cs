@@ -18,7 +18,7 @@ public interface IFileReferenceService : IBaseService<FileReference, long>
 
     FileReference Attach(Content content, FileInfo file, string folderPath, bool deleteOriginal = true);
 
-    Task<IEnumerable<FileReference>> GetFiles(DateTime? updatedBefore = null, int limit = 100, bool force = false);
+    Task<IEnumerable<FileReference>> GetFiles(DateTime? createdBefore = null, int limit = 100, bool force = false);
 
     Task<bool> UploadToS3Async(string s3Key, Stream fileStream);
 
