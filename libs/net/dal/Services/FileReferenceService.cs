@@ -14,6 +14,8 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
 {
     #region Properties
     private readonly StorageOptions _options;
+    private readonly S3Options _s3Options;
+
     #endregion
 
     #region Constructors
@@ -22,9 +24,11 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
         ClaimsPrincipal principal,
         IServiceProvider serviceProvider,
         StorageOptions options,
+        S3Options s3Options,
         ILogger<FileReferenceService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
         _options = options;
+        _s3Options = s3Options;
     }
     #endregion
 
@@ -180,23 +184,22 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
             Logger.LogError("File stream is null for S3 key: {S3Key}", s3Key);
             return false;
         }
-        if (!S3Options.IsS3Enabled || await S3Options.TestNetworkConnectionAsync() == false || S3Options.S3Client == null)
+        if (!_s3Options.IsS3Enabled || await _s3Options.TestNetworkConnectionAsync() == false || _s3Options.S3Client == null)
         {
             return false;
         }
 
         var putRequest = new PutObjectRequest
         {
-            BucketName = S3Options.BucketName,
+            BucketName = _s3Options.BucketName,
             Key = s3Key,
             InputStream = fileStream,
         };
 
         try
         {
-            var response = await S3Options.S3Client.PutObjectAsync(putRequest);
+            var response = await _s3Options.S3Client.PutObjectAsync(putRequest);
 
-            // Check if the request was successful
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {
                 Logger.LogInformation("File uploaded to S3 successfully: {S3Key}", s3Key);
@@ -251,7 +254,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
 
     public async Task<Stream?> DownloadFromS3Async(string s3Key)
     {
-        if (!S3Options.IsS3Enabled || await S3Options.TestNetworkConnectionAsync() == false || S3Options.S3Client == null)
+        if (!_s3Options.IsS3Enabled || await _s3Options.TestNetworkConnectionAsync() == false || _s3Options.S3Client == null)
         {
             return null;
         }
@@ -260,11 +263,11 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
         {
             var request = new GetObjectRequest
             {
-                BucketName = S3Options.BucketName,
+                BucketName = _s3Options.BucketName,
                 Key = s3Key
             };
 
-            var response = await S3Options.S3Client.GetObjectAsync(request);
+            var response = await _s3Options.S3Client.GetObjectAsync(request);
 
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {

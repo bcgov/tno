@@ -42,6 +42,7 @@ public class StorageController : ControllerBase
     private readonly ApiOptions _apiOptions;
     private readonly IFileReferenceService _fileReferenceService;
     private readonly ILogger<StorageController> _logger;
+    private readonly S3Options _s3Options;
     #endregion
 
     #region Constructors
@@ -53,13 +54,16 @@ public class StorageController : ControllerBase
     /// <param name="apiOptions"></param>
     /// <param name="fileReferenceService"></param>
     /// <param name="logger"></param>
-    public StorageController(IConnectionHelper connection, IOptions<StorageOptions> storageOptions, IOptions<ApiOptions> apiOptions, IFileReferenceService fileReferenceService, ILogger<StorageController> logger)
+    /// <param name="s3Options"></param>
+    public StorageController(IConnectionHelper connection, IOptions<StorageOptions> storageOptions, IOptions<ApiOptions> apiOptions,
+        IFileReferenceService fileReferenceService, ILogger<StorageController> logger, IOptions<S3Options> s3Options)
     {
         _connection = connection;
         _storageOptions = storageOptions.Value;
         _apiOptions = apiOptions.Value;
         _fileReferenceService = fileReferenceService;
         _logger = logger;
+        _s3Options = s3Options.Value;
     }
     #endregion
 
@@ -533,10 +537,11 @@ public class StorageController : ControllerBase
         var uploadedFiles = new List<string>();
         var failedUploads = new List<string>();
         // check if s3 credentials are set
-        if (!S3Options.IsS3Enabled)
+        if (!_s3Options.IsS3Enabled )
         {
             return BadRequest("S3 is not enabled or credentials are not set");
         }
+
         foreach (var fileReference in fileReferences)
         {
             try
