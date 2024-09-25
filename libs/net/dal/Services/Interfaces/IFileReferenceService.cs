@@ -26,5 +26,4 @@ public interface IFileReferenceService : IBaseService<FileReference, long>
 
     Task<FileReference> UpdateAsync(FileReference entity);
 
-    Task<int> DeleteOldLocalFilesAsync(DateTime beforeDate);
 }
