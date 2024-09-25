@@ -250,11 +250,29 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
         }
     }
 
-    public async Task<IEnumerable<FileReference>> GetFiles(DateTime? createdBefore = null, int limit = 100, bool force = false)
+    /// <summary>
+    /// Get files from the database.
+    /// If createdAfter is specified, only files created after the specified date will be returned.
+    /// If createdBefore is specified, only files created before the specified date will be returned.
+    /// If force is true, all files will be returned, otherwise only files that are not synced to S3 will be returned.
+    /// If limit is -1, all files will be returned, otherwise only the specified number of files will be returned.
+    /// </summary>
+    /// <param name="createdAfter"></param>
+    /// <param name="createdBefore"></param>
+    /// <param name="limit"></param>
+    /// <param name="force"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<FileReference>> GetFiles(DateTime? createdAfter = null, DateTime? createdBefore = null, int limit = 100, bool force = false)
     {
         try
         {
             IQueryable<FileReference> query = this.Context.FileReferences;
+
+            if (createdAfter.HasValue)
+            {
+                createdAfter = createdAfter.Value.ToUniversalTime();
+                query = query.Where(fr => fr.CreatedOn >= createdAfter.Value);
+            }
 
             if (createdBefore.HasValue)
             {
