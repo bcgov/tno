@@ -25,5 +25,5 @@ public interface IFileReferenceService : IBaseService<FileReference, long>
     Task<Stream?> DownloadFromS3Async(string s3Key);
 
     Task<FileReference> UpdateAsync(FileReference entity);
-
+    Task<bool> TestS3NetworkConnectionAsync();
 }

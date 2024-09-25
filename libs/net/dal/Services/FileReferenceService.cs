@@ -7,6 +7,8 @@ using TNO.DAL.Config;
 using TNO.Entities;
 using TNO.Models.Filters;
 using Amazon.S3.Model;
+using Amazon.Runtime;
+using Amazon.S3;
 
 namespace TNO.DAL.Services;
 
@@ -15,6 +17,36 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     #region Properties
     private readonly StorageOptions _options;
     private readonly S3Options _s3Options;
+    private AmazonS3Client? _s3Client;
+    /// <summary>
+    /// Get the S3 client. lazy init.
+    /// </summary>
+    private AmazonS3Client? S3Client
+    {
+        get
+        {
+            if (!_s3Options.IsS3Enabled)
+            {
+                return null;
+            }
+
+            try
+            {
+                return _s3Client ??= new AmazonS3Client(
+                    new BasicAWSCredentials(_s3Options.AccessKey, _s3Options.SecretKey),
+                    new AmazonS3Config
+                    {
+                        ServiceURL = _s3Options.ServiceUrl,
+                        ForcePathStyle = true
+                    });
+            }
+            catch
+            {
+                return null;
+            }
+        }
+    }
+
 
     #endregion
 
@@ -184,7 +216,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
             Logger.LogError("File stream is null for S3 key: {S3Key}", s3Key);
             return false;
         }
-        if (!_s3Options.IsS3Enabled || await _s3Options.TestNetworkConnectionAsync() == false || _s3Options.S3Client == null)
+        if (!_s3Options.IsS3Enabled || await TestS3NetworkConnectionAsync() == false || S3Client == null)
         {
             return false;
         }
@@ -198,7 +230,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
 
         try
         {
-            var response = await _s3Options.S3Client.PutObjectAsync(putRequest);
+            var response = await S3Client.PutObjectAsync(putRequest);
 
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -254,7 +286,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
 
     public async Task<Stream?> DownloadFromS3Async(string s3Key)
     {
-        if (!_s3Options.IsS3Enabled || await _s3Options.TestNetworkConnectionAsync() == false || _s3Options.S3Client == null)
+        if (!_s3Options.IsS3Enabled || await TestS3NetworkConnectionAsync() == false || S3Client == null)
         {
             return null;
         }
@@ -267,7 +299,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
                 Key = s3Key
             };
 
-            var response = await _s3Options.S3Client.GetObjectAsync(request);
+            var response = await S3Client.GetObjectAsync(request);
 
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -293,6 +325,38 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
         this.Context.Update(entity);
         await this.Context.SaveChangesAsync();
         return entity;
+    }
+
+    /// <summary>
+    /// Test the network connection to S3.
+    /// </summary>
+    /// <returns></returns>
+    public async Task<bool> TestS3NetworkConnectionAsync()
+    {
+        if (!_s3Options.IsS3Enabled)
+        {
+            return false;
+        }
+
+        try
+        {
+            using var httpClient = new HttpClient();
+            httpClient.Timeout = TimeSpan.FromSeconds(2);
+
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+
+            var request = new HttpRequestMessage(HttpMethod.Get, _s3Options.ServiceUrl);
+            var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cts.Token);
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Network connection failed: {ex.Message}");
+            return false;
+        }
     }
 
 }
