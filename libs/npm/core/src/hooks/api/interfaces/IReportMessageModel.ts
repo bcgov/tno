@@ -1,6 +1,6 @@
-import { IUserModel, ReportStatusName } from '..';
+import { IAuditColumnsModel, IUserModel, ReportStatusName } from '..';
 
-export interface IReportMessageModel {
+export interface IReportMessageModel extends IAuditColumnsModel {
   id: number;
   reportId: number;
   subject: string;

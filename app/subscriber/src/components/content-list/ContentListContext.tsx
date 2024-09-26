@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useState } from 'react';
 import React from 'react';
-import { useApp, useReports } from 'store/hooks';
+import { useApp, useReports, useReportSync } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 
 import { defaultValueListContext } from './constants';
@@ -23,6 +23,7 @@ export const ContentListProvider: React.FC<IContentListProviderProps> = ({ child
   // Make a request to reports to determine what content is in a report.
   const [, { getAllContentInMyReports }] = useReports();
   const [, { storeReportContent }] = useProfileStore();
+  useReportSync();
 
   const [groupBy, setGroupBy] = useState<IGroupByState>('source');
 
