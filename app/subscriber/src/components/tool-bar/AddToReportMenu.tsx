@@ -55,13 +55,14 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
 
         if (!report.instances.length) {
           // Fetch the report because the one in memory has no instances.
-          currentReport = await getReport(report.id);
+          currentReport = await getReport(report.id, true);
 
           // The report does not have an instance, we must create one to add content.
           // This should only occur the first time after a new report is created.
           if (!currentReport?.instances.length) {
             currentReport = await generateReport(report.id, true);
           }
+          instance = currentReport.instances.length ? currentReport.instances[0] : undefined;
         }
 
         if (

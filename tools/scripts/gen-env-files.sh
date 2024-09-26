@@ -410,6 +410,7 @@ Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__DataLocation=Openshift
 
 CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
 CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
