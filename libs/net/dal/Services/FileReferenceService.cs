@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
 using TNO.Entities;
@@ -17,37 +18,6 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     #region Properties
     private readonly StorageOptions _options;
     private readonly S3Options _s3Options;
-    private AmazonS3Client? _s3Client;
-    /// <summary>
-    /// Get the S3 client. lazy init.
-    /// </summary>
-    private AmazonS3Client? S3Client
-    {
-        get
-        {
-            if (!_s3Options.IsS3Enabled)
-            {
-                return null;
-            }
-
-            try
-            {
-                return _s3Client ??= new AmazonS3Client(
-                    new BasicAWSCredentials(_s3Options.AccessKey, _s3Options.SecretKey),
-                    new AmazonS3Config
-                    {
-                        ServiceURL = _s3Options.ServiceUrl,
-                        ForcePathStyle = true
-                    });
-            }
-            catch
-            {
-                return null;
-            }
-        }
-    }
-
-
     #endregion
 
     #region Constructors
@@ -56,11 +26,11 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
         ClaimsPrincipal principal,
         IServiceProvider serviceProvider,
         StorageOptions options,
-        S3Options s3Options,
+        IOptions<S3Options> s3Options,
         ILogger<FileReferenceService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
         _options = options;
-        _s3Options = s3Options;
+        _s3Options = s3Options.Value;
     }
     #endregion
 
@@ -209,6 +179,29 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
         base.DeleteAndSave(entity);
     }
 
+    private AmazonS3Client? CreateS3Client()
+    {
+        if (!_s3Options.IsS3Enabled)
+        {
+            return null;
+        }
+
+        try
+        {
+            return new AmazonS3Client(
+                new BasicAWSCredentials(_s3Options.AccessKey, _s3Options.SecretKey),
+                new AmazonS3Config
+                {
+                    ServiceURL = _s3Options.ServiceUrl,
+                    ForcePathStyle = true
+                });
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     public async Task<bool> UploadToS3Async(string s3Key, Stream fileStream)
     {
         if (fileStream == null)
@@ -216,7 +209,13 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
             Logger.LogError("File stream is null for S3 key: {S3Key}", s3Key);
             return false;
         }
-        if (!_s3Options.IsS3Enabled || await TestS3NetworkConnectionAsync() == false || S3Client == null)
+        if (!_s3Options.IsS3Enabled || await TestS3NetworkConnectionAsync() == false)
+        {
+            return false;
+        }
+
+        using var s3Client = CreateS3Client();
+        if (s3Client == null)
         {
             return false;
         }
@@ -230,7 +229,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
 
         try
         {
-            var response = await S3Client.PutObjectAsync(putRequest);
+            var response = await s3Client.PutObjectAsync(putRequest);
 
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -252,32 +251,32 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
 
     /// <summary>
     /// Get files from the database.
-    /// If createdAfter is specified, only files created after the specified date will be returned.
-    /// If createdBefore is specified, only files created before the specified date will be returned.
+    /// If publishedAfter is specified, only files' contents that are published after the specified date will be returned.
+    /// If publishedBefore is specified, only files' contents that are published before the specified date will be returned.
     /// If force is true, all files will be returned, otherwise only files that are not synced to S3 will be returned.
     /// If limit is -1, all files will be returned, otherwise only the specified number of files will be returned.
     /// </summary>
-    /// <param name="createdAfter"></param>
-    /// <param name="createdBefore"></param>
+    /// <param name="publishedAfter"></param>
+    /// <param name="publishedBefore"></param>
     /// <param name="limit"></param>
     /// <param name="force"></param>
     /// <returns></returns>
-    public async Task<IEnumerable<FileReference>> GetFiles(DateTime? createdAfter = null, DateTime? createdBefore = null, int limit = 100, bool force = false)
+    public async Task<IEnumerable<FileReference>> GetFiles(DateTime? publishedAfter = null, DateTime? publishedBefore = null, int limit = 100, bool force = false)
     {
         try
         {
-            IQueryable<FileReference> query = this.Context.FileReferences;
+            IQueryable<FileReference> query = this.Context.FileReferences.Include(fr => fr.Content);
 
-            if (createdAfter.HasValue)
+            if (publishedAfter.HasValue)
             {
-                createdAfter = createdAfter.Value.ToUniversalTime();
-                query = query.Where(fr => fr.CreatedOn >= createdAfter.Value);
+                publishedAfter = publishedAfter.Value.ToUniversalTime();
+                query = query.Where(fr => fr.Content != null && fr.Content.PublishedOn >= publishedAfter.Value);
             }
 
-            if (createdBefore.HasValue)
+            if (publishedBefore.HasValue)
             {
-                createdBefore = createdBefore.Value.ToUniversalTime();
-                query = query.Where(fr => fr.CreatedOn < createdBefore.Value);
+                publishedBefore = publishedBefore.Value.ToUniversalTime();
+                query = query.Where(fr => fr.Content != null && fr.Content.PublishedOn < publishedBefore.Value);
             }
 
             if (!force)
@@ -304,7 +303,13 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
 
     public async Task<Stream?> DownloadFromS3Async(string s3Key)
     {
-        if (!_s3Options.IsS3Enabled || await TestS3NetworkConnectionAsync() == false || S3Client == null)
+        if (!_s3Options.IsS3Enabled || await TestS3NetworkConnectionAsync() == false)
+        {
+            return null;
+        }
+
+        using var s3Client = CreateS3Client();
+        if (s3Client == null)
         {
             return null;
         }
@@ -317,7 +322,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
                 Key = s3Key
             };
 
-            var response = await S3Client.GetObjectAsync(request);
+            var response = await s3Client.GetObjectAsync(request);
 
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {

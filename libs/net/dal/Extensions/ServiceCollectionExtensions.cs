@@ -128,10 +128,9 @@ public static class ServiceCollectionExtensions
     /// <returns></returns>
     public static IServiceCollection AddS3Config(this IServiceCollection services, IConfiguration config)
     {
-        services.Configure<S3Options>(config.GetSection("S3"));
-        services.AddSingleton(sp => sp.GetRequiredService<IOptions<S3Options>>().Value);
+        services.Configure<S3Options>(config);
         services.AddOptions<S3Options>()
-            .Bind(config.GetSection("S3"))
+            .Bind(config)
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
