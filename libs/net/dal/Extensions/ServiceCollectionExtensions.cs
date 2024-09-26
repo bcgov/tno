@@ -85,6 +85,7 @@ public static class ServiceCollectionExtensions
 
         services.AddTNOContext(config, env)
             .AddStorageConfig(config)
+            .AddS3Config(config)
             .AddElastic(config, env)
             .AddScoped<IElasticsearchService, ElasticsearchService>();
 
@@ -118,4 +119,22 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
+
+    /// <summary>
+    /// Add the S3 configuration to the service collection.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="config"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddS3Config(this IServiceCollection services, IConfiguration config)
+    {
+        services.Configure<S3Options>(config);
+        services.AddOptions<S3Options>()
+            .Bind(config)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        return services;
+    }
+
 }

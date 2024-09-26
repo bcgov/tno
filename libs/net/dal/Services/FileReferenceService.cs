@@ -2,12 +2,14 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
 using TNO.Entities;
 using TNO.Models.Filters;
-using Amazon.S3;
 using Amazon.S3.Model;
+using Amazon.Runtime;
+using Amazon.S3;
 
 namespace TNO.DAL.Services;
 
@@ -15,6 +17,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
 {
     #region Properties
     private readonly StorageOptions _options;
+    private readonly S3Options _s3Options;
     #endregion
 
     #region Constructors
@@ -23,9 +26,11 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
         ClaimsPrincipal principal,
         IServiceProvider serviceProvider,
         StorageOptions options,
+        IOptions<S3Options> s3Options,
         ILogger<FileReferenceService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
         _options = options;
+        _s3Options = s3Options.Value;
     }
     #endregion
 
@@ -174,6 +179,29 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
         base.DeleteAndSave(entity);
     }
 
+    private AmazonS3Client? CreateS3Client()
+    {
+        if (!_s3Options.IsS3Enabled)
+        {
+            return null;
+        }
+
+        try
+        {
+            return new AmazonS3Client(
+                new BasicAWSCredentials(_s3Options.AccessKey, _s3Options.SecretKey),
+                new AmazonS3Config
+                {
+                    ServiceURL = _s3Options.ServiceUrl,
+                    ForcePathStyle = true
+                });
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     public async Task<bool> UploadToS3Async(string s3Key, Stream fileStream)
     {
         if (fileStream == null)
@@ -181,23 +209,20 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
             Logger.LogError("File stream is null for S3 key: {S3Key}", s3Key);
             return false;
         }
-
-        var accessKey = Environment.GetEnvironmentVariable("S3_ACCESS_KEY") ?? throw new InvalidOperationException("S3_ACCESS_KEY environment variable is not set");
-        var secretKey = Environment.GetEnvironmentVariable("S3_SECRET_KEY") ?? throw new InvalidOperationException("S3_SECRET_KEY environment variable is not set");
-        var bucketName = Environment.GetEnvironmentVariable("S3_BUCKET_NAME") ?? throw new InvalidOperationException("S3_BUCKET_NAME environment variable is not set");
-        var serviceUrl = Environment.GetEnvironmentVariable("S3_SERVICE_URL") ?? throw new InvalidOperationException("S3_SERVICE_URL environment variable is not set");
-
-        var config = new AmazonS3Config
+        if (!_s3Options.IsS3Enabled || await TestS3NetworkConnectionAsync() == false)
         {
-            ServiceURL = serviceUrl,
-            ForcePathStyle = true
-        };
+            return false;
+        }
 
-        using var s3Client = new AmazonS3Client(accessKey, secretKey, config);
+        using var s3Client = CreateS3Client();
+        if (s3Client == null)
+        {
+            return false;
+        }
 
         var putRequest = new PutObjectRequest
         {
-            BucketName = bucketName,
+            BucketName = _s3Options.BucketName,
             Key = s3Key,
             InputStream = fileStream,
         };
@@ -206,7 +231,6 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
         {
             var response = await s3Client.PutObjectAsync(putRequest);
 
-            // Check if the request was successful
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {
                 Logger.LogInformation("File uploaded to S3 successfully: {S3Key}", s3Key);
@@ -225,20 +249,42 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
         }
     }
 
-    public async Task<IEnumerable<FileReference>> GetFiles(DateTime? updatedBefore = null, int limit = 100)
+    /// <summary>
+    /// Get files from the database.
+    /// If publishedAfter is specified, only files' contents that are published after the specified date will be returned.
+    /// If publishedBefore is specified, only files' contents that are published before the specified date will be returned.
+    /// If force is true, all files will be returned, otherwise only files that are not synced to S3 will be returned.
+    /// If limit is -1, all files will be returned, otherwise only the specified number of files will be returned.
+    /// </summary>
+    /// <param name="publishedAfter"></param>
+    /// <param name="publishedBefore"></param>
+    /// <param name="limit"></param>
+    /// <param name="force"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<FileReference>> GetFiles(DateTime? publishedAfter = null, DateTime? publishedBefore = null, int limit = 100, bool force = false)
     {
         try
         {
-            IQueryable<FileReference> query = this.Context.FileReferences;
+            IQueryable<FileReference> query = this.Context.FileReferences.Include(fr => fr.Content);
 
-            if (updatedBefore.HasValue)
+            if (publishedAfter.HasValue)
             {
-                updatedBefore = updatedBefore.Value.ToUniversalTime();
-                query = query.Where(fr => fr.UpdatedOn < updatedBefore.Value);
+                publishedAfter = publishedAfter.Value.ToUniversalTime();
+                query = query.Where(fr => fr.Content != null && fr.Content.PublishedOn >= publishedAfter.Value);
             }
 
-            // order by updated on descending
-            query = query.OrderByDescending(fr => fr.UpdatedOn);
+            if (publishedBefore.HasValue)
+            {
+                publishedBefore = publishedBefore.Value.ToUniversalTime();
+                query = query.Where(fr => fr.Content != null && fr.Content.PublishedOn < publishedBefore.Value);
+            }
+
+            if (!force)
+            {
+                query = query.Where(fr => !fr.IsSyncedToS3);
+            }
+
+            query = query.OrderBy(fr => fr.CreatedOn);
 
             // if limit is not -1, apply the limit, means get all
             if (limit != -1)
@@ -254,5 +300,87 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
             return Enumerable.Empty<FileReference>();
         }
     }
-    #endregion
+
+    public async Task<Stream?> DownloadFromS3Async(string s3Key)
+    {
+        if (!_s3Options.IsS3Enabled || await TestS3NetworkConnectionAsync() == false)
+        {
+            return null;
+        }
+
+        using var s3Client = CreateS3Client();
+        if (s3Client == null)
+        {
+            return null;
+        }
+
+        try
+        {
+            var request = new GetObjectRequest
+            {
+                BucketName = _s3Options.BucketName,
+                Key = s3Key
+            };
+
+            var response = await s3Client.GetObjectAsync(request);
+
+            if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var memoryStream = new MemoryStream();
+                await response.ResponseStream.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+                return memoryStream;
+            }
+            else
+            {
+                Logger.LogError("Failed to download file from S3: {S3Key}", s3Key);
+                return null;
+            }
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    public async Task<FileReference> UpdateAsync(FileReference entity)
+    {
+        this.Context.Update(entity);
+        await this.Context.SaveChangesAsync();
+        return entity;
+    }
+
+    /// <summary>
+    /// Test the network connection to S3.
+    /// </summary>
+    /// <returns></returns>
+    public async Task<bool> TestS3NetworkConnectionAsync()
+    {
+        if (!_s3Options.IsS3Enabled)
+        {
+            return false;
+        }
+
+        try
+        {
+            using var httpClient = new HttpClient();
+            httpClient.Timeout = TimeSpan.FromSeconds(2);
+
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+
+            var request = new HttpRequestMessage(HttpMethod.Get, _s3Options.ServiceUrl);
+            var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cts.Token);
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Network connection failed: {ex.Message}");
+            return false;
+        }
+    }
+
 }
+#endregion

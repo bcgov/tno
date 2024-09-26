@@ -202,6 +202,7 @@ builder.Services
     .AddScoped<IImpersonationHelper, ImpersonationHelper>()
     .AddChesService(config.GetSection("CHES"))
     .AddTNOServices(config, env)
+    .AddS3Config(config.GetSection("S3"))
     .AddTemplateEngine(config)
     .AddKafkaMessenger(config)
     .AddHttpClient()

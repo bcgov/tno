@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using NPOI.OpenXmlFormats.Dml.Chart;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Subscriber.Models;
 using TNO.API.Areas.Subscriber.Models.Content;
@@ -145,9 +146,15 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult DownloadFile(long id)
+    public async Task<IActionResult> DownloadFileAsync(long id)
     {
         var fileReference = _fileReferenceService.FindByContentId(id).FirstOrDefault() ?? throw new NoContentException("File does not exist");
+        if (fileReference.IsSyncedToS3 && !string.IsNullOrWhiteSpace(fileReference.S3Path))
+        {
+            var s3Stream = await _fileReferenceService.DownloadFromS3Async(fileReference.S3Path);
+            if (s3Stream != null)
+                return File(s3Stream, fileReference.ContentType);
+        }
         var stream = _fileReferenceService.Download(fileReference, _storageOptions.GetUploadPath());
         return File(stream, fileReference.ContentType);
     }
@@ -162,15 +169,25 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.PartialContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult Stream([FromQuery] string path)
+    public async Task<IActionResult> StreamAsync([FromQuery] string path)
     {
+
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
+        //find file from s3
+        var stream = await _fileReferenceService.DownloadFromS3Async(path);
+        if (stream != null)
+        {
+            return File(stream, "application/octet-stream");
+        }
+        //find file from local
         var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
+
         if (!safePath.FileExists()) throw new NoContentException("File does not exist");
 
         var info = new ItemModel(safePath);
         var fileStream = System.IO.File.OpenRead(safePath);
         return File(fileStream, info.MimeType!);
+
     }
 
     /// <summary>

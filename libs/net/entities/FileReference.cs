@@ -63,6 +63,27 @@ public class FileReference : AuditColumns, IReadonlyFileReference, IEquatable<Fi
     /// </summary>
     [Column("is_uploaded")]
     public bool IsUploaded { get; set; }
+
+
+    /// <summary>
+    /// get/set - Whether the file has been synced to S3 or not.
+    /// </summary>
+    [Column("is_synced_to_s3")]
+    public bool IsSyncedToS3 { get; set; }
+
+    /// <summary>
+    /// get/set - The path the file has been stored at in S3.
+    /// </summary>
+    [Column("s3_path")]
+    public string? S3Path { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The date and time the file was last synced to S3.
+    /// </summary>
+    [Column("last_synced_to_s3_on")]
+    public DateTime? LastSyncedToS3On { get; set; }
+
+
     #endregion
 
     #region Constructors
