@@ -660,18 +660,23 @@ public class ReportService : BaseService<Report, int>, IReportService
 
             // Add new content that does not already exist in the report and only for valid sections.
             var addContent = content.Where(c => report.Sections.Any(s => s.Name == c.SectionName) && !instance.ContentManyToMany.Any(ic => ic.SectionName == c.SectionName && ic.ContentId == c.ContentId));
-            instance.ContentManyToMany.AddRange(addContent);
+            if (addContent.Any())
+            {
+                instance.ContentManyToMany.AddRange(addContent);
 
-            instance = _reportInstanceService.AddAndSave(instance);
-            report.Instances.Add(instance);
+                instance = _reportInstanceService.AddAndSave(instance);
+                report.Instances.Add(instance);
+            }
         }
         else
         {
             // Add new content that does not already exist in the report and only for valid sections.
             var addContent = content.Where(c => report.Sections.Any(s => s.Name == c.SectionName) && !instance.ContentManyToMany.Any(ic => ic.SectionName == c.SectionName && ic.ContentId == c.ContentId));
-            instance.ContentManyToMany.AddRange(addContent);
-
-            instance = _reportInstanceService.UpdateAndSave(instance, true);
+            if (addContent.Any())
+            {
+                instance.ContentManyToMany.AddRange(addContent);
+                instance = _reportInstanceService.UpdateAndSave(instance, true);
+            }
         }
 
         return report;
@@ -1091,7 +1096,8 @@ public class ReportService : BaseService<Report, int>, IReportService
         try
         {
             this.Context.SaveChanges();
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             this.Logger.LogError(ex, $"ReportService - ClearFoldersInReport Report Id: {report.Id} throws exception.");
             throw;

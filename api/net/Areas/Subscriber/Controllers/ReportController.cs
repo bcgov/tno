@@ -47,6 +47,7 @@ public class ReportController : ControllerBase
     private readonly IKafkaMessenger _kafkaProducer;
     private readonly KafkaOptions _kafkaOptions;
     private readonly KafkaHubConfig _kafkaHubOptions;
+    private readonly IKafkaMessenger _kafkaMessenger;
     private readonly IImpersonationHelper _impersonate;
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly ILogger<ReportController> _logger;
@@ -66,6 +67,7 @@ public class ReportController : ControllerBase
     /// <param name="kafkaProducer"></param>
     /// <param name="kafkaOptions"></param>
     /// <param name="kafkaHubOptions"></param>
+    /// <param name="kafkaMessenger"></param>
     /// <param name="impersonateHelper"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
@@ -81,6 +83,7 @@ public class ReportController : ControllerBase
         IKafkaMessenger kafkaProducer,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<KafkaHubConfig> kafkaHubOptions,
+        IKafkaMessenger kafkaMessenger,
         IImpersonationHelper impersonateHelper,
         IOptions<JsonSerializerOptions> serializerOptions,
         ILogger<ReportController> logger,
@@ -96,6 +99,7 @@ public class ReportController : ControllerBase
         _kafkaProducer = kafkaProducer;
         _kafkaOptions = kafkaOptions.Value;
         _kafkaHubOptions = kafkaHubOptions.Value;
+        _kafkaMessenger = kafkaMessenger;
         _impersonate = impersonateHelper;
         _serializerOptions = serializerOptions.Value;
         _logger = logger;
@@ -445,16 +449,31 @@ public class ReportController : ControllerBase
             !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to review this report"); // Report is not public
 
-        var result = await _reportService.AddContentToReportAsync(id, user.Id, content.Select((c) => (Entities.ReportInstanceContent)c)) ?? throw new NoContentException("Report does not exist");
+        var addContent = content.Select((c) => (Entities.ReportInstanceContent)c);
+        if (addContent.Any())
+        {
+            var result = await _reportService.AddContentToReportAsync(id, user.Id, addContent) ?? throw new NoContentException("Report does not exist");
 
-        var instances = _reportService.GetLatestInstances(id, user.Id);
-        var currentInstance = instances.FirstOrDefault() ?? throw new InvalidOperationException("Unable to add content to a report without an instance");
-        currentInstance.ContentManyToMany.Clear();
-        currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
-        result.Instances.Clear();
-        result.Instances.AddRange(instances);
+            var instances = _reportService.GetLatestInstances(id, user.Id);
+            var currentInstance = instances.FirstOrDefault() ?? throw new InvalidOperationException("Unable to add content to a report without an instance");
+            currentInstance.ContentManyToMany.Clear();
+            currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
+            result.Instances.Clear();
+            result.Instances.AddRange(instances);
 
-        return new JsonResult(new ReportModel(result, _serializerOptions));
+            var ownerId = result.OwnerId ?? currentInstance.OwnerId;
+            if (ownerId.HasValue)
+            {
+                user = _userService.FindById(ownerId.Value) ?? throw new NotAuthorizedException();
+                await _kafkaMessenger.SendMessageAsync(
+                    _kafkaHubOptions.HubTopic,
+                    new KafkaHubMessage(HubEvent.SendUser, user.Username, new KafkaInvocationMessage(MessageTarget.ReportStatus, new[] { new ReportMessageModel(currentInstance) }))
+                );
+            }
+            return new JsonResult(new ReportModel(result, _serializerOptions));
+        }
+
+        return new JsonResult(new ReportModel(report, _serializerOptions));
     }
 
     /// <summary>
