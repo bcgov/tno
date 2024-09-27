@@ -118,7 +118,6 @@ export const MyProducts: React.FC = () => {
                       userId={userId}
                       product={product}
                       onToggleSubscription={(userProduct) => {
-                        console.debug(userProduct);
                         selectProduct(product, userProduct);
                         toggle();
                       }}
@@ -151,7 +150,6 @@ export const MyProducts: React.FC = () => {
                     userId={userInfo?.id}
                     product={product}
                     onToggleSubscription={(userProduct) => {
-                      console.debug(userProduct);
                       selectProduct(product, userProduct);
                       toggle();
                     }}
