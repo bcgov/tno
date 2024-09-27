@@ -13,6 +13,8 @@ namespace TNO.Services.Syndication.Xml;
 [XmlRoot("item")]
 public class RssItem
 {
+    // this namespace is for iPolitics syndication content format
+    private static XNamespace contentXNameSpace = "http://purl.org/rss/1.0/modules/content/";
     #region Properties
     /// <summary>
     /// get/set - The title of the item.
@@ -31,6 +33,12 @@ public class RssItem
     /// </summary>
     [XmlElement("description")]
     public string? Description { get; set; }
+    
+    /// <summary>
+    /// get/set - The item content.
+    /// </summary>
+    [XmlElement("content")]
+    public string? Content { get; set; }
 
     /// <summary>
     /// get/set - Email address of the author of the item. More.
@@ -86,6 +94,12 @@ public class RssItem
     {
         this.Title = element.Element("title")?.Value;
         this.Description = element.Element("description")?.Value;
+        
+        var contentList = element.Descendants(contentXNameSpace + "encoded");
+        if (contentList != null && contentList.Any())
+        {
+            this.Content = contentList.FirstOrDefault()?.ToString();
+        }
 
         if (enforceSpec)
         {
@@ -152,6 +166,7 @@ public class RssItem
             Id = item.Guid,
             Title = new TextSyndicationContent(item.Title, TextSyndicationContentKind.Html),
             Summary = new TextSyndicationContent(item.Description, TextSyndicationContentKind.Html),
+            Content = new TextSyndicationContent(item.Content, TextSyndicationContentKind.Html),
             Copyright = null,
             SourceFeed = item.Source,
         };
