@@ -22,7 +22,7 @@ interface ITopicController {
 export const useTopics = (): [IAdminState, ITopicController] => {
   const api = useApiAdminTopics();
   const dispatch = useAjaxWrapper();
-  const [state, store] = useAdminStore();
+  const [state, { storeTopics }] = useAdminStore();
   const [, lookup] = useLookup();
 
   const controller = React.useMemo(
@@ -31,7 +31,7 @@ export const useTopics = (): [IAdminState, ITopicController] => {
         const response = await dispatch<ITopicModel[]>('find-all-topics', () =>
           api.findAllTopics(),
         );
-        store.storeTopics(response.data);
+        storeTopics(response.data);
         return response.data;
       },
       findTopic: async (filter: ITopicFilter) => {
@@ -42,7 +42,7 @@ export const useTopics = (): [IAdminState, ITopicController] => {
       },
       getTopic: async (id: number) => {
         const response = await dispatch<ITopicModel>('get-topic', () => api.getTopic(id));
-        store.storeTopics((topics) =>
+        storeTopics((topics) =>
           topics.map((t) => {
             if (t.id === response.data.id) return response.data;
             return t;
@@ -54,17 +54,17 @@ export const useTopics = (): [IAdminState, ITopicController] => {
         const response = await dispatch<ITopicModel>('add-topic', () => api.addTopic(model));
         let items: ITopicModel[] = [];
 
-        store.storeTopics((topics) => {
+        storeTopics((topics) => {
           items = [...topics];
           items.splice(model.sortOrder, 0, response.data);
           return items;
         });
-        saveToLocalStorage(StorageKeys.Topics, items, store.storeTopics);
+        saveToLocalStorage(StorageKeys.Topics, items);
         return response.data;
       },
       updateTopic: async (model: ITopicModel) => {
         const response = await dispatch<ITopicModel>('update-topic', () => api.updateTopic(model));
-        store.storeTopics((topics) =>
+        storeTopics((topics) =>
           topics.map((t) => {
             if (t.id === response.data.id) return response.data;
             return t;
@@ -75,12 +75,12 @@ export const useTopics = (): [IAdminState, ITopicController] => {
       },
       deleteTopic: async (model: ITopicModel) => {
         const response = await dispatch<ITopicModel>('delete-topic', () => api.deleteTopic(model));
-        store.storeTopics((topics) => topics.filter((t) => t.id !== response.data.id));
+        storeTopics((topics) => topics.filter((t) => t.id !== response.data.id));
         await lookup.getLookups();
         return response.data;
       },
     }),
-    [api, dispatch, lookup, store],
+    [api, dispatch, lookup, storeTopics],
   );
 
   return [state, controller];
