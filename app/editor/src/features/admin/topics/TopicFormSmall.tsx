@@ -1,11 +1,13 @@
 import { FormikForm } from 'components/formik';
 import React from 'react';
+import { useApp } from 'store/hooks';
 import {
   Button,
   ButtonVariant,
   FieldSize,
   FormikText,
   ITopicModel,
+  Loader,
   Row,
   ToggleGroup,
   TopicTypeName,
@@ -20,6 +22,8 @@ interface ITopicFormSmallProps {
 
 /** The page used to view and edit tags in the administrative section. */
 export const TopicFormSmall: React.FC<ITopicFormSmallProps> = ({ onAddOrUpdate }) => {
+  const [{ requests }] = useApp();
+
   const handleSubmit = async (values: ITopicModel) => {
     try {
       onAddOrUpdate?.(values);
@@ -28,6 +32,7 @@ export const TopicFormSmall: React.FC<ITopicFormSmallProps> = ({ onAddOrUpdate }
 
   return (
     <styled.TopicFormSmall>
+      <Loader visible={requests.some((r) => ['update-topic', 'add-topic'].includes(r.url))} />
       <FormikForm
         loading={false}
         initialValues={defaultTopic}
