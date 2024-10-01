@@ -278,7 +278,8 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             Authors = item.Authors.Select(a => new Author(a.Name, a.Email, a.Uri)),
             UpdatedOn = item.LastUpdatedTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null,
             Labels = item.Categories.Select(c => new LabelModel(c.Label, c.Name)),
-            ExternalUid = item.Id
+            ExternalUid = item.Id,
+            Body = ((TextSyndicationContent)item.Content)?.Text ?? ""
         };
     }
 
@@ -292,7 +293,8 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         var title = item.Title.Text ?? "";
         var summary = item.Summary.Text ?? "";
         var content = item.Content as TextSyndicationContent;
-        var body = content?.Text ?? item.Content?.ToString() ?? "";
+        bool hasToStringOverride = item.Content.GetType().ToString() != item.Content.ToString();
+        var body = content?.Text ?? (hasToStringOverride ? item.Content?.ToString() : "");
         if (!string.IsNullOrEmpty(this.Options.InvalidEncodings) && this.Options.EncodingSets != null)
         {
             foreach (var encodingSet in this.Options.EncodingSets)
