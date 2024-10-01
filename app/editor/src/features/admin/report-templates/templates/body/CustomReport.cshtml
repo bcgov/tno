@@ -96,7 +96,10 @@
                 @foreach (var content in tableSection.Value.Content)
                 {
                   var summary = OwnerId.HasValue ? content.Versions.ContainsKey(OwnerId.Value) ? content.Versions[OwnerId.Value].Summary : "" : "";
-                  <div style="vertical-align:center; margin-bottom:4px ;"> @ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{tocCount}", "", true) @summary</div>
+                  <div style="vertical-align:center; margin-bottom:4px ;">
+                    <a id="toc-item-@tocCount" name="toc-item-@tocCount"></a>
+                    @ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{tocCount}", "", true) @summary
+                  </div>
                   tocCount++;
                 }
               </div>
@@ -212,7 +215,8 @@
 
               <td align="right">
                 <span style="border: 1px solid #ccc; padding:4px 6px; text-transform: uppercase;">
-                  <span><a style="text-decoration:none; color: #6750a4; " href="#top">top</a></span>
+                  <span><a style="text-decoration:none; color: #6750a4; " href="#toc-item-@itemPosition">Back</a></span>
+                  <span> | <a style="text-decoration:none; color: #6750a4; " href="#top">top</a></span>
                   @if (hasPrev )
                   {
                   <span> | <a style="text-decoration:none; color: #6750a4; " href="#item-@prev">previous</a></span>
