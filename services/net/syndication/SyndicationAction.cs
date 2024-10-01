@@ -293,8 +293,12 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         var title = item.Title.Text ?? "";
         var summary = item.Summary.Text ?? "";
         var content = item.Content as TextSyndicationContent;
-        bool hasToStringOverride = item.Content.GetType().ToString() != item.Content.ToString();
-        var body = content?.Text ?? (hasToStringOverride ? item.Content?.ToString() : "");
+        bool hasToStringOverride = false;
+        if (item.Content != null)
+        {
+            hasToStringOverride = item.Content?.GetType().ToString() != item.Content?.ToString();
+        }
+        var body = content?.Text ?? (hasToStringOverride ? item.Content?.ToString() : "") ?? "";
         if (!string.IsNullOrEmpty(this.Options.InvalidEncodings) && this.Options.EncodingSets != null)
         {
             foreach (var encodingSet in this.Options.EncodingSets)
