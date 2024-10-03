@@ -25,7 +25,7 @@ UPDATE public."report_template" SET
 <center><div style="margin-bottom: 25px; color:#FFFFF6;"><img src="@($"{SubscriberAppUrl}assets/reports/MMI_logo_white.png")" width="600"></div></center>
 
 @* This is the Do Not Forward disclaimer *@
-<div><p style="background-color: #FFF7E1; color: #876503; text-align: center; font-size: 1em; font-weight: 700; line-height: 1.1em; letter-spacing: 0.08px; padding: 10px 0px; margin: 6px 0px 20px 0px;">Reading this report on your phone? Struggling with navigation? Email <a href="mailto:scott.ryckman@gov.bc.ca">Scott Ryckman</a> to switch to the iPhone friendly version. </p></div>
+<div><p style="background-color: #FFF7E1; color: #876503; text-align: center; font-size: 1em; font-weight: 700; line-height: 1.1em; letter-spacing: 0.08px; padding: 10px 0px; margin: 6px 0px 20px 0px;">Please take two minutes to answer a few questions about how you use MMI. <a href="https://forms.office.com/Pages/ResponsePage.aspx?id=AFLbbw09ikqwNtNoXjWa3LO6CqyU1bRHn43hYw6kY1VUN05QREFTSFdIV1I5RE9ZQ1ZHMlEzUEhZNC4u">Click here to begin the survey.</a></p></div>
 
 <a id="top" name="top">
   <h1 style="color: #971D29; font-size: 30px; line-height: 34px; margin: 0px; border-bottom: #971D29 1px solid;">@Settings.Subject.Text</h1>
