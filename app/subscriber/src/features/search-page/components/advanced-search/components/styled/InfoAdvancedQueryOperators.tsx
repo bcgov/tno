@@ -39,4 +39,8 @@ export const InfoAdvancedQueryOperators = styled.div`
   .tooltip-fonts {
     font-size: 0.8rem;
   }
+
+  .info-icon {
+    margin-top: 0.3rem;
+  }
 `;

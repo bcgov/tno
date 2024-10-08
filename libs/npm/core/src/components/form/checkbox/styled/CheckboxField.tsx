@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { CheckboxVariant, ICheckboxProps } from '..';
+import { CheckboxSize, CheckboxVariant, ICheckboxProps } from '..';
 
 export const CheckboxField = styled.input<ICheckboxProps>`
   box-sizing: border-box;
@@ -16,13 +16,33 @@ export const CheckboxField = styled.input<ICheckboxProps>`
   padding: 0.375rem 0.75rem;
   font-size: 1rem;
   line-height: 1.6;
-  height: 20px;
-  width: 20px;
   border-radius: 0.25rem;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
     border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   overflow: visible;
   text-transform: none;
+
+  height: ${(props) => {
+    switch (props.checkboxSize) {
+      case CheckboxSize.large:
+        return '1.5rem';
+      case CheckboxSize.small:
+        return '1rem';
+      default:
+        return '20px';
+    }
+  }};
+
+  width: ${(props) => {
+    switch (props.checkboxSize) {
+      case CheckboxSize.large:
+        return '1.5rem';
+      case CheckboxSize.small:
+        return '1rem';
+      default:
+        return '20px';
+    }
+  }};
 
   color: ${(props) => {
     switch (props.variant) {

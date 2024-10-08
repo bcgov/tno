@@ -7,7 +7,7 @@ import * as styled from './styled';
 /** Component that displays help text for elastic search queries */
 export const InfoDefaultOperator: React.FC = () => {
   return (
-    <styled.ToggleFilterStyleInfo>
+    <styled.InfoDefaultOperator>
       <FaInfoCircle data-tooltip-id="toggle-info-default-operator" className="info-icon" />
       <TooltipMenu openOnClick id="toggle-info-default-operator">
         <Col>
@@ -60,6 +60,6 @@ export const InfoDefaultOperator: React.FC = () => {
           </div>
         </Col>
       </TooltipMenu>
-    </styled.ToggleFilterStyleInfo>
+    </styled.InfoDefaultOperator>
   );
 };

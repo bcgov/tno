@@ -399,7 +399,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch, setSe
                 </Row>
                 <Row alignItems="center" justifyContent="space-between">
                   Advanced query operators:
-                  <div className="toggle-button">
+                  <div>
                     <ToggleButton
                       on={<FaToggleOn />}
                       off={<FaToggleOff />}

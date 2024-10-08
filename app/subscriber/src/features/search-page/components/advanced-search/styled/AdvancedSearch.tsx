@@ -19,10 +19,6 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     font-size: 0.9em;
   }
 
-  .toggle-button {
-    align-self: left;
-  }
-
   input[type='radio'] {
     margin-top: 0.3rem;
     margin-right: 0.3rem;
