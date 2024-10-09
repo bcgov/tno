@@ -171,6 +171,7 @@
         {
           var content = sectionContent[i];
           if (Settings.Content.HighlightKeywords) ReportExtensions.MarkKeywords(section.Value, content);
+          var isTranscript = ReportExtensions.IsTranscriptAvailable(content);
           var sentiment = ReportExtensions.GetSentiment(content, Model, true);
           var headline = ReportExtensions.GetHeadline(content, Model);
           var body = ReportExtensions.GetBody(content, Model);
@@ -245,6 +246,13 @@
               }
             </div>
           </div>
+          @if (isTranscript)
+          {
+            <div style="display: inline-block; margin-top: 5px;">
+              <img src="@($"{SubscriberAppUrl}asset/reports/transcript_icon.png")">
+              <span style="font-size: 14px;">Transcript</span>
+            </div>
+          }
           @if (!String.IsNullOrEmpty(body))
           {
             <div style="font-size:1em; margin-bottom: 10px;text-align:left;">@body</div>
