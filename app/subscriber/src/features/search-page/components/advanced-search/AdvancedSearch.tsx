@@ -1,4 +1,3 @@
-import { FormikForm } from 'components/formik';
 import { PageSection } from 'components/section';
 import { useElastic } from 'features/my-searches/hooks';
 import { useSearchPageContext } from 'features/search-page/SearchPageContext';
@@ -31,10 +30,10 @@ import {
   Button,
   Claim,
   Col,
-  FormikRadioGroup,
   getCookie,
   IFilterModel,
   IFilterSettingsModel,
+  RadioGroup,
   Row,
   setCookie,
   Show,
@@ -72,10 +71,6 @@ export interface IAdvancedSearchProps {
 
   /** Function to update the search terms state */
   setSearchFilter: React.Dispatch<React.SetStateAction<IFilterSettingsModel | null>>;
-}
-
-interface IOperatorModel {
-  searchOperator: string;
 }
 
 /***
@@ -291,10 +286,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch, setSe
     }
   }, [search, storeSearchFilter]);
 
-  const initValues: IOperatorModel = {
-    searchOperator: '',
-  };
-
   return (
     <styled.AdvancedSearch expanded={expanded}>
       <PageSection
@@ -380,11 +371,9 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch, setSe
               <ExpandableRow icon={<FaGears />} title="Advanced Options:" hasValues={false}>
                 <Row alignItems="center" justifyContent="space-between">
                   Default operator:
-                  <FormikForm initialValues={initValues} onSubmit={() => {}}>
-                    <FormikRadioGroup
-                      label=""
+                  <div className="radio-group">
+                    <RadioGroup
                       name="searchOperator"
-                      direction="row"
                       value={
                         SearchOperatorOptions[
                           search.defaultOperator as keyof typeof SearchOperatorOptions
@@ -401,8 +390,9 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch, setSe
                       }}
                       options={[SearchOperatorOptions.and, SearchOperatorOptions.or]}
                       required={true}
+                      direction={'row'}
                     />
-                  </FormikForm>
+                  </div>
                   <InfoDefaultOperator />
                 </Row>
                 <Row alignItems="center" justifyContent="space-between">

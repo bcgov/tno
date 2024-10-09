@@ -19,6 +19,10 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     font-size: 0.9em;
   }
 
+  .radio-group {
+    width: 8rem;
+  }
+
   input[type='radio'] {
     margin-top: 0.3rem;
     margin-right: 0.3rem;
