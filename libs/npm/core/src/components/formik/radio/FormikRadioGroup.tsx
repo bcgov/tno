@@ -14,6 +14,7 @@ export const FormikRadioGroup = <T, OT extends string | number | IOptionItem | H
   disabled,
   onChange,
   onBlur,
+  direction = 'column',
   ...rest
 }: IFormikRadioGroupProps<OT>) => {
   const { values, errors, touched, handleBlur, isSubmitting, setFieldValue } =
@@ -38,6 +39,7 @@ export const FormikRadioGroup = <T, OT extends string | number | IOptionItem | H
       className={error ? `${className ?? ''} error` : className}
       disabled={disabled || isSubmitting}
       variant={disabled ? RadioVariant.disabled : RadioVariant.primary}
+      direction={direction}
       {...rest}
     />
   );
