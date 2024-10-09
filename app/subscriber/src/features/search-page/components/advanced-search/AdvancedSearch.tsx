@@ -74,6 +74,10 @@ export interface IAdvancedSearchProps {
   setSearchFilter: React.Dispatch<React.SetStateAction<IFilterSettingsModel | null>>;
 }
 
+interface IOperatorModel {
+  searchOperator: string;
+}
+
 /***
  * AdvancedSearch is a component that displays the advanced search form in the sidebar.
  * @param expanded - determines whether the advanced search form is expanded or not
@@ -287,6 +291,10 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch, setSe
     }
   }, [search, storeSearchFilter]);
 
+  const initValues: IOperatorModel = {
+    searchOperator: '',
+  };
+
   return (
     <styled.AdvancedSearch expanded={expanded}>
       <PageSection
@@ -372,7 +380,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch, setSe
               <ExpandableRow icon={<FaGears />} title="Advanced Options:" hasValues={false}>
                 <Row alignItems="center" justifyContent="space-between">
                   Default operator:
-                  <FormikForm initialValues={{}} onSubmit={() => {}}>
+                  <FormikForm initialValues={initValues} onSubmit={() => {}}>
                     <FormikRadioGroup
                       label=""
                       name="searchOperator"
