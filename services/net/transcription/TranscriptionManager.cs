@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.Ches;
 using TNO.Ches.Configuration;
+using TNO.Services.Transcription.Exceptions;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
@@ -15,7 +16,6 @@ using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.Managers;
 using TNO.Services.Transcription.Config;
-
 namespace TNO.Services.Transcription;
 
 /// <summary>
@@ -29,6 +29,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
     private readonly WorkOrderStatus[] _ignoreWorkOrders = new WorkOrderStatus[] { WorkOrderStatus.Completed, WorkOrderStatus.Cancelled, WorkOrderStatus.Failed };
     private int _retries = 0;
+
     #endregion
 
     #region Properties
@@ -300,13 +301,15 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
                     else if (String.IsNullOrWhiteSpace(transcript))
                     {
                         this.Logger.LogWarning("Content did not generate a transcript. Content ID: {Id}", request.ContentId);
-                        await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed);
+                        var emptyTranscriptException = new EmptyTranscriptException(request.ContentId);
+                        await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed, emptyTranscriptException);
                     }
                     else
                     {
                         // The content is no longer available for some reason.
                         this.Logger.LogError("Content no longer exists. Content ID: {Id}", request.ContentId);
-                        await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed);
+                        var contentNotFoundException = new ContentNotFoundException(request.ContentId);
+                        await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed, contentNotFoundException);
                     }
                 }
                 else
@@ -318,7 +321,8 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         else
         {
             this.Logger.LogError("File does not exist for content. Content ID: {Id}, Path: {path}", request.ContentId, safePath);
-            await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed);
+            var workOrderFailedException = new FileMissingException(request.ContentId, safePath);
+            await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed, workOrderFailedException);
         }
     }
 
@@ -348,7 +352,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <param name="request"></param>
     /// <param name="status"></param>
     /// <returns>Whether a work order exists or is not required.</returns>
-    private async Task<bool> UpdateWorkOrderAsync(TranscriptRequestModel request, WorkOrderStatus status)
+    private async Task<bool> UpdateWorkOrderAsync(TranscriptRequestModel request, WorkOrderStatus status, Exception? reason = null)
     {
         if (request.WorkOrderId > 0)
         {
@@ -357,6 +361,13 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             {
                 workOrder.Status = status;
                 await this.Api.UpdateWorkOrderAsync(workOrder);
+
+                if (status == WorkOrderStatus.Failed && reason != null)
+                {
+                    await this.SendErrorEmailAsync($"Work order failed for Content ID: {request.ContentId}", reason);
+                    this.Logger.LogError(reason, "Work order failed for Content ID: {ContentId}", request.ContentId);
+                }
+
                 return true;
             }
         }
