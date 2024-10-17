@@ -4,6 +4,7 @@ import { FaAngleRight } from 'react-icons/fa';
 import { FaFileExport, FaSpinner } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useReports } from 'store/hooks';
+import { useProfileStore } from 'store/slices';
 import {
   Col,
   IContentModel,
@@ -13,6 +14,7 @@ import {
   ReportSectionTypeName,
   ReportStatusName,
   Row,
+  Select,
   Show,
 } from 'tno-core';
 
@@ -36,6 +38,9 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
     (r) => ['find-my-reports', 'generate-report'].includes(r.url) || r.group.includes('get-report'),
   );
   const isAdding = requests.some((r) => r.url === 'add-content-to-report');
+  const [{ reportsFilter }, { storeReportsFilter }] = useProfileStore();
+
+  const [filter, setFilter] = React.useState(reportsFilter);
 
   React.useEffect(() => {
     if (!myReports.length) {
@@ -106,6 +111,21 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
         <FaFileExport /> <span>ADD TO REPORT</span>
         <TooltipMenu clickable openOnClick id="tooltip-add-to-report" place="bottom">
           <Row className="choose-report">Choose Report...</Row>
+          <Select
+            name="searchReport"
+            onKeyUpCapture={(e) => {
+              if (e.key === 'Enter') setFilter(filter);
+            }}
+            onChange={(newValue: any) => {
+              // storeReportsFilter(newValue);
+              setFilter(newValue);
+            }}
+            options={myReports.map((report) => ({
+              label: report.name,
+              value: report.id,
+            }))}
+            value={myReports.find((report) => report.name === filter)}
+          />
           <Col className="list">
             <Loader visible={isLoading} />
             {myReports.map((report) => (
