@@ -14,7 +14,8 @@ namespace TNO.Services.Syndication.Xml;
 public class RssItem
 {
     // this namespace is for iPolitics syndication content format
-    private static XNamespace contentXNameSpace = "http://purl.org/rss/1.0/modules/content/";
+    private static XNamespace contentXNamespace = "http://purl.org/rss/1.0/modules/content/";
+    private static XNamespace dcXNamespace = "http://purl.org/dc/elements/1.1/";
     #region Properties
     /// <summary>
     /// get/set - The title of the item.
@@ -95,7 +96,7 @@ public class RssItem
         this.Title = element.Element("title")?.Value;
         this.Description = element.Element("description")?.Value;
         
-        var contentList = element.Descendants(contentXNameSpace + "encoded");
+        var contentList = element.Descendants(contentXNamespace + "encoded");
         if (contentList != null && contentList.Any())
         {
             this.Content = contentList.FirstOrDefault()?.ToString();
@@ -117,6 +118,14 @@ public class RssItem
         }
 
         this.Author = element.Element("author")?.Value;
+        if (this.Author == null || string.IsNullOrEmpty(this.Author))
+        {
+            var creator = element.Descendants(dcXNamespace + "creator");
+            if (creator != null && creator.Any())
+            {
+                this.Author = creator.FirstOrDefault()?.Value.ToString();
+            }
+        }
 
         var comments = element.Element("comments")?.Value;
         if (Uri.TryCreate(comments, UriKind.RelativeOrAbsolute, out Uri? commentUri)) this.Comments = commentUri;
@@ -171,7 +180,16 @@ public class RssItem
             SourceFeed = item.Source,
         };
         item.Categories.ForEach(c => result.Categories.Add(c));
-        if (!String.IsNullOrWhiteSpace(item.Author)) result.Authors.Add(new SyndicationPerson(item.Author));
+        if (!String.IsNullOrWhiteSpace(item.Author)) {
+            if (item.Author.Contains("@"))  // if the author contains "@" assume it is email
+            {
+                result.Authors.Add(new SyndicationPerson(item.Author));
+            }
+            else  // otherwise, add author string as name
+            {
+                result.Authors.Add(new SyndicationPerson(null, item.Author, null));
+            }
+        }
         if (item.PublishedOn != null) result.PublishDate = item.PublishedOn.Value;
         result.Links.Add(new SyndicationLink(item.Link, "alternate", null, null, 0));
         if (item.Enclosure != null) result.Links.Add(item.Enclosure);
