@@ -38,7 +38,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
     (r) => ['find-my-reports', 'generate-report'].includes(r.url) || r.group.includes('get-report'),
   );
   const isAdding = requests.some((r) => r.url === 'add-content-to-report');
-  const [{ reportsFilter }, { storeReportsFilter }] = useProfileStore();
+  const [{ reportsFilter }] = useProfileStore();
 
   const [filter, setFilter] = React.useState(reportsFilter);
 
