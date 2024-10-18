@@ -3,6 +3,11 @@ using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.Runners;
 using TNO.Services.Transcription.Config;
+using TNO.DAL.Services;
+using TNO.DAL;
+using TNO.DAL.Config;
+using Microsoft.Extensions.Options;
+
 
 namespace TNO.Services.Transcription;
 
@@ -37,10 +42,14 @@ public class TranscriptionService : KafkaConsumerService
     protected override IServiceCollection ConfigureServices(IServiceCollection services)
     {
         base.ConfigureServices(services);
+        // services.AddSingleton(sp => sp.GetRequiredService<IOptions<StorageOptions>>().Value);
         services
             .Configure<TranscriptionOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IKafkaListener<string, TranscriptRequestModel>, KafkaListener<string, TranscriptRequestModel>>()
-            .AddSingleton<IServiceManager, TranscriptionManager>();
+            .AddSingleton<IServiceManager, TranscriptionManager>()
+            .AddSingleton<IS3StorageService, S3StorageService>()
+            .AddS3Config(this.Configuration.GetSection("S3"))
+            .AddSingleton(sp => sp.GetRequiredService<IOptions<StorageOptions>>().Value);
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<TranscriptionOptions>()

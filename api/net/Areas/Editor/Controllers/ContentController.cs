@@ -46,6 +46,7 @@ public class ContentController : ControllerBase
     #region Variables
     private readonly IContentService _contentService;
     private readonly IFileReferenceService _fileReferenceService;
+    private readonly IS3StorageService _s3StorageService;
     private readonly IWorkOrderService _workOrderService;
     private readonly IWorkOrderHelper _workOrderHelper;
     private readonly IUserService _userService;
@@ -83,6 +84,7 @@ public class ContentController : ControllerBase
     /// <param name="elasticOptions"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
+    /// <param name="s3StorageService"></param>
     public ContentController(
         IContentService contentService,
         IFileReferenceService fileReferenceService,
@@ -99,7 +101,8 @@ public class ContentController : ControllerBase
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<KafkaHubConfig> kafkaHubOptions,
         IOptions<JsonSerializerOptions> serializerOptions,
-        ILogger<ContentController> logger)
+        ILogger<ContentController> logger,
+        IS3StorageService s3StorageService)
     {
         _contentService = contentService;
         _fileReferenceService = fileReferenceService;
@@ -117,6 +120,7 @@ public class ContentController : ControllerBase
         _elasticOptions = elasticOptions.Value;
         _serializerOptions = serializerOptions.Value;
         _logger = logger;
+        _s3StorageService = s3StorageService;
     }
     #endregion
 
@@ -561,7 +565,7 @@ public class ContentController : ControllerBase
         var fileReference = _fileReferenceService.FindByContentId(id).FirstOrDefault() ?? throw new NoContentException("File does not exist");
         if (fileReference.IsSyncedToS3 && !string.IsNullOrWhiteSpace(fileReference.S3Path))
         {
-            var s3Stream = await _fileReferenceService.DownloadFromS3Async(fileReference.S3Path);
+            var s3Stream = await _s3StorageService.DownloadFromS3Async(fileReference.S3Path);
             if (s3Stream != null)
                 return File(s3Stream, fileReference.ContentType);
         }
@@ -583,7 +587,7 @@ public class ContentController : ControllerBase
     {
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         //find file from s3
-        var stream = await _fileReferenceService.DownloadFromS3Async(path);
+        var stream = await _s3StorageService.DownloadFromS3Async(path);
         if (stream != null)
         {
             return File(stream, "application/octet-stream");
