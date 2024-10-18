@@ -20,10 +20,5 @@ public interface IFileReferenceService : IBaseService<FileReference, long>
 
     Task<IEnumerable<FileReference>> GetFiles(DateTime? createdAfter = null, DateTime? createdBefore = null, int limit = 100, bool force = false);
 
-    Task<bool> UploadToS3Async(string s3Key, Stream fileStream);
-
-    Task<Stream?> DownloadFromS3Async(string s3Key);
-
     Task<FileReference> UpdateAsync(FileReference entity);
-    Task<bool> TestS3NetworkConnectionAsync();
 }

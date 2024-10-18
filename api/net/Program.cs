@@ -28,6 +28,7 @@ using TNO.Core.Converters;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
 using TNO.DAL;
+using TNO.DAL.Services;
 using TNO.Kafka;
 using TNO.Keycloak;
 using TNO.TemplateEngine;
@@ -81,6 +82,7 @@ config.GetSection("SignalR").Bind(signalROptions);
 builder.Services.AddOptions<TNO.API.Config.KeycloakOptions>().Bind(config.GetSection("Keycloak"));
 builder.Services.AddSingleton<IAuthorizationHandler, KeycloakClientRoleHandler>();
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, ClientRoleAuthorizationPolicyProvider>();
+builder.Services.AddSingleton<IS3StorageService, S3StorageService>();
 builder.Services.AddAuthorization(options =>
     {
         // options.AddPolicy("administrator", policy => policy.Requirements.Add(new KeycloakClientRoleRequirement("administrator")));

@@ -61,6 +61,11 @@ public class ServiceOptions
     public string EmailTo { get; set; } = "";
 
     /// <summary>
+    /// get/set - Who to send email notice to.
+    /// </summary>
+    public string NoticeEmailTo { get; set; } = "";
+
+    /// <summary>
     /// get/set - Number of millisecond timeout for HTTP requests.
     /// </summary>
     public int HttpRequestTimeoutMs { get; set; } = 300000;

@@ -41,6 +41,7 @@ public class StorageController : ControllerBase
     private readonly StorageOptions _storageOptions;
     private readonly ApiOptions _apiOptions;
     private readonly IFileReferenceService _fileReferenceService;
+    private readonly IS3StorageService _s3StorageService;
     private readonly ILogger<StorageController> _logger;
     private readonly S3Options _s3Options;
     #endregion
@@ -55,8 +56,15 @@ public class StorageController : ControllerBase
     /// <param name="fileReferenceService"></param>
     /// <param name="logger"></param>
     /// <param name="s3Options"></param>
-    public StorageController(IConnectionHelper connection, IOptions<StorageOptions> storageOptions, IOptions<ApiOptions> apiOptions,
-        IFileReferenceService fileReferenceService, ILogger<StorageController> logger, IOptions<S3Options> s3Options)
+    /// <param name="s3StorageService"></param>
+    public StorageController(
+        IConnectionHelper connection,
+        IOptions<StorageOptions> storageOptions,
+        IOptions<ApiOptions> apiOptions,
+        IFileReferenceService fileReferenceService,
+        ILogger<StorageController> logger,
+        IOptions<S3Options> s3Options,
+        IS3StorageService s3StorageService)
     {
         _connection = connection;
         _storageOptions = storageOptions.Value;
@@ -64,6 +72,7 @@ public class StorageController : ControllerBase
         _fileReferenceService = fileReferenceService;
         _logger = logger;
         _s3Options = s3Options.Value;
+        _s3StorageService = s3StorageService;
     }
     #endregion
 
@@ -270,7 +279,7 @@ public class StorageController : ControllerBase
     private async Task<IActionResult> GetResultAsync(string safePath, string path)
     {
         //find file from s3
-        var stream = await _fileReferenceService.DownloadFromS3Async(path);
+        var stream = await _s3StorageService.DownloadFromS3Async(path);
         if (stream != null)
         {
             return File(stream, "application/octet-stream");
@@ -555,7 +564,7 @@ public class StorageController : ControllerBase
                     // use relative path as S3 key
                     var s3Key = fileReference.Path.Replace("\\", "/"); // make sure use forward slash as path separator
                     _logger.LogInformation($"uploading: {s3Key}");
-                    var uploadSuccess = await _fileReferenceService.UploadToS3Async(s3Key, fileStream);
+                    var uploadSuccess = await _s3StorageService.UploadToS3Async(s3Key, fileStream);
 
                     if (uploadSuccess)
                     {
