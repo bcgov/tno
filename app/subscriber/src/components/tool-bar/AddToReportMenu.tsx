@@ -117,60 +117,61 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
               if (e.key === 'Enter') setFilter(filter);
             }}
             onChange={(newValue: any) => {
-              // storeReportsFilter(newValue);
-              setFilter(newValue);
+              setFilter(newValue.label);
             }}
             options={myReports.map((report) => ({
               label: report.name,
               value: report.id,
             }))}
-            value={myReports.find((report) => report.name === filter)}
+            value={filter}
           />
           <Col className="list">
             <Loader visible={isLoading} />
-            {myReports.map((report) => (
-              <Show key={report.id} visible={!!report.sections.length}>
-                <Row
-                  className="report-item"
-                  onClick={() => {
-                    // allow user to toggle close list of sections
-                    if (activeReport?.id === report.id) setActiveReport(undefined);
-                    else setActiveReport(report);
-                  }}
-                  data-tooltip-id={`tooltip-add-to-section`}
-                >
-                  <FaFileExport
-                    className={`report-icon ${activeReport?.id === report.id && 'expanded'}`}
-                  />
-                  <div className="report-name">{report.name}</div>
-                </Row>
-                <Show visible={!!activeReport && activeReport.id === report.id}>
-                  <div className={`section-list`}>
-                    {activeReport?.sections.map(
-                      (section) =>
-                        section.sectionType === ReportSectionTypeName.Content && (
-                          <Row
-                            key={section.id}
-                            className="section"
-                            onClick={() =>
-                              !isAdding &&
-                              content.length &&
-                              inProgress.sectionName !== section.name &&
-                              handleAddToReport(report, section.name, content)
-                            }
-                          >
-                            <FaAngleRight className="active-section" />
-                            {section.settings.label}
-                            {section.name === inProgress.sectionName && inProgress.value && (
-                              <FaSpinner className="spinner" />
-                            )}
-                          </Row>
-                        ),
-                    )}
-                  </div>
+            {myReports
+              .filter((report) => report.name === filter)
+              .map((report) => (
+                <Show key={report.id} visible={!!report.sections.length}>
+                  <Row
+                    className="report-item"
+                    onClick={() => {
+                      // allow user to toggle close list of sections
+                      if (activeReport?.id === report.id) setActiveReport(undefined);
+                      else setActiveReport(report);
+                    }}
+                    data-tooltip-id={`tooltip-add-to-section`}
+                  >
+                    <FaFileExport
+                      className={`report-icon ${activeReport?.id === report.id && 'expanded'}`}
+                    />
+                    <div className="report-name">{report.name}</div>
+                  </Row>
+                  <Show visible={!!activeReport && activeReport.id === report.id}>
+                    <div className={`section-list`}>
+                      {activeReport?.sections.map(
+                        (section) =>
+                          section.sectionType === ReportSectionTypeName.Content && (
+                            <Row
+                              key={section.id}
+                              className="section"
+                              onClick={() =>
+                                !isAdding &&
+                                content.length &&
+                                inProgress.sectionName !== section.name &&
+                                handleAddToReport(report, section.name, content)
+                              }
+                            >
+                              <FaAngleRight className="active-section" />
+                              {section.settings.label}
+                              {section.name === inProgress.sectionName && inProgress.value && (
+                                <FaSpinner className="spinner" />
+                              )}
+                            </Row>
+                          ),
+                      )}
+                    </div>
+                  </Show>
                 </Show>
-              </Show>
-            ))}
+              ))}
           </Col>
         </TooltipMenu>
       </div>
