@@ -24,14 +24,14 @@ using TNO.API.Keycloak;
 using TNO.API.Middleware;
 using TNO.API.SignalR;
 using TNO.Ches;
-using TNO.Core.Converters;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
 using TNO.DAL;
-using TNO.DAL.Services;
 using TNO.Kafka;
 using TNO.Keycloak;
 using TNO.TemplateEngine;
+using TNO.Core.Storage.Configuration;
+using TNO.Core.Storage;
 
 DotNetEnv.Env.Load();
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -82,7 +82,6 @@ config.GetSection("SignalR").Bind(signalROptions);
 builder.Services.AddOptions<TNO.API.Config.KeycloakOptions>().Bind(config.GetSection("Keycloak"));
 builder.Services.AddSingleton<IAuthorizationHandler, KeycloakClientRoleHandler>();
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, ClientRoleAuthorizationPolicyProvider>();
-builder.Services.AddSingleton<IS3StorageService, S3StorageService>();
 builder.Services.AddAuthorization(options =>
     {
         // options.AddPolicy("administrator", policy => policy.Requirements.Add(new KeycloakClientRoleRequirement("administrator")));
@@ -203,8 +202,9 @@ builder.Services
     .AddScoped<ITopicScoreHelper, TopicScoreHelper>()
     .AddScoped<IImpersonationHelper, ImpersonationHelper>()
     .AddChesService(config.GetSection("CHES"))
+    .Configure<S3Options>(config.GetSection("S3"))
+    .AddSingleton<IS3StorageService, S3StorageService>()
     .AddTNOServices(config, env)
-    .AddS3Config(config.GetSection("S3"))
     .AddTemplateEngine(config)
     .AddKafkaMessenger(config)
     .AddHttpClient()

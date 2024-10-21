@@ -16,7 +16,7 @@ using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.Managers;
 using TNO.Services.Transcription.Config;
-using TNO.DAL.Services;
+using TNO.Core.Storage;
 namespace TNO.Services.Transcription;
 
 /// <summary>
@@ -333,10 +333,14 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         var downloadedFile = string.Empty;
         if (isSyncedToS3 == true)
         {
+            safePath = contentFile?.S3Path;
             if (!string.IsNullOrEmpty(contentFile?.S3Path))
             {
-                safePath = await DownloadS3File(contentFile?.S3Path);
-                downloadedFile = safePath;
+                downloadedFile = await DownloadS3File(contentFile?.S3Path);
+                if (!string.IsNullOrEmpty(downloadedFile))
+                {
+                    safePath = downloadedFile;
+                }
             }
         }
 

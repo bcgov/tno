@@ -1,8 +1,6 @@
 using System.Net;
 using System.Net.Mime;
 using System.Web;
-using Amazon.S3;
-using Amazon.S3.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
@@ -12,6 +10,8 @@ using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
+using TNO.Core.Storage;
+using TNO.Core.Storage.Configuration;
 using TNO.DAL.Config;
 using TNO.DAL.Helpers;
 using TNO.DAL.Services;

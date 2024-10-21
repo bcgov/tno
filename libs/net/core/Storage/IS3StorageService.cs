@@ -1,4 +1,4 @@
-namespace TNO.DAL.Services;
+namespace TNO.Core.Storage;
 
 public interface IS3StorageService
 {

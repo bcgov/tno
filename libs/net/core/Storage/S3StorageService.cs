@@ -1,29 +1,28 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.DAL.Config;
 using Amazon.S3.Model;
 using Amazon.Runtime;
 using Amazon.S3;
+using TNO.Core.Storage.Configuration;
 
-namespace TNO.DAL.Services;
+namespace TNO.Core.Storage;
 
 public class S3StorageService : IS3StorageService
 {
     #region Properties
-    private readonly StorageOptions _options;
     private readonly S3Options _s3Options;
     protected ILogger<S3StorageService> _logger { get; }
+    private static AmazonS3Client? _client;
     #endregion
 
     #region Constructors
     public S3StorageService(
-        StorageOptions options,
         IOptions<S3Options> s3Options,
         ILogger<S3StorageService> logger)
     {
-        _options = options;
         _s3Options = s3Options.Value;
         this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _client = CreateS3Client();
     }
     #endregion
 
@@ -64,8 +63,7 @@ public class S3StorageService : IS3StorageService
             return false;
         }
 
-        using var s3Client = CreateS3Client();
-        if (s3Client == null)
+        if (_client == null)
         {
             return false;
         }
@@ -79,7 +77,7 @@ public class S3StorageService : IS3StorageService
 
         try
         {
-            var response = await s3Client.PutObjectAsync(putRequest);
+            var response = await _client.PutObjectAsync(putRequest);
 
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -105,8 +103,7 @@ public class S3StorageService : IS3StorageService
             return null;
         }
 
-        using var s3Client = CreateS3Client();
-        if (s3Client == null)
+        if (_client == null)
         {
             return null;
         }
@@ -119,7 +116,7 @@ public class S3StorageService : IS3StorageService
                 Key = s3Key
             };
 
-            var response = await s3Client.GetObjectAsync(request);
+            var response = await _client.GetObjectAsync(request);
 
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {
