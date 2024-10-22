@@ -1,3 +1,4 @@
+using System.Reflection.Metadata;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Ches;
@@ -7,6 +8,12 @@ using TNO.Services.Config;
 
 namespace TNO.Services.Managers;
 
+public enum EmailToType
+{
+    Error,
+    Notice
+}
+
 /// <summary>
 /// ServiceManager class, provides a way to manage the running of a service.
 /// The primary role of the service manager is to manage the state of the current service.
@@ -15,6 +22,7 @@ public abstract class ServiceManager<TOption> : IServiceManager
     where TOption : ServiceOptions
 {
     #region Variables
+    private const string PRODUCTION_ENV = "Production";
     #endregion
 
     #region Properties
@@ -87,14 +95,27 @@ public abstract class ServiceManager<TOption> : IServiceManager
     /// </summary>
     /// <param name="subject"></param>
     /// <param name="message"></param>
+    /// <param name="emailToType"></param>
     /// <returns></returns>
-    public async Task SendEmailAsync(string subject, string message)
+    public async Task SendEmailAsync(string subject, string message, EmailToType emailToType = EmailToType.Error)
     {
-        if (this.Options.SendEmailOnFailure && !string.IsNullOrEmpty(this.Options.EmailTo))
+        if (this.Options.SendEmailOnFailure &&
+            (!string.IsNullOrEmpty(this.Options.EmailTo) || !string.IsNullOrEmpty(this.Options.NoticeEmailTo)))
         {
             try
             {
-                var emailToList = this.Options.EmailTo?.Split(',').Where(v => !String.IsNullOrWhiteSpace(v)).Select(v => v.Trim()).ToArray() ?? Array.Empty<string>();
+                var emailToList = Array.Empty<string>();
+                switch (emailToType)
+                {
+                    case EmailToType.Error:
+                        emailToList = this.Options.EmailTo?.Split(',').Where(v => !String.IsNullOrWhiteSpace(v)).Select(v => v.Trim()).ToArray() ?? Array.Empty<string>();
+                        break;
+                    case EmailToType.Notice:
+                        emailToList = this.Options.NoticeEmailTo?.Split(',').Where(v => !String.IsNullOrWhiteSpace(v)).Select(v => v.Trim()).ToArray() ?? Array.Empty<string>();
+                        break;
+                    default:
+                        break;
+                }
                 if (emailToList.Any())
                 {
                     var email = new TNO.Ches.Models.EmailModel(this.ChesOptions.From, emailToList, subject, message);
@@ -124,7 +145,7 @@ public abstract class ServiceManager<TOption> : IServiceManager
     /// <returns></returns>
     public async Task SendErrorEmailAsync(string subject, Exception ex)
     {
-        string env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+        string env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? PRODUCTION_ENV;
         string? serviceName = GetType().FullName ?? "Service";
         string errorMsg = $"<div>An error occurred while executing the {serviceName} service.</div>{Environment.NewLine}" +
         $"<div>Environment: {env}</div>{Environment.NewLine}" +
@@ -132,7 +153,25 @@ public abstract class ServiceManager<TOption> : IServiceManager
         $"<div>{ex.Message}</div>{Environment.NewLine}" +
         $"<div>StackTrace:</div>{Environment.NewLine}" +
         $"<div>{ex.StackTrace}</div>";
-        await this.SendEmailAsync($"{env} - {serviceName} Service - {subject}", errorMsg);
+        await this.SendEmailAsync($"{env} - {serviceName} Service - {subject}", errorMsg, EmailToType.Error);
+    }
+
+    /// <summary>
+    /// Send notice email.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <param name="ex"></param>
+    /// <returns></returns>
+    public async Task SendNoticeEmailAsync(string subject, Exception ex)
+    {
+        string env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? PRODUCTION_ENV;
+        string? serviceName = GetType().FullName ?? "Service";
+        string errorMsg = $"<div><p><h3>Error Notice:</h3></p></div>{Environment.NewLine}" +
+        $"<div><p><b>An error occurred while executing the {serviceName} service.</b></p></div>{Environment.NewLine}" +
+        $"<div><p>Service Name: {serviceName}</p></div>{Environment.NewLine}" +
+        $"<div><p>Environment: {env}</p></div>{Environment.NewLine}" +
+        $"<div><p>Error Message: {ex.Message}</p></div>{Environment.NewLine}";
+        await this.SendEmailAsync($"MMI Notice - {subject}", errorMsg, EmailToType.Notice);
     }
 
     /// <summary>

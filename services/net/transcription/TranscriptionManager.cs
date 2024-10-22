@@ -16,6 +16,7 @@ using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.Managers;
 using TNO.Services.Transcription.Config;
+using TNO.Core.Storage;
 namespace TNO.Services.Transcription;
 
 /// <summary>
@@ -24,6 +25,7 @@ namespace TNO.Services.Transcription;
 public class TranscriptionManager : ServiceManager<TranscriptionOptions>
 {
     #region Variables
+    private readonly IS3StorageService _s3StorageService;
     private CancellationTokenSource? _cancelToken;
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
@@ -49,19 +51,22 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <param name="chesOptions"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
+    /// <param name="s3StorageService"></param>
     public TranscriptionManager(
         IKafkaListener<string, TranscriptRequestModel> listener,
         IApiService api,
         IChesService chesService,
         IOptions<ChesOptions> chesOptions,
         IOptions<TranscriptionOptions> options,
-        ILogger<TranscriptionManager> logger)
+        ILogger<TranscriptionManager> logger,
+        IS3StorageService s3StorageService)
         : base(api, chesService, chesOptions, options, logger)
     {
         this.Listener = listener;
         this.Listener.IsLongRunningJob = true;
         this.Listener.OnError += ListenerErrorHandler;
         this.Listener.OnStop += ListenerStopHandler;
+        _s3StorageService = s3StorageService;
     }
     #endregion
 
@@ -251,6 +256,65 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     }
 
     /// <summary>
+    /// Get local temp directory
+    /// </summary>
+    /// <returns></returns>
+    private string GetTempDirectory()
+    {
+        var tempPath = Path.Join(this.Options.VolumePath, "temp".MakeRelativePath());
+        if (!Directory.Exists(tempPath))
+        {
+            Directory.CreateDirectory(tempPath);
+        }
+        return tempPath;
+    }
+
+    /// <summary>
+    /// Clean up temp files that are downloaded from s3 or generated from downloaded s3 file
+    /// </summary>
+    /// <param name="files"></param>
+    private void CleanupS3Files(params string[] files)
+    {
+        foreach(var file in files)
+        {
+            if (File.Exists(file))
+            {
+                File.Delete(file);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Download S3 files
+    /// </summary>
+    /// <param name="s3Path"></param>
+    /// <returns></returns>
+    private async Task<string> DownloadS3File(string? s3Path)
+    {
+        if (!string.IsNullOrEmpty(s3Path))
+        {
+            var tempDir = GetTempDirectory();
+            var s3FileStream = await _s3StorageService.DownloadFromS3Async(s3Path);
+            if (s3FileStream != null)
+            {
+                var fileName = Path.GetFileName(s3Path);
+                var tmpFilePath = Path.Combine(tempDir, fileName);
+                if (File.Exists(tmpFilePath))
+                {
+                    File.Delete(tmpFilePath);
+                }
+
+                using (var fileStream = new FileStream(tmpFilePath, FileMode.Create, FileAccess.Write))
+                {
+                    s3FileStream.CopyTo(fileStream);
+                    return tmpFilePath;
+                }
+            }
+        }
+        return string.Empty;
+    }
+
+    /// <summary>
     /// Make a request to generate a transcription for the specified 'content'.
     /// </summary>
     /// <param name="request"></param>
@@ -259,23 +323,40 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <exception cref="ArgumentException"></exception>
     private async Task UpdateTranscriptionAsync(TranscriptRequestModel request, ContentModel content)
     {
+        var requestContentId = request.ContentId;
         // TODO: Handle different storage locations.
         // Remote storage locations may not be easily accessible by this service.
-        var path = content.FileReferences.FirstOrDefault()?.Path;
+        var contentFile = content.FileReferences.FirstOrDefault();
+        var path = contentFile?.Path;
         var safePath = Path.Join(this.Options.VolumePath, path.MakeRelativePath());
+        var isSyncedToS3 = contentFile?.IsSyncedToS3;
+        var downloadedFile = string.Empty;
+        if (isSyncedToS3 == true)
+        {
+            safePath = contentFile?.S3Path;
+            if (!string.IsNullOrEmpty(contentFile?.S3Path))
+            {
+                downloadedFile = await DownloadS3File(contentFile?.S3Path);
+                if (!string.IsNullOrEmpty(downloadedFile))
+                {
+                    safePath = downloadedFile;
+                }
+            }
+        }
 
         if (File.Exists(safePath))
         {
+            var destFile = safePath.Replace(Path.GetExtension(safePath), ".mp3");
             // convert to audio if it's video file
             var ext = Path.GetExtension(safePath)[1..].ToLower();
             if (this.Options.ConvertToAudio.Contains(ext))
             {
-                safePath = await Video2Audio(safePath);
+                safePath = await Video2Audio(safePath, destFile);
             }
 
             if (!String.IsNullOrEmpty(safePath))
             {
-                this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", request.ContentId);
+                this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", requestContentId);
                 var hasWorkOrder = await UpdateWorkOrderAsync(request, WorkOrderStatus.InProgress);
 
                 if (hasWorkOrder)
@@ -286,29 +367,29 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
 
                     // Fetch content again because it may have been updated by an external source.
                     // This can introduce issues if the transcript has been edited as now it will overwrite what was changed.
-                    content = (await this.Api.FindContentByIdAsync(request.ContentId))!;
+                    content = (await this.Api.FindContentByIdAsync(requestContentId))!;
                     if (content != null && !String.IsNullOrWhiteSpace(transcript))
                     {
                         // The transcription may have been edited during this process and now those changes will be lost.
-                        if (String.CompareOrdinal(original, content.Body) != 0) this.Logger.LogWarning("Transcription will be overwritten.  Content ID: {Id}", request.ContentId);
+                        if (String.CompareOrdinal(original, content.Body) != 0) this.Logger.LogWarning("Transcription will be overwritten.  Content ID: {Id}", requestContentId);
 
                         content.Body = GetFormattedTranscript(transcript);
                         await this.Api.UpdateContentAsync(content); // TODO: This can result in an editor getting a optimistic concurrency error.
-                        this.Logger.LogInformation("Transcription updated.  Content ID: {Id}", request.ContentId);
+                        this.Logger.LogInformation("Transcription updated.  Content ID: {Id}", requestContentId);
 
                         await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
                     }
                     else if (String.IsNullOrWhiteSpace(transcript))
                     {
-                        this.Logger.LogWarning("Content did not generate a transcript. Content ID: {Id}", request.ContentId);
-                        var emptyTranscriptException = new EmptyTranscriptException(request.ContentId);
+                        this.Logger.LogWarning("Content did not generate a transcript. Content ID: {Id}", requestContentId);
+                        var emptyTranscriptException = new EmptyTranscriptException(requestContentId);
                         await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed, emptyTranscriptException);
                     }
                     else
                     {
                         // The content is no longer available for some reason.
-                        this.Logger.LogError("Content no longer exists. Content ID: {Id}", request.ContentId);
-                        var contentNotFoundException = new ContentNotFoundException(request.ContentId);
+                        this.Logger.LogError("Content no longer exists. Content ID: {Id}", requestContentId);
+                        var contentNotFoundException = new ContentNotFoundException(requestContentId);
                         await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed, contentNotFoundException);
                     }
                 }
@@ -316,12 +397,17 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
                 {
                     this.Logger.LogWarning("Request ignored because it does not have a work order");
                 }
+                if (isSyncedToS3 == true)
+                {
+                    CleanupS3Files(new string[]{downloadedFile, destFile});
+                }
             }
         }
         else
         {
-            this.Logger.LogError("File does not exist for content. Content ID: {Id}, Path: {path}", request.ContentId, safePath);
-            var workOrderFailedException = new FileMissingException(request.ContentId, safePath);
+            this.Logger.LogError($"File does not exist for content. Content ID: {requestContentId}, Path: {safePath}");
+            var workOrderFailedException = new FileMissingException(requestContentId, safePath);
+            await this.SendNoticeEmailAsync($"File missing for Content ID: {requestContentId}", workOrderFailedException);
             await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed, workOrderFailedException);
         }
     }
@@ -439,11 +525,11 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <summary>
     /// video to audio
     /// </summary>
-    /// <param name="file">video file</param>
-    /// <returns>audio file name</returns>
-    private async Task<string> Video2Audio(string srcFile)
+    /// <param name="srcFile">source file path</param>
+    /// <param name="destFile">destination file path</param>
+    /// <returns>destination file name</returns>
+    private async Task<string> Video2Audio(string srcFile, string destFile)
     {
-        var destFile = srcFile.Replace(Path.GetExtension(srcFile), ".mp3");
         var process = new System.Diagnostics.Process();
         process.StartInfo.Verb = $"Convert File";
         process.StartInfo.FileName = "/bin/sh";

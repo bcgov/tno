@@ -1,4 +1,4 @@
-namespace TNO.DAL.Config;
+namespace TNO.Core.Storage.Configuration;
 
 /// <summary>
 /// S3 config
