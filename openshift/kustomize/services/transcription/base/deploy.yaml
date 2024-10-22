@@ -78,6 +78,11 @@ spec:
                 configMapKeyRef:
                   name: services
                   key: EMAIL_FAILURE_TO
+            - name: Service__NoticeEmailTo
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: EMAIL_NOTICE_TO
 
             # Authentication Configuration
             - name: Auth__Keycloak__Authority
@@ -167,6 +172,28 @@ spec:
                 configMapKeyRef:
                   name: transcription-service
                   key: IGNORE_CONTENT_PUBLISHED_BEFORE_OFFSET
+
+            # S3 Configuration
+            - name: S3_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-backup-credentials
+                  key: S3_ACCESS_KEY
+            - name: S3_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-backup-credentials
+                  key: S3_SECRET_KEY
+            - name: S3_BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: s3-backup-credentials
+                  key: S3_BUCKET_NAME
+            - name: S3_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: s3-backup-credentials
+                  key: S3_SERVICE_URL
 
             # CHES Configuration
             - name: CHES__From

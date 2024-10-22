@@ -24,13 +24,14 @@ using TNO.API.Keycloak;
 using TNO.API.Middleware;
 using TNO.API.SignalR;
 using TNO.Ches;
-using TNO.Core.Converters;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
 using TNO.DAL;
 using TNO.Kafka;
 using TNO.Keycloak;
 using TNO.TemplateEngine;
+using TNO.Core.Storage.Configuration;
+using TNO.Core.Storage;
 
 DotNetEnv.Env.Load();
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -67,7 +68,7 @@ builder.Services.AddControllers(options =>
       options.JsonSerializerOptions.PropertyNamingPolicy = jsonSerializerOptions.PropertyNamingPolicy;
       options.JsonSerializerOptions.WriteIndented = jsonSerializerOptions.WriteIndented;
       options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-      options.JsonSerializerOptions.Converters.Add(new Int32ToStringJsonConverter());
+      //   options.JsonSerializerOptions.Converters.Add(new Int32ToStringJsonConverter());
   });
 
 builder.Services.AddOptions<KestrelServerOptions>().Bind(config.GetSection("Kestrel"));
@@ -201,6 +202,8 @@ builder.Services
     .AddScoped<ITopicScoreHelper, TopicScoreHelper>()
     .AddScoped<IImpersonationHelper, ImpersonationHelper>()
     .AddChesService(config.GetSection("CHES"))
+    .Configure<S3Options>(config.GetSection("S3"))
+    .AddSingleton<IS3StorageService, S3StorageService>()
     .AddTNOServices(config, env)
     .AddTemplateEngine(config)
     .AddKafkaMessenger(config)
@@ -251,7 +254,7 @@ builder.Services.AddSignalR(options =>
         options.PayloadSerializerOptions.PropertyNamingPolicy = jsonSerializerOptions.PropertyNamingPolicy;
         options.PayloadSerializerOptions.WriteIndented = jsonSerializerOptions.WriteIndented;
         options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        options.PayloadSerializerOptions.Converters.Add(new Int32ToStringJsonConverter());
+        // options.PayloadSerializerOptions.Converters.Add(new Int32ToStringJsonConverter());
     });
 
 builder.Services.AddHostedService<QueuedHostedService>();

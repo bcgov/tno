@@ -14,6 +14,7 @@ using TNO.API.Models;
 using TNO.API.Models.SignalR;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
+using TNO.Core.Storage;
 using TNO.DAL.Config;
 using TNO.DAL.Extensions;
 using TNO.DAL.Services;
@@ -43,6 +44,7 @@ public class ContentController : ControllerBase
     #region Variables
     private readonly IContentService _contentService;
     private readonly IFileReferenceService _fileReferenceService;
+    private readonly IS3StorageService _s3StorageService;
     private readonly IUserService _userService;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaHubConfig _kafkaHubOptions;
@@ -70,6 +72,7 @@ public class ContentController : ControllerBase
     /// <param name="notificationService"></param>
     /// <param name="kafkaOptions"></param>
     /// <param name="serializerOptions"></param>
+    /// <param name="s3StorageService"></param>
     public ContentController(
         IContentService contentService,
         IFileReferenceService fileReferenceService,
@@ -81,7 +84,8 @@ public class ContentController : ControllerBase
         IOptions<ElasticOptions> elasticOptions,
         INotificationService notificationService,
         IOptions<KafkaOptions> kafkaOptions,
-        IOptions<JsonSerializerOptions> serializerOptions)
+        IOptions<JsonSerializerOptions> serializerOptions,
+        IS3StorageService s3StorageService)
     {
         _contentService = contentService;
         _fileReferenceService = fileReferenceService;
@@ -94,6 +98,7 @@ public class ContentController : ControllerBase
         _notificationService = notificationService;
         _kafkaOptions = kafkaOptions.Value;
         _serializerOptions = serializerOptions.Value;
+        _s3StorageService = s3StorageService;
     }
     #endregion
 
@@ -145,9 +150,15 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult DownloadFile(long id)
+    public async Task<IActionResult> DownloadFileAsync(long id)
     {
         var fileReference = _fileReferenceService.FindByContentId(id).FirstOrDefault() ?? throw new NoContentException("File does not exist");
+        if (fileReference.IsSyncedToS3 && !string.IsNullOrWhiteSpace(fileReference.S3Path))
+        {
+            var s3Stream = await _s3StorageService.DownloadFromS3Async(fileReference.S3Path);
+            if (s3Stream != null)
+                return File(s3Stream, fileReference.ContentType);
+        }
         var stream = _fileReferenceService.Download(fileReference, _storageOptions.GetUploadPath());
         return File(stream, fileReference.ContentType);
     }
@@ -162,15 +173,25 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.PartialContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult Stream([FromQuery] string path)
+    public async Task<IActionResult> StreamAsync([FromQuery] string path)
     {
+
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
+        //find file from s3
+        var stream = await _s3StorageService.DownloadFromS3Async(path);
+        if (stream != null)
+        {
+            return File(stream, "application/octet-stream");
+        }
+        //find file from local
         var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
+
         if (!safePath.FileExists()) throw new NoContentException("File does not exist");
 
         var info = new ItemModel(safePath);
         var fileStream = System.IO.File.OpenRead(safePath);
         return File(fileStream, info.MimeType!);
+
     }
 
     /// <summary>

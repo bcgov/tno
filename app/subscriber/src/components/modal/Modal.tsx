@@ -8,20 +8,14 @@ import { Col, Row } from 'tno-core/dist/components/flex';
 import * as styled from './styled';
 
 export interface IModalProps {
-  /** function used to toggle the modal visibility */
-  hide?: () => void;
   /** boolean value used to determine whether to show the modal or not */
   isShowing?: boolean;
   /** the text to show along with the cancel button to close the modal */
   cancelText?: string;
   /** the text to show along with the confirm button on the modal */
   confirmText?: string;
-  /** function to be called when user clicks continue/confirm button */
-  onConfirm?: () => void;
   /** the text for the header */
   headerText?: string;
-  /** the text / fragment for the body of the modal */
-  body?: React.ReactNode;
   /** pass custom buttons directly to the modal */
   customButtons?: React.ReactNode;
   /** preset stylings for the modal */
@@ -31,6 +25,14 @@ export interface IModalProps {
   isSubmitting?: boolean;
   /** Checking condition for enabling Confirm button*/
   enableConfirm?: boolean;
+  /** the text / fragment for the body of the modal */
+  body?: React.ReactNode;
+  /** You can use this instead of the body */
+  children?: React.ReactNode;
+  /** function used to toggle the modal visibility */
+  onClose?: () => void;
+  /** function to be called when user clicks continue/confirm button */
+  onConfirm?: () => void;
 }
 
 /**
@@ -41,15 +43,16 @@ export const Modal: React.FC<IModalProps> = ({
   isShowing,
   cancelText,
   confirmText,
-  onConfirm,
   headerText,
-  hide,
   body,
   customButtons,
   type,
   hasHeight,
   enableConfirm = true,
   isSubmitting: initIsSubmitting,
+  children,
+  onConfirm,
+  onClose,
 }) => {
   const [isSubmitting, setIsSubmitting] = React.useState(initIsSubmitting);
 
@@ -69,7 +72,7 @@ export const Modal: React.FC<IModalProps> = ({
                       <FaRegQuestionCircle />
                     </span>
                     <h1>{headerText}</h1>
-                    <span onClick={hide} style={{ cursor: 'pointer' }}>
+                    <span onClick={onClose} style={{ cursor: 'pointer' }}>
                       <MdClose />
                     </span>
                   </Row>
@@ -78,13 +81,13 @@ export const Modal: React.FC<IModalProps> = ({
                   {typeof body === 'string' ? (
                     <div dangerouslySetInnerHTML={{ __html: body as any }}></div>
                   ) : (
-                    body
+                    body ?? children
                   )}
                 </Col>
                 <Row className="button-row">
                   {!customButtons ? (
                     <>
-                      <Button variant={'secondary'} onClick={hide} disabled={isSubmitting}>
+                      <Button variant={'secondary'} onClick={onClose} disabled={isSubmitting}>
                         {cancelText ?? 'Cancel'}
                       </Button>
                       <Button

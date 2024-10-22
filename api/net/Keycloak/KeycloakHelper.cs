@@ -135,6 +135,7 @@ public class KeycloakHelper : IKeycloakHelper
         if (user == null)
         {
             var uid = principal.GetUid();
+            _logger.LogTrace("Searching for user using uid:[{uid}]", uid);
             user = _userService.FindByUserKey($"{uid}@idir") ?? _userService.FindByUserKey($"{uid}@bceidbasic") ?? _userService.FindByUserKey($"{uid}");
         }
 
@@ -205,12 +206,15 @@ public class KeycloakHelper : IKeycloakHelper
             var rolesInDb = user.Roles.Replace("[", "").Replace("]", "").Split(",").Select(r => r.Trim()).Order();
             if (!rolesInKeycloak.SequenceEqual(rolesInDb))
             {
-                _logger.LogTrace("User with key:[{key}] has mis-matched roles. Keycloak:[{rolesInCss}] DB:[{rolesInDb}]. Keycloak will be updated.", keycloakUid, String.Join(",", rolesInKeycloak), String.Join(",", rolesInDb));
+                _logger.LogWarning("User with key:[{key}] has mis-matched roles. Keycloak:[{rolesInCss}] DB:[{rolesInDb}]. Keycloak will be updated.", keycloakUid, String.Join(",", rolesInKeycloak), String.Join(",", rolesInDb));
                 await UpdateUserRolesAsync(keycloakUid, rolesInDb.ToArray());
             }
 
             if (user.Key != keycloakUid.ToString())
+            {
+                _logger.LogWarning("User with key:[{key}] is being activated in MMI.", keycloakUid);
                 user.Key = keycloakUid.ToString();
+            }
             user.LastLoginOn = DateTime.UtcNow;
             _userService.UpdateAndSave(user);
         }

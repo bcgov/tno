@@ -3,7 +3,7 @@ import { IStream } from 'features/storage/interfaces';
 import { FormikHelpers, FormikProps } from 'formik';
 import moment from 'moment';
 import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
   useApiHub,
@@ -36,7 +36,6 @@ export const useContentForm = ({
   contentType: initContentType = ContentTypeName.AudioVideo,
 }: IContentFormProps) => {
   const hub = useApiHub();
-  const { id } = useParams();
   const [{ userInfo }] = useApp();
   const navigate = useNavigate();
   const [
@@ -61,10 +60,7 @@ export const useContentForm = ({
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const [contentType, setContentType] = React.useState(initContentType);
-  const [form, setForm] = React.useState<IContentForm>({
-    ...defaultFormValues(contentType),
-    id: parseInt(id ?? '0'),
-  });
+  const [form, setForm] = React.useState<IContentForm>(defaultFormValues(contentType));
   const [isProcessing, setIsProcessing] = React.useState(
     form.workOrders.some((wo) => wo.status === WorkOrderStatusName.InProgress),
   );

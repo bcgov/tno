@@ -2,8 +2,8 @@ import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { DateFilter } from 'components/date-filter';
 import { FrontPageGallery } from 'components/front-page-gallery';
 import React from 'react';
-import { useContent, useSettings } from 'store/hooks';
-import { generateFilterQuery, IContentModel, IFilterSettingsModel, Loading, Show } from 'tno-core';
+import { useApp, useContent, useSettings } from 'store/hooks';
+import { generateFilterQuery, IContentModel, IFilterSettingsModel, Loader } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -16,10 +16,11 @@ export const TodaysFrontPages: React.FC = () => {
     { findContentWithElasticsearch, storeFrontPageFilter: storeFilter },
   ] = useContent();
   const { frontPageImageMediaTypeId } = useSettings(true);
+  const [{ requests }] = useApp();
 
   const [frontPages, setFrontPages] = React.useState<IContentModel[]>([]);
   const [filter, setFilter] = React.useState<IFilterSettingsModel>();
-  const [loading, setLoading] = React.useState(false);
+
   React.useEffect(() => {
     storeFilter({
       size: 100,
@@ -34,7 +35,6 @@ export const TodaysFrontPages: React.FC = () => {
   const fetchResults = React.useCallback(
     async (query: MsearchMultisearchBody) => {
       try {
-        setLoading(true);
         const res: any = await findContentWithElasticsearch(query, false, 'frontPage');
         const mappedResults = res.hits?.hits?.map((h: { _source: IContentModel }) => {
           const content = h._source;
@@ -50,10 +50,7 @@ export const TodaysFrontPages: React.FC = () => {
           };
         });
         setFrontPages(mappedResults);
-      } catch {
-      } finally {
-        setLoading(false);
-      }
+      } catch {}
     },
     [findContentWithElasticsearch],
   );
@@ -74,9 +71,7 @@ export const TodaysFrontPages: React.FC = () => {
   return (
     <styled.TodaysFrontPages>
       <DateFilter filter={frontPageFilter} storeFilter={storeFilter} />
-      <Show visible={loading}>
-        <Loading />
-      </Show>
+      <Loader visible={requests.some((r) => r.url === 'find-contents-with-elasticsearch')} />
       <FrontPageGallery frontpages={frontPages} />
     </styled.TodaysFrontPages>
   );

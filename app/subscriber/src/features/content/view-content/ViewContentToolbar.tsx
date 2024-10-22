@@ -26,9 +26,7 @@ export interface IViewContentToolbarProps {
  */
 export const ViewContentToolbar: React.FC<IViewContentToolbarProps> = ({ tags, content }) => {
   const [active, setActive] = React.useState<ActionNames>(ActionNames.ReadStory);
-  const handleAddToFolder = () => {
-    setActive(ActionNames.AddToFolder);
-  };
+
   return (
     <styled.ViewContentToolbar>
       <Row className="main-row">
@@ -55,7 +53,7 @@ export const ViewContentToolbar: React.FC<IViewContentToolbarProps> = ({ tags, c
             />
             <FaFolderPlus
               data-tooltip-id="folder"
-              onClick={() => handleAddToFolder()}
+              onClick={() => setActive(ActionNames.AddToFolder)}
               className={active === ActionNames.AddToFolder ? 'active' : ''}
             />
             <Tooltip

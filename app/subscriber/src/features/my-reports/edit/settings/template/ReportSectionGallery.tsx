@@ -25,6 +25,13 @@ export const ReportSectionGallery = React.forwardRef<HTMLDivElement, IReportSect
           <Col className="frm-in" flex="1">
             <label>Report Section Options</label>
             <Row>
+              <FormikCheckbox name={`sections.${index}.isEnabled`} label="Section is visible" />
+              <span className="info">
+                When hidden the content is still part of the report, but the stories are not
+                displayed in the table of contents, or in their own section.
+              </span>
+            </Row>
+            <Row>
               <FormikCheckbox
                 name={`sections.${index}.settings.removeDuplicates`}
                 label="Remove duplicate stories"

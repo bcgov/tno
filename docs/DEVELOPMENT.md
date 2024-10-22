@@ -117,11 +117,17 @@ make up n=keycloak
 # After keycloak starts go to http://localhost:40001 and login to confirm it has successfully initialized.
 # There should be a tno realm.  You can review the predefined user accounts.
 
-# Copy the mmi-service-account credentials secret and paste it into the following configuration file.
+# Copy the mmi-service-account credentials secret and paste it into the following configuration files.
 # Keycloak__Secret={GET KEYCLOAK SERVICE ACCOUNT}
 cd ./tools/css-api/.env
 # Auth__Keycloak__Secret={GET KEYCLOAK SERVICE ACCOUNT}
 cd ./services/net/indexing/.env
+# Keycloak__ServiceAccount__Secret={GET KEYCLOAK mmi-service-account CLIENT SECRET}
+cd ./api/net/.env
+
+# Copy the mmi-app GUID (get it from the URL path in Keycloak) and paste it into the following configuration file.
+# Keycloak__ClientId={GET KEYCLOAK mmi-app CLIENT ID}
+cd ./api/net/.env
 
 # Setup the database
 make db-update
@@ -137,10 +143,6 @@ make up n=elastic
 
 # Setup the Elastic indexes
 make elastic-update
-
-# Run Common Single Sign-on API
-
-make up n=css
 
 # Run the API
 make up n=api

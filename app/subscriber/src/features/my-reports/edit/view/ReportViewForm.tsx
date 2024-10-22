@@ -204,7 +204,7 @@ export const ReportViewForm: React.FC = () => {
           instance?.sentOn ? 'This report has already been sent out by email.' : ''
         }`}
         isShowing={isShowingSend}
-        hide={toggleSend}
+        onClose={toggleSend}
         type="default"
         confirmText="Yes, send report to subscribers"
         onConfirm={async () => {
@@ -219,7 +219,7 @@ export const ReportViewForm: React.FC = () => {
         headerText="Retry Sending Report to Subscribers"
         body={`Do you want to send an email to the only the subscribers of this report that failed on the prior attempt?`}
         isShowing={isShowingResend}
-        hide={toggleResend}
+        onClose={toggleResend}
         type="default"
         confirmText="Yes, send report to subscribers"
         onConfirm={async () => {

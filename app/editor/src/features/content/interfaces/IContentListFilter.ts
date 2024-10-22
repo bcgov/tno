@@ -10,6 +10,7 @@ export interface IContentListFilter {
   ownerId: number | '';
   userId: number | '';
   timeFrame: number | '';
+  startDate?: string | null;
   otherSource: string;
   contentTypes: ContentTypeName[];
   mediaTypeIds: number[];

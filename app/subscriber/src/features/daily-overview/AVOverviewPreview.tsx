@@ -4,7 +4,7 @@ import moment from 'moment';
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAVOverviewInstances, useContent } from 'store/hooks';
-import { Col, IReportResultModel, Loading, Show } from 'tno-core';
+import { Col, IReportResultModel, Loader, Show } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -129,9 +129,7 @@ const AVOverviewPreview: React.FC = () => {
 
   return (
     <styled.AVOverviewPreview>
-      <Show visible={isLoading}>
-        <Loading />
-      </Show>
+      <Loader visible={isLoading} />
       <Show visible={!isLoading}>
         <DateFilter filter={avOverviewFilter} storeFilter={storeFilter} />
         <Show visible={!isLoading && !!isPublished && !!reactElements}>

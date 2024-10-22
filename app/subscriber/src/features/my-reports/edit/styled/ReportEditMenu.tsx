@@ -51,7 +51,7 @@ export const ReportEditMenu = styled.div`
     > div:not(:first-child) {
       display: flex;
       flex-direction: row;
-      align-items: flex-end;
+      align-items: center;
     }
   }
   .report-main-menu {

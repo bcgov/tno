@@ -171,5 +171,64 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
 
         base.DeleteAndSave(entity);
     }
-    #endregion
+
+    /// <summary>
+    /// Get files from the database.
+    /// If publishedAfter is specified, only files' contents that are published after the specified date will be returned.
+    /// If publishedBefore is specified, only files' contents that are published before the specified date will be returned.
+    /// If force is true, all files will be returned, otherwise only files that are not synced to S3 will be returned.
+    /// If limit is -1, all files will be returned, otherwise only the specified number of files will be returned.
+    /// </summary>
+    /// <param name="publishedAfter"></param>
+    /// <param name="publishedBefore"></param>
+    /// <param name="limit"></param>
+    /// <param name="force"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<FileReference>> GetFiles(DateTime? publishedAfter = null, DateTime? publishedBefore = null, int limit = 100, bool force = false)
+    {
+        try
+        {
+            IQueryable<FileReference> query = this.Context.FileReferences.Include(fr => fr.Content);
+
+            if (publishedAfter.HasValue)
+            {
+                publishedAfter = publishedAfter.Value.ToUniversalTime();
+                query = query.Where(fr => fr.Content != null && fr.Content.PublishedOn >= publishedAfter.Value);
+            }
+
+            if (publishedBefore.HasValue)
+            {
+                publishedBefore = publishedBefore.Value.ToUniversalTime();
+                query = query.Where(fr => fr.Content != null && fr.Content.PublishedOn < publishedBefore.Value);
+            }
+
+            if (!force)
+            {
+                query = query.Where(fr => !fr.IsSyncedToS3);
+            }
+
+            query = query.OrderBy(fr => fr.CreatedOn);
+
+            // if limit is not -1, apply the limit, means get all
+            if (limit != -1)
+            {
+                query = query.Take(limit);
+            }
+
+            return await query.ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error getting files");
+            return Enumerable.Empty<FileReference>();
+        }
+    }
+
+    public async Task<FileReference> UpdateAsync(FileReference entity)
+    {
+        this.Context.Update(entity);
+        await this.Context.SaveChangesAsync();
+        return entity;
+    }
 }
+#endregion

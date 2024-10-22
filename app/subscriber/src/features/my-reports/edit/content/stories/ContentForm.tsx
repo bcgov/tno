@@ -6,7 +6,7 @@ import {
   Col,
   ContentTypeName,
   IContentModel,
-  Loading,
+  Loader,
   Show,
   Text,
   TextArea,
@@ -126,9 +126,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
 
   return show === 'none' ? null : (
     <Col className={`edit-content${className ? ` ${className}` : ''}`} {...rest}>
-      <Show visible={loading}>
-        <Loading />
-      </Show>
+      <Loader visible={loading} />
       <Show visible={show === 'all'}>
         <TextArea
           name={`headline`}

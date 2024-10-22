@@ -1,6 +1,7 @@
 #!/bin/bash
 
 env=${1-dev}
+tag=${2-latest}
 echo "Deploying to $env"
 
 oc project 9b301c-tools
@@ -71,45 +72,45 @@ podsEventHandler=$(getPods event-handler-service dc $env)
 
 # APIs
 scale api-services 0 dc $env
-oc tag api:latest api:$env
+oc tag api:$tag api:$env
 
 scale api-services $podsApiServices dc $env
 oc rollout restart sts/api -n 9b301c-$env
 oc rollout status --watch --timeout=600s sts/api -n 9b301c-$env
 
-oc tag charts-api:latest charts-api:$env
+oc tag charts-api:$tag charts-api:$env
 
 # Web Application
-oc tag editor:latest editor:$env
-oc tag subscriber:latest subscriber:$env
+oc tag editor:$tag editor:$env
+oc tag subscriber:$tag subscriber:$env
 
 # Ingest Services
-# oc tag capture-service:latest capture-service:$env
-oc tag contentmigration-service:latest contentmigration-service:$env
-oc tag filemonitor-service:latest filemonitor-service:$env
-oc tag syndication-service:latest syndication-service:$env
-oc tag image-service:latest image-service:$env
+# oc tag capture-service:$tag capture-service:$env
+oc tag contentmigration-service:$tag contentmigration-service:$env
+oc tag filemonitor-service:$tag filemonitor-service:$env
+oc tag syndication-service:$tag syndication-service:$env
+oc tag image-service:$tag image-service:$env
 
 # Store Services
-oc tag indexing-service:latest indexing-service:$env
-oc tag content-service:latest content-service:$env
+oc tag indexing-service:$tag indexing-service:$env
+oc tag content-service:$tag content-service:$env
 
 # Utility Services
-oc tag filecopy-service:latest filecopy-service:$env
-oc tag folder-collection-service:latest folder-collection-service:$env
+oc tag filecopy-service:$tag filecopy-service:$env
+oc tag folder-collection-service:$tag folder-collection-service:$env
 
 # Transform Services
-# oc tag clip-service:latest clip-service:$env
-oc tag ffmpeg-service:latest ffmpeg-service:$env
-oc tag nlp-service:latest nlp-service:$env
-oc tag extract-quotes-service:latest extract-quotes-service:$env
-oc tag transcription-service:latest transcription-service:$env
+# oc tag clip-service:$tag clip-service:$env
+oc tag ffmpeg-service:$tag ffmpeg-service:$env
+oc tag nlp-service:$tag nlp-service:$env
+oc tag extract-quotes-service:$tag extract-quotes-service:$env
+oc tag transcription-service:$tag transcription-service:$env
 
 # Output Services
-oc tag scheduler-service:latest scheduler-service:$env
-oc tag reporting-service:latest reporting-service:$env
-oc tag notification-service:latest notification-service:$env
-oc tag event-handler-service:latest event-handler-service:$env
+oc tag scheduler-service:$tag scheduler-service:$env
+oc tag reporting-service:$tag reporting-service:$env
+oc tag notification-service:$tag notification-service:$env
+oc tag event-handler-service:$tag event-handler-service:$env
 
 # Start everying
 scale api $podsApi sts $env

@@ -15,6 +15,8 @@ import {
   FaNewspaper,
   FaSquarePlus,
   FaTag,
+  FaToggleOff,
+  FaToggleOn,
   FaTv,
   FaUpRightAndDownLeftFromCenter,
   FaUsers,
@@ -31,11 +33,13 @@ import {
   getCookie,
   IFilterModel,
   IFilterSettingsModel,
+  RadioGroup,
   Row,
   setCookie,
   Show,
   Text,
   TextArea,
+  ToggleButton,
   ToggleGroup,
 } from 'tno-core';
 
@@ -45,6 +49,8 @@ import {
   DateSection,
   ElasticQueryHelp,
   ExpandableRow,
+  InfoAdvancedQueryOperators,
+  InfoDefaultOperator,
   MediaSection,
   MediaTypeSection,
   MoreOptions,
@@ -56,6 +62,7 @@ import {
   ToggleFilterStyleInfo,
 } from './components';
 import { defaultAdvancedSearch, defaultFilter } from './constants';
+import { AdvancedQueryOperatorOptions, SearchOperatorOptions } from './constants';
 import * as styled from './styled';
 
 export interface IAdvancedSearchProps {
@@ -256,6 +263,29 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch, setSe
     [setSearchTerms],
   );
 
+  const isAdvancedQueryType =
+    (search.queryType ?? AdvancedQueryOperatorOptions.simpleQueryString) ===
+    AdvancedQueryOperatorOptions.queryString;
+
+  const toggleAdvancedQueryOperator = React.useCallback(() => {
+    if (!search.queryType) {
+      storeSearchFilter({
+        ...search,
+        queryType: AdvancedQueryOperatorOptions.queryString,
+      });
+    } else if (search.queryType === AdvancedQueryOperatorOptions.simpleQueryString) {
+      storeSearchFilter({
+        ...search,
+        queryType: AdvancedQueryOperatorOptions.queryString,
+      });
+    } else {
+      storeSearchFilter({
+        ...search,
+        queryType: AdvancedQueryOperatorOptions.simpleQueryString,
+      });
+    }
+  }, [search, storeSearchFilter]);
+
   return (
     <styled.AdvancedSearch expanded={expanded}>
       <PageSection
@@ -341,40 +371,44 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch, setSe
               <ExpandableRow icon={<FaGears />} title="Advanced Options:" hasValues={false}>
                 <Row alignItems="center" justifyContent="space-between">
                   Default operator:
-                  <ToggleGroup
-                    defaultSelected={search.defaultOperator ?? 'and'}
-                    options={[
-                      {
-                        id: 'and',
-                        label: 'AND',
-                        onClick: () => storeSearchFilter({ ...search, defaultOperator: 'and' }),
-                      },
-                      {
-                        id: 'or',
-                        label: 'OR',
-                        onClick: () => storeSearchFilter({ ...search, defaultOperator: 'or' }),
-                      },
-                    ]}
-                  />
+                  <div className="radio-group">
+                    <RadioGroup
+                      name="searchOperator"
+                      value={
+                        SearchOperatorOptions[
+                          search.defaultOperator as keyof typeof SearchOperatorOptions
+                        ] ?? SearchOperatorOptions.and
+                      }
+                      onChange={(val) => {
+                        storeSearchFilter({
+                          ...search,
+                          defaultOperator: val.target.value.toLocaleLowerCase() as
+                            | 'and'
+                            | 'or'
+                            | undefined,
+                        });
+                      }}
+                      options={[SearchOperatorOptions.and, SearchOperatorOptions.or]}
+                      required={true}
+                      direction={'row'}
+                    />
+                  </div>
+                  <InfoDefaultOperator />
                 </Row>
                 <Row alignItems="center" justifyContent="space-between">
-                  Query Type:
-                  <ToggleGroup
-                    defaultSelected={search.queryType ?? 'simple-query-string'}
-                    options={[
-                      {
-                        id: 'query-string',
-                        label: 'Advanced',
-                        onClick: () => storeSearchFilter({ ...search, queryType: 'query-string' }),
-                      },
-                      {
-                        id: 'simple-query-string',
-                        label: 'Simple',
-                        onClick: () =>
-                          storeSearchFilter({ ...search, queryType: 'simple-query-string' }),
-                      },
-                    ]}
-                  />
+                  Advanced query operators:
+                  <div>
+                    <ToggleButton
+                      on={<FaToggleOn />}
+                      off={<FaToggleOff />}
+                      onClick={() => toggleAdvancedQueryOperator()}
+                      value={isAdvancedQueryType}
+                      width="25px"
+                      height="25px"
+                      label=""
+                    />
+                  </div>
+                  <InfoAdvancedQueryOperators />
                 </Row>
               </ExpandableRow>
             </Col>

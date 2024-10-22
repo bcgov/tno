@@ -132,12 +132,13 @@ public class UserController : ControllerBase
     [SwaggerOperation(Tags = new[] { "User" })]
     public async Task<IActionResult> UpdateAsync(UserModel model)
     {
-        if (!Guid.TryParse(model.Key, out Guid key)) throw new InvalidOperationException($"User key must be a guid: {model.Key}");
-
-        var kUser = await _keycloakService.GetUserAsync(key);
-        if (kUser != null)
+        if (Guid.TryParse(model.Key, out Guid key))
         {
-            await _keycloakHelper.UpdateUserRolesAsync(key, model.Roles.ToArray());
+            var kUser = await _keycloakService.GetUserAsync(key);
+            if (kUser != null)
+            {
+                await _keycloakHelper.UpdateUserRolesAsync(key, model.Roles.ToArray());
+            }
         }
 
         var user = _userService.UpdateDistributionList((Entities.User)model);

@@ -5,6 +5,7 @@ export const TopicFormSmall = styled(FormPage)`
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
 
   .back-button {
     align-self: start;

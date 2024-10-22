@@ -7,6 +7,7 @@ export const PageSection = styled.div<{ $ignoreMinWidth?: boolean; $ignoreLastCh
   box-shadow: ${(props) => props.theme.css.boxShadow};
   align-self: stretch;
   min-width: ${(props) => (props.$ignoreMinWidth ? 'unset' : 'fit-content')};
+  position: relative;
 
   .back-button {
     margin-right: 1rem;

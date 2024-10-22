@@ -1,9 +1,10 @@
 import React from 'react';
+import { FaCode, FaEraser, FaExpandAlt, FaPaintBrush } from 'react-icons/fa';
+import { FaCircleXmark, FaRegNewspaper } from 'react-icons/fa6';
+
 import { Col, Row } from '../../flex';
 import { Show } from '../../show';
-import { FaCode, FaExpandAlt, FaPaintBrush, FaRemoveFormat } from 'react-icons/fa';
 import { IUrlOption } from './interfaces';
-import { FaCircleXmark, FaRegNewspaper } from 'react-icons/fa6';
 export interface ICustomToolbarProps {
   onClickRaw: React.MouseEventHandler<HTMLButtonElement>;
   onClickRemoveFormat: React.MouseEventHandler<HTMLButtonElement>;
@@ -61,7 +62,7 @@ export const CustomToolbar: React.FC<ICustomToolbarProps> = ({
           <FaCode className="custom-icon" />
         </button>
         <button type="button" onClick={onClickRemoveFormat} title="Remove formatting">
-          <FaRemoveFormat className="custom-icon" />
+          <FaEraser className="custom-icon" />
         </button>
         <button type="button" onClick={onClickFormatRaw} title="Format raw html">
           <FaPaintBrush className="custom-icon" />

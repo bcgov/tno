@@ -215,7 +215,7 @@ export const ReportSectionGallery: React.FC<IReportSectionGalleryProps> = ({
           </>
         }
         isShowing={isShowing}
-        hide={toggle}
+        onClose={toggle}
         type="default"
         isSubmitting={isSubmitting}
         confirmText="Yes, Regenerate It"

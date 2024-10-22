@@ -359,7 +359,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
         headerText="Confirm Empty"
         body={`Are you sure you wish to empty this folder?`}
         isShowing={isShowingEmpty}
-        hide={toggleEmpty}
+        onClose={toggleEmpty}
         type="delete"
         confirmText="Yes, Empty Folder"
         onConfirm={() => {
@@ -382,7 +382,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
         headerText="Confirm Removal"
         body={`Are you sure you wish to delete this folder?`}
         isShowing={isShowingDelete}
-        hide={toggleDelete}
+        onClose={toggleDelete}
         type="delete"
         confirmText="Yes, Delete Folder"
         onConfirm={() => {

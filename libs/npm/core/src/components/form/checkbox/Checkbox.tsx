@@ -1,7 +1,7 @@
 import React, { InputHTMLAttributes } from 'react';
 
 import { Error } from '..';
-import { CheckboxVariant } from '.';
+import { CheckboxSize, CheckboxVariant } from '.';
 import { LabelPosition } from './constants';
 import * as styled from './styled';
 
@@ -14,6 +14,10 @@ export interface ICheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElemen
    * The styled variant.
    */
   variant?: CheckboxVariant;
+  /**
+   * The checkbox size.
+   */
+  checkboxSize?: CheckboxSize;
   /**
    * The tooltip to show on hover.
    */
@@ -47,6 +51,7 @@ export const Checkbox: React.FC<ICheckboxProps> = ({
   value = true,
   type = 'checkbox',
   variant = CheckboxVariant.primary,
+  checkboxSize = CheckboxSize.original,
   tooltip,
   children,
   ref,
@@ -84,6 +89,7 @@ export const Checkbox: React.FC<ICheckboxProps> = ({
           ref={ref}
           type={type}
           variant={variant}
+          checkboxSize={checkboxSize}
           role={errorMsg ? 'alert' : 'none'}
           onInput={(e) => {
             if (onInput) onInput(e);

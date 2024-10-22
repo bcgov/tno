@@ -1,4 +1,4 @@
-import 'react-quill/dist/quill.snow.css';
+import 'react-quill-new/dist/quill.snow.css';
 
 import { IContentModel, ITagModel } from '../../../hooks/api';
 import { FormikWysiwyg, IFormikWysiwygProps } from './FormikWysiwyg';

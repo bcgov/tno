@@ -244,10 +244,13 @@ public class EventHandlerManager : ServiceManager<EventHandlerOptions>
                 await this.Api.RemoveContentFromFolder(eventSchedule.FolderId.Value);
                 this.Logger.LogInformation("Event schedule cleaned folder.  Key: {key}, Event ID: {eventId}", result.Message.Key, request.EventScheduleId);
 
-                // Need to fetch the latest because it could have been updated recently.
-                eventSchedule = await this.Api.GetEventScheduleAsync(request.EventScheduleId) ?? throw new NoContentException("Event schedule no longer exists");
-                eventSchedule.LastRanOn = DateTime.UtcNow;
-                await this.Api.UpdateEventScheduleAsync(eventSchedule);
+                await this.Api.HandleConcurrencyAsync<API.Areas.Services.Models.EventSchedule.EventScheduleModel?>(async () =>
+                {
+                    // Need to fetch the latest because it could have been updated recently.
+                    eventSchedule = await this.Api.GetEventScheduleAsync(request.EventScheduleId) ?? throw new NoContentException($"Event schedule {eventSchedule.Id}:{eventSchedule.Name} does not exist.");
+                    eventSchedule.LastRanOn = DateTime.UtcNow;
+                    return await this.Api.UpdateEventScheduleAsync(eventSchedule, false);
+                });
             }
             else
             {

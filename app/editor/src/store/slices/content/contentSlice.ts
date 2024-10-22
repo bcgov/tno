@@ -43,7 +43,7 @@ export const initialContentState: IContentState = {
     mediaTypeIds: [],
     sourceIds: [],
     excludeSourceIds: [],
-    timeFrame: 0,
+    timeFrame: '',
     commentary: false,
     topStory: false,
     featuredStory: false,

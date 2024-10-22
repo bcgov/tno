@@ -380,9 +380,12 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         // If the request originated from the scheduler service, update the last ran one.
         if (request.EventScheduleId.HasValue)
         {
-            var scheduledEvent = await this.Api.GetEventScheduleAsync(request.EventScheduleId.Value) ?? throw new NoContentException($"Event schedule '{request.EventScheduleId}' does not exist.");
-            scheduledEvent.LastRanOn = DateTime.UtcNow;
-            await this.Api.UpdateEventScheduleAsync(scheduledEvent);
+            await this.Api.HandleConcurrencyAsync<API.Areas.Services.Models.EventSchedule.EventScheduleModel?>(async () =>
+            {
+                var eventSchedule = await this.Api.GetEventScheduleAsync(request.EventScheduleId.Value) ?? throw new NoContentException($"Event schedule {request.EventScheduleId.Value} does not exist.");
+                eventSchedule.LastRanOn = DateTime.UtcNow;
+                return await this.Api.UpdateEventScheduleAsync(eventSchedule, false);
+            });
         }
     }
 
@@ -855,6 +858,10 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                     instance.Status = ReportStatus.Cancelled;
                 else
                     instance.Status = ReportStatus.Completed;
+            }
+            else if (instance != null && report.Settings.DoNotSendEmail)
+            {
+                instance.Status = ReportStatus.Cancelled;
             }
         }
         catch (ChesException ex)

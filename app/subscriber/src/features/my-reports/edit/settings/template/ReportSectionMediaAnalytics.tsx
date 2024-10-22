@@ -128,6 +128,13 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
             </Col>
             <Col className="frm-in">
               <label>Report Section Options</label>
+              <Row>
+                <FormikCheckbox name={`sections.${index}.isEnabled`} label="Section is visible" />
+                <span className="info">
+                  When hidden the content is still part of the report, but the stories are not
+                  displayed in the table of contents, or in their own section.
+                </span>
+              </Row>
               <Show visible={!section.settings.useAllContent}>
                 <Row>
                   <FormikCheckbox

@@ -2,10 +2,11 @@ import { Action } from 'components/action';
 import { MenuButton } from 'components/button';
 import { FaLock } from 'react-icons/fa6';
 import { FaCaretRight, FaRightToBracket } from 'react-icons/fa6';
-import { Row, Show } from 'tno-core';
+import { ReportStatusName, Row, Show } from 'tno-core';
 
 import { ReportKindIcon } from '../components';
 import { getLastSent } from '../utils';
+import { getStatus } from './../utils/getStatus';
 import {
   ReportContentMenuOption,
   ReportHistoryMenuOption,
@@ -25,6 +26,12 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
   const instance = values.instances.length ? values.instances[0] : undefined;
   const lastSent = getLastSent(values);
 
+  const isLocked =
+    instance &&
+    ![ReportStatusName.Pending, ReportStatusName.Reopen, ReportStatusName.Cancelled].includes(
+      instance.status,
+    );
+
   return (
     <styled.ReportEditMenu className="report-menu">
       <div className="report-headline">
@@ -39,9 +46,15 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
             {values.name ? values.name : 'New Report'} <ReportKindIcon report={values} />
           </div>
         </div>
-        <Row nowrap gap="0.5rem">
-          <label>Last sent:</label>
-          <span>{lastSent ? lastSent : 'Never'}</span>
+        <Row gap="0.5rem">
+          <Row gap="0.5rem">
+            <label>Last sent:</label>
+            <span>{lastSent ? lastSent : 'Never'}</span>
+          </Row>
+          <Row gap="0.5rem">
+            <label>Status:</label>
+            <span>{getStatus(instance?.status)}</span>
+          </Row>
         </Row>
       </div>
 
@@ -64,7 +77,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
             label={
               <Row gap="0.5rem" alignItems="center">
                 Content
-                <Show visible={!!instance?.sentOn}>
+                <Show visible={isLocked}>
                   <FaLock />
                 </Show>
               </Row>
@@ -166,7 +179,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
               label={
                 <Row gap="0.5rem" alignItems="center">
                   Curate Stories
-                  <Show visible={!!instance?.sentOn}>
+                  <Show visible={isLocked}>
                     <FaLock />
                   </Show>
                 </Row>
@@ -182,7 +195,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
               label={
                 <Row gap="0.5rem" alignItems="center">
                   Quick Sort
-                  <Show visible={!!instance?.sentOn}>
+                  <Show visible={isLocked}>
                     <FaLock />
                   </Show>
                 </Row>
@@ -198,7 +211,7 @@ export const ReportEditMenu = ({ onChange }: IReportEditMenuProps) => {
               label={
                 <Row gap="0.5rem" alignItems="center">
                   Executive Summary
-                  <Show visible={!!instance?.sentOn}>
+                  <Show visible={isLocked}>
                     <FaLock />
                   </Show>
                 </Row>

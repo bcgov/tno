@@ -10,8 +10,11 @@ using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
+using TNO.Core.Storage;
+using TNO.Core.Storage.Configuration;
 using TNO.DAL.Config;
 using TNO.DAL.Helpers;
+using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Keycloak;
 using TNO.Models.Extensions;
@@ -37,6 +40,10 @@ public class StorageController : ControllerBase
     private readonly IConnectionHelper _connection;
     private readonly StorageOptions _storageOptions;
     private readonly ApiOptions _apiOptions;
+    private readonly IFileReferenceService _fileReferenceService;
+    private readonly IS3StorageService _s3StorageService;
+    private readonly ILogger<StorageController> _logger;
+    private readonly S3Options _s3Options;
     #endregion
 
     #region Constructors
@@ -46,11 +53,26 @@ public class StorageController : ControllerBase
     /// <param name="connection"></param>
     /// <param name="storageOptions"></param>
     /// <param name="apiOptions"></param>
-    public StorageController(IConnectionHelper connection, IOptions<StorageOptions> storageOptions, IOptions<ApiOptions> apiOptions)
+    /// <param name="fileReferenceService"></param>
+    /// <param name="logger"></param>
+    /// <param name="s3Options"></param>
+    /// <param name="s3StorageService"></param>
+    public StorageController(
+        IConnectionHelper connection,
+        IOptions<StorageOptions> storageOptions,
+        IOptions<ApiOptions> apiOptions,
+        IFileReferenceService fileReferenceService,
+        ILogger<StorageController> logger,
+        IOptions<S3Options> s3Options,
+        IS3StorageService s3StorageService)
     {
         _connection = connection;
         _storageOptions = storageOptions.Value;
         _apiOptions = apiOptions.Value;
+        _fileReferenceService = fileReferenceService;
+        _logger = logger;
+        _s3Options = s3Options.Value;
+        _s3StorageService = s3StorageService;
     }
     #endregion
 
@@ -231,7 +253,7 @@ public class StorageController : ControllerBase
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.PartialContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
-    public IActionResult Stream([FromRoute] int? locationId, [FromQuery] string path)
+    public async Task<IActionResult> StreamAsync([FromRoute] int? locationId, [FromQuery] string path)
     {
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var dataLocation = locationId.HasValue ? _connection.GetDataLocation(locationId.Value) : null;
@@ -240,21 +262,30 @@ public class StorageController : ControllerBase
             if (dataLocation.Connection == null || dataLocation.Connection?.ConnectionType == ConnectionType.LocalVolume)
             {
                 var safePath = Path.Combine(_storageOptions.GetCapturePath(), path);
-                return GetResult(safePath, path);
+
+                return await GetResultAsync(safePath, path);
             }
             else throw new NotImplementedException($"Location connection type '{dataLocation.Connection?.ConnectionType}' not implemented yet.");
         }
         else
         {
+            _logger.LogInformation("Getting stream for path: {Path}", path);
             var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
-            return GetResult(safePath, path);
+            return await GetResultAsync(safePath, path);
         }
     }
 
-    private FileStreamResult GetResult(string safePath, string path)
-    {
-        if (!safePath.FileExists()) throw new NoContentException($"Stream does not exist: '{path}'");
 
+    private async Task<IActionResult> GetResultAsync(string safePath, string path)
+    {
+        //find file from s3
+        var stream = await _s3StorageService.DownloadFromS3Async(path);
+        if (stream != null)
+        {
+            return File(stream, "application/octet-stream");
+        }
+
+        if (!safePath.FileExists()) throw new NoContentException($"Stream does not exist: '{path}'");
         var info = new ItemModel(safePath, true);
         var fileStream = System.IO.File.OpenRead(safePath);
         return File(fileStream, info.MimeType!);
@@ -496,5 +527,91 @@ public class StorageController : ControllerBase
             return new JsonResult(new ItemModel(file, true));
         }
     }
+    /// <summary>
+    /// upload files to s3
+    /// </summary>
+    /// <param name="publishedAfter">optional, only upload files's content published after the specified date</param>
+    /// <param name="publishedBefore">optional, only upload files's content published before the specified date</param>
+    /// <param name="limit">optional, only upload limit files</param>
+    /// <param name="force">optional, force upload files</param>
+    /// <returns>uploaded files and failed uploads</returns>
+    [HttpPost("upload-files-to-s3")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(Dictionary<string, List<string>>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Storage" })]
+    public async Task<IActionResult> UploadFileToS3Async([FromQuery] DateTime? publishedAfter = null, [FromQuery] DateTime? publishedBefore = null, [FromQuery] int? limit = null, [FromQuery] bool force = false)
+    {
+        _logger.LogInformation("upload-files-to-s3");
+        var fileReferences = await _fileReferenceService.GetFiles(publishedAfter, publishedBefore, limit ?? 100, force);
+        var uploadedFiles = new List<string>();
+        var failedUploads = new List<string>();
+        // check if s3 credentials are set
+        if (!_s3Options.IsS3Enabled )
+        {
+            return BadRequest("S3 is not enabled or credentials are not set");
+        }
+
+        foreach (var fileReference in fileReferences)
+        {
+            try
+            {
+                var filePath = Path.Combine(_storageOptions.GetUploadPath(), fileReference.Path);
+
+                if (System.IO.File.Exists(filePath))
+                {
+                    using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+                    // use relative path as S3 key
+                    var s3Key = fileReference.Path.Replace("\\", "/"); // make sure use forward slash as path separator
+                    _logger.LogInformation($"uploading: {s3Key}");
+                    var uploadSuccess = await _s3StorageService.UploadToS3Async(s3Key, fileStream);
+
+                    if (uploadSuccess)
+                    {
+                        // update file reference with s3 path
+                        fileReference.S3Path = s3Key;
+                        fileReference.IsSyncedToS3 = true;
+                        fileReference.LastSyncedToS3On = DateTime.UtcNow;
+                        await _fileReferenceService.UpdateAsync(fileReference);
+
+                        uploadedFiles.Add(s3Key);
+
+                        if (fileReference.ContentType.StartsWith("video/") || fileReference.ContentType.StartsWith("audio/"))
+                        {
+                            try
+                            {
+                                System.IO.File.Delete(filePath);
+                                _logger.LogInformation("deleted local file: {FilePath}", filePath);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "failed to delete local file: {FilePath}", filePath);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        failedUploads.Add($"{fileReference.Path} (upload failed)");
+                    }
+                }
+                else
+                {
+                    failedUploads.Add($"{fileReference.Path} (file not found)");
+                }
+            }
+            catch (Exception ex)
+            {
+                failedUploads.Add($"{fileReference.Path} (error: {ex.Message})");
+            }
+        }
+
+        _logger.LogInformation("finished upload-all-to-s3");
+        return Ok(new
+        {
+            UploadedFiles = uploadedFiles,
+            FailedUploads = failedUploads,
+        });
+    }
+
     #endregion
 }

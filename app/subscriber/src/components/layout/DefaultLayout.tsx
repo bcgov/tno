@@ -134,7 +134,7 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
         headerText={systemMessage?.name ?? 'System Message'}
         body={systemMessage?.message}
         isShowing={showSystemMessage}
-        hide={toggleSystemMessage}
+        onClose={toggleSystemMessage}
         type="custom"
         customButtons={
           <Button

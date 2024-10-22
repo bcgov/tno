@@ -90,8 +90,12 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
                             else
                                 await GenerateEventScheduleRequestAsync(scheduledEvent);
 
-                            scheduledEvent.RequestSentOn = DateTime.UtcNow;
-                            await this.Api.UpdateEventScheduleAsync(scheduledEvent);
+                            await this.Api.HandleConcurrencyAsync<EventScheduleModel?>(async () =>
+                            {
+                                scheduledEvent = await this.Api.GetEventScheduleAsync(scheduledEvent.Id) ?? throw new NoContentException($"Event schedule {scheduledEvent.Id}:{scheduledEvent.Name} does not exist.");
+                                scheduledEvent.RequestSentOn = DateTime.UtcNow;
+                                return await this.Api.UpdateEventScheduleAsync(scheduledEvent, false);
+                            });
                         }
                     }
                 }

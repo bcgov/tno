@@ -31,7 +31,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
   const navigate = useNavigate();
   const { isProcessing } = useContentForm(values);
 
-  const [currentItems] = useLocalStorage('currentContent', null);
+  const [currentItems] = useLocalStorage<IContentSearchResult[] | null>('currentContent', null);
   const [, setCurrentItemId] = useLocalStorage('currentContentItemId', -1);
 
   const [indexPosition, setIndexPosition] = React.useState(0);
@@ -40,18 +40,16 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
 
   React.useEffect(() => {
     if (currentItems != null) {
-      let index = !!values.id
-        ? (currentItems as IContentSearchResult[]).findIndex((c) => c.id === +values.id) ?? -1
-        : -1;
+      let index = !!values.id ? currentItems.findIndex((c) => c.id === +values.id) ?? -1 : -1;
       setIndexPosition(index);
       setEnablePrev(index > 0);
-      setEnableNext(index < ((currentItems as IContentSearchResult[]).length ?? 0) - 1);
+      setEnableNext(index < (currentItems.length ?? 0) - 1);
     }
   }, [currentItems, values.id]);
 
   const handleNavigate = (offset: number) => {
     if (currentItems != null) {
-      const targetId = (currentItems as IContentSearchResult[])[indexPosition + offset]?.id;
+      const targetId = currentItems[indexPosition + offset]?.id;
       if (!!targetId) {
         setCurrentItemId(targetId);
         navigate(getContentPath(targetId, values.contentType));

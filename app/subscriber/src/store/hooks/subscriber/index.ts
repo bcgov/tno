@@ -8,6 +8,7 @@ export * from './useNavigateAndScroll';
 export * from './useProducts';
 export * from './useReportInstances';
 export * from './useReports';
+export * from './useReportSync';
 export * from './useReportTemplates';
 export * from './useSystemMessages';
 export * from './useUsers';

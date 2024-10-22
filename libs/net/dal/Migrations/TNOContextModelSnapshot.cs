@@ -1876,9 +1876,17 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("file_name");
 
+                    b.Property<bool>("IsSyncedToS3")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_synced_to_s3");
+
                     b.Property<bool>("IsUploaded")
                         .HasColumnType("boolean")
                         .HasColumnName("is_uploaded");
+
+                    b.Property<DateTime?>("LastSyncedToS3On")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_synced_to_s3_on");
 
                     b.Property<string>("Path")
                         .IsRequired()
@@ -1889,6 +1897,10 @@ namespace TNO.DAL.Migrations
                     b.Property<long>("RunningTime")
                         .HasColumnType("bigint")
                         .HasColumnName("running_time");
+
+                    b.Property<string>("S3Path")
+                        .HasColumnType("text")
+                        .HasColumnName("s3_path");
 
                     b.Property<long>("Size")
                         .HasColumnType("bigint")

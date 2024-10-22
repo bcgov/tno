@@ -15,7 +15,15 @@ public interface IApiService
     #endregion
 
     #region Helper Methods
-    public Task<T> HandleRequestFailure<T>(Func<Task<T>> callbackDelegate, bool ignoreError, T defaultResponse);
+    Task<T> HandleRequestFailure<T>(Func<Task<T>> callbackDelegate, bool ignoreError, T defaultResponse);
+
+    /// <summary>
+    /// Keep trying a request if the failure is caused by an optimistic concurrency error.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="callbackDelegate"></param>
+    /// <returns></returns>
+    Task<T> HandleConcurrencyAsync<T>(Func<Task<T>> callbackDelegate);
     #endregion
 
     #region Kafka
@@ -436,8 +444,9 @@ public interface IApiService
     /// Make a request to the API to update the event schedule for the specified 'model'.
     /// </summary>
     /// <param name="model"></param>
+    /// <param name="retry"></param>
     /// <returns></returns>
-    Task<API.Areas.Services.Models.EventSchedule.EventScheduleModel?> UpdateEventScheduleAsync(API.Areas.Services.Models.EventSchedule.EventScheduleModel model);
+    Task<API.Areas.Services.Models.EventSchedule.EventScheduleModel?> UpdateEventScheduleAsync(API.Areas.Services.Models.EventSchedule.EventScheduleModel model, bool retry = true);
     #endregion
 
     #region AV Overview

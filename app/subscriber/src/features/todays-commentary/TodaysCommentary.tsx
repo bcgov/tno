@@ -6,14 +6,13 @@ import { useActionFilters } from 'features/search-page/hooks';
 import moment from 'moment';
 import React from 'react';
 import { useContent, useFetchResults, useSettings } from 'store/hooks';
-import { IContentModel, Loading, Show } from 'tno-core';
+import { IContentModel, Show } from 'tno-core';
 
 import * as styled from './styled';
 
 /** Component that displays commentary defaulting to today's date and adjustable via a date filter. */
 export const TodaysCommentary: React.FC = () => {
-  const { setIsLoading, fetchResults, prevDateResults, currDateResults, isLoading } =
-    useFetchResults();
+  const { setIsLoading, fetchResults, prevDateResults, currDateResults } = useFetchResults();
   const [
     {
       todaysCommentary: { filter },
@@ -133,9 +132,6 @@ export const TodaysCommentary: React.FC = () => {
         onReset={handleReset}
       />
       <DateFilter filter={filter} storeFilter={storeFilter} />
-      <Show visible={isLoading}>
-        <Loading />
-      </Show>
       <ContentList
         content={currDateResults}
         selected={currentSelected}

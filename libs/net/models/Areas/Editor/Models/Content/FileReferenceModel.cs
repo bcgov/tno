@@ -47,6 +47,20 @@ public class FileReferenceModel : AuditColumnsModel
     /// get/set - Whether the file has been uploaded and is available.
     /// </summary>
     public bool IsUploaded { get; set; }
+    /// <summary>
+    /// get/set - Whether the file has been synced to S3 or not.
+    /// </summary>
+    public bool IsSyncedToS3 { get; set; }
+
+    /// <summary>
+    /// get/set - The path the file has been stored at in S3.
+    /// </summary>
+    public string? S3Path { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The date and time the file was last synced to S3.
+    /// </summary>
+    public DateTime? LastSyncedToS3On { get; set; }
     #endregion
 
     #region Constructors
@@ -69,6 +83,9 @@ public class FileReferenceModel : AuditColumnsModel
         this.Size = entity.Size;
         this.RunningTime = entity.RunningTime;
         this.IsUploaded = entity.IsUploaded;
+        this.IsSyncedToS3 = entity.IsSyncedToS3;
+        this.S3Path = entity.S3Path;
+        this.LastSyncedToS3On = entity.LastSyncedToS3On;
     }
     #endregion
 
@@ -98,6 +115,9 @@ public class FileReferenceModel : AuditColumnsModel
             RunningTime = model.RunningTime,
             IsUploaded = model.IsUploaded,
             Version = model.Version ?? 0,
+            IsSyncedToS3 = model.IsSyncedToS3,
+            S3Path = model.S3Path,
+            LastSyncedToS3On = model.LastSyncedToS3On,
         };
     }
     #endregion

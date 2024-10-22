@@ -115,7 +115,10 @@ public class ReportInstanceController : ControllerBase
         if (ownerId.HasValue)
         {
             var user = _userService.FindById(ownerId.Value) ?? throw new NotAuthorizedException();
-            await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendUser, user.Username, new KafkaInvocationMessage(MessageTarget.ReportStatus, new[] { new ReportMessageModel(result) })));
+            await _kafkaMessenger.SendMessageAsync(
+                _kafkaHubOptions.HubTopic,
+                new KafkaHubMessage(HubEvent.SendUser, user.Username, new KafkaInvocationMessage(MessageTarget.ReportStatus, new[] { new ReportMessageModel(result) }))
+            );
         }
 
         return new JsonResult(new ReportInstanceModel(result, _serializerOptions));

@@ -5,7 +5,7 @@ import { PreviousResults } from 'features/previous-results';
 import moment from 'moment';
 import React from 'react';
 import { useApp, useContent, useFetchResults } from 'store/hooks';
-import { IContentModel, Loading, Show } from 'tno-core';
+import { IContentModel, Show } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -40,7 +40,7 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({
   ] = useContent();
   const [{ userInfo }] = useApp();
 
-  const { isLoading, currDateResults, prevDateResults, fetchResults } = useFetchResults();
+  const { currDateResults, prevDateResults, fetchResults } = useFetchResults();
   React.useEffect(() => {
     // stops invalid requests before data is loaded or filter is synced with date
     if (!loaded || !filter.startDate || !userInfo) return;
@@ -117,9 +117,6 @@ export const FilterMedia: React.FC<IFilterMediaProps> = ({
         onReset={onReset}
       />
       <DateFilter filter={filter} storeFilter={storeFilter} />
-      <Show visible={isLoading}>
-        <Loading />
-      </Show>
       <ContentList
         onContentSelected={handleContentSelected}
         content={currDateResults}

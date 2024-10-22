@@ -85,6 +85,7 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
         !active?.startsWith(ReportMainMenuOption.Settings) &&
         instance &&
         instance.sentOn &&
+        ![ReportStatusName.Reopen].includes(instance.status) &&
         reportKind === ReportKindName.Manual
       ) {
         setShowStartNextReport(false);
@@ -221,7 +222,7 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
             instance?.sentOn ? 'This report has already been sent out by email.' : ''
           }`}
           isShowing={isShowingSend}
-          hide={toggleSend}
+          onClose={toggleSend}
           type="default"
           confirmText="Yes, send report to subscribers"
           onConfirm={async () => {
@@ -248,7 +249,7 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
             </Col>
           }
           isShowing={isShowingUnlockReport}
-          hide={toggleUnlockReport}
+          onClose={toggleUnlockReport}
           type="default"
           confirmText="Yes, unlock this report"
           onConfirm={async () => {
@@ -292,7 +293,7 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
             </Col>
           }
           isShowing={isShowingStartNewReport}
-          hide={toggleStartNewReport}
+          onClose={toggleStartNewReport}
           type="default"
           confirmText="Yes, start the next report"
           onConfirm={async () => {
