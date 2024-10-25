@@ -32,6 +32,7 @@ public class S3StorageService : IS3StorageService
     {
         if (!_s3Options.IsS3Enabled)
         {
+            _logger.LogError($"S3 is not available. S3Options IsS3Enabled value is: {_s3Options.IsS3Enabled}");
             return null;
         }
 
@@ -60,11 +61,13 @@ public class S3StorageService : IS3StorageService
         }
         if (!_s3Options.IsS3Enabled || await TestS3NetworkConnectionAsync() == false)
         {
+            _logger.LogError($"S3 is not available. S3Options IsS3Enabled value is: {_s3Options.IsS3Enabled}");
             return false;
         }
 
         if (_client == null)
         {
+            _logger.LogError("S3 client is not initialized.");
             return false;
         }
 
@@ -100,11 +103,13 @@ public class S3StorageService : IS3StorageService
     {
         if (!_s3Options.IsS3Enabled || await TestS3NetworkConnectionAsync() == false)
         {
+            _logger.LogError($"S3 is not available. S3Options IsS3Enabled value is: {_s3Options.IsS3Enabled}");
             return null;
         }
 
         if (_client == null)
         {
+            _logger.LogError("S3 client is not initialized.");
             return null;
         }
 
@@ -131,8 +136,9 @@ public class S3StorageService : IS3StorageService
                 return null;
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError($"Downloading file from S3: {s3Key} throws exception: {ex}");
             return null;
         }
     }

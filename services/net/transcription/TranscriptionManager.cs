@@ -307,9 +307,18 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
                 using (var fileStream = new FileStream(tmpFilePath, FileMode.Create, FileAccess.Write))
                 {
                     s3FileStream.CopyTo(fileStream);
+                    this.Logger.LogDebug($"S3 file {s3Path} is downloaded to: {tmpFilePath}");
                     return tmpFilePath;
                 }
             }
+            else
+            {
+                this.Logger.LogError($"Cannot download file {s3Path} from S3");
+            }
+        }
+        else
+        {
+            this.Logger.LogError("S3 file path is empty.");
         }
         return string.Empty;
     }
