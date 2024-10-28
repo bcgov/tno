@@ -26,7 +26,7 @@ export const useApiReports = (
     generateCBRAReport: (from: Date, to?: Date | null) => {
       const params = {
         from: moment(from).format('YYYY-MM-DDT00:00:00'),
-        to: to ? moment(to).format('YYYY-MM-DDT:11:59:59') : undefined,
+        to: to ? moment(to).format('YYYY-MM-DDT11:59:59') : undefined,
       };
       return download({
         url: `/reports/cbra?${toQueryString(params)}`,

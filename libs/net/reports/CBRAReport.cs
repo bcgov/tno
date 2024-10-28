@@ -76,7 +76,7 @@ public class CBRAReport
 
         // TODO: This is horrible, but hibernate is a mess. Need to make this more
         // performant.
-        content = page.Items.Select(i => contentService.FindById(i.Id)!).ToList();
+        content = page.Items;
 
         // TODO: Hardcoding isn't good.
         talkRadio = content.Where(c => c.MediaType?.Name == "Talk Radio").ToList();
