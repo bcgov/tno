@@ -118,7 +118,6 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
                 var filesToDelete = Directory.GetFiles(directoryPath, $"{filePrefix}*", SearchOption.TopDirectoryOnly)
                 .Where(file => Path.GetFileNameWithoutExtension(file) == filePrefix);// find all files with the exact same prefix in the same directory
 
-                var deleteErrors = new List<string>();
 
                 // delete all files with the same prefix in the same directory
                 foreach (var file in filesToDelete)
@@ -130,16 +129,10 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
                     catch (Exception ex)
                     {
                         // record error but continue
-                        deleteErrors.Add($"Failed to delete file {file}: {ex.Message}");
                         Logger.LogError(ex, "Failed to delete file {file}", file);
                     }
                 }
 
-                // if there are deletion errors, record a warning
-                if (deleteErrors.Any())
-                {
-                    Logger.LogWarning("Some files could not be deleted: {errors}", string.Join("; ", deleteErrors));
-                }
             }
         }
 
