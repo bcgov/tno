@@ -224,15 +224,7 @@ export const useContentForm = ({
         })
         .catch(() => {});
     }
-  }, [getStream, fileReference?.contentType, path]);
-
-  React.useEffect(() => {
-    if (path && fileReference) {
-      setAvStream();
-    } else {
-      setStream(undefined);
-    }
-  }, [fileReference, path, setAvStream]);
+  }, [getStream, fileReference, path]);
 
   const handleSubmit = React.useCallback(
     async (
