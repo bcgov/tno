@@ -84,14 +84,53 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     /// <returns></returns>
     public async Task<FileReference> UploadAsync(ContentFileReference model, string folderPath)
     {
-        // TODO: Handle different data locations.
+        return await UploadInternalAsync(model, folderPath, false);
+    }
+
+    /// <summary>
+    /// Upload the file to the configured data location and add or update the specified file reference. 
+    /// Clean up the existing files with the same prefix in the same directory. 
+    /// for some reason 
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="folderPath"></param>
+    /// <returns></returns>
+    public async Task<FileReference> UploadCleanUpAsync(ContentFileReference model, string folderPath)
+    {
+        return await UploadInternalAsync(model, folderPath, true);
+    }
+
+    private async Task<FileReference> UploadInternalAsync(ContentFileReference model, string folderPath, bool cleanJunks)
+    {
         var path = Path.Combine(folderPath, model.Path.MakeRelativePath());
         var directory = Path.GetDirectoryName(path);
         if (!Directory.Exists(directory) && !String.IsNullOrEmpty(directory))
             Directory.CreateDirectory(directory);
 
+        if (cleanJunks)
+        // before uploading a new file, clean up the existing files with the same prefix in the same directory
+        {
+            var filePrefix = Path.GetFileNameWithoutExtension(model.Path); // get file prefix like "AVN-1085"
+            var directoryPath = Path.GetDirectoryName(path); // get directory path like "/data/AVN"
+
+            if (directoryPath != null)
+            {
+                var filesToDelete = Directory.GetFiles(directoryPath, $"{filePrefix}*", SearchOption.TopDirectoryOnly)
+                .Where(file => Path.GetFileNameWithoutExtension(file) == filePrefix);// find all files with the exact same prefix in the same directory
+
+                // delete all files with the same prefix in the same directory
+                foreach (var file in filesToDelete)
+                {
+                    File.Delete(file);
+                }
+            }
+
+        }
+
+
         if (model.File?.Length > 0)
         {
+            // create a new file from ContentFileReference object
             using var stream = File.Open(path, FileMode.Create);
             await model.File.CopyToAsync(stream);
             model.IsUploaded = true;
