@@ -305,7 +305,6 @@ export const useContentForm = ({
       getSeries,
       navigate,
       series,
-      setAvStream,
       updateContent,
       upload,
       userId,
