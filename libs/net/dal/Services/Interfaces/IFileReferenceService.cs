@@ -12,6 +12,8 @@ public interface IFileReferenceService : IBaseService<FileReference, long>
 
     Task<FileReference> UploadAsync(Content content, IFormFile file, string folderPath);
 
+    Task<FileReference> UploadCleanUpAsync(ContentFileReference model, string folderPath);
+
     FileStream Download(FileReference entity, string folderPath);
 
     FileReference Attach(ContentFileReference model, string folderPath);

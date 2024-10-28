@@ -531,7 +531,7 @@ public class ContentController : ControllerBase
         // If the content has a file reference, then update it.  Otherwise, add one.
         content.Version = version; // TODO: Handle concurrency before uploading the file as it will result in an orphaned file.
         if (content.FileReferences.Any()) await _fileReferenceService.UploadAsync(content, files.First(), _storageOptions.GetUploadPath());
-        else await _fileReferenceService.UploadAsync(new ContentFileReference(content, files.First()), _storageOptions.GetUploadPath());
+        else await _fileReferenceService.UploadCleanUpAsync(new ContentFileReference(content, files.First()), _storageOptions.GetUploadPath());
 
         if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
 
