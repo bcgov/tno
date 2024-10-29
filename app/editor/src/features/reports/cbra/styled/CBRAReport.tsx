@@ -15,4 +15,8 @@ export const CBRAReport = styled.div`
     display: flex;
     flex-direction: row;
   }
+
+  .report-form {
+    margin-left: 1.5rem;
+  }
 `;
