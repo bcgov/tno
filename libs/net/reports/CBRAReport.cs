@@ -647,7 +647,7 @@ public class CBRAReport
         cellB.CellStyle = labelStyle;
         cellB.SetCellValue("[hours]");
 
-        var timeTracking = timeTrackingService.Find(from, to).GroupBy(tt => tt.User).ToDictionary(g => g.Key?.Username ?? "NOT SET", g => g.ToList());
+        var timeTracking = timeTrackingService.Find(from, to).GroupBy(tt => tt.User?.Username).ToDictionary(g => g.Key ?? "NOT SET", g => g.ToList());
         var timeKeys = timeTracking.Keys.ToArray();
 
         for (var i = 0; i < timeTracking.Count; i++)
