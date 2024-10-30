@@ -23,7 +23,10 @@ export const Landing = styled(Col)`
   .right-panel {
     .commentary-box {
       .headline {
-        max-width: 30em;
+        flex-grow: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
     max-height: calc(100vh - 6.5em);
@@ -32,10 +35,9 @@ export const Landing = styled(Col)`
     }
     margin-left: auto;
     flex-grow: 1;
-    margin-right: auto;
 
     display: flex;
-    flex-flow: column;
+    flex-direction: column;
 
     input {
       min-height: 3em;
