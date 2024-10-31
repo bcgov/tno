@@ -263,14 +263,14 @@ namespace TNO.Ches
         /// </summary>
         /// <param name="emailBody">email body as html markup - possibly containing base64 encoded images</param>
         /// <returns>dictionary of the images as attachments and the 'key' to use to search and replace them in the markup</returns>
-        private Dictionary<string, AttachmentModel> GetImagesFromEmailBody(string emailBody)
+        private static Dictionary<string, AttachmentModel> GetImagesFromEmailBody(string emailBody)
         {
-            Dictionary<string, AttachmentModel> imageDictionary = new Dictionary<string, AttachmentModel>();
+            var imageDictionary = new Dictionary<string, AttachmentModel>();
 
             var inlineImageMatches = Base64InlineImageRegex.Matches(emailBody);
             if (inlineImageMatches.Any())
             {
-                foreach (Match m in inlineImageMatches)
+                foreach (var m in inlineImageMatches.Cast<Match>())
                 {
                     var imageMediaType = m.Groups[1].Value;
                     var base64Image = m.Groups[2].Value;
@@ -281,7 +281,8 @@ namespace TNO.Ches
                         Filename = Guid.NewGuid().ToString(),
                         Content = base64Image
                     };
-                    imageDictionary.Add(m.Value, attachment);
+                    if (!imageDictionary.ContainsKey(m.Value))
+                        imageDictionary.Add(m.Value, attachment);
                 }
             }
             return imageDictionary;
