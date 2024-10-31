@@ -6,6 +6,9 @@ metadata:
   namespace: default
   annotations:
     description: Route for subscriber application.
+    haproxy.router.openshift.io/balance: source
+    haproxy.router.openshift.io/cookie_name: mmi
+    haproxy.router.openshift.io/timeout: 2m
   labels:
     name: subscriber
     part-of: tno
@@ -32,100 +35,13 @@ spec:
 kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
-  name: subscriber-0
-  namespace: default
-  annotations:
-    description: Route for subscriber application.
-  labels:
-    name: subscriber-0
-    part-of: tno
-    version: 1.0.0
-    component: subscriber
-    managed-by: kustomize
-    created-by: jeremy.foster
-spec:
-  host: mmi-dev-0.apps.silver.devops.gov.bc.ca
-  path: ""
-  port:
-    targetPort: 8080-tcp
-  tls:
-    insecureEdgeTerminationPolicy: Redirect
-    termination: edge
-    # caCertificate: ""
-    # certificate: ""
-    # key: ""
-  to:
-    kind: Service
-    name: subscriber
-    weight: 100
----
-kind: Route
-apiVersion: route.openshift.io/v1
-metadata:
-  name: subscriber-1
-  namespace: default
-  annotations:
-    description: Route for subscriber application.
-  labels:
-    name: subscriber-1
-    part-of: tno
-    version: 1.0.0
-    component: subscriber
-    managed-by: kustomize
-    created-by: jeremy.foster
-spec:
-  host: mmi-dev-1.apps.silver.devops.gov.bc.ca
-  path: ""
-  port:
-    targetPort: 8080-tcp
-  tls:
-    insecureEdgeTerminationPolicy: Redirect
-    termination: edge
-    # caCertificate: ""
-    # certificate: ""
-    # key: ""
-  to:
-    kind: Service
-    name: subscriber
-    weight: 100
----
-kind: Route
-apiVersion: route.openshift.io/v1
-metadata:
-  name: subscriber-2
-  namespace: default
-  annotations:
-    description: Route for subscriber application.
-  labels:
-    name: subscriber-2
-    part-of: tno
-    version: 1.0.0
-    component: subscriber
-    managed-by: kustomize
-    created-by: jeremy.foster
-spec:
-  host: mmi-dev-2.apps.silver.devops.gov.bc.ca
-  path: ""
-  port:
-    targetPort: 8080-tcp
-  tls:
-    insecureEdgeTerminationPolicy: Redirect
-    termination: edge
-    # caCertificate: ""
-    # certificate: ""
-    # key: ""
-  to:
-    kind: Service
-    name: subscriber
-    weight: 100
----
-kind: Route
-apiVersion: route.openshift.io/v1
-metadata:
   name: subscriber-tls
   namespace: default
   annotations:
     description: Route for subscriber application.
+    haproxy.router.openshift.io/balance: source
+    haproxy.router.openshift.io/cookie_name: mmi
+    haproxy.router.openshift.io/timeout: 2m
   labels:
     name: subscriber-tls
     part-of: tno
