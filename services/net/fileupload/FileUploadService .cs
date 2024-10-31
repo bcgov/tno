@@ -14,7 +14,7 @@ namespace TNO.Services.FileUpload;
 /// <summary>
 /// FileUploadService class, provides a service to upload files.
 /// </summary>
-public class FileUploadService : IngestService
+public class FileUploadService : BaseService
 {
     #region Variables
     #endregion
@@ -23,11 +23,6 @@ public class FileUploadService : IngestService
     /// <summary>
     /// Creates a new instance of a FileUploadService object, initializes with specified parameters.
     /// </summary>
-    /// <param name="api"></param>
-    /// <param name="chesService"></param>
-    /// <param name="chesOptions"></param>
-    /// <param name="options"></param>
-    /// <param name="logger"></param>
     public FileUploadService(string[] args) : base(args)
     {
     }

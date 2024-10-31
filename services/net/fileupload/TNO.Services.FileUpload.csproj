@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\libs\net\services\TNO.Services.csproj" />
-    <ProjectReference Include="..\..\..\libs\net\kafka\TNO.Kafka.csproj" />
   </ItemGroup>
 
   <ItemGroup>
