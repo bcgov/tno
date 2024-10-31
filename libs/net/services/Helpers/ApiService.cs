@@ -517,6 +517,31 @@ public class ApiService : IApiService
     }
 
     /// <summary>
+    /// Make an HTTP request to the api to upload the files to S3.
+    /// </summary>
+    /// <param name="limit"></param>
+    /// <param name="publishedAfter"></param>
+    /// <param name="publishedBefore"></param>
+    /// <param name="force"></param>
+    /// <returns></returns>
+    public async Task<HttpResponseMessage> UploadFilesToS3Async(
+        int? limit = null,
+        DateTime? publishedAfter = null,
+        DateTime? publishedBefore = null,
+        bool force = false)
+    {
+        var queryParams = new List<string>();
+        if (limit.HasValue) queryParams.Add($"limit={limit.Value}");
+        if (publishedAfter.HasValue) queryParams.Add($"publishedAfter={publishedAfter.Value:yyyy-MM-dd}");
+        if (publishedBefore.HasValue) queryParams.Add($"publishedBefore={publishedBefore.Value:yyyy-MM-dd}");
+        if (force) queryParams.Add("force=true");
+
+        var queryString = queryParams.Any() ? $"?{string.Join("&", queryParams)}" : "";
+        var url = this.Options.ApiUrl.Append($"editor/storage/upload-files-to-s3{queryString}");
+
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync(url, null));
+    }
+    /// <summary>
     /// Make an HTTP request to the api to upload the file and link to specified content.
     /// </summary>
     /// <param name="contentId"></param>
