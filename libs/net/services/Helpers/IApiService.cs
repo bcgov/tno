@@ -201,6 +201,22 @@ public interface IApiService
     public Task<API.Areas.Services.Models.Content.ContentModel?> UpdateContentStatusAsync(API.Areas.Services.Models.Content.ContentModel content);
 
     /// <summary>
+    /// Make a request to the API to upload files to S3.
+    /// </summary>
+    /// <param name="limit">limit</param>
+    /// <param name="publishedAfter">publishedAfter</param>
+    /// <param name="publishedBefore">publishedBefore</param>
+    /// <param name="force">force</param>
+    /// <returns>HTTP response message</returns>
+
+    public Task<HttpResponseMessage> UploadFilesToS3Async(
+        int? limit = null,
+        DateTime? publishedAfter = null,
+        DateTime? publishedBefore = null,
+        bool force = false);
+
+
+    /// <summary>
     /// Make a request to the API to upload the file and link to specified content.
     /// </summary>
     /// <param name="contentId"></param>
