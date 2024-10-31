@@ -12,6 +12,8 @@ public interface IFileReferenceService : IBaseService<FileReference, long>
 
     Task<FileReference> UploadAsync(Content content, IFormFile file, string folderPath);
 
+    Task<FileReference> UploadCleanUpAsync(ContentFileReference model, string folderPath);
+
     FileStream Download(FileReference entity, string folderPath);
 
     FileReference Attach(ContentFileReference model, string folderPath);
@@ -20,10 +22,5 @@ public interface IFileReferenceService : IBaseService<FileReference, long>
 
     Task<IEnumerable<FileReference>> GetFiles(DateTime? createdAfter = null, DateTime? createdBefore = null, int limit = 100, bool force = false);
 
-    Task<bool> UploadToS3Async(string s3Key, Stream fileStream);
-
-    Task<Stream?> DownloadFromS3Async(string s3Key);
-
     Task<FileReference> UpdateAsync(FileReference entity);
-    Task<bool> TestS3NetworkConnectionAsync();
 }

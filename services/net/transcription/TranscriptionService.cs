@@ -1,8 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
+using TNO.Core.Storage;
+using TNO.Core.Storage.Configuration;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.Runners;
 using TNO.Services.Transcription.Config;
+
 
 namespace TNO.Services.Transcription;
 
@@ -40,7 +43,9 @@ public class TranscriptionService : KafkaConsumerService
         services
             .Configure<TranscriptionOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IKafkaListener<string, TranscriptRequestModel>, KafkaListener<string, TranscriptRequestModel>>()
-            .AddSingleton<IServiceManager, TranscriptionManager>();
+            .AddSingleton<IServiceManager, TranscriptionManager>()
+            .Configure<S3Options>(this.Configuration.GetSection("S3"))
+            .AddSingleton<IS3StorageService, S3StorageService>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<TranscriptionOptions>()

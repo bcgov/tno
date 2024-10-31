@@ -53,7 +53,15 @@ spec:
         git config --global --add safe.directory '*'
         git fetch origin master
         git fetch origin dev
+
+        # Delete head file if it exists
+        rm -f .git/refs/heads/dev.lock
+        git status
+        git clean -fd
+        git clean -f
+
         git checkout $(params.GIT_SOURCE)
+
         # TODO: Make the branch equal to the GIT_REF
         git pull
         git show -s
