@@ -1,3 +1,4 @@
+import { KnnSearchResponse } from '@elastic/elasticsearch/lib/api/types';
 import { BasicSearch } from 'components/basic-search';
 import { ContentList, ViewOptions } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
@@ -5,7 +6,9 @@ import { FilterOptions } from 'components/media-type-filters';
 import { PageSection } from 'components/section';
 import { ContentListActionBar } from 'components/tool-bar';
 import { useElastic } from 'features/my-searches/hooks';
+import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
+import moment from 'moment';
 import React from 'react';
 import { FaBookmark } from 'react-icons/fa6';
 import { useLocation, useParams } from 'react-router-dom';
@@ -80,26 +83,40 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   }, [activeFilter, getFilter, filterId, init, storeFilter, storeSearchFilter, id]);
 
   const groupResults = React.useCallback(
-    (res: any, currStartDate: Date, currEndDate: Date, groupStoredContent: boolean) => {
+    (
+      res: KnnSearchResponse<IContentModel>,
+      currStartDate: Date,
+      currEndDate: Date,
+      groupStoredContent: boolean,
+    ) => {
       const currDateResults: IContentSearchResult[] = [],
         prevDateResults: IContentSearchResult[] = [];
-      res.hits.hits.forEach((h: { _source: IContentSearchResult }) => {
-        const resDate = new Date(h._source.publishedOn);
+      res.hits.hits.forEach((h) => {
+        if (!h._source) return;
+        const content = castToSearchResult(h._source);
+        const resDate = new Date(content.publishedOn);
         if (
           resDate.getTime() >= currStartDate.getTime() &&
           resDate.getTime() <= currEndDate.getTime()
         ) {
           // result occurred during currently selected date
-          currDateResults.push(h._source);
+          currDateResults.push(content);
         } else {
-          prevDateResults.push(h._source);
+          prevDateResults.push(content);
         }
       });
       setCurrDateResults(currDateResults);
       setPrevDateResults(prevDateResults);
       setTotalResults(currDateResults.length);
       if (!groupStoredContent) {
-        if (res.hits.total.value === 0) toast.warn('No results found.');
+        if (
+          (typeof res.hits.total === 'number' && res.hits.total === 0) ||
+          (res.hits.total !== undefined &&
+            typeof res.hits.total !== 'number' &&
+            'value' in res.hits.total &&
+            res.hits.total.value === 0)
+        )
+          toast.warn('No results found.');
         if (currDateResults.length >= 500)
           toast.warn(
             'Search returned 500+ results, only showing first 500. Please consider refining your search.',
@@ -140,7 +157,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   );
 
   const fetchResults = React.useCallback(
-    async (filter: IFilterSettingsModel, storedContent?: any) => {
+    async (filter: IFilterSettingsModel, storedContent?: KnnSearchResponse<IContentModel>) => {
       try {
         setShowResults(false);
         let newFilter = filter;
@@ -150,27 +167,26 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
             dateOffset: filter.dateOffset + 7,
           };
         }
-        const offSet = filter.dateOffset ? filter.dateOffset : 0;
-        setDateVisible(!(offSet > 1));
-        const dayInMs = 24 * 60 * 60 * 1000; // Hours*Minutes*Seconds*Milliseconds
-        let offSetDate = new Date();
-        offSetDate.setDate(offSetDate.getDate() - offSet);
-        offSetDate.setHours(0, 0, 0);
+        const offset = filter.dateOffset ?? 0;
+        setDateVisible(offset === 0);
+
+        let offsetDate =
+          offset <= 2 ? moment().add(offset * 24 * -1, 'hour') : moment().add(offset * -1, 'day');
+        if (offset > 2 || offset === 0) offsetDate.startOf('day');
+
         // if no date offset/ start date this means the user is looking for all content
         // unix epoch used as a default start date for all content
         const currStartDate = filter.startDate
-          ? new Date(filter.startDate)
+          ? moment(filter.startDate)
           : filter.dateOffset !== undefined
-          ? offSetDate
-          : new Date(1970, 0, 1);
-        const prevStartDate = new Date(currStartDate.getTime() - 7 * dayInMs);
-        const currEndDate = filter.endDate
-          ? new Date(filter.endDate)
-          : filter.dateOffset !== undefined
-          ? new Date(currStartDate.getTime() + offSet * dayInMs - 1)
-          : new Date();
-        currEndDate.setHours(23, 59, 59);
-        setStartDate(currStartDate);
+          ? moment(offsetDate)
+          : moment(1432252800); // 1970
+        const prevStartDate = moment(currStartDate).add(-7, 'day');
+
+        let currEndDate = filter.endDate ? moment(filter.endDate) : moment();
+        currEndDate.endOf('day');
+
+        setStartDate(currStartDate.toDate());
         if (filter.startDate && filter.endDate) {
           newFilter = {
             ...filter,
@@ -190,7 +206,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
           res = storedContent;
           groupStoredContent = true;
         }
-        groupResults(res, currStartDate, currEndDate, groupStoredContent);
+        groupResults(res, currStartDate.toDate(), currEndDate.toDate(), groupStoredContent);
       } catch {
       } finally {
         setShowResults(true);
