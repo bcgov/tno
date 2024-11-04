@@ -8,7 +8,7 @@ import { ContentListActionBar } from 'components/tool-bar';
 import { useElastic } from 'features/my-searches/hooks';
 import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import React from 'react';
 import { FaBookmark } from 'react-icons/fa6';
 import { useLocation, useParams } from 'react-router-dom';
@@ -59,7 +59,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [totalResults, setTotalResults] = React.useState(0);
   const { expanded } = useSearchPageContext();
-  const [startDate, setStartDate] = React.useState<Date>(new Date());
+  const [startDate, setStartDate] = React.useState<Moment>(moment());
   const [filterId, setFilterId] = React.useState(0);
   const [searchFilter, setSearchFilter] = React.useState<IFilterSettingsModel | null>(null);
   const [showResults, setShowResults] = React.useState(false);
@@ -83,22 +83,14 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
   }, [activeFilter, getFilter, filterId, init, storeFilter, storeSearchFilter, id]);
 
   const groupResults = React.useCallback(
-    (
-      res: KnnSearchResponse<IContentModel>,
-      currStartDate: Date,
-      currEndDate: Date,
-      groupStoredContent: boolean,
-    ) => {
+    (res: KnnSearchResponse<IContentModel>, currStartDate: Moment, groupStoredContent: boolean) => {
       const currDateResults: IContentSearchResult[] = [],
         prevDateResults: IContentSearchResult[] = [];
       res.hits.hits.forEach((h) => {
         if (!h._source) return;
         const content = castToSearchResult(h._source);
-        const resDate = new Date(content.publishedOn);
-        if (
-          resDate.getTime() >= currStartDate.getTime() &&
-          resDate.getTime() <= currEndDate.getTime()
-        ) {
+        const resDate = moment(content.publishedOn);
+        if (resDate >= currStartDate) {
           // result occurred during currently selected date
           currDateResults.push(content);
         } else {
@@ -170,7 +162,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         const offset = filter.dateOffset ?? 0;
         setDateVisible(offset === 0);
 
-        let offsetDate =
+        const offsetDate =
           offset <= 2 ? moment().add(offset * 24 * -1, 'hour') : moment().add(offset * -1, 'day');
         if (offset > 2 || offset === 0) offsetDate.startOf('day');
 
@@ -183,10 +175,11 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
           : moment(1432252800); // 1970
         const prevStartDate = moment(currStartDate).add(-7, 'day');
 
-        let currEndDate = filter.endDate ? moment(filter.endDate) : moment();
+        const currEndDate = filter.endDate ? moment(filter.endDate) : moment();
         currEndDate.endOf('day');
 
-        setStartDate(currStartDate.toDate());
+        setStartDate(currStartDate);
+        console.debug('start', currStartDate.toString());
         if (filter.startDate && filter.endDate) {
           newFilter = {
             ...filter,
@@ -206,7 +199,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
           res = storedContent;
           groupStoredContent = true;
         }
-        groupResults(res, currStartDate.toDate(), currEndDate.toDate(), groupStoredContent);
+        groupResults(res, currStartDate, groupStoredContent);
       } catch {
       } finally {
         setShowResults(true);
