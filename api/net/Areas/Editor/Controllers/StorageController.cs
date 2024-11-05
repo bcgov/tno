@@ -577,17 +577,14 @@ public class StorageController : ControllerBase
 
                         uploadedFiles.Add(s3Key);
 
-                        if (fileReference.ContentType.StartsWith("video/") || fileReference.ContentType.StartsWith("audio/"))
+                        try
                         {
-                            try
-                            {
-                                System.IO.File.Delete(filePath);
-                                _logger.LogInformation("deleted local file: {FilePath}", filePath);
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(ex, "failed to delete local file: {FilePath}", filePath);
-                            }
+                            System.IO.File.Delete(filePath);
+                            _logger.LogInformation("deleted local file: {FilePath}", filePath);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "failed to delete local file: {FilePath}", filePath);
                         }
                     }
                     else
