@@ -21,11 +21,6 @@ export const Landing = styled(Col)`
 
   /* The panel containing Commentary and front pages */
   .right-panel {
-    .commentary-box {
-      .headline {
-        max-width: 30em;
-      }
-    }
     max-height: calc(100vh - 6.5em);
     @media (min-width: 1832px) {
       max-width: 44%;
@@ -36,6 +31,12 @@ export const Landing = styled(Col)`
 
     display: flex;
     flex-flow: column;
+
+    .commentary-box {
+      .headline {
+        max-width: 70vw;
+      }
+    }
 
     input {
       min-height: 3em;
