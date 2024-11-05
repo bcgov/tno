@@ -546,6 +546,7 @@ public class StorageController : ControllerBase
         var fileReferences = await _fileReferenceService.GetFiles(publishedAfter, publishedBefore, limit ?? 100, force);
         var uploadedFiles = new List<string>();
         var failedUploads = new List<string>();
+        var deletedReferences = new List<string>();
         // check if s3 credentials are set
         if (!_s3Options.IsS3Enabled )
         {
@@ -597,6 +598,8 @@ public class StorageController : ControllerBase
                 else
                 {
                     failedUploads.Add($"{fileReference.Path} (file not found)");
+                    _fileReferenceService.DeleteAndSave(fileReference);
+                    deletedReferences.Add($"{fileReference.Path} (Broken reference deleted)");
                 }
             }
             catch (Exception ex)
@@ -610,6 +613,7 @@ public class StorageController : ControllerBase
         {
             UploadedFiles = uploadedFiles,
             FailedUploads = failedUploads,
+            DeletedReferences = deletedReferences,
         });
     }
 
