@@ -4,7 +4,6 @@ import { FaAngleRight } from 'react-icons/fa';
 import { FaFileExport, FaSpinner } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useReports } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
 import {
   Col,
   IContentModel,
@@ -14,7 +13,6 @@ import {
   ReportSectionTypeName,
   ReportStatusName,
   Row,
-  Select,
   Show,
 } from 'tno-core';
 
@@ -38,9 +36,6 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
     (r) => ['find-my-reports', 'generate-report'].includes(r.url) || r.group.includes('get-report'),
   );
   const isAdding = requests.some((r) => r.url === 'add-content-to-report');
-  const [{ reportsFilter }] = useProfileStore();
-
-  const [filter, setFilter] = React.useState(reportsFilter);
 
   React.useEffect(() => {
     if (!myReports.length) {
@@ -111,67 +106,51 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
         <FaFileExport /> <span>ADD TO REPORT</span>
         <TooltipMenu clickable openOnClick id="tooltip-add-to-report" place="bottom">
           <Row className="choose-report">Choose Report...</Row>
-          <Select
-            name="searchReport"
-            onKeyUpCapture={(e) => {
-              if (e.key === 'Enter') setFilter(filter);
-            }}
-            onChange={(newValue: any) => {
-              setFilter(newValue.label);
-            }}
-            options={myReports.map((report) => ({
-              label: report.name,
-              value: report.id,
-            }))}
-            value={filter}
-          />
           <Col className="list">
             <Loader visible={isLoading} />
-            {myReports
-              .filter((report) => report.name === filter)
-              .map((report) => (
-                <Show key={report.id} visible={!!report.sections.length}>
-                  <Row
-                    className="report-item"
-                    onClick={() => {
-                      // allow user to toggle close list of sections
-                      if (activeReport?.id === report.id) setActiveReport(undefined);
-                      else setActiveReport(report);
-                    }}
-                    data-tooltip-id={`tooltip-add-to-section`}
-                  >
-                    <FaFileExport
-                      className={`report-icon ${activeReport?.id === report.id && 'expanded'}`}
-                    />
-                    <div className="report-name">{report.name}</div>
-                  </Row>
-                  <Show visible={!!activeReport && activeReport.id === report.id}>
-                    <div className={`section-list`}>
-                      {activeReport?.sections.map(
-                        (section) =>
-                          section.sectionType === ReportSectionTypeName.Content && (
-                            <Row
-                              key={section.id}
-                              className="section"
-                              onClick={() =>
-                                !isAdding &&
-                                content.length &&
-                                inProgress.sectionName !== section.name &&
-                                handleAddToReport(report, section.name, content)
-                              }
-                            >
-                              <FaAngleRight className="active-section" />
-                              {section.settings.label}
-                              {section.name === inProgress.sectionName && inProgress.value && (
-                                <FaSpinner className="spinner" />
-                              )}
-                            </Row>
-                          ),
-                      )}
-                    </div>
-                  </Show>
+            {myReports.map((report) => (
+              <Show key={report.id} visible={!!report.sections.length}>
+                <Row
+                  className="report-item"
+                  onClick={() => {
+                    // allow user to toggle close list of sections
+                    if (activeReport?.id === report.id) setActiveReport(undefined);
+                    else setActiveReport(report);
+                  }}
+                  data-tooltip-id={`tooltip-add-to-section`}
+                >
+                  <FaFileExport
+                    className={`report-icon ${activeReport?.id === report.id && 'expanded'}`}
+                  />
+                  <div className="report-name">{report.name}</div>
+                </Row>
+                <Show visible={!!activeReport && activeReport.id === report.id}>
+                  <div className={`section-list`}>
+                    {activeReport?.sections.map(
+                      (section) =>
+                        section.sectionType === ReportSectionTypeName.Content && (
+                          <Row
+                            key={section.id}
+                            className="section"
+                            onClick={() =>
+                              !isAdding &&
+                              content.length &&
+                              inProgress.sectionName !== section.name &&
+                              handleAddToReport(report, section.name, content)
+                            }
+                          >
+                            <FaAngleRight className="active-section" />
+                            {section.settings.label}
+                            {section.name === inProgress.sectionName && inProgress.value && (
+                              <FaSpinner className="spinner" />
+                            )}
+                          </Row>
+                        ),
+                    )}
+                  </div>
                 </Show>
-              ))}
+              </Show>
+            ))}
           </Col>
         </TooltipMenu>
       </div>
