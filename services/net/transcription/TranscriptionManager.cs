@@ -8,15 +8,15 @@ using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.Ches;
 using TNO.Ches.Configuration;
-using TNO.Services.Transcription.Exceptions;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
+using TNO.Core.Storage;
 using TNO.Entities;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.Managers;
 using TNO.Services.Transcription.Config;
-using TNO.Core.Storage;
+using TNO.Services.Transcription.Exceptions;
 namespace TNO.Services.Transcription;
 
 /// <summary>
@@ -29,7 +29,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     private CancellationTokenSource? _cancelToken;
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
-    private readonly WorkOrderStatus[] _ignoreWorkOrders = new WorkOrderStatus[] { WorkOrderStatus.Completed, WorkOrderStatus.Cancelled, WorkOrderStatus.Failed };
+    private readonly WorkOrderStatus[] _ignoreWorkOrders = new WorkOrderStatus[] { WorkOrderStatus.Completed };
     private int _retries = 0;
 
     #endregion
@@ -219,7 +219,10 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
                         && Options.IgnoreContentPublishedBeforeOffset > 0
                         && content.PublishedOn.HasValue
                         && content.PublishedOn.Value < DateTime.UtcNow.AddDays(-1 * Options.IgnoreContentPublishedBeforeOffset.Value))
+                    {
+                        this.Logger.LogWarning("Content has been ignored. Key: {Key}, Content ID: {ContentId}", result.Message.Key, request.ContentId);
                         return;
+                    }
 
                     // TODO: Handle multi-threading so that more than one transcription can be performed at a time.
                     await UpdateTranscriptionAsync(request, content);
@@ -275,7 +278,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <param name="files"></param>
     private void CleanupS3Files(params string[] files)
     {
-        foreach(var file in files)
+        foreach (var file in files)
         {
             if (File.Exists(file))
             {
@@ -333,6 +336,8 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     private async Task UpdateTranscriptionAsync(TranscriptRequestModel request, ContentModel content)
     {
         var requestContentId = request.ContentId;
+        this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", requestContentId);
+
         // TODO: Handle different storage locations.
         // Remote storage locations may not be easily accessible by this service.
         var contentFile = content.FileReferences.FirstOrDefault();
@@ -365,14 +370,14 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
 
             if (!String.IsNullOrEmpty(safePath))
             {
-                this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", requestContentId);
+                this.Logger.LogInformation("Validating work order.  Content ID: {Id}, Path: {file}", requestContentId, safePath);
                 var hasWorkOrder = await UpdateWorkOrderAsync(request, WorkOrderStatus.InProgress);
 
                 if (hasWorkOrder)
                 {
                     var original = content.Body;
                     var fileBytes = File.ReadAllBytes(safePath);
-                    var transcript = await RequestTranscriptionAsync(fileBytes); // TODO: Extract language from data source.
+                    var transcript = await RequestTranscriptionAsync(requestContentId, fileBytes); // TODO: Extract language from data source.
 
                     // Fetch content again because it may have been updated by an external source.
                     // This can introduce issues if the transcript has been edited as now it will overwrite what was changed.
@@ -404,18 +409,23 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
                 }
                 else
                 {
-                    this.Logger.LogWarning("Request ignored because it does not have a work order");
+                    this.Logger.LogWarning("Request ignored because it does not have a work order.  Content ID: {id}, File: {path}", requestContentId, safePath);
                 }
+
                 if (isSyncedToS3 == true)
                 {
-                    CleanupS3Files(new string[]{downloadedFile, destFile});
+                    CleanupS3Files(new string[] { downloadedFile, destFile });
                 }
+            }
+            else
+            {
+                this.Logger.LogError("Transcription failed, path to file missing.  Content ID: {Id}, File: {path}", requestContentId, safePath);
             }
         }
         else
         {
             this.Logger.LogError($"File does not exist for content. Content ID: {requestContentId}, Path: {safePath}");
-            var workOrderFailedException = new FileMissingException(requestContentId, safePath);
+            var workOrderFailedException = new FileMissingException(requestContentId, safePath ?? "");
             await this.SendNoticeEmailAsync($"File missing for Content ID: {requestContentId}", workOrderFailedException);
             await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed, workOrderFailedException);
         }
@@ -472,10 +482,11 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <summary>
     /// Stream the audio file to Azure and return the speech to text output.
     /// </summary>
+    /// <param name="id"></param>
     /// <param name="data"></param>
     /// <param name="language"></param>
     /// <returns></returns>
-    private async Task<string> RequestTranscriptionAsync(byte[] data, string language = "en-CA")
+    private async Task<string> RequestTranscriptionAsync(long id, byte[] data, string language = "en-CA")
     {
         var sem = new Semaphore(0, 1);
         var sb = new StringBuilder();
@@ -497,7 +508,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             if (result.Reason == ResultReason.RecognizedSpeech)
             {
                 sb.Append(result.Text);
-                this.Logger.LogDebug("Speech transcription process \"{text}...\"", result.Text?[0..Math.Min(result.Text.Length, 25)]);
+                this.Logger.LogDebug("Speech transcription process. Content: {id}, \"{text}...\"", id, result.Text?[0..Math.Min(result.Text.Length, 25)]);
             }
             // TODO: Handle other reasons.
         };
@@ -507,7 +518,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             if (e.Reason == CancellationReason.Error)
             {
                 sb.AppendLine("*** SPEECH TRANSCRIPTION ERROR ***");
-                this.Logger.LogError("Speech transcription error. {details}", e.ErrorDetails);
+                this.Logger.LogError("Speech transcription error. Content: {id}, {details}", id, e.ErrorDetails);
                 this.State.RecordFailure();
             }
             sem.Release();
@@ -515,7 +526,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
 
         recognizer.SessionStopped += (s, e) =>
         {
-            this.Logger.LogDebug("Speech session stopped");
+            this.Logger.LogDebug("Speech session stopped. Content: {id}", id);
             sem.Release();
         };
 
@@ -539,6 +550,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <returns>destination file name</returns>
     private async Task<string> Video2Audio(string srcFile, string destFile)
     {
+        this.Logger.LogInformation("Converting file.  File: {file}", srcFile);
         var process = new System.Diagnostics.Process();
         process.StartInfo.Verb = $"Convert File";
         process.StartInfo.FileName = "/bin/sh";
@@ -553,6 +565,10 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         if (result != 0)
         {
             this.Logger.LogError("File conversion error. Error code: {errorcode}, Details: {details}", result, output);
+        }
+        else
+        {
+            this.Logger.LogDebug("File conversion details: {output}", output);
         }
         return result == 0 ? destFile : string.Empty;
     }
