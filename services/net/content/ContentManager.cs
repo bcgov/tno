@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Confluent.Kafka;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Renci.SshNet;
@@ -29,6 +30,22 @@ public class ContentManager : ServiceManager<ContentOptions>
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
     private int _retries = 0;
+    private IMemoryCache _memoryCache;
+    private const string SourceCodeListCacheKey = "content_manager_sourcecode";
+    private static IEnumerable<API.Areas.Services.Models.Ingest.SourceModel>? SourceCodeList;
+    private static object _sourceLock = new object();
+
+    private const string LookupListCacheKey = "content_manager_lookups";
+    private static API.Areas.Editor.Models.Lookup.LookupModel? LookupList;
+    private static object _lookupLock = new object();
+
+    private const string IngestServicesListCacheKey = "content_manager_ingests";
+    private static IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>? IngestServicesList;
+    private static object _ingestsLock = new object();
+
+    private const string SettingsListCacheKey = "content_manager_settings";
+    private static IEnumerable<API.Areas.Services.Models.Setting.SettingModel>? SettingsList;
+    private static object _settingsLock = new object();
 
     #endregion
 
@@ -55,6 +72,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <param name="chesOptions"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
+    /// <param name="memoryCache"></param>
     public ContentManager(
         IKafkaAdmin kafkaAdmin,
         IKafkaListener<string, SourceContent> kafkaListener,
@@ -62,7 +80,8 @@ public class ContentManager : ServiceManager<ContentOptions>
         IChesService chesService,
         IOptions<ChesOptions> chesOptions,
         IOptions<ContentOptions> options,
-        ILogger<ContentManager> logger)
+        ILogger<ContentManager> logger,
+        IMemoryCache memoryCache)
         : base(api, chesService, chesOptions, options, logger)
     {
         this.KafkaAdmin = kafkaAdmin;
@@ -70,6 +89,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         this.Listener.IsLongRunningJob = false;
         this.Listener.OnError += ListenerErrorHandler;
         this.Listener.OnStop += ListenerStopHandler;
+        _memoryCache = memoryCache;
     }
     #endregion
 
@@ -105,12 +125,12 @@ public class ContentManager : ServiceManager<ContentOptions>
                 try
                 {
                     // TODO: Handle e-tag.
-                    var ingest = (await this.Api.GetIngestsAsync()).ToArray();
+                    var ingest = GetIngests()?.ToArray();
 
                     // Get settings to find any overrides.
-                    var settings = await this.Api.GetSettings();
-                    var topicOverride = settings.FirstOrDefault(s => s.Name == "ContentImportTopicOverride")?.Value.Split(",", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
-                    var ingestTopics = ingest
+                    var settings = GetSettings();
+                    var topicOverride = settings?.FirstOrDefault(s => s.Name == "ContentImportTopicOverride")?.Value.Split(",", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+                    var ingestTopics = ingest?
                         .Where(i => !String.IsNullOrWhiteSpace(i.Topic) && i.ImportContent())
                         .Select(i => i.Topic).ToArray();
 
@@ -294,6 +314,88 @@ public class ContentManager : ServiceManager<ContentOptions>
         return text.Replace("<![CDATA[", "").Replace("]]>", "").Replace("]]&gt;", "");
     }
 
+    /// <summary>
+    /// Get settings list.
+    /// If settings list exists in memory cache, get it from memory cache.
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerable<API.Areas.Services.Models.Setting.SettingModel>? GetSettings()
+    {
+        lock (_settingsLock)
+        {       
+            if (!_memoryCache.TryGetValue(SettingsListCacheKey, out SettingsList))
+            {
+                SettingsList = this.Api.GetSettings().Result;
+                _memoryCache.Set(SettingsListCacheKey, SettingsList, TimeSpan.FromMinutes(30));
+            }
+        }
+        return SettingsList;
+    }
+
+    /// <summary>
+    /// Get ingest service by topic.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <returns></returns>
+    private API.Areas.Services.Models.Ingest.IngestModel? GetIngestsByTopic(string topic)
+    {
+        return GetIngests()?.Where(x => x.Topic.ToUpperInvariant() == topic.ToUpperInvariant()).FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Get ingest services list.
+    /// If ingest services list exists in memory cache, get it from memory cache.
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>? GetIngests()
+    {
+        lock (_ingestsLock)
+        {         
+            if (!_memoryCache.TryGetValue(IngestServicesListCacheKey, out IngestServicesList))
+            {
+                IngestServicesList = this.Api.GetIngestsAsync().Result;
+                _memoryCache.Set(IngestServicesListCacheKey, IngestServicesList, TimeSpan.FromMinutes(30));
+            }
+        }
+        return IngestServicesList;
+    }
+
+    /// <summary>
+    /// Get source by code.
+    /// If source list exists in memory cache, get it from memory cache.
+    /// </summary>
+    /// <param name="code"></param>
+    /// <returns></returns>
+    private API.Areas.Services.Models.Ingest.SourceModel? GetSource(string code)
+    {
+        lock (_sourceLock)
+        {   
+            if (!_memoryCache.TryGetValue(SourceCodeListCacheKey, out SourceCodeList))
+            {
+                SourceCodeList = this.Api.GetSourcesAsync().Result;
+                    _memoryCache.Set(SourceCodeListCacheKey, SourceCodeList, TimeSpan.FromMinutes(30));
+            }
+        }
+        return SourceCodeList?.Where(x => x.Code.ToUpperInvariant() == code.ToUpperInvariant()).FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Get lookups. If lookuops exists in memory cache, get it from memory cache.
+    /// </summary>
+    /// <returns></returns>
+    private API.Areas.Editor.Models.Lookup.LookupModel? GetLookups()
+    {   
+        lock (_lookupLock)
+        {      
+            if (!_memoryCache.TryGetValue(LookupListCacheKey, out LookupList))
+            {
+                LookupList = this.Api.GetLookupsAsync().Result;
+                _memoryCache.Set(LookupListCacheKey, LookupList, TimeSpan.FromMinutes(30));
+            }
+        }
+        return LookupList;
+    }
+
     private async Task ProcessSourceContentAsync(ConsumeResult<string, SourceContent> result)
     {
         this.Logger.LogInformation("Importing Content from Topic: {topic}, Uid: {key}", result.Topic, result.Message.Key);
@@ -327,8 +429,8 @@ public class ContentManager : ServiceManager<ContentOptions>
         {
             // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
             // TODO: Handle e-tag.
-            var source = await this.Api.GetSourceForCodeAsync(model.Source);
-            var lookups = await this.Api.GetLookupsAsync();
+            var source = GetSource(model.Source);
+            var lookups = GetLookups();
 
             var actions = lookups?.Actions;
             var tags = lookups?.Tags;
@@ -341,8 +443,8 @@ public class ContentManager : ServiceManager<ContentOptions>
             if (model.MediaTypeId == 0)
             {
                 // Messages in Kafka are missing information, replace with best guess.
-                var ingests = await this.Api.GetIngestsForTopicAsync(result.Topic);
-                model.MediaTypeId = ingests.FirstOrDefault()?.MediaTypeId ?? throw new InvalidOperationException($"Unable to find an ingest for the topic '{result.Topic}'");
+                var ingests = GetIngestsByTopic(result.Topic);
+                model.MediaTypeId = ingests?.MediaTypeId ?? throw new InvalidOperationException($"Unable to find an ingest for the topic '{result.Topic}'");
             }
 
             content ??= new ContentModel();
