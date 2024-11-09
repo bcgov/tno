@@ -29,7 +29,8 @@ The simple solution is to download and add the `ffmpeg` binary to the path.
 
 4. Fiddle with the Mac OS to allow execution of `ffmpeg`. Using Finder, open the file `/usr/local/ffmpeg` and allow it to run.
 5. Create folder `~/Movies/MMI-inbox`
-6. Create Automator script
+6. Create folder `~/Movies/MMI-outbox`
+7. Create Automator script
 
 Choose "Folder Action"
 Select the `~/Movies/MMI-inbox` folder
@@ -44,13 +45,13 @@ do
   name=${filename%.*}
 
   cd $path
-  /usr/local/bin/ffmpeg -y -hide_banner -loglevel error -i $f ${name}.mp4
+  /usr/local/bin/ffmpeg -y -hide_banner -loglevel error -i $f -c copy ../MMI-outbox/${name}.mp4
 done
 ```
 
 Save the Automator as "Auto Convert to mp4"
 
-7. Create Automator script
+8. Create Automator script
 
 Choose "Quick Actions"
 Select "Automatic (files or folders)" in "any application"
