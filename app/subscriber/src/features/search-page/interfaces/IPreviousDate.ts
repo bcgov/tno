@@ -1,5 +1,7 @@
+import { Moment } from 'moment';
+
 export interface IPreviousDate {
-  startDate: string;
-  endDate: string;
+  startDate: Moment;
+  endDate: Moment;
   hits: number;
 }

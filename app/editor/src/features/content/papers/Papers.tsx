@@ -66,7 +66,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
 
   // This configures the shared storage between this list and any content tabs
   // that are opened.  Mainly used for navigation in the tab
-  const [, setCurrentItems] = useLocalStorage('currentContent', {} as IContentSearchResult[]);
+  const [, setCurrentItems] = useLocalStorage('currentContent', {} as number[]);
   const [currentItemId, setCurrentItemId] = useLocalStorage('currentContentItemId', -1);
 
   const [isLoading, setIsLoading] = React.useState(false);
@@ -116,8 +116,8 @@ const Papers: React.FC<IPapersProps> = (props) => {
 
   // Stores the current page
   React.useEffect(() => {
-    setCurrentItems(currentResultsPage.items);
-  }, [currentResultsPage, setCurrentItems]);
+    setCurrentItems(currentResultsPage.items.map((i) => i.id));
+  }, [currentResultsPage.items, setCurrentItems]);
 
   // if the user navigates next/previous in another window change the highlighted row
   React.useEffect(() => {

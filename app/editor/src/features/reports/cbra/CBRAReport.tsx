@@ -25,64 +25,66 @@ export const CBRAReport: React.FC<ICBRAReportProps> = ({ className }) => {
 
   return (
     <styled.CBRAReport className={`${className ?? 'form'}`}>
-      <Select
-        name="duration"
-        label="Report Duration"
-        options={reportDurations}
-        defaultValue={reportDurations[0]}
-        onChange={(value) => {
-          const option = (value as IOptionItem<number>).value ?? 0;
-          setValues({
-            duration: option,
-            ...calcDuration(option),
-          });
-        }}
-      />
-      <div className="dates">
-        <SelectDate
-          name="start"
-          label="Report Duration Start"
-          placeholderText="YYYY MM DD"
-          onChange={(date) => setValues({ ...values, start: date })}
-          disabled={!isCustomRange}
-          selected={values.start}
-          width={FieldSize.Small}
+      <div className="report-form">
+        <Select
+          name="duration"
+          label="Report Duration"
+          options={reportDurations}
+          defaultValue={reportDurations[0]}
+          onChange={(value) => {
+            const option = (value as IOptionItem<number>).value ?? 0;
+            setValues({
+              duration: option,
+              ...calcDuration(option),
+            });
+          }}
         />
-        {values.duration > 1 && (
+        <div className="dates">
           <SelectDate
-            name="end"
-            label="Report Duration End"
+            name="start"
+            label="Report Duration Start"
             placeholderText="YYYY MM DD"
-            onChange={(date) => setValues({ ...values, end: date })}
+            onChange={(date) => setValues({ ...values, start: date })}
             disabled={!isCustomRange}
-            selected={values.end}
+            selected={values.start}
             width={FieldSize.Small}
           />
-        )}
-      </div>
-      <div className="buttons">
-        <Button
-          disabled={!values.start || isDownloading}
-          loading={isDownloading}
-          onClick={async () => {
-            if (values.start) {
-              try {
-                setIsDownloading(true);
-                await api.generateCBRAReport(values.start, values.end);
-              } finally {
-                setIsDownloading(false);
+          {values.duration > 1 && (
+            <SelectDate
+              name="end"
+              label="Report Duration End"
+              placeholderText="YYYY MM DD"
+              onChange={(date) => setValues({ ...values, end: date })}
+              disabled={!isCustomRange}
+              selected={values.end}
+              width={FieldSize.Small}
+            />
+          )}
+        </div>
+        <div className="buttons">
+          <Button
+            disabled={!values.start || isDownloading}
+            loading={isDownloading}
+            onClick={async () => {
+              if (values.start) {
+                try {
+                  setIsDownloading(true);
+                  await api.generateCBRAReport(values.start, values.end);
+                } finally {
+                  setIsDownloading(false);
+                }
               }
-            }
-          }}
-        >
-          Generate CBRA Report
-        </Button>
-        <Button
-          variant={ButtonVariant.secondary}
-          onClick={() => setValues({ ...values, ...calcDuration(values.duration) })}
-        >
-          Clear
-        </Button>
+            }}
+          >
+            Generate CBRA Report
+          </Button>
+          <Button
+            variant={ButtonVariant.secondary}
+            onClick={() => setValues({ ...values, ...calcDuration(values.duration) })}
+          >
+            Clear
+          </Button>
+        </div>
       </div>
     </styled.CBRAReport>
   );

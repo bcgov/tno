@@ -14,6 +14,7 @@ export const Commentary = styled.div`
   a.headline {
     @media (min-width: 1825px) {
       width: 20em;
+      flex-grow: 1;
     }
     overflow: hidden;
     text-overflow: ellipsis;

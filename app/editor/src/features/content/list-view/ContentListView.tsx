@@ -71,7 +71,7 @@ const ContentListView: React.FC = () => {
   const [, { findWorkOrders }] = useWorkOrders();
   // This configures the shared storage between this list and any content tabs
   // that are opened.  Mainly used for navigation in the tab
-  const [, setCurrentItems] = useLocalStorage('currentContent', {} as IContentSearchResult[]);
+  const [, setCurrentItems] = useLocalStorage('currentContent', {} as number[]);
   const [currentItemId, setCurrentItemId] = useLocalStorage('currentContentItemId', -1);
 
   const [focusedRowIndex, setFocusedRowIndex] = React.useState(id);
@@ -80,7 +80,7 @@ const ContentListView: React.FC = () => {
   // Stores the current page
   const [currentResultsPage, setCurrentResultsPage] = React.useState(defaultPage);
   React.useEffect(() => {
-    setCurrentItems(currentResultsPage.items);
+    setCurrentItems(currentResultsPage.items.map((i) => i.id));
   }, [currentResultsPage, setCurrentItems]);
   // if the user navigates next/previous in another window change the highlighted row
   React.useEffect(() => {

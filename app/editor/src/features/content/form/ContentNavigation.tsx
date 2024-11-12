@@ -2,7 +2,6 @@ import React from 'react';
 import { FaChevronLeft, FaChevronRight, FaSpinner } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useLocalStorage } from 'store/hooks';
-import { IContentSearchResult } from 'store/slices';
 import { Button, ButtonVariant, Row, Show, Spinner } from 'tno-core';
 
 import { useContentForm } from './hooks';
@@ -31,7 +30,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
   const navigate = useNavigate();
   const { isProcessing } = useContentForm(values);
 
-  const [currentItems] = useLocalStorage<IContentSearchResult[] | null>('currentContent', null);
+  const [currentItems] = useLocalStorage<number[] | null>('currentContent', null);
   const [, setCurrentItemId] = useLocalStorage('currentContentItemId', -1);
 
   const [indexPosition, setIndexPosition] = React.useState(0);
@@ -40,7 +39,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
 
   React.useEffect(() => {
     if (currentItems != null) {
-      let index = !!values.id ? currentItems.findIndex((c) => c.id === +values.id) ?? -1 : -1;
+      let index = !!values.id ? currentItems.findIndex((c) => c === +values.id) ?? -1 : -1;
       setIndexPosition(index);
       setEnablePrev(index > 0);
       setEnableNext(index < (currentItems.length ?? 0) - 1);
@@ -49,7 +48,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
 
   const handleNavigate = (offset: number) => {
     if (currentItems != null) {
-      const targetId = currentItems[indexPosition + offset]?.id;
+      const targetId = currentItems[indexPosition + offset];
       if (!!targetId) {
         setCurrentItemId(targetId);
         navigate(getContentPath(targetId, values.contentType));

@@ -209,7 +209,9 @@ export const useContentForm = ({
 
   const setAvStream = React.useCallback(() => {
     if (!!path) {
-      getStream(path)
+      const encodedPath = encodeURIComponent(path);
+
+      getStream(encodedPath)
         .then((result) => {
           setStream(
             !!result
@@ -222,7 +224,7 @@ export const useContentForm = ({
         })
         .catch(() => {});
     }
-  }, [getStream, fileReference?.contentType, path]);
+  }, [getStream, fileReference, path]);
 
   const handleSubmit = React.useCallback(
     async (
@@ -247,7 +249,6 @@ export const useContentForm = ({
           // TODO: Make it possible to upload on the initial save instead of a separate request.
           // Upload the file if one has been added.
           const content = await upload(contentResult, values.file);
-          setAvStream();
           result = toForm({ ...content, tonePools: values.tonePools });
         } else if (
           !originalId &&
@@ -296,7 +297,6 @@ export const useContentForm = ({
       getSeries,
       navigate,
       series,
-      setAvStream,
       updateContent,
       upload,
       userId,

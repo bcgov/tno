@@ -33,6 +33,40 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+      
+  fileupload:
+    image: tno:fileupload
+    profiles:
+      - all
+      - service
+    restart: "no"
+    container_name: tno-fileupload
+    build:
+      context: ./
+      dockerfile: services/net/fileupload/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 250M
+        reservations:
+          cpus: '0.05'
+          memory: 50M
+    env_file:
+      - services/net/fileupload/.env
+    ports:
+      - ${FILEUPLOAD_PORT:-40040}:8081
+    depends_on:
+      - api
+      - broker
+    networks:
+      - tno
+    healthcheck:
+      test: curl -s -f http://localhost:8081/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   capture:
     image: tno:capture
