@@ -179,7 +179,6 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced }) => {
         currEndDate.endOf('day');
 
         setStartDate(currStartDate);
-        console.debug('start', currStartDate.toString());
         if (filter.startDate && filter.endDate) {
           newFilter = {
             ...filter,
