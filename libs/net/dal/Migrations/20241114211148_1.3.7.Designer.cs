@@ -15,7 +15,7 @@ using TNO.Entities.Models;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20241112194734_1.3.7")]
+    [Migration("20241114211148_1.3.7")]
     partial class _137
     {
         /// <inheritdoc />
