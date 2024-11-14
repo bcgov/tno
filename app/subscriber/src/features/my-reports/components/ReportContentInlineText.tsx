@@ -18,11 +18,17 @@ export const ReportContentInlineText: React.FC<IReportContentInlineTextProps> = 
 
   if (row.content.contentType === ContentTypeName.AudioVideo) {
     // AV Content format
-    contentDetails =
-      `${row.content.source?.name ? `${row.content.source.name} | ` : ''}` +
-      `${row.content.series ? `(${row.content.series.name}) | ` : ''}` +
-      `${row.content.contentType ? `${row.content.contentType} | ` : ''}` +
-      `${row.content.publishedOn ? moment(row.content.publishedOn).format('DD-MMM-YYYY') : ''}`;
+    contentDetails = `
+      ${
+        row.content.isApproved
+          ? `<img src="${process.env.PUBLIC_URL}/assets/transcript_icon.png" alt="Transcript" />`
+          : ''
+      }
+      ${row.content.source?.name ? `${row.content.source.name} | ` : ''}
+      ${row.content.series ? `(${row.content.series.name}) | ` : ''}
+      ${row.content.contentType ? `${row.content.contentType} | ` : ''}
+      ${row.content.publishedOn ? moment(row.content.publishedOn).format('DD-MMM-YYYY') : ''}
+      `;
   } else {
     // General Content format
     contentDetails =
@@ -38,5 +44,12 @@ export const ReportContentInlineText: React.FC<IReportContentInlineTextProps> = 
       `${row.content.publishedOn ? moment(row.content.publishedOn).format('DD-MMM-YYYY') : ''}`;
   }
 
-  return <div className="report-content-inline-text">{contentDetails}</div>;
+  return (
+    <div
+      className="report-content-inline-text"
+      dangerouslySetInnerHTML={{ __html: contentDetails }}
+    />
+    //   {contentDetails}
+    // </div>
+  );
 };
