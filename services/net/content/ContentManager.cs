@@ -81,6 +81,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     /// <param name="memoryCache"></param>
+    /// <param name="memoryCache"></param>
     public ContentManager(
         IKafkaAdmin kafkaAdmin,
         IKafkaListener<string, SourceContent> kafkaListener,
@@ -90,6 +91,8 @@ public class ContentManager : ServiceManager<ContentOptions>
         IOptions<ContentOptions> options,
         ILogger<ContentManager> logger,
         IMemoryCache memoryCache)
+        ILogger<ContentManager> logger,
+        IMemoryCache memoryCache)
         : base(api, chesService, chesOptions, options, logger)
     {
         this.KafkaAdmin = kafkaAdmin;
@@ -97,6 +100,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         this.Listener.IsLongRunningJob = false;
         this.Listener.OnError += ListenerErrorHandler;
         this.Listener.OnStop += ListenerStopHandler;
+        _memoryCache = memoryCache;
         _memoryCache = memoryCache;
     }
     #endregion
@@ -134,8 +138,12 @@ public class ContentManager : ServiceManager<ContentOptions>
                 {
                     // TODO: Handle e-tag.
                     var ingest = GetIngests()?.ToArray();
+                    var ingest = GetIngests()?.ToArray();
 
                     // Get settings to find any overrides.
+                    var settings = GetSettings();
+                    var topicOverride = settings?.FirstOrDefault(s => s.Name == "ContentImportTopicOverride")?.Value.Split(",", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+                    var ingestTopics = ingest?
                     var settings = GetSettings();
                     var topicOverride = settings?.FirstOrDefault(s => s.Name == "ContentImportTopicOverride")?.Value.Split(",", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
                     var ingestTopics = ingest?
@@ -543,6 +551,8 @@ public class ContentManager : ServiceManager<ContentOptions>
             // TODO: Handle e-tag.
             var source = GetSource(model.Source);
             var lookups = GetLookups();
+            var source = GetSource(model.Source);
+            var lookups = GetLookups();
 
             var actions = lookups?.Actions;
             var tags = lookups?.Tags;
@@ -555,6 +565,8 @@ public class ContentManager : ServiceManager<ContentOptions>
             if (model.MediaTypeId == 0)
             {
                 // Messages in Kafka are missing information, replace with best guess.
+                var ingests = GetIngestsByTopic(result.Topic);
+                model.MediaTypeId = ingests?.MediaTypeId ?? throw new InvalidOperationException($"Unable to find an ingest for the topic '{result.Topic}'");
                 var ingests = GetIngestsByTopic(result.Topic);
                 model.MediaTypeId = ingests?.MediaTypeId ?? throw new InvalidOperationException($"Unable to find an ingest for the topic '{result.Topic}'");
             }
