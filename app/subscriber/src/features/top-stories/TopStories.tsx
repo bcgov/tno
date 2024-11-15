@@ -134,7 +134,12 @@ export const TopStories: React.FC = () => {
         isSelectAllChecked={currentIsSelectAllChecked}
         onReset={handleReset}
       />
-      <DateFilter filter={filter} storeFilter={storeFilter} />
+      <DateFilter
+        date={filter.startDate}
+        onChangeDate={(start, end) =>
+          storeFilter({ ...filter, startDate: start, endDate: end, dateOffset: undefined })
+        }
+      />
       <ContentList
         content={currDateResults}
         onContentSelected={handleContentSelected}

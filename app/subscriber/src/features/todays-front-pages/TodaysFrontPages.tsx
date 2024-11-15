@@ -70,7 +70,12 @@ export const TodaysFrontPages: React.FC = () => {
 
   return (
     <styled.TodaysFrontPages>
-      <DateFilter filter={frontPageFilter} storeFilter={storeFilter} />
+      <DateFilter
+        date={frontPageFilter.startDate}
+        onChangeDate={(start, end) =>
+          storeFilter({ ...frontPageFilter, startDate: start, endDate: end, dateOffset: undefined })
+        }
+      />
       <Loader visible={requests.some((r) => r.url === 'find-contents-with-elasticsearch')} />
       <FrontPageGallery frontpages={frontPages} />
     </styled.TodaysFrontPages>

@@ -134,7 +134,12 @@ export const Home: React.FC = () => {
           onReset={handleReset}
         />
       </Row>
-      <DateFilter filter={filter} storeFilter={storeFilter} />
+      <DateFilter
+        date={filter.startDate}
+        onChangeDate={(start, end) =>
+          storeFilter({ ...filter, startDate: start, endDate: end, dateOffset: undefined })
+        }
+      />
       <ContentList
         onContentSelected={handleContentSelected}
         showDate

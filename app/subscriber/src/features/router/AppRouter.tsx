@@ -89,7 +89,7 @@ export const AppRouter: React.FC = () => {
           element={
             <PrivateRoute
               claims={Claim.subscriber}
-              element={<SearchPage showAdvanced={false} />}
+              element={<SearchPage showAdvanced={false} showDate />}
             ></PrivateRoute>
           }
         />
@@ -98,7 +98,7 @@ export const AppRouter: React.FC = () => {
           element={
             <PrivateRoute
               claims={Claim.subscriber}
-              element={<SearchPage showAdvanced={false} />}
+              element={<SearchPage showAdvanced={false} showDate />}
             ></PrivateRoute>
           }
         />
@@ -107,7 +107,7 @@ export const AppRouter: React.FC = () => {
           element={
             <PrivateRoute
               claims={Claim.subscriber}
-              element={<SearchPage showAdvanced={true} />}
+              element={<SearchPage showAdvanced showDate />}
             ></PrivateRoute>
           }
         />
@@ -116,7 +116,7 @@ export const AppRouter: React.FC = () => {
           element={
             <PrivateRoute
               claims={Claim.subscriber}
-              element={<SearchPage showAdvanced={true} />}
+              element={<SearchPage showAdvanced showDate />}
             ></PrivateRoute>
           }
         />
