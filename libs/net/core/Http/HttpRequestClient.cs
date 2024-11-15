@@ -150,7 +150,8 @@ namespace TNO.Core.Http
         /// <param name="headers"></param>
         /// <param name="content"></param>
         /// <returns></returns>
-        public virtual async Task<HttpResponseMessage> SendAsync(string url, HttpMethod? method, HttpRequestHeaders? headers, HttpContent? content = null)
+        public virtual async Task<HttpResponseMessage> SendAsync(string url, HttpMethod? method, HttpRequestHeaders? headers, HttpContent? content = null,
+                string? etag = null)
         {
             if (String.IsNullOrWhiteSpace(url)) throw new ArgumentException($"Argument '{nameof(url)}' must be a valid URL.");
 
@@ -173,6 +174,10 @@ namespace TNO.Core.Http
             if (string.IsNullOrEmpty(userAgent.ToString()))
             {
                 message.Headers.Add("User-Agent", "TNO");
+            }
+            if (!string.IsNullOrEmpty(etag))
+            {
+                message.Headers.TryAddWithoutValidation("If-None-Match", etag);
             }
 
             _logger.LogDebug("HTTP request made: {method}:{uri} (User-Agent: {userAgent})",
@@ -278,10 +283,12 @@ namespace TNO.Core.Http
         /// <param name="uri"></param>
         /// <param name="method"></param>
         /// <param name="content"></param>
+        /// <param name="etag"></param>
         /// <returns></returns>
-        public virtual async Task<HttpResponseMessage> SendAsync(Uri uri, HttpMethod? method = null, HttpContent? content = null)
+        public virtual async Task<HttpResponseMessage> SendAsync(Uri uri, HttpMethod? method = null, HttpContent? content = null,
+                string? etag = null)
         {
-            return await SendAsync(uri, method, null, content);
+            return await SendAsync(uri, method, null, content, etag);
         }
 
         /// <summary>
@@ -305,10 +312,12 @@ namespace TNO.Core.Http
         /// <param name="method"></param>
         /// <param name="headers"></param>
         /// <param name="content"></param>
+        /// <param name="etag"></param>
         /// <returns></returns>
-        public virtual async Task<HttpResponseMessage> SendAsync(Uri uri, HttpMethod? method, HttpRequestHeaders? headers, HttpContent? content = null)
+        public virtual async Task<HttpResponseMessage> SendAsync(Uri uri, HttpMethod? method, HttpRequestHeaders? headers, HttpContent? content = null,
+                string? etag = null)
         {
-            return await SendAsync(uri.OriginalString, method, headers, content);
+            return await SendAsync(uri.OriginalString, method, headers, content, etag);
         }
 
         /// <summary>
@@ -319,6 +328,10 @@ namespace TNO.Core.Http
         public async Task<HttpResponseMessage> GetAsync(Uri uri)
         {
             return await SendAsync(uri, HttpMethod.Get);
+        }
+        public async Task<HttpResponseMessage> GetAsync(Uri uri, string etag)
+        {
+            return await SendAsync(uri, HttpMethod.Get, null, etag);
         }
 
         /// <summary>

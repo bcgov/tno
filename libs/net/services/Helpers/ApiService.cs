@@ -209,8 +209,18 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<API.Areas.Editor.Models.Lookup.LookupModel?> GetLookupsAsync()
     {
+        var response = await GetLookupsResponseAsync();
+        return await GetResponseData<API.Areas.Editor.Models.Lookup.LookupModel?>(response);
+    }
+    public async Task<HttpResponseMessage> GetLookupsResponseAsync()
+    {
         var url = this.Options.ApiUrl.Append($"editor/lookups");
-        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Editor.Models.Lookup.LookupModel>(url));
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url));
+    }
+    public async Task<HttpResponseMessage> GetLookupsResponseWithEtagAsync(string etag)
+    {
+        var url = this.Options.ApiUrl.Append($"editor/lookups");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url, etag));
     }
     #endregion
 
@@ -277,11 +287,20 @@ public class ApiService : IApiService
     /// Make an HTTP request to the api to fetch all sources.
     /// </summary>
     /// <returns></returns>
-    public async Task<IEnumerable<TNO.API.Areas.Services.Models.Ingest.SourceModel>> GetSourcesAsync()
+    public async Task<IEnumerable<API.Areas.Services.Models.Ingest.SourceModel>?> GetSourcesAsync()
+    {
+        var response = await GetSourcesResponseAsync();
+        return await GetResponseData<IEnumerable<API.Areas.Services.Models.Ingest.SourceModel>?>(response);
+    }
+    public async Task<HttpResponseMessage> GetSourcesResponseWithEtagAsync(string etag)
     {
         var url = this.Options.ApiUrl.Append($"services/sources");
-        var result = await RetryRequestAsync(async () => await this.OpenClient.GetAsync<TNO.API.Areas.Services.Models.Ingest.SourceModel[]>(url));
-        return result ?? Array.Empty<TNO.API.Areas.Services.Models.Ingest.SourceModel>();
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url, etag));
+    }
+    public async Task<HttpResponseMessage> GetSourcesResponseAsync()
+    {
+        var url = this.Options.ApiUrl.Append($"services/sources");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url));
     }
 
     /// <summary>
@@ -326,11 +345,20 @@ public class ApiService : IApiService
     /// Make an HTTP request to the api to fetch all ingests.
     /// </summary>
     /// <returns></returns>
-    public async Task<IEnumerable<TNO.API.Areas.Services.Models.Ingest.IngestModel>> GetIngestsAsync()
+    public async Task<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>?> GetIngestsAsync()
+    {
+        var response = await GetIngestsResponseAsync();
+        return await GetResponseData<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>?>(response);
+    }
+    public async Task<HttpResponseMessage> GetIngestsResponseAsync()
     {
         var url = this.Options.ApiUrl.Append($"services/ingests");
-        var result = await RetryRequestAsync(async () => await this.OpenClient.GetAsync<TNO.API.Areas.Services.Models.Ingest.IngestModel[]>(url));
-        return result ?? Array.Empty<TNO.API.Areas.Services.Models.Ingest.IngestModel>();
+        return await RetryRequestAsync(async () =>  await this.OpenClient.GetAsync(url));
+    }
+    public async Task<HttpResponseMessage> GetIngestsResponseWithEtagAsync(string etag)
+    {
+        var url = this.Options.ApiUrl.Append($"services/ingests");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url, etag));
     }
 
     /// <summary>
@@ -1037,11 +1065,32 @@ public class ApiService : IApiService
     /// Get all of the settings
     /// </summary>
     /// <returns></returns>
-    public async Task<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>> GetSettings()
+    public async Task<T?> GetResponseData<T>(HttpResponseMessage response)
+    {
+        return await this.OpenClient.DeserializeAsync<T>(response);
+    }
+    public string? GetResponseEtag(HttpResponseMessage response)
+    {
+        return response.Headers.FirstOrDefault(x => x.Key == "ETag").Value?.ToList().FirstOrDefault();
+    }
+    public async Task<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>?> GetSettings()
+    {
+        var response = await GetSettingsResponse();
+        return await GetResponseData<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>?>(response);
+    }
+    
+    public async Task<HttpResponseMessage> GetSettingsResponse()
     {
         var url = this.Options.ApiUrl.Append($"services/settings");
-        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>>(url)) ?? Array.Empty<API.Areas.Services.Models.Setting.SettingModel>();
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url));
     }
+    
+    public async Task<HttpResponseMessage> GetSettingsResponseWithEtag(string etag)
+    {
+        var url = this.Options.ApiUrl.Append($"services/settings");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url, etag));
+    }
+    
     #endregion
 
     #endregion

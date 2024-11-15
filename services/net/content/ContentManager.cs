@@ -32,20 +32,28 @@ public class ContentManager : ServiceManager<ContentOptions>
     private int _retries = 0;
     private IMemoryCache _memoryCache;
     private const string SourceCodeListCacheKey = "content_manager_sourcecode";
-    private static IEnumerable<API.Areas.Services.Models.Ingest.SourceModel>? SourceCodeList;
     private static object _sourceLock = new object();
 
     private const string LookupListCacheKey = "content_manager_lookups";
-    private static API.Areas.Editor.Models.Lookup.LookupModel? LookupList;
     private static object _lookupLock = new object();
 
     private const string IngestServicesListCacheKey = "content_manager_ingests";
-    private static IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>? IngestServicesList;
     private static object _ingestsLock = new object();
 
     private const string SettingsListCacheKey = "content_manager_settings";
-    private static IEnumerable<API.Areas.Services.Models.Setting.SettingModel>? SettingsList;
     private static object _settingsLock = new object();
+
+    private const string ETagCacheKey = "etag_cache";
+    private static object _etagCacheLock = new object();
+    private static Dictionary<string, string> _cahceKeys = new Dictionary<string, string>();
+    private static Dictionary<string, string> _localETagKeys = new Dictionary<string, string>
+    {
+        { SourceCodeListCacheKey, "sources" },
+        { LookupListCacheKey, "lookups" },
+        { IngestServicesListCacheKey, "ingests" },
+        { SettingsListCacheKey, "setting" }
+    };
+    private const int LocalCacheExpirationMinutes = 30;
 
     #endregion
 
@@ -316,20 +324,69 @@ public class ContentManager : ServiceManager<ContentOptions>
 
     /// <summary>
     /// Get settings list.
-    /// If settings list exists in memory cache, get it from memory cache.
+    /// If etag is cached locally, request the data with the etag. Otherwise, request the data directly.
+    /// If the request failed, get the data from local memory cache.
     /// </summary>
     /// <returns></returns>
     private IEnumerable<API.Areas.Services.Models.Setting.SettingModel>? GetSettings()
     {
         lock (_settingsLock)
-        {       
-            if (!_memoryCache.TryGetValue(SettingsListCacheKey, out SettingsList))
-            {
-                SettingsList = this.Api.GetSettings().Result;
-                _memoryCache.Set(SettingsListCacheKey, SettingsList, TimeSpan.FromMinutes(30));
-            }
+        {
+            return GetLocalCacheList<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>>(SettingsListCacheKey);
         }
-        return SettingsList;
+    }
+    
+    /// <summary>
+    /// Get etag key name for given local cache key name
+    /// </summary>
+    /// <param name="keyName"></param>
+    /// <returns></returns>
+    private string GetETagKey(string keyName)
+    {;
+        string? etagKey;
+        if (!_localETagKeys.TryGetValue(keyName, out etagKey)) {
+            this.Logger.LogError($"Error: local Memory Cache Key {keyName} was not defined.");
+            return string.Empty;
+        }
+        return etagKey;
+    }
+    
+    /// <summary>
+    /// Get local cached etag value by local cache key name
+    /// </summary>
+    /// <param name="keyName"></param>
+    /// <returns></returns>
+    private string GetEtagLocalCacheValue(string keyName)
+    {
+        string? etagKey = GetETagKey(keyName);
+        string? value;
+        if (_cahceKeys == null)
+        {
+            _cahceKeys = new Dictionary<string, string>();
+            return string.Empty;
+        }
+        if (_cahceKeys.TryGetValue(etagKey, out value))
+        {
+            return value;
+        }
+        return string.Empty;
+    }
+
+    /// <summary>
+    /// Update local etag cache value
+    /// </summary>
+    /// <param name="keyName"></param>
+    /// <param name="etag"></param>
+    private void UpdateEtagLocalCache(string keyName, string? etag)
+    {
+        if (string.IsNullOrEmpty(keyName) || string.IsNullOrEmpty(etag)) return;
+        var etagKey = GetETagKey(keyName);
+        string? etagValue;
+        if (_cahceKeys.ContainsKey(etagKey) && _cahceKeys.TryGetValue(etagKey, out etagValue))
+        {
+            if (etagValue.ToUpperInvariant() == etag.ToUpperInvariant()) return;
+        }
+        _cahceKeys[etagKey] = etag.ToString();
     }
 
     /// <summary>
@@ -344,56 +401,111 @@ public class ContentManager : ServiceManager<ContentOptions>
 
     /// <summary>
     /// Get ingest services list.
-    /// If ingest services list exists in memory cache, get it from memory cache.
+    /// If etag is cached locally, request the data with the etag. Otherwise, request the data directly.
+    /// If the request failed, get the data from local memory cache.
     /// </summary>
     /// <returns></returns>
     private IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>? GetIngests()
     {
         lock (_ingestsLock)
-        {         
-            if (!_memoryCache.TryGetValue(IngestServicesListCacheKey, out IngestServicesList))
-            {
-                IngestServicesList = this.Api.GetIngestsAsync().Result;
-                _memoryCache.Set(IngestServicesListCacheKey, IngestServicesList, TimeSpan.FromMinutes(30));
-            }
+        {
+            return GetLocalCacheList<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>>(IngestServicesListCacheKey);
         }
-        return IngestServicesList;
     }
 
     /// <summary>
     /// Get source by code.
-    /// If source list exists in memory cache, get it from memory cache.
+    /// If etag is cached locally, request the data with the etag. Otherwise, request the data directly.
+    /// If the request failed, get the data from local memory cache.
     /// </summary>
     /// <param name="code"></param>
     /// <returns></returns>
     private API.Areas.Services.Models.Ingest.SourceModel? GetSource(string code)
     {
         lock (_sourceLock)
-        {   
-            if (!_memoryCache.TryGetValue(SourceCodeListCacheKey, out SourceCodeList))
+        {
+            var sourceCodeList = GetLocalCacheList<IEnumerable<API.Areas.Services.Models.Ingest.SourceModel>>(SourceCodeListCacheKey);
+            return sourceCodeList?.Where(x => x.Code.ToUpperInvariant() == code.ToUpperInvariant()).FirstOrDefault();
+        }
+    }
+    
+    /// <summary>
+    /// Get variable list lookups, sources, ingests, and settings.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="keyName"></param>
+    /// <returns></returns>
+    private T? GetLocalCacheList<T>(string keyName)
+    {
+        T? dataList;
+        HttpResponseMessage? response = null;
+        var localEtagValue = GetEtagLocalCacheValue(keyName);
+        if (!string.IsNullOrEmpty(localEtagValue) && _memoryCache.TryGetValue(keyName, out dataList))
+        {
+            switch (keyName)
             {
-                SourceCodeList = this.Api.GetSourcesAsync().Result;
-                    _memoryCache.Set(SourceCodeListCacheKey, SourceCodeList, TimeSpan.FromMinutes(30));
+                case SourceCodeListCacheKey:
+                    response = this.Api.GetSourcesResponseWithEtagAsync(localEtagValue).Result;
+                    break;
+                case LookupListCacheKey:
+                    response = this.Api.GetLookupsResponseWithEtagAsync(localEtagValue).Result;
+                    break;
+                case IngestServicesListCacheKey:
+                    response = this.Api.GetIngestsResponseWithEtagAsync(localEtagValue).Result;
+                    break;
+                case SettingsListCacheKey:
+                    response = this.Api.GetSettingsResponseWithEtag(localEtagValue).Result;
+                    break;
+                default:
+                    break;
             }
         }
-        return SourceCodeList?.Where(x => x.Code.ToUpperInvariant() == code.ToUpperInvariant()).FirstOrDefault();
+        else
+        {
+            switch (keyName)
+            {
+                case SourceCodeListCacheKey:
+                    response = this.Api.GetSourcesResponseAsync().Result;
+                    break;
+                case LookupListCacheKey:
+                    response = this.Api.GetLookupsResponseAsync().Result;
+                    break;
+                case IngestServicesListCacheKey:
+                    response = this.Api.GetIngestsResponseAsync().Result;
+                    break;
+                case SettingsListCacheKey:
+                    response = this.Api.GetSettingsResponse().Result;
+                    break;
+                default:
+                    break;
+            }
+        }
+        if (response != null && response.StatusCode == System.Net.HttpStatusCode.OK)
+        {
+            dataList = this.Api.GetResponseData<T>(response).Result;
+            var etag = this.Api.GetResponseEtag(response);
+            UpdateEtagLocalCache(keyName, etag);
+            _memoryCache.Set(keyName, dataList, TimeSpan.FromMinutes(LocalCacheExpirationMinutes));
+        }
+        else
+        {
+            _memoryCache.TryGetValue(keyName, out dataList);
+        }
+        return dataList;
     }
 
     /// <summary>
-    /// Get lookups. If lookuops exists in memory cache, get it from memory cache.
+    /// Get lookups.
+    /// If etag is cached locally, request the data with the etag. Otherwise, request the data directly.
+    /// If the request failed, get the data from local memory cache.
     /// </summary>
     /// <returns></returns>
     private API.Areas.Editor.Models.Lookup.LookupModel? GetLookups()
-    {   
+    {
         lock (_lookupLock)
-        {      
-            if (!_memoryCache.TryGetValue(LookupListCacheKey, out LookupList))
-            {
-                LookupList = this.Api.GetLookupsAsync().Result;
-                _memoryCache.Set(LookupListCacheKey, LookupList, TimeSpan.FromMinutes(30));
-            }
+        {
+            return GetLocalCacheList<API.Areas.Editor.Models.Lookup.LookupModel>(LookupListCacheKey);
         }
-        return LookupList;
     }
 
     private async Task ProcessSourceContentAsync(ConsumeResult<string, SourceContent> result)
