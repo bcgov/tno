@@ -12,6 +12,7 @@ using TNO.DAL.Services;
 using TNO.Kafka;
 using TNO.Kafka.SignalR;
 using TNO.Keycloak;
+using TNO.API.Filters;
 
 namespace TNO.API.Areas.Services.Controllers;
 
@@ -120,6 +121,7 @@ public class IngestController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<IngestModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
+    [ETagCacheTableFilter("ingests")]
     public IActionResult GetIngests()
     {
         var result = _serviceIngest.FindAll(true);

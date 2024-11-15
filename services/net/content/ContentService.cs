@@ -41,7 +41,8 @@ public class ContentService : KafkaConsumerService
             .Configure<ContentOptions>(this.Configuration.GetSection("Service"))
             .Configure<AdminClientConfig>(this.Configuration.GetSection("Kafka:Admin"))
             .AddSingleton<IKafkaAdmin, KafkaAdmin>()
-            .AddSingleton<IServiceManager, ContentManager>();
+            .AddSingleton<IServiceManager, ContentManager>()
+            .AddMemoryCache();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<ContentOptions>()

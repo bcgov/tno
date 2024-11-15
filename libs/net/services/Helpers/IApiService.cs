@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using TNO.Core.Http;
 
 namespace TNO.Services;
@@ -63,6 +64,8 @@ public interface IApiService
     /// </summary>
     /// <returns></returns>
     public Task<API.Areas.Editor.Models.Lookup.LookupModel?> GetLookupsAsync();
+    public Task<HttpResponseMessage> GetLookupsResponseAsync();
+    public Task<HttpResponseMessage> GetLookupsResponseWithEtagAsync(string etag);
     #endregion
 
     #region Sources
@@ -70,7 +73,9 @@ public interface IApiService
     /// Make a request to the API to fetch all sources.
     /// </summary>
     /// <returns></returns>
-    public Task<IEnumerable<API.Areas.Services.Models.Ingest.SourceModel>> GetSourcesAsync();
+    public Task<IEnumerable<API.Areas.Services.Models.Ingest.SourceModel>?> GetSourcesAsync();
+    public Task<HttpResponseMessage> GetSourcesResponseAsync();
+    public Task<HttpResponseMessage> GetSourcesResponseWithEtagAsync(string etag);
 
     /// <summary>
     /// Make a request to the API to fetch the sources for the specified 'code'.
@@ -117,7 +122,9 @@ public interface IApiService
     /// Make a request to the API to fetch all ingests.
     /// </summary>
     /// <returns></returns>
-    public Task<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>> GetIngestsAsync();
+    public Task<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>?> GetIngestsAsync();
+    public Task<HttpResponseMessage> GetIngestsResponseAsync();
+    public Task<HttpResponseMessage> GetIngestsResponseWithEtagAsync(string etag);
 
     /// <summary>
     /// Make a request to the API to fetch ingests for the specified ingest type.
@@ -554,6 +561,10 @@ public interface IApiService
     /// Get all of the settings
     /// </summary>
     /// <returns></returns>
-    Task<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>> GetSettings();
+    Task<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>?> GetSettings();
+    Task<HttpResponseMessage> GetSettingsResponse();
+    Task<HttpResponseMessage> GetSettingsResponseWithEtag(string etag);
+    string? GetResponseEtag(HttpResponseMessage response);
+    Task<T?> GetResponseData<T>(HttpResponseMessage response);
     #endregion
 }
