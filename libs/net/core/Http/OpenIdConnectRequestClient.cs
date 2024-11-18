@@ -236,8 +236,10 @@ namespace TNO.Core.Http
         /// <param name="method"></param>
         /// <param name="headers"></param>
         /// <param name="content"></param>
+        /// <param name="etag"></param>
         /// <returns></returns>
-        public override async Task<HttpResponseMessage> SendAsync(string url, HttpMethod? method, HttpRequestHeaders? headers, HttpContent? content = null)
+        public override async Task<HttpResponseMessage> SendAsync(string url, HttpMethod? method, HttpRequestHeaders? headers, HttpContent? content = null,
+                string? etag = null)
         {
             if (String.IsNullOrWhiteSpace(url)) throw new ArgumentException($"Argument '{nameof(url)}' must be a valid URL.");
             method ??= HttpMethod.Get;
@@ -253,7 +255,7 @@ namespace TNO.Core.Http
                     headers.Authorization = new AuthenticationHeaderValue(token.ToString());
             }
 
-            return await base.SendAsync(url, method, headers, content);
+            return await base.SendAsync(url, method, headers, content, etag);
 
         }
         #endregion

@@ -162,7 +162,8 @@ public class CssClient : HttpRequestClient, ICssClient
     /// <param name="headers"></param>
     /// <param name="content"></param>
     /// <returns></returns>
-    public override async Task<HttpResponseMessage> SendAsync(string url, HttpMethod? method, HttpRequestHeaders? headers, HttpContent? content = null)
+    public override async Task<HttpResponseMessage> SendAsync(string url, HttpMethod? method, HttpRequestHeaders? headers, HttpContent? content = null,
+            string? etag = null)
     {
         if (String.IsNullOrWhiteSpace(url)) throw new ArgumentException($"Argument '{nameof(url)}' must be a valid URL.");
         method ??= HttpMethod.Get;
@@ -172,7 +173,7 @@ public class CssClient : HttpRequestClient, ICssClient
         var token = await RequestAccessTokenAsync();
         if (!String.IsNullOrWhiteSpace(token)) headers.Add("Authorization", token.ToString());
 
-        return await base.SendAsync(url, method, headers, content);
+        return await base.SendAsync(url, method, headers, content, etag);
 
     }
     #endregion
