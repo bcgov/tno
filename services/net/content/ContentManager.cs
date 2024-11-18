@@ -43,7 +43,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     private const string SettingsListCacheKey = "content_manager_settings";
     private static object _settingsLock = new object();
 
-    private static Dictionary<string, string> _cahceKeys = new Dictionary<string, string>();
+    private static Dictionary<string, string> _cacheKeys = new Dictionary<string, string>();
     private static Dictionary<string, string> _localETagKeys = new Dictionary<string, string>
     {
         { SourceCodeListCacheKey, "sources" },
@@ -358,12 +358,12 @@ public class ContentManager : ServiceManager<ContentOptions>
     {
         string? etagKey = GetETagKey(keyName);
         string? value;
-        if (_cahceKeys == null)
+        if (_cacheKeys == null)
         {
-            _cahceKeys = new Dictionary<string, string>();
+            _cacheKeys = new Dictionary<string, string>();
             return string.Empty;
         }
-        if (_cahceKeys.TryGetValue(etagKey, out value))
+        if (_cacheKeys.TryGetValue(etagKey, out value))
         {
             return value;
         }
@@ -380,11 +380,11 @@ public class ContentManager : ServiceManager<ContentOptions>
         if (string.IsNullOrEmpty(keyName) || string.IsNullOrEmpty(etag)) return;
         var etagKey = GetETagKey(keyName);
         string? etagValue;
-        if (_cahceKeys.ContainsKey(etagKey) && _cahceKeys.TryGetValue(etagKey, out etagValue))
+        if (_cacheKeys.ContainsKey(etagKey) && _cacheKeys.TryGetValue(etagKey, out etagValue))
         {
             if (etagValue.ToUpperInvariant() == etag.ToUpperInvariant()) return;
         }
-        _cahceKeys[etagKey] = etag.ToString();
+        _cacheKeys[etagKey] = etag.ToString();
     }
 
     /// <summary>
