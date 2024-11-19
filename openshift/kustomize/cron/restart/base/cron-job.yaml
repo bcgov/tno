@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: restart-service
+  namespace: default
+  annotations:
+    description: CronJob service to restart services.
+  labels:
+    name: restart-service
+    part-of: tno
+    version: 1.0.0
+    component: restart-service
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  # ttlSecondsAfterFinished: 100
+  schedule: "0 2 * * *" # 2AM every day
+  # schedule: "*/5 * * * *" # Every 5 minutes
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: pipeline
+          restartPolicy: OnFailure
+          containers:
+            - name: restart-service
+              image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+              imagePullPolicy: IfNotPresent
+              resources:
+                requests:
+                  cpu: 20m
+                  memory: 50Mi
+                limits:
+                  cpu: 150m
+                  memory: 250Mi
+              command:
+                - /bin/sh
+                - "-c"
+                - >-
+                  oc rollout latest dc/api-services &&
+                  oc rollout status dc/api-services &&
+                  oc rollout latest dc/reporting-service &&
+                  oc rollout status dc/reporting-service
