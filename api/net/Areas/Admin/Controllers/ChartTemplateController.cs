@@ -105,7 +105,7 @@ public class ChartTemplateController : ControllerBase
     [ProducesResponseType(typeof(ChartTemplateModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Chart" })]
-    public IActionResult Add(ChartTemplateModel model)
+    public IActionResult Add([FromBody] ChartTemplateModel model)
     {
         var result = _chartTemplateService.AddAndSave((ChartTemplate)model);
         var chart = _chartTemplateService.FindById(result.Id) ?? throw new NoContentException("Chart template does not exist");
@@ -122,7 +122,7 @@ public class ChartTemplateController : ControllerBase
     [ProducesResponseType(typeof(ChartTemplateModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Chart" })]
-    public IActionResult Update(ChartTemplateModel model)
+    public IActionResult Update([FromBody] ChartTemplateModel model)
     {
         var result = _chartTemplateService.UpdateAndSave((ChartTemplate)model);
         var chart = _chartTemplateService.FindById(result.Id) ?? throw new NoContentException("Chart template does not exist");
@@ -139,7 +139,7 @@ public class ChartTemplateController : ControllerBase
     [ProducesResponseType(typeof(ChartTemplateModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Chart" })]
-    public IActionResult Delete(ChartTemplateModel model)
+    public IActionResult Delete([FromBody] ChartTemplateModel model)
     {
         // Do not allow deleting a chart template that is used by a chart.
         if (_chartTemplateService.IsInUse(model.Id)) throw new InvalidOperationException("Cannot delete a template in use by a report.");

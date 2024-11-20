@@ -88,7 +88,7 @@ public class NotificationTemplateController : ControllerBase
     [ProducesResponseType(typeof(NotificationTemplateModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
-    public IActionResult Add(NotificationTemplateModel model)
+    public IActionResult Add([FromBody] NotificationTemplateModel model)
     {
         var result = _notificationTemplateService.AddAndSave((NotificationTemplate)model);
         var notification = _notificationTemplateService.FindById(result.Id) ?? throw new NoContentException("Notification template does not exist");
@@ -105,7 +105,7 @@ public class NotificationTemplateController : ControllerBase
     [ProducesResponseType(typeof(NotificationTemplateModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
-    public IActionResult Update(NotificationTemplateModel model)
+    public IActionResult Update([FromBody] NotificationTemplateModel model)
     {
         var result = _notificationTemplateService.UpdateAndSave((NotificationTemplate)model);
         var notification = _notificationTemplateService.FindById(result.Id) ?? throw new NoContentException("Notification template does not exist");
@@ -122,7 +122,7 @@ public class NotificationTemplateController : ControllerBase
     [ProducesResponseType(typeof(NotificationTemplateModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
-    public IActionResult Delete(NotificationTemplateModel model)
+    public IActionResult Delete([FromBody] NotificationTemplateModel model)
     {
         // Do not allow deleting a notification template that is used by a notification.
         if (_notificationTemplateService.IsInUse(model.Id)) throw new InvalidOperationException("Cannot delete a template in use by a notification.");

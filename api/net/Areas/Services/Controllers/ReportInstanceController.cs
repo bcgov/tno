@@ -91,7 +91,7 @@ public class ReportInstanceController : ControllerBase
     [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
-    public IActionResult Add(ReportInstanceModel model)
+    public IActionResult Add([FromBody] ReportInstanceModel model)
     {
         var result = _reportInstanceService.AddAndSave((Entities.ReportInstance)model);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportInstanceModel(result, _serializerOptions));
@@ -108,7 +108,7 @@ public class ReportInstanceController : ControllerBase
     [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
-    public async Task<IActionResult> UpdateAsync(ReportInstanceModel model, bool updateContent = true)
+    public async Task<IActionResult> UpdateAsync([FromBody] ReportInstanceModel model, bool updateContent = true)
     {
         var result = _reportInstanceService.UpdateAndSave((Entities.ReportInstance)model, updateContent) ?? throw new NoContentException();
         var ownerId = result.OwnerId ?? result.Report?.OwnerId;
@@ -168,7 +168,7 @@ public class ReportInstanceController : ControllerBase
     [ProducesResponseType(typeof(UserReportInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
-    public IActionResult AddOrUpdate(UserReportInstanceModel model)
+    public IActionResult AddOrUpdate([FromBody] UserReportInstanceModel model)
     {
         var result = _reportInstanceService.UpdateAndSave((Entities.UserReportInstance)model);
         return new JsonResult(new UserReportInstanceModel(result));
@@ -185,7 +185,7 @@ public class ReportInstanceController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<UserReportInstanceModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
-    public IActionResult AddOrUpdate(IEnumerable<UserReportInstanceModel> models)
+    public IActionResult AddOrUpdate([FromBody] IEnumerable<UserReportInstanceModel> models)
     {
         var entities = models.Select(m => (Entities.UserReportInstance)m);
         var result = _reportInstanceService.UpdateAndSave(entities);

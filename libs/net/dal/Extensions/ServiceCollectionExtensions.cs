@@ -29,9 +29,12 @@ public static class ServiceCollectionExtensions
     {
         if (String.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("Argument is required and cannot be null, empty or whitespace.", nameof(connectionString));
 
+        var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+        dataSourceBuilder.EnableDynamicJson();
+        var dataSource = dataSourceBuilder.Build();
         services.AddDbContext<TNOContext>(options =>
         {
-            var db = options.UseNpgsql(connectionString, options =>
+            var db = options.UseNpgsql(dataSource, options =>
             {
                 options.CommandTimeout((int)TimeSpan.FromMinutes(5).TotalSeconds);
             });

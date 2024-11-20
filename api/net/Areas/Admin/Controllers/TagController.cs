@@ -101,7 +101,7 @@ public class TagController : ControllerBase
     [ProducesResponseType(typeof(TagModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Tag" })]
-    public IActionResult Add(TagModel model)
+    public IActionResult Add([FromBody] TagModel model)
     {
         var result = _service.AddAndSave((Tag)model);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new TagModel(result));
@@ -117,7 +117,7 @@ public class TagController : ControllerBase
     [ProducesResponseType(typeof(TagModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Tag" })]
-    public IActionResult Update(TagModel model)
+    public IActionResult Update([FromBody] TagModel model)
     {
         var result = _service.UpdateAndSave((Tag)model);
         return new JsonResult(new TagModel(result));
@@ -133,7 +133,7 @@ public class TagController : ControllerBase
     [ProducesResponseType(typeof(TagModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Tag" })]
-    public IActionResult Delete(TagModel model)
+    public IActionResult Delete([FromBody] TagModel model)
     {
         _service.DeleteAndSave((Tag)model);
         return new JsonResult(model);

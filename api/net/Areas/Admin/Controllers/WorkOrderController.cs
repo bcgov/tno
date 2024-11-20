@@ -107,7 +107,7 @@ public class WorkOrderController : ControllerBase
     [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
-    public IActionResult Add(WorkOrderModel model)
+    public IActionResult Add([FromBody] WorkOrderModel model)
     {
         var result = _workOrderService.AddAndSave(model.ToEntity(_serializerOptions));
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new WorkOrderModel(result, _serializerOptions));
@@ -124,7 +124,7 @@ public class WorkOrderController : ControllerBase
     [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
-    public async Task<IActionResult> UpdateAsync(WorkOrderModel model)
+    public async Task<IActionResult> UpdateAsync([FromBody] WorkOrderModel model)
     {
         var entity = _workOrderService.FindById(model.Id) ?? throw new NoContentException();
         var result = _workOrderService.UpdateAndSave(model.CopyTo(entity, _serializerOptions));
@@ -143,7 +143,7 @@ public class WorkOrderController : ControllerBase
     [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
-    public IActionResult Delete(WorkOrderModel model)
+    public IActionResult Delete([FromBody] WorkOrderModel model)
     {
         _workOrderService.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);

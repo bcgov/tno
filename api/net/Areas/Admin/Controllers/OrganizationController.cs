@@ -81,7 +81,7 @@ public class OrganizationController : ControllerBase
     [ProducesResponseType(typeof(OrganizationModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Organization" })]
-    public IActionResult Add(OrganizationModel model)
+    public IActionResult Add([FromBody] OrganizationModel model)
     {
         var result = _organizationService.AddAndSave((Entities.Organization)model);
         var organization = _organizationService.FindById(result.Id) ?? throw new NoContentException("Organization does not exist");
@@ -98,7 +98,7 @@ public class OrganizationController : ControllerBase
     [ProducesResponseType(typeof(OrganizationModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Organization" })]
-    public IActionResult Update(OrganizationModel model)
+    public IActionResult Update([FromBody] OrganizationModel model)
     {
         var result = _organizationService.UpdateAndSave((Entities.Organization)model);
         var organization = _organizationService.FindById(result.Id) ?? throw new NoContentException("Organization does not exist");
@@ -115,7 +115,7 @@ public class OrganizationController : ControllerBase
     [ProducesResponseType(typeof(OrganizationModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Organization" })]
-    public IActionResult Delete(OrganizationModel model)
+    public IActionResult Delete([FromBody] OrganizationModel model)
     {
         _organizationService.DeleteAndSave((Entities.Organization)model);
         return new JsonResult(model);

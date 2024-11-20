@@ -27,7 +27,7 @@ namespace TNO.API.Areas.Subscriber.Controllers;
 [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.Unauthorized)]
 [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.Forbidden)]
 
-public class TonePoolController: ControllerBase
+public class TonePoolController : ControllerBase
 {
     #region variables
 
@@ -89,7 +89,7 @@ public class TonePoolController: ControllerBase
     public IActionResult FindByUserId(int userId)
     {
         var result = _service.FindByUserId(userId);
-        
+
         // If no result, return an empty object.
         if (result == null) return new JsonResult(new TonePoolModel());
 
@@ -108,7 +108,7 @@ public class TonePoolController: ControllerBase
     [ProducesResponseType(typeof(TonePoolModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "TonePool" })]
-    public IActionResult Add(TonePoolModel model)
+    public IActionResult Add([FromBody] TonePoolModel model)
     {
         var tonePoolEntity = new TonePool(model.Name, model.OwnerId)
         {
@@ -116,7 +116,7 @@ public class TonePoolController: ControllerBase
             Description = model.Description,
             IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,
-            
+
         };
 
         var result = _service.AddAndSave(tonePoolEntity);
@@ -124,6 +124,6 @@ public class TonePoolController: ControllerBase
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new TonePoolModel(result));
     }
     #endregion
-    
+
 }
 

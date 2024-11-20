@@ -1,5 +1,5 @@
 ARG BUILD_CONFIGURATION=Release
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 
 RUN apt-get update && apt-get -y upgrade
 RUN apt-get clean
@@ -7,7 +7,7 @@ RUN apt-get clean
 EXPOSE 443 8080
 
 # Copy csproj and restore as distinct layers
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 
 ENV PATH="$PATH:/root/.dotnet/tools"
 

@@ -88,7 +88,7 @@ public class ContentReferenceController : ControllerBase
     [ProducesResponseType(typeof(ContentReferenceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ContentReference" })]
-    public IActionResult Update(ContentReferenceModel model)
+    public IActionResult Update([FromBody] ContentReferenceModel model)
     {
         var result = _contentReferenceService.UpdateAndSave(model.ToEntity());
         return new JsonResult(new ContentReferenceModel(result));
@@ -104,7 +104,7 @@ public class ContentReferenceController : ControllerBase
     [ProducesResponseType(typeof(ContentReferenceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ContentReference" })]
-    public IActionResult Delete(ContentReferenceModel model)
+    public IActionResult Delete([FromBody] ContentReferenceModel model)
     {
         _contentReferenceService.DeleteAndSave(model.ToEntity());
         return new JsonResult(model);

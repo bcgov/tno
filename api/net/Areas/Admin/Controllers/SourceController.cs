@@ -105,7 +105,7 @@ public class SourceController : ControllerBase
     [ProducesResponseType(typeof(SourceModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Source" })]
-    public IActionResult Add(SourceModel model)
+    public IActionResult Add([FromBody] SourceModel model)
     {
         var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new SourceModel(result, _serializerOptions));
@@ -121,7 +121,7 @@ public class SourceController : ControllerBase
     [ProducesResponseType(typeof(SourceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Source" })]
-    public IActionResult Update(SourceModel model)
+    public IActionResult Update([FromBody] SourceModel model)
     {
         var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions), true);
         return new JsonResult(new SourceModel(result, _serializerOptions));
@@ -137,7 +137,7 @@ public class SourceController : ControllerBase
     [ProducesResponseType(typeof(SourceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Source" })]
-    public IActionResult Delete(SourceModel model)
+    public IActionResult Delete([FromBody] SourceModel model)
     {
         _service.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);

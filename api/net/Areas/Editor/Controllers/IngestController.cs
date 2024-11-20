@@ -76,7 +76,7 @@ public class IngestController : ControllerBase
     [ProducesResponseType(typeof(ScheduleModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
-    public IActionResult AddSchedule(IngestScheduleModel model)
+    public IActionResult AddSchedule([FromBody] IngestScheduleModel model)
     {
         var ingest = _service.FindById(model.IngestId) ?? throw new NoContentException();
         var schedule = model.ToEntity();

@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 
 RUN apt-get update --fix-missing && apt-get -y upgrade && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends procps curl ffmpeg libc6-dev libgdiplus \

@@ -75,7 +75,7 @@ public class ContentReferenceController : ControllerBase
     [ProducesResponseType(typeof(ContentReferenceModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ContentReference" })]
-    public IActionResult Add(ContentReferenceModel model)
+    public IActionResult Add([FromBody] ContentReferenceModel model)
     {
         var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
         return CreatedAtAction(nameof(FindByKey), new { source = result.Source, uid = result.Uid }, new ContentReferenceModel(result, _serializerOptions));
@@ -91,7 +91,7 @@ public class ContentReferenceController : ControllerBase
     [ProducesResponseType(typeof(ContentReferenceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ContentReference" })]
-    public IActionResult Update(ContentReferenceModel model)
+    public IActionResult Update([FromBody] ContentReferenceModel model)
     {
         var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(new ContentReferenceModel(result, _serializerOptions));

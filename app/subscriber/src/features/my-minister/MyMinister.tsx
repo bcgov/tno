@@ -203,7 +203,7 @@ export const MyMinister: React.FC = () => {
         <span className="option">SHOW:</span>
         {userMinisters.map((m) => {
           return (
-            <>
+            <React.Fragment key={m.id}>
               <Checkbox
                 key={m.id}
                 className="option"
@@ -213,7 +213,7 @@ export const MyMinister: React.FC = () => {
                 }}
               />
               <span className="check-label">{`${m.name} (${m.contentCount})`}</span>
-            </>
+            </React.Fragment>
           );
         })}
       </div>

@@ -159,7 +159,7 @@ public class ReportController : ControllerBase
     [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult Add(ReportModel model)
+    public IActionResult Add([FromBody] ReportModel model)
     {
         var result = _reportService.AddAndSave(model.ToEntity(_serializerOptions));
         var report = _reportService.FindById(result.Id) ?? throw new NoContentException("Report does not exist");
@@ -176,7 +176,7 @@ public class ReportController : ControllerBase
     [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult Update(ReportModel model)
+    public IActionResult Update([FromBody] ReportModel model)
     {
         var result = _reportService.UpdateAndSave(model.ToEntity(_serializerOptions, false));
         var report = _reportService.FindById(result.Id) ?? throw new NoContentException("Report does not exist");
@@ -193,7 +193,7 @@ public class ReportController : ControllerBase
     [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult Delete(ReportModel model)
+    public IActionResult Delete([FromBody] ReportModel model)
     {
         _reportService.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);
@@ -263,7 +263,7 @@ public class ReportController : ControllerBase
     [ProducesResponseType(typeof(TNO.TemplateEngine.Models.Reports.ReportResultModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public async Task<IActionResult> Preview(ReportModel model)
+    public async Task<IActionResult> Preview([FromBody] ReportModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
@@ -283,7 +283,7 @@ public class ReportController : ControllerBase
     [ProducesResponseType(typeof(TNO.TemplateEngine.Models.Reports.ReportResultModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult PrimeReportCache(ReportModel model)
+    public IActionResult PrimeReportCache([FromBody] ReportModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");

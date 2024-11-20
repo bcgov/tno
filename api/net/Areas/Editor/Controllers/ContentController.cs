@@ -186,7 +186,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> AddAsync(ContentModel model)
+    public async Task<IActionResult> AddAsync([FromBody] ContentModel model)
     {
         // Always make the user who created the content the owner.
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
@@ -234,7 +234,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> UpdateAsync(ContentModel model)
+    public async Task<IActionResult> UpdateAsync([FromBody] ContentModel model)
     {
         // Always make the user who updated the content the owner if the owner is currently empty.
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
@@ -286,7 +286,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<ContentTopicModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> UpdateTopicsAsync(long id, IEnumerable<ContentTopicModel> topics)
+    public async Task<IActionResult> UpdateTopicsAsync(long id, [FromBody] IEnumerable<ContentTopicModel> topics)
     {
         // Always make the user who updated the content the owner if the owner is currently empty.
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
@@ -321,7 +321,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel[]), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Morning-Report" })]
-    public async Task<IActionResult> UpdateContentAsync(ContentListModel model)
+    public async Task<IActionResult> UpdateContentAsync([FromBody] ContentListModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
@@ -430,7 +430,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> DeleteAsync(ContentModel model)
+    public async Task<IActionResult> DeleteAsync([FromBody] ContentModel model)
     {
         _contentService.DeleteAndSave((Content)model);
 
@@ -458,7 +458,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> PublishAsync(ContentModel model)
+    public async Task<IActionResult> PublishAsync([FromBody] ContentModel model)
     {
         if (model.Status != ContentStatus.Published) model.Status = ContentStatus.Publish;
         model.PostedOn = DateTime.UtcNow;
@@ -490,7 +490,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> UnpublishAsync(ContentModel model)
+    public async Task<IActionResult> UnpublishAsync([FromBody] ContentModel model)
     {
         var content = _contentService.UpdateAndSave((Content)model);
         if (!new[] { ContentStatus.Published }.Contains(content.Status)) throw new InvalidOperationException("Content is an invalid status, and cannot be unpublished.");

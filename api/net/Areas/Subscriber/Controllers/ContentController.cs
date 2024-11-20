@@ -204,7 +204,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult Add(ContentModel model)
+    public IActionResult Add([FromBody] ContentModel model)
     {
         // Always make the user who created the content the owner.
         var user = _impersonate.GetCurrentUser();
@@ -227,7 +227,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> UpdateAsync(ContentModel model)
+    public async Task<IActionResult> UpdateAsync([FromBody] ContentModel model)
     {
         var user = _impersonate.GetCurrentUser();
         var content = _contentService.FindById(model.Id) ?? throw new NoContentException("Content does not exist");
@@ -292,7 +292,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult Delete(ContentModel model)
+    public IActionResult Delete([FromBody] ContentModel model)
     {
         var user = _impersonate.GetCurrentUser();
         var content = _contentService.FindById(model.Id) ?? throw new NoContentException("Content does not exist");

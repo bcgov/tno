@@ -57,7 +57,7 @@ public class ProducerController : ControllerBase
     [ProducesResponseType(typeof(DeliveryResultModel<SourceContent>), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Kafka" })]
-    public async Task<IActionResult> SendContentAsync(string topic, SourceContent model)
+    public async Task<IActionResult> SendContentAsync(string topic, [FromBody] SourceContent model)
     {
         var result = (await _producer.SendMessageAsync(topic, model)) ?? throw new InvalidOperationException("An unknown error occurred when publishing message to Kafka");
         return new JsonResult(new DeliveryResultModel<SourceContent>(result))
@@ -76,7 +76,7 @@ public class ProducerController : ControllerBase
     [ProducesResponseType(typeof(DeliveryResultModel<NotificationRequestModel>), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Kafka" })]
-    public async Task<IActionResult> SendNotificationAsync(NotificationRequestModel model)
+    public async Task<IActionResult> SendNotificationAsync([FromBody] NotificationRequestModel model)
     {
         var result = (await _producer.SendMessageAsync(_kafkaOptions.NotificationTopic, model)) ?? throw new InvalidOperationException("An unknown error occurred when publishing message to Kafka");
         return new JsonResult(new DeliveryResultModel<NotificationRequestModel>(result))
@@ -95,7 +95,7 @@ public class ProducerController : ControllerBase
     [ProducesResponseType(typeof(DeliveryResultModel<ReportRequestModel>), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Kafka" })]
-    public async Task<IActionResult> SendReportAsync(ReportRequestModel model)
+    public async Task<IActionResult> SendReportAsync([FromBody] ReportRequestModel model)
     {
         var result = (await _producer.SendMessageAsync(_kafkaOptions.ReportingTopic, model)) ?? throw new InvalidOperationException("An unknown error occurred when publishing message to Kafka");
         return new JsonResult(new DeliveryResultModel<ReportRequestModel>(result))
@@ -114,7 +114,7 @@ public class ProducerController : ControllerBase
     [ProducesResponseType(typeof(DeliveryResultModel<EventScheduleRequestModel>), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Kafka" })]
-    public async Task<IActionResult> SendEventAsync(EventScheduleRequestModel model)
+    public async Task<IActionResult> SendEventAsync([FromBody] EventScheduleRequestModel model)
     {
         var result = (await _producer.SendMessageAsync(_kafkaOptions.EventTopic, model)) ?? throw new InvalidOperationException("An unknown error occurred when publishing message to Kafka");
         return new JsonResult(new DeliveryResultModel<EventScheduleRequestModel>(result))

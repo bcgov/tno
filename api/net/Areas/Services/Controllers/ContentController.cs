@@ -162,7 +162,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> AddAsync(ContentModel model, int? requestorId = null)
+    public async Task<IActionResult> AddAsync([FromBody] ContentModel model, int? requestorId = null)
     {
         AddNewContentModelData(model);
 
@@ -213,7 +213,7 @@ public class ContentController : ControllerBase
 
     private void AddNewContentModelData(ContentModel model)
     {
-        if (model == null) return;   
+        if (model == null) return;
         var newTopics = model.Topics.Where(t => t.Id == 0);
         foreach (var topic in newTopics)
         {
@@ -253,7 +253,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> UpdateAsync(ContentModel model, bool index = false, int? requestorId = null)
+    public async Task<IActionResult> UpdateAsync([FromBody] ContentModel model, bool index = false, int? requestorId = null)
     {
         AddNewContentModelData(model);
         // Published content should also have a posted date.
@@ -309,7 +309,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> UpdateFileAsync(ContentModel model, bool index = false, int? requestorId = null)
+    public async Task<IActionResult> UpdateFileAsync([FromBody] ContentModel model, bool index = false, int? requestorId = null)
     {
         var content = (Content)model;
         var fileRef = model.FileReferences.FirstOrDefault() ?? throw new InvalidOperationException("File missing");
@@ -359,7 +359,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> UpdateStatusAsync(ContentModel model)
+    public async Task<IActionResult> UpdateStatusAsync([FromBody] ContentModel model)
     {
         var content = _contentService.UpdateStatusOnly((Content)model);
 
@@ -495,7 +495,7 @@ public class ContentController : ControllerBase
 
         using var fileStream = new FileStream(safePath, FileMode.Open, FileAccess.Read);
         var imageBytes = new byte[fileStream.Length];
-        await fileStream.ReadAsync(imageBytes.AsMemory(0, (int)fileStream.Length));
+        await fileStream.ReadExactlyAsync(imageBytes.AsMemory(0, (int)fileStream.Length));
         return new JsonResult(Convert.ToBase64String(imageBytes));
     }
 
@@ -524,7 +524,7 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentActionModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> UpdateContentActionAsync(ContentActionModel model)
+    public async Task<IActionResult> UpdateContentActionAsync([FromBody] ContentActionModel model)
     {
         var action = _contentService.AddOrUpdateContentAction((ContentAction)model);
 

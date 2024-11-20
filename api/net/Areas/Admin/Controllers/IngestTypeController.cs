@@ -101,7 +101,7 @@ public class IngestTypeController : ControllerBase
     [ProducesResponseType(typeof(IngestTypeModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "IngestType" })]
-    public IActionResult Add(IngestTypeModel model)
+    public IActionResult Add([FromBody] IngestTypeModel model)
     {
         var result = _service.AddAndSave((IngestType)model);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new IngestTypeModel(result));
@@ -117,7 +117,7 @@ public class IngestTypeController : ControllerBase
     [ProducesResponseType(typeof(IngestTypeModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "IngestType" })]
-    public IActionResult Update(IngestTypeModel model)
+    public IActionResult Update([FromBody] IngestTypeModel model)
     {
         var result = _service.UpdateAndSave((IngestType)model);
         return new JsonResult(new IngestTypeModel(result));
@@ -133,7 +133,7 @@ public class IngestTypeController : ControllerBase
     [ProducesResponseType(typeof(IngestTypeModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "IngestType" })]
-    public IActionResult Delete(IngestTypeModel model)
+    public IActionResult Delete([FromBody] IngestTypeModel model)
     {
         _service.DeleteAndSave((IngestType)model);
         return new JsonResult(model);

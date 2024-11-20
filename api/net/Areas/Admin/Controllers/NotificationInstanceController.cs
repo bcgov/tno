@@ -72,7 +72,7 @@ public class NotificationInstanceController : ControllerBase
     [ProducesResponseType(typeof(NotificationInstanceModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "NotificationInstance" })]
-    public IActionResult Add(NotificationInstanceModel model)
+    public IActionResult Add([FromBody] NotificationInstanceModel model)
     {
         var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new NotificationInstanceModel(result, _serializerOptions));
@@ -88,7 +88,7 @@ public class NotificationInstanceController : ControllerBase
     [ProducesResponseType(typeof(NotificationInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "NotificationInstance" })]
-    public IActionResult Update(NotificationInstanceModel model)
+    public IActionResult Update([FromBody] NotificationInstanceModel model)
     {
         var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(new NotificationInstanceModel(result, _serializerOptions));
@@ -104,7 +104,7 @@ public class NotificationInstanceController : ControllerBase
     [ProducesResponseType(typeof(NotificationInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "NotificationInstance" })]
-    public IActionResult Delete(NotificationInstanceModel model)
+    public IActionResult Delete([FromBody] NotificationInstanceModel model)
     {
         _service.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);

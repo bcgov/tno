@@ -84,7 +84,7 @@ public class ActionController : ControllerBase
     [ProducesResponseType(typeof(ActionModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Action" })]
-    public IActionResult Add(ActionModel model)
+    public IActionResult Add([FromBody] ActionModel model)
     {
         var result = _service.AddAndSave(model.ToEntity());
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ActionModel(result));
@@ -100,7 +100,7 @@ public class ActionController : ControllerBase
     [ProducesResponseType(typeof(ActionModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Action" })]
-    public IActionResult Update(ActionModel model)
+    public IActionResult Update([FromBody] ActionModel model)
     {
         var result = _service.UpdateAndSave(model.ToEntity());
         return new JsonResult(new ActionModel(result));
@@ -116,7 +116,7 @@ public class ActionController : ControllerBase
     [ProducesResponseType(typeof(ActionModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Action" })]
-    public IActionResult Delete(ActionModel model)
+    public IActionResult Delete([FromBody] ActionModel model)
     {
         _service.DeleteAndSave(model.ToEntity());
         return new JsonResult(model);

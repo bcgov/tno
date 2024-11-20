@@ -71,7 +71,7 @@ public class NotificationController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<NotificationModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
-    public IActionResult Find(NotificationFilter filter)
+    public IActionResult Find([FromBody] NotificationFilter filter)
     {
         var results = _service.Find(filter);
         return new JsonResult(results.Select(ds => new NotificationModel(ds, _serializerOptions)));
