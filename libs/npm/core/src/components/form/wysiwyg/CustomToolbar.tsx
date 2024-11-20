@@ -105,8 +105,9 @@ export const CustomToolbar: React.FC<ICustomToolbarProps> = ({
                       <b>{category}</b>
                       {groupedOptions[category]
                         .filter((option) => option.label.includes(filterText))
-                        .map((option) => (
+                        .map((option, i) => (
                           <div
+                            key={i}
                             className="content-option"
                             onClick={() => onChangeContentSelect(option)}
                           >

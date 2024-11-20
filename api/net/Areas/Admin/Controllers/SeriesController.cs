@@ -101,7 +101,7 @@ public class SeriesController : ControllerBase
     [ProducesResponseType(typeof(SeriesModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Series" })]
-    public IActionResult Add(SeriesModel model)
+    public IActionResult Add([FromBody] SeriesModel model)
     {
         var result = _service.AddAndSave((Series)model);
         result = _service.FindById(result.Id) ?? throw new NoContentException();
@@ -118,7 +118,7 @@ public class SeriesController : ControllerBase
     [ProducesResponseType(typeof(SeriesModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Series" })]
-    public IActionResult Update(SeriesModel model)
+    public IActionResult Update([FromBody] SeriesModel model)
     {
         var entity = (Series)model;
         var result = _service.UpdateAndSave(entity);
@@ -158,7 +158,7 @@ public class SeriesController : ControllerBase
     [ProducesResponseType(typeof(SeriesModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Series" })]
-    public IActionResult Delete(SeriesModel model)
+    public IActionResult Delete([FromBody] SeriesModel model)
     {
         _service.DeleteAndSave((Series)model);
         return new JsonResult(model);

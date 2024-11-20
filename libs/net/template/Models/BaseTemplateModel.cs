@@ -72,7 +72,7 @@ public abstract class BaseTemplateModel<T> : RazorEngineTemplateBase
 
         using FileStream fileStream = new(safePath, FileMode.Open, FileAccess.Read);
         var imageBytes = new byte[fileStream.Length];
-        fileStream.Read(imageBytes, 0, (int)fileStream.Length);
+        fileStream.ReadExactly(imageBytes, 0, (int)fileStream.Length);
         return Convert.ToBase64String(imageBytes);
     }
     #endregion

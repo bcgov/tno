@@ -74,7 +74,7 @@ public class NotificationInstanceController : ControllerBase
     [ProducesResponseType(typeof(NotificationInstanceModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "NotificationInstance" })]
-    public IActionResult Add(NotificationInstanceModel model)
+    public IActionResult Add([FromBody] NotificationInstanceModel model)
     {
         var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new NotificationInstanceModel(result, _serializerOptions));

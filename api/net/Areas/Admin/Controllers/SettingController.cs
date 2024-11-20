@@ -84,7 +84,7 @@ public class SettingController : ControllerBase
     [ProducesResponseType(typeof(SettingModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Setting" })]
-    public IActionResult Add(SettingModel model)
+    public IActionResult Add([FromBody] SettingModel model)
     {
         var result = _service.AddAndSave(model.ToEntity());
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new SettingModel(result));
@@ -100,7 +100,7 @@ public class SettingController : ControllerBase
     [ProducesResponseType(typeof(SettingModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Setting" })]
-    public IActionResult Update(SettingModel model)
+    public IActionResult Update([FromBody] SettingModel model)
     {
         var result = _service.UpdateAndSave(model.ToEntity());
         return new JsonResult(new SettingModel(result));
@@ -116,7 +116,7 @@ public class SettingController : ControllerBase
     [ProducesResponseType(typeof(SettingModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Setting" })]
-    public IActionResult Delete(SettingModel model)
+    public IActionResult Delete([FromBody] SettingModel model)
     {
         _service.DeleteAndSave(model.ToEntity());
         return new JsonResult(model);

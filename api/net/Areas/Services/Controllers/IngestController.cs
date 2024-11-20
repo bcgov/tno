@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.Ingest;
+using TNO.API.Filters;
 using TNO.API.Models;
 using TNO.API.Models.SignalR;
 using TNO.Core.Exceptions;
@@ -12,7 +13,6 @@ using TNO.DAL.Services;
 using TNO.Kafka;
 using TNO.Kafka.SignalR;
 using TNO.Keycloak;
-using TNO.API.Filters;
 
 namespace TNO.API.Areas.Services.Controllers;
 
@@ -138,7 +138,7 @@ public class IngestController : ControllerBase
     [ProducesResponseType(typeof(IngestModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
-    public async Task<IActionResult> UpdateStateAsync(IngestModel model)
+    public async Task<IActionResult> UpdateStateAsync([FromBody] IngestModel model)
     {
         _serviceIngestState.AddOrUpdate(model.ToEntity(_serializerOptions).State!);
         var result = _serviceIngest.FindById(model.Id) ?? throw new NoContentException();
@@ -157,7 +157,7 @@ public class IngestController : ControllerBase
     [ProducesResponseType(typeof(IngestModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
-    public async Task<IActionResult> UpdateConfigurationAsync(IngestModel model)
+    public async Task<IActionResult> UpdateConfigurationAsync([FromBody] IngestModel model)
     {
         var convertedEntity = model.ToEntity(_serializerOptions);
         var target = _serviceIngest.FindById(model.Id) ?? throw new NoContentException("Ingest does not exist");
@@ -179,7 +179,7 @@ public class IngestController : ControllerBase
     [ProducesResponseType(typeof(ScheduleModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
-    public IActionResult DeleteSchedule(ScheduleModel model)
+    public IActionResult DeleteSchedule([FromBody] ScheduleModel model)
     {
         _serviceSchedule.DeleteAndSave(model.ToEntity());
         return new JsonResult(model);

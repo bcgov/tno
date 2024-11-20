@@ -86,7 +86,7 @@ public class MediaTypeController : ControllerBase
     [ProducesResponseType(typeof(MediaTypeModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "MediaType" })]
-    public IActionResult Add(MediaTypeModel model)
+    public IActionResult Add([FromBody] MediaTypeModel model)
     {
         var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new MediaTypeModel(result, _serializerOptions));
@@ -102,7 +102,7 @@ public class MediaTypeController : ControllerBase
     [ProducesResponseType(typeof(MediaTypeModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "MediaType" })]
-    public IActionResult Update(MediaTypeModel model)
+    public IActionResult Update([FromBody] MediaTypeModel model)
     {
         var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(new MediaTypeModel(result, _serializerOptions));
@@ -118,7 +118,7 @@ public class MediaTypeController : ControllerBase
     [ProducesResponseType(typeof(MediaTypeModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "MediaType" })]
-    public IActionResult Delete(MediaTypeModel model)
+    public IActionResult Delete([FromBody] MediaTypeModel model)
     {
         _service.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);

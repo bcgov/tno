@@ -81,7 +81,7 @@ public class ContributorController : ControllerBase
     [ProducesResponseType(typeof(ContributorModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Contributor" })]
-    public IActionResult Add(ContributorModel model)
+    public IActionResult Add([FromBody] ContributorModel model)
     {
         var result = _service.AddAndSave((Contributor)model);
         result = _service.FindById(result.Id) ?? throw new NoContentException();
@@ -98,7 +98,7 @@ public class ContributorController : ControllerBase
     [ProducesResponseType(typeof(ContributorModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Contributor" })]
-    public IActionResult Update(ContributorModel model)
+    public IActionResult Update([FromBody] ContributorModel model)
     {
         var result = _service.UpdateAndSave((Contributor)model);
         result = _service.FindById(result.Id) ?? throw new NoContentException();
@@ -115,7 +115,7 @@ public class ContributorController : ControllerBase
     [ProducesResponseType(typeof(ContributorModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Contributor" })]
-    public IActionResult Delete(ContributorModel model)
+    public IActionResult Delete([FromBody] ContributorModel model)
     {
         _service.DeleteAndSave((Contributor)model);
         return new JsonResult(model);

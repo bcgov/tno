@@ -81,7 +81,7 @@ public class MinisterController : ControllerBase
     [ProducesResponseType(typeof(MinisterModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Minister" })]
-    public IActionResult Add(MinisterModel model)
+    public IActionResult Add([FromBody] MinisterModel model)
     {
         var result = _ministerService.AddAndSave((Entities.Minister)model);
         var minister = _ministerService.FindById(result.Id) ?? throw new NoContentException("Minister does not exist");
@@ -98,7 +98,7 @@ public class MinisterController : ControllerBase
     [ProducesResponseType(typeof(MinisterModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Minister" })]
-    public IActionResult Update(MinisterModel model)
+    public IActionResult Update([FromBody] MinisterModel model)
     {
         var result = _ministerService.UpdateAndSave((Entities.Minister)model);
         var minister = _ministerService.FindById(result.Id) ?? throw new NoContentException("Minister does not exist");
@@ -115,7 +115,7 @@ public class MinisterController : ControllerBase
     [ProducesResponseType(typeof(MinisterModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Minister" })]
-    public IActionResult Delete(MinisterModel model)
+    public IActionResult Delete([FromBody] MinisterModel model)
     {
         _ministerService.DeleteAndSave((Entities.Minister)model);
         return new JsonResult(model);

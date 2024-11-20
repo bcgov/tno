@@ -565,8 +565,6 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// Send out an email for the specified report.
     /// Generate a report instance for this email.
     /// If an unsent report instance exists, use it instead.
-    /// Send an email merge to CHES.
-    /// This will send out a separate email to each context provided.
     /// </summary>
     /// <param name="request"></param>
     /// <param name="report"></param>

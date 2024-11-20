@@ -215,7 +215,7 @@ public class ReportController : ControllerBase
     [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult Add(ReportModel model)
+    public IActionResult Add([FromBody] ReportModel model)
     {
         var user = _impersonate.GetCurrentUser();
         model.OwnerId = user.Id;
@@ -242,7 +242,7 @@ public class ReportController : ControllerBase
     [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public async Task<IActionResult> UpdateAsync(ReportModel model, [FromQuery] bool updateInstances = false)
+    public async Task<IActionResult> UpdateAsync([FromBody] ReportModel model, [FromQuery] bool updateInstances = false)
     {
         var user = _impersonate.GetCurrentUser();
         var result = _reportService.FindById(model.Id) ?? throw new NoContentException("Report does not exist");
@@ -290,7 +290,7 @@ public class ReportController : ControllerBase
     [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult Delete(ReportModel model)
+    public IActionResult Delete([FromBody] ReportModel model)
     {
         var user = _impersonate.GetCurrentUser();
         var result = _reportService.FindById(model.Id) ?? throw new NoContentException("Report does not exist");

@@ -1,5 +1,5 @@
 ARG BUILD_CONFIGURATION=Release
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 
 ENV DOTNET_CLI_HOME=/tmp
 ENV PATH="$PATH:/tmp/.dotnet/tools"
@@ -20,7 +20,7 @@ WORKDIR /src/tools/elastic/migration
 RUN dotnet restore
 RUN dotnet publish "TNO.Elastic.Migration.csproj" -c "$BUILD_CONFIGURATION" -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 
 ENV ASPNETCORE_ENVIRONMENT=Production
 

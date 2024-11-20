@@ -86,7 +86,7 @@ public class ConnectionController : ControllerBase
     [ProducesResponseType(typeof(ConnectionModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Connection" })]
-    public IActionResult Add(ConnectionModel model)
+    public IActionResult Add([FromBody] ConnectionModel model)
     {
         var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ConnectionModel(result, _serializerOptions));
@@ -102,7 +102,7 @@ public class ConnectionController : ControllerBase
     [ProducesResponseType(typeof(ConnectionModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Connection" })]
-    public IActionResult Update(ConnectionModel model)
+    public IActionResult Update([FromBody] ConnectionModel model)
     {
         var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(new ConnectionModel(result, _serializerOptions));
@@ -118,7 +118,7 @@ public class ConnectionController : ControllerBase
     [ProducesResponseType(typeof(ConnectionModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Connection" })]
-    public IActionResult Delete(ConnectionModel model)
+    public IActionResult Delete([FromBody] ConnectionModel model)
     {
         _service.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);

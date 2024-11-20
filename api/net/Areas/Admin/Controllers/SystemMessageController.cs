@@ -82,7 +82,7 @@ public class SystemMessageController : ControllerBase
     [ProducesResponseType(typeof(SystemMessageModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "System Message" })]
-    public IActionResult Add(SystemMessageModel model)
+    public IActionResult Add([FromBody] SystemMessageModel model)
     {
         var result = _service.AddAndSave((SystemMessage)model);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new SystemMessageModel(result));
@@ -98,7 +98,7 @@ public class SystemMessageController : ControllerBase
     [ProducesResponseType(typeof(SystemMessageModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "System Message" })]
-    public IActionResult Update(SystemMessageModel model)
+    public IActionResult Update([FromBody] SystemMessageModel model)
     {
         var result = _service.UpdateAndSave((SystemMessage)model);
         return new JsonResult(new SystemMessageModel(result));
@@ -114,7 +114,7 @@ public class SystemMessageController : ControllerBase
     [ProducesResponseType(typeof(SystemMessageModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "System Message" })]
-    public IActionResult Delete(SystemMessageModel model)
+    public IActionResult Delete([FromBody] SystemMessageModel model)
     {
         _service.DeleteAndSave((SystemMessage)model);
         return new JsonResult(model);

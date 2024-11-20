@@ -83,7 +83,7 @@ public class AVOverviewController : ControllerBase
     [ProducesResponseType(typeof(AVOverviewTemplateModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
-    public IActionResult Add(AVOverviewTemplateModel model)
+    public IActionResult Add([FromBody] AVOverviewTemplateModel model)
     {
         var result = _overviewTemplateService.AddAndSave((Entities.AVOverviewTemplate)model);
         var template = _overviewTemplateService.FindById(result.TemplateType) ?? throw new InvalidOperationException("Overview Section does not exist");
@@ -100,7 +100,7 @@ public class AVOverviewController : ControllerBase
     [ProducesResponseType(typeof(AVOverviewTemplateModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
-    public IActionResult Update(AVOverviewTemplateModel model)
+    public IActionResult Update([FromBody] AVOverviewTemplateModel model)
     {
         // update the template the user is editing
         var result = _overviewTemplateService.UpdateAndSave((Entities.AVOverviewTemplate)model);
@@ -153,7 +153,7 @@ public class AVOverviewController : ControllerBase
     [ProducesResponseType(typeof(AVOverviewTemplateModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
-    public IActionResult Delete(AVOverviewTemplateModel model)
+    public IActionResult Delete([FromBody] AVOverviewTemplateModel model)
     {
         _overviewTemplateService.DeleteAndSave((Entities.AVOverviewTemplate)model);
         return new JsonResult(model);

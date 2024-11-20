@@ -101,7 +101,7 @@ public class FolderController : ControllerBase
     [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Folder" })]
-    public IActionResult Add(FolderModel model)
+    public IActionResult Add([FromBody] FolderModel model)
     {
         var user = _impersonate.GetCurrentUser();
         model.OwnerId = user.Id;
@@ -121,7 +121,7 @@ public class FolderController : ControllerBase
     [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Folder" })]
-    public IActionResult Update(FolderModel model, bool updateContent = false)
+    public IActionResult Update([FromBody] FolderModel model, bool updateContent = false)
     {
         var user = _impersonate.GetCurrentUser();
         var folder = _folderService.FindById(model.Id) ?? throw new NoContentException("Folder does not exist");
@@ -142,7 +142,7 @@ public class FolderController : ControllerBase
     [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Folder" })]
-    public IActionResult Delete(FolderModel model)
+    public IActionResult Delete([FromBody] FolderModel model)
     {
         var user = _impersonate.GetCurrentUser();
         var folder = _folderService.FindById(model.Id) ?? throw new NoContentException("Folder does not exist");

@@ -84,7 +84,7 @@ public class AVOverviewController : ControllerBase
     [ProducesResponseType(typeof(AVOverviewInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
-    public IActionResult Update(AVOverviewInstanceModel model)
+    public IActionResult Update([FromBody] AVOverviewInstanceModel model)
     {
         var result = _overviewInstanceService.UpdateAndSave((Entities.AVOverviewInstance)model);
         var instance = _overviewInstanceService.FindById(result.Id) ?? throw new NoContentException("Overview Section does not exist");
@@ -118,7 +118,7 @@ public class AVOverviewController : ControllerBase
     [ProducesResponseType(typeof(UserAVOverviewInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
-    public IActionResult AddOrUpdate(UserAVOverviewInstanceModel model)
+    public IActionResult AddOrUpdate([FromBody] UserAVOverviewInstanceModel model)
     {
         var result = _overviewInstanceService.UpdateAndSave((Entities.UserAVOverviewInstance)model);
         return new JsonResult(new UserAVOverviewInstanceModel(result));
@@ -135,7 +135,7 @@ public class AVOverviewController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<UserAVOverviewInstanceModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
-    public IActionResult AddOrUpdate(IEnumerable<UserAVOverviewInstanceModel> models)
+    public IActionResult AddOrUpdate([FromBody] IEnumerable<UserAVOverviewInstanceModel> models)
     {
         var entities = models.Select(m => (Entities.UserAVOverviewInstance)m);
         var result = _overviewInstanceService.UpdateAndSave(entities);

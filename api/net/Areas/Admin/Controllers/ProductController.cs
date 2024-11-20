@@ -97,7 +97,7 @@ public class ProductController : ControllerBase
     [ProducesResponseType(typeof(ProductModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Product" })]
-    public IActionResult Add(ProductModel model)
+    public IActionResult Add([FromBody] ProductModel model)
     {
         // TODO: Update the notification or report subscribers.
         var product = _productService.AddAndSave(model.ToEntity());
@@ -115,7 +115,7 @@ public class ProductController : ControllerBase
     [ProducesResponseType(typeof(ProductModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Product" })]
-    public IActionResult Update(ProductModel model)
+    public IActionResult Update([FromBody] ProductModel model)
     {
         // TODO: Update the notification or report subscribers.
         var product = _productService.UpdateAndSave(model.ToEntity());
@@ -133,7 +133,7 @@ public class ProductController : ControllerBase
     [ProducesResponseType(typeof(ProductModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Product" })]
-    public IActionResult Delete(ProductModel model)
+    public IActionResult Delete([FromBody] ProductModel model)
     {
         _productService.DeleteAndSave(model.ToEntity());
         return new JsonResult(model);

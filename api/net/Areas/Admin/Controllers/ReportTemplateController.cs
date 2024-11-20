@@ -88,7 +88,7 @@ public class ReportTemplateController : ControllerBase
     [ProducesResponseType(typeof(ReportTemplateModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult Add(ReportTemplateModel model)
+    public IActionResult Add([FromBody] ReportTemplateModel model)
     {
         var result = _reportTemplateService.AddAndSave((ReportTemplate)model);
         var report = _reportTemplateService.FindById(result.Id) ?? throw new NoContentException("Report template does not exist");
@@ -105,7 +105,7 @@ public class ReportTemplateController : ControllerBase
     [ProducesResponseType(typeof(ReportTemplateModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult Update(ReportTemplateModel model)
+    public IActionResult Update([FromBody] ReportTemplateModel model)
     {
         var result = _reportTemplateService.UpdateAndSave((ReportTemplate)model);
         var report = _reportTemplateService.FindById(result.Id) ?? throw new NoContentException("Report template does not exist");
@@ -122,7 +122,7 @@ public class ReportTemplateController : ControllerBase
     [ProducesResponseType(typeof(ReportTemplateModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult Delete(ReportTemplateModel model)
+    public IActionResult Delete([FromBody] ReportTemplateModel model)
     {
         // Do not allow deleting a report template that is used by a report.
         if (_reportTemplateService.IsInUse(model.Id)) throw new InvalidOperationException("Cannot delete a template in use by a report.");
