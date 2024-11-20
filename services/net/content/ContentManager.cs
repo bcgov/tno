@@ -325,7 +325,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <returns></returns>
     private Task<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>?> GetSettings()
     {
-        return GetLocalCacheList<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>>(SettingsListCacheKey);
+        return GetLocalCacheListAsync<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>>(SettingsListCacheKey);
     }
     
     /// <summary>
@@ -391,7 +391,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// </summary>
     /// <param name="topic"></param>
     /// <returns></returns>
-    private async Task<API.Areas.Services.Models.Ingest.IngestModel?> GetIngestsByTopic(string topic)
+    private async Task<API.Areas.Services.Models.Ingest.IngestModel?> GetIngestsByTopicAsync(string topic)
     {
         return (await GetIngests())?.Where(x => x.Topic.ToUpperInvariant() == topic.ToUpperInvariant()).FirstOrDefault();
     }
@@ -404,7 +404,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <returns></returns>
     private Task<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>?> GetIngests()
     {
-        return GetLocalCacheList<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>>(IngestServicesListCacheKey);
+        return GetLocalCacheListAsync<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>>(IngestServicesListCacheKey);
     }
 
     /// <summary>
@@ -414,9 +414,9 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// </summary>
     /// <param name="code"></param>
     /// <returns></returns>
-    private async Task<API.Areas.Services.Models.Ingest.SourceModel?> GetSource(string code)
+    private async Task<API.Areas.Services.Models.Ingest.SourceModel?> GetSourceAsync(string code)
     {
-        return (await GetLocalCacheList<IEnumerable<API.Areas.Services.Models.Ingest.SourceModel>>(SourceCodeListCacheKey))?
+        return (await GetLocalCacheListAsync<IEnumerable<API.Areas.Services.Models.Ingest.SourceModel>>(SourceCodeListCacheKey))?
                 .Where(x => x.Code.ToUpperInvariant() == code.ToUpperInvariant()).FirstOrDefault();
     }
     
@@ -426,7 +426,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <typeparam name="T"></typeparam>
     /// <param name="keyName"></param>
     /// <returns></returns>
-    private async Task<T?> GetLocalCacheList<T>(string keyName)
+    private async Task<T?> GetLocalCacheListAsync<T>(string keyName)
     {
         T? dataList;
         HttpResponseMessage? response = null;
@@ -491,9 +491,9 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// If the request failed, get the data from local memory cache.
     /// </summary>
     /// <returns></returns>
-    private async Task<API.Areas.Editor.Models.Lookup.LookupModel?> GetLookups()
+    private async Task<API.Areas.Editor.Models.Lookup.LookupModel?> GetLookupsAsync()
     {
-        return await GetLocalCacheList<API.Areas.Editor.Models.Lookup.LookupModel>(LookupListCacheKey);
+        return await GetLocalCacheListAsync<API.Areas.Editor.Models.Lookup.LookupModel>(LookupListCacheKey);
     }
 
     private async Task ProcessSourceContentAsync(ConsumeResult<string, SourceContent> result)
@@ -529,8 +529,8 @@ public class ContentManager : ServiceManager<ContentOptions>
         {
             // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
             // TODO: Handle e-tag.
-            var source = await GetSource(model.Source);
-            var lookups = await GetLookups();
+            var source = await GetSourceAsync(model.Source);
+            var lookups = await GetLookupsAsync();
 
             var actions = lookups?.Actions;
             var tags = lookups?.Tags;
@@ -543,7 +543,7 @@ public class ContentManager : ServiceManager<ContentOptions>
             if (model.MediaTypeId == 0)
             {
                 // Messages in Kafka are missing information, replace with best guess.
-                var ingests = await GetIngestsByTopic(result.Topic);
+                var ingests = await GetIngestsByTopicAsync(result.Topic);
                 model.MediaTypeId = ingests?.MediaTypeId ?? throw new InvalidOperationException($"Unable to find an ingest for the topic '{result.Topic}'");
             }
 
