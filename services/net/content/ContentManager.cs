@@ -128,10 +128,10 @@ public class ContentManager : ServiceManager<ContentOptions>
                 try
                 {
                     // TODO: Handle e-tag.
-                    var ingest = (await GetIngests())?.ToArray();
+                    var ingest = (await GetIngestsAsync())?.ToArray();
 
                     // Get settings to find any overrides.
-                    var settings = await GetSettings();
+                    var settings = await GetSettingsAsync();
                     var topicOverride = settings?.FirstOrDefault(s => s.Name == "ContentImportTopicOverride")?.Value.Split(",", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
                     var ingestTopics = ingest?
                         .Where(i => !String.IsNullOrWhiteSpace(i.Topic) && i.ImportContent())
@@ -323,7 +323,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// If the request failed, get the data from local memory cache.
     /// </summary>
     /// <returns></returns>
-    private Task<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>?> GetSettings()
+    private Task<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>?> GetSettingsAsync()
     {
         return GetLocalCacheListAsync<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>>(SettingsListCacheKey);
     }
@@ -393,7 +393,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <returns></returns>
     private async Task<API.Areas.Services.Models.Ingest.IngestModel?> GetIngestsByTopicAsync(string topic)
     {
-        return (await GetIngests())?.Where(x => x.Topic.ToUpperInvariant() == topic.ToUpperInvariant()).FirstOrDefault();
+        return (await GetIngestsAsync())?.Where(x => x.Topic.ToUpperInvariant() == topic.ToUpperInvariant()).FirstOrDefault();
     }
 
     /// <summary>
@@ -402,7 +402,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// If the request failed, get the data from local memory cache.
     /// </summary>
     /// <returns></returns>
-    private Task<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>?> GetIngests()
+    private Task<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>?> GetIngestsAsync()
     {
         return GetLocalCacheListAsync<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>>(IngestServicesListCacheKey);
     }
@@ -445,7 +445,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                     response = await this.Api.GetIngestsResponseWithEtagAsync(localEtagValue);
                     break;
                 case SettingsListCacheKey:
-                    response = await this.Api.GetSettingsResponseWithEtag(localEtagValue);
+                    response = await this.Api.GetSettingsResponseWithEtagAsync(localEtagValue);
                     break;
                 default:
                     break;
@@ -465,7 +465,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                     response = await this.Api.GetIngestsResponseAsync();
                     break;
                 case SettingsListCacheKey:
-                    response = await this.Api.GetSettingsResponse();
+                    response = await this.Api.GetSettingsResponseAsync();
                     break;
                 default:
                     break;
@@ -473,7 +473,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         }
         if (response != null && response.StatusCode == System.Net.HttpStatusCode.OK)
         {
-            dataList = await this.Api.GetResponseData<T>(response);
+            dataList = await this.Api.GetResponseDataAsync<T>(response);
             var etag = this.Api.GetResponseEtag(response);
             UpdateEtagLocalCache(keyName, etag);
             _memoryCache.Set(keyName, dataList, TimeSpan.FromMinutes(LocalCacheExpirationMinutes));
