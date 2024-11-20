@@ -561,10 +561,10 @@ public interface IApiService
     /// Get all of the settings
     /// </summary>
     /// <returns></returns>
-    Task<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>?> GetSettings();
-    Task<HttpResponseMessage> GetSettingsResponse();
-    Task<HttpResponseMessage> GetSettingsResponseWithEtag(string etag);
+    Task<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>?> GetSettingsAsync();
+    Task<HttpResponseMessage> GetSettingsResponseAsync();
+    Task<HttpResponseMessage> GetSettingsResponseWithEtagAsync(string etag);
     string? GetResponseEtag(HttpResponseMessage response);
-    Task<T?> GetResponseData<T>(HttpResponseMessage response);
+    Task<T?> GetResponseDataAsync<T>(HttpResponseMessage response);
     #endregion
 }

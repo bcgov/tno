@@ -210,7 +210,7 @@ public class ApiService : IApiService
     public async Task<API.Areas.Editor.Models.Lookup.LookupModel?> GetLookupsAsync()
     {
         var response = await GetLookupsResponseAsync();
-        return await GetResponseData<API.Areas.Editor.Models.Lookup.LookupModel?>(response);
+        return await GetResponseDataAsync<API.Areas.Editor.Models.Lookup.LookupModel?>(response);
     }
     public async Task<HttpResponseMessage> GetLookupsResponseAsync()
     {
@@ -290,7 +290,7 @@ public class ApiService : IApiService
     public async Task<IEnumerable<API.Areas.Services.Models.Ingest.SourceModel>?> GetSourcesAsync()
     {
         var response = await GetSourcesResponseAsync();
-        return await GetResponseData<IEnumerable<API.Areas.Services.Models.Ingest.SourceModel>?>(response);
+        return await GetResponseDataAsync<IEnumerable<API.Areas.Services.Models.Ingest.SourceModel>?>(response);
     }
     public async Task<HttpResponseMessage> GetSourcesResponseWithEtagAsync(string etag)
     {
@@ -348,7 +348,7 @@ public class ApiService : IApiService
     public async Task<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>?> GetIngestsAsync()
     {
         var response = await GetIngestsResponseAsync();
-        return await GetResponseData<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>?>(response);
+        return await GetResponseDataAsync<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>?>(response);
     }
     public async Task<HttpResponseMessage> GetIngestsResponseAsync()
     {
@@ -1065,7 +1065,7 @@ public class ApiService : IApiService
     /// Get all of the settings
     /// </summary>
     /// <returns></returns>
-    public async Task<T?> GetResponseData<T>(HttpResponseMessage response)
+    public async Task<T?> GetResponseDataAsync<T>(HttpResponseMessage response)
     {
         return await this.OpenClient.DeserializeAsync<T>(response);
     }
@@ -1073,19 +1073,19 @@ public class ApiService : IApiService
     {
         return response.Headers.FirstOrDefault(x => x.Key == "ETag").Value?.ToList().FirstOrDefault();
     }
-    public async Task<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>?> GetSettings()
+    public async Task<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>?> GetSettingsAsync()
     {
-        var response = await GetSettingsResponse();
-        return await GetResponseData<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>?>(response);
+        var response = await GetSettingsResponseAsync();
+        return await GetResponseDataAsync<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>?>(response);
     }
     
-    public async Task<HttpResponseMessage> GetSettingsResponse()
+    public async Task<HttpResponseMessage> GetSettingsResponseAsync()
     {
         var url = this.Options.ApiUrl.Append($"services/settings");
         return await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url));
     }
     
-    public async Task<HttpResponseMessage> GetSettingsResponseWithEtag(string etag)
+    public async Task<HttpResponseMessage> GetSettingsResponseWithEtagAsync(string etag)
     {
         var url = this.Options.ApiUrl.Append($"services/settings");
         return await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url, etag));

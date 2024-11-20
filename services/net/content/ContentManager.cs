@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 using Confluent.Kafka;
 using Microsoft.Extensions.Caching.Memory;
@@ -32,18 +33,14 @@ public class ContentManager : ServiceManager<ContentOptions>
     private int _retries = 0;
     private IMemoryCache _memoryCache;
     private const string SourceCodeListCacheKey = "content_manager_sourcecode";
-    private static object _sourceLock = new object();
 
     private const string LookupListCacheKey = "content_manager_lookups";
-    private static object _lookupLock = new object();
 
     private const string IngestServicesListCacheKey = "content_manager_ingests";
-    private static object _ingestsLock = new object();
 
     private const string SettingsListCacheKey = "content_manager_settings";
-    private static object _settingsLock = new object();
 
-    private static Dictionary<string, string> _cacheKeys = new Dictionary<string, string>();
+    private static ConcurrentDictionary<string, string> _cachedEtags = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     private static Dictionary<string, string> _localETagKeys = new Dictionary<string, string>
     {
         { SourceCodeListCacheKey, "sources" },
@@ -131,10 +128,10 @@ public class ContentManager : ServiceManager<ContentOptions>
                 try
                 {
                     // TODO: Handle e-tag.
-                    var ingest = GetIngests()?.ToArray();
+                    var ingest = (await GetIngestsAsync())?.ToArray();
 
                     // Get settings to find any overrides.
-                    var settings = GetSettings();
+                    var settings = await GetSettingsAsync();
                     var topicOverride = settings?.FirstOrDefault(s => s.Name == "ContentImportTopicOverride")?.Value.Split(",", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
                     var ingestTopics = ingest?
                         .Where(i => !String.IsNullOrWhiteSpace(i.Topic) && i.ImportContent())
@@ -326,12 +323,9 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// If the request failed, get the data from local memory cache.
     /// </summary>
     /// <returns></returns>
-    private IEnumerable<API.Areas.Services.Models.Setting.SettingModel>? GetSettings()
+    private Task<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>?> GetSettingsAsync()
     {
-        lock (_settingsLock)
-        {
-            return GetLocalCacheList<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>>(SettingsListCacheKey);
-        }
+        return GetLocalCacheListAsync<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>>(SettingsListCacheKey);
     }
     
     /// <summary>
@@ -358,12 +352,12 @@ public class ContentManager : ServiceManager<ContentOptions>
     {
         string? etagKey = GetETagKey(keyName);
         string? value;
-        if (_cacheKeys == null)
+        if (_cachedEtags == null)
         {
-            _cacheKeys = new Dictionary<string, string>();
+            _cachedEtags = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             return string.Empty;
         }
-        if (_cacheKeys.TryGetValue(etagKey, out value))
+        if (_cachedEtags.TryGetValue(etagKey, out value))
         {
             return value;
         }
@@ -379,12 +373,17 @@ public class ContentManager : ServiceManager<ContentOptions>
     {
         if (string.IsNullOrEmpty(keyName) || string.IsNullOrEmpty(etag)) return;
         var etagKey = GetETagKey(keyName);
-        string? etagValue;
-        if (_cacheKeys.ContainsKey(etagKey) && _cacheKeys.TryGetValue(etagKey, out etagValue))
-        {
-            if (etagValue.ToUpperInvariant() == etag.ToUpperInvariant()) return;
-        }
-        _cacheKeys[etagKey] = etag.ToString();
+        var etagValue = _cachedEtags.AddOrUpdate(
+            etagKey, etag.ToString(),
+            (k, v) =>
+            {
+                if (v.ToUpperInvariant() == etag.ToUpperInvariant())
+                {
+                    return v;
+                }
+                v = etag.ToString();
+                return v;
+            });
     }
 
     /// <summary>
@@ -392,9 +391,9 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// </summary>
     /// <param name="topic"></param>
     /// <returns></returns>
-    private API.Areas.Services.Models.Ingest.IngestModel? GetIngestsByTopic(string topic)
+    private async Task<API.Areas.Services.Models.Ingest.IngestModel?> GetIngestsByTopicAsync(string topic)
     {
-        return GetIngests()?.Where(x => x.Topic.ToUpperInvariant() == topic.ToUpperInvariant()).FirstOrDefault();
+        return (await GetIngestsAsync())?.Where(x => x.Topic.ToUpperInvariant() == topic.ToUpperInvariant()).FirstOrDefault();
     }
 
     /// <summary>
@@ -403,12 +402,9 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// If the request failed, get the data from local memory cache.
     /// </summary>
     /// <returns></returns>
-    private IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>? GetIngests()
+    private Task<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>?> GetIngestsAsync()
     {
-        lock (_ingestsLock)
-        {
-            return GetLocalCacheList<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>>(IngestServicesListCacheKey);
-        }
+        return GetLocalCacheListAsync<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>>(IngestServicesListCacheKey);
     }
 
     /// <summary>
@@ -418,13 +414,10 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// </summary>
     /// <param name="code"></param>
     /// <returns></returns>
-    private API.Areas.Services.Models.Ingest.SourceModel? GetSource(string code)
+    private async Task<API.Areas.Services.Models.Ingest.SourceModel?> GetSourceAsync(string code)
     {
-        lock (_sourceLock)
-        {
-            var sourceCodeList = GetLocalCacheList<IEnumerable<API.Areas.Services.Models.Ingest.SourceModel>>(SourceCodeListCacheKey);
-            return sourceCodeList?.Where(x => x.Code.ToUpperInvariant() == code.ToUpperInvariant()).FirstOrDefault();
-        }
+        return (await GetLocalCacheListAsync<IEnumerable<API.Areas.Services.Models.Ingest.SourceModel>>(SourceCodeListCacheKey))?
+                .Where(x => x.Code.ToUpperInvariant() == code.ToUpperInvariant()).FirstOrDefault();
     }
     
     /// <summary>
@@ -433,7 +426,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <typeparam name="T"></typeparam>
     /// <param name="keyName"></param>
     /// <returns></returns>
-    private T? GetLocalCacheList<T>(string keyName)
+    private async Task<T?> GetLocalCacheListAsync<T>(string keyName)
     {
         T? dataList;
         HttpResponseMessage? response = null;
@@ -443,16 +436,16 @@ public class ContentManager : ServiceManager<ContentOptions>
             switch (keyName)
             {
                 case SourceCodeListCacheKey:
-                    response = this.Api.GetSourcesResponseWithEtagAsync(localEtagValue).Result;
+                    response = await this.Api.GetSourcesResponseWithEtagAsync(localEtagValue);
                     break;
                 case LookupListCacheKey:
-                    response = this.Api.GetLookupsResponseWithEtagAsync(localEtagValue).Result;
+                    response = await this.Api.GetLookupsResponseWithEtagAsync(localEtagValue);
                     break;
                 case IngestServicesListCacheKey:
-                    response = this.Api.GetIngestsResponseWithEtagAsync(localEtagValue).Result;
+                    response = await this.Api.GetIngestsResponseWithEtagAsync(localEtagValue);
                     break;
                 case SettingsListCacheKey:
-                    response = this.Api.GetSettingsResponseWithEtag(localEtagValue).Result;
+                    response = await this.Api.GetSettingsResponseWithEtagAsync(localEtagValue);
                     break;
                 default:
                     break;
@@ -463,16 +456,16 @@ public class ContentManager : ServiceManager<ContentOptions>
             switch (keyName)
             {
                 case SourceCodeListCacheKey:
-                    response = this.Api.GetSourcesResponseAsync().Result;
+                    response = await this.Api.GetSourcesResponseAsync();
                     break;
                 case LookupListCacheKey:
-                    response = this.Api.GetLookupsResponseAsync().Result;
+                    response = await this.Api.GetLookupsResponseAsync();
                     break;
                 case IngestServicesListCacheKey:
-                    response = this.Api.GetIngestsResponseAsync().Result;
+                    response = await this.Api.GetIngestsResponseAsync();
                     break;
                 case SettingsListCacheKey:
-                    response = this.Api.GetSettingsResponse().Result;
+                    response = await this.Api.GetSettingsResponseAsync();
                     break;
                 default:
                     break;
@@ -480,7 +473,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         }
         if (response != null && response.StatusCode == System.Net.HttpStatusCode.OK)
         {
-            dataList = this.Api.GetResponseData<T>(response).Result;
+            dataList = await this.Api.GetResponseDataAsync<T>(response);
             var etag = this.Api.GetResponseEtag(response);
             UpdateEtagLocalCache(keyName, etag);
             _memoryCache.Set(keyName, dataList, TimeSpan.FromMinutes(LocalCacheExpirationMinutes));
@@ -498,12 +491,9 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// If the request failed, get the data from local memory cache.
     /// </summary>
     /// <returns></returns>
-    private API.Areas.Editor.Models.Lookup.LookupModel? GetLookups()
+    private async Task<API.Areas.Editor.Models.Lookup.LookupModel?> GetLookupsAsync()
     {
-        lock (_lookupLock)
-        {
-            return GetLocalCacheList<API.Areas.Editor.Models.Lookup.LookupModel>(LookupListCacheKey);
-        }
+        return await GetLocalCacheListAsync<API.Areas.Editor.Models.Lookup.LookupModel>(LookupListCacheKey);
     }
 
     private async Task ProcessSourceContentAsync(ConsumeResult<string, SourceContent> result)
@@ -539,8 +529,8 @@ public class ContentManager : ServiceManager<ContentOptions>
         {
             // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
             // TODO: Handle e-tag.
-            var source = GetSource(model.Source);
-            var lookups = GetLookups();
+            var source = await GetSourceAsync(model.Source);
+            var lookups = await GetLookupsAsync();
 
             var actions = lookups?.Actions;
             var tags = lookups?.Tags;
@@ -553,7 +543,7 @@ public class ContentManager : ServiceManager<ContentOptions>
             if (model.MediaTypeId == 0)
             {
                 // Messages in Kafka are missing information, replace with best guess.
-                var ingests = GetIngestsByTopic(result.Topic);
+                var ingests = await GetIngestsByTopicAsync(result.Topic);
                 model.MediaTypeId = ingests?.MediaTypeId ?? throw new InvalidOperationException($"Unable to find an ingest for the topic '{result.Topic}'");
             }
 
