@@ -6,8 +6,12 @@
     <RuntimeIdentifiers>win-x64;linux-x64;linux-arm;linux-arm64</RuntimeIdentifiers>
     <Nullable>enable</Nullable>
     <RootNamespace>TNO.Models</RootNamespace>
-    <Version>1.0.0.0</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <Version>2.0.0.0</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <PackageId>TNO.Models</PackageId>
+    <Authors>Jeremy Foster</Authors>
+    <Company>Fosol Solutions Inc.</Company>
+    <PackageOutputPath>../packages</PackageOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
