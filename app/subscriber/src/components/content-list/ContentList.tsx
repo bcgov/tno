@@ -1,11 +1,14 @@
 import { AxiosError } from 'axios';
+import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
+import _ from 'lodash';
 import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useLookup } from 'store/hooks';
 import {
+  generateQuery,
   IContentModel,
   IFileReferenceModel,
   IFilterSettingsModel,
@@ -71,6 +74,7 @@ export const ContentList: React.FC<IContentListProps> = ({
   const [, { streamSilent }] = useContent();
   const [{ settings }] = useLookup();
   const [{ requests }] = useApp();
+  const [, { findContentWithElasticsearch }] = useContent();
 
   const [activeStream, setActiveStream] = React.useState<{ source: string; id: number }>({
     id: 0,
@@ -88,7 +92,30 @@ export const ContentList: React.FC<IContentListProps> = ({
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     if (existing) {
-      onContentSelected(JSON.parse(existing));
+      const selected: number[] = JSON.parse(existing);
+      const selectedContent = content.filter((c) => selected.includes(c.id));
+      const missingContent = selected.filter((s) => !selectedContent.some((c) => c.id === s));
+      if (missingContent.length) {
+        // Need to fetch any content currently not in memory.
+        findContentWithElasticsearch(
+          generateQuery({
+            contentIds: missingContent,
+            searchUnpublished: true,
+            size: missingContent.length,
+          }),
+          true,
+        )
+          .then((data) => {
+            onContentSelected([
+              ...selectedContent,
+              ...data.hits.hits.map((r) => {
+                const content = r._source as IContentModel;
+                return castToSearchResult(content);
+              }),
+            ]);
+          })
+          .catch(() => {});
+      } else onContentSelected(selectedContent);
     }
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
@@ -101,16 +128,18 @@ export const ContentList: React.FC<IContentListProps> = ({
   React.useEffect(() => {
     if (!cacheCheck) return;
     const existing = localStorage.getItem('selected');
-    let array;
+    let array: number[];
     if (existing) {
       array = JSON.parse(existing);
     } else {
       array = [];
     }
     if (array.length !== selected?.length) {
-      array = selected;
+      array = _.uniq([...array, ...selected.map((i) => i.id)]);
+      localStorage.setItem('selected', JSON.stringify(array));
+    } else if (!existing) {
+      localStorage.setItem('selected', JSON.stringify(array));
     }
-    localStorage.setItem('selected', JSON.stringify(array));
     // only want to fire when selected changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
