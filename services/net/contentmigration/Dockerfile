@@ -11,6 +11,7 @@ USER 0
 
 WORKDIR /src
 
+COPY ../../../libs/net/packages /root/.nuget/packages
 COPY services/net/contentmigration services/net/contentmigration
 COPY libs/net libs/net
 
@@ -18,6 +19,7 @@ RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u 
     fix_permissions "/tmp"
 
 WORKDIR /src/services/net/contentmigration
+RUN dotnet restore
 RUN dotnet build -c $ASPNETCORE_ENVIRONMENT -o /build
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 as deploy
