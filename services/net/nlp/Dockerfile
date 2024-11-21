@@ -11,6 +11,7 @@ USER 0
 
 WORKDIR /src
 
+COPY ../../../libs/net/packages /root/.nuget/packages
 COPY services/net/nlp services/net/nlp
 COPY libs/net libs/net
 
