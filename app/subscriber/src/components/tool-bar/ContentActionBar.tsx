@@ -91,7 +91,7 @@ export const ContentActionBar: React.FC<IContentActionBarProps> = ({
       </Show>
       {showActionsItems && (
         <div className="content-buttons">
-          <Row>
+          <Row flex="1">
             {onReset && <ResetFilters onReset={onReset} />}
             <ShareMenu content={content} />
             {disableAddToFolder ? null : <AddToFolderMenu onClear={onClear} content={content} />}

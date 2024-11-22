@@ -100,6 +100,7 @@ export const TopStories: React.FC = () => {
   const handleSelectAll = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const dateKey = filter.startDate || moment().startOf('day').toISOString();
+
       setStateByDate((prevState) => ({
         ...prevState,
         [dateKey]: {

@@ -10,7 +10,7 @@ import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
 import moment, { Moment } from 'moment';
 import React from 'react';
-import { FaBookmark } from 'react-icons/fa6';
+import { FaBookmark, FaCaretLeft, FaCaretRight } from 'react-icons/fa6';
 import { useLocation, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useFilters, useLookup } from 'store/hooks';
@@ -50,7 +50,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
   const { width } = useWindowSize();
   const genQuery = useElastic();
   const [, { getFilter }] = useFilters();
-  const [{ filter: activeFilter }, { storeFilter }] = useProfileStore();
+  const [{ from, filter: activeFilter }, { storeFrom, storeFilter }] = useProfileStore();
   const { pathname } = useLocation();
   const [{ requests }] = useApp();
 
@@ -58,7 +58,6 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
   const [currDateResults, setCurrDateResults] = React.useState<IContentSearchResult[]>([]);
   const [prevDateResults, setPrevDateResults] = React.useState<IContentSearchResult[]>([]);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
-  const [totalResults, setTotalResults] = React.useState(0);
   const { expanded } = useSearchPageContext();
   const [startDate, setStartDate] = React.useState<Moment>(moment());
   const [filterId, setFilterId] = React.useState(0);
@@ -106,7 +105,6 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
       });
       setCurrDateResults(currDateResults);
       setPrevDateResults(prevDateResults);
-      setTotalResults(currDateResults.length);
       if (!groupStoredContent) {
         if (
           (typeof res.hits.total === 'number' && res.hits.total === 0) ||
@@ -203,6 +201,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
         let res;
         let groupStoredContent = false;
         if (!storedContent) {
+          storeFrom(query.from ?? 0);
           res = await findContentWithElasticsearch(query, filter.searchUnpublished, 'search');
         } else {
           res = storedContent;
@@ -268,18 +267,53 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
                   <FilterOptions filterStoreName={'searchResults'} />
                   <ViewOptions />
                 </Row>
-                {!!totalResults && (
-                  <p className="result-total">{`${totalResults} stories found`}</p>
-                )}
+                <Row gap="1rem" className="search-results">
+                  {!!currDateResults.length && (
+                    <p className="result-total">{`${currDateResults.length} stories found`}</p>
+                  )}
+                  <Row className="search-results-paging">
+                    {!!from && (
+                      <FaCaretLeft
+                        className="btn"
+                        title="Previous Page"
+                        onClick={() => {
+                          const position = from ? from - filter.size : 0;
+                          const newFilter = {
+                            ...filter,
+                            from: position > 0 ? position : undefined,
+                          };
+                          fetchResults(newFilter);
+                        }}
+                      />
+                    )}
+                    p.
+                    {from >= filter.size ? Math.floor(from / filter.size) + 1 : 1}
+                    {filter.size === currDateResults.length && (
+                      <FaCaretRight
+                        className="btn"
+                        title="Next Page"
+                        onClick={() => {
+                          const position = from + filter.size;
+                          const newFilter = { ...filter, from: position };
+                          fetchResults(newFilter);
+                        }}
+                      />
+                    )}
+                  </Row>
+                </Row>
               </Col>
             }
           >
             <ContentListActionBar
               content={selected}
               onClear={() => setSelected([])}
-              onSelectAll={(e) =>
-                e.target.checked ? setSelected(currDateResults) : setSelected([])
-              }
+              onSelectAll={(e) => {
+                const values = currDateResults.map((c) => c.id);
+                const oldSelected = selected.filter((s) => !values.includes(s.id));
+                e.target.checked
+                  ? setSelected([...selected, ...currDateResults])
+                  : setSelected(oldSelected);
+              }}
               className="search"
             />
             <Show visible={dateVisible}>

@@ -142,7 +142,11 @@ export const ManageFolder: React.FC = () => {
         <div className="main-manage">
           <ContentListActionBar
             content={selected}
-            onSelectAll={(e) => (e.target.checked ? setSelected(items) : setSelected([]))}
+            onSelectAll={(e) => {
+              const values = items.map((c) => c.id);
+              const oldSelected = selected.filter((s) => !values.includes(s.id));
+              e.target.checked ? setSelected([...selected, ...items]) : setSelected(oldSelected);
+            }}
             onClear={() => setSelected([])}
             removeFolderItem={() => removeItems(selected)}
             disableAddToFolder={true}
