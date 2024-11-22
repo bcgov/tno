@@ -191,7 +191,11 @@ export const MyMinister: React.FC = () => {
       <ContentListActionBar
         content={selected}
         onClear={() => setSelected([])}
-        onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
+        onSelectAll={(e) => {
+          const values = content.map((c) => c.id);
+          const oldSelected = selected.filter((s) => !values.includes(s.id));
+          e.target.checked ? setSelected([...selected, ...content]) : setSelected(oldSelected);
+        }}
       />
       <DateFilter
         date={filter.startDate}

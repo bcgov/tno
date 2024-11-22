@@ -1,7 +1,6 @@
 import { AxiosError } from 'axios';
 import { castToSearchResult } from 'features/utils';
 import { IContentSearchResult } from 'features/utils/interfaces';
-import _ from 'lodash';
 import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useNavigate } from 'react-router-dom';
@@ -135,11 +134,9 @@ export const ContentList: React.FC<IContentListProps> = ({
       array = [];
     }
     if (array.length !== selected?.length) {
-      array = _.uniq([...array, ...selected.map((i) => i.id)]);
-      localStorage.setItem('selected', JSON.stringify(array));
-    } else if (!existing) {
-      localStorage.setItem('selected', JSON.stringify(array));
+      array = selected.map((i) => i.id);
     }
+    localStorage.setItem('selected', JSON.stringify(array));
     // only want to fire when selected changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);

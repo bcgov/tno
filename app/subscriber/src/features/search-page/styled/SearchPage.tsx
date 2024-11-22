@@ -12,6 +12,24 @@ export const SearchPage = styled.div<{ expanded: boolean }>`
 
   .header-col {
     width: 100%;
+
+    .search-results {
+      gap: 1rem;
+      align-items: center;
+
+      .search-results-paging {
+        font-size: 1rem;
+        color: ${(props) => props.theme.css.fPrimaryColor};
+        align-items: center;
+
+        svg.btn {
+          color: ${(props) => props.theme.css.iconPrimaryColor};
+          width: 16px;
+          height: 16px;
+          cursor: pointer;
+        }
+      }
+    }
   }
   .header-row {
     width: 100%;

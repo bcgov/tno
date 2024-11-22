@@ -13,6 +13,8 @@ import {
 export interface IProfileState {
   impersonate?: ISubscriberUserModel;
   profile?: ISubscriberUserModel;
+  /** Paging position for filter. */
+  from: number;
   filter?: IFilterModel;
   myFilters: IFilterModel[];
   myFolders: IFolderModel[];
