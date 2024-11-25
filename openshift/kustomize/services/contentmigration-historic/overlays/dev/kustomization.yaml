@@ -12,7 +12,7 @@ generatorOptions:
 patches:
   - target:
       kind: DeploymentConfig
-      name: contentmigration-historic-online-service
+      name: contentmigration-historic-service
     patch: |-
       - op: replace
         path: /spec/replicas
