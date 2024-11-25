@@ -117,16 +117,6 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT5=(
-          [id]="content"
-          [name]="content-current-service"
-          [type]="dc"
-          [replicas]="1"
-          [action]="stop"
-          [build]="no"
-          [env]="dev test prod"
-        )
-
         declare -A COMPONENT6=(
           [id]="content"
           [name]="content-historic-service"
@@ -312,16 +302,6 @@ spec:
         declare -A COMPONENT24=(
           [id]="contentmigration"
           [name]="contentmigration-historic-service"
-          [type]="dc"
-          [replicas]="1"
-          [action]="stop"
-          [build]="no"
-          [env]="dev"
-        )
-
-        declare -A COMPONENT25=(
-          [id]="contentmigration"
-          [name]="contentmigration-recent-service"
           [type]="dc"
           [replicas]="1"
           [action]="stop"
