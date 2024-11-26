@@ -3,23 +3,23 @@
 kind: DeploymentConfig
 apiVersion: apps.openshift.io/v1
 metadata:
-  name: contentmigration-historic-audiovideo-service
+  name: contentmigration-historic-service
   namespace: default
   annotations:
-    description: Defines how to deploy contentmigration-historic-audiovideo-service
+    description: Defines how to deploy contentmigration-historic-service
     created-by: jeremy.foster
   labels:
-    name: contentmigration-historic-audiovideo-service
+    name: contentmigration-historic-service
     part-of: tno
     version: 1.0.0
-    component: contentmigration-historic-audiovideo-service
+    component: contentmigration-historic-service
     managed-by: kustomize
 spec:
   replicas: 1
   selector:
-    name: contentmigration-historic-audiovideo-service
+    name: contentmigration-historic-service
     part-of: tno
-    component: contentmigration-historic-audiovideo-service
+    component: contentmigration-historic-service
   strategy:
     rollingParams:
       intervalSeconds: 1
@@ -30,18 +30,18 @@ spec:
     type: Rolling
   template:
     metadata:
-      name: contentmigration-historic-audiovideo-service
+      name: contentmigration-historic-service
       labels:
-        name: contentmigration-historic-audiovideo-service
+        name: contentmigration-historic-service
         part-of: tno
-        component: contentmigration-historic-audiovideo-service
+        component: contentmigration-historic-service
     spec:
       volumes:
         - name: ingest-storage
           persistentVolumeClaim:
             claimName: ingest-storage
       containers:
-        - name: contentmigration-historic-audiovideo-service
+        - name: contentmigration-historic-service
           image: ""
           imagePullPolicy: Always
           ports:
@@ -100,47 +100,47 @@ spec:
             - name: Service__MaxFailLimit
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-historic-audiovideo-service
+                  name: contentmigration-historic-service
                   key: MAX_FAIL_LIMIT
             - name: Service__VolumePath
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-historic-audiovideo-service
+                  name: contentmigration-historic-service
                   key: VOLUME_PATH
             - name: Service__MediaHostRootUri
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-historic-audiovideo-service
+                  name: contentmigration-historic-service
                   key: CONTENT_MIGRATION_MEDIA_HOST_ROOT_URI
             - name: Service__IngestTypes
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-historic-audiovideo-service
+                  name: contentmigration-historic-service
                   key: INGEST_TYPES
             - name: Service__SupportedImportMigrationTypes
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-historic-audiovideo-service
+                  name: contentmigration-historic-service
                   key: SUPPORTED_IMPORT_MIGRATION_TYPES
             - name: Service__DefaultUserNameForAudit
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-historic-audiovideo-service
+                  name: contentmigration-historic-service
                   key: DEFAULT_USERNAME_FOR_AUDIT
             - name: Service__GenerateAlertsOnContentMigration
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-historic-audiovideo-service
+                  name: contentmigration-historic-service
                   key: GENERATE_ALERTS_ON_CONTENT_MIGRATION
             - name: Service__DataLocation
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-historic-audiovideo-service
+                  name: contentmigration-historic-service
                   key: DATA_LOCATION
             - name: Service__MaxRecordsPerRetrieval
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-historic-audiovideo-service
+                  name: contentmigration-historic-service
                   key: MAX_RECORDS_PER_RETRIEVAL
 
             # CHES Configuration
@@ -152,12 +152,12 @@ spec:
             - name: CHES__EmailEnabled
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-historic-audiovideo-service
+                  name: contentmigration-historic-service
                   key: CHES_EMAIL_ENABLED
             - name: CHES__EmailAuthorized
               valueFrom:
                 configMapKeyRef:
-                  name: contentmigration-historic-audiovideo-service
+                  name: contentmigration-historic-service
                   key: CHES_EMAIL_AUTHORIZED
 
             - name: CHES__AuthUrl
@@ -216,7 +216,7 @@ spec:
       imageChangeParams:
         automatic: true
         containerNames:
-          - contentmigration-historic-audiovideo-service
+          - contentmigration-historic-service
         from:
           kind: ImageStreamTag
           namespace: 9b301c-tools
