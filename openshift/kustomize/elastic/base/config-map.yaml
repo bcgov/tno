@@ -78,8 +78,8 @@ data:
     http:
       port: 9200
       cors:
-        allow-origin: /https?:\/\/(.*\.gov\.bc\.ca|dejavu\.appbase\.io)/
-        # allow-origin: https://tno-dev.apps.silver.devops.gov.bc.ca,https://tno-dev-elastic.apps.silver.devops.gov.bc.ca,https://tno-dejavu.apps.silver.devops.gov.bc.ca,https://dejavu.appbase.io
+        allow-origin: /https?:\/\/(.*\.gov\.bc\.ca)/
+        # allow-origin: https://tno-dev.apps.silver.devops.gov.bc.ca,https://tno-dev-elastic.apps.silver.devops.gov.bc.ca
         enabled: true
         allow-headers: X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization,x-search-query,x-search-state,x-search-filters
         allow-credentials: true
