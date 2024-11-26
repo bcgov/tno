@@ -160,8 +160,6 @@ export portOracleDatabase=41521
 
 export portApi=40010
 export portApiHttps=40011
-export portCssApi=40012
-export portCssApiHttps=40013
 export portChartsApi=40014
 export portChartsApiHttps=40015
 export portAppEditor=40082
@@ -170,8 +168,6 @@ export portAppSubscriber=40083
 export portAppSubscriberHttps=40445
 
 export portSyndication=40020
-export portCapture=40021
-export portClip=40022
 export portImage=40023
 export portFile=40024
 export portContent=40025
@@ -179,7 +175,6 @@ export portIndexing=40026
 export portTranscription=40027
 export portNlp=40028
 export portCoreNlp=40038
-export portFileCopy=40029
 export portNotification=40030
 export portReporting=40031
 export portContentMigration=40032

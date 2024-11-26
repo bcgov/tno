@@ -113,20 +113,6 @@ spec:
         )
 
         declare -A COMPONENT3=(
-          [id]="capture"
-          [image]="capture-service"
-          [context]=""
-          [dockerfile]="/services/net/capture/Dockerfile"
-        )
-
-        declare -A COMPONENT4=(
-          [id]="clip"
-          [image]="clip-service"
-          [context]=""
-          [dockerfile]="/services/net/clip/Dockerfile"
-        )
-
-        declare -A COMPONENT5=(
           [id]="contentmigration"
           [image]="contentmigration-service"
           [context]=""
@@ -135,84 +121,77 @@ spec:
 
         # Processing Services
 
-        declare -A COMPONENT6=(
+        declare -A COMPONENT4=(
           [id]="content"
           [image]="content-service"
           [context]=""
           [dockerfile]="/services/net/content/Dockerfile"
         )
 
-        declare -A COMPONENT7=(
+        declare -A COMPONENT5=(
           [id]="indexing"
           [image]="indexing-service"
           [context]=""
           [dockerfile]="/services/net/indexing/Dockerfile"
         )
 
-        declare -A COMPONENT8=(
+        declare -A COMPONENT6=(
           [id]="transcription"
           [image]="transcription-service"
           [context]=""
           [dockerfile]="/services/net/transcription/Dockerfile"
         )
 
-        declare -A COMPONENT9=(
+        declare -A COMPONENT7=(
           [id]="nlp"
           [image]="nlp-service"
           [context]=""
           [dockerfile]="/services/net/nlp/Dockerfile"
         )
 
-        declare -A COMPONENT10=(
+        declare -A COMPONENT8=(
           [id]="extract-quotes"
           [image]="extract-quotes-service"
           [context]=""
           [dockerfile]="/services/net/extract-quotes/Dockerfile"
         )
 
-        declare -A COMPONENT11=(
-          [id]="filecopy"
-          [image]="filecopy-service"
-          [context]=""
-          [dockerfile]="/services/net/filecopy/Dockerfile"
-        )
-
-        declare -A COMPONENT12=(
+        declare -A COMPONENT9=(
           [id]="reporting"
           [image]="reporting-service"
           [context]=""
           [dockerfile]="/services/net/reporting/Dockerfile"
         )
 
-        declare -A COMPONENT13=(
+        declare -A COMPONENT10=(
           [id]="notification"
           [image]="notification-service"
           [context]=""
           [dockerfile]="/services/net/notification/Dockerfile"
         )
 
-        declare -A COMPONENT14=(
+        declare -A COMPONENT11=(
           [id]="scheduler"
           [image]="scheduler-service"
           [context]=""
           [dockerfile]="/services/net/scheduler/Dockerfile"
         )
 
-        declare -A COMPONENT15=(
+        declare -A COMPONENT12=(
           [id]="folder-collection"
           [image]="folder-collection-service"
           [context]=""
           [dockerfile]="/services/net/folder-collection/Dockerfile"
         )
 
-        declare -A COMPONENT16=(
+        declare -A COMPONENT13=(
           [id]="ffmpeg"
           [image]="ffmpeg-service"
           [context]=""
           [dockerfile]="/services/net/ffmpeg/Dockerfile"
         )
 
-        declare -A COMPONENT17=(
+        declare -A COMPONENT14=(
           [id]="event-handler"
           [image]="event-handler-service"
           [context]=""
@@ -221,42 +200,42 @@ spec:
 
         # Applications
 
-        declare -A COMPONENT18=(
+        declare -A COMPONENT15=(
           [id]="api"
           [image]="api"
           [context]=""
           [dockerfile]="/api/net/Dockerfile.openshift"
         )
 
-        declare -A COMPONENT19=(
+        declare -A COMPONENT16=(
           [id]="charts-api"
           [image]="charts-api"
           [context]="/api/node"
           [dockerfile]="/Dockerfile.open"
         )
 
-        declare -A COMPONENT20=(
+        declare -A COMPONENT17=(
           [id]="editor"
           [image]="editor"
           [context]="/app/editor"
           [dockerfile]="/Dockerfile.open"
         )
 
-        declare -A COMPONENT21=(
+        declare -A COMPONENT18=(
           [id]="subscriber"
           [image]="subscriber"
           [context]="/app/subscriber"
           [dockerfile]="/Dockerfile.open"
         )
 
-        declare -A COMPONENT22=(
+        declare -A COMPONENT19=(
           [id]="db"
           [image]="db-migration"
           [context]="/libs/net"
           [dockerfile]="/Dockerfile"
         )
 
-        declare -A COMPONENT23=(
+        declare -A COMPONENT20=(
           [id]="elastic"
           [image]="elastic-migration"
           [context]=""

@@ -50,9 +50,6 @@ ORACLE_DATABASE_PORT=$portOracleDatabase
 API_HTTP_PORT=$portApi
 API_HTTPS_PORT=$portApiHttps
 
-CSS_HTTP_PORT=$portCssApi
-CSS_HTTPS_PORT=$portCssApiHttps
-
 CHARTS_HTTP_PORT=$portChartsApi
 CHARTS_HTTPS_PORT=$portChartsApiHttps
 
@@ -67,9 +64,6 @@ APP_SUBSCRIBER_HTTPS_PORT=$portAppSubscriberHttps
 #############################
 
 SYNDICATION_PORT=$portSyndication
-CAPTURE_PORT=$portCapture
-CLIP_PORT=$portClip
-IMAGE_PORT=$portImage
 FILE_PORT=$portFile
 CONTENT_PORT=$portContent
 CONTENTMIGRATION_PORT=$portContentMigration
@@ -78,7 +72,6 @@ IMAGE_PORT=$portImage
 TRANSCRIPTION_PORT=$portTranscription
 NLP_PORT=$portNlp
 CORENLP_PORT=$portCoreNlp
-FILECOPY_PORT=$portFileCopy
 NOTIFICATION_PORT=$portNotification
 REPORTING_PORT=$portReporting
 FOLDER_COLLECTION_PORT=$portFolderCollection
@@ -423,60 +416,6 @@ Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal"
     echo "./services/net/syndication/.env created"
 fi
 
-## Capture Ingest Service
-if test -f "./services/net/capture/.env"; then
-    echo "./services/net/capture/.env exists"
-else
-echo \
-"ASPNETCORE_ENVIRONMENT=Development
-ASPNETCORE_URLS=http://+:8081
-
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=mmi-service-account
-Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
-
-Service__ApiUrl=http://host.docker.internal:$portApi/api
-# Service__VolumePath=../data
-
-CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
-CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
-CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
-CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
-CHES__EmailAuthorized=true
-# CHES__OverrideTo=
-
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/capture/.env
-    echo "./services/net/capture/.env created"
-fi
-
-## Clip Ingest Service
-if test -f "./services/net/clip/.env"; then
-    echo "./services/net/clip/.env exists"
-else
-echo \
-"ASPNETCORE_ENVIRONMENT=Development
-ASPNETCORE_URLS=http://+:8081
-
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=mmi-service-account
-Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
-
-Service__ApiUrl=http://host.docker.internal:$portApi/api
-# Service__VolumePath=../data
-
-CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
-CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
-CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
-CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
-CHES__EmailAuthorized=true
-# CHES__OverrideTo=
-
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/clip/.env
-    echo "./services/net/clip/.env created"
-fi
-
 ## Image Ingest Service
 if test -f "./services/net/image/.env"; then
     echo "./services/net/image/.env exists"
@@ -666,32 +605,6 @@ CHES__EmailAuthorized=true
 
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/nlp/.env
     echo "./services/net/nlp/.env created"
-fi
-
-## FileCopy Service
-if test -f "./services/net/filecopy/.env"; then
-    echo "./services/net/filecopy/.env exists"
-else
-echo \
-"ASPNETCORE_ENVIRONMENT=Development
-ASPNETCORE_URLS=http://+:8081
-
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=mmi-service-account
-Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
-
-Service__ApiUrl=http://host.docker.internal:$portApi/api
-
-CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
-CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
-CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
-CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
-CHES__EmailAuthorized=true
-# CHES__OverrideTo=
-
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/filecopy/.env
-    echo "./services/net/filecopy/.env created"
 fi
 
 ## Notification Service

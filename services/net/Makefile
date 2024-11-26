@@ -49,30 +49,6 @@ build: ## Build solution.
 	$(info Build solution)
 	@dotnet build
 
-b-capture-arm: ## Build Capture Service for Linux ARM.
-	$(info Build Capture Service for Linux ARM)
-	@cd capture; dotnet publish --runtime linux-arm --self-contained
-
-b-capture-arm64: ## Build Capture Service for Linux ARM 64.
-	$(info Build Capture Service for Linux ARM 64)
-	@cd capture; dotnet publish --runtime linux-arm64 --self-contained
-
-b-capture-linux64: ## Build Capture Service for Linux x64.
-	$(info Build Capture Service for Linux x64)
-	@cd capture; dotnet publish --runtime linux-x64 --self-contained
-
-b-clip-arm: ## Build Clip Service for Linux ARM.
-	$(info Build Clip Service for Linux ARM)
-	@cd clip; dotnet publish --runtime linux-arm --self-contained
-
-b-clip-arm64: ## Build Clip Service for Linux ARM 64.
-	$(info Build Clip Service for Linux ARM 64)
-	@cd clip; dotnet publish --runtime linux-arm64 --self-contained
-
-b-clip-linux64: ## Build Clip Service for Linux x64.
-	$(info Build Clip Service for Linux x64)
-	@cd clip; dotnet publish --runtime linux-x64 --self-contained
-
 ##############################################################################
 # Dotnet Tools
 ##############################################################################

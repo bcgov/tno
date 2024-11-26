@@ -5,57 +5,6 @@
       // Use IntelliSense to find out which attributes exist for C# debugging
       // Use hover for the description of the existing attributes
       // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
-      "name": "Run Capture Service",
-      "type": "coreclr",
-      "request": "launch",
-      "preLaunchTask": "build-capture",
-      // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/capture/bin/Debug/net7.0/TNO.Services.Capture.dll",
-      "args": [],
-      "cwd": "${workspaceFolder}/capture",
-      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
-      "console": "internalConsole",
-      "stopAtEntry": false,
-      "envFile": "${workspaceFolder}/capture/.env"
-    },
-    {
-      // Use IntelliSense to find out which attributes exist for C# debugging
-      // Use hover for the description of the existing attributes
-      // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
-      "name": "Run Clip Service",
-      "type": "coreclr",
-      "request": "launch",
-      "preLaunchTask": "build-clip",
-      // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/clip/bin/Debug/net7.0/TNO.Services.Clip.dll",
-      "args": [],
-      "cwd": "${workspaceFolder}/clip",
-      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
-      "console": "internalConsole",
-      "stopAtEntry": false,
-      "envFile": "${workspaceFolder}/clip/.env"
-    },
-    {
-      // Use IntelliSense to find out which attributes exist for C# debugging
-      // Use hover for the description of the existing attributes
-      // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
-      "name": "Run Command Service",
-      "type": "coreclr",
-      "request": "launch",
-      "preLaunchTask": "build-command",
-      // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/command/bin/Debug/net7.0/TNO.Services.Command.dll",
-      "args": [],
-      "cwd": "${workspaceFolder}/command",
-      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
-      "console": "internalConsole",
-      "stopAtEntry": false,
-      "envFile": "${workspaceFolder}/command/.env"
-    },
-    {
-      // Use IntelliSense to find out which attributes exist for C# debugging
-      // Use hover for the description of the existing attributes
-      // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
       "name": "Run Image Service",
       "type": "coreclr",
       "request": "launch",
@@ -187,23 +136,6 @@
       "console": "internalConsole",
       "stopAtEntry": false,
       "envFile": "${workspaceFolder}/filemonitor/.env"
-    },
-    {
-      // Use IntelliSense to find out which attributes exist for C# debugging
-      // Use hover for the description of the existing attributes
-      // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
-      "name": "Run File Copy Service",
-      "type": "coreclr",
-      "request": "launch",
-      "preLaunchTask": "build-filecopy",
-      // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/filecopy/bin/Debug/net7.0/TNO.Services.FileCopy.dll",
-      "args": [],
-      "cwd": "${workspaceFolder}/filecopy",
-      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
-      "console": "internalConsole",
-      "stopAtEntry": false,
-      "envFile": "${workspaceFolder}/filecopy/.env"
     },
     {
       // Use IntelliSense to find out which attributes exist for C# debugging

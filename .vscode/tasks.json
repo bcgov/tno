@@ -38,42 +38,6 @@
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "build-import",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "build",
-        "${workspaceFolder}/tools/import/etl/TNO.Tools.Import.ETL.csproj",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "problemMatcher": "$msCompile"
-    },
-    {
-      "label": "publish-import",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "publish",
-        "${workspaceFolder}/tools/import/etl/TNO.Tools.Import.ETL.csproj",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "problemMatcher": "$msCompile"
-    },
-    {
-      "label": "watch-import",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "watch",
-        "run",
-        "--project",
-        "${workspaceFolder}/tools/import/etl/TNO.Tools.Import.ETL.csproj"
-      ],
-      "problemMatcher": "$msCompile"
-    },
-    {
       "label": "build-syndication",
       "command": "dotnet",
       "type": "process",
@@ -106,78 +70,6 @@
         "run",
         "--project",
         "${workspaceFolder}/services/net/syndication/TNO.Services.Syndication.csproj"
-      ],
-      "problemMatcher": "$msCompile"
-    },
-    {
-      "label": "build-capture",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "build",
-        "${workspaceFolder}/services/net/capture/TNO.Services.Capture.csproj",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "problemMatcher": "$msCompile"
-    },
-    {
-      "label": "publish-capture",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "publish",
-        "${workspaceFolder}/services/net/capture/TNO.Services.Capture.csproj",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "problemMatcher": "$msCompile"
-    },
-    {
-      "label": "watch-capture",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "watch",
-        "run",
-        "--project",
-        "${workspaceFolder}/services/net/capture/TNO.Services.Capture.csproj"
-      ],
-      "problemMatcher": "$msCompile"
-    },
-    {
-      "label": "build-clip",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "build",
-        "${workspaceFolder}/services/net/clip/TNO.Services.Clip.csproj",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "problemMatcher": "$msCompile"
-    },
-    {
-      "label": "publish-clip",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "publish",
-        "${workspaceFolder}/services/net/clip/TNO.Services.Clip.csproj",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "problemMatcher": "$msCompile"
-    },
-    {
-      "label": "watch-clip",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "watch",
-        "run",
-        "--project",
-        "${workspaceFolder}/services/net/clip/TNO.Services.Clip.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
