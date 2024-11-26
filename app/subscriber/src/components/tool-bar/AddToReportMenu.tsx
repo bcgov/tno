@@ -1,6 +1,6 @@
 import { TooltipMenu } from 'components/tooltip-menu';
 import React from 'react';
-import { FaAngleRight } from 'react-icons/fa';
+import { FaAngleRight, FaSearch } from 'react-icons/fa';
 import { FaFileExport, FaSpinner } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useReports } from 'store/hooks';
@@ -33,6 +33,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
   const [activeReport, setActiveReport] = React.useState<IReportModel>();
   const [inProgress, setInProgress] = React.useState({ sectionName: '', value: false });
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [showSearchInput, setShowSearchInput] = React.useState(false);
 
   const isLoading = requests.some(
     (r) => ['find-my-reports', 'generate-report'].includes(r.url) || r.group.includes('get-report'),
@@ -48,6 +49,11 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
     }
     // Only do this on initialization.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const setActiveSectionSearch = React.useCallback(() => {
+    setShowSearchInput((prevState) => !prevState);
+    console.log(showSearchInput);
   }, []);
 
   /** Adds the content to the active report. */
@@ -130,14 +136,17 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
                   <div className="report-name">{report.name}</div>
                 </Row>
                 <Show visible={!!activeReport && activeReport.id === report.id}>
-                  <input
-                    // className="hidden"
-                    type="text"
-                    placeholder="Search sections..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    autoFocus
-                  />
+                  <div className={`search-section-container`}>
+                    <FaSearch className={`report-search-icon`} onClick={setActiveSectionSearch} />
+                    <input
+                      className={`section-search-input ${showSearchInput}`}
+                      type="text"
+                      placeholder="Search sections..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      autoFocus={showSearchInput}
+                    />
+                  </div>
                   <div className={`section-list`}>
                     {activeReport?.sections.map(
                       (section) =>

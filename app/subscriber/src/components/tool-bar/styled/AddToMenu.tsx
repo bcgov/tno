@@ -15,6 +15,13 @@ export const AddToMenu = styled.div`
     width: 15px;
     color: ${(props) => props.theme.css.btnBkPrimary};
   }
+
+  .report-search-icon {
+    position: absolute;
+    right: 1em;
+    width: 15px;
+    color: ${(props) => props.theme.css.btnBkPrimary};
+  }
   .report-name {
     margin-left: 1.5em;
   }
@@ -58,6 +65,9 @@ export const AddToMenu = styled.div`
       .report-icon:not(.expanded) {
         display: none;
       }
+      .report-search-icon:not(.expanded) {
+        display: none;
+      }
       cursor: pointer;
       &:hover {
         color: ${(props) => props.theme.css.btnBkPrimary};
@@ -73,5 +83,9 @@ export const AddToMenu = styled.div`
       align-self: center;
       color: ${(props) => props.theme.css.iconPrimaryColor};
     }
+  }
+
+  search-section-input:not(.expanded) {
+    display: none;
   }
 `;
