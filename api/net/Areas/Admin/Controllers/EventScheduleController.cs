@@ -81,7 +81,7 @@ public class EventScheduleController : ControllerBase
     [ProducesResponseType(typeof(EventScheduleModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "EventSchedule" })]
-    public IActionResult Add(EventScheduleModel model)
+    public IActionResult Add([FromBody] EventScheduleModel model)
     {
         var result = _eventScheduleService.AddAndSave((Entities.EventSchedule)model);
         var eventSchedule = _eventScheduleService.FindById(result.Id) ?? throw new NoContentException("EventSchedule does not exist");
@@ -98,7 +98,7 @@ public class EventScheduleController : ControllerBase
     [ProducesResponseType(typeof(EventScheduleModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "EventSchedule" })]
-    public IActionResult Update(EventScheduleModel model)
+    public IActionResult Update([FromBody] EventScheduleModel model)
     {
         var result = _eventScheduleService.UpdateAndSave((Entities.EventSchedule)model);
         var eventSchedule = _eventScheduleService.FindById(result.Id) ?? throw new NoContentException("EventSchedule does not exist");
@@ -115,7 +115,7 @@ public class EventScheduleController : ControllerBase
     [ProducesResponseType(typeof(EventScheduleModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "EventSchedule" })]
-    public IActionResult Delete(EventScheduleModel model)
+    public IActionResult Delete([FromBody] EventScheduleModel model)
     {
         _eventScheduleService.DeleteAndSave((Entities.EventSchedule)model);
         return new JsonResult(model);

@@ -6,9 +6,9 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.API.Models;
-using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
+using TNO.API.Filters;
 
 namespace TNO.API.Areas.Services.Controllers;
 
@@ -71,6 +71,7 @@ public class SourceController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<SourceModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Source" })]
+    [ETagCacheTableFilter("sources")]
     public IActionResult GetSources()
     {
         var result = _serviceSource.FindAll();

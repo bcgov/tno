@@ -78,8 +78,13 @@ public class TNOContextFactory : IDesignTimeDbContextFactory<TNOContext>
             Username = config["DB_POSTGRES_USERNAME"],
             Password = config["DB_POSTGRES_PASSWORD"]
         };
+
+        var dataSourceBuilder = new NpgsqlDataSourceBuilder(sqlBuilder.ConnectionString);
+        dataSourceBuilder.EnableDynamicJson();
+        var dataSource = dataSourceBuilder.Build();
+
         var optionsBuilder = new DbContextOptionsBuilder<TNOContext>();
-        optionsBuilder.UseNpgsql(sqlBuilder.ConnectionString, options =>
+        optionsBuilder.UseNpgsql(dataSource, options =>
         {
             options.CommandTimeout((int)TimeSpan.FromMinutes(60).TotalSeconds);
         });

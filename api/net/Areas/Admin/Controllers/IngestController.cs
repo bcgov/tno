@@ -118,7 +118,7 @@ public class IngestController : ControllerBase
     [ProducesResponseType(typeof(IngestModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
-    public IActionResult Add(IngestModel model)
+    public IActionResult Add([FromBody] IngestModel model)
     {
         var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
         result = _service.FindById(result.Id) ?? throw new NoContentException();
@@ -135,7 +135,7 @@ public class IngestController : ControllerBase
     [ProducesResponseType(typeof(IngestModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
-    public async Task<IActionResult> UpdateAsync(IngestModel model)
+    public async Task<IActionResult> UpdateAsync([FromBody] IngestModel model)
     {
         var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions), true);
         result = _service.FindById(result.Id) ?? throw new NoContentException();
@@ -205,7 +205,7 @@ public class IngestController : ControllerBase
     [ProducesResponseType(typeof(IngestModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
-    public IActionResult Delete(IngestModel model)
+    public IActionResult Delete([FromBody] IngestModel model)
     {
         _service.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);

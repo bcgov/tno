@@ -91,7 +91,7 @@ public class ReportInstanceController : ControllerBase
     [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
-    public IActionResult Add(ReportInstanceModel model)
+    public IActionResult Add([FromBody] ReportInstanceModel model)
     {
         var result = _reportInstanceService.AddAndSave((ReportInstance)model);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportInstanceModel(result));
@@ -107,7 +107,7 @@ public class ReportInstanceController : ControllerBase
     [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
-    public IActionResult Update(ReportInstanceModel model)
+    public IActionResult Update([FromBody] ReportInstanceModel model)
     {
         var result = _reportInstanceService.UpdateAndSave((ReportInstance)model);
         return new JsonResult(new ReportInstanceModel(result));
@@ -123,7 +123,7 @@ public class ReportInstanceController : ControllerBase
     [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
-    public IActionResult Delete(ReportInstanceModel model)
+    public IActionResult Delete([FromBody] ReportInstanceModel model)
     {
         _reportInstanceService.DeleteAndSave((ReportInstance)model);
         return new JsonResult(model);

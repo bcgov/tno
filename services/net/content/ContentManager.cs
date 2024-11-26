@@ -1,5 +1,7 @@
+using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 using Confluent.Kafka;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Renci.SshNet;
@@ -29,6 +31,24 @@ public class ContentManager : ServiceManager<ContentOptions>
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
     private int _retries = 0;
+    private IMemoryCache _memoryCache;
+    private const string SourceCodeListCacheKey = "content_manager_sourcecode";
+
+    private const string LookupListCacheKey = "content_manager_lookups";
+
+    private const string IngestServicesListCacheKey = "content_manager_ingests";
+
+    private const string SettingsListCacheKey = "content_manager_settings";
+
+    private static ConcurrentDictionary<string, string> _cachedEtags = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    private static Dictionary<string, string> _localETagKeys = new Dictionary<string, string>
+    {
+        { SourceCodeListCacheKey, "sources" },
+        { LookupListCacheKey, "lookups" },
+        { IngestServicesListCacheKey, "ingests" },
+        { SettingsListCacheKey, "setting" }
+    };
+    private const int LocalCacheExpirationMinutes = 30;
 
     #endregion
 
@@ -55,6 +75,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <param name="chesOptions"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
+    /// <param name="memoryCache"></param>
     public ContentManager(
         IKafkaAdmin kafkaAdmin,
         IKafkaListener<string, SourceContent> kafkaListener,
@@ -62,7 +83,8 @@ public class ContentManager : ServiceManager<ContentOptions>
         IChesService chesService,
         IOptions<ChesOptions> chesOptions,
         IOptions<ContentOptions> options,
-        ILogger<ContentManager> logger)
+        ILogger<ContentManager> logger,
+        IMemoryCache memoryCache)
         : base(api, chesService, chesOptions, options, logger)
     {
         this.KafkaAdmin = kafkaAdmin;
@@ -70,6 +92,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         this.Listener.IsLongRunningJob = false;
         this.Listener.OnError += ListenerErrorHandler;
         this.Listener.OnStop += ListenerStopHandler;
+        _memoryCache = memoryCache;
     }
     #endregion
 
@@ -105,12 +128,12 @@ public class ContentManager : ServiceManager<ContentOptions>
                 try
                 {
                     // TODO: Handle e-tag.
-                    var ingest = (await this.Api.GetIngestsAsync()).ToArray();
+                    var ingest = (await GetIngestsAsync())?.ToArray();
 
                     // Get settings to find any overrides.
-                    var settings = await this.Api.GetSettings();
-                    var topicOverride = settings.FirstOrDefault(s => s.Name == "ContentImportTopicOverride")?.Value.Split(",", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
-                    var ingestTopics = ingest
+                    var settings = await GetSettingsAsync();
+                    var topicOverride = settings?.FirstOrDefault(s => s.Name == "ContentImportTopicOverride")?.Value.Split(",", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+                    var ingestTopics = ingest?
                         .Where(i => !String.IsNullOrWhiteSpace(i.Topic) && i.ImportContent())
                         .Select(i => i.Topic).ToArray();
 
@@ -294,6 +317,185 @@ public class ContentManager : ServiceManager<ContentOptions>
         return text.Replace("<![CDATA[", "").Replace("]]>", "").Replace("]]&gt;", "");
     }
 
+    /// <summary>
+    /// Get settings list.
+    /// If etag is cached locally, request the data with the etag. Otherwise, request the data directly.
+    /// If the request failed, get the data from local memory cache.
+    /// </summary>
+    /// <returns></returns>
+    private Task<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>?> GetSettingsAsync()
+    {
+        return GetLocalCacheListAsync<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>>(SettingsListCacheKey);
+    }
+    
+    /// <summary>
+    /// Get etag key name for given local cache key name
+    /// </summary>
+    /// <param name="keyName"></param>
+    /// <returns></returns>
+    private string GetETagKey(string keyName)
+    {;
+        string? etagKey;
+        if (!_localETagKeys.TryGetValue(keyName, out etagKey)) {
+            this.Logger.LogError($"Error: local Memory Cache Key {keyName} was not defined.");
+            return string.Empty;
+        }
+        return etagKey;
+    }
+    
+    /// <summary>
+    /// Get local cached etag value by local cache key name
+    /// </summary>
+    /// <param name="keyName"></param>
+    /// <returns></returns>
+    private string GetEtagLocalCacheValue(string keyName)
+    {
+        string? etagKey = GetETagKey(keyName);
+        string? value;
+        if (_cachedEtags == null)
+        {
+            _cachedEtags = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            return string.Empty;
+        }
+        if (_cachedEtags.TryGetValue(etagKey, out value))
+        {
+            return value;
+        }
+        return string.Empty;
+    }
+
+    /// <summary>
+    /// Update local etag cache value
+    /// </summary>
+    /// <param name="keyName"></param>
+    /// <param name="etag"></param>
+    private void UpdateEtagLocalCache(string keyName, string? etag)
+    {
+        if (string.IsNullOrEmpty(keyName) || string.IsNullOrEmpty(etag)) return;
+        var etagKey = GetETagKey(keyName);
+        var etagValue = _cachedEtags.AddOrUpdate(
+            etagKey, etag.ToString(),
+            (k, v) =>
+            {
+                if (v.ToUpperInvariant() == etag.ToUpperInvariant())
+                {
+                    return v;
+                }
+                v = etag.ToString();
+                return v;
+            });
+    }
+
+    /// <summary>
+    /// Get ingest service by topic.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <returns></returns>
+    private async Task<API.Areas.Services.Models.Ingest.IngestModel?> GetIngestsByTopicAsync(string topic)
+    {
+        return (await GetIngestsAsync())?.Where(x => x.Topic.ToUpperInvariant() == topic.ToUpperInvariant()).FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Get ingest services list.
+    /// If etag is cached locally, request the data with the etag. Otherwise, request the data directly.
+    /// If the request failed, get the data from local memory cache.
+    /// </summary>
+    /// <returns></returns>
+    private Task<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>?> GetIngestsAsync()
+    {
+        return GetLocalCacheListAsync<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>>(IngestServicesListCacheKey);
+    }
+
+    /// <summary>
+    /// Get source by code.
+    /// If etag is cached locally, request the data with the etag. Otherwise, request the data directly.
+    /// If the request failed, get the data from local memory cache.
+    /// </summary>
+    /// <param name="code"></param>
+    /// <returns></returns>
+    private async Task<API.Areas.Services.Models.Ingest.SourceModel?> GetSourceAsync(string code)
+    {
+        return (await GetLocalCacheListAsync<IEnumerable<API.Areas.Services.Models.Ingest.SourceModel>>(SourceCodeListCacheKey))?
+                .Where(x => x.Code.ToUpperInvariant() == code.ToUpperInvariant()).FirstOrDefault();
+    }
+    
+    /// <summary>
+    /// Get variable list lookups, sources, ingests, and settings.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="keyName"></param>
+    /// <returns></returns>
+    private async Task<T?> GetLocalCacheListAsync<T>(string keyName)
+    {
+        T? dataList;
+        HttpResponseMessage? response = null;
+        var localEtagValue = GetEtagLocalCacheValue(keyName);
+        if (!string.IsNullOrEmpty(localEtagValue) && _memoryCache.TryGetValue(keyName, out dataList))
+        {
+            switch (keyName)
+            {
+                case SourceCodeListCacheKey:
+                    response = await this.Api.GetSourcesResponseWithEtagAsync(localEtagValue);
+                    break;
+                case LookupListCacheKey:
+                    response = await this.Api.GetLookupsResponseWithEtagAsync(localEtagValue);
+                    break;
+                case IngestServicesListCacheKey:
+                    response = await this.Api.GetIngestsResponseWithEtagAsync(localEtagValue);
+                    break;
+                case SettingsListCacheKey:
+                    response = await this.Api.GetSettingsResponseWithEtagAsync(localEtagValue);
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+            switch (keyName)
+            {
+                case SourceCodeListCacheKey:
+                    response = await this.Api.GetSourcesResponseAsync();
+                    break;
+                case LookupListCacheKey:
+                    response = await this.Api.GetLookupsResponseAsync();
+                    break;
+                case IngestServicesListCacheKey:
+                    response = await this.Api.GetIngestsResponseAsync();
+                    break;
+                case SettingsListCacheKey:
+                    response = await this.Api.GetSettingsResponseAsync();
+                    break;
+                default:
+                    break;
+            }
+        }
+        if (response != null && response.StatusCode == System.Net.HttpStatusCode.OK)
+        {
+            dataList = await this.Api.GetResponseDataAsync<T>(response);
+            var etag = this.Api.GetResponseEtag(response);
+            UpdateEtagLocalCache(keyName, etag);
+            _memoryCache.Set(keyName, dataList, TimeSpan.FromMinutes(LocalCacheExpirationMinutes));
+        }
+        else
+        {
+            _memoryCache.TryGetValue(keyName, out dataList);
+        }
+        return dataList;
+    }
+
+    /// <summary>
+    /// Get lookups.
+    /// If etag is cached locally, request the data with the etag. Otherwise, request the data directly.
+    /// If the request failed, get the data from local memory cache.
+    /// </summary>
+    /// <returns></returns>
+    private async Task<API.Areas.Editor.Models.Lookup.LookupModel?> GetLookupsAsync()
+    {
+        return await GetLocalCacheListAsync<API.Areas.Editor.Models.Lookup.LookupModel>(LookupListCacheKey);
+    }
+
     private async Task ProcessSourceContentAsync(ConsumeResult<string, SourceContent> result)
     {
         this.Logger.LogInformation("Importing Content from Topic: {topic}, Uid: {key}", result.Topic, result.Message.Key);
@@ -327,8 +529,8 @@ public class ContentManager : ServiceManager<ContentOptions>
         {
             // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
             // TODO: Handle e-tag.
-            var source = await this.Api.GetSourceForCodeAsync(model.Source);
-            var lookups = await this.Api.GetLookupsAsync();
+            var source = await GetSourceAsync(model.Source);
+            var lookups = await GetLookupsAsync();
 
             var actions = lookups?.Actions;
             var tags = lookups?.Tags;
@@ -341,8 +543,8 @@ public class ContentManager : ServiceManager<ContentOptions>
             if (model.MediaTypeId == 0)
             {
                 // Messages in Kafka are missing information, replace with best guess.
-                var ingests = await this.Api.GetIngestsForTopicAsync(result.Topic);
-                model.MediaTypeId = ingests.FirstOrDefault()?.MediaTypeId ?? throw new InvalidOperationException($"Unable to find an ingest for the topic '{result.Topic}'");
+                var ingests = await GetIngestsByTopicAsync(result.Topic);
+                model.MediaTypeId = ingests?.MediaTypeId ?? throw new InvalidOperationException($"Unable to find an ingest for the topic '{result.Topic}'");
             }
 
             content ??= new ContentModel();

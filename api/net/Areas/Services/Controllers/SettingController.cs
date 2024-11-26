@@ -50,7 +50,7 @@ public class SettingController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<SettingModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotModified)]
     [SwaggerOperation(Tags = new[] { "Setting" })]
-    [ETagCacheTableFilter("settings")]
+    [ETagCacheTableFilter("setting")]
     [ResponseCache(Duration = 5 * 60)]
     public IActionResult FindAll()
     {

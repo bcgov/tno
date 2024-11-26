@@ -119,7 +119,7 @@ public class NotificationController : ControllerBase
     [ProducesResponseType(typeof(NotificationModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
-    public IActionResult Add(NotificationModel model)
+    public IActionResult Add([FromBody] NotificationModel model)
     {
         var result = _notificationService.AddAndSave(model.ToEntity(_serializerOptions, true));
         result = _notificationService.FindById(result.Id) ?? throw new NoContentException();
@@ -136,7 +136,7 @@ public class NotificationController : ControllerBase
     [ProducesResponseType(typeof(NotificationModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
-    public IActionResult Update(NotificationModel model)
+    public IActionResult Update([FromBody] NotificationModel model)
     {
         var result = _notificationService.UpdateAndSave(model.ToEntity(_serializerOptions, true));
         result = _notificationService.FindById(result.Id) ?? throw new NoContentException();
@@ -153,7 +153,7 @@ public class NotificationController : ControllerBase
     [ProducesResponseType(typeof(NotificationModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
-    public IActionResult Delete(NotificationModel model)
+    public IActionResult Delete([FromBody] NotificationModel model)
     {
         _notificationService.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);
@@ -170,7 +170,7 @@ public class NotificationController : ControllerBase
     [ProducesResponseType(typeof(NotificationResultModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
-    public async Task<IActionResult> Preview(NotificationModel model, long contentId)
+    public async Task<IActionResult> Preview(long contentId, [FromBody] NotificationModel model)
     {
         var content = _contentService.FindById(contentId) ?? throw new NoContentException();
         var notification = new Areas.Services.Models.Notification.NotificationModel(model.ToEntity(_serializerOptions, true), _serializerOptions);

@@ -111,7 +111,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "User" })]
-    public IActionResult Add(UserModel model)
+    public IActionResult Add([FromBody] UserModel model)
     {
         var user = (User)model;
         if (String.IsNullOrWhiteSpace(user.Key) || user.Key == Guid.Empty.ToString()) user.Key = Guid.NewGuid().ToString();
@@ -130,7 +130,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "User" })]
-    public async Task<IActionResult> UpdateAsync(UserModel model)
+    public async Task<IActionResult> UpdateAsync([FromBody] UserModel model)
     {
         if (Guid.TryParse(model.Key, out Guid key))
         {
@@ -161,7 +161,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "User" })]
-    public async Task<IActionResult> DeleteAsync(UserModel model)
+    public async Task<IActionResult> DeleteAsync([FromBody] UserModel model)
     {
         await _keycloakHelper.DeleteUserAsync((User)model);
         return new JsonResult(model);
@@ -177,7 +177,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "User" })]
-    public IActionResult TransferAccount(TransferAccountModel model)
+    public IActionResult TransferAccount([FromBody] TransferAccountModel model)
     {
         var result = _userService.TransferAccount(model) ?? throw new NoContentException();
         return new JsonResult(new UserModel(result, _serializerOptions));

@@ -88,7 +88,7 @@ public class EventScheduleController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "EventSchedule" })]
-    public IActionResult Update(EventScheduleModel model)
+    public IActionResult Update([FromBody] EventScheduleModel model)
     {
         _serviceEventSchedule.UpdateAndSave(model.ToEntity(_serializerOptions));
 

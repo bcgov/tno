@@ -86,7 +86,7 @@ public class DataLocationController : ControllerBase
     [ProducesResponseType(typeof(DataLocationModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "DataLocation" })]
-    public IActionResult Add(DataLocationModel model)
+    public IActionResult Add([FromBody] DataLocationModel model)
     {
         var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new DataLocationModel(result, _serializerOptions));
@@ -102,7 +102,7 @@ public class DataLocationController : ControllerBase
     [ProducesResponseType(typeof(DataLocationModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "DataLocation" })]
-    public IActionResult Update(DataLocationModel model)
+    public IActionResult Update([FromBody] DataLocationModel model)
     {
         var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(new DataLocationModel(result, _serializerOptions));
@@ -118,7 +118,7 @@ public class DataLocationController : ControllerBase
     [ProducesResponseType(typeof(DataLocationModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "DataLocation" })]
-    public IActionResult Delete(DataLocationModel model)
+    public IActionResult Delete([FromBody] DataLocationModel model)
     {
         _service.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);

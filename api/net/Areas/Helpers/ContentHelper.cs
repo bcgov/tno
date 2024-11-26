@@ -53,7 +53,7 @@ public class ContentHelper : IContentHelper
 
         using var fileStream = new FileStream(safePath, FileMode.Open, FileAccess.Read);
         var imageBytes = new byte[fileStream.Length];
-        await fileStream.ReadAsync(imageBytes.AsMemory(0, (int)fileStream.Length));
+        await fileStream.ReadExactlyAsync(imageBytes.AsMemory(0, (int)fileStream.Length));
         return Convert.ToBase64String(imageBytes);
     }
     #endregion

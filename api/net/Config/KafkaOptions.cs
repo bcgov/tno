@@ -45,5 +45,10 @@ public class KafkaOptions
     /// get/set - The Kafka topic name to request FFmpeg processes.
     /// </summary>
     public string FFmpegTopic { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The Kafka topic name to add content to folders.
+    /// </summary>
+    public string FolderTopic { get; set; } = "";
     #endregion
 }

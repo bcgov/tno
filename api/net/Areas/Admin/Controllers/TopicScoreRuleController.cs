@@ -65,7 +65,7 @@ public class TopicScoreRuleController : ControllerBase
     [ProducesResponseType(typeof(TopicScoreRuleModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "TopicScoreRule" })]
-    public IActionResult Update(TopicScoreRuleModel[] models)
+    public IActionResult Update([FromBody] TopicScoreRuleModel[] models)
     {
         foreach (var rule in models)
         {
@@ -107,7 +107,7 @@ public class TopicScoreRuleController : ControllerBase
     [ProducesResponseType(typeof(TopicScoreRuleModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "TopicScoreRule" })]
-    public IActionResult Add(TopicScoreRuleModel model)
+    public IActionResult Add([FromBody] TopicScoreRuleModel model)
     {
         var result = _service.AddAndSave((TopicScoreRule)model);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new TopicScoreRuleModel(result));
@@ -123,7 +123,7 @@ public class TopicScoreRuleController : ControllerBase
     [ProducesResponseType(typeof(TopicScoreRuleModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "TopicScoreRule" })]
-    public IActionResult Update(TopicScoreRuleModel model)
+    public IActionResult Update([FromBody] TopicScoreRuleModel model)
     {
         var result = _service.UpdateAndSave((TopicScoreRule)model);
         return new JsonResult(new TopicScoreRuleModel(result));
@@ -139,7 +139,7 @@ public class TopicScoreRuleController : ControllerBase
     [ProducesResponseType(typeof(TopicScoreRuleModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "TopicScoreRule" })]
-    public IActionResult Delete(TopicScoreRuleModel model)
+    public IActionResult Delete([FromBody] TopicScoreRuleModel model)
     {
         _service.DeleteAndSave((TopicScoreRule)model);
         return new JsonResult(model);

@@ -191,14 +191,23 @@ export const MyMinister: React.FC = () => {
       <ContentListActionBar
         content={selected}
         onClear={() => setSelected([])}
-        onSelectAll={(e) => (e.target.checked ? setSelected(content) : setSelected([]))}
+        onSelectAll={(e) => {
+          const values = content.map((c) => c.id);
+          const oldSelected = selected.filter((s) => !values.includes(s.id));
+          e.target.checked ? setSelected([...selected, ...content]) : setSelected(oldSelected);
+        }}
       />
-      <DateFilter filter={filter} storeFilter={storeFilter} />
+      <DateFilter
+        date={filter.startDate}
+        onChangeDate={(start, end) =>
+          storeFilter({ ...filter, startDate: start, endDate: end, dateOffset: undefined })
+        }
+      />
       <div className="ministerCheckboxes">
         <span className="option">SHOW:</span>
         {userMinisters.map((m) => {
           return (
-            <>
+            <React.Fragment key={m.id}>
               <Checkbox
                 key={m.id}
                 className="option"
@@ -208,7 +217,7 @@ export const MyMinister: React.FC = () => {
                 }}
               />
               <span className="check-label">{`${m.name} (${m.contentCount})`}</span>
-            </>
+            </React.Fragment>
           );
         })}
       </div>

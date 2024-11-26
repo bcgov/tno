@@ -22,7 +22,6 @@ scale subscriber 0 dc $env
 
 # scale capture-service 0 dc $env
 scale contentmigration-service 0 dc $env
-scale contentmigration-recent-service 0 dc $env
 scale contentmigration-historic-service 0 dc $env
 scale filemonitor-service 0 dc $env
 scale syndication-service 0 dc $env
@@ -30,7 +29,6 @@ scale image-service 0 dc $env
 
 scale indexing-service 0 dc $env
 scale content-service 0 dc $env
-scale content-current-service 0 dc $env
 scale content-historic-service 0 dc $env
 
 scale filecopy-service 0 dc $env

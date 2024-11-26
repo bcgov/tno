@@ -79,7 +79,7 @@ public class ProductController : ControllerBase
     [ProducesResponseType(typeof(UserProductModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Product" })]
-    public async Task<IActionResult> UpdateSubscription(UserProductModel model)
+    public async Task<IActionResult> UpdateSubscription([FromBody] UserProductModel model)
     {
         var user = _impersonate.GetCurrentUser();
         var originalProduct = _productService.FindById(model.ProductId) ?? throw new NoContentException("Product does not exist");

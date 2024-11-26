@@ -1,5 +1,6 @@
 ARG BUILD_CONFIGURATION=Release
-FROM image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/aspnet:7.0 AS base
+# FROM image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/aspnet:9.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 
 RUN apt-get update --fix-missing && apt-get -y upgrade && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends procps curl ffmpeg libc6-dev libgdiplus \
@@ -8,10 +9,10 @@ RUN apt-get update --fix-missing && apt-get -y upgrade && export DEBIAN_FRONTEND
 EXPOSE 443 8080
 
 # Copy csproj and restore as distinct layers
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 
 ENV PATH="$PATH:/root/.dotnet/tools"
-RUN dotnet tool install --global dotnet-ef --version 7.0.13
+RUN dotnet tool install --global dotnet-ef --version 9.0.0
 
 WORKDIR /src/api/net
 COPY api/net/ .

@@ -26,12 +26,12 @@ using TNO.API.SignalR;
 using TNO.Ches;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
+using TNO.Core.Storage;
+using TNO.Core.Storage.Configuration;
 using TNO.DAL;
 using TNO.Kafka;
 using TNO.Keycloak;
 using TNO.TemplateEngine;
-using TNO.Core.Storage.Configuration;
-using TNO.Core.Storage;
 
 DotNetEnv.Env.Load();
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -100,6 +100,7 @@ builder.Services.AddAuthentication(options =>
         options.Authority = section.GetValue<string>("Authority");
         options.Audience = section.GetValue<string>("Audience");
         options.SaveToken = true;
+        options.UseSecurityTokenValidators = true;
         options.TokenValidationParameters = new TokenValidationParameters()
         {
             ValidateIssuerSigningKey = true,

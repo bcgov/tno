@@ -155,6 +155,11 @@ spec:
                 configMapKeyRef:
                   name: reporting-service
                   key: RESEND_ON_FAILURE
+            - name: Service__SendToAllSubscribersBeforeFailing
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-service
+                  key: SEND_TO_ALL_BEFORE_FAILING
             - name: Service__Topics
               valueFrom:
                 configMapKeyRef:

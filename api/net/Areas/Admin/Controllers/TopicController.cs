@@ -101,7 +101,7 @@ public class TopicController : ControllerBase
     [ProducesResponseType(typeof(TopicModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Topic" })]
-    public IActionResult Add(TopicModel model)
+    public IActionResult Add([FromBody] TopicModel model)
     {
         var result = _service.AddAndSave((Topic)model);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new TopicModel(result));
@@ -117,7 +117,7 @@ public class TopicController : ControllerBase
     [ProducesResponseType(typeof(TopicModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Topic" })]
-    public IActionResult Update(TopicModel model)
+    public IActionResult Update([FromBody] TopicModel model)
     {
         var result = _service.UpdateAndSave((Topic)model);
         return new JsonResult(new TopicModel(result));
@@ -133,7 +133,7 @@ public class TopicController : ControllerBase
     [ProducesResponseType(typeof(TopicModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Topic" })]
-    public IActionResult Delete(TopicModel model)
+    public IActionResult Delete([FromBody] TopicModel model)
     {
         _service.DeleteAndSave((Topic)model);
         return new JsonResult(model);

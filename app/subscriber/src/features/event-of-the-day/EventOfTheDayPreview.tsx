@@ -76,7 +76,17 @@ const EventOfTheDayPreview: React.FC = () => {
     <styled.EventOfTheDayPreview>
       <Loader visible={isLoading} />
       <Show visible={!isLoading}>
-        <DateFilter filter={eventOfTheDayFilter} storeFilter={storeFilter} />
+        <DateFilter
+          date={eventOfTheDayFilter.startDate}
+          onChangeDate={(start, end) =>
+            storeFilter({
+              ...eventOfTheDayFilter,
+              startDate: start,
+              endDate: end,
+              dateOffset: undefined,
+            })
+          }
+        />
         <Show visible={!isLoading && !!preview}>
           <Col className="preview-report">
             <div

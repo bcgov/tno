@@ -91,7 +91,7 @@ public class FilterController : ControllerBase
     [ProducesResponseType(typeof(FilterModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Filter" })]
-    public IActionResult Add(FilterModel model)
+    public IActionResult Add([FromBody] FilterModel model)
     {
         var result = _filterService.AddAndSave(model.ToEntity(_serializerOptions));
         var filter = _filterService.FindById(result.Id) ?? throw new NoContentException("Filter does not exist");
@@ -108,7 +108,7 @@ public class FilterController : ControllerBase
     [ProducesResponseType(typeof(FilterModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Filter" })]
-    public IActionResult Update(FilterModel model)
+    public IActionResult Update([FromBody] FilterModel model)
     {
         var result = _filterService.UpdateAndSave(model.ToEntity(_serializerOptions));
         var filter = _filterService.FindById(result.Id) ?? throw new NoContentException("Filter does not exist");
@@ -125,7 +125,7 @@ public class FilterController : ControllerBase
     [ProducesResponseType(typeof(FilterModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Filter" })]
-    public IActionResult Delete(FilterModel model)
+    public IActionResult Delete([FromBody] FilterModel model)
     {
         _filterService.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);

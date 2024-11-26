@@ -16,10 +16,8 @@ public class ImportService
     private readonly ILogger _logger;
     private readonly SourceContext _sourceContext;
     private readonly TNOContext _destinationContext;
-
-    private List<ContentType> _contentTypes = new();
     private List<IngestType> _ingestTypes = new();
-    private List<DataSource> _dataSources = new();
+    private List<Entities.Source> _dataSources = new();
     private List<License> _licenses = new();
     private List<Topic> _topics = new();
     private List<Entities.Action> _actions = new();
@@ -28,8 +26,8 @@ public class ImportService
     private List<Tag> _tags = new();
     private List<TonePool> _tonePools = new();
 
-    private ContentType _defaultContentType = new("default");
-    private User _defaultUser = new("default", "default", Guid.Empty);
+    private ContentType _defaultContentType = ContentType.AudioVideo;
+    private User _defaultUser = new("default", "default", UserAccountType.SystemAccount);
     private License _defaultLicense = new("default", 0);
     #endregion
 
@@ -60,9 +58,8 @@ public class ImportService
 
     private void InitializeLookups()
     {
-        _contentTypes = _destinationContext.ContentTypes.ToList();
         _ingestTypes = _destinationContext.IngestTypes.ToList();
-        _dataSources = _destinationContext.DataSources.ToList();
+        _dataSources = _destinationContext.Sources.ToList();
         _licenses = _destinationContext.Licenses.OrderBy(l => l.Id).ToList();
         _topics = _destinationContext.Topics.ToList();
         _series = _destinationContext.Series.ToList();
@@ -71,7 +68,6 @@ public class ImportService
         _tonePools = _destinationContext.TonePools.ToList();
         _users = _destinationContext.Users.ToList();
 
-        _defaultContentType = _contentTypes.First(ct => ct.Name == "AudioVideo");
         _defaultUser = _users.First();
         _defaultLicense = _licenses.First();
     }
@@ -91,14 +87,13 @@ public class ImportService
         var source = _dataSources.FirstOrDefault(ds => ds.Name.ToLower() == newsItem.Source.ToLower());
         var headline = String.IsNullOrWhiteSpace(newsItem.Title) ? "NO TITLE PROVIDED" : newsItem.Title;
         var ingestType = GetIngestType(newsItem.Type);
-        var content = new Content(uid, headline, newsItem.Source, source?.Id, _defaultContentType.Id, ingestType.Id, source?.LicenseId ?? _defaultLicense.Id, _defaultUser.Id)
+        var content = new Content(uid, headline, newsItem.Source, source?.Id, _defaultContentType, ingestType.Id, source?.LicenseId ?? _defaultLicense.Id, _defaultUser.Id)
         {
             Status = newsItem.Published ? ContentStatus.Published : ContentStatus.Draft,
-            WorkflowStatus = newsItem.Published ? WorkflowStatus.Published : WorkflowStatus.Success,
             Page = "",
             PublishedOn = newsItem.ItemDateTime.ToUniversalTime(),
             Summary = newsItem.Summary ?? "",
-            Body = newsItem.Body ?? "",
+            Body = newsItem.Text ?? "",
             SourceUrl = newsItem.WebPath ?? ""
         };
 
@@ -140,16 +135,16 @@ public class ImportService
             var action = _actions.First(a => a.Name == "Alert");
             content.ActionsManyToMany.Add(new ContentAction(content, action, "true"));
         }
-        if (!String.IsNullOrWhiteSpace(newsItem.EodTopic))
+        if (!String.IsNullOrWhiteSpace(newsItem.EodCategory))
         {
-            var topic = _topics.FirstOrDefault(a => a.Name.ToLower() == newsItem.EodTopic.ToLower());
+            var topic = _topics.FirstOrDefault(a => a.Name.ToLower() == newsItem.EodCategory.ToLower());
             if (topic != null)
             {
                 content.TopicsManyToMany.Add(new ContentTopic(content, topic, 0));
             }
             else
             {
-                topic = new Topic(newsItem.EodTopic);
+                topic = new Topic(newsItem.EodCategory);
                 _destinationContext.Add(topic);
                 _topics.Add(topic);
                 content.TopicsManyToMany.Add(new ContentTopic(content, topic, 0));
@@ -165,7 +160,6 @@ public class ImportService
     {
         content.Headline = String.IsNullOrWhiteSpace(newsItem.Title) ? "NO TITLE PROVIDED" : newsItem.Title;
         content.Status = newsItem.Published ? ContentStatus.Published : ContentStatus.Draft;
-        content.WorkflowStatus = newsItem.Published ? WorkflowStatus.Published : WorkflowStatus.Success;
         content.PublishedOn = newsItem.ItemDateTime.ToUniversalTime();
         content.Summary = newsItem.Summary ?? "";
         content.Body = newsItem.Transcript ?? "";
@@ -210,16 +204,16 @@ public class ImportService
             var action = _actions.First(a => a.Name == "Alert");
             content.ActionsManyToMany.Add(new ContentAction(content, action, "true"));
         }
-        if (!String.IsNullOrWhiteSpace(newsItem.EodTopic) && !content.TopicsManyToMany.Any(a => a.Topic?.Name == newsItem.EodTopic))
+        if (!String.IsNullOrWhiteSpace(newsItem.EodCategory) && !content.TopicsManyToMany.Any(a => a.Topic?.Name == newsItem.EodCategory))
         {
-            var topic = _topics.FirstOrDefault(a => a.Name.ToLower() == newsItem.EodTopic.ToLower());
+            var topic = _topics.FirstOrDefault(a => a.Name.ToLower() == newsItem.EodCategory.ToLower());
             if (topic != null)
             {
                 content.TopicsManyToMany.Add(new ContentTopic(content, topic, 0));
             }
             else
             {
-                topic = new Topic(newsItem.EodTopic);
+                topic = new Topic(newsItem.EodCategory);
                 _destinationContext.Add(topic);
                 _topics.Add(topic);
                 content.TopicsManyToMany.Add(new ContentTopic(content, topic, 0));
@@ -261,7 +255,7 @@ public class ImportService
                     var content = _destinationContext.Contents
                           .Include(c => c.Actions)
                           .Include(c => c.Topics)
-                          .Include(c => c.DataSource)
+                          .Include(c => c.Source)
                           .Include(c => c.FileReferences)
                           .Include(c => c.TonePools)
                           .Include(c => c.Tags)

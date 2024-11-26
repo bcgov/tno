@@ -14,7 +14,7 @@ namespace TNO.Core.Http
         Task<HttpResponseMessage> DeleteJsonAsync<T>(string url, T? data = null) where T : class;
 
         Task<HttpResponseMessage> SendAsync(string url, HttpMethod? method = null, HttpContent? content = null);
-        Task<HttpResponseMessage> SendAsync(string url, HttpMethod method, HttpRequestHeaders headers, HttpContent? content = null);
+        Task<HttpResponseMessage> SendAsync(string url, HttpMethod method, HttpRequestHeaders headers, HttpContent? content = null, string? etag = null);
         Task<HttpResponseMessage> GetAsync(string url);
         Task<HttpResponseMessage> PostAsync(string url, HttpContent? content = null);
         Task<HttpResponseMessage> PutAsync(string url, HttpContent? content = null);
@@ -26,9 +26,10 @@ namespace TNO.Core.Http
         Task<HttpResponseMessage> PutJsonAsync<T>(Uri url, T? data = null) where T : class;
         Task<HttpResponseMessage> DeleteJsonAsync<T>(Uri url, T? data = null) where T : class;
 
-        Task<HttpResponseMessage> SendAsync(Uri url, HttpMethod? method = null, HttpContent? content = null);
-        Task<HttpResponseMessage> SendAsync(Uri url, HttpMethod method, HttpRequestHeaders headers, HttpContent? content = null);
+        Task<HttpResponseMessage> SendAsync(Uri url, HttpMethod? method = null, HttpContent? content = null, string? etag = null);
+        Task<HttpResponseMessage> SendAsync(Uri url, HttpMethod method, HttpRequestHeaders headers, HttpContent? content = null, string? etag = null);
         Task<HttpResponseMessage> GetAsync(Uri url);
+        Task<HttpResponseMessage> GetAsync(Uri url, string etag);
         Task<HttpResponseMessage> PostAsync(Uri url, HttpContent? content = null);
         Task<HttpResponseMessage> PutAsync(Uri url, HttpContent? content = null);
         Task<HttpResponseMessage> DeleteAsync(Uri url, HttpContent? content = null);

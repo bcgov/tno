@@ -131,7 +131,17 @@ const AVOverviewPreview: React.FC = () => {
     <styled.AVOverviewPreview>
       <Loader visible={isLoading} />
       <Show visible={!isLoading}>
-        <DateFilter filter={avOverviewFilter} storeFilter={storeFilter} />
+        <DateFilter
+          date={avOverviewFilter.startDate}
+          onChangeDate={(start, end) =>
+            storeFilter({
+              ...avOverviewFilter,
+              startDate: start,
+              endDate: end,
+              dateOffset: undefined,
+            })
+          }
+        />
         <Show visible={!isLoading && !!isPublished && !!reactElements}>
           <Col className="preview-report">
             <div className="preview-body">{reactElements}</div>

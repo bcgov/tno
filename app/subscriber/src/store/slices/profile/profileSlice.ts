@@ -14,6 +14,7 @@ import {
 import { IProfileState } from './interfaces';
 
 export const initialProfileState: IProfileState = {
+  from: 0,
   contributors: [],
   myFilters: [],
   myFolders: [],
@@ -44,6 +45,9 @@ export const profileSlice = createSlice({
       action: PayloadAction<ISubscriberUserModel | undefined>,
     ) {
       state.impersonate = action.payload;
+    },
+    storeFrom(state: IProfileState, action: PayloadAction<number>) {
+      state.from = action.payload;
     },
     storeFilter(state: IProfileState, action: PayloadAction<IFilterModel | undefined>) {
       state.filter = action.payload;
@@ -92,6 +96,7 @@ export const profileSlice = createSlice({
 export const {
   storeMyProfile,
   storeImpersonate,
+  storeFrom,
   storeFilter,
   storeMyFilters,
   storeMyFolders,

@@ -129,7 +129,7 @@ public class FolderController : ControllerBase
     [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Folder" })]
-    public IActionResult Add(FolderModel model)
+    public IActionResult Add([FromBody] FolderModel model)
     {
         var result = _folderService.AddAndSave(model.ToEntity(_serializerOptions));
         var folder = _folderService.FindById(result.Id) ?? throw new NoContentException("Folder does not exist");
@@ -146,7 +146,7 @@ public class FolderController : ControllerBase
     [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Folder" })]
-    public IActionResult Update(FolderModel model)
+    public IActionResult Update([FromBody] FolderModel model)
     {
         var result = _folderService.UpdateAndSave(model.ToEntity(_serializerOptions));
         var folder = _folderService.FindById(result.Id) ?? throw new NoContentException("Folder does not exist");
@@ -163,7 +163,7 @@ public class FolderController : ControllerBase
     [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Folder" })]
-    public IActionResult Delete(FolderModel model)
+    public IActionResult Delete([FromBody] FolderModel model)
     {
         _folderService.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);

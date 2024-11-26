@@ -1,5 +1,5 @@
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0 as build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 as build
 
 ENV DOTNET_CLI_HOME=/tmp
 ENV PATH="$PATH:/tmp/.dotnet/tools"
@@ -11,6 +11,7 @@ USER 0
 
 WORKDIR /src
 
+COPY ../../../libs/net/packages /root/.nuget/packages
 COPY services/net/nlp services/net/nlp
 COPY libs/net libs/net
 
@@ -20,7 +21,7 @@ RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u 
 WORKDIR /src/services/net/nlp
 RUN dotnet build -c $ASPNETCORE_ENVIRONMENT -o /build
 
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 as deploy
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 as deploy
 
 WORKDIR /app
 COPY --from=build /build .

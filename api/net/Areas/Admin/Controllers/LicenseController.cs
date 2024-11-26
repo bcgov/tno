@@ -81,7 +81,7 @@ public class LicenseController : ControllerBase
     [ProducesResponseType(typeof(LicenseModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "License" })]
-    public IActionResult Add(LicenseModel model)
+    public IActionResult Add([FromBody] LicenseModel model)
     {
         var result = _service.AddAndSave(model.ToEntity());
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new LicenseModel(result));
@@ -97,7 +97,7 @@ public class LicenseController : ControllerBase
     [ProducesResponseType(typeof(LicenseModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "License" })]
-    public IActionResult Update(LicenseModel model)
+    public IActionResult Update([FromBody] LicenseModel model)
     {
         var result = _service.UpdateAndSave(model.ToEntity());
         return new JsonResult(new LicenseModel(result));
@@ -113,7 +113,7 @@ public class LicenseController : ControllerBase
     [ProducesResponseType(typeof(LicenseModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "License" })]
-    public IActionResult Delete(LicenseModel model)
+    public IActionResult Delete([FromBody] LicenseModel model)
     {
         _service.DeleteAndSave(model.ToEntity());
         return new JsonResult(model);

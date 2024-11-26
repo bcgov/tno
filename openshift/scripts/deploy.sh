@@ -35,22 +35,11 @@ podsFileMonitor=$(getPods filemonitor-service dc $env)
 podsSyndication=$(getPods syndication-service dc $env)
 podsImage=$(getPods image-service dc $env)
 
-if [ $env = "prod" ]; then
-  podsContentMigration=$(getPods contentmigration-service dc $env)
-  podsContentMigrationRecent=$(getPods contentmigration-recent-service dc $env)
-  podsContentMigrationHistoricAudioVideo=$(getPods contentmigration-historic-audiovideo-service dc $env)
-  podsContentMigrationHistoricImage=$(getPods contentmigration-historic-image-service dc $env)
-  podsContentMigrationHistoricOnline=$(getPods contentmigration-historic-online-service dc $env)
-  podsContentMigrationHistoricPrint=$(getPods contentmigration-historic-print-service dc $env)
-else
-  podsContentMigration=$(getPods contentmigration-service dc $env)
-  podsContentMigrationRecent=$(getPods contentmigration-recent-service dc $env)
-  podsContentMigrationHistoric=$(getPods contentmigration-historic-service dc $env)
-fi
+podsContentMigration=$(getPods contentmigration-service dc $env)
+podsContentMigrationHistoric=$(getPods contentmigration-historic-service dc $env)
 
 podsIndexing=$(getPods indexing-service dc $env)
 podsContent=$(getPods content-service dc $env)
-podsContentTNOCurrent=$(getPods content-current-service dc $env)
 podsContentTNOHistoric=$(getPods content-historic-service dc $env)
 
 podsFileCopy=$(getPods filecopy-service dc $env)
@@ -119,18 +108,8 @@ scale editor $podsEditor dc $env
 scale subscriber $podsSubscriber dc $env
 
 # scale capture-service $podsCapture dc $env
-if [ $env = "prod" ]; then
-  scale contentmigration-service $podsContentMigration dc $env
-  scale contentmigration-recent-service $podsContentMigrationRecent dc $env
-  scale contentmigration-historic-audiovideo-service $podsContentMigrationHistoricAudioVideo dc $env
-  scale contentmigration-historic-image-service $podsContentMigrationHistoricImage dc $env
-  scale contentmigration-historic-online-service $podsContentMigrationHistoricOnline dc $env
-  scale contentmigration-historic-print-service $podsContentMigrationHistoricPrint dc $env
-else
-  scale contentmigration-service $podsContentMigration dc $env
-  scale contentmigration-recent-service $podsContentMigrationRecent dc $env
-  scale contentmigration-historic-service $podsContentMigrationHistoric dc $env
-fi
+scale contentmigration-service $podsContentMigration dc $env
+scale contentmigration-historic-service $podsContentMigrationHistoric dc $env
 
 scale filemonitor-service $podsFileMonitor dc $env
 scale syndication-service $podsSyndication dc $env
@@ -138,7 +117,6 @@ scale image-service $podsImage dc $env
 
 scale indexing-service $podsIndexing dc $env
 scale content-service $podsContent dc $env
-scale content-current-service $podsContentTNOCurrent dc $env
 scale content-historic-service $podsContentTNOHistoric dc $env
 
 scale filecopy-service $podsFileCopy dc $env

@@ -44,14 +44,17 @@ export const ContentActionBar = styled(Row)<{ viewingContent?: boolean }>`
   }
 
   .content-buttons {
+    flex: 1;
     color: ${(props) => props.theme.css.btnBkPrimary};
     width: ${(props) => (props.viewingContent ? '100%' : 'auto')};
+    animation: fade-in 0.5s linear;
+    margin-right: 1rem;
+
     @media (max-width: 768px) {
       span {
         display: none;
       }
     }
-    animation: fade-in 0.5s linear;
   }
   .editor-button {
     margin-left: auto;
