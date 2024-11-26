@@ -152,7 +152,6 @@ export portKeycloak=40001
 export portKeycloakHttps=40002
 export portElastic=40003
 export portElasticCom=40004
-export portDejavu=40005
 export portAzureBlob=40006
 export portAzureQueue=40007
 export portAzureTable=40008

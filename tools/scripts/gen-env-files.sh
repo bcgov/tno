@@ -35,7 +35,6 @@ KEYCLOAK_HTTPS_PORT=$portKeycloakHttps
 
 ELASTIC_HTTP_PORT=$portElastic
 ELASTIC_COM_PORT=$portElasticCom
-ELASTIC_DEJAVU_HTTP_PORT=$portDejavu
 
 AZURE_BLOB_PORT=$portAzureBlob
 AZURE_QUEUE_PORT=$portAzureQueue

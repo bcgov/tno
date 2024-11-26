@@ -26,31 +26,3 @@ spec:
     # caCertificate: ""
     # certificate: ""
     # key: ""
-# ---
-# kind: Route
-# apiVersion: route.openshift.io/v1
-# metadata:
-#   name: elastic-dejavu
-#   namespace: default
-#   annotations:
-#     haproxy.router.openshift.io/timeout: 60s
-#   labels:
-#     name: elastic
-#     part-of: tno
-#     version: 1.0.0
-#     component: elastic
-#     managed-by: kustomize
-#     created-by: jeremy.foster
-# spec:
-#   host: tno-dev-elastic.apps.silver.devops.gov.bc.ca
-#   path: /
-#   to:
-#     kind: Service
-#     name: elastic
-#     weight: 100
-#   tls:
-#     insecureEdgeTerminationPolicy: Redirect
-#     termination: edge
-#     # caCertificate: ""
-#     # certificate: ""
-#     # key: ""

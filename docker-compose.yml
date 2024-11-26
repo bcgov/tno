@@ -122,26 +122,6 @@ services:
     #   retries: 3
     #   start_period: 15s
 
-  dejavu:
-    image: tno:dejavu
-    profiles:
-      - all
-      - utility
-      - elastic
-      - service
-    restart: "no"
-    container_name: tno-dejavu
-    build:
-      context: db/elasticsearch/dejavu
-    ports:
-      - ${ELASTIC_DEJAVU_HTTP_PORT:-40005}:1358
-    extra_hosts:
-      - host.docker.internal:host-gateway
-    links:
-      - elastic
-    networks:
-      - tno
-
   ####################### API #######################
   api:
     image: tno:api

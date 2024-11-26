@@ -193,7 +193,6 @@ Nginx provides a reverse proxy, which handles communication with the API.
 | Kafka API          | rest-proxy | [http://localhost:40104](http://localhost:40104)  |
 | Kafka Kowl         | kowl       | [http://localhost:40180](http://localhost:40180)  |
 | Elasticsearch      | elastic    | [http://localhost:40003](http://localhost:40003)  |
-| Dejavu             | dejavu     | [http://localhost:40005](http://localhost:40005)  |
 
 Once the core containers are running you can then start up the other services and utilities.
 Locally you will probably never want everything running at the same time.
