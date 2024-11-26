@@ -878,6 +878,8 @@ public class ReportService : BaseService<Report, int>, IReportService
                 // Only include content that has been posted since the last report instance.
                 if (reportSettings.Content.OnlyNewContent)
                     query = query.IncludeOnlyLatestPosted(previousInstance?.PublishedOn);
+                if (reportSettings.Content.OmitBCUpdates)
+                    query = query.ExcludeBCUpdates();
 
                 // Determine index.
                 var defaultIndex = filterSettings.SearchUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex;

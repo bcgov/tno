@@ -228,7 +228,7 @@ public static class JsonDocumentExtensions
     /// </summary>
     /// <param name="query"></param>
     /// <returns></returns>
-    public static JsonDocument ExcludeBCUpdate(this JsonDocument query)
+    public static JsonDocument ExcludeBCUpdates(this JsonDocument query)
     {
         var json = JsonNode.Parse(query.ToJson())?.AsObject();
         if (json == null) return query;
