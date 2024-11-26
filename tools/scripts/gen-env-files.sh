@@ -167,15 +167,6 @@ echo \
     echo "./network/nginx/.env created"
 fi
 
-# Azure Storage
-if test -f "./db/azure-storage/.env"; then
-    echo "./db/azure-storage/.env exists"
-else
-echo \
-"AZURITE_ACCOUNTS=devaccount1:$azureKey" >> ./db/azure-storage/.env
-    echo "./db/azure-storage/.env created"
-fi
-
 # Elasticsearch
 if test -f "./db/elasticsearch/.env"; then
     echo "./db/elasticsearch/.env exists"
@@ -216,9 +207,6 @@ ELASTIC_PASSWORD=$password
 Reporting__ViewContentUrl=http://localhost:$portNginxSubscriber/view/
 Charts__Url=http://charts:8080
 # Charts__Url=http://localhost:$portChartsApi
-
-AZURE_STORAGE_CONTAINER_NAME=$dbName
-AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devaccount1;AccountKey=$azureKey;BlobEndpoint=http://host.docker.internal:$portAzureBlob/devaccount1;
 
 COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY=$azureCognitiveServiceKey
 COGNITIVE_SERVICES_SPEECH_REGION=$azureCognitiveServiceRegion

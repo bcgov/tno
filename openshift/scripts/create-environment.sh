@@ -2,14 +2,10 @@
 oc policy add-role-to-user system:image-puller system:serviceaccount:9b301c-prod:default -n 9b301c-tools
 
 # Tag Imagestreams and import them to prod.
-oc -n 9b301c-prod tag 9b301c-tools/zookeeper:dev zookeeper:prod
 oc -n 9b301c-prod tag 9b301c-tools/kafka:dev kafka:prod
 
 # Deploy statefulSets to the prod environment
 
-oc kustomize kafka/zookeeper/overlays/prod | oc create -f -
-oc kustomize kafka/zookeeper/overlays/prod | oc create -f -
-oc kustomize kafka/rest-proxy/overlays/prod | oc create -f -
 oc kustomize postgres/crunchy/overlays/prod | oc create -f -
 oc kustomize elastic/overlays/prod | oc create -f -
 

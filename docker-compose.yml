@@ -417,9 +417,6 @@ volumes:
   tno-oracle-data:
     name: tno-oracle-data
 
-  tno-azure-storage-data:
-    name: tno-azure-storage-data
-
 # To inspect healthcheck
 # docker inspect --format='{{json .State.Health}}' tno-nlp
 

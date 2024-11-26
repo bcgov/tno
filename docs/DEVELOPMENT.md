@@ -92,9 +92,7 @@ The exposed container ports is configurable, but the defaults are identified bel
 | api        |        40010 | Provides the RESTful API which gives secure access to data                                    |
 | editor     |        40082 | Web application for Editors                                                                   |
 | subscriber |        40083 | Web application for Subscribers                                                               |
-| zookeeper  |        40100 | Kafka Zookeeper to manage cluster                                                             |
 | broker     | 40101, 40102 | Kafka server and REST API v3                                                                  |
-| rest-proxy |        40104 | Kafka REST API                                                                                |
 
 The first time you do this takes a little longer as each container needs to be built and initialized.
 After the docker containers are ready it becomes much quicker.
@@ -190,7 +188,6 @@ Nginx provides a reverse proxy, which handles communication with the API.
 | Subscriber app     | subscriber | [http://localhost:40083](http://localhost:40083)  |
 | API                | api        | [http://localhost:40010](http://localhost:40010)  |
 | Keycloak           | keycloak   | [http://localhost:40001/](http://localhost:40001) |
-| Kafka API          | rest-proxy | [http://localhost:40104](http://localhost:40104)  |
 | Kafka Kowl         | kowl       | [http://localhost:40180](http://localhost:40180)  |
 | Elasticsearch      | elastic    | [http://localhost:40003](http://localhost:40003)  |
 

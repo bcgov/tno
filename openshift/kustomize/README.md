@@ -30,9 +30,7 @@ On a new environment the easiest way to do this is to delete the pods and pvc fo
 
 ```bash
 # Data
-oc kustomize kafka/zookeeper/overlays/test | oc create -f -
 oc kustomize kafka/broker/overlays/test | oc create -f -
-oc kustomize kafka/rest-proxy/overlays/test | oc create -f -
 oc kustomize kafka/postgres/crunchy/overlays/test | oc create -f -
 oc kustomize elastic/overlays/test | oc create -f -
 oc kustomize postgres/crunchy/overlays/test | oc create -f -
