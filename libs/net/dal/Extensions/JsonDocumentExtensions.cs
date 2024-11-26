@@ -254,23 +254,47 @@ public static class JsonDocumentExtensions
             ((JsonObject)boolNode!)["must_not"] = mustNotNode;
         }
 
-        // Add first query_string to exclude "BC Update"
+        // Add a bool query to combine mediaType and content conditions
         ((JsonArray)mustNotNode!).Add(new JsonObject
         {
-            ["query_string"] = new JsonObject
+            ["bool"] = new JsonObject
             {
-                ["query"] = "\"BC Updates\"",
-                ["fields"] = new JsonArray { "headline" }
-            }
-        });
-
-        // Add second query_string to exclude "BC Calendar"
-        ((JsonArray)mustNotNode!).Add(new JsonObject
-        {
-            ["query_string"] = new JsonObject
-            {
-                ["query"] = "\"BC Calendar\"",
-                ["fields"] = new JsonArray { "body" }
+                ["must"] = new JsonArray
+                {
+                    new JsonObject
+                    {
+                        ["term"] = new JsonObject
+                        {
+                            ["mediaType.name.keyword"] = "CP Wire"
+                        }
+                    },
+                    new JsonObject
+                    {
+                        ["bool"] = new JsonObject
+                        {
+                            ["should"] = new JsonArray
+                            {
+                                new JsonObject
+                                {
+                                    ["query_string"] = new JsonObject
+                                    {
+                                        ["query"] = "\"BC Updates\"",
+                                        ["fields"] = new JsonArray { "headline" }
+                                    }
+                                },
+                                new JsonObject
+                                {
+                                    ["query_string"] = new JsonObject
+                                    {
+                                        ["query"] = "\"BC Calendar\"",
+                                        ["fields"] = new JsonArray { "body" }
+                                    }
+                                }
+                            },
+                            ["minimum_should_match"] = 1
+                        }
+                    }
+                }
             }
         });
 
