@@ -259,8 +259,8 @@ public static class JsonDocumentExtensions
         {
             ["query_string"] = new JsonObject
             {
-                ["query"] = "\"BC Update\"",
-                ["fields"] = new JsonArray { "body" }
+                ["query"] = "\"BC Updates\"",
+                ["fields"] = new JsonArray { "headline" }
             }
         });
 
@@ -270,7 +270,7 @@ public static class JsonDocumentExtensions
             ["query_string"] = new JsonObject
             {
                 ["query"] = "\"BC Calendar\"",
-                ["fields"] = new JsonArray { "headline" }
+                ["fields"] = new JsonArray { "body" }
             }
         });
 
