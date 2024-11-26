@@ -63,7 +63,7 @@
       "request": "launch",
       "preLaunchTask": "build-contentmigration",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/contentmigration/bin/Debug/net9.0/TNO.Services.ContentMigration.dll",
+      "program": "${workspaceFolder}/services/net/contentmigration/bin/Debug/net8.0/TNO.Services.ContentMigration.dll",
       "args": [],
       "cwd": "${workspaceFolder}/services/net/contentmigration",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -114,7 +114,7 @@
       "request": "launch",
       "preLaunchTask": "build-nlp",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/nlp/bin/Debug/net9.0/TNO.Services.NLP.dll",
+      "program": "${workspaceFolder}/services/net/nlp/bin/Debug/net8.0/TNO.Services.NLP.dll",
       "args": [],
       "cwd": "${workspaceFolder}/services/net/nlp",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
