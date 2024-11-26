@@ -122,5 +122,24 @@ public class ProducerController : ControllerBase
             StatusCode = 201
         };
     }
+
+    /// <summary>
+    /// Add the index request to the folder queue.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPost("folder")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(DeliveryResultModel<IndexRequestModel>), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Kafka" })]
+    public async Task<IActionResult> SendToFolderAsync([FromBody] IndexRequestModel model)
+    {
+        var result = (await _producer.SendMessageAsync(_kafkaOptions.FolderTopic, model)) ?? throw new InvalidOperationException("An unknown error occurred when publishing message to Kafka");
+        return new JsonResult(new DeliveryResultModel<IndexRequestModel>(result))
+        {
+            StatusCode = 201
+        };
+    }
     #endregion
 }

@@ -56,6 +56,13 @@ public interface IApiService
     /// <param name="request"></param>
     /// <returns></returns>
     Task<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.EventScheduleRequestModel>?> SendMessageAsync(TNO.Kafka.Models.EventScheduleRequestModel request);
+
+    /// <summary>
+    /// Send indexing message to folder topic in Kafka.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.IndexRequestModel>?> SendMessageAsync(TNO.Kafka.Models.IndexRequestModel request);
     #endregion
 
     #region Lookups
