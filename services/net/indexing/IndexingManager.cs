@@ -1,10 +1,10 @@
+using System;
 using Confluent.Kafka;
 using Elastic.Clients.Elasticsearch;
 using Elastic.Transport;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.Ches;
 using TNO.Ches.Configuration;
@@ -313,6 +313,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                 this.Logger.LogWarning("Content does not exists. Content ID: {ContentId}", result.Message.Value.ContentId);
             }
         }
+        // Indexing is completed, pass the baton to the folder process.
+        await this.Api.SendMessageAsync(model);
         this.Logger.LogDebug($"ProcessIndexRequestAsync:END:{result.Message.Key}");
     }
 

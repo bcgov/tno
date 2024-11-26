@@ -200,6 +200,17 @@ public class ApiService : IApiService
         var url = this.Options.ApiUrl.Append($"kafka/producers/event");
         return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.EventScheduleRequestModel>>(url, JsonContent.Create(request)));
     }
+
+    /// <summary>
+    /// Send indexing message to folder topic in Kafka.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.IndexRequestModel>?> SendMessageAsync(TNO.Kafka.Models.IndexRequestModel request)
+    {
+        var url = this.Options.ApiUrl.Append($"kafka/producers/folder");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.IndexRequestModel>>(url, JsonContent.Create(request)));
+    }
     #endregion
 
     #region Lookup Methods
@@ -353,7 +364,7 @@ public class ApiService : IApiService
     public async Task<HttpResponseMessage> GetIngestsResponseAsync()
     {
         var url = this.Options.ApiUrl.Append($"services/ingests");
-        return await RetryRequestAsync(async () =>  await this.OpenClient.GetAsync(url));
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url));
     }
     public async Task<HttpResponseMessage> GetIngestsResponseWithEtagAsync(string etag)
     {
@@ -1078,19 +1089,19 @@ public class ApiService : IApiService
         var response = await GetSettingsResponseAsync();
         return await GetResponseDataAsync<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>?>(response);
     }
-    
+
     public async Task<HttpResponseMessage> GetSettingsResponseAsync()
     {
         var url = this.Options.ApiUrl.Append($"services/settings");
         return await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url));
     }
-    
+
     public async Task<HttpResponseMessage> GetSettingsResponseWithEtagAsync(string etag)
     {
         var url = this.Options.ApiUrl.Append($"services/settings");
         return await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url, etag));
     }
-    
+
     #endregion
 
     #endregion

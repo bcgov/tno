@@ -266,7 +266,7 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
 
             // TODO: Review how we can cache filters so that we do not need to request them every time we index content.
             var folders = await this.Api.GetFoldersWithFiltersAsync() ?? Array.Empty<API.Areas.Services.Models.Folder.FolderModel>();
-            var activeFolders = folders.Where(f => f.Filter != null && f.Filter?.IsEnabled == true);
+            var activeFolders = folders.Where(f => f.Filter != null && f.Filter.IsEnabled == true);
 
             if (activeFolders.Any())
                 this.Logger.LogDebug("Content being processed by folder filters.  Content ID: {contentId}", content.Id);
