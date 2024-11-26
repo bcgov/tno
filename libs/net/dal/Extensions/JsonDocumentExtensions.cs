@@ -222,4 +222,58 @@ public static class JsonDocumentExtensions
         }
         return JsonDocument.Parse(json.ToJsonString());
     }
+
+    /// <summary>
+    /// Modify the Elasticsearch 'query' and add a 'must_not' filter to exclude content with "BC Update" in the body or "BC Calendar" in the headline.
+    /// </summary>
+    /// <param name="query"></param>
+    /// <returns></returns>
+    public static JsonDocument ExcludeBCUpdate(this JsonDocument query)
+    {
+        var json = JsonNode.Parse(query.ToJson())?.AsObject();
+        if (json == null) return query;
+
+        // Get the query object
+        if (!json.TryGetPropertyValue("query", out var queryNode))
+        {
+            queryNode = new JsonObject();
+            json["query"] = queryNode;
+        }
+
+        // Get or create the bool query object
+        if (!((JsonObject)queryNode!).TryGetPropertyValue("bool", out var boolNode))
+        {
+            boolNode = new JsonObject();
+            ((JsonObject)queryNode!)["bool"] = boolNode;
+        }
+
+        // Get or create the must_not array
+        if (!((JsonObject)boolNode!).TryGetPropertyValue("must_not", out var mustNotNode))
+        {
+            mustNotNode = new JsonArray();
+            ((JsonObject)boolNode!)["must_not"] = mustNotNode;
+        }
+
+        // Add first query_string to exclude "BC Update"
+        ((JsonArray)mustNotNode!).Add(new JsonObject
+        {
+            ["query_string"] = new JsonObject
+            {
+                ["query"] = "\"BC Update\"",
+                ["fields"] = new JsonArray { "body" }
+            }
+        });
+
+        // Add second query_string to exclude "BC Calendar"
+        ((JsonArray)mustNotNode!).Add(new JsonObject
+        {
+            ["query_string"] = new JsonObject
+            {
+                ["query"] = "\"BC Calendar\"",
+                ["fields"] = new JsonArray { "headline" }
+            }
+        });
+
+        return JsonDocument.Parse(json.ToJsonString());
+    }
 }
