@@ -120,13 +120,13 @@ export const ContentRow: React.FC<IContentRowProps> = ({
           />
         </Show>
         <Show visible={canDrag && !simpleView}>
-          <img src={`${process.env.PUBLIC_URL}/assets/elipsis.svg`} alt="Drag" className="grip" />
+          <img src={`/assets/elipsis.svg`} alt="Drag" className="grip" />
         </Show>
         {viewOptions.sentiment && determineToneIcon(item.tonePools[0])}
         {item.contentType === ContentTypeName.AudioVideo && !!item.body && (
           <img
             className="transcript-feather"
-            src={`${process.env.PUBLIC_URL}/assets/transcript_feather.svg`}
+            src={`/assets/transcript_feather.svg`}
             alt="Transcript"
           />
         )}
@@ -157,7 +157,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
         <Row className="icon-row" nowrap>
           {popOutIds?.includes(String(item.mediaTypeId)) ? (
             <img
-              src={`${process.env.PUBLIC_URL}/assets/mediaplay-newwindow.svg`}
+              src={`/assets/mediaplay-newwindow.svg`}
               className={`icon new-tab ${!item.section && 'no-section'}`}
               alt="Pop-out to play"
               data-tooltip-id="main-tooltip"
@@ -183,7 +183,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
               data-tooltip-id="main-tooltip"
               data-tooltip-content="Play inline"
               alt="Play inline"
-              src={`${process.env.PUBLIC_URL}/assets/mediaplay-inline.svg`}
+              src={`/assets/mediaplay-inline.svg`}
               onClick={(e) => {
                 e.stopPropagation();
                 setActiveFileReference(item.fileReferences[0]);
