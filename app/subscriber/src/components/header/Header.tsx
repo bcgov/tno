@@ -58,12 +58,12 @@ export const Header: React.FC<IHeaderProps> = ({
           >
             <img
               className="mm-logo"
-              src={process.env.PUBLIC_URL + '/assets/MMinsights_logo_black.svg'}
+              src={'/assets/MMinsights_logo_black.svg'}
               alt="MMinsights logo"
             />
             <img
               className="mm-logo-no-text"
-              src={process.env.PUBLIC_URL + '/assets/mm_logo.svg'}
+              src={'/assets/mm_logo.svg'}
               alt="MMinsights logo"
               width="80"
             />

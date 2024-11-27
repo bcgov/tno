@@ -19,11 +19,7 @@ export const ReportContentInlineText: React.FC<IReportContentInlineTextProps> = 
   if (row.content.contentType === ContentTypeName.AudioVideo) {
     // AV Content format
     contentDetails = `
-      ${
-        row.content.isApproved
-          ? `<img src="${process.env.PUBLIC_URL}/assets/transcript_icon.png" alt="Transcript" />`
-          : ''
-      }
+      ${row.content.isApproved ? `<img src="/assets/transcript_icon.png" alt="Transcript" />` : ''}
       ${row.content.source?.name ? `${row.content.source.name} | ` : ''}
       ${row.content.series ? `(${row.content.series.name}) | ` : ''}
       ${row.content.contentType ? `${row.content.contentType} | ` : ''}

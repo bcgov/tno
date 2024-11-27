@@ -17,7 +17,7 @@ export const Help: React.FC = () => {
             </h2>
             <Row>
               <Col className="media-playback">
-                <video controls src={`${process.env.PUBLIC_URL}/public/videos/login.mp4`} />
+                <video controls src={`/public/videos/login.mp4`} />
               </Col>
             </Row>
           </Col>
@@ -30,7 +30,7 @@ export const Help: React.FC = () => {
             </h2>
             <Row>
               <Col className="media-playback">
-                <video controls src={`${process.env.PUBLIC_URL}/public/videos/failedlogin.mp4`} />
+                <video controls src={`/public/videos/failedlogin.mp4`} />
               </Col>
             </Row>
           </Col>
@@ -43,7 +43,7 @@ export const Help: React.FC = () => {
             </h2>
             <Row>
               <Col className="media-playback">
-                <video controls src={`${process.env.PUBLIC_URL}/public/videos/homepagetour.mp4`} />
+                <video controls src={`/public/videos/homepagetour.mp4`} />
               </Col>
             </Row>
           </Col>
@@ -56,7 +56,7 @@ export const Help: React.FC = () => {
             </h2>
             <Row>
               <Col className="media-playback">
-                <video controls src={`${process.env.PUBLIC_URL}/public/videos/myminister.mp4`} />
+                <video controls src={`/public/videos/myminister.mp4`} />
               </Col>
             </Row>
           </Col>
@@ -69,10 +69,7 @@ export const Help: React.FC = () => {
             </h2>
             <Row>
               <Col className="media-playback">
-                <video
-                  controls
-                  src={`${process.env.PUBLIC_URL}/public/videos/simplecomplexsearch.mp4`}
-                />
+                <video controls src={`/public/videos/simplecomplexsearch.mp4`} />
               </Col>
             </Row>
           </Col>
@@ -85,10 +82,7 @@ export const Help: React.FC = () => {
             </h2>
             <Row>
               <Col className="media-playback">
-                <video
-                  controls
-                  src={`${process.env.PUBLIC_URL}/public/videos/creatingsavedsearch.mp4`}
-                />
+                <video controls src={`/public/videos/creatingsavedsearch.mp4`} />
               </Col>
             </Row>
           </Col>
@@ -101,10 +95,7 @@ export const Help: React.FC = () => {
             </h2>
             <Row>
               <Col className="media-playback">
-                <video
-                  controls
-                  src={`${process.env.PUBLIC_URL}/public/videos/editsavedsearch.mp4`}
-                />
+                <video controls src={`/public/videos/editsavedsearch.mp4`} />
               </Col>
             </Row>
           </Col>
@@ -117,10 +108,7 @@ export const Help: React.FC = () => {
             </h2>
             <Row>
               <Col className="media-playback">
-                <video
-                  controls
-                  src={`${process.env.PUBLIC_URL}/public/videos/creatingfolder.mp4`}
-                />
+                <video controls src={`/public/videos/creatingfolder.mp4`} />
               </Col>
             </Row>
           </Col>
@@ -133,7 +121,7 @@ export const Help: React.FC = () => {
             </h2>
             <Row>
               <Col className="media-playback">
-                <video controls src={`${process.env.PUBLIC_URL}/public/videos/sharecontent.mp4`} />
+                <video controls src={`/public/videos/sharecontent.mp4`} />
               </Col>
             </Row>
           </Col>
@@ -146,7 +134,7 @@ export const Help: React.FC = () => {
             </h2>
             <Row>
               <Col className="media-playback">
-                <video controls src={`${process.env.PUBLIC_URL}/public/videos/products.mp4`} />
+                <video controls src={`/public/videos/products.mp4`} />
               </Col>
             </Row>
           </Col>

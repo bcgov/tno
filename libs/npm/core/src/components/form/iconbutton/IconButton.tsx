@@ -17,7 +17,7 @@ export const IconButton: React.FC<IIconButtonProps> = ({ label, iconType, ...res
       iconType={iconType}
       variant={ButtonVariant.secondary}
     >
-      <img alt={iconType} src={`${process.env.PUBLIC_URL}/assets/${iconType}.svg`} />
+      <img alt={iconType} src={`/assets/${iconType}.svg`} />
       {label}
     </styled.IconButton>
   );

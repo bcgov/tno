@@ -25,7 +25,7 @@ export const LogoPanel: React.FC<ILogoPanelProps> = ({ width, backgroundColor })
         className="logo"
         height={39.67}
         width={150}
-        src={process.env.PUBLIC_URL + '/assets/gov_bc_logo.svg'}
+        src={'/assets/gov_bc_logo.svg'}
       />
     </styled.LogoPanel>
   );

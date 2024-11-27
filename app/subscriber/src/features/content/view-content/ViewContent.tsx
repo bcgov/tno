@@ -447,7 +447,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
         <Row>
           <img
             className="transcript-feather"
-            src={`${process.env.PUBLIC_URL}/assets/transcript_feather.svg`}
+            src={`/assets/transcript_feather.svg`}
             alt="Transcript"
           />
           <h3 className="transcript-heading">Transcript:</h3>

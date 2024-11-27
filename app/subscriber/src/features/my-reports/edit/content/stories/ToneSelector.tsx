@@ -16,9 +16,9 @@ export const ToneSelector: React.FC<IToneSelectorProps> = ({
   onSelect,
   myTonePool,
 }) => {
-  const facePositive = `${process.env.PUBLIC_URL}/assets/reports/face-positive@2x.png`;
-  const faceNeutral = `${process.env.PUBLIC_URL}/assets/reports/face-neutral@2x.png`;
-  const faceNegative = `${process.env.PUBLIC_URL}/assets/reports/face-negative@2x.png`;
+  const facePositive = `/assets/reports/face-positive@2x.png`;
+  const faceNeutral = `/assets/reports/face-neutral@2x.png`;
+  const faceNegative = `/assets/reports/face-negative@2x.png`;
   const value = myTonePool?.value;
   const [active, setActive] = React.useState<number | undefined>(value);
 

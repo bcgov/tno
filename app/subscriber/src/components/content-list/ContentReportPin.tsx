@@ -39,7 +39,7 @@ export const ContentReportPin = ({ contentId }: IContentReportPinProps) => {
   return (
     <styled.ContentReportPin className="content-report-pin">
       <img
-        src={`${process.env.PUBLIC_URL}/assets/report_pin.svg`}
+        src={`/assets/report_pin.svg`}
         alt="report-pin"
         data-tooltip-id={`report-pin-${contentId}`}
         className="pin-icon"

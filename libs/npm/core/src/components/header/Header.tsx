@@ -16,17 +16,13 @@ export const Header: React.FC<IHeaderProps> = ({ name, children, ...rest }) => {
   return (
     <styled.Header {...rest}>
       <div>
-        <a href={`${process.env.PUBLIC_URL}/`}>
-          <img alt="BC Gov logo" src={process.env.PUBLIC_URL + '/assets/gov_bc_logo.svg'} />
+        <a href={`/`}>
+          <img alt="BC Gov logo" src={'/assets/gov_bc_logo.svg'} />
         </a>
       </div>
       <div className="vl" />
-      <a href={`${process.env.PUBLIC_URL}/`}>
-        <img
-          alt="MMI logo"
-          className="app-logo"
-          src={process.env.PUBLIC_URL + '/assets/mminsights_logo.svg'}
-        />
+      <a href={`/`}>
+        <img alt="MMI logo" className="app-logo" src={'/assets/mminsights_logo.svg'} />
       </a>
       <div>
         <div className="title" />
