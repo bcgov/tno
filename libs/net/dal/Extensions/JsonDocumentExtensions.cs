@@ -230,11 +230,21 @@ public static class JsonDocumentExtensions
     /// <returns></returns>
     public static JsonDocument ExcludeBCUpdates(this JsonDocument query)
     {
-        var json = JsonNode.Parse(query.ToJson())?.AsObject();
+        JsonNode? jsonNode;
+        try
+        {
+            jsonNode = JsonNode.Parse(query.ToJson());
+        }
+        catch (JsonException)
+        {
+            return query;
+        }
+
+        var json = jsonNode?.AsObject();
         if (json == null) return query;
 
-        // Get the query object
-        if (!json.TryGetPropertyValue("query", out var queryNode))
+        // Get or create the query object
+        if (!json.TryGetPropertyValue("query", out var queryNode) || queryNode == null)
         {
             queryNode = new JsonObject();
             json["query"] = queryNode;
