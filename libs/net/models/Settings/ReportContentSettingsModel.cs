@@ -15,6 +15,7 @@ public class ReportContentSettingsModel
     public bool CopyPriorInstance { get; set; }
     public bool ClearOnStartNewReport { get; set; }
     public bool ExcludeContentInUnsentReport { get; set; }
+    public bool OmitBCUpdates { get; set; }
     #endregion
 
     #region Constructors
@@ -31,6 +32,7 @@ public class ReportContentSettingsModel
         this.CopyPriorInstance = settings.GetDictionaryJsonValue("copyPriorInstance", false, options)!;
         this.ClearOnStartNewReport = settings.GetDictionaryJsonValue("clearOnStartNewReport", false, options)!;
         this.ExcludeContentInUnsentReport = settings.GetDictionaryJsonValue("excludeContentInUnsentReport", true, options)!;
+        this.OmitBCUpdates = settings.GetDictionaryJsonValue("omitBCUpdates", false, options)!;
     }
     #endregion
 }

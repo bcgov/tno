@@ -30,6 +30,11 @@ public class ReportSettingsModel
     /// get/set - Treat the report as if it was sent, but do not email it out.
     /// </summary>
     public bool DoNotSendEmail { get; set; } = false;
+
+    /// <summary>
+    /// get/set - Omit BC Update content.
+    /// </summary>
+    public bool OmitBCUpdates { get; set; } = false;
     #endregion
 
     #region Constructors
@@ -42,6 +47,7 @@ public class ReportSettingsModel
         this.Content = settings.GetDictionaryJsonValue<ReportContentSettingsModel>("content", new(), options)!;
         this.Sections = settings.GetDictionaryJsonValue<ReportSectionsSettingsModel>("sections", new(), options)!;
         this.DoNotSendEmail = settings.GetDictionaryJsonValue<bool>("doNotSendEmail", false, options)!;
+        this.OmitBCUpdates = settings.GetDictionaryJsonValue<bool>("omitBCUpdates", false, options)!;
     }
     #endregion
 }
