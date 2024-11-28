@@ -8,4 +8,5 @@ export interface IReportContentSettingsModel {
   copyPriorInstance: boolean;
   clearOnStartNewReport: boolean;
   excludeContentInUnsentReport: boolean;
+  omitBCUpdates: boolean;
 }
