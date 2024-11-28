@@ -32,6 +32,7 @@ export const defaultReport: IReportModel = {
       copyPriorInstance: false,
       clearOnStartNewReport: true,
       excludeContentInUnsentReport: false,
+      omitBCUpdates: false,
     },
     sections: {
       usePageBreaks: false,
