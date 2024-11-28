@@ -167,7 +167,7 @@ public static class StringExtensions
     public static string MarkKeywords(this string text, IEnumerable<string> keywords, string tagName = "mark")
     {
         var result = new StringBuilder(text);
-        var values = String.Join("|", keywords);
+        var values = String.Join("|", keywords.Where(v => !String.IsNullOrWhiteSpace(v)));
         var findAndReplace = Regex.Replace(result.ToString(), $@"\b({values})", match =>
         {
             var values = new List<string>();
@@ -175,8 +175,10 @@ public static class StringExtensions
             {
                 values.Add(match.Groups[i].Value);
             }
-            values = values.Distinct().ToList(); // Not clear why each match results in multiple groups even when only a single value is found.
-            return $"<{tagName}>{String.Join("", values)}</{tagName}>";
+            values = values.Distinct().Where(v => !String.IsNullOrWhiteSpace(v)).ToList(); // Not clear why each match results in multiple groups even when only a single value is found.
+            if (values.Count != 0)
+                return $"<{tagName}>{String.Join("", values)}</{tagName}>";
+            return result.ToString();
         }, RegexOptions.IgnoreCase);
         result = new StringBuilder(findAndReplace);
         return result.ToString();
