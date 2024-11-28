@@ -1,5 +1,6 @@
 namespace TNO.TemplateEngine;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 using TemplateEngine.Models;
 using TemplateEngine.Models.Reports;
 using TNO.Elastic;
@@ -122,7 +123,7 @@ public static partial class ReportExtensions
 
         try
         {
-            var keywords = settings!.Search!.ExtractKeywords(settings.QueryType);
+            var keywords = settings?.Search?.ExtractKeywords(settings.QueryType) ?? [];
             var headline = content.Headline.MarkKeywords(keywords);
             var summary = content.Summary.MarkKeywords(keywords);
             var body = content.Body.MarkKeywords(keywords);
@@ -135,7 +136,6 @@ public static partial class ReportExtensions
         }
         catch
         {
-            // TODO: Log errors so that they can be resolved.
             // Ignore errors for now
         }
     }

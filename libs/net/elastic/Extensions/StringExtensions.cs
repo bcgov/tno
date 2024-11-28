@@ -166,22 +166,21 @@ public static class StringExtensions
     /// <returns></returns>
     public static string MarkKeywords(this string text, IEnumerable<string> keywords, string tagName = "mark")
     {
-        var result = new StringBuilder(text);
         var values = String.Join("|", keywords.Where(v => !String.IsNullOrWhiteSpace(v)));
-        var findAndReplace = Regex.Replace(result.ToString(), $@"\b({values})", match =>
+        return Regex.Replace(text, $@"\b({values})", match =>
         {
             var values = new List<string>();
             for (var i = 0; i < match.Groups.Count; i++)
             {
                 values.Add(match.Groups[i].Value);
             }
-            values = values.Distinct().Where(v => !String.IsNullOrWhiteSpace(v)).ToList(); // Not clear why each match results in multiple groups even when only a single value is found.
+            // Not clear why each match results in multiple groups even when only a single value is found.
+            values = values.Distinct().Where(v => !String.IsNullOrWhiteSpace(v)).ToList();
+            var result = String.Join("", values);
             if (values.Count != 0)
-                return $"<{tagName}>{String.Join("", values)}</{tagName}>";
-            return result.ToString();
+                return $"<{tagName}>{result}</{tagName}>";
+            return result;
         }, RegexOptions.IgnoreCase);
-        result = new StringBuilder(findAndReplace);
-        return result.ToString();
     }
     #endregion
 }
