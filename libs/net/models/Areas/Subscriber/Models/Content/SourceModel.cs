@@ -52,6 +52,11 @@ public class SourceModel : BaseTypeModel<int>
     public bool UseInTopics { get; set; }
 
     /// <summary>
+    /// get/set - is CBRA source or not.
+    /// </summary>
+    public bool IsCBRASource { get; set; }
+
+    /// <summary>
     /// get/set -
     /// </summary>
     public Dictionary<string, object> Configuration { get; set; } = new Dictionary<string, object>();
@@ -82,7 +87,8 @@ public class SourceModel : BaseTypeModel<int>
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
         this.UseInTopics = entity.UseInTopics;
-        this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration) ?? new Dictionary<string, object>();
+        this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration) ?? new Dictionary<string, object>();     
+        this.IsCBRASource = entity.IsCBRASource;
     }
     #endregion
 
@@ -105,7 +111,8 @@ public class SourceModel : BaseTypeModel<int>
             AutoTranscribe = model.AutoTranscribe,
             DisableTranscribe = model.DisableTranscribe,
             UseInTopics = model.UseInTopics,
-            Configuration = JsonDocument.Parse(JsonSerializer.Serialize(model.Configuration))
+            Configuration = JsonDocument.Parse(JsonSerializer.Serialize(model.Configuration)),       
+            IsCBRASource = model.IsCBRASource
         };
     }
     #endregion

@@ -84,6 +84,11 @@ public class SourceModel
     /// </summary>
     public bool UseInTopics { get; set; }
 
+    /// <summary>
+    /// get/set - is CBRA source or not.
+    /// </summary>
+    public bool IsCBRASource { get; set; }
+
     #endregion
 
     #region Constructors
@@ -114,6 +119,7 @@ public class SourceModel
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
         this.UseInTopics = entity.UseInTopics;
+        this.IsCBRASource = entity.IsCBRASource;
     }
     #endregion
 }

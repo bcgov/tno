@@ -19,6 +19,11 @@ public class SeriesModel : BaseTypeModel<int>
     public bool UseInTopics { get; set; }
 
     /// <summary>
+    /// get/set - is CBRA source or not.
+    /// </summary>
+    public bool IsCBRASource { get; set; }
+
+    /// <summary>
     /// get/set - Is a secondary source - generally added via use of "Other" field.
     /// Will not be displayed in the primary Series/Source dropdown or in search filters
     /// </summary>
@@ -40,6 +45,7 @@ public class SeriesModel : BaseTypeModel<int>
         this.SourceId = entity.SourceId;
         this.UseInTopics = entity.UseInTopics;
         this.IsOther = entity.IsOther;
+        this.IsCBRASource = entity.IsCBRASource;
     }
     #endregion
 }

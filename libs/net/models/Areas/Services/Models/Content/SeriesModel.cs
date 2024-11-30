@@ -19,6 +19,11 @@ public class SeriesModel : BaseTypeModel<int>
     public bool UseInTopics { get; set; }
 
     /// <summary>
+    /// get/set - is CBRA source or not.
+    /// </summary>
+    public bool IsCBRASource { get; set; }
+
+    /// <summary>
     /// get/set - Whether this is an 'other' series.
     /// </summary>
     public bool IsOther { get; set; }
@@ -39,6 +44,7 @@ public class SeriesModel : BaseTypeModel<int>
         this.SourceId = entity.SourceId;
         this.UseInTopics = entity.UseInTopics;
         this.IsOther = entity.IsOther;
+        this.IsCBRASource = entity.IsCBRASource;
     }
     #endregion
 
@@ -57,6 +63,7 @@ public class SeriesModel : BaseTypeModel<int>
             SortOrder = model.SortOrder,
             IsOther = model.IsOther,
             UseInTopics = model.UseInTopics,
+            IsCBRASource = model.IsCBRASource
         };
     }
     #endregion

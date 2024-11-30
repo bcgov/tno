@@ -21,6 +21,7 @@ public class SourceConfiguration : BaseTypeConfiguration<Source, int>
         builder.Property(m => m.DisableTranscribe).IsRequired();
         builder.Property(m => m.UseInTopics).IsRequired();
         builder.Property(m => m.Configuration).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
+        builder.Property(m => m.IsCBRASource).IsRequired(false);
 
         builder.HasOne(m => m.Owner).WithMany().HasForeignKey(m => m.OwnerId).OnDelete(DeleteBehavior.SetNull);
         builder.HasOne(m => m.License).WithMany(m => m.Sources).HasForeignKey(m => m.LicenseId).OnDelete(DeleteBehavior.Restrict);

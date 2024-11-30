@@ -88,6 +88,11 @@ public class SourceModel
     /// get/set -
     /// </summary>
     public Dictionary<string, object> Configuration { get; set; } = new Dictionary<string, object>();
+    
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public bool IsCBRASource { get; set; }
     #endregion
 
     #region Constructors
@@ -119,6 +124,7 @@ public class SourceModel
         this.DisableTranscribe = entity.DisableTranscribe;
         this.UseInTopics = entity.UseInTopics;
         this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();
+        this.IsCBRASource = entity.IsCBRASource;
     }
     #endregion
 }

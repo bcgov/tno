@@ -1006,7 +1006,8 @@ public class ContentManager : ServiceManager<ContentOptions>
             Name = targetSeries.Name,
             SortOrder = targetSeries.SortOrder,
             UseInTopics = targetSeries.UseInTopics,
-            SourceId = targetSeries.SourceId
+            SourceId = targetSeries.SourceId,
+            IsCBRASource = targetSeries.IsCBRASource
         };
     }
 

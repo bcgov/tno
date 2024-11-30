@@ -27,6 +27,7 @@ export const generateSource = (options: IGenerateSourceOptions) => {
     configuration: {},
     actions: [],
     metrics: [],
+    isCBRASource: false,
     ...options.init,
   };
   return entity;

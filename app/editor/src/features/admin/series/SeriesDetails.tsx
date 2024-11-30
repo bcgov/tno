@@ -136,6 +136,7 @@ const SeriesDetails: React.FC = () => {
                 <FormikCheckbox label="Is Enabled" name="isEnabled" />
                 <FormikCheckbox label="Use in Topics" name="useInTopics" />
                 <FormikCheckbox label="Automatically transcribe when saved" name="autoTranscribe" />
+                <FormikCheckbox label="Is CBRA Source" name="isCBRASource" />
               </Col>
               <Show visible={!!values.id}>
                 <Row>

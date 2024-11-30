@@ -23,4 +23,5 @@ export interface ISourceModel extends ISortableModel<number> {
   configuration: any;
   actions: ISourceActionModel[];
   metrics: IMetricModel[];
+  isCBRASource: boolean;
 }
