@@ -4,7 +4,6 @@ import { FaAngleRight, FaSearch } from 'react-icons/fa';
 import { FaFileExport, FaSpinner } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useApp, useReports } from 'store/hooks';
-import { useProfileStore } from 'store/slices';
 import {
   Col,
   IContentModel,
@@ -39,9 +38,6 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
     (r) => ['find-my-reports', 'generate-report'].includes(r.url) || r.group.includes('get-report'),
   );
   const isAdding = requests.some((r) => r.url === 'add-content-to-report');
-  const [{ reportsFilter }] = useProfileStore();
-
-  const [filter, setFilter] = React.useState(reportsFilter);
 
   React.useEffect(() => {
     if (!myReports.length) {
@@ -52,8 +48,8 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
   }, []);
 
   const setActiveSectionSearch = React.useCallback(() => {
-    setShowSearchInput((prevState) => !prevState);
-    console.log(showSearchInput);
+    setShowSearchInput((showSearchInput) => !showSearchInput);
+    setSearchQuery('');
   }, []);
 
   /** Adds the content to the active report. */
@@ -121,32 +117,36 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
             <Loader visible={isLoading} />
             {myReports.map((report) => (
               <Show key={report.id} visible={!!report.sections.length}>
-                <Row
-                  className="report-item"
-                  onClick={() => {
-                    // allow user to toggle close list of sections
-                    if (activeReport?.id === report.id) setActiveReport(undefined);
-                    else setActiveReport(report);
-                  }}
-                  data-tooltip-id={`tooltip-add-to-section`}
-                >
+                <Row className="report-item" data-tooltip-id={`tooltip-add-to-section`}>
                   <FaFileExport
                     className={`report-icon ${activeReport?.id === report.id && 'expanded'}`}
                   />
-                  <div className="report-name">{report.name}</div>
+                  <div
+                    className="report-name"
+                    onClick={() => {
+                      // allow user to toggle close list of sections
+                      if (activeReport?.id === report.id) setActiveReport(undefined);
+                      else setActiveReport(report);
+                    }}
+                  >
+                    {report.name}
+                  </div>
+                  <FaSearch
+                    className={`report-search-icon ${activeReport?.id === report.id && 'expanded'}`}
+                    onClick={setActiveSectionSearch}
+                  />
                 </Row>
                 <Show visible={!!activeReport && activeReport.id === report.id}>
-                  <div className={`search-section-container`}>
-                    <FaSearch className={`report-search-icon`} onClick={setActiveSectionSearch} />
+                  <Show visible={showSearchInput}>
                     <input
-                      className={`section-search-input ${showSearchInput}`}
+                      className={`section-search-input`}
                       type="text"
                       placeholder="Search sections..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       autoFocus={showSearchInput}
                     />
-                  </div>
+                  </Show>
                   <div className={`section-list`}>
                     {activeReport?.sections.map(
                       (section) =>

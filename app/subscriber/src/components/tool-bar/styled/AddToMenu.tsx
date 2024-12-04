@@ -77,15 +77,12 @@ export const AddToMenu = styled.div`
         }
       }
       min-width: 15em;
+      max-width: 15em;
     }
     .expand-sections {
       margin-left: auto;
       align-self: center;
       color: ${(props) => props.theme.css.iconPrimaryColor};
     }
-  }
-
-  search-section-input:not(.expanded) {
-    display: none;
   }
 `;
