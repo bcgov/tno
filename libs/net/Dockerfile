@@ -1,5 +1,4 @@
-
-FROM mcr.microsoft.com/dotnet/sdk:7.0
+FROM mcr.microsoft.com/dotnet/sdk:9.0
 
 ENV DOTNET_CLI_HOME=/tmp
 ENV PATH="$PATH:/tmp/.dotnet/tools"
@@ -7,7 +6,7 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 
 # Switch to root for package installs
 USER 0
-RUN dotnet tool install --global dotnet-ef --version 7.0.13
+RUN dotnet tool install --global dotnet-ef --version 9.0.0
 
 WORKDIR /src
 COPY . .
