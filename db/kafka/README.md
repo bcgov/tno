@@ -2,7 +2,6 @@
 
 - [Learn Kafka Videos](https://developer.confluent.io/learn-kafka/)
 - [Confluent Platform](https://docs.confluent.io/platform/current/overview.html)
-- [Zookeeper Images](https://hub.docker.com/r/confluentinc/cp-zookeeper)
 - [Demo](https://github.com/confluentinc/cp-demo)
 - [Examples](https://github.com/confluentinc/examples)
 - [REST API v3 Demo](https://github.com/confluentinc/demo-scene/tree/master/adminrest)
@@ -13,7 +12,6 @@
 
 | Name            | Default Port | Description                               |
 | --------------- | -----------: | ----------------------------------------- |
-| ZooKeeper       |         2181 | Manages cluster                           |
 | Broker          |         9092 | Kafka server manages data and REST API v3 |
 | Schema Registry |         8081 | Manages data schema                       |
 | Schema Connect  |         8083 | Connect schema with Control Center        |
@@ -112,14 +110,6 @@ Select the leader broker.
 ```bash
 cd db/kafka/scripts
 ./update-replicas.sh -p 9b301c-test -o kafka-broker-0
-```
-
-Find the current topic ID from a node that is in sync.
-This makes a request for the active topic id for the specified topic.
-
-```bash
-oc rsh -n 9b301c-dev zookeeper-0
-zookeeper-shell localhost:2181 get /brokers/topics/TNO
 ```
 
 Fix topic ids in all brokers.

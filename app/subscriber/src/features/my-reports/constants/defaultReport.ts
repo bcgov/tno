@@ -34,6 +34,7 @@ export const defaultReport = (ownerId: number, templateId: number): IReportForm 
         copyPriorInstance: false,
         clearOnStartNewReport: true,
         excludeContentInUnsentReport: false,
+        omitBCUpdates: false,
       },
       sections: {
         usePageBreaks: true,

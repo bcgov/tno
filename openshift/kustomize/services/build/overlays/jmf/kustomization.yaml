@@ -22,32 +22,6 @@ patches:
         value: dev
   - target:
       kind: BuildConfig
-      name: capture-service.dev
-    patch: |-
-      - op: replace
-        path: /metadata/name
-        value: capture-service.jmf
-      - op: replace
-        path: /spec/source/git/uri
-        value: https://github.com/fosol/tno.git
-      - op: replace
-        path: /spec/source/git/ref
-        value: dev
-  - target:
-      kind: BuildConfig
-      name: clip-service.dev
-    patch: |-
-      - op: replace
-        path: /metadata/name
-        value: clip-service.jmf
-      - op: replace
-        path: /spec/source/git/uri
-        value: https://github.com/fosol/tno.git
-      - op: replace
-        path: /spec/source/git/ref
-        value: dev
-  - target:
-      kind: BuildConfig
       name: content-service.dev
     patch: |-
       - op: replace

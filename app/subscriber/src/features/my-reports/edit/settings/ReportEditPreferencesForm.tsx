@@ -87,7 +87,6 @@ export const ReportEditPreferencesForm = () => {
         <FormikCheckbox
           name="settings.content.omitBCUpdates"
           label="Omit all BC Updates and BC Calendars from report"
-          disabled
         />
         <Row>
           <FormikCheckbox

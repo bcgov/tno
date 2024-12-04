@@ -222,4 +222,92 @@ public static class JsonDocumentExtensions
         }
         return JsonDocument.Parse(json.ToJsonString());
     }
+
+    /// <summary>
+    /// Modify the Elasticsearch 'query' and add a 'must_not' filter to exclude content with "BC Update" in the body or "BC Calendar" in the headline.
+    /// </summary>
+    /// <param name="query"></param>
+    /// <returns></returns>
+    public static JsonDocument ExcludeBCUpdates(this JsonDocument query)
+    {
+        JsonNode? jsonNode;
+        try
+        {
+            jsonNode = JsonNode.Parse(query.ToJson());
+        }
+        catch (JsonException)
+        {
+            return query;
+        }
+
+        var json = jsonNode?.AsObject();
+        if (json == null) return query;
+
+        // Get or create the query object
+        if (!json.TryGetPropertyValue("query", out var queryNode) || queryNode == null)
+        {
+            queryNode = new JsonObject();
+            json["query"] = queryNode;
+        }
+
+        // Get or create the bool query object
+        if (!((JsonObject)queryNode!).TryGetPropertyValue("bool", out var boolNode))
+        {
+            boolNode = new JsonObject();
+            ((JsonObject)queryNode!)["bool"] = boolNode;
+        }
+
+        // Get or create the must_not array
+        if (!((JsonObject)boolNode!).TryGetPropertyValue("must_not", out var mustNotNode))
+        {
+            mustNotNode = new JsonArray();
+            ((JsonObject)boolNode!)["must_not"] = mustNotNode;
+        }
+
+        // Add a bool query to combine mediaType and content conditions
+        ((JsonArray)mustNotNode!).Add(new JsonObject
+        {
+            ["bool"] = new JsonObject
+            {
+                ["must"] = new JsonArray
+                {
+                    new JsonObject
+                    {
+                        ["term"] = new JsonObject
+                        {
+                            ["mediaType.name.keyword"] = "CP Wire"
+                        }
+                    },
+                    new JsonObject
+                    {
+                        ["bool"] = new JsonObject
+                        {
+                            ["should"] = new JsonArray
+                            {
+                                new JsonObject
+                                {
+                                    ["query_string"] = new JsonObject
+                                    {
+                                        ["query"] = "\"BC Updates\"",
+                                        ["fields"] = new JsonArray { "headline" }
+                                    }
+                                },
+                                new JsonObject
+                                {
+                                    ["query_string"] = new JsonObject
+                                    {
+                                        ["query"] = "\"BC Calendar\"",
+                                        ["fields"] = new JsonArray { "body" }
+                                    }
+                                }
+                            },
+                            ["minimum_should_match"] = 1
+                        }
+                    }
+                }
+            }
+        });
+
+        return JsonDocument.Parse(json.ToJsonString());
+    }
 }

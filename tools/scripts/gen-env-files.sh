@@ -35,7 +35,6 @@ KEYCLOAK_HTTPS_PORT=$portKeycloakHttps
 
 ELASTIC_HTTP_PORT=$portElastic
 ELASTIC_COM_PORT=$portElasticCom
-ELASTIC_DEJAVU_HTTP_PORT=$portDejavu
 
 AZURE_BLOB_PORT=$portAzureBlob
 AZURE_QUEUE_PORT=$portAzureQueue
@@ -49,9 +48,6 @@ ORACLE_DATABASE_PORT=$portOracleDatabase
 
 API_HTTP_PORT=$portApi
 API_HTTPS_PORT=$portApiHttps
-
-CSS_HTTP_PORT=$portCssApi
-CSS_HTTPS_PORT=$portCssApiHttps
 
 CHARTS_HTTP_PORT=$portChartsApi
 CHARTS_HTTPS_PORT=$portChartsApiHttps
@@ -67,9 +63,6 @@ APP_SUBSCRIBER_HTTPS_PORT=$portAppSubscriberHttps
 #############################
 
 SYNDICATION_PORT=$portSyndication
-CAPTURE_PORT=$portCapture
-CLIP_PORT=$portClip
-IMAGE_PORT=$portImage
 FILE_PORT=$portFile
 CONTENT_PORT=$portContent
 CONTENTMIGRATION_PORT=$portContentMigration
@@ -78,7 +71,6 @@ IMAGE_PORT=$portImage
 TRANSCRIPTION_PORT=$portTranscription
 NLP_PORT=$portNlp
 CORENLP_PORT=$portCoreNlp
-FILECOPY_PORT=$portFileCopy
 NOTIFICATION_PORT=$portNotification
 REPORTING_PORT=$portReporting
 FOLDER_COLLECTION_PORT=$portFolderCollection
@@ -175,15 +167,6 @@ echo \
     echo "./network/nginx/.env created"
 fi
 
-# Azure Storage
-if test -f "./db/azure-storage/.env"; then
-    echo "./db/azure-storage/.env exists"
-else
-echo \
-"AZURITE_ACCOUNTS=devaccount1:$azureKey" >> ./db/azure-storage/.env
-    echo "./db/azure-storage/.env created"
-fi
-
 # Elasticsearch
 if test -f "./db/elasticsearch/.env"; then
     echo "./db/elasticsearch/.env exists"
@@ -224,9 +207,6 @@ ELASTIC_PASSWORD=$password
 Reporting__ViewContentUrl=http://localhost:$portNginxSubscriber/view/
 Charts__Url=http://charts:8080
 # Charts__Url=http://localhost:$portChartsApi
-
-AZURE_STORAGE_CONTAINER_NAME=$dbName
-AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devaccount1;AccountKey=$azureKey;BlobEndpoint=http://host.docker.internal:$portAzureBlob/devaccount1;
 
 COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY=$azureCognitiveServiceKey
 COGNITIVE_SERVICES_SPEECH_REGION=$azureCognitiveServiceRegion
@@ -423,60 +403,6 @@ Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal"
     echo "./services/net/syndication/.env created"
 fi
 
-## Capture Ingest Service
-if test -f "./services/net/capture/.env"; then
-    echo "./services/net/capture/.env exists"
-else
-echo \
-"ASPNETCORE_ENVIRONMENT=Development
-ASPNETCORE_URLS=http://+:8081
-
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=mmi-service-account
-Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
-
-Service__ApiUrl=http://host.docker.internal:$portApi/api
-# Service__VolumePath=../data
-
-CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
-CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
-CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
-CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
-CHES__EmailAuthorized=true
-# CHES__OverrideTo=
-
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/capture/.env
-    echo "./services/net/capture/.env created"
-fi
-
-## Clip Ingest Service
-if test -f "./services/net/clip/.env"; then
-    echo "./services/net/clip/.env exists"
-else
-echo \
-"ASPNETCORE_ENVIRONMENT=Development
-ASPNETCORE_URLS=http://+:8081
-
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=mmi-service-account
-Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
-
-Service__ApiUrl=http://host.docker.internal:$portApi/api
-# Service__VolumePath=../data
-
-CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
-CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
-CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
-CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
-CHES__EmailAuthorized=true
-# CHES__OverrideTo=
-
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/clip/.env
-    echo "./services/net/clip/.env created"
-fi
-
 ## Image Ingest Service
 if test -f "./services/net/image/.env"; then
     echo "./services/net/image/.env exists"
@@ -666,32 +592,6 @@ CHES__EmailAuthorized=true
 
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/nlp/.env
     echo "./services/net/nlp/.env created"
-fi
-
-## FileCopy Service
-if test -f "./services/net/filecopy/.env"; then
-    echo "./services/net/filecopy/.env exists"
-else
-echo \
-"ASPNETCORE_ENVIRONMENT=Development
-ASPNETCORE_URLS=http://+:8081
-
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
-Auth__Keycloak__Audience=mmi-service-account
-Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
-
-Service__ApiUrl=http://host.docker.internal:$portApi/api
-
-CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
-CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
-CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
-CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
-CHES__EmailAuthorized=true
-# CHES__OverrideTo=
-
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/filecopy/.env
-    echo "./services/net/filecopy/.env created"
 fi
 
 ## Notification Service

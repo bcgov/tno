@@ -73,6 +73,11 @@ export const ReportContentOptions = () => {
               name="settings.content.clearFolders"
               tooltip="Clears all content from all folders in this report after this report is run"
             />
+            <FormikCheckbox
+              label="Omit 'BC Updates' and 'BC Calendar' from the report"
+              name="settings.content.omitBCUpdates"
+              tooltip="Omits 'BC Updates' and 'BC Calendar' from the report"
+            />
           </Col>
         </Row>
       </Col>

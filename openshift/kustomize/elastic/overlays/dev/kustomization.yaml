@@ -28,13 +28,6 @@ patches:
         path: /spec/host
         value: dev.mmi.gov.bc.ca
   - target:
-      kind: Route
-      name: elastic-dejavu
-    patch: |-
-      - op: replace
-        path: /spec/host
-        value: tno-dev-elastic.apps.silver.devops.gov.bc.ca
-  - target:
       kind: StatefulSet
       name: elastic
     patch: |-

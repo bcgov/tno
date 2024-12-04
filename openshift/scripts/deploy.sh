@@ -42,7 +42,6 @@ podsIndexing=$(getPods indexing-service dc $env)
 podsContent=$(getPods content-service dc $env)
 podsContentTNOHistoric=$(getPods content-historic-service dc $env)
 
-podsFileCopy=$(getPods filecopy-service dc $env)
 podsFolderCollection=$(getPods folder-collection-service dc $env)
 
 # podsClip=$(getPods clip-service dc $env)
@@ -85,7 +84,6 @@ oc tag indexing-service:$tag indexing-service:$env
 oc tag content-service:$tag content-service:$env
 
 # Utility Services
-oc tag filecopy-service:$tag filecopy-service:$env
 oc tag folder-collection-service:$tag folder-collection-service:$env
 
 # Transform Services
@@ -119,7 +117,6 @@ scale indexing-service $podsIndexing dc $env
 scale content-service $podsContent dc $env
 scale content-historic-service $podsContentTNOHistoric dc $env
 
-scale filecopy-service $podsFileCopy dc $env
 scale folder-collection-service $podsFolderCollection dc $env
 
 # scale clip-service $podsClip dc $env

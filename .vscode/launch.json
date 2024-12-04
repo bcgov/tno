@@ -12,7 +12,7 @@
       "request": "launch",
       "preLaunchTask": "build",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/api/net/bin/Debug/net7.0/TNO.API.dll",
+      "program": "${workspaceFolder}/api/net/bin/Debug/net9.0/TNO.API.dll",
       "args": [],
       "cwd": "${workspaceFolder}/api/net",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -24,28 +24,12 @@
       // Use IntelliSense to find out which attributes exist for C# debugging
       // Use hover for the description of the existing attributes
       // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
-      "name": "Run Import Tool Service",
-      "type": "coreclr",
-      "request": "launch",
-      "preLaunchTask": "build-import",
-      // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/tools/import/etl/bin/Debug/net7.0/TNO.Tools.Import.ETL.dll",
-      "args": [],
-      "cwd": "${workspaceFolder}/tools/import/etl",
-      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
-      "console": "internalConsole",
-      "stopAtEntry": false
-    },
-    {
-      // Use IntelliSense to find out which attributes exist for C# debugging
-      // Use hover for the description of the existing attributes
-      // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
       "name": "Run Syndication Service",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build-syndication",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/syndication/bin/Debug/net7.0/TNO.Services.Syndication.dll",
+      "program": "${workspaceFolder}/services/net/syndication/bin/Debug/net9.0/TNO.Services.Syndication.dll",
       "args": [],
       "cwd": "${workspaceFolder}/services/net/syndication",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -57,46 +41,12 @@
       // Use IntelliSense to find out which attributes exist for C# debugging
       // Use hover for the description of the existing attributes
       // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
-      "name": "Run Capture Service",
-      "type": "coreclr",
-      "request": "launch",
-      "preLaunchTask": "build-capture",
-      // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/capture/bin/Debug/net7.0/TNO.Services.Capture.dll",
-      "args": [],
-      "cwd": "${workspaceFolder}/services/net/capture",
-      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
-      "console": "internalConsole",
-      "stopAtEntry": false,
-      "envFile": "${workspaceFolder}/services/net/capture/.env"
-    },
-    {
-      // Use IntelliSense to find out which attributes exist for C# debugging
-      // Use hover for the description of the existing attributes
-      // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
-      "name": "Run Clip Service",
-      "type": "coreclr",
-      "request": "launch",
-      "preLaunchTask": "build-clip",
-      // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/clip/bin/Debug/net7.0/TNO.Services.Clip.dll",
-      "args": [],
-      "cwd": "${workspaceFolder}/services/net/clip",
-      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
-      "console": "internalConsole",
-      "stopAtEntry": false,
-      "envFile": "${workspaceFolder}/services/net/clip/.env"
-    },
-    {
-      // Use IntelliSense to find out which attributes exist for C# debugging
-      // Use hover for the description of the existing attributes
-      // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
       "name": "Run Content Service",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build-content",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/content/bin/Debug/net7.0/TNO.Services.Content.dll",
+      "program": "${workspaceFolder}/services/net/content/bin/Debug/net9.0/TNO.Services.Content.dll",
       "args": [],
       "cwd": "${workspaceFolder}/services/net/content",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -113,7 +63,7 @@
       "request": "launch",
       "preLaunchTask": "build-contentmigration",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/contentmigration/bin/Debug/net7.0/TNO.Services.ContentMigration.dll",
+      "program": "${workspaceFolder}/services/net/contentmigration/bin/Debug/net8.0/TNO.Services.ContentMigration.dll",
       "args": [],
       "cwd": "${workspaceFolder}/services/net/contentmigration",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -130,7 +80,7 @@
       "request": "launch",
       "preLaunchTask": "build-indexing",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/indexing/bin/Debug/net7.0/TNO.Services.Indexing.dll",
+      "program": "${workspaceFolder}/services/net/indexing/bin/Debug/net9.0/TNO.Services.Indexing.dll",
       "args": [],
       "cwd": "${workspaceFolder}/services/net/indexing",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -147,7 +97,7 @@
       "request": "launch",
       "preLaunchTask": "build-transcription",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/transcription/bin/Debug/net7.0/TNO.Services.Transcription.dll",
+      "program": "${workspaceFolder}/services/net/transcription/bin/Debug/net9.0/TNO.Services.Transcription.dll",
       "args": [],
       "cwd": "${workspaceFolder}/services/net/transcription",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -164,7 +114,7 @@
       "request": "launch",
       "preLaunchTask": "build-nlp",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/nlp/bin/Debug/net7.0/TNO.Services.NLP.dll",
+      "program": "${workspaceFolder}/services/net/nlp/bin/Debug/net8.0/TNO.Services.NLP.dll",
       "args": [],
       "cwd": "${workspaceFolder}/services/net/nlp",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -181,7 +131,7 @@
       "request": "launch",
       "preLaunchTask": "build-filemonitor",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/filemonitor/bin/Debug/net7.0/TNO.Services.FileMonitor.dll",
+      "program": "${workspaceFolder}/services/net/filemonitor/bin/Debug/net9.0/TNO.Services.FileMonitor.dll",
       "args": [],
       "cwd": "${workspaceFolder}/services/net/filemonitor",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -198,7 +148,7 @@
       "request": "launch",
       "preLaunchTask": "build-image",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/image/bin/Debug/net7.0/TNO.Services.Image.dll",
+      "program": "${workspaceFolder}/services/net/image/bin/Debug/net9.0/TNO.Services.Image.dll",
       "args": [],
       "cwd": "${workspaceFolder}/services/net/image",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -215,7 +165,7 @@
       "request": "launch",
       "preLaunchTask": "build-notification",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/notification/bin/Debug/net7.0/TNO.Services.Notification.dll",
+      "program": "${workspaceFolder}/services/net/notification/bin/Debug/net9.0/TNO.Services.Notification.dll",
       "args": [],
       "cwd": "${workspaceFolder}/services/net/notification",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -232,7 +182,7 @@
       "request": "launch",
       "preLaunchTask": "build-reporting",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/reporting/bin/Debug/net7.0/TNO.Services.Reporting.dll",
+      "program": "${workspaceFolder}/services/net/reporting/bin/Debug/net9.0/TNO.Services.Reporting.dll",
       "args": [],
       "cwd": "${workspaceFolder}/services/net/reporting",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -249,7 +199,7 @@
       "request": "launch",
       "preLaunchTask": "build-scheduler",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/scheduler/bin/Debug/net7.0/TNO.Services.Scheduler.dll",
+      "program": "${workspaceFolder}/services/net/scheduler/bin/Debug/net9.0/TNO.Services.Scheduler.dll",
       "args": [],
       "cwd": "${workspaceFolder}/services/net/scheduler",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -266,7 +216,7 @@
       "request": "launch",
       "preLaunchTask": "build-folder-collection",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/folder-collection/bin/Debug/net7.0/TNO.Services.FolderCollection.dll",
+      "program": "${workspaceFolder}/services/net/folder-collection/bin/Debug/net9.0/TNO.Services.FolderCollection.dll",
       "args": [],
       "cwd": "${workspaceFolder}/services/net/folder-collection",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -283,7 +233,7 @@
       "request": "launch",
       "preLaunchTask": "build-ffmpeg",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/ffmpeg/bin/Debug/net7.0/TNO.Services.FFmpeg.dll",
+      "program": "${workspaceFolder}/services/net/ffmpeg/bin/Debug/net9.0/TNO.Services.FFmpeg.dll",
       "args": [],
       "cwd": "${workspaceFolder}/services/net/ffmpeg",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -300,7 +250,7 @@
       "request": "launch",
       "preLaunchTask": "build-extract-quotes",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/extract-quotes/bin/Debug/net7.0/TNO.Services.ExtractQuotes.dll",
+      "program": "${workspaceFolder}/services/net/extract-quotes/bin/Debug/net9.0/TNO.Services.ExtractQuotes.dll",
       "args": [],
       "cwd": "${workspaceFolder}/services/net/extract-quotes",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -317,7 +267,7 @@
       "request": "launch",
       "preLaunchTask": "build-event-handler",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/event-handler/bin/Debug/net7.0/TNO.Services.EventHandler.dll",
+      "program": "${workspaceFolder}/services/net/event-handler/bin/Debug/net9.0/TNO.Services.EventHandler.dll",
       "args": [],
       "cwd": "${workspaceFolder}/services/net/event-handler",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -334,7 +284,7 @@
       "request": "launch",
       "preLaunchTask": "build-elastic-migration",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/tools/elastic/migration/bin/Debug/net7.0/TNO.Elastic.Migration.dll",
+      "program": "${workspaceFolder}/tools/elastic/migration/bin/Debug/net9.0/TNO.Elastic.Migration.dll",
       "args": [],
       "cwd": "${workspaceFolder}/tools/elastic/migration",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console

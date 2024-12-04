@@ -9,22 +9,6 @@ resources:
 patches:
   - target:
       kind: BuildConfig
-      name: zookeeper.dev
-    patch: |-
-      - op: replace
-        path: /metadata/name
-        value: zookeeper.jmf
-      - op: replace
-        path: /metadata/labels/name
-        value: zookeeper.jmf
-      - op: replace
-        path: /spec/source/git/uri
-        value: https://github.com/fosol/tno.git
-      - op: replace
-        path: /spec/source/git/ref
-        value: tno-123
-  - target:
-      kind: BuildConfig
       name: kafka.dev
     patch: |-
       - op: replace
