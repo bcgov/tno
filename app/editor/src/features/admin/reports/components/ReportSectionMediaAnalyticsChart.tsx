@@ -214,6 +214,18 @@ export const ReportSectionMediaAnalyticsChart = ({
                     );
                   }}
                 />
+                <FormikCheckbox
+                  label="Descending"
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetOrder`}
+                  checked={chart.sectionSettings.datasetOrder === 'desc'}
+                  onChange={(e) => {
+                    const desc = e.target.checked;
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetOrder`,
+                      desc ? 'desc' : 'asc',
+                    );
+                  }}
+                />
               </Show>
               <Show visible={datasetValueAvailableOptions.length > 0}>
                 <FormikSelect
@@ -265,6 +277,18 @@ export const ReportSectionMediaAnalyticsChart = ({
                       mergeChartSettings(chart.settings.options, chart.sectionSettings, {
                         groupBy: option.value?.toString() ?? '',
                       }),
+                    );
+                  }}
+                />
+                <FormikCheckbox
+                  label="Descending"
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupByOrder`}
+                  checked={chart.sectionSettings.groupByOrder === 'desc'}
+                  onChange={(e) => {
+                    const desc = e.target.checked;
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupByOrder`,
+                      desc ? 'desc' : 'asc',
                     );
                   }}
                 />

@@ -46,9 +46,19 @@ public class ChartSectionSettingsModel
     public string GroupBy { get; set; } = "otherSource";
 
     /// <summary>
+    /// get/set - The sort order of the group by.
+    /// </summary>
+    public string GroupByOrder { get; set; } = "asc";
+
+    /// <summary>
     /// get/set - Which property to separate datasets by [contentType|otherSource|mediaType|series|byline|section].
     /// </summary>
     public string Dataset { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The sort order of the dataset.
+    /// </summary>
+    public string DatasetOrder { get; set; } = "asc";
 
     /// <summary>
     /// get/set - The value used for the dataset [count|sentiment|sentimentSimple].

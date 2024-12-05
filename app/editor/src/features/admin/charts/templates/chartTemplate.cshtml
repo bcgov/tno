@@ -5,8 +5,8 @@
 @using TNO.TemplateEngine
 
 @{
-  var datasets = ReportExtensions.GroupContent(SectionSettings.Dataset, Content, Sections);
-  var groups = ReportExtensions.GroupContent(SectionSettings.GroupBy, Content, Sections);
+  var datasets = ReportExtensions.GroupContent(SectionSettings.Dataset, Content, Sections, SectionSettings.DatasetOrder);
+  var groups = ReportExtensions.GroupContent(SectionSettings.GroupBy, Content, Sections, SectionSettings.GroupByOrder);
   var labels = ReportExtensions.GetLabels(groups, SectionSettings, Sections);
   var datasetIndex = 0;
 }
@@ -20,7 +20,7 @@
     var borderColors = ReportExtensions.GetColors(SectionSettings.DatasetBorderColors, indexValue, SectionSettings.Dataset, ds.Key, SectionSettings.DatasetValue).Select((v) => "\"" + v + "\"");
 
     return $"{{ " +
-        $"\"label\": \"{ReportExtensions.GetLabel(ds, SectionSettings, Sections)}\", " +
+        $"\"label\": \"{ReportExtensions.GetLabel(ds, SectionSettings, Sections, true)}\", " +
         $"\"data\": [{String.Join(", ", data.Select(v => v.HasValue ? v.ToString() : "null"))}], " +
         $"\"backgroundColor\": [{String.Join(", ", backgroundColors)}], " +
         $"\"spanGaps\": true, " +

@@ -13,7 +13,6 @@ metadata:
     created-by: jeremy.foster
     updated-by: kulpree
 spec:
-  postgresVersion: 14
   users:
     - name: postgres
     - name: admin
@@ -22,6 +21,7 @@ spec:
   monitoring:
     pgmonitor:
       exporter:
+        image: artifacts.developer.gov.bc.ca/bcgov-docker-local/crunchy-postgres-exporter:ubi8-5.3.1-0
         resources:
           requests:
             cpu: 25m
@@ -29,6 +29,8 @@ spec:
           limits:
             cpu: 50m
             memory: 250Mi
+  image: artifacts.developer.gov.bc.ca/bcgov-docker-local/crunchy-postgres:ubi8-14.11-0
+  postgresVersion: 14
   instances:
     - name: postgres
       replicas: 3
@@ -76,6 +78,7 @@ spec:
     pgbackrest:
       global:
         repo1-retention-full: "1"
+      image: artifacts.developer.gov.bc.ca/bcgov-docker-local/crunchy-pgbackrest:ubi8-2.49-0
       repoHost:
         resources:
           requests:
@@ -127,6 +130,7 @@ spec:
       config:
         global:
           client_tls_sslmode: disable
+      image: artifacts.developer.gov.bc.ca/bcgov-docker-local/crunchy-pgbouncer:ubi8-1.21-0
       replicas: 2
       resources:
         requests:
