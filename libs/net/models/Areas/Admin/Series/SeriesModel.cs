@@ -64,6 +64,11 @@ public class SeriesModel : AuditColumnsModel
     public bool UseInTopics { get; set; }
 
     /// <summary>
+    /// get/set - is CBRA source or not.
+    /// </summary>
+    public bool IsCBRASource { get; set; }
+
+    /// <summary>
     /// get/set - Is a secondary source - generally added via use of "Other" field.
     /// Will not be displayed in the primary Series/Source dropdown or in search filters
     /// </summary>
@@ -93,6 +98,7 @@ public class SeriesModel : AuditColumnsModel
         this.UseInTopics = entity.UseInTopics;
         this.IsOther = entity.IsOther;
         this.MediaTypeSearchMappings = entity.MediaTypeSearchMappingsManyToMany.Select(m => new MediaTypeModel(m.MediaType!));
+        this.IsCBRASource = entity.IsCBRASource;
     }
     #endregion
 
@@ -113,6 +119,7 @@ public class SeriesModel : AuditColumnsModel
             UseInTopics = model.UseInTopics,
             IsOther = model.IsOther,
             Version = model.Version ?? 0,
+            IsCBRASource = model.IsCBRASource
         };
         entity.MediaTypeSearchMappingsManyToMany.AddRange(model.MediaTypeSearchMappings.Select(s => new Entities.SeriesMediaTypeSearchMapping(model.Id, s.Id)));
         return entity;

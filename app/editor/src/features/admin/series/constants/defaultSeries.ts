@@ -10,4 +10,5 @@ export const defaultSeries: ISeriesForm = {
   sortOrder: 0,
   autoTranscribe: false,
   useInTopics: false,
+  isCBRASource: false,
 };

@@ -90,6 +90,12 @@ public class Source : BaseType<int>
     /// </summary>
     [Column("configuration")]
     public JsonDocument Configuration { get; set; } = JsonDocument.Parse("{}");
+    
+    /// <summary>
+    /// get/set - is CBRA source or not.
+    /// </summary>
+    [Column("is_cbra_source")]
+    public bool IsCBRASource { get; set; }
 
     /// <summary>
     /// get - List of content linked to this source.

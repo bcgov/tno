@@ -70,6 +70,11 @@ public class SourceModel : BaseTypeWithAuditColumnsModel<int>
     public bool UseInTopics { get; set; }
 
     /// <summary>
+    /// get/set - is CBRA source or not.
+    /// </summary>
+    public bool IsCBRASource { get; set; }
+
+    /// <summary>
     /// get/set -
     /// </summary>
     public Dictionary<string, object> Configuration { get; set; } = new Dictionary<string, object>();
@@ -109,7 +114,8 @@ public class SourceModel : BaseTypeWithAuditColumnsModel<int>
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
         this.UseInTopics = entity.UseInTopics;
-        this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();
+        this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();        
+        this.IsCBRASource = entity.IsCBRASource;
 
         this.Metrics = entity.MetricsManyToMany.Select(m => new SourceMetricModel(m));
         this.MediaTypeSearchMappings = entity.MediaTypeSearchMappingsManyToMany.Select(m => new MediaTypeModel(m.MediaType!));
@@ -147,7 +153,8 @@ public class SourceModel : BaseTypeWithAuditColumnsModel<int>
             DisableTranscribe = model.DisableTranscribe,
             UseInTopics = model.UseInTopics,
             Configuration = JsonDocument.Parse(JsonSerializer.Serialize(model.Configuration)),
-            Version = model.Version ?? 0
+            Version = model.Version ?? 0,
+            IsCBRASource = model.IsCBRASource
         };
 
         entity.MetricsManyToMany.AddRange(model.Metrics.Select(m => m.ToEntity(entity.Id)));

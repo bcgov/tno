@@ -35,6 +35,12 @@ public class Series : BaseType<int>
     public bool UseInTopics { get; set; }
 
     /// <summary>
+    /// get/set - is CBRA source or not.
+    /// </summary>
+    [Column("is_cbra_source")]
+    public bool IsCBRASource { get; set; }
+
+    /// <summary>
     /// get/set - Is a secondary source - generally added via use of "Other" field.
     /// Will not be displayed in the primary Series/Source dropdown or in search filters
     /// </summary>

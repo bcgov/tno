@@ -8,4 +8,5 @@ export interface ISeriesModel extends ISortableModel<number> {
   autoTranscribe: boolean;
   isOther: boolean;
   useInTopics: boolean;
+  isCBRASource: boolean;
 }
