@@ -10,5 +10,6 @@ export const mockSeries: ISeriesModel[] = [
     autoTranscribe: false,
     isOther: false,
     useInTopics: false,
+    isCBRASource: false,
   },
 ];

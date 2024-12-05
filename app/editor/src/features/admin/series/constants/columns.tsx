@@ -47,4 +47,11 @@ export const columns: ITableHookColumn<ISeriesModel>[] = [
     hAlign: 'center',
     cell: (cell) => <CellCheckbox checked={cell.original.isEnabled} />,
   },
+  {
+    label: 'Is CBRA Source',
+    accessor: 'isCBRASource',
+    width: 1,
+    hAlign: 'center',
+    cell: (cell) => <CellCheckbox checked={cell.original.isCBRASource} />,
+  },
 ];

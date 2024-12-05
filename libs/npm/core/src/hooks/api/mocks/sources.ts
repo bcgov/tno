@@ -17,6 +17,7 @@ export const mockSources: ISourceModel[] = [
     mediaTypeSearchMappings: [],
     actions: [],
     metrics: [],
+    isCBRASource: false,
   },
   {
     id: 2,
@@ -34,5 +35,6 @@ export const mockSources: ISourceModel[] = [
     mediaTypeSearchMappings: [],
     actions: [],
     metrics: [],
+    isCBRASource: false,
   },
 ];

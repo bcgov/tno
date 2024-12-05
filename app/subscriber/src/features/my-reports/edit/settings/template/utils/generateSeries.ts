@@ -15,6 +15,7 @@ export const generateSeries = (options: IGenerateSeriesOptions) => {
     isOther: false,
     autoTranscribe: false,
     useInTopics: false,
+    isCBRASource: false,
     ...options.init,
   };
   return entity;

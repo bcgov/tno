@@ -20,4 +20,5 @@ export const defaultSource: ISourceForm = {
   },
   actions: [],
   metrics: [],
+  isCBRASource: false,
 };
