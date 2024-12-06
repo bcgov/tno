@@ -102,7 +102,9 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
                             ? chart.settings.chartTypes[0]
                             : '',
                           groupBy: chart.settings?.groupBy.length ? chart.settings.groupBy[0] : '',
+                          groupByOrder: 'asc',
                           dataset: chart.settings?.dataset.length ? chart.settings.dataset[0] : '',
+                          datasetOrder: 'asc',
                           datasetValue: chart.settings?.datasetValue.length
                             ? chart.settings.datasetValue[0]
                             : '',

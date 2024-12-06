@@ -6,3 +6,5 @@ resources:
   - role.yaml
   - network.yaml
   - deploy.yaml
+  # - deploy-14.11.yaml
+  # - deploy-15.8.yaml

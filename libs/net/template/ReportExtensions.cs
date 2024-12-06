@@ -497,12 +497,14 @@ public static partial class ReportExtensions
     /// <param name="groupBy"></param>
     /// <param name="content"></param>
     /// <param name="sections"></param>
+    /// <param name="sortBy"></param>
     /// <returns></returns>
     public static IEnumerable<IGrouping<string, ContentModel>> GroupContent(
         string groupBy,
         IEnumerable<ContentModel> content,
         Dictionary<string, ReportSectionModel> sections,
-        API.Models.Settings.ChartSectionSettingsModel? settings = null)
+        API.Models.Settings.ChartSectionSettingsModel? settings = null,
+        string orderby = "asc")
     {
         if (groupBy == "topicType")
         {
@@ -546,19 +548,22 @@ public static partial class ReportExtensions
 
         var groups = groupBy switch
         {
-            "mediaType" => content.GroupBy(c => c.MediaType?.Name ?? "Other").OrderBy(group => group.Key),
-            "contentType" => content.GroupBy(c => c.ContentType.ToString()).OrderBy(group => group.Key),
-            "byline" => content.GroupBy(c => string.IsNullOrWhiteSpace(c.Byline) ? "Unknown" : c.Byline.Replace("<mark>", "").Replace("</mark>", "")).Where((g) => !excludeEmptyValues || g.Key != "Unknown").OrderBy(group => group.Key),
-            "series" => content.GroupBy(c => c.Series?.Name ?? c.OtherSeries ?? "None").Where((g) => !excludeEmptyValues || g.Key != "None").OrderBy(group => group.Key),
-            "sentiment" => content.GroupBy(c => GetSentimentValue(c)?.ToString() ?? "None").Where((v) => !excludeEmptyValues || v.Key != "None").OrderByDescending(group => group.Key),
-            "sentimentSimple" => content.GroupBy(c => GetSentimentRating(c) ?? "None").Where((v) => !excludeEmptyValues || v.Key != "None").OrderBy(group => group.Key),
-            "source" => content.GroupBy(c => c.OtherSource).OrderBy(group => group.Key),
-            "dayMonthYear" => content.GroupBy(c => $"{c.PublishedOn:dd-MM-yyyy}").OrderBy(group => group.Key),
-            "monthDay" => content.GroupBy(c => $"{c.PublishedOn:MMM-dd}").OrderBy(group => group.Key),
-            "monthYear" => content.GroupBy(c => $"{c.PublishedOn:MM-yyyy}").OrderBy(group => group.Key),
-            "year" => content.GroupBy(c => $"{c.PublishedOn:yyyy}").OrderBy(group => group.Key),
+            "mediaType" => content.GroupBy(c => c.MediaType?.Name ?? "Other"),
+            "contentType" => content.GroupBy(c => c.ContentType.ToString()),
+            "byline" => content.GroupBy(c => string.IsNullOrWhiteSpace(c.Byline) ? "Unknown" : c.Byline.Replace("<mark>", "").Replace("</mark>", "")).Where((g) => !excludeEmptyValues || g.Key != "Unknown"),
+            "series" => content.GroupBy(c => c.Series?.Name ?? c.OtherSeries ?? "None").Where((g) => !excludeEmptyValues || g.Key != "None"),
+            "sentiment" => content.GroupBy(c => GetSentimentValue(c)?.ToString() ?? "None").Where((v) => !excludeEmptyValues || v.Key != "None"),
+            "sentimentSimple" => content.GroupBy(c => GetSentimentRating(c) ?? "None").Where((v) => !excludeEmptyValues || v.Key != "None"),
+            "source" => content.GroupBy(c => c.OtherSource),
+            "dayMonthYear" => content.GroupBy(c => $"{c.PublishedOn:yyyyMMdd}"),
+            "monthDay" => content.GroupBy(c => $"{c.PublishedOn:MMdd}"),
+            "monthYear" => content.GroupBy(c => $"{c.PublishedOn:yyyyMM}"),
+            "year" => content.GroupBy(c => $"{c.PublishedOn:yyyy}"),
             _ => content.GroupBy(c => isSentiment ? "Average Sentiment" : "Story Count"),
         };
+
+        if (groupBy != "reportSection" && !String.IsNullOrWhiteSpace(groupBy))
+            groups = orderby == "asc" ? groups.OrderBy(group => group.Key) : groups.OrderByDescending(group => group.Key);
 
         // If excluding empty values is on, then remove any groups that only contain content without a value.
         return groups.Where(g => !excludeEmptyValues || !isSentiment || g.Any(c => GetSentimentValue(c) != null));
@@ -661,7 +666,7 @@ public static partial class ReportExtensions
     /// <returns></returns>
     public static string[] GetLabels(IEnumerable<IGrouping<string, ContentModel>> datasets, API.Models.Settings.ChartSectionSettingsModel settings, Dictionary<string, ReportSectionModel> sections)
     {
-        return datasets.Select(ds => GetLabel(ds, settings, sections)).ToArray();
+        return datasets.Select(ds => GetLabel(ds, settings, sections, false)).ToArray();
     }
 
     /// <summary>
@@ -671,12 +676,34 @@ public static partial class ReportExtensions
     /// <param name="dataset"></param>
     /// <param name="settings"></param>
     /// <param name="sections"></param>
+    /// <param name="isDataset"></param>
     /// <returns></returns>
-    public static string GetLabel(IGrouping<string, ContentModel> dataset, API.Models.Settings.ChartSectionSettingsModel settings, Dictionary<string, ReportSectionModel> sections)
+    public static string GetLabel(IGrouping<string, ContentModel> dataset, API.Models.Settings.ChartSectionSettingsModel settings, Dictionary<string, ReportSectionModel> sections, bool isDataset)
     {
         var hasSection = sections.TryGetValue(dataset.Key, out ReportSectionModel? section);
         if (hasSection && section != null && (settings.Dataset == "reportSection" || settings.GroupBy == "reportSection"))
             return section.Settings.Label ?? "Other";
+
+        if (isDataset && settings.Dataset != "reportSection")
+        {
+            return settings.Dataset switch
+            {
+                "dayMonthYear" => $"{DateTime.ParseExact(dataset.Key, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None):dd-MMM-yyyy}",
+                "monthDay" => $"{DateTime.ParseExact(dataset.Key, "MMdd", null, System.Globalization.DateTimeStyles.None):MMM-dd}",
+                "monthYear" => $"{DateTime.ParseExact(dataset.Key, "yyyyMM", null, System.Globalization.DateTimeStyles.None):MMM-yyyy}",
+                _ => dataset.Key,
+            };
+        }
+        else if (!isDataset && settings.GroupBy != "reportSection")
+        {
+            return settings.GroupBy switch
+            {
+                "dayMonthYear" => $"{DateTime.ParseExact(dataset.Key, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None):dd-MM-yyyy}",
+                "monthDay" => $"{DateTime.ParseExact(dataset.Key, "MMdd", null, System.Globalization.DateTimeStyles.None):MMM-dd}",
+                "monthYear" => $"{DateTime.ParseExact(dataset.Key, "yyyyMM", null, System.Globalization.DateTimeStyles.None):MMM-yyyy}",
+                _ => dataset.Key,
+            };
+        }
 
         return dataset.Key;
     }
@@ -731,9 +758,9 @@ public static partial class ReportExtensions
                 "sentiment" => content.Where(c => (GetSentimentValue(c)?.ToString() ?? "None") == label),
                 "sentimentSimple" => content.Where(c => (GetSentimentRating(c) ?? "None") == label),
                 "source" => content.Where(c => c.OtherSource == label),
-                "dayMonthYear" => content.Where(c => $"{c.PublishedOn:dd-MM-yyyy}" == label),
+                "dayMonthYear" => content.Where(c => $"{c.PublishedOn:dd-MMM-yyyy}" == label),
                 "monthDay" => content.Where(c => $"{c.PublishedOn:MMM-dd}" == label),
-                "monthYear" => content.Where(c => $"{c.PublishedOn:MM-yyyy}" == label),
+                "monthYear" => content.Where(c => $"{c.PublishedOn:MMM-yyyy}" == label),
                 "year" => content.Where(c => $"{c.PublishedOn:yyyy}" == label),
                 "reportSection" => content.Where(c => c.SectionLabel == label),
                 _ => content,

@@ -89,41 +89,71 @@ export const ConfigureDataset: React.FC<IChartSectionProps> = ({ sectionIndex, c
             Each dataset provides a way to compare collections of content. Select a property to
             separate the data.
           </p>
-          <FormikSelect
-            label="Dataset Grouping Property"
-            name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataset`}
-            value={datasetOptions.find((o) => o.value === chart.sectionSettings.dataset) ?? ''}
-            options={allowedDatasetOptions}
-            isClearable={false}
-            required
-          />
-          <FormikCheckbox
-            label="Stack Dataset"
-            name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.stacked`}
-            checked={!!chart.sectionSettings.stacked}
-            onChange={(e) => {
-              setFieldValue(
-                `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
-                mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                  stacked: e.target.checked,
-                }),
-              );
-            }}
-          />
+          <Row alignItems="center">
+            <FormikSelect
+              label="Dataset Grouping Property"
+              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataset`}
+              value={datasetOptions.find((o) => o.value === chart.sectionSettings.dataset) ?? ''}
+              options={allowedDatasetOptions}
+              isClearable={false}
+              required
+            />
+            <Col>
+              <FormikCheckbox
+                label="Descending"
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetOrder`}
+                checked={chart.sectionSettings.datasetOrder === 'desc'}
+                onChange={(e) => {
+                  const desc = e.target.checked;
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetOrder`,
+                    desc ? 'desc' : 'asc',
+                  );
+                }}
+              />
+              <FormikCheckbox
+                label="Stack Dataset"
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.stacked`}
+                checked={!!chart.sectionSettings.stacked}
+                onChange={(e) => {
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      stacked: e.target.checked,
+                    }),
+                  );
+                }}
+              />
+            </Col>
+          </Row>
         </Show>
         <Show visible={!!chart.settings.groupBy.length}>
           <p>
             Select the property to group by and will be plotted on the index axis (default X axes)
             within each dataset.
           </p>
-          <FormikSelect
-            label="Index Axis Grouping Property"
-            name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupBy`}
-            value={groupByOptions.find((o) => o.value === chart.sectionSettings.groupBy) ?? ''}
-            options={groupByOptions.filter((o) => chart.settings.groupBy.includes(o.value))}
-            isClearable={false}
-            required
-          />
+          <Row alignItems="center">
+            <FormikSelect
+              label="Index Axis Grouping Property"
+              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupBy`}
+              value={groupByOptions.find((o) => o.value === chart.sectionSettings.groupBy) ?? ''}
+              options={groupByOptions.filter((o) => chart.settings.groupBy.includes(o.value))}
+              isClearable={false}
+              required
+            />
+            <FormikCheckbox
+              label="Descending"
+              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupByOrder`}
+              checked={chart.sectionSettings.groupByOrder === 'desc'}
+              onChange={(e) => {
+                const desc = e.target.checked;
+                setFieldValue(
+                  `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupByOrder`,
+                  desc ? 'desc' : 'asc',
+                );
+              }}
+            />
+          </Row>
         </Show>
       </Col>
     </Row>

@@ -13,8 +13,12 @@ export interface IChartSectionSettingsModel {
   chartType: string;
   /** The property to group results in [otherSource|series|mediaType|contentType|sentiment|sentimentSimple|byline|section] */
   groupBy: string;
+  /** The order of the group by. */
+  groupByOrder: 'asc' | 'desc';
   /** The property to separate datasets [otherSource|series|mediaType|contentType|byline|section] */
   dataset: string;
+  /** The order of the dataset. */
+  datasetOrder: 'asc' | 'desc';
   /** The property to extract a value for the dataset [otherSource|series|mediaType|contentType|sentiment|sentimentSimple|byline|section] */
   datasetValue: string;
   /** Whether to exclude empty values in the returned dataset. */

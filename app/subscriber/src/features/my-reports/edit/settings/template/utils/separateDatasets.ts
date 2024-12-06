@@ -1,3 +1,4 @@
+import { Moment } from 'moment';
 import { getDistinct, IReportInstanceContentModel } from 'tno-core';
 
 import { IConvertToChartOptions } from './convertToChart';
@@ -6,9 +7,14 @@ interface ISeparateDatasetsOptions extends IConvertToChartOptions {
   // An array of groups to divide content.
   groups?: (string | number)[];
   // Predicate to identify groups from the content.
-  groupOn: (content?: IReportInstanceContentModel) => string | number | undefined | null;
+  groupOn: (
+    content?: IReportInstanceContentModel,
+  ) => string | number | Moment | Date | undefined | null;
   // Predicate to determine if content is in group.
-  isInGroup?: (content?: IReportInstanceContentModel, group?: string | number | null) => boolean;
+  isInGroup?: (
+    content?: IReportInstanceContentModel,
+    group?: string | number | Moment | Date | null,
+  ) => boolean;
   // predicate to extract a label for the group.  Defaults to using the 'groupOn' predicate.
   getLabel?: (content?: IReportInstanceContentModel) => string | undefined | null;
 }
@@ -39,8 +45,8 @@ export const separateDatasets = (
   groups.forEach((group) => {
     const items = data.filter((item) => options.isInGroup?.(item, group));
     const key =
-      (items.length ? options.getLabel?.(items[0]) : undefined) ??
-      group ??
+      (items.length ? options.getLabel!(items[0]) : undefined) ??
+      `${group}` ??
       options?.labelValueWhenEmpty ??
       '';
     results[key] = items;

@@ -27,8 +27,8 @@ scale filemonitor-service 1 dc $env
 scale syndication-service 1 dc $env
 scale image-service 1 dc $env
 
-scale indexing-service 2 dc $env
-scale content-service 2 dc $env
+scale indexing-service 1 dc $env
+scale content-service 1 dc $env
 scale content-historic-service 1 dc $env
 
 scale filecopy-service 1 dc $env
@@ -38,7 +38,7 @@ scale folder-collection-service 1 dc $env
 scale ffmpeg-service 1 dc $env
 scale nlp-service 1 dc $env
 scale extract-quotes-service 1 dc $env
-scale transcription-service 2 dc $env
+scale transcription-service 1 dc $env
 
 scale scheduler-service 1 dc $env
 scale reporting-service 1 dc $env

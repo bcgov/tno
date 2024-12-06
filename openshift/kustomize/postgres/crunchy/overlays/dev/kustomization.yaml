@@ -7,10 +7,28 @@ resources:
   - ../../base
 
 patches:
-  # - target:
-  #     kind: PostgresCluster
-  #     name: .*
-  #   patch: |-
-  #     - op: replace
-  #       path: /metadata/name
-  #       value: tno-cluster
+  - target:
+      kind: PostgresCluster
+      name: crunchy
+    patch: |-
+      - op: replace
+        path: /spec/instances/0/replicas
+        value: 3
+      - op: replace
+        path: /spec/instances/0/dataVolumeClaimSpec/resources/requests/storage
+        value: 37Gi
+        path: /spec/backups/pgbackrest/repos/0/volume/volumeClaimSpec/resources/requests/storage
+        value: 60Gi
+
+# - op: replace
+#   path: /spec/instances/0/0/resources/requests/cpu
+#   value: 500m
+# - op: replace
+#   path: /spec/instances/0/0/resources/requests/memory
+#   value: 500Mi
+# - op: replace
+#   path: /spec/instances/0/0/resources/limits/cpu
+#   value: 750m
+# - op: replace
+#   path: /spec/instances/0/0/resources/limits/memory
+#   value: 2Gi

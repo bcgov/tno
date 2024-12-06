@@ -129,3 +129,16 @@ cd db/kafka/scripts
 --group Content \
 --topic TNO
 ```
+
+## Configure retention period
+
+```bash
+## Describe
+./kafka-configs --describe --all --bootstrap-server kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092,kafka-broker-3.kafka-headless:9092 \
+--topic hub
+
+## Alter
+./kafka-configs --bootstrap-server kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092,kafka-broker-3.kafka-headless:9092 \
+--topic hub \
+--alter --add-config retention.ms=86400000
+```
