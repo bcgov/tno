@@ -26,4 +26,5 @@ export interface IContentSearchResult {
   transcriptStatus?: WorkOrderStatusName;
   original: IContentModel;
   version?: number;
+  isCBRAUnqualified: boolean;
 }

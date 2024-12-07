@@ -678,6 +678,15 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                       }
                                     />
                                   </div>
+                                  <Checkbox
+                                    label="Is CBRA Unqualified"
+                                    name="isCBRAUnqualified"
+                                    checked={props.values.isCBRAUnqualified}
+                                    onChange={(e) => {
+                                      props.setFieldValue('isCBRAUnqualified', e.target.checked);
+                                    }}
+                                    className="checkbox-cbra"
+                                  />
                                 </Row>
                               </Show>
                             </Row>

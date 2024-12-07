@@ -55,5 +55,6 @@ export function toForm(model: IContentModel): IContentForm {
     section: model.section ?? '',
     edition: model.edition ?? '',
     version: model.version,
+    isCBRAUnqualified: model.isCBRAUnqualified,
   };
 }
