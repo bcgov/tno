@@ -304,6 +304,12 @@ public class Content : AuditColumns
     /// </summary>
     public virtual List<Quote> Quotes { get; } = new List<Quote>();
 
+    /// <summary>
+    /// get/set - Whether content is CBRA unqualified.
+    /// </summary>
+    [Column("is_cbra_unqualified")]
+    public bool IsCBRAUnqualified { get; set; }
+
     #endregion
 
     #region Constructors

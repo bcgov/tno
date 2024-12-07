@@ -35,6 +35,7 @@ export const mockContents: IContentModel[] = [
     quotes: [],
     userNotifications: [],
     versions: {},
+    isCBRAUnqualified: false,
   },
   {
     id: 2,
@@ -69,6 +70,7 @@ export const mockContents: IContentModel[] = [
     quotes: [],
     userNotifications: [],
     versions: {},
+    isCBRAUnqualified: false,
   },
   {
     id: 3,
@@ -103,6 +105,7 @@ export const mockContents: IContentModel[] = [
     quotes: [],
     userNotifications: [],
     versions: {},
+    isCBRAUnqualified: false,
   },
   {
     id: 4,
@@ -137,6 +140,7 @@ export const mockContents: IContentModel[] = [
     quotes: [],
     userNotifications: [],
     versions: {},
+    isCBRAUnqualified: false,
   },
   {
     id: 5,
@@ -171,6 +175,7 @@ export const mockContents: IContentModel[] = [
     quotes: [],
     userNotifications: [],
     versions: {},
+    isCBRAUnqualified: false,
   },
   {
     id: 6,
@@ -205,5 +210,6 @@ export const mockContents: IContentModel[] = [
     quotes: [],
     userNotifications: [],
     versions: {},
+    isCBRAUnqualified: false,
   },
 ];
