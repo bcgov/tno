@@ -63,6 +63,7 @@ export const generateContent = (options: IGenerateContentOptions) => {
     quotes: [],
     userNotifications: [],
     versions: {},
+    isCBRAUnqualified: false,
     ...options.content,
   };
   return entity;

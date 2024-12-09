@@ -48,5 +48,6 @@ export const defaultFormValues = (contentType: ContentTypeName): IContentForm =>
     edition: '',
     byline: '',
     createdOn: publishedOn.toString(),
+    isCBRAUnqualified: false,
   };
 };
