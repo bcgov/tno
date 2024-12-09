@@ -111,7 +111,7 @@ spec:
           [id]="content"
           [name]="content-service"
           [type]="dc"
-          [replicas]="2"
+          [replicas]="1"
           [action]="stop"
           [build]="yes"
           [env]="dev test prod"
@@ -131,7 +131,7 @@ spec:
           [id]="indexing"
           [name]="indexing-service"
           [type]="dc"
-          [replicas]="2"
+          [replicas]="1"
           [action]="stop"
           [build]="yes"
           [env]="dev test prod"
@@ -141,7 +141,7 @@ spec:
           [id]="transcription"
           [name]="transcription-service"
           [type]="dc"
-          [replicas]="2"
+          [replicas]="1"
           [action]="stop"
           [build]="yes"
           [env]="dev test prod"
@@ -289,7 +289,7 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT22=(  
+        declare -A COMPONENT22=(
           [id]="contentmigration"
           [name]="contentmigration-historic-service"
           [type]="dc"

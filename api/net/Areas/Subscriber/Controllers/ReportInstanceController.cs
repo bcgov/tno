@@ -260,12 +260,13 @@ public class ReportInstanceController : ControllerBase
     /// Generate an Excel document report.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="groupBy">Date format to group content on.</param>
     /// <returns></returns>
     [HttpGet("{id}/export")]
     [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public FileResult GenerateExcel(int id)
+    public FileResult GenerateExcel(int id, string? groupBy)
     {
         var user = _impersonate.GetCurrentUser();
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException("Report does not exist");
@@ -274,7 +275,7 @@ public class ReportInstanceController : ControllerBase
         instance.ContentManyToMany.AddRange(content);
 
         var helper = new ReportXlsExport("Report", _serializerOptions);
-        var report = helper.GenerateExcel(instance);
+        var report = helper.GenerateExcel(instance, groupBy);
 
         using var stream = new MemoryStream();
         report.Write(stream);

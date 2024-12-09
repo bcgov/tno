@@ -19,7 +19,7 @@ interface IReportInstanceController {
   viewReportInstance: (id: number, regenerate?: boolean) => Promise<IReportResultModel>;
   sendReportInstance: (id: number, to: string) => Promise<IReportInstanceModel>;
   publishReportInstance: (id: number, resend: boolean) => Promise<IReportInstanceModel>;
-  exportReport: (id: number, reportName: string) => Promise<IReportInstanceModel>;
+  exportReport: (id: number, reportName: string, groupBy?: string) => Promise<IReportInstanceModel>;
 }
 
 export const useReportInstances = (): [IReportInstanceController] => {
@@ -144,9 +144,9 @@ export const useReportInstances = (): [IReportInstanceController] => {
         );
         return response.data;
       },
-      exportReport: async (id: number, reportName: string) => {
+      exportReport: async (id: number, reportName: string, groupBy?: string) => {
         const response = await dispatch<IReportInstanceModel>('export-report', () =>
-          api.exportReport(id, reportName),
+          api.exportReport(id, reportName, groupBy),
         );
         return response.data;
       },

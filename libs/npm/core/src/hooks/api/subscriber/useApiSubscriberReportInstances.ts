@@ -56,9 +56,9 @@ export const useApiSubscriberReportInstances = (
         `/subscriber/report/instances/${id}/view?regenerate=${regenerate}`,
       );
     },
-    exportReport: (id: number, reportName: string) => {
+    exportReport: (id: number, reportName: string, groupBy?: string) => {
       return download({
-        url: `/subscriber/report/instances/${id}/export`,
+        url: `/subscriber/report/instances/${id}/export?groupBy=${groupBy}`,
         method: 'get',
         fileName: `${reportName}.xlsx`,
       });
