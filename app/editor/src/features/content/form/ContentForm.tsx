@@ -681,7 +681,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                   <FormikCheckbox
                                     label="Is CBRA Unqualified"
                                     name="isCBRAUnqualified"
-                                    checked={props.values.isCBRAUnqualified}
                                     className="checkbox-cbra"
                                   />
                                 </Row>
