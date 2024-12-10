@@ -50,7 +50,7 @@ export interface IReportEditContext {
   setSubmitting: (isSubmitting: boolean) => void;
   submitForm: (() => Promise<void>) & (() => Promise<any>);
   onNavigate: (instance: IReportInstanceModel | undefined, action: 'previous' | 'next') => void;
-  onExport: (report: IReportForm) => void;
+  onExport: (report: IReportForm, groupBy?: string) => void;
   onGenerate: (report: IReportForm, regenerate: boolean) => Promise<IReportForm | undefined>;
   onRegenerateSection: (report: IReportForm, sectionId: number) => Promise<IReportForm | undefined>;
   instance?: IReportInstanceModel;
@@ -198,13 +198,13 @@ export const ReportEditContextProvider: React.FC<IReportEditContextProviderProps
   );
 
   const onExport = React.useCallback(
-    async (report: IReportForm) => {
+    async (report: IReportForm, groupBy?: string) => {
       try {
         if (report?.id) {
           const instance = report.instances.length ? report.instances[0] : 0;
           if (instance) {
             const filename = report.name.replace(/[^a-zA-Z0-9 ]/g, '');
-            await toast.promise(exportReport(instance.id, filename), {
+            await toast.promise(exportReport(instance.id, filename, groupBy), {
               pending: 'Downloading file',
               success: 'Download complete',
               error: 'Download failed',
