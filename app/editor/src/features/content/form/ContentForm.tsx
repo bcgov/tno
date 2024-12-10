@@ -678,11 +678,12 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                       }
                                     />
                                   </div>
-                                  <FormikCheckbox
+                                  {/* Temporarily hidden to avoid confusing Editors */}
+                                  {/* <FormikCheckbox
                                     label="Is CBRA Unqualified"
                                     name="isCBRAUnqualified"
                                     className="checkbox-cbra"
-                                  />
+                                  /> */}
                                 </Row>
                               </Show>
                             </Row>
