@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TNO.DAL;
@@ -14,9 +15,11 @@ using TNO.Entities.Models;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    partial class TNOContextModelSnapshot : ModelSnapshot
+    [Migration("20241205231842_1.3.9")]
+    partial class _139
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -874,10 +877,6 @@ namespace TNO.DAL.Migrations
                     b.Property<bool>("IsApproved")
                         .HasColumnType("boolean")
                         .HasColumnName("is_approved");
-
-                    b.Property<bool>("IsCBRAUnqualified")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_cbra_unqualified");
 
                     b.Property<bool>("IsHidden")
                         .HasColumnType("boolean")

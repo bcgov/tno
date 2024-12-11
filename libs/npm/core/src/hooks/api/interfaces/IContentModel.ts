@@ -70,4 +70,5 @@ export interface IContentModel extends IAuditColumnsModel {
   // React-Table Properties
   // TODO: Should not be part of the API interface.
   isSelected?: boolean;
+  isCBRAUnqualified: boolean;
 }

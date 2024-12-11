@@ -107,4 +107,13 @@ export const ReportEditContentForm = styled.div`
   .icon-refresh:active svg {
     color: #26e194 !important;
   }
+
+  .export-action {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    padding: 0 0.15rem;
+    border-radius: 0.25rem;
+    border: solid 1px grey;
+  }
 `;

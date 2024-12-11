@@ -1,0 +1,162 @@
+---
+# Source: crunchy-postgres/templates/PostgresCluster.yaml
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PostgresCluster
+metadata:
+  name: crunchy
+  labels:
+    helm.sh/chart: crunchy-postgres-0.6.3
+    app.kubernetes.io/name: crunchy
+    app.kubernetes.io/instance: "5.0.4"
+    app.kubernetes.io/version: "5.0.4"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  metadata:
+    labels:
+      helm.sh/chart: crunchy-postgres-0.6.3
+      app.kubernetes.io/name: crunchy
+      app.kubernetes.io/instance: "5.0.4"
+      app.kubernetes.io/version: "5.0.4"
+      app.kubernetes.io/managed-by: Helm
+
+  imagePullPolicy: IfNotPresent
+  postgresVersion: 15
+
+  instances:
+    - name: postgres
+      replicas: 3
+      resources:
+        requests:
+          cpu: 1m
+          memory: 256Mi
+        limits:
+          cpu: 100m
+          memory: 512Mi
+      sidecars:
+        replicaCertCopy:
+          resources:
+            requests:
+              cpu: 1m
+              memory: 32Mi
+            limits:
+              cpu: 50m
+              memory: 64Mi
+      dataVolumeClaimSpec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: 480Mi
+        storageClassName: netapp-block-standard
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: topology.kubernetes.io/zone
+                labelSelector:
+                  matchLabels:
+                    postgres-operator.crunchydata.com/cluster: crunchy-postgres
+                    postgres-operator.crunchydata.com/instance-set: ha-ha
+
+  users:
+    - name: crunchy-postgres
+      databases:
+        - tno
+      options: "CREATEROLE"
+    - name: postgres
+      databases:
+        - tno
+    - name: admin
+      databases:
+        - tno
+
+  backups:
+    pgbackrest:
+      global:
+        # Support both PVC and s3 backups
+        repo1-retention-full: "2"
+        repo1-retention-full-type: count
+      repos:
+        # hardcoding repo1 until we solution allowing multiple repos
+        - name: repo1
+          schedules:
+            full: 0 8 * * *
+            incremental: 0 0,4,12,16,20 * * *
+          volume:
+            volumeClaimSpec:
+              accessModes:
+                - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 64Mi
+              storageClassName: netapp-file-backup
+      # this stuff is for the "pgbackrest" container (the only non-init container) in the "postgres-crunchy-repo-host" pod
+      repoHost:
+        resources:
+          requests:
+            cpu: 1m
+            memory: 64Mi
+          limits:
+            cpu: 50m
+            memory: 128Mi
+      sidecars:
+        # this stuff is for the "pgbackrest" container in the "postgres-crunchy-ha" set of pods
+        pgbackrest:
+          resources:
+            requests:
+              cpu: 1m
+              memory: 64Mi
+            limits:
+              cpu: 50m
+              memory: 128Mi
+        pgbackrestConfig:
+          resources:
+            requests:
+              cpu: 1m
+              memory: 64Mi
+            limits:
+              cpu: 50m
+              memory: 128Mi
+  standby:
+    enabled: false
+    repoName: repo2
+
+  patroni:
+    dynamicConfiguration:
+      postgresql:
+        pg_hba:
+          - host all all 0.0.0.0/0 md5
+        parameters:
+          shared_buffers: 16MB
+          wal_buffers: 64kB
+          min_wal_size: 32MB
+          max_wal_size: 64MB
+          max_slot_wal_keep_size: 128MB
+
+  proxy:
+    pgBouncer:
+      config:
+        global:
+          client_tls_sslmode: disable
+
+      replicas: 2
+      # these resources are for the "pgbouncer" container in the "postgres-crunchy-ha-pgbouncer" set of pods
+      # there is a sidecar in these pods which are not mentioned here, but the requests/limits are teeny weeny by default so no worries there.
+      resources:
+        requests:
+          cpu: 1m
+          memory: 64Mi
+        limits:
+          cpu: 50m
+          memory: 128Mi
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: topology.kubernetes.io/zone
+                labelSelector:
+                  matchLabels:
+                    postgres-operator.crunchydata.com/cluster: ha
+                    postgres-operator.crunchydata.com/role: pgbouncer

@@ -327,22 +327,23 @@ public class ContentManager : ServiceManager<ContentOptions>
     {
         return GetLocalCacheListAsync<IEnumerable<API.Areas.Services.Models.Setting.SettingModel>>(SettingsListCacheKey);
     }
-    
+
     /// <summary>
     /// Get etag key name for given local cache key name
     /// </summary>
     /// <param name="keyName"></param>
     /// <returns></returns>
     private string GetETagKey(string keyName)
-    {;
+    {
         string? etagKey;
-        if (!_localETagKeys.TryGetValue(keyName, out etagKey)) {
+        if (!_localETagKeys.TryGetValue(keyName, out etagKey))
+        {
             this.Logger.LogError($"Error: local Memory Cache Key {keyName} was not defined.");
             return string.Empty;
         }
         return etagKey;
     }
-    
+
     /// <summary>
     /// Get local cached etag value by local cache key name
     /// </summary>
@@ -419,7 +420,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         return (await GetLocalCacheListAsync<IEnumerable<API.Areas.Services.Models.Ingest.SourceModel>>(SourceCodeListCacheKey))?
                 .Where(x => x.Code.ToUpperInvariant() == code.ToUpperInvariant()).FirstOrDefault();
     }
-    
+
     /// <summary>
     /// Get variable list lookups, sources, ingests, and settings.
     /// </summary>

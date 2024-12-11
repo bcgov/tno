@@ -10,42 +10,107 @@ To install the CrunchyDB HA Cluster in the **dev** namespace, run the following 
 
 To perform an adhoc backup of the database run the following command.
 
-```
+```bash
 oc annotate -n 9b301c-test postgrescluster postgres-cluster \
   postgres-operator.crunchydata.com/pgbackrest-backup="$( date '+%F_%H:%M:%S' )"
 ```
 
 Subsequent runs will require the `--overwrite` attribute.
 
-```
+```bash
 oc annotate -n 9b301c-test postgrescluster postgres-cluster --overwrite \
   postgres-operator.crunchydata.com/pgbackrest-backup="$( date '+%F_%H:%M:%S' )"
 ```
 
-# Change Fix
+## Upgrade Information
 
-The Crunchy DB Operator is getting an upgrade! We are moving from our current 5.0 version to 5.3! This will provide a few new much-requested features, and is required for the 4.12 Openshift upgrade.
+To upgrade CrunchyDB following the information provided. Note that this implementation was completed before the Exchange Lab provided a Helm chart, which means the process is slightly different.
 
-When?
+Official documentation here - [Postgres Major Version Upgrade](https://access.crunchydata.com/documentation/postgres-operator/5.5/guides/major-postgres-version-upgrade)
 
-The operator will be upgraded on Thursday May 25th.
+Version alignment here - [Release notes](https://access.crunchydata.com/documentation/postgres-operator/latest/releases/5.5.x)
 
-Will there be an impact on the Platform apps?
+Exchange Lab Helm chart here - [Github](https://github.com/bcgov/crunchy-postgres)
 
-Most Crunchy databases running images compatible with our current v5.0 operator will break once the upgrade is performed! Fortunately, you can upgrade your images to a 5.3 compatible version before the operator upgrade. These images have been tested as compatible with both the current and new versions of the operator. If you upgrade before Thursday May 25th, you should see no impact to your application.
+Artifactory Image Tags here - [JFrog Registry](https://artifacts.developer.gov.bc.ca/ui/repos/tree/General/bcgov-docker-local)
 
-Please upgrade your images as follows:
+### Step 1: Shutdown Services
 
-Postgres 13: no update
-**Postgres 14: crunchy-postgres:ubi8-14.7-0**
-Postgres 14 GIS 3.1: crunchy-postgres-gis:ubi8-14.7-3.1-0
-Postgres 14 GIS 3.2: crunchy-postgres-gis:ubi8-14.7-3.2-0
-Postgres 14 GIS 3.3: crunchy-postgres-gis:ubi8-14.7-3.3-0
-Postgres 15: crunchy-postgres:ubi8-15.2-0
-Postgres 15 GIS 3.3: crunchy-postgres-gis:ubi8-15.2-3.3-0
-PGAdmin: crunchy-pgadmin4:ubi8-4.30-10
-**PGBackRest: crunchy-pgbackrest:ubi8-2.41-4**
-**PGBouncer: crunchy-pgbouncer:ubi8-1.18-0**
-**PGExporter: crunchy-postgres-exporter:ubi8-5.3.1-0**
+Turn everything off in the environment.
 
-- Add configuration  `spec.backups.pgbackrest.sidecars.pgbackrestConfig.resources`.
+```bash
+cd openshift
+make stop e=dev
+```
+
+### Step 2: Apply hte latest template
+
+This will remove all image specifications so that the `spec.postgresVersion: 14` version will be managed by the operator. This process may take a while as it updates to the latest minor version You may need to restart the cluster.
+
+```bash
+oc kustomize openshift/kustomize/postgres/crunchy/overlays/dev | oc apply -f -
+```
+
+### Step 3: Take a Full Backup
+
+You will need to wait and confirm the backup has been completed, as this is just a request for it do it when it can.
+
+```bash
+oc annotate -n 9b301c-test postgrescluster postgres-cluster \
+  postgres-operator.crunchydata.com/pgbackrest-backup="$( date '+%F_%H:%M:%S' )"
+```
+
+### Step 4: Configure PGUpgrade Object
+
+```yaml
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PGUpgrade
+metadata:
+  name: crunchy-upgrade
+spec:
+  postgresClusterName: crunchy
+  fromPostgresVersion: 14
+  toPostgresVersion: 15
+```
+
+### Step 5: Shutdown and Annotate the Cluster
+
+Link the cluster to the update.
+
+```bash
+# Annotate the cluster
+oc -n 9b301c-dev annotate postgrescluster crunchy postgres-operator.crunchydata.com/allow-upgrade="crunchy-upgrade"
+```
+
+Shutdown the cluster.
+
+```bash
+oc patch postgrescluster/crunchy -n 9b301c-dev --type merge --patch '{"spec":{"shutdown": true}}'
+```
+
+### Step 6: Watch and Wait
+
+Check on status.
+
+```bash
+oc describe pgupgrade -n 9b301c-dev
+```
+
+### Step 7: Restart
+
+Update `PostgresCluster` object with `spec.postgresVersion: 15`.
+
+```bash
+oc patch postgrescluster/crunchy -n 9b301c-dev --type merge --patch '{"spec":{"postgresVersion": 15}}'
+
+# Start up again
+oc patch postgrescluster/crunchy -n 9b301c-dev --type merge --patch '{"spec":{"shutdown": false}}'
+```
+
+### Other Commands
+
+If you need to restart.
+
+```bash
+oc patch postgrescluster/crunchy -n 9b301c-dev --type merge --patch '{"spec":{"metadata":{"annotations":{"restarted":"'"$(date)"'"}}}}'
+```

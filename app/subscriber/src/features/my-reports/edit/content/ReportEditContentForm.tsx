@@ -49,6 +49,7 @@ export const ReportEditContentForm = React.forwardRef<
   const [excludeContentInUnsentReport, setExcludeContentInUnsentReport] = React.useState(
     values.settings.content.excludeContentInUnsentReport,
   );
+  const [groupByMonth, setGroupByMonth] = React.useState(true);
 
   const showFolders = !!profile?.preferences?.showReportFolderSections;
 
@@ -116,13 +117,27 @@ export const ReportEditContentForm = React.forwardRef<
               direction="row-reverse"
             />
           </Show>
-          <Action
-            icon={
-              <img className="excel-icon" src={'/assets/excel-icon.svg'} alt="Export to Excel" />
-            }
-            disabled={isSubmitting}
-            onClick={() => onExport(values)}
-          />
+          <div className="export-action">
+            <Action
+              icon={
+                <img className="excel-icon" src={'/assets/excel-icon.svg'} alt="Export to Excel" />
+              }
+              disabled={isSubmitting}
+              onClick={() => onExport(values, groupByMonth ? 'yyyy-MM' : 'yyyy-MM-dd')}
+            />
+            <ToggleButton
+              on={<FaToggleOn />}
+              off={<FaToggleOff />}
+              onClick={async (e) => {
+                setGroupByMonth((value) => !value);
+              }}
+              value={groupByMonth}
+              width="25px"
+              height="25px"
+              onLabel="Month"
+              offLabel="Day"
+            />
+          </div>
         </div>
       </div>
       <ReportSections

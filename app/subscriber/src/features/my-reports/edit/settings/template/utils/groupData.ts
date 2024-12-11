@@ -98,22 +98,27 @@ export const groupData = (
   } else if (groupBy === 'dayMonthYear') {
     result = getChartData(chart, datasets, sections, {
       ...options,
-      groupOn: (c) => moment(c?.content?.publishedOn).tz('America/Vancouver').format('DD-MMM-YYYY'),
+      groupOn: (c) => +moment(c?.content?.publishedOn).tz('America/Vancouver').format('YYYYMMDD'),
+      getLabel: (c) =>
+        moment(c?.content?.publishedOn).tz('America/Vancouver').format('DD-MMM-YYYY'),
     });
   } else if (groupBy === 'monthDay') {
     result = getChartData(chart, datasets, sections, {
       ...options,
-      groupOn: (c) => moment(c?.content?.publishedOn).tz('America/Vancouver').format('MMM-DD'),
+      groupOn: (c) => +moment(c?.content?.publishedOn).tz('America/Vancouver').format('MMDD'),
+      getLabel: (c) => moment(c?.content?.publishedOn).tz('America/Vancouver').format('MMM-DD'),
     });
   } else if (groupBy === 'monthYear') {
     result = getChartData(chart, datasets, sections, {
       ...options,
-      groupOn: (c) => moment(c?.content?.publishedOn).tz('America/Vancouver').format('MMM-YYYY'),
+      groupOn: (c) => +moment(c?.content?.publishedOn).tz('America/Vancouver').format('YYYYMM'),
+      getLabel: (c) => moment(c?.content?.publishedOn).tz('America/Vancouver').format('MMM-YYYY'),
     });
   } else if (groupBy === 'year') {
     result = getChartData(chart, datasets, sections, {
       ...options,
-      groupOn: (c) => moment(c?.content?.publishedOn).tz('America/Vancouver').format('YYYY'),
+      groupOn: (c) => +moment(c?.content?.publishedOn).tz('America/Vancouver').format('YYYY'),
+      getLabel: (c) => moment(c?.content?.publishedOn).tz('America/Vancouver').format('YYYY'),
     });
   } else if (groupBy === 'reportSection') {
     result = getChartData(chart, datasets, sections, {
@@ -126,6 +131,23 @@ export const groupData = (
       datasets: [],
     };
   }
+
+  // if (groupByOrder === 'desc' && groupBy !== '' && groupBy !== 'reportSection') {
+  //   result = {
+  //     labels: result.labels.sort((a, b) => {
+  //       console.debug(a, b);
+  //       if (a < b) return 1;
+  //       if (a > b) return -1;
+  //       return 0;
+  //     }),
+  //     datasets: result.datasets.sort((a, b) => {
+  //       console.debug(a, b);
+  //       if (a.label < b.label) return 1;
+  //       if (a.label > b.label) return -1;
+  //       return 0;
+  //     }),
+  //   };
+  // }
 
   return result;
 };
