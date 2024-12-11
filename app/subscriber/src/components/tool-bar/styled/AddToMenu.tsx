@@ -24,6 +24,7 @@ export const AddToMenu = styled.div`
   }
   .report-name {
     margin-left: 1.5em;
+    flex: auto;
   }
   .react-tooltip {
     font-size: 1.1em;
@@ -85,4 +86,7 @@ export const AddToMenu = styled.div`
       color: ${(props) => props.theme.css.iconPrimaryColor};
     }
   }
+  .section-list {
+    max-height: 50vh;
+    overflow-y: auto;
 `;
