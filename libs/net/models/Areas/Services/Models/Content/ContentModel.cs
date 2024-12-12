@@ -244,11 +244,6 @@ public class ContentModel : AuditColumnsModel
     /// get/set - An array of quotes.
     /// </summary>
     public IEnumerable<QuoteModel> Quotes { get; set; } = Array.Empty<QuoteModel>();
-
-    /// <summary>
-    /// get/set - Whether content is CBRA unqualified.
-    /// </summary>
-    public bool IsCBRAUnqualified { get; set; }
     #endregion
 
     #region Constructors
@@ -305,7 +300,6 @@ public class ContentModel : AuditColumnsModel
         this.Quotes = entity.Quotes.Select(e => new QuoteModel(e));
         this.UserNotifications = entity.UserNotifications.Select(un => new UserContentNotificationModel(un));
         this.Versions = entity.Versions;
-        this.IsCBRAUnqualified = entity.IsCBRAUnqualified;
     }
     #endregion
 
@@ -352,7 +346,6 @@ public class ContentModel : AuditColumnsModel
         entity.FileReferences.AddRange(model.FileReferences.Select(f => f.ToEntity(entity.Id)));
         entity.NotificationsManyToMany.AddRange(model.Notifications.Select(n => (Entities.NotificationInstance)n));
         entity.Quotes.AddRange(model.Quotes.Select(f => f.ToEntity(entity.Id)));
-        entity.IsCBRAUnqualified = model.IsCBRAUnqualified;
 
         return entity;
     }

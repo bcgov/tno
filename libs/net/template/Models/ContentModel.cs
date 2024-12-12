@@ -219,11 +219,6 @@ public class ContentModel
     /// get/set - An array of file references.
     /// </summary>
     public IEnumerable<FileReferenceModel> FileReferences { get; set; } = Array.Empty<FileReferenceModel>();
-
-    /// <summary>
-    /// get/set - Whether content is CBRA unqualified.
-    /// </summary>
-    public bool IsCBRAUnqualified { get; set; }
     #endregion
 
     #region Constructors
@@ -283,7 +278,6 @@ public class ContentModel
         this.Labels = entity.Labels.Select(e => new ContentLabelModel(e));
         this.TonePools = entity.TonePoolsManyToMany.Select(e => new ContentTonePoolModel(e));
         this.FileReferences = entity.FileReferences.Select(e => new FileReferenceModel(e));
-        this.IsCBRAUnqualified = entity.IsCBRAUnqualified;
     }
 
     /// <summary>
@@ -337,7 +331,6 @@ public class ContentModel
         this.Labels = model.Labels.Select(e => new ContentLabelModel(e));
         this.TonePools = model.TonePools.Select(e => new ContentTonePoolModel(e));
         this.FileReferences = model.FileReferences.Select(e => new FileReferenceModel(e));
-        this.IsCBRAUnqualified = model.IsCBRAUnqualified;
     }
 
     /// <summary>
@@ -410,7 +403,6 @@ public class ContentModel
         this.Labels = model.Labels.Select(e => new ContentLabelModel(e));
         this.TonePools = model.TonePools.Select(e => new ContentTonePoolModel(e));
         this.FileReferences = model.FileReferences.Select(e => new FileReferenceModel(e));
-        this.IsCBRAUnqualified = model.IsCBRAUnqualified;
     }
 
     /// <summary>
@@ -464,7 +456,6 @@ public class ContentModel
         this.Labels = model.Labels.Select(e => new ContentLabelModel(e));
         this.TonePools = model.TonePools.Select(e => new ContentTonePoolModel(e));
         this.FileReferences = model.FileReferences.Select(e => new FileReferenceModel(e));
-        this.IsCBRAUnqualified = model.IsCBRAUnqualified;
     }
 
     /// <summary>
@@ -518,7 +509,6 @@ public class ContentModel
         this.Labels = model.Labels.Select(e => new ContentLabelModel(e));
         this.TonePools = model.TonePools.Select(e => new ContentTonePoolModel(e));
         this.FileReferences = model.FileReferences.Select(e => new FileReferenceModel(e));
-        this.IsCBRAUnqualified = model.IsCBRAUnqualified;
     }
     #endregion
 }

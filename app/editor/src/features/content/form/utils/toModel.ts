@@ -56,6 +56,5 @@ export function toModel(values: IContentForm): IContentModel {
     postedOn: values.postedOn ? moment(values.postedOn).toISOString() : undefined,
     publishedOn: moment(values.publishedOn).toISOString(),
     version: values.version,
-    isCBRAUnqualified: values.isCBRAUnqualified,
   };
 }

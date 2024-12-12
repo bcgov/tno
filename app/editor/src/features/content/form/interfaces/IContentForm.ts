@@ -29,5 +29,4 @@ export interface IContentForm
   prep?: number;
   // Print Content
   showOther?: boolean;
-  isCBRAUnqualified: boolean;
 }

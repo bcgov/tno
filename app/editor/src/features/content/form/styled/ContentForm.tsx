@@ -75,12 +75,6 @@ export const ContentForm = styled.div`
     padding-right: 0.5em;
   }
 
-  .checkbox-cbra {
-    margin-left: 2em;
-    margin-top: 2em;
-    padding-right: 0.5em;
-  }
-
   .content-properties {
     flex-grow: 1;
     padding-top: 1em;

@@ -31,5 +31,4 @@ export const defaultContent: IContentModel = {
   quotes: [],
   userNotifications: [],
   versions: {},
-  isCBRAUnqualified: false,
 };
