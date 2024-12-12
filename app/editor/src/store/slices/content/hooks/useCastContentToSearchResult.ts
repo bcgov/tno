@@ -38,7 +38,6 @@ export const useCastContentToSearchResult = () => {
           ? content.actions.some((a) => a.id === featuredStoryActionId && a.value === 'true')
           : false,
         version: content.version,
-        isCBRAUnqualified: content.isCBRAUnqualified,
       };
 
       return result;
