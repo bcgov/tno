@@ -13,4 +13,16 @@ export const SystemMessage = styled.div`
     float: right;
     color: ${(props) => props.theme.css.btnBkPrimary};
   }
+
+  .ql-align-left {
+    text-align: left;
+  }
+
+  .ql-align-center {
+    text-align: center;
+  }
+
+  .ql-align-right {
+    text-align: right;
+  }
 `;
