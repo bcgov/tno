@@ -4,6 +4,8 @@ using Amazon.S3.Model;
 using Amazon.Runtime;
 using Amazon.S3;
 using TNO.Core.Storage.Configuration;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace TNO.Core.Storage;
 
@@ -172,6 +174,66 @@ public class S3StorageService : IS3StorageService
         {
             _logger.LogError($"Network connection failed: {ex}");
             return false;
+        }
+    }
+    /// <summary>
+    /// Get media duration for audio/video files from S3 metadata
+    /// </summary>
+    /// <param name="s3Key">S3 file key</param>
+    /// <returns>Duration in seconds, or null if not a media file or error occurs</returns>
+    public async Task<double?> GetMediaDurationAsync(string s3Key)
+    {
+        if (_client == null)
+        {
+            _logger.LogError("S3 client is not initialized. Please ensure that the S3 client is properly configured and instantiated before attempting to access media duration.");
+            return null;
+        }
+
+        try
+        {
+            // Get object metadata
+            var request = new GetObjectMetadataRequest
+            {
+                BucketName = _s3Options.BucketName,
+                Key = s3Key
+            };
+
+            var metadata = await _client.GetObjectMetadataAsync(request);
+            var metadataJson = JsonSerializer.Serialize(metadata, new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                ReferenceHandler = ReferenceHandler.Preserve
+            });
+
+            // Check content type
+            var contentType = metadata.Headers.ContentType?.ToLower();
+            if (string.IsNullOrEmpty(contentType) ||
+                (!contentType.StartsWith("video/") && !contentType.StartsWith("audio/")))
+            {
+                _logger.LogInformation("The file with key: {S3Key} is not a media file. Detected Content-Type: {ContentType}.", s3Key, contentType);
+                return null;
+            }
+
+            // Try to get duration from metadata
+            var durationStr = metadata.Metadata["duration"];
+            if (!string.IsNullOrEmpty(durationStr) && double.TryParse(durationStr, out double duration))
+            {
+                _logger.LogInformation("Successfully retrieved duration from metadata for file: {S3Key}. Duration: {Duration} seconds.", s3Key, duration);
+                return duration;
+            }
+
+            _logger.LogWarning("Could not determine duration for media file: {S3Key}. No valid duration found in metadata and content length is insufficient for estimation.", s3Key);
+            return null;
+        }
+        catch (AmazonS3Exception ex)
+        {
+            _logger.LogError(ex, "S3 error occurred while getting metadata for file: {S3Key}. Error message: {ErrorMessage}", s3Key, ex.Message);
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unexpected error occurred while getting media duration for file: {S3Key}. Error message: {ErrorMessage}", s3Key, ex.Message);
+            return null;
         }
     }
 
