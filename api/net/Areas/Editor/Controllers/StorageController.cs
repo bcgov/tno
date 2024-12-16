@@ -542,7 +542,7 @@ public class StorageController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public async Task<IActionResult> UploadFileToS3Async([FromQuery] DateTime? publishedAfter = null, [FromQuery] DateTime? publishedBefore = null, [FromQuery] int? limit = null, [FromQuery] bool force = false)
     {
-        _logger.LogInformation("upload-files-to-s3");
+        _logger.LogDebug("upload-files-to-s3");
         var fileReferences = await _fileReferenceService.GetFiles(publishedAfter, publishedBefore, limit ?? 100, force);
         var uploadedFiles = new List<string>();
         var failedUploads = new List<string>();
@@ -563,7 +563,7 @@ public class StorageController : ControllerBase
                     using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
                     // use relative path as S3 key
                     var s3Key = fileReference.Path.Replace("\\", "/"); // make sure use forward slash as path separator
-                    _logger.LogInformation($"uploading: {s3Key}");
+                    _logger.LogDebug($"uploading: {s3Key}");
                     var uploadSuccess = await _s3StorageService.UploadToS3Async(s3Key, fileStream);
 
                     if (uploadSuccess)
@@ -581,11 +581,11 @@ public class StorageController : ControllerBase
                             try
                             {
                                 System.IO.File.Delete(filePath);
-                                _logger.LogInformation("deleted local file: {FilePath}", filePath);
+                                _logger.LogDebug("deleted local file: {FilePath}, contentId: {ContentId}", filePath, fileReference.ContentId);
                             }
                             catch (Exception ex)
                             {
-                                _logger.LogError(ex, "failed to delete local file: {FilePath}", filePath);
+                                _logger.LogError(ex, "failed to delete local file: {FilePath}, contentId: {ContentId}", filePath, fileReference.ContentId);
                             }
                         }
                     }
@@ -595,7 +595,7 @@ public class StorageController : ControllerBase
                         {
                             // GetFiles method will return fileReference that is not synced to S3 normally, for extra safety, we double check here fileReference.IsSyncedToS3
                             // if file not found, and file was not synced to S3, then it is a broken reference, we delete it
-                            _logger.LogInformation("File not found, broken reference deleted: {Path}", fileReference.Path);
+                            _logger.LogDebug("File not found, broken reference deleted: {Path}, contentId: {ContentId}", fileReference.Path, fileReference.ContentId);
                             _fileReferenceService.DeleteAndSave(fileReference);
                             failedUploads.Add($"{fileReference.Path} (file not found, broken reference deleted)");
                         }
@@ -604,6 +604,11 @@ public class StorageController : ControllerBase
                 else
                 {
                     failedUploads.Add($"{fileReference.Path} (file not found)");
+                    if (!fileReference.IsSyncedToS3)
+                    {
+                        _logger.LogDebug("File not found, broken reference deleted: {Path}, contentId: {ContentId}", fileReference.Path, fileReference.ContentId);
+                        _fileReferenceService.DeleteAndSave(fileReference);
+                    }
                 }
             }
             catch (Exception ex)
@@ -612,7 +617,7 @@ public class StorageController : ControllerBase
             }
         }
 
-        _logger.LogInformation("finished upload-all-to-s3");
+        _logger.LogDebug("finished upload-all-to-s3");
         return Ok(new
         {
             UploadedFiles = uploadedFiles,
