@@ -98,10 +98,12 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
           </div>
         ));
         onClear?.();
+        setSearchQuery('');
       } catch {
         // Errors are handled globally.
       } finally {
         setInProgress({ sectionName: '', value: false });
+        setSearchQuery('');
       }
     },
     [addContentToReport, onClear, getReport, generateReport],

@@ -24,6 +24,7 @@ export const AddToMenu = styled.div`
   }
   .report-name {
     margin-left: 1.5em;
+    flex: auto;
   }
   .react-tooltip {
     font-size: 1.1em;
@@ -39,10 +40,11 @@ export const AddToMenu = styled.div`
       color: ${(props) => props.theme.css.btnBkPrimary};
       font-weight: bold;
       border-bottom: 1px solid ${(props) => props.theme.css.btnBkPrimary};
-    }
-    .active-section {
-      position: absolute;
-      left: 2.85em;
+      .active-section {
+        position: sticky;
+        border-bottom: none;
+        margin-left: -1.8em;
+      }
     }
     margin-left: 3.5em;
     &:not(:hover) {
@@ -85,4 +87,8 @@ export const AddToMenu = styled.div`
       color: ${(props) => props.theme.css.iconPrimaryColor};
     }
   }
+  .section-list {
+    max-height: 50vh;
+    overflow-y: auto;
+    overflow-x: hidden;
 `;
