@@ -661,7 +661,7 @@ public class StorageController : ControllerBase
                 _logger.LogInformation("Processing file: {Path}", fileReference.Path);
                 if (fileReference.RunningTime > 0 && !force)
                 {
-                    _logger.LogInformation("Skipping file {Path} as it already has a running time of {RunningTime}ms", fileReference.Path, fileReference.RunningTime);
+                    _logger.LogInformation("Skipping file {Path} as it already has a running time of {RunningTime}ms, contentId: {ContentId}", fileReference.Path, fileReference.RunningTime, fileReference.ContentId);
                     continue; // Skip files that already have running time unless forced
                 }
 
@@ -675,7 +675,7 @@ public class StorageController : ControllerBase
                         fileReference.RunningTime = (int)Math.Round(duration.Value * 1000); // convert to milliseconds
                         await _fileReferenceService.UpdateAsync(fileReference);
                         successFiles.Add($"{fileReference.Path} (S3 duration: {fileReference.RunningTime}ms)");
-                        _logger.LogInformation("Updated S3 duration for file {Path}: {Duration}ms", fileReference.Path, fileReference.RunningTime);
+                        _logger.LogDebug("Updated S3 duration for file {Path} contentId: {ContentId} duration: {Duration}ms", fileReference.Path, fileReference.ContentId, fileReference.RunningTime);
                         continue; // Skip to the next file after processing S3
                     }
                 }
@@ -691,18 +691,18 @@ public class StorageController : ControllerBase
                         fileReference.RunningTime = (int)Math.Round(duration * 1000);
                         await _fileReferenceService.UpdateAsync(fileReference);
                         successFiles.Add($"{fileReference.Path} (duration: {fileReference.RunningTime}ms)");
-                        _logger.LogInformation("Updated duration for file {Path}: {Duration}ms", fileReference.Path, fileReference.RunningTime);
+                        _logger.LogDebug("Updated duration for file {Path} contentId: {ContentId} duration: {Duration}ms", fileReference.Path, fileReference.ContentId, fileReference.RunningTime);
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error parsing duration for file: {Path}", fileReference.Path);
+                        _logger.LogError(ex, "Error parsing duration for file: {Path}, contentId: {ContentId}", fileReference.Path, fileReference.ContentId);
                         failedFiles.Add($"{fileReference.Path} (unable to parse duration: {ex.Message})");
                     }
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing file: {Path}", fileReference.Path);
+                _logger.LogError(ex, "Error processing file: {Path}, contentId: {ContentId}", fileReference.Path, fileReference.ContentId);
                 failedFiles.Add($"{fileReference.Path} (error: {ex.Message})");
             }
         }
