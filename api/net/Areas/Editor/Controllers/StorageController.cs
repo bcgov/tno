@@ -620,5 +620,99 @@ public class StorageController : ControllerBase
         });
     }
 
+
+    /// <summary>
+    /// Get the running time of the file and update FileReference
+    /// </summary>
+    /// <param name="publishedAfter">Optional, only process content files published after the specified date</param>
+    /// <param name="publishedBefore">Optional, only process content files published before the specified date</param>
+    /// <param name="limit">Optional, limit the number of files processed</param>
+    /// <param name="force">Optional, whether to force processing of files</param>
+    /// <returns>Processing result, including lists of successful and failed files</returns>
+    [HttpPost("update-media-duration")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(Dictionary<string, List<string>>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Storage" })]
+    public async Task<IActionResult> UpdateMediaDurationAsync(
+        [FromQuery] DateTime? publishedAfter = null,
+        [FromQuery] DateTime? publishedBefore = null,
+        [FromQuery] int? limit = null,
+        [FromQuery] bool force = false)
+    {
+        _logger.LogInformation("Starting to update media file duration");
+
+        var fileReferences = await _fileReferenceService.GetFiles(publishedAfter, publishedBefore, limit ?? -1, force);
+        _logger.LogInformation("Retrieved {Count} file references for processing", fileReferences.Count());
+
+        // Only process audio and video files
+        fileReferences = fileReferences.Where(fr =>
+            fr.ContentType.StartsWith("video/", StringComparison.OrdinalIgnoreCase) ||
+            fr.ContentType.StartsWith("audio/", StringComparison.OrdinalIgnoreCase));
+        _logger.LogInformation("Filtered to {Count} audio/video file references", fileReferences.Count());
+
+        var successFiles = new List<string>();
+        var failedFiles = new List<string>();
+
+        foreach (var fileReference in fileReferences)
+        {
+            try
+            {
+                _logger.LogInformation("Processing file: {Path}", fileReference.Path);
+                if (fileReference.RunningTime > 0 && !force)
+                {
+                    _logger.LogInformation("Skipping file {Path} as it already has a running time of {RunningTime}ms", fileReference.Path, fileReference.RunningTime);
+                    continue; // Skip files that already have running time unless forced
+                }
+
+                // Check S3 path first
+                if (!string.IsNullOrEmpty(fileReference.S3Path))
+                {
+                    _logger.LogInformation("Checking S3 path: {S3Path}", fileReference.S3Path);
+                    var duration = await _s3StorageService.GetMediaDurationAsync(fileReference.S3Path);
+                    if (duration.HasValue)
+                    {
+                        fileReference.RunningTime = (int)Math.Round(duration.Value * 1000); // convert to milliseconds
+                        await _fileReferenceService.UpdateAsync(fileReference);
+                        successFiles.Add($"{fileReference.Path} (S3 duration: {fileReference.RunningTime}ms)");
+                        _logger.LogInformation("Updated S3 duration for file {Path}: {Duration}ms", fileReference.Path, fileReference.RunningTime);
+                        continue; // Skip to the next file after processing S3
+                    }
+                }
+                else
+                {
+                    // If it is local file
+                    var filePath = Path.Combine(_storageOptions.GetUploadPath(), fileReference.Path);
+
+                    try
+                    {
+                        _logger.LogInformation("File found, getting duration for {Path}", filePath);
+                        var duration = await FfmpegHelper.GetVideoDurationAsync(filePath);
+                        fileReference.RunningTime = (int)Math.Round(duration * 1000);
+                        await _fileReferenceService.UpdateAsync(fileReference);
+                        successFiles.Add($"{fileReference.Path} (duration: {fileReference.RunningTime}ms)");
+                        _logger.LogInformation("Updated duration for file {Path}: {Duration}ms", fileReference.Path, fileReference.RunningTime);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error parsing duration for file: {Path}", fileReference.Path);
+                        failedFiles.Add($"{fileReference.Path} (unable to parse duration: {ex.Message})");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing file: {Path}", fileReference.Path);
+                failedFiles.Add($"{fileReference.Path} (error: {ex.Message})");
+            }
+        }
+
+        _logger.LogInformation("Media file duration update completed with {SuccessCount} successes and {FailedCount} failures", successFiles.Count, failedFiles.Count);
+        return Ok(new
+        {
+            SuccessFiles = successFiles,
+            FailedFiles = failedFiles
+        });
+    }
     #endregion
 }
