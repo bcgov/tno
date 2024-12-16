@@ -247,7 +247,6 @@ public class ContentController : ControllerBase
             content.Summary = model.Summary;
             content.Body = model.Body;
             content.Versions = model.Versions;
-            content.IsCBRAUnqualified = model.IsCBRAUnqualified;
             foreach (var tonePool in model.TonePools)
             {
                 // Update or Add.

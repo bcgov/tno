@@ -17,6 +17,5 @@ export const castToSearchResult = (message: IContentMessageModel): IContentSearc
     quotes: [],
     userNotifications: [],
     versions: {},
-    isCBRAUnqualified: false,
   };
 };

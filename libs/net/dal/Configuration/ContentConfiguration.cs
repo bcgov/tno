@@ -52,7 +52,6 @@ public class ContentConfiguration : AuditColumnsConfiguration<Content>
         builder.HasIndex(m => new { m.ContentType, m.OtherSource, m.Uid, m.Page, m.Status, m.IsHidden }, "IX_content");
         builder.HasIndex(m => new { m.Edition, m.Section, m.Byline }, "IX_print_content");
         builder.HasIndex(m => m.Headline, "IX_headline");
-        builder.Property(m => m.IsCBRAUnqualified).IsRequired();
 
         base.Configure(builder);
     }
