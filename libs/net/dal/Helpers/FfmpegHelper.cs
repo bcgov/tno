@@ -149,5 +149,47 @@ public static class FfmpegHelper
 
         return tcs.Task;
     }
+
+    /// <summary>
+    /// Get video duration in seconds
+    /// </summary>
+    /// <param name="path">Full path to the video file</param>
+    /// <returns>Duration in seconds with 2 decimal places</returns>
+    public static async Task<double> GetVideoDurationAsync(string path)
+    {
+        if (string.IsNullOrEmpty(path))
+            throw new ArgumentNullException(nameof(path));
+
+        if (!File.Exists(path))
+            throw new FileNotFoundException($"File not found: {path}");
+
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "/bin/sh",
+                Arguments = $"-c \"ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 '{path.Replace("'", @"'\''")}'\"",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true
+            }
+        };
+
+        try
+        {
+            process.Start();
+            var output = await process.StandardOutput.ReadToEndAsync();
+            await process.WaitForExitAsync();
+
+            if (process.ExitCode != 0 || output.Trim() == "N/A")
+                throw new Exception($"An unexpected error occurred while probing video '{path}'");
+
+            return double.Parse(output.Trim());
+        }
+        finally
+        {
+            process.Dispose();
+        }
+    }
     #endregion
 }

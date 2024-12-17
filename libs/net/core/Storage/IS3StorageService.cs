@@ -7,4 +7,6 @@ public interface IS3StorageService
     Task<Stream?> DownloadFromS3Async(string s3Key);
 
     Task<bool> TestS3NetworkConnectionAsync();
+
+    Task<double?> GetMediaDurationAsync(string s3Key);
 }
