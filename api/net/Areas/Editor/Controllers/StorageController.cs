@@ -589,17 +589,6 @@ public class StorageController : ControllerBase
                             }
                         }
                     }
-                    else
-                    {
-                        if (!fileReference.IsSyncedToS3)
-                        {
-                            // GetFiles method will return fileReference that is not synced to S3 normally, for extra safety, we double check here fileReference.IsSyncedToS3
-                            // if file not found, and file was not synced to S3, then it is a broken reference, we delete it
-                            _logger.LogDebug("File not found, broken reference deleted: {Path}, contentId: {ContentId}", fileReference.Path, fileReference.ContentId);
-                            _fileReferenceService.DeleteAndSave(fileReference);
-                            failedUploads.Add($"{fileReference.Path} (file not found, broken reference deleted)");
-                        }
-                    }
                 }
                 else
                 {
