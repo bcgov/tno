@@ -527,29 +527,36 @@ public class ContentController : ControllerBase
         var content = _contentService.FindById(id) ?? throw new NoContentException("Entity does not exist");
 
         if (!files.Any()) throw new InvalidOperationException("No file uploaded");
+        if (files.Count > 1) throw new InvalidOperationException("Only one file can be uploaded at a time");
 
+        var file = files[0];
         // If the content has a file reference, then update it.  Otherwise, add one.
         content.Version = version; // TODO: Handle concurrency before uploading the file as it will result in an orphaned file.
-        if (content.FileReferences.Any()) await _fileReferenceService.UploadAsync(content, files.First(), _storageOptions.GetUploadPath());
-        else await _fileReferenceService.UploadCleanUpAsync(new ContentFileReference(content, files.First()), _storageOptions.GetUploadPath());
 
-        if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
-        var fileReference = content.FileReferences.First();
-        if (fileReference.ContentType.StartsWith("video/", StringComparison.OrdinalIgnoreCase) ||
-            fileReference.ContentType.StartsWith("audio/", StringComparison.OrdinalIgnoreCase))
+        // save file reference
+        var updatedFileReference = content.FileReferences.Any()
+            ? await _fileReferenceService.UploadAsync(content, file, _storageOptions.GetUploadPath())
+            : await _fileReferenceService.UploadCleanUpAsync(new ContentFileReference(content, file), _storageOptions.GetUploadPath());
+
+        if (_workOrderHelper.ShouldAutoTranscribe(content.Id))
+            await _workOrderHelper.RequestTranscriptionAsync(content.Id);
+
+        if (updatedFileReference.ContentType.StartsWith("video/", StringComparison.OrdinalIgnoreCase) ||
+            updatedFileReference.ContentType.StartsWith("audio/", StringComparison.OrdinalIgnoreCase))
         {
             try
             {
-                var filePath = Path.Combine(_storageOptions.GetUploadPath(), fileReference.Path);
+                var filePath = Path.Combine(_storageOptions.GetUploadPath(), updatedFileReference.Path);
                 var duration = await FfmpegHelper.GetVideoDurationAsync(filePath);
-                fileReference.RunningTime = (int)Math.Round(duration * 1000);
-                await _fileReferenceService.UpdateAsync(fileReference);
+                updatedFileReference.RunningTime = (int)Math.Round(duration * 1000);
+                await _fileReferenceService.UpdateAsync(updatedFileReference);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error parsing duration for file: {Path}, contentId: {ContentId}", fileReference.Path, fileReference.ContentId);
+                _logger.LogError(ex, "Error parsing duration for file: {Path}, contentId: {ContentId}", updatedFileReference.Path, updatedFileReference.ContentId);
             }
         }
+
         var updatedContent = new ContentModel(content);
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
