@@ -26,7 +26,7 @@ using TNO.Kafka.SignalR;
 using TNO.Keycloak;
 using TNO.Models.Extensions;
 using TNO.Models.Filters;
-
+using TNO.DAL.Helpers;
 namespace TNO.API.Areas.Editor.Controllers;
 
 /// <summary>
@@ -534,7 +534,22 @@ public class ContentController : ControllerBase
         else await _fileReferenceService.UploadCleanUpAsync(new ContentFileReference(content, files.First()), _storageOptions.GetUploadPath());
 
         if (_workOrderHelper.ShouldAutoTranscribe(content.Id)) await _workOrderHelper.RequestTranscriptionAsync(content.Id);
-
+        var fileReference = content.FileReferences.First();
+        if (fileReference.ContentType.StartsWith("video/", StringComparison.OrdinalIgnoreCase) ||
+            fileReference.ContentType.StartsWith("audio/", StringComparison.OrdinalIgnoreCase))
+        {
+            try
+            {
+                var filePath = Path.Combine(_storageOptions.GetUploadPath(), fileReference.Path);
+                var duration = await FfmpegHelper.GetVideoDurationAsync(filePath);
+                fileReference.RunningTime = (int)Math.Round(duration * 1000);
+                await _fileReferenceService.UpdateAsync(fileReference);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error parsing duration for file: {Path}, contentId: {ContentId}", fileReference.Path, fileReference.ContentId);
+            }
+        }
         var updatedContent = new ContentModel(content);
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
