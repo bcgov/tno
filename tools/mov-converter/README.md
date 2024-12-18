@@ -2,6 +2,25 @@
 
 This solution requires installing FFmpeg on each Mac, and configuring two Automator workflows to convert the .mov files.
 
+## Install with Package
+
+Copy the package and double click it on your Mac `./tools/mov-converter/MovConverter.pkg`
+
+This will install Rosetta, FFmpeg and the Automator scripts. You will need to "Enable Folder Actions" on the `~/Movies/MMI-inbox` folder.
+
+### Enable Folder Actions
+
+Go to the `~/Movies/MMI-inbox` folder and right+click. Then go to the menu `Services -> Folder Actions Setup...`. Click the `Folder Actions Setup...`.
+
+![Edit Folder Settings](ConfigFolder.png)
+
+On the left side select and enable the `MMI-inbox` if it isn't already.
+On the right side add and/or enable the `Convert_to_mp4` script.
+
+![Folder Actions Setup](FolderActionsSetup.png)
+
+> If the above package does not work it will require you to manually do the following steps.
+
 ## Install FFmpeg
 
 The simple solution is to download and add the `ffmpeg` binary to the path.
@@ -43,6 +62,7 @@ do
   path=$(dirname "$f")
   filename=${f##*/}
   name=${filename%.*}
+  echo "$f"
 
   cd $path
   /usr/local/bin/ffmpeg -y -hide_banner -loglevel error -i $f -c copy ../MMI-outbox/${name}.mp4
@@ -64,9 +84,10 @@ do
   path=$(dirname "$f")
   filename=${f##*/}
   name=${filename%.*}
+  echo "$f"
 
   cd $path
-  /usr/local/bin/ffmpeg -y -hide_banner -loglevel error -i $f ${name}.mp4
+  /usr/local/bin/ffmpeg -y -hide_banner -loglevel error -i $f -c copy ${name}.mp4
 done
 ```
 
