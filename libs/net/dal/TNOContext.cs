@@ -84,6 +84,14 @@ public class TNOContext : DbContext
     public DbSet<UserDistribution> UserDistributions => Set<UserDistribution>();
     #endregion
 
+    #region ReportResults
+    public DbSet<CBRAReportTotalExcerpts> CBRAReportTotalExcerptsResults => Set<CBRAReportTotalExcerpts>();
+    public DbSet<CBRAReportStaffSummary> CBRAReportStaffSummaryResults => Set<CBRAReportStaffSummary>();
+    public DbSet<CBRAReportTotalsByProgram> CBRAReportTotalsByProgramResults => Set<CBRAReportTotalsByProgram>();
+    public DbSet<CBRAReportTotalsByBroadcaster> CBRAReportTotalsByBroadcasterResults => Set<CBRAReportTotalsByBroadcaster>();
+    public DbSet<CBRAReportTotalEntries> CBRAReportTotalEntriesResults => Set<CBRAReportTotalEntries>();
+    #endregion
+
     #region Reports
     public DbSet<Folder> Folders => Set<Folder>();
     public DbSet<FolderContent> FolderContents => Set<FolderContent>();
