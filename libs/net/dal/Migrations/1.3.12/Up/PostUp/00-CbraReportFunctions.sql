@@ -34,10 +34,9 @@ DECLARE cbra_action_id integer;
 begin
 
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_table_content_total_excerpts (
-		content_id numeric,
-		published_on date);
+		content_id numeric);
 	INSERT INTO temp_table_content_total_excerpts
-	SELECT DISTINCT c.id, c.published_on
+	SELECT DISTINCT c.id
 	FROM public.vw_cbra_published_contents c
 	where c.published_on >= f_from_date
 	and c.published_on  <= f_to_date;
@@ -72,9 +71,7 @@ begin
 	(select count(*)
 	from temp_table_content_total_excerpts c
 		left join file_reference f on f.content_id = c.content_id
-	where c.published_on >= f_from_date
-		and c.published_on  <= f_to_date
-	and COALESCE(f.running_time,0)/60000 >= 10);
+	where COALESCE(f.running_time,0)/60000 >= 10);
 
 	INSERT into temp_table_total_excerpts
 	SELECT 'Total',
