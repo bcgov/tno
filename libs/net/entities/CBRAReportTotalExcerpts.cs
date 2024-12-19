@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace TNO.Entities;
@@ -7,7 +6,6 @@ namespace TNO.Entities;
 /// CBRA report total excerpts
 /// </summary>
 [Keyless]
-[NotMapped]
 public class CBRAReportTotalExcerpts
 {
     public string category { get; set; }
