@@ -1,6 +1,26 @@
 DO $$
 BEGIN
 
+-- CBRA report view --
+CREATE OR REPLACE VIEW public.vw_cbra_published_contents
+ AS
+ SELECT DISTINCT c.id,
+    c.source,
+    c.source_id,
+    c.series_id,
+    c.media_type_id,
+	c.published_on,
+	COALESCE(ss.name, '') as series_name
+   FROM content c
+     LEFT JOIN source s ON c.source_id = s.id
+     LEFT JOIN series ss ON c.series_id = ss.id
+     JOIN ( SELECT unnest(string_to_array(setting.value::text, ','::text)::integer[]) AS media_type_id
+           FROM setting
+          WHERE setting.name::text = 'CBRAReportMediaTypeIds'::text) m ON c.media_type_id = m.media_type_id
+  WHERE ((ss.id IS NOT NULL AND ss.is_cbra_source = true) OR (ss.id IS NULL AND s.is_cbra_source = true))
+  	AND c.status = 2;
+
+
 -- CBRA report functions --
 CREATE OR REPLACE FUNCTION public.fn_cbra_report_total_excerpts(
 	f_from_date date,
@@ -12,24 +32,15 @@ DECLARE cbra_unqualified integer;
 DECLARE cbra_totals integer;
 DECLARE cbra_action_id integer;
 begin
-	CREATE TEMPORARY TABLE IF NOT EXISTS temp_table_media_types_total_excerpts(
-		media_type_id integer);
-	INSERT INTO temp_table_media_types_total_excerpts
-	select unnest(string_to_array(value,',')::integer[])
-	from setting
-	where name = 'CBRAReportMediaTypeIds';
 
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_table_content_total_excerpts (
-		content_id numeric);
+		content_id numeric,
+		published_on date);
 	INSERT INTO temp_table_content_total_excerpts
-	SELECT DISTINCT c.id
-	FROM content c
-	left join source s on c.source_id = s.id
-	left join series ss on c.series_id = ss.id
-	join temp_table_media_types_total_excerpts m on c.media_type_id = m.media_type_id
-	where c.created_on >= f_from_date
-	and c.created_on  <= f_to_date
-	and (ss.is_cbra_source = true or s.is_cbra_source = true);
+	SELECT DISTINCT c.id, c.published_on
+	FROM public.vw_cbra_published_contents c
+	where c.published_on >= f_from_date
+	and c.published_on  <= f_to_date;
 
 	select CAST(value AS INTEGER) into cbra_action_id
 	from setting
@@ -59,10 +70,10 @@ begin
 	INSERT into temp_table_total_excerpts
 	SELECT 'Total Number of Excerpts over 10 min.',
 	(select count(*)
-	from public.content c
-		left join file_reference f on f.content_id = c.id
-	where c.created_on >= f_from_date
-		and c.created_on  <= f_to_date
+	from temp_table_content_total_excerpts c
+		left join file_reference f on f.content_id = c.content_id
+	where c.published_on >= f_from_date
+		and c.published_on  <= f_to_date
 	and COALESCE(f.running_time,0)/60000 >= 10);
 
 	INSERT into temp_table_total_excerpts
@@ -75,7 +86,6 @@ begin
 		cast(tt.totals as decimal) as totals
 	from temp_table_total_excerpts tt;
 
-	DROP TABLE IF EXISTS temp_table_media_types_total_excerpts;
 	DROP TABLE IF EXISTS temp_table_content_total_excerpts;
 	DROP TABLE IF EXISTS temp_table_total_excerpts;
 
@@ -90,32 +100,22 @@ CREATE OR REPLACE FUNCTION public.fn_cbra_report_total_entries(
     LANGUAGE 'plpgsql'
 AS $BODY$
 begin
-	CREATE TEMPORARY TABLE IF NOT EXISTS temp_table_media_types_total_entries(
-		media_type_id integer);
-	INSERT INTO temp_table_media_types_total_entries
-	select unnest(string_to_array(value,',')::integer[])
-	from setting
-	where name = 'CBRAReportMediaTypeIds';
 
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_total_table_total_entries AS
-    select DATE_PART('dow', created_on) as dayofweek,
+    select DATE_PART('dow', published_on) as dayofweek,
 		count(*) as totalcount
 	from content
-	where created_on >= f_from_date
-	and created_on  <= f_to_date
-	group by DATE_PART('dow', created_on);
+	where published_on >= f_from_date
+	and published_on  <= f_to_date
+	group by DATE_PART('dow', published_on);
 
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_cbra_total_table_total_entries AS
-    select DATE_PART('dow', c.created_on) as dayofweek,
+    select DATE_PART('dow', c.published_on) as dayofweek,
 		count(c.*) as totalcount
-	from content c
-	left join source s on c.source_id = s.id
-	left join series ss on c.series_id = ss.id
-	join temp_table_media_types_total_entries m on c.media_type_id = m.media_type_id
-	where c.created_on >= f_from_date
-	and c.created_on  <= f_to_date
-	and (ss.is_cbra_source = true or s.is_cbra_source = true)
-	group by DATE_PART('dow', c.created_on);
+	from public.vw_cbra_published_contents c
+	where c.published_on >= f_from_date
+	and c.published_on  <= f_to_date
+	group by DATE_PART('dow', c.published_on);
 
 	return query
 	select
@@ -134,7 +134,6 @@ begin
 	from temp_total_table_total_entries tt
 	left join temp_cbra_total_table_total_entries c on tt.dayofweek = c.dayofweek; 
 
-	DROP TABLE IF EXISTS temp_table_media_types_total_entries;
 	DROP TABLE IF EXISTS temp_total_table_total_entries;
 	DROP TABLE IF EXISTS temp_cbra_total_table_total_entries;
 end;
@@ -149,25 +148,15 @@ CREATE OR REPLACE FUNCTION public.fn_cbra_report_totals_by_broadcaster(
 AS $BODY$
 DECLARE total_running_time numeric;
 begin
-	CREATE TEMPORARY TABLE IF NOT EXISTS temp_table_media_types_by_broadcaster(
-		media_type_id integer);
-	INSERT INTO temp_table_media_types_by_broadcaster
-	select unnest(string_to_array(value,',')::integer[])
-	from setting
-	where name = 'CBRAReportMediaTypeIds';
 
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_table_content_by_broadcaster (
 		content_id numeric,
 		source character varying(100));
 	INSERT INTO temp_table_content_by_broadcaster
 	SELECT DISTINCT c.id, c.source
-	FROM content c
-	left join source s on c.source_id = s.id
-	left join series ss on c.series_id = ss.id
-	join temp_table_media_types_by_broadcaster m on c.media_type_id = m.media_type_id
-	where c.created_on >= f_from_date
-	and c.created_on  <= f_to_date
-	and (ss.is_cbra_source = true or s.is_cbra_source = true);
+	FROM public.vw_cbra_published_contents c
+	where c.published_on >= f_from_date
+	and c.published_on  <= f_to_date;
 
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_table_by_broadcaster AS
 	select 
@@ -187,7 +176,6 @@ TO_CHAR((cast(COALESCE(tt.totalrunningtime,0) as decimal)/1000)*'1 SECOND'::INTE
 COALESCE(tt.totalrunningtime,0) / total_running_time as percentageoftotalrunningtime 
 	from temp_table_by_broadcaster tt;
 
-	DROP TABLE IF EXISTS temp_table_media_types_by_broadcaster;
 	DROP TABLE IF EXISTS temp_table_content_by_broadcaster;
 	DROP TABLE IF EXISTS temp_table_by_broadcaster;
 
@@ -203,12 +191,6 @@ CREATE OR REPLACE FUNCTION public.fn_cbra_report_totals_by_program(
 AS $BODY$
 DECLARE total_running_time numeric;
 begin
-	CREATE TEMPORARY TABLE IF NOT EXISTS temp_table_media_types_by_program(
-		media_type_id integer);
-	INSERT INTO temp_table_media_types_by_program
-	select unnest(string_to_array(value,',')::integer[])
-	from setting
-	where name = 'CBRAReportMediaTypeIds';
 
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_table_content_by_program (
 		content_id numeric,
@@ -220,15 +202,11 @@ begin
 		media_type_name character varying(100));
 	INSERT INTO temp_table_content_by_program
 	SELECT DISTINCT c.id, c.source, c.source_id, c.series_id,
-		COALESCE(ss.name, ''), c.media_type_id,  COALESCE(mm.name, '')
-	FROM content c
-	left join source s on c.source_id = s.id
-	left join series ss on c.series_id = ss.id
-	join temp_table_media_types_by_program m on c.media_type_id = m.media_type_id
-	join media_type mm on mm.id = m.media_type_id
-	where c.created_on >= f_from_date
-	and c.created_on  <= f_to_date
-	and (ss.is_cbra_source = true or s.is_cbra_source = true);
+		c.series_name, c.media_type_id, COALESCE(mm.name, '')
+	FROM public.vw_cbra_published_contents c
+	join media_type mm on mm.id = c.media_type_id
+	where c.published_on >= f_from_date
+	and c.published_on  <= f_to_date;
 
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_table_by_program AS
 	select c.media_type_id,
@@ -256,7 +234,6 @@ TO_CHAR((cast(COALESCE(tt.totalrunningtime,0) as decimal)/1000)*'1 SECOND'::INTE
 COALESCE(tt.totalrunningtime,0) / total_running_time as percentageoftotalrunningtime 
 	from temp_table_by_program tt;
 
-	DROP TABLE IF EXISTS temp_table_media_types_by_program;
 	DROP TABLE IF EXISTS temp_table_content_by_program;
 	DROP TABLE IF EXISTS temp_table_by_program;
 
@@ -271,25 +248,14 @@ CREATE OR REPLACE FUNCTION public.fn_cbra_report_staff_summary(
     LANGUAGE 'plpgsql'
 AS $BODY$
 begin
-	
-	CREATE TEMPORARY TABLE IF NOT EXISTS temp_table_media_types_staff_summary(
-		media_type_id integer);
-	INSERT INTO temp_table_media_types_staff_summary
-	select unnest(string_to_array(value,',')::integer[])
-	from setting
-	where name = 'CBRAReportMediaTypeIds';
 
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_table_staff_summary AS
     select tt.user_id,
-		sum(tt.Effort) as cbra_hours
+		cast(sum(COALESCE(tt.Effort,0)) as decimal) as cbra_hours
 	from time_tracking tt
-	join content c on tt.content_id = c.id
-	left join source s on c.source_id = s.id
-	left join series ss on c.series_id = ss.id
-	join temp_table_media_types_staff_summary m on c.media_type_id = m.media_type_id
-	where c.created_on >= f_from_date
-	and c.created_on  <= f_to_date
-	and (ss.is_cbra_source = true or s.is_cbra_source = true)
+	join public.vw_cbra_published_contents c on tt.content_id = c.id
+	where c.published_on >= f_from_date
+	and c.published_on  <= f_to_date
 	group by tt.user_id;
 
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_user_table_staff_summary AS
@@ -297,12 +263,10 @@ begin
 	from public.user;
 
 	return query
-	select u.first_name || ' ' || u.last_name,
-		cast(tt.cbra_hours as decimal)
+	select u.first_name || ' ' || u.last_name, tt.cbra_hours
 	from temp_table_staff_summary tt
 	join temp_user_table_staff_summary u on tt.user_id = u.id;
 
-	DROP TABLE temp_table_media_types_staff_summary;
 	DROP TABLE temp_table_staff_summary;
 	DROP TABLE temp_user_table_staff_summary;
 end;
