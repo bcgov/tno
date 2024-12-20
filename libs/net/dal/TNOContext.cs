@@ -191,19 +191,19 @@ public class TNOContext : DbContext
         modelBuilder.ApplyAllConfigurations(typeof(ContentConfiguration), this);
 
         modelBuilder.HasDbFunction(typeof(TNOContext)
-            .GetMethod(nameof(GetCbraReportStaffSummary), new[] {typeof(DateOnly), typeof(DateOnly)}))
+            .GetMethod(nameof(GetCbraReportStaffSummary), new[] { typeof(DateOnly), typeof(DateOnly) })!)
             .HasName("fn_cbra_report_staff_summary");
         modelBuilder.HasDbFunction(typeof(TNOContext)
-            .GetMethod(nameof(GetCbraReportTotalEntries), new[] {typeof(DateOnly), typeof(DateOnly)}))
+            .GetMethod(nameof(GetCbraReportTotalEntries), new[] { typeof(DateOnly), typeof(DateOnly) })!)
             .HasName("fn_cbra_report_total_entries");
         modelBuilder.HasDbFunction(typeof(TNOContext)
-            .GetMethod(nameof(GetCbraReportTotalExcerpts), new[] {typeof(DateOnly), typeof(DateOnly)}))
+            .GetMethod(nameof(GetCbraReportTotalExcerpts), new[] { typeof(DateOnly), typeof(DateOnly) })!)
             .HasName("fn_cbra_report_total_excerpts");
         modelBuilder.HasDbFunction(typeof(TNOContext)
-            .GetMethod(nameof(GetCbraReportTotalsByBroadcaster), new[] {typeof(DateOnly), typeof(DateOnly)}))
+            .GetMethod(nameof(GetCbraReportTotalsByBroadcaster), new[] { typeof(DateOnly), typeof(DateOnly) })!)
             .HasName("fn_cbra_report_totals_by_broadcaster");
         modelBuilder.HasDbFunction(typeof(TNOContext)
-            .GetMethod(nameof(GetCbraReportTotalsByProgram), new[] {typeof(DateOnly), typeof(DateOnly)}))
+            .GetMethod(nameof(GetCbraReportTotalsByProgram), new[] { typeof(DateOnly), typeof(DateOnly) })!)
             .HasName("fn_cbra_report_totals_by_program");
 
         modelBuilder.Entity<CBRAReportStaffSummary>().HasNoKey().ToView(null);

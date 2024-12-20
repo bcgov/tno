@@ -1,104 +1,170 @@
 DO $$
 BEGIN
 
-CREATE OR REPLACE FUNCTION public.fn_cbra_report_totals_by_broadcaster(
-	f_from_date date,
-	f_to_date date)
-    RETURNS TABLE(sourcetype character varying, totalrunningtime text, percentageoftotalrunningtime numeric) 
-    LANGUAGE 'plpgsql'
+-- Function: fn_cbra_report_total_entries
+CREATE OR REPLACE FUNCTION public.fn_cbra_report_total_entries (
+    f_from_date DATE
+    , f_to_date DATE
+  )
+RETURNS TABLE (
+  dayofweek TEXT
+  , totalcount NUMERIC
+  , totalcbra NUMERIC
+)
+LANGUAGE 'plpgsql'
 AS $BODY$
-DECLARE total_running_time numeric;
-begin
+BEGIN
+
+	CREATE TEMPORARY TABLE IF NOT EXISTS temp_total_table_total_entries AS
+  SELECT
+    DATE_PART('dow', published_on) AS dayofweek
+    , COUNT(*) AS totalcount
+	FROM content
+	WHERE published_on >= f_from_date
+	  AND published_on <= f_to_date
+	GROUP BY DATE_PART('dow', published_on);
+
+	CREATE TEMPORARY TABLE IF NOT EXISTS temp_cbra_total_table_total_entries AS
+  SELECT
+    DATE_PART('dow', c.published_on) AS dayofweek
+    , COUNT(c.*) AS totalcount
+  FROM public.vw_cbra_published_contents c
+  WHERE c.published_on >= f_from_date
+    AND c.published_on  <= f_to_date
+  GROUP BY DATE_PART('dow', c.published_on);
+
+	RETURN query
+	SELECT
+		CASE
+			WHEN tt.dayofweek=0 THEN 'Sunday'
+			WHEN tt.dayofweek=1 THEN 'Monday'
+			WHEN tt.dayofweek=2 THEN 'Tuesday'
+			WHEN tt.dayofweek=3 THEN 'Wednesday'
+			WHEN tt.dayofweek=4 THEN 'Thursday'
+			WHEN tt.dayofweek=5 THEN 'Friday'
+			WHEN tt.dayofweek=6 THEN 'Saturday'
+			ELSE 'other'
+		END AS dayofweek
+    ,	CAST(COALESCE(tt.totalcount,0) AS DECIMAL) AS totalcount
+    ,	CAST(COALESCE(c.totalcount, 0) AS DECIMAL) AS totalcbra
+	FROM temp_total_table_total_entries tt
+	LEFT JOIN temp_cbra_total_table_total_entries c ON tt.dayofweek = c.dayofweek;
+
+	DROP TABLE IF EXISTS temp_total_table_total_entries;
+	DROP TABLE IF EXISTS temp_cbra_total_table_total_entries;
+END;
+$BODY$;
+
+-- Function: fn_cbra_report_totals_by_broadcaster
+CREATE OR REPLACE FUNCTION public.fn_cbra_report_totals_by_broadcaster (
+	f_from_date DATE,
+	f_to_date DATE
+)
+RETURNS TABLE(sourcetype CHARACTER varying, totalrunningtime TEXT, percentageoftotalrunningtime NUMERIC)
+LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE total_running_time NUMERIC;
+BEGIN
 
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_table_content_by_broadcaster (
-		content_id numeric,
-		source character varying(100));
+		content_id NUMERIC,
+		source CHARACTER VARYING(100)
+  );
 	INSERT INTO temp_table_content_by_broadcaster
 	SELECT DISTINCT c.id, c.source
 	FROM public.vw_cbra_published_contents c
-	where c.published_on >= f_from_date
-	and c.published_on  <= f_to_date;
+	WHERE c.published_on >= f_from_date
+	  AND c.published_on  <= f_to_date;
 
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_table_by_broadcaster AS
-	select 
+	SELECT
 		c.source,
-		sum(COALESCE(f.running_time,0)) as totalrunningtime
-	from temp_table_content_by_broadcaster c
-		left join file_reference f on f.content_id = c.content_id
-	group by c.source;
+		SUM(COALESCE(f.running_time,0)) AS totalrunningtime
+	FROM temp_table_content_by_broadcaster c
+		LEFT JOIN file_reference f ON f.content_id = c.content_id
+	GROUP BY c.source;
 
-	select sum(tt.totalrunningtime) into total_running_time
-	from temp_table_by_broadcaster tt;
+	SELECT SUM(tt.totalrunningtime) INTO total_running_time
+	FROM temp_table_by_broadcaster tt;
 
-	return query
-	select
+	RETURN query
+	SELECT
 		tt.source,
-TO_CHAR((cast(COALESCE(tt.totalrunningtime,0) as decimal)/1000)*'1 SECOND'::INTERVAL, 'HH24:MI:SS') as totalrunningtime,
-COALESCE(tt.totalrunningtime,0) / total_running_time as percentageoftotalrunningtime 
-	from temp_table_by_broadcaster tt;
+    TO_CHAR((CAST(COALESCE(tt.totalrunningtime,0) AS DECIMAL)/1000)*'1 SECOND'::INTERVAL, 'HH24:MI:SS') AS totalrunningtime,
+    COALESCE(tt.totalrunningtime,0) / total_running_time AS percentageoftotalrunningtime
+	FROM temp_table_by_broadcaster tt;
 
 	DROP TABLE IF EXISTS temp_table_content_by_broadcaster;
 	DROP TABLE IF EXISTS temp_table_by_broadcaster;
 
-end;
+END;
 $BODY$;
 
-
-CREATE OR REPLACE FUNCTION public.fn_cbra_report_totals_by_program(
-	f_from_date date,
-	f_to_date date)
-    RETURNS TABLE(mediatype character varying, sourcetype character varying, series character varying, totalcount bigint, totalrunningtime text, percentageoftotalrunningtime numeric) 
-    LANGUAGE 'plpgsql'
+-- Function: fn_cbra_report_totals_by_program
+CREATE OR REPLACE FUNCTION public.fn_cbra_report_totals_by_program (
+	f_from_date DATE,
+	f_to_date DATE
+)
+RETURNS TABLE (
+  mediatype CHARACTER varying
+  , sourcetype CHARACTER varying
+  , series CHARACTER varying
+  , totalcount BIGINT
+  , totalrunningtime TEXT
+  , percentageoftotalrunningtime NUMERIC
+)
+LANGUAGE 'plpgsql'
 AS $BODY$
-DECLARE total_running_time numeric;
-begin
+DECLARE total_running_time NUMERIC;
+BEGIN
 
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_table_content_by_program (
-		content_id numeric,
-		source character varying(100),
-		source_id numeric,
-		series_id numeric,
-		series_name character varying(100),
-		media_type_id integer,
-		media_type_name character varying(100));
+		content_id NUMERIC,
+		source CHARACTER VARYING(100),
+		source_id NUMERIC,
+		series_id NUMERIC,
+		series_name CHARACTER VARYING(100),
+		media_type_id INTEGER,
+		media_type_name CHARACTER VARYING(100)
+  );
 	INSERT INTO temp_table_content_by_program
 	SELECT DISTINCT c.id, c.source, c.source_id, c.series_id,
 		c.series_name, c.media_type_id, COALESCE(mm.name, '')
 	FROM public.vw_cbra_published_contents c
-	join media_type mm on mm.id = c.media_type_id
-	where c.published_on >= f_from_date
-	and c.published_on  <= f_to_date;
+	JOIN media_type mm ON mm.id = c.media_type_id
+	WHERE c.published_on >= f_from_date
+	  AND c.published_on <= f_to_date;
 
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_table_by_program AS
-	select c.media_type_id,
+	SELECT
+    c.media_type_id,
 		c.source,
 		c.source_id,
 		c.series_id,
 		c.series_name,
 		c.media_type_name,
-		count(*) as totalcount,
-		sum(COALESCE(f.running_time,0)) as totalrunningtime
-	from temp_table_content_by_program c
-		left join file_reference f on f.content_id = c.content_id
-	group by c.media_type_id, c.source, c.source_id, c.series_id, c.series_name,
-		c.media_type_name;
+		count(*) AS totalcount,
+		sum(COALESCE(f.running_time,0)) AS totalrunningtime
+	FROM temp_table_content_by_program c
+		LEFT JOIN file_reference f ON f.content_id = c.content_id
+	GROUP BY c.media_type_id, c.source, c.source_id, c.series_id, c.series_name, c.media_type_name;
 
-	select sum(tt.totalrunningtime) into total_running_time
-	from temp_table_by_program tt;
+	SELECT SUM(tt.totalrunningtime) INTO total_running_time
+	FROM temp_table_by_program tt;
 
-	return query
-	select tt.media_type_name as mediatype,
+	RETURN query
+	SELECT tt.media_type_name AS mediatype,
 		tt.source,
 		tt.series_name,
 		tt.totalcount,
-TO_CHAR((cast(COALESCE(tt.totalrunningtime,0) as decimal)/1000)*'1 SECOND'::INTERVAL, 'HH24:MI:SS') as totalrunningtime,
-COALESCE(tt.totalrunningtime,0) / total_running_time as percentageoftotalrunningtime 
-	from temp_table_by_program tt;
+    TO_CHAR((cast(COALESCE(tt.totalrunningtime,0) AS DECIMAL)/1000)*'1 SECOND'::INTERVAL, 'HH24:MI:SS') AS totalrunningtime,
+    COALESCE(tt.totalrunningtime,0) / total_running_time AS percentageoftotalrunningtime
+	FROM temp_table_by_program tt;
 
 	DROP TABLE IF EXISTS temp_table_content_by_program;
 	DROP TABLE IF EXISTS temp_table_by_program;
 
-end;
+END;
 $BODY$;
 
 END $$;

@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace TNO.Entities;
@@ -8,6 +9,9 @@ namespace TNO.Entities;
 [Keyless]
 public class CBRAReportStaffSummary
 {
-    public string staff { get; set; }
-    public decimal cbra_hours { get; set; }
+    [Column("staff")]
+    public string Staff { get; set; } = "";
+
+    [Column("cbra_hours")]
+    public decimal CbraHours { get; set; }
 }

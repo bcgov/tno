@@ -24,23 +24,17 @@ namespace TNO.API.Areas.Reports.Controllers;
 public class CBRAController : ControllerBase
 {
     #region Variables
-    private readonly IContentService _contentService;
     private readonly ITimeTrackingService _timeTrackingService;
-    private readonly IActionService _actionService;
     #endregion
 
     #region Constructors
     /// <summary>
     /// Creates a new instance of a CBRAController object, initializes with specified parameters.
     /// </summary>
-    /// <param name="contentService"></param>
     /// <param name="timeTrackingService"></param>
-    /// <param name="actionService"></param>
-    public CBRAController(IContentService contentService, ITimeTrackingService timeTrackingService, IActionService actionService)
+    public CBRAController(ITimeTrackingService timeTrackingService)
     {
-        _contentService = contentService;
         _timeTrackingService = timeTrackingService;
-        _actionService = actionService;
     }
     #endregion
 
@@ -55,7 +49,7 @@ public class CBRAController : ControllerBase
     [SwaggerOperation(Tags = new[] { "CBRA" })]
     public FileResult Generate([FromQuery] DateTime from, [FromQuery] DateTime? to)
     {
-        var helper = new CBRAReport(_contentService, _timeTrackingService, _actionService);
+        var helper = new CBRAReport(_timeTrackingService);
 
         var report = helper.GenerateReport(from, to);
 

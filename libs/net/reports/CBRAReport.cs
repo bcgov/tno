@@ -11,28 +11,22 @@ namespace TNO.Reports;
 public class CBRAReport
 {
     #region Variables
-    private readonly IContentService contentService;
     private readonly ITimeTrackingService timeTrackingService;
-    private readonly IActionService actionService;
     private readonly XSSFWorkbook workbook;
     private readonly XSSFSheet sheet;
 
     private readonly XSSFColor green = new();
-    
+
     #endregion
 
     #region Constructors
     /// <summary>
     /// Creates a new instance of a CBRAReport object.
     /// </summary>
-    /// <param name="contentService"></param>
     /// <param name="timeTrackingService"></param>
-    /// <param name="actionService"></param>
-    public CBRAReport(IContentService contentService, ITimeTrackingService timeTrackingService, IActionService actionService)
+    public CBRAReport(ITimeTrackingService timeTrackingService)
     {
-        this.contentService = contentService;
         this.timeTrackingService = timeTrackingService;
-        this.actionService = actionService;
         workbook = new XSSFWorkbook();
         green.ARGBHex = "008000";
         sheet = (XSSFSheet)workbook.CreateSheet("CBRA");
@@ -91,11 +85,10 @@ public class CBRAReport
 
     private ICellStyle CreateStyle(double size, bool bold, bool wrap, HorizontalAlignment horizontalAlignment, XSSFColor? color = null)
     {
-        if (color == null)
-            color = new XSSFColor
-            {
-                ARGBHex = "000000"
-            };
+        color ??= new XSSFColor
+        {
+            ARGBHex = "000000"
+        };
 
         var font = CreateFont(size, bold, color);
         var style = workbook.CreateCellStyle();
@@ -138,7 +131,7 @@ public class CBRAReport
         var labelStyle = CreateStyle((short)12, false, true, HorizontalAlignment.Left);
         var valueStyle = CreateStyle((short)12, false, false, HorizontalAlignment.Right, green);
         valueStyle.DataFormat = workbook.CreateDataFormat().GetFormat("#,##0");
-        
+
         var titleRow = sheet.CreateRow(++startRowIndex);
         var titleCell = titleRow.CreateCell(0);
         titleCell.CellStyle = titleStyle;
@@ -146,11 +139,11 @@ public class CBRAReport
         sheet.CreateRow(++startRowIndex);
 
         var totalExcerpts = timeTrackingService.GetTotalExcerpts(from, to);
-        
-        foreach(var totalExcerpt in totalExcerpts)
+
+        foreach (var totalExcerpt in totalExcerpts)
         {
             var row = sheet.CreateRow(++startRowIndex);
-            var userKey = totalExcerpt.category;
+            var userKey = totalExcerpt.Category;
 
             var cellA = row.CreateCell(0);
             cellA.CellStyle = labelStyle;
@@ -158,10 +151,10 @@ public class CBRAReport
 
             var cellB = row.CreateCell(1);
             cellB.CellStyle = valueStyle;
-            cellB.SetCellValue((int)totalExcerpt.totals);
+            cellB.SetCellValue((int)totalExcerpt.Totals);
         }
         return startRowIndex;
-    } 
+    }
 
     private int AddStaffSummary(int startRowIndex, DateTime from, DateTime to)
     {
@@ -195,11 +188,11 @@ public class CBRAReport
         cellB.SetCellValue("[hours]");
 
         var timeTracking = timeTrackingService.GetStaffSummary(from, to);
-        
-        foreach(var timeTrack in timeTracking)
+
+        foreach (var timeTrack in timeTracking)
         {
             var row = sheet.CreateRow(++startRowIndex);
-            var userKey = timeTrack.staff;
+            var userKey = timeTrack.Staff;
 
             cellA = row.CreateCell(0);
             cellA.CellStyle = nameStyle;
@@ -207,14 +200,14 @@ public class CBRAReport
 
             cellB = row.CreateCell(1);
             cellB.CellStyle = valueStyle;
-            cellB.SetCellValue((double)timeTrack.cbra_hours);
+            cellB.SetCellValue((double)timeTrack.CbraHours);
         }
         return startRowIndex;
-    } 
+    }
 
     private int AddTotalsByProgram(int startRowIndex, DateTime from, DateTime to)
     {
-        var titleStyle = CreateStyle((short)14, true, false, HorizontalAlignment.Left);        
+        var titleStyle = CreateStyle((short)14, true, false, HorizontalAlignment.Left);
         var headerStyle = CreateStyle((short)12, true, true, HorizontalAlignment.Center);
         var nameStyle = CreateStyle((short)12, false, false, HorizontalAlignment.Left, green);
         var valueStyle = CreateStyle((short)12, false, false, HorizontalAlignment.Right, green);
@@ -249,41 +242,41 @@ public class CBRAReport
         col6.SetCellValue("% of Total Running Time");
 
         var totalsByProgram = timeTrackingService.GetTotalsByProgram(from, to);
-        
-        foreach(var totalCount in totalsByProgram)
+
+        foreach (var totalCount in totalsByProgram)
         {
             var row = sheet.CreateRow(++startRowIndex);
 
             var colCell1 = row.CreateCell(0);
             colCell1.CellStyle = nameStyle;
-            colCell1.SetCellValue(totalCount.mediatype);
+            colCell1.SetCellValue(totalCount.MediaType);
 
             var colCell2 = row.CreateCell(1);
             colCell2.CellStyle = nameStyle;
-            colCell2.SetCellValue(totalCount.sourcetype.Trim());
+            colCell2.SetCellValue(totalCount.SourceType.Trim());
 
             var colCell3 = row.CreateCell(2);
             colCell3.CellStyle = nameStyle;
-            colCell3.SetCellValue(totalCount.series.Trim());
+            colCell3.SetCellValue(totalCount.Series.Trim());
 
             var colCel4 = row.CreateCell(3);
             colCel4.CellStyle = valueStyle;
-            colCel4.SetCellValue((double)totalCount.totalcount);
+            colCel4.SetCellValue((double)totalCount.TotalCount);
 
             var colCell5 = row.CreateCell(4);
             colCell5.CellStyle = valueStyle;
-            colCell5.SetCellValue(totalCount.totalrunningtime);
+            colCell5.SetCellValue(totalCount.TotalRunningTime);
 
             var colCel6 = row.CreateCell(5);
             colCel6.CellStyle = percentageStyle;
-            colCel6.SetCellValue((double)totalCount.percentageoftotalrunningtime);
+            colCel6.SetCellValue((double)totalCount.PercentageOfTotalRunningTime);
         }
         return startRowIndex;
     }
 
     private int AddTotalsByBroadcaster(int startRowIndex, DateTime from, DateTime to)
     {
-        var titleStyle = CreateStyle((short)14, true, false, HorizontalAlignment.Left);        
+        var titleStyle = CreateStyle((short)14, true, false, HorizontalAlignment.Left);
         var headerStyle = CreateStyle((short)12, true, true, HorizontalAlignment.Center);
         var nameStyle = CreateStyle((short)12, false, false, HorizontalAlignment.Left, green);
         var valueStyle = CreateStyle((short)12, false, false, HorizontalAlignment.Right, green);
@@ -309,22 +302,22 @@ public class CBRAReport
         col3.SetCellValue("% of Total Running Time");
 
         var totalsByProgram = timeTrackingService.GetTotalsByBroadcaster(from, to);
-        
-        foreach(var totalCount in totalsByProgram)
+
+        foreach (var totalCount in totalsByProgram)
         {
             var row = sheet.CreateRow(++startRowIndex);
 
             col1 = row.CreateCell(0);
             col1.CellStyle = nameStyle;
-            col1.SetCellValue(totalCount.sourcetype);
+            col1.SetCellValue(totalCount.SourceType);
 
             col2 = row.CreateCell(1);
             col2.CellStyle = valueStyle;
-            col2.SetCellValue(totalCount.totalrunningtime);
+            col2.SetCellValue(totalCount.TotalRunningTime);
 
             col3 = row.CreateCell(2);
             col3.CellStyle = percentageStyle;
-            col3.SetCellValue((double)totalCount.percentageoftotalrunningtime);
+            col3.SetCellValue((double)totalCount.PercentageOfTotalRunningTime);
         }
         return startRowIndex;
     }
@@ -337,7 +330,7 @@ public class CBRAReport
         var titleCell = titleRow.CreateCell(0);
         titleCell.CellStyle = titleStyle;
         titleCell.SetCellValue("Database Entries");
-                
+
         var headerStyle = CreateStyle((short)12, true, true, HorizontalAlignment.Center);
         var nameStyle = CreateStyle((short)12, false, false, HorizontalAlignment.Left, green);
         var valueStyle = CreateStyle((short)12, false, false, HorizontalAlignment.Right, green);
@@ -354,22 +347,22 @@ public class CBRAReport
         col3.SetCellValue("CBRA");
 
         var totalEntries = timeTrackingService.GetTotalEntries(from, to);
-        
-        foreach(var totalCount in totalEntries)
+
+        foreach (var totalCount in totalEntries)
         {
             var row = sheet.CreateRow(++startRowIndex);
 
             col1 = row.CreateCell(0);
             col1.CellStyle = nameStyle;
-            col1.SetCellValue(totalCount.dayofweek);
+            col1.SetCellValue(totalCount.DayOfWeek);
 
             col2 = row.CreateCell(1);
             col2.CellStyle = valueStyle;
-            col2.SetCellValue((double)totalCount.totalcount);
+            col2.SetCellValue((double)totalCount.TotalCount);
 
             col3 = row.CreateCell(2);
             col3.CellStyle = valueStyle;
-            col3.SetCellValue((double)totalCount.totalcbra);
+            col3.SetCellValue((double)totalCount.TotalCbra);
         }
         return startRowIndex;
     }
