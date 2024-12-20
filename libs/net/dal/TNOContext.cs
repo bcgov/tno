@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
@@ -85,11 +86,16 @@ public class TNOContext : DbContext
     #endregion
 
     #region ReportResults
-    public DbSet<CBRAReportTotalExcerpts> CBRAReportTotalExcerptsResults => Set<CBRAReportTotalExcerpts>();
-    public DbSet<CBRAReportStaffSummary> CBRAReportStaffSummaryResults => Set<CBRAReportStaffSummary>();
-    public DbSet<CBRAReportTotalsByProgram> CBRAReportTotalsByProgramResults => Set<CBRAReportTotalsByProgram>();
-    public DbSet<CBRAReportTotalsByBroadcaster> CBRAReportTotalsByBroadcasterResults => Set<CBRAReportTotalsByBroadcaster>();
-    public DbSet<CBRAReportTotalEntries> CBRAReportTotalEntriesResults => Set<CBRAReportTotalEntries>();
+    public IQueryable<CBRAReportStaffSummary> fn_cbra_report_staff_summary(DateOnly from, DateOnly to)
+        => FromExpression(() => fn_cbra_report_staff_summary(from, to));
+    public IQueryable<CBRAReportTotalsByBroadcaster> fn_cbra_report_totals_by_broadcaster(DateOnly from, DateOnly to)
+        => FromExpression(() => fn_cbra_report_totals_by_broadcaster(from, to));
+    public IQueryable<CBRAReportTotalsByProgram> fn_cbra_report_totals_by_program(DateOnly from, DateOnly to)
+        => FromExpression(() => fn_cbra_report_totals_by_program(from, to));
+    public IQueryable<CBRAReportTotalExcerpts> fn_cbra_report_total_excerpts(DateOnly from, DateOnly to)
+        => FromExpression(() => fn_cbra_report_total_excerpts(from, to));
+    public IQueryable<CBRAReportTotalEntries> fn_cbra_report_total_entries(DateOnly from, DateOnly to)
+        => FromExpression(() => fn_cbra_report_total_entries(from, to));
     #endregion
 
     #region Reports
@@ -183,6 +189,23 @@ public class TNOContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyAllConfigurations(typeof(ContentConfiguration), this);
+
+        modelBuilder.HasDbFunction(typeof(TNOContext)
+            .GetMethod(nameof(fn_cbra_report_staff_summary), new[] {typeof(DateOnly), typeof(DateOnly)}));
+        modelBuilder.HasDbFunction(typeof(TNOContext)
+            .GetMethod(nameof(fn_cbra_report_total_entries), new[] {typeof(DateOnly), typeof(DateOnly)}));
+        modelBuilder.HasDbFunction(typeof(TNOContext)
+            .GetMethod(nameof(fn_cbra_report_total_excerpts), new[] {typeof(DateOnly), typeof(DateOnly)}));
+        modelBuilder.HasDbFunction(typeof(TNOContext)
+            .GetMethod(nameof(fn_cbra_report_totals_by_broadcaster), new[] {typeof(DateOnly), typeof(DateOnly)}));
+        modelBuilder.HasDbFunction(typeof(TNOContext)
+            .GetMethod(nameof(fn_cbra_report_totals_by_program), new[] {typeof(DateOnly), typeof(DateOnly)}));
+
+        modelBuilder.Entity<CBRAReportStaffSummary>().HasNoKey().ToView(null);
+        modelBuilder.Entity<CBRAReportTotalEntries>().HasNoKey().ToView(null);
+        modelBuilder.Entity<CBRAReportTotalExcerpts>().HasNoKey().ToView(null);
+        modelBuilder.Entity<CBRAReportTotalsByBroadcaster>().HasNoKey().ToView(null);
+        modelBuilder.Entity<CBRAReportTotalsByProgram>().HasNoKey().ToView(null);
     }
 
     /// <summary>
