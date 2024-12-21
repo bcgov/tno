@@ -7,9 +7,11 @@ namespace TNO.Entities;
 /// CBRA report total excerpts
 /// </summary>
 [Keyless]
-[NotMapped]
 public class CBRAReportTotalExcerpts
 {
-    public string category { get; set; }
-    public int totals { get; set; }
+    [Column("category")]
+    public string Category { get; set; } = "";
+
+    [Column("totals")]
+    public int Totals { get; set; }
 }

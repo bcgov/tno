@@ -7,10 +7,14 @@ namespace TNO.Entities;
 /// CBRA report total entries
 /// </summary>
 [Keyless]
-[NotMapped]
 public class CBRAReportTotalEntries
 {
-    public string dayofweek { get; set; }
-    public decimal totalcount { get; set; }
-    public decimal totalcbra { get; set; }
+    [Column("day_of_week")]
+    public string DayOfWeek { get; set; } = "";
+
+    [Column("total_count")]
+    public decimal TotalCount { get; set; }
+
+    [Column("total_cbra")]
+    public decimal TotalCbra { get; set; }
 }

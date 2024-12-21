@@ -7,13 +7,23 @@ namespace TNO.Entities;
 /// CBRA report totals by program
 /// </summary>
 [Keyless]
-[NotMapped]
 public class CBRAReportTotalsByProgram
 {
-    public string mediatype { get; set; }
-    public string sourcetype { get; set; }
-    public string series { get; set; }
-    public decimal totalcount { get; set; }
-    public string totalrunningtime { get; set; }
-    public decimal percentageoftotalrunningtime { get; set; }
+    [Column("media_type")]
+    public string MediaType { get; set; } = "";
+
+    [Column("source_type")]
+    public string SourceType { get; set; } = "";
+
+    [Column("series")]
+    public string Series { get; set; } = "";
+
+    [Column("total_count")]
+    public decimal TotalCount { get; set; }
+
+    [Column("total_running_time")]
+    public string TotalRunningTime { get; set; } = "";
+
+    [Column("percentage_of_total_running_time")]
+    public decimal PercentageOfTotalRunningTime { get; set; }
 }

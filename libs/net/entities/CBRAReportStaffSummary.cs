@@ -7,9 +7,11 @@ namespace TNO.Entities;
 /// CBRA report staff summary
 /// </summary>
 [Keyless]
-[NotMapped]
 public class CBRAReportStaffSummary
 {
-    public string staff { get; set; }
-    public decimal cbra_hours { get; set; }
+    [Column("staff")]
+    public string Staff { get; set; } = "";
+
+    [Column("cbra_hours")]
+    public decimal CbraHours { get; set; }
 }
