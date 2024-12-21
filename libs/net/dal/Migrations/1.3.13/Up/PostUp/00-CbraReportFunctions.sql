@@ -71,7 +71,7 @@ RETURNS TABLE (
 )
 LANGUAGE 'plpgsql'
 AS $BODY$
-DECLARE total_running_time NUMERIC;
+DECLARE sum_total_running_time NUMERIC;
 begin
 
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_table_content_by_broadcaster (
@@ -92,16 +92,16 @@ begin
 		LEFT JOIN file_reference f ON f.content_id = c.content_id
 	GROUP BY c.source;
 
-	select sum(tt.total_running_time) INTO total_running_time
+	select sum(COALESCE(tt.total_running_time,0)) INTO sum_total_running_time
 	from temp_table_by_broadcaster tt;
 
 	RETURN query
 	SELECT
 		tt.source
     , TO_CHAR((CAST(COALESCE(tt.total_running_time,0) AS DECIMAL)/1000)*'1 SECOND'::INTERVAL, 'HH24:MI:SS') AS total_running_time
-    , COALESCE(tt.total_running_time,0) / CASE COALESCE(tt.total_running_time,0)
+    , COALESCE(tt.total_running_time,0) / CASE COALESCE(sum_total_running_time,0)
       WHEN 0 THEN 1
-      ELSE COALESCE(tt.total_running_time,0)
+      ELSE COALESCE(sum_total_running_time,0)
       END AS percentage_of_total_running_time
 	FROM temp_table_by_broadcaster tt;
 
@@ -125,7 +125,7 @@ CREATE OR REPLACE FUNCTION public.fn_cbra_report_totals_by_program(
     )
     LANGUAGE 'plpgsql'
 AS $BODY$
-DECLARE total_running_time NUMERIC;
+DECLARE sum_total_running_time NUMERIC;
 BEGIN
 
 	CREATE TEMPORARY TABLE IF NOT EXISTS temp_table_content_by_program (
@@ -164,7 +164,7 @@ BEGIN
 		LEFT JOIN file_reference f ON f.content_id = c.content_id
 	GROUP BY c.media_type_id, c.source, c.source_id, c.series_id, c.series_name, c.media_type_name;
 
-	SELECT SUM(tt.total_running_time) INTO total_running_time
+	SELECT SUM(COALESCE(tt.total_running_time,0)) INTO sum_total_running_time
 	FROM temp_table_by_program tt;
 
 	RETURN query
@@ -174,9 +174,9 @@ BEGIN
 		tt.series_name,
 		tt.total_count,
     TO_CHAR((cast(COALESCE(tt.total_running_time,0) AS DECIMAL)/1000)*'1 SECOND'::INTERVAL, 'HH24:MI:SS') AS total_running_time,
-    COALESCE(tt.total_running_time,0) / CASE COALESCE(tt.total_running_time,0)
+    COALESCE(tt.total_running_time,0) / CASE COALESCE(sum_total_running_time,0)
       WHEN 0 THEN 1
-      ELSE COALESCE(tt.total_running_time,0)
+      ELSE COALESCE(sum_total_running_time,0)
       END AS percentage_of_total_running_time
 	FROM temp_table_by_program tt;
 

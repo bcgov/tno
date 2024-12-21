@@ -1,5 +1,9 @@
 DO $$
 BEGIN
+	
+DROP FUNCTION IF EXISTS public.fn_cbra_report_total_entries(date, date);
+DROP FUNCTION IF EXISTS public.fn_cbra_report_totals_by_broadcaster(date, date);
+DROP FUNCTION IF EXISTS public.fn_cbra_report_totals_by_program(date, date);
 
 -- Function: fn_cbra_report_total_entries
 CREATE OR REPLACE FUNCTION public.fn_cbra_report_total_entries (
