@@ -36,6 +36,6 @@ public class ChartOptionsModel
     /// get/set -
     /// </summary>
     [JsonPropertyName("maintainAspectRatio")]
-    public string? MaintainAspectRatio { get; set; }
+    public bool? MaintainAspectRatio { get; set; }
     #endregion
 }

@@ -36,6 +36,6 @@ public class ChartOptionsPluginModel
     /// get/set -
     /// </summary>
     [JsonPropertyName("datalabels")]
-    public ChartOptionsPluginDataLabelsModel? Datalabels { get; set; }
+    public ChartOptionsPluginDataLabelsModel? DataLabels { get; set; }
     #endregion
 }
