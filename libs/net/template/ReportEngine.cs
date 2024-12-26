@@ -196,7 +196,7 @@ public class ReportEngine : IReportEngine
         if (model.ChartTemplate.SectionSettings.ScaleCalcMax.HasValue)
         {
             // Determine the maximum scale and add the auto max to it.
-            var max = dataModel?.Datasets.Any() == true ? dataModel?.Datasets.Max(ds => ds.Data.Any() ? ds.Data.Max(v => v ?? 0) : 0) : null;
+            var max = dataModel?.Datasets.Length > 0 ? dataModel?.Datasets.Max(ds => ds.Data.Length > 0 ? ds.Data.Max(v => v ?? 0) : 0) : null;
             if (max.HasValue)
             {
                 var sectionJsonText = model.ChartTemplate.SectionSettings.Options.ToJson();
@@ -224,6 +224,7 @@ public class ReportEngine : IReportEngine
         var optionsBytes = Encoding.UTF8.GetBytes(optionsJson);
         var optionsBase64 = Convert.ToBase64String(optionsBytes);
 
+
         // Send request to Charts API to generate base64
         var body = new StringContent(dataJson, Encoding.UTF8, System.Net.Mime.MediaTypeNames.Application.Json);
         var width = model.ChartTemplate.SectionSettings.Width.HasValue ? $"width={model.ChartTemplate.SectionSettings.Width.Value}" : "";
@@ -234,6 +235,7 @@ public class ReportEngine : IReportEngine
                 model.ChartTemplate.SectionSettings.ChartType ?? "bar",
                 $"?{width}{height}&options={optionsBase64}"),
             body);
+        this.Logger.LogDebug("Chart generated, chartTemplateId:{templateId} options:{options}", model.ChartTemplate.Id, optionsJson);
         return await response.Content.ReadAsStringAsync();
     }
 
@@ -402,6 +404,7 @@ public class ReportEngine : IReportEngine
                 {
                     chart.SectionSettings ??= new();
                     chart.SectionSettings.Options = MergeChartOptions(chart.Settings, chart.SectionSettings);
+                    var chartOptions = chart.SectionSettings.Options.ToJson();
 
                     var chartModel = new ChartEngineContentModel(
                         ReportSectionModel.GenerateChartUid(section.Id, chart.Id),
@@ -410,7 +413,7 @@ public class ReportEngine : IReportEngine
                         settings.UseAllContent ? null : content);
                     var chartRequestModel = new ChartRequestModel(chartModel);
                     var base64Image = await this.GenerateBase64ImageAsync(chartRequestModel);
-                    this.Logger.LogDebug("Chart generated, reportId:{reportId} instanceId:{instance} sectionId:{sectionId} chartId:{chartId}", report.Id, reportInstance?.Id, section.Id, chart.Id);
+                    this.Logger.LogDebug("Chart generated, reportId:{reportId} instanceId:{instanceId} sectionId:{sectionId} chartId:{chartId} options:{options}", report.Id, reportInstance?.Id, section.Id, chart.Id, chartOptions);
 
                     // Replace Chart Stubs with the generated image.
                     body = body.Replace(ReportSectionModel.GenerateChartUid(section.Id, chart.Id), base64Image);
@@ -440,41 +443,33 @@ public class ReportEngine : IReportEngine
 
         try
         {
-            // There appears to be no way to modify a value...
             if (sectionJson.TryGetPropertyValue("indexAxis", out JsonNode? sectionIndexAxis))
             {
-                if (defaultJson.ContainsKey("indexAxis"))
-                    defaultJson.Remove("indexAxis");
+                defaultJson.Remove("indexAxis");
                 defaultJson.Add("indexAxis", sectionIndexAxis.CopyNode());
             }
 
-            // There appears to be no way to modify a value...
             if (sectionJson.TryGetPropertyValue("maintainAspectRatio", out JsonNode? sectionMaintainAspectRatio))
             {
-                if (defaultJson.ContainsKey("maintainAspectRatio"))
-                    defaultJson.Remove("maintainAspectRatio");
+                defaultJson.Remove("maintainAspectRatio");
                 defaultJson.Add("maintainAspectRatio", sectionMaintainAspectRatio.CopyNode());
             }
 
-            // There appears to be no way to modify a value...
             if (sectionJson.TryGetPropertyValue("aspectRatio", out JsonNode? sectionAspectRatio))
             {
-                if (defaultJson.ContainsKey("aspectRatio"))
-                    defaultJson.Remove("aspectRatio");
+                defaultJson.Remove("aspectRatio");
                 defaultJson.Add("aspectRatio", sectionAspectRatio.CopyNode());
             }
 
             if (sectionJson.TryGetPropertyValue("scales", out JsonNode? sectionScales))
             {
-                if (defaultJson.TryGetPropertyValue("scales", out JsonNode? scales))
-                    defaultJson.Remove("scales");
+                defaultJson.Remove("scales");
                 defaultJson.Add("scales", sectionScales.CopyNode());
             }
 
             if (sectionJson.TryGetPropertyValue("plugins", out JsonNode? sectionPlugins))
             {
-                if (defaultJson.TryGetPropertyValue("plugins", out JsonNode? plugins))
-                    defaultJson.Remove("plugins");
+                defaultJson.Remove("plugins");
                 defaultJson.Add("plugins", sectionPlugins.CopyNode());
             }
 
