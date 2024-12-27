@@ -30,5 +30,6 @@ export const ChartList = styled.div`
   .table {
     max-height: calc(100% - 120px);
     min-height: 200px;
+    max-width: 100vw;
   }
 `;

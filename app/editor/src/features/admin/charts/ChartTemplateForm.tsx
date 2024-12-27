@@ -89,94 +89,100 @@ const ChartTemplateForm: React.FC = () => {
           setSubmitting(false);
         }}
       >
-        {({ isSubmitting, values }) => (
-          <ChartTemplateContextProvider
-            value={{
-              ...defaultChartRequestForm,
-              template: values.template,
-              settings: values.sectionSettings ?? defaultChartRequestForm.settings,
-            }}
-          >
-            <Tabs
-              tabs={
-                <>
-                  <Tab
-                    label="Details"
-                    onClick={() => {
-                      setActive('chart');
-                    }}
-                    active={active === 'chart'}
-                  />
-                  <Tab
-                    label="Template"
-                    onClick={() => {
-                      setActive('template');
-                    }}
-                    active={active === 'template'}
-                  />
-                  <Tab
-                    label="Chart.JS Configuration"
-                    onClick={() => {
-                      setActive('config');
-                    }}
-                    active={active === 'config'}
-                  />
-                  <Tab
-                    label="Preview"
-                    onClick={() => {
-                      setActive('preview');
-                    }}
-                    active={active === 'preview'}
-                  />
-                </>
-              }
+        {({ isSubmitting, values }) => {
+          return (
+            <ChartTemplateContextProvider
+              value={{
+                ...defaultChartRequestForm,
+                template: values.template,
+                settings: values.sectionSettings ?? defaultChartRequestForm.settings,
+              }}
             >
-              <div className="form-container">
-                <Show visible={active === 'chart'}>
-                  <ChartTemplateFormDetails />
-                </Show>
-                <Show visible={active === 'template'}>
-                  <ChartTemplateFormTemplate />
-                </Show>
-                <Show visible={active === 'config'}>
-                  <ChartTemplateFormConfig />
-                </Show>
-                <Show visible={active === 'preview'}>
-                  <ChartTemplateFormPreview />
-                </Show>
-                <Row justifyContent="center" className="form-inputs">
-                  <Button type="submit" disabled={isSubmitting}>
-                    Save
-                  </Button>
-                  <Show visible={!!values.id}>
-                    <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
-                      Delete
-                    </Button>
+              <Tabs
+                tabs={
+                  <>
+                    <Tab
+                      label="Details"
+                      onClick={() => {
+                        setActive('chart');
+                      }}
+                      active={active === 'chart'}
+                    />
+                    <Tab
+                      label="Template"
+                      onClick={() => {
+                        setActive('template');
+                      }}
+                      active={active === 'template'}
+                    />
+                    <Tab
+                      label="Chart.JS Configuration"
+                      onClick={() => {
+                        setActive('config');
+                      }}
+                      active={active === 'config'}
+                    />
+                    <Tab
+                      label="Preview"
+                      onClick={() => {
+                        setActive('preview');
+                      }}
+                      active={active === 'preview'}
+                    />
+                  </>
+                }
+              >
+                <div className="form-container">
+                  <Show visible={active === 'chart'}>
+                    <ChartTemplateFormDetails />
                   </Show>
-                </Row>
-                <Modal
-                  headerText="Confirm Removal"
-                  body="Are you sure you wish to remove this chart template?"
-                  isShowing={isShowing}
-                  hide={toggle}
-                  type="delete"
-                  confirmText="Yes, Remove It"
-                  onConfirm={async () => {
-                    try {
-                      await deleteChartTemplate(chartTemplate);
-                      toast.success(`${chartTemplate.name} has successfully been deleted.`);
-                      navigate('/admin/chart/templates');
-                    } catch {
-                      // Globally handled
-                    } finally {
-                      toggle();
-                    }
-                  }}
-                />
-              </div>
-            </Tabs>
-          </ChartTemplateContextProvider>
-        )}
+                  <Show visible={active === 'template'}>
+                    <ChartTemplateFormTemplate />
+                  </Show>
+                  <Show visible={active === 'config'}>
+                    <ChartTemplateFormConfig />
+                  </Show>
+                  <Show visible={active === 'preview'}>
+                    <ChartTemplateFormPreview />
+                  </Show>
+                  <Row justifyContent="center" className="form-inputs">
+                    <Button type="submit" disabled={isSubmitting}>
+                      Save
+                    </Button>
+                    <Show visible={!!values.id}>
+                      <Button
+                        onClick={toggle}
+                        variant={ButtonVariant.danger}
+                        disabled={isSubmitting}
+                      >
+                        Delete
+                      </Button>
+                    </Show>
+                  </Row>
+                  <Modal
+                    headerText="Confirm Removal"
+                    body="Are you sure you wish to remove this chart template?"
+                    isShowing={isShowing}
+                    hide={toggle}
+                    type="delete"
+                    confirmText="Yes, Remove It"
+                    onConfirm={async () => {
+                      try {
+                        await deleteChartTemplate(chartTemplate);
+                        toast.success(`${chartTemplate.name} has successfully been deleted.`);
+                        navigate('/admin/chart/templates');
+                      } catch {
+                        // Globally handled
+                      } finally {
+                        toggle();
+                      }
+                    }}
+                  />
+                </div>
+              </Tabs>
+            </ChartTemplateContextProvider>
+          );
+        }}
       </FormikForm>
     </styled.ChartForm>
   );

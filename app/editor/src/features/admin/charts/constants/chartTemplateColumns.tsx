@@ -10,7 +10,7 @@ export const chartTemplateColumns: ITableHookColumn<IChartTemplateModel>[] = [
   {
     label: 'Description',
     accessor: 'description',
-    width: 5,
+    width: 4,
     cell: (cell) => <CellEllipsis>{cell.original.description}</CellEllipsis>,
   },
   {
