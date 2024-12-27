@@ -12,6 +12,6 @@ export const ReportAdmin = styled.div`
   }
 
   .form-page {
-    width: 100%;
+    width: 100vw;
   }
 `;

@@ -11,7 +11,7 @@ import { defaultChartSectionSettings } from '../constants';
 export const mergeChartSettings = (
   defaultChartOptions: any,
   currentSettings: IChartSectionSettingsModel | undefined,
-  overrideSettings: Partial<IChartSectionSettingsModel>,
+  overrideSettings?: Partial<IChartSectionSettingsModel>,
 ): IChartSectionSettingsModel => {
   const initSettings = {
     ...(currentSettings ?? defaultChartSectionSettings),

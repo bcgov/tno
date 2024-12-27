@@ -68,7 +68,9 @@ export const ChartTemplatePreviewConfig = () => {
                     ...form,
                     settings: { ...form.settings, options: json },
                   }));
-                } catch {}
+                } catch {
+                  // Ignore deserialization errors.
+                }
               }}
               highlight={(code) => {
                 return highlight(code, languages.json, 'razor');

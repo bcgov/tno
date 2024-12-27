@@ -1,4 +1,5 @@
 import { BubbleDataPoint, ChartData, ChartTypeRegistry, Point } from 'chart.js';
+import { applyChartJsOptions } from './applyChartJsOptions';
 
 /**
  * Convert JSON string value from base64 to ChartJS configuration object.
@@ -8,11 +9,7 @@ import { BubbleDataPoint, ChartData, ChartTypeRegistry, Point } from 'chart.js';
 export const convertBase64ConfigToChartJsConfig = (data: string) => {
   const chartJsConfigAsJson = Buffer.from(data, 'base64').toString('ascii');
   const chartJsConfig = JSON.parse(chartJsConfigAsJson);
-  if (chartJsConfig.plugins?.datalabels?.formatter) {
-    // the expectation here is for a lambda type function
-    chartJsConfig.plugins.datalabels.formatter = eval(chartJsConfig.plugins.datalabels.formatter);
-  }
-  return chartJsConfig;
+  return applyChartJsOptions(chartJsConfig);
 };
 
 /**

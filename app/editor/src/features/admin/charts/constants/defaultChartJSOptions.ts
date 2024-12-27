@@ -21,7 +21,10 @@ export const defaultChartJSOptions = {
     datalabels: {
       anchor: 'center',
       labels: {
-        title: null,
+        title: {
+          font: {},
+          display: false,
+        },
       },
     },
   },
