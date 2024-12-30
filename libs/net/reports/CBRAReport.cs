@@ -200,7 +200,7 @@ public class CBRAReport
 
             cellB = row.CreateCell(1);
             cellB.CellStyle = valueStyle;
-            cellB.SetCellValue((double)timeTrack.CbraHours);
+            cellB.SetCellValue(timeTrack.CbraHours);
         }
         return startRowIndex;
     }

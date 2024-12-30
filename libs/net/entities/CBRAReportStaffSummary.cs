@@ -13,5 +13,5 @@ public class CBRAReportStaffSummary
     public string Staff { get; set; } = "";
 
     [Column("cbra_hours")]
-    public decimal CbraHours { get; set; }
+    public string CbraHours { get; set; }
 }
