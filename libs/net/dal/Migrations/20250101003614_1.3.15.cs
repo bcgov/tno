@@ -15,7 +15,7 @@ namespace TNO.DAL.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_content_published_on",
                 table: "content",
-                column: "published_on");
+                column: "published_on",null,false,null,[true]);
 
             migrationBuilder.CreateIndex(
                 name: "IX_content_status",
