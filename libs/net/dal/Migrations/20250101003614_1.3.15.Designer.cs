@@ -15,7 +15,7 @@ using TNO.Entities.Models;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20250101003614_1.3.15")]
+    [Migration("20250101062448_1.3.15")]
     partial class _1315
     {
         /// <inheritdoc />
@@ -1107,6 +1107,10 @@ namespace TNO.DAL.Migrations
                     b.HasIndex(new[] { "ContentType", "OtherSource", "Uid", "Page", "Status", "IsHidden" }, "IX_content");
 
                     b.HasIndex(new[] { "PublishedOn", "CreatedOn" }, "IX_content_dates");
+
+                    b.HasIndex(new[] { "PublishedOn" }, "IX_content_published_on");
+
+                    b.HasIndex(new[] { "Status" }, "IX_content_status");
 
                     b.HasIndex(new[] { "Headline" }, "IX_headline");
 

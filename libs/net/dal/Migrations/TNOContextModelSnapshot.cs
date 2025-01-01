@@ -1105,6 +1105,10 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "PublishedOn", "CreatedOn" }, "IX_content_dates");
 
+                    b.HasIndex(new[] { "PublishedOn" }, "IX_content_published_on");
+
+                    b.HasIndex(new[] { "Status" }, "IX_content_status");
+
                     b.HasIndex(new[] { "Headline" }, "IX_headline");
 
                     b.HasIndex(new[] { "Edition", "Section", "Byline" }, "IX_print_content");
