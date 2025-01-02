@@ -52,8 +52,10 @@ public class ContentConfiguration : AuditColumnsConfiguration<Content>
         builder.HasIndex(m => new { m.ContentType, m.OtherSource, m.Uid, m.Page, m.Status, m.IsHidden }, "IX_content");
         builder.HasIndex(m => new { m.Edition, m.Section, m.Byline }, "IX_print_content");
         builder.HasIndex(m => m.Headline, "IX_headline");
-        builder.HasIndex(m => m.PublishedOn, "IX_content_published_on");
-        builder.HasIndex(m => m.Status, "IX_content_status");
+        builder.HasIndex(m => new { m.PublishedOn, m.Status }, "IX_content_published_on_status")
+            .IsDescending(true, false);
+        builder.HasIndex(m => m.PublishedOn, "IX_content_published_on")
+            .IsDescending(true);
 
         base.Configure(builder);
     }

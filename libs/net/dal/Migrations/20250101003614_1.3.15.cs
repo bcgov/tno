@@ -15,12 +15,14 @@ namespace TNO.DAL.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_content_published_on",
                 table: "content",
-                column: "published_on",null,false,null,[true]);
+                column: "published_on",
+                descending: new bool[0]);
 
             migrationBuilder.CreateIndex(
-                name: "IX_content_status",
+                name: "IX_content_published_on_status",
                 table: "content",
-                column: "status");
+                columns: new[] { "published_on", "status" },
+                descending: new[] { true, false });
             PostUp(migrationBuilder);
         }
 
@@ -33,7 +35,7 @@ namespace TNO.DAL.Migrations
                 table: "content");
 
             migrationBuilder.DropIndex(
-                name: "IX_content_status",
+                name: "IX_content_published_on_status",
                 table: "content");
             PostDown(migrationBuilder);
         }
