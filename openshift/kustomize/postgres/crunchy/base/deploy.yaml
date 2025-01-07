@@ -11,9 +11,8 @@ metadata:
     component: postgres
     managed-by: kustomize
     created-by: jeremy.foster
-    updated-by: kulpree
 spec:
-  postgresVersion: 14
+  postgresVersion: 15
   users:
     - name: postgres
     - name: admin
@@ -26,9 +25,6 @@ spec:
           requests:
             cpu: 25m
             memory: 100Mi
-          limits:
-            cpu: 50m
-            memory: 250Mi
   instances:
     - name: postgres
       replicas: 3
@@ -36,9 +32,6 @@ spec:
         requests:
           cpu: 50m
           memory: 250Mi
-        limits:
-          cpu: 250m
-          memory: 2Gi
       dataVolumeClaimSpec:
         accessModes:
           - ReadWriteOnce
@@ -69,11 +62,14 @@ spec:
             requests:
               cpu: 25m
               memory: 100Mi
-            limits:
-              cpu: 100m
-              memory: 250Mi
   backups:
     pgbackrest:
+      # restore:
+      #   enabled: true
+      #   repoName: repo1
+      #   options:
+      #     - --type=time
+      #     - --target="2024-01-04 12:00:00-00"
       global:
         repo1-retention-full: "1"
       repoHost:
@@ -81,9 +77,6 @@ spec:
           requests:
             cpu: 50m
             memory: 100Mi
-          limits:
-            cpu: 250m
-            memory: 1Gi
       jobs:
         ttlSecondsAfterFinished: 100
       repos:
@@ -111,17 +104,11 @@ spec:
             requests:
               cpu: 50m
               memory: 50Mi
-            limits:
-              cpu: 250m
-              memory: 500Mi
         pgbackrestConfig:
           resources:
             requests:
               cpu: 25m
               memory: 50Mi
-            limits:
-              cpu: 100m
-              memory: 500Mi
   proxy:
     pgBouncer:
       config:
@@ -132,9 +119,6 @@ spec:
         requests:
           cpu: 25m
           memory: 100Mi
-        limits:
-          cpu: 50m
-          memory: 250Mi
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:

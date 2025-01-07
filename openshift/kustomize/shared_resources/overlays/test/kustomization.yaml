@@ -10,6 +10,9 @@ secretGenerator:
   - name: keycloak
     envs:
       - keycloak.env
+  - name: database
+    type: stringData
+    env: database.env
 
 resources:
   - ../../base

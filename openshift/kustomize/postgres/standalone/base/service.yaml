@@ -1,0 +1,26 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: postgres
+  namespace: default
+  annotations:
+    description: Exposes and load balances the postgres pods.
+  labels:
+    name: postgres
+    part-of: tno
+    version: 1.0.0
+    component: database
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  ports:
+    - name: 5432-tcp
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    part-of: tno
+    component: database
+  sessionAffinity: None
+  type: ClusterIP
