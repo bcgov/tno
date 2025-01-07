@@ -16,6 +16,6 @@ patches:
         value: 3
       - op: replace
         path: /spec/instances/0/dataVolumeClaimSpec/resources/requests/storage
-        value: 28Gi
+        value: 37Gi
         path: /spec/backups/pgbackrest/repos/0/volume/volumeClaimSpec/resources/requests/storage
         value: 65Gi

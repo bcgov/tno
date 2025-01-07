@@ -1,0 +1,98 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: default
+  annotations:
+    description: Deploy PostgeSQL database
+  labels:
+    name: postgres
+    part-of: tno
+    version: 1.0.0
+    component: database
+    managed-by: kustomize
+    created-by: jeremy.foster
+    DataClass: Low
+spec:
+  serviceName: postgres
+  replicas: 1
+  podManagementPolicy: Parallel
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      statefulset: postgres
+  template:
+    metadata:
+      labels:
+        part-of: tno
+        component: database
+        statefulset: postgres
+        DataClass: Low
+    spec:
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 0
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: statefulset
+                    operator: In
+                    values:
+                      - postgres
+              topologyKey: "kubernetes.io/hostname"
+      volumes:
+        - name: postgres
+          persistentVolumeClaim:
+            claimName: postgres
+      containers:
+        - name: api
+          image: registry.redhat.io/rhel8/postgresql-15
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          volumeMounts:
+            - name: postgres
+              mountPath: /var/lib/pgsql/data
+          resources:
+            requests:
+              cpu: 50m
+              memory: 2Gi
+          env:
+            - name: POSTGRESQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: crunchy-pguser-admin
+                  key: dbname
+            - name: POSTGRESQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: crunchy-pguser-admin
+                  key: user
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: crunchy-pguser-admin
+                  key: password
+
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres
+        labels:
+          name: postgres
+          part-of: tno
+          component: database
+          DataClass: Low
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: netapp-block-standard
+        resources:
+          requests:
+            storage: 20Gi

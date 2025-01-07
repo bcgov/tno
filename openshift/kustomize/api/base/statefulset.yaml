@@ -86,9 +86,6 @@ spec:
             - name: ingest-storage
               mountPath: /mnt/ingest
           resources:
-            limits:
-              cpu: 500m
-              memory: 1536Mi
             requests:
               cpu: 100m
               memory: 350Mi
@@ -150,13 +147,13 @@ spec:
             - name: DB_POSTGRES_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: crunchy-pguser-admin
-                  key: user
+                  name: database
+                  key: USERNAME
             - name: DB_POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: crunchy-pguser-admin
-                  key: password
+                  name: database
+                  key: PASSWORD
 
             - name: Elastic__Url
               valueFrom:

@@ -11,14 +11,14 @@ To install the CrunchyDB HA Cluster in the **dev** namespace, run the following 
 To perform an adhoc backup of the database run the following command.
 
 ```bash
-oc annotate -n 9b301c-test postgrescluster postgres-cluster \
+oc annotate -n 9b301c-prod postgrescluster crunchy \
   postgres-operator.crunchydata.com/pgbackrest-backup="$( date '+%F_%H:%M:%S' )"
 ```
 
 Subsequent runs will require the `--overwrite` attribute.
 
 ```bash
-oc annotate -n 9b301c-test postgrescluster postgres-cluster --overwrite \
+oc annotate -n 9b301c-prod postgrescluster crunchy --overwrite \
   postgres-operator.crunchydata.com/pgbackrest-backup="$( date '+%F_%H:%M:%S' )"
 ```
 
@@ -56,7 +56,7 @@ oc kustomize openshift/kustomize/postgres/crunchy/overlays/dev | oc apply -f -
 You will need to wait and confirm the backup has been completed, as this is just a request for it do it when it can.
 
 ```bash
-oc annotate -n 9b301c-test postgrescluster postgres-cluster \
+oc annotate -n 9b301c-test postgrescluster crunchy \
   postgres-operator.crunchydata.com/pgbackrest-backup="$( date '+%F_%H:%M:%S' )"
 ```
 
@@ -79,13 +79,13 @@ Link the cluster to the update.
 
 ```bash
 # Annotate the cluster
-oc -n 9b301c-dev annotate postgrescluster crunchy postgres-operator.crunchydata.com/allow-upgrade="crunchy-upgrade"
+oc -n 9b301c-prod annotate postgrescluster crunchy postgres-operator.crunchydata.com/allow-upgrade="crunchy-upgrade"
 ```
 
 Shutdown the cluster.
 
 ```bash
-oc patch postgrescluster/crunchy -n 9b301c-dev --type merge --patch '{"spec":{"shutdown": true}}'
+oc patch postgrescluster/crunchy -n 9b301c-prod --type merge --patch '{"spec":{"shutdown": true}}'
 ```
 
 ### Step 6: Watch and Wait
@@ -93,7 +93,7 @@ oc patch postgrescluster/crunchy -n 9b301c-dev --type merge --patch '{"spec":{"s
 Check on status.
 
 ```bash
-oc describe pgupgrade -n 9b301c-dev
+oc describe pgupgrade -n 9b301c-prod
 ```
 
 ### Step 7: Restart
@@ -101,10 +101,10 @@ oc describe pgupgrade -n 9b301c-dev
 Update `PostgresCluster` object with `spec.postgresVersion: 15`.
 
 ```bash
-oc patch postgrescluster/crunchy -n 9b301c-dev --type merge --patch '{"spec":{"postgresVersion": 15}}'
+oc patch postgrescluster/crunchy -n 9b301c-prod --type merge --patch '{"spec":{"postgresVersion": 15}}'
 
 # Start up again
-oc patch postgrescluster/crunchy -n 9b301c-dev --type merge --patch '{"spec":{"shutdown": false}}'
+oc patch postgrescluster/crunchy -n 9b301c-prod --type merge --patch '{"spec":{"shutdown": false}}'
 ```
 
 ### Other Commands
@@ -113,4 +113,10 @@ If you need to restart.
 
 ```bash
 oc patch postgrescluster/crunchy -n 9b301c-dev --type merge --patch '{"spec":{"metadata":{"annotations":{"restarted":"'"$(date)"'"}}}}'
+```
+
+### Restore
+
+```bash
+oc annotate -n 9b301c-dev postgrescluster crunchy --overwrite postgres-operator.crunchydata.com/pgbackrest-restore="$(date)"
 ```
