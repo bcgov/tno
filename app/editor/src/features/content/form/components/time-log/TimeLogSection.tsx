@@ -110,7 +110,6 @@ export const TimeLogSection: React.FC<ITimeLogSectionProps> = ({ prepTimeRequire
         isShowing={isShowing}
         headerText="Prep Time Log"
         component={<TimeLogTable />}
-        // body=""
         type="custom"
         customButtons={
           <Button variant={ButtonVariant.secondary} onClick={toggle}>
