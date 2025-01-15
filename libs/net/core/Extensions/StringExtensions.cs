@@ -8,10 +8,24 @@ namespace TNO.Core.Extensions;
 /// <summary>
 /// StringExtensions static class, provides extension methods for strings.
 /// </summary>
-public static class StringExtensions
+public static partial class StringExtensions
 {
     #region Variables
-    private static readonly Regex TimeZone = new("[A-Z]{3}$");
+    [GeneratedRegex(@"[A-Z]{3}$")]
+    private static partial Regex TimeZoneRegex();
+    private static readonly Regex TimeZone = TimeZoneRegex();
+
+
+    [GeneratedRegex(@"<\s*([^ >]+)[^>]*>.*?<\s*/\s*\1\s*>")]
+    private static partial Regex HasHtmlRegex();
+
+
+    [GeneratedRegex(@"[\?\.\!\;\,\:](?![\n|""|'|\r|\r\n|\s+])")]
+    private static partial Regex PunctuationRegex();
+
+
+    [GeneratedRegex(@"\r\n?|\n")]
+    private static partial Regex LineReturnRegex();
     #endregion
 
     /// <summary>
@@ -272,41 +286,41 @@ public static class StringExtensions
     /// <returns>formatted body string</returns>
     public static string ConvertTextToParagraphs(string? text, string paragraphRegex)
     {
-        string sanitizedString = string.IsNullOrEmpty(text) ? string.Empty : text;
+        string value = string.IsNullOrEmpty(text) ? string.Empty : text;
 
-        if (!string.IsNullOrEmpty(sanitizedString))
+        if (!string.IsNullOrEmpty(value))
         {
             // pattern for any matching pair of tags
-            Regex tagRegex = new Regex(@"<\s*([^ >]+)[^>]*>.*?<\s*/\s*\1\s*>");
+            Regex tagRegex = HasHtmlRegex();
             const string PARAGRAPH_MARKER = "##paragraph_end##`";
 
-            // Add space after the punctuation mark, except there is space/new line/quote after the punctuation mark
-            sanitizedString = Regex.Replace(sanitizedString, @"[\?\.\!\;\,\:](?![\n|""|'|\r|\r\n|\s+])", "$0 ");
-
             // if the input string is not markup, sanitize it
-            if (!tagRegex.IsMatch(sanitizedString))
+            if (!tagRegex.IsMatch(value))
             {
+                // Add space after the punctuation mark, except there is space/new line/quote after the punctuation mark
+                var sanitizedString = PunctuationRegex().Replace(value, "$0 ");
+
                 // replace "carriage return + line feed" OR "carriage return" OR "line feed"
                 // with a placeholder first
                 string result = Regex.Replace(sanitizedString, paragraphRegex, PARAGRAPH_MARKER);
                 if (!result.Equals(sanitizedString, StringComparison.CurrentCultureIgnoreCase))
                 {
                     // found at least one paragraph placeholder
-                    sanitizedString = $"<p>{result.Replace(PARAGRAPH_MARKER, "</p><p>")}</p>";
+                    value = $"<p>{result.Replace(PARAGRAPH_MARKER, "</p><p>")}</p>";
                 }
             }
             else
             {
                 // this is markup, so remove excess carriage returns and line feeds if found
-                string result = Regex.Replace(sanitizedString, @"\r\n?|\n", PARAGRAPH_MARKER);
-                if (!result.Equals(sanitizedString, StringComparison.CurrentCultureIgnoreCase))
+                string result = LineReturnRegex().Replace(value, PARAGRAPH_MARKER);
+                if (!result.Equals(value, StringComparison.CurrentCultureIgnoreCase))
                 {
                     // found at least one paragraph placeholder
-                    sanitizedString = result.Replace(PARAGRAPH_MARKER, " ");
+                    value = result.Replace(PARAGRAPH_MARKER, " ");
                 }
             }
         }
-        return sanitizedString;
+        return value;
     }
 
     /// <summary>

@@ -260,6 +260,18 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
         var publishedOn = item.PublishDate.UtcDateTime != DateTime.MinValue ? item.PublishDate.UtcDateTime : (DateTime?)null;
         var uid = Runners.BaseService.GetContentHash(source, title, publishedOn);
+        string? media = null;
+
+        // Extract values from namespaces.  I don't know a better way to do this.
+        foreach (var ext in item.ElementExtensions)
+        {
+            if (ext.GetObject<XElement>().Name.LocalName == "encoded") // content:encoded
+                body = ext.GetObject<XElement>().Value;
+            if (ext.GetObject<XElement>().Name.LocalName == "creator") // dc:creator
+                item.Authors.Add(new SyndicationPerson(null, ext.GetObject<XElement>().Value, null));
+            if (ext.GetObject<XElement>().Name.LocalName == "content") // media:content
+                media = ext.GetObject<XElement>().Attributes("url").FirstOrDefault()?.Value;
+        }
 
         return new SourceContent(
             this.Options.DataLocation,
@@ -279,7 +291,6 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             UpdatedOn = item.LastUpdatedTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null,
             Labels = item.Categories.Select(c => new LabelModel(c.Label, c.Name)),
             ExternalUid = item.Id,
-            Body = ((TextSyndicationContent)item.Content)?.Text ?? ""
         };
     }
 
@@ -426,8 +437,9 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         {
             try
             {
-                var xmlr = XmlReader.Create(new StringReader(data));
-                return SyndicationFeed.Load(xmlr);
+                using var xmlr = XmlReader.Create(new StringReader(data));
+                var feed = SyndicationFeed.Load(xmlr);
+                return feed;
             }
             catch (Exception ex)
             {
