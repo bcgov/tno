@@ -91,6 +91,14 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         {
             try
             {
+                // var nsm = new XmlNamespaceManager(xmlr.NameTable);
+                // nsm.AddNamespace("content", "http://purl.org/rss/1.0/modules/content/");
+                // nsm.AddNamespace("wfw", "http://wellformedweb.org/CommentAPI/");
+                // nsm.AddNamespace("dc", "http://purl.org/dc/elements/1.1/");
+                // nsm.AddNamespace("atom", "http://www.w3.org/2005/Atom");
+                // nsm.AddNamespace("sy", "http://purl.org/rss/1.0/modules/syndication/");
+                // nsm.AddNamespace("slash", "http://purl.org/rss/1.0/modules/slash/");
+
                 // Due to invalid RSS/ATOM need to use the link to identify the item.
                 var link = item.Links.FirstOrDefault(l => l.RelationshipType == "alternate")?.Uri;
                 if (String.IsNullOrWhiteSpace(item.Id)) item.Id = link?.ToString() ?? throw new InvalidOperationException("Feed item requires a valid 'Id' or 'Link'.");
@@ -260,6 +268,18 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
         var publishedOn = item.PublishDate.UtcDateTime != DateTime.MinValue ? item.PublishDate.UtcDateTime : (DateTime?)null;
         var uid = Runners.BaseService.GetContentHash(source, title, publishedOn);
+        string? media = null;
+
+        // Extract values from namespaces.  I don't know a better way to do this.
+        foreach (var ext in item.ElementExtensions)
+        {
+            if (ext.GetObject<XElement>().Name.LocalName == "encoded") // content:encoded
+                body = ext.GetObject<XElement>().Value;
+            if (ext.GetObject<XElement>().Name.LocalName == "creator") // dc:creator
+                item.Authors.Add(new SyndicationPerson(null, ext.GetObject<XElement>().Value, null));
+            if (ext.GetObject<XElement>().Name.LocalName == "content") // media:content
+                media = ext.GetObject<XElement>().Attributes("url").FirstOrDefault()?.Value;
+        }
 
         return new SourceContent(
             this.Options.DataLocation,
@@ -279,7 +299,6 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             UpdatedOn = item.LastUpdatedTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null,
             Labels = item.Categories.Select(c => new LabelModel(c.Label, c.Name)),
             ExternalUid = item.Id,
-            Body = ((TextSyndicationContent)item.Content)?.Text ?? ""
         };
     }
 
@@ -426,8 +445,9 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         {
             try
             {
-                var xmlr = XmlReader.Create(new StringReader(data));
-                return SyndicationFeed.Load(xmlr);
+                using var xmlr = XmlReader.Create(new StringReader(data));
+                var feed = SyndicationFeed.Load(xmlr);
+                return feed;
             }
             catch (Exception ex)
             {
