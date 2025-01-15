@@ -45,7 +45,7 @@
     "sheetjs": "file:packages/xlsx-0.20.1.tgz",
     "styled-components": "6.1.11",
     "stylis": "4.3.2",
-    "tno-core": "1.0.4"
+    "tno-core": "1.0.5"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "6.4.5",
