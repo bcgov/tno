@@ -91,14 +91,6 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         {
             try
             {
-                // var nsm = new XmlNamespaceManager(xmlr.NameTable);
-                // nsm.AddNamespace("content", "http://purl.org/rss/1.0/modules/content/");
-                // nsm.AddNamespace("wfw", "http://wellformedweb.org/CommentAPI/");
-                // nsm.AddNamespace("dc", "http://purl.org/dc/elements/1.1/");
-                // nsm.AddNamespace("atom", "http://www.w3.org/2005/Atom");
-                // nsm.AddNamespace("sy", "http://purl.org/rss/1.0/modules/syndication/");
-                // nsm.AddNamespace("slash", "http://purl.org/rss/1.0/modules/slash/");
-
                 // Due to invalid RSS/ATOM need to use the link to identify the item.
                 var link = item.Links.FirstOrDefault(l => l.RelationshipType == "alternate")?.Uri;
                 if (String.IsNullOrWhiteSpace(item.Id)) item.Id = link?.ToString() ?? throw new InvalidOperationException("Feed item requires a valid 'Id' or 'Link'.");
