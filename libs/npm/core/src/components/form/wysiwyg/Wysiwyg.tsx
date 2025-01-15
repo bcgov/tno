@@ -183,6 +183,8 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
       setNormalState({ ...normalState, text: formattedValue, html: formattedValue });
     } else if (props.value && formattedValue !== normalState.text) {
       setNormalState({ ...normalState, text: formattedValue });
+    } else if (!props.value && normalState.text) {
+      setNormalState({ ...normalState, text: formattedValue, html: formattedValue });
     }
     // only update when value changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
