@@ -95,7 +95,21 @@
               <div style="margin: 10px 0 1em 24px; padding:0;">
                 @foreach (var content in tableSection.Value.Content)
                 {
-                  var summary = OwnerId.HasValue ? content.Versions.ContainsKey(OwnerId.Value) ? content.Versions[OwnerId.Value].Summary : "" : "";
+
+                  string summary;
+                  // Check if content has versions and contains the current owner's version
+                  if (content.Versions?.ContainsKey(OwnerId.Value) == true)
+                  {
+                      // If owner's version exists, use its summary
+                      summary = content.Versions[OwnerId.Value].Summary;
+                  }
+                  else
+                  {
+                      // If no owner's version exists, use the content's default summary
+                      // If content.Summary is null, use empty string as fallback
+                      summary = content.Summary ?? "";
+                  }
+                  
                   <div style="vertical-align:center; margin-bottom:4px ;">
                     <a id="toc-item-@tocCount" name="toc-item-@tocCount"></a>
                     @ReportExtensions.GetFullHeadline(content, Model, utcOffset, true, $"#item-{tocCount}", "", true) @summary
