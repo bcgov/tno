@@ -643,7 +643,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="ingest"></param>
     /// <returns></returns>
     /// <exception cref="ConfigurationException"></exception>
-    private static Dictionary<string, string> GetSourcesForIngest(IngestModel ingest)
+    private Dictionary<string, string> GetSourcesForIngest(IngestModel ingest)
     {
         var sources = new Dictionary<string, string>();
         var sourcesStr = ingest.GetConfigurationValue(Fields.Sources);
@@ -653,13 +653,13 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             foreach (var source in sourcesArr)
             {
                 var pair = source.Split('=');
-                if (pair.Length == 2)
+                if (pair.Length == 2 && !sources.ContainsKey(pair[0]))
                 {
                     sources.Add(pair[0], pair[1]);
                 }
                 else
                 {
-                    throw new ConfigurationException($"Invalid source value in ingest configuration. Source '{source}' for ingest '{ingest.Name}'");
+                    this.Logger.LogError("Invalid source value in ingest configuration. Source '{source}' for ingest '{ingestName}'", source, ingest.Name);
                 }
             }
         }
@@ -754,7 +754,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             var contents = sr.ReadToEnd();
             if (String.IsNullOrWhiteSpace(contents))
             {
-                this.Logger.LogWarning("Missing file contents at '{path}'", filePath);
+                this.Logger.LogError("Missing file contents at '{path}'", filePath);
                 return null;
             }
             else
@@ -882,10 +882,10 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     private static string RemoveSpecial(string text)
     {
         var arr = text.Select(ch =>
-                                ((ch >= 'a' && ch <= 'z')
-                                    || (ch >= 'A' && ch <= 'Z')
-                                    || (ch >= '0' && ch <= '9')
-                                    ) ? ch : ' ').ToArray();
+            ((ch >= 'a' && ch <= 'z')
+                || (ch >= 'A' && ch <= 'Z')
+                || (ch >= '0' && ch <= '9')
+                ) ? ch : ' ').ToArray();
         return new string(arr);
     }
 
