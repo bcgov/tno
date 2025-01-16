@@ -95,18 +95,20 @@
               <div style="margin: 10px 0 1em 24px; padding:0;">
                 @foreach (var content in tableSection.Value.Content)
                 {
+                                  /**
+                * Check if content has versions and contains the current owner version.
+                * If owner version exists, use its summary.
+                * If no version exists, use the content default summary.
+                * If content.Summary is null, use empty string as fallback.
+                */
 
                   string summary;
-                  // Check if content has versions and contains the current owner's version
                   if (content.Versions?.ContainsKey(OwnerId.Value) == true)
                   {
-                      // If owner's version exists, use its summary
                       summary = content.Versions[OwnerId.Value].Summary;
                   }
                   else
                   {
-                      // If no owner's version exists, use the content's default summary
-                      // If content.Summary is null, use empty string as fallback
                       summary = content.Summary ?? "";
                   }
                   
