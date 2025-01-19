@@ -66,20 +66,17 @@ spec:
               memory: 2Gi
           env:
             - name: POSTGRESQL_DATABASE
-              valueFrom:
-                secretKeyRef:
-                  name: crunchy-pguser-admin
-                  key: dbname
+              value: tno
             - name: POSTGRESQL_USER
               valueFrom:
                 secretKeyRef:
-                  name: crunchy-pguser-admin
-                  key: user
+                  name: database
+                  key: USERNAME
             - name: POSTGRESQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: crunchy-pguser-admin
-                  key: password
+                  name: database
+                  key: PASSWORD
 
   volumeClaimTemplates:
     - metadata:
