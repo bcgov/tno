@@ -13,11 +13,38 @@ export const applyChartJsOptions = (values: any) => {
         }
       }
     }
+    if (options.plugins.legend === undefined) {
+      options.plugins.legend = {};
+      if (options.plugins.legend.labels === undefined) {
+        options.plugins.legend.labels = {};
+      }
+      if (options.plugins.legend.title === undefined) {
+        options.plugins.legend.title = {};
+      }
+    }
+    if (options.plugins.title === undefined) {
+      options.plugins.title = {};
+    }
+    if (options.plugins.subtitle === undefined) {
+      options.plugins.subtitle = {};
+    }
   }
 
   if (options.plugins.datalabels.labels.title.display === undefined) {
     // Default this property.
     options.plugins.datalabels.labels.title.display = false;
+  }
+  if (options.plugins.legend.title.display === undefined) {
+    // Default this property.
+    options.plugins.legend.title.display = false;
+  }
+  if (options.plugins.title.display === undefined) {
+    // Default this property.
+    options.plugins.title.display = false;
+  }
+  if (options.plugins.subtitle.display === undefined) {
+    // Default this property.
+    options.plugins.subtitle.display = false;
   }
 
   if (options.plugins.datalabels.formatter) {

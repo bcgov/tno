@@ -132,22 +132,5 @@ export const groupData = (
     };
   }
 
-  // if (groupByOrder === 'desc' && groupBy !== '' && groupBy !== 'reportSection') {
-  //   result = {
-  //     labels: result.labels.sort((a, b) => {
-  //       console.debug(a, b);
-  //       if (a < b) return 1;
-  //       if (a > b) return -1;
-  //       return 0;
-  //     }),
-  //     datasets: result.datasets.sort((a, b) => {
-  //       console.debug(a, b);
-  //       if (a.label < b.label) return 1;
-  //       if (a.label > b.label) return -1;
-  //       return 0;
-  //     }),
-  //   };
-  // }
-
   return result;
 };
