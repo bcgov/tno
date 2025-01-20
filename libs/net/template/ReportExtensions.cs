@@ -1,6 +1,5 @@
 namespace TNO.TemplateEngine;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.Logging;
 using TemplateEngine.Models;
 using TemplateEngine.Models.Reports;
 using TNO.Elastic;
@@ -526,6 +525,9 @@ public static partial class ReportExtensions
         API.Models.Settings.ChartSectionSettingsModel? settings = null,
         string orderby = "asc")
     {
+        var excludeEmptyValues = settings?.ExcludeEmptyValues ?? false;
+        var isSentiment = settings?.DatasetValue == "sentiment";
+
         if (groupBy == "topicType")
         {
             // Extract all topic types from content.
@@ -560,11 +562,9 @@ public static partial class ReportExtensions
                 sectionDict.Add(Name, content.Where(c => c.SectionName == Name));
             }
             var spread = sectionDict.SelectMany(d => d.Value.Select(v => new KeyValuePair<string, ContentModel>(d.Key, v)));
-            return spread.GroupBy(s => s.Key, s => s.Value);
+            // If excluding empty values is on, then remove any groups that only contain content without a value.
+            return spread.GroupBy(s => s.Key, s => s.Value).Where((v) => !excludeEmptyValues || !isSentiment || v.Any(c => GetSentimentValue(c) != null));
         }
-
-        var excludeEmptyValues = settings?.ExcludeEmptyValues ?? false;
-        var isSentiment = settings?.DatasetValue == "sentiment";
 
         var groups = groupBy switch
         {
