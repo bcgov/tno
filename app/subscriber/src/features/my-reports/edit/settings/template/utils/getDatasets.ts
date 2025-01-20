@@ -122,7 +122,5 @@ export const getDatasets = (
     });
   }
 
-  console.debug(results);
-
   return results;
 };
