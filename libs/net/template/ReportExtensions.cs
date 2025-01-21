@@ -82,21 +82,22 @@ public static partial class ReportExtensions
     }
 
     /// <summary>
-    /// Get the summary for the specified 'content' or external story(if ownerId is null).
+    /// Get the summary for the specified 'content' or external story(if content is private and sourceId is null).
     /// </summary>
     /// <param name="content"></param>
     /// <param name="context"></param>
     /// <returns></returns>
     public static string GetSummaryWithExternalStory(ContentModel content, ReportEngineContentModel context)
     {
-        string summary;
+        string summary = "";
         if (context.OwnerId.HasValue && content.Versions?.ContainsKey(context.OwnerId.Value) == true)
         {
             summary = content.Versions[context.OwnerId.Value].Summary;
         }
-        else
+        else if (content.IsPrivate && string.IsNullOrEmpty(content.SourceId?.ToString()))
         {
-            summary = content.Summary ?? "";
+
+            summary = content.Summary;
         }
         return summary;
     }
