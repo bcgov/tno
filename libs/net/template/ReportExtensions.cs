@@ -1,4 +1,5 @@
 namespace TNO.TemplateEngine;
+
 using System.Text.RegularExpressions;
 using TemplateEngine.Models;
 using TemplateEngine.Models.Reports;
@@ -577,7 +578,7 @@ public static partial class ReportExtensions
             "sentimentSimple" => content.GroupBy(c => GetSentimentRating(c) ?? "None").Where((v) => !excludeEmptyValues || v.Key != "None"),
             "source" => content.GroupBy(c => c.OtherSource),
             "dayMonthYear" => content.GroupBy(c => $"{c.PublishedOn:yyyyMMdd}"),
-            "monthDay" => content.GroupBy(c => $"{c.PublishedOn:MMdd}"),
+            "monthDay" => content.GroupBy(c => $"{c.PublishedOn:yyyyMMdd}"),
             "monthYear" => content.GroupBy(c => $"{c.PublishedOn:yyyyMM}"),
             "year" => content.GroupBy(c => $"{c.PublishedOn:yyyy}"),
             _ => content.GroupBy(c => isSentiment ? "Average Sentiment" : "Story Count"),
@@ -710,7 +711,7 @@ public static partial class ReportExtensions
             return settings.Dataset switch
             {
                 "dayMonthYear" => $"{DateTime.ParseExact(dataset.Key, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None):dd-MMM-yyyy}",
-                "monthDay" => $"{DateTime.ParseExact(dataset.Key, "MMdd", null, System.Globalization.DateTimeStyles.None):MMM-dd}",
+                "monthDay" => $"{DateTime.ParseExact(dataset.Key, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None):MMM-dd}",
                 "monthYear" => $"{DateTime.ParseExact(dataset.Key, "yyyyMM", null, System.Globalization.DateTimeStyles.None):MMM-yyyy}",
                 _ => dataset.Key,
             };
@@ -720,7 +721,7 @@ public static partial class ReportExtensions
             return settings.GroupBy switch
             {
                 "dayMonthYear" => $"{DateTime.ParseExact(dataset.Key, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None):dd-MM-yyyy}",
-                "monthDay" => $"{DateTime.ParseExact(dataset.Key, "MMdd", null, System.Globalization.DateTimeStyles.None):MMM-dd}",
+                "monthDay" => $"{DateTime.ParseExact(dataset.Key, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None):MMM-dd}",
                 "monthYear" => $"{DateTime.ParseExact(dataset.Key, "yyyyMM", null, System.Globalization.DateTimeStyles.None):MMM-yyyy}",
                 _ => dataset.Key,
             };
