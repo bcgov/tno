@@ -105,7 +105,7 @@ export const groupData = (
   } else if (groupBy === 'monthDay') {
     result = getChartData(chart, datasets, sections, {
       ...options,
-      groupOn: (c) => +moment(c?.content?.publishedOn).tz('America/Vancouver').format('MMDD'),
+      groupOn: (c) => +moment(c?.content?.publishedOn).tz('America/Vancouver').format('YYYYMMDD'),
       getLabel: (c) => moment(c?.content?.publishedOn).tz('America/Vancouver').format('MMM-DD'),
     });
   } else if (groupBy === 'monthYear') {
