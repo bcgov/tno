@@ -16,9 +16,15 @@ export const filterCommentaryResults = (
   return results.filter((content) => {
     const postedCutoff = determineCommentaryTime(commentaryActionId, content.actions);
     const publishedCutoff = moment().subtract(1, 'month');
+    let commentaryCreatedOn = null;
+    // use the commentary action created on time to decide if the content should be shown in the commentary list
+    const commentaryAction = content.actions.find((a) => a.id === commentaryActionId);
+    if (commentaryAction) {
+      commentaryCreatedOn = commentaryAction.createdOn;
+    }
     return (
-      content.postedOn &&
-      moment(content.postedOn) >= moment(postedCutoff) &&
+      commentaryCreatedOn &&
+      moment(commentaryCreatedOn) >= moment(postedCutoff) &&
       moment(content.publishedOn) >= publishedCutoff
     );
   });
