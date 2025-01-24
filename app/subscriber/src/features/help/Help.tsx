@@ -139,6 +139,19 @@ export const Help: React.FC = () => {
             </Row>
           </Col>
         </Row>
+        <Row>
+          <Col className="help-content">
+            <h2>
+              <FaVideo className="list-icon" />
+              <span>Creating Basic Report</span>
+            </h2>
+            <Row>
+              <Col className="media-playback">
+                <video controls src={`/public/videos/creatingreport.mp4`} />
+              </Col>
+            </Row>
+          </Col>
+        </Row>
       </PageSection>
     </styled.Help>
   );
