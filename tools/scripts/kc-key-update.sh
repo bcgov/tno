@@ -9,15 +9,30 @@ fi
 # Use the first command-line argument as the account secret
 account_secret="$1"
 
-# Dynamically obtain the absolute path of the script
-script_path="$(realpath "$0")"
+# Function to check if directory is TNO root by verifying key files/directories
+is_tno_root() {
+    local dir="$1"
+    # Check for TNO.sln and key directories that are unique to TNO
+    if [ -f "$dir/TNO.sln" ] && [ -d "$dir/api" ] && [ -d "$dir/services" ]; then
+        return 0 # true
+    fi
+    return 1 # false
+}
 
-# Find the tno directory in the path
-regex="(.*/TNO)/"
-if [[ $script_path =~ $regex ]]; then
-    tno_root="${BASH_REMATCH[1]}"
-else
-    echo "Unable to locate the tno directory in the script path."
+# Get the script's directory
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+
+# Find TNO root by traversing up from script location
+tno_root="$script_dir"
+while [ "$tno_root" != "/" ]; do
+    if is_tno_root "$tno_root"; then
+        break
+    fi
+    tno_root="$(dirname "$tno_root")"
+done
+
+if [ "$tno_root" = "/" ]; then
+    echo "Unable to locate the TNO root directory."
     exit 1
 fi
 
