@@ -38,8 +38,7 @@ fi
 
 # Files and their respective keys to check
 declare -A files_keys=(
-    ["$tno_root/tools/css-api/.env"]="Keycloak__Secret="
-    ["$tno_root/api/net/.env"]="CSS__Secret="
+    ["$tno_root/api/net/.env"]="Keycloak__ServiceAccount__Secret="
 )
 
 # Check and modify specified files
