@@ -82,7 +82,7 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
             .filter((p) => p.name !== 'Events')
             .map((p) => p.id);
           break;
-        case FilterOptionTypes.Internet:
+        case FilterOptionTypes.Online:
           updatedFilter.contentTypes = [ContentTypeName.Internet];
           updatedFilter.sourceIds = sources.filter((s) => s.code !== 'CPNEWS').map((s) => s.id);
           updatedFilter.mediaTypeIds = mediaTypes
