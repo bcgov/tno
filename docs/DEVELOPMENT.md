@@ -113,19 +113,17 @@ make up n=database
 make up n=keycloak
 
 # After keycloak starts go to http://localhost:40001 and login to confirm it has successfully initialized.
-# There should be a tno realm.  You can review the predefined user accounts.
+# There should be a MMI realm.  You can review the predefined user accounts.
 
+# In the Keycloak UI page, go to Clients, click on mmi-service-acount and select the Credentials tab.
 # Copy the mmi-service-account credentials secret and paste it into the following configuration files.
-# Keycloak__Secret={GET KEYCLOAK SERVICE ACCOUNT}
-cd ./tools/css-api/.env
+# Open the file: ./services/net/indexing/.env
 # Auth__Keycloak__Secret={GET KEYCLOAK SERVICE ACCOUNT}
-cd ./services/net/indexing/.env
-# Keycloak__ServiceAccount__Secret={GET KEYCLOAK mmi-service-account CLIENT SECRET}
-cd ./api/net/.env
 
+#Then open the file:  ./api/net/.env
+# Keycloak__ServiceAccount__Secret={GET KEYCLOAK mmi-service-account CLIENT SECRET}
 # Copy the mmi-app GUID (get it from the URL path in Keycloak) and paste it into the following configuration file.
 # Keycloak__ClientId={GET KEYCLOAK mmi-app CLIENT ID}
-cd ./api/net/.env
 
 # Setup the database
 make db-update
