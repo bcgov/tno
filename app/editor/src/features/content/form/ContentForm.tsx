@@ -272,6 +272,13 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                   width={FieldSize.Small}
                                   options={mediaTypeOptions}
                                   required
+                                  // Set a unique key for the component
+                                  // This ensures that the component is re-rendered when the mediaTypeId changes
+                                  key={`mediaType-${props.values.mediaTypeId}`}
+                                  // Set the default value for the media type select
+                                  defaultValue={mediaTypeOptions.find(
+                                    (mt) => mt.value === props.values.mediaTypeId,
+                                  )}
                                 />
                                 <FormikHidden name="otherSource" />
                                 <FormikText
