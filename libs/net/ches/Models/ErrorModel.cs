@@ -9,12 +9,12 @@ namespace TNO.Ches.Models
         /// <summary>
         /// get/set - The error message.
         /// </summary>
-        public string Message { get; set; }
+        public string Message { get; set; } = "";
 
         /// <summary>
         /// get/set - The error object value.
         /// </summary>
-        public object Value { get; set; }
+        public object Value { get; set; } = "";
         #endregion
     }
 }

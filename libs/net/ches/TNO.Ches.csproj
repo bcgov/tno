@@ -7,8 +7,8 @@
     <Nullable>enable</Nullable>
     <OutputType>Library</OutputType>
     <RootNamespace>TNO.Core</RootNamespace>
-    <Version>2.0.0.0</Version>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <Version>2.0.1</Version>
+    <AssemblyVersion>2.0.1</AssemblyVersion>
     <PackageId>TNO.Ches</PackageId>
     <Authors>Jeremy Foster</Authors>
     <Company>Fosol Solutions Inc.</Company>
@@ -25,6 +25,7 @@
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.IIS" Version="2.2.6" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Private.Uri" Version="4.3.2" />
   </ItemGroup>
 
   <ItemGroup>

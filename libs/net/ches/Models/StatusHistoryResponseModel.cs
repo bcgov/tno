@@ -1,6 +1,5 @@
-using TNO.Core.Converters;
-using System;
 using System.Text.Json.Serialization;
+using TNO.Core.Converters;
 
 namespace TNO.Ches.Models
 {
@@ -13,12 +12,12 @@ namespace TNO.Ches.Models
         /// <summary>
         /// get/set - A description of the status.
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; set; } = "";
 
         /// <summary>
         /// get/set - The status.
         /// </summary>
-        public string Status { get; set; }
+        public string Status { get; set; } = "";
 
         /// <summary>
         /// get/set - When the status was set.

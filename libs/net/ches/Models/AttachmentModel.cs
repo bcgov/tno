@@ -9,22 +9,22 @@ namespace TNO.Ches.Models
         /// <summary>
         /// get/set - The content of the attachment.
         /// </summary>
-        public string Content { get; set; }
+        public string Content { get; set; } = "";
 
         /// <summary>
         /// get/set - The content type.
         /// </summary>
-        public string ContentType { get; set; }
+        public string ContentType { get; set; } = "";
 
         /// <summary>
         /// get/set - The encoding of the attachment.
         /// </summary>
-        public string Encoding { get; set; }
+        public string Encoding { get; set; } = "";
 
         /// <summary>
         /// get/set - The file name of the attachment.
         /// </summary>
-        public string Filename { get; set; }
+        public string Filename { get; set; } = "";
         #endregion
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Text.Json.Serialization;
 
 namespace TNO.Ches.Models
@@ -21,12 +20,12 @@ namespace TNO.Ches.Models
         /// <summary>
         /// get/set - The status of the message.
         /// </summary>
-        public string Status { get; set; }
+        public string Status { get; set; } = "";
 
         /// <summary>
         /// get/set - A tag to identify a related message.
         /// </summary>
-        public string Tag { get; set; }
+        public string Tag { get; set; } = "";
         #endregion
     }
 }
