@@ -1,0 +1,59 @@
+---
+# The final build image.
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: psql
+  annotations:
+    description: Destination for built images.
+  labels:
+    name: psql
+    part-of: tno
+    version: 1.0.0
+    component: database
+    managed-by: kustomize
+    created-by: jeremy.foster
+
+---
+# The build config that will be created will be named for the branch you created it for.
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: psql.dev
+  annotations:
+    description: Build image from Dockerfile in git repo.
+  labels:
+    name: psql
+    part-of: tno
+    version: 1.0.0
+    component: database
+    managed-by: kustomize
+    created-by: jeremy.foster
+    branch: dev
+spec:
+  completionDeadlineSeconds: 1800
+  triggers:
+    - type: ImageChange
+    - type: ConfigChange
+  runPolicy: Serial
+  source:
+    git:
+      uri: https://github.com/bcgov/tno.git
+      ref: dev
+    contextDir: db/tools
+  strategy:
+    type: Docker
+    dockerStrategy:
+      imageOptimizationPolicy: SkipLayers
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: psql:latest
+  resources:
+    requests:
+      cpu: 20m
+      memory: 100Mi
+    limits:
+      cpu: 100m
+      memory: 1Gi
