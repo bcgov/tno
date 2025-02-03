@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using TNO.Core.Converters;
 
@@ -14,22 +12,22 @@ namespace TNO.Ches.Models
         /// <summary>
         /// get/set - The email address that the message will be sent from.
         /// </summary>
-        public string From { get; set; }
+        public string From { get; set; } = "";
 
         /// <summary>
         /// get/set - An array of email addresses to send the message to.
         /// </summary>
-        public IEnumerable<string> To { get; set; } = new List<string>();
+        public IEnumerable<string> To { get; set; } = [];
 
         /// <summary>
         /// get/set - An array of email addresses to send the message to.
         /// </summary>
-        public IEnumerable<string> Bcc { get; set; } = new List<string>();
+        public IEnumerable<string> Bcc { get; set; } = [];
 
         /// <summary>
         /// get/set - An array of email addresses to send the message to.
         /// </summary>
-        public IEnumerable<string> Cc { get; set; } = new List<string>();
+        public IEnumerable<string> Cc { get; set; } = [];
 
         /// <summary>
         /// get/set - The email encoding.
@@ -46,7 +44,7 @@ namespace TNO.Ches.Models
         /// <summary>
         /// get/set - The email subject.
         /// </summary>
-        public string Subject { get; set; }
+        public string Subject { get; set; } = "";
 
         /// <summary>
         /// get/set - The email body type.
@@ -57,12 +55,12 @@ namespace TNO.Ches.Models
         /// <summary>
         /// get/set - The email body.
         /// </summary>
-        public string Body { get; set; }
+        public string Body { get; set; } = "";
 
         /// <summary>
         /// get/set - A tag to identify related messages.
         /// </summary>
-        public string Tag { get; set; }
+        public string Tag { get; set; } = "";
 
         /// <summary>
         /// get/set - When the message will be sent.
@@ -91,7 +89,7 @@ namespace TNO.Ches.Models
         /// <param name="subject"></param>
         /// <param name="body"></param>
         public EmailModel(string from, string to, string subject, string body)
-            : this(from, new[] { to }, subject, body)
+            : this(from, [to], subject, body)
         {
         }
 

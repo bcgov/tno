@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace TNO.Ches.Models
@@ -19,12 +17,12 @@ namespace TNO.Ches.Models
         /// <summary>
         /// get/set - The tag that provides a way to identify related messages.
         /// </summary>
-        public string Tag { get; set; }
+        public string Tag { get; set; } = "";
 
         /// <summary>
         /// get/set - An array of email addresses that the message was sent to.
         /// </summary>
-        public IEnumerable<string> To { get; set; } = new List<string>();
+        public IEnumerable<string> To { get; set; } = [];
         #endregion
     }
 }

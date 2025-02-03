@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using TNO.Core.Converters;
 
@@ -13,7 +12,7 @@ namespace TNO.Ches.Models
         /// <summary>
         /// get/set - Who the emails will be from (i.e. First Last <first.last@email.com>).
         /// </summary>
-        public string From { get; set; }
+        public string From { get; set; } = "";
 
         /// <summary>
         /// get/set - The email encoding.
@@ -36,17 +35,17 @@ namespace TNO.Ches.Models
         /// <summary>
         /// get/set - The email subject (template).
         /// </summary>
-        public string Subject { get; set; }
+        public string Subject { get; set; } = "";
 
         /// <summary>
         /// get/set - The email body (template).
         /// </summary>
-        public string Body { get; set; }
+        public string Body { get; set; } = "";
 
         /// <summary>
         /// get/set - A way to identify related emails.
         /// </summary>
-        public string Tag { get; set; }
+        public string Tag { get; set; } = "";
 
         /// <summary>
         /// get/set - The context provides the template variables for each individual email.

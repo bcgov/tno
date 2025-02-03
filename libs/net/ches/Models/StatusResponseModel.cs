@@ -1,7 +1,5 @@
-using TNO.Core.Converters;
-using System;
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using TNO.Core.Converters;
 
 namespace TNO.Ches.Models
 {
@@ -47,17 +45,17 @@ namespace TNO.Ches.Models
         /// <summary>
         /// get/set - The current status of the message.
         /// </summary>
-        public string Status { get; set; }
+        public string Status { get; set; } = "";
 
         /// <summary>
         /// get/set - A tag to identify related messages.
         /// </summary>
-        public string Tag { get; set; }
+        public string Tag { get; set; } = "";
 
         /// <summary>
         /// get/set - An array of status history of the message.
         /// </summary>
-        public IEnumerable<StatusHistoryResponseModel> StatusHistory { get; set; } = new List<StatusHistoryResponseModel>();
+        public IEnumerable<StatusHistoryResponseModel> StatusHistory { get; set; } = [];
         #endregion
     }
 }

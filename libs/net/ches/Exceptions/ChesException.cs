@@ -1,9 +1,6 @@
+using System.Net;
 using TNO.Ches.Models;
 using TNO.Core.Http;
-using System;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 
 namespace TNO.Core.Exceptions
 {
@@ -16,12 +13,12 @@ namespace TNO.Core.Exceptions
         /// <summary>
         /// get - Additional detail on the error.
         /// </summary>
-        public string Detail { get; }
+        public string? Detail { get; }
 
         /// <summary>
         /// get - The HTTP request client the exception originated from.
         /// </summary>
-        public IHttpRequestClient Client { get; }
+        public IHttpRequestClient? Client { get; }
         #endregion
 
         #region Constructors
@@ -31,11 +28,13 @@ namespace TNO.Core.Exceptions
         /// <param name="exception"></param>
         /// <param name="client"></param>
         /// <param name="model"></param>
-        public ChesException(HttpClientRequestException exception, IHttpRequestClient client, ErrorResponseModel model)
+        public ChesException(HttpClientRequestException exception, IHttpRequestClient client, ErrorResponseModel? model)
             : this($"{exception.Message}{Environment.NewLine}", exception, exception?.StatusCode ?? HttpStatusCode.InternalServerError)
         {
             this.Client = client;
-            this.Detail = $"{model.Title}{Environment.NewLine}{model.Detail}{Environment.NewLine}{model.Type}{Environment.NewLine}{String.Join(Environment.NewLine, model.Errors.Select(e => $"\t{e.Message}"))}";
+            this.Detail = model != null
+                ? $"{model.Title}{Environment.NewLine}{model.Detail}{Environment.NewLine}{model.Type}{Environment.NewLine}{String.Join(Environment.NewLine, model.Errors.Select(e => $"\t{e.Message}"))}"
+                : null;
             this.Data.Add("error", model);
         }
 
