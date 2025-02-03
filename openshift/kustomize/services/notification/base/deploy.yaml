@@ -201,6 +201,11 @@ spec:
                 configMapKeyRef:
                   name: notification-service
                   key: CHES_EMAIL_AUTHORIZED
+            - name: CHES__AlwaysBcc
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: ALWAYS_BCC
 
             - name: CHES__AuthUrl
               valueFrom:

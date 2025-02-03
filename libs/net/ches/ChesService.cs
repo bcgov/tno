@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -22,11 +17,14 @@ namespace TNO.Ches
     /// <summary>
     /// ChesService class, provides a service for integration with Ches API services.
     /// </summary>
-    public class ChesService : IChesService
+    public partial class ChesService : IChesService
     {
         #region Variables
+
+        [GeneratedRegex("src=\\\"data:(image\\/[a-zA-Z]*);base64,([^\\\"]*)\\\"", RegexOptions.IgnoreCase | RegexOptions.Singleline, "en-CA")]
+        private static partial Regex Base64InlineImageRegex();
         private readonly ClaimsPrincipal _user;
-        private TokenModel _token = null;
+        private TokenModel? _token = null;
         private readonly JwtSecurityTokenHandler _tokenHandler;
         private readonly ILogger<IChesService> _logger;
 
@@ -36,7 +34,7 @@ namespace TNO.Ches
         protected IHttpRequestClient Client { get; }
         public ChesOptions Options { get; }
         #endregion
-        private static readonly Regex Base64InlineImageRegex = new("src=\\\"data:(image\\/[a-zA-Z]*);base64,([^\\\"]*)\\\"", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        private static readonly Regex ExtractBase64InlineImageRegex = Base64InlineImageRegex();
 
         #region Constructors
         /// <summary>
@@ -97,7 +95,7 @@ namespace TNO.Ches
             var url = GenerateUrl(endpoint);
 
             var headers = new HttpRequestMessage().Headers;
-            headers.Add("Authorization", $"Bearer {_token.AccessToken}");
+            headers.Add("Authorization", $"Bearer {_token?.AccessToken}");
 
             try
             {
@@ -107,8 +105,12 @@ namespace TNO.Ches
             catch (HttpClientRequestException ex)
             {
                 _logger.LogError(ex, "Failed to send/receive request: {status} {url}", ex.StatusCode, url);
-                var response = await this.Client?.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
-                throw new ChesException(ex, this.Client, response);
+                if (ex.Response != null)
+                {
+                    var response = await this.Client.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
+                    throw new ChesException(ex, this.Client, response);
+                }
+                throw new ChesException("Failed to send message to CHES", ex);
             }
         }
 
@@ -119,14 +121,14 @@ namespace TNO.Ches
         /// <param name="endpoint"></param>
         /// <param name="method"></param>
         /// <returns></returns>
-        private async Task<TR> SendAsync<TR>(string endpoint, HttpMethod method)
+        private async Task<TR?> SendAsync<TR>(string endpoint, HttpMethod method)
         {
             await RefreshAccessTokenAsync();
 
             var url = GenerateUrl(endpoint);
 
             var headers = new HttpRequestMessage().Headers;
-            headers.Add("Authorization", $"Bearer {_token.AccessToken}");
+            headers.Add("Authorization", $"Bearer {_token?.AccessToken}");
 
             try
             {
@@ -135,8 +137,12 @@ namespace TNO.Ches
             catch (HttpClientRequestException ex)
             {
                 _logger.LogError(ex, "Failed to send/receive request: {status} {url}", ex.StatusCode, url);
-                var response = await this.Client?.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
-                throw new ChesException(ex, this.Client, response);
+                if (ex.Response != null)
+                {
+                    var response = await this.Client.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
+                    throw new ChesException(ex, this.Client, response);
+                }
+                throw new ChesException("Failed to send message to CHES", ex);
             }
         }
 
@@ -150,7 +156,7 @@ namespace TNO.Ches
         /// <param name="method"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        private async Task<TR> SendAsync<TR, TD>(string endpoint, HttpMethod method, TD data)
+        private async Task<TR?> SendAsync<TR, TD>(string endpoint, HttpMethod method, TD data)
             where TD : class
         {
             await RefreshAccessTokenAsync();
@@ -158,7 +164,7 @@ namespace TNO.Ches
             var url = GenerateUrl(endpoint);
 
             var headers = new HttpRequestMessage().Headers;
-            headers.Add("Authorization", $"Bearer {_token.AccessToken}");
+            headers.Add("Authorization", $"Bearer {_token?.AccessToken}");
 
             try
             {
@@ -166,10 +172,15 @@ namespace TNO.Ches
             }
             catch (HttpClientRequestException ex)
             {
-                var response = await this.Client?.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
-                var error = String.Join(Environment.NewLine, response.Errors.Select(e => e.Message));
-                _logger.LogError(ex, "Failed to send/receive request: {code} {url}.  Error: {error}", ex.StatusCode, url, error);
-                throw new ChesException(ex, this.Client, response);
+                if (ex.Response != null)
+                {
+                    var response = await this.Client.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
+                    var error = String.Join(Environment.NewLine, response?.Errors.Select(e => e.Message) ?? []);
+                    _logger.LogError(ex, "Failed to send/receive request: {code} {url}.  Error: {error}", ex.StatusCode, url, error);
+                    throw new ChesException(ex, this.Client, response);
+                }
+                _logger.LogError(ex, "Failed to send/receive request: {code} {url}.  Error: {error}", ex.StatusCode, url, ex.GetAllMessages());
+                throw new ChesException("Failed to send message to CHES", ex);
             }
         }
 
@@ -179,7 +190,7 @@ namespace TNO.Ches
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public async Task<TokenModel> GetTokenAsync(string username = null, string password = null)
+        public async Task<TokenModel?> GetTokenAsync(string? username = null, string? password = null)
         {
             var headers = new HttpRequestMessage().Headers;
             var creds = Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes($"{username ?? this.Options.Username}:{password ?? this.Options.Password}"));
@@ -188,7 +199,7 @@ namespace TNO.Ches
 
             var form = new List<KeyValuePair<string, string>>
             {
-                new KeyValuePair<string, string>("grant_type", "client_credentials")
+                new("grant_type", "client_credentials")
             };
             var content = new FormUrlEncodedContent(form);
 
@@ -199,8 +210,12 @@ namespace TNO.Ches
             catch (HttpClientRequestException ex)
             {
                 _logger.LogError(ex, "Failed to send/receive request: {code} {url}", ex.StatusCode, this.Options.AuthUrl);
-                var response = await this.Client?.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
-                throw new ChesException(ex, this.Client, response);
+                if (ex.Response != null)
+                {
+                    var response = await this.Client.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
+                    throw new ChesException(ex, this.Client, response);
+                }
+                throw new ChesException("Failed to send message to CHES", ex);
             }
         }
 
@@ -211,23 +226,25 @@ namespace TNO.Ches
         /// <returns></returns>
         public async Task<EmailResponseModel> SendEmailAsync(IEmail email)
         {
-            if (email == null) throw new ArgumentNullException(nameof(email));
+            ArgumentNullException.ThrowIfNull(email);
 
             email.From = this.Options.From ?? email.From;
 
             if (this.Options.BccUser)
             {
-                email.Bcc = new[] { _user.GetEmail() }.Concat(email.Bcc?.Any() ?? false ? email.Bcc : Array.Empty<string>());
+                email.Bcc = new[] { _user.GetEmail() }.Concat(email.Bcc?.Any() ?? false ? email.Bcc : []).NotNullOrWhiteSpace();
             }
             if (!String.IsNullOrWhiteSpace(this.Options.AlwaysBcc))
             {
-                email.Bcc = this.Options.AlwaysBcc.Split(";").Select(e => e?.Trim()).Concat(email.Bcc?.Any() ?? false ? email.Bcc : Array.Empty<string>());
+                email.Bcc = this.Options.AlwaysBcc.Split(";").Select(e => e?.Trim()).Concat(email.Bcc?.Any() ?? false ? email.Bcc : []).NotNullOrWhiteSpace();
             }
             if (!String.IsNullOrWhiteSpace(this.Options.OverrideTo) || !this.Options.EmailAuthorized)
             {
-                email.To = !String.IsNullOrWhiteSpace(this.Options.OverrideTo) ? this.Options.OverrideTo?.Split(";").Select(e => e?.Trim()) : new[] { _user.GetEmail() };
-                email.Cc = email.Cc.Any() ? new[] { _user.GetEmail() } : Array.Empty<string>();
-                email.Bcc = Array.Empty<string>();
+                email.To = !String.IsNullOrWhiteSpace(this.Options.OverrideTo)
+                    ? this.Options.OverrideTo.Split(";").NotNullOrWhiteSpace().Select(e => e.Trim())
+                    : new[] { _user.GetEmail() }.Where(e => !String.IsNullOrWhiteSpace(e)).Select(e => e!);
+                email.Cc = email.Cc.Any() ? new[] { _user.GetEmail() }.NotNullOrWhiteSpace() : [];
+                email.Bcc = [];
             }
             if (this.Options.AlwaysDelay.HasValue)
             {
@@ -236,24 +253,24 @@ namespace TNO.Ches
 
             // Make sure there are no blank CC or BCC;
             email.To = email.To.NotNullOrWhiteSpace();
-            email.Cc = email.Cc?.NotNullOrWhiteSpace();
-            email.Bcc = email.Bcc?.NotNullOrWhiteSpace();
+            email.Cc = email.Cc?.NotNullOrWhiteSpace() ?? [];
+            email.Bcc = email.Bcc?.NotNullOrWhiteSpace() ?? [];
 
             // convert any embedded base64 images into attachments
             Dictionary<string, AttachmentModel> inlineImageMatches = GetImagesFromEmailBody(email.Body);
-            if (inlineImageMatches.Any())
+            if (inlineImageMatches.Count != 0)
             {
                 foreach (KeyValuePair<string, AttachmentModel> m in inlineImageMatches)
                 {
                     email.Body = email.Body.Replace(m.Key, $"src=\"cid:{m.Value.Filename}\"");
                 }
                 email.Attachments = email.Attachments.Any()
-                    ? email.Attachments.AppendRange(inlineImageMatches.Values.ToArray())
-                    : inlineImageMatches.Values.ToArray();
+                    ? email.Attachments.AppendRange([.. inlineImageMatches.Values])
+                    : [.. inlineImageMatches.Values];
             }
 
             if (this.Options.EmailEnabled)
-                return await SendAsync<EmailResponseModel, IEmail>("/email", HttpMethod.Post, email);
+                return await SendAsync<EmailResponseModel, IEmail>("/email", HttpMethod.Post, email) ?? new EmailResponseModel();
 
             return new EmailResponseModel();
         }
@@ -267,8 +284,8 @@ namespace TNO.Ches
         {
             var imageDictionary = new Dictionary<string, AttachmentModel>();
 
-            var inlineImageMatches = Base64InlineImageRegex.Matches(emailBody);
-            if (inlineImageMatches.Any())
+            var inlineImageMatches = ExtractBase64InlineImageRegex.Matches(emailBody);
+            if (inlineImageMatches.Count != 0)
             {
                 foreach (var m in inlineImageMatches.Cast<Match>())
                 {
@@ -281,8 +298,7 @@ namespace TNO.Ches
                         Filename = Guid.NewGuid().ToString(),
                         Content = base64Image
                     };
-                    if (!imageDictionary.ContainsKey(m.Value))
-                        imageDictionary.Add(m.Value, attachment);
+                    imageDictionary.TryAdd(m.Value, attachment);
                 }
             }
             return imageDictionary;
@@ -295,7 +311,7 @@ namespace TNO.Ches
         /// <returns></returns>
         public async Task<EmailResponseModel> SendEmailAsync(IEmailMerge email)
         {
-            if (email == null) throw new ArgumentNullException(nameof(email));
+            ArgumentNullException.ThrowIfNull(email);
 
             email.From = this.Options.From ?? email.From;
 
@@ -304,24 +320,26 @@ namespace TNO.Ches
                 var address = new[] { _user.GetEmail() };
                 email.Contexts.ForEach(c =>
                 {
-                    c.Bcc = address.Concat(c.Bcc?.Any() ?? false ? c.Bcc : Array.Empty<string>());
+                    c.Bcc = address.Concat(c.Bcc?.Any() ?? false ? c.Bcc : []).NotNullOrWhiteSpace();
                 });
             }
             if (!String.IsNullOrWhiteSpace(this.Options.AlwaysBcc))
             {
                 email.Contexts.ForEach(c =>
                 {
-                    c.Bcc = this.Options.AlwaysBcc.Split(";").Select(e => e?.Trim()).Concat(c.Bcc?.Any() ?? false ? c.Bcc : Array.Empty<string>());
+                    c.Bcc = this.Options.AlwaysBcc.Split(";").Select(e => e?.Trim()).Concat(c.Bcc?.Any() ?? false ? c.Bcc : []).NotNullOrWhiteSpace();
                 });
             }
             if (!String.IsNullOrWhiteSpace(this.Options.OverrideTo) || !this.Options.EmailAuthorized)
             {
-                var address = !String.IsNullOrWhiteSpace(this.Options.OverrideTo) ? this.Options.OverrideTo?.Split(";").Select(e => e?.Trim()) : new[] { _user.GetEmail() };
+                var address = !String.IsNullOrWhiteSpace(this.Options.OverrideTo)
+                    ? this.Options.OverrideTo?.Split(";").NotNullOrWhiteSpace().Select(e => e.Trim()) ?? []
+                    : new[] { _user.GetEmail() }.NotNullOrWhiteSpace();
                 email.Contexts.ForEach(c =>
                 {
                     c.To = address;
-                    c.Cc = Array.Empty<string>();
-                    c.Bcc = Array.Empty<string>();
+                    c.Cc = [];
+                    c.Bcc = [];
                 });
             }
             if (this.Options.AlwaysDelay.HasValue)
@@ -340,19 +358,19 @@ namespace TNO.Ches
 
             // convert any embedded base64 images into attachments
             Dictionary<string, AttachmentModel> inlineImageMatches = GetImagesFromEmailBody(email.Body);
-            if (inlineImageMatches.Any())
+            if (inlineImageMatches.Count != 0)
             {
                 foreach (KeyValuePair<string, AttachmentModel> m in inlineImageMatches)
                 {
                     email.Body = email.Body.Replace(m.Key, $"src=\"cid:{m.Value.Filename}\"");
                 }
                 email.Attachments = email.Attachments.Any()
-                    ? email.Attachments.AppendRange(inlineImageMatches.Values.ToArray())
-                    : inlineImageMatches.Values.ToArray();
+                    ? email.Attachments.AppendRange([.. inlineImageMatches.Values])
+                    : [.. inlineImageMatches.Values];
             }
 
             if (this.Options.EmailEnabled)
-                return await SendAsync<EmailResponseModel, IEmailMerge>("/emailMerge", HttpMethod.Post, email);
+                return await SendAsync<EmailResponseModel, IEmailMerge>("/emailMerge", HttpMethod.Post, email) ?? new EmailResponseModel();
 
             return new EmailResponseModel();
         }
@@ -364,7 +382,7 @@ namespace TNO.Ches
         /// <returns></returns>
         public async Task<StatusResponseModel> GetStatusAsync(Guid messageId)
         {
-            return await SendAsync<StatusResponseModel>($"/status/{messageId}", HttpMethod.Get);
+            return await SendAsync<StatusResponseModel>($"/status/{messageId}", HttpMethod.Get) ?? new StatusResponseModel();
         }
 
         /// <summary>
@@ -374,7 +392,7 @@ namespace TNO.Ches
         /// <returns></returns>
         public async Task<IEnumerable<StatusResponseModel>> GetStatusAsync(StatusModel filter)
         {
-            if (filter == null) throw new ArgumentNullException(nameof(filter));
+            ArgumentNullException.ThrowIfNull(filter);
             if (!filter.MessageId.HasValue && !filter.TransactionId.HasValue && String.IsNullOrWhiteSpace(filter.Status) && String.IsNullOrWhiteSpace(filter.Tag)) throw new ArgumentException("At least one parameter must be specified.");
 
             var query = HttpUtility.ParseQueryString(String.Empty);
@@ -383,7 +401,7 @@ namespace TNO.Ches
             if (!String.IsNullOrEmpty(filter.Tag)) query.Add("tag", $"{filter.Tag}");
             if (filter.TransactionId.HasValue) query.Add("txId", $"{filter.TransactionId}");
 
-            return await SendAsync<IEnumerable<StatusResponseModel>>($"/status?{query}", HttpMethod.Get);
+            return await SendAsync<IEnumerable<StatusResponseModel>>($"/status?{query}", HttpMethod.Get) ?? [];
         }
 
         /// <summary>
@@ -410,7 +428,7 @@ namespace TNO.Ches
         /// <returns></returns>
         public async Task<IEnumerable<StatusResponseModel>> CancelEmailAsync(StatusModel filter)
         {
-            if (filter == null) throw new ArgumentNullException(nameof(filter));
+            ArgumentNullException.ThrowIfNull(filter);
             if (!filter.MessageId.HasValue && !filter.TransactionId.HasValue && String.IsNullOrWhiteSpace(filter.Status) && String.IsNullOrWhiteSpace(filter.Tag)) throw new ArgumentException("At least one parameter must be specified.");
 
             var query = HttpUtility.ParseQueryString(String.Empty);

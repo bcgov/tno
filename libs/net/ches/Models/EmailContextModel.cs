@@ -14,22 +14,22 @@ namespace TNO.Ches.Models
         /// <summary>
         /// get/set - An array of email addresses the email will be sent to.
         /// </summary>
-        public IEnumerable<string> To { get; set; } = new List<string>();
+        public IEnumerable<string> To { get; set; } = [];
 
         /// <summary>
         /// get/set - An array of email addresses that the email will be carbon-copied.
         /// </summary>
-        public IEnumerable<string> Cc { get; set; } = new List<string>();
+        public IEnumerable<string> Cc { get; set; } = [];
 
         /// <summary>
         /// get/set - An array of email addresses that the email will be blind carbon-copied.
         /// </summary>
-        public IEnumerable<string> Bcc { get; set; } = new List<string>();
+        public IEnumerable<string> Bcc { get; set; } = [];
 
         /// <summary>
         /// get/set - A structure that provides the template variables values.
         /// </summary>
-        public Dictionary<string, object> Context { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object> Context { get; set; } = [];
 
         /// <summary>
         /// get/set - When the email will be sent.
@@ -41,7 +41,7 @@ namespace TNO.Ches.Models
         /// <summary>
         /// get/set - A way to identify related emails.
         /// </summary>
-        public string Tag { get; set; }
+        public string Tag { get; set; } = "";
         #endregion
 
         #region Constructors

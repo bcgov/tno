@@ -61,8 +61,8 @@ public static class EnumExtensions
     /// </summary>
     /// <param name="items"></param>
     /// <returns></returns>
-    public static IEnumerable<T> NotNullOrWhiteSpace<T>(this IEnumerable<T> items)
+    public static IEnumerable<T> NotNullOrWhiteSpace<T>(this IEnumerable<T?> items)
     {
-        return items.Where(v => v != null && !String.IsNullOrWhiteSpace($"{v}"));
+        return items.Where(v => v != null && !String.IsNullOrWhiteSpace($"{v}")).Select(v => v!);
     }
 }

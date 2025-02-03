@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace TNO.Ches.Models
 {
     /// <summary>
@@ -11,12 +9,12 @@ namespace TNO.Ches.Models
         /// <summary>
         /// get/set - The error type.
         /// </summary>
-        public string Type { get; set; }
+        public string Type { get; set; } = "";
 
         /// <summary>
         /// get/set - The error title.
         /// </summary>
-        public string Title { get; set; }
+        public string Title { get; set; } = "";
 
         /// <summary>
         /// get/set - The error status.
@@ -26,12 +24,12 @@ namespace TNO.Ches.Models
         /// <summary>
         /// get/set - The error details.
         /// </summary>
-        public string Detail { get; set; }
+        public string Detail { get; set; } = "";
 
         /// <summary>
         /// get/set - An array of error messages.
         /// </summary>
-        public IEnumerable<ErrorModel> Errors { get; set; } = new List<ErrorModel>();
+        public IEnumerable<ErrorModel> Errors { get; set; } = [];
         #endregion
     }
 }

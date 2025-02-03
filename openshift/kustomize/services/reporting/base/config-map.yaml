@@ -22,3 +22,4 @@ data:
   CHARTS_URL: http://charts-api:8080
   RESEND_ON_FAILURE: "true"
   SEND_TO_ALL_BEFORE_FAILING: "false"
+  ALWAYS_BCC: "ITSupportMMI@gov.bc.ca"
