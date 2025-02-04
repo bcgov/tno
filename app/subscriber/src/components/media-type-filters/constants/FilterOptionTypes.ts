@@ -1,7 +1,7 @@
 export enum FilterOptionTypes {
   Papers = 'PrintContent',
   RadioTV = 'AudioVideo',
-  Online = 'internet',
+  Internet = 'internet',
   CPNews = 'cpNews',
   All = 'all',
   Events = 'events',
