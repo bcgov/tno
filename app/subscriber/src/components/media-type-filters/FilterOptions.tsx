@@ -84,9 +84,8 @@ export const FilterOptions: React.FC<IMediaTypeFiltersProps> = ({ filterStoreNam
           break;
         case FilterOptionTypes.Internet:
           updatedFilter.contentTypes = [ContentTypeName.Internet];
-          updatedFilter.sourceIds = sources.filter((s) => s.code !== 'CPNEWS').map((s) => s.id);
           updatedFilter.mediaTypeIds = mediaTypes
-            .filter((p) => p.name !== 'Events')
+            .filter((p) => p.name !== 'Events' && p.name !== 'CP Wire')
             .map((p) => p.id);
           break;
         case FilterOptionTypes.CPNews:
