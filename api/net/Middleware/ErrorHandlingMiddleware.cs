@@ -167,6 +167,13 @@ namespace TNO.API.Middleware
 
                 _logger.LogError(ex, "Configuration error.  {error}", ex.Message);
             }
+            else if (ex is ContentConflictException contentConflictEx)
+            {
+                code = HttpStatusCode.Conflict;
+                message = contentConflictEx.Message;
+
+                _logger.LogWarning(ex, "Content conflict detected: {error}", ex.Message);
+            }
             else
             {
                 _logger.LogError(ex, "Middleware caught unhandled exception. {error}", ex.GetAllMessages());

@@ -384,22 +384,18 @@ public class ContentService : BaseService<Content, long>, IContentService
 
             if (databaseValues == null)
             {
-                var errorMessage = "Unable to retrieve latest content. Please refresh the page and try again. If the issue persists, contact support.";
-                this.Logger.LogError(errorMessage);
-                throw new DbUpdateConcurrencyException(errorMessage);
+                var errorMessage = "Unable to retrieve latest content.";
+                this.Logger.LogError(ex, errorMessage);
+                throw new NoContentException(errorMessage, ex);
             }
 
             // Get changed properties and log details
             var changedProperties = GetChangedProperties(currentValues, databaseValues);
             LogFieldChanges(changedProperties);
 
-            var changedFields = string.Join("', '", changedProperties.Keys);
+            var changedFields = string.Join(",", changedProperties.Keys);
 
-            // Throw user-friendly message with better formatting
-            var userMessage = $"Content has been modified by another user. Modified fields: '{changedFields}'. " +
-                            "Please save your changes, refresh page, and reapply your updates.";
-
-            throw new DbUpdateConcurrencyException(userMessage);
+            throw new ContentConflictException($"FIELDS:{changedFields}", ex);
         }
     }
 
