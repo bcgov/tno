@@ -10,6 +10,7 @@
   "cSpell.words": [
     "CBRA",
     "CHES",
+    "datalabels",
     "formik",
     "Idir",
     "insertable",
@@ -30,7 +31,6 @@
   },
   "omnisharp.enableRoslynAnalyzers": true,
   "omnisharp.enableMsBuildLoadProjectsOnDemand": true,
-  "omnisharp.organizeImportsOnFormat": true,
   "dotnet.server.useOmnisharp": true,
   "omnisharp.analyzeOpenDocumentsOnly": true,
   "files.exclude": {
@@ -43,4 +43,5 @@
     "**/node_modules": false
   },
   "dotnet.defaultSolution": "./TNO.sln",
+  "dotnet.formatting.organizeImportsOnFormat": true,
 }

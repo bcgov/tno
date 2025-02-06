@@ -29,8 +29,6 @@ export interface IChartSectionSettingsModel {
   datasetColors?: string[];
   /** Colours to use in the chart data sets borders. */
   datasetBorderColors?: string[];
-  /** Colours to use in the chart data labels. */
-  dataLabelColors?: string[];
 
   /** Whether the chart is horizontal or vertical (flips x and y axis) */
   isHorizontal?: boolean;
@@ -62,6 +60,14 @@ export interface IChartSectionSettingsModel {
   /** Whether to show the data value labels in the chart */
   showDataLabels?: boolean;
   dataLabelFontSize?: number;
+  /** Colours to use in the chart data labels. */
+  dataLabelColors?: string[];
+  dataLabelBackgroundColors?: string[];
+  dataLabelAnchors?: ('center' | 'start' | 'end')[];
+  dataLabelAligns?: ('center' | 'start' | 'end' | 'right' | 'bottom' | 'left' | 'top')[];
+  dataLabelOffsets?: number[];
+  dataLabelClip?: boolean;
+  dataLabelClamp?: boolean;
   /** Whether to stack datasets (only works on some charts). */
   stacked?: boolean;
   /** Scale suggested minimum value. */

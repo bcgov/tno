@@ -86,11 +86,6 @@ public class ChartSectionSettingsModel
     public string[]? DatasetBorderColors { get; set; }
 
     /// <summary>
-    /// get/set - An array of colour to use for this chart data labels.
-    /// </summary>
-    public string[]? DataLabelColors { get; set; }
-
-    /// <summary>
     /// get/set - Override whether the chart is horizontal.
     /// </summary>
     public bool? IsHorizontal { get; set; }
@@ -188,9 +183,44 @@ public class ChartSectionSettingsModel
     public bool? ShowDataLabels { get; set; }
 
     /// <summary>
+    /// get/set - An array of colour to use for this chart data labels.
+    /// </summary>
+    public string[]? DataLabelColors { get; set; }
+
+    /// <summary>
+    /// get/set - An array of colour to use for this chart data labels.
+    /// </summary>
+    public string[]? DataLabelBackgroundColors { get; set; }
+
+    /// <summary>
     /// get/set - Chart data label font size
     /// </summary>
     public int? DataLabelFontSize { get; set; }
+
+    /// <summary>
+    /// get/set - Chart data label anchors.
+    /// </summary>
+    public string[]? DataLabelAnchors { get; set; }
+
+    /// <summary>
+    /// get/set - Chart data label alignments.
+    /// </summary>
+    public string[]? DataLabelAligns { get; set; }
+
+    /// <summary>
+    /// get/set - Chart data label offsets.
+    /// </summary>
+    public int[]? DataLabelOffsets { get; set; }
+
+    /// <summary>
+    /// get/set - Chart data label clip.
+    /// </summary>
+    public bool? DataLabelClip { get; set; }
+
+    /// <summary>
+    /// get/set - Chart data label clamp.
+    /// </summary>
+    public bool? DataLabelClamp { get; set; }
 
     /// <summary>
     /// get/set - Whether to stack datasets (only works on some charts).
