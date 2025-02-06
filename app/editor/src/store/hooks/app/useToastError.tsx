@@ -53,7 +53,9 @@ export const useToastError = () => {
           <Col className="concurrency-conflict-message">
             <div>
               <div style={styles.container}>
-                <p style={styles.title}>Content has been modified by another user</p>
+                <p style={styles.title}>
+                  Your changes could not be saved. Updates from another user could not be loaded.
+                </p>
               </div>
               {modifiedFields && (
                 <p style={styles.container}>
