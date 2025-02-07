@@ -302,7 +302,10 @@ public class ContentService : BaseService<Content, long>, IContentService
             "Versions",
             "UpdatedBy",
             "UpdatedOn",
-            "Version"
+            "Version",
+            "CreatedBy",
+            "CreatedOn",
+            "PostedOn",
         };
 
         var propertyNames = currentValues.Properties

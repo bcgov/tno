@@ -59,7 +59,7 @@ export const useToastError = () => {
               </div>
               {modifiedFields && (
                 <p style={styles.container}>
-                  Modified fields: <span style={styles.title}>{modifiedFields}</span>
+                  Different fields: <span style={styles.title}>{modifiedFields}</span>
                 </p>
               )}
               <p style={styles.message}>
