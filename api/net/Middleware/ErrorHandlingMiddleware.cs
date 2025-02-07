@@ -172,7 +172,7 @@ namespace TNO.API.Middleware
                 code = HttpStatusCode.Conflict;
                 message = contentConflictEx.Message;
 
-                _logger.LogWarning(ex, "Content conflict detected: {error}", ex.Message);
+                _logger.LogError(ex, "Content conflict detected: {error}", ex.Message);
             }
             else
             {
