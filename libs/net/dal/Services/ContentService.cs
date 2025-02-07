@@ -299,13 +299,13 @@ public class ContentService : BaseService<Content, long>, IContentService
     {
         // Fields to ignore: system fields 
         var ignoreFields = new HashSet<string> {
-            "Versions",
-            "UpdatedBy",
-            "UpdatedOn",
-            "Version",
-            "CreatedBy",
-            "CreatedOn",
-            "PostedOn",
+            nameof(Content.Versions),
+            nameof(Content.UpdatedBy),
+            nameof(Content.UpdatedOn),
+            nameof(Content.Version),
+            nameof(Content.CreatedBy),
+            nameof(Content.CreatedOn),
+            nameof(Content.PostedOn),
         };
 
         var propertyNames = currentValues.Properties
