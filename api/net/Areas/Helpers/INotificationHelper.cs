@@ -25,12 +25,14 @@ public interface INotificationHelper
     /// </summary>
     /// <param name="model"></param>
     /// <param name="isPreview"></param>
+    /// <param name="enableReportSentiment"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
     Task<NotificationResultModel> GenerateNotificationAsync(
         Areas.Services.Models.NotificationInstance.NotificationInstanceModel model,
-        bool isPreview = false);
+        bool isPreview = false,
+        bool enableReportSentiment = false);
 
     /// <summary>
     /// Execute the notification template to generate the subject and body.
@@ -54,10 +56,12 @@ public interface INotificationHelper
     /// <param name="notification"></param>
     /// <param name="content"></param>
     /// <param name="isPreview"></param>
+    /// <param name="enableReportSentiment"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     Task<NotificationResultModel> GenerateNotificationAsync(
         Areas.Services.Models.Notification.NotificationModel notification,
         ContentModel content,
-        bool isPreview = false);
+        bool isPreview = false,
+        bool enableReportSentiment = false);
 }

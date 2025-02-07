@@ -432,30 +432,57 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         await HandleChesEmailOverrideAsync(request);
 
         var subscribers = await GetNotificationSubscribersAsync(notification, content);
-        var contexts = new List<EmailContextModel>();
+
+        var body = await GenerateNotificationBodyAsync(notification, content, null, request.IsPreview); 
+        var subject = string.Empty;
         if (!String.IsNullOrWhiteSpace(request.To))
-        {
+        {           
+            var contexts = new List<EmailContextModel>();
             // When a notification request has specified 'To' it means only send it to the emails in that property.
             var requestTo = request.To.Split(",").Select(v => v.Trim());
             contexts.Add(new EmailContextModel(requestTo, new Dictionary<string, object>(), DateTime.Now));
+            // There are no subscribers, or a notification has been sent for this content to all the subscribers.
+            if (!contexts.Any())
+            {
+                if (!subscribers.Any())
+                {
+                    this.Logger.LogDebug("Notification does not have subscribers. Notification: {notificationId}", notification.Id);
+                }
+                else
+                {
+                    this.Logger.LogInformation("Notification is not sent because all users has already received this content. Notification: {notificationId}", notification.Id);
+                }
+                return;
+            }
+            subject = await GenerateNotificationSubjectAsync(notification, content, request.IsPreview, false);
+            SendOutNotificationEmailsAsync(contexts, subject, body, new List<API.Areas.Services.Models.Notification.UserModel>(), request, notification, content);
         }
         else
         {
-            contexts.AddRange(this.NotificationValidator.GetSubscriberEmails(subscribers));
-        }
+            foreach(var subscriber in subscribers)
+            {           
+                var contexts = new List<EmailContextModel>();
+                contexts.AddRange(this.NotificationValidator.GetSubscriberEmails(new List<API.Areas.Services.Models.Notification.UserModel>(){ subscriber }));
 
-        // There are no subscribers, or a notification has been sent for this content to all the subscribers.
-        if (!contexts.Any())
-        {
-            if (!subscribers.Any())
-                this.Logger.LogDebug("Notification does not have subscribers. Notification: {notificationId}", notification.Id);
-            else
-                this.Logger.LogInformation("Notification is not sent because all users have already received this content. Notification: {notificationId}", notification.Id);
-            return;
+                // There are no subscribers, or a notification has been sent for this content to all the subscribers.
+                if (!contexts.Any())
+                {
+                    this.Logger.LogInformation("Notification is not sent because user {subscriberName} has already received this content. Notification: {notificationId}",
+                                                subscriber.DisplayName, notification.Id);
+                    continue;
+                }
+                subject = await GenerateNotificationSubjectAsync(notification, content, request.IsPreview, subscriber.EnableReportSentiment());
+                SendOutNotificationEmailsAsync(contexts, subject, body, new List<API.Areas.Services.Models.Notification.UserModel> { subscriber }, request, notification, content);
+            }
         }
+    }
 
-        var subject = await GenerateNotificationSubjectAsync(notification, content, request.IsPreview);
-        var body = await GenerateNotificationBodyAsync(notification, content, null, request.IsPreview);
+    private async void SendOutNotificationEmailsAsync(IEnumerable<EmailContextModel> contexts, string subject, string body,
+        IEnumerable<API.Areas.Services.Models.Notification.UserModel> subscriber,
+        NotificationRequestModel request,
+        API.Areas.Services.Models.Notification.NotificationModel notification,
+        API.Areas.Services.Models.Content.ContentModel content)
+    {
         var merge = new EmailMergeModel(this.ChesOptions.From, contexts, subject, body)
         {
             // TODO: Extract values from notification settings.
@@ -463,15 +490,14 @@ public class NotificationManager : ServiceManager<NotificationOptions>
             BodyType = EmailBodyTypes.Html,
             Priority = EmailPriorities.Normal,
         };
-
         // Add the subscribers to the notification validator so that they don't receive more than one email for a specific content item.
-        this.NotificationValidator.AddUsers(subscribers);
+        this.NotificationValidator.AddUsers(subscriber);
         var allEmails = String.Join(", ", contexts.Select(c => String.Join(", ", c.To)));
 
         try
         {
             var response = await this.Ches.SendEmailAsync(merge);
-            this.Logger.LogInformation("Notification sent to CHES.  Notification: {notification}, Content ID: {contentId}, Emails: {emails}", notification.Id, content.Id, allEmails);
+            this.Logger.LogInformation($"Notification sent to CHES. Notification: {notification.Id}, Content ID: {content.Id}, Subscriber: {subscriber.FirstOrDefault()?.DisplayName}, Emails: {allEmails}");
 
             if (!request.IsPreview)
             {
@@ -532,11 +558,12 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <param name="content"></param>
     /// <param name="isPreview"></param>
     /// <returns></returns>
-    private async Task<string> GenerateNotificationSubjectAsync(API.Areas.Services.Models.Notification.NotificationModel notification, API.Areas.Services.Models.Content.ContentModel content, bool isPreview = false)
+    private async Task<string> GenerateNotificationSubjectAsync(API.Areas.Services.Models.Notification.NotificationModel notification, API.Areas.Services.Models.Content.ContentModel content,
+        bool isPreview = false, bool enableReportSentiment = false)
     {
         if (notification.Template == null) throw new InvalidOperationException("Notification template cannot be null.  Update endpoint model serialization.");
 
-        return await this.NotificationEngine.GenerateNotificationSubjectAsync(notification, new TNO.TemplateEngine.Models.ContentModel(content), isPreview);
+        return await this.NotificationEngine.GenerateNotificationSubjectAsync(notification, new TNO.TemplateEngine.Models.ContentModel(content), isPreview, enableReportSentiment);
     }
 
     /// <summary>
