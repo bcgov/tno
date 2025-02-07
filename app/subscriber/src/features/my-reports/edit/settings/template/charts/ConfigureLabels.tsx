@@ -1,7 +1,7 @@
 import { Colours } from 'components/colours';
 import { useReportEditContext } from 'features/my-reports/edit/ReportEditContext';
 import React from 'react';
-import { Col, FormikCheckbox, FormikText, mergeChartSettings, Row } from 'tno-core';
+import { Col, FormikCheckbox, FormikText, mergeChartSettings, Row, Text } from 'tno-core';
 
 import { IChartSectionProps } from './IChartSectionProps';
 
@@ -23,6 +23,9 @@ export const ConfigureLabels: React.FC<IConfigureLabelsProps> = ({
 
   const section = values.sections[sectionIndex];
   const chart = section.chartTemplates[chartIndex];
+  const [dataLabelOffsets, setDataLabelOffsets] = React.useState(
+    chart.sectionSettings.dataLabelOffsets?.join(','),
+  );
 
   return (
     <Col className="frm-in" gap="0.15rem">
@@ -54,20 +57,20 @@ export const ConfigureLabels: React.FC<IConfigureLabelsProps> = ({
         }}
       />
       <label>Data Value Labels</label>
+      <FormikCheckbox
+        label="Show values inside chart"
+        name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.showDataLabels`}
+        checked={!!chart.sectionSettings.showDataLabels}
+        onChange={(e) => {
+          setFieldValue(
+            `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+            mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+              showDataLabels: e.target.checked,
+            }),
+          );
+        }}
+      />
       <Row justifyContent="space-between" alignItems="center">
-        <FormikCheckbox
-          label="Show values inside chart"
-          name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.showDataLabels`}
-          checked={!!chart.sectionSettings.showDataLabels}
-          onChange={(e) => {
-            setFieldValue(
-              `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
-              mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                showDataLabels: e.target.checked,
-              }),
-            );
-          }}
-        />
         <FormikText
           name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataLabelFontSize`}
           label="Font Size"
@@ -85,28 +88,108 @@ export const ConfigureLabels: React.FC<IConfigureLabelsProps> = ({
             );
           }}
         />
+        <FormikText
+          name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataLabelAnchors`}
+          label="Anchor(s)"
+          placeholder="center, start, end"
+          disabled={!chart.sectionSettings.showDataLabels}
+          value={chart.sectionSettings.dataLabelAnchors?.join(',') ?? ''}
+          width="22ch"
+          onChange={(e) => {
+            const values = e.target.value.split(',').map((v) => v.trim() as any);
+            setFieldValue(
+              `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+              mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                dataLabelAnchors: values,
+              }),
+            );
+          }}
+        />
       </Row>
-      <Colours
-        label="Data Value Label Colours"
-        name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataLabelColors`}
-        options={['white', 'black']}
-        values={chart.sectionSettings.dataLabelColors}
-        disabled={!chart.sectionSettings.showDataLabels}
-        onOpenPicker={() => {
-          onDisableDrag?.(true);
-        }}
-        onClosePicker={() => {
-          onDisableDrag?.(false);
-        }}
-        onChange={(newValue, values) => {
-          setFieldValue(
-            `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
-            mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-              dataLabelColors: values,
-            }),
-          );
-        }}
-      />
+      <Row justifyContent="space-between" alignItems="center">
+        <FormikText
+          name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataLabelAligns`}
+          label="Alignment(s)"
+          placeholder="center, start, end, right, bottom, left, top"
+          disabled={!chart.sectionSettings.showDataLabels}
+          value={chart.sectionSettings.dataLabelAligns?.join(',') ?? ''}
+          width="22ch"
+          onChange={(e) => {
+            const values = e.target.value.split(',').map((v) => v.trim() as any);
+            setFieldValue(
+              `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+              mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                dataLabelAligns: values,
+              }),
+            );
+          }}
+        />
+        <Text
+          name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataLabelOffsets`}
+          label="Offset(s)"
+          placeholder="0, 0, 0"
+          disabled={!chart.sectionSettings.showDataLabels}
+          value={dataLabelOffsets}
+          width="22ch"
+          onChange={(e) => {
+            const values = e.target.value
+              .split(',')
+              .filter((v) => v.length > 0)
+              .map((v) => parseInt(v.trim()) || 0);
+            setDataLabelOffsets(e.target.value);
+            setFieldValue(
+              `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+              mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                dataLabelOffsets: values,
+              }),
+            );
+          }}
+        />
+      </Row>
+      <Row justifyContent="space-between">
+        <Colours
+          label="Colours"
+          name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataLabelColors`}
+          options={['white', 'black']}
+          values={chart.sectionSettings.dataLabelColors}
+          disabled={!chart.sectionSettings.showDataLabels}
+          onOpenPicker={() => {
+            onDisableDrag?.(true);
+          }}
+          onClosePicker={() => {
+            onDisableDrag?.(false);
+          }}
+          onChange={(newValue, values) => {
+            setFieldValue(
+              `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+              mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                dataLabelColors: values,
+              }),
+            );
+          }}
+        />
+        <Colours
+          label="Background Colours"
+          name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataLabelBackgroundColors`}
+          options={['white', 'black']}
+          values={chart.sectionSettings.dataLabelBackgroundColors}
+          disabled={!chart.sectionSettings.showDataLabels}
+          onOpenPicker={() => {
+            onDisableDrag?.(true);
+          }}
+          onClosePicker={() => {
+            onDisableDrag?.(false);
+          }}
+          onChange={(newValue, values) => {
+            setFieldValue(
+              `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+              mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                dataLabelBackgroundColors: values,
+              }),
+            );
+          }}
+        />
+      </Row>
       <label>Chart Labels</label>
       <Col>
         <Row gap="1rem">

@@ -103,6 +103,12 @@ export const generateChartOptions = (
         },
       },
       datalabels: {
+        anchor: chartSectionSettings.dataLabelAnchors,
+        backgroundColor: chartSectionSettings.dataLabelBackgroundColors,
+        align: chartSectionSettings.dataLabelAligns,
+        offset: chartSectionSettings.dataLabelOffsets,
+        clip: chartSectionSettings.dataLabelClip,
+        clamp: chartSectionSettings.dataLabelClamp,
         labels: {
           title: {
             display: chartSectionSettings.showDataLabels,

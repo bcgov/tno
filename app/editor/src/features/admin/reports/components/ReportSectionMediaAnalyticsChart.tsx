@@ -47,6 +47,18 @@ export const ReportSectionMediaAnalyticsChart = ({
   const [dataLabelColors, setDataLabelColors] = React.useState(
     chart.sectionSettings.dataLabelColors?.join(',') ?? '',
   );
+  const [dataLabelBackgroundColors, setDataLabelBackgroundColors] = React.useState(
+    chart.sectionSettings.dataLabelBackgroundColors?.join(',') ?? '',
+  );
+  const [dataLabelAnchors, setDataLabelAnchors] = React.useState(
+    chart.sectionSettings.dataLabelAnchors?.join(',') ?? 'center',
+  );
+  const [dataLabelAligns, setDataLabelAligns] = React.useState(
+    chart.sectionSettings.dataLabelAligns?.join(',') ?? 'center',
+  );
+  const [dataLabelOffsets, setDataLabelOffsets] = React.useState(
+    chart.sectionSettings.dataLabelAligns?.join(',') ?? '',
+  );
   const [datasetAvailableOptions] = React.useState(
     datasetOptions.filter((o) => chart.settings.dataset.includes(o.value)),
   );
@@ -486,20 +498,87 @@ export const ReportSectionMediaAnalyticsChart = ({
                 />
                 <Text
                   name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataLabelColors`}
-                  label="Data Label Colours"
+                  label="Colours"
                   placeholder="white,black"
                   value={dataLabelColors}
                   disabled={!chart.sectionSettings.showDataLabels}
                   onChange={(e) => {
-                    const colors = e.target.value
-                      .split(',')
-                      .map((v) => v.trim())
-                      .filter((v) => v);
+                    const colors = e.target.value.split(',').map((v) => v.trim());
                     setDataLabelColors(e.target.value);
                     setFieldValue(
                       `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                       mergeChartSettings(chart.settings.options, chart.sectionSettings, {
                         dataLabelColors: colors,
+                      }),
+                    );
+                  }}
+                />
+                <Text
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataLabelBackgroundColors`}
+                  label="Background Colours"
+                  placeholder="lightgrey"
+                  value={dataLabelBackgroundColors}
+                  disabled={!chart.sectionSettings.showDataLabels}
+                  onChange={(e) => {
+                    const colors = e.target.value.split(',').map((v) => v.trim());
+                    setDataLabelBackgroundColors(e.target.value);
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                      mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                        dataLabelBackgroundColors: colors,
+                      }),
+                    );
+                  }}
+                />
+                <Text
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataLabelAnchors`}
+                  label="Anchor(s)"
+                  placeholder="center, start, end"
+                  value={dataLabelAnchors}
+                  disabled={!chart.sectionSettings.showDataLabels}
+                  onChange={(e) => {
+                    const values = e.target.value.split(',').map((v) => v.trim() as any);
+                    setDataLabelAnchors(e.target.value);
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                      mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                        dataLabelAnchors: values,
+                      }),
+                    );
+                  }}
+                />
+                <Text
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataLabelAligns`}
+                  label="Alignment(s)"
+                  placeholder="center, start, end, right, bottom, left, top"
+                  value={dataLabelAligns}
+                  disabled={!chart.sectionSettings.showDataLabels}
+                  onChange={(e) => {
+                    const values = e.target.value.split(',').map((v) => v.trim() as any);
+                    setDataLabelAligns(e.target.value);
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                      mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                        dataLabelAligns: values,
+                      }),
+                    );
+                  }}
+                />
+                <Text
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.dataLabelOffsets`}
+                  label="Offset(s)"
+                  value={dataLabelOffsets}
+                  disabled={!chart.sectionSettings.showDataLabels}
+                  onChange={(e) => {
+                    const values = e.target.value
+                      .split(',')
+                      .filter((v) => v.length > 0)
+                      .map((v) => parseInt(v.trim()) || 0);
+                    setDataLabelOffsets(e.target.value);
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                      mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                        dataLabelOffsets: values,
                       }),
                     );
                   }}

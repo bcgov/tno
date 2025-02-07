@@ -39,6 +39,10 @@ export const ChartTemplatePreviewOptions = () => {
   const [datasetColors, setDatasetColors] = React.useState('');
   const [datasetBorderColors, setDatasetBorderColors] = React.useState('');
   const [dataLabelColors, setDataLabelColors] = React.useState('');
+  const [dataLabelBackgroundColors, setDataLabelBackgroundColors] = React.useState('');
+  const [dataLabelAnchors, setDataLabelAnchors] = React.useState('');
+  const [dataLabelAligns, setDataLabelAligns] = React.useState('');
+  const [dataLabelOffsets, setDataLabelOffsets] = React.useState('');
   const [show, setShow] = React.useState(false);
 
   return (
@@ -141,10 +145,7 @@ export const ChartTemplatePreviewOptions = () => {
                 placeholder="green,gold,red"
                 value={datasetColors}
                 onChange={(e) => {
-                  const colors = e.target.value
-                    .split(',')
-                    .map((v) => v.trim())
-                    .filter((v) => v);
+                  const colors = e.target.value.split(',').map((v) => v.trim());
                   setDatasetColors(e.target.value);
                   setChartRequestForm({
                     ...chartRequestForm,
@@ -164,10 +165,7 @@ export const ChartTemplatePreviewOptions = () => {
                 placeholder="white"
                 value={datasetBorderColors}
                 onChange={(e) => {
-                  const colors = e.target.value
-                    .split(',')
-                    .map((v) => v.trim())
-                    .filter((v) => v);
+                  const colors = e.target.value.split(',').map((v) => v.trim());
                   setDatasetBorderColors(e.target.value);
                   setChartRequestForm({
                     ...chartRequestForm,
@@ -389,7 +387,7 @@ export const ChartTemplatePreviewOptions = () => {
               />
               <Text
                 name="dataLabelColors"
-                label="Data Label Colours"
+                label="Colours"
                 placeholder="white,black"
                 value={dataLabelColors}
                 disabled={!chartRequestForm.settings.showDataLabels}
@@ -406,6 +404,95 @@ export const ChartTemplatePreviewOptions = () => {
                       chartRequestForm.settings,
                       {
                         dataLabelColors: colors,
+                      },
+                    ),
+                  });
+                }}
+              />
+              <Text
+                name="dataLabelBackgroundColors"
+                label="Background Colours"
+                placeholder="white"
+                value={dataLabelBackgroundColors}
+                disabled={!chartRequestForm.settings.showDataLabels}
+                onChange={(e) => {
+                  const colors = e.target.value
+                    .split(',')
+                    .map((v) => v.trim())
+                    .filter((v) => v);
+                  setDataLabelBackgroundColors(e.target.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        dataLabelBackgroundColors: colors,
+                      },
+                    ),
+                  });
+                }}
+              />
+              <Text
+                name="dataLabelAnchors"
+                label="Anchors"
+                placeholder="center, start, end"
+                value={dataLabelAnchors}
+                disabled={!chartRequestForm.settings.showDataLabels}
+                onChange={(e) => {
+                  const anchors = e.target.value.split(',').map((v) => v.trim() as any);
+                  setDataLabelAnchors(e.target.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        dataLabelAnchors: anchors,
+                      },
+                    ),
+                  });
+                }}
+              />
+              <Text
+                name="dataLabelAligns"
+                label="Alignments"
+                placeholder="center, start, end, right, bottom, left, top"
+                value={dataLabelAligns}
+                disabled={!chartRequestForm.settings.showDataLabels}
+                onChange={(e) => {
+                  const anchors = e.target.value.split(',').map((v) => v.trim() as any);
+                  setDataLabelAligns(e.target.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        dataLabelAligns: anchors,
+                      },
+                    ),
+                  });
+                }}
+              />
+              <Text
+                name="dataLabelOffsets"
+                label="Offsets"
+                value={dataLabelOffsets}
+                disabled={!chartRequestForm.settings.showDataLabels}
+                onChange={(e) => {
+                  const offsets = e.target.value
+                    .split(',')
+                    .filter((v) => v.length > 0)
+                    .map((v) => parseInt(v.trim()) || 0);
+                  setDataLabelOffsets(e.target.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        dataLabelOffsets: offsets,
                       },
                     ),
                   });
