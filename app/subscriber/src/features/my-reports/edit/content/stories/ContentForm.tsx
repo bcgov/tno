@@ -150,6 +150,12 @@ export const ContentForm: React.FC<IContentFormProps> = ({
           value={versions.headline}
         />
         <Text
+          name={`source`}
+          label="Source"
+          disabled={disabled}
+          value={content.otherSource ? content.otherSource : content.source?.name}
+        />
+        <Text
           name={`byline`}
           label="Byline"
           disabled={disabled}
