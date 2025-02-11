@@ -83,12 +83,14 @@ public class NotificationHelper : INotificationHelper
     /// </summary>
     /// <param name="model"></param>
     /// <param name="isPreview"></param>
+    /// <param name="enableReportSentiment"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<NotificationResultModel> GenerateNotificationAsync(
         Areas.Services.Models.NotificationInstance.NotificationInstanceModel model,
-        bool isPreview = false)
+        bool isPreview = false,
+        bool enableReportSentiment = false)
     {
         var notification = _notificationService.FindById(model.NotificationId) ?? throw new ArgumentException("Parameter 'model.NotificationId' did not return a notification.");
         if (notification.Template == null) throw new InvalidOperationException("Parameter 'Notification.Template' is required");
@@ -138,14 +140,16 @@ public class NotificationHelper : INotificationHelper
     /// <param name="notification"></param>
     /// <param name="content"></param>
     /// <param name="isPreview"></param>
+    /// <param name="enableReportSentiment"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     public async Task<NotificationResultModel> GenerateNotificationAsync(
         Areas.Services.Models.Notification.NotificationModel notification,
         ContentModel content,
-        bool isPreview = false)
+        bool isPreview = false,
+        bool enableReportSentiment = false)
     {
-        var subject = await _notificationEngine.GenerateNotificationSubjectAsync(notification, content, isPreview);
+        var subject = await _notificationEngine.GenerateNotificationSubjectAsync(notification, content, isPreview, enableReportSentiment);
         var body = await _notificationEngine.GenerateNotificationBodyAsync(notification, content, _storageOptions.GetUploadPath(), isPreview);
 
         return new NotificationResultModel(subject, body);
