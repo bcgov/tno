@@ -1,4 +1,5 @@
 
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Core.Http;
@@ -68,7 +69,8 @@ public class NotificationEngine : INotificationEngine
     public async Task<string> GenerateNotificationSubjectAsync(
         API.Areas.Services.Models.Notification.NotificationModel notification,
         ContentModel content,
-        bool isPreview = false)
+        bool isPreview = false,
+        bool enableReportSentiment = false)
     {
         if (notification.Template == null) throw new InvalidOperationException("Notification template is missing from model");
 
@@ -81,6 +83,7 @@ public class NotificationEngine : INotificationEngine
         {
             instance.Model = model;
             instance.Content = model.Content;
+            instance.EnableReportSentiment = enableReportSentiment;
 
             instance.SubscriberAppUrl = this.TemplateOptions.SubscriberAppUrl;
             instance.ViewContentUrl = this.TemplateOptions.ViewContentUrl;

@@ -14,7 +14,8 @@ public interface INotificationEngine
     Task<string> GenerateNotificationSubjectAsync(
         API.Areas.Services.Models.Notification.NotificationModel notification,
         ContentModel content,
-        bool isPreview = false);
+        bool isPreview = false,
+        bool enableReportSentiment = false);
 
     /// <summary>
     /// Generate the output of the notification with the Razor engine.

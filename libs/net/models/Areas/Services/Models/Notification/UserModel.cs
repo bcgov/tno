@@ -81,6 +81,19 @@ public class UserModel
         }
         return false;
     }
+
+    /// <summary>
+    /// Get the value of the enableReportSentiment property from Preferences.
+    /// </summary>
+    /// <returns>Returns true if enableReportSentiment is set to true, otherwise false.</returns>
+    public bool EnableReportSentiment()
+    {
+        if (Preferences.RootElement.TryGetProperty("enableReportSentiment", out JsonElement enableReportSentimentElement))
+        {
+            return enableReportSentimentElement.GetBoolean();
+        }
+        return false;
+    }
     #endregion
 
     #region Constructors

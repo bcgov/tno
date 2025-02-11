@@ -16,6 +16,11 @@ public abstract class BaseTemplateModel<T> : RazorEngineTemplateBase
     public int ReportId { get; set; }
 
     /// <summary>
+    /// get/set - if enable report sentiment
+    /// </summary>
+    public bool EnableReportSentiment { get; set; }
+
+    /// <summary>
     /// get/set - The primary key to the report instance.
     /// </summary>
     public long? ReportInstanceId { get; set; }

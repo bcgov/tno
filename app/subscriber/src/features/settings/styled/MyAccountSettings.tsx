@@ -32,16 +32,12 @@ export const MyAccountSettings = styled(Col)`
   .toggleContainer {
     display: flex;
     align-items: center;
-    margin-left: 3rem;
+    margin-left: 2.8rem;
 
     .vacation-mode-label {
-      color: #008000;
       display: flex;
-      align-items: center;
-    }
-
-    .icon {
-      margin-right: 5px;
+      align-items: left;
+      margin-right: 1rem;
     }
   }
 `;
