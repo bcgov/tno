@@ -314,8 +314,11 @@ export const useContentForm = ({
           ContentStatusName.Unpublish,
           ContentStatusName.Unpublished,
         ].includes(values.status)
-      )
+      ) {
         values.status = ContentStatusName.Publish;
+        // the posted on time should be the first publish time that the editor publish to MMI.
+        values.postedOn = moment.utc().format();
+      }
 
       return await handleSubmit(values, formikHelpers);
     },
