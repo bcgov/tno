@@ -14,8 +14,9 @@ export const getStatus = (status?: ReportStatusName) => {
     case ReportStatusName.Cancelled:
       return 'Cancelled';
     case ReportStatusName.Accepted:
+      return 'Accepted';
     case ReportStatusName.Completed:
-      return 'Sent';
+      return 'Completed';
     case ReportStatusName.Reopen:
       return 'Reopened';
     case ReportStatusName.Pending:

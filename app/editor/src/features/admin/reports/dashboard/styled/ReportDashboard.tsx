@@ -134,7 +134,11 @@ export const ReportDashboard = styled.div`
             gap: 0.5rem;
           }
 
-          .success {
+          .accepted {
+            color: ${(props) => props.theme.css.acceptedColor};
+          }
+
+          .completed {
             color: ${(props) => props.theme.css.completedColor};
           }
 

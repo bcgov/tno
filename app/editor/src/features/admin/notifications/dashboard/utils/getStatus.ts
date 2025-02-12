@@ -13,8 +13,9 @@ export const getStatus = (status?: NotificationStatusName) => {
     case NotificationStatusName.Cancelled:
       return 'Cancelled';
     case NotificationStatusName.Accepted:
+      return 'Accepted';
     case NotificationStatusName.Completed:
-      return 'Sent';
+      return 'Completed';
     case NotificationStatusName.Pending:
     default:
       return 'Pending';

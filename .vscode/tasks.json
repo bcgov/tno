@@ -612,6 +612,42 @@
         "${workspaceFolder}/services/net/event-handler/TNO.Services.EventHandler.csproj",
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-ches-retry",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/services/net/ches-retry/TNO.Services.ChesRetry.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-ches-retry",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/services/net/ches-retry/TNO.Services.ChesRetry.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-ches-retry",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/services/net/ches-retry/TNO.Services.ChesRetry.csproj",
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }

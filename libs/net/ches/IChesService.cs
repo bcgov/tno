@@ -1,7 +1,7 @@
-using TNO.Ches.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TNO.Ches.Models;
 
 namespace TNO.Ches;
 
@@ -51,4 +51,11 @@ public interface IChesService
     /// <param name="status"></param>
     /// <returns></returns>
     Task<IEnumerable<StatusResponseModel>> CancelEmailAsync(StatusModel filter);
+
+    /// <summary>
+    /// Send an HTTP request to promote the message for the specified 'messageId'.
+    /// </summary>
+    /// <param name="messageId"></param>
+    /// <returns></returns>
+    Task PromoteAsync(Guid messageId);
 }

@@ -1,0 +1,21 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: ches-retry-service
+  namespace: default
+  annotations:
+    description: Reporting service configuration settings
+    created-by: jeremy.foster
+  labels:
+    name: ches-retry-service
+    part-of: tno
+    version: 1.0.0
+    component: ches-retry-service
+    managed-by: kustomize
+data:
+  MAX_FAIL_LIMIT: "5"
+  CHES_EMAIL_ENABLED: "true"
+  CHES_EMAIL_AUTHORIZED: "true"
+  RETRY_TIME_LIMIT: "5"
+  RETRY_TIME_SCOPE: "60"

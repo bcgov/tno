@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -1217,6 +1218,71 @@ public class ReportService : BaseService<Report, int>, IReportService
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// get all CHES message Ids for reports at the specified 'status' and that were sent on or after 'cutOff' date and time.
+    /// </summary>
+    /// <param name="status"></param>
+    /// <param name="cutOff"></param>
+    /// <returns></returns>
+    public IEnumerable<API.Areas.Services.Models.Report.ChesMessagesModel> GetChesMessageIds(ReportStatus status, DateTime cutOff)
+    {
+        var linkReports = this.Context.UserReportInstances.Where(r => r.LinkStatus == status && r.LinkSentOn >= cutOff).Select(r => new { r.InstanceId, r.UserId, SentOn = r.LinkSentOn, r.LinkResponse }).ToArray();
+        var textReports = this.Context.UserReportInstances.Where(r => r.TextStatus == status && r.TextSentOn >= cutOff).Select(r => new { r.InstanceId, r.UserId, SentOn = r.TextSentOn, r.TextResponse }).ToArray();
+        var avReports = this.Context.UserAVOverviewInstances.Where(r => r.Status == status && r.SentOn >= cutOff).Select(r => new { r.InstanceId, r.UserId, r.SentOn, r.Response }).ToArray();
+
+        var messages = new List<API.Areas.Services.Models.Report.ChesMessagesModel>();
+
+        foreach (var report in linkReports)
+        {
+            var response = JsonSerializer.Deserialize<Ches.Models.EmailResponseModel>(report.LinkResponse.ToJson(), _serializerOptions);
+            var messageIds = response?.Messages.Select(m => m.MessageId).ToArray() ?? [];
+            messages.Add(new API.Areas.Services.Models.Report.ChesMessagesModel()
+            {
+                ReportType = ReportType.Content,
+                Format = ReportDistributionFormat.LinkOnly,
+                ReportInstanceId = report.InstanceId,
+                UserId = report.UserId,
+                SentOn = report.SentOn,
+                Status = status,
+                MessageIds = messageIds,
+            });
+        }
+
+        foreach (var report in textReports)
+        {
+            var response = JsonSerializer.Deserialize<Ches.Models.EmailResponseModel>(report.TextResponse.ToJson(), _serializerOptions);
+            var messageIds = response?.Messages.Select(m => m.MessageId).ToArray() ?? [];
+            messages.Add(new API.Areas.Services.Models.Report.ChesMessagesModel()
+            {
+                ReportType = ReportType.Content,
+                Format = ReportDistributionFormat.FullText,
+                ReportInstanceId = report.InstanceId,
+                UserId = report.UserId,
+                SentOn = report.SentOn,
+                Status = status,
+                MessageIds = messageIds,
+            });
+        }
+
+        foreach (var report in avReports)
+        {
+            var response = JsonSerializer.Deserialize<Ches.Models.EmailResponseModel>(report.Response.ToJson(), _serializerOptions);
+            var messageIds = response?.Messages.Select(m => m.MessageId).ToArray() ?? [];
+            messages.Add(new API.Areas.Services.Models.Report.ChesMessagesModel()
+            {
+                ReportType = ReportType.AVOverview,
+                Format = ReportDistributionFormat.FullText,
+                ReportInstanceId = report.InstanceId,
+                UserId = report.UserId,
+                SentOn = report.SentOn,
+                Status = status,
+                MessageIds = messageIds,
+            });
+        }
+
+        return messages;
     }
     #endregion
 }

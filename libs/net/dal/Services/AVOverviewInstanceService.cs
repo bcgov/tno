@@ -136,6 +136,13 @@ public class AVOverviewInstanceService : BaseService<AVOverviewInstance, long>, 
         return base.Update(entity);
     }
 
+    public UserAVOverviewInstance? GetUserAVOverviewInstance(long instanceId, int userId)
+    {
+        return this.Context.UserAVOverviewInstances
+            .AsNoTracking()
+            .FirstOrDefault(uri => uri.InstanceId == instanceId && uri.UserId == userId);
+    }
+
     public IEnumerable<UserAVOverviewInstance> GetUserAVOverviewInstances(long instanceId)
     {
         return this.Context.UserAVOverviewInstances

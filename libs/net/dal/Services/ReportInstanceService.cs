@@ -320,6 +320,14 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
     }
 
 
+    public UserReportInstance? GetUserReportInstance(long instanceId, int userId)
+    {
+        return this.Context.UserReportInstances
+            .AsNoTracking()
+            .FirstOrDefault(uri => uri.InstanceId == instanceId && uri.UserId == userId);
+    }
+
+
     public IEnumerable<UserReportInstance> GetUserReportInstances(long instanceId)
     {
         return this.Context.UserReportInstances

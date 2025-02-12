@@ -67,3 +67,13 @@ patches:
       - op: replace
         path: /spec/source/git/ref
         value: dev
+  - target:
+      kind: BuildConfig
+      name: ches-retry-service.dev
+    patch: |-
+      - op: replace
+        path: /spec/source/git/uri
+        value: https://github.com/bcgov/tno.git
+      - op: replace
+        path: /spec/source/git/ref
+        value: dev

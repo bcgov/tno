@@ -164,4 +164,12 @@ public interface IReportService : IBaseService<Report, int>
     /// <param name="userId"></param>
     /// <returns></returns>
     Dictionary<int, long[]> GetAllContentInMyReports(int userId);
+
+    /// <summary>
+    /// get all CHES message Ids for reports at the specified 'status' and that were sent on or after 'cutOff' date and time.
+    /// </summary>
+    /// <param name="status"></param>
+    /// <param name="cutOff"></param>
+    /// <returns></returns>
+    IEnumerable<API.Areas.Services.Models.Report.ChesMessagesModel> GetChesMessageIds(ReportStatus status, DateTime cutOff);
 }
