@@ -379,7 +379,7 @@ public class ContentService : BaseService<Content, long>, IContentService
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            this.Logger.LogInformation("Concurrency conflict detected - ContentId: {ContentId}", entity.Id);
+            this.Logger.LogError("Concurrency conflict detected - ContentId: {ContentId}", entity.Id);
 
             var entry = ex.Entries.Single();
             var currentValues = entry.CurrentValues;
@@ -396,9 +396,14 @@ public class ContentService : BaseService<Content, long>, IContentService
             var changedProperties = GetChangedProperties(currentValues, databaseValues);
             LogFieldChanges(changedProperties);
 
-            var changedFields = string.Join(",", changedProperties.Keys);
-
-            throw new ContentConflictException($"FIELDS:{changedFields}", ex);
+            if (changedProperties.Keys.Any())
+            {
+                var changedFields = string.Join(",", changedProperties.Keys);
+                var contentConflictEx = new ContentConflictException($"FIELDS:{changedFields}");
+                throw new DbUpdateConcurrencyException(contentConflictEx.Message, contentConflictEx);
+            }
+            
+            throw ex;
         }
     }
 
