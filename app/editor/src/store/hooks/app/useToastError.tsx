@@ -7,10 +7,7 @@ import { useApp } from './useApp';
 // Constants for error codes
 const EXCEPTION_TEXT = {
   CONTENT_CONFLICT: 'ContentConflictException',
-};
-
-const HTTP_STATUS = {
-  CONFLICT: 409,
+  DB_UPDATE_CONCURRENCY: 'DbUpdateConcurrencyException',
 };
 
 // Common styles
@@ -40,13 +37,16 @@ export const useToastError = () => {
       };
 
       // content conflict
-      if (e.data?.type === EXCEPTION_TEXT.CONTENT_CONFLICT && e.status === HTTP_STATUS.CONFLICT) {
+      if (
+        e.data?.type === EXCEPTION_TEXT.DB_UPDATE_CONCURRENCY &&
+        e.message === EXCEPTION_TEXT.CONTENT_CONFLICT
+      ) {
         toastOptions.autoClose = false;
         toastOptions.closeButton = true;
         toastOptions.className = 'concurrency-conflict-toast';
 
         // extract modified fields from error message
-        const fieldsMatch = e.message.match(/^FIELDS:(.+)$/);
+        const fieldsMatch = e.detail?.match(/^FIELDS:(.+)$/);
         const modifiedFields = fieldsMatch ? fieldsMatch[1].split(',').join(', ') : '';
 
         toast.error(
