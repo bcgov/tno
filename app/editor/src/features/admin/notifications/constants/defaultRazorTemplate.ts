@@ -49,6 +49,11 @@ export const defaultRazorTemplate = {
   <div>@Content.Series.Name</div>
 }
 <div>@Content.PublishedOn?.AddHours(@utcOffset).ToString("dd-MMM-yyyy hh:mm")</div>
+@if (!string.IsNullOrEmpty(@Content.ImageContent))
+{
+  var src = $"data:{@Content.ContentType};base64," + Content.ImageContent;
+  <div><img src="@src" alt="@Content.FileReferences.FirstOrDefault()?.FileName" /></div>
+}
 <div>@body</div>
 <br />
 @if (!string.IsNullOrEmpty(subscriberAppUrl))
