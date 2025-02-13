@@ -15,6 +15,17 @@ public static class ExceptionExtensions
         return $"{ex.Message} {ex.InnerException?.GetAllMessages()}";
     }
 
+
+    /// <summary>
+    /// Get full exception type name
+    /// </summary>
+    /// <param name="ex"></param>
+    /// <returns></returns>
+    public static string GetTypeName(this Exception ex)
+    {
+        return ex.GetType().Name;
+    }
+
     /// <summary>
     /// Throw an ArgumentNullException if the value is null.
     /// </summary>
