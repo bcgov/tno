@@ -8,21 +8,24 @@ export const defaultRazorTemplate = {
   var body = isTranscriptAvailable ? @Content.Body : (isAV ? @Content.Summary : @Content.Body);
   var transcriptIcon = isTranscriptAvailable ? "▶️📄" : (isAV ? "▶️" : "");
   var toneIcon = "";
-  switch (@Content.TonePools.FirstOrDefault()?.Value)
+  if (@EnableReportSentiment)
   {
-    case 0:
-      toneIcon = "😐 ";
-      break;
-    case -3:
-    case -4:
-    case -5:
-      toneIcon = "☹️ ";
-      break;
-    case 3:
-    case 4:
-    case 5:
-      toneIcon = "🙂 ";
-      break;
+    switch (@Content.TonePools.FirstOrDefault()?.Value)
+    {
+      case 0:
+        toneIcon = "😐 ";
+        break;
+      case -3:
+      case -4:
+      case -5:
+        toneIcon = "☹️ ";
+        break;
+      case 3:
+      case 4:
+      case 5:
+        toneIcon = "🙂 ";
+        break;
+    }
   }
 }DEV | @toneIcon@sourceCode: @Content.Headline @transcriptIcon`,
   body: `@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Notifications.NotificationEngineContentModel>
@@ -49,6 +52,11 @@ export const defaultRazorTemplate = {
   <div>@Content.Series.Name</div>
 }
 <div>@Content.PublishedOn?.AddHours(@utcOffset).ToString("dd-MMM-yyyy hh:mm")</div>
+@if (!string.IsNullOrEmpty(@Content.ImageContent))
+{
+  var src = $"data:{@Content.ContentType};base64," + Content.ImageContent;
+  <div><img src="@src" alt="@Content.FileReferences.FirstOrDefault()?.FileName" /></div>
+}
 <div>@body</div>
 <br />
 @if (!string.IsNullOrEmpty(subscriberAppUrl))
