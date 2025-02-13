@@ -65,6 +65,6 @@ UPDATE public."notification_template" SET
   any employee of the Province who is not authorized to access the material is prohibited.
 </div>'
 WHERE "id" = cast((SELECT value FROM setting
-	WHERE name = 'BasicAlertTemplateId') as integer);;
+	WHERE name = 'BasicAlertTemplateId') as integer);
 
 END $$;
