@@ -8,21 +8,24 @@ export const defaultRazorTemplate = {
   var body = isTranscriptAvailable ? @Content.Body : (isAV ? @Content.Summary : @Content.Body);
   var transcriptIcon = isTranscriptAvailable ? "▶️📄" : (isAV ? "▶️" : "");
   var toneIcon = "";
-  switch (@Content.TonePools.FirstOrDefault()?.Value)
+  if (@EnableReportSentiment)
   {
-    case 0:
-      toneIcon = "😐 ";
-      break;
-    case -3:
-    case -4:
-    case -5:
-      toneIcon = "☹️ ";
-      break;
-    case 3:
-    case 4:
-    case 5:
-      toneIcon = "🙂 ";
-      break;
+    switch (@Content.TonePools.FirstOrDefault()?.Value)
+    {
+      case 0:
+        toneIcon = "😐 ";
+        break;
+      case -3:
+      case -4:
+      case -5:
+        toneIcon = "☹️ ";
+        break;
+      case 3:
+      case 4:
+      case 5:
+        toneIcon = "🙂 ";
+        break;
+    }
   }
 }DEV | @toneIcon@sourceCode: @Content.Headline @transcriptIcon`,
   body: `@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Notifications.NotificationEngineContentModel>
