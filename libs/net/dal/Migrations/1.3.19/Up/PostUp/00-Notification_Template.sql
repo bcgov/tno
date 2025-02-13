@@ -64,7 +64,7 @@ UPDATE public."notification_template" SET
   Copying, retransmitting, redistributing, selling, licensing, or emailing the material to any third party or
   any employee of the Province who is not authorized to access the material is prohibited.
 </div>'
-WHERE "id" = (SELECT CAST(COALESCE("value", '0') AS INT) FROM public."setting" WHERE "name" = 'AlertId')
-  OR "name" = 'Basic Alert';
+WHERE "id" = cast((SELECT value FROM setting
+	WHERE name = 'BasicAlertTemplateId') as integer);;
 
 END $$;
