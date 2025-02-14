@@ -18,6 +18,8 @@ public class UserAVOverviewInstanceConfiguration : AuditColumnsConfiguration<Use
         builder.HasOne(m => m.User).WithMany().HasForeignKey(m => m.UserId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.Instance).WithMany(m => m.UserInstances).HasForeignKey(m => m.InstanceId).OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasIndex(m => new { m.SentOn, m.Status }, "IX_user_av_overview_instance");
+
         base.Configure(builder);
     }
 }

@@ -191,5 +191,53 @@ public class ReportInstanceController : ControllerBase
         var result = _reportInstanceService.UpdateAndSave(entities);
         return new JsonResult(result.Select(r => new UserReportInstanceModel(r)));
     }
+
+    /// <summary>
+    /// Update the user report instance status.
+    /// </summary>
+    /// <param name="id">The report instance id.</param>
+    /// <param name="format">The report email type [link, text].</param>
+    /// <param name="userId">The user id.</param>
+    /// <param name="status">The status to update to.</param>
+    /// <returns></returns>
+    [HttpPut("{id}/{format}/{userId}/status/{status}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(UserReportInstanceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult UpdateUserReportInstanceStatus(long id, int userId, Entities.ReportDistributionFormat format, Entities.ReportStatus status)
+    {
+        var userInstance = _reportInstanceService.GetUserReportInstance(id, userId) ?? throw new NoContentException();
+        if (format == Entities.ReportDistributionFormat.LinkOnly)
+        {
+            userInstance.LinkStatus = status;
+        }
+        else if (format == Entities.ReportDistributionFormat.FullText)
+        {
+            userInstance.TextStatus = status;
+        }
+        else throw new BadRequestException("Parameter 'type' must be 'link' or 'text'.");
+        _reportInstanceService.UpdateAndSave(userInstance);
+        return new JsonResult(new UserReportInstanceModel(userInstance));
+    }
+
+    /// <summary>
+    /// Update the report instance status.
+    /// </summary>
+    /// <param name="id">The report instance id.</param>
+    /// <param name="status">The status to update to.</param>
+    /// <returns></returns>
+    [HttpPut("{id}/status/{status}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(UserReportInstanceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult UpdateReportInstanceStatus(long id, Entities.ReportStatus status)
+    {
+        var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException();
+        instance.Status = status;
+        _reportInstanceService.UpdateAndSave(instance);
+        return new JsonResult(new ReportInstanceModel(instance, _serializerOptions));
+    }
     #endregion
 }

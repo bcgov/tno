@@ -100,7 +100,7 @@ public class AVOverviewController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<UserAVOverviewInstanceModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "Report" })]
+    [SwaggerOperation(Tags = new[] { "Evening Overview" })]
     public IActionResult GetUserAVOverviewInstancesAsync(long id)
     {
         var content = _overviewInstanceService.GetUserAVOverviewInstances(id);
@@ -117,7 +117,7 @@ public class AVOverviewController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserAVOverviewInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "ReportInstance" })]
+    [SwaggerOperation(Tags = new[] { "Evening Overview" })]
     public IActionResult AddOrUpdate([FromBody] UserAVOverviewInstanceModel model)
     {
         var result = _overviewInstanceService.UpdateAndSave((Entities.UserAVOverviewInstance)model);
@@ -134,12 +134,32 @@ public class AVOverviewController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<UserAVOverviewInstanceModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "ReportInstance" })]
+    [SwaggerOperation(Tags = new[] { "Evening Overview" })]
     public IActionResult AddOrUpdate([FromBody] IEnumerable<UserAVOverviewInstanceModel> models)
     {
         var entities = models.Select(m => (Entities.UserAVOverviewInstance)m);
         var result = _overviewInstanceService.UpdateAndSave(entities);
         return new JsonResult(result.Select(r => new UserAVOverviewInstanceModel(r)));
+    }
+
+    /// <summary>
+    /// Update the report instance status.
+    /// </summary>
+    /// <param name="id">The report instance id.</param>
+    /// <param name="userId">The user id.</param>
+    /// <param name="status">The status to update to.</param>
+    /// <returns></returns>
+    [HttpPut("{id}/{userId}/status/{status}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(UserAVOverviewInstanceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Evening Overview" })]
+    public IActionResult UpdateReportLinkStatus(long id, int userId, Entities.ReportStatus status)
+    {
+        var instance = _overviewInstanceService.GetUserAVOverviewInstance(id, userId) ?? throw new NoContentException();
+        instance.Status = status;
+        _overviewInstanceService.UpdateAndSave(instance);
+        return new JsonResult(new UserAVOverviewInstanceModel(instance));
     }
     #endregion
 }

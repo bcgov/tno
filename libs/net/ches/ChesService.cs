@@ -442,6 +442,16 @@ namespace TNO.Ches
             await SendAsync($"/cancel?{query}", HttpMethod.Delete);
             return await GetStatusAsync(filter);
         }
+
+        /// <summary>
+        /// Send an HTTP request to promote the message for the specified 'messageId'.
+        /// </summary>
+        /// <param name="messageId"></param>
+        /// <returns></returns>
+        public async Task PromoteAsync(Guid messageId)
+        {
+            await SendAsync($"/promote/{messageId}", HttpMethod.Post);
+        }
         #endregion
     }
 }

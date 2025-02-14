@@ -141,5 +141,22 @@ public class ReportController : ControllerBase
         var result = _service.ClearFoldersInReport(report) ?? throw new NoContentException();
         return new JsonResult(new ReportModel(result, _serializerOptions));
     }
+
+    /// <summary>
+    /// Get an array of any report instances that CHES has not yet emailed.
+    /// </summary>
+    /// <param name="status"></param>
+    /// <param name="cutOff"></param>
+    /// <returns></returns>
+    [HttpGet("sent/{status}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<Models.Report.ChesMessagesModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult GetChesMessages(Entities.ReportStatus status, [FromQuery] DateTime cutOff)
+    {
+        var messages = _service.GetChesMessageIds(status, cutOff);
+        return new JsonResult(messages);
+    }
     #endregion
 }

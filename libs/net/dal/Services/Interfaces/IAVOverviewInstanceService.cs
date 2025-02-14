@@ -17,6 +17,7 @@ public interface IAVOverviewInstanceService : IBaseService<AVOverviewInstance, l
     /// <returns></returns>
     AVOverviewInstance? FindLatest();
 
+    UserAVOverviewInstance? GetUserAVOverviewInstance(long instanceId, int userId);
     IEnumerable<UserAVOverviewInstance> GetUserAVOverviewInstances(long instanceId);
     UserAVOverviewInstance Add(UserAVOverviewInstance entity);
     UserAVOverviewInstance AddAndSave(UserAVOverviewInstance entity);

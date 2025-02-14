@@ -861,6 +861,57 @@ public class ApiService : IApiService
         var url = this.Options.ApiUrl.Append($"services/report/instances/responses");
         return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>>(url, JsonContent.Create(instances))) ?? Array.Empty<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>();
     }
+
+    /// <summary>
+    /// Get the CHES message Ids for the reports in the specified 'status' and that were sent on or after the 'cutOff' date and time.
+    /// </summary>
+    /// <param name="status"></param>
+    /// <param name="cutOff"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.Report.ChesMessagesModel>?> GetChesMessagesAsync(Entities.ReportStatus status, DateTime cutOff)
+    {
+        var url = this.Options.ApiUrl.Append($"services/reports/sent/{status}?cutOff={cutOff.ToUniversalTime():o}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.Report.ChesMessagesModel>>(url));
+    }
+
+    /// <summary>
+    /// Update the status of the specified report instance.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="status"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> UpdateReportInstanceAsync(long instanceId, Entities.ReportStatus status)
+    {
+        var url = this.Options.ApiUrl.Append($"services/report/instances/{instanceId}/status/{status}");
+        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(url));
+    }
+
+    /// <summary>
+    /// Update the status of the specified report instance.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="format"></param>
+    /// <param name="userId"></param>
+    /// <param name="status"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel?> UpdateUserReportInstanceAsync(long instanceId, Entities.ReportDistributionFormat format, int userId, Entities.ReportStatus status)
+    {
+        var url = this.Options.ApiUrl.Append($"services/report/instances/{instanceId}/{format}/{userId}/status/{status}");
+        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>(url));
+    }
+
+    /// <summary>
+    /// Update the status of the specified report instance.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="userId"></param>
+    /// <param name="status"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel?> UpdateAVReportInstanceAsync(long instanceId, int userId, Entities.ReportStatus status)
+    {
+        var url = this.Options.ApiUrl.Append($"services/reports/av/overviews/{instanceId}/{userId}/status/{status}");
+        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel>(url));
+    }
     #endregion
 
     #region Users

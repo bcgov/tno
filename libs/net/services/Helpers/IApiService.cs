@@ -454,6 +454,41 @@ public interface IApiService
     /// <param name="instances"></param>
     /// <returns></returns>
     Task<IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>> AddOrUpdateUserReportInstancesAsync(IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel> instances);
+
+    /// <summary>
+    /// Get the CHES message Ids for the reports in the specified 'status' and that were sent on or after the 'cutOff' date and time.
+    /// </summary>
+    /// <param name="status"></param>
+    /// <param name="cutOff"></param>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.Report.ChesMessagesModel>?> GetChesMessagesAsync(Entities.ReportStatus status, DateTime cutOff);
+
+    /// <summary>
+    /// Update the status of the specified report instance.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="status"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> UpdateReportInstanceAsync(long instanceId, Entities.ReportStatus status);
+
+    /// <summary>
+    /// Update the status of the specified report instance.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="format"></param>
+    /// <param name="userId"></param>
+    /// <param name="status"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel?> UpdateUserReportInstanceAsync(long instanceId, Entities.ReportDistributionFormat format, int userId, Entities.ReportStatus status);
+
+    /// <summary>
+    /// Update the status of the specified report instance.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="userId"></param>
+    /// <param name="status"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel?> UpdateAVReportInstanceAsync(long instanceId, int userId, Entities.ReportStatus status);
     #endregion
 
     #region Event Schedules

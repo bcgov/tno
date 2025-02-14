@@ -20,8 +20,9 @@ export const ReportStatusIcon: React.FC<IReportStatusIconProps> = ({ label, stat
       case ReportStatusName.Submitted:
         return <FaClock />;
       case ReportStatusName.Accepted:
+        return <FaCircleCheck className="accepted" />;
       case ReportStatusName.Completed:
-        return <FaCircleCheck className="success" />;
+        return <FaCircleCheck className="completed" />;
       case ReportStatusName.Cancelled:
         return <FaCircleStop />;
       case ReportStatusName.Failed:

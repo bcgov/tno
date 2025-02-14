@@ -21,6 +21,9 @@ public class UserReportInstanceConfiguration : AuditColumnsConfiguration<UserRep
         builder.HasOne(m => m.User).WithMany().HasForeignKey(m => m.UserId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.Instance).WithMany(m => m.UserInstances).HasForeignKey(m => m.InstanceId).OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasIndex(m => new { m.LinkSentOn, m.LinkStatus }, "IX_user_report_instance_link");
+        builder.HasIndex(m => new { m.TextSentOn, m.TextStatus }, "IX_user_report_instance_text");
+
         base.Configure(builder);
     }
 }
