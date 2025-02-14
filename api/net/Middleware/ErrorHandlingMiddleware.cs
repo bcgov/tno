@@ -109,7 +109,16 @@ namespace TNO.API.Middleware
             else if (ex is DbUpdateConcurrencyException)
             {
                 code = HttpStatusCode.BadRequest;
-                message = "Data may have been modified or deleted since item was loaded.  Refresh your data and reapply your changes.";
+                if (ex.InnerException is ContentConflictException)
+                {
+                    message = ex.InnerException.GetTypeName();
+                    details = ex.InnerException.Message;
+
+                }
+                else
+                {
+                    message = "Data may have been modified or deleted since item was loaded.  Refresh your data and reapply your changes.";
+                }
 
                 _logger.LogError(ex,
                     "Optimistic concurrency error (user agent: {userAgent})",
@@ -166,6 +175,13 @@ namespace TNO.API.Middleware
                 message = "Application configuration details invalid or missing.";
 
                 _logger.LogError(ex, "Configuration error.  {error}", ex.Message);
+            }
+            else if (ex is ContentConflictException contentConflictEx)
+            {
+                code = HttpStatusCode.Conflict;
+                message = contentConflictEx.Message;
+
+                _logger.LogError(ex, "Content conflict detected: {error}", ex.Message);
             }
             else
             {

@@ -288,17 +288,123 @@ public class ContentService : BaseService<Content, long>, IContentService
     }
 
     /// <summary>
-    /// Update the specified 'entity' in the database.
+    /// Get the changed properties between current values and database values, display to users .
+    /// Ignores system fields type fields to focus on business-relevant changes.
     /// </summary>
-    /// <param name="entity"></param>
-    /// <returns></returns>
-    /// <exception cref="NoContentException"></exception>
+    /// <param name="currentValues">Current property values from the entity being saved</param>
+    /// <param name="databaseValues">Current property values from the database</param>
+    /// <returns>Dictionary of changed properties with their current and database values</returns>
+    private Dictionary<string, object> GetChangedProperties(Microsoft.EntityFrameworkCore.ChangeTracking.PropertyValues currentValues,
+    Microsoft.EntityFrameworkCore.ChangeTracking.PropertyValues? databaseValues)
+    {
+        // Fields to ignore: system fields 
+        var ignoreFields = new HashSet<string> {
+            nameof(Content.Versions),
+            nameof(Content.UpdatedBy),
+            nameof(Content.UpdatedOn),
+            nameof(Content.Version),
+            nameof(Content.CreatedBy),
+            nameof(Content.CreatedOn),
+            nameof(Content.PostedOn),
+        };
+
+        var propertyNames = currentValues.Properties
+            .Select(p => p.Name)
+            .Where(name => !ignoreFields.Contains(name));  // Filter out ignored fields
+
+        var valueComparison = propertyNames.ToDictionary(
+            name => name,
+            name => new
+            {
+                Current = currentValues[name],
+                Database = databaseValues?[name]
+            }
+        );
+
+        return valueComparison
+            .Where(kvp => !Equals(kvp.Value.Current, kvp.Value.Database))
+            .ToDictionary(
+                kvp => kvp.Key,
+                kvp => new
+                {
+                    CurrentValue = kvp.Value.Current?.ToString() ?? "null",
+                    DatabaseValue = kvp.Value.Database?.ToString() ?? "null"
+                } as object
+            );
+    }
+
+    /// <summary>
+    /// Log the detailed changes between current and database values for each changed field.
+    /// </summary>
+    /// <param name="changedProperties">Dictionary containing the changed properties and their values</param>
+    private void LogFieldChanges(Dictionary<string, object> changedProperties)
+    {
+        var changes = changedProperties.ToDictionary(
+            kvp => kvp.Key,
+            kvp =>
+            {
+                var values = (dynamic)kvp.Value;
+                return new
+                {
+                    Previous = values.DatabaseValue,
+                    Current = values.CurrentValue
+                };
+            }
+        );
+
+        this.Logger.LogInformation("Field changes detected:\n" +
+            string.Join("\n", changes.Select(c =>
+                $"Field: {c.Key}\n" +
+                $"  - Previous: {c.Value.Previous}\n" +
+                $"  - Current:  {c.Value.Current}"
+            ))
+        );
+    }
+
+    /// <summary>
+    /// Update and save the content entity. Handles concurrency conflicts by providing detailed information about changes.
+    /// </summary>
+    /// <param name="entity">The content entity to update</param>
+    /// <returns>The updated content entity</returns>
+    /// <exception cref="NoContentException">Thrown when the entity does not exist</exception>
+    /// <exception cref="DbUpdateConcurrencyException">Thrown when a concurrency conflict is detected</exception>
     public override Content UpdateAndSave(Content entity)
     {
-        var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
-        this.Context.UpdateContext(original, entity);
-        if (entity.GuaranteeUid() && original.Uid != entity.Uid) original.Uid = entity.Uid;
-        return base.UpdateAndSave(original);
+        try
+        {
+            var original = FindById(entity.Id) ?? throw new NoContentException("Entity does not exist");
+            this.Context.UpdateContext(original, entity);
+            if (entity.GuaranteeUid() && original.Uid != entity.Uid) original.Uid = entity.Uid;
+            return base.UpdateAndSave(original);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            this.Logger.LogError("Concurrency conflict detected - ContentId: {ContentId}", entity.Id);
+
+            var entry = ex.Entries.Single();
+            var currentValues = entry.CurrentValues;
+            var databaseValues = entry.GetDatabaseValues();
+
+            if (databaseValues == null)
+            {
+                var errorMessage = "Unable to retrieve latest content.";
+                this.Logger.LogError(ex, errorMessage);
+                throw new NoContentException(errorMessage, ex);
+            }
+
+            // Get changed properties and log details
+            var changedProperties = GetChangedProperties(currentValues, databaseValues);
+            LogFieldChanges(changedProperties);
+
+            if (changedProperties.Keys.Any())
+            {
+                var changedFields = string.Join(",", changedProperties.Keys);
+                var contentConflictEx = new ContentConflictException($"FIELDS:{changedFields}");
+                throw new DbUpdateConcurrencyException(contentConflictEx.Message, contentConflictEx);
+            }
+            
+            throw ex;
+        }
     }
 
     /// <summary>
