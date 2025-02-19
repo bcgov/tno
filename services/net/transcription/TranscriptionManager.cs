@@ -215,12 +215,10 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
                 if (content != null)
                 {
                     // If the content was published before the specified offset, ignore it.
-                    if (Options.IgnoreContentPublishedBeforeOffset.HasValue
-                        && Options.IgnoreContentPublishedBeforeOffset > 0
-                        && content.PublishedOn.HasValue
-                        && content.PublishedOn.Value < DateTime.UtcNow.AddDays(-1 * Options.IgnoreContentPublishedBeforeOffset.Value))
+                    if (!string.IsNullOrEmpty(Options.OldTnoContentTagName)
+                        && content.Tags.Any(x => x.Code.ToUpperInvariant() == Options.OldTnoContentTagName.ToUpperInvariant()))
                     {
-                        this.Logger.LogWarning("Content has been ignored. Key: {Key}, Content ID: {ContentId}", result.Message.Key, request.ContentId);
+                        this.Logger.LogWarning($"The content has been ignored. It was tagged as old TNO content. Key: {result.Message.Key}, Content ID: {request.ContentId}");
                         return;
                     }
 

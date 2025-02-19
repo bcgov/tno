@@ -43,5 +43,10 @@ public class TranscriptionOptions : ServiceOptions
     /// get/set - Ignore any content that was indexed before this day offset.
     /// </summary>
     public int? IgnoreContentPublishedBeforeOffset { get; set; }
+
+    /// <summary>
+    /// get/set - old TNO content tag
+    /// </summary>
+    public string OldTnoContentTagName { get; set; } = "";
     #endregion
 }

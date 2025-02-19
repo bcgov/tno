@@ -169,6 +169,11 @@ spec:
                 configMapKeyRef:
                   name: transcription-service
                   key: IGNORE_CONTENT_PUBLISHED_BEFORE_OFFSET
+            - name: Service__OldTnoContentTagName
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: OLD_TNO_CONTENT_TAG_NAME
 
             # S3 Configuration
             - name: S3_ACCESS_KEY
