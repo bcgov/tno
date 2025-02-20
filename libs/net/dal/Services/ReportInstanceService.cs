@@ -161,6 +161,13 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
                 var originalInstanceContent = originalInstanceContents.FirstOrDefault(o => o.ContentId == ric.ContentId && o.SectionName == ric.SectionName);
                 if (originalInstanceContent == null)
                 {
+                    // Fetch the original content from the database to compare.
+                    originalContent = this.Context.Contents
+                        .AsNoTracking()
+                        .Include(c => c.TonePoolsManyToMany)
+                        .FirstOrDefault(c => c.Id == ric.ContentId);
+                    var addContent = originalContent != null;
+
                     // If the content is new too, upload it to the database.
                     if (ric.Content?.Id == 0)
                     {
@@ -171,46 +178,51 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
                     }
                     else if (ric.Content != null)
                     {
-                        // Fetch the original content from the database to compare.
-                        originalContent = this.Context.Contents
-                            .AsNoTracking()
-                            .Include(c => c.TonePoolsManyToMany)
-                            .FirstOrDefault(c => c.Id == ric.ContentId) ?? throw new InvalidOperationException($"Content in report instance does not exist {entity.Id}:{ric.ContentId}");
-
-                        // Do not allow updating content not owned by the user.
-                        // Content can be in more than one section.  Only the first copy that is modified will be used for the update.  All other copies will be synced.
-                        if (!updatedContent.TryGetValue(ric.ContentId, out Content? reportContent) &&
-                            originalContent.IsPrivate &&
-                            (ric.Content.Headline != originalContent.Headline ||
-                                ric.Content.Summary != originalContent.Summary ||
-                                ric.Content.SourceId != originalContent.SourceId ||
-                                ric.Content.OtherSource != originalContent.OtherSource ||
-                                ric.Content.PublishedOn != originalContent.PublishedOn ||
-                                ric.Content.Byline != originalContent.Byline ||
-                                ric.Content.SourceUrl != originalContent.SourceUrl ||
-                                ric.Content.Uid != originalContent.Uid ||
-                                ric.Content.TonePoolsManyToMany.Any(tp =>
-                                {
-                                    var otp = originalContent.TonePoolsManyToMany.FirstOrDefault(otp => otp.TonePoolId == tp.TonePoolId);
-                                    return otp?.Value != tp.Value;
-                                })))
+                        if (originalContent == null)
                         {
-                            updatedContent.Add(ric.ContentId, ric.Content);
-                            this.Context.Entry(ric.Content).State = EntityState.Modified;
+                            addContent = false;
+                            this.Logger.LogWarning("Content in report instance does not exist {entityId}:{contentId}", entity.Id, ric.ContentId);
                         }
                         else
                         {
-                            // This content exists in another section and was updated so we need to make them the same content.
-                            // If the client incorrectly submits the same content in more than one section and updates both of them differently, it will only use the first entry.
-                            ric.Content = reportContent;
+                            // Do not allow updating content not owned by the user.
+                            // Content can be in more than one section.  Only the first copy that is modified will be used for the update.  All other copies will be synced.
+                            if (!updatedContent.TryGetValue(ric.ContentId, out Content? reportContent) &&
+                                originalContent.IsPrivate &&
+                                (ric.Content.Headline != originalContent.Headline ||
+                                    ric.Content.Summary != originalContent.Summary ||
+                                    ric.Content.SourceId != originalContent.SourceId ||
+                                    ric.Content.OtherSource != originalContent.OtherSource ||
+                                    ric.Content.PublishedOn != originalContent.PublishedOn ||
+                                    ric.Content.Byline != originalContent.Byline ||
+                                    ric.Content.SourceUrl != originalContent.SourceUrl ||
+                                    ric.Content.Uid != originalContent.Uid ||
+                                    ric.Content.TonePoolsManyToMany.Any(tp =>
+                                    {
+                                        var otp = originalContent.TonePoolsManyToMany.FirstOrDefault(otp => otp.TonePoolId == tp.TonePoolId);
+                                        return otp?.Value != tp.Value;
+                                    })))
+                            {
+                                updatedContent.Add(ric.ContentId, ric.Content);
+                                this.Context.Entry(ric.Content).State = EntityState.Modified;
+                            }
+                            else
+                            {
+                                // This content exists in another section and was updated so we need to make them the same content.
+                                // If the client incorrectly submits the same content in more than one section and updates both of them differently, it will only use the first entry.
+                                ric.Content = reportContent;
+                            }
                         }
                     }
 
-                    // Add new content to the report.
-                    ric.Instance = null;
-                    ric.InstanceId = entity.Id;
-                    this.Context.Entry(ric).State = EntityState.Added;
-                    original.ContentManyToMany.Add(ric);
+                    if (addContent)
+                    {
+                        // Add new content to the report.
+                        ric.Instance = null;
+                        ric.InstanceId = entity.Id;
+                        this.Context.Entry(ric).State = EntityState.Added;
+                        original.ContentManyToMany.Add(ric);
+                    }
                 }
                 else
                 {

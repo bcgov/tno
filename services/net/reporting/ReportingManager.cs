@@ -447,11 +447,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             }
 
             // Generate a new instance, or accumulate new content each time the report is run.
-            if (reportInstanceModel == null || reportInstanceModel.SentOn.HasValue
-                || !(!report.Settings.Content.ClearOnStartNewReport && !report.Settings.Content.CopyPriorInstance))
+            var workOnCurrentInstance = reportInstanceModel != null && !(!report.Settings.Content.ClearOnStartNewReport && !report.Settings.Content.CopyPriorInstance);
+            if (reportInstanceModel == null || reportInstanceModel.SentOn.HasValue || workOnCurrentInstance)
             {
                 // Fetch content for every section within the report.  This will include folders and filters.
-                var searchResults = await this.Api.FindContentForReportIdAsync(report.Id, request.RequestorId);
+                var searchResults = await this.Api.FindContentForReportIdAsync(report.Id, workOnCurrentInstance ? reportInstanceModel?.Id : null, request.RequestorId);
                 sectionContent = sections.ToDictionary(section => section.Name, section =>
                 {
                     if (searchResults.TryGetValue(section.Name, out SearchResultModel<TNO.API.Areas.Services.Models.Content.ContentModel>? results))
