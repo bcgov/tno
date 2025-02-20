@@ -28,10 +28,7 @@ export const ReportHistoryForm = () => {
         setInstances(
           instances.filter(
             (i, index) =>
-              !(
-                index === 0 &&
-                [ReportStatusName.Pending, ReportStatusName.Reopen].includes(i.status)
-              ),
+              ![ReportStatusName.Reopen, ReportStatusName.Completed].includes(i.status) && i.body,
           ),
         );
       } catch {}
@@ -90,9 +87,15 @@ export const ReportHistoryForm = () => {
 
               <div className="col-3">
                 <Row gap="0.2em">
-                  {formatDate(instance.sentOn ?? '', false)}
-                  <FaRegClock size={18} className="" />
-                  {formatTime(instance.sentOn ?? '')}
+                  {instance.sentOn ? (
+                    <>
+                      {formatDate(instance.sentOn ?? '', false)}
+                      <FaRegClock size={18} className="" />
+                      {formatTime(instance.sentOn)}
+                    </>
+                  ) : (
+                    <>Not Sent</>
+                  )}
                 </Row>
               </div>
               <div className="col-4">

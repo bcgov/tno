@@ -797,7 +797,8 @@ public class ReportService : BaseService<Report, int>, IReportService
             : Array.Empty<long>();
 
         // When an auto report runs it may need to exclude content in the currently unsent report.
-        if (currentInstance != null && currentInstance.SentOn.HasValue == false && reportSettings.Content.ExcludeContentInUnsentReport)
+        if (currentInstance != null && currentInstance.SentOn.HasValue == false
+            && (reportSettings.Content.ExcludeContentInUnsentReport || !reportSettings.Content.ClearOnStartNewReport))
             excludeHistoricalContentIds = excludeHistoricalContentIds.AppendRange(currentInstance.ContentManyToMany.Select(c => c.ContentId)).Distinct().ToArray();
 
         // Fetch other reports to exclude any content within them.
@@ -897,10 +898,6 @@ public class ReportService : BaseService<Report, int>, IReportService
 
                 searchResults.Add(section.Name, content);
                 excludeAboveSectionContentIds.AddRange(contentIds.Except(excludeAboveSectionContentIds));
-            }
-            else
-            {
-
             }
         }
 

@@ -85,6 +85,7 @@ public class ReportController : ControllerBase
     /// Make a request to Elasticsearch for content that matches the specified report 'id' filter.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="instanceId"></param>
     /// <param name="requestorId"></param>
     /// <returns></returns>
     [HttpGet("{id}/content")]
@@ -93,11 +94,11 @@ public class ReportController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public async Task<IActionResult> FindContentForReportIdAsync(int id, int? requestorId)
+    public async Task<IActionResult> FindContentForReportIdAsync(int id, long? instanceId, int? requestorId)
     {
         var report = _service.FindById(id);
         if (report == null) return NoContent();
-        var results = await _service.FindContentWithElasticsearchAsync(report, null, requestorId);
+        var results = await _service.FindContentWithElasticsearchAsync(report, instanceId, requestorId);
         return new JsonResult(results);
     }
 

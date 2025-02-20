@@ -1,9 +1,10 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using FTTLib;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Core.Exceptions;
@@ -752,11 +753,15 @@ public class ApiService : IApiService
     /// Make a request to the API to fetch the content for the specified report 'id'.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="instanceId"></param>
     /// <param name="requestorId"></param>
     /// <returns></returns>
-    public async Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentForReportIdAsync(int id, int? requestorId)
+    public async Task<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>> FindContentForReportIdAsync(int id, long? instanceId, int? requestorId)
     {
-        var url = this.Options.ApiUrl.Append($"services/reports/{id}/content{(requestorId != null ? $"?requestorId={requestorId}" : "")}");
+        var query = new Dictionary<string, string?>();
+        if (instanceId.HasValue) query.Add("instanceId", instanceId.Value.ToString());
+        if (requestorId.HasValue) query.Add("requestorId", requestorId.Value.ToString());
+        var url = this.Options.ApiUrl.Append(QueryHelpers.AddQueryString($"services/reports/{id}/content", query));
         return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>>(url)) ?? new Dictionary<string, Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>();
     }
 
