@@ -899,6 +899,42 @@ public class ReportService : BaseService<Report, int>, IReportService
                 searchResults.Add(section.Name, content);
                 excludeAboveSectionContentIds.AddRange(contentIds.Except(excludeAboveSectionContentIds));
             }
+            else if (!reportSettings.Content.ClearOnStartNewReport
+                && (previousInstance != null || currentInstance?.SentOn.HasValue == false))
+            {
+                // When a section has no folder or filter, keep the existing or prior report content in the new or updated instance.
+                var copyInstance = previousInstance ?? currentInstance;
+                if (copyInstance != null && copyInstance.ContentManyToMany.Any(c => c.SectionName == section.Name))
+                {
+                    var query = this.Context.ReportInstanceContents
+                        .Include(ric => ric.Content)
+                        .Include(ric => ric.Content).ThenInclude(c => c!.Source)
+                        .Include(ric => ric.Content).ThenInclude(c => c!.Series)
+                        .Include(ric => ric.Content).ThenInclude(c => c!.MediaType)
+                        .Include(ric => ric.Content).ThenInclude(c => c!.Contributor)
+                        .Include(ric => ric.Content).ThenInclude(c => c!.Owner)
+                        .Include(ric => ric.Content).ThenInclude(c => c!.Labels)
+                        .Include(ric => ric.Content).ThenInclude(c => c!.FileReferences)
+                        .Include(ric => ric.Content).ThenInclude(c => c!.TimeTrackings)
+                        .Include(ric => ric.Content).ThenInclude(c => c!.Tags)
+                        .Include(ric => ric.Content).ThenInclude(c => c!.ActionsManyToMany).ThenInclude(t => t.Action)
+                        .Include(ric => ric.Content).ThenInclude(c => c!.ActionsManyToMany).ThenInclude(t => t.Action)
+                        .Include(ric => ric.Content).ThenInclude(c => c!.TopicsManyToMany).ThenInclude(t => t.Topic)
+                        .Include(ric => ric.Content).ThenInclude(c => c!.TonePoolsManyToMany).ThenInclude(t => t.TonePool)
+                        .Where(ric => ric.InstanceId == copyInstance.Id && ric.SectionName == section.Name);
+
+                    var content = query.Select(c => c).ToArray();
+                    var sectionContent = new Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>();
+                    sectionContent.Hits.Hits = content
+                        .Select(c => new Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>()
+                        {
+                            Source = new API.Areas.Services.Models.Content.ContentModel(c.Content!, _serializerOptions)
+                        });
+                    searchResults.Add(section.Name, sectionContent);
+                    var contentIds = sectionContent.Hits.Hits.Select(h => h.Source.Id).Distinct().ToArray();
+                    excludeAboveSectionContentIds.AddRange(contentIds.Except(excludeAboveSectionContentIds));
+                }
+            }
         }
 
         return searchResults;
