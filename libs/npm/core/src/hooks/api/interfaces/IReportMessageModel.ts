@@ -7,4 +7,5 @@ export interface IReportMessageModel extends IAuditColumnsModel {
   status: ReportStatusName;
   ownerId?: number;
   owner?: IUserModel;
+  message?: string;
 }

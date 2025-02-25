@@ -21,29 +21,48 @@ export const useReportSync = () => {
 
         // Only fetch the latest if the current report instance is older, or doesn't exist.
         if (report && (!instance || instance.version !== message.version)) {
-          const response = await getReportInstance(message.id, true);
-          if (response.status === 200 && response.data) {
-            const instance = response.data;
+          if (message.message === 'status') {
+            // Update the status of the instance.
             storeMyReports((reports) => {
-              let addInstance = true;
-              let instances = report.instances.map((i) => {
-                if (i.id === message.id) {
-                  addInstance = false;
-                  return instance;
-                }
-                return i;
-              });
-              if (addInstance) instances = [instance, ...instances];
               const results = reports.map((r) =>
                 r.id === report.id
                   ? {
                       ...report,
-                      instances,
+                      instances: report.instances.map((i) =>
+                        i.id === message.id
+                          ? { ...i, status: message.status, version: message.version }
+                          : i,
+                      ),
                     }
                   : r,
               );
               return results;
             });
+          } else {
+            const response = await getReportInstance(message.id, true);
+            if (response.status === 200 && response.data) {
+              const instance = response.data;
+              storeMyReports((reports) => {
+                let addInstance = true;
+                let instances = report.instances.map((i) => {
+                  if (i.id === message.id) {
+                    addInstance = false;
+                    return instance;
+                  }
+                  return i;
+                });
+                if (addInstance) instances = [instance, ...instances];
+                const results = reports.map((r) =>
+                  r.id === report.id
+                    ? {
+                        ...report,
+                        instances,
+                      }
+                    : r,
+                );
+                return results;
+              });
+            }
           }
         }
       } catch {}

@@ -32,6 +32,11 @@ public class ReportMessageModel : AuditColumnsModel
     /// get/set - Foreign key to the user owns this report.
     /// </summary>
     public int? OwnerId { get; set; }
+
+    /// <summary>
+    /// get/set - A message to identify what action was taken.
+    /// </summary>
+    public string? Message { get; set; }
     #endregion
 
     #region Constructors

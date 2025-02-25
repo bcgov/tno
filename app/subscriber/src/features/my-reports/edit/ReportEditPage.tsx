@@ -161,17 +161,26 @@ export const ReportEditPage = () => {
     // TODO: This can blow away a users' changes.
     try {
       if (message.reportId === report.id) {
-        const instance = await getReportInstance(message.id, true);
-        if (instance) {
-          // If there is a new instance, prepend it.
-          const add = !report.instances.some((i) => i.id === message.id);
+        if (message.message === 'status') {
           setReport({
             ...report,
-            instances: add
-              ? [instance, ...report.instances]
-              : report.instances.map((i) => (i.id === message.id ? instance : i)),
+            instances: report.instances.map((i) =>
+              i.id === message.id ? { ...i, status: message.status, version: message.version } : i,
+            ),
           });
-          navigate(`/reports/${report.id}/content`);
+        } else {
+          const instance = await getReportInstance(message.id, true);
+          if (instance) {
+            // If there is a new instance, prepend it.
+            const add = !report.instances.some((i) => i.id === message.id);
+            setReport({
+              ...report,
+              instances: add
+                ? [instance, ...report.instances]
+                : report.instances.map((i) => (i.id === message.id ? instance : i)),
+            });
+            navigate(`/reports/${report.id}/content`);
+          }
         }
       }
     } catch {}
