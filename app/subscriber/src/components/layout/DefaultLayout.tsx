@@ -69,6 +69,8 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
     // Report has been updated, go fetch latest.
     try {
       if (message.status === ReportStatusName.Accepted)
+        toast.info(`Report "${message.subject}" has been generated and email requested.`);
+      else if (message.status === ReportStatusName.Completed)
         toast.info(`Report "${message.subject}" has been sent out by email.`);
       else if (message.status === ReportStatusName.Failed)
         toast.error(`Report "${message.subject}" failed to be sent out by email.`);

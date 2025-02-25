@@ -101,6 +101,7 @@ public class ChesRetryManager : ServiceManager<ChesRetryOptions>
                                         // The message is possibly stuck, we need to ask CHES to promote.
                                         // Promoting doesn't change the status.
                                         // Which means it may get picked up again in the Accepted status until it gets sent.
+                                        this.Logger.LogDebug("Promote email request.  Report Instance ID: {reportId}, User Id: {userId}, Message Id: {messageId}", report.ReportInstanceId, report.UserId, messageId);
                                         await this.Ches.PromoteAsync(messageId);
                                     }
                                     catch (ChesException ex)
@@ -109,6 +110,7 @@ public class ChesRetryManager : ServiceManager<ChesRetryOptions>
                                         {
                                             // The status changed between the first call and an attempt to promote.
                                             statusResponse = await this.Ches.GetStatusAsync(messageId);
+                                            this.Logger.LogWarning("Email status changed.  Report Instance ID: {reportId}, User Id: {userId}, Message Id: {messageId}, Status: {status}", report.ReportInstanceId, report.UserId, messageId, statusResponse.Status);
                                             status = Enum.Parse<Entities.ReportStatus>(statusResponse.Status);
                                         }
                                         else
@@ -121,6 +123,7 @@ public class ChesRetryManager : ServiceManager<ChesRetryOptions>
 
                                 if (report.Status != status)
                                 {
+                                    this.Logger.LogInformation("Email status changed, update report.  Report Instance ID: {reportId}, User Id: {userId}, Message Id: {messageId}, status: {status}", report.ReportInstanceId, report.UserId, messageId, status);
                                     // Update the report with the latest status.
                                     if (report.ReportType == ReportType.Content)
                                     {
@@ -142,6 +145,7 @@ public class ChesRetryManager : ServiceManager<ChesRetryOptions>
                         // If all user report instances have been updated then the report instance should be updated to.
                         if (group.All(r => r.Status == Entities.ReportStatus.Completed))
                         {
+                            this.Logger.LogInformation("Update report status to completed.  Report Instance ID: {reportId}", group.Key);
                             await this.Api.UpdateReportInstanceAsync(group.Key, Entities.ReportStatus.Completed);
                         }
                     }
