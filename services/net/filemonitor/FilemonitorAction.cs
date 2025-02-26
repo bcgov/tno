@@ -264,7 +264,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         }
         else
         {
-            this.Logger.LogDebug("file '{file}' already exists", pathToFile);
+            this.Logger.LogDebug("File already exists '{file}'", pathToFile);
         }
     }
 
