@@ -193,6 +193,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="ingest"></param>
     /// <param name="pathToFile"></param>
     /// <returns></returns>
+
     private async Task CopyFileAsync(SftpClient client, IngestModel ingest, string pathToFile)
     {
         var outputPath = GetOutputPath(ingest);
@@ -209,10 +210,61 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             await Task.Factory.FromAsync(client.BeginDownloadFile(pathToFile, saveFile), client.EndDownloadFile);
 
             this.Logger.LogDebug("File copied '{file}'", pathToFile);
+            // try multiple encodings
+            var possibleEncodings = new[] {
+                Encoding.GetEncoding("Windows-1252"),
+                Encoding.GetEncoding("ISO-8859-1"),
+            };
+
+            string fileContent = "";
+            byte[] fileBytes = await File.ReadAllBytesAsync(outputFile);
+
+            // check if the file is already UTF-8 format
+            bool isUtf8 = false;
+            try
+            {
+                fileContent = Encoding.UTF8.GetString(fileBytes);
+                //check if the file is already UTF-8 format, if it contains the replacement character, it is not valid UTF-8
+                if (!fileContent.Contains('\uFFFD'))
+                {
+                    isUtf8 = true;
+                }
+                else
+                {
+                    this.Logger.LogDebug("file '{file}' contains invalid UTF-8 sequence, try other encodings", pathToFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                // UTF-8 decoding failed, the file is definitely not UTF-8 format
+                this.Logger.LogError("file '{file}' is not UTF-8 format: {error}", pathToFile, ex.Message);
+            }
+
+            // if not UTF-8, try other encodings
+            if (!isUtf8)
+            {
+                foreach (var encoding in possibleEncodings)
+                {
+                    try
+                    {
+                        fileContent = encoding.GetString(fileBytes);// convert the file content to the dotnet UTF-16 encoding  
+                        // try to convert the file content to UTF-8 and save
+                        await File.WriteAllTextAsync(outputFile, fileContent);
+                        this.Logger.LogDebug("file '{file}' is encoded with {encoding}, converted to UTF-8", pathToFile, encoding.EncodingName);
+                        break;
+                    }
+                    catch
+                    {
+                        // this encoding is not correct, try next one
+                        continue;
+                    }
+                }
+            }
+
         }
         else
         {
-            this.Logger.LogDebug("File already exists '{file}'", pathToFile);
+            this.Logger.LogDebug("file '{file}' already exists", pathToFile);
         }
     }
 
@@ -748,6 +800,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     private string? ReadFileContents(string filePath, IngestModel ingest)
     {
         this.Logger.LogDebug("Reading file '{file}' for ingest '{name}'", filePath, ingest.Name);
+        // use default StreamReader constructor
+        // it will automatically detect BOM, if there is no BOM it will use UTF-8
         using var sr = new System.IO.StreamReader(filePath);
         try
         {
