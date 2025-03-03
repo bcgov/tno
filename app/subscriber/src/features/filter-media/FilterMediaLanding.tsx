@@ -136,7 +136,8 @@ export const FilterMediaLanding: React.FC = () => {
   React.useEffect(() => {
     if (activeLetter && activeLetter !== 'All') {
       setNarrowedOptions(
-        activeFilter?.options.filter((opt) => opt.name.startsWith(activeLetter)) ?? [],
+        activeFilter?.options.filter((opt) => opt.name.toUpperCase().startsWith(activeLetter)) ??
+          [],
       );
     }
     if (activeLetter === 'All') {
