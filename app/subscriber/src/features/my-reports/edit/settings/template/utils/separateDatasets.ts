@@ -20,7 +20,7 @@ interface ISeparateDatasetsOptions extends IConvertToChartOptions {
 }
 
 /**
- * Separates the data into datasets based on the provided predicate.
+ * Separates the data into datasets based on the provided 'groupOn' predicate.
  * @param data An array of content in the report.
  * @param options Options to control grouping.
  * @returns Dictionary containing content for each dataset.
