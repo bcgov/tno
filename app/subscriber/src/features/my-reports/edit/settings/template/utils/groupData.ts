@@ -22,6 +22,8 @@ export const groupData = (
 ) => {
   const count = isStoryCount(chart);
   const groupBy = chart.sectionSettings.groupBy;
+  const dataset = chart.sectionSettings.dataset;
+  const datasetOrder = chart.sectionSettings.datasetOrder;
   let result: IChartData;
 
   // Group the data within each dataset.
@@ -129,6 +131,23 @@ export const groupData = (
     result = {
       labels: [],
       datasets: [],
+    };
+  }
+
+  if (dataset === 'reportSection') {
+    const sorter = datasetOrder === 'asc' ? 1 : -1;
+    result = {
+      labels: result.labels,
+      datasets: result.datasets.sort((a, b) => {
+        const sectionA = sections.find((s) => s.name === a.label);
+        const sectionB = sections.find((s) => s.name === b.label);
+        if (sectionA === undefined && sectionB === undefined) return 0;
+        if (sectionA === undefined) return -1;
+        if (sectionB === undefined) return 1;
+        if (sectionA.sortOrder < sectionB.sortOrder) return -1 * sorter;
+        if (sectionA.sortOrder > sectionB.sortOrder) return 1 * sorter;
+        return 0;
+      }),
     };
   }
 

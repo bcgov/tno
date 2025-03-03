@@ -8,6 +8,7 @@ import {
   FormikSelect,
   groupByOptions,
   mergeChartSettings,
+  OptionItem,
   Row,
   Show,
   ToggleGroup,
@@ -97,20 +98,37 @@ export const ConfigureDataset: React.FC<IChartSectionProps> = ({ sectionIndex, c
               options={allowedDatasetOptions}
               isClearable={false}
               required
-            />
-            <Col>
-              <FormikCheckbox
-                label="Descending"
-                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetOrder`}
-                checked={chart.sectionSettings.datasetOrder === 'desc'}
-                onChange={(e) => {
-                  const desc = e.target.checked;
+              onChange={(e) => {
+                var option = e as OptionItem;
+                if (option.value === 'reportSection') {
+                  console.debug('onChange', option.value);
                   setFieldValue(
                     `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetOrder`,
-                    desc ? 'desc' : 'asc',
+                    'asc',
                   );
-                }}
-              />
+                }
+              }}
+            />
+            <Col>
+              <Show
+                visible={
+                  values.sections[sectionIndex].chartTemplates[chartIndex].sectionSettings
+                    .dataset !== 'reportSection'
+                }
+              >
+                <FormikCheckbox
+                  label="Descending"
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetOrder`}
+                  checked={chart.sectionSettings.datasetOrder === 'desc'}
+                  onChange={(e) => {
+                    const desc = e.target.checked;
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.datasetOrder`,
+                      desc ? 'desc' : 'asc',
+                    );
+                  }}
+                />
+              </Show>
               <FormikCheckbox
                 label="Stack Dataset"
                 name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.stacked`}
@@ -140,19 +158,36 @@ export const ConfigureDataset: React.FC<IChartSectionProps> = ({ sectionIndex, c
               options={groupByOptions.filter((o) => chart.settings.groupBy.includes(o.value))}
               isClearable={false}
               required
-            />
-            <FormikCheckbox
-              label="Descending"
-              name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupByOrder`}
-              checked={chart.sectionSettings.groupByOrder === 'desc'}
               onChange={(e) => {
-                const desc = e.target.checked;
-                setFieldValue(
-                  `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupByOrder`,
-                  desc ? 'desc' : 'asc',
-                );
+                var option = e as OptionItem;
+                if (option.value === 'reportSection') {
+                  console.debug('onChange', option.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupByOrder`,
+                    'asc',
+                  );
+                }
               }}
             />
+            <Show
+              visible={
+                values.sections[sectionIndex].chartTemplates[chartIndex].sectionSettings.groupBy !==
+                'reportSection'
+              }
+            >
+              <FormikCheckbox
+                label="Descending"
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupByOrder`}
+                checked={chart.sectionSettings.groupByOrder === 'desc'}
+                onChange={(e) => {
+                  const desc = e.target.checked;
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.groupByOrder`,
+                    desc ? 'desc' : 'asc',
+                  );
+                }}
+              />
+            </Show>
           </Row>
         </Show>
       </Col>
