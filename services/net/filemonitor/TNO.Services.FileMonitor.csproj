@@ -17,6 +17,8 @@
   <ItemGroup>
     <PackageReference Include="System.CommandLine.DragonFruit" Version="0.3.0-alpha.20070.2" />
     <PackageReference Include="SSH.NET" Version="2024.2.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.2" />
+    <PackageReference Include="Ude.NetStandard" Version="1.2.0" />
   </ItemGroup>
 
   <ItemGroup>
