@@ -195,7 +195,6 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="ingest"></param>
     /// <param name="pathToFile"></param>
     /// <returns></returns>
-
     private async Task CopyFileAsync(SftpClient client, IngestModel ingest, string pathToFile)
     {
         var outputPath = GetOutputPath(ingest);
