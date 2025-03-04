@@ -16,6 +16,7 @@ using TNO.Kafka.Models;
 using TNO.Models.Extensions;
 using TNO.Services.Actions;
 using TNO.Services.FileMonitor.Config;
+using Ude;
 
 namespace TNO.Services.FileMonitor;
 
@@ -81,7 +82,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 await GetFmsArticlesAsync(dir, manager, sources);
                 break;
             default: throw new InvalidOperationException($"Invalid import file format defined for '{manager.Ingest.Name}'");
-        };
+        }
+        ;
 
         return ServiceActionResult.Success;
     }
@@ -210,57 +212,6 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             await Task.Factory.FromAsync(client.BeginDownloadFile(pathToFile, saveFile), client.EndDownloadFile);
 
             this.Logger.LogDebug("File copied '{file}'", pathToFile);
-            // try multiple encodings
-            var possibleEncodings = new[] {
-                Encoding.GetEncoding("Windows-1252"),
-                Encoding.GetEncoding("ISO-8859-1"),
-            };
-
-            string fileContent = "";
-            byte[] fileBytes = await File.ReadAllBytesAsync(outputFile);
-
-            // check if the file is already UTF-8 format
-            bool isUtf8 = false;
-            try
-            {
-                fileContent = Encoding.UTF8.GetString(fileBytes);
-                //check if the file is already UTF-8 format, if it contains the replacement character, it is not valid UTF-8
-                if (!fileContent.Contains('\uFFFD'))
-                {
-                    isUtf8 = true;
-                }
-                else
-                {
-                    this.Logger.LogDebug("file '{file}' contains invalid UTF-8 sequence, try other encodings", pathToFile);
-                }
-            }
-            catch (Exception ex)
-            {
-                // UTF-8 decoding failed, the file is definitely not UTF-8 format
-                this.Logger.LogError("file '{file}' is not UTF-8 format: {error}", pathToFile, ex.Message);
-            }
-
-            // if not UTF-8, try other encodings
-            if (!isUtf8)
-            {
-                foreach (var encoding in possibleEncodings)
-                {
-                    try
-                    {
-                        fileContent = encoding.GetString(fileBytes);// convert the file content to the dotnet UTF-16 encoding  
-                        // try to convert the file content to UTF-8 and save
-                        await File.WriteAllTextAsync(outputFile, fileContent);
-                        this.Logger.LogDebug("file '{file}' is encoded with {encoding}, converted to UTF-8", pathToFile, encoding.EncodingName);
-                        break;
-                    }
-                    catch
-                    {
-                        // this encoding is not correct, try next one
-                        continue;
-                    }
-                }
-            }
-
         }
         else
         {
@@ -792,35 +743,108 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     }
 
     /// <summary>
-    /// Get the contents of the file at the location indicated by filePath as a string.
+    /// Reads content files at the specified path and returns it as a string.
+    /// Uses the UDE library to detect the file encoding, supporting various encodings (UTF-8, Windows-1252, ISO-8859-1, etc.).
+    /// Automatically converts non-UTF-8 encoded file contents to UTF-8.
     /// </summary>
-    /// <param name="filePath"></param>
-    /// <param name="ingest"></param>
-    /// <returns></returns>
+    /// <param name="filePath">The file path</param>
+    /// <param name="ingest">The ingest model</param>
+    /// <returns>The file content as a string, or null if processing fails</returns>
     private string? ReadFileContents(string filePath, IngestModel ingest)
     {
         this.Logger.LogDebug("Reading file '{file}' for ingest '{name}'", filePath, ingest.Name);
-        // use default StreamReader constructor
-        // it will automatically detect BOM, if there is no BOM it will use UTF-8
-        using var sr = new System.IO.StreamReader(filePath);
+
         try
         {
-            var contents = sr.ReadToEnd();
-            if (String.IsNullOrWhiteSpace(contents))
-            {
-                this.Logger.LogError("Missing file contents at '{path}'", filePath);
-                return null;
-            }
-            else
-            {
-                return contents;
-            }
+            byte[] fileBytes = File.ReadAllBytes(filePath);
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
+            return GetFileContent(fileBytes, filePath);
         }
-        catch
+        catch (Exception ex)
         {
-            sr.Close();
+            this.Logger.LogError(ex, "Error reading file '{file}' for ingest '{name}'", filePath, ingest.Name);
             throw;
         }
+    }
+
+    /// <summary>
+    /// Get the file content based on the file bytes and file path.
+    /// Use the UDE library to detect the file encoding and read the file content based on the detected encoding.
+    /// If the encoding cannot be detected, UTF-8 is used as a fallback option (previous behavior).
+    /// </summary>
+    /// <param name="fileBytes">The byte array of the file</param>
+    /// <param name="filePath">The file path</param>
+    /// <returns>The file content as a string, or null if processing fails</returns>
+    private string? GetFileContent(byte[] fileBytes, string filePath)
+    {
+        var detector = new CharsetDetector();
+        detector.Feed(fileBytes, 0, fileBytes.Length);
+        detector.DataEnd();
+
+        if (detector.Charset != null)
+        {
+            return ReadWithDetectedEncoding(fileBytes, detector.Charset, filePath);
+        }
+        else
+        {
+            return ReadWithFallbackEncoding(fileBytes, filePath);
+        }
+    }
+
+    /// <summary>
+    /// Use the detected encoding to read the file content.
+    /// If reading fails, use UTF-8 as a fallback option.
+    /// </summary>
+    /// <param name="fileBytes">The byte array of the file</param>
+    /// <param name="charset">The detected character set</param>
+    /// <param name="filePath">The file path</param>
+    /// <returns>The file content as a string, or null if processing fails</returns>
+    private string? ReadWithDetectedEncoding(byte[] fileBytes, string charset, string filePath)
+    {
+        try
+        {
+            var detectedEncoding = Encoding.GetEncoding(charset);
+            string content = detectedEncoding.GetString(fileBytes);
+            this.Logger.LogDebug("Successfully read file '{file}' with detected encoding {encoding}", filePath, charset);
+
+            return CheckContent(content, filePath);
+        }
+        catch (Exception ex)
+        {
+            // we don't want this to throw an exception, just log a warning and fallback to UTF-8
+            this.Logger.LogWarning("Failed to use detected encoding {encoding}: {error}, falling back to UTF-8", charset, ex.Message);
+            return ReadWithFallbackEncoding(fileBytes, filePath);
+        }
+    }
+
+    /// <summary>
+    /// Use UTF-8 encoding to read the file content.
+    /// </summary>
+    /// <param name="fileBytes">The byte array of the file</param>
+    /// <param name="filePath">The file path</param>
+    /// <returns>The file content as a string</returns>
+    private string? ReadWithFallbackEncoding(byte[] fileBytes, string filePath)
+    {
+        string content = Encoding.UTF8.GetString(fileBytes);
+        this.Logger.LogWarning("Could not detect encoding for '{file}', defaulting to UTF-8", filePath);
+        return CheckContent(content, filePath);
+    }
+
+    /// <summary>
+    /// Check if the file content is empty and log a warning if it is.
+    /// </summary>
+    /// <param name="content">The file content</param>
+    /// <param name="filePath">The file path</param>
+    /// <returns>The file content if it is not empty, otherwise null</returns>
+    private string? CheckContent(string content, string filePath)
+    {
+        if (String.IsNullOrWhiteSpace(content))
+        {
+            this.Logger.LogError("Missing file contents at '{path}'", filePath);
+            return null;
+        }
+        return content;
     }
 
     /// <summary>
