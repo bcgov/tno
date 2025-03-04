@@ -64,7 +64,7 @@
   },
   "devDependencies": {
     "@simbathesailor/use-what-changed": "2.0.0",
-    "@testing-library/jeomsst-dom": "^6.6.3",
+    "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "15.0.7",
     "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "14.5.2",
