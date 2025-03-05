@@ -480,7 +480,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                 // TODO: Generate appropriate notification request.
                 var notification = new NotificationRequestModel(NotificationDestination.SignalR | NotificationDestination.NotificationService, content.Id)
                 {
-                    RequestorId = request.RequestorId
+                    RequestorId = request.RequestorId,
                 };
                 _ = await this.Api.SendMessageAsync(notification)
                     ?? throw new HttpClientRequestException($"Failed to receive result from Kafka when sending message.  Topic: {this.Options.NotificationTopic}, Content ID: {content.Id}");

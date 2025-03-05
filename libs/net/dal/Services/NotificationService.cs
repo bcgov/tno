@@ -308,7 +308,7 @@ public class NotificationService : BaseService<Notification, int>, INotification
                     && !string.IsNullOrEmpty(ca.Value) && ca.Value.ToLower() == "true"
                     && ca.UpdatedOn > lastRunOnTime)
                     .Select(ca => ca.ContentId).Distinct().ToArray();
-            
+
                 DateTime localLastRunOn = DateTime.Parse(topStoryLastRunOnSetting.Value).ToLocalTime();
                 query = query.IncludeOnlyLatestPostedAndContentIds(actionContentIds, localLastRunOn);
             }
@@ -400,6 +400,36 @@ public class NotificationService : BaseService<Notification, int>, INotification
             .ToArray();
 
         return notifications;
+    }
+
+    /// <summary>
+    /// Get all CHES message Ids for notifications at the specified 'status' and that were sent on or after 'cutOff' date and time.
+    /// </summary>
+    /// <param name="status"></param>
+    /// <param name="cutOff"></param>
+    /// <returns></returns>
+    public IEnumerable<API.Areas.Services.Models.Notification.ChesNotificationMessagesModel> GetChesMessageIds(NotificationStatus status, DateTime cutOff)
+    {
+        var notifications = this.Context.NotificationInstances.Where(r => r.Status == status && r.SentOn >= cutOff)
+            .Select(r => new { r.NotificationId, InstanceId = r.Id, r.SentOn, r.Response }).ToArray();
+
+        var messages = new List<API.Areas.Services.Models.Notification.ChesNotificationMessagesModel>();
+
+        foreach (var notification in notifications)
+        {
+            var response = JsonSerializer.Deserialize<Ches.Models.EmailResponseModel>(notification.Response.ToJson(), _serializerOptions);
+            var messageIds = response?.Messages.Select(m => m.MessageId).ToArray() ?? [];
+            messages.Add(new API.Areas.Services.Models.Notification.ChesNotificationMessagesModel()
+            {
+                NotificationId = notification.NotificationId,
+                InstanceId = notification.InstanceId,
+                SentOn = notification.SentOn,
+                Status = status,
+                MessageIds = messageIds,
+            });
+        }
+
+        return messages;
     }
     #endregion
 }

@@ -39,5 +39,13 @@ public interface INotificationService : IBaseService<Notification, int>
     /// </summary>
     /// <param name="filter"></param>
     /// <returns></returns>
-    public IEnumerable<NotificationInstance> GetDashboard(DashboardFilter filter);
+    IEnumerable<NotificationInstance> GetDashboard(DashboardFilter filter);
+
+    /// <summary>
+    /// Get all CHES message Ids for notifications at the specified 'status' and that were sent on or after 'cutOff' date and time.
+    /// </summary>
+    /// <param name="status"></param>
+    /// <param name="cutOff"></param>
+    /// <returns></returns>
+    IEnumerable<API.Areas.Services.Models.Notification.ChesNotificationMessagesModel> GetChesMessageIds(NotificationStatus status, DateTime cutOff);
 }

@@ -79,5 +79,25 @@ public class NotificationInstanceController : ControllerBase
         var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new NotificationInstanceModel(result, _serializerOptions));
     }
+
+    /// <summary>
+    /// Update the notification instance status.
+    /// </summary>
+    /// <param name="id">The notification instance id.</param>
+    /// <param name="status">The status to update to.</param>
+    /// <returns></returns>
+    [HttpPut("{id}/status/{status}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(NotificationInstanceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "NotificationInstance" })]
+    public IActionResult UpdateNotificationInstanceStatus(long id, Entities.NotificationStatus status)
+    {
+        var instance = _service.FindById(id) ?? throw new NoContentException();
+        instance.Status = status;
+        _service.UpdateAndSave(instance);
+
+        return new JsonResult(new NotificationInstanceModel(instance, _serializerOptions));
+    }
     #endregion
 }

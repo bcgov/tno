@@ -198,44 +198,51 @@ spec:
           [dockerfile]="/services/net/event-handler/Dockerfile"
         )
 
+        declare -A COMPONENT15=(
+          [id]="ches-retry"
+          [image]="ches-retry-service"
+          [context]=""
+          [dockerfile]="/services/net/ches-retry/Dockerfile"
+        )
+
         # Applications
 
-        declare -A COMPONENT15=(
+        declare -A COMPONENT16=(
           [id]="api"
           [image]="api"
           [context]=""
           [dockerfile]="/api/net/Dockerfile.openshift"
         )
 
-        declare -A COMPONENT16=(
+        declare -A COMPONENT17=(
           [id]="charts-api"
           [image]="charts-api"
           [context]="/api/node"
           [dockerfile]="/Dockerfile.open"
         )
 
-        declare -A COMPONENT17=(
+        declare -A COMPONENT18=(
           [id]="editor"
           [image]="editor"
           [context]="/app/editor"
           [dockerfile]="/Dockerfile.open"
         )
 
-        declare -A COMPONENT18=(
+        declare -A COMPONENT19=(
           [id]="subscriber"
           [image]="subscriber"
           [context]="/app/subscriber"
           [dockerfile]="/Dockerfile.open"
         )
 
-        declare -A COMPONENT19=(
+        declare -A COMPONENT20=(
           [id]="db"
           [image]="db-migration"
           [context]="/libs/net"
           [dockerfile]="/Dockerfile"
         )
 
-        declare -A COMPONENT20=(
+        declare -A COMPONENT21=(
           [id]="elastic"
           [image]="elastic-migration"
           [context]=""

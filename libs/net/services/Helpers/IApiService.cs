@@ -372,6 +372,22 @@ public interface IApiService
     /// <param name="requestorId"></param>
     /// <returns></returns>
     Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>?> FindContentForNotificationIdAsync(int id, int? requestorId);
+
+    /// <summary>
+    /// Get the CHES message Ids for the notifications in the specified 'status' and that were sent on or after the 'cutOff' date and time.
+    /// </summary>
+    /// <param name="status"></param>
+    /// <param name="cutOff"></param>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.Notification.ChesNotificationMessagesModel>?> GetChesMessagesAsync(Entities.NotificationStatus status, DateTime cutOff);
+
+    /// <summary>
+    /// Update the status of the specified notification instance.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="status"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel?> UpdateNotificationInstanceAsync(long instanceId, Entities.NotificationStatus status);
     #endregion
 
     #region Reports
@@ -462,7 +478,7 @@ public interface IApiService
     /// <param name="status"></param>
     /// <param name="cutOff"></param>
     /// <returns></returns>
-    Task<IEnumerable<API.Areas.Services.Models.Report.ChesMessagesModel>?> GetChesMessagesAsync(Entities.ReportStatus status, DateTime cutOff);
+    Task<IEnumerable<API.Areas.Services.Models.Report.ChesReportMessagesModel>?> GetChesMessagesAsync(Entities.ReportStatus status, DateTime cutOff);
 
     /// <summary>
     /// Update the status of the specified report instance.

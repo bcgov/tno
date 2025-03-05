@@ -171,5 +171,5 @@ public interface IReportService : IBaseService<Report, int>
     /// <param name="status"></param>
     /// <param name="cutOff"></param>
     /// <returns></returns>
-    IEnumerable<API.Areas.Services.Models.Report.ChesMessagesModel> GetChesMessageIds(ReportStatus status, DateTime cutOff);
+    IEnumerable<API.Areas.Services.Models.Report.ChesReportMessagesModel> GetChesMessageIds(ReportStatus status, DateTime cutOff);
 }

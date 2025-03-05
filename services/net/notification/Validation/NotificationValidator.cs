@@ -274,7 +274,6 @@ public class NotificationValidator : INotificationValidator
     /// <summary>
     /// Determine if the specified 'notification' should be sent for the specified 'content'.
     /// </summary>
-    /// <param name="userId"></param>
     /// <returns></returns>
     public async Task<bool> ConfirmSendAsync()
     {
