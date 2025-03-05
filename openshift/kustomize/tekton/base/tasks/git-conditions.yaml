@@ -159,6 +159,7 @@ spec:
         fi
 
         build_service 'capture'
+        build_service 'ches-retry'
         build_service 'clip'
         build_service 'content'
         build_service 'contentmigration'
