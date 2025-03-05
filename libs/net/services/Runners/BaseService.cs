@@ -140,7 +140,12 @@ public abstract class BaseService
         //     .Bind(this.Configuration.GetSection("Service"))
         //     .ValidateDataAnnotations();
 
-        services.AddHttpClient(typeof(BaseService).FullName ?? nameof(BaseService), client => { });
+        services.AddHttpClient(typeof(BaseService).FullName ?? nameof(BaseService), client => { })
+            .UseSocketsHttpHandler((handler, services) =>
+            {
+                handler.AllowAutoRedirect = true;
+                handler.ConnectTimeout = TimeSpan.FromMinutes(5);
+            });
 
         // API services
         services.AddMvcCore()
