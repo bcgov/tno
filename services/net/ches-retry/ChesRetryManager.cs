@@ -78,89 +78,182 @@ public class ChesRetryManager : ServiceManager<ChesRetryOptions>
             }
             else
             {
-                try
-                {
-                    // Request all reports for the last hour that CHES has not confirmed the email has been sent.
-                    var now = DateTime.UtcNow;
-                    var reportMessages = await this.Api.GetChesMessagesAsync(Entities.ReportStatus.Accepted, now.AddMinutes(-1 * this.Options.RetryTimeScope)) ?? [];
-
-                    foreach (var report in reportMessages)
-                    {
-                        // Only check the status of the CHES message if a report was sent more than 5 minutes ago.
-                        if (report.SentOn.HasValue && report.SentOn.Value.AddMinutes(this.Options.RetryTimeLimit) <= now)
-                        {
-                            foreach (var messageId in report.MessageIds)
-                            {
-                                // For each message get the latest status.
-                                var statusResponse = await this.Ches.GetStatusAsync(messageId);
-                                if (Enum.TryParse<Entities.ReportStatus>(statusResponse.Status, true, out Entities.ReportStatus status)
-                                    && status == Entities.ReportStatus.Accepted)
-                                {
-                                    try
-                                    {
-                                        // The message is possibly stuck, we need to ask CHES to promote.
-                                        // Promoting doesn't change the status.
-                                        // Which means it may get picked up again in the Accepted status until it gets sent.
-                                        this.Logger.LogDebug("Promote email request.  Report Instance ID: {reportId}, User Id: {userId}, Message Id: {messageId}", report.ReportInstanceId, report.UserId, messageId);
-                                        await this.Ches.PromoteAsync(messageId);
-                                    }
-                                    catch (ChesException ex)
-                                    {
-                                        if (ex.StatusCode == System.Net.HttpStatusCode.Conflict)
-                                        {
-                                            // The status changed between the first call and an attempt to promote.
-                                            statusResponse = await this.Ches.GetStatusAsync(messageId);
-                                            this.Logger.LogWarning("Email status changed.  Report Instance ID: {reportId}, User Id: {userId}, Message Id: {messageId}, Status: {status}", report.ReportInstanceId, report.UserId, messageId, statusResponse.Status);
-                                            status = Enum.Parse<Entities.ReportStatus>(statusResponse.Status);
-                                        }
-                                        else
-                                        {
-                                            // Ignore other errors.
-                                            this.Logger.LogError(ex, "Failed to promote email.  Report instance Id: {id} User Id: {userId}", report.ReportInstanceId, report.UserId);
-                                        }
-                                    }
-                                }
-
-                                if (report.Status != status)
-                                {
-                                    this.Logger.LogInformation("Email status changed, update report.  Report Instance ID: {reportId}, User Id: {userId}, Message Id: {messageId}, status: {status}", report.ReportInstanceId, report.UserId, messageId, status);
-                                    // Update the report with the latest status.
-                                    if (report.ReportType == ReportType.Content)
-                                    {
-                                        await this.Api.UpdateUserReportInstanceAsync(report.ReportInstanceId, report.Format, report.UserId, status);
-                                    }
-                                    else if (report.ReportType == ReportType.AVOverview)
-                                    {
-                                        await this.Api.UpdateAVReportInstanceAsync(report.ReportInstanceId, report.UserId, status);
-                                    }
-                                    report.Status = status;
-                                }
-                            }
-                        }
-                    }
-
-                    var reportGroups = reportMessages.GroupBy(r => r.ReportInstanceId);
-                    foreach (var group in reportGroups)
-                    {
-                        // If all user report instances have been updated then the report instance should be updated to.
-                        if (group.All(r => r.Status == Entities.ReportStatus.Completed))
-                        {
-                            this.Logger.LogInformation("Update report status to completed.  Report Instance ID: {reportId}", group.Key);
-                            await this.Api.UpdateReportInstanceAsync(group.Key, Entities.ReportStatus.Completed);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    this.Logger.LogError(ex, "Service had an unexpected failure.");
-                    this.State.RecordFailure();
-                    await this.SendErrorEmailAsync("Service had an Unexpected Failure", ex);
-                }
+                if (this.Options.RetryReports) await RetryReportsAsync();
+                if (this.Options.RetryNotifications) await RetryNotificationsAsync();
             }
 
             // The delay ensures we don't have a run away thread.
             this.Logger.LogDebug("Service sleeping for {delay} ms", delay);
             await Task.Delay(delay);
+        }
+    }
+
+    /// <summary>
+    /// Make a request to fetch all reports that have emails in accepted status.
+    /// Try to promote these emails to force them to be sent.
+    /// </summary>
+    /// <returns></returns>
+    private async Task RetryReportsAsync()
+    {
+        try
+        {
+            // Request all reports for the last hour that CHES has not confirmed the email has been sent.
+            var now = DateTime.UtcNow;
+            var reportMessages = await this.Api.GetChesMessagesAsync(Entities.ReportStatus.Accepted, now.AddMinutes(-1 * this.Options.RetryTimeScope)) ?? [];
+
+            foreach (var report in reportMessages)
+            {
+                // Only check the status of the CHES message if a report was sent more than 5 minutes ago.
+                if (report.SentOn.HasValue && report.SentOn.Value.AddMinutes(this.Options.RetryTimeLimit) <= now)
+                {
+                    foreach (var messageId in report.MessageIds)
+                    {
+                        // For each message get the latest status.
+                        var statusResponse = await this.Ches.GetStatusAsync(messageId);
+                        if (Enum.TryParse<Entities.ReportStatus>(statusResponse.Status, true, out Entities.ReportStatus status)
+                            && status == Entities.ReportStatus.Accepted)
+                        {
+                            try
+                            {
+                                // The message is possibly stuck, we need to ask CHES to promote.
+                                // Promoting doesn't change the status.
+                                // Which means it may get picked up again in the Accepted status until it gets sent.
+                                this.Logger.LogDebug("Promote email request.  Report ID: {reportId}, Instance ID: {instanceId}, User Id: {userId}, Message Id: {messageId}",
+                                    report.ReportId, report.InstanceId, report.UserId, messageId);
+                                await this.Ches.PromoteAsync(messageId);
+                            }
+                            catch (ChesException ex)
+                            {
+                                if (ex.StatusCode == System.Net.HttpStatusCode.Conflict)
+                                {
+                                    // The status changed between the first call and an attempt to promote.
+                                    statusResponse = await this.Ches.GetStatusAsync(messageId);
+                                    this.Logger.LogWarning("Email status changed.  Report ID: {reportId}, Instance ID: {instanceId}, User Id: {userId}, Message Id: {messageId}, Status: {status}", report.ReportId, report.InstanceId, report.UserId, messageId, statusResponse.Status);
+                                    status = Enum.Parse<Entities.ReportStatus>(statusResponse.Status);
+                                }
+                                else
+                                {
+                                    // Ignore other errors.
+                                    this.Logger.LogError(ex, "Failed to promote email.  Report ID: {reportId}, Instance Id: {instanceId}, User Id: {userId}, Message Id: {messageId}", report.ReportId, report.InstanceId, report.UserId, messageId);
+                                }
+                            }
+                        }
+
+                        if (report.Status != status)
+                        {
+                            this.Logger.LogInformation("Email status changed, update report.  Report ID: {reportId}, Instance ID: {instanceId}, User Id: {userId}, Message Id: {messageId}, status: {status}", report.ReportId, report.InstanceId, report.UserId, messageId, status);
+                            // Update the report with the latest status.
+                            if (report.ReportType == ReportType.Content)
+                            {
+                                await this.Api.UpdateUserReportInstanceAsync(report.InstanceId, report.Format, report.UserId, status);
+                            }
+                            else if (report.ReportType == ReportType.AVOverview)
+                            {
+                                await this.Api.UpdateAVReportInstanceAsync(report.InstanceId, report.UserId, status);
+                            }
+                            report.Status = status;
+                        }
+
+                        // Slow down the number of email requests.
+                        if (this.Options.ArtificialDelayMs > 0)
+                            await Task.Delay(this.Options.ArtificialDelayMs);
+                    }
+                }
+            }
+
+            var reportGroups = reportMessages.GroupBy(r => r.InstanceId);
+            foreach (var group in reportGroups)
+            {
+                // If all user report instances have been updated then the report instance should be updated to.
+                if (group.All(r => r.Status == Entities.ReportStatus.Completed))
+                {
+                    this.Logger.LogInformation("Update report status to completed.  Report Instance ID: {instanceId}", group.Key);
+                    await this.Api.UpdateReportInstanceAsync(group.Key, Entities.ReportStatus.Completed);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            this.Logger.LogError(ex, "Service had an unexpected failure.");
+            this.State.RecordFailure();
+            await this.SendErrorEmailAsync("Service had an Unexpected Failure", ex);
+        }
+    }
+
+    /// <summary>
+    /// Make a request to fetch all notifications that have emails in accepted status.
+    /// Try to promote these emails to force them to be sent.
+    /// </summary>
+    /// <returns></returns>
+    private async Task RetryNotificationsAsync()
+    {
+        try
+        {
+            // Request all notifications for the last hour that CHES has not confirmed the email has been sent.
+            var now = DateTime.UtcNow;
+            var notificationMessages = await this.Api.GetChesMessagesAsync(Entities.NotificationStatus.Accepted, now.AddMinutes(-1 * this.Options.RetryTimeScope)) ?? [];
+
+            foreach (var notification in notificationMessages)
+            {
+                // Only check the status of the CHES message if a notification was sent more than 5 minutes ago.
+                if (notification.SentOn.HasValue && notification.SentOn.Value.AddMinutes(this.Options.RetryTimeLimit) <= now)
+                {
+                    var completed = 0;
+                    foreach (var messageId in notification.MessageIds)
+                    {
+                        // For each message get the latest status.
+                        var statusResponse = await this.Ches.GetStatusAsync(messageId);
+                        if (Enum.TryParse<Entities.NotificationStatus>(statusResponse.Status, true, out Entities.NotificationStatus status)
+                            && status == Entities.NotificationStatus.Accepted)
+                        {
+                            try
+                            {
+                                // The message is possibly stuck, we need to ask CHES to promote.
+                                // Promoting doesn't change the status.
+                                // Which means it may get picked up again in the Accepted status until it gets sent.
+                                this.Logger.LogDebug("Promote email request. Notification ID: {notificationId}, Instance ID: {instanceId}, Message Id: {messageId}",
+                                    notification.NotificationId, notification.InstanceId, messageId);
+                                await this.Ches.PromoteAsync(messageId);
+                            }
+                            catch (ChesException ex)
+                            {
+                                if (ex.StatusCode == System.Net.HttpStatusCode.Conflict)
+                                {
+                                    // The status changed between the first call and an attempt to promote.
+                                    statusResponse = await this.Ches.GetStatusAsync(messageId);
+                                    this.Logger.LogWarning("Email status changed.  Notification ID: {notificationId}, Instance ID: {instanceId}, Message Id: {messageId}, Status: {status}", notification.NotificationId, notification.InstanceId, messageId, statusResponse.Status);
+                                    status = Enum.Parse<Entities.NotificationStatus>(statusResponse.Status);
+                                }
+                                else
+                                {
+                                    // Ignore other errors.
+                                    this.Logger.LogError(ex, "Failed to promote email.  Notification ID: {notificationId}, Instance Id: {instanceId}, Message Id: {messageId}", notification.NotificationId, notification.InstanceId, messageId);
+                                }
+                            }
+                        }
+
+                        // Keep track of how many of the emails have been sent.
+                        if (status == NotificationStatus.Completed) completed++;
+
+                        // Slow down the number of email requests.
+                        if (this.Options.ArtificialDelayMs > 0)
+                            await Task.Delay(this.Options.ArtificialDelayMs);
+                    }
+
+                    // If all messages for this notification instance have been sent, update the status.
+                    if (notification.Status != NotificationStatus.Completed && notification.MessageIds.Count() == completed)
+                    {
+                        this.Logger.LogInformation("Update notification status.  Notification ID: {notificationId}, Instance ID: {instanceId}, Status: {status}", notification.NotificationId, notification.InstanceId, Entities.NotificationStatus.Completed);
+                        await this.Api.UpdateNotificationInstanceAsync(notification.InstanceId, Entities.NotificationStatus.Completed);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            this.Logger.LogError(ex, "Service had an unexpected failure.");
+            this.State.RecordFailure();
+            await this.SendErrorEmailAsync("Service had an Unexpected Failure", ex);
         }
     }
     #endregion
