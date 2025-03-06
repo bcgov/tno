@@ -129,15 +129,7 @@
       "simple-import-sort/imports": "error",
       "simple-import-sort/exports": "error",
       "react/jsx-key": "error",
-      "no-console": [
-        "error",
-        {
-          "allow": [
-            "error",
-            "debug"
-          ]
-        }
-      ]
+      "no-console": "off"
     }
   },
   "jest": {
