@@ -44,3 +44,4 @@ scale scheduler-service 1 dc $env
 scale reporting-service 1 dc $env
 scale notification-service 1 dc $env
 scale event-handler-service 1 dc $env
+scale ches-retry-service 1 dc $env

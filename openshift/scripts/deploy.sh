@@ -54,6 +54,7 @@ podsScheduler=$(getPods scheduler-service dc $env)
 podsReporting=$(getPods reporting-service dc $env)
 podsNotification=$(getPods notification-service dc $env)
 podsEventHandler=$(getPods event-handler-service dc $env)
+podsChesRetry=$(getPods ches-retry-service dc $env)
 
 # Stop everyting
 ./stop.sh $env
@@ -98,6 +99,7 @@ oc tag scheduler-service:$tag scheduler-service:$env
 oc tag reporting-service:$tag reporting-service:$env
 oc tag notification-service:$tag notification-service:$env
 oc tag event-handler-service:$tag event-handler-service:$env
+oc tag ches-retry-service:$tag ches-retry-service:$env
 
 # Start everying
 scale api $podsApi sts $env
@@ -129,3 +131,4 @@ scale scheduler-service $podsScheduler dc $env
 scale reporting-service $podsReporting dc $env
 scale notification-service $podsNotification dc $env
 scale event-handler-service $podsEventHandler dc $env
+scale ches-retry-service $podsChesRetry dc $env

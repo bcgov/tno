@@ -141,7 +141,7 @@ public class ChesRetryManager : ServiceManager<ChesRetryOptions>
 
                         if (report.Status != status)
                         {
-                            this.Logger.LogInformation("Email status changed, update report.  Report ID: {reportId}, Instance ID: {instanceId}, User Id: {userId}, Message Id: {messageId}, status: {status}", report.ReportId, report.InstanceId, report.UserId, messageId, status);
+                            this.Logger.LogInformation("Email status changed, update user report instance.  Report ID: {reportId}, Instance ID: {instanceId}, User Id: {userId}, Message Id: {messageId}, status: {status}", report.ReportId, report.InstanceId, report.UserId, messageId, status);
                             // Update the report with the latest status.
                             if (report.ReportType == ReportType.Content)
                             {
@@ -167,8 +167,19 @@ public class ChesRetryManager : ServiceManager<ChesRetryOptions>
                 // If all user report instances have been updated then the report instance should be updated to.
                 if (group.All(r => r.Status == Entities.ReportStatus.Completed))
                 {
-                    this.Logger.LogInformation("Update report status to completed.  Report Instance ID: {instanceId}", group.Key);
-                    await this.Api.UpdateReportInstanceAsync(group.Key, Entities.ReportStatus.Completed);
+                    try
+                    {
+                        this.Logger.LogInformation("Update report status to completed. Instance ID: {instanceId}", group.Key);
+                        await this.Api.UpdateReportInstanceAsync(group.Key, Entities.ReportStatus.Completed);
+                    }
+                    catch (NoContentException ex)
+                    {
+                        this.Logger.LogError(ex, "Report instance does not exist.  Instance ID: {instanceId}", group.Key);
+                    }
+                    catch
+                    {
+                        throw;
+                    }
                 }
             }
         }

@@ -1261,8 +1261,8 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// <returns></returns>
     public IEnumerable<API.Areas.Services.Models.Report.ChesReportMessagesModel> GetChesMessageIds(ReportStatus status, DateTime cutOff)
     {
-        var linkReports = this.Context.UserReportInstances.Where(r => r.LinkStatus == status && r.LinkSentOn >= cutOff).Select(r => new { r.Instance!.ReportId, r.InstanceId, r.UserId, SentOn = r.LinkSentOn, r.LinkResponse }).ToArray();
-        var textReports = this.Context.UserReportInstances.Where(r => r.TextStatus == status && r.TextSentOn >= cutOff).Select(r => new { r.Instance!.ReportId, r.InstanceId, r.UserId, SentOn = r.TextSentOn, r.TextResponse }).ToArray();
+        var linkReports = this.Context.UserReportInstances.Include(i => i.Instance).Where(r => r.LinkStatus == status && r.LinkSentOn >= cutOff).Select(r => new { r.Instance!.ReportId, r.InstanceId, r.UserId, SentOn = r.LinkSentOn, r.LinkResponse }).ToArray();
+        var textReports = this.Context.UserReportInstances.Include(i => i.Instance).Where(r => r.TextStatus == status && r.TextSentOn >= cutOff).Select(r => new { r.Instance!.ReportId, r.InstanceId, r.UserId, SentOn = r.TextSentOn, r.TextResponse }).ToArray();
         var avReports = this.Context.UserAVOverviewInstances.Where(r => r.Status == status && r.SentOn >= cutOff).Select(r => new { r.InstanceId, r.UserId, r.SentOn, r.Response }).ToArray();
 
         var messages = new List<API.Areas.Services.Models.Report.ChesReportMessagesModel>();
