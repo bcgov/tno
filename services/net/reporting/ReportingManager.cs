@@ -111,9 +111,9 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             else if (this.State.Status == ServiceStatus.Failed)
             {
                 this.Logger.LogInformation("The service has failed: '{Status}'", this.State.Status);
-                if (this.Options.AutoRestartAfterFailure)
+                if (this.Options.AutoRestartAfterCriticalFailure)
                 {
-                    await Task.Delay(this.Options.RetryAfterFailedDelayMS);
+                    await Task.Delay(this.Options.RetryAfterCriticalFailureDelayMS);
                     this.State.Resume();
                     this.Listener.Resume();
                 }
