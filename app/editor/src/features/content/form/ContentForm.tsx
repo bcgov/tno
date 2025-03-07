@@ -29,6 +29,7 @@ import {
   hasErrors,
   IOptionItem,
   ISeriesModel,
+  ITimeTrackingModel,
   Modal,
   OptionItem,
   Row,
@@ -156,7 +157,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
   React.useEffect(() => {
     setAvStream();
   }, [setAvStream]);
-
+  const [contentPrepTime, setContentPrepTime] = React.useState<string>('');
   return (
     <styled.ContentForm className="content-form fvh" ref={refForm}>
       <FormPage className="fvh">
@@ -174,6 +175,10 @@ const ContentForm: React.FC<IContentFormProps> = ({
             {(props: FormikProps<IContentForm>) => {
               const source = sources.find((s) => s.id === props.values.sourceId);
               const program = series.find((s) => s.id === props.values.seriesId);
+
+              const onPrepTimeChanged = (value: string) => {
+                setContentPrepTime(value);
+              };
 
               return (
                 <Col className="content-col fvh">
@@ -910,6 +915,8 @@ const ContentForm: React.FC<IContentFormProps> = ({
                       >
                         <TimeLogSection
                           prepTimeRequired={props.values.contentType === ContentTypeName.AudioVideo}
+                          prepTime={contentPrepTime}
+                          onPrepTimeChanged={onPrepTimeChanged}
                         />
                       </Show>
                     </Show>
@@ -947,6 +954,33 @@ const ContentForm: React.FC<IContentFormProps> = ({
                               !props.values.file)
                           }
                           onClick={() => {
+                            if (contentPrepTime && Number.parseInt(contentPrepTime) > 0) {
+                              const userId = userInfo?.id ?? 0;
+                              const entry: ITimeTrackingModel = {
+                                id: 0,
+                                contentId: props.values.id,
+                                userId: userId,
+                                activity: !!props.values.id ? 'Updated' : 'Created',
+                                effort: +Number.parseInt(contentPrepTime),
+                                createdOn: moment().toLocaleString(),
+                              };
+                              // remove added but not saved entry
+                              const addedEntryIndex = props.values.timeTrackings.findIndex(
+                                (entry) => entry.id === 0,
+                              );
+                              if (addedEntryIndex !== -1) {
+                                props.setFieldValue('timeTrackings', [
+                                  ...props.values.timeTrackings.slice(0, addedEntryIndex),
+                                  ...props.values.timeTrackings.slice(addedEntryIndex + 1),
+                                ]);
+                              }
+                              // insert the new entry
+                              props.setFieldValue('timeTrackings', [
+                                ...props.values.timeTrackings,
+                                entry,
+                              ]);
+                              setContentPrepTime('');
+                            }
                             setSavePressed(true);
                           }}
                         >
