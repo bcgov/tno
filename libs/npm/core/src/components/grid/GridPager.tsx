@@ -40,6 +40,7 @@ export const GridPager = ({
       <div>
         Page {page} of {infinitePages ? '*' : numberOfPages}
       </div>
+      <div>( {totalItems} items)</div>
       <div>
         <FaBackwardFast
           title="first"
