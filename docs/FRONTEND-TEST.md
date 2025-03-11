@@ -145,9 +145,9 @@ Test-related configuration in `package.json`:
 ```json
 {
   "scripts": {
-    "test": "vitest run",      // Single run of all tests
-    "test:watch": "vitest",    // Run tests in watch mode
-    "test:ui": "vitest --ui"   // Run tests with UI interface
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
   }
 }
 ```

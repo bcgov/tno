@@ -3,6 +3,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
+
 import variables from '../../css/_variables.module.scss';
 
 // Create a mock store with initial state

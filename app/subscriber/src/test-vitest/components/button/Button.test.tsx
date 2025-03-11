@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { Button } from '../../../components/button';
@@ -13,7 +13,7 @@ describe('Button Component', () => {
   // Verifies that the button correctly displays its text content
   it('should render the button text correctly', () => {
     renderWithWrapper(<Button>test button</Button>);
-    // Check specified text exists  
+    // Check specified text exists
     expect(screen.getByText('test button')).toBeInTheDocument();
   });
 
