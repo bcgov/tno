@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using TNO.Ches;
 using TNO.Core.Http;
 using TNO.Core.Http.Configuration;
@@ -140,7 +141,12 @@ public abstract class BaseService
         //     .Bind(this.Configuration.GetSection("Service"))
         //     .ValidateDataAnnotations();
 
-        services.AddHttpClient(typeof(BaseService).FullName ?? nameof(BaseService), client => { });
+        services.AddHttpClient(typeof(BaseService).FullName ?? nameof(BaseService), client => { })
+            .UseSocketsHttpHandler((handler, services) =>
+            {
+                handler.AllowAutoRedirect = true;
+                handler.ConnectTimeout = TimeSpan.FromMinutes(5);
+            });
 
         // API services
         services.AddMvcCore()
@@ -186,13 +192,33 @@ public abstract class BaseService
 
     /// <summary>
     /// Run the service.
+    /// Keep restarting after failures if configured to do so.
     /// </summary>
     /// <returns></returns>
     private async Task RunServiceAsync()
     {
-        using var scope = this.App.Services.CreateScope();
-        var service = scope.ServiceProvider.GetRequiredService<IServiceManager>();
-        await service.RunAsync();
+        var options = this.App.Services.GetRequiredService<IOptions<ServiceOptions>>().Value;
+        do
+        {
+            try
+            {
+                using var scope = this.App.Services.CreateScope();
+                var service = scope.ServiceProvider.GetRequiredService<IServiceManager>();
+                await service.RunAsync();
+            }
+            catch (Exception ex)
+            {
+                if (!options.AutoRestartAfterCriticalFailure)
+                    throw;
+
+                _logger.LogCritical(ex, "Service critical failure");
+
+                // Wait to try again.
+                if (options.AutoRestartAfterCriticalFailure)
+                    await Task.Delay(options.RetryAfterCriticalFailureDelayMS);
+            }
+        }
+        while (options.AutoRestartAfterCriticalFailure);
     }
 
     /// <summary>

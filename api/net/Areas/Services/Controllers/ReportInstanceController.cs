@@ -218,6 +218,7 @@ public class ReportInstanceController : ControllerBase
         }
         else throw new BadRequestException("Parameter 'type' must be 'link' or 'text'.");
         _reportInstanceService.UpdateAndSave(userInstance);
+
         return new JsonResult(new UserReportInstanceModel(userInstance));
     }
 
@@ -232,11 +233,22 @@ public class ReportInstanceController : ControllerBase
     [ProducesResponseType(typeof(UserReportInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult UpdateReportInstanceStatus(long id, Entities.ReportStatus status)
+    public async Task<IActionResult> UpdateReportInstanceStatusAsync(long id, Entities.ReportStatus status)
     {
         var instance = _reportInstanceService.FindById(id) ?? throw new NoContentException();
         instance.Status = status;
         _reportInstanceService.UpdateAndSave(instance);
+
+        var ownerId = instance.OwnerId ?? instance.Report?.OwnerId;
+        if (ownerId.HasValue)
+        {
+            var user = _userService.FindById(ownerId.Value) ?? throw new NotAuthorizedException();
+            await _kafkaMessenger.SendMessageAsync(
+                _kafkaHubOptions.HubTopic,
+                new KafkaHubMessage(HubEvent.SendUser, user.Username, new KafkaInvocationMessage(MessageTarget.ReportStatus, new[] { new ReportMessageModel(instance) { Message = "status" } }))
+            );
+        }
+
         return new JsonResult(new ReportInstanceModel(instance, _serializerOptions));
     }
     #endregion

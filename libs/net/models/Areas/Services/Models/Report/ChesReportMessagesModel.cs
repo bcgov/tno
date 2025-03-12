@@ -3,7 +3,7 @@ namespace TNO.API.Areas.Services.Models.Report;
 /// <summary>
 /// ChesReportMessagesModel class, provides a model to pass CHES report response message Ids.
 /// </summary>
-public class ChesMessagesModel
+public class ChesReportMessagesModel
 {
     /// <summary>
     /// get/set - The report type.
@@ -16,9 +16,14 @@ public class ChesMessagesModel
     public Entities.ReportDistributionFormat Format { get; set; }
 
     /// <summary>
+    /// get/set - The primary key to the report.
+    /// </summary>
+    public int ReportId { get; set; }
+
+    /// <summary>
     /// get/set - The primary key to the report instance.
     /// </summary>
-    public long ReportInstanceId { get; set; }
+    public long InstanceId { get; set; }
 
     /// <summary>
     /// get/set - The primary key to the user.

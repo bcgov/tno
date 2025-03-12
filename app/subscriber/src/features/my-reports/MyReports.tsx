@@ -46,12 +46,21 @@ export const MyReports: React.FC = () => {
   hub.useHubEffect(MessageTargetKey.ReportStatus, async (message: IReportMessageModel) => {
     if (report) {
       try {
-        const instance = await getReportInstance(message.id, false);
-        if (instance) {
+        if (message.message === 'status') {
           setReport({
             ...report,
-            instances: report.instances.map((i) => (i.id === message.id ? instance : i)),
+            instances: report.instances.map((i) =>
+              i.id === message.id ? { ...i, status: message.status, version: message.version } : i,
+            ),
           });
+        } else {
+          const instance = await getReportInstance(message.id, false);
+          if (instance) {
+            setReport({
+              ...report,
+              instances: report.instances.map((i) => (i.id === message.id ? instance : i)),
+            });
+          }
         }
       } catch {}
     }

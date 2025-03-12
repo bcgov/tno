@@ -1259,23 +1259,24 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// <param name="status"></param>
     /// <param name="cutOff"></param>
     /// <returns></returns>
-    public IEnumerable<API.Areas.Services.Models.Report.ChesMessagesModel> GetChesMessageIds(ReportStatus status, DateTime cutOff)
+    public IEnumerable<API.Areas.Services.Models.Report.ChesReportMessagesModel> GetChesMessageIds(ReportStatus status, DateTime cutOff)
     {
-        var linkReports = this.Context.UserReportInstances.Where(r => r.LinkStatus == status && r.LinkSentOn >= cutOff).Select(r => new { r.InstanceId, r.UserId, SentOn = r.LinkSentOn, r.LinkResponse }).ToArray();
-        var textReports = this.Context.UserReportInstances.Where(r => r.TextStatus == status && r.TextSentOn >= cutOff).Select(r => new { r.InstanceId, r.UserId, SentOn = r.TextSentOn, r.TextResponse }).ToArray();
+        var linkReports = this.Context.UserReportInstances.Include(i => i.Instance).Where(r => r.LinkStatus == status && r.LinkSentOn >= cutOff).Select(r => new { r.Instance!.ReportId, r.InstanceId, r.UserId, SentOn = r.LinkSentOn, r.LinkResponse }).ToArray();
+        var textReports = this.Context.UserReportInstances.Include(i => i.Instance).Where(r => r.TextStatus == status && r.TextSentOn >= cutOff).Select(r => new { r.Instance!.ReportId, r.InstanceId, r.UserId, SentOn = r.TextSentOn, r.TextResponse }).ToArray();
         var avReports = this.Context.UserAVOverviewInstances.Where(r => r.Status == status && r.SentOn >= cutOff).Select(r => new { r.InstanceId, r.UserId, r.SentOn, r.Response }).ToArray();
 
-        var messages = new List<API.Areas.Services.Models.Report.ChesMessagesModel>();
+        var messages = new List<API.Areas.Services.Models.Report.ChesReportMessagesModel>();
 
         foreach (var report in linkReports)
         {
             var response = JsonSerializer.Deserialize<Ches.Models.EmailResponseModel>(report.LinkResponse.ToJson(), _serializerOptions);
             var messageIds = response?.Messages.Select(m => m.MessageId).ToArray() ?? [];
-            messages.Add(new API.Areas.Services.Models.Report.ChesMessagesModel()
+            messages.Add(new API.Areas.Services.Models.Report.ChesReportMessagesModel()
             {
                 ReportType = ReportType.Content,
                 Format = ReportDistributionFormat.LinkOnly,
-                ReportInstanceId = report.InstanceId,
+                ReportId = report.ReportId,
+                InstanceId = report.InstanceId,
                 UserId = report.UserId,
                 SentOn = report.SentOn,
                 Status = status,
@@ -1287,11 +1288,12 @@ public class ReportService : BaseService<Report, int>, IReportService
         {
             var response = JsonSerializer.Deserialize<Ches.Models.EmailResponseModel>(report.TextResponse.ToJson(), _serializerOptions);
             var messageIds = response?.Messages.Select(m => m.MessageId).ToArray() ?? [];
-            messages.Add(new API.Areas.Services.Models.Report.ChesMessagesModel()
+            messages.Add(new API.Areas.Services.Models.Report.ChesReportMessagesModel()
             {
                 ReportType = ReportType.Content,
                 Format = ReportDistributionFormat.FullText,
-                ReportInstanceId = report.InstanceId,
+                ReportId = report.ReportId,
+                InstanceId = report.InstanceId,
                 UserId = report.UserId,
                 SentOn = report.SentOn,
                 Status = status,
@@ -1303,11 +1305,11 @@ public class ReportService : BaseService<Report, int>, IReportService
         {
             var response = JsonSerializer.Deserialize<Ches.Models.EmailResponseModel>(report.Response.ToJson(), _serializerOptions);
             var messageIds = response?.Messages.Select(m => m.MessageId).ToArray() ?? [];
-            messages.Add(new API.Areas.Services.Models.Report.ChesMessagesModel()
+            messages.Add(new API.Areas.Services.Models.Report.ChesReportMessagesModel()
             {
                 ReportType = ReportType.AVOverview,
                 Format = ReportDistributionFormat.FullText,
-                ReportInstanceId = report.InstanceId,
+                InstanceId = report.InstanceId,
                 UserId = report.UserId,
                 SentOn = report.SentOn,
                 Status = status,

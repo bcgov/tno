@@ -22,6 +22,8 @@ public class NotificationInstanceConfiguration : AuditColumnsConfiguration<Notif
         builder.HasOne(m => m.Notification).WithMany(m => m.Instances).HasForeignKey(m => m.NotificationId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.Content).WithMany(m => m.NotificationsManyToMany).OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasIndex(m => new { m.Status, m.SentOn });
+
         base.Configure(builder);
     }
 }

@@ -723,7 +723,6 @@ public class ApiService : IApiService
         return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel>(url, JsonContent.Create(instance)));
     }
 
-
     /// <summary>
     /// Make a request to the API to fetch the content for the specified notification 'id'.
     /// </summary>
@@ -734,6 +733,30 @@ public class ApiService : IApiService
     {
         var url = this.Options.ApiUrl.Append($"services/notifications/{id}/content{(requestorId != null ? $"?requestorId={requestorId}" : "")}");
         return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>(url));
+    }
+
+    /// <summary>
+    /// Get the CHES message Ids for the notifications in the specified 'status' and that were sent on or after the 'cutOff' date and time.
+    /// </summary>
+    /// <param name="status"></param>
+    /// <param name="cutOff"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.Notification.ChesNotificationMessagesModel>?> GetChesMessagesAsync(Entities.NotificationStatus status, DateTime cutOff)
+    {
+        var url = this.Options.ApiUrl.Append($"services/notifications/sent/{status}?cutOff={cutOff.ToUniversalTime():o}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.Notification.ChesNotificationMessagesModel>>(url));
+    }
+
+    /// <summary>
+    /// Update the status of the specified notification instance.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="status"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel?> UpdateNotificationInstanceAsync(long instanceId, Entities.NotificationStatus status)
+    {
+        var url = this.Options.ApiUrl.Append($"services/notification/instances/{instanceId}/status/{status}");
+        return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel>(url));
     }
     #endregion
 
@@ -873,10 +896,10 @@ public class ApiService : IApiService
     /// <param name="status"></param>
     /// <param name="cutOff"></param>
     /// <returns></returns>
-    public async Task<IEnumerable<API.Areas.Services.Models.Report.ChesMessagesModel>?> GetChesMessagesAsync(Entities.ReportStatus status, DateTime cutOff)
+    public async Task<IEnumerable<API.Areas.Services.Models.Report.ChesReportMessagesModel>?> GetChesMessagesAsync(Entities.ReportStatus status, DateTime cutOff)
     {
         var url = this.Options.ApiUrl.Append($"services/reports/sent/{status}?cutOff={cutOff.ToUniversalTime():o}");
-        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.Report.ChesMessagesModel>>(url));
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.Report.ChesReportMessagesModel>>(url));
     }
 
     /// <summary>

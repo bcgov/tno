@@ -12,9 +12,25 @@ public class ReportContentSettingsModel
     public IEnumerable<int> ExcludeReports { get; set; } = Array.Empty<int>();
     public bool ShowLinkToStory { get; set; }
     public bool HighlightKeywords { get; set; }
+
+    /// <summary>
+    /// get/set - Accumulate content on each run until sent.
+    /// </summary>
     public bool CopyPriorInstance { get; set; }
+
+    /// <summary>
+    /// get/set - Empty report when starting next report.
+    /// </summary>
     public bool ClearOnStartNewReport { get; set; }
+
+    /// <summary>
+    /// get/set - Exclude content in current unsent report.
+    /// </summary>
     public bool ExcludeContentInUnsentReport { get; set; }
+
+    /// <summary>
+    /// get/set - Whether to omit stories related to the BC Calendar.
+    /// </summary>
     public bool OmitBCUpdates { get; set; }
     #endregion
 

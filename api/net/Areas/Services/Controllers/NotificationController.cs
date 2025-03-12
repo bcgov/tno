@@ -114,5 +114,22 @@ public class NotificationController : ControllerBase
         var results = await _service.FindContentWithElasticsearchAsync(notification, requestorId);
         return new JsonResult(results);
     }
+
+    /// <summary>
+    /// Get an array of any notification instances that CHES has not yet emailed.
+    /// </summary>
+    /// <param name="status"></param>
+    /// <param name="cutOff"></param>
+    /// <returns></returns>
+    [HttpGet("sent/{status}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<ChesNotificationMessagesModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Notification" })]
+    public IActionResult GetChesMessages(Entities.NotificationStatus status, [FromQuery] DateTime cutOff)
+    {
+        var messages = _service.GetChesMessageIds(status, cutOff);
+        return new JsonResult(messages);
+    }
     #endregion
 }

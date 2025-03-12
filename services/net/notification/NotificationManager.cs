@@ -401,8 +401,8 @@ public class NotificationManager : ServiceManager<NotificationOptions>
             else
             {
                 return !subscriber.User.IsVacationMode()
-                ? new[] { subscriber.User }
-                : Array.Empty<API.Areas.Services.Models.Notification.UserModel>();
+                    ? new[] { subscriber.User }
+                    : Array.Empty<API.Areas.Services.Models.Notification.UserModel>();
             }
         }));
 
@@ -433,10 +433,10 @@ public class NotificationManager : ServiceManager<NotificationOptions>
 
         var subscribers = await GetNotificationSubscribersAsync(notification, content);
 
-        var body = await GenerateNotificationBodyAsync(notification, content, null, request.IsPreview); 
+        var body = await GenerateNotificationBodyAsync(notification, content, null, request.IsPreview);
         var subject = string.Empty;
         if (!String.IsNullOrWhiteSpace(request.To))
-        {           
+        {
             var contexts = new List<EmailContextModel>();
             // When a notification request has specified 'To' it means only send it to the emails in that property.
             var requestTo = request.To.Split(",").Select(v => v.Trim());
@@ -459,10 +459,10 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         }
         else
         {
-            foreach(var subscriber in subscribers)
-            {           
+            foreach (var subscriber in subscribers)
+            {
                 var contexts = new List<EmailContextModel>();
-                contexts.AddRange(this.NotificationValidator.GetSubscriberEmails(new List<API.Areas.Services.Models.Notification.UserModel>(){ subscriber }));
+                contexts.AddRange(this.NotificationValidator.GetSubscriberEmails(new List<API.Areas.Services.Models.Notification.UserModel>() { subscriber }));
 
                 // There are no subscribers, or a notification has been sent for this content to all the subscribers.
                 if (!contexts.Any())
@@ -504,7 +504,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                 // Save the notification instance.
                 var instance = new NotificationInstance(notification.Id, content.Id)
                 {
-                    Status = NotificationStatus.Completed,
+                    Status = NotificationStatus.Accepted,
                     SentOn = DateTime.UtcNow,
                     OwnerId = request.RequestorId ?? notification.OwnerId,
                     Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions)),

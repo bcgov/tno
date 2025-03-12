@@ -57,7 +57,7 @@ export const getChartData = (
 
   // Extract unique values to map to the axis labels.
   let groups =
-    options.groups?.map((g) => ({ key: g, label: `${g}` })) ??
+    options.groups?.map((g) => ({ key: g, label: `${g}`, sortOrder: 0 })) ??
     getDistinct(content, (content) => options.groupOn(content))
       .map((content) => {
         const label = options.getLabel?.(content);
@@ -67,6 +67,7 @@ export const getChartData = (
             getSectionLabel(label, chart.sectionSettings, sections) ??
             options.labelValueWhenEmpty ??
             'None',
+          sortOrder: sections.find((s) => s.name === content.sectionName)?.sortOrder,
         };
       })
       .filter(
@@ -80,6 +81,15 @@ export const getChartData = (
       if (b.key === undefined || b.key === null) return 1 * groupBySort;
       if (a.key < b.key) return -1 * groupBySort;
       if (a.key > b.key) return 1 * groupBySort;
+      return 0;
+    });
+  } else if (groupBy === 'reportSection') {
+    const groupBySort = groupByOrder === 'asc' ? 1 : -1;
+    groups = groups.sort((a, b) => {
+      if (a.sortOrder === undefined || a.sortOrder === null) return -1 * groupBySort;
+      if (b.sortOrder === undefined || b.sortOrder === null) return 1 * groupBySort;
+      if (a.sortOrder < b.sortOrder) return -1 * groupBySort;
+      if (a.sortOrder > b.sortOrder) return 1 * groupBySort;
       return 0;
     });
   }
