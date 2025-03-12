@@ -3122,6 +3122,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@polka/url@npm:^1.0.0-next.24":
+  version: 1.0.0-next.28
+  resolution: "@polka/url@npm:1.0.0-next.28"
+  checksum: 7402aaf1de781d0eb0870d50cbcd394f949aee11b38a267a5c3b4e3cfee117e920693e6e93ce24c87ae2d477a59634f39d9edde8e86471cae756839b07c79af7
+  languageName: node
+  linkType: hard
+
 "@react-aria/focus@npm:^3.16.2":
   version: 3.17.1
   resolution: "@react-aria/focus@npm:3.17.1"
@@ -4329,7 +4336,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/styled-components@npm:^5.1.34":
+"@types/styled-components@npm:5.1.34":
   version: 5.1.34
   resolution: "@types/styled-components@npm:5.1.34"
   dependencies:
@@ -4721,7 +4728,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitejs/plugin-react@npm:^4.2.1":
+"@vitejs/plugin-react@npm:4.3.4":
   version: 4.3.4
   resolution: "@vitejs/plugin-react@npm:4.3.4"
   dependencies:
@@ -4736,7 +4743,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitest/coverage-v8@npm:^3.0.8":
+"@vitest/coverage-v8@npm:3.0.8":
   version: 3.0.8
   resolution: "@vitest/coverage-v8@npm:3.0.8"
   dependencies:
@@ -4838,6 +4845,23 @@ __metadata:
   dependencies:
     tinyspy: ^3.0.2
   checksum: f62537dc2632ed20464c017ca2feeb18bf2edd653bb1f6cd69ec5e6b52bb3803b1a601ca56777b0c463ce8d960294a0db9198c106dd6048d48ee5e7d09eaba59
+  languageName: node
+  linkType: hard
+
+"@vitest/ui@npm:3.0.7":
+  version: 3.0.7
+  resolution: "@vitest/ui@npm:3.0.7"
+  dependencies:
+    "@vitest/utils": 3.0.7
+    fflate: ^0.8.2
+    flatted: ^3.3.3
+    pathe: ^2.0.3
+    sirv: ^3.0.1
+    tinyglobby: ^0.2.12
+    tinyrainbow: ^2.0.0
+  peerDependencies:
+    vitest: 3.0.7
+  checksum: a16007fbc06780827e5936e7b899e1e06d545438958ccdeb59c2165b0afdc70ea5fb36c87d53810d931fed6f9ad1606cb52df315f5ff1a1337132011c6548b56
   languageName: node
   linkType: hard
 
@@ -6137,7 +6161,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chartjs-plugin-datalabels@npm:^2.2.0":
+"chartjs-plugin-datalabels@npm:2.2.0":
   version: 2.2.0
   resolution: "chartjs-plugin-datalabels@npm:2.2.0"
   peerDependencies:
@@ -8573,6 +8597,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fdir@npm:^6.4.3":
+  version: 6.4.3
+  resolution: "fdir@npm:6.4.3"
+  peerDependencies:
+    picomatch: ^3 || ^4
+  peerDependenciesMeta:
+    picomatch:
+      optional: true
+  checksum: fa53e13c63e8c14add5b70fd47e28267dd5481ebbba4b47720ec25aae7d10a800ef0f2e33de350faaf63c10b3d7b64138925718832220d593f75e724846c736d
+  languageName: node
+  linkType: hard
+
 "fetch-cookie@npm:^2.0.3":
   version: 2.2.0
   resolution: "fetch-cookie@npm:2.2.0"
@@ -8580,6 +8616,13 @@ __metadata:
     set-cookie-parser: ^2.4.8
     tough-cookie: ^4.0.0
   checksum: 854fa03df596ddf0ed53cf9e52bae1c224d04d71e439b1c04732c05cadb677a6710aca654efa31ec5b8dd7223880821b12da153107d749a48fbfdc4f2d2540cd
+  languageName: node
+  linkType: hard
+
+"fflate@npm:^0.8.2":
+  version: 0.8.2
+  resolution: "fflate@npm:0.8.2"
+  checksum: 29470337b85d3831826758e78f370e15cda3169c5cd4477c9b5eea2402261a74b2975bae816afabe1c15d21d98591e0d30a574f7103aa117bff60756fa3035d4
   languageName: node
   linkType: hard
 
@@ -8706,6 +8749,13 @@ __metadata:
   version: 3.3.1
   resolution: "flatted@npm:3.3.1"
   checksum: 85ae7181650bb728c221e7644cbc9f4bf28bc556f2fc89bb21266962bdf0ce1029cc7acc44bb646cd469d9baac7c317f64e841c4c4c00516afa97320cdac7f94
+  languageName: node
+  linkType: hard
+
+"flatted@npm:^3.3.3":
+  version: 3.3.3
+  resolution: "flatted@npm:3.3.3"
+  checksum: 8c96c02fbeadcf4e8ffd0fa24983241e27698b0781295622591fc13585e2f226609d95e422bcf2ef044146ffacb6b68b1f20871454eddf75ab3caa6ee5f4a1fe
   languageName: node
   linkType: hard
 
@@ -11929,15 +11979,16 @@ __metadata:
     "@types/react-table": 7.7.20
     "@types/react-text-mask": 5.4.14
     "@types/redux-logger": 3.0.13
-    "@types/styled-components": ^5.1.34
+    "@types/styled-components": 5.1.34
     "@types/testing-library__jest-dom": 6.0.0
     "@typescript-eslint/eslint-plugin": 5.55.0
     "@typescript-eslint/parser": 5.55.0
-    "@vitejs/plugin-react": ^4.2.1
-    "@vitest/coverage-v8": ^3.0.8
+    "@vitejs/plugin-react": 4.3.4
+    "@vitest/coverage-v8": 3.0.8
+    "@vitest/ui": 3.0.7
     axios: 1.7.2
     chart.js: 4.4.4
-    chartjs-plugin-datalabels: ^2.2.0
+    chartjs-plugin-datalabels: 2.2.0
     compression-webpack-plugin: 11.1.0
     eslint: 8.36.0
     eslint-config-prettier: 8.7.0
@@ -12004,6 +12055,13 @@ __metadata:
   version: 1.2.0
   resolution: "mri@npm:1.2.0"
   checksum: 83f515abbcff60150873e424894a2f65d68037e5a7fcde8a9e2b285ee9c13ac581b63cfc1e6826c4732de3aeb84902f7c1e16b7aff46cd3f897a0f757a894e85
+  languageName: node
+  linkType: hard
+
+"mrmime@npm:^2.0.0":
+  version: 2.0.1
+  resolution: "mrmime@npm:2.0.1"
+  checksum: 455a555009edb2ed6e587e0fcb5e41fcbf8f1dcca28242a57d054f02204ab198bed93ba9de75db06bd3447e8603bc74e10a22440ba99431fc4a751435fba35bf
   languageName: node
   linkType: hard
 
@@ -12712,6 +12770,13 @@ __metadata:
   version: 3.0.1
   resolution: "picomatch@npm:3.0.1"
   checksum: b7fe18174bcc05bbf0ea09cc85623ae395676b3e6bc25636d4c20db79a948586237e429905453bf1ba385bc7a7aa5b56f1b351680e650d2b5c305ceb98dfc914
+  languageName: node
+  linkType: hard
+
+"picomatch@npm:^4.0.2":
+  version: 4.0.2
+  resolution: "picomatch@npm:4.0.2"
+  checksum: a7a5188c954f82c6585720e9143297ccd0e35ad8072231608086ca950bee672d51b0ef676254af0788205e59bd4e4deb4e7708769226bed725bf13370a7d1464
   languageName: node
   linkType: hard
 
@@ -15365,6 +15430,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sirv@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "sirv@npm:3.0.1"
+  dependencies:
+    "@polka/url": ^1.0.0-next.24
+    mrmime: ^2.0.0
+    totalist: ^3.0.0
+  checksum: 4139140b452aec0caf6f630f37e4ff403420adcba81d9242fbe78fc34836f5c408aa4b9c6430139f8d2f6b9f26f0e6e61b8b17cac9eed1d24fd6412cfcb0ed7d
+  languageName: node
+  linkType: hard
+
 "sisteransi@npm:^1.0.5":
   version: 1.0.5
   resolution: "sisteransi@npm:1.0.5"
@@ -16235,6 +16311,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tinyglobby@npm:^0.2.12":
+  version: 0.2.12
+  resolution: "tinyglobby@npm:0.2.12"
+  dependencies:
+    fdir: ^6.4.3
+    picomatch: ^4.0.2
+  checksum: ef9357fa1b2b661afdccd315cb4995f5f36bce948faaace68aae85fe57bdd8f837883045c88efc50d3186bac6586e4ae2f31026b9a3aac061b884217e6092e23
+  languageName: node
+  linkType: hard
+
 "tinypool@npm:^1.0.2":
   version: 1.0.2
   resolution: "tinypool@npm:1.0.2"
@@ -16347,6 +16433,13 @@ __metadata:
   version: 2.0.2
   resolution: "toposort@npm:2.0.2"
   checksum: d64c74b570391c9432873f48e231b439ee56bc49f7cb9780b505cfdf5cb832f808d0bae072515d93834dd6bceca5bb34448b5b4b408335e4d4716eaf68195dcb
+  languageName: node
+  linkType: hard
+
+"totalist@npm:^3.0.0":
+  version: 3.0.1
+  resolution: "totalist@npm:3.0.1"
+  checksum: 5132d562cf88ff93fd710770a92f31dbe67cc19b5c6ccae2efc0da327f0954d211bbfd9456389655d726c624f284b4a23112f56d1da931ca7cfabbe1f45e778a
   languageName: node
   linkType: hard
 
