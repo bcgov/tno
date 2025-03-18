@@ -62,9 +62,21 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
               ? 'Story'
               : 'Summary'
           }
-          name="body"
+          name={
+            contentType === ContentTypeName.PrintContent || contentType === ContentTypeName.Internet
+              ? 'body'
+              : 'summary'
+          }
           tags={tags}
-          onChange={(text) => getTags('body', text)}
+          onChange={(text) => {
+            // Determine which field to update based on contentType
+            const fieldName =
+              contentType === ContentTypeName.PrintContent ||
+              contentType === ContentTypeName.Internet
+                ? 'body'
+                : 'summary';
+            getTags(fieldName, text);
+          }}
         />
       </Show>
     </styled.ContentStoryForm>

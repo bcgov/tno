@@ -904,7 +904,18 @@ const ContentForm: React.FC<IContentFormProps> = ({
                     </Show>
                   </Row>
                   <Row gap="0.5rem">
-                    <Tags defaultTags={parsedTags} />
+                    <Tags
+                      defaultTags={parsedTags}
+                      targetField={
+                        props.values.contentType === ContentTypeName.PrintContent ||
+                        props.values.contentType === ContentTypeName.Internet
+                          ? 'body'
+                          : active === 'transcript'
+                          ? 'body'
+                          : 'summary'
+                      }
+                      enableAutoTagText={true}
+                    />
                     <Show visible={props.values.contentType !== ContentTypeName.Image}>
                       <FormikSentiment name="tonePools" options={tonePools} required />
                       <Show
