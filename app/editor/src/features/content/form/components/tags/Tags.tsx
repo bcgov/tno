@@ -2,7 +2,7 @@ import { IContentForm } from 'features/content/form/interfaces';
 import { useFormikContext } from 'formik';
 import _ from 'lodash';
 import React from 'react';
-import { FaListAlt } from 'react-icons/fa';
+import { FaArrowRight, FaListAlt } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
 import { Button, Col, FieldSize, IOptionItem, Row, Select } from 'tno-core';
 
@@ -30,7 +30,7 @@ export const Tags: React.FC<ITagsProps> = ({
   const [{ tags }] = useLookup();
 
   const [showList, setShowList] = React.useState(false);
-  const [lastProcessedTags, setLastProcessedTags] = React.useState<string[]>([]);
+  const [showMigrateButton, setShowMigrateButton] = React.useState(false);
   const [tagOptions, setTagOptions] = React.useState(
     tags
       .filter((tag) => tag.isEnabled || values.tags.some((t) => t.id === tag.id))
@@ -108,10 +108,61 @@ export const Tags: React.FC<ITagsProps> = ({
         newText += '\n';
       }
 
+      // Update the current field
       setFieldValue(field, newText);
+
+      // Clear tags from the other field
+      const otherField = field === 'body' ? 'summary' : 'body';
+      const otherText = (values[otherField as keyof typeof values] as string | undefined) ?? '';
+      if (otherText) {
+        // Remove all [...] formatted tags from the other field
+        const cleanedText = otherText.replace(/\s*\[([^\]]*)\](\s|$)*/g, '').trimEnd();
+        setFieldValue(otherField, cleanedText);
+      }
     },
     [values, setFieldValue],
   );
+  // Parse tags from text content
+  const parseTagsFromText = React.useCallback((text: string): string[] => {
+    const tagPattern = /\[([^\]]+)\]/g;
+    const matches = text.match(tagPattern);
+    if (!matches) return [];
+
+    const result = matches
+      .map((match) =>
+        match
+          .slice(1, -1)
+          .split(',')
+          .map((tag) => tag.trim()),
+      )
+      .flat()
+      .map((tag) => tag.toUpperCase());
+    return result;
+  }, []);
+
+  // Check if current field needs tags migration
+  const checkTagsMigration = React.useCallback(() => {
+    if (!targetField) return false;
+    const fieldValue = values[targetField as keyof typeof values];
+    const selectedTags = values.tags.map((tag) => tag.code.toUpperCase());
+
+    // If there are selected tags but no field value, we need migration
+    if (!fieldValue && selectedTags.length > 0) return true;
+
+    const currentFieldTags = fieldValue ? parseTagsFromText(fieldValue as string) : [];
+
+    // Check if all selected tags are in the current field
+    const needsMigration = !selectedTags.every((tag) => currentFieldTags.includes(tag));
+    return needsMigration;
+  }, [values, targetField, parseTagsFromText]);
+
+  // Update migration button visibility when content changes
+  React.useEffect(() => {
+    if (targetField) {
+      const shouldShow = checkTagsMigration();
+      setShowMigrateButton(shouldShow);
+    }
+  }, [values, targetField, checkTagsMigration]);
 
   // Handle tag selection
   const addTags = React.useCallback(
@@ -126,7 +177,6 @@ export const Tags: React.FC<ITagsProps> = ({
       // Automatically handle tag text
       if (enableAutoTagText) {
         const selectedTagCodes = newTags.map((tag) => tag.code.toUpperCase());
-        setLastProcessedTags(selectedTagCodes);
 
         // Determine which field to update
         let fieldToUpdate = targetField;
@@ -170,6 +220,18 @@ export const Tags: React.FC<ITagsProps> = ({
           >
             <FaListAlt />
           </Button>
+          {showMigrateButton && targetField && (
+            <Button
+              tooltip={`Migrate tags to ${targetField}`}
+              onClick={() => {
+                const selectedTagCodes = values.tags.map((tag) => tag.code.toUpperCase());
+                updateTextTags(targetField, selectedTagCodes);
+                setShowMigrateButton(false);
+              }}
+            >
+              <FaArrowRight />
+            </Button>
+          )}
         </Row>
       </Col>
     </styled.Tags>
