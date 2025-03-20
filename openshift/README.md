@@ -206,11 +206,11 @@ oc run some-pod --overrides='{"spec": {"containers": [{"command": ["/bin/bash", 
 
 ## Helpful Information on Docker Permissions
 
-(Documentation)[https://developers.redhat.com/blog/2020/10/26/adapting-docker-and-kubernetes-containers-to-run-on-red-hat-openshift-container-platform#executable_permissions]
+[Documentation](https://developers.redhat.com/blog/2020/10/26/adapting-docker-and-kubernetes-containers-to-run-on-red-hat-openshift-container-platform#executable_permissions)
 
 ## Open a remote shell to containers
 
-(Documentat)[https://docs.openshift.com/container-platform/3.11/dev_guide/ssh_environment.html]
+[Documentation](https://docs.openshift.com/container-platform/3.11/dev_guide/ssh_environment.html)
 
 ```bash
 oc rsh <pod>
@@ -227,3 +227,13 @@ for pod in $(oc get pods | grep Error | awk '{print $1}'); do oc delete pod --gr
 ```bash
 oc get pods api-0 -o jsonpath="{..imageID}"
 ```
+
+## Sysdig
+
+<https://app.sysdigcloud.com/#/login>
+
+Login with OpenID.
+
+Enter `BCDevOps` for the authentication.
+
+Login with IDIR.

@@ -70,3 +70,121 @@ Update the root configuration `.env` file and point it to the Redhat files.
 DB_CONTEXT=db/postgres/rhel8
 DB_VOLUME=/var/lib/pgsql/data
 ```
+
+## Backup Commands
+
+```bash
+# Backup and zip
+pg_dump -h postgres -U admin -C -Fc -v -d tno | gzip > /mnt/data/dev.tar.gz
+
+# Unzip
+gzip -dk dev.tar.gz
+
+# Copy file to local
+oc -n 9b301c-dev rsync psql-4-zdbv6:/mnt/data/dev.tar.gz /D/db
+
+# Copy file to database server
+scp -v /D/db/dev.tar.gz jerfos_a@142.34.249.231:/u02/data/postgres
+```
+
+## Backup Database and Restore to Remote Server
+
+Here are the steps to backup a full database and migrate to another location.
+
+First create run a container with the same Postgres version as the one you want to backup.
+
+```bash
+# Create a volume for the database backup
+docker volume create postgres-backup
+
+# Start the container
+docker run \
+  --name postgres \
+  -l 15.10 \
+  -p 5432:5432 \
+  -e POSTGRES_USER=admin \
+  -e POSTGRES_PASSWORD=password \
+  -e POSTGRES_DB=mmi \
+  -v postgres-backup:/var/lib/postgresql/data \
+  -d --rm \
+   postgres:15.10
+
+# Create variable for environment
+podenv="dev"
+
+# Map a port to the remote database in Openshift
+oc port-forward postgres-0 22222:5432 -n 9b301c-${podenv}
+
+# SSH into the container
+docker exec -it postgres bash
+
+# Move to shared volume
+cd /var/lib/postgresql/data
+
+# Within the postgres container connect to the remote database
+psql -U admin -h host.docker.internal -p 22222 -d tno
+\q
+
+# Start backup.  This will take 10-30 minutes.
+pg_dump -h host.docker.internal -p 22222 -U admin -C -Fc -v -d tno > backup.sql
+
+# Connect to the government VPN
+# Connect to the destination database.
+psql -U mmiadmin -h 142.34.249.231 -d mmi
+
+# Clear out the database if one exists.
+\c mmi
+\dt
+drop schema public cascade;
+create schema public;
+grant all on schema public to postgres;
+grant all on schema public to mmiadmin;
+\q
+
+# Restore the database to the new remote database.  This will take 10-30 minutes.
+pg_restore -U mmiadmin -h 142.34.249.231 -d mmi -v -Fc backup.sql
+
+# Exit the local container
+exit
+
+# Stop the local postgres container
+docker stop postgres
+
+# Remove the volume when done to recover space
+docker volume rm postgres-backup -f
+```
+
+Configure Openshift environment to use remote database
+
+Create a `.env` file that will contain your database secrets.
+This is to ensure it does not get added to source code.
+
+```bash
+
+# Encode username and password
+echo "username" | base64
+echo "password" | base64
+
+# Place encoded values into yaml and create secret in openshift
+oc create -f db-secret.yaml.env -n 9b301c-${podenv}
+```
+
+Update the API environment variables to use the new secret.
+
+```bash
+# Update the API ConfigMap connection string
+# Old value = Host=postgres:5432;Database=tno;Include Error Detail=true;Log Parameters=true;
+oc patch -n 9b301c-${podenv} configmap api --type='merge' -p '{ "data": { "CONNECTION_STRING": "Host=142.34.249.231:5432;Database=mmi;Include Error Detail=true;Log Parameters=true;" }}'
+
+# Update the statefulset
+oc patch -n 9b301c-${podenv} sts/api -p '{ "spec": { "template": { "spec": { "containers": [{ "name": "api", "env": [{ "name": "DB_POSTGRES_USERNAME", "valueFrom": { "secretKeyRef": { "name": "montford", "key": "USERNAME" }}}]}]}}}}'
+oc patch -n 9b301c-${podenv} sts/api -p '{ "spec": { "template": { "spec": { "containers": [{ "name": "api", "env": [{ "name": "DB_POSTGRES_PASSWORD", "valueFrom": { "secretKeyRef": { "name": "montford", "key": "PASSWORD" }}}]}]}}}}'
+
+# Rollout change to statefulset
+oc rollout restart sts/api -n 9b301c-${podenv}
+oc rollout latest dc/api-services -n 9b301c-${podenv}
+
+# Update the deployment config
+oc patch -n 9b301c-${podenv} dc/api-services -p '{ "spec": { "template": { "spec": { "containers": [{ "name": "api-services", "env": [{ "name": "DB_POSTGRES_USERNAME", "valueFrom": { "secretKeyRef": { "name": "montford", "key": "USERNAME" }}}]}]}}}}'
+oc patch -n 9b301c-${podenv} dc/api-services -p '{ "spec": { "template": { "spec": { "containers": [{ "name": "api-services", "env": [{ "name": "DB_POSTGRES_PASSWORD", "valueFrom": { "secretKeyRef": { "name": "montford", "key": "PASSWORD" }}}]}]}}}}'
+```
