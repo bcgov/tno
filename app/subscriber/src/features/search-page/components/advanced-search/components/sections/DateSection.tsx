@@ -83,6 +83,11 @@ export const DateSection: React.FC = () => {
               storeFilter({ ...filter, dateOffset: 2, startDate: undefined, endDate: undefined }),
           },
           {
+            label: QuickPickerNames.SeventyTwoHours,
+            onClick: () =>
+              storeFilter({ ...filter, dateOffset: 3, startDate: undefined, endDate: undefined }),
+          },
+          {
             label: QuickPickerNames.SevenDays,
             onClick: () =>
               storeFilter({ ...filter, dateOffset: 7, startDate: undefined, endDate: undefined }),
