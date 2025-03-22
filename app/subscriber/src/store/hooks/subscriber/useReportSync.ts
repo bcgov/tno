@@ -3,12 +3,14 @@ import { useProfileStore } from 'store/slices';
 import { IReportMessageModel, MessageTargetKey, useApiSubscriberReportInstances } from 'tno-core';
 
 import { useApiHub } from '../signalr';
+import { useReports } from './useReports';
 
 /**
  * Hook provides a singleton way to ensure my reports are synced across tabs.
  */
 export const useReportSync = () => {
   const { getReportInstance } = useApiSubscriberReportInstances();
+  const [, { getReport }] = useReports();
   const hub = useApiHub();
   const [{ myReports }, { storeMyReports }] = useProfileStore();
 
@@ -38,6 +40,21 @@ export const useReportSync = () => {
               );
               return results;
             });
+          } else if (message.message === 'event') {
+            const updateReport = await getReport(report.id, false);
+            if (updateReport) {
+              storeMyReports((reports) => {
+                const results = reports.map((r) =>
+                  r.id === report.id
+                    ? {
+                        ...report,
+                        events: updateReport.events,
+                      }
+                    : r,
+                );
+                return results;
+              });
+            }
           } else {
             const response = await getReportInstance(message.id, true);
             if (response.status === 200 && response.data) {
@@ -67,7 +84,7 @@ export const useReportSync = () => {
         }
       } catch {}
     },
-    [getReportInstance, myReports, storeMyReports],
+    [getReportInstance, myReports, storeMyReports, getReport],
   );
 
   hub.useHubEffect(MessageTargetKey.ReportStatus, handleUpdateReportInstance);

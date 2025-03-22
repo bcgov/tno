@@ -168,6 +168,14 @@ export const ReportEditPage = () => {
               i.id === message.id ? { ...i, status: message.status, version: message.version } : i,
             ),
           });
+        } else if (message.message === 'event') {
+          const updateReport = await getReport(report.id, false);
+          if (updateReport) {
+            setReport({
+              ...report,
+              events: updateReport.events,
+            });
+          }
         } else {
           const instance = await getReportInstance(message.id, true);
           if (instance) {
