@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="NPOI" Version="2.7.2" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.7" />
   </ItemGroup>
 
 </Project>

@@ -6,8 +6,11 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.EventSchedule;
 using TNO.API.Models;
+using TNO.API.Models.SignalR;
 using TNO.Core.Exceptions;
 using TNO.DAL.Services;
+using TNO.Kafka;
+using TNO.Kafka.SignalR;
 using TNO.Keycloak;
 
 namespace TNO.API.Areas.Services.Controllers;
@@ -28,7 +31,11 @@ namespace TNO.API.Areas.Services.Controllers;
 public class EventScheduleController : ControllerBase
 {
     #region Variables
-    private readonly IEventScheduleService _serviceEventSchedule;
+    private readonly IKafkaMessenger _kafkaMessenger;
+    private readonly KafkaHubConfig _kafkaHubOptions;
+    private readonly IUserService _userService;
+    private readonly IReportService _reportService;
+    private readonly IEventScheduleService _eventScheduleService;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -36,11 +43,19 @@ public class EventScheduleController : ControllerBase
     /// <summary>
     /// Creates a new instance of a EventScheduleController object, initializes with specified parameters.
     /// </summary>
-    /// <param name="serviceEventSchedule"></param>
+    /// <param name="kafkaMessenger"></param>
+    /// <param name="kafkaConfig"></param>
+    /// <param name="userService"></param>
+    /// <param name="reportService"></param>
+    /// <param name="eventScheduleService"></param>
     /// <param name="serializerOptions"></param>
-    public EventScheduleController(IEventScheduleService serviceEventSchedule, IOptions<JsonSerializerOptions> serializerOptions)
+    public EventScheduleController(IKafkaMessenger kafkaMessenger, IOptions<KafkaHubConfig> kafkaConfig, IUserService userService, IReportService reportService, IEventScheduleService eventScheduleService, IOptions<JsonSerializerOptions> serializerOptions)
     {
-        _serviceEventSchedule = serviceEventSchedule;
+        _kafkaMessenger = kafkaMessenger;
+        _kafkaHubOptions = kafkaConfig.Value;
+        _userService = userService;
+        _reportService = reportService;
+        _eventScheduleService = eventScheduleService;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -56,7 +71,7 @@ public class EventScheduleController : ControllerBase
     [SwaggerOperation(Tags = new[] { "EventSchedule" })]
     public IActionResult GetEventSchedules()
     {
-        var result = _serviceEventSchedule.FindAll();
+        var result = _eventScheduleService.FindAll();
         return new JsonResult(result.Select(ds => new EventScheduleModel(ds, _serializerOptions)));
     }
 
@@ -72,7 +87,7 @@ public class EventScheduleController : ControllerBase
     [SwaggerOperation(Tags = new[] { "EventSchedule" })]
     public IActionResult FindById(int id)
     {
-        var result = _serviceEventSchedule.FindById(id);
+        var result = _eventScheduleService.FindById(id);
         if (result == null) return NoContent();
         return new JsonResult(new EventScheduleModel(result, _serializerOptions));
     }
@@ -88,11 +103,32 @@ public class EventScheduleController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "EventSchedule" })]
-    public IActionResult Update([FromBody] EventScheduleModel model)
+    public async Task<IActionResult> UpdateAsync([FromBody] EventScheduleModel model)
     {
-        _serviceEventSchedule.UpdateAndSave(model.ToEntity(_serializerOptions));
+        _eventScheduleService.UpdateAndSave(model.ToEntity(_serializerOptions));
 
-        var result = _serviceEventSchedule.FindById(model.Id) ?? throw new NoContentException();
+        var result = _eventScheduleService.FindById(model.Id) ?? throw new NoContentException();
+        if (result.ReportId.HasValue)
+        {
+            var report = _reportService.FindById(result.ReportId.Value);
+            if (report?.OwnerId.HasValue == true)
+            {
+                var instance = _reportService.GetCurrentReportInstance(report.Id, report.OwnerId);
+                var user = _userService.FindById(report.OwnerId.Value) ?? throw new NotAuthorizedException();
+                await _kafkaMessenger.SendMessageAsync(
+                    _kafkaHubOptions.HubTopic,
+                    new KafkaHubMessage(HubEvent.SendUser, user.Username, new KafkaInvocationMessage(MessageTarget.ReportStatus, new[] { new ReportMessageModel()
+                    {
+                        Id = instance?.Id ?? 0,
+                        ReportId = report.Id,
+                        Status = instance?.Status ?? Entities.ReportStatus.Pending,
+                        Subject = instance?.Subject ?? report.Name,
+                        OwnerId = user.Id,
+                        Message = "event",
+                    } }))
+                );
+            }
+        }
         return new JsonResult(new EventScheduleModel(result, _serializerOptions));
     }
     #endregion
