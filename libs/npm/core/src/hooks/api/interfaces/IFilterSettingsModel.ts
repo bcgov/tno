@@ -20,6 +20,7 @@ export interface IFilterSettingsModel {
   inHeadline?: boolean;
   inStory?: boolean;
   inProgram?: boolean;
+  inTags?: boolean;
   isHidden?: boolean;
   mediaTypeIds?: number[];
   names?: string;
