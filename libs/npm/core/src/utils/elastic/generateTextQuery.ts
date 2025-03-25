@@ -29,7 +29,7 @@ export const generateTextQuery = (
     
     // check if inTags is true
     if (settings.inTags) {
-      // create combined query: regular fields + tag fields (using bool.should to implement OR relationship)
+      // create combined query: regular fields + tag fields
       return {
         bool: {
           should: [
@@ -47,9 +47,8 @@ export const generateTextQuery = (
                 query: {
                   match: {
                     'tags.code': { // search tag code field
-                      query: settings.search,
-                      operator: 'or',
-                      case_sensitive: true
+                      query: settings.search.toUpperCase(),
+                      operator: settings.defaultOperator,
                     }
                   }
                 }

@@ -16,6 +16,7 @@ export const filterFormat = (filter: IFilterSettingsModel) => {
     inHeadline: filter.inHeadline ?? false,
     inProgram: filter.inProgram ?? false,
     inStory: filter.inStory ?? false,
+    inTags: filter.inTags ?? false,
     mediaTypeIds: filter.mediaTypeIds ?? [],
     page: filter.page ?? '',
     search: filter.search,
