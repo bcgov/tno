@@ -111,9 +111,10 @@ public class IngestModel : AuditColumnsModel
     public int RetryLimit { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - Number of milliseconds to wait before retrying after a series of failures.
+    /// This should auto restart a failed ingestion service.
     /// </summary>
-    public int ResetRetryAfterDelayMs { get; set; }
+    public int ResetRetryAfterDelayMs { get; set; } = 300000;
 
     /// <summary>
     /// get/set -

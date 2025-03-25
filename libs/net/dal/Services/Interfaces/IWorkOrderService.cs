@@ -21,7 +21,7 @@ public interface IWorkOrderService : IBaseService<WorkOrder, long>
     /// </summary>
     /// <param name="filter">Filter to apply to the query.</param>
     /// <returns>A page of work order items that match the filter.</returns>
-    IPaged<WorkOrderModel> FindDistinctWorkOrders(WorkOrderFilter filter, JsonSerializerOptions options);
+    IPaged<WorkOrderModel> FindDistinctWorkOrders(WorkOrderFilter filter);
 
     /// <summary>
     /// Find all work orders for the specified 'contentId'.

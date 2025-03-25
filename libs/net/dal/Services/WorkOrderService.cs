@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using TNO.API.Areas.Editor.Models.WorkOrder;
 using TNO.DAL.Extensions;
 using TNO.Entities;
@@ -15,21 +16,29 @@ namespace TNO.DAL.Services;
 /// </summary>
 public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
 {
+    #region Variables
+    private readonly JsonSerializerOptions _serializerOptions;
+    #endregion
+
     #region Properties
     #endregion
     /// <summary>
     /// Creates a new instance of a WorkOrderService object, initializes with specified parameters.
     /// </summary>
+    /// <param name="serializerOptions"></param>
     /// <param name="dbContext"></param>
     /// <param name="principal"></param>
     /// <param name="serviceProvider"></param>
     /// <param name="logger"></param>
     #region Constructors
-    public WorkOrderService(TNOContext dbContext,
+    public WorkOrderService(
+        IOptions<JsonSerializerOptions> serializerOptions,
+        TNOContext dbContext,
         ClaimsPrincipal principal,
         IServiceProvider serviceProvider,
         ILogger<WorkOrderService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
+        _serializerOptions = serializerOptions.Value;
     }
     #endregion
 
@@ -116,7 +125,7 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
     /// </summary>
     /// <param name="filter">Filter to apply to the query.</param>
     /// <returns>A page of work order items that match the filter.</returns>
-    public IPaged<WorkOrderModel> FindDistinctWorkOrders(WorkOrderFilter filter, JsonSerializerOptions options)
+    public IPaged<WorkOrderModel> FindDistinctWorkOrders(WorkOrderFilter filter)
     {
         var query =
         from t in
@@ -168,7 +177,7 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
             Status = t.Status,
             Description = t.Description,
             Note = t.Note,
-            Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(t.Configuration, options) ?? new Dictionary<string, object>(),
+            Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(t.Configuration, _serializerOptions) ?? new Dictionary<string, object>(),
             RequestorId = t.RequestorId,
             Requestor = t.RequestorId != null ? new UserModel
             {
