@@ -10,6 +10,7 @@ export const defaultAdvancedSearch = {
   inHeadline: true,
   inStory: true,
   inProgram: true,
+  inTags: false,
   mediaTypeIds: [],
   page: '',
   publishedEndOn: '',

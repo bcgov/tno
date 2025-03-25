@@ -38,7 +38,9 @@ export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
       ...filter,
       ...defaultAdvancedSearch,
       search: filter.search,
+      inTags: true,
     };
+
     storeSearchFilter(newFilter);
     onSearch?.(newFilter);
   };
@@ -55,7 +57,11 @@ export const BasicSearch = ({ onSearch, inHeader }: IBasicSearchProps) => {
             name="search"
             value={filter.search ?? ''}
             onChange={(e) => {
-              storeSearchFilter({ ...filter, search: e.target.value });
+              storeSearchFilter({
+                ...filter,
+                search: e.target.value,
+                inTags: true,
+              });
             }}
           />
         </Row>
