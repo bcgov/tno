@@ -16,6 +16,8 @@ export const determineActivePicker = (filter: IFilterSettingsModel) => {
       return QuickPickerNames.TwentyFourHours;
     case 2:
       return QuickPickerNames.FortyEightHours;
+    case 3:
+      return QuickPickerNames.SeventyTwoHours;
     case 7:
       return QuickPickerNames.SevenDays;
     case 30:
