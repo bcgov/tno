@@ -125,6 +125,7 @@ public class EventScheduleController : ControllerBase
                         Subject = instance?.Subject ?? report.Name,
                         OwnerId = user.Id,
                         Message = "event",
+                        Version = instance?.Version ?? report.Version,
                     } }))
                 );
             }

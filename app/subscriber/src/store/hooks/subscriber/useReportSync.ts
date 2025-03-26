@@ -49,6 +49,7 @@ export const useReportSync = () => {
                     ? {
                         ...report,
                         events: updateReport.events,
+                        version: updateReport.version,
                       }
                     : r,
                 );

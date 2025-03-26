@@ -59,6 +59,7 @@ export const MyReports: React.FC = () => {
             setReport({
               ...report,
               events: updateReport.events,
+              version: updateReport.version,
             });
           }
         } else {

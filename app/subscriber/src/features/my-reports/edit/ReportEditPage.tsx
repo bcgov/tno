@@ -174,6 +174,7 @@ export const ReportEditPage = () => {
             setReport({
               ...report,
               events: updateReport.events,
+              version: updateReport.version,
             });
           }
         } else {
