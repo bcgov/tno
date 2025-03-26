@@ -91,9 +91,18 @@ public class ReportInstanceController : ControllerBase
     [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
-    public IActionResult Add([FromBody] ReportInstanceModel model)
+    public async Task<IActionResult> AddAsync([FromBody] ReportInstanceModel model)
     {
         var result = _reportInstanceService.AddAndSave((Entities.ReportInstance)model);
+        var ownerId = result.OwnerId ?? result.Report?.OwnerId;
+        if (ownerId.HasValue)
+        {
+            var user = _userService.FindById(ownerId.Value) ?? throw new NotAuthorizedException();
+            await _kafkaMessenger.SendMessageAsync(
+                _kafkaHubOptions.HubTopic,
+                new KafkaHubMessage(HubEvent.SendUser, user.Username, new KafkaInvocationMessage(MessageTarget.ReportStatus, new[] { new ReportMessageModel(result) }))
+            );
+        }
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportInstanceModel(result, _serializerOptions));
     }
 
@@ -120,7 +129,6 @@ public class ReportInstanceController : ControllerBase
                 new KafkaHubMessage(HubEvent.SendUser, user.Username, new KafkaInvocationMessage(MessageTarget.ReportStatus, new[] { new ReportMessageModel(result) }))
             );
         }
-
         return new JsonResult(new ReportInstanceModel(result, _serializerOptions));
     }
 
