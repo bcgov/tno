@@ -130,7 +130,9 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
         var query = this.Context.WorkOrders
             .Include(m => m.Requestor)
             .Include(m => m.Assigned)
-            .Include(m => m.Content)
+            .Include(m => m.Content).ThenInclude(m => m!.MediaType)
+            .Include(m => m.Content).ThenInclude(m => m!.Source)
+            .Include(m => m.Content).ThenInclude(m => m!.Series)
             .AsNoTracking();
 
         if (filter.WorkType.HasValue)
