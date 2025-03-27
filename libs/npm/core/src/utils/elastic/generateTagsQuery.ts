@@ -48,14 +48,17 @@ export const combineFieldAndTagQueries = (
   fieldsQuery: any | undefined,
   tagsQuery: any | undefined,
 ) => {
+  // If both are undefined, return undefined
   if (!fieldsQuery && !tagsQuery) return undefined;
 
+  // If only one query exists, return that query directly
+  if (!fieldsQuery) return tagsQuery;
+  if (!tagsQuery) return fieldsQuery;
+
+  // If both queries exist, combine them with a bool query
   return {
     bool: {
-      should: [
-        fieldsQuery, // Regular field query
-        tagsQuery, // Tag query
-      ].filter(Boolean), // Remove undefined values
+      should: [fieldsQuery, tagsQuery],
       minimum_should_match: 1, // At least one query needs to be matched
     },
   };
