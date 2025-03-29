@@ -396,8 +396,9 @@ const Papers: React.FC<IPapersProps> = (props) => {
                 ),
                 size: '40%',
               },
-              { name: 'otherSource', label: 'Source', sortable: true, size: '20%' },
-              { name: 'mediaTypeId', label: 'Media Type', sortable: true, size: '20%' },
+              { name: 'otherSource', label: 'Source', sortable: true, size: '15%' },
+              { name: 'byline', label: 'Byline', sortable: false, size: '15%' },
+              { name: 'mediaTypeId', label: 'Media Type', sortable: true, size: '15%' },
               {
                 name: 'page',
                 label: (
@@ -485,6 +486,15 @@ const Papers: React.FC<IPapersProps> = (props) => {
                       onClick={(e) => handleContentClick(row.id, e)}
                     >
                       <CellEllipsis>{row.otherSource}</CellEllipsis>
+                    </div>
+                  ),
+                  isSelected: isSelected,
+                  isFocused: isFocused,
+                },
+                {
+                  column: (
+                    <div key="">
+                      <CellEllipsis>{row.byline}</CellEllipsis>
                     </div>
                   ),
                   isSelected: isSelected,
