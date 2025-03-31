@@ -30,7 +30,6 @@ export const Tags: React.FC<ITagsProps> = ({
   const [{ tags }] = useLookup();
 
   const [showList, setShowList] = React.useState(false);
-  const [showMigrateButton, setShowMigrateButton] = React.useState(false);
   const [tagOptions, setTagOptions] = React.useState<IOptionItem[]>([]);
   const [selectedOptions, setSelectedOptions] = React.useState<IOptionItem[]>([]);
 
@@ -193,30 +192,6 @@ export const Tags: React.FC<ITagsProps> = ({
     [values, setFieldValue],
   );
 
-  // Check if current field needs tags migration
-  const checkTagsMigration = React.useCallback(() => {
-    if (!targetField) return false;
-    
-    // Get tags from the target field's text
-    const fieldValue = values[targetField as keyof typeof values] as string | undefined || '';
-    const fieldTagCodes = parseTagsFromText(fieldValue);
-    
-    // Get tags that should be in this field based on the form's tag selection
-    const allSelectedTagCodes = getTagCodesByIds(values.tags.map(t => t.id));
-    
-    // Check if all selected tags are in the current field
-    const needsMigration = !allSelectedTagCodes.every((tag) => fieldTagCodes.includes(tag));
-    return needsMigration;
-  }, [values, targetField, parseTagsFromText, getTagCodesByIds]);
-
-  // Update migration button visibility when content changes
-  React.useEffect(() => {
-    if (targetField) {
-      const shouldShow = checkTagsMigration();
-      setShowMigrateButton(shouldShow);
-    }
-  }, [values, targetField, checkTagsMigration]);
-
   // Handle tag selection - this is where we apply field-specific logic
   const addTags = React.useCallback(
     (selectedTagOptions: any) => {
@@ -295,29 +270,6 @@ export const Tags: React.FC<ITagsProps> = ({
           >
             <FaListAlt />
           </Button>
-          {showMigrateButton && targetField && (
-            <Button
-              tooltip={`Migrate tags to ${targetField}`}
-              onClick={() => {
-                // Get all selected tag codes
-                const allSelectedTagCodes = values.tags.map((tag) => tag.code.toUpperCase());
-                
-                // Get existing field tag codes
-                const fieldValue = values[targetField] as string | undefined || '';
-                const fieldTagCodes = parseTagsFromText(fieldValue);
-                
-                // Get new tags to add to this field
-                const tagsToAdd = allSelectedTagCodes.filter(code => !fieldTagCodes.includes(code));
-                const updatedFieldTags = [...fieldTagCodes, ...tagsToAdd];
-                
-                // Update the field
-                updateTextTags(targetField, updatedFieldTags);
-                setShowMigrateButton(false);
-              }}
-            >
-              <FaArrowRight />
-            </Button>
-          )}
         </Row>
       </Col>
     </styled.Tags>
