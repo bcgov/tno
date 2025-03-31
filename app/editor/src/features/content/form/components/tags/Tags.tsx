@@ -114,55 +114,6 @@ export const Tags: React.FC<ITagsProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultTags]);
 
-  // Update text with tags
-  const updateTextTags = React.useCallback(
-    (field: 'body' | 'summary', selectedTagCodes: string[]) => {
-      // Ensure it works even with an empty document
-      let currentText = (values[field] as string | undefined) ?? '';
-
-      // Remove all existing tags
-      const hasTrailingNewline = currentText?.endsWith('\n') || false;
-
-      // Remove all [...] formatted tags
-      let newText = (currentText || '').replace(/\s*\[([^\]]*)\](\s|$)*/g, '').trimEnd();
-
-      // Add new tags (if any)
-      if (selectedTagCodes.length > 0) {
-        const tagText = `[${selectedTagCodes.join(', ')}]`;
-
-        // Handle HTML content
-        if (currentText?.includes('</p>')) {
-          // Replace last </p> tag
-          newText = newText.replace(/<\/p>\s*$/, '');
-          newText = newText ? `${newText} ${tagText}</p>` : `<p>${tagText}</p>`;
-        } else {
-          // Handle plain text
-          newText = newText ? `${newText} ${tagText}` : tagText;
-        }
-      }
-
-      // Keep original trailing newline
-      if (hasTrailingNewline) {
-        newText += '\n';
-      }
-
-      // Update the current field
-      setFieldValue(field, newText);
-
-      // Clear tags from the other field
-      const otherField = field === 'body' ? 'summary' : 'body';
-      const otherText = (values[otherField as keyof typeof values] as string | undefined) ?? '';
-      if (otherText) {
-        // Remove all [...] formatted tags from the other field
-        const cleanedText = otherText.replace(/\s*\[([^\]]*)\](\s|$)*/g, '').trimEnd();
-        setFieldValue(otherField, cleanedText);
-      }
-
-      // Force a refresh after text update
-      setRefreshCounter((prev) => prev + 1);
-    },
-    [values, setFieldValue],
-  );
   // Parse tags from text content
   const parseTagsFromText = React.useCallback((text: string): string[] => {
     const tagPattern = /\[([^\]]+)\]/g;
@@ -181,21 +132,82 @@ export const Tags: React.FC<ITagsProps> = ({
     return result;
   }, []);
 
+  // Get tag IDs from tag codes
+  const getTagIdsByCode = React.useCallback(
+    (tagCodes: string[]) => {
+      return tags
+        .filter((tag) => tagCodes.some((code) => code === tag.code.toUpperCase()))
+        .map((tag) => tag.id);
+    },
+    [tags],
+  );
+
+  // Get tag codes from tag IDs
+  const getTagCodesByIds = React.useCallback(
+    (tagIds: number[]) => {
+      return tags
+        .filter((tag) => tagIds.includes(tag.id))
+        .map((tag) => tag.code.toUpperCase());
+    },
+    [tags],
+  );
+
+  // Update text with tags - only updates the specified field
+  const updateTextTags = React.useCallback(
+    (field: 'body' | 'summary', tagCodes: string[]) => {
+      // Ensure it works even with an empty document
+      let currentText = (values[field] as string | undefined) ?? '';
+
+      // Check for trailing newline
+      const hasTrailingNewline = currentText?.endsWith('\n') || false;
+
+      // Remove all [...] formatted tags
+      let newText = (currentText || '').replace(/\s*\[([^\]]*)\](\s|$)*/g, '').trimEnd();
+
+      // Add new tags (if any)
+      if (tagCodes.length > 0) {
+        const tagText = `[${tagCodes.join(', ')}]`;
+
+        // Handle HTML content
+        if (currentText?.includes('</p>')) {
+          // Replace last </p> tag
+          newText = newText.replace(/<\/p>\s*$/, '');
+          newText = newText ? `${newText} ${tagText}</p>` : `<p>${tagText}</p>`;
+        } else {
+          // Handle plain text
+          newText = newText ? `${newText} ${tagText}` : tagText;
+        }
+      }
+
+      // Keep original trailing newline
+      if (hasTrailingNewline) {
+        newText += '\n';
+      }
+
+      // Update the field
+      setFieldValue(field, newText);
+
+      // Force a refresh after text update
+      setRefreshCounter((prev) => prev + 1);
+    },
+    [values, setFieldValue],
+  );
+
   // Check if current field needs tags migration
   const checkTagsMigration = React.useCallback(() => {
     if (!targetField) return false;
-    const fieldValue = values[targetField as keyof typeof values];
-    const selectedTags = values.tags.map((tag) => tag.code.toUpperCase());
-
-    // If there are selected tags but no field value, we need migration
-    if (!fieldValue && selectedTags.length > 0) return true;
-
-    const currentFieldTags = fieldValue ? parseTagsFromText(fieldValue as string) : [];
-
+    
+    // Get tags from the target field's text
+    const fieldValue = values[targetField as keyof typeof values] as string | undefined || '';
+    const fieldTagCodes = parseTagsFromText(fieldValue);
+    
+    // Get tags that should be in this field based on the form's tag selection
+    const allSelectedTagCodes = getTagCodesByIds(values.tags.map(t => t.id));
+    
     // Check if all selected tags are in the current field
-    const needsMigration = !selectedTags.every((tag) => currentFieldTags.includes(tag));
+    const needsMigration = !allSelectedTagCodes.every((tag) => fieldTagCodes.includes(tag));
     return needsMigration;
-  }, [values, targetField, parseTagsFromText]);
+  }, [values, targetField, parseTagsFromText, getTagCodesByIds]);
 
   // Update migration button visibility when content changes
   React.useEffect(() => {
@@ -205,38 +217,55 @@ export const Tags: React.FC<ITagsProps> = ({
     }
   }, [values, targetField, checkTagsMigration]);
 
-  // Handle tag selection
+  // Handle tag selection - this is where we apply field-specific logic
   const addTags = React.useCallback(
-    (selectedTags: any) => {
-      const newTags = tags
-        .filter((tag) => selectedTags.some((t: IOptionItem) => t.value === tag.id))
+    (selectedTagOptions: any) => {
+      // Always update the main form tags list with all selected tags
+      const allSelectedTags = tags
+        .filter((tag) => selectedTagOptions.some((t: IOptionItem) => t.value === tag.id))
         .map((tag) => tag);
-
-      // Update form's tag list
-      setFieldValue('tags', newTags);
-
-      // Update selected tags
-      setSelectedOptions(selectedTags);
-
+      
+      setFieldValue('tags', allSelectedTags);
+      setSelectedOptions(selectedTagOptions);
+      
       // Force a refresh
       setRefreshCounter((prev) => prev + 1);
-
-      // Automatically handle tag text
-      if (enableAutoTagText) {
-        const selectedTagCodes = newTags.map((tag) => tag.code.toUpperCase());
-
-        // Determine which field to update
-        let fieldToUpdate = targetField;
-        if (!fieldToUpdate) {
-          // If no field specified, default to body
-          fieldToUpdate = 'body';
-        }
-
-        // Always update the field, even if it's empty
-        updateTextTags(fieldToUpdate, selectedTagCodes);
+      
+      // Only proceed with automatic text updates if enabled and target field is specified
+      if (enableAutoTagText && targetField) {
+        // Get the current tags from the target field
+        const fieldValue = values[targetField] as string | undefined || '';
+        const fieldTagCodes = parseTagsFromText(fieldValue);
+        
+        // Get the other field's tags (to maintain them separately)
+        const otherField = targetField === 'body' ? 'summary' : 'body';
+        const otherFieldValue = values[otherField] as string | undefined || '';
+        const otherFieldTagCodes = parseTagsFromText(otherFieldValue);
+        
+        // Get all selected tag codes
+        const allSelectedTagCodes = getTagCodesByIds(
+          selectedTagOptions.map((option: IOptionItem) => option.value)
+        );
+        
+        // Add newly selected tags to the field's existing tags
+        // Remove tags that are no longer selected
+        const updatedFieldTags = Array.from(new Set([
+          ...fieldTagCodes.filter(code => 
+            // Keep tags that are still selected
+            allSelectedTagCodes.includes(code)
+          ),
+          ...allSelectedTagCodes.filter(code => 
+            // Add new tags not previously in this field
+            // AND not already in the other field (this is the key change)
+            !fieldTagCodes.includes(code) && !otherFieldTagCodes.includes(code)
+          )
+        ]));
+        
+        // Update the target field with its specific tags
+        updateTextTags(targetField, updatedFieldTags);
       }
     },
-    [setFieldValue, tags, enableAutoTagText, targetField, updateTextTags],
+    [setFieldValue, tags, enableAutoTagText, targetField, updateTextTags, values, parseTagsFromText, getTagCodesByIds],
   );
 
   return (
@@ -270,8 +299,19 @@ export const Tags: React.FC<ITagsProps> = ({
             <Button
               tooltip={`Migrate tags to ${targetField}`}
               onClick={() => {
-                const selectedTagCodes = values.tags.map((tag) => tag.code.toUpperCase());
-                updateTextTags(targetField, selectedTagCodes);
+                // Get all selected tag codes
+                const allSelectedTagCodes = values.tags.map((tag) => tag.code.toUpperCase());
+                
+                // Get existing field tag codes
+                const fieldValue = values[targetField] as string | undefined || '';
+                const fieldTagCodes = parseTagsFromText(fieldValue);
+                
+                // Get new tags to add to this field
+                const tagsToAdd = allSelectedTagCodes.filter(code => !fieldTagCodes.includes(code));
+                const updatedFieldTags = [...fieldTagCodes, ...tagsToAdd];
+                
+                // Update the field
+                updateTextTags(targetField, updatedFieldTags);
                 setShowMigrateButton(false);
               }}
             >
