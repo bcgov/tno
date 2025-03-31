@@ -31,8 +31,37 @@ export const Tags: React.FC<ITagsProps> = ({
 
   const [showList, setShowList] = React.useState(false);
   const [showMigrateButton, setShowMigrateButton] = React.useState(false);
-  const [tagOptions, setTagOptions] = React.useState(
-    tags
+  const [tagOptions, setTagOptions] = React.useState<IOptionItem[]>([]);
+  const [selectedOptions, setSelectedOptions] = React.useState<IOptionItem[]>([]);
+
+  // A state to force refresh of the component
+  const [refreshCounter, setRefreshCounter] = React.useState(0);
+
+  // Force a refresh of the component every second if there are pending tag changes
+  React.useEffect(() => {
+    // Create a comparison between current tags and selected options
+    const currentTagIds = values.tags
+      .map((t) => t.id)
+      .sort()
+      .join(',');
+    const selectedTagIds = selectedOptions
+      .map((o) => o.value)
+      .sort()
+      .join(',');
+
+    // If there's a mismatch, we need to poll for changes
+    if (currentTagIds !== selectedTagIds) {
+      const timer = setInterval(() => {
+        setRefreshCounter((prev) => prev + 1);
+      }, 500); // Poll every 500ms
+
+      return () => clearInterval(timer);
+    }
+  }, [values.tags, selectedOptions]);
+
+  // Update tag options when tags list changes
+  React.useEffect(() => {
+    const newTagOptions = tags
       .filter((tag) => tag.isEnabled || values.tags.some((t) => t.id === tag.id))
       .map((tag) => {
         return {
@@ -40,24 +69,33 @@ export const Tags: React.FC<ITagsProps> = ({
           value: tag.id,
           isDisabled: !tag.isEnabled,
         } as IOptionItem;
-      }),
-  );
+      });
 
-  React.useEffect(() => {
-    setTagOptions(
-      tags
-        .filter((tag) => tag.isEnabled || values.tags.some((t) => t.id === tag.id))
-        .map((tag) => {
-          return {
-            label: tag.code,
-            value: tag.id,
-            isDisabled: !tag.isEnabled,
-          } as IOptionItem;
-        }),
-    );
+    setTagOptions(newTagOptions);
+
+    // Update selected tags when options change
+    updateSelectedTags(newTagOptions);
+
     // Only update options if the tags list is updated.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tags]);
+
+  // Update selected tags when form tags change
+  React.useEffect(() => {
+    updateSelectedTags(tagOptions);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [values.tags, refreshCounter]);
+
+  // Update selected tags
+  const updateSelectedTags = React.useCallback(
+    (options: IOptionItem[]) => {
+      const selected = options.filter((option) =>
+        values.tags.some((tag) => tag.id === option.value),
+      );
+      setSelectedOptions(selected);
+    },
+    [values.tags],
+  );
 
   /** ensure table is in view depending on where user has scrolled to. */
   React.useEffect(() => {
@@ -119,6 +157,9 @@ export const Tags: React.FC<ITagsProps> = ({
         const cleanedText = otherText.replace(/\s*\[([^\]]*)\](\s|$)*/g, '').trimEnd();
         setFieldValue(otherField, cleanedText);
       }
+
+      // Force a refresh after text update
+      setRefreshCounter((prev) => prev + 1);
     },
     [values, setFieldValue],
   );
@@ -174,6 +215,12 @@ export const Tags: React.FC<ITagsProps> = ({
       // Update form's tag list
       setFieldValue('tags', newTags);
 
+      // Update selected tags
+      setSelectedOptions(selectedTags);
+
+      // Force a refresh
+      setRefreshCounter((prev) => prev + 1);
+
       // Automatically handle tag text
       if (enableAutoTagText) {
         const selectedTagCodes = newTags.map((tag) => tag.code.toUpperCase());
@@ -207,10 +254,9 @@ export const Tags: React.FC<ITagsProps> = ({
             options={tagOptions}
             maxMenuHeight={120}
             menuPlacement="top"
-            value={tagOptions.filter((option) =>
-              values.tags.find((tag) => tag.id === option.value),
-            )}
+            value={selectedOptions}
             onChange={(selectedTags) => addTags(selectedTags)}
+            key={`tag-select-${refreshCounter}`} // Force re-render when refreshCounter changes
           />
           <Button
             tooltip="Show tag list"
