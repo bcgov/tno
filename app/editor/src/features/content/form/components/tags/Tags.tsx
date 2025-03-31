@@ -181,18 +181,24 @@ export const Tags: React.FC<ITagsProps> = ({
       // Add new tags (if any)
       if (tagCodes.length > 0) {
         // Format each tag using its original format if available
-        const formattedTags = tagCodes.map((code) => originalFormats[code.toUpperCase()] || code);
+        // avoid empty tags
+        const formattedTags = tagCodes
+          .filter((code) => code && code.trim() !== '') // avoid empty tags
+          .map((code) => originalFormats[code.toUpperCase()] || code);
 
-        const tagText = `[${formattedTags.join(', ')}]`;
+        // only create tag text if there are valid tags
+        if (formattedTags.length > 0) {
+          const tagText = `[${formattedTags.join(', ')}]`;
 
-        // Handle HTML content
-        if (currentText?.includes('</p>')) {
-          // Replace last </p> tag
-          newText = newText.replace(/<\/p>\s*$/, '');
-          newText = newText ? `${newText} ${tagText}</p>` : `<p>${tagText}</p>`;
-        } else {
-          // Handle plain text
-          newText = newText ? `${newText} ${tagText}` : tagText;
+          // Handle HTML content
+          if (currentText?.includes('</p>')) {
+            // Replace last </p> tag
+            newText = newText.replace(/<\/p>\s*$/, '');
+            newText = newText ? `${newText} ${tagText}</p>` : `<p>${tagText}</p>`;
+          } else {
+            // Handle plain text
+            newText = newText ? `${newText} ${tagText}` : tagText;
+          }
         }
       }
 
@@ -218,14 +224,57 @@ export const Tags: React.FC<ITagsProps> = ({
         .filter((tag) => selectedTagOptions.some((t: IOptionItem) => t.value === tag.id))
         .map((tag) => tag);
 
+      // Get previously selected tag IDs
+      const previousSelectedTagIds = selectedOptions.map(
+        (option: IOptionItem) => option.value as number,
+      );
+      // Get currently selected tag IDs
+      const currentSelectedTagIds = selectedTagOptions.map(
+        (option: IOptionItem) => option.value as number,
+      );
+      // Find removed tag IDs (previously selected but not currently selected)
+      const removedTagIds = previousSelectedTagIds.filter(
+        (id) => !currentSelectedTagIds.includes(id),
+      );
+
+      // Update main form tag list
       setFieldValue('tags', allSelectedTags);
       setSelectedOptions(selectedTagOptions);
 
       // Force a refresh
       setRefreshCounter((prev) => prev + 1);
 
+      // Handle tags removed from UI - remove from both fields
+      if (removedTagIds.length > 0) {
+        const removedTagCodes = getTagCodesByIds(removedTagIds);
+        const removedTagUpperCases = removedTagCodes.map((code) => code.toUpperCase());
+
+        // Process all fields (summary and body), not limited to targetField
+        ['summary', 'body'].forEach((field) => {
+          const fieldValue = (values[field as keyof IContentForm] as string) || '';
+          const fieldTagsWithFormat = parseTagsWithOriginalFormat(fieldValue);
+
+          // Create original format mapping
+          const originalFormatMap: Record<string, string> = {};
+          fieldTagsWithFormat.forEach(({ tag, original }) => {
+            originalFormatMap[tag.toUpperCase()] = original;
+          });
+
+          // Keep tags not in the removed list
+          const updatedFieldTags = fieldTagsWithFormat
+            .filter(({ tag }) => !removedTagUpperCases.includes(tag))
+            .map(({ tag }) => originalFormatMap[tag.toUpperCase()] || tag)
+            .filter((tag) => tag && tag.trim() !== ''); // Filter out empty tags
+
+          // Update field
+          if (updatedFieldTags.length !== fieldTagsWithFormat.length) {
+            updateTextTags(field as 'body' | 'summary', updatedFieldTags, originalFormatMap);
+          }
+        });
+      }
+
       // Only proceed with automatic text updates if enabled and target field is specified
-      if (enableAutoTagText && targetField) {
+      if (enableAutoTagText && targetField && !removedTagIds.length) {
         // Get the current tags from the target field with original format
         const fieldValue = (values[targetField] as string | undefined) || '';
         const fieldTagsWithFormat = parseTagsWithOriginalFormat(fieldValue);
@@ -244,7 +293,7 @@ export const Tags: React.FC<ITagsProps> = ({
 
         // Get all selected tag codes
         const allSelectedTagCodes = getTagCodesByIds(
-          selectedTagOptions.map((option: IOptionItem) => option.value),
+          selectedTagOptions.map((option: IOptionItem) => option.value as number),
         );
 
         // Identify custom tags - tags that exist in the field but are not in the predefined list
@@ -297,6 +346,7 @@ export const Tags: React.FC<ITagsProps> = ({
       parseTagsFromText,
       parseTagsWithOriginalFormat,
       getTagCodesByIds,
+      selectedOptions,
     ],
   );
 
