@@ -2,7 +2,7 @@ import { IContentForm } from 'features/content/form/interfaces';
 import { useFormikContext } from 'formik';
 import _ from 'lodash';
 import React from 'react';
-import { FaArrowRight, FaListAlt } from 'react-icons/fa';
+import { FaListAlt } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
 import { Button, Col, FieldSize, IOptionItem, Row, Select } from 'tno-core';
 
@@ -126,34 +126,49 @@ export const Tags: React.FC<ITagsProps> = ({
           .split(',')
           .map((tag) => tag.trim()),
       )
-      .flat()
-      .map((tag) => tag.toUpperCase());
+      .flat();
     return result;
   }, []);
 
-  // Get tag IDs from tag codes
-  const getTagIdsByCode = React.useCallback(
-    (tagCodes: string[]) => {
-      return tags
-        .filter((tag) => tagCodes.some((code) => code === tag.code.toUpperCase()))
-        .map((tag) => tag.id);
+  // Parse tags with original format (case preservation)
+  const parseTagsWithOriginalFormat = React.useCallback(
+    (text: string): { tag: string; original: string }[] => {
+      const tagPattern = /\[([^\]]+)\]/g;
+      const matches = text.match(tagPattern);
+      if (!matches) return [];
+
+      const result = matches
+        .map((match) =>
+          match
+            .slice(1, -1)
+            .split(',')
+            .map((tag) => tag.trim())
+            .map((tag) => ({
+              tag: tag.toUpperCase(),
+              original: tag,
+            })),
+        )
+        .flat();
+      return result;
     },
-    [tags],
+    [],
   );
 
-  // Get tag codes from tag IDs
+  // Get tag codes from tag IDs - this will only find codes for predefined tags
   const getTagCodesByIds = React.useCallback(
     (tagIds: number[]) => {
-      return tags
-        .filter((tag) => tagIds.includes(tag.id))
-        .map((tag) => tag.code.toUpperCase());
+      return tags.filter((tag) => tagIds.includes(tag.id)).map((tag) => tag.code);
     },
     [tags],
   );
 
   // Update text with tags - only updates the specified field
   const updateTextTags = React.useCallback(
-    (field: 'body' | 'summary', tagCodes: string[]) => {
+    (
+      field: 'body' | 'summary',
+      tagCodes: string[],
+      originalFormats: Record<string, string> = {},
+    ) => {
       // Ensure it works even with an empty document
       let currentText = (values[field] as string | undefined) ?? '';
 
@@ -165,7 +180,10 @@ export const Tags: React.FC<ITagsProps> = ({
 
       // Add new tags (if any)
       if (tagCodes.length > 0) {
-        const tagText = `[${tagCodes.join(', ')}]`;
+        // Format each tag using its original format if available
+        const formattedTags = tagCodes.map((code) => originalFormats[code.toUpperCase()] || code);
+
+        const tagText = `[${formattedTags.join(', ')}]`;
 
         // Handle HTML content
         if (currentText?.includes('</p>')) {
@@ -199,48 +217,87 @@ export const Tags: React.FC<ITagsProps> = ({
       const allSelectedTags = tags
         .filter((tag) => selectedTagOptions.some((t: IOptionItem) => t.value === tag.id))
         .map((tag) => tag);
-      
+
       setFieldValue('tags', allSelectedTags);
       setSelectedOptions(selectedTagOptions);
-      
+
       // Force a refresh
       setRefreshCounter((prev) => prev + 1);
-      
+
       // Only proceed with automatic text updates if enabled and target field is specified
       if (enableAutoTagText && targetField) {
-        // Get the current tags from the target field
-        const fieldValue = values[targetField] as string | undefined || '';
-        const fieldTagCodes = parseTagsFromText(fieldValue);
-        
+        // Get the current tags from the target field with original format
+        const fieldValue = (values[targetField] as string | undefined) || '';
+        const fieldTagsWithFormat = parseTagsWithOriginalFormat(fieldValue);
+        const fieldTagCodes = fieldTagsWithFormat.map((t) => t.tag);
+
+        // Create a mapping of uppercase tags to their original format
+        const originalFormatMap: Record<string, string> = {};
+        fieldTagsWithFormat.forEach(({ tag, original }) => {
+          originalFormatMap[tag.toUpperCase()] = original;
+        });
+
         // Get the other field's tags (to maintain them separately)
         const otherField = targetField === 'body' ? 'summary' : 'body';
-        const otherFieldValue = values[otherField] as string | undefined || '';
-        const otherFieldTagCodes = parseTagsFromText(otherFieldValue);
-        
+        const otherFieldValue = (values[otherField] as string | undefined) || '';
+        const otherFieldTagCodes = parseTagsFromText(otherFieldValue).map((t) => t.toUpperCase());
+
         // Get all selected tag codes
         const allSelectedTagCodes = getTagCodesByIds(
-          selectedTagOptions.map((option: IOptionItem) => option.value)
+          selectedTagOptions.map((option: IOptionItem) => option.value),
         );
-        
+
+        // Identify custom tags - tags that exist in the field but are not in the predefined list
+        const customFieldTags = fieldTagCodes.filter(
+          (code) => !tags.some((tag) => tag.code.toUpperCase() === code.toUpperCase()),
+        );
+
         // Add newly selected tags to the field's existing tags
-        // Remove tags that are no longer selected
-        const updatedFieldTags = Array.from(new Set([
-          ...fieldTagCodes.filter(code => 
+        // Remove tags that are no longer selected, but keep custom tags
+        const updatedFieldTags = Array.from(
+          new Set([
+            // Keep custom tags
+            ...customFieldTags,
             // Keep tags that are still selected
-            allSelectedTagCodes.includes(code)
-          ),
-          ...allSelectedTagCodes.filter(code => 
+            ...fieldTagCodes.filter(
+              (code) =>
+                allSelectedTagCodes.map((c) => c.toUpperCase()).includes(code.toUpperCase()) ||
+                // Keep codes that are in current field but not found in predefined tags list
+                !tags.some((tag) => tag.code.toUpperCase() === code.toUpperCase()),
+            ),
             // Add new tags not previously in this field
-            // AND not already in the other field (this is the key change)
-            !fieldTagCodes.includes(code) && !otherFieldTagCodes.includes(code)
-          )
-        ]));
-        
-        // Update the target field with its specific tags
-        updateTextTags(targetField, updatedFieldTags);
+            ...allSelectedTagCodes.filter(
+              (code) =>
+                // Add new tags not previously in this field
+                // AND not already in the other field
+                !fieldTagCodes.map((c) => c.toUpperCase()).includes(code.toUpperCase()) &&
+                !otherFieldTagCodes.includes(code.toUpperCase()),
+            ),
+          ]),
+        );
+
+        // For newly added tags from UI, add them to the original format map
+        allSelectedTagCodes.forEach((code) => {
+          if (!originalFormatMap[code.toUpperCase()]) {
+            originalFormatMap[code.toUpperCase()] = code;
+          }
+        });
+
+        // Update the target field with its specific tags plus custom tags
+        updateTextTags(targetField, updatedFieldTags, originalFormatMap);
       }
     },
-    [setFieldValue, tags, enableAutoTagText, targetField, updateTextTags, values, parseTagsFromText, getTagCodesByIds],
+    [
+      setFieldValue,
+      tags,
+      enableAutoTagText,
+      targetField,
+      updateTextTags,
+      values,
+      parseTagsFromText,
+      parseTagsWithOriginalFormat,
+      getTagCodesByIds,
+    ],
   );
 
   return (
