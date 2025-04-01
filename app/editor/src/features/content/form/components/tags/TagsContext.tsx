@@ -122,21 +122,6 @@ export const TagsProvider: React.FC<TagsProviderProps> = ({
     if (tagList) tagList.scrollIntoView({ behavior: 'smooth' });
   }, [showList]);
 
-  // parse tags from text
-  const parseTagsFromText = useCallback((text: string): string[] => {
-    const tagPattern = /\[([^\]]+)\]/g;
-    const matches = text.match(tagPattern);
-    if (!matches) return [];
-
-    return matches
-      .map((match) =>
-        match
-          .slice(1, -1)
-          .split(',')
-          .map((tag) => tag.trim()),
-      )
-      .flat();
-  }, []);
 
   // parse tags with original format
   const parseTagsWithOriginalFormat = useCallback(
