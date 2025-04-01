@@ -85,6 +85,9 @@ export const TagsProvider: React.FC<TagsProviderProps> = ({
   const [showList, setShowList] = useState(false);
   const [refreshCounter, setRefreshCounter] = useState(0);
 
+  // store UI tag state, ensuring text input doesn't remove selected tags
+  const [uiSelectedTags, setUiSelectedTags] = useState<IContentTag[]>([]);
+
   // use useMemo to derive tag options, not as state
   const tagOptions = useMemo(() => {
     return tags
@@ -113,6 +116,7 @@ export const TagsProvider: React.FC<TagsProviderProps> = ({
     );
     const newTags = _.uniqBy(values.tags.concat(initTags), (tag: Tag | IContentTag) => tag.id);
     setFieldValue('tags', newTags);
+    setUiSelectedTags(newTags);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultTags]);
 
@@ -214,27 +218,37 @@ export const TagsProvider: React.FC<TagsProviderProps> = ({
     // Get tags from both fields
     const bodyTags = parseTagsWithOriginalFormat((values.body as string) || '');
     const summaryTags = parseTagsWithOriginalFormat((values.summary as string) || '');
-    
+
     // Combine tags from both fields
-    const allTagCodes = [...bodyTags, ...summaryTags].map(t => t.tag.toUpperCase());
-    
+    const allTagCodes = [...bodyTags, ...summaryTags].map((t) => t.tag.toUpperCase());
+
     // Find matching tag objects
-    return tags.filter(tag => 
-      allTagCodes.includes(tag.code.toUpperCase())
-    ).map(tag => ({ id: tag.id, name: tag.name }));
+    return tags
+      .filter((tag) => allTagCodes.includes(tag.code.toUpperCase()))
+      .map((tag) => ({ id: tag.id, name: tag.name }));
   }, [values.body, values.summary, tags, parseTagsWithOriginalFormat]);
 
-  // Update form tags based on text fields
+  // Update form tags based on text fields 
   useEffect(() => {
-    // Get combined tags from both fields
+    // Get text tags from both fields
     const extractedTags = extractTagsFromFields();
-    
-    // Update form tags if different
-    if (!_.isEqual(values.tags, extractedTags)) {
-      setFieldValue('tags', extractedTags);
-      setRefreshCounter(prev => prev + 1);
+
+    // Find new tags that are in text but not in UI
+    const newTagsFromText = extractedTags.filter(
+      (textTag) => !uiSelectedTags.some((uiTag) => uiTag.id === textTag.id),
+    );
+
+    // Only update UI when new tags are found
+    if (newTagsFromText.length > 0) {
+      // Combine existing UI tags with new tags from text
+      const updatedTags = _.uniqBy([...uiSelectedTags, ...newTagsFromText], 'id');
+
+      // Update form tags and UI state
+      setFieldValue('tags', updatedTags);
+      setUiSelectedTags(updatedTags);
+      setRefreshCounter((prev) => prev + 1);
     }
-  }, [values.body, values.summary, extractTagsFromFields, setFieldValue, values.tags]);
+  }, [values.body, values.summary, extractTagsFromFields, uiSelectedTags, setFieldValue]);
 
   // handle tag selection changes
   const addTags = useCallback(
@@ -243,24 +257,25 @@ export const TagsProvider: React.FC<TagsProviderProps> = ({
       const optionsArray = selectedTagOptions as IOptionItem[];
 
       // Get previously selected option IDs
-      const previousSelectedIds = selectedOptions.map(option => option.value as number);
-      
+      const previousSelectedIds = selectedOptions.map((option) => option.value as number);
+
       // Get newly selected option IDs
-      const currentSelectedIds = optionsArray.map(option => option.value as number);
-      
+      const currentSelectedIds = optionsArray.map((option) => option.value as number);
+
       // Find newly added tags (present in current but not in previous)
-      const newlyAddedIds = currentSelectedIds.filter(id => !previousSelectedIds.includes(id));
-      
+      const newlyAddedIds = currentSelectedIds.filter((id) => !previousSelectedIds.includes(id));
+
       // Find removed tags (present in previous but not in current)
-      const removedIds = previousSelectedIds.filter(id => !currentSelectedIds.includes(id));
-      
+      const removedIds = previousSelectedIds.filter((id) => !currentSelectedIds.includes(id));
+
       // update main form tag list - just update with the selected tags
       const allSelectedTags = tags
         .filter((tag: Tag) => optionsArray.some((t: IOptionItem) => t.value === tag.id))
         .map((tag: Tag) => ({ id: tag.id, name: tag.name }));
 
-      // update form values with selected tags
+      // update form values with selected tags and update UI state
       setFieldValue('tags', allSelectedTags);
+      setUiSelectedTags(allSelectedTags);
       setRefreshCounter((prev) => prev + 1);
 
       // Just handle tag addition directly
@@ -275,12 +290,12 @@ export const TagsProvider: React.FC<TagsProviderProps> = ({
         if (newlyAddedIds.length > 0) {
           // Get codes for newly added tags
           const newTagCodes = getTagCodesByIds(newlyAddedIds);
-          
+
           // identify custom tags - tags that exist in the field but not in the pre-defined list
           const customFieldTags = fieldTagCodes.filter(
             (code) => !tags.some((tag: Tag) => tag.code.toUpperCase() === code.toUpperCase()),
           );
-          
+
           // Combine existing field tags with newly added tags
           const updatedFieldTags = Array.from(
             new Set([
@@ -292,29 +307,29 @@ export const TagsProvider: React.FC<TagsProviderProps> = ({
               ...newTagCodes,
             ]),
           );
-          
+
           // add new selected tags to original format map
           newTagCodes.forEach((code) => {
             if (!originalFormatMap[code.toUpperCase()]) {
               originalFormatMap[code.toUpperCase()] = code;
             }
           });
-          
+
           // update target field
           updateTextTags(targetField, updatedFieldTags, originalFormatMap);
         }
-        
+
         // If there are removed tags, remove them from the field
         if (removedIds.length > 0) {
           // Get codes for removed tags
           const removedTagCodes = getTagCodesByIds(removedIds);
-          const removedTagUpperCases = removedTagCodes.map(code => code.toUpperCase());
-          
+          const removedTagUpperCases = removedTagCodes.map((code) => code.toUpperCase());
+
           // Filter out removed tags
           const updatedFieldTags = fieldTagCodes.filter(
-            code => !removedTagUpperCases.includes(code.toUpperCase())
+            (code) => !removedTagUpperCases.includes(code.toUpperCase()),
           );
-          
+
           // Update target field only if tags were actually removed
           if (updatedFieldTags.length < fieldTagCodes.length) {
             updateTextTags(targetField, updatedFieldTags, originalFormatMap);
