@@ -122,7 +122,6 @@ export const TagsProvider: React.FC<TagsProviderProps> = ({
     if (tagList) tagList.scrollIntoView({ behavior: 'smooth' });
   }, [showList]);
 
-
   // parse tags with original format
   const parseTagsWithOriginalFormat = useCallback(
     (text: string): { tag: string; original: string }[] => {
