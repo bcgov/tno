@@ -7,6 +7,7 @@ import {
   filterEnabledOptions,
   FormikDatePicker,
   FormikSelect,
+  FormikText,
   getSourceOptions,
   IOptionItem,
   Row,
@@ -90,6 +91,7 @@ export const ImageSection: React.FunctionComponent<IImageSectionProps> = (props)
           }
         }}
       />
+      <FormikText name="page" label="Page" />
     </Row>
   );
 };

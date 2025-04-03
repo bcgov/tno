@@ -117,6 +117,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
     "eject": "react-scripts eject",
     "pretty-quick": "pretty-quick",
     "lint": "eslint src/ --ext .jsx,.js,.ts,.tsx --max-warnings 0",
