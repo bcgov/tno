@@ -194,8 +194,6 @@ export const useContentForm = ({
 
   const resetForm = React.useCallback((values: IContentForm) => {
     // Reset form for next record.
-    const parsedDate = moment(values.publishedOn);
-    const updatedDate = parsedDate.add(1, 'second');
     setForm({
       ...defaultFormValues(values.contentType),
       sourceId: values.sourceId,
