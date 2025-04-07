@@ -905,20 +905,18 @@ const ContentForm: React.FC<IContentFormProps> = ({
                   </Row>
                   <Row gap="0.5rem">
                     <Tags defaultTags={parsedTags} />
-                    <Show visible={props.values.contentType !== ContentTypeName.Image}>
-                      <FormikSentiment name="tonePools" options={tonePools} required />
-                      <Show
-                        visible={
-                          props.values.contentType === ContentTypeName.AudioVideo ||
-                          props.values.contentType === ContentTypeName.PrintContent
-                        }
-                      >
-                        <TimeLogSection
-                          prepTimeRequired={props.values.contentType === ContentTypeName.AudioVideo}
-                          prepTime={contentPrepTime}
-                          onPrepTimeChanged={onPrepTimeChanged}
-                        />
-                      </Show>
+                    <FormikSentiment name="tonePools" options={tonePools} required />
+                    <Show
+                      visible={
+                        props.values.contentType === ContentTypeName.AudioVideo ||
+                        props.values.contentType === ContentTypeName.PrintContent
+                      }
+                    >
+                      <TimeLogSection
+                        prepTimeRequired={props.values.contentType === ContentTypeName.AudioVideo}
+                        prepTime={contentPrepTime}
+                        onPrepTimeChanged={onPrepTimeChanged}
+                      />
                     </Show>
 
                     <Row className="submit-buttons" gap="0.5rem">
