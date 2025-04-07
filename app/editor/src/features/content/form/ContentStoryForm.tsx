@@ -23,6 +23,7 @@ export interface IContentStoryFormProps {
  * @returns A new instance of a component.
  */
 export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
+  // Component properties
   contentType,
   summaryRequired: initSummaryRequired,
   setParsedTags,
@@ -30,6 +31,14 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   const { values } = useFormikContext<IContentForm>();
   const [{ tags }] = useLookup();
   const getTags = useExtractTags({ setParsedTags });
+
+  // Determine if content type is body (Story) or summary based content
+  const isBodyContent =
+    contentType === ContentTypeName.PrintContent ||
+    contentType === ContentTypeName.Internet;
+  
+  // Field name based on content type
+  const fieldName = isBodyContent ? 'body' : 'summary';
 
   const [summaryRequired, setSummaryRequired] = React.useState(
     initSummaryRequired ?? isSummaryRequired(values),
@@ -57,14 +66,10 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
       >
         <FormikContentWysiwyg
           className="content-body"
-          label={
-            contentType === ContentTypeName.PrintContent || contentType === ContentTypeName.Internet
-              ? 'Story'
-              : 'Summary'
-          }
-          name="body"
+          label={isBodyContent ? 'Story' : 'Summary'}
+          name={fieldName}
           tags={tags}
-          onChange={(text) => getTags('body', text)}
+          onChange={(text) => getTags(fieldName, text)}
         />
       </Show>
     </styled.ContentStoryForm>

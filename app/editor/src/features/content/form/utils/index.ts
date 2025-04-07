@@ -8,3 +8,4 @@ export * from './switchStatus';
 export * from './toForm';
 export * from './toModel';
 export * from './triggerFormikValidate';
+export * from './getTargetField';

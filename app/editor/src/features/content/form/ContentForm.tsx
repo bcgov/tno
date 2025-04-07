@@ -59,7 +59,7 @@ import { useContentForm } from './hooks';
 import { ImageSection } from './ImageSection';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
-import { setTime, toModel } from './utils';
+import { setTime, toModel , getTargetField} from './utils';
 import { WorkOrderStatus } from './WorkOrderStatus';
 
 export interface IContentFormProps {
@@ -71,11 +71,6 @@ export interface IContentFormProps {
   combinedPath?: string;
 }
 
-/**
- * Content Form edit and create form for default view. Path will be appended with content id.
- * @param param0 Component properties.
- * @returns Edit/Create Form for Content
- */
 const ContentForm: React.FC<IContentFormProps> = ({
   contentType: initContentType = ContentTypeName.AudioVideo,
   combinedPath,
@@ -904,7 +899,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
                     </Show>
                   </Row>
                   <Row gap="0.5rem">
-                    <Tags defaultTags={parsedTags} />
+                    <Tags
+                      defaultTags={parsedTags}
+                      targetField={getTargetField(props.values.contentType, active)}
+                      enableAutoTagText={true}
+                    />
                     <FormikSentiment name="tonePools" options={tonePools} required />
                     <Show
                       visible={
