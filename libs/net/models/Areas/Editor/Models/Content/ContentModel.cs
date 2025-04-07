@@ -153,7 +153,6 @@ public class ContentModel : AuditColumnsModel
     /// <summary>
     /// get/set - The source URL.
     /// </summary>
-    [MaxLength(500)]
     public string SourceUrl { get; set; } = "";
 
     /// <summary>
