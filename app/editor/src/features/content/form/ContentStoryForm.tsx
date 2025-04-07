@@ -34,9 +34,8 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
 
   // Determine if content type is body (Story) or summary based content
   const isBodyContent =
-    contentType === ContentTypeName.PrintContent ||
-    contentType === ContentTypeName.Internet;
-  
+    contentType === ContentTypeName.PrintContent || contentType === ContentTypeName.Internet;
+
   // Field name based on content type
   const fieldName = isBodyContent ? 'body' : 'summary';
 

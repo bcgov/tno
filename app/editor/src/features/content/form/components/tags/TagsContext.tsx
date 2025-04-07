@@ -294,6 +294,7 @@ export const TagsProvider: React.FC<TagsProviderProps> = ({
         }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       tags,
       setFieldValue,

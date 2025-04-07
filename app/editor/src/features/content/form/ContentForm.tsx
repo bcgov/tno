@@ -59,7 +59,7 @@ import { useContentForm } from './hooks';
 import { ImageSection } from './ImageSection';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
-import { setTime, toModel , getTargetField} from './utils';
+import { getTargetField, setTime, toModel } from './utils';
 import { WorkOrderStatus } from './WorkOrderStatus';
 
 export interface IContentFormProps {
