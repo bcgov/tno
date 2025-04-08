@@ -8,14 +8,7 @@ import { Button, Col, FieldSize, IOptionItem, Row, Select } from 'tno-core';
 import { DraggableTagList } from './DraggableTagList';
 import * as styled from './styled';
 import { TagsProvider, useTagsContext } from './TagsContext';
-
-export interface ITagsProps {
-  defaultTags?: string[];
-  /** the field to update with tags */
-  targetField?: 'body' | 'summary';
-  /** whether to enable automatic tag text updates, default is true */
-  enableAutoTagText?: boolean;
-}
+import { ITagsProps } from './types';
 
 /**
  * Internal Tags component that uses the context
