@@ -36,8 +36,6 @@ interface ITagsContextState {
   setShowList: (show: boolean) => void;
   // handle tag selection changes
   addTags: (selectedTagOptions: unknown) => void;
-  // force refresh counter
-  refreshCounter: number;
 }
 
 // create context
@@ -83,7 +81,6 @@ export const TagsProvider: React.FC<TagsProviderProps> = ({
   const tags = externalTags || lookupContext[0].tags;
 
   const [showList, setShowList] = useState(false);
-  const [refreshCounter, setRefreshCounter] = useState(0);
 
   // store UI tag state, ensuring text input doesn't remove selected tags
   const [uiSelectedTags, setUiSelectedTags] = useState<IContentTag[]>([]);
@@ -205,10 +202,8 @@ export const TagsProvider: React.FC<TagsProviderProps> = ({
       if (hasTrailingNewline) {
         newText += '\n';
       }
-
-      // update field and force refresh
+      // update field
       setFieldValue(field, newText);
-      setRefreshCounter((prev) => prev + 1);
     },
     [values, setFieldValue],
   );
@@ -246,7 +241,6 @@ export const TagsProvider: React.FC<TagsProviderProps> = ({
       // Update form tags and UI state
       setFieldValue('tags', updatedTags);
       setUiSelectedTags(updatedTags);
-      setRefreshCounter((prev) => prev + 1);
     }
   }, [values.body, values.summary, extractTagsFromFields, uiSelectedTags, setFieldValue]);
 
@@ -276,7 +270,6 @@ export const TagsProvider: React.FC<TagsProviderProps> = ({
       // update form values with selected tags and update UI state
       setFieldValue('tags', allSelectedTags);
       setUiSelectedTags(allSelectedTags);
-      setRefreshCounter((prev) => prev + 1);
 
       if (enableAutoTagText) {
         // If there are newly added tags, add them to the target field
@@ -398,9 +391,8 @@ export const TagsProvider: React.FC<TagsProviderProps> = ({
       showList,
       setShowList,
       addTags,
-      refreshCounter,
     }),
-    [tagOptions, selectedOptions, showList, addTags, refreshCounter],
+    [tagOptions, selectedOptions, showList, addTags],
   );
 
   return <TagsContext.Provider value={contextValue}>{children}</TagsContext.Provider>;

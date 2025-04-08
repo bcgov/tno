@@ -21,8 +21,7 @@ export interface ITagsProps {
  * Internal Tags component that uses the context
  */
 const TagsComponent: React.FC = () => {
-  const { tagOptions, selectedOptions, showList, setShowList, addTags, refreshCounter } =
-    useTagsContext();
+  const { tagOptions, selectedOptions, showList, setShowList, addTags } = useTagsContext();
 
   return (
     <styled.Tags className="multi-group">
@@ -41,7 +40,6 @@ const TagsComponent: React.FC = () => {
             menuPlacement="top"
             value={selectedOptions}
             onChange={(newValue) => addTags(newValue as IOptionItem[])}
-            key={`tag-select-${refreshCounter}`} // Force re-render when refreshCounter changes
           />
           <Button
             tooltip="Show tag list"
