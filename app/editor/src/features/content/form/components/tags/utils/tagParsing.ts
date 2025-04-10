@@ -3,7 +3,8 @@ import { IParsedTag, Tag } from '../types';
 /**
  * Parse tags with their original format from text
  * @param text The text to parse tags from
- * @returns Array of parsed tags with their original format
+ * @returns Array of parsed tags with their original format,
+ * input [tag1, tag2], output [{tag: 'TAG1', original: 'tag1'}, {tag: 'TAG2', original: 'tag2'}]
  */
 export const parseTagsWithOriginalFormat = (text: string): IParsedTag[] => {
   const tagPattern = /\[([^\]]+)\]/g;
@@ -27,7 +28,8 @@ export const parseTagsWithOriginalFormat = (text: string): IParsedTag[] => {
 /**
  * Create a map of original tag formats
  * @param parsedTags Array of parsed tags
- * @returns Map of uppercase tag codes to their original format
+ * @returns Map of uppercase tag codes to their original format,
+ * input [{tag: 'TAG1', original: 'tag1'}, {tag: 'TAG2', original: 'tag2'}], output {'TAG1': 'tag1', 'TAG2': 'tag2'}
  */
 export const createOriginalFormatMap = (parsedTags: IParsedTag[]): Record<string, string> => {
   const map: Record<string, string> = {};
@@ -42,6 +44,7 @@ export const createOriginalFormatMap = (parsedTags: IParsedTag[]): Record<string
  * @param tags Array of all available tags
  * @param tagIds Array of tag IDs to get codes for
  * @returns Array of tag codes
+ * input  alltags: [{id: 1, code: 'tag1'}, {id: 2, code: 'tag2'}, {id: 3, code: 'tag3'}], tagIds: [1, 2], output ['tag1', 'tag2']
  */
 export const getTagCodesByIds = (tags: Tag[], tagIds: number[]): string[] => {
   return tags.filter((tag: Tag) => tagIds.includes(tag.id)).map((tag: Tag) => tag.code);
