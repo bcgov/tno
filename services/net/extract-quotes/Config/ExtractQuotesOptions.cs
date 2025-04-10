@@ -31,6 +31,26 @@ public class ExtractQuotesOptions : ServiceOptions
     public string CoreNLPApiUrl { get; set; } = "";
 
     /// <summary>
+    /// get/set - The URL to the LLM API (compatible with OpenAI format).
+    /// </summary>
+    public string LLMApiUrl { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The API key for the LLM API.
+    /// </summary>
+    public string LLMApiKey { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The model name to use for the LLM API.
+    /// </summary>
+    public string LLMModelName { get; set; } = "gpt-3.5-turbo";
+
+    /// <summary>
+    /// get/set - Whether to use the LLM API instead of CoreNLP.
+    /// </summary>
+    public bool UseLLM { get; set; } = true;
+
+    /// <summary>
     /// get/set - Ignore any content that was indexed before this day offset.
     /// </summary>
     public int? IgnoreContentPublishedBeforeOffset { get; set; }

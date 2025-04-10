@@ -1,8 +1,11 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using TNO.Core.Http;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.ExtractQuotes.Config;
+using TNO.Services.ExtractQuotes.LLM;
 using TNO.Services.NLP.ExtractQuotes;
 using TNO.Services.Runners;
 
@@ -43,8 +46,20 @@ public class ExtractQuotesService : KafkaConsumerService
             .Configure<ExtractQuotesOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IKafkaListener<string, IndexRequestModel>, KafkaListener<string, IndexRequestModel>>()
             .AddSingleton<IServiceManager, ExtractQuotesManager>()
-            .AddSingleton<IHttpRequestClient, HttpRequestClient>()
-            .AddSingleton<ICoreNLPService, CoreNLPService>();
+            .AddSingleton<IHttpRequestClient, HttpRequestClient>();
+
+        // Register the appropriate service based on configuration
+        var serviceSection = this.Configuration.GetSection("Service");
+        var useLLM = serviceSection.GetValue<bool>("UseLLM");
+
+        if (useLLM)
+        {
+            services.AddSingleton<ICoreNLPService, LLMService>();
+        }
+        else
+        {
+            services.AddSingleton<ICoreNLPService, CoreNLPService>();
+        }
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<ExtractQuotesOptions>()
