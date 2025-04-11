@@ -1,6 +1,7 @@
 export * from './formatTime';
 export * from './getContentPath';
 export * from './getDefaultCommentaryExpiryValue';
+export * from './getTargetField';
 export * from './isHoliday';
 export * from './isSummaryRequired';
 export * from './setTime';
