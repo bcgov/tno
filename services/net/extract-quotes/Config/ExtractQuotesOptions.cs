@@ -51,6 +51,11 @@ public class ExtractQuotesOptions : ServiceOptions
     public bool UseLLM { get; set; } = true;
 
     /// <summary>
+    /// get/set - Maximum number of LLM API requests per minute.
+    /// </summary>
+    public int LLMMaxRequestsPerMinute { get; set; } = 10;
+
+    /// <summary>
     /// get/set - Ignore any content that was indexed before this day offset.
     /// </summary>
     public int? IgnoreContentPublishedBeforeOffset { get; set; }

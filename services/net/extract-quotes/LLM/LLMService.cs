@@ -20,6 +20,7 @@ public class LLMService : ICoreNLPService
     private readonly IHttpRequestClient HttpClient;
     private readonly ILogger<LLMService> Logger;
     private readonly ExtractQuotesOptions Options;
+    private readonly RateLimiter RateLimiter;
     private int FailureCount = 0;
     #endregion
 
@@ -38,6 +39,15 @@ public class LLMService : ICoreNLPService
         this.HttpClient = httpClient;
         this.Options = options.Value;
         this.Logger = logger;
+
+        // Initialize the rate limiter with configured limits
+        this.RateLimiter = new RateLimiter(
+            logger,
+            this.Options.LLMMaxRequestsPerMinute);
+
+        this.Logger.LogInformation(
+            "LLM Service initialized with rate limit: {RequestLimit} requests/min",
+            this.Options.LLMMaxRequestsPerMinute);
     }
     #endregion
 
@@ -82,6 +92,9 @@ public class LLMService : ICoreNLPService
             this.Logger.LogInformation("Starting LLM quote extraction with text length: {length}", text.Length);
             this.Logger.LogDebug("Using LLM API URL: {url}", this.Options.LLMApiUrl);
             this.Logger.LogDebug("Using LLM model: {model}", this.Options.LLMModelName);
+
+            // Wait for rate limiter to allow this request
+            await this.RateLimiter.WaitForAvailabilityAsync();
             // Create the prompt for the LLM
             var prompt = $@"Extract all direct quotes from the following text. For each quote, identify the speaker.
 If the speaker is not explicitly mentioned, use 'Unknown' as the speaker name.
@@ -151,6 +164,8 @@ Only include quotes that are explicitly marked with quotation marks in the text.
             // Extract the content from the response
             var responseContent = response.choices[0].message.content;
             this.Logger.LogInformation("Received content from LLM: {content}", responseContent);
+
+
 
             // Parse the JSON response
             var jsonStartIndex = responseContent.IndexOf('{');
