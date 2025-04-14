@@ -63,6 +63,7 @@ spec:
         git checkout $(params.GIT_SOURCE)
 
         # TODO: Make the branch equal to the GIT_REF
+        # git reset --hard origin/master
         git pull
         git show -s
 
