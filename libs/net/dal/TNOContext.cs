@@ -140,6 +140,10 @@ public class TNOContext : DbContext
 
     #endregion
 
+    #region MediaAnalytics
+    public DbSet<MediaAnalytics> MediaAnalyticsInfo => Set<MediaAnalytics>();
+    #endregion
+
     #region Constructors
     /// <summary>
     /// Creates a new instance of a TNOContext object, initializes with specified parameters.
