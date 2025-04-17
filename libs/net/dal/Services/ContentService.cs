@@ -297,7 +297,7 @@ public class ContentService : BaseService<Content, long>, IContentService
     private Dictionary<string, object> GetChangedProperties(Microsoft.EntityFrameworkCore.ChangeTracking.PropertyValues currentValues,
     Microsoft.EntityFrameworkCore.ChangeTracking.PropertyValues? databaseValues)
     {
-        // Fields to ignore: system fields 
+        // Fields to ignore: system fields
         var ignoreFields = new HashSet<string> {
             nameof(Content.Versions),
             nameof(Content.UpdatedBy),
@@ -402,8 +402,8 @@ public class ContentService : BaseService<Content, long>, IContentService
                 var contentConflictEx = new ContentConflictException($"FIELDS:{changedFields}");
                 throw new DbUpdateConcurrencyException(contentConflictEx.Message, contentConflictEx);
             }
-            
-            throw ex;
+
+            throw;
         }
     }
 

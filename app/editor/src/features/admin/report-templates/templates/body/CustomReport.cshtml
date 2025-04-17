@@ -234,7 +234,7 @@
           <h3 style="margin:16px 0px 10px 0px;">@(String.IsNullOrEmpty(sentiment) ? "" : $"{sentiment} ")@headline</h3>
           <div style="padding: 2px 0px 8px 12px; width:100%; border-bottom:1px solid #E8E9F1; color:#584C50; font-size:.85rem; line-height:.9rem; text-transform:uppercase; margin-bottom:16px;">
             <div style="display: block; font-size: 14px; line-height: 110%;">
-              <strong style="text-transform:none;">@content.Source?.Name</strong><br/>
+              <strong style="text-transform:none;">@(String.IsNullOrEmpty(content.Source?.Name) ? content.OtherSource : content.Source?.Name)</strong><br/>
               <strong>@content.PublishedOn?.AddHours(utcOffset).ToString("dddd, MMMM d yyyy")</strong><br/>
               @if (!string.IsNullOrWhiteSpace(content.Page))
               {

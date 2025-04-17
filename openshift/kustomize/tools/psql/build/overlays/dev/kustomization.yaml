@@ -1,0 +1,19 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: 9b301c-tools
+
+resources:
+  - ../../base
+
+patches:
+  - target:
+      kind: BuildConfig
+      name: psql.dev
+    patch: |-
+      - op: replace
+        path: /spec/source/git/uri
+        value: https://github.com/bcgov/tno.git
+      - op: replace
+        path: /spec/source/git/ref
+        value: dev

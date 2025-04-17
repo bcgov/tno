@@ -1040,8 +1040,8 @@ namespace TNO.DAL.Migrations
 
                     b.Property<string>("SourceUrl")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
                         .HasColumnName("source_url");
 
                     b.Property<int>("Status")

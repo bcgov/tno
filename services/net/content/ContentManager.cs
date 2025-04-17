@@ -548,6 +548,8 @@ public class ContentManager : ServiceManager<ContentOptions>
                 model.MediaTypeId = ingests?.MediaTypeId ?? throw new InvalidOperationException($"Unable to find an ingest for the topic '{result.Topic}'");
             }
 
+            if (content?.SourceUrl.Length > 1000) this.Logger.LogWarning("Content.SourceUrl is greater than maximum length. UID={uid}", content.Uid);
+
             content ??= new ContentModel();
             content.Uid = model.Uid;
             content.Status = model.Status;
@@ -564,7 +566,7 @@ public class ContentManager : ServiceManager<ContentOptions>
             content.Summary = String.IsNullOrWhiteSpace(summary) ? "" : summary;
             content.Body = !String.IsNullOrWhiteSpace(body) ? body : model.ContentType == ContentType.AudioVideo ? "" : summary;
             content.IsApproved = model.ContentType == ContentType.AudioVideo && model.PublishedOn.HasValue && model.Status == ContentStatus.Publish && !String.IsNullOrWhiteSpace(model.Body);
-            content.SourceUrl = model.Link;
+            content.SourceUrl = model.Link.Length > 1000 ? model.Link[..1000] : model.Link;
             content.PublishedOn = model.PublishedOn;
             content.Section = model.Section;
             content.Byline = string.Join(",", model.Authors.Select(a => a.Name[0..Math.Min(a.Name.Length, 200)])); // TODO: Temporary workaround to deal with regression issue in Syndication Service.

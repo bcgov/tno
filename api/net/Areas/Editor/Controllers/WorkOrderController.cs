@@ -100,7 +100,7 @@ public class WorkOrderController : ControllerBase
     {
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-        var result = _workOrderService.FindDistinctWorkOrders(new WorkOrderFilter(query), this._serializerOptions);
+        var result = _workOrderService.FindDistinctWorkOrders(new WorkOrderFilter(query));
         var page = new Paged<WorkOrderModel>(result.Items.Select(i => i), result.Page, result.Quantity, result.Total);
         return new JsonResult(page);
     }

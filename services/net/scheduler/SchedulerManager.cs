@@ -83,19 +83,19 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
                         {
                             this.Logger.LogInformation("Scheduled event '{id}:{name}' is running", eventTypeId, scheduledEvent.Name);
 
-                            if (ev.EventType == EventScheduleType.Report)
-                                await GenerateReportRequestAsync(scheduledEvent);
-                            else if (ev.EventType == EventScheduleType.Notification)
-                                await GenerateNotificationRequestAsync(scheduledEvent);
-                            else
-                                await GenerateEventScheduleRequestAsync(scheduledEvent);
-
                             await this.Api.HandleConcurrencyAsync<EventScheduleModel?>(async () =>
                             {
                                 scheduledEvent = await this.Api.GetEventScheduleAsync(scheduledEvent.Id) ?? throw new NoContentException($"Event schedule {scheduledEvent.Id}:{scheduledEvent.Name} does not exist.");
                                 scheduledEvent.RequestSentOn = DateTime.UtcNow;
                                 return await this.Api.UpdateEventScheduleAsync(scheduledEvent, false);
                             });
+
+                            if (ev.EventType == EventScheduleType.Report)
+                                await GenerateReportRequestAsync(scheduledEvent);
+                            else if (ev.EventType == EventScheduleType.Notification)
+                                await GenerateNotificationRequestAsync(scheduledEvent);
+                            else
+                                await GenerateEventScheduleRequestAsync(scheduledEvent);
                         }
                     }
                 }

@@ -22,7 +22,7 @@ import { ReportPreview } from './ReportPreview';
 import * as styled from './styled';
 
 export const MyReports: React.FC = () => {
-  const [{ myReports, reportsFilter }, { findMyReports, deleteReport }] = useReports();
+  const [{ myReports, reportsFilter }, { findMyReports, deleteReport, getReport }] = useReports();
   const [{ getReportInstance }] = useReportInstances();
   const { toggle, isShowing } = useModal();
   const navigate = useNavigate();
@@ -53,6 +53,15 @@ export const MyReports: React.FC = () => {
               i.id === message.id ? { ...i, status: message.status, version: message.version } : i,
             ),
           });
+        } else if (message.message === 'event') {
+          const updateReport = await getReport(report.id, false);
+          if (updateReport) {
+            setReport({
+              ...report,
+              events: updateReport.events,
+              version: updateReport.version,
+            });
+          }
         } else {
           const instance = await getReportInstance(message.id, false);
           if (instance) {
