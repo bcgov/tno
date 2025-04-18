@@ -19,6 +19,7 @@ public class ReportSectionSettingsModel
     public string GroupBy { get; set; } = "";
     public string SortBy { get; set; } = "";
     public string SortDirection { get; set; } = "";
+    public string Url { get; set; } = "";
     #endregion
 
     #region Constructors
@@ -38,6 +39,7 @@ public class ReportSectionSettingsModel
         this.GroupBy = settings.GetDictionaryJsonValue("groupBy", "", options)!;
         this.SortBy = settings.GetDictionaryJsonValue("sortBy", "", options)!;
         this.SortDirection = settings.GetDictionaryJsonValue("sortDirection", "", options)!;
+        this.Url = settings.GetDictionaryJsonValue("url", "", options)!;
     }
 
     public ReportSectionSettingsModel(JsonDocument settings, JsonSerializerOptions options)
@@ -54,6 +56,7 @@ public class ReportSectionSettingsModel
         this.GroupBy = settings.GetElementValue("groupBy", "", options)!;
         this.SortBy = settings.GetElementValue("sortBy", "", options)!;
         this.SortDirection = settings.GetElementValue("sortDirection", "", options)!;
+        this.Url = settings.GetElementValue("url", "", options)!;
     }
     #endregion
 }

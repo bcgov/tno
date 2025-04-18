@@ -3,7 +3,14 @@ import { defaultReportSection } from 'features/my-reports/constants';
 import { IReportForm } from 'features/my-reports/interfaces';
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { FaAlignJustify, FaChartPie, FaImage, FaList, FaNewspaper } from 'react-icons/fa6';
+import {
+  FaAlignJustify,
+  FaChartPie,
+  FaImage,
+  FaImages,
+  FaList,
+  FaNewspaper,
+} from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { useLookup } from 'store/hooks';
 import { ReportSectionTypeName, Row, Settings } from 'tno-core';
@@ -114,8 +121,19 @@ export const AddSectionBar = () => {
           disabled={isSubmitting}
         >
           <Row gap="1rem">
-            <FaImage />
+            <FaImages />
             <label>Front Page Images</label>
+          </Row>
+        </Button>
+        <Button
+          onClick={() =>
+            addSection(values.sections.length, ReportSectionTypeName.Image, false, false)
+          }
+          disabled={isSubmitting}
+        >
+          <Row gap="1rem">
+            <FaImage />
+            <label>Image</label>
           </Row>
         </Button>
       </Row>

@@ -13,4 +13,5 @@ export interface IReportSectionSettingsModel {
   sortDirection: '' | 'asc' | 'desc';
   datasetColors?: string[];
   dataLabelColors?: string[];
+  url: string;
 }

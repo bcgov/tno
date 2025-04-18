@@ -21,6 +21,7 @@ import {
   ReportOptions,
   ReportSectionContent,
   ReportSectionGallery,
+  ReportSectionImage,
   ReportSectionMediaAnalytics,
   ReportSectionTableOfContents,
   ReportSectionText,
@@ -178,6 +179,12 @@ export const ReportFormSections = () => {
             >
               Gallery
             </Button>
+            <Button
+              variant={ButtonVariant.secondary}
+              onClick={() => handleAddSection(ReportSectionTypeName.Image)}
+            >
+              Image
+            </Button>
           </Row>
         </Row>
         <Col>
@@ -258,6 +265,9 @@ export const ReportFormSections = () => {
                       </Show>
                       <Show visible={section.sectionType === ReportSectionTypeName.Gallery}>
                         <ReportSectionGallery index={index} />
+                      </Show>
+                      <Show visible={section.sectionType === ReportSectionTypeName.Image}>
+                        <ReportSectionImage index={index} />
                       </Show>
                     </>
                   )}

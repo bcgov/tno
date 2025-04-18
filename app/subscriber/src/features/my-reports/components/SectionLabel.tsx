@@ -59,5 +59,13 @@ export const SectionLabel = ({ section, showIcon = true, showTotal }: ISectionLa
         {showTotal && <span className="section-total">stories: {contentCount}</span>}
       </Row>
     );
+  } else if (section.sectionType === ReportSectionTypeName.Image) {
+    return (
+      <Row gap="0.25rem" alignItems="center" className="section-header-label">
+        {showIcon && <SectionIcon type={section.sectionType} />}
+        <span>Image:</span>
+        <span>{section.settings.label}</span>
+      </Row>
+    );
   } else return <>Unknown</>;
 };

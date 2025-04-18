@@ -1,7 +1,7 @@
 {
   "name": "tno-core",
   "description": "TNO shared library",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "homepage": "https://github.com/bcgov/tno",
   "license": "Apache-2.0",
   "files": [

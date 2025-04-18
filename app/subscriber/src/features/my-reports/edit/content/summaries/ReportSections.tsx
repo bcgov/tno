@@ -10,6 +10,7 @@ import { ReportSectionTypeName, Show } from 'tno-core';
 import {
   ReportSectionContent,
   ReportSectionGallery,
+  ReportSectionImage,
   ReportSectionMediaAnalytics,
   ReportSectionTableOfContents,
   ReportSectionText,
@@ -78,6 +79,9 @@ export const ReportSections: React.FC<IReportSectionsProps> = ({ disabled }) => 
               </Show>
               <Show visible={section.sectionType === ReportSectionTypeName.Gallery}>
                 <ReportSectionGallery sectionIndex={index} disabled={disabled} />
+              </Show>
+              <Show visible={section.sectionType === ReportSectionTypeName.Image}>
+                <ReportSectionImage sectionIndex={index} disabled={disabled} />
               </Show>
             </Section>
           );

@@ -29,4 +29,9 @@ public enum ReportSectionType
     /// This section displays content in a gallery (i.e. front page images).
     /// </summary>
     Gallery = 4,
+
+    /// <summary>
+    /// This section displays an image.
+    /// </summary>
+    Image = 5,
 }
