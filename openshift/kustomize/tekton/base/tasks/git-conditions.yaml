@@ -178,4 +178,5 @@ spec:
         build_service 'syndication'
         build_service 'transcription'
 
-        cat build.env
+        echo "Build the following component."
+        cat build.env | xargs echo
