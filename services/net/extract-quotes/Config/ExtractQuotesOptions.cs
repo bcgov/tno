@@ -31,8 +31,48 @@ public class ExtractQuotesOptions : ServiceOptions
     public string CoreNLPApiUrl { get; set; } = "";
 
     /// <summary>
+    /// get/set - The URL to the LLM API (compatible with OpenAI format).
+    /// </summary>
+    public string LLMApiUrl { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The API key for the LLM API.
+    /// </summary>
+    public string LLMApiKey { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The model name to use for the LLM API.
+    /// </summary>
+    public string LLMModelName { get; set; } = "gpt-3.5-turbo";
+
+    /// <summary>
+    /// get/set - Whether to use the LLM API instead of CoreNLP.
+    /// </summary>
+    public bool UseLLM { get; set; } = true;
+
+    /// <summary>
+    /// get/set - Maximum number of LLM API requests per minute.
+    /// </summary>
+    public int LLMMaxRequestsPerMinute { get; set; } = 10;
+
+    /// <summary>
     /// get/set - Ignore any content that was indexed before this day offset.
     /// </summary>
     public int? IgnoreContentPublishedBeforeOffset { get; set; }
+
+    /// <summary>
+    /// get/set - Whether to use batch processing for quote extraction.
+    /// </summary>
+    public bool UseBatchProcessing { get; set; } = true;
+
+    /// <summary>
+    /// get/set - Maximum number of content items to process in a single batch.
+    /// </summary>
+    public int BatchSize { get; set; } = 10;
+
+    /// <summary>
+    /// get/set - Maximum time in milliseconds to wait before processing a batch even if it's not full.
+    /// </summary>
+    public int BatchTimeoutMs { get; set; } = 3000;
     #endregion
 }
