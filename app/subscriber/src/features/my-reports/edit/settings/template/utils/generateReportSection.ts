@@ -27,6 +27,7 @@ export const generateReportSection = (options: IGenerateReportSectionOptions) =>
       groupBy: '',
       sortBy: '',
       sortDirection: '',
+      url: '',
     },
     chartTemplates: [],
     ...options.section,

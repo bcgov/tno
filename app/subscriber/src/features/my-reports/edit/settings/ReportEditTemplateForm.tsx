@@ -22,6 +22,7 @@ import {
   ReportSectionTableOfContents,
   ReportSectionText,
 } from './template';
+import { ReportSectionImage } from './template/ReportSectionImage';
 
 export const ReportEditTemplateForm = () => {
   const { values, setFieldValue, setValues } = useReportEditContext();
@@ -208,6 +209,10 @@ export const ReportEditTemplateForm = () => {
                             {/* FRONT PAGE IMAGES */}
                             <Show visible={section.sectionType === ReportSectionTypeName.Gallery}>
                               <ReportSectionGallery index={index} />
+                            </Show>
+                            {/* EXTERNAL IMAGE */}
+                            <Show visible={section.sectionType === ReportSectionTypeName.Image}>
+                              <ReportSectionImage index={index} />
                             </Show>
                           </Section>
                         </div>
