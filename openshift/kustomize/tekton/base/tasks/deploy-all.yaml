@@ -70,7 +70,7 @@ spec:
           [name]="api"
           [type]="sts"
           [replicas]="1"
-          [action]="maintenance"
+          [action]="stop"
           [build]="yes"
           [env]="dev test prod"
         )
@@ -318,12 +318,15 @@ spec:
         # Stop all services if API needs to be deployed.
         # If the component was auto built by the build step, or all components are to built, or a specific component was requested to be built.
         if [ "${BUILD_API}" = true ] || [ "$(params.DEPLOY)" = "api" ] || [ "$(params.DEPLOY)" = "all" ]; then
+          echo "Scale down"
           for component in ${!COMPONENT@}; do
-            environments=(${component[env]})
-            if [[ "${component[action]}" = "stop" ]] && [[ $environments =~ "$(params.ENV)" ]]; then
-              echo "Stopping ${component[id]}"
-              oc scale ${component[type]} ${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV) --replicas=0
-            fi
+            IFS=' ' read -r -a env_array <<< "${component[env]}"
+            for env in "${env_array[@]}"; do
+              if [[ "${component[action]}" = "stop" ]] && [[ $env =~ "$(params.ENV)" ]]; then
+                echo "Stopping ${component[id]}"
+                oc scale ${component[type]} ${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV) --replicas=0
+              fi
+            done
           done
         fi
 
@@ -335,38 +338,43 @@ spec:
           COMPONENT=${COMPONENT^^}
           echo $COMPONENT=${!COMPONENT}
 
-          environments=(${component[env]})
+          IFS=' ' read -r -a env_array <<< "${component[env]}"
 
           # Check if this image needs to be deployed.
           # If the component was auto built by the build step, or all components are to built, or a specific component was requested to be built.
           if [ "${!COMPONENT}" = true ] || [ "$(params.DEPLOY)" = "all" ] || [ "$(params.DEPLOY)" = "${component[id]}" ]; then
-            if [[ "$environments" =~ "$(params.ENV)" ]]; then
-              if [[ "${component[build]}" = "yes" ]]; then
-                echo "Tagging image to trigger deployment to ${component[name]}:$(params.ENV)"
-                oc tag ${component[name]}:$(params.IMAGE_TAG) ${component[name]}:$(params.ENV)
-              fi
+            for env in "${env_array[@]}"; do
+              if [[ "$env" =~ "$(params.ENV)" ]]; then
+                if [[ "${component[build]}" = "yes" ]]; then
+                  echo "Tagging image to trigger deployment to ${component[name]}:$(params.ENV)"
+                  oc tag ${component[name]}:$(params.IMAGE_TAG) ${component[name]}:$(params.ENV)
+                fi
 
-              if [ "${component[type]}" = "sts" ]; then
-                oc rollout restart ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
-              fi
+                if [ "${component[type]}" = "sts" ]; then
+                  oc rollout restart ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+                fi
 
-              echo "Waiting for deployment to roll out"
-              oc rollout status --watch --timeout=$(params.TIMEOUT) ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
-            fi
+                echo "Waiting for deployment to roll out"
+                oc rollout status --watch --timeout=$(params.TIMEOUT) ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+              else
+                echo "${component[id]} does not deploy to $(params.ENV)"
+              fi
+            done
           fi
         done
 
         # Start all services if API was deployed.
         if [ "${BUILD_API}" = true ] || [ "$(params.DEPLOY)" = "api" ] || [ "$(params.DEPLOY)" = "all" ]; then
           for component in ${!COMPONENT@}; do
-            environments=(${component[env]})
-            if [[ "${component[action]}" = "stop" ]] && [[ $environments =~ "$(params.ENV)" ]] && [[ "${component[replicas]}" -gt "0" ]]; then
-              echo "Starting ${component[name]}"
-              oc scale ${component[type]} ${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV) --replicas=${component[replicas]}
-              # oc rollout status --watch --timeout=$(params.TIMEOUT) ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
-              if [ "$(params.WAIT)" = "yes" ]; then
-                oc wait --for=condition=available --timeout=$(params.TIMEOUT) ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+            for env in "${env_array[@]}"; do
+              if [[ "${component[action]}" = "stop" ]] && [[ $env =~ "$(params.ENV)" ]] && [[ "${component[replicas]}" -gt "0" ]]; then
+                echo "Starting ${component[name]}"
+                oc scale ${component[type]} ${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV) --replicas=${component[replicas]}
+                # oc rollout status --watch --timeout=$(params.TIMEOUT) ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+                if [ "$(params.WAIT)" = "yes" ]; then
+                  oc wait --for=condition=available --timeout=$(params.TIMEOUT) ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+                fi
               fi
-            fi
+            done
           done
         fi
