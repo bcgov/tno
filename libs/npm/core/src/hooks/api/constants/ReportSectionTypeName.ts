@@ -26,4 +26,9 @@ export enum ReportSectionTypeName {
   /// This section displays content in a gallery (i.e. front page images).
   /// </summary>
   Gallery = 'Gallery',
+
+  /// <summary>
+  /// This section displays an image.
+  /// </summary>
+  Image = 'Image',
 }
