@@ -166,7 +166,7 @@ Only include quotes that are explicitly marked with quotation marks in the text.
                 return null;
             }
 
-            this.Logger.LogDebug("LLM response content: {content}", responseContent);
+            this.Logger.LogTrace("LLM response content: {content}", responseContent);
 
             // Try to extract JSON from the response
             int jsonStartIndex = responseContent.IndexOf('{');
@@ -175,7 +175,7 @@ Only include quotes that are explicitly marked with quotation marks in the text.
             if (jsonStartIndex >= 0 && jsonEndIndex > jsonStartIndex)
             {
                 var jsonString = responseContent.Substring(jsonStartIndex, jsonEndIndex - jsonStartIndex + 1);
-                this.Logger.LogDebug("JSON extracted from response: {json}", jsonString);
+                this.Logger.LogTrace("JSON extracted from response: {json}", jsonString);
 
                 try
                 {
