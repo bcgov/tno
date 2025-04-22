@@ -87,7 +87,7 @@ UPDATE public."report_template" SET
     {
       @* TABLE OF CONTENTS SECTION *@
       var tocCount = 0;
-      @foreach (var tableSection in Sections.Where(s => new [] {ReportSectionType.Content, ReportSectionType.Gallery, ReportSectionType.Text}.Contains(s.Value.SectionType)))
+      @foreach (var tableSection in Sections.Where(s => new [] {ReportSectionType.Content, ReportSectionType.Gallery, ReportSectionType.Text, ReportSectionType.Image}.Contains(s.Value.SectionType)))
       {
         if ((!tableSection.Value.Settings.HideEmpty || tableSection.Value.Content.Any()) && tableSection.Value.IsEnabled)
         {
