@@ -25,31 +25,6 @@ public class MediaAnalyticsService : BaseService<MediaAnalytics, int>,IMediaAnal
     {
         return await this.Context.MediaAnalyticsInfo.ToListAsync();
     }
-
-    /// <summary>
-    /// Find all information for the specified 'sourceid'.
-    /// </summary>
-    /// <param name="sourceid"></param>
-    /// <returns></returns>
-  
-  public async Task<MediaAnalytics?> FilterBySourceId(int sourceid)
-    {
-        return await this.Context.MediaAnalyticsInfo.FirstOrDefaultAsync(m=>m.SourceId == sourceid);
-    }
-
-    /// <summary>
-    /// Find all information for the specified 'Media Type'.
-    /// </summary>
-    /// <param name="mediatypeid"></param>
-    /// <returns></returns>
-
-#pragma warning disable CS8613 // Nullability of reference types in return type doesn't match implicitly implemented member.
-    public async Task<MediaAnalytics?> FilterByMediaType(int mediatypeid)
-#pragma warning restore CS8613 // Nullability of reference types in return type doesn't match implicitly implemented member.
-    {
-        return await this.Context.MediaAnalyticsInfo.FirstOrDefaultAsync(m=>m.MediaTypeId == mediatypeid);
-    }
-
     public IPaged<MediaAnalytics> Find(MediaAnalyticsFilter filter)
     {
         var query = this.Context.MediaAnalyticsInfo
