@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Core.Http;
@@ -21,7 +22,7 @@ public class LLMService : ICoreNLPService
     private readonly IHttpRequestClient HttpClient;
     private readonly ILogger<LLMService> Logger;
     private readonly ExtractQuotesOptions Options;
-    private readonly RateLimiter RateLimiter;
+    private readonly TokenBucketRateLimiter _rateLimiter;
     private int FailureCount = 0;
     #endregion
 
@@ -42,9 +43,15 @@ public class LLMService : ICoreNLPService
         this.Logger = logger;
 
         // Initialize the rate limiter with configured limits
-        this.RateLimiter = new RateLimiter(
-            logger,
-            this.Options.LLMMaxRequestsPerMinute);
+        _rateLimiter = new TokenBucketRateLimiter(new TokenBucketRateLimiterOptions
+        {
+            TokenLimit = this.Options.LLMMaxRequestsPerMinute,
+            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+            QueueLimit = 0, // No queuing, fail fast if rate limit is exceeded
+            ReplenishmentPeriod = TimeSpan.FromMinutes(1),
+            TokensPerPeriod = this.Options.LLMMaxRequestsPerMinute,
+            AutoReplenishment = true
+        });
 
         this.Logger.LogInformation(
             "LLM service initialized - API URL: {apiUrl}, Model: {model}, Rate limit: {requestLimit} requests/minute",
@@ -97,7 +104,14 @@ public class LLMService : ICoreNLPService
             this.Logger.LogDebug("Using LLM model: {model}", this.Options.LLMModelName);
 
             // Wait for rate limiter to allow this request
-            await this.RateLimiter.WaitForAvailabilityAsync();
+            using RateLimitLease lease = await _rateLimiter.AcquireAsync(1);
+            if (!lease.IsAcquired)
+            {
+                this.Logger.LogWarning("Rate limit exceeded. Request will be rejected.");
+                throw new RateLimitRejectedException("API rate limit exceeded");
+            }
+
+            this.Logger.LogDebug("Rate limit check passed - Acquired permission to make API request");
 
             // Create the prompt for the LLM
             var prompt = $@"Extract all direct quotes from the following text. For each quote, identify the speaker.
@@ -336,4 +350,13 @@ public class QuoteItem
     public string text { get; set; } = "";
     public string canonicalSpeaker { get; set; } = "";
     public int beginSentence { get; set; }
+}
+
+/// <summary>
+/// Exception thrown when a rate limit is exceeded and the request is rejected.
+/// </summary>
+public class RateLimitRejectedException : Exception
+{
+    public RateLimitRejectedException(string message) : base(message) { }
+    public RateLimitRejectedException(string message, Exception innerException) : base(message, innerException) { }
 }
