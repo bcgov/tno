@@ -46,7 +46,8 @@ public class MediaAnalyticsConfiguration : BaseTypeConfiguration<MediaAnalytics,
         
         builder.HasOne(m => m.Source).WithMany().HasForeignKey(m => m.SourceId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.MediaType).WithMany().HasForeignKey(m => m.MediaTypeId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasIndex(m => m.PublishedOn).IsUnique();
+        builder.HasIndex(m => new { m.PublishedOn, m.SourceId, m.MediaTypeId })
+           .IsUnique();
                 
         base.Configure(builder);
     }

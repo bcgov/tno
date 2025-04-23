@@ -6,7 +6,7 @@ namespace TNO.Entities;
 /// <summary>
 ///MediaAnalytics class, provides a DB model to manage an evening overview instance section.
 /// </summary>
-[Table("MediaAnalytics")]
+[Table("media_analytics")]
 public class MediaAnalytics:BaseType<int>
 {
     #region Properties
@@ -15,7 +15,7 @@ public class MediaAnalytics:BaseType<int>
     /// </summary>
     [Key]
    
-    [Column("published_On ")]
+    [Column("published_on")]
     public DateTime PublishedOn  { get; set; }
 
     /// <summary>
@@ -26,7 +26,7 @@ public class MediaAnalytics:BaseType<int>
     /// <summary>
     /// get/set - The foreign key to the content.
     /// </summary>
-    [Column("source_id ")]
+    [Column("source_id")]
     public int SourceId  { get; set; }
 
      /// <summary>
@@ -37,7 +37,7 @@ public class MediaAnalytics:BaseType<int>
     /// <summary>
     /// get/set - The foreign key to the content.
     /// </summary>
-    [Column("mediaType_id ")]
+    [Column("media_type_id")]
     public int MediaTypeId  { get; set; }
 
     /// <summary>
