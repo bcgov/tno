@@ -133,7 +133,14 @@ Return the result in the following JSON format:
   ]
 }}
 
-Only include quotes that are explicitly marked with quotation marks in the text.";
+IMPORTANT FORMATTING INSTRUCTIONS:
+1. Only include quotes that are explicitly marked with quotation marks in the text.
+2. When a quote contains single quotes (') or other special characters, properly escape them in the JSON.
+3. Make sure the JSON is valid and can be parsed by a standard JSON parser.
+4. Do not include trailing commas in JSON arrays or objects.
+5. Ensure all quotes and property names use double quotes in the JSON output.
+6. If a quote contains nested quotes, properly escape the nested quotes with a backslash.
+7. The 'text' field should contain the exact quote as it appears in the text, preserving all punctuation.";
 
             // Create the request body for the LLM API
             var requestBody = new
