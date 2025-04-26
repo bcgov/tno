@@ -1,8 +1,28 @@
-
-using TNO.Kafka.Models;
 using TNO.Services.Config;
 
 namespace TNO.Services.ExtractQuotes.Config;
+
+/// <summary>
+/// Configuration for a specific LLM API endpoint (primary or fallback)
+/// </summary>
+public class ApiConfig
+{
+    public List<string> ApiKeys { get; set; } = new List<string>();
+    public string ModelName { get; set; } = string.Empty;
+    public int TimeoutSeconds { get; set; } = 60; // Default timeout
+    // API URL for this specific endpoint
+    public string ApiUrl { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Configuration options specifically for LLM usage
+/// </summary>
+public class LLMOptions
+{
+    public ApiConfig Primary { get; set; } = new ApiConfig();
+    public ApiConfig Fallback { get; set; } = new ApiConfig();
+    public int MaxRequestsPerMinute { get; set; } = 10;
+}
 
 /// <summary>
 /// ExtractQuotesOptions class, configuration options for ExtractQuotes service
@@ -31,29 +51,9 @@ public class ExtractQuotesOptions : ServiceOptions
     public string CoreNLPApiUrl { get; set; } = "";
 
     /// <summary>
-    /// get/set - The URL to the LLM API (compatible with OpenAI format).
-    /// </summary>
-    public string LLMApiUrl { get; set; } = "";
-
-    /// <summary>
-    /// get/set - The API key for the LLM API.
-    /// </summary>
-    public string LLMApiKey { get; set; } = "";
-
-    /// <summary>
-    /// get/set - The model name to use for the LLM API.
-    /// </summary>
-    public string LLMModelName { get; set; } = "gpt-3.5-turbo";
-
-    /// <summary>
     /// get/set - Whether to use the LLM API instead of CoreNLP.
     /// </summary>
     public bool UseLLM { get; set; } = true;
-
-    /// <summary>
-    /// get/set - Maximum number of LLM API requests per minute.
-    /// </summary>
-    public int LLMMaxRequestsPerMinute { get; set; } = 10;
 
     /// <summary>
     /// get/set - Ignore any content that was indexed before this day offset.
@@ -74,5 +74,11 @@ public class ExtractQuotesOptions : ServiceOptions
     /// get/set - Maximum time in milliseconds to wait before processing a batch even if it's not full.
     /// </summary>
     public int BatchTimeoutMs { get; set; } = 3000;
+
+    /// <summary>
+    /// Holds the detailed configuration for primary and fallback LLM APIs.
+    /// Populated from the "LLM" section in appsettings.json.
+    /// </summary>
+    public LLMOptions LLM { get; set; } = new LLMOptions();
     #endregion
 }

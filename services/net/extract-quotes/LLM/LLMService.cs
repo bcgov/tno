@@ -10,7 +10,6 @@ using TNO.Core.Http;
 using TNO.Services.ExtractQuotes.Config;
 using TNO.Services.ExtractQuotes.CoreNLP.models;
 using TNO.Services.NLP.ExtractQuotes;
-
 namespace TNO.Services.ExtractQuotes.LLM;
 
 /// <summary>
@@ -24,6 +23,8 @@ public class LLMService : ICoreNLPService
     private readonly ExtractQuotesOptions Options;
     private readonly TokenBucketRateLimiter _rateLimiter;
     private int FailureCount = 0;
+    private int _primaryApiKeyIndex = 0;
+    private int _fallbackApiKeyIndex = 0;
     #endregion
 
     #region Constructors
@@ -42,22 +43,66 @@ public class LLMService : ICoreNLPService
         this.Options = options.Value;
         this.Logger = logger;
 
+        // Validate the LLM configuration
+        if (this.Options.LLM == null)
+        {
+            throw new ArgumentNullException(nameof(this.Options.LLM), "LLM configuration section is missing.");
+        }
+
+        if (this.Options.LLM.Primary?.ApiKeys == null || !this.Options.LLM.Primary.ApiKeys.Any())
+        {
+            throw new ArgumentException("Primary API keys are not configured.");
+        }
+
+        if (string.IsNullOrEmpty(this.Options.LLM.Primary?.ModelName))
+        {
+            throw new ArgumentException("Primary model name is not configured.");
+        }
+
+        if (string.IsNullOrEmpty(this.Options.LLM.Primary?.ApiUrl))
+        {
+            throw new ArgumentException("Primary model API URL is not configured.");
+        }
+
         // Initialize the rate limiter with configured limits
         _rateLimiter = new TokenBucketRateLimiter(new TokenBucketRateLimiterOptions
         {
-            TokenLimit = this.Options.LLMMaxRequestsPerMinute,
+            TokenLimit = this.Options.LLM.MaxRequestsPerMinute,
             QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
             QueueLimit = 0, // No queuing, fail fast if rate limit is exceeded
             ReplenishmentPeriod = TimeSpan.FromMinutes(1),
-            TokensPerPeriod = this.Options.LLMMaxRequestsPerMinute,
+            TokensPerPeriod = this.Options.LLM.MaxRequestsPerMinute,
             AutoReplenishment = true
         });
 
+        // Log initialization of primary model
         this.Logger.LogInformation(
-            "LLM service initialized - API URL: {apiUrl}, Model: {model}, Rate limit: {requestLimit} requests/minute",
-            this.Options.LLMApiUrl,
-            this.Options.LLMModelName,
-            this.Options.LLMMaxRequestsPerMinute);
+            "LLM service initialized - Primary model: {model}, API keys: {keyCount}, Timeout: {timeout}s",
+            this.Options.LLM.Primary.ModelName,
+            this.Options.LLM.Primary.ApiKeys.Count,
+            this.Options.LLM.Primary.TimeoutSeconds);
+
+        // Log fallback model if configured
+        if (this.Options.LLM.Fallback?.ApiKeys != null && this.Options.LLM.Fallback.ApiKeys.Any() &&
+            !string.IsNullOrEmpty(this.Options.LLM.Fallback.ModelName))
+        {
+            // Validate fallback API URL
+            if (string.IsNullOrEmpty(this.Options.LLM.Fallback.ApiUrl))
+            {
+                throw new ArgumentException("Fallback model API URL is not configured.");
+            }
+
+            this.Logger.LogInformation(
+                "Fallback LLM configured - Model: {model}, API keys: {keyCount}, Timeout: {timeout}s",
+                this.Options.LLM.Fallback.ModelName,
+                this.Options.LLM.Fallback.ApiKeys.Count,
+                this.Options.LLM.Fallback.TimeoutSeconds);
+        }
+        else
+        {
+            this.Logger.LogWarning("No fallback LLM model configured. Service will not have failover capability.");
+        }
+
     }
     #endregion
 
@@ -92,6 +137,7 @@ public class LLMService : ICoreNLPService
 
     /// <summary>
     /// Sends the text to the LLM API and returns an AnnotationResponse.
+    /// Implements API key rotation and fallback model support.
     /// </summary>
     /// <param name="text"></param>
     /// <returns>Returns the AnnotationResponse with extracted quotes.</returns>
@@ -100,20 +146,8 @@ public class LLMService : ICoreNLPService
         try
         {
             this.Logger.LogInformation("Starting LLM quote extraction - Text length: {length} characters", text.Length);
-            this.Logger.LogDebug("Using LLM API URL: {url}", this.Options.LLMApiUrl);
-            this.Logger.LogDebug("Using LLM model: {model}", this.Options.LLMModelName);
 
-            // Wait for rate limiter to allow this request
-            using RateLimitLease lease = await _rateLimiter.AcquireAsync(1);
-            if (!lease.IsAcquired)
-            {
-                this.Logger.LogWarning("Rate limit exceeded. Request will be rejected.");
-                throw new RateLimitRejectedException("API rate limit exceeded");
-            }
-
-            this.Logger.LogDebug("Rate limit check passed - Acquired permission to make API request");
-
-            // Create the prompt for the LLM
+            // Create the prompt for the LLM (still based on the original method)
             var prompt = $@"Extract all direct quotes from the following text. For each quote, identify the speaker.
 If the speaker is not explicitly mentioned, use 'Unknown' as the speaker name.
 
@@ -142,137 +176,128 @@ IMPORTANT FORMATTING INSTRUCTIONS:
 6. If a quote contains nested quotes, properly escape the nested quotes with a backslash.
 7. The 'text' field should contain the exact quote as it appears in the text, preserving all punctuation.";
 
-            // Create the request body for the LLM API
-            var requestBody = new
+            // 1. Try Primary Model with Key Rotation
+            if (this.Options.LLM.Primary?.ApiKeys != null && this.Options.LLM.Primary.ApiKeys.Any())
             {
-                model = this.Options.LLMModelName,
-                messages = new[]
-                {
-                    new { role = "system", content = "You are a helpful assistant that extracts quotes from text." },
-                    new { role = "user", content = prompt }
-                },
-                temperature = 0.0,
-                max_tokens = 4000
-            };
-
-            this.Logger.LogDebug("LLM prompt: {prompt}", prompt);
-
-            // Convert the request body to JSON
-            var jsonContent = JsonSerializer.Serialize(requestBody);
-            this.Logger.LogDebug("Request JSON: {json}", jsonContent);
-            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-
-            // Create headers with the API key
-            var headers = new HttpRequestMessage().Headers;
-            headers.Add("Authorization", $"Bearer {this.Options.LLMApiKey}");
-
-            // Send the request to the LLM API
-            this.Logger.LogInformation("Sending request to LLM API: {url}", this.Options.LLMApiUrl);
-            var response = await RetryRequestAsync(async () =>
-                await this.HttpClient.SendAsync<LLMResponse>(this.Options.LLMApiUrl, HttpMethod.Post, headers, content));
-
-            if (response == null)
-            {
-                this.Logger.LogWarning("LLM API returned empty response");
-                return null;
-            }
-
-            this.Logger.LogInformation("Received LLM API response - Status: {status}", response.Status);
-
-            // Extract the content from the response
-            var responseContent = response.Choices?.FirstOrDefault()?.Message?.Content;
-            if (string.IsNullOrEmpty(responseContent))
-            {
-                this.Logger.LogWarning("No content in LLM response");
-                return null;
-            }
-
-            this.Logger.LogTrace("LLM response content: {content}", responseContent);
-
-            // Try to extract JSON from the response
-            int jsonStartIndex = responseContent.IndexOf('{');
-            int jsonEndIndex = responseContent.LastIndexOf('}');
-
-            if (jsonStartIndex >= 0 && jsonEndIndex > jsonStartIndex)
-            {
-                var jsonString = responseContent.Substring(jsonStartIndex, jsonEndIndex - jsonStartIndex + 1);
-                this.Logger.LogTrace("JSON extracted from response: {json}", jsonString);
-
+                string primaryApiKey = GetNextApiKey(this.Options.LLM.Primary.ApiKeys, ref _primaryApiKeyIndex);
                 try
                 {
-                    var quoteResponse = JsonSerializer.Deserialize<QuoteResponse>(jsonString);
+                    int keyIndex = (_primaryApiKeyIndex - 1 + this.Options.LLM.Primary.ApiKeys.Count) % this.Options.LLM.Primary.ApiKeys.Count;
+                    this.Logger.LogInformation("Attempting LLM request with primary model '{Model}' using key index {Index}",
+                                              this.Options.LLM.Primary.ModelName, keyIndex);
 
-                    if (quoteResponse != null && quoteResponse.quotes != null)
+                    // Rate limiter check
+                    using RateLimitLease lease = await _rateLimiter.AcquireAsync(1);
+                    if (!lease.IsAcquired)
                     {
-                        this.Logger.LogInformation("Successfully parsed {count} quotes from LLM response",
-                            quoteResponse.quotes.Count);
+                        this.Logger.LogWarning("Rate limit exceeded for primary LLM API. Request rejected temporarily.");
+                        throw new RateLimitRejectedException("LLM rate limit exceeded for primary model.");
+                    }
 
-                        // Convert to AnnotationResponse format
-                        var quotes = quoteResponse.quotes.Select((q, i) => new Quote
+                    // Call the primary model
+                    string? responseContent = await CallLLMApiWithPrompt(text, prompt, this.Options.LLM.Primary.ModelName,
+                                                                       primaryApiKey, this.Options.LLM.Primary.TimeoutSeconds);
+
+                    if (responseContent != null)
+                    {
+                        var annotationResponse = ParseLLMResponse(responseContent, this.Options.LLM.Primary.ModelName);
+                        if (annotationResponse != null)
                         {
-                            id = i + 1,
-                            text = q.text,
-                            canonicalSpeaker = q.canonicalSpeaker,
-                            beginSentence = q.beginSentence
-                        }).ToList();
-
-                        // Create sentences for each quote
-                        var sentences = new List<Sentence>();
-                        for (int i = 0; i < quotes.Count; i++)
-                        {
-                            var quote = quotes[i];
-
-                            // Create a sentence for each quote if it doesn't exist
-                            while (sentences.Count <= quote.beginSentence)
-                            {
-                                sentences.Add(new Sentence
-                                {
-                                    index = sentences.Count,
-                                    entityMentions = new List<EntityMention>()
-                                });
-
-                                // Add an entity mention for the speaker
-                                sentences.Last().entityMentions.Add(new EntityMention
-                                {
-                                    text = quote.canonicalSpeaker,
-                                    ner = "PERSON"
-                                });
-                            }
+                            this.Logger.LogInformation("Successfully extracted quotes using primary model '{Model}'.",
+                                                      this.Options.LLM.Primary.ModelName);
+                            return annotationResponse;
                         }
 
-                        this.Logger.LogDebug("Created {count} sentences with entity mentions", sentences.Count);
-
-                        var annotationResponse = new AnnotationResponse
-                        {
-                            Quotes = quotes,
-                            Sentences = sentences
-                        };
-
-                        // Log each extracted quote for debugging
-                        foreach (var quote in annotationResponse.Quotes)
-                        {
-                            this.Logger.LogDebug("Extracted quote: Speaker='{speaker}', Text='{text}'",
-                                quote.canonicalSpeaker, quote.text);
-                        }
-
-                        return annotationResponse;
+                        this.Logger.LogWarning("Failed to parse valid quotes from primary model '{Model}' response.",
+                                              this.Options.LLM.Primary.ModelName);
+                        // Continue to fallback if parsing failed
                     }
                     else
                     {
-                        this.Logger.LogWarning("Parsed response does not contain quotes");
+                        this.Logger.LogWarning("Primary model '{Model}' returned null or empty content.",
+                                              this.Options.LLM.Primary.ModelName);
+                        // Continue to fallback
                     }
                 }
-                catch (JsonException ex)
+                catch (Exception primaryEx) when (primaryEx is HttpRequestException
+                                              || primaryEx is TaskCanceledException
+                                              || primaryEx is OperationCanceledException
+                                              || primaryEx is TimeoutException
+                                              || primaryEx is RateLimitRejectedException)
                 {
-                    this.Logger.LogError(ex, "Failed to parse LLM response JSON: {json}", jsonString);
+                    // Transient errors - try fallback
+                    this.Logger.LogWarning(primaryEx, "Primary LLM request failed for model '{Model}'. Attempting fallback.",
+                                         this.Options.LLM.Primary.ModelName);
+                }
+                catch (Exception primaryEx)
+                {
+                    // Unexpected errors - log but still try fallback
+                    this.Logger.LogError(primaryEx, "Unexpected error during primary LLM call for model '{Model}'. Attempting fallback.",
+                                        this.Options.LLM.Primary.ModelName);
                 }
             }
             else
             {
-                this.Logger.LogWarning("Unable to extract JSON from LLM response");
+                this.Logger.LogWarning("Primary LLM configuration is missing or invalid. Skipping primary attempt.");
             }
 
-            return null;
+            // 2. Try Fallback Model if Primary Failed or was Skipped
+            if (this.Options.LLM.Fallback?.ApiKeys != null && this.Options.LLM.Fallback.ApiKeys.Any() &&
+                !string.IsNullOrEmpty(this.Options.LLM.Fallback.ModelName))
+            {
+                string fallbackApiKey = GetNextApiKey(this.Options.LLM.Fallback.ApiKeys, ref _fallbackApiKeyIndex);
+                try
+                {
+                    int keyIndex = (_fallbackApiKeyIndex - 1 + this.Options.LLM.Fallback.ApiKeys.Count) % this.Options.LLM.Fallback.ApiKeys.Count;
+                    this.Logger.LogInformation("Attempting LLM request with fallback model '{Model}' using key index {Index}",
+                                             this.Options.LLM.Fallback.ModelName, keyIndex);
+
+                    // Rate limiter check for fallback too
+                    using RateLimitLease lease = await _rateLimiter.AcquireAsync(1);
+                    if (!lease.IsAcquired)
+                    {
+                        this.Logger.LogWarning("Rate limit exceeded for fallback LLM API. Request rejected.");
+                        throw new RateLimitRejectedException("LLM rate limit exceeded during fallback.");
+                    }
+
+                    // Call the fallback model
+                    string? fallbackResponseContent = await CallLLMApiWithPrompt(text, prompt, this.Options.LLM.Fallback.ModelName,
+                                                                              fallbackApiKey, this.Options.LLM.Fallback.TimeoutSeconds);
+
+                    if (fallbackResponseContent != null)
+                    {
+                        var annotationResponse = ParseLLMResponse(fallbackResponseContent, this.Options.LLM.Fallback.ModelName);
+                        if (annotationResponse != null)
+                        {
+                            this.Logger.LogInformation("Successfully extracted quotes using fallback model '{Model}'.",
+                                                     this.Options.LLM.Fallback.ModelName);
+                            return annotationResponse;
+                        }
+
+                        this.Logger.LogWarning("Failed to parse valid quotes from fallback model '{Model}' response.",
+                                              this.Options.LLM.Fallback.ModelName);
+                        return null; // Both models tried and failed to parse
+                    }
+                    else
+                    {
+                        this.Logger.LogError("Fallback model '{Model}' also returned null or empty content.",
+                                             this.Options.LLM.Fallback.ModelName);
+                        return null; // Both models tried and failed
+                    }
+                }
+                catch (Exception fallbackEx)
+                {
+                    // Log final failure after fallback attempt
+                    this.Logger.LogError(fallbackEx, "Fallback LLM request also failed for model '{Model}'. Giving up for this content.",
+                                       this.Options.LLM.Fallback.ModelName);
+                    return null; // Both models tried and failed
+                }
+            }
+            else
+            {
+                this.Logger.LogWarning("No fallback LLM configured after primary model failure. No quotes extracted.");
+                return null; // No fallback configured
+            }
         }
         catch (Exception ex)
         {
@@ -280,6 +305,236 @@ IMPORTANT FORMATTING INSTRUCTIONS:
             throw;
         }
     }
+
+    /// <summary>
+    /// Helper method that handles creating the full request payload with prompt and calling the LLM API.
+    /// </summary>
+    private async Task<string?> CallLLMApiWithPrompt(string text, string prompt, string modelName, string apiKey, int timeoutSeconds)
+    {
+        // Create the request body for the LLM API
+        var requestBody = new
+        {
+            model = modelName,
+            messages = new[]
+            {
+                new { role = "system", content = "You are a helpful assistant that extracts quotes from text." },
+                new { role = "user", content = prompt }
+            },
+            temperature = 0.0,
+            max_tokens = 4000
+        };
+
+        this.Logger.LogDebug("LLM request to model '{Model}' with prompt: {prompt}", modelName, prompt);
+
+        // Convert the request body to JSON
+        var jsonContent = JsonSerializer.Serialize(requestBody);
+        var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+        // Determine which API URL to use based on the model name
+        string apiUrl;
+
+        // Check if we're using the primary model
+        if (modelName == this.Options.LLM.Primary.ModelName)
+        {
+            apiUrl = this.Options.LLM.Primary.ApiUrl;
+            this.Logger.LogDebug("Using primary model API URL: {url}", apiUrl);
+        }
+        // Check if we're using the fallback model
+        else if (modelName == this.Options.LLM.Fallback.ModelName)
+        {
+            apiUrl = this.Options.LLM.Fallback.ApiUrl;
+            this.Logger.LogDebug("Using fallback model API URL: {url}", apiUrl);
+        }
+        // If neither, throw an exception
+        else
+        {
+            throw new ArgumentException($"No API URL configured for model {modelName}");
+        }
+
+        // Create headers with the API key - use HttpRequestMessage.Headers instead of Dictionary
+        var headers = new HttpRequestMessage().Headers;
+        headers.Add("Authorization", $"Bearer {apiKey}");
+
+        // Move variable declaration outside try block so it can be accessed in catch block
+        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
+
+        try
+        {
+            // Configure timeout using CancellationTokenSource - moved outside
+            using (cancellationTokenSource) // Use using statement to ensure resource disposal
+            {
+                // Send the request to the LLM API - using SendAsync which is the method in the original code
+                if (string.IsNullOrEmpty(apiUrl))
+                {
+                    throw new ArgumentException("Argument 'url' must be a valid URL.");
+                }
+
+                this.Logger.LogInformation("Sending request to LLM API: {url} with model: {model}", apiUrl, modelName);
+
+                // Fix parameter order and type, call using original method
+                LLMResponse? response = await RetryRequestAsync(async () =>
+                    await this.HttpClient.SendAsync<LLMResponse>(apiUrl, HttpMethod.Post, headers, content));
+
+                if (response == null)
+                {
+                    this.Logger.LogWarning("LLM API call to model '{Model}' returned null response.", modelName);
+                    return null;
+                }
+
+                // Extract the content from the response
+                var responseContent = response.Choices?.FirstOrDefault()?.Message?.Content;
+                if (string.IsNullOrEmpty(responseContent))
+                {
+                    this.Logger.LogWarning("LLM response from model '{Model}' did not contain message content.", modelName);
+                    return null;
+                }
+
+                this.Logger.LogTrace("LLM response content from model '{Model}': {ContentSnippet}",
+                                  modelName, responseContent.Substring(0, Math.Min(responseContent.Length, 200)));
+                return responseContent;
+            }
+        }
+        catch (OperationCanceledException ex) when (cancellationTokenSource.Token.IsCancellationRequested)
+        {
+            this.Logger.LogError(ex, "LLM API call timed out after {Timeout} seconds for model '{Model}'.", timeoutSeconds, modelName);
+            throw new TimeoutException($"LLM API call timed out after {timeoutSeconds} seconds for model {modelName}.", ex);
+        }
+        catch (HttpRequestException ex)
+        {
+            // Handle HTTP-level errors (network, DNS, non-success status codes)
+            this.Logger.LogError(ex, "HTTP error during LLM API call for model '{Model}'. Status Code: {StatusCode}", modelName, ex.StatusCode);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            this.Logger.LogError(ex, "Unexpected error during LLM API call for model '{Model}'.", modelName);
+            throw;
+        }
+        finally
+        {
+            // Dispose the CancellationTokenSource if it wasn't already disposed
+            if (!cancellationTokenSource.IsCancellationRequested)
+            {
+                cancellationTokenSource.Dispose();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gets the next API key from the list in a thread-safe, round-robin manner.
+    /// </summary>
+    /// <param name="keys">List of API keys.</param>
+    /// <param name="indexField">Reference to the index field for this list.</param>
+    /// <returns>The next API key.</returns>
+    private string GetNextApiKey(List<string> keys, ref int indexField)
+    {
+        if (keys == null || !keys.Any())
+        {
+            throw new InvalidOperationException("No API keys available for rotation.");
+        }
+        // Use Interlocked.Increment for thread-safe increment and wrap-around.
+        int currentIndex = Interlocked.Increment(ref indexField);
+        // Modulo arithmetic for round-robin selection.
+        // (currentIndex - 1) because Interlocked.Increment returns the *new* value.
+        return keys[(currentIndex - 1) % keys.Count];
+    }
+
+    /// <summary>
+    /// Parses the raw string content from the LLM response into an AnnotationResponse.
+    /// </summary>
+    /// <param name="llmResponseContent">The string content from the LLM response.</param>
+    /// <param name="modelName">The name of the model that generated the response (for logging).</param>
+    /// <returns>AnnotationResponse if parsing is successful, otherwise null.</returns>
+    private AnnotationResponse? ParseLLMResponse(string llmResponseContent, string modelName)
+    {
+        this.Logger.LogDebug("Attempting to parse LLM response from model '{Model}'. Content starts: {snippet}", modelName, llmResponseContent.Substring(0, Math.Min(llmResponseContent.Length, 100)));
+        // Existing JSON extraction logic - keep or adapt
+        int jsonStartIndex = llmResponseContent.IndexOf('{');
+        int jsonEndIndex = llmResponseContent.LastIndexOf('}');
+
+        if (jsonStartIndex >= 0 && jsonEndIndex > jsonStartIndex)
+        {
+            var jsonString = llmResponseContent.Substring(jsonStartIndex, jsonEndIndex - jsonStartIndex + 1);
+            this.Logger.LogTrace("Extracted JSON from model '{Model}': {json}", modelName, jsonString);
+
+            try
+            {
+                // Assumes QuoteResponse structure defined below matches the expected JSON
+                var quoteResponse = JsonSerializer.Deserialize<QuoteResponse>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (quoteResponse != null && quoteResponse.quotes != null && quoteResponse.quotes.Any())
+                {
+                    this.Logger.LogInformation("Successfully parsed {count} quotes from LLM response (Model: {Model})",
+                        quoteResponse.quotes.Count, modelName);
+
+                    // --- Conversion logic from QuoteResponse to AnnotationResponse ---
+                    var quotes = quoteResponse.quotes.Select((q, i) => new Quote
+                    {
+                        id = i + 1, // Generate ID based on order
+                        text = q.Text?.Trim() ?? "", // Ensure text is not null and trim whitespace
+                        canonicalSpeaker = q.CanonicalSpeaker?.Trim() ?? "Unknown", // Ensure speaker is not null and trim
+                        beginSentence = q.BeginSentence // Use provided sentence index
+                    }).ToList();
+
+                    // Create sentences structure based on max beginSentence index
+                    int maxSentenceIndex = quotes.Any() ? quotes.Max(q => q.beginSentence) : -1;
+                    var sentences = Enumerable.Range(0, maxSentenceIndex + 1)
+                                        .Select(i => new Sentence { index = i, entityMentions = new List<EntityMention>() })
+                                        .ToList();
+
+                    // Add entity mentions for speakers to the correct sentence
+                    foreach (var quote in quotes)
+                    {
+                        if (quote.beginSentence >= 0 && quote.beginSentence < sentences.Count && !string.IsNullOrWhiteSpace(quote.canonicalSpeaker))
+                        {
+                            // Avoid adding duplicate speakers to the same sentence if multiple quotes start there
+                            if (!sentences[quote.beginSentence].entityMentions.Any(em => em.text == quote.canonicalSpeaker))
+                            {
+                                sentences[quote.beginSentence].entityMentions.Add(new EntityMention
+                                {
+                                    text = quote.canonicalSpeaker,
+                                    ner = "PERSON" // Assuming speaker is always PERSON
+                                });
+                            }
+                        }
+                    }
+                    this.Logger.LogDebug("Created {count} sentences structure based on quote indices.", sentences.Count);
+                    // --- End Conversion Logic ---
+
+                    var annotationResponse = new AnnotationResponse
+                    {
+                        Quotes = quotes,
+                        Sentences = sentences
+                    };
+
+                    // Log each extracted quote for debugging
+                    foreach (var quote in annotationResponse.Quotes)
+                    {
+                        this.Logger.LogDebug("Extracted quote: Speaker='{speaker}', Text='{text}'",
+                            quote.canonicalSpeaker, quote.text);
+                    }
+
+                    return annotationResponse;
+                }
+                else
+                {
+                    this.Logger.LogWarning("Parsed JSON from model '{Model}' does not contain valid quotes or is empty. JSON: {json}", modelName, jsonString);
+                    return null;
+                }
+            }
+            catch (JsonException ex)
+            {
+                this.Logger.LogError(ex, "Failed to parse LLM response JSON from model '{Model}'. JSON: {json}", modelName, jsonString);
+                return null;
+            }
+        }
+        else
+        {
+            this.Logger.LogWarning("Unable to extract JSON object from LLM response content from model '{Model}'. Content: {content}", modelName, llmResponseContent);
+            return null;
+        }
+    }
+
     #endregion
 }
 
@@ -353,10 +608,10 @@ public class QuoteResponse
 
 public class QuoteItem
 {
-    public int id { get; set; }
-    public string text { get; set; } = "";
-    public string canonicalSpeaker { get; set; } = "";
-    public int beginSentence { get; set; }
+    public int Id { get; set; }
+    public string? Text { get; set; }
+    public string? CanonicalSpeaker { get; set; }
+    public int BeginSentence { get; set; }
 }
 
 /// <summary>
