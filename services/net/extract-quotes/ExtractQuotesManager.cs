@@ -88,11 +88,6 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
 
         CoreNLPService = coreNLPService;
 
-        // Log configuration settings
-        Logger.LogInformation("Quote extraction configuration - Extract quotes for Index operation: {onIndex}, Extract quotes for Publish operation: {onPublish}",
-            Options.ExtractQuotesOnIndex, Options.ExtractQuotesOnPublish);
-
-        Logger.LogInformation("Batch processing disabled - Will process each content item immediately");
     }
     #endregion
 

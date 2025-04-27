@@ -22,9 +22,18 @@ public class LLMService : ICoreNLPService
     private readonly ILogger<LLMService> Logger;
     private readonly ExtractQuotesOptions Options;
     private readonly TokenBucketRateLimiter _rateLimiter;
-    private int FailureCount = 0;
+    private int _failureCount = 0;
     private int _primaryApiKeyIndex = 0;
     private int _fallbackApiKeyIndex = 0;
+
+    /// <summary>
+    /// thread logging information
+    /// </summary>
+    /// <returns>string</returns>
+    private static string GetThreadInfo()
+    {
+        return $"[Thread {Environment.CurrentManagedThreadId}]";
+    }
     #endregion
 
     #region Constructors
@@ -122,14 +131,17 @@ public class LLMService : ICoreNLPService
         }
         catch (Exception ex)
         {
-            if (this.Options.RetryLimit <= ++this.FailureCount)
+            // Use Interlocked.Increment for thread-safe increment and wrap-around.
+            int currentFailureCount = Interlocked.Increment(ref _failureCount);
+            if (this.Options.RetryLimit <= currentFailureCount)
             {
-                this.FailureCount = 0;
+                Interlocked.Exchange(ref _failureCount, 0); // Reset the counter
                 throw;
             }
 
             // Wait before retrying.
-            this.Logger.LogError(ex, "LLM API retry attempt {count}.{newline}Error:{body}", this.FailureCount, Environment.NewLine, ex.Data["Body"]);
+            this.Logger.LogError(ex, "LLM API retry attempt {count}.{newline}Error:{body}",
+                currentFailureCount, Environment.NewLine, ex.Data["Body"]);
             await Task.Delay(this.Options.RetryDelayMS);
             return await RetryRequestAsync<T>(callbackDelegate);
         }
@@ -145,7 +157,8 @@ public class LLMService : ICoreNLPService
     {
         try
         {
-            this.Logger.LogInformation("Starting LLM quote extraction - Text length: {length} characters", text.Length);
+            this.Logger.LogInformation("{ThreadInfo} Starting LLM quote extraction - Text length: {length} characters",
+                GetThreadInfo(), text.Length);
 
             // Create the prompt for the LLM (still based on the original method)
             var prompt = $@"Extract all direct quotes from the following text. For each quote, identify the speaker.
@@ -177,14 +190,16 @@ IMPORTANT FORMATTING INSTRUCTIONS:
 7. The 'text' field should contain the exact quote as it appears in the text, preserving all punctuation.";
 
             // 1. Try Primary Model with Key Rotation
-            if (this.Options.LLM.Primary?.ApiKeys != null && this.Options.LLM.Primary.ApiKeys.Any())
+            if (this.Options.LLM.Primary?.ApiKeys != null && this.Options.LLM.Primary.ApiKeys.Count > 0)
             {
                 string primaryApiKey = GetNextApiKey(this.Options.LLM.Primary.ApiKeys, ref _primaryApiKeyIndex);
                 try
                 {
-                    int keyIndex = (_primaryApiKeyIndex - 1 + this.Options.LLM.Primary.ApiKeys.Count) % this.Options.LLM.Primary.ApiKeys.Count;
-                    this.Logger.LogInformation("Attempting LLM request with primary model '{Model}' using key index {Index}",
-                                              this.Options.LLM.Primary.ModelName, keyIndex);
+                    // calculate the key index
+                    int keyIndex = (_primaryApiKeyIndex - 1) % Options.LLM.Primary.ApiKeys.Count;
+                    if (keyIndex < 0) keyIndex += Options.LLM.Primary.ApiKeys.Count;
+                    this.Logger.LogInformation("{ThreadInfo} Attempting LLM request with primary model '{Model}' using key index {Index}",
+                                              GetThreadInfo(), this.Options.LLM.Primary.ModelName, keyIndex);
 
                     // Rate limiter check
                     using RateLimitLease lease = await _rateLimiter.AcquireAsync(1);
@@ -242,15 +257,17 @@ IMPORTANT FORMATTING INSTRUCTIONS:
             }
 
             // 2. Try Fallback Model if Primary Failed or was Skipped
-            if (this.Options.LLM.Fallback?.ApiKeys != null && this.Options.LLM.Fallback.ApiKeys.Any() &&
+            if (this.Options.LLM.Fallback?.ApiKeys != null && this.Options.LLM.Fallback.ApiKeys.Count > 0 &&
                 !string.IsNullOrEmpty(this.Options.LLM.Fallback.ModelName))
             {
                 string fallbackApiKey = GetNextApiKey(this.Options.LLM.Fallback.ApiKeys, ref _fallbackApiKeyIndex);
                 try
                 {
-                    int keyIndex = (_fallbackApiKeyIndex - 1 + this.Options.LLM.Fallback.ApiKeys.Count) % this.Options.LLM.Fallback.ApiKeys.Count;
-                    this.Logger.LogInformation("Attempting LLM request with fallback model '{Model}' using key index {Index}",
-                                             this.Options.LLM.Fallback.ModelName, keyIndex);
+                    // calculate the key index
+                    int keyIndex = (_fallbackApiKeyIndex - 1) % Options.LLM.Fallback.ApiKeys.Count;
+                    if (keyIndex < 0) keyIndex += Options.LLM.Fallback.ApiKeys.Count;
+                    this.Logger.LogInformation("{ThreadInfo} Attempting LLM request with fallback model '{Model}' using key index {Index}",
+                                             GetThreadInfo(), this.Options.LLM.Fallback.ModelName, keyIndex);
 
                     // Rate limiter check for fallback too
                     using RateLimitLease lease = await _rateLimiter.AcquireAsync(1);
@@ -369,7 +386,8 @@ IMPORTANT FORMATTING INSTRUCTIONS:
                     throw new ArgumentException("Argument 'url' must be a valid URL.");
                 }
 
-                this.Logger.LogInformation("Sending request to LLM API: {url} with model: {model}", apiUrl, modelName);
+                this.Logger.LogInformation("{ThreadInfo} Sending request to LLM API: {url} with model: {model}",
+                    GetThreadInfo(), apiUrl, modelName);
 
                 // Fix parameter order and type, call using original method
                 LLMResponse? response = await RetryRequestAsync(async () =>
@@ -426,16 +444,14 @@ IMPORTANT FORMATTING INSTRUCTIONS:
     /// <param name="keys">List of API keys.</param>
     /// <param name="indexField">Reference to the index field for this list.</param>
     /// <returns>The next API key.</returns>
-    private string GetNextApiKey(List<string> keys, ref int indexField)
+    private static string GetNextApiKey(List<string> keys, ref int indexField)
     {
-        if (keys == null || !keys.Any())
+        if (keys == null || keys.Count == 0)
         {
             throw new InvalidOperationException("No API keys available for rotation.");
         }
-        // Use Interlocked.Increment for thread-safe increment and wrap-around.
+        // Interlocked.Increment safely increments the indexField
         int currentIndex = Interlocked.Increment(ref indexField);
-        // Modulo arithmetic for round-robin selection.
-        // (currentIndex - 1) because Interlocked.Increment returns the *new* value.
         return keys[(currentIndex - 1) % keys.Count];
     }
 
@@ -462,7 +478,7 @@ IMPORTANT FORMATTING INSTRUCTIONS:
                 // Assumes QuoteResponse structure defined below matches the expected JSON
                 var quoteResponse = JsonSerializer.Deserialize<QuoteResponse>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-                if (quoteResponse != null && quoteResponse.quotes != null && quoteResponse.quotes.Any())
+                if (quoteResponse != null && quoteResponse.quotes != null && quoteResponse.quotes.Count > 0)
                 {
                     this.Logger.LogInformation("Successfully parsed {count} quotes from LLM response (Model: {Model})",
                         quoteResponse.quotes.Count, modelName);
@@ -477,7 +493,7 @@ IMPORTANT FORMATTING INSTRUCTIONS:
                     }).ToList();
 
                     // Create sentences structure based on max beginSentence index
-                    int maxSentenceIndex = quotes.Any() ? quotes.Max(q => q.beginSentence) : -1;
+                    int maxSentenceIndex = quotes.Count > 0 ? quotes.Max(q => q.beginSentence) : -1;
                     var sentences = Enumerable.Range(0, maxSentenceIndex + 1)
                                         .Select(i => new Sentence { index = i, entityMentions = new List<EntityMention>() })
                                         .ToList();
