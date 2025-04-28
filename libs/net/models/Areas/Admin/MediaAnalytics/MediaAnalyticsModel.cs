@@ -252,20 +252,48 @@ public class MediaAnalyticsModel:AuditColumnsModel
     }
 
 public static explicit operator Entities.MediaAnalytics(MediaAnalyticsModel model)
+{
+    var entity = new Entities.MediaAnalytics()
     {
-        var entity = new Entities.MediaAnalytics()
-        {
-            
-           PublishedOn = model.PublishedOn,
-           SourceId = model.SourceId,
-           
+        PublishedOn = model.PublishedOn,
+        SourceId = model.SourceId,
+        MediaTypeId = model.MediaTypeId,
+        UniqueViews = model.UniqueViews,
+        TotalViews = model.TotalViews,
+        AverageViews = model.AverageViews,
+        MaleViewers = model.MaleViewers,
 
-            
-        };
+        AgeGroup1 = model.AgeGroup1,
+        AgeGroup1Label = model.AgeGroup1Label ?? string.Empty,
+        AgeGroup2 = model.AgeGroup2,
+        AgeGroup2Label = model.AgeGroup2Label ?? string.Empty,
+        AgeGroup3 = model.AgeGroup3,
+        AgeGroup3Label = model.AgeGroup3Label ?? string.Empty,
+        AgeGroup4 = model.AgeGroup4,
+        AgeGroup4Label = model.AgeGroup4Label ?? string.Empty,
 
-        return entity;
-    }
-    
+        PageViews1 = model.PageViews1,
+        PageViews1Label = model.PageViews1Label ?? string.Empty,
+        PageViews2 = model.PageViews2,
+        Page_Views2_Label = model.Page_Views2_Label ?? string.Empty,
+        PageViews3 = model.PageViews3,
+        Page_Views3_Label = model.Page_Views3_Label ?? string.Empty,
+        PageViews4 = model.PageViews4,
+        Page_Views4_Label = model.Page_Views4_Label ?? string.Empty,
+
+        WatchTime1 = model.WatchTime1,
+        WatchTime1Label = model.WatchTime1Label ?? string.Empty,
+        WatchTime2 = model.WatchTime2,
+        WatchTime2Label = model.WatchTime2Label ?? string.Empty,
+        WatchTime3 = model.WatchTime3,
+        WatchTime3Label = model.WatchTime3Label ?? string.Empty,
+        WatchTime4 = model.WatchTime4,
+        WatchTime4Label = model.WatchTime4Label ?? string.Empty
+    };
+
+    return entity;
+}
+   
     #region Methods
     /// <summary>
     /// Creates a new instance of a ContentReference object.
