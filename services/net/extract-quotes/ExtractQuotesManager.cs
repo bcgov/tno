@@ -38,9 +38,6 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
     private int _retries = 0;
 
-    // Request counter for debugging
-    private long _requestCount = 0;
-
     // Set to track processed content IDs to prevent duplicate processing
     private readonly HashSet<long> _processedContentIds = new HashSet<long>();
     #endregion
@@ -427,10 +424,6 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
         {
             Logger.LogInformation("Starting quote extraction using {serviceType} service - Content ID: {contentId}, Text length: {length} characters",
                 Options.UseLLM ? "LLM" : "CoreNLP", content.Id, annotationInput.Length);
-
-            // Increment request counter for debugging
-            _requestCount++;
-            Logger.LogInformation("EXTRACT_QUOTES_REQUEST_COUNT: {count}", _requestCount);
 
             var annotations = await CoreNLPService.PerformAnnotation(annotationInput);
             if (annotations != null && annotations.Quotes.Count > 0)

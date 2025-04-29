@@ -325,7 +325,7 @@ IMPORTANT FORMATTING INSTRUCTIONS:
                 new { role = "system", content = "You are a helpful assistant that extracts quotes from text." },
                 new { role = "user", content = prompt }
             },
-            temperature = 0.0,
+            temperature = 1.0,
             max_tokens = 4000
         };
 
@@ -414,6 +414,10 @@ IMPORTANT FORMATTING INSTRUCTIONS:
         }
         // Interlocked.Increment safely increments the indexField
         int currentIndex = Interlocked.Increment(ref indexField);
+        // List<string> apiKeys = new List<string> { "key1", "key2", "key3" };
+        // (currentIndex - 1) % keys.Count = (1 - 1) % 3 = 0 % 3 = 0 => key1
+        // (currentIndex - 1) % keys.Count = (2 - 1) % 3 = 1 % 3 = 1 => key2
+        // this help get key never exceed the list
         return keys[(currentIndex - 1) % keys.Count];
     }
 
