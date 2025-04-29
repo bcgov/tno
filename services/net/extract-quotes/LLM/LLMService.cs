@@ -232,16 +232,6 @@ IMPORTANT FORMATTING INSTRUCTIONS:
                         // Continue to fallback
                     }
                 }
-                catch (Exception primaryEx) when (primaryEx is HttpRequestException
-                                              || primaryEx is TaskCanceledException
-                                              || primaryEx is OperationCanceledException
-                                              || primaryEx is TimeoutException
-                                              || primaryEx is RateLimitRejectedException)
-                {
-                    // Transient errors - try fallback
-                    this.Logger.LogWarning(primaryEx, "Primary LLM request failed for model '{Model}'. Attempting fallback.",
-                                         this.Options.LLM.Primary.ModelName);
-                }
                 catch (Exception primaryEx)
                 {
                     // Unexpected errors - log but still try fallback
