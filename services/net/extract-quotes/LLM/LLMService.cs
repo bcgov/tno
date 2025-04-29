@@ -2,13 +2,14 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Core.Http;
 using TNO.Services.ExtractQuotes.Config;
 using TNO.Services.ExtractQuotes.CoreNLP.models;
+using TNO.Services.ExtractQuotes.LLM.Exceptions;
+using TNO.Services.ExtractQuotes.LLM.Models;
 using TNO.Services.NLP.ExtractQuotes;
 namespace TNO.Services.ExtractQuotes.LLM;
 
@@ -518,87 +519,4 @@ IMPORTANT FORMATTING INSTRUCTIONS:
     #endregion
 }
 
-/// <summary>
-/// Response from the LLM API
-/// </summary>
-public class LLMResponse
-{
-    [JsonPropertyName("id")]
-    public string? Id { get; set; }
 
-    [JsonPropertyName("object")]
-    public string? Object { get; set; }
-
-    [JsonPropertyName("created")]
-    public long Created { get; set; }
-
-    [JsonPropertyName("model")]
-    public string? Model { get; set; }
-
-    [JsonPropertyName("choices")]
-    public List<Choice>? Choices { get; set; }
-
-    [JsonPropertyName("usage")]
-    public Usage? Usage { get; set; }
-
-    [JsonPropertyName("status")]
-    public string? Status { get; set; }
-}
-
-public class Choice
-{
-    [JsonPropertyName("index")]
-    public int Index { get; set; }
-
-    [JsonPropertyName("message")]
-    public Message? Message { get; set; }
-
-    [JsonPropertyName("finish_reason")]
-    public string? FinishReason { get; set; }
-}
-
-public class Message
-{
-    [JsonPropertyName("role")]
-    public string? Role { get; set; }
-
-    [JsonPropertyName("content")]
-    public string? Content { get; set; }
-}
-
-public class Usage
-{
-    [JsonPropertyName("prompt_tokens")]
-    public int PromptTokens { get; set; }
-
-    [JsonPropertyName("completion_tokens")]
-    public int CompletionTokens { get; set; }
-
-    [JsonPropertyName("total_tokens")]
-    public int TotalTokens { get; set; }
-}
-
-/// <summary>
-/// Quote response from the LLM
-/// </summary>
-public class QuoteResponse
-{
-    public List<QuoteItem> quotes { get; set; } = new List<QuoteItem>();
-}
-
-public class QuoteItem
-{
-    public int Id { get; set; }
-    public string? Text { get; set; }
-    public string? CanonicalSpeaker { get; set; }
-    public int BeginSentence { get; set; }
-}
-
-/// <summary>
-/// Exception thrown when a rate limit is exceeded and the request is rejected.
-/// </summary>
-public class RateLimitRejectedException : Exception
-{
-    public RateLimitRejectedException(string message) : base(message) { }
-    public RateLimitRejectedException(string message, Exception innerException) : base(message, innerException) { }
-}
