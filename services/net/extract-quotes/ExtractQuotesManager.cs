@@ -480,7 +480,7 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
 
                 if (quotesToAdd.Count > 0)
                 {
-                    Logger.LogInformation("Adding {count} new quotes to content ID: {contentId}", content.Id, quotesToAdd.Count);
+                    Logger.LogInformation("Adding {count} new quotes to content ID: {contentId}", quotesToAdd.Count, content.Id);
                     await Api.AddQuotesToContentAsync(content.Id, quotesToAdd);
                 }
                 else
