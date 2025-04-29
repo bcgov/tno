@@ -341,8 +341,6 @@ IMPORTANT FORMATTING INSTRUCTIONS:
             max_tokens = 4000
         };
 
-        this.Logger.LogDebug("LLM request to model '{Model}' with prompt: {prompt}", modelName, prompt);
-
         // Convert the request body to JSON
         var jsonContent = JsonSerializer.Serialize(requestBody);
         var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
@@ -354,13 +352,11 @@ IMPORTANT FORMATTING INSTRUCTIONS:
         if (modelName == this.Options.LLM.Primary.ModelName)
         {
             apiUrl = this.Options.LLM.Primary.ApiUrl;
-            this.Logger.LogDebug("Using primary model API URL: {url}", apiUrl);
         }
         // Check if we're using the fallback model
         else if (modelName == this.Options.LLM.Fallback.ModelName)
         {
             apiUrl = this.Options.LLM.Fallback.ApiUrl;
-            this.Logger.LogDebug("Using fallback model API URL: {url}", apiUrl);
         }
         // If neither, throw an exception
         else
@@ -407,8 +403,6 @@ IMPORTANT FORMATTING INSTRUCTIONS:
                     return null;
                 }
 
-                this.Logger.LogTrace("LLM response content from model '{Model}': {ContentSnippet}",
-                                  modelName, responseContent.Substring(0, Math.Min(responseContent.Length, 200)));
                 return responseContent;
             }
         }
@@ -463,7 +457,6 @@ IMPORTANT FORMATTING INSTRUCTIONS:
     /// <returns>AnnotationResponse if parsing is successful, otherwise null.</returns>
     private AnnotationResponse? ParseLLMResponse(string llmResponseContent, string modelName)
     {
-        this.Logger.LogDebug("Attempting to parse LLM response from model '{Model}'. Content starts: {snippet}", modelName, llmResponseContent.Substring(0, Math.Min(llmResponseContent.Length, 100)));
         // Existing JSON extraction logic - keep or adapt
         int jsonStartIndex = llmResponseContent.IndexOf('{');
         int jsonEndIndex = llmResponseContent.LastIndexOf('}');
@@ -471,7 +464,6 @@ IMPORTANT FORMATTING INSTRUCTIONS:
         if (jsonStartIndex >= 0 && jsonEndIndex > jsonStartIndex)
         {
             var jsonString = llmResponseContent.Substring(jsonStartIndex, jsonEndIndex - jsonStartIndex + 1);
-            this.Logger.LogTrace("Extracted JSON from model '{Model}': {json}", modelName, jsonString);
 
             try
             {

@@ -129,7 +129,6 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
             }
             else if (State.Status != ServiceStatus.Running)
             {
-                Logger.LogDebug("The service is not running: '{Status}'", State.Status);
             }
             else
             {
@@ -156,7 +155,6 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
             }
 
             // The delay ensures we don't have a run away thread.
-            Logger.LogDebug("Service sleeping for {delay} ms", delay);
             await Task.Delay(delay);
         }
     }
@@ -251,8 +249,6 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
             }
             else
             {
-                Logger.LogDebug("Starting to process message - Topic: {topic}, Content ID: {key}", result.Topic, result.Message.Key);
-
                 // Set a timeout for processing to prevent hanging
                 using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(30)); // 30 second timeout
                 var processingTask = ProcessIndexRequestAsync(result);
@@ -268,8 +264,6 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
                     // Successful run clears any errors.
                     State.ResetFailures();
                     _retries = 0;
-
-                    Logger.LogDebug("Message processing completed - Topic: {topic}, Content ID: {key}", result.Topic, result.Message.Key);
                 }
                 catch (OperationCanceledException)
                 {
@@ -303,7 +297,6 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
             // Always resume consumption in the finally block
             if (State.Status == ServiceStatus.Running)
             {
-                Logger.LogDebug("Resuming consumption - Topic: {topic}", result.Topic);
                 Listener.Resume();
             }
         }
@@ -316,8 +309,6 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
     /// <returns></returns>
     private async Task ProcessIndexRequestAsync(ConsumeResult<string, IndexRequestModel> result)
     {
-        Logger.LogDebug("ProcessIndexRequestAsync:BEGIN:{key}", result.Message.Key);
-
         var model = result.Message.Value;
 
         // Log detailed decision information
@@ -359,7 +350,6 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
             Logger.LogInformation("{skipReason} - Topic: {topic}, Action: {action}, Content ID: {key}",
                 skipReason, result.Topic, model.Action, result.Message.Key);
         }
-        Logger.LogDebug("ProcessIndexRequestAsync:END:{key}", result.Message.Key);
     }
 
     private Dictionary<string, List<string>> ExtractSpeakersAndQuotes(IEnumerable<MinisterModel> ministers, AnnotationResponse annotations)
@@ -427,7 +417,6 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
             {
                 text.AppendLine(node.InnerText);
             }
-            Logger.LogDebug("Extracted text from content summary - Length: {length} characters", text.Length);
         }
 
         if (!string.IsNullOrWhiteSpace(content.Body))
@@ -438,7 +427,6 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
             {
                 text.AppendLine(node.InnerText);
             }
-            Logger.LogDebug("Extracted text from content body - Length: {length} characters", text.Length);
         }
 
         var annotationInput = text.ToString();
@@ -473,7 +461,6 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
                         if (!content.Quotes.Any((q) => q.Byline.Equals(speaker) && q.Statement.Equals(quote)))
                         {
                             quotesToAdd.Add(new QuoteModel { Id = 0, ContentId = content.Id, Byline = speaker, Statement = quote });
-                            Logger.LogDebug("New quote - Speaker: '{speaker}', Quote: '{quote}'", speaker, quote);
                         }
                     }
                 }
