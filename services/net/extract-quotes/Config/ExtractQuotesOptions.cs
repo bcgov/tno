@@ -52,7 +52,7 @@ public class ExtractQuotesOptions : ServiceOptions
     /// <summary>
     /// get/set - Whether to use the LLM API instead of CoreNLP.
     /// </summary>
-    public bool UseLLM { get; set; } = true;
+    public bool UseLLM { get; set; } = false;
 
     /// <summary>
     /// get/set - Ignore any content that was indexed before this day offset.
