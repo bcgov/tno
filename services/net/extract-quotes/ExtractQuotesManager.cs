@@ -40,6 +40,8 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
 
     // Set to track processed content IDs to prevent duplicate processing
     private readonly HashSet<long> _processedContentIds = new HashSet<long>();
+    // Maximum size for the processed content IDs set to prevent unlimited growth
+    private const int MaxProcessedContentIdsCount = 10000;
     #endregion
 
     #region Properties
@@ -381,6 +383,14 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
             {
                 Logger.LogWarning("Content ID {contentId} has already been processed - skipping duplicate processing", contentId);
                 return;
+            }
+
+            // Check if the set has reached the maximum size
+            if (_processedContentIds.Count >= MaxProcessedContentIdsCount)
+            {
+                // Clear the set when it reaches the maximum size
+                _processedContentIds.Clear();
+                Logger.LogInformation("Cleared processed content IDs tracking set due to size limit ({maxSize})", MaxProcessedContentIdsCount);
             }
 
             // Mark as processed
