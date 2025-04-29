@@ -128,6 +128,7 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
             }
             else if (State.Status != ServiceStatus.Running)
             {
+                Logger.LogDebug("The service is not running: '{Status}'", State.Status);
             }
             else
             {
@@ -154,6 +155,7 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
             }
 
             // The delay ensures we don't have a run away thread.
+            Logger.LogDebug("Service sleeping for {delay} ms", delay);
             await Task.Delay(delay);
         }
     }
