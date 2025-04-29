@@ -249,28 +249,15 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
             }
             else
             {
-                // Set a timeout for processing to prevent hanging
-                using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(30)); // 30 second timeout
-                var processingTask = ProcessIndexRequestAsync(result);
+                // Process the message without timeout
+                await ProcessIndexRequestAsync(result);
 
-                try
-                {
-                    // Wait for processing to complete or timeout
-                    await processingTask.WaitAsync(timeoutCts.Token);
+                // Inform Kafka this message is completed.
+                Listener.Commit(result);
 
-                    // Inform Kafka this message is completed.
-                    Listener.Commit(result);
-
-                    // Successful run clears any errors.
-                    State.ResetFailures();
-                    _retries = 0;
-                }
-                catch (OperationCanceledException)
-                {
-                    Logger.LogWarning("Message processing timed out - Topic: {topic}, Content ID: {key}", result.Topic, result.Message.Key);
-                    // Still commit the message to avoid getting stuck on it
-                    Listener.Commit(result);
-                }
+                // Successful run clears any errors.
+                State.ResetFailures();
+                _retries = 0;
             }
         }
         catch (Exception ex)

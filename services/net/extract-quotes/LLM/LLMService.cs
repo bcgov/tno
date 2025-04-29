@@ -86,10 +86,9 @@ public class LLMService : ICoreNLPService
 
         // Log initialization of primary model
         this.Logger.LogInformation(
-            "LLM service initialized - Primary model: {model}, API keys: {keyCount}, Timeout: {timeout}s",
+            "LLM service initialized - Primary model: {model}, API keys: {keyCount}",
             this.Options.LLM.Primary.ModelName,
-            this.Options.LLM.Primary.ApiKeys.Count,
-            this.Options.LLM.Primary.TimeoutSeconds);
+            this.Options.LLM.Primary.ApiKeys.Count);
 
         // Log fallback model if configured
         if (this.Options.LLM.Fallback?.ApiKeys != null && this.Options.LLM.Fallback.ApiKeys.Any() &&
@@ -102,10 +101,9 @@ public class LLMService : ICoreNLPService
             }
 
             this.Logger.LogInformation(
-                "Fallback LLM configured - Model: {model}, API keys: {keyCount}, Timeout: {timeout}s",
+                "Fallback LLM configured - Model: {model}, API keys: {keyCount}",
                 this.Options.LLM.Fallback.ModelName,
-                this.Options.LLM.Fallback.ApiKeys.Count,
-                this.Options.LLM.Fallback.TimeoutSeconds);
+                this.Options.LLM.Fallback.ApiKeys.Count);
         }
         else
         {
@@ -211,7 +209,7 @@ IMPORTANT FORMATTING INSTRUCTIONS:
 
                     // Call the primary model
                     string? responseContent = await CallLLMApiWithPrompt(text, prompt, this.Options.LLM.Primary.ModelName,
-                                                                       primaryApiKey, this.Options.LLM.Primary.TimeoutSeconds);
+                                                                       primaryApiKey);
 
                     if (responseContent != null)
                     {
@@ -279,7 +277,7 @@ IMPORTANT FORMATTING INSTRUCTIONS:
 
                     // Call the fallback model
                     string? fallbackResponseContent = await CallLLMApiWithPrompt(text, prompt, this.Options.LLM.Fallback.ModelName,
-                                                                              fallbackApiKey, this.Options.LLM.Fallback.TimeoutSeconds);
+                                                                              fallbackApiKey);
 
                     if (fallbackResponseContent != null)
                     {
@@ -326,7 +324,7 @@ IMPORTANT FORMATTING INSTRUCTIONS:
     /// <summary>
     /// Helper method that handles creating the full request payload with prompt and calling the LLM API.
     /// </summary>
-    private async Task<string?> CallLLMApiWithPrompt(string text, string prompt, string modelName, string apiKey, int timeoutSeconds)
+    private async Task<string?> CallLLMApiWithPrompt(string text, string prompt, string modelName, string apiKey)
     {
         // Create the request body for the LLM API
         var requestBody = new
@@ -368,48 +366,36 @@ IMPORTANT FORMATTING INSTRUCTIONS:
         var headers = new HttpRequestMessage().Headers;
         headers.Add("Authorization", $"Bearer {apiKey}");
 
-        // Move variable declaration outside try block so it can be accessed in catch block
-        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
-
         try
         {
-            // Configure timeout using CancellationTokenSource - moved outside
-            using (cancellationTokenSource) // Use using statement to ensure resource disposal
+            // Send the request to the LLM API - using SendAsync which is the method in the original code
+            if (string.IsNullOrEmpty(apiUrl))
             {
-                // Send the request to the LLM API - using SendAsync which is the method in the original code
-                if (string.IsNullOrEmpty(apiUrl))
-                {
-                    throw new ArgumentException("Argument 'url' must be a valid URL.");
-                }
-
-                this.Logger.LogInformation("{ThreadInfo} Sending request to LLM API: {url} with model: {model}",
-                    GetThreadInfo(), apiUrl, modelName);
-
-                // Fix parameter order and type, call using original method
-                LLMResponse? response = await RetryRequestAsync(async () =>
-                    await this.HttpClient.SendAsync<LLMResponse>(apiUrl, HttpMethod.Post, headers, content));
-
-                if (response == null)
-                {
-                    this.Logger.LogWarning("LLM API call to model '{Model}' returned null response.", modelName);
-                    return null;
-                }
-
-                // Extract the content from the response
-                var responseContent = response.Choices?.FirstOrDefault()?.Message?.Content;
-                if (string.IsNullOrEmpty(responseContent))
-                {
-                    this.Logger.LogWarning("LLM response from model '{Model}' did not contain message content.", modelName);
-                    return null;
-                }
-
-                return responseContent;
+                throw new ArgumentException("Argument 'url' must be a valid URL.");
             }
-        }
-        catch (OperationCanceledException ex) when (cancellationTokenSource.Token.IsCancellationRequested)
-        {
-            this.Logger.LogError(ex, "LLM API call timed out after {Timeout} seconds for model '{Model}'.", timeoutSeconds, modelName);
-            throw new TimeoutException($"LLM API call timed out after {timeoutSeconds} seconds for model {modelName}.", ex);
+
+            this.Logger.LogInformation("{ThreadInfo} Sending request to LLM API: {url} with model: {model}",
+                GetThreadInfo(), apiUrl, modelName);
+
+            // Fix parameter order and type, call using original method
+            LLMResponse? response = await RetryRequestAsync(async () =>
+                await this.HttpClient.SendAsync<LLMResponse>(apiUrl, HttpMethod.Post, headers, content));
+
+            if (response == null)
+            {
+                this.Logger.LogWarning("LLM API call to model '{Model}' returned null response.", modelName);
+                return null;
+            }
+
+            // Extract the content from the response
+            var responseContent = response.Choices?.FirstOrDefault()?.Message?.Content;
+            if (string.IsNullOrEmpty(responseContent))
+            {
+                this.Logger.LogWarning("LLM response from model '{Model}' did not contain message content.", modelName);
+                return null;
+            }
+
+            return responseContent;
         }
         catch (HttpRequestException ex)
         {
@@ -421,14 +407,6 @@ IMPORTANT FORMATTING INSTRUCTIONS:
         {
             this.Logger.LogError(ex, "Unexpected error during LLM API call for model '{Model}'.", modelName);
             throw;
-        }
-        finally
-        {
-            // Dispose the CancellationTokenSource if it wasn't already disposed
-            if (!cancellationTokenSource.IsCancellationRequested)
-            {
-                cancellationTokenSource.Dispose();
-            }
         }
     }
 

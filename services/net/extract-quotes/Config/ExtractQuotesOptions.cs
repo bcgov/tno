@@ -9,7 +9,6 @@ public class ApiConfig
 {
     public List<string> ApiKeys { get; set; } = new List<string>();
     public string ModelName { get; set; } = string.Empty;
-    public int TimeoutSeconds { get; set; } = 60; // Default timeout
     // API URL for this specific endpoint
     public string ApiUrl { get; set; } = string.Empty;
 }
