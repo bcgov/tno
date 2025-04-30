@@ -55,6 +55,13 @@ public class ExtractQuotesOptions : ServiceOptions
     public bool UseLLM { get; set; } = false;
 
     /// <summary>
+    /// The required prompt template for quote extraction when UseLLM is true.
+    /// Must contain the placeholder '{InputText}' for the text to be processed.
+    /// This value MUST be provided in the configuration (appsettings.json) at the Service level.
+    /// </summary>
+    public string QuoteExtractionPromptTemplate { get; set; } = string.Empty;
+
+    /// <summary>
     /// get/set - Ignore any content that was indexed before this day offset.
     /// </summary>
     public int? IgnoreContentPublishedBeforeOffset { get; set; }
