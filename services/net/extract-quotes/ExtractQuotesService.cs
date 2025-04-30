@@ -6,6 +6,10 @@ using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.ExtractQuotes.Config;
 using TNO.Services.ExtractQuotes.LLM;
+using TNO.Services.ExtractQuotes.LLM.Clients;
+using TNO.Services.ExtractQuotes.LLM.Parsers;
+using TNO.Services.ExtractQuotes.LLM.Prompts;
+using TNO.Services.ExtractQuotes.LLM.RateLimiting;
 using TNO.Services.NLP.ExtractQuotes;
 using TNO.Services.Runners;
 
@@ -61,6 +65,10 @@ public class ExtractQuotesService : KafkaConsumerService
         if (useLLM)
         {
             logger.LogInformation("Registering LLM service as quote extraction service");
+            services.AddSingleton<ILLMClient, LLMClient>();
+            services.AddSingleton<ILLMResponseParser, LLMResponseParser>();
+            services.AddSingleton<IPromptGenerator, PromptGenerator>();
+            services.AddSingleton<ILLMRateLimiter, LLMRateLimiter>();
             services.AddSingleton<ICoreNLPService, LLMService>();
         }
         else
