@@ -3,27 +3,6 @@ using TNO.Services.Config;
 namespace TNO.Services.ExtractQuotes.Config;
 
 /// <summary>
-/// Configuration for a specific LLM API endpoint (primary or fallback)
-/// </summary>
-public class ApiConfig
-{
-    public List<string> ApiKeys { get; set; } = new List<string>();
-    public string ModelName { get; set; } = string.Empty;
-    // API URL for this specific endpoint
-    public string ApiUrl { get; set; } = string.Empty;
-}
-
-/// <summary>
-/// Configuration options specifically for LLM usage
-/// </summary>
-public class LLMOptions
-{
-    public ApiConfig Primary { get; set; } = new ApiConfig();
-    public ApiConfig Fallback { get; set; } = new ApiConfig();
-    public int MaxRequestsPerMinute { get; set; } = 10;
-}
-
-/// <summary>
 /// ExtractQuotesOptions class, configuration options for ExtractQuotes service
 /// </summary>
 public class ExtractQuotesOptions : ServiceOptions
@@ -66,10 +45,65 @@ public class ExtractQuotesOptions : ServiceOptions
     /// </summary>
     public int? IgnoreContentPublishedBeforeOffset { get; set; }
 
+    #region LLM Configuration
     /// <summary>
-    /// Holds the detailed configuration for primary and fallback LLM APIs.
-    /// Populated from the "LLM" section in appsettings.json.
+    /// API keys for the primary LLM model as a semicolon-separated string
     /// </summary>
-    public LLMOptions LLM { get; set; } = new LLMOptions();
+    public string PrimaryApiKeys { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The name of the primary LLM model
+    /// </summary>
+    public string PrimaryModelName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The API URL for the primary LLM model
+    /// </summary>
+    public string PrimaryApiUrl { get; set; } = string.Empty;
+
+    /// <summary>
+    /// API keys for the fallback LLM model as a semicolon-separated string
+    /// </summary>
+    public string FallbackApiKeys { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The name of the fallback LLM model
+    /// </summary>
+    public string FallbackModelName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The API URL for the fallback LLM model
+    /// </summary>
+    public string FallbackApiUrl { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Maximum number of LLM API requests per minute
+    /// </summary>
+    public int MaxRequestsPerMinute { get; set; } = 10;
+    #endregion
+
+    /// <summary>
+    /// Get primary API keys as a list 
+    /// </summary>
+    /// <returns>List of API keys</returns>
+    public List<string> GetPrimaryApiKeysList()
+    {
+        if (string.IsNullOrWhiteSpace(PrimaryApiKeys))
+            return new List<string>();
+
+        return PrimaryApiKeys.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+    }
+
+    /// <summary>
+    /// Get fallback API keys as a list
+    /// </summary>
+    /// <returns>List of API keys</returns>
+    public List<string> GetFallbackApiKeysList()
+    {
+        if (string.IsNullOrWhiteSpace(FallbackApiKeys))
+            return new List<string>();
+
+        return FallbackApiKeys.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+    }
     #endregion
 }

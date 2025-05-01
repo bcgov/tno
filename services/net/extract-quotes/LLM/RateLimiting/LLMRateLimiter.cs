@@ -24,8 +24,8 @@ public class LLMRateLimiter : ILLMRateLimiter, IDisposable
         ILogger<LLMRateLimiter> logger)
     {
         _logger = logger;
-        
-        var maxRequestsPerMinute = options.Value.LLM.MaxRequestsPerMinute;
+
+        var maxRequestsPerMinute = options.Value.MaxRequestsPerMinute;
         _logger.LogInformation("Initializing rate limiter with {count} requests per minute", maxRequestsPerMinute);
 
         // Initialize the rate limiter with configured limits

@@ -54,46 +54,46 @@ public class LLMService : ICoreNLPService
         this.Logger = logger;
 
         // Validate the LLM configuration
-        if (this.Options.LLM == null)
-        {
-            throw new ArgumentNullException(nameof(this.Options.LLM), "LLM configuration section is missing.");
-        }
-
-        if (this.Options.LLM.Primary?.ApiKeys == null || !this.Options.LLM.Primary.ApiKeys.Any())
+        if (string.IsNullOrWhiteSpace(this.Options.PrimaryApiKeys))
         {
             throw new ArgumentException("Primary API keys are not configured.");
         }
 
-        if (string.IsNullOrEmpty(this.Options.LLM.Primary?.ModelName))
+        if (string.IsNullOrEmpty(this.Options.PrimaryModelName))
         {
             throw new ArgumentException("Primary model name is not configured.");
         }
 
-        if (string.IsNullOrEmpty(this.Options.LLM.Primary?.ApiUrl))
+        if (string.IsNullOrEmpty(this.Options.PrimaryApiUrl))
         {
             throw new ArgumentException("Primary model API URL is not configured.");
         }
 
+        // Get the list of API keys for logging
+        var primaryKeysList = this.Options.GetPrimaryApiKeysList();
+
         // Log initialization of primary model
         this.Logger.LogInformation(
             "LLM service initialized - Primary model: {model}, API keys: {keyCount}",
-            this.Options.LLM.Primary.ModelName,
-            this.Options.LLM.Primary.ApiKeys.Count);
+            this.Options.PrimaryModelName,
+            primaryKeysList.Count);
 
         // Log fallback model if configured
-        if (this.Options.LLM.Fallback?.ApiKeys != null && this.Options.LLM.Fallback.ApiKeys.Any() &&
-            !string.IsNullOrEmpty(this.Options.LLM.Fallback.ModelName))
+        if (!string.IsNullOrWhiteSpace(this.Options.FallbackApiKeys) &&
+            !string.IsNullOrEmpty(this.Options.FallbackModelName))
         {
             // Validate fallback API URL
-            if (string.IsNullOrEmpty(this.Options.LLM.Fallback.ApiUrl))
+            if (string.IsNullOrEmpty(this.Options.FallbackApiUrl))
             {
                 throw new ArgumentException("Fallback model API URL is not configured.");
             }
 
+            var fallbackKeysList = this.Options.GetFallbackApiKeysList();
+
             this.Logger.LogInformation(
                 "Fallback LLM configured - Model: {model}, API keys: {keyCount}",
-                this.Options.LLM.Fallback.ModelName,
-                this.Options.LLM.Fallback.ApiKeys.Count);
+                this.Options.FallbackModelName,
+                fallbackKeysList.Count);
         }
         else
         {
@@ -132,39 +132,42 @@ public class LLMService : ICoreNLPService
             var prompt = _promptGenerator.GenerateQuoteExtractionPrompt(text);
 
             // 1. Try Primary Model with Key Rotation
-            if (this.Options.LLM.Primary?.ApiKeys != null && this.Options.LLM.Primary.ApiKeys.Count > 0)
+            if (!string.IsNullOrWhiteSpace(this.Options.PrimaryApiKeys))
             {
-                string primaryApiKey = _llmClient.GetNextApiKey(this.Options.LLM.Primary.ApiKeys, ref _primaryApiKeyIndex);
+                string primaryApiKey = _llmClient.GetNextApiKeyFromString(this.Options.PrimaryApiKeys, ref _primaryApiKeyIndex);
                 try
                 {
+                    // Get the list of API keys for index calculation
+                    var primaryKeysList = this.Options.GetPrimaryApiKeysList();
+
                     // calculate the key index
-                    int keyIndex = (_primaryApiKeyIndex - 1) % Options.LLM.Primary.ApiKeys.Count;
-                    if (keyIndex < 0) keyIndex += Options.LLM.Primary.ApiKeys.Count;
+                    int keyIndex = (_primaryApiKeyIndex - 1) % primaryKeysList.Count;
+                    if (keyIndex < 0) keyIndex += primaryKeysList.Count;
                     this.Logger.LogInformation("{ThreadInfo} Attempting LLM request with primary model '{Model}' using key index {Index}",
-                                              GetThreadInfo(), this.Options.LLM.Primary.ModelName, keyIndex);
+                                              GetThreadInfo(), this.Options.PrimaryModelName, keyIndex);
 
                     // Call the primary model
-                    string? responseContent = await _llmClient.CallLLMApiWithPrompt(text, prompt, this.Options.LLM.Primary.ModelName,
+                    string? responseContent = await _llmClient.CallLLMApiWithPrompt(text, prompt, this.Options.PrimaryModelName,
                                                                        primaryApiKey);
 
                     if (responseContent != null)
                     {
-                        var annotationResponse = _responseParser.ParseLLMResponse(responseContent, this.Options.LLM.Primary.ModelName);
+                        var annotationResponse = _responseParser.ParseLLMResponse(responseContent, this.Options.PrimaryModelName);
                         if (annotationResponse != null)
                         {
                             this.Logger.LogInformation("Successfully extracted quotes using primary model '{Model}'.",
-                                                      this.Options.LLM.Primary.ModelName);
+                                                      this.Options.PrimaryModelName);
                             return annotationResponse;
                         }
 
                         this.Logger.LogWarning("Failed to parse valid quotes from primary model '{Model}' response.",
-                                              this.Options.LLM.Primary.ModelName);
+                                              this.Options.PrimaryModelName);
                         // Continue to fallback if parsing failed
                     }
                     else
                     {
                         this.Logger.LogWarning("Primary model '{Model}' returned null or empty content.",
-                                              this.Options.LLM.Primary.ModelName);
+                                              this.Options.PrimaryModelName);
                         // Continue to fallback
                     }
                 }
@@ -172,7 +175,7 @@ public class LLMService : ICoreNLPService
                 {
                     // Unexpected errors - log but still try fallback
                     this.Logger.LogError(primaryEx, "Unexpected error during primary LLM call for model '{Model}'. Attempting fallback.",
-                                        this.Options.LLM.Primary.ModelName);
+                                        this.Options.PrimaryModelName);
                 }
             }
             else
@@ -181,40 +184,43 @@ public class LLMService : ICoreNLPService
             }
 
             // 2. Try Fallback Model if Primary Failed or was Skipped
-            if (this.Options.LLM.Fallback?.ApiKeys != null && this.Options.LLM.Fallback.ApiKeys.Count > 0 &&
-                !string.IsNullOrEmpty(this.Options.LLM.Fallback.ModelName))
+            if (!string.IsNullOrWhiteSpace(this.Options.FallbackApiKeys) &&
+                !string.IsNullOrEmpty(this.Options.FallbackModelName))
             {
-                string fallbackApiKey = _llmClient.GetNextApiKey(this.Options.LLM.Fallback.ApiKeys, ref _fallbackApiKeyIndex);
+                string fallbackApiKey = _llmClient.GetNextApiKeyFromString(this.Options.FallbackApiKeys, ref _fallbackApiKeyIndex);
                 try
                 {
+                    // Get the list of API keys for index calculation
+                    var fallbackKeysList = this.Options.GetFallbackApiKeysList();
+
                     // calculate the key index
-                    int keyIndex = (_fallbackApiKeyIndex - 1) % Options.LLM.Fallback.ApiKeys.Count;
-                    if (keyIndex < 0) keyIndex += Options.LLM.Fallback.ApiKeys.Count;
+                    int keyIndex = (_fallbackApiKeyIndex - 1) % fallbackKeysList.Count;
+                    if (keyIndex < 0) keyIndex += fallbackKeysList.Count;
                     this.Logger.LogInformation("{ThreadInfo} Attempting LLM request with fallback model '{Model}' using key index {Index}",
-                                             GetThreadInfo(), this.Options.LLM.Fallback.ModelName, keyIndex);
+                                             GetThreadInfo(), this.Options.FallbackModelName, keyIndex);
 
                     // Call the fallback model
-                    string? fallbackResponseContent = await _llmClient.CallLLMApiWithPrompt(text, prompt, this.Options.LLM.Fallback.ModelName,
+                    string? fallbackResponseContent = await _llmClient.CallLLMApiWithPrompt(text, prompt, this.Options.FallbackModelName,
                                                                               fallbackApiKey);
 
                     if (fallbackResponseContent != null)
                     {
-                        var annotationResponse = _responseParser.ParseLLMResponse(fallbackResponseContent, this.Options.LLM.Fallback.ModelName);
+                        var annotationResponse = _responseParser.ParseLLMResponse(fallbackResponseContent, this.Options.FallbackModelName);
                         if (annotationResponse != null)
                         {
                             this.Logger.LogInformation("Successfully extracted quotes using fallback model '{Model}'.",
-                                                     this.Options.LLM.Fallback.ModelName);
+                                                     this.Options.FallbackModelName);
                             return annotationResponse;
                         }
 
                         this.Logger.LogWarning("Failed to parse valid quotes from fallback model '{Model}' response.",
-                                              this.Options.LLM.Fallback.ModelName);
+                                              this.Options.FallbackModelName);
                         return null; // Both models tried and failed to parse
                     }
                     else
                     {
                         this.Logger.LogError("Fallback model '{Model}' also returned null or empty content.",
-                                             this.Options.LLM.Fallback.ModelName);
+                                             this.Options.FallbackModelName);
                         return null; // Both models tried and failed
                     }
                 }
@@ -222,7 +228,7 @@ public class LLMService : ICoreNLPService
                 {
                     // Log final failure after fallback attempt
                     this.Logger.LogError(fallbackEx, "Fallback LLM request also failed for model '{Model}'. Giving up for this content.",
-                                       this.Options.LLM.Fallback.ModelName);
+                                       this.Options.FallbackModelName);
                     return null; // Both models tried and failed
                 }
             }

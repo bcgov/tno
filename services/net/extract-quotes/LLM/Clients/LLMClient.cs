@@ -110,14 +110,14 @@ public class LLMClient : ILLMClient
         string apiUrl;
 
         // Check if we're using the primary model
-        if (modelName == _options.LLM.Primary.ModelName)
+        if (modelName == _options.PrimaryModelName)
         {
-            apiUrl = _options.LLM.Primary.ApiUrl;
+            apiUrl = _options.PrimaryApiUrl;
         }
         // Check if we're using the fallback model
-        else if (modelName == _options.LLM.Fallback.ModelName)
+        else if (modelName == _options.FallbackModelName)
         {
-            apiUrl = _options.LLM.Fallback.ApiUrl;
+            apiUrl = _options.FallbackApiUrl;
         }
         // If neither, throw an exception
         else
@@ -177,12 +177,12 @@ public class LLMClient : ILLMClient
     /// <summary>
     /// Gets the next API key from the list in a thread-safe, round-robin manner
     /// </summary>
-    /// <param name="keys">List of API keys</param>
+    /// <param name="apiKeysList">List of API keys</param>
     /// <param name="indexField">Reference to the index field for this list</param>
     /// <returns>The next API key</returns>
-    public string GetNextApiKey(List<string> keys, ref int indexField)
+    public string GetNextApiKey(List<string> apiKeysList, ref int indexField)
     {
-        if (keys == null || keys.Count == 0)
+        if (apiKeysList == null || apiKeysList.Count == 0)
         {
             throw new InvalidOperationException("No API keys available for rotation.");
         }
@@ -192,7 +192,31 @@ public class LLMClient : ILLMClient
         // (currentIndex - 1) % keys.Count = (1 - 1) % 3 = 0 % 3 = 0 => key1
         // (currentIndex - 1) % keys.Count = (2 - 1) % 3 = 1 % 3 = 1 => key2
         // this help get key never exceed the list
-        return keys[(currentIndex - 1) % keys.Count];
+        return apiKeysList[(currentIndex - 1) % apiKeysList.Count];
+    }
+
+    /// <summary>
+    /// Gets the next API key from a semicolon-separated string in a thread-safe, round-robin manner
+    /// </summary>
+    /// <param name="apiKeysString">Semicolon-separated string of API keys</param>
+    /// <param name="indexField">Reference to the index field for this list</param>
+    /// <returns>The next API key</returns>
+    public string GetNextApiKeyFromString(string apiKeysString, ref int indexField)
+    {
+        if (string.IsNullOrWhiteSpace(apiKeysString))
+        {
+            throw new InvalidOperationException("No API keys available for rotation.");
+        }
+
+        // Split the semicolon-separated string into a list
+        var apiKeysList = apiKeysString.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+
+        if (apiKeysList.Count == 0)
+        {
+            throw new InvalidOperationException("No API keys available for rotation after splitting.");
+        }
+
+        return GetNextApiKey(apiKeysList, ref indexField);
     }
     #endregion
 }

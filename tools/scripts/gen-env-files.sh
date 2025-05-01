@@ -775,20 +775,16 @@ CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}
 
 # LLM settings
 Service__UseLLM=true
-Service__LLM__Primary__ApiKeys__0={YOUR_GOOGLE_API_KEY_1}
-Service__LLM__Primary__ApiKeys__1={YOUR_GOOGLE_API_KEY_2}
-Service__LLM__Primary__ApiKeys__2={YOUR_GOOGLE_API_KEY_3}
+Service__PrimaryApiKeys={YOUR_GOOGLE_API_KEY_1};{YOUR_GOOGLE_API_KEY_2};{YOUR_GOOGLE_API_KEY_3}
+Service__PrimaryModelName=gemini-2.0-flash-lite
+Service__PrimaryApiUrl=https://generativelanguage.googleapis.com/v1beta/openai/chat/completions
 
-Service__LLM__Primary__ModelName=gemini-2.0-flash-lite
-Service__LLM__Primary__ApiUrl=https://generativelanguage.googleapis.com/v1beta/openai/chat/completions
-
-Service__LLM__Fallback__ApiKeys__0={YOUR_MISTRAL_API_KEY_1}
-Service__LLM__Fallback__ApiKeys__1={YOUR_MISTRAL_API_KEY_2}
-Service__LLM__Fallback__ModelName=mistral-large-latest
-Service__LLM__Fallback__ApiUrl=https://api.mistral.ai/v1/chat/completions
+Service__FallbackApiKeys={YOUR_MISTRAL_API_KEY_1};{YOUR_MISTRAL_API_KEY_2}
+Service__FallbackModelName=mistral-large-latest
+Service__FallbackApiUrl=https://api.mistral.ai/v1/chat/completions
 
 # Rate limit setting (requests per minute)
-Service__LLM__MaxRequestsPerMinute=30
+Service__MaxRequestsPerMinute=30
 
 # Retry settings
 Service__RetryLimit=1

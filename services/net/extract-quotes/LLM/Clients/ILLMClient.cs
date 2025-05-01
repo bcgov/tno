@@ -25,4 +25,12 @@ public interface ILLMClient
     /// <param name="indexField">Reference to the index field for this list</param>
     /// <returns>The next API key</returns>
     string GetNextApiKey(List<string> keys, ref int indexField);
+
+    /// <summary>
+    /// Gets the next API key from a semicolon-separated string in a thread-safe, round-robin manner
+    /// </summary>
+    /// <param name="apiKeysString">Semicolon-separated string of API keys</param>
+    /// <param name="indexField">Reference to the index field for this list</param>
+    /// <returns>The next API key</returns>
+    string GetNextApiKeyFromString(string apiKeysString, ref int indexField);
 }
