@@ -771,7 +771,24 @@ CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/o
 CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
 CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
-CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}" >> ./services/net/extract-quotes/.env
+CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}
+
+# LLM settings
+Service__UseLLM=true
+Service__PrimaryApiKeys={YOUR_GOOGLE_API_KEY_1};{YOUR_GOOGLE_API_KEY_2};{YOUR_GOOGLE_API_KEY_3}
+Service__PrimaryModelName=gemini-2.0-flash-lite
+Service__PrimaryApiUrl=https://generativelanguage.googleapis.com/v1beta/openai/chat/completions
+
+Service__FallbackApiKeys={YOUR_MISTRAL_API_KEY_1};{YOUR_MISTRAL_API_KEY_2}
+Service__FallbackModelName=mistral-large-latest
+Service__FallbackApiUrl=https://api.mistral.ai/v1/chat/completions
+
+# Rate limit setting (requests per minute)
+Service__MaxRequestsPerMinute=30
+
+# Retry settings
+Service__RetryLimit=1
+Service__RetryDelayMS=1000" >> ./services/net/extract-quotes/.env
     echo "./services/net/extract-quotes/.env created"
 fi
 

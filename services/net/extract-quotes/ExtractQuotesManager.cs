@@ -1,21 +1,29 @@
+using System.Collections.Concurrent;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks.Dataflow;
 using Confluent.Kafka;
 using HtmlAgilityPack;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Areas.Services.Models.Minister;
 using TNO.Ches;
 using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Kafka;
 using TNO.Kafka.Models;
+
 using TNO.Services.ExtractQuotes.Config;
 using TNO.Services.ExtractQuotes.CoreNLP.models;
+using TNO.Services.ExtractQuotes.Utils;
 using TNO.Services.Managers;
 using TNO.Services.NLP.ExtractQuotes;
 
 namespace TNO.Services.ExtractQuotes;
+
+
 
 /// <summary>
 /// ExtractQuotesManager class, provides a Kafka Consumer service which extracts quotes from content from all active topics.
@@ -32,6 +40,13 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
     private int _retries = 0;
+
+    // Add memory cache
+    private readonly IMemoryCache _memoryCache;
+    // Define cache key
+    private const string MinistersCacheKey = "Ministers_List";
+    // Define cache expiration time (days)
+    private const int MinistersCacheExpirationDays = 1;
     #endregion
 
     #region Properties
@@ -67,6 +82,7 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
         IChesService chesService,
         IOptions<ChesOptions> chesOptions,
         IOptions<ExtractQuotesOptions> extractQuotesOptions,
+        IMemoryCache memoryCache,
         ILogger<ExtractQuotesManager> logger)
         : base(api, chesService, chesOptions, extractQuotesOptions, logger)
     {
@@ -76,10 +92,12 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
         Listener.OnStop += ListenerStopHandler;
 
         CoreNLPService = coreNLPService;
+        _memoryCache = memoryCache;
     }
     #endregion
 
     #region Methods
+
     /// <summary>
     /// Listen to active topics and import content.
     /// </summary>
@@ -219,11 +237,11 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
             }
             else
             {
+                // Process the message without timeout
                 await ProcessIndexRequestAsync(result);
 
                 // Inform Kafka this message is completed.
                 Listener.Commit(result);
-                Listener.Resume();
 
                 // Successful run clears any errors.
                 State.ResetFailures();
@@ -234,19 +252,28 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
         {
             if (ex is HttpClientRequestException httpEx)
             {
-                Logger.LogError(ex, "HTTP exception while consuming. {response}", httpEx.Data["body"] ?? "");
+                Logger.LogError(ex, "HTTP exception - Topic: {topic}, Content ID: {key}, Response: {response}",
+                    result.Topic, result.Message.Key, httpEx.Data["body"] ?? "");
                 await SendErrorEmailAsync("HTTP exception while consuming. {response}", ex);
             }
             else
             {
-                Logger.LogError(ex, "Failed to handle message");
+                Logger.LogError(ex, "Message processing failed - Topic: {topic}, Content ID: {key}",
+                    result.Topic, result.Message.Key);
                 await SendErrorEmailAsync("Failed to handle message", ex);
             }
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
+
+            // Still commit the message to avoid getting stuck on it
+            Listener.Commit(result);
         }
         finally
         {
-            if (State.Status == ServiceStatus.Running) Listener.Resume();
+            // Always resume consumption in the finally block
+            if (State.Status == ServiceStatus.Running)
+            {
+                Listener.Resume();
+            }
         }
     }
 
@@ -257,17 +284,19 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
     /// <returns></returns>
     private async Task ProcessIndexRequestAsync(ConsumeResult<string, IndexRequestModel> result)
     {
-        Logger.LogDebug("ProcessIndexRequestAsync:BEGIN:{key}", result.Message.Key);
-
         var model = result.Message.Value;
+
+        // Log detailed decision information
+        Logger.LogInformation("Received message - Topic: {topic}, Action: {action}, Content ID: {key}, Extract on Index: {onIndex}, Extract on Publish: {onPublish}",
+            result.Topic, model.Action, result.Message.Key, Options.ExtractQuotesOnIndex, Options.ExtractQuotesOnPublish);
 
         if (model.Action == IndexAction.Index && Options.ExtractQuotesOnIndex ||
             model.Action == IndexAction.Publish && Options.ExtractQuotesOnPublish)
         {
-            Logger.LogInformation("Extracting Quotes from Topic: {Topic}, Action: {Action}, Content ID: {Key}", result.Topic, model.Action, result.Message.Key);
+            Logger.LogInformation("Starting quote extraction from topic: {topic}, Action: {action}, Content ID: {key}", result.Topic, model.Action, result.Message.Key);
             // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
             var content = await Api.FindContentByIdAsync(result.Message.Value.ContentId);
-            var ministers = await Api.GetMinistersAsync();
+
             if (content != null) // need to check here if this content uses a transcript and if it does, skip if transcript is not approved
             {
                 // If the content was published before the specified offset, ignore it.
@@ -277,65 +306,28 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
                     && content.PublishedOn.Value < DateTime.UtcNow.AddDays(-1 * Options.IgnoreContentPublishedBeforeOffset.Value))
                     return;
 
-                var text = new StringBuilder();
-                // Only use Summary if Body is empty
-                if (string.IsNullOrWhiteSpace(content.Body) && !string.IsNullOrWhiteSpace(content.Summary))
+                // Get ministers list from cache, if not exists, fetch from API and cache
+                if (!_memoryCache.TryGetValue(MinistersCacheKey, out IEnumerable<MinisterModel>? ministers))
                 {
-                    var html = new HtmlDocument();
-                    html.LoadHtml(content.Summary);
-                    foreach (HtmlNode node in html.DocumentNode.SelectNodes("//text()"))
-                    {
-                        text.AppendLine(node.InnerText);
-                    }
+                    Logger.LogInformation("Ministers list not found in cache. Fetching from API.");
+                    ministers = await Api.GetMinistersAsync();
+
+                    // Cache the ministers list for 1 day
+                    var cacheOptions = new MemoryCacheEntryOptions()
+                        .SetAbsoluteExpiration(TimeSpan.FromDays(MinistersCacheExpirationDays));
+
+                    _memoryCache.Set(MinistersCacheKey, ministers, cacheOptions);
+                    Logger.LogInformation("Ministers list cached for {days} days. Count: {count}",
+                        MinistersCacheExpirationDays, ministers?.Count() ?? 0);
+                }
+                else
+                {
+                    Logger.LogDebug("Using cached ministers list. Count: {count}", ministers?.Count() ?? 0);
                 }
 
-                if (!string.IsNullOrWhiteSpace(content.Body))
-                {
-                    var html = new HtmlDocument();
-                    html.LoadHtml(content.Body);
-                    foreach (HtmlNode node in html.DocumentNode.SelectNodes("//text()"))
-                    {
-                        text.AppendLine(node.InnerText);
-                    }
-                }
-                var annotationInput = text.ToString();
-                if (annotationInput.Length == 0)
-                {
-                    Logger.LogInformation("Content ID: {Key} has no text to extract quotes from.", result.Message.Key);
-                    return;
-                }
-
-                try
-                {
-                    var annotations = await CoreNLPService.PerformAnnotation(annotationInput);
-                    if (annotations != null && annotations.Quotes.Any())
-                    {
-                        Logger.LogInformation("Extracted [{quoteCount}] Quotes from Content ID: {Key}", annotations.Quotes.Count, result.Message.Key);
-
-                        var speakersAndQuotes = ExtractSpeakersAndQuotes(ministers, annotations);
-
-                        List<API.Areas.Services.Models.Content.QuoteModel> quotesToAdd = new List<API.Areas.Services.Models.Content.QuoteModel>();
-                        foreach (var speaker in speakersAndQuotes.Keys)
-                        {
-                            foreach (var quote in speakersAndQuotes[speaker])
-                            {
-                                // only add quotes which don't match any previously captured
-                                if (!content.Quotes.Any((q) => q.Byline.Equals(speaker) && q.Statement.Equals(quote)))
-                                    quotesToAdd.Add(new API.Areas.Services.Models.Content.QuoteModel() { Id = 0, ContentId = content.Id, Byline = speaker, Statement = quote });
-                            }
-                        }
-                        content = await Api.AddQuotesToContentAsync(content.Id, quotesToAdd);
-                    }
-                    else
-                    {
-                        Logger.LogInformation("Extracted [{quoteCount}] Quotes from Content ID: {Key}", 0, result.Message.Key);
-                    }
-                }
-                catch (Exception)
-                {
-                    Logger.LogError("Quote Extraction failed for Content ID: {Key}", result.Message.Key);
-                    throw;
-                }
+                // Ensure ministers is not null before using it
+                ministers ??= Enumerable.Empty<MinisterModel>();
+                await ProcessContentItemAsync(content, ministers, result);
             }
             else
             {
@@ -344,9 +336,14 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
         }
         else
         {
-            Logger.LogInformation("SKIPPED: Extracting Quotes from Topic: {Topic}, Action: {Action}, Content ID: {Key}", result.Topic, model.Action, result.Message.Key);
+            // Log detailed reason for skipping
+            string skipReason = model.Action == IndexAction.Index ?
+                $"Skipped - Quote extraction for Index operation is disabled (ExtractQuotesOnIndex={Options.ExtractQuotesOnIndex})" :
+                $"Skipped - Quote extraction for Publish operation is disabled (ExtractQuotesOnPublish={Options.ExtractQuotesOnPublish})";
+
+            Logger.LogInformation("{skipReason} - Topic: {topic}, Action: {action}, Content ID: {key}",
+                skipReason, result.Topic, model.Action, result.Message.Key);
         }
-        Logger.LogDebug("ProcessIndexRequestAsync:END:{key}", result.Message.Key);
     }
 
     private Dictionary<string, List<string>> ExtractSpeakersAndQuotes(IEnumerable<MinisterModel> ministers, AnnotationResponse annotations)
@@ -377,6 +374,114 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
 
         return speakersAndQuotes;
     }
+
+
+
+    /// <summary>
+    /// Process a single content item for quote extraction
+    /// </summary>
+    private async Task ProcessContentItemAsync(ContentModel content, IEnumerable<MinisterModel> ministers, ConsumeResult<string, IndexRequestModel> result)
+    {
+        var contentId = content.Id;
+
+        Logger.LogInformation("Starting to process content ID: {contentId} - Using {serviceType} service",
+            contentId,
+            Options.UseLLM ? "LLM" : "CoreNLP");
+
+        var text = new StringBuilder();
+        // Only use Summary if Body is empty
+        if (string.IsNullOrWhiteSpace(content.Body) && !string.IsNullOrWhiteSpace(content.Summary))
+        {
+            var html = new HtmlDocument();
+            html.LoadHtml(content.Summary);
+            foreach (HtmlNode node in html.DocumentNode.SelectNodes("//text()"))
+            {
+                text.AppendLine(node.InnerText);
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(content.Body))
+        {
+            var html = new HtmlDocument();
+            html.LoadHtml(content.Body);
+            foreach (HtmlNode node in html.DocumentNode.SelectNodes("//text()"))
+            {
+                text.AppendLine(node.InnerText);
+            }
+        }
+
+        var annotationInput = text.ToString();
+        if (annotationInput.Length == 0)
+        {
+            Logger.LogInformation("Content ID: {contentId} has no text for quote extraction", content.Id);
+            return;
+        }
+
+        try
+        {
+            Logger.LogInformation("Starting quote extraction using {serviceType} service - Content ID: {contentId}, Text length: {length} characters",
+                Options.UseLLM ? "LLM" : "CoreNLP", content.Id, annotationInput.Length);
+
+            AnnotationResponse? annotations;
+
+            if (Options.UseLLM)
+            {
+                // llm is different, we want it to avoid generating similar quotes
+                var existingQuotes = content.Quotes?.ToList() ?? [];
+                if (existingQuotes.Count > 0)
+                {
+                    Logger.LogInformation("Passing {count} existing quotes to LLM to avoid generating similar quotes", existingQuotes.Count);
+                }
+                annotations = await CoreNLPService.PerformAnnotationWithExistingQuotes(annotationInput, existingQuotes);
+            }
+            else
+            {
+                annotations = await CoreNLPService.PerformAnnotation(annotationInput);
+            }
+            if (annotations != null && annotations.Quotes.Count > 0)
+            {
+                Logger.LogInformation("Extracted {quoteCount} quotes from content ID: {contentId}", annotations.Quotes.Count, content.Id);
+
+                var speakersAndQuotes = ExtractSpeakersAndQuotes(ministers, annotations);
+
+                var quotesToAdd = new List<QuoteModel>();
+                foreach (var speaker in speakersAndQuotes.Keys)
+                {
+                    foreach (var quote in speakersAndQuotes[speaker])
+                    {
+                        // only add quotes which don't match any previously captured
+                        if (content.Quotes == null || !content.Quotes.Any((q) =>
+                            q.Byline.Equals(speaker) &&
+                            QuoteUtils.NormalizeQuote(q.Statement).Equals(QuoteUtils.NormalizeQuote(quote))))
+                        {
+                            quotesToAdd.Add(new QuoteModel { Id = 0, ContentId = content.Id, Byline = speaker, Statement = quote });
+                        }
+                    }
+                }
+
+                if (quotesToAdd.Count > 0)
+                {
+                    Logger.LogInformation("Adding {count} new quotes to content ID: {contentId}", quotesToAdd.Count, content.Id);
+                    await Api.AddQuotesToContentAsync(content.Id, quotesToAdd);
+                }
+                else
+                {
+                    Logger.LogInformation("Content ID: {contentId} has no new quotes to add", content.Id);
+                }
+            }
+            else
+            {
+                Logger.LogInformation("No quotes extracted from content ID: {contentId}", content.Id);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Quote extraction failed for content ID: {contentId}", content.Id);
+            throw;
+        }
+    }
+
+
 
     #endregion
 }
