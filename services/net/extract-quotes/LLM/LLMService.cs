@@ -26,14 +26,6 @@ public class LLMService : ICoreNLPService
     private int _primaryApiKeyIndex = 0;
     private int _fallbackApiKeyIndex = 0;
 
-    /// <summary>
-    /// thread logging information
-    /// </summary>
-    /// <returns>string</returns>
-    private static string GetThreadInfo()
-    {
-        return $"[Thread {Environment.CurrentManagedThreadId}]";
-    }
     #endregion
 
     #region Constructors
@@ -114,6 +106,16 @@ public class LLMService : ICoreNLPService
     #region Methods
 
     /// <summary>
+    /// thread logging information
+    /// </summary>
+    /// <returns>string</returns>
+    private static string GetThreadInfo()
+    {
+        return $"[Thread {Environment.CurrentManagedThreadId}]";
+    }
+
+
+    /// <summary>
     /// Sends the text to the LLM API and returns an AnnotationResponse.
     /// Implements API key rotation and fallback model support.
     /// </summary>
@@ -140,14 +142,6 @@ public class LLMService : ICoreNLPService
                     if (keyIndex < 0) keyIndex += Options.LLM.Primary.ApiKeys.Count;
                     this.Logger.LogInformation("{ThreadInfo} Attempting LLM request with primary model '{Model}' using key index {Index}",
                                               GetThreadInfo(), this.Options.LLM.Primary.ModelName, keyIndex);
-
-                    // Rate limiter check
-                    using RateLimitLease lease = await _rateLimiter.AcquireAsync();
-                    if (!lease.IsAcquired)
-                    {
-                        this.Logger.LogWarning("Rate limit exceeded for primary LLM API. Request rejected temporarily.");
-                        throw new RateLimitRejectedException("LLM rate limit exceeded for primary model.");
-                    }
 
                     // Call the primary model
                     string? responseContent = await _llmClient.CallLLMApiWithPrompt(text, prompt, this.Options.LLM.Primary.ModelName,
@@ -198,14 +192,6 @@ public class LLMService : ICoreNLPService
                     if (keyIndex < 0) keyIndex += Options.LLM.Fallback.ApiKeys.Count;
                     this.Logger.LogInformation("{ThreadInfo} Attempting LLM request with fallback model '{Model}' using key index {Index}",
                                              GetThreadInfo(), this.Options.LLM.Fallback.ModelName, keyIndex);
-
-                    // Rate limiter check for fallback too
-                    using RateLimitLease lease = await _rateLimiter.AcquireAsync();
-                    if (!lease.IsAcquired)
-                    {
-                        this.Logger.LogWarning("Rate limit exceeded for fallback LLM API. Request rejected.");
-                        throw new RateLimitRejectedException("LLM rate limit exceeded during fallback.");
-                    }
 
                     // Call the fallback model
                     string? fallbackResponseContent = await _llmClient.CallLLMApiWithPrompt(text, prompt, this.Options.LLM.Fallback.ModelName,
