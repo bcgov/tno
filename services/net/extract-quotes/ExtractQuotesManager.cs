@@ -39,11 +39,6 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
     private int _retries = 0;
 
-    // Set to track processed content IDs to prevent duplicate processing
-    private readonly HashSet<long> _processedContentIds = new HashSet<long>();
-    // Maximum size for the processed content IDs set to prevent unlimited growth
-    private const int MaxProcessedContentIdsCount = 10000;
-
     // Add memory cache
     private readonly IMemoryCache _memoryCache;
     // Define cache key
@@ -100,20 +95,6 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
     #endregion
 
     #region Methods
-    /// <summary>
-    /// Clean up resources when the service is stopping
-    /// </summary>
-    private void CleanupResources()
-    {
-        Logger.LogInformation("Cleaning up quote extraction service resources...");
-
-        // Clear processed content IDs
-        lock (_processedContentIds)
-        {
-            _processedContentIds.Clear();
-            Logger.LogInformation("Cleared processed content IDs tracking set");
-        }
-    }
 
     /// <summary>
     /// Listen to active topics and import content.
@@ -234,11 +215,6 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
         {
             _cancelToken.Cancel();
         }
-
-        // No batch processing to clean up
-
-        // Clean up resources
-        CleanupResources();
     }
 
     /// <summary>
@@ -405,27 +381,6 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
     private async Task ProcessContentItemAsync(ContentModel content, IEnumerable<MinisterModel> ministers, ConsumeResult<string, IndexRequestModel> result)
     {
         var contentId = content.Id;
-
-        // Check if this content has already been processed
-        lock (_processedContentIds)
-        {
-            if (_processedContentIds.Contains(contentId))
-            {
-                Logger.LogWarning("Content ID {contentId} has already been processed - skipping duplicate processing", contentId);
-                return;
-            }
-
-            // Check if the set has reached the maximum size
-            if (_processedContentIds.Count >= MaxProcessedContentIdsCount)
-            {
-                // Clear the set when it reaches the maximum size
-                _processedContentIds.Clear();
-                Logger.LogInformation("Cleared processed content IDs tracking set due to size limit ({maxSize})", MaxProcessedContentIdsCount);
-            }
-
-            // Mark as processed
-            _processedContentIds.Add(contentId);
-        }
 
         Logger.LogInformation("Starting to process content ID: {contentId} - Using {serviceType} service",
             contentId,
