@@ -17,6 +17,7 @@ using TNO.Kafka.Models;
 
 using TNO.Services.ExtractQuotes.Config;
 using TNO.Services.ExtractQuotes.CoreNLP.models;
+using TNO.Services.ExtractQuotes.Utils;
 using TNO.Services.Managers;
 using TNO.Services.NLP.ExtractQuotes;
 
@@ -449,7 +450,9 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
                     foreach (var quote in speakersAndQuotes[speaker])
                     {
                         // only add quotes which don't match any previously captured
-                        if (content.Quotes == null || !content.Quotes.Any((q) => q.Byline.Equals(speaker) && q.Statement.Equals(quote)))
+                        if (content.Quotes == null || !content.Quotes.Any((q) =>
+                            q.Byline.Equals(speaker) &&
+                            QuoteUtils.NormalizeQuote(q.Statement).Equals(QuoteUtils.NormalizeQuote(quote))))
                         {
                             quotesToAdd.Add(new QuoteModel { Id = 0, ContentId = content.Id, Byline = speaker, Statement = quote });
                         }
@@ -477,6 +480,8 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
             throw;
         }
     }
+
+
 
     #endregion
 }
