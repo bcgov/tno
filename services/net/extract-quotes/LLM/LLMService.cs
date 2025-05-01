@@ -1,6 +1,7 @@
 using System.Threading.RateLimiting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using TNO.API.Areas.Services.Models.Content;
 using TNO.Services.ExtractQuotes.Config;
 using TNO.Services.ExtractQuotes.CoreNLP.models;
 using TNO.Services.ExtractQuotes.LLM.Clients;
@@ -123,13 +124,25 @@ public class LLMService : ICoreNLPService
     /// <returns>Returns the AnnotationResponse with extracted quotes.</returns>
     public async Task<AnnotationResponse?> PerformAnnotation(string text)
     {
+        // Call the implementation with no existing quotes
+        return await PerformAnnotationWithExistingQuotes(text, Enumerable.Empty<QuoteModel>());
+    }
+
+    /// <summary>
+    /// Performs annotation with existing quotes to exclude
+    /// </summary>
+    /// <param name="text">The text to analyze</param>
+    /// <param name="existingQuotes">Existing quotes to exclude from results</param>
+    /// <returns>Annotation response with quotes</returns>
+    public async Task<AnnotationResponse?> PerformAnnotationWithExistingQuotes(string text, IEnumerable<QuoteModel> existingQuotes)
+    {
         try
         {
-            this.Logger.LogInformation("{ThreadInfo} Starting LLM quote extraction - Text length: {length} characters",
-                GetThreadInfo(), text.Length);
+            this.Logger.LogInformation("{ThreadInfo} Starting LLM quote extraction - Text length: {length} characters, Existing quotes: {count}",
+                GetThreadInfo(), text.Length, existingQuotes.Count());
 
-            // Generate the prompt for quote extraction
-            var prompt = _promptGenerator.GenerateQuoteExtractionPrompt(text);
+            // Generate the prompt for quote extraction, including existing quotes
+            var prompt = _promptGenerator.GenerateQuoteExtractionPrompt(text, existingQuotes);
 
             // 1. Try Primary Model with Key Rotation
             if (!string.IsNullOrWhiteSpace(this.Options.PrimaryApiKeys))

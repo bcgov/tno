@@ -1,6 +1,11 @@
 Task: Extract all direct quotes from the provided text.
 Identify the speaker for each quote. Use 'Unknown' if the speaker is not explicitly mentioned.
 
+Existing Quotes (DO NOT include these or similar quotes in your response):
+----------
+{ExistingQuotes}
+----------
+
 Input Text:
 ----------
 {InputText}
@@ -30,3 +35,4 @@ CRITICAL JSON FORMATTING RULES (Strict adherence required):
 3.  Do not include trailing commas in JSON arrays or objects.
 4.  Use only double quotes (") for all JSON keys and string values.
 5.  If no quotes are found in the text, return an empty array like this: { "quotes": [] }.
+6.  Ensure if you find a spearker has full name, always keep using the spearker's full name.

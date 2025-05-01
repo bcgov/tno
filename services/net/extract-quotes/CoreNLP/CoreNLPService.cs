@@ -3,11 +3,13 @@ using Microsoft.Extensions.Options;
 using TNO.Services.ExtractQuotes.Config;
 using TNO.Services.ExtractQuotes.CoreNLP.models;
 using Microsoft.Extensions.Logging;
+using TNO.API.Areas.Services.Models.Content;
 
 namespace TNO.Services.NLP.ExtractQuotes;
 
 public interface ICoreNLPService {
     Task<AnnotationResponse?> PerformAnnotation(string text);
+    Task<AnnotationResponse?> PerformAnnotationWithExistingQuotes(string text, IEnumerable<QuoteModel> existingQuotes);
 }
 
 /// <summary>
@@ -123,6 +125,20 @@ public class CoreNLPService: ICoreNLPService
         // Send request to CoreNLP API to annotate text in request
         var body = new StringContent(text);
         return await RetryRequestAsync(async () => await this.HttpClient.PostAsync<AnnotationResponse>(this.Options.CoreNLPApiUrl, body));
+    }
+
+    /// <summary>
+    /// Performs annotation with existing quotes to exclude
+    /// </summary>
+    /// <param name="text">The text to analyze</param>
+    /// <param name="existingQuotes">Existing quotes to exclude from results</param>
+    /// <returns>Annotation response with quotes</returns>
+    public async Task<AnnotationResponse?> PerformAnnotationWithExistingQuotes(string text, IEnumerable<QuoteModel> existingQuotes)
+    {
+        // For the CoreNLP implementation, we just call the regular method and filter the results later
+        // This is because CoreNLP doesn't support excluding quotes in the API
+        this.Logger.LogInformation("CoreNLP implementation ignores existing quotes parameter");
+        return await PerformAnnotation(text);
     }
     #endregion
 }

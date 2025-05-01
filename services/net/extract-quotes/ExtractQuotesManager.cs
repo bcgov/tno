@@ -14,6 +14,7 @@ using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Kafka;
 using TNO.Kafka.Models;
+
 using TNO.Services.ExtractQuotes.Config;
 using TNO.Services.ExtractQuotes.CoreNLP.models;
 using TNO.Services.Managers;
@@ -420,10 +421,25 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
             Logger.LogInformation("Starting quote extraction using {serviceType} service - Content ID: {contentId}, Text length: {length} characters",
                 Options.UseLLM ? "LLM" : "CoreNLP", content.Id, annotationInput.Length);
 
-            var annotations = await CoreNLPService.PerformAnnotation(annotationInput);
+            AnnotationResponse? annotations;
+
+            if (Options.UseLLM)
+            {
+                // llm is different, we want it to avoid generating similar quotes
+                var existingQuotes = content.Quotes?.ToList() ?? [];
+                if (existingQuotes.Count > 0)
+                {
+                    Logger.LogInformation("Passing {count} existing quotes to LLM to avoid generating similar quotes", existingQuotes.Count);
+                }
+                annotations = await CoreNLPService.PerformAnnotationWithExistingQuotes(annotationInput, existingQuotes);
+            }
+            else
+            {
+                annotations = await CoreNLPService.PerformAnnotation(annotationInput);
+            }
             if (annotations != null && annotations.Quotes.Count > 0)
             {
-                Logger.LogInformation("Extracted {quoteCount} quotes from content ID: {contentId}", content.Id, annotations.Quotes.Count);
+                Logger.LogInformation("Extracted {quoteCount} quotes from content ID: {contentId}", annotations.Quotes.Count, content.Id);
 
                 var speakersAndQuotes = ExtractSpeakersAndQuotes(ministers, annotations);
 
@@ -433,7 +449,7 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
                     foreach (var quote in speakersAndQuotes[speaker])
                     {
                         // only add quotes which don't match any previously captured
-                        if (!content.Quotes.Any((q) => q.Byline.Equals(speaker) && q.Statement.Equals(quote)))
+                        if (content.Quotes == null || !content.Quotes.Any((q) => q.Byline.Equals(speaker) && q.Statement.Equals(quote)))
                         {
                             quotesToAdd.Add(new QuoteModel { Id = 0, ContentId = content.Id, Byline = speaker, Statement = quote });
                         }
