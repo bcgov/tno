@@ -16,5 +16,7 @@ export const SectionIcon = ({ type }: ISectionIconProps) => {
     return <FaChartPie />;
   } else if (type === ReportSectionTypeName.Gallery) {
     return <FaImage />;
+  } else if (type === ReportSectionTypeName.Image) {
+    return <FaImage />;
   } else return null;
 };

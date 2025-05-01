@@ -33,12 +33,14 @@ export const defaultReportSection = (
     hideEmpty:
       type === ReportSectionTypeName.TableOfContents ||
       type === ReportSectionTypeName.MediaAnalytics ||
-      type === ReportSectionTypeName.Gallery
+      type === ReportSectionTypeName.Gallery ||
+      type === ReportSectionTypeName.Image
         ? false
         : hideEmpty,
     groupBy: 'otherSource',
     sortBy: '',
     sortDirection: '',
+    url: '',
   },
   chartTemplates: [],
 });

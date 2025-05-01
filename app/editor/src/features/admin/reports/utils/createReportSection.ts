@@ -29,6 +29,7 @@ export const createReportSection = (
       groupBy: 'otherSource',
       sortBy: '',
       sortDirection: '',
+      url: '',
     },
   };
 };
