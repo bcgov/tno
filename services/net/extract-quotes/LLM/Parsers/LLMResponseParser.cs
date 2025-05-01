@@ -11,6 +11,7 @@ namespace TNO.Services.ExtractQuotes.LLM.Parsers;
 public class LLMResponseParser : ILLMResponseParser
 {
     private readonly ILogger<LLMResponseParser> _logger;
+    private readonly JsonSerializerOptions _jsonOptions;
 
     /// <summary>
     /// Creates a new instance of LLMResponseParser
@@ -19,6 +20,7 @@ public class LLMResponseParser : ILLMResponseParser
     public LLMResponseParser(ILogger<LLMResponseParser> logger)
     {
         _logger = logger;
+        _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
     }
 
     /// <summary>
@@ -29,88 +31,88 @@ public class LLMResponseParser : ILLMResponseParser
     /// <returns>AnnotationResponse if parsing is successful, otherwise null</returns>
     public AnnotationResponse? ParseLLMResponse(string llmResponseContent, string modelName)
     {
-        // Extract JSON from the response
-        int jsonStartIndex = llmResponseContent.IndexOf('{');
-        int jsonEndIndex = llmResponseContent.LastIndexOf('}');
-
-        if (jsonStartIndex >= 0 && jsonEndIndex > jsonStartIndex)
+        try
         {
-            var jsonString = llmResponseContent.Substring(jsonStartIndex, jsonEndIndex - jsonStartIndex + 1);
+            // Directly deserialize the JSON response
+            var quoteResponse = JsonSerializer.Deserialize<QuoteResponse>(llmResponseContent, _jsonOptions);
 
-            try
+            if (quoteResponse != null && quoteResponse.quotes != null && quoteResponse.quotes.Count > 0)
             {
-                // Deserialize the JSON to QuoteResponse
-                var quoteResponse = JsonSerializer.Deserialize<QuoteResponse>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                _logger.LogInformation("Successfully parsed {count} quotes from LLM response (Model: {Model})",
+                    quoteResponse.quotes.Count, modelName);
 
-                if (quoteResponse != null && quoteResponse.quotes != null && quoteResponse.quotes.Count > 0)
-                {
-                    _logger.LogInformation("Successfully parsed {count} quotes from LLM response (Model: {Model})",
-                        quoteResponse.quotes.Count, modelName);
-
-                    // Convert QuoteResponse to AnnotationResponse
-                    var quotes = quoteResponse.quotes.Select((q, i) => new Quote
-                    {
-                        id = i + 1, // Generate ID based on order
-                        text = q.Text?.Trim() ?? "", // Ensure text is not null and trim whitespace
-                        canonicalSpeaker = q.CanonicalSpeaker?.Trim() ?? "Unknown", // Ensure speaker is not null and trim
-                        beginSentence = q.BeginSentence // Use provided sentence index
-                    }).ToList();
-
-                    // Create sentences structure based on max beginSentence index
-                    int maxSentenceIndex = quotes.Count > 0 ? quotes.Max(q => q.beginSentence) : -1;
-                    var sentences = Enumerable.Range(0, maxSentenceIndex + 1)
-                                        .Select(i => new Sentence { index = i, entityMentions = new List<EntityMention>() })
-                                        .ToList();
-
-                    // Add entity mentions for speakers to the correct sentence
-                    foreach (var quote in quotes)
-                    {
-                        if (quote.beginSentence >= 0 && quote.beginSentence < sentences.Count && !string.IsNullOrWhiteSpace(quote.canonicalSpeaker))
-                        {
-                            // Avoid adding duplicate speakers to the same sentence if multiple quotes start there
-                            if (!sentences[quote.beginSentence].entityMentions.Any(em => em.text == quote.canonicalSpeaker))
-                            {
-                                sentences[quote.beginSentence].entityMentions.Add(new EntityMention
-                                {
-                                    text = quote.canonicalSpeaker,
-                                    ner = "PERSON" // Assuming speaker is always PERSON
-                                });
-                            }
-                        }
-                    }
-                    _logger.LogDebug("Created {count} sentences structure based on quote indices.", sentences.Count);
-
-                    var annotationResponse = new AnnotationResponse
-                    {
-                        Quotes = quotes,
-                        Sentences = sentences
-                    };
-
-                    // Log each extracted quote for debugging
-                    foreach (var quote in annotationResponse.Quotes)
-                    {
-                        _logger.LogDebug("Extracted quote: Speaker='{speaker}', Text='{text}'",
-                            quote.canonicalSpeaker, quote.text);
-                    }
-
-                    return annotationResponse;
-                }
-                else
-                {
-                    _logger.LogWarning("Parsed JSON from model '{Model}' does not contain valid quotes or is empty. JSON: {json}", modelName, jsonString);
-                    return null;
-                }
+                return CreateAnnotationResponse(quoteResponse);
             }
-            catch (JsonException ex)
+            else
             {
-                _logger.LogError(ex, "Failed to parse LLM response JSON from model '{Model}'. JSON: {json}", modelName, jsonString);
+                _logger.LogWarning("Parsed JSON from model '{Model}' does not contain valid quotes or is empty. JSON: {json}", modelName, llmResponseContent);
                 return null;
             }
         }
-        else
+        catch (JsonException ex)
         {
-            _logger.LogWarning("Unable to extract JSON object from LLM response content from model '{Model}'. Content: {content}", modelName, llmResponseContent);
+            _logger.LogError(ex, "Failed to parse LLM response JSON from model '{Model}'. Content: {content}", modelName, llmResponseContent);
             return null;
         }
+    }
+
+    /// <summary>
+    /// Creates an AnnotationResponse from a QuoteResponse
+    /// </summary>
+    /// <param name="quoteResponse">The parsed QuoteResponse</param>
+    /// <returns>An AnnotationResponse object</returns>
+    private AnnotationResponse CreateAnnotationResponse(QuoteResponse quoteResponse)
+    {
+        // Convert QuoteResponse to AnnotationResponse
+        var quotes = quoteResponse.quotes.Select((q, i) => new Quote
+        {
+            id = i + 1, // Generate ID based on order
+            text = q.Text?.Trim() ?? "", // Ensure text is not null and trim whitespace
+            canonicalSpeaker = q.CanonicalSpeaker?.Trim() ?? "Unknown", // Ensure speaker is not null and trim
+            beginSentence = q.BeginSentence // Use provided sentence index
+        }).ToList();
+
+        // Create sentences structure based on max beginSentence index
+        int maxSentenceIndex = quotes.Count > 0 ? quotes.Max(q => q.beginSentence) : -1;
+        var sentences = Enumerable.Range(0, maxSentenceIndex + 1)
+                            .Select(i => new Sentence
+                            {
+                                index = i,
+                                entityMentions = [] // Use collection expression for empty list
+                            })
+                            .ToList();
+
+        // Add entity mentions for speakers to the correct sentence
+        foreach (var quote in quotes)
+        {
+            if (quote.beginSentence >= 0 && quote.beginSentence < sentences.Count && !string.IsNullOrWhiteSpace(quote.canonicalSpeaker))
+            {
+                // Avoid adding duplicate speakers to the same sentence if multiple quotes start there
+                if (!sentences[quote.beginSentence].entityMentions.Any(em => em.text == quote.canonicalSpeaker))
+                {
+                    sentences[quote.beginSentence].entityMentions.Add(new EntityMention
+                    {
+                        text = quote.canonicalSpeaker,
+                        ner = "PERSON" // Assuming speaker is always PERSON
+                    });
+                }
+            }
+        }
+        _logger.LogDebug("Created {count} sentences structure based on quote indices.", sentences.Count);
+
+        var annotationResponse = new AnnotationResponse
+        {
+            Quotes = quotes,
+            Sentences = sentences
+        };
+
+        // Log each extracted quote for debugging
+        foreach (var quote in annotationResponse.Quotes)
+        {
+            _logger.LogDebug("Extracted quote: Speaker='{speaker}', Text='{text}'",
+                quote.canonicalSpeaker, quote.text);
+        }
+
+        return annotationResponse;
     }
 }

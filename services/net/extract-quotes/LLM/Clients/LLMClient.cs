@@ -99,7 +99,8 @@ public class LLMClient : ILLMClient
                 new { role = "user", content = prompt }
             },
             temperature = 1.0,
-            max_tokens = 4000
+            max_tokens = 4000,
+            response_format = new { type = "json_object" }
         };
 
         // Convert the request body to JSON
