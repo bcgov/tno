@@ -1,7 +1,7 @@
 # Makefile for extract-quotes service utilities
 
 # Relative path to the prompt template file
-PROMPT_TEMPLATE_FILE = LLM/Prompts/PromptTempalte.txt
+PROMPT_TEMPLATE_FILE = LLM/Prompts/PromptTemplate.txt
 
 # Relative path to the python script (adjust if needed)
 TEXT_TO_JSON_SCRIPT = ../../../tools/scripts/text_to_json_string.py
