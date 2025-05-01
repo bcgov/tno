@@ -8,6 +8,9 @@ SCRIPT_NAME=$(basename "$0")
 print_header() { echo "=================================================="; echo "$1"; echo "=================================================="; }
 print_separator() { echo "--------------------------------------------------"; }
 
+# --- Global variable for trap handler ---
+TARGET_LOG_FILE="" # Initialize globally
+
 print_usage() {
     echo "Usage:"
     echo "  ./${SCRIPT_NAME}          : Automatically finds the latest tno-extract-quotes_*.log file,"
@@ -16,6 +19,27 @@ print_usage() {
     echo "  ./${SCRIPT_NAME} -f <log file> : Analyzes the specified log file."
 }
 
+# --- Trap Handler for Ctrl+C ---
+cleanup_and_analyze() {
+    echo # Add a newline after Ctrl+C
+    print_separator
+    echo "Log capture interrupted by user (Ctrl+C)."
+
+    if [[ -n "$TARGET_LOG_FILE" && -f "$TARGET_LOG_FILE" ]]; then
+        echo "Logs appended to $TARGET_LOG_FILE"
+        print_separator
+        echo "Automatically analyzing log and saving to report.txt..."
+        # Run analysis in the background briefly to avoid issues if tee is still writing? No, analyze_log reads the file.
+        analyze_log "$TARGET_LOG_FILE" > report.txt
+        echo "Analysis complete, results saved to report.txt"
+        print_separator
+    else
+        echo "TARGET_LOG_FILE variable not set or file not found. Skipping analysis."
+    fi
+    # Clean up trap and exit
+    trap - SIGINT # Remove the trap
+    exit 0
+}
 
 # --- Analysis Function ---
 # Takes the log file path as an argument
@@ -84,7 +108,7 @@ analyze_log() {
     print_separator
 
     print_header "Content Processing & LLM Calls"
-    PROCESSED_IDS=$(grep 'Starting to process content ID:' "$LOG_FILE_TO_ANALYZE" | awk '{print $(NF-3)}' | sort -u)
+    PROCESSED_IDS=$(grep 'Starting to process content ID:' "$LOG_FILE_TO_ANALYZE" | awk -F 'ID: ' '{print $2}' | awk '{print $1}' | sort -u)
     TOTAL_PROCESSED_COUNT=$(echo "$PROCESSED_IDS" | wc -w)
     TOTAL_PROCESSED_COUNT=${TOTAL_PROCESSED_COUNT:-0} # Ensure it's 0 if empty
     TOTAL_FAILURES=$(grep -c "No quotes extracted from content ID:" "$LOG_FILE_TO_ANALYZE")
@@ -209,42 +233,48 @@ elif [[ $# -eq 0 ]]; then
     # --- Capture Mode ---
     print_header "Real-time Log Capture Mode"
 
+    # Set trap for SIGINT (Ctrl+C) *before* starting the background process
+    trap cleanup_and_analyze SIGINT
+
     # Prompt user to refresh container
     echo "TIP: For best results, it's recommended to refresh the extract-quotes container first"
     echo "(e.g., run: docker restart tno-extract-quotes)"
     echo "Press Enter to continue..."
     read -r
 
-    # Find latest log file or create a new one
-    LATEST_LOG=$(find . -maxdepth 1 -name 'tno-extract-quotes_*.log' -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
+    # Always create a new log file with timestamp
+    TARGET_LOG_FILE="./tno-extract-quotes_$(date +%Y%m%d_%H%M%S).log"
+    echo "Creating new log file: $TARGET_LOG_FILE"
+    touch "$TARGET_LOG_FILE" || { echo "Error: Could not create log file '$TARGET_LOG_FILE'"; exit 1; }
 
-    if [[ -z "$LATEST_LOG" ]]; then
-        TARGET_LOG_FILE="./tno-extract-quotes_$(date +%Y%m%d_%H%M%S).log"
-        echo "No existing log file found, creating and logging to: $TARGET_LOG_FILE"
-        touch "$TARGET_LOG_FILE" || { echo "Error: Could not create log file '$TARGET_LOG_FILE'"; exit 1; }
-    else
-        TARGET_LOG_FILE=${LATEST_LOG#./}  # Remove ./ prefix if find added it
-        echo "Found latest log file, appending logs to: $TARGET_LOG_FILE"
-    fi
+    # Ensure TARGET_LOG_FILE is accessible to the trap handler (it is now global)
 
     echo "running 'docker logs -f tno-extract-quotes'..."
-    echo "Logs will be displayed on screen and appended to $TARGET_LOG_FILE"
+    echo "Logs will be displayed on screen and saved to $TARGET_LOG_FILE"
     echo "Press Ctrl+C to stop capture."
     print_separator
 
     # Capture logs with stdbuf to ensure immediate line buffering
+    # Run in the foreground. The trap will handle interruption.
     stdbuf -oL docker logs -f tno-extract-quotes 2>&1 | stdbuf -oL tee -a "$TARGET_LOG_FILE"
 
-    echo # Add a newline after Ctrl+C
-    print_separator
-    echo "Log capture stopped. Logs appended to $TARGET_LOG_FILE"
 
-    # Automatic analysis after capture
+    echo # Add a newline if command finished without Ctrl+C
     print_separator
-    echo "Log capture stopped, automatically analyzing log and saving to report.txt..."
-    analyze_log "$TARGET_LOG_FILE" > report.txt
-    echo "Analysis complete, results saved to report.txt"
-    print_separator
+    echo "Log capture finished (docker logs command exited)."
+    if [[ -n "$TARGET_LOG_FILE" && -f "$TARGET_LOG_FILE" ]]; then
+         echo "Logs appended to $TARGET_LOG_FILE"
+         print_separator
+         echo "Automatically analyzing log and saving to report.txt..."
+         analyze_log "$TARGET_LOG_FILE" > report.txt
+         echo "Analysis complete, results saved to report.txt"
+         print_separator
+    else
+         echo "TARGET_LOG_FILE variable not set or file not found. Skipping analysis."
+    fi
+    # Remove trap if we exit normally
+    trap - SIGINT
+
 else
     echo "Error: Invalid argument '$1'"
     print_usage
