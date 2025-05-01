@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks.Dataflow;
 using Confluent.Kafka;
 using HtmlAgilityPack;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Content;
@@ -42,6 +43,13 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
     private readonly HashSet<long> _processedContentIds = new HashSet<long>();
     // Maximum size for the processed content IDs set to prevent unlimited growth
     private const int MaxProcessedContentIdsCount = 10000;
+
+    // Add memory cache
+    private readonly IMemoryCache _memoryCache;
+    // Define cache key
+    private const string MinistersCacheKey = "Ministers_List";
+    // Define cache expiration time (days)
+    private const int MinistersCacheExpirationDays = 1;
     #endregion
 
     #region Properties
@@ -77,6 +85,7 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
         IChesService chesService,
         IOptions<ChesOptions> chesOptions,
         IOptions<ExtractQuotesOptions> extractQuotesOptions,
+        IMemoryCache memoryCache,
         ILogger<ExtractQuotesManager> logger)
         : base(api, chesService, chesOptions, extractQuotesOptions, logger)
     {
@@ -86,7 +95,7 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
         Listener.OnStop += ListenerStopHandler;
 
         CoreNLPService = coreNLPService;
-
+        _memoryCache = memoryCache;
     }
     #endregion
 
@@ -319,8 +328,27 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
                     && content.PublishedOn.Value < DateTime.UtcNow.AddDays(-1 * Options.IgnoreContentPublishedBeforeOffset.Value))
                     return;
 
-                // Process immediately
-                var ministers = await Api.GetMinistersAsync();
+                // Get ministers list from cache, if not exists, fetch from API and cache
+                if (!_memoryCache.TryGetValue(MinistersCacheKey, out IEnumerable<MinisterModel>? ministers))
+                {
+                    Logger.LogInformation("Ministers list not found in cache. Fetching from API.");
+                    ministers = await Api.GetMinistersAsync();
+
+                    // Cache the ministers list for 1 day
+                    var cacheOptions = new MemoryCacheEntryOptions()
+                        .SetAbsoluteExpiration(TimeSpan.FromDays(MinistersCacheExpirationDays));
+
+                    _memoryCache.Set(MinistersCacheKey, ministers, cacheOptions);
+                    Logger.LogInformation("Ministers list cached for {days} days. Count: {count}",
+                        MinistersCacheExpirationDays, ministers?.Count() ?? 0);
+                }
+                else
+                {
+                    Logger.LogDebug("Using cached ministers list. Count: {count}", ministers?.Count() ?? 0);
+                }
+
+                // Ensure ministers is not null before using it
+                ministers ??= Enumerable.Empty<MinisterModel>();
                 await ProcessContentItemAsync(content, ministers, result);
             }
             else

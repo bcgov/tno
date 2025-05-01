@@ -50,7 +50,8 @@ public class ExtractQuotesService : KafkaConsumerService
             .Configure<ExtractQuotesOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IKafkaListener<string, IndexRequestModel>, KafkaListener<string, IndexRequestModel>>()
             .AddSingleton<IServiceManager, ExtractQuotesManager>()
-            .AddSingleton<IHttpRequestClient, HttpRequestClient>();
+            .AddSingleton<IHttpRequestClient, HttpRequestClient>()
+            .AddMemoryCache();
 
         // Register the appropriate service based on configuration
         var serviceSection = this.Configuration.GetSection("Service");
