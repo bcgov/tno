@@ -43,8 +43,8 @@ public class PromptGenerator : IPromptGenerator
             _logger.LogWarning("The configured LLM Quote Extraction Prompt Template does not contain the 'ExistingQuotes' placeholder. Existing quotes will not be excluded from extraction.");
         }
 
-        _promptTemplate = _options.QuoteExtractionPromptTemplate; // Read directly from options
-        _logger.LogInformation("PromptGenerator initialized using prompt template from configuration.");
+        _promptTemplate = _options.QuoteExtractionPromptTemplate;
+        _logger.LogDebug("PromptGenerator initialized with template: {template}", _promptTemplate);
     }
 
     /// <summary>
