@@ -1,10 +1,13 @@
-import { Col, FormikText, FormikTextArea } from 'tno-core';
+import { useFormikContext } from 'formik';
+import { Checkbox, Col, FormikText, FormikTextArea, IReportModel } from 'tno-core';
 
 export interface IReportSectionImageProps {
   index: number;
 }
 
 export const ReportSectionImage = ({ index }: IReportSectionImageProps) => {
+  const { values, setFieldValue } = useFormikContext<IReportModel>();
+
   return (
     <Col gap="1rem" className="section">
       <FormikText
@@ -22,6 +25,18 @@ export const ReportSectionImage = ({ index }: IReportSectionImageProps) => {
       <Col>
         <FormikText label="Url" name={`sections.${index}.settings.url`} />
       </Col>
+      <Checkbox
+        name={`sections.${index}.settings.inTableOfContents`}
+        label="Include in Table of Contents"
+        checked={
+          values.sections[index].settings.inTableOfContents === undefined
+            ? true
+            : values.sections[index].settings.inTableOfContents
+        }
+        onChange={(e) => {
+          setFieldValue(`sections.${index}.settings.inTableOfContents`, e.target.checked);
+        }}
+      />
     </Col>
   );
 };

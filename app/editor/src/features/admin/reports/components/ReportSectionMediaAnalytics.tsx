@@ -5,6 +5,7 @@ import { useFilters, useFolders, useReports } from 'store/hooks/admin';
 import {
   Button,
   ButtonVariant,
+  Checkbox,
   Col,
   FormikCheckbox,
   FormikSelect,
@@ -104,6 +105,18 @@ export const ReportSectionMediaAnalytics = ({ index }: IReportSectionMediaAnalyt
                 `sections.${index}.settings.direction`,
                 e.target.checked ? 'row' : 'column',
               );
+            }}
+          />
+          <Checkbox
+            name={`sections.${index}.settings.inTableOfContents`}
+            label="Include in Table of Contents"
+            checked={
+              values.sections[index].settings.inTableOfContents === undefined
+                ? true
+                : values.sections[index].settings.inTableOfContents
+            }
+            onChange={(e) => {
+              setFieldValue(`sections.${index}.settings.inTableOfContents`, e.target.checked);
             }}
           />
         </Row>
