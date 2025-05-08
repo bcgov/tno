@@ -1,5 +1,7 @@
 import React from 'react';
-import { FormikCheckbox, FormikText, FormikWysiwyg, Row } from 'tno-core';
+import { Checkbox, FormikCheckbox, FormikText, FormikWysiwyg, Row } from 'tno-core';
+
+import { useReportEditContext } from '../../ReportEditContext';
 
 export interface IReportSectionTextProps {
   index: number;
@@ -7,6 +9,8 @@ export interface IReportSectionTextProps {
 
 export const ReportSectionText = React.forwardRef<HTMLDivElement, IReportSectionTextProps>(
   ({ index, ...rest }, ref) => {
+    const { values, setFieldValue } = useReportEditContext();
+
     return (
       <>
         <FormikText name={`sections.${index}.settings.label`} label="Section heading:" />
@@ -18,6 +22,18 @@ export const ReportSectionText = React.forwardRef<HTMLDivElement, IReportSection
             in the table of contents, or in their own section.
           </span>
         </Row>
+        <Checkbox
+          name={`sections.${index}.settings.inTableOfContents`}
+          label="Include in Table of Contents"
+          checked={
+            values.sections[index].settings.inTableOfContents === undefined
+              ? true
+              : values.sections[index].settings.inTableOfContents
+          }
+          onChange={(e) => {
+            setFieldValue(`sections.${index}.settings.inTableOfContents`, e.target.checked);
+          }}
+        />
       </>
     );
   },
