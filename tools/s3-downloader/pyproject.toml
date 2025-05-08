@@ -1,7 +1,12 @@
 [project]
 name = "s3-downloader"
 version = "0.1.0"
-description = "Add your description here"
+description = "S3 downloader tool for downloading files from S3 bucket"
 readme = "README.md"
 requires-python = ">=3.11, <3.12"
-dependencies = []
+dependencies = [
+    "boto3>=1.28.0",
+    "dotenv>=0.9.9",
+    "python-dotenv>=1.0.0",
+    "ruff>=0.11.8",
+]
