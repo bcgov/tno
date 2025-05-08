@@ -133,3 +133,4 @@ cython_debug/
 
 # Project specific
 downloads/
+.ruff_cache

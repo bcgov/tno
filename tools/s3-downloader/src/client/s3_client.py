@@ -1,6 +1,6 @@
-import os
 import logging
-import socket  
+import os
+import socket
 from pathlib import Path
 from typing import List, Optional
 
@@ -13,10 +13,10 @@ TimeoutError = socket.timeout
 
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 class S3Client:
     """S3 Client for downloading files from S3 bucket."""
@@ -28,7 +28,7 @@ class S3Client:
         access_key: str,
         secret_key: str,
         local_storage_path: str,
-        timeout: int = 2  
+        timeout: int = 2,
     ):
         """
         Initialize S3 client.
@@ -50,43 +50,47 @@ class S3Client:
 
         # define botocore config with timeout settings
         config = botocore.config.Config(
-            connect_timeout=timeout,
-            read_timeout=timeout,
-            retries={'max_attempts': 1}  
+            connect_timeout=timeout, read_timeout=timeout, retries={"max_attempts": 1}
         )
 
         # initialize S3 client
         self.s3_client = boto3.client(
-            's3',
+            "s3",
             endpoint_url=endpoint_url,
             aws_access_key_id=access_key,
             aws_secret_access_key=secret_key,
-            config=config
+            config=config,
         )
 
         logger.info(f"S3 client initialized for bucket: {bucket_name}")
 
-    def list_objects(self, prefix: str = "") -> List[dict]:
+    def list_objects(self, prefix: str = "", include_directories: bool = False) -> List[dict]:
         """
         List objects in the S3 bucket with the given prefix.
 
         Args:
             prefix: Prefix to filter objects
+            include_directories: Whether to include directories (objects ending with '/')
 
         Returns:
             List of objects in the bucket
         """
         try:
-            response = self.s3_client.list_objects_v2(
-                Bucket=self.bucket_name,
-                Prefix=prefix
-            )
+            response = self.s3_client.list_objects_v2(Bucket=self.bucket_name, Prefix=prefix)
 
-            if 'Contents' in response:
-                logger.info(f"Found {len(response['Contents'])} objects with prefix '{prefix}'")
-                return response['Contents']
+            if "Contents" in response:
+                all_objects = response["Contents"]
+
+                # if not including directories, filter them out
+                if not include_directories:
+                    filtered_objects = [obj for obj in all_objects if not obj["Key"].endswith("/")]
+                    logger.debug(f"Found {len(filtered_objects)} files with prefix '{prefix}' (excluding directories)")
+                    return filtered_objects
+                else:
+                    logger.debug(f"Found {len(all_objects)} objects with prefix '{prefix}'")
+                    return all_objects
             else:
-                logger.info(f"No objects found with prefix '{prefix}'")
+                logger.debug(f"No objects found with prefix '{prefix}'")
                 return []
 
         except ClientError as e:
@@ -117,11 +121,7 @@ class S3Client:
 
         try:
             logger.info(f"Downloading {s3_key} to {local_path}")
-            self.s3_client.download_file(
-                self.bucket_name,
-                s3_key,
-                str(local_path)
-            )
+            self.s3_client.download_file(self.bucket_name, s3_key, str(local_path))
             logger.info(f"Successfully downloaded {s3_key}")
             return True
         except ClientError as e:
@@ -148,19 +148,16 @@ class S3Client:
         # ensure directory exists
         local_dir.mkdir(parents=True, exist_ok=True)
 
+        # get file list
         objects = self.list_objects(prefix)
         successful_downloads = 0
 
         for obj in objects:
-            # skip directories (objects ending with '/')
-            if obj['Key'].endswith('/'):
-                continue
-
             # calculate relative path
-            rel_path = os.path.relpath(obj['Key'], prefix)
+            rel_path = os.path.relpath(obj["Key"], prefix)
             local_path = local_dir / rel_path
 
-            if self.download_file(obj['Key'], local_path):
+            if self.download_file(obj["Key"], local_path):
                 successful_downloads += 1
 
         logger.info(f"Downloaded {successful_downloads} files from {prefix}")
@@ -179,7 +176,7 @@ class S3Client:
             logger.info("Connection successful!")
             return True
         except ClientError as e:
-            error_code = e.response.get('Error', {}).get('Code', 'Unknown')
+            error_code = e.response.get("Error", {}).get("Code", "Unknown")
             logger.error(f"S3 client error (code: {error_code}): {e}")
             return False
         except TimeoutError as e:
