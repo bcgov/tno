@@ -97,6 +97,18 @@ export const ReportSectionContent = ({ index }: IReportSectionContentProps) => {
           label="Show Image"
           tooltip="Display the image for each content item in this section (if there is an image)"
         />
+        <Checkbox
+          name={`sections.${index}.settings.inTableOfContents`}
+          label="Include in Table of Contents"
+          checked={
+            values.sections[index].settings.inTableOfContents === undefined
+              ? true
+              : values.sections[index].settings.inTableOfContents
+          }
+          onChange={(e) => {
+            setFieldValue(`sections.${index}.settings.inTableOfContents`, e.target.checked);
+          }}
+        />
       </Col>
       <Col>
         <hr />

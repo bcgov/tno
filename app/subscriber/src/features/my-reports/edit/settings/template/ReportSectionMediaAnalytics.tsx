@@ -2,6 +2,7 @@ import { Button } from 'components/button';
 import React from 'react';
 import { useReports } from 'store/hooks';
 import {
+  Checkbox,
   Col,
   FormikCheckbox,
   FormikText,
@@ -171,6 +172,18 @@ export const ReportSectionMediaAnalytics = React.forwardRef<
                     `sections.${index}.settings.direction`,
                     e.target.checked ? 'row' : 'column',
                   );
+                }}
+              />
+              <Checkbox
+                name={`sections.${index}.settings.inTableOfContents`}
+                label="Include in Table of Contents"
+                checked={
+                  values.sections[index].settings.inTableOfContents === undefined
+                    ? true
+                    : values.sections[index].settings.inTableOfContents
+                }
+                onChange={(e) => {
+                  setFieldValue(`sections.${index}.settings.inTableOfContents`, e.target.checked);
                 }}
               />
             </Col>
