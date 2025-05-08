@@ -2713,7 +2713,8 @@ namespace TNO.DAL.Migrations
 
                     b.Property<string>("AgeGroup1Label")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
                         .HasColumnName("age_group1_label");
 
                     b.Property<float>("AgeGroup2")
@@ -2722,7 +2723,8 @@ namespace TNO.DAL.Migrations
 
                     b.Property<string>("AgeGroup2Label")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
                         .HasColumnName("age_group2_label");
 
                     b.Property<float>("AgeGroup3")
@@ -2731,7 +2733,8 @@ namespace TNO.DAL.Migrations
 
                     b.Property<string>("AgeGroup3Label")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
                         .HasColumnName("age_group3_label");
 
                     b.Property<float>("AgeGroup4")
@@ -2740,7 +2743,8 @@ namespace TNO.DAL.Migrations
 
                     b.Property<string>("AgeGroup4Label")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
                         .HasColumnName("age_group4_label");
 
                     b.Property<float>("AverageViews")
@@ -2791,7 +2795,8 @@ namespace TNO.DAL.Migrations
 
                     b.Property<string>("PageViews1Label")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
                         .HasColumnName("page_views1_label");
 
                     b.Property<float>("PageViews2")
@@ -2808,17 +2813,20 @@ namespace TNO.DAL.Migrations
 
                     b.Property<string>("Page_Views2_Label")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
                         .HasColumnName("page_views2_label");
 
                     b.Property<string>("Page_Views3_Label")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
                         .HasColumnName("page_views3_label");
 
                     b.Property<string>("Page_Views4_Label")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
                         .HasColumnName("page_views4_label");
 
                     b.Property<DateTime>("PublishedOn")
@@ -2868,7 +2876,8 @@ namespace TNO.DAL.Migrations
 
                     b.Property<string>("WatchTime1Label")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
                         .HasColumnName("watch_time1_label");
 
                     b.Property<float>("WatchTime2")
@@ -2877,7 +2886,8 @@ namespace TNO.DAL.Migrations
 
                     b.Property<string>("WatchTime2Label")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
                         .HasColumnName("watch_time2_label");
 
                     b.Property<float>("WatchTime3")
@@ -2886,7 +2896,8 @@ namespace TNO.DAL.Migrations
 
                     b.Property<string>("WatchTime3Label")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
                         .HasColumnName("watch_time3_label");
 
                     b.Property<float>("WatchTime4")
@@ -2895,7 +2906,8 @@ namespace TNO.DAL.Migrations
 
                     b.Property<string>("WatchTime4Label")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
                         .HasColumnName("watch_time4_label");
 
                     b.HasKey("Id");
