@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-from src.s3_client import S3Client
+from src.client.s3_client import S3Client
 
 load_dotenv()
 
@@ -31,14 +31,11 @@ def main():
         local_storage_path=local_storage_path,
         timeout=timeout  
     )
-    print(f"Testing connection to {bucket_name} with {timeout}s timeout...")
     if not s3_client.test_connection():
         print(f"Connection to {bucket_name} failed. Exiting...")
         return
 
-    print(f"Listing objects in {target_directory}...")
     objects = s3_client.list_objects(prefix=target_directory)
-    print(objects)
 
     if objects:
         print(f"Downloading directory {target_directory}...")

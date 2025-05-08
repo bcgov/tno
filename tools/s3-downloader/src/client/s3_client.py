@@ -1,6 +1,3 @@
-"""
-S3 Client module for downloading files from S3 bucket.
-"""
 import os
 import logging
 import socket  
