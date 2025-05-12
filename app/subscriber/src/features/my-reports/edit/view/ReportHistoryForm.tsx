@@ -26,10 +26,7 @@ export const ReportHistoryForm = () => {
       try {
         const instances = await findInstancesForReportId(reportId);
         setInstances(
-          instances.filter(
-            (i, index) =>
-              ![ReportStatusName.Reopen, ReportStatusName.Completed].includes(i.status) && i.body,
-          ),
+          instances.filter((i, index) => ![ReportStatusName.Reopen].includes(i.status) && i.body),
         );
       } catch {}
     },
