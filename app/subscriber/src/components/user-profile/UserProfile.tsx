@@ -7,13 +7,16 @@ import { Tooltip } from 'react-tooltip';
 import { useUsers } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 import { Claim, Row, Show, useKeycloakWrapper, useWindowSize } from 'tno-core';
+import { toggleVacationMode } from 'features/settings/MyAccountSettings';
 
 import * as styled from './styled';
+import { update } from 'lodash';
 
 /**
  * Component provides a logout button.
  */
 export const UserProfile: React.FC = () => {
+  const { updateUser } = useUsers();
   const keycloak = useKeycloakWrapper();
   const { width } = useWindowSize();
   const [{ profile, impersonate }, { storeImpersonate }] = useProfileStore();
@@ -54,6 +57,10 @@ export const UserProfile: React.FC = () => {
 
   const handleVacationModeToggle = React.useCallback(() => {
     setShowVacationMode(false);
+    toggleVacationMode(
+      profile,
+      impersonate,
+      !isVacationMode, updateUser);
   }, [setShowVacationMode]);
 
   return (
