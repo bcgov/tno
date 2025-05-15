@@ -58,3 +58,7 @@ TestResults/
 healthchecksdb
 healthchecksdb-shm
 healthchecksdb-wal
+
+# Extract-quotes logs and reports
+extract-quotes/**/*.log
+extract-quotes/**/report.txt

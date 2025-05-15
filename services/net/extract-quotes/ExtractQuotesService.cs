@@ -1,8 +1,15 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using TNO.Core.Http;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.ExtractQuotes.Config;
+using TNO.Services.ExtractQuotes.LLM;
+using TNO.Services.ExtractQuotes.LLM.Clients;
+using TNO.Services.ExtractQuotes.LLM.Parsers;
+using TNO.Services.ExtractQuotes.LLM.Prompts;
+using TNO.Services.ExtractQuotes.LLM.RateLimiting;
 using TNO.Services.NLP.ExtractQuotes;
 using TNO.Services.Runners;
 
@@ -44,7 +51,32 @@ public class ExtractQuotesService : KafkaConsumerService
             .AddTransient<IKafkaListener<string, IndexRequestModel>, KafkaListener<string, IndexRequestModel>>()
             .AddSingleton<IServiceManager, ExtractQuotesManager>()
             .AddSingleton<IHttpRequestClient, HttpRequestClient>()
-            .AddSingleton<ICoreNLPService, CoreNLPService>();
+            .AddMemoryCache();
+
+        // Register the appropriate service based on configuration
+        var serviceSection = this.Configuration.GetSection("Service");
+        var useLLM = serviceSection.GetValue<bool>("UseLLM");
+
+        // Get a logger to use during configuration
+        var loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
+        var logger = loggerFactory.CreateLogger<ExtractQuotesService>();
+
+        logger.LogInformation("Service configuration - Using LLM: {useLLM}", useLLM);
+
+        if (useLLM)
+        {
+            logger.LogInformation("Registering LLM service as quote extraction service");
+            services.AddSingleton<ILLMClient, LLMClient>();
+            services.AddSingleton<ILLMResponseParser, LLMResponseParser>();
+            services.AddSingleton<IPromptGenerator, PromptGenerator>();
+            services.AddSingleton<ILLMRateLimiter, LLMRateLimiter>();
+            services.AddSingleton<ICoreNLPService, LLMService>();
+        }
+        else
+        {
+            logger.LogInformation("Registering CoreNLP service as quote extraction service");
+            services.AddSingleton<ICoreNLPService, CoreNLPService>();
+        }
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<ExtractQuotesOptions>()
