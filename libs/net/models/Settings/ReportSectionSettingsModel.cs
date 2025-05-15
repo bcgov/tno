@@ -15,6 +15,7 @@ public class ReportSectionSettingsModel
     public string Direction { get; set; } = "";
     public bool RemoveDuplicates { get; set; }
     public bool OverrideExcludeHistorical { get; set; }
+    public bool? InTableOfContents { get; set; }
     public bool HideEmpty { get; set; }
     public string GroupBy { get; set; } = "";
     public string SortBy { get; set; } = "";
@@ -35,6 +36,7 @@ public class ReportSectionSettingsModel
         this.Direction = settings.GetDictionaryJsonValue("direction", "", options)!;
         this.RemoveDuplicates = settings.GetDictionaryJsonValue("removeDuplicates", false, options)!;
         this.OverrideExcludeHistorical = settings.GetDictionaryJsonValue("overrideExcludeHistorical", false, options)!;
+        this.InTableOfContents = settings.GetDictionaryJsonValue<bool?>("inTableOfContents", null, options)!;
         this.HideEmpty = settings.GetDictionaryJsonValue("hideEmpty", false, options)!;
         this.GroupBy = settings.GetDictionaryJsonValue("groupBy", "", options)!;
         this.SortBy = settings.GetDictionaryJsonValue("sortBy", "", options)!;
@@ -52,6 +54,7 @@ public class ReportSectionSettingsModel
         this.Direction = settings.GetElementValue("direction", "", options)!;
         this.RemoveDuplicates = settings.GetElementValue("removeDuplicates", false, options)!;
         this.OverrideExcludeHistorical = settings.GetElementValue("overrideExcludeHistorical", false, options)!;
+        this.InTableOfContents = settings.GetElementValue<bool?>("inTableOfContents", null, options)!;
         this.HideEmpty = settings.GetElementValue("hideEmpty", false, options)!;
         this.GroupBy = settings.GetElementValue("groupBy", "", options)!;
         this.SortBy = settings.GetElementValue("sortBy", "", options)!;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Col, FormikCheckbox, FormikSelect, FormikText, OptionItem, Row } from 'tno-core';
+import { Checkbox, Col, FormikCheckbox, FormikSelect, FormikText, OptionItem, Row } from 'tno-core';
 
 import { useReportEditContext } from '../../ReportEditContext';
 
@@ -9,7 +9,7 @@ export interface IReportSectionGalleryProps {
 
 export const ReportSectionGallery = React.forwardRef<HTMLDivElement, IReportSectionGalleryProps>(
   ({ index, ...rest }, ref) => {
-    const { values } = useReportEditContext();
+    const { values, setFieldValue } = useReportEditContext();
 
     const section = values.sections[index];
 
@@ -61,6 +61,18 @@ export const ReportSectionGallery = React.forwardRef<HTMLDivElement, IReportSect
               name={`sections.${index}.settings.showImage`}
               label="Show Image"
               tooltip="Display the image for each content item in this section (if there is an image)"
+            />
+            <Checkbox
+              name={`sections.${index}.settings.inTableOfContents`}
+              label="Include in Table of Contents"
+              checked={
+                values.sections[index].settings.inTableOfContents === undefined
+                  ? true
+                  : values.sections[index].settings.inTableOfContents
+              }
+              onChange={(e) => {
+                setFieldValue(`sections.${index}.settings.inTableOfContents`, e.target.checked);
+              }}
             />
           </Col>
           <Col className="frm-in" flex="1">
