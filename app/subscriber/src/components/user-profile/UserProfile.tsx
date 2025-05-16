@@ -57,7 +57,7 @@ export const UserProfile: React.FC = () => {
   const handleVacationModeToggle = React.useCallback(() => {
     setShowVacationMode(false);
     toggleVacationMode(profile, impersonate, !isVacationMode, updateUser);
-  }, [setShowVacationMode]);
+  }, [setShowVacationMode, profile, impersonate, isVacationMode, updateUser]);
 
   return (
     <styled.UserProfile>
