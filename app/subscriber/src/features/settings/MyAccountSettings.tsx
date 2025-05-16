@@ -8,36 +8,36 @@ import { ISubscriberUserModel, ToggleButton } from 'tno-core';
 import * as styled from './styled';
 
 export const toggleVacationMode = async (
-    profile: ISubscriberUserModel | undefined,
-    impersonate: ISubscriberUserModel | undefined,
-    isVacationMode: boolean,
-    updateUser: (model: ISubscriberUserModel, impersonate?: boolean) => Promise<ISubscriberUserModel>,
-  ) => {
-    if (!profile) {
-      toast.error('User information is missing. Please try again later');
-      return;
-    }
-    const baseProfile = impersonate ?? profile;
-    const createUser = (): ISubscriberUserModel => {
-      // use impersonate if it exists, otherwise use profile
-      return {
-        ...baseProfile,
-        preferences: {
-          ...baseProfile.preferences,
-          isVacationMode: isVacationMode,
-        },
-      };
+  profile: ISubscriberUserModel | undefined,
+  impersonate: ISubscriberUserModel | undefined,
+  isVacationMode: boolean,
+  updateUser: (model: ISubscriberUserModel, impersonate?: boolean) => Promise<ISubscriberUserModel>,
+) => {
+  if (!profile) {
+    toast.error('User information is missing. Please try again later');
+    return;
+  }
+  const baseProfile = impersonate ?? profile;
+  const createUser = (): ISubscriberUserModel => {
+    // use impersonate if it exists, otherwise use profile
+    return {
+      ...baseProfile,
+      preferences: {
+        ...baseProfile.preferences,
+        isVacationMode: isVacationMode,
+      },
     };
-    const user = createUser();
-
-    try {
-      await updateUser(user, !!impersonate);
-      toast.success('Vacation mode has successfully been updated.');
-    } catch (error) {
-      // Handle the error, if needed
-      console.error('Failed to update user:', error);
-    }
   };
+  const user = createUser();
+
+  try {
+    await updateUser(user, !!impersonate);
+    toast.success('Vacation mode has successfully been updated.');
+  } catch (error) {
+    // Handle the error, if needed
+    console.error('Failed to update user:', error);
+  }
+};
 
 const MyAccountSettings = () => {
   const { updateUser } = useUsers();
@@ -49,7 +49,6 @@ const MyAccountSettings = () => {
     ? impersonate?.preferences?.enableReportSentiment ?? false
     : profile?.preferences?.enableReportSentiment ?? false;
 
-  
   const toggleReportSentiment = React.useCallback(
     async (
       profile: ISubscriberUserModel | undefined,
