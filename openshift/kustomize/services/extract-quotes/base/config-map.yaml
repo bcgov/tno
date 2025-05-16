@@ -23,3 +23,11 @@ data:
   EXTRACT_QUOTES_ON_INDEX: "false"
   EXTRACT_QUOTES_ON_PUBLISH: "true"
   IGNORE_CONTENT_PUBLISHED_BEFORE_OFFSET: "7"
+  USE_LLM: "true"
+  PRIMARY_MODEL_NAME: gemini-2.0-flash-lite
+  PRIMARY_API_URL: https://generativelanguage.googleapis.com/v1beta/openai/chat/completions
+  FALLBACK_MODEL_NAME: mistral-large-latest
+  FALLBACK_API_URL: https://api.mistral.ai/v1/chat/completions
+  MAX_REQUESTS_PER_MINUTE: "30"
+  RETRY_LIMIT: "1"
+  RETRY_DELAY_MS: "1000"

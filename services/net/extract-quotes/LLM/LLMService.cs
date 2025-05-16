@@ -144,6 +144,8 @@ public class LLMService : ICoreNLPService
             // Generate the prompt for quote extraction, including existing quotes
             var prompt = _promptGenerator.GenerateQuoteExtractionPrompt(text, existingQuotes);
 
+            Logger.LogDebug("{ThreadInfo} Using prompt template: {prompt}", GetThreadInfo(), prompt);
+
             // 1. Try Primary Model with Key Rotation
             if (!string.IsNullOrWhiteSpace(this.Options.PrimaryApiKeys))
             {
@@ -168,12 +170,13 @@ public class LLMService : ICoreNLPService
                         var annotationResponse = _responseParser.ParseLLMResponse(responseContent, this.Options.PrimaryModelName);
                         if (annotationResponse != null)
                         {
-                            this.Logger.LogInformation("Successfully extracted quotes using primary model '{Model}'.",
-                                                      this.Options.PrimaryModelName);
+                            int quoteCount = annotationResponse.Quotes.Count;
+                            this.Logger.LogInformation("Primary model '{Model}' processing complete. Found {count} quotes.",
+                                                    this.Options.PrimaryModelName, quoteCount);
                             return annotationResponse;
                         }
 
-                        this.Logger.LogWarning("Failed to parse valid quotes from primary model '{Model}' response.",
+                        this.Logger.LogWarning("Failed to parse response from primary model '{Model}'.",
                                               this.Options.PrimaryModelName);
                         // Continue to fallback if parsing failed
                     }
@@ -221,12 +224,14 @@ public class LLMService : ICoreNLPService
                         var annotationResponse = _responseParser.ParseLLMResponse(fallbackResponseContent, this.Options.FallbackModelName);
                         if (annotationResponse != null)
                         {
-                            this.Logger.LogInformation("Successfully extracted quotes using fallback model '{Model}'.",
-                                                     this.Options.FallbackModelName);
+                            // sometimes contents doesn't have any quotes, so we still want to return an empty response
+                            int quoteCount = annotationResponse.Quotes.Count;
+                            this.Logger.LogInformation("Fallback model '{Model}' processing complete. Found {count} quotes.",
+                                                    this.Options.FallbackModelName, quoteCount);
                             return annotationResponse;
                         }
 
-                        this.Logger.LogWarning("Failed to parse valid quotes from fallback model '{Model}' response.",
+                        this.Logger.LogWarning("Failed to parse response from fallback model '{Model}'.",
                                               this.Options.FallbackModelName);
                         return null; // Both models tried and failed to parse
                     }
