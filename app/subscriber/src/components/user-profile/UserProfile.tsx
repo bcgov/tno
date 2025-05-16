@@ -1,4 +1,5 @@
 import { ScreenSizes } from 'components/layout/constants';
+import { toggleVacationMode } from 'features/settings/MyAccountSettings';
 import React from 'react';
 import { BiLogOut } from 'react-icons/bi';
 import { FaChevronCircleDown, FaUmbrellaBeach, FaUserCircle } from 'react-icons/fa';
@@ -7,10 +8,8 @@ import { Tooltip } from 'react-tooltip';
 import { useUsers } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 import { Claim, Row, Show, useKeycloakWrapper, useWindowSize } from 'tno-core';
-import { toggleVacationMode } from 'features/settings/MyAccountSettings';
 
 import * as styled from './styled';
-import { update } from 'lodash';
 
 /**
  * Component provides a logout button.
@@ -57,10 +56,7 @@ export const UserProfile: React.FC = () => {
 
   const handleVacationModeToggle = React.useCallback(() => {
     setShowVacationMode(false);
-    toggleVacationMode(
-      profile,
-      impersonate,
-      !isVacationMode, updateUser);
+    toggleVacationMode(profile, impersonate, !isVacationMode, updateUser);
   }, [setShowVacationMode]);
 
   return (
