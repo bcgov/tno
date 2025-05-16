@@ -247,6 +247,34 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     }
 
     /// <summary>
+    /// If the ingest has source mappings configured, find a match and apply the source to the item.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <param name="item"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    private string DetermineSource(IngestModel ingest, SyndicationItem item)
+    {
+        KeyValuePair<string, string>[] sourceValues = ingest.Configuration.GetDictionaryJsonValue<string>("sources")?.Split('&').Select(v =>
+        {
+            var keyValue = v.Split('=');
+            if (keyValue.Length > 1) return new KeyValuePair<string, string>(keyValue[0], keyValue[1]);
+            return new KeyValuePair<string, string>(keyValue[0], keyValue[0]);
+        }).ToArray() ?? [];
+
+        var defaultSource = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code.");
+        var itemSource = item.SourceFeed?.Title?.Text;
+
+        // Find a match if possible
+        if (!String.IsNullOrEmpty(itemSource))
+        {
+            var sourceMatch = sourceValues.FirstOrDefault(s => s.Key.Equals(itemSource, StringComparison.InvariantCultureIgnoreCase)).Value;
+            if (!String.IsNullOrWhiteSpace(sourceMatch)) return sourceMatch;
+        }
+        return defaultSource;
+    }
+
+    /// <summary>
     /// Create a SourceContent object that can be sent to Kafka.
     /// </summary>
     /// <param name="ingest"></param>
@@ -255,7 +283,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     private SourceContent CreateSourceContent(IngestModel ingest, SyndicationItem item)
     {
         var (title, summary, body) = HandleInvalidEncoding(item);
-        var source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code.");
+        var source = DetermineSource(ingest, item);
         var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
         var publishedOn = item.PublishDate.UtcDateTime != DateTime.MinValue ? item.PublishDate.UtcDateTime : (DateTime?)null;
         var uid = Runners.BaseService.GetContentHash(source, title, publishedOn);
