@@ -1,4 +1,5 @@
 import { ScreenSizes } from 'components/layout/constants';
+import { toggleVacationMode } from 'features/settings/MyAccountSettings';
 import React from 'react';
 import { BiLogOut } from 'react-icons/bi';
 import { FaChevronCircleDown, FaUmbrellaBeach, FaUserCircle } from 'react-icons/fa';
@@ -14,6 +15,7 @@ import * as styled from './styled';
  * Component provides a logout button.
  */
 export const UserProfile: React.FC = () => {
+  const { updateUser } = useUsers();
   const keycloak = useKeycloakWrapper();
   const { width } = useWindowSize();
   const [{ profile, impersonate }, { storeImpersonate }] = useProfileStore();
@@ -54,7 +56,8 @@ export const UserProfile: React.FC = () => {
 
   const handleVacationModeToggle = React.useCallback(() => {
     setShowVacationMode(false);
-  }, [setShowVacationMode]);
+    toggleVacationMode(profile, impersonate, !isVacationMode, updateUser);
+  }, [setShowVacationMode, profile, impersonate, isVacationMode, updateUser]);
 
   return (
     <styled.UserProfile>
