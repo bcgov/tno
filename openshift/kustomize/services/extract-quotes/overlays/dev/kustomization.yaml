@@ -12,6 +12,11 @@ generatorOptions:
 patchesStrategicMerge:
   - config-map.yaml
 
+secretGenerator:
+  - name: llm-api-keys
+    type: Opaque
+    env: llm-api-keys.env
+
 patches:
   - target:
       kind: DeploymentConfig

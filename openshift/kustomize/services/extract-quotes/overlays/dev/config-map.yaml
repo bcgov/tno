@@ -19,3 +19,9 @@ data:
   TOPICS: index
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"
+  USE_LLM: "true"
+  PRIMARY_MODEL_NAME: gemini-2.0-flash-lite
+  PRIMARY_API_URL: https://generativelanguage.googleapis.com/v1beta/openai/chat/completions
+  FALLBACK_MODEL_NAME: mistral-large-latest
+  FALLBACK_API_URL: https://api.mistral.ai/v1/chat/completions
+  MAX_REQUESTS_PER_MINUTE: "30"
