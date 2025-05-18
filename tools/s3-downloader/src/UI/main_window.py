@@ -6,7 +6,7 @@ import logging
 import os
 from pathlib import Path
 
-from PySide6.QtCore import Slot
+from PySide6.QtCore import QTimer, Slot
 from PySide6.QtWidgets import (
     QFileDialog,
     QGroupBox,
@@ -42,6 +42,10 @@ class MainWindow(QMainWindow):
 
         # initialize S3 controller
         self.s3_controller = S3Controller()
+
+        # initialize timer
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self._execute_download_task)
 
         # create central widget
         self.central_widget = QWidget()
@@ -101,10 +105,10 @@ class MainWindow(QMainWindow):
         buttons_layout.addWidget(self.test_connection_btn)
 
         # download button
-        self.download_btn = QPushButton("Download Files")
+        self.download_btn = QPushButton("Start Download")
         self.download_btn.setMinimumHeight(40)
         self.download_btn.setStyleSheet("font-size: 12px; font-weight: bold;")
-        self.download_btn.clicked.connect(self.download_files)
+        self.download_btn.clicked.connect(self.toggle_download)
         buttons_layout.addWidget(self.download_btn)
 
         self.main_layout.addLayout(buttons_layout)
@@ -123,9 +127,15 @@ class MainWindow(QMainWindow):
         self.secret_key = os.getenv("S3_SECRET_KEY", "")
         self.local_path = os.getenv("LOCAL_STORAGE_PATH", "./downloads")
         self.timeout = int(os.getenv("S3_TIMEOUT", "2"))
+        self.scheduler_interval = int(
+            os.getenv("SCHEDULER_INTERVAL", "3600")
+        )  # Default to 3600 seconds (1 hour)
 
         # set storage path input
         self.storage_path_input.setText(self.local_path)
+
+        # set timer interval
+        self.timer.setInterval(self.scheduler_interval * 1000)  # interval is in milliseconds
 
     @Slot()
     def browse_storage_path(self):
@@ -216,28 +226,50 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage("Connection failed")
 
     @Slot()
-    def download_files(self):
-        """Download files from S3."""
-        # check if S3 client is initialized
-        if not hasattr(self.s3_controller, "s3_client") or self.s3_controller.s3_client is None:
-            # try initializing S3 client
-            self.test_connection()
-            return
+    def toggle_download(self):
+        """Toggle periodic download."""
+        if self.timer.isActive():
+            self.timer.stop()
+            self.download_btn.setText("Start Download")
+            self.statusBar().showMessage("Periodic download stopped")
+            self.log_message("Periodic download stopped.")
+        else:
+            # Before starting, ensure S3 client is initialized and path is set
+            if not hasattr(self.s3_controller, "s3_client") or self.s3_controller.s3_client is None:
+                QMessageBox.warning(
+                    self, "S3 Client Not Initialized", "Please test connection first."
+                )
+                return
 
+            storage_path = self.storage_path_input.text().strip()
+            if not storage_path:
+                QMessageBox.warning(self, "Missing Information", "Please select a storage path")
+                return
+
+            # ensure storage path exists
+            Path(storage_path).mkdir(parents=True, exist_ok=True)
+
+            self.timer.start()
+            self.download_btn.setText("Stop Download")
+            self.statusBar().showMessage(
+                f"Periodic download started ({self.scheduler_interval}s interval)"
+            )
+            self.log_message(f"Periodic download started with {self.scheduler_interval}s interval.")
+            # Immediately execute the first download task
+            self._execute_download_task()
+
+    def _execute_download_task(self):
+        """Execute the S3 download task."""
         # get storage path
         storage_path = self.storage_path_input.text().strip()
         if not storage_path:
-            QMessageBox.warning(self, "Missing Information", "Please select a storage path")
+            # This should not happen if toggle_download is called first, but as a safeguard
+            self.log_message("Error: Storage path not set for download task.")
+            self.statusBar().showMessage("Error: Storage path not set.")
             return
 
-        # ensure storage path exists
-        Path(storage_path).mkdir(parents=True, exist_ok=True)
-
-        self.log_message(f"Downloading files to: {storage_path}")
-        self.statusBar().showMessage("Downloading files...")
-
-        # disable download button
-        self.download_btn.setEnabled(False)
+        self.log_message(f"Executing download task to: {storage_path}")
+        self.statusBar().showMessage("Executing download task...")
 
         # reset progress bar
         self.progress_bar.setValue(0)
@@ -258,7 +290,7 @@ class MainWindow(QMainWindow):
 
     def on_download_finished(self, success: bool, message: str, data=None):
         """Handle download completion."""
-        self.download_btn.setEnabled(True)
+        # Button state is managed by toggle_download, not here.
 
         if success:
             self.log_message(message)
