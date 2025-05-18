@@ -10,6 +10,8 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "ruff>=0.11.8",
     "PySide6>=6.5.0",
+    "peewee>=3.16.0",
+    "pyright>=1.1.400",
 ]
 
 [tool.ruff]
@@ -36,6 +38,6 @@ quote-style = "double"
 indent-style = "space"
 line-ending = "auto"
 
-# isort 
+# isort
 [tool.ruff.lint.isort]
 known-first-party = ["src"]

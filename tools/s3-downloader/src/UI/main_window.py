@@ -78,7 +78,9 @@ class MainWindow(QMainWindow):
         # storage path input
         self.storage_path_input = QLineEdit()
         self.storage_path_input.setPlaceholderText("Select local storage path")
-        storage_layout.addWidget(self.storage_path_input, 1)  # 1 is stretch factor, make input box take up more space
+        storage_layout.addWidget(
+            self.storage_path_input, 1
+        )  # 1 is stretch factor, make input box take up more space
 
         # browse button
         browse_btn = QPushButton("Browse...")

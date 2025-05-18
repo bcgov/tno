@@ -84,7 +84,9 @@ class S3Client:
                 # if not including directories, filter them out
                 if not include_directories:
                     filtered_objects = [obj for obj in all_objects if not obj["Key"].endswith("/")]
-                    logger.debug(f"Found {len(filtered_objects)} files with prefix '{prefix}' (excluding directories)")
+                    logger.debug(
+                        f"Found {len(filtered_objects)} files with prefix '{prefix}' (excluding directories)"
+                    )
                     return filtered_objects
                 else:
                     logger.debug(f"Found {len(all_objects)} objects with prefix '{prefix}'")
@@ -112,16 +114,16 @@ class S3Client:
         if local_path is None:
             # use the key name as the local file name
             file_name = os.path.basename(s3_key)
-            local_path = self.local_storage_path / file_name
+            local_path_obj = self.local_storage_path / file_name
         else:
-            local_path = Path(local_path)
+            local_path_obj = Path(local_path)
 
         # ensure parent directory exists
-        local_path.parent.mkdir(parents=True, exist_ok=True)
+        local_path_obj.parent.mkdir(parents=True, exist_ok=True)
 
         try:
-            logger.info(f"Downloading {s3_key} to {local_path}")
-            self.s3_client.download_file(self.bucket_name, s3_key, str(local_path))
+            logger.info(f"Downloading {s3_key} to {local_path_obj}")
+            self.s3_client.download_file(self.bucket_name, s3_key, str(local_path_obj))
             logger.info(f"Successfully downloaded {s3_key}")
             return True
         except ClientError as e:
@@ -141,12 +143,12 @@ class S3Client:
             Number of files successfully downloaded
         """
         if local_dir is None:
-            local_dir = self.local_storage_path / prefix
+            local_dir_obj = self.local_storage_path / prefix
         else:
-            local_dir = Path(local_dir)
+            local_dir_obj = Path(local_dir)
 
         # ensure directory exists
-        local_dir.mkdir(parents=True, exist_ok=True)
+        local_dir_obj.mkdir(parents=True, exist_ok=True)
 
         # get file list
         objects = self.list_objects(prefix)
@@ -155,7 +157,7 @@ class S3Client:
         for obj in objects:
             # calculate relative path
             rel_path = os.path.relpath(obj["Key"], prefix)
-            local_path = local_dir / rel_path
+            local_path = str(local_dir_obj / rel_path)
 
             if self.download_file(obj["Key"], local_path):
                 successful_downloads += 1
