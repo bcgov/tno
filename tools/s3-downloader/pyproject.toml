@@ -12,6 +12,7 @@ dependencies = [
     "PySide6>=6.5.0",
     "peewee>=3.16.0",
     "pyright>=1.1.400",
+    "peewee-migrate>=1.13.0",
 ]
 
 [tool.ruff]
