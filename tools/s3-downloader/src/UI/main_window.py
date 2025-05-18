@@ -163,8 +163,13 @@ class MainWindow(QMainWindow):
         self.main_layout.addWidget(log_group)
 
     @Slot()
-    def test_connection(self):
-        """Test connection to S3."""
+    def test_connection(self, show_popup: bool = True):
+        """
+        Test connection to S3.
+
+        Args:
+            show_popup: Whether to show popup messages (default: True)
+        """
         endpoint_url = self.endpoint_url
         bucket_name = self.bucket_name
         access_key = self.access_key
@@ -174,16 +179,18 @@ class MainWindow(QMainWindow):
 
         # validate required fields
         if not all([endpoint_url, bucket_name, access_key, secret_key]):
-            QMessageBox.warning(
-                self, "Missing Information", "Please set S3 connection parameters in .env file"
-            )
-            return
+            if show_popup:
+                QMessageBox.warning(
+                    self, "Missing Information", "Please set S3 connection parameters in .env file"
+                )
+            return False
 
         self.log_message(f"Testing connection to {bucket_name} with {timeout}s timeout...")
         self.statusBar().showMessage("Testing connection...")
 
-        # disable test button
-        self.test_connection_btn.setEnabled(False)
+        # disable test button if showing popup
+        if show_popup:
+            self.test_connection_btn.setEnabled(False)
 
         # initialize S3 client
         if not self.s3_controller.initialize_client(
@@ -195,34 +202,59 @@ class MainWindow(QMainWindow):
             timeout=timeout,
         ):
             self.log_message("Failed to initialize S3 client")
-            QMessageBox.critical(self, "Error", "Failed to initialize S3 client")
-            self.test_connection_btn.setEnabled(True)
-            return
+            if show_popup:
+                QMessageBox.critical(self, "Error", "Failed to initialize S3 client")
+                self.test_connection_btn.setEnabled(True)
+            return False
 
         # test connection
-        self.s3_controller.test_connection(self.on_connection_test_finished)
+        self.s3_controller.test_connection(
+            lambda success, message, data: self.on_connection_test_finished(
+                success, message, data, show_popup
+            )
+        )
+        return True
 
-    def on_connection_test_finished(self, success: bool, message: str, data=None):
-        """Handle connection test result."""
-        self.test_connection_btn.setEnabled(True)
+    def on_connection_test_finished(
+        self, success: bool, message: str, data=None, show_popup: bool = True
+    ):
+        """
+        Handle connection test result.
+
+        Args:
+            success: Whether the connection test was successful
+            message: Message from the connection test
+            data: Additional data from the connection test
+            show_popup: Whether to show popup messages (default: True)
+        """
+        if show_popup:
+            self.test_connection_btn.setEnabled(True)
 
         if success:
             self.log_message("Connection successful!")
-            QMessageBox.information(self, "Connection Test", "Connection successful!")
+            if show_popup:
+                QMessageBox.information(self, "Connection Test", "Connection successful!")
             self.statusBar().showMessage("Connection successful")
         else:
             self.log_message(f"Connection failed: {message}")
-            QMessageBox.critical(self, "Connection Test", f"Connection failed: {message}")
+            if show_popup:
+                QMessageBox.critical(self, "Connection Test", f"Connection failed: {message}")
             self.statusBar().showMessage("Connection failed")
 
     @Slot()
-    def download_files(self):
-        """Download files from S3."""
+    def download_files(self, show_popup: bool = False):
+        """
+        Download files from S3.
+
+        Args:
+            show_popup: Whether to show popup messages (default: False)
+        """
         # check if S3 client is initialized
         if not hasattr(self.s3_controller, "s3_client") or self.s3_controller.s3_client is None:
-            # try initializing S3 client
-            self.test_connection()
-            return
+            # try initializing S3 client without showing popup
+            if not self.test_connection(show_popup=False):
+                QMessageBox.critical(self, "Error", "Failed to initialize S3 client")
+                return
 
         # get storage path
         storage_path = self.storage_path_input.text().strip()
@@ -247,7 +279,9 @@ class MainWindow(QMainWindow):
             prefix="",  # download all files
             local_dir=storage_path,
             on_progress=self.on_download_progress,
-            on_finished=self.on_download_finished,
+            on_finished=lambda success, message, data: self.on_download_finished(
+                success, message, data, show_popup
+            ),
         )
 
     def on_download_progress(self, progress: int, message: str):
@@ -256,8 +290,16 @@ class MainWindow(QMainWindow):
         self.log_message(message)
         self.statusBar().showMessage(message)
 
-    def on_download_finished(self, success: bool, message: str, data=None):
-        """Handle download completion."""
+    def on_download_finished(self, success: bool, message: str, data=None, show_popup: bool = True):
+        """
+        Handle download completion.
+
+        Args:
+            success: Whether the download was successful
+            message: Message from the download operation
+            data: Additional data from the download operation
+            show_popup: Whether to show popup messages (default: True)
+        """
         self.download_btn.setEnabled(True)
 
         if success:
@@ -277,9 +319,11 @@ class MainWindow(QMainWindow):
                     self.log_message(f"  - Failed downloads: {failed}")
 
             self.statusBar().showMessage(message)
-            QMessageBox.information(self, "Download Complete", message)
+            if show_popup:
+                QMessageBox.information(self, "Download Complete", message)
         else:
             self.log_message(f"Error downloading files: {message}")
+            # Always show error popups, even if show_popup is False
             QMessageBox.critical(self, "Error", f"Error downloading files: {message}")
             self.statusBar().showMessage("Error downloading files")
 

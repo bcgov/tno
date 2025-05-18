@@ -4,7 +4,7 @@ Controller for connecting the S3 client with the UI.
 
 import logging
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Optional
 
 from PySide6.QtCore import QObject, QThread, Signal
 
@@ -180,7 +180,7 @@ class S3Controller(QObject):
             logger.error(f"Error initializing S3 client: {e}")
             return False
 
-    def test_connection(self, on_finished: Callable[[bool, str], None]):
+    def test_connection(self, on_finished: Callable[[bool, str, Optional[object]], None]):
         """
         Test connection to S3.
 
@@ -188,7 +188,7 @@ class S3Controller(QObject):
             on_finished: Callback for when the operation finishes
         """
         if not self.s3_client:
-            on_finished(False, "S3 client not initialized")
+            on_finished(False, "S3 client not initialized", None)
             return
 
         # create and start worker thread
@@ -196,7 +196,7 @@ class S3Controller(QObject):
         self.worker.finished.connect(on_finished)
         self.worker.start()
 
-    def list_objects(self, prefix: str, on_finished: Callable[[bool, str], None]):
+    def list_objects(self, prefix: str, on_finished: Callable[[bool, str, Optional[object]], None]):
         """
         List objects in the S3 bucket.
 
@@ -205,7 +205,7 @@ class S3Controller(QObject):
             on_finished: Callback for when the operation finishes
         """
         if not self.s3_client:
-            on_finished(False, "S3 client not initialized")
+            on_finished(False, "S3 client not initialized", None)
             return
 
         self.worker = S3Worker("list", self.s3_client, prefix=prefix)
@@ -217,7 +217,7 @@ class S3Controller(QObject):
         prefix: str,
         local_dir: str,
         on_progress: Callable[[int, str], None],
-        on_finished: Callable[[bool, str], None],
+        on_finished: Callable[[bool, str, Optional[object]], None],
     ):
         """
         Download files from S3.
@@ -229,7 +229,7 @@ class S3Controller(QObject):
             on_finished: Callback for when the operation finishes
         """
         if not self.s3_client:
-            on_finished(False, "S3 client not initialized")
+            on_finished(False, "S3 client not initialized", None)
             return
 
         self.worker = S3Worker("download", self.s3_client, prefix=prefix, local_dir=local_dir)
