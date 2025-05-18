@@ -2,13 +2,13 @@
 Main window for the S3 downloader application.
 """
 
+import datetime
 import logging
 import os
 import shutil
 from pathlib import Path
 
-from PySide6.QtCore import QTimer, Slot, Qt
-from PySide6.QtGui import QColor
+from PySide6.QtCore import QTimer, Slot
 from PySide6.QtWidgets import (
     QFileDialog,
     QGroupBox,
@@ -16,7 +16,6 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QMainWindow,
-    QMessageBox,
     QProgressBar,
     QPushButton,
     QTextEdit,
@@ -54,6 +53,14 @@ class MainWindow(QMainWindow):
         self.disk_space_timer.timeout.connect(self.update_disk_space_info)
         self.disk_space_timer.setInterval(10000)  # 10 seconds
 
+        # next download time update timer (update every second)
+        self.time_update_timer = QTimer(self)
+        self.time_update_timer.timeout.connect(self.update_next_download_time)
+        self.time_update_timer.setInterval(1000)  # 1 second
+
+        # store next download time
+        self.next_download_time = None
+
         # space warning threshold (10%)
         self.space_warning_threshold = 0.1
 
@@ -81,6 +88,9 @@ class MainWindow(QMainWindow):
 
         # load settings from env
         self.load_settings_from_env()
+
+        # create schedule info area (after loading settings)
+        self.create_schedule_info_area()
 
         # update disk space info initially
         self.update_disk_space_info()
@@ -166,6 +176,52 @@ class MainWindow(QMainWindow):
         buttons_layout.addWidget(self.download_btn)
 
         self.main_layout.addLayout(buttons_layout)
+
+    def create_schedule_info_area(self):
+        """Create schedule information area."""
+        # Create group box for schedule info
+        schedule_group = QGroupBox("Download Schedule")
+        schedule_layout = QVBoxLayout()
+
+        # Status label
+        self.schedule_status_label = QLabel("Automatic download is not running")
+        self.schedule_status_label.setStyleSheet("font-weight: bold;")
+        schedule_layout.addWidget(self.schedule_status_label)
+
+        # Next download time label
+        self.next_download_label = QLabel("Next download: Not scheduled")
+        schedule_layout.addWidget(self.next_download_label)
+
+        # Interval label
+        self.interval_label = QLabel(f"Download interval: {self.scheduler_interval} seconds")
+        schedule_layout.addWidget(self.interval_label)
+
+        schedule_group.setLayout(schedule_layout)
+        self.main_layout.addWidget(schedule_group)
+
+    def update_next_download_time(self):
+        """Update the next download time display."""
+        if self.next_download_time and self.timer.isActive():
+            # Calculate remaining time
+            now = datetime.datetime.now()
+            if now < self.next_download_time:
+                # Format time as HH:MM:SS
+                time_str = self.next_download_time.strftime("%H:%M:%S")
+
+                # Calculate and format remaining time
+                time_diff = self.next_download_time - now
+                hours, remainder = divmod(time_diff.seconds, 3600)
+                minutes, seconds = divmod(remainder, 60)
+                remaining_str = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+                # Update label
+                self.next_download_label.setText(f"Next download: {time_str} (in {remaining_str})")
+            else:
+                # Time has passed, this should be updated soon by the download task
+                self.next_download_label.setText("Next download: Executing now...")
+        else:
+            # No scheduled download
+            self.next_download_label.setText("Next download: Not scheduled")
 
     def load_settings_from_env(self):
         """Load settings from environment variables."""
@@ -284,9 +340,8 @@ class MainWindow(QMainWindow):
 
         # validate required fields
         if not all([endpoint_url, bucket_name, access_key, secret_key]):
-            QMessageBox.warning(
-                self, "Missing Information", "Please set S3 connection parameters in .env file"
-            )
+            self.log_message("Error: Please set S3 connection parameters in .env file")
+            self.statusBar().showMessage("Error: Missing S3 connection parameters")
             return
 
         self.log_message(f"Testing connection to {bucket_name} with {timeout}s timeout...")
@@ -304,8 +359,8 @@ class MainWindow(QMainWindow):
             local_storage_path=local_path,
             timeout=timeout,
         ):
-            self.log_message("Failed to initialize S3 client")
-            QMessageBox.critical(self, "Error", "Failed to initialize S3 client")
+            self.log_message("Error: Failed to initialize S3 client")
+            self.statusBar().showMessage("Error: Failed to initialize S3 client")
             self.test_connection_btn.setEnabled(True)
             return
 
@@ -318,43 +373,71 @@ class MainWindow(QMainWindow):
 
         if success:
             self.log_message("Connection successful!")
-            QMessageBox.information(self, "Connection Test", "Connection successful!")
             self.statusBar().showMessage("Connection successful")
         else:
-            self.log_message(f"Connection failed: {message}")
-            QMessageBox.critical(self, "Connection Test", f"Connection failed: {message}")
+            self.log_message(f"Error: Connection failed: {message}")
             self.statusBar().showMessage("Connection failed")
 
     @Slot()
     def toggle_download(self):
         """Toggle periodic download."""
         if self.timer.isActive():
+            # Stop the download timer
             self.timer.stop()
+
+            # Stop the time update timer
+            self.time_update_timer.stop()
+
+            # Update UI
             self.download_btn.setText("Start Download")
             self.statusBar().showMessage("Periodic download stopped")
             self.log_message("Periodic download stopped.")
+
+            # Update schedule status
+            self.schedule_status_label.setText("Automatic download is not running")
+            self.next_download_label.setText("Next download: Not scheduled")
+            self.next_download_time = None
         else:
             # Before starting, ensure S3 client is initialized and path is set
             if not hasattr(self.s3_controller, "s3_client") or self.s3_controller.s3_client is None:
-                QMessageBox.warning(
-                    self, "S3 Client Not Initialized", "Please test connection first."
-                )
+                self.log_message("Error: S3 client not initialized. Please test connection first.")
+                self.statusBar().showMessage("Error: Please test connection first")
                 return
 
             storage_path = self.storage_path_input.text().strip()
             if not storage_path:
-                QMessageBox.warning(self, "Missing Information", "Please select a storage path")
+                self.log_message("Error: Storage path not set. Please select a storage path.")
+                self.statusBar().showMessage("Error: Please select a storage path")
                 return
 
             # ensure storage path exists
             Path(storage_path).mkdir(parents=True, exist_ok=True)
 
+            # Start the download timer
             self.timer.start()
+
+            # Update UI
             self.download_btn.setText("Stop Download")
             self.statusBar().showMessage(
                 f"Periodic download started ({self.scheduler_interval}s interval)"
             )
             self.log_message(f"Periodic download started with {self.scheduler_interval}s interval.")
+
+            # Update schedule status
+            self.schedule_status_label.setText("Automatic download is running")
+            self.interval_label.setText(f"Download interval: {self.scheduler_interval} seconds")
+
+            # Set next download time
+            self.next_download_time = datetime.datetime.now() + datetime.timedelta(
+                seconds=self.scheduler_interval
+            )
+
+            # Start the time update timer
+            self.time_update_timer.start()
+
+            # Update the next download time display
+            self.update_next_download_time()
+
             # Immediately execute the first download task
             self._execute_download_task()
 
@@ -383,14 +466,24 @@ class MainWindow(QMainWindow):
                 # If timer is active, stop it
                 if self.timer.isActive():
                     self.timer.stop()
+                    self.time_update_timer.stop()
                     self.download_btn.setText("Start Download")
                     self.log_message("Download stopped due to low disk space.")
 
-                # Show simple message box
-                QMessageBox.warning(
-                    self,
-                    "Low Disk Space",
-                    f"Download paused due to low disk space.\nFree: {free / 1_000_000_000:.1f} GB"
+                    # Update schedule status
+                    self.schedule_status_label.setText(
+                        "Automatic download stopped (low disk space)"
+                    )
+                    self.next_download_label.setText("Next download: Not scheduled")
+                    self.next_download_time = None
+
+                # Show warning in log and status bar
+                free_gb = free / 1_000_000_000
+                self.log_message(
+                    f"Warning: Download paused due to low disk space. Free: {free_gb:.1f} GB"
+                )
+                self.statusBar().showMessage(
+                    f"Download paused: Low disk space ({free_gb:.1f} GB free)"
                 )
                 return
         except Exception as e:
@@ -436,12 +529,32 @@ class MainWindow(QMainWindow):
             # Update disk space info after download
             self.update_disk_space_info()
 
-            # Simple message box
-            QMessageBox.information(self, "Download Complete", message)
+            # If timer is active, update next download time
+            if self.timer.isActive():
+                # Set next download time
+                self.next_download_time = datetime.datetime.now() + datetime.timedelta(
+                    seconds=self.scheduler_interval
+                )
+                # Update the display
+                self.update_next_download_time()
+                # Update status message
+                self.schedule_status_label.setText("Automatic download is running")
+
+            # Update status bar with success message
+            self.statusBar().showMessage(f"Download complete: {message}")
         else:
             self.log_message(f"Error: {message}")
-            QMessageBox.critical(self, "Error", f"Download failed: {message}")
-            self.statusBar().showMessage("Download failed")
+            self.statusBar().showMessage(f"Download failed: {message}")
+
+            # If timer is active, still update next download time despite failure
+            if self.timer.isActive():
+                self.next_download_time = datetime.datetime.now() + datetime.timedelta(
+                    seconds=self.scheduler_interval
+                )
+                self.update_next_download_time()
+                self.schedule_status_label.setText(
+                    "Automatic download is running (last attempt failed)"
+                )
 
     @Slot()
     def clear_log(self):
