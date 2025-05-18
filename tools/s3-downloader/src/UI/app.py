@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 def run_app():
     """Run the S3 downloader GUI application."""
     # set application info
-    QCoreApplication.setOrganizationName("TNO")
+    QCoreApplication.setOrganizationName("MMI")
     QCoreApplication.setApplicationName("S3 Downloader")
 
     # create application

@@ -4,9 +4,11 @@ Main window for the S3 downloader application.
 
 import logging
 import os
+import shutil
 from pathlib import Path
 
-from PySide6.QtCore import QTimer, Slot
+from PySide6.QtCore import QTimer, Slot, Qt
+from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
     QFileDialog,
     QGroupBox,
@@ -43,9 +45,17 @@ class MainWindow(QMainWindow):
         # initialize S3 controller
         self.s3_controller = S3Controller()
 
-        # initialize timer
+        # initialize timers
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._execute_download_task)
+
+        # disk space update timer (update every 10 seconds)
+        self.disk_space_timer = QTimer(self)
+        self.disk_space_timer.timeout.connect(self.update_disk_space_info)
+        self.disk_space_timer.setInterval(10000)  # 10 seconds
+
+        # space warning threshold (10%)
+        self.space_warning_threshold = 0.1
 
         # create central widget
         self.central_widget = QWidget()
@@ -56,6 +66,9 @@ class MainWindow(QMainWindow):
 
         # create storage path selection area
         self.create_storage_path_area()
+
+        # create disk space info area
+        self.create_disk_space_area()
 
         # create buttons area
         self.create_buttons_area()
@@ -68,6 +81,12 @@ class MainWindow(QMainWindow):
 
         # load settings from env
         self.load_settings_from_env()
+
+        # update disk space info initially
+        self.update_disk_space_info()
+
+        # start disk space timer
+        self.disk_space_timer.start()
 
         logger.info("Main window initialized")
 
@@ -92,6 +111,41 @@ class MainWindow(QMainWindow):
         storage_layout.addWidget(browse_btn)
 
         self.main_layout.addLayout(storage_layout)
+
+    def create_disk_space_area(self):
+        """Create disk space information area."""
+        # Create simple layout for disk space info
+        disk_space_layout = QHBoxLayout()
+
+        # Disk space label
+        disk_space_label = QLabel("Disk Space:")
+        disk_space_layout.addWidget(disk_space_label)
+
+        # Create progress bar for disk space
+        self.disk_space_bar = QProgressBar()
+        self.disk_space_bar.setRange(0, 100)
+        self.disk_space_bar.setValue(0)
+        self.disk_space_bar.setTextVisible(True)
+        self.disk_space_bar.setFormat("%p% used")
+        disk_space_layout.addWidget(self.disk_space_bar, 1)  # 1 is stretch factor
+
+        # Free space label (simplified)
+        self.free_space_label = QLabel("Free: N/A")
+        disk_space_layout.addWidget(self.free_space_label)
+
+        # For compatibility with existing code, create empty labels
+        self.total_space_label = QLabel()
+        self.total_space_label.setVisible(False)
+        self.used_space_label = QLabel()
+        self.used_space_label.setVisible(False)
+
+        # Warning label (hidden by default)
+        self.space_warning_label = QLabel()
+        self.space_warning_label.setStyleSheet("color: red; font-weight: bold;")
+        self.space_warning_label.setVisible(False)
+        disk_space_layout.addWidget(self.space_warning_label)
+
+        self.main_layout.addLayout(disk_space_layout)
 
     def create_buttons_area(self):
         """Create buttons area."""
@@ -147,6 +201,52 @@ class MainWindow(QMainWindow):
             self.storage_path_input.setText(directory)
             self.local_path = directory
             self.log_message(f"Selected storage path: {directory}")
+
+            # Update disk space information for the new path
+            self.update_disk_space_info()
+
+    def update_disk_space_info(self):
+        """Update disk space information for the current storage path."""
+        storage_path = self.storage_path_input.text().strip()
+
+        if not storage_path:
+            # No path selected, clear disk space info
+            self.disk_space_bar.setValue(0)
+            self.free_space_label.setText("Free: N/A")
+            self.space_warning_label.setVisible(False)
+            return
+
+        try:
+            # Get disk usage information
+            total, used, free = shutil.disk_usage(storage_path)
+
+            # Calculate percentage used
+            percent_used = int((used / total) * 100)
+
+            # Update progress bar
+            self.disk_space_bar.setValue(percent_used)
+
+            # Format free space (in GB)
+            free_gb = free / 1_000_000_000
+
+            # Update free space label
+            self.free_space_label.setText(f"Free: {free_gb:.1f} GB")
+
+            # Check if free space is below warning threshold
+            free_ratio = free / total
+            if free_ratio < self.space_warning_threshold:
+                # Show warning message
+                self.space_warning_label.setText("Low space!")
+                self.space_warning_label.setVisible(True)
+            else:
+                self.space_warning_label.setVisible(False)
+
+        except Exception as e:
+            self.log_message(f"Error getting disk space info: {e}")
+            # Clear disk space info on error
+            self.disk_space_bar.setValue(0)
+            self.free_space_label.setText("Free: Error")
+            self.space_warning_label.setVisible(False)
 
     def create_log_area(self):
         """Create log area."""
@@ -268,8 +368,37 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage("Error: Storage path not set.")
             return
 
-        self.log_message(f"Executing download task to: {storage_path}")
-        self.statusBar().showMessage("Executing download task...")
+        # Update disk space info before downloading
+        self.update_disk_space_info()
+
+        # Simple check if there's enough disk space
+        try:
+            _, _, free = shutil.disk_usage(storage_path)
+            free_ratio = free / shutil.disk_usage(storage_path)[0]
+
+            if free_ratio < self.space_warning_threshold:
+                # Not enough space, show warning and pause downloads
+                self.log_message(f"Warning: Low disk space! Only {free_ratio:.1%} available.")
+
+                # If timer is active, stop it
+                if self.timer.isActive():
+                    self.timer.stop()
+                    self.download_btn.setText("Start Download")
+                    self.log_message("Download stopped due to low disk space.")
+
+                # Show simple message box
+                QMessageBox.warning(
+                    self,
+                    "Low Disk Space",
+                    f"Download paused due to low disk space.\nFree: {free / 1_000_000_000:.1f} GB"
+                )
+                return
+        except Exception as e:
+            self.log_message(f"Error checking disk space: {e}")
+            # Continue with download attempt
+
+        self.log_message(f"Downloading to: {storage_path}")
+        self.statusBar().showMessage("Downloading...")
 
         # reset progress bar
         self.progress_bar.setValue(0)
@@ -295,25 +424,24 @@ class MainWindow(QMainWindow):
         if success:
             self.log_message(message)
 
-            # if there is detailed data, show more info
-            if data and isinstance(data, dict):
+            # if there is detailed data, show concise stats
+            if data and isinstance(data, dict) and data.get("failed", 0) > 0:
                 total = data.get("total", 0)
                 successful = data.get("successful", 0)
                 failed = data.get("failed", 0)
-
-                # show concise stats
-                if failed > 0:
-                    self.log_message("\nDownload Statistics:")
-                    self.log_message(f"  - Total files: {total}")
-                    self.log_message(f"  - Successfully downloaded: {successful}")
-                    self.log_message(f"  - Failed downloads: {failed}")
+                self.log_message(f"Stats: {successful} ok, {failed} failed, {total} total")
 
             self.statusBar().showMessage(message)
+
+            # Update disk space info after download
+            self.update_disk_space_info()
+
+            # Simple message box
             QMessageBox.information(self, "Download Complete", message)
         else:
-            self.log_message(f"Error downloading files: {message}")
-            QMessageBox.critical(self, "Error", f"Error downloading files: {message}")
-            self.statusBar().showMessage("Error downloading files")
+            self.log_message(f"Error: {message}")
+            QMessageBox.critical(self, "Error", f"Download failed: {message}")
+            self.statusBar().showMessage("Download failed")
 
     @Slot()
     def clear_log(self):
