@@ -2,12 +2,18 @@
 Application launcher for the S3 downloader GUI.
 """
 
+import atexit
 import logging
 import sys
 
 from PySide6.QtCore import QCoreApplication
 from PySide6.QtWidgets import QApplication
 
+from ..database import close_database, initialize_database
+
+# Import settings to ensure they are loaded before database initialization
+# pylint: disable=unused-import
+from ..settings import settings  # noqa
 from .main_window import MainWindow
 
 logging.basicConfig(
@@ -22,6 +28,12 @@ def run_app():
     QCoreApplication.setOrganizationName("MMI")
     QCoreApplication.setApplicationName("S3 Downloader")
 
+    # Initialize database
+    initialize_database()
+
+    # Register database close function to be called on exit
+    atexit.register(close_database)
+
     # create application
     app = QApplication(sys.argv)
 
@@ -32,7 +44,7 @@ def run_app():
     main_window = MainWindow()
     main_window.show()
 
-    logger.info("Application started")
+    logger.info("Application started with database initialized")
 
     # run application
     return app.exec()

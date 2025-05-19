@@ -2,11 +2,19 @@ import logging
 import os
 import socket
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import boto3
 import botocore.config
-from botocore.exceptions import ClientError
+from botocore.exceptions import (
+    ClientError,
+    ConnectionClosedError,
+    ConnectTimeoutError,
+    ReadTimeoutError,
+)
+
+# Import database models
+from ..database.models import DownloadedFile, DownloadTask
 
 # type hint for TimeoutError
 TimeoutError = socket.timeout
@@ -74,6 +82,11 @@ class S3Client:
 
         Returns:
             List of objects in the bucket
+
+        Raises:
+            ClientError: If there's an error with the S3 service
+            ConnectionClosedError, ConnectTimeoutError, ReadTimeoutError, TimeoutError:
+                If there's a network-related error
         """
         try:
             response = self.s3_client.list_objects_v2(Bucket=self.bucket_name, Prefix=prefix)
@@ -95,11 +108,27 @@ class S3Client:
                 logger.debug(f"No objects found with prefix '{prefix}'")
                 return []
 
-        except ClientError as e:
-            logger.error(f"Error listing objects: {e}")
-            return []
+        except (ConnectionClosedError, ConnectTimeoutError, ReadTimeoutError, TimeoutError) as e:
+            logger.error(f"Network error listing objects: {str(e)}")
+            # Re-raise network errors to be handled by the caller
+            raise
 
-    def download_file(self, s3_key: str, local_path: Optional[str] = None) -> bool:
+        except ClientError as e:
+            logger.error(f"S3 error listing objects: {e}")
+            # Re-raise client errors to be handled by the caller
+            raise
+
+        except Exception as e:
+            logger.error(f"Unexpected error listing objects: {str(e)}")
+            # Re-raise to be handled by the caller
+            raise
+
+    def download_file(
+        self,
+        s3_key: str,
+        local_path: Optional[str] = None,
+        task_record: Optional[DownloadTask] = None,
+    ) -> Tuple[bool, Optional[DownloadedFile]]:
         """
         Download a file from S3.
 
@@ -107,9 +136,15 @@ class S3Client:
             s3_key: S3 object key
             local_path: Local path to save the file. If None, will use the key name
                         in the local_storage_path
+            task_record: Optional DownloadTask record for logging
 
         Returns:
-            True if download was successful, False otherwise
+            Tuple of (success, file_record)
+            - success: True if download was successful, False otherwise
+            - file_record: DownloadedFile record if task_record was provided, None otherwise
+
+        Raises:
+            Various exceptions for network-related errors that should be handled by the caller
         """
         if local_path is None:
             # use the key name as the local file name
@@ -121,16 +156,67 @@ class S3Client:
         # ensure parent directory exists
         local_path_obj.parent.mkdir(parents=True, exist_ok=True)
 
+        # Create file record if task record is provided
+        file_record = None
+        if task_record:
+            file_record = DownloadedFile.create(
+                task=task_record, s3_key=s3_key, local_path=str(local_path_obj)
+            )
+
         try:
             logger.info(f"Downloading {s3_key} to {local_path_obj}")
             self.s3_client.download_file(self.bucket_name, s3_key, str(local_path_obj))
-            logger.info(f"Successfully downloaded {s3_key}")
-            return True
-        except ClientError as e:
-            logger.error(f"Error downloading {s3_key}: {e}")
-            return False
 
-    def download_directory(self, prefix: str, local_dir: Optional[str] = None) -> int:
+            # Update file record if it exists
+            if file_record:
+                file_size = local_path_obj.stat().st_size
+                file_record.complete(file_size)
+
+            logger.info(f"Successfully downloaded {s3_key}")
+            return True, file_record
+
+        except (ConnectionClosedError, ConnectTimeoutError, ReadTimeoutError, TimeoutError) as e:
+            # Network-related errors
+            error_msg = f"Network error downloading {s3_key}: {str(e)}"
+            logger.error(error_msg)
+
+            # Update file record if it exists
+            if file_record:
+                file_record.fail(error_msg)
+
+            # Re-raise the exception to allow the caller to handle network errors
+            raise
+
+        except ClientError as e:
+            # S3-specific errors
+            error_msg = f"S3 error downloading {s3_key}: {e}"
+            logger.error(error_msg)
+
+            # Update file record if it exists
+            if file_record:
+                file_record.fail(error_msg)
+
+            return False, file_record
+
+        except Exception as e:
+            # Other unexpected errors
+            error_msg = f"Unexpected error downloading {s3_key}: {str(e)}"
+            logger.error(error_msg)
+
+            # Update file record if it exists
+            if file_record:
+                file_record.fail(error_msg)
+
+            return False, file_record
+
+    def download_directory(
+        self,
+        prefix: str,
+        local_dir: Optional[str] = None,
+        max_consecutive_failures: int = 3,
+        max_failure_percentage: float = 0.3,
+        network_test_interval: int = 5,
+    ) -> Dict[str, Any]:
         """
         Download all files in a directory (prefix) from S3.
 
@@ -138,9 +224,12 @@ class S3Client:
             prefix: S3 prefix (directory)
             local_dir: Local directory to save files. If None, will use
                       local_storage_path/prefix
+            max_consecutive_failures: Maximum number of consecutive failures before aborting
+            max_failure_percentage: Maximum percentage of failures before aborting (0.0-1.0)
+            network_test_interval: Number of failures before testing network connection
 
         Returns:
-            Number of files successfully downloaded
+            Dictionary with download statistics and task record
         """
         if local_dir is None:
             local_dir_obj = self.local_storage_path / prefix
@@ -151,19 +240,179 @@ class S3Client:
         local_dir_obj.mkdir(parents=True, exist_ok=True)
 
         # get file list
-        objects = self.list_objects(prefix)
-        successful_downloads = 0
+        try:
+            objects = self.list_objects(prefix)
+            if not objects:
+                # Create a task record with no files
+                task_record = DownloadTask.create(
+                    s3_prefix=prefix,
+                    local_path=str(local_dir_obj),
+                    total_files=0,
+                    status="Completed",
+                )
+                logger.info(f"No files found with prefix '{prefix}'")
+                return {
+                    "successful": 0,
+                    "failed": 0,
+                    "total": 0,
+                    "task_record": task_record,
+                }
+        except (
+            ClientError,
+            ConnectionClosedError,
+            ConnectTimeoutError,
+            ReadTimeoutError,
+            TimeoutError,
+        ) as e:
+            # Network error during listing objects
+            task_record = DownloadTask.create(
+                s3_prefix=prefix,
+                local_path=str(local_dir_obj),
+                total_files=0,
+                status="Failed",
+            )
+            error_message = f"Network error while listing objects: {str(e)}"
+            task_record.fail(error_message)
+            logger.error(error_message)
+            return {
+                "successful": 0,
+                "failed": 0,
+                "total": 0,
+                "task_record": task_record,
+                "error": error_message,
+            }
 
-        for obj in objects:
+        # Create download task record
+        task_record = DownloadTask.create(
+            s3_prefix=prefix,
+            local_path=str(local_dir_obj),
+            total_files=len(objects),
+            status="In Progress",
+        )
+
+        successful_downloads = 0
+        failed_downloads = 0
+        error_messages = []
+        consecutive_failures = 0
+        failure_count = 0
+        task_aborted = False
+        abort_reason = None
+
+        # Start the download process
+
+        for i, obj in enumerate(objects):
+            # Check if we've exceeded the maximum consecutive failures
+            if consecutive_failures >= max_consecutive_failures:
+                task_aborted = True
+                abort_reason = f"Aborted after {consecutive_failures} consecutive download failures"
+                logger.error(abort_reason)
+                break
+
+            # Check if we've exceeded the maximum failure percentage
+            if i > 0 and (failure_count / i) > max_failure_percentage:
+                task_aborted = True
+                abort_reason = f"Aborted after failure rate exceeded {max_failure_percentage * 100}% ({failure_count}/{i})"
+                logger.error(abort_reason)
+                break
+
+            # Test network connection after multiple failures
+            if consecutive_failures > 0 and consecutive_failures % network_test_interval == 0:
+                logger.info(
+                    f"Testing network connection after {consecutive_failures} consecutive failures"
+                )
+                if not self.test_connection():
+                    task_aborted = True
+                    abort_reason = "Network connection test failed, aborting download task"
+                    logger.error(abort_reason)
+                    break
+
             # calculate relative path
             rel_path = os.path.relpath(obj["Key"], prefix)
             local_path = str(local_dir_obj / rel_path)
 
-            if self.download_file(obj["Key"], local_path):
-                successful_downloads += 1
+            try:
+                success, file_record = self.download_file(obj["Key"], local_path, task_record)
+                if success:
+                    successful_downloads += 1
+                    consecutive_failures = 0  # Reset consecutive failures counter
+                else:
+                    failed_downloads += 1
+                    failure_count += 1
+                    consecutive_failures += 1
+                    # Collect error message if available
+                    if file_record and file_record.error_message:
+                        error_messages.append(file_record.error_message)
+            except Exception as e:
+                # Handle unexpected exceptions during download
+                failed_downloads += 1
+                failure_count += 1
+                consecutive_failures += 1
+                error_msg = f"Unexpected error downloading {obj['Key']}: {str(e)}"
+                logger.error(error_msg)
+                error_messages.append(error_msg)
 
-        logger.info(f"Downloaded {successful_downloads} files from {prefix}")
-        return successful_downloads
+                # Create a failed file record if it doesn't exist
+                if task_record:
+                    DownloadedFile.create(
+                        task=task_record,
+                        s3_key=obj["Key"],
+                        local_path=local_path,
+                        status="Failed",
+                        error_message=error_msg,
+                    )
+
+        # Generate error summary
+        error_summary = None
+        if failed_downloads > 0 or task_aborted:
+            # Count occurrences of each error message
+            error_counts = {}
+            for error in error_messages:
+                if error in error_counts:
+                    error_counts[error] += 1
+                else:
+                    error_counts[error] = 1
+
+            # Format error summary
+            if task_aborted and abort_reason:
+                error_summary = f"Download task aborted: {abort_reason}\n\n"
+            else:
+                error_summary = f"Failed to download {failed_downloads} files.\n\n"
+
+            if error_counts:
+                error_summary += "Error summary:\n"
+                for error, count in error_counts.items():
+                    error_summary += f"- {error} ({count} files)\n"
+            else:
+                error_summary += "No specific error messages recorded."
+
+        # Update task record
+        if task_aborted:
+            task_record.fail(error_summary)
+            logger.warning(
+                f"Download task aborted: {len(objects) - (successful_downloads + failed_downloads)} files were not processed"
+            )
+        else:
+            task_record.complete(successful_downloads, failed_downloads, error_summary)
+            logger.info(
+                f"Downloaded {successful_downloads} files from {prefix} ({failed_downloads} failed)"
+            )
+
+        if error_summary:
+            logger.error(error_summary)
+
+        # Return statistics and task record
+        result = {
+            "successful": successful_downloads,
+            "failed": failed_downloads,
+            "total": len(objects),
+            "task_record": task_record,
+        }
+
+        if task_aborted:
+            result["aborted"] = True
+            result["abort_reason"] = abort_reason
+
+        return result
 
     def test_connection(self) -> bool:
         """

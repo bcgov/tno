@@ -4,7 +4,6 @@ Main window for the S3 downloader application.
 
 import datetime
 import logging
-import os
 import shutil
 from pathlib import Path
 
@@ -23,6 +22,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .history_dialog import HistoryDialog
 from .s3_controller import S3Controller
 
 logging.basicConfig(
@@ -86,8 +86,8 @@ class MainWindow(QMainWindow):
         # create status bar
         self.statusBar().showMessage("Ready")
 
-        # load settings from env
-        self.load_settings_from_env()
+        # load settings
+        self.load_settings()
 
         # create schedule info area (after loading settings)
         self.create_schedule_info_area()
@@ -175,6 +175,13 @@ class MainWindow(QMainWindow):
         self.download_btn.clicked.connect(self.toggle_download)
         buttons_layout.addWidget(self.download_btn)
 
+        # history button
+        self.history_btn = QPushButton("Download History")
+        self.history_btn.setMinimumHeight(40)
+        self.history_btn.setStyleSheet("font-size: 12px; font-weight: bold;")
+        self.history_btn.clicked.connect(self.show_history)
+        buttons_layout.addWidget(self.history_btn)
+
         self.main_layout.addLayout(buttons_layout)
 
     def create_schedule_info_area(self):
@@ -223,29 +230,50 @@ class MainWindow(QMainWindow):
             # No scheduled download
             self.next_download_label.setText("Next download: Not scheduled")
 
-    def load_settings_from_env(self):
-        """Load settings from environment variables."""
-        from dotenv import load_dotenv
+    def load_settings(self):
+        """Load settings from settings module."""
+        from src.settings import settings
 
-        load_dotenv()
+        # S3 connection settings
+        self.endpoint_url = settings.s3["SERVICE_URL"]
+        self.bucket_name = settings.s3["BUCKET_NAME"]
+        self.access_key = settings.s3["ACCESS_KEY"]
+        self.secret_key = settings.s3["SECRET_KEY"]
+        self.timeout = settings.s3["TIMEOUT"]
 
-        self.endpoint_url = os.getenv(
-            "S3_SERVICE_URL", "https://gcpe-mmi-storage.objectstore.gov.bc.ca"
-        )
-        self.bucket_name = os.getenv("S3_BUCKET_NAME", "local")
-        self.access_key = os.getenv("S3_ACCESS_KEY", "")
-        self.secret_key = os.getenv("S3_SECRET_KEY", "")
-        self.local_path = os.getenv("LOCAL_STORAGE_PATH", "./downloads")
-        self.timeout = int(os.getenv("S3_TIMEOUT", "2"))
-        self.scheduler_interval = int(
-            os.getenv("SCHEDULER_INTERVAL", "3600")
-        )  # Default to 3600 seconds (1 hour)
+        # Local storage settings
+        self.local_path = settings.storage["PATH"]
+
+        # Scheduler settings
+        self.scheduler_interval = settings.scheduler["INTERVAL"]
+
+        # Network error handling settings
+        self.max_consecutive_failures = settings.error_handling["MAX_CONSECUTIVE_FAILURES"]
+        self.max_failure_percentage = settings.error_handling["MAX_FAILURE_PERCENTAGE"]
+        self.network_test_interval = settings.error_handling["NETWORK_TEST_INTERVAL"]
+
+        # Disk space settings
+        self.space_warning_threshold = settings.disk_space["WARNING_THRESHOLD"]
 
         # set storage path input
         self.storage_path_input.setText(self.local_path)
 
         # set timer interval
         self.timer.setInterval(self.scheduler_interval * 1000)  # interval is in milliseconds
+
+        # Log loaded settings
+        logger.info(
+            f"Loaded settings: "
+            f"endpoint={self.endpoint_url}, "
+            f"bucket={self.bucket_name}, "
+            f"local_path={self.local_path}, "
+            f"timeout={self.timeout}s, "
+            f"scheduler_interval={self.scheduler_interval}s, "
+            f"max_consecutive_failures={self.max_consecutive_failures}, "
+            f"max_failure_percentage={self.max_failure_percentage}, "
+            f"network_test_interval={self.network_test_interval}, "
+            f"space_warning_threshold={self.space_warning_threshold}"
+        )
 
     @Slot()
     def browse_storage_path(self):
@@ -496,12 +524,15 @@ class MainWindow(QMainWindow):
         # reset progress bar
         self.progress_bar.setValue(0)
 
-        # call S3 controller to download files
+        # call S3 controller to download files with network error handling parameters
         self.s3_controller.download_files(
             prefix="",  # download all files
             local_dir=storage_path,
             on_progress=self.on_download_progress,
             on_finished=self.on_download_finished,
+            max_consecutive_failures=self.max_consecutive_failures,
+            max_failure_percentage=self.max_failure_percentage,
+            network_test_interval=self.network_test_interval,
         )
 
     def on_download_progress(self, progress: int, message: str):
@@ -518,11 +549,17 @@ class MainWindow(QMainWindow):
             self.log_message(message)
 
             # if there is detailed data, show concise stats
-            if data and isinstance(data, dict) and data.get("failed", 0) > 0:
+            if data and isinstance(data, dict):
                 total = data.get("total", 0)
                 successful = data.get("successful", 0)
                 failed = data.get("failed", 0)
-                self.log_message(f"Stats: {successful} ok, {failed} failed, {total} total")
+                task_id = data.get("task_id")
+
+                stats_msg = f"Stats: {successful} ok, {failed} failed, {total} total"
+                if task_id:
+                    stats_msg += f" (Task ID: {task_id})"
+
+                self.log_message(stats_msg)
 
             self.statusBar().showMessage(message)
 
@@ -555,6 +592,12 @@ class MainWindow(QMainWindow):
                 self.schedule_status_label.setText(
                     "Automatic download is running (last attempt failed)"
                 )
+
+    @Slot()
+    def show_history(self):
+        """Show download history dialog."""
+        history_dialog = HistoryDialog(self, self.s3_controller)
+        history_dialog.exec()
 
     @Slot()
     def clear_log(self):
