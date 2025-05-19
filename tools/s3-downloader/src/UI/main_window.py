@@ -2,28 +2,21 @@
 Main window for the S3 downloader application.
 """
 
-import datetime
 import logging
-import os
-import shutil
-from pathlib import Path
 
-from PySide6.QtCore import QTimer, Slot
-from PySide6.QtWidgets import (
-    QFileDialog,
-    QGroupBox,
-    QHBoxLayout,
-    QLabel,
-    QLineEdit,
-    QMainWindow,
-    QProgressBar,
-    QPushButton,
-    QTextEdit,
-    QVBoxLayout,
-    QWidget,
-)
+from PySide6.QtCore import Slot
+from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QSplitter, QVBoxLayout, QWidget
 
-from .s3_controller import S3Controller
+from .components.buttons_panel import ButtonsPanel
+from .components.history_widget import HistoryWidget
+from .components.log_widget import LogWidget
+from .components.schedule_info_widget import ScheduleInfoWidget
+from .components.storage_info_widget import StorageInfoWidget
+
+# Disk monitoring is now handled by StorageInfoWidget
+from .controllers.download_controller import DownloadController
+from .controllers.scheduler import Scheduler
+from .controllers.settings_controller import SettingsController
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -39,533 +32,317 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("S3 Downloader")
-        self.setMinimumSize(600, 400)
+        self.setMinimumSize(1400, 600)  # Increased size to accommodate history panel
 
-        # initialize S3 controller
-        self.s3_controller = S3Controller()
+        # Initialize controllers
+        self.settings_controller = SettingsController()
+        self.download_controller = DownloadController(self.settings_controller)
+        self.scheduler = Scheduler(self.settings_controller.scheduler_interval)
 
-        # initialize timers
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self._execute_download_task)
-
-        # disk space update timer (update every 10 seconds)
-        self.disk_space_timer = QTimer(self)
-        self.disk_space_timer.timeout.connect(self.update_disk_space_info)
-        self.disk_space_timer.setInterval(10000)  # 10 seconds
-
-        # next download time update timer (update every second)
-        self.time_update_timer = QTimer(self)
-        self.time_update_timer.timeout.connect(self.update_next_download_time)
-        self.time_update_timer.setInterval(1000)  # 1 second
-
-        # store next download time
-        self.next_download_time = None
-
-        # space warning threshold (10%)
-        self.space_warning_threshold = 0.1
-
-        # create central widget
+        # Create central widget and main layout
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
 
-        # create main layout
-        self.main_layout = QVBoxLayout(self.central_widget)
+        # Create horizontal layout for main window
+        self.main_layout = QHBoxLayout(self.central_widget)
 
-        # create storage path selection area
-        self.create_storage_path_area()
+        # Create splitter for resizable panels
+        self.splitter = QSplitter()
+        self.main_layout.addWidget(self.splitter)
 
-        # create disk space info area
-        self.create_disk_space_area()
+        # Create left panel (download controls)
+        self.left_panel = QWidget()
+        self.left_layout = QVBoxLayout(self.left_panel)
 
-        # create buttons area
-        self.create_buttons_area()
+        # Create right panel (history)
+        self.right_panel = QWidget()
+        self.right_layout = QVBoxLayout(self.right_panel)
 
-        # create log area
-        self.create_log_area()
+        # Add panels to splitter
+        self.splitter.addWidget(self.left_panel)
+        self.splitter.addWidget(self.right_panel)
 
-        # create status bar
+        # Set initial sizes (left, right ratio)
+        self.splitter.setSizes([350, 650])  # Adjusted for more history panel space
+
+        # Create UI components
+        self.create_ui_components()
+
+        # Connect signals and slots
+        self.connect_signals()
+
+        # Initialize UI with settings
+        self.initialize_ui()
+
+        # Create status bar
         self.statusBar().showMessage("Ready")
-
-        # load settings from env
-        self.load_settings_from_env()
-
-        # create schedule info area (after loading settings)
-        self.create_schedule_info_area()
-
-        # update disk space info initially
-        self.update_disk_space_info()
-
-        # start disk space timer
-        self.disk_space_timer.start()
 
         logger.info("Main window initialized")
 
-    def create_storage_path_area(self):
-        """Create storage path selection area."""
-        storage_layout = QHBoxLayout()
+    def create_ui_components(self):
+        """Create UI components."""
+        # Left panel components (download controls)
 
-        # storage path label
-        path_label = QLabel("Storage Path:")
-        storage_layout.addWidget(path_label)
-
-        # storage path input
-        self.storage_path_input = QLineEdit()
-        self.storage_path_input.setPlaceholderText("Select local storage path")
-        storage_layout.addWidget(
-            self.storage_path_input, 1
-        )  # 1 is stretch factor, make input box take up more space
-
-        # browse button
-        browse_btn = QPushButton("Browse...")
-        browse_btn.clicked.connect(self.browse_storage_path)
-        storage_layout.addWidget(browse_btn)
-
-        self.main_layout.addLayout(storage_layout)
-
-    def create_disk_space_area(self):
-        """Create disk space information area."""
-        # Create simple layout for disk space info
-        disk_space_layout = QHBoxLayout()
-
-        # Disk space label
-        disk_space_label = QLabel("Disk Space:")
-        disk_space_layout.addWidget(disk_space_label)
-
-        # Create progress bar for disk space
-        self.disk_space_bar = QProgressBar()
-        self.disk_space_bar.setRange(0, 100)
-        self.disk_space_bar.setValue(0)
-        self.disk_space_bar.setTextVisible(True)
-        self.disk_space_bar.setFormat("%p% used")
-        disk_space_layout.addWidget(self.disk_space_bar, 1)  # 1 is stretch factor
-
-        # Free space label (simplified)
-        self.free_space_label = QLabel("Free: N/A")
-        disk_space_layout.addWidget(self.free_space_label)
-
-        # For compatibility with existing code, create empty labels
-        self.total_space_label = QLabel()
-        self.total_space_label.setVisible(False)
-        self.used_space_label = QLabel()
-        self.used_space_label.setVisible(False)
-
-        # Warning label (hidden by default)
-        self.space_warning_label = QLabel()
-        self.space_warning_label.setStyleSheet("color: red; font-weight: bold;")
-        self.space_warning_label.setVisible(False)
-        disk_space_layout.addWidget(self.space_warning_label)
-
-        self.main_layout.addLayout(disk_space_layout)
-
-    def create_buttons_area(self):
-        """Create buttons area."""
-        buttons_layout = QHBoxLayout()
-
-        # test connection button
-        self.test_connection_btn = QPushButton("Test Connection")
-        self.test_connection_btn.setMinimumHeight(40)
-        self.test_connection_btn.setStyleSheet("font-size: 12px; font-weight: bold;")
-        self.test_connection_btn.clicked.connect(self.test_connection)
-        buttons_layout.addWidget(self.test_connection_btn)
-
-        # download button
-        self.download_btn = QPushButton("Start Download")
-        self.download_btn.setMinimumHeight(40)
-        self.download_btn.setStyleSheet("font-size: 12px; font-weight: bold;")
-        self.download_btn.clicked.connect(self.toggle_download)
-        buttons_layout.addWidget(self.download_btn)
-
-        self.main_layout.addLayout(buttons_layout)
-
-    def create_schedule_info_area(self):
-        """Create schedule information area."""
-        # Create group box for schedule info
-        schedule_group = QGroupBox("Download Schedule")
-        schedule_layout = QVBoxLayout()
-
-        # Status label
-        self.schedule_status_label = QLabel("Automatic download is not running")
-        self.schedule_status_label.setStyleSheet("font-weight: bold;")
-        schedule_layout.addWidget(self.schedule_status_label)
-
-        # Next download time label
-        self.next_download_label = QLabel("Next download: Not scheduled")
-        schedule_layout.addWidget(self.next_download_label)
-
-        # Interval label
-        self.interval_label = QLabel(f"Download interval: {self.scheduler_interval} seconds")
-        schedule_layout.addWidget(self.interval_label)
-
-        schedule_group.setLayout(schedule_layout)
-        self.main_layout.addWidget(schedule_group)
-
-    def update_next_download_time(self):
-        """Update the next download time display."""
-        if self.next_download_time and self.timer.isActive():
-            # Calculate remaining time
-            now = datetime.datetime.now()
-            if now < self.next_download_time:
-                # Format time as HH:MM:SS
-                time_str = self.next_download_time.strftime("%H:%M:%S")
-
-                # Calculate and format remaining time
-                time_diff = self.next_download_time - now
-                hours, remainder = divmod(time_diff.seconds, 3600)
-                minutes, seconds = divmod(remainder, 60)
-                remaining_str = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
-
-                # Update label
-                self.next_download_label.setText(f"Next download: {time_str} (in {remaining_str})")
-            else:
-                # Time has passed, this should be updated soon by the download task
-                self.next_download_label.setText("Next download: Executing now...")
-        else:
-            # No scheduled download
-            self.next_download_label.setText("Next download: Not scheduled")
-
-    def load_settings_from_env(self):
-        """Load settings from environment variables."""
-        from dotenv import load_dotenv
-
-        load_dotenv()
-
-        self.endpoint_url = os.getenv(
-            "S3_SERVICE_URL", "https://gcpe-mmi-storage.objectstore.gov.bc.ca"
+        # Storage info widget (combines path selection and disk space info)
+        self.storage_info_widget = StorageInfoWidget(
+            warning_threshold=self.settings_controller.space_warning_threshold
         )
-        self.bucket_name = os.getenv("S3_BUCKET_NAME", "local")
-        self.access_key = os.getenv("S3_ACCESS_KEY", "")
-        self.secret_key = os.getenv("S3_SECRET_KEY", "")
-        self.local_path = os.getenv("LOCAL_STORAGE_PATH", "./downloads")
-        self.timeout = int(os.getenv("S3_TIMEOUT", "2"))
-        self.scheduler_interval = int(
-            os.getenv("SCHEDULER_INTERVAL", "3600")
-        )  # Default to 3600 seconds (1 hour)
+        self.left_layout.addWidget(self.storage_info_widget)
 
-        # set storage path input
-        self.storage_path_input.setText(self.local_path)
+        # Buttons panel
+        self.buttons_panel = ButtonsPanel()
+        self.left_layout.addWidget(self.buttons_panel)
 
-        # set timer interval
-        self.timer.setInterval(self.scheduler_interval * 1000)  # interval is in milliseconds
+        # Schedule info widget
+        self.schedule_info_widget = ScheduleInfoWidget(
+            interval=self.settings_controller.scheduler_interval
+        )
+        self.left_layout.addWidget(self.schedule_info_widget)
+
+        # Log widget
+        self.log_widget = LogWidget()
+        self.left_layout.addWidget(self.log_widget)
+
+        # Right panel components (history)
+
+        # History widget
+        self.history_widget = HistoryWidget(s3_controller=self.download_controller.s3_controller)
+        self.right_layout.addWidget(self.history_widget)
+
+    def connect_signals(self):
+        """Connect signals and slots."""
+        # Storage info widget signals
+        self.storage_info_widget.path_changed.connect(self.on_storage_path_changed)
+        self.storage_info_widget.low_space_warning.connect(self.on_disk_space_status_changed)
+
+        # Buttons panel signals
+        self.buttons_panel.download_clicked.connect(self.on_download_button_clicked)
+
+        # Download controller signals
+        self.download_controller.download_started.connect(self.on_download_started)
+        self.download_controller.download_stopped.connect(self.on_download_stopped)
+        self.download_controller.download_progress.connect(self.on_download_progress)
+        self.download_controller.download_finished.connect(self.on_download_finished)
+        self.download_controller.batch_completed.connect(self.on_batch_completed)
+        # Connection testing is now handled automatically during download
+
+        # Disk space monitoring is now handled by storage_info_widget
+
+        # Scheduler signals
+        self.scheduler.download_triggered.connect(self.on_scheduled_download)
+        self.scheduler.time_updated.connect(self.on_scheduler_time_updated)
+        self.scheduler.download_skipped.connect(self.on_scheduled_download_skipped)
+
+    def initialize_ui(self):
+        """Initialize UI with settings."""
+        # Set storage path and update disk space info
+        self.storage_info_widget.set_storage_path(self.settings_controller.local_path)
+
+        # Disk monitoring is handled by storage_info_widget
+
+        # Load initial history data
+        self.refresh_history()
+
+    @Slot(str)
+    def on_storage_path_changed(self, path):
+        """
+        Handle storage path change.
+
+        Args:
+            path: New storage path
+        """
+        self.settings_controller.update_local_path(path)
+        # Disk space info is updated automatically by storage_info_widget
+        self.log_widget.log_message(f"Storage path set to: {path}")
 
     @Slot()
-    def browse_storage_path(self):
-        """Open file dialog to select storage path."""
-        directory = QFileDialog.getExistingDirectory(
-            self, "Select Storage Directory", self.storage_path_input.text() or str(Path.home())
-        )
-        if directory:
-            self.storage_path_input.setText(directory)
-            self.local_path = directory
-            self.log_message(f"Selected storage path: {directory}")
-
-            # Update disk space information for the new path
-            self.update_disk_space_info()
-
-    def update_disk_space_info(self):
-        """Update disk space information for the current storage path."""
-        storage_path = self.storage_path_input.text().strip()
-
-        if not storage_path:
-            # No path selected, clear disk space info
-            self.disk_space_bar.setValue(0)
-            self.free_space_label.setText("Free: N/A")
-            self.space_warning_label.setVisible(False)
-            return
-
-        try:
-            # Get disk usage information
-            total, used, free = shutil.disk_usage(storage_path)
-
-            # Calculate percentage used
-            percent_used = int((used / total) * 100)
-
-            # Update progress bar
-            self.disk_space_bar.setValue(percent_used)
-
-            # Format free space (in GB)
-            free_gb = free / 1_000_000_000
-
-            # Update free space label
-            self.free_space_label.setText(f"Free: {free_gb:.1f} GB")
-
-            # Check if free space is below warning threshold
-            free_ratio = free / total
-            if free_ratio < self.space_warning_threshold:
-                # Show warning message
-                self.space_warning_label.setText("Low space!")
-                self.space_warning_label.setVisible(True)
-            else:
-                self.space_warning_label.setVisible(False)
-
-        except Exception as e:
-            self.log_message(f"Error getting disk space info: {e}")
-            # Clear disk space info on error
-            self.disk_space_bar.setValue(0)
-            self.free_space_label.setText("Free: Error")
-            self.space_warning_label.setVisible(False)
-
-    def create_log_area(self):
-        """Create log area."""
-        log_group = QGroupBox("Log")
-        log_layout = QVBoxLayout()
-
-        # log area
-        self.log_text = QTextEdit()
-        self.log_text.setReadOnly(True)
-        log_layout.addWidget(self.log_text)
-
-        # progress bar
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setRange(0, 100)
-        self.progress_bar.setValue(0)
-        log_layout.addWidget(self.progress_bar)
-
-        # clear log button
-        self.clear_log_btn = QPushButton("Clear Log")
-        self.clear_log_btn.clicked.connect(self.clear_log)
-        log_layout.addWidget(self.clear_log_btn)
-
-        log_group.setLayout(log_layout)
-        self.main_layout.addWidget(log_group)
+    def on_download_button_clicked(self):
+        """Handle download button click."""
+        self.download_controller.toggle_download()
 
     @Slot()
-    def test_connection(self):
-        """Test connection to S3."""
-        endpoint_url = self.endpoint_url
-        bucket_name = self.bucket_name
-        access_key = self.access_key
-        secret_key = self.secret_key
-        timeout = self.timeout
-        local_path = self.local_path
+    def on_download_started(self):
+        """Handle download start."""
+        self.buttons_panel.set_download_active(True)
+        self.log_widget.log_message("Download started")
+        self.statusBar().showMessage("Download started")
 
-        # validate required fields
-        if not all([endpoint_url, bucket_name, access_key, secret_key]):
-            self.log_message("Error: Please set S3 connection parameters in .env file")
-            self.statusBar().showMessage("Error: Missing S3 connection parameters")
-            return
+        # Start scheduler
+        self.scheduler.start(
+            run_immediately=False
+        )  # Don't run immediately, we're already starting a download
+        self.schedule_info_widget.set_schedule_active(True)
+        self.schedule_info_widget.set_next_download_time(self.scheduler.get_next_download_time())
 
-        self.log_message(f"Testing connection to {bucket_name} with {timeout}s timeout...")
-        self.statusBar().showMessage("Testing connection...")
-
-        # disable test button
-        self.test_connection_btn.setEnabled(False)
-
-        # initialize S3 client
-        if not self.s3_controller.initialize_client(
-            bucket_name=bucket_name,
-            endpoint_url=endpoint_url,
-            access_key=access_key,
-            secret_key=secret_key,
-            local_storage_path=local_path,
-            timeout=timeout,
-        ):
-            self.log_message("Error: Failed to initialize S3 client")
-            self.statusBar().showMessage("Error: Failed to initialize S3 client")
-            self.test_connection_btn.setEnabled(True)
-            return
-
-        # test connection
-        self.s3_controller.test_connection(self.on_connection_test_finished)
-
-    def on_connection_test_finished(self, success: bool, message: str, data=None):
-        """Handle connection test result."""
-        self.test_connection_btn.setEnabled(True)
-
-        if success:
-            self.log_message("Connection successful!")
-            self.statusBar().showMessage("Connection successful")
-        else:
-            self.log_message(f"Error: Connection failed: {message}")
-            self.statusBar().showMessage("Connection failed")
+        # Refresh history panel to show the new task that was just created
+        # Note: There might be a small delay before the task appears in the database
+        # but this ensures the UI is updated as soon as possible
+        self.history_widget.load_history()
 
     @Slot()
-    def toggle_download(self):
-        """Toggle periodic download."""
-        if self.timer.isActive():
-            # Stop the download timer
-            self.timer.stop()
+    def on_download_stopped(self):
+        """Handle download stop."""
+        self.buttons_panel.set_download_active(False)
+        self.log_widget.log_message("Download stopped")
+        self.statusBar().showMessage("Download stopped")
 
-            # Stop the time update timer
-            self.time_update_timer.stop()
+        # Stop scheduler
+        self.scheduler.stop()
+        self.schedule_info_widget.set_schedule_active(False)
 
-            # Update UI
-            self.download_btn.setText("Start Download")
-            self.statusBar().showMessage("Periodic download stopped")
-            self.log_message("Periodic download stopped.")
+    @Slot(int, str)
+    def on_download_progress(self, progress, message):
+        """
+        Handle download progress.
 
-            # Update schedule status
-            self.schedule_status_label.setText("Automatic download is not running")
-            self.next_download_label.setText("Next download: Not scheduled")
-            self.next_download_time = None
-        else:
-            # Before starting, ensure S3 client is initialized and path is set
-            if not hasattr(self.s3_controller, "s3_client") or self.s3_controller.s3_client is None:
-                self.log_message("Error: S3 client not initialized. Please test connection first.")
-                self.statusBar().showMessage("Error: Please test connection first")
-                return
-
-            storage_path = self.storage_path_input.text().strip()
-            if not storage_path:
-                self.log_message("Error: Storage path not set. Please select a storage path.")
-                self.statusBar().showMessage("Error: Please select a storage path")
-                return
-
-            # ensure storage path exists
-            Path(storage_path).mkdir(parents=True, exist_ok=True)
-
-            # Start the download timer
-            self.timer.start()
-
-            # Update UI
-            self.download_btn.setText("Stop Download")
-            self.statusBar().showMessage(
-                f"Periodic download started ({self.scheduler_interval}s interval)"
-            )
-            self.log_message(f"Periodic download started with {self.scheduler_interval}s interval.")
-
-            # Update schedule status
-            self.schedule_status_label.setText("Automatic download is running")
-            self.interval_label.setText(f"Download interval: {self.scheduler_interval} seconds")
-
-            # Set next download time
-            self.next_download_time = datetime.datetime.now() + datetime.timedelta(
-                seconds=self.scheduler_interval
-            )
-
-            # Start the time update timer
-            self.time_update_timer.start()
-
-            # Update the next download time display
-            self.update_next_download_time()
-
-            # Immediately execute the first download task
-            self._execute_download_task()
-
-    def _execute_download_task(self):
-        """Execute the S3 download task."""
-        # get storage path
-        storage_path = self.storage_path_input.text().strip()
-        if not storage_path:
-            # This should not happen if toggle_download is called first, but as a safeguard
-            self.log_message("Error: Storage path not set for download task.")
-            self.statusBar().showMessage("Error: Storage path not set.")
-            return
-
-        # Update disk space info before downloading
-        self.update_disk_space_info()
-
-        # Simple check if there's enough disk space
-        try:
-            _, _, free = shutil.disk_usage(storage_path)
-            free_ratio = free / shutil.disk_usage(storage_path)[0]
-
-            if free_ratio < self.space_warning_threshold:
-                # Not enough space, show warning and pause downloads
-                self.log_message(f"Warning: Low disk space! Only {free_ratio:.1%} available.")
-
-                # If timer is active, stop it
-                if self.timer.isActive():
-                    self.timer.stop()
-                    self.time_update_timer.stop()
-                    self.download_btn.setText("Start Download")
-                    self.log_message("Download stopped due to low disk space.")
-
-                    # Update schedule status
-                    self.schedule_status_label.setText(
-                        "Automatic download stopped (low disk space)"
-                    )
-                    self.next_download_label.setText("Next download: Not scheduled")
-                    self.next_download_time = None
-
-                # Show warning in log and status bar
-                free_gb = free / 1_000_000_000
-                self.log_message(
-                    f"Warning: Download paused due to low disk space. Free: {free_gb:.1f} GB"
-                )
-                self.statusBar().showMessage(
-                    f"Download paused: Low disk space ({free_gb:.1f} GB free)"
-                )
-                return
-        except Exception as e:
-            self.log_message(f"Error checking disk space: {e}")
-            # Continue with download attempt
-
-        self.log_message(f"Downloading to: {storage_path}")
-        self.statusBar().showMessage("Downloading...")
-
-        # reset progress bar
-        self.progress_bar.setValue(0)
-
-        # call S3 controller to download files
-        self.s3_controller.download_files(
-            prefix="",  # download all files
-            local_dir=storage_path,
-            on_progress=self.on_download_progress,
-            on_finished=self.on_download_finished,
-        )
-
-    def on_download_progress(self, progress: int, message: str):
-        """Handle download progress updates."""
-        self.progress_bar.setValue(progress)
-        self.log_message(message)
+        Args:
+            progress: Progress percentage (0-100)
+            message: Progress message
+        """
+        self.log_widget.set_progress(progress)
+        self.log_widget.log_message(message)
         self.statusBar().showMessage(message)
 
-    def on_download_finished(self, success: bool, message: str, data=None):
-        """Handle download completion."""
-        # Button state is managed by toggle_download, not here.
+    @Slot(bool, str, object)
+    def on_download_finished(self, success, message, data):
+        """
+        Handle download completion.
 
-        if success:
-            self.log_message(message)
+        Args:
+            success: Whether the download was successful
+            message: Result message
+            data: Additional data (if any)
+        """
+        self.log_widget.log_message(message)
 
-            # if there is detailed data, show concise stats
-            if data and isinstance(data, dict) and data.get("failed", 0) > 0:
-                total = data.get("total", 0)
-                successful = data.get("successful", 0)
-                failed = data.get("failed", 0)
-                self.log_message(f"Stats: {successful} ok, {failed} failed, {total} total")
+        # If there is detailed data, show concise stats
+        if data and isinstance(data, dict):
+            total = data.get("total", 0)
+            successful = data.get("successful", 0)
+            failed = data.get("failed", 0)
+            task_id = data.get("task_id")
 
-            self.statusBar().showMessage(message)
-
-            # Update disk space info after download
-            self.update_disk_space_info()
-
-            # If timer is active, update next download time
-            if self.timer.isActive():
-                # Set next download time
-                self.next_download_time = datetime.datetime.now() + datetime.timedelta(
-                    seconds=self.scheduler_interval
+            # Check if this is part of continuous download mode
+            if (
+                hasattr(self.download_controller, "is_continuous_mode")
+                and self.download_controller.is_continuous_mode
+            ):
+                batch_num = getattr(self.download_controller, "current_batch", 0)
+                stats_msg = (
+                    f"Batch {batch_num} Stats: {successful} ok, {failed} failed, {total} total"
                 )
-                # Update the display
-                self.update_next_download_time()
-                # Update status message
-                self.schedule_status_label.setText("Automatic download is running")
+            else:
+                stats_msg = f"Stats: {successful} ok, {failed} failed, {total} total"
 
-            # Update status bar with success message
-            self.statusBar().showMessage(f"Download complete: {message}")
+            if task_id:
+                stats_msg += f" (Task ID: {task_id})"
+
+            self.log_widget.log_message(stats_msg)
+
+        # Only update final status if not in continuous mode or if continuous mode is completed
+        is_continuous_active = (
+            hasattr(self.download_controller, "is_continuous_mode")
+            and self.download_controller.is_continuous_mode
+        )
+
+        # Refresh history panel for final completion (batch refreshes are handled by on_batch_completed)
+        if not is_continuous_active and data and data.get("task_id"):
+            self.history_widget.load_history()
+
+        if not is_continuous_active:
+            # Update status bar
+            self.statusBar().showMessage(
+                f"Download {'complete' if success else 'failed'}: {message}"
+            )
+
+            # Update disk space info
+            self.storage_info_widget.update_disk_space_info()
+
+            # Update scheduler info if still active
+            if self.scheduler.is_running():
+                self.schedule_info_widget.set_schedule_active(True, not success)
+                self.schedule_info_widget.set_next_download_time(
+                    self.scheduler.get_next_download_time()
+                )
         else:
-            self.log_message(f"Error: {message}")
-            self.statusBar().showMessage(f"Download failed: {message}")
+            # In continuous mode, just update status to show we're continuing
+            self.statusBar().showMessage("Continuous download in progress...")
 
-            # If timer is active, still update next download time despite failure
-            if self.timer.isActive():
-                self.next_download_time = datetime.datetime.now() + datetime.timedelta(
-                    seconds=self.scheduler_interval
-                )
-                self.update_next_download_time()
-                self.schedule_status_label.setText(
-                    "Automatic download is running (last attempt failed)"
+    @Slot(bool, float)
+    def on_disk_space_status_changed(self, is_warning_active, free_ratio):
+        """
+        Handle disk space status change.
+
+        Args:
+            is_warning_active: True if the low disk space warning is active.
+            free_ratio: Free space ratio (0.0-1.0)
+        """
+        if is_warning_active:
+            message = f"Low disk space! Only {free_ratio:.1%} available. Please free up some space."
+            self.log_widget.log_message(f"Warning: {message}")
+
+            # If download is active, stop it
+            if self.download_controller.is_downloading:
+                self.download_controller.toggle_download()
+                self.schedule_info_widget.set_schedule_paused("low disk space")
+                self.log_widget.log_message("Download stopped due to low disk space")
+
+    @Slot()
+    def on_scheduled_download(self):
+        """Handle scheduled download trigger."""
+        self.log_widget.log_message("Scheduled download triggered")
+        logger.info("Attempting to start scheduled download")
+
+        # Try to execute scheduled download
+        success = self.download_controller.execute_scheduled_download()
+
+        if not success:
+            # Log skip using scheduler
+            self.scheduler.log_skip("download already in progress")
+
+            # Update the next download time for the scheduler
+            if self.scheduler.is_running():
+                self.schedule_info_widget.set_next_download_time(
+                    self.scheduler.get_next_download_time()
                 )
 
     @Slot()
-    def clear_log(self):
-        """Clear the log text area."""
-        self.log_text.clear()
-        self.progress_bar.setValue(0)
-        self.statusBar().showMessage("Log cleared")
+    def on_scheduler_time_updated(self):
+        """Handle scheduler time update."""
+        self.schedule_info_widget.update_next_download_time()
 
-    def log_message(self, message: str):
-        """Add a message to the log text area."""
-        self.log_text.append(message)
-        # auto scroll to bottom
-        self.log_text.verticalScrollBar().setValue(self.log_text.verticalScrollBar().maximum())
+    @Slot(str)
+    def on_scheduled_download_skipped(self, reason):
+        """Handle when a scheduled download is skipped."""
+        message = f"Scheduled download skipped: {reason}"
+        self.log_widget.log_message(message)
         logger.info(message)
+
+    @Slot()
+    def refresh_history(self):
+        """Refresh the history panel."""
+        self.history_widget.load_history()
+
+    @Slot(object)
+    def on_batch_completed(self, data):
+        """
+        Handle batch completion.
+
+        Args:
+            data: Additional data from the completed batch
+        """
+        # Always refresh history panel when a batch is completed
+        # This ensures new task records are visible immediately
+        if data and data.get("task_id"):
+            self.history_widget.load_history()
+
+            # Log batch completion info
+            total = data.get("total", 0)
+            successful = data.get("successful", 0)
+            failed = data.get("failed", 0)
+            task_id = data.get("task_id")
+
+            if hasattr(self.download_controller, "current_batch"):
+                batch_num = getattr(self.download_controller, "current_batch", 0)
+                stats_msg = f"Batch {batch_num} completed: {successful} ok, {failed} failed, {total} total (Task ID: {task_id})"
+                self.log_widget.log_message(stats_msg)

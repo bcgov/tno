@@ -5,6 +5,7 @@ bash.exe.stackdump
 .vs
 *.orig
 *.param
+*.mdc
 .scannerwork/
 .sonarqube/
 auth/keycloak/config/hsperfdata_jboss/

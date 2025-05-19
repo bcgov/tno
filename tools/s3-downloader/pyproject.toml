@@ -6,13 +6,13 @@ readme = "README.md"
 requires-python = ">=3.11, <3.12"
 dependencies = [
     "boto3>=1.28.0",
-    "dotenv>=0.9.9",
     "python-dotenv>=1.0.0",
     "ruff>=0.11.8",
     "PySide6>=6.5.0",
     "peewee>=3.16.0",
     "pyright>=1.1.400",
     "peewee-migrate>=1.13.0",
+    "pyinstaller>=6.13.0",
 ]
 
 [tool.ruff]
