@@ -145,7 +145,7 @@ export const ReportFormTemplate: React.FC = () => {
               Use Default Template
             </Button>
           </Row>
-          <label htmlFor="txa-subject">Subject Template</label>
+          <label htmlFor="txa-subject-template">Subject Template</label>
           <Col className="editor subject">
             <Editor
               id="txa-subject-template"
@@ -158,7 +158,7 @@ export const ReportFormTemplate: React.FC = () => {
           </Col>
         </Col>
         <Col className="frm-in">
-          <label htmlFor="txa-template">Body Template</label>
+          <label htmlFor="txa-body-template">Body Template</label>
           <Col className="editor body">
             <Editor
               id="txa-body-template"

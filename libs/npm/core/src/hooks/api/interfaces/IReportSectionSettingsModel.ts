@@ -15,4 +15,8 @@ export interface IReportSectionSettingsModel {
   datasetColors?: string[];
   dataLabelColors?: string[];
   url: string;
+  preload?: boolean;
+  dataType?: string;
+  dataProperty?: string;
+  dataTemplate?: string;
 }
