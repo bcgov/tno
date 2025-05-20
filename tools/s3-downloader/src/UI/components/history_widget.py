@@ -1,7 +1,3 @@
-"""
-Download history dialog for the S3 downloader application.
-"""
-
 import logging
 from typing import Optional
 
@@ -9,7 +5,7 @@ from PySide6.QtCore import Qt, Slot
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
     QAbstractItemView,
-    QDialog,
+    QGroupBox,
     QHBoxLayout,
     QHeaderView,
     QLabel,
@@ -20,19 +16,28 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from .s3_controller import S3Controller
+from ..s3_controller import S3Controller
 
 logger = logging.getLogger(__name__)
 
+# Define style constants
+TITLE_STYLE = "font-weight: bold; font-size: 16px;"
+HEADER_STYLE = "font-weight: bold; font-size: 14px;"
+ERROR_STYLE = "background-color: #fff0f0; padding: 10px; border: 1px solid #ffcccc; color: #cc0000;"
+SUCCESS_STYLE = (
+    "background-color: #f0fff0; padding: 10px; border: 1px solid #ccffcc; color: #006600;"
+)
+DEFAULT_STYLE = "background-color: #f8f8f8; padding: 10px; border: 1px solid #ddd; color: #666;"
 
-class HistoryDialog(QDialog):
-    """Dialog for displaying download history."""
+
+class HistoryWidget(QWidget):
+    """Widget for displaying download history."""
 
     def __init__(
         self, parent: Optional[QWidget] = None, s3_controller: Optional[S3Controller] = None
     ):
         """
-        Initialize the history dialog.
+        Initialize the history widget.
 
         Args:
             parent: Parent widget
@@ -42,11 +47,14 @@ class HistoryDialog(QDialog):
         self.s3_controller = s3_controller or S3Controller()
         self.selected_task_id = None
 
-        self.setWindowTitle("Download History")
-        self.setMinimumSize(800, 500)
-
         # Create layout
         self.main_layout = QVBoxLayout(self)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+
+        # Create title
+        title_label = QLabel("Download History")
+        title_label.setStyleSheet(TITLE_STYLE)
+        self.main_layout.addWidget(title_label)
 
         # Create history table
         self.create_history_table()
@@ -65,6 +73,10 @@ class HistoryDialog(QDialog):
 
     def create_history_table(self):
         """Create history table."""
+        # Create group box
+        history_group = QGroupBox("Recent Downloads")
+        history_layout = QVBoxLayout()
+
         # Create table
         self.history_table = QTableWidget()
         self.history_table.setColumnCount(6)
@@ -80,9 +92,10 @@ class HistoryDialog(QDialog):
         self.history_table.setShowGrid(True)
         self.history_table.setSortingEnabled(True)
         self.history_table.selectionModel().selectionChanged.connect(self.on_task_selected)
+        history_layout.addWidget(self.history_table)
 
-        # Add table to layout
-        self.main_layout.addWidget(self.history_table)
+        history_group.setLayout(history_layout)
+        self.main_layout.addWidget(history_group)
 
     def create_task_error_section(self):
         """Create task error section."""
@@ -91,15 +104,13 @@ class HistoryDialog(QDialog):
 
         # Create task error header
         task_error_header = QLabel("Task Error Summary")
-        task_error_header.setStyleSheet("font-weight: bold; font-size: 14px;")
+        task_error_header.setStyleSheet(HEADER_STYLE)
         task_error_layout.addWidget(task_error_header)
 
         # Create task error text area
         self.task_error_label = QLabel()
         self.task_error_label.setWordWrap(True)
-        self.task_error_label.setStyleSheet(
-            "background-color: #f8f8f8; padding: 10px; border: 1px solid #ddd;"
-        )
+        self.task_error_label.setStyleSheet(DEFAULT_STYLE)
         self.task_error_label.setMinimumHeight(60)
         self.task_error_label.setTextFormat(Qt.TextFormat.PlainText)
         task_error_layout.addWidget(self.task_error_label)
@@ -114,7 +125,7 @@ class HistoryDialog(QDialog):
 
         # Create details header
         details_header = QLabel("Download Details")
-        details_header.setStyleSheet("font-weight: bold; font-size: 14px;")
+        details_header.setStyleSheet(HEADER_STYLE)
         details_layout.addWidget(details_header)
 
         # Create details table
@@ -140,15 +151,14 @@ class HistoryDialog(QDialog):
         # Create buttons layout
         buttons_layout = QHBoxLayout()
 
+        # Create status label
+        self.status_label = QLabel("Last updated: Never")
+        buttons_layout.addWidget(self.status_label, 1)  # 1 is stretch factor
+
         # Create refresh button
         refresh_button = QPushButton("Refresh")
         refresh_button.clicked.connect(self.load_history)
         buttons_layout.addWidget(refresh_button)
-
-        # Create close button
-        close_button = QPushButton("Close")
-        close_button.clicked.connect(self.accept)
-        buttons_layout.addWidget(close_button)
 
         # Add buttons layout to main layout
         self.main_layout.addLayout(buttons_layout)
@@ -160,9 +170,13 @@ class HistoryDialog(QDialog):
 
         # Clear task error label
         self.task_error_label.setText("")
-        self.task_error_label.setStyleSheet(
-            "background-color: #f8f8f8; padding: 10px; border: 1px solid #ddd; color: #666;"
-        )
+        self.task_error_label.setStyleSheet(DEFAULT_STYLE)
+
+        # Update status label with current time
+        import datetime
+
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.status_label.setText(f"Last updated: {now}")
 
         # Get history data
         tasks = self.s3_controller.get_download_history(limit=50)
@@ -186,9 +200,9 @@ class HistoryDialog(QDialog):
             status = getattr(task, "status", "Unknown")
             status_item = QTableWidgetItem(str(status))
             if status == "Completed":
-                status_item.setForeground(QColor("darkgreen"))
+                status_item.setForeground(QColor(0, 100, 0))  # Dark green
             elif status == "Failed":
-                status_item.setForeground(QColor("red"))
+                status_item.setForeground(QColor(255, 0, 0))  # Red
             self.history_table.setItem(i, 2, status_item)
 
             # Files
@@ -240,30 +254,24 @@ class HistoryDialog(QDialog):
         task = details.get("task")
         files = details.get("files", [])
 
-        # Display task error message if available
-        if task and hasattr(task, "error_message") and task.error_message:
-            self.task_error_label.setText(task.error_message)
-            self.task_error_label.setStyleSheet(
-                "background-color: #fff0f0; padding: 10px; border: 1px solid #ffcccc; color: #cc0000;"
-            )
-        elif task and hasattr(task, "summarize_errors"):
-            # Use the summarize_errors method if available
-            error_summary = task.summarize_errors()
-            if error_summary and error_summary != "No errors found":
-                self.task_error_label.setText(error_summary)
-                self.task_error_label.setStyleSheet(
-                    "background-color: #fff0f0; padding: 10px; border: 1px solid #ffcccc; color: #cc0000;"
-                )
-            else:
-                self.task_error_label.setText("No task-level errors reported.")
-                self.task_error_label.setStyleSheet(
-                    "background-color: #f0fff0; padding: 10px; border: 1px solid #ccffcc; color: #006600;"
-                )
-        else:
-            self.task_error_label.setText("No task-level error information available.")
-            self.task_error_label.setStyleSheet(
-                "background-color: #f8f8f8; padding: 10px; border: 1px solid #ddd; color: #666;"
-            )
+        error_text = "No task-level error information available."
+        error_style = DEFAULT_STYLE
+
+        if task:
+            if hasattr(task, "error_message") and task.error_message:
+                error_text = task.error_message
+                error_style = ERROR_STYLE
+            elif hasattr(task, "summarize_errors"):
+                error_summary = task.summarize_errors()
+                if error_summary and error_summary != "No errors found":
+                    error_text = error_summary
+                    error_style = ERROR_STYLE
+                else:
+                    error_text = "No task-level errors reported."
+                    error_style = SUCCESS_STYLE
+
+        self.task_error_label.setText(error_text)
+        self.task_error_label.setStyleSheet(error_style)
 
         # Add data to table
         for i, file in enumerate(files):
@@ -278,9 +286,9 @@ class HistoryDialog(QDialog):
             status = getattr(file, "status", "Unknown")
             status_item = QTableWidgetItem(str(status))
             if status == "Completed":
-                status_item.setForeground(QColor("darkgreen"))
+                status_item.setForeground(QColor(0, 100, 0))  # Dark green
             elif status == "Failed":
-                status_item.setForeground(QColor("red"))
+                status_item.setForeground(QColor(255, 0, 0))  # Red
             self.details_table.setItem(i, 1, status_item)
 
             # Size
