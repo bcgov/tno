@@ -8,10 +8,7 @@ resources:
 
 generatorOptions:
   disableNameSuffixHash: true
-
-patchesStrategicMerge:
-  - config-map.yaml
-
+  
 secretGenerator:
   - name: llm-api-keys
     type: Opaque
