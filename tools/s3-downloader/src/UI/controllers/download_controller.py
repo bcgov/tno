@@ -16,8 +16,6 @@ class DownloadController(QObject):
     download_stopped = Signal()
     download_progress = Signal(int, str)  # progress, message
     download_finished = Signal(bool, str, object)  # success, message, data
-    connection_test_started = Signal()
-    connection_test_finished = Signal(bool, str)  # success, message
 
     def __init__(self, settings_controller):
         """
@@ -31,8 +29,8 @@ class DownloadController(QObject):
         self.s3_controller = S3Controller()
         self.is_downloading = False
 
-    def test_connection(self):
-        """Test connection to S3."""
+    def _initialize_connection(self):
+        """Initialize connection to S3."""
         # Get connection parameters from settings
         endpoint_url = self.settings.endpoint_url
         bucket_name = self.settings.bucket_name
@@ -45,28 +43,19 @@ class DownloadController(QObject):
         if not all([endpoint_url, bucket_name, access_key, secret_key]):
             error_msg = "Error: Please set S3 connection parameters in .env file"
             logger.error(error_msg)
-            self.connection_test_finished.emit(False, error_msg)
-            return
+            return False
 
-        logger.info(f"Testing connection to {bucket_name} with {timeout}s timeout...")
-        self.connection_test_started.emit()
+        logger.info(f"Connecting to {bucket_name} with {timeout}s timeout...")
 
         # Initialize S3 client
-        if not self.s3_controller.initialize_client(
+        return self.s3_controller.initialize_client(
             bucket_name=bucket_name,
             endpoint_url=endpoint_url,
             access_key=access_key,
             secret_key=secret_key,
             local_storage_path=local_path,
             timeout=timeout,
-        ):
-            error_msg = "Error: Failed to initialize S3 client"
-            logger.error(error_msg)
-            self.connection_test_finished.emit(False, error_msg)
-            return
-
-        # Test connection
-        self.s3_controller.test_connection(self._on_connection_test_finished)
+        )
 
     def toggle_download(self):
         """Toggle download state."""
@@ -77,9 +66,12 @@ class DownloadController(QObject):
 
     def _start_download(self):
         """Start the download process."""
-        # Before starting, ensure S3 client is initialized and path is set
+        # Test connection first
+        self._initialize_connection()
+
+        # Check if connection was successful
         if not hasattr(self.s3_controller, "s3_client") or self.s3_controller.s3_client is None:
-            error_msg = "Error: S3 client not initialized. Please test connection first."
+            error_msg = "Error: Failed to connect to S3. Check your connection settings."
             logger.error(error_msg)
             self.download_finished.emit(False, error_msg, None)
             return
@@ -126,21 +118,7 @@ class DownloadController(QObject):
             network_test_interval=self.settings.network_test_interval,
         )
 
-    def _on_connection_test_finished(self, success, message, data=None):
-        """
-        Handle connection test result.
-
-        Args:
-            success: Whether the test was successful
-            message: Result message
-            data: Additional data (if any)
-        """
-        if success:
-            logger.info("Connection test successful")
-        else:
-            logger.error(f"Connection test failed: {message}")
-
-        self.connection_test_finished.emit(success, message)
+    # Connection testing is now handled internally during download
 
     def _on_download_progress(self, progress, message):
         """

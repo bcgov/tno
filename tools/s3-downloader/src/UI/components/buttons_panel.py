@@ -10,7 +10,6 @@ class ButtonsPanel(QWidget):
     """Panel with main action buttons."""
 
     # Signals
-    test_connection_clicked = Signal()
     download_clicked = Signal()
 
     def __init__(self, parent=None):
@@ -24,12 +23,7 @@ class ButtonsPanel(QWidget):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        # Test connection button
-        self.test_connection_btn = QPushButton("Test Connection")
-        self.test_connection_btn.setMinimumHeight(40)
-        self.test_connection_btn.setStyleSheet("font-size: 12px; font-weight: bold;")
-        self.test_connection_btn.clicked.connect(self.test_connection_clicked)
-        layout.addWidget(self.test_connection_btn)
+        # No test connection button needed - connection is tested during download
 
         # Download button
         self.download_btn = QPushButton("Start Download")
@@ -52,14 +46,7 @@ class ButtonsPanel(QWidget):
         self.download_active = active
         self.download_btn.setText("Stop Download" if active else "Start Download")
 
-    def set_test_connection_enabled(self, enabled):
-        """
-        Enable or disable the test connection button.
-
-        Args:
-            enabled: True to enable, False to disable
-        """
-        self.test_connection_btn.setEnabled(enabled)
+    # Test connection button has been removed
 
     def is_download_active(self):
         """Check if download is active."""

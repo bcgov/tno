@@ -116,7 +116,6 @@ class MainWindow(QMainWindow):
         self.storage_info_widget.low_space_warning.connect(self.on_disk_space_status_changed)
 
         # Buttons panel signals
-        self.buttons_panel.test_connection_clicked.connect(self.download_controller.test_connection)
         self.buttons_panel.download_clicked.connect(self.on_download_button_clicked)
 
         # Download controller signals
@@ -124,8 +123,7 @@ class MainWindow(QMainWindow):
         self.download_controller.download_stopped.connect(self.on_download_stopped)
         self.download_controller.download_progress.connect(self.on_download_progress)
         self.download_controller.download_finished.connect(self.on_download_finished)
-        self.download_controller.connection_test_started.connect(self.on_connection_test_started)
-        self.download_controller.connection_test_finished.connect(self.on_connection_test_finished)
+        # Connection testing is now handled automatically during download
 
         # Disk space monitoring is now handled by storage_info_widget
 
@@ -239,27 +237,7 @@ class MainWindow(QMainWindow):
         # Refresh history panel
         self.history_widget.load_history()
 
-    @Slot()
-    def on_connection_test_started(self):
-        """Handle connection test start."""
-        self.buttons_panel.set_test_connection_enabled(False)
-        self.log_widget.log_message("Testing connection...")
-        self.statusBar().showMessage("Testing connection...")
-
-    @Slot(bool, str)
-    def on_connection_test_finished(self, success, message):
-        """
-        Handle connection test completion.
-
-        Args:
-            success: Whether the test was successful
-            message: Result message
-        """
-        self.buttons_panel.set_test_connection_enabled(True)
-        self.log_widget.log_message(
-            f"Connection test {'successful' if success else 'failed'}: {message}"
-        )
-        self.statusBar().showMessage(f"Connection test {'successful' if success else 'failed'}")
+    # Connection testing methods removed - testing is now handled during download
 
     @Slot(bool, float, str)
     def on_disk_space_status_changed(self, is_ok, free_ratio, message):
