@@ -36,16 +36,26 @@ public class LLMResponseParser : ILLMResponseParser
             // Directly deserialize the JSON response
             var quoteResponse = JsonSerializer.Deserialize<QuoteResponse>(llmResponseContent, _jsonOptions);
 
-            if (quoteResponse != null && quoteResponse.quotes != null && quoteResponse.quotes.Count > 0)
+            // Check if deserialization was successful and if the quotes property exists
+            if (quoteResponse != null && quoteResponse.quotes != null)
             {
-                _logger.LogInformation("Successfully parsed {count} quotes from LLM response (Model: {Model})",
-                    quoteResponse.quotes.Count, modelName);
+                int quoteCount = quoteResponse.quotes.Count;
+
+                if (quoteCount > 0)
+                {
+                    _logger.LogInformation("Successfully parsed {count} quotes from LLM response (Model: {Model})",
+                        quoteCount, modelName);
+                }
+                else
+                {
+                    _logger.LogInformation("Model '{Model}' returned valid JSON with empty quotes array", modelName);
+                }
 
                 return CreateAnnotationResponse(quoteResponse);
             }
             else
             {
-                _logger.LogWarning("Parsed JSON from model '{Model}' does not contain valid quotes or is empty. JSON: {json}", modelName, llmResponseContent);
+                _logger.LogWarning("Parsed JSON from model '{Model}' does not contain valid quotes property. JSON: {json}", modelName, llmResponseContent);
                 return null;
             }
         }
@@ -63,6 +73,17 @@ public class LLMResponseParser : ILLMResponseParser
     /// <returns>An AnnotationResponse object</returns>
     private AnnotationResponse CreateAnnotationResponse(QuoteResponse quoteResponse)
     {
+        // Handle case where no quotes were found
+        if (quoteResponse.quotes.Count == 0)
+        {
+            _logger.LogDebug("Creating empty AnnotationResponse (no quotes found)");
+            return new AnnotationResponse
+            {
+                Quotes = new List<Quote>(),
+                Sentences = new List<Sentence>()
+            };
+        }
+
         // Convert QuoteResponse to AnnotationResponse
         var quotes = quoteResponse.quotes.Select((q, i) => new Quote
         {
