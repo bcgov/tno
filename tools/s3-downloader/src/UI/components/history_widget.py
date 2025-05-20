@@ -87,7 +87,8 @@ class HistoryWidget(QWidget):
         self.history_table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.history_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.history_table.setAlternatingRowColors(True)
-        self.history_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.history_table.horizontalHeader().setStretchLastSection(True)
+
         self.history_table.verticalHeader().setVisible(False)
         self.history_table.setShowGrid(True)
         self.history_table.setSortingEnabled(True)
@@ -138,6 +139,7 @@ class HistoryWidget(QWidget):
         self.details_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.details_table.setAlternatingRowColors(True)
         self.details_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.details_table.horizontalHeader().setStretchLastSection(True)
         self.details_table.verticalHeader().setVisible(False)
         self.details_table.setShowGrid(True)
         self.details_table.setSortingEnabled(True)
