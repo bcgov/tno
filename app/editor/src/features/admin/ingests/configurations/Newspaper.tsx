@@ -28,7 +28,7 @@ export const Newspaper: React.FC = (props) => {
   const sources = lookups.sources.map((s) => new OptionItem(s.name, s.code, !s.isEnabled));
   const source = sources.find((t) => t.value === values.configuration.defaultSource);
 
-  const initialItems = () => {
+  const initialItems = React.useCallback(() => {
     const data: any[] = [];
     let id = 0;
     const keyValues = values.configuration.sources?.split('&') ?? [];
@@ -37,24 +37,27 @@ export const Newspaper: React.FC = (props) => {
     });
     data.push({ id: ++id, name: '', source: '' });
     return data;
-  };
+  }, [values.configuration.sources]);
 
   const [items, setItems] = React.useState<{ id: number; name: string; source: string }[]>(
     initialItems(),
   );
 
-  const updateItems = (updatedItems: any[]) => {
-    if (updatedItems.filter((x) => !x.name && !x.source).length === 0)
-      updatedItems.push({ id: updatedItems.length + 1, name: '', source: '' });
-    setItems(updatedItems);
-    setFieldValue(
-      'configuration.sources',
-      updatedItems
-        .filter((t) => !!t.name)
-        .map((item) => `${item.name?.trim()}=${item.source?.trim()}`)
-        .join('&'),
-    );
-  };
+  const updateItems = React.useCallback(
+    (updatedItems: any[]) => {
+      if (updatedItems.filter((x) => !x.name && !x.source).length === 0)
+        updatedItems.push({ id: updatedItems.length + 1, name: '', source: '' });
+      setItems(updatedItems);
+      setFieldValue(
+        'configuration.sources',
+        updatedItems
+          .filter((t) => !!t.name)
+          .map((item) => `${item.name?.trim()}=${item.source?.trim()}`)
+          .join('&'),
+      );
+    },
+    [setFieldValue],
+  );
 
   const handleRemove = async (id: number) => {
     const item = items.find((i) => i.id === id);
@@ -283,7 +286,7 @@ export const Newspaper: React.FC = (props) => {
           />
         </Col>
       </Row>
-      <b>Sources</b>
+      <b>Source Mapping</b>
       <FlexboxTable
         rowId="id"
         data={items}
