@@ -35,6 +35,7 @@ export const toggleVacationMode = async (
     toast.success('Vacation mode has successfully been updated.');
   } catch (error) {
     // Handle the error, if needed
+    toast.error('Vacation mode update failed for user.');
     console.error('Failed to update user:', error);
   }
 };
