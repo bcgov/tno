@@ -8,12 +8,12 @@ from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QSplitter, QVBoxLayout, QWidget
 
 from .components.buttons_panel import ButtonsPanel
-from .components.disk_space_widget import DiskSpaceWidget
 from .components.history_widget import HistoryWidget
 from .components.log_widget import LogWidget
 from .components.schedule_info_widget import ScheduleInfoWidget
-from .components.storage_path_widget import StoragePathWidget
-from .controllers.disk_monitor import DiskMonitor
+from .components.storage_info_widget import StorageInfoWidget
+
+# Disk monitoring is now handled by StorageInfoWidget
 from .controllers.download_controller import DownloadController
 from .controllers.scheduler import Scheduler
 from .controllers.settings_controller import SettingsController
@@ -37,7 +37,6 @@ class MainWindow(QMainWindow):
         # Initialize controllers
         self.settings_controller = SettingsController()
         self.download_controller = DownloadController(self.settings_controller)
-        self.disk_monitor = DiskMonitor(self.settings_controller.space_warning_threshold)
         self.scheduler = Scheduler(self.settings_controller.scheduler_interval)
 
         # Create central widget and main layout
@@ -84,15 +83,11 @@ class MainWindow(QMainWindow):
         """Create UI components."""
         # Left panel components (download controls)
 
-        # Storage path widget
-        self.storage_path_widget = StoragePathWidget()
-        self.left_layout.addWidget(self.storage_path_widget)
-
-        # Disk space widget
-        self.disk_space_widget = DiskSpaceWidget(
+        # Storage info widget (combines path selection and disk space info)
+        self.storage_info_widget = StorageInfoWidget(
             warning_threshold=self.settings_controller.space_warning_threshold
         )
-        self.left_layout.addWidget(self.disk_space_widget)
+        self.left_layout.addWidget(self.storage_info_widget)
 
         # Buttons panel
         self.buttons_panel = ButtonsPanel()
@@ -116,8 +111,9 @@ class MainWindow(QMainWindow):
 
     def connect_signals(self):
         """Connect signals and slots."""
-        # Storage path widget signals
-        self.storage_path_widget.path_changed.connect(self.on_storage_path_changed)
+        # Storage info widget signals
+        self.storage_info_widget.path_changed.connect(self.on_storage_path_changed)
+        self.storage_info_widget.low_space_warning.connect(self.on_disk_space_status_changed)
 
         # Buttons panel signals
         self.buttons_panel.test_connection_clicked.connect(self.download_controller.test_connection)
@@ -131,8 +127,7 @@ class MainWindow(QMainWindow):
         self.download_controller.connection_test_started.connect(self.on_connection_test_started)
         self.download_controller.connection_test_finished.connect(self.on_connection_test_finished)
 
-        # Disk monitor signals
-        self.disk_monitor.space_status_changed.connect(self.on_disk_space_status_changed)
+        # Disk space monitoring is now handled by storage_info_widget
 
         # Scheduler signals
         self.scheduler.download_triggered.connect(self.on_scheduled_download)
@@ -140,14 +135,10 @@ class MainWindow(QMainWindow):
 
     def initialize_ui(self):
         """Initialize UI with settings."""
-        # Set storage path
-        self.storage_path_widget.set_storage_path(self.settings_controller.local_path)
+        # Set storage path and update disk space info
+        self.storage_info_widget.set_storage_path(self.settings_controller.local_path)
 
-        # Update disk space info
-        self.disk_space_widget.update_disk_space_info(self.settings_controller.local_path)
-
-        # Start disk monitoring
-        self.disk_monitor.start_monitoring(self.settings_controller.local_path)
+        # Disk monitoring is handled by storage_info_widget
 
         # Load initial history data
         self.refresh_history()
@@ -161,8 +152,7 @@ class MainWindow(QMainWindow):
             path: New storage path
         """
         self.settings_controller.update_local_path(path)
-        self.disk_monitor.start_monitoring(path)
-        self.disk_space_widget.update_disk_space_info(path)
+        # Disk space info is updated automatically by storage_info_widget
         self.log_widget.log_message(f"Storage path set to: {path}")
 
     @Slot()
@@ -237,7 +227,7 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(f"Download {'complete' if success else 'failed'}: {message}")
 
         # Update disk space info
-        self.disk_space_widget.update_disk_space_info(self.settings_controller.local_path)
+        self.storage_info_widget.update_disk_space_info()
 
         # Update scheduler info if still active
         if self.scheduler.is_running():
