@@ -94,12 +94,14 @@ class S3Worker(QThread):
                 try:
                     # Use the download_directory method which now creates database records
                     # Pass the network error handling parameters from the worker
+                    # Also pass the progress callback
                     download_result = self.s3_client.download_directory(
                         prefix=prefix,
                         local_dir=str(bucket_dir),
                         max_consecutive_failures=self.max_consecutive_failures,
                         max_failure_percentage=self.max_failure_percentage,
                         network_test_interval=self.network_test_interval,
+                        on_progress=self.progress.emit,
                     )
 
                     successful = download_result["successful"]

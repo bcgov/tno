@@ -2,7 +2,7 @@ import logging
 import os
 import socket
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import boto3
 import botocore.config
@@ -216,6 +216,7 @@ class S3Client:
         max_consecutive_failures: int = 3,
         max_failure_percentage: float = 0.3,
         network_test_interval: int = 5,
+        on_progress: Optional[Callable[[int, str], None]] = None,
     ) -> Dict[str, Any]:
         """
         Download all files in a directory (prefix) from S3.
@@ -227,6 +228,7 @@ class S3Client:
             max_consecutive_failures: Maximum number of consecutive failures before aborting
             max_failure_percentage: Maximum percentage of failures before aborting (0.0-1.0)
             network_test_interval: Number of failures before testing network connection
+            on_progress: Optional callback for progress updates (progress_percentage, message)
 
         Returns:
             Dictionary with download statistics and task record
@@ -299,8 +301,14 @@ class S3Client:
         abort_reason = None
 
         # Start the download process
+        total_files = len(objects)
 
         for i, obj in enumerate(objects):
+            # Update progress
+            if on_progress and total_files > 0:
+                progress_percent = int((i / total_files) * 100)
+                on_progress(progress_percent, f"Downloading: {obj['Key']}")
+
             # Check if we've exceeded the maximum consecutive failures
             if consecutive_failures >= max_consecutive_failures:
                 task_aborted = True
@@ -361,6 +369,14 @@ class S3Client:
                         error_message=error_msg,
                     )
 
+            # Update progress after each file
+            if on_progress and total_files > 0:
+                progress_percent = int(((i + 1) / total_files) * 100)
+                on_progress(
+                    progress_percent,
+                    f"Downloaded: {obj['Key']}"
+                )
+
         # Generate error summary
         error_summary = None
         if failed_downloads > 0 or task_aborted:
@@ -399,6 +415,10 @@ class S3Client:
 
         if error_summary:
             logger.error(error_summary)
+
+        # Send final progress update
+        if on_progress and len(objects) > 0:
+            on_progress(100, f"Download complete. {successful_downloads} files downloaded.")
 
         # Return statistics and task record
         result = {
