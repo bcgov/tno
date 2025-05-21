@@ -237,20 +237,17 @@ class MainWindow(QMainWindow):
         # Refresh history panel
         self.history_widget.load_history()
 
-    # Connection testing methods removed - testing is now handled during download
-
-    @Slot(bool, float, str)
-    def on_disk_space_status_changed(self, is_ok, free_ratio, message):
+    @Slot(bool, float)
+    def on_disk_space_status_changed(self, is_warning_active, free_ratio):
         """
         Handle disk space status change.
 
         Args:
-            is_ok: Whether disk space is sufficient
+            is_warning_active: True if the low disk space warning is active.
             free_ratio: Free space ratio (0.0-1.0)
-            message: Status message
         """
-        if not is_ok:
-            self.log_widget.log_message(f"Warning: Low disk space! Only {free_ratio:.1%} available")
+        if is_warning_active:
+            message = f"Low disk space! Only {free_ratio:.1%} available. Please free up some space."
             self.log_widget.log_message(f"Warning: {message}")
 
             # If download is active, stop it
