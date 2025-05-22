@@ -7,7 +7,6 @@ from PySide6.QtWidgets import (
     QAbstractItemView,
     QGroupBox,
     QHBoxLayout,
-    QHeaderView,
     QLabel,
     QPushButton,
     QTableWidget,
@@ -62,19 +61,19 @@ class HistoryWidget(QWidget):
 
         # Create task error section
         self.create_task_error_section()
-        
+
         # Add view details button below task error section
         self.view_details_btn = QPushButton("View File Details")
         self.view_details_btn.setEnabled(False)
         self.view_details_btn.clicked.connect(self.on_view_details_clicked)
         self.main_layout.addWidget(self.view_details_btn)
-        
+
         # Add stretch to push content to the top
         self.main_layout.addStretch()
-        
+
         # Create buttons at the bottom
         self.create_buttons()
-        
+
         # Initialize details dialog (will be shown when needed)
         self.details_dialog = None
 
@@ -127,9 +126,7 @@ class HistoryWidget(QWidget):
         task_error_layout.addWidget(self.task_error_label)
 
         # Add task error layout to main layout
-        self.main_layout.addLayout(task_error_layout, 1) # Add stretch factor for error section
-
-
+        self.main_layout.addLayout(task_error_layout, 1)  # Add stretch factor for error section
 
     def create_buttons(self):
         """Create buttons."""
@@ -146,7 +143,7 @@ class HistoryWidget(QWidget):
         buttons_layout.addWidget(refresh_button)
 
         # Add buttons layout to main layout
-        self.main_layout.addLayout(buttons_layout, 0) # No stretch for buttons, keep them at bottom
+        self.main_layout.addLayout(buttons_layout, 0)  # No stretch for buttons, keep them at bottom
 
     def load_history(self):
         """Load download history."""
@@ -228,15 +225,15 @@ class HistoryWidget(QWidget):
         """
         # Enable view details button
         self.view_details_btn.setEnabled(True)
-        
+
         # Get task details
         details = self.s3_controller.get_download_details(task_id)
         task = details.get("task")
         self.current_task_files = details.get("files", [])
-        
+
         # Update task error info
         self.update_task_error_info(task)
-        
+
     def update_task_error_info(self, task):
         """Update task error information."""
         error_text = "No task-level error information available."
@@ -257,16 +254,16 @@ class HistoryWidget(QWidget):
 
         self.task_error_label.setText(error_text)
         self.task_error_label.setStyleSheet(error_style)
-        
+
     @Slot()
     def on_view_details_clicked(self):
         """Handle view details button click."""
-        if not hasattr(self, 'current_task_files') or not self.current_task_files:
+        if not hasattr(self, "current_task_files") or not self.current_task_files:
             return
-            
+
         # Always create a new dialog instance for a fresh state
         details_dialog = FileDetailsDialog(self)
-            
+
         details_dialog.load_files(self.selected_task_id, self.current_task_files)
         details_dialog.show()
         details_dialog.raise_()
