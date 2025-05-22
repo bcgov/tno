@@ -102,8 +102,23 @@ class S3Worker(QThread):
                         max_failure_percentage=self.max_failure_percentage,
                         network_test_interval=self.network_test_interval,
                         on_progress=self.progress.emit,
+                        exclude_downloaded=True,
+                        max_files_per_task=2000,
                     )
 
+                    # check if skipped
+                    if download_result.get("skipped", False):
+                        # no new files to download
+                        message = download_result.get("message", "No files to download")
+                        self.progress.emit(100, message)
+                        self.finished.emit(
+                            True,
+                            message,
+                            {"total": 0, "successful": 0, "failed": 0, "skipped": True},
+                        )
+                        return
+
+                    # files already downloaded
                     successful = download_result["successful"]
                     failed = download_result["failed"]
                     total_files = download_result["total"]
@@ -133,6 +148,7 @@ class S3Worker(QThread):
                             message += f" ({failed} files failed)"
                         self.finished.emit(True, message, result)
                 except Exception as e:
+                    # other exceptions
                     logger.error(f"Error in download operation: {e}")
                     self.finished.emit(False, f"Error downloading files: {str(e)}", None)
 

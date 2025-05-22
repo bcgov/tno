@@ -15,6 +15,7 @@ from botocore.exceptions import (
 
 # Import database models
 from ..database.models import DownloadedFile, DownloadTask
+from ..settings.default_settings import DOWNLOADER_BEHAVIOR_SETTINGS
 
 # type hint for TimeoutError
 TimeoutError = socket.timeout
@@ -72,13 +73,16 @@ class S3Client:
 
         logger.info(f"S3 client initialized for bucket: {bucket_name}")
 
-    def list_objects(self, prefix: str = "", include_directories: bool = False) -> List[dict]:
+    def list_objects(
+        self, prefix: str = "", include_directories: bool = False, exclude_downloaded: bool = False
+    ) -> List[dict]:
         """
         List objects in the S3 bucket with the given prefix.
 
         Args:
             prefix: Prefix to filter objects
             include_directories: Whether to include directories (objects ending with '/')
+            exclude_downloaded: Whether to exclude already downloaded files from the result
 
         Returns:
             List of objects in the bucket
@@ -89,24 +93,86 @@ class S3Client:
                 If there's a network-related error
         """
         try:
-            response = self.s3_client.list_objects_v2(Bucket=self.bucket_name, Prefix=prefix)
+            # Initialize variables for pagination
+            all_objects = []
+            continuation_token = None
 
-            if "Contents" in response:
-                all_objects = response["Contents"]
+            # Loop until all objects are fetched
+            while True:
+                # Prepare request parameters
+                params = {"Bucket": self.bucket_name, "Prefix": prefix}
 
-                # if not including directories, filter them out
-                if not include_directories:
-                    filtered_objects = [obj for obj in all_objects if not obj["Key"].endswith("/")]
-                    logger.debug(
-                        f"Found {len(filtered_objects)} files with prefix '{prefix}' (excluding directories)"
-                    )
-                    return filtered_objects
-                else:
-                    logger.debug(f"Found {len(all_objects)} objects with prefix '{prefix}'")
-                    return all_objects
-            else:
+                # Add continuation token if we have one
+                if continuation_token:
+                    params["ContinuationToken"] = continuation_token
+
+                # Make the request
+                response = self.s3_client.list_objects_v2(**params)
+
+                # Add objects to our collection
+                if "Contents" in response:
+                    all_objects.extend(response["Contents"])
+                    logger.debug(f"Fetched batch of {len(response['Contents'])} objects")
+
+                # Check if there are more objects to fetch
+                if not response.get("IsTruncated"):  # No more objects
+                    break
+
+                # Get the continuation token for the next request
+                continuation_token = response.get("NextContinuationToken")
+
+            logger.info(f"Total objects found with prefix '{prefix}': {len(all_objects)}")
+
+            # If no objects found, return empty list
+            if not all_objects:
                 logger.debug(f"No objects found with prefix '{prefix}'")
                 return []
+
+            # If not including directories, filter them out
+            if not include_directories:
+                filtered_objects = [obj for obj in all_objects if not obj["Key"].endswith("/")]
+            else:
+                filtered_objects = all_objects
+
+            # If exclude_downloaded is True, filter out already downloaded files
+            if exclude_downloaded:
+                from ..database.models import DownloadedFile, FileStatus
+
+                # Process in batches to avoid SQL variable limit
+                batch_size = DOWNLOADER_BEHAVIOR_SETTINGS["SQL_QUERY_BATCH_SIZE"]
+                object_keys = [obj["Key"] for obj in filtered_objects]
+                downloaded_keys = set()
+
+                # Process keys in batches
+                for i in range(0, len(object_keys), batch_size):
+                    batch = object_keys[i : i + batch_size]
+                    batch_downloaded = set(
+                        file.s3_key
+                        for file in DownloadedFile.select(DownloadedFile.s3_key).where(
+                            DownloadedFile.status == FileStatus.COMPLETED.value,
+                            DownloadedFile.s3_key.in_(batch),
+                        )
+                    )
+                    downloaded_keys.update(batch_downloaded)
+
+                # Filter out already downloaded files
+                original_count = len(filtered_objects)
+                filtered_objects = [
+                    obj for obj in filtered_objects if obj["Key"] not in downloaded_keys
+                ]
+                skipped_count = original_count - len(filtered_objects)
+                logger.info(f"Filtered out {skipped_count} already downloaded files")
+
+            if not include_directories:
+                logger.debug(
+                    f"Found {len(filtered_objects)} files with prefix '{prefix}' (excluding directories{', excluding downloaded' if exclude_downloaded else ''})"
+                )
+            else:
+                logger.debug(
+                    f"Found {len(filtered_objects)} objects with prefix '{prefix}'{' (excluding downloaded)' if exclude_downloaded else ''}"
+                )
+
+            return filtered_objects
 
         except (ConnectionClosedError, ConnectTimeoutError, ReadTimeoutError, TimeoutError) as e:
             logger.error(f"Network error listing objects: {str(e)}")
@@ -217,6 +283,8 @@ class S3Client:
         max_failure_percentage: float = 0.3,
         network_test_interval: int = 5,
         on_progress: Optional[Callable[[int, str], None]] = None,
+        exclude_downloaded: bool = True,
+        max_files_per_task: Optional[int] = DOWNLOADER_BEHAVIOR_SETTINGS["MAX_FILES_PER_TASK"],
     ) -> Dict[str, Any]:
         """
         Download all files in a directory (prefix) from S3.
@@ -229,6 +297,7 @@ class S3Client:
             max_failure_percentage: Maximum percentage of failures before aborting (0.0-1.0)
             network_test_interval: Number of failures before testing network connection
             on_progress: Optional callback for progress updates (progress_percentage, message)
+            exclude_downloaded: Whether to exclude already downloaded files from the download
 
         Returns:
             Dictionary with download statistics and task record
@@ -243,21 +312,40 @@ class S3Client:
 
         # get file list
         try:
-            objects = self.list_objects(prefix)
+            # List objects with exclude_downloaded filter
+            objects = self.list_objects(prefix, exclude_downloaded=exclude_downloaded)
+
+            # If no objects found at all
             if not objects:
-                # Create a task record with no files
-                task_record = DownloadTask.create(
-                    s3_prefix=prefix,
-                    local_path=str(local_dir_obj),
-                    total_files=0,
-                    status="Completed",
-                )
-                logger.info(f"No files found with prefix '{prefix}'")
+                logger.info(f"No files found with prefix '{prefix}' in S3")
                 return {
                     "successful": 0,
                     "failed": 0,
                     "total": 0,
-                    "task_record": task_record,
+                    "skipped": True,
+                    "message": "No new files to download",
+                    "task_record": None,
+                }
+
+            # Apply max_files_per_task limit if specified
+            if max_files_per_task is not None and len(objects) > max_files_per_task:
+                logger.info(
+                    f"Limiting to {max_files_per_task} new files (out of {len(objects)} available)"
+                )
+                objects = objects[:max_files_per_task]
+
+            # If no new files to download after filtering
+            if not objects:
+                # All files are already downloaded or no new files to download
+                file_count = len(self.list_objects(prefix, exclude_downloaded=False))
+                logger.info(f"No new files to download. Total files in S3: {file_count}")
+                return {
+                    "successful": 0,
+                    "failed": 0,
+                    "total": 0,
+                    "skipped": True,
+                    "message": f"No new files to download. Total files in S3: {file_count}",
+                    "task_record": None,
                 }
         except (
             ClientError,
@@ -372,10 +460,7 @@ class S3Client:
             # Update progress after each file
             if on_progress and total_files > 0:
                 progress_percent = int(((i + 1) / total_files) * 100)
-                on_progress(
-                    progress_percent,
-                    f"Downloaded: {obj['Key']}"
-                )
+                on_progress(progress_percent, f"Downloaded: {obj['Key']}")
 
         # Generate error summary
         error_summary = None

@@ -15,6 +15,13 @@ S3_SETTINGS = {
     # Connection Timeout (seconds)
     "TIMEOUT": 2,
 }
+# Downloader Behavior Configuration
+DOWNLOADER_BEHAVIOR_SETTINGS = {
+    # Maximum number of new files to download per task
+    "MAX_FILES_PER_TASK": 2000,
+    # Batch size for SQL queries when checking downloaded files
+    "SQL_QUERY_BATCH_SIZE": 1000,
+}
 
 # Local Storage Configuration
 STORAGE_SETTINGS = {
