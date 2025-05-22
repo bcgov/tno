@@ -368,7 +368,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
         <Show visible={isAV && !!content?.summary && isDifferent && !popout}>
           <Col className="summary-container">
             <span>{formattedSummary}</span>
-            <Show visible={!!content?.sourceUrl}>
+            <Show visible={!!content?.sourceUrl && content?.mediaType?.name !== 'CP Wire'}>
               <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
                 More...
               </a>
@@ -382,7 +382,7 @@ export const ViewContent: React.FC<IViewContentProps> = ({ setActiveContent, act
             ) : (
               <span>{formattedSummary}</span>
             )}
-            <Show visible={!!content?.sourceUrl}>
+            <Show visible={!!content?.sourceUrl && content?.mediaType?.name !== 'CP Wire'}>
               <a rel="noreferrer" target="_blank" href={content?.sourceUrl}>
                 More...
               </a>
