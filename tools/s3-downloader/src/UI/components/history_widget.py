@@ -49,6 +49,12 @@ class HistoryWidget(QWidget):
         self.s3_controller = s3_controller or S3Controller()
         self.selected_task_id = None
 
+        # Pagination
+        self.current_page = 1
+        self.page_size = 200
+        self.total_tasks = 0
+        self.filtered_tasks = []
+
         # Create layout
         self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
@@ -64,14 +70,14 @@ class HistoryWidget(QWidget):
         # Create task error section
         self.create_task_error_section()
 
-        # Add view details button below task error section
-        self.view_details_btn = QPushButton("View File Details")
-        self.view_details_btn.setEnabled(False)
-        self.view_details_btn.clicked.connect(self.on_view_details_clicked)
-        self.main_layout.addWidget(self.view_details_btn)
+        # Enable double click to view details
+        self.history_table.doubleClicked.connect(self.on_task_double_clicked)
 
         # Add stretch to push content to the top
         self.main_layout.addStretch()
+
+        # Create pagination controls
+        self.create_pagination_controls()
 
         # Create buttons at the bottom
         self.create_buttons()
@@ -155,14 +161,44 @@ class HistoryWidget(QWidget):
         # Add task error layout to main layout
         self.main_layout.addLayout(task_error_layout, 1)  # Add stretch factor for error section
 
+    def create_pagination_controls(self):
+        """Create pagination controls."""
+        pagination_layout = QHBoxLayout()
+
+        # Previous button
+        self.prev_btn = QPushButton("Previous")
+        self.prev_btn.clicked.connect(self.prev_page)
+        pagination_layout.addWidget(self.prev_btn)
+
+        # Page info
+        self.page_label = QLabel("Page 1")
+        pagination_layout.addWidget(self.page_label)
+
+        # Next button
+        self.next_btn = QPushButton("Next")
+        self.next_btn.clicked.connect(self.next_page)
+        pagination_layout.addWidget(self.next_btn)
+
+        # Status label
+        self.status_label = QLabel("Total: 0 tasks")
+        pagination_layout.addWidget(self.status_label)
+
+        pagination_layout.addStretch()
+
+        # Add pagination to main layout
+        self.main_layout.addLayout(pagination_layout)
+
+        # Update button states
+        self.update_buttons()
+
     def create_buttons(self):
         """Create buttons."""
         # Create buttons layout
         buttons_layout = QHBoxLayout()
 
-        # Create status label
-        self.status_label = QLabel("Last updated: Never")
-        buttons_layout.addWidget(self.status_label, 1)  # 1 is stretch factor
+        # Last updated label
+        self.updated_label = QLabel("Last updated: Never")
+        buttons_layout.addWidget(self.updated_label, 1)  # 1 is stretch factor
 
         # Create refresh button
         refresh_button = QPushButton("Refresh")
@@ -185,10 +221,13 @@ class HistoryWidget(QWidget):
         import datetime
 
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.status_label.setText(f"Last updated: {now}")
+        self.updated_label.setText(f"Last updated: {now}")
 
-        # Get history data
-        self.all_tasks = self.s3_controller.get_download_history(limit=50)
+        # Reset pagination
+        self.current_page = 1
+
+        # Get history data (increase limit to get more items for filtering)
+        self.all_tasks = self.s3_controller.get_download_history(limit=1000)
 
         # Apply filters to update table
         self.apply_filters()
@@ -201,11 +240,8 @@ class HistoryWidget(QWidget):
         search_text = self.search_edit.text().lower()
         status_filter = self.status_filter.currentData()
 
-        # Clear table
-        self.history_table.setRowCount(0)
-
         # Filter tasks
-        filtered_tasks = []
+        self.filtered_tasks = []
         for task in self.all_tasks:
             # Check status filter
             task_status = getattr(task, "status", "Unknown")
@@ -216,19 +252,38 @@ class HistoryWidget(QWidget):
             if search_text:
                 task_id = str(getattr(task, "id", "")).lower()
                 task_path = str(getattr(task, "local_path", "")).lower()
-                task_status = str(task_status).lower()
+                task_status_str = str(task_status).lower()
 
                 if (
                     search_text not in task_id
                     and search_text not in task_path
-                    and search_text not in task_status
+                    and search_text not in task_status_str
                 ):
                     continue
 
-            filtered_tasks.append(task)
+            self.filtered_tasks.append(task)
 
-        # Add filtered tasks to table
-        for i, task in enumerate(filtered_tasks):
+        # Update total count and reset to first page
+        self.total_tasks = len(self.filtered_tasks)
+        self.current_page = 1
+
+        # Update table with current page
+        self.update_table()
+
+    def update_table(self):
+        """Update the table with current page of tasks."""
+        # Clear table
+        self.history_table.setRowCount(0)
+
+        # Calculate pagination
+        start_idx = (self.current_page - 1) * self.page_size
+        end_idx = min(start_idx + self.page_size, len(self.filtered_tasks))
+
+        # Get current page tasks
+        page_tasks = self.filtered_tasks[start_idx:end_idx]
+
+        # Add tasks to table
+        for i, task in enumerate(page_tasks):
             self.history_table.insertRow(i)
 
             # ID
@@ -263,6 +318,35 @@ class HistoryWidget(QWidget):
         # Sort by start time (newest first)
         self.history_table.sortItems(1, Qt.SortOrder.DescendingOrder)
 
+        # Update status and buttons
+        self.status_label.setText(f"Total: {self.total_tasks} tasks")
+        self.update_buttons()
+
+    def update_buttons(self):
+        """Update pagination buttons state."""
+        total_pages = (
+            (self.total_tasks + self.page_size - 1) // self.page_size if self.total_tasks > 0 else 1
+        )
+
+        self.prev_btn.setEnabled(self.current_page > 1)
+        self.next_btn.setEnabled(self.current_page < total_pages)
+        self.page_label.setText(f"Page {self.current_page}/{total_pages}")
+
+    def prev_page(self):
+        """Go to previous page."""
+        if self.current_page > 1:
+            self.current_page -= 1
+            self.update_table()
+
+    def next_page(self):
+        """Go to next page."""
+        total_pages = (
+            (self.total_tasks + self.page_size - 1) // self.page_size if self.total_tasks > 0 else 1
+        )
+        if self.current_page < total_pages:
+            self.current_page += 1
+            self.update_table()
+
     @Slot()
     def on_task_selected(self):
         """Handle task selection."""
@@ -287,9 +371,6 @@ class HistoryWidget(QWidget):
         Args:
             task_id: Task ID
         """
-        # Enable view details button
-        self.view_details_btn.setEnabled(True)
-
         # Get task details
         details = self.s3_controller.get_download_details(task_id)
         task = details.get("task")
@@ -320,14 +401,13 @@ class HistoryWidget(QWidget):
         self.task_error_label.setStyleSheet(error_style)
 
     @Slot()
-    def on_view_details_clicked(self):
-        """Handle view details button click."""
+    def on_task_double_clicked(self, index):
+        """Handle task double click to view details."""
         if not hasattr(self, "current_task_files") or not self.current_task_files:
             return
 
         # Always create a new dialog instance for a fresh state
         details_dialog = FileDetailsDialog(self)
-
         details_dialog.load_files(self.selected_task_id, self.current_task_files)
         details_dialog.show()
         details_dialog.raise_()

@@ -27,7 +27,7 @@ class FileDetailsDialog(QDialog):
         self.setMinimumSize(1000, 700)
 
         self.current_page = 1
-        self.page_size = 20
+        self.page_size = 200
         self.total_files = 0
         self.task_id = None
         self.all_files = []
