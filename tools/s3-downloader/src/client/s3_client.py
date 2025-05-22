@@ -149,8 +149,8 @@ class S3Client:
                     batch_downloaded = set(
                         file.s3_key
                         for file in DownloadedFile.select(DownloadedFile.s3_key).where(
-                            DownloadedFile.status == FileStatus.COMPLETED.value,
-                            DownloadedFile.s3_key.in_(batch),
+                            (DownloadedFile.status == FileStatus.COMPLETED.value)
+                            & (DownloadedFile.s3_key.in_(batch))  # type: ignore
                         )
                     )
                     downloaded_keys.update(batch_downloaded)
@@ -285,6 +285,7 @@ class S3Client:
         on_progress: Optional[Callable[[int, str], None]] = None,
         exclude_downloaded: bool = True,
         max_files_per_task: Optional[int] = DOWNLOADER_BEHAVIOR_SETTINGS["MAX_FILES_PER_TASK"],
+        is_cancelled: Optional[Callable[[], bool]] = None,
     ) -> Dict[str, Any]:
         """
         Download all files in a directory (prefix) from S3.
@@ -298,6 +299,8 @@ class S3Client:
             network_test_interval: Number of failures before testing network connection
             on_progress: Optional callback for progress updates (progress_percentage, message)
             exclude_downloaded: Whether to exclude already downloaded files from the download
+            max_files_per_task: Maximum number of files to download per task
+            is_cancelled: Optional function that returns True if the download should be cancelled
 
         Returns:
             Dictionary with download statistics and task record
@@ -390,8 +393,15 @@ class S3Client:
 
         # Start the download process
         total_files = len(objects)
+        task_cancelled = False
 
         for i, obj in enumerate(objects):
+            # Check if download has been cancelled
+            if is_cancelled and is_cancelled():
+                task_cancelled = True
+                logger.info("Download cancelled by user")
+                break
+
             # Update progress
             if on_progress and total_files > 0:
                 progress_percent = int((i / total_files) * 100)
@@ -487,12 +497,21 @@ class S3Client:
                 error_summary += "No specific error messages recorded."
 
         # Update task record
-        if task_aborted:
-            task_record.fail(error_summary)
+        if task_cancelled or task_aborted:
+            # Task was stopped (either by user or due to errors)
+            abort_message = "Download stopped"
+            if task_cancelled:
+                abort_message = "Download cancelled by user"
+            elif abort_reason:
+                abort_message = abort_reason
+
+            # Pass successful and failed download counts to the abort method
+            task_record.abort(abort_message, successful_downloads, failed_downloads)
             logger.warning(
                 f"Download task aborted: {len(objects) - (successful_downloads + failed_downloads)} files were not processed"
             )
         else:
+            # Task completed normally
             task_record.complete(successful_downloads, failed_downloads, error_summary)
             logger.info(
                 f"Downloaded {successful_downloads} files from {prefix} ({failed_downloads} failed)"
@@ -513,9 +532,12 @@ class S3Client:
             "task_record": task_record,
         }
 
-        if task_aborted:
+        if task_aborted or task_cancelled:
             result["aborted"] = True
-            result["abort_reason"] = abort_reason
+            if task_cancelled:
+                result["abort_reason"] = "Download cancelled by user"
+            elif abort_reason:
+                result["abort_reason"] = abort_reason
 
         return result
 

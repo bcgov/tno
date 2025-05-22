@@ -95,6 +95,12 @@ class DownloadController(QObject):
 
     def _stop_download(self):
         """Stop the download process."""
+        # Cancel any active download in the S3 controller
+        if self.s3_controller:
+            cancelled = self.s3_controller.cancel_download()
+            if cancelled:
+                logger.info("Download cancellation requested")
+
         self.is_downloading = False
         self.download_stopped.emit()
         logger.info("Download stopped")

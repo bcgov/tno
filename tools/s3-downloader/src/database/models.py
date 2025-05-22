@@ -23,10 +23,10 @@ db = SqliteDatabase(None)
 class TaskStatus(Enum):
     """Enum for download task status."""
 
-    PENDING = "Pending"
     IN_PROGRESS = "In Progress"
     COMPLETED = "Completed"
     FAILED = "Failed"
+    ABORTED = "Aborted"
 
 
 class FileStatus(Enum):
@@ -51,7 +51,7 @@ class DownloadTask(BaseModel):
 
     start_time = DateTimeField(default=datetime.datetime.now)
     end_time = DateTimeField(null=True)
-    status = CharField(default=TaskStatus.PENDING.value)
+    status = CharField(default=TaskStatus.IN_PROGRESS.value)
     s3_prefix = CharField()
     local_path = CharField()
     total_files = IntegerField(default=0)
@@ -94,6 +94,28 @@ class DownloadTask(BaseModel):
         self.status = TaskStatus.FAILED.value
         if error_message:
             self.error_message = error_message
+        self.save()
+
+    def abort(self, message: Optional[str] = None, successful: int = 0, failed: int = 0) -> None:
+        """
+        Mark task as aborted (stopped by user).
+
+        Args:
+            message: Optional message describing why the task was aborted
+            successful: Number of successfully downloaded files before abort
+            failed: Number of failed downloads before abort
+        """
+        self.end_time = datetime.datetime.now()
+        self.status = TaskStatus.ABORTED.value
+        # Record the download statistics even for aborted tasks
+        self.successful_downloads = successful
+        self.failed_downloads = failed
+
+        if message:
+            if self.error_message:
+                self.error_message += f"\n\n{message}"
+            else:
+                self.error_message = message
         self.save()
 
     @property

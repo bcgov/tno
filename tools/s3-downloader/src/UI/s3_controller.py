@@ -23,30 +23,36 @@ class S3Worker(QThread):
     # signal definitions
     finished = Signal(bool, str, object)  # success/failure, message, optional data
     progress = Signal(int, str)  # progress percentage, message
+    cancelled = Signal()  # Signal emitted when download is cancelled
 
     def __init__(self, operation: str, s3_client: S3Client, **kwargs):
         """
-        Initialize the worker.
+        Initialize the worker thread.
 
         Args:
-            operation: Operation to perform ('test', 'list', 'download')
+            operation: Operation to perform (e.g., test, list, download)
             s3_client: S3 client instance
             **kwargs: Additional arguments for the operation
-                - prefix: S3 prefix for list/download operations
-                - local_dir: Local directory for download operation
-                - max_consecutive_failures: Maximum number of consecutive failures before aborting
-                - max_failure_percentage: Maximum percentage of failures before aborting (0.0-1.0)
-                - network_test_interval: Number of failures before testing network connection
         """
         super().__init__()
         self.operation = operation
         self.s3_client = s3_client
         self.kwargs = kwargs
+        self._is_cancelled = False  # Flag to track cancellation status
 
         # Network error handling parameters with defaults
         self.max_consecutive_failures = kwargs.get("max_consecutive_failures", 3)
         self.max_failure_percentage = kwargs.get("max_failure_percentage", 0.3)
         self.network_test_interval = kwargs.get("network_test_interval", 5)
+
+    def cancel(self):
+        """Request cancellation of the current operation."""
+        if self.operation == "download" and self.isRunning():
+            logger.info("Cancelling download operation...")
+            self._is_cancelled = True
+            self.cancelled.emit()
+        else:
+            logger.warning(f"Cannot cancel operation '{self.operation}' or thread not running")
 
     def run(self):
         """Run the worker thread."""
@@ -104,6 +110,7 @@ class S3Worker(QThread):
                         on_progress=self.progress.emit,
                         exclude_downloaded=True,
                         max_files_per_task=2000,
+                        is_cancelled=lambda: self._is_cancelled,  # Pass cancellation checker
                     )
 
                     # check if skipped
@@ -132,10 +139,11 @@ class S3Worker(QThread):
                         "task_id": task_record.id,
                     }
 
-                    # Check if the task was aborted
+                    # Check if the task was aborted (for any reason)
                     if "aborted" in download_result and download_result["aborted"]:
+                        # Task was stopped (either by user or due to errors)
                         abort_reason = download_result.get("abort_reason", "Unknown reason")
-                        message = f"Download aborted: {abort_reason}"
+                        message = f"Download stopped: {abort_reason}"
                         # Add abort information to result
                         result["aborted"] = True
                         result["abort_reason"] = abort_reason
@@ -303,3 +311,18 @@ class S3Controller(QObject):
         self.worker.progress.connect(on_progress)
         self.worker.finished.connect(on_finished)
         self.worker.start()
+
+    def cancel_download(self):
+        """
+        Cancel the current download operation.
+
+        Returns:
+            bool: True if cancellation was requested, False if no download is active
+        """
+        if self.worker and self.worker.operation == "download" and self.worker.isRunning():
+            logger.info("Requesting download cancellation")
+            self.worker.cancel()
+            return True
+        else:
+            logger.warning("No active download to cancel")
+            return False

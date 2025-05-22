@@ -81,7 +81,7 @@ class HistoryWidget(QWidget):
         self.history_table = QTableWidget()
         self.history_table.setColumnCount(6)
         self.history_table.setHorizontalHeaderLabels(
-            ["ID", "Start Time", "Status", "Files", "Success/Failed", "Path"]
+            ["ID", "Start Time", "Status", "Files", "Success", "Path"]
         )
         self.history_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.history_table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
@@ -205,16 +205,11 @@ class HistoryWidget(QWidget):
             elif status == "Failed":
                 status_item.setForeground(QColor(255, 0, 0))  # Red
             self.history_table.setItem(i, 2, status_item)
-
-            # Files
             files_count = getattr(task, "total_files", 0)
             self.history_table.setItem(i, 3, QTableWidgetItem(str(files_count)))
 
-            # Success/Failed
             successful = getattr(task, "successful_downloads", 0)
-            failed = getattr(task, "failed_downloads", 0)
-            success_failed = f"{successful}/{failed}"
-            self.history_table.setItem(i, 4, QTableWidgetItem(success_failed))
+            self.history_table.setItem(i, 4, QTableWidgetItem(str(successful)))
 
             # Path
             local_path = getattr(task, "local_path", "")
