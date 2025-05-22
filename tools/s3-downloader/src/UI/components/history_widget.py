@@ -5,9 +5,11 @@ from PySide6.QtCore import Qt, Slot
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QComboBox,
     QGroupBox,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QPushButton,
     QTableWidget,
     QTableWidgetItem,
@@ -86,6 +88,31 @@ class HistoryWidget(QWidget):
         history_group = QGroupBox("Recent Downloads")
         history_layout = QVBoxLayout()
 
+        # Create search controls
+        search_layout = QHBoxLayout()
+
+        # Add search box
+        search_label = QLabel("Search:")
+        self.search_edit = QLineEdit()
+        self.search_edit.setPlaceholderText("Search by ID, path or status...")
+        self.search_edit.textChanged.connect(self.apply_filters)
+        search_layout.addWidget(search_label)
+        search_layout.addWidget(self.search_edit)
+
+        # Add status filter
+        status_label = QLabel("Status:")
+        self.status_filter = QComboBox()
+        self.status_filter.addItem("All Status", None)
+        self.status_filter.addItem("In Progress", "In Progress")
+        self.status_filter.addItem("Completed", "Completed")
+        self.status_filter.addItem("Failed", "Failed")
+        self.status_filter.addItem("Aborted", "Aborted")
+        self.status_filter.currentIndexChanged.connect(self.apply_filters)
+        search_layout.addWidget(status_label)
+        search_layout.addWidget(self.status_filter)
+
+        history_layout.addLayout(search_layout)
+
         # Create table
         self.history_table = QTableWidget()
         self.history_table.setColumnCount(6)
@@ -161,10 +188,47 @@ class HistoryWidget(QWidget):
         self.status_label.setText(f"Last updated: {now}")
 
         # Get history data
-        tasks = self.s3_controller.get_download_history(limit=50)
+        self.all_tasks = self.s3_controller.get_download_history(limit=50)
 
-        # Add data to table
-        for i, task in enumerate(tasks):
+        # Apply filters to update table
+        self.apply_filters()
+
+    def apply_filters(self):
+        """Apply search and status filters to the task list."""
+        if not hasattr(self, "all_tasks"):
+            return
+
+        search_text = self.search_edit.text().lower()
+        status_filter = self.status_filter.currentData()
+
+        # Clear table
+        self.history_table.setRowCount(0)
+
+        # Filter tasks
+        filtered_tasks = []
+        for task in self.all_tasks:
+            # Check status filter
+            task_status = getattr(task, "status", "Unknown")
+            if status_filter and task_status != status_filter:
+                continue
+
+            # Check search text
+            if search_text:
+                task_id = str(getattr(task, "id", "")).lower()
+                task_path = str(getattr(task, "local_path", "")).lower()
+                task_status = str(task_status).lower()
+
+                if (
+                    search_text not in task_id
+                    and search_text not in task_path
+                    and search_text not in task_status
+                ):
+                    continue
+
+            filtered_tasks.append(task)
+
+        # Add filtered tasks to table
+        for i, task in enumerate(filtered_tasks):
             self.history_table.insertRow(i)
 
             # ID
