@@ -63,7 +63,7 @@ class MainWindow(QMainWindow):
         self.splitter.addWidget(self.right_panel)
 
         # Set initial sizes (left, right ratio)
-        self.splitter.setSizes([400, 600])
+        self.splitter.setSizes([350, 650])  # Adjusted for more history panel space
 
         # Create UI components
         self.create_ui_components()

@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..s3_controller import S3Controller
+from .file_details_dialog import FileDetailsDialog
 
 logger = logging.getLogger(__name__)
 
@@ -61,12 +62,21 @@ class HistoryWidget(QWidget):
 
         # Create task error section
         self.create_task_error_section()
-
-        # Create details section
-        self.create_details_section()
-
-        # Create buttons
+        
+        # Add view details button below task error section
+        self.view_details_btn = QPushButton("View File Details")
+        self.view_details_btn.setEnabled(False)
+        self.view_details_btn.clicked.connect(self.on_view_details_clicked)
+        self.main_layout.addWidget(self.view_details_btn)
+        
+        # Add stretch to push content to the top
+        self.main_layout.addStretch()
+        
+        # Create buttons at the bottom
         self.create_buttons()
+        
+        # Initialize details dialog (will be shown when needed)
+        self.details_dialog = None
 
         # Load history data
         self.load_history()
@@ -96,7 +106,7 @@ class HistoryWidget(QWidget):
         history_layout.addWidget(self.history_table)
 
         history_group.setLayout(history_layout)
-        self.main_layout.addWidget(history_group)
+        self.main_layout.addWidget(history_group, 3)  # Add stretch factor for history_group
 
     def create_task_error_section(self):
         """Create task error section."""
@@ -117,35 +127,9 @@ class HistoryWidget(QWidget):
         task_error_layout.addWidget(self.task_error_label)
 
         # Add task error layout to main layout
-        self.main_layout.addLayout(task_error_layout)
+        self.main_layout.addLayout(task_error_layout, 1) # Add stretch factor for error section
 
-    def create_details_section(self):
-        """Create details section."""
-        # Create details layout
-        details_layout = QVBoxLayout()
 
-        # Create details header
-        details_header = QLabel("Download Details")
-        details_header.setStyleSheet(HEADER_STYLE)
-        details_layout.addWidget(details_header)
-
-        # Create details table
-        self.details_table = QTableWidget()
-        self.details_table.setColumnCount(5)
-        self.details_table.setHorizontalHeaderLabels(
-            ["File", "Status", "Size", "Download Time", "Error"]
-        )
-        self.details_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
-        self.details_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        self.details_table.setAlternatingRowColors(True)
-        self.details_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.details_table.verticalHeader().setVisible(False)
-        self.details_table.setShowGrid(True)
-        self.details_table.setSortingEnabled(True)
-        details_layout.addWidget(self.details_table)
-
-        # Add details layout to main layout
-        self.main_layout.addLayout(details_layout)
 
     def create_buttons(self):
         """Create buttons."""
@@ -162,7 +146,7 @@ class HistoryWidget(QWidget):
         buttons_layout.addWidget(refresh_button)
 
         # Add buttons layout to main layout
-        self.main_layout.addLayout(buttons_layout)
+        self.main_layout.addLayout(buttons_layout, 0) # No stretch for buttons, keep them at bottom
 
     def load_history(self):
         """Load download history."""
@@ -242,14 +226,19 @@ class HistoryWidget(QWidget):
         Args:
             task_id: Task ID
         """
-        # Clear table
-        self.details_table.setRowCount(0)
-
+        # Enable view details button
+        self.view_details_btn.setEnabled(True)
+        
         # Get task details
         details = self.s3_controller.get_download_details(task_id)
         task = details.get("task")
-        files = details.get("files", [])
-
+        self.current_task_files = details.get("files", [])
+        
+        # Update task error info
+        self.update_task_error_info(task)
+        
+    def update_task_error_info(self, task):
+        """Update task error information."""
         error_text = "No task-level error information available."
         error_style = DEFAULT_STYLE
 
@@ -268,37 +257,17 @@ class HistoryWidget(QWidget):
 
         self.task_error_label.setText(error_text)
         self.task_error_label.setStyleSheet(error_style)
-
-        # Add data to table
-        for i, file in enumerate(files):
-            self.details_table.insertRow(i)
-
-            # File
-            s3_key = getattr(file, "s3_key", "")
-            file_name = s3_key.split("/")[-1] if "/" in s3_key else s3_key
-            self.details_table.setItem(i, 0, QTableWidgetItem(file_name))
-
-            # Status
-            status = getattr(file, "status", "Unknown")
-            status_item = QTableWidgetItem(str(status))
-            if status == "Completed":
-                status_item.setForeground(QColor(0, 100, 0))  # Dark green
-            elif status == "Failed":
-                status_item.setForeground(QColor(255, 0, 0))  # Red
-            self.details_table.setItem(i, 1, status_item)
-
-            # Size
-            size = getattr(file, "size", 0)
-            size_str = f"{size / 1024:.1f} KB" if size > 0 else "N/A"
-            self.details_table.setItem(i, 2, QTableWidgetItem(size_str))
-
-            # Download Time
-            download_time = getattr(file, "download_time", None)
-            download_time_str = (
-                download_time.strftime("%Y-%m-%d %H:%M:%S") if download_time else "N/A"
-            )
-            self.details_table.setItem(i, 3, QTableWidgetItem(download_time_str))
-
-            # Error
-            error_msg = getattr(file, "error_message", "") or ""
-            self.details_table.setItem(i, 4, QTableWidgetItem(error_msg))
+        
+    @Slot()
+    def on_view_details_clicked(self):
+        """Handle view details button click."""
+        if not hasattr(self, 'current_task_files') or not self.current_task_files:
+            return
+            
+        # Always create a new dialog instance for a fresh state
+        details_dialog = FileDetailsDialog(self)
+            
+        details_dialog.load_files(self.selected_task_id, self.current_task_files)
+        details_dialog.show()
+        details_dialog.raise_()
+        details_dialog.activateWindow()
