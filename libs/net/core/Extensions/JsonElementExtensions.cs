@@ -43,19 +43,23 @@ public static class JsonElementExtensions
 
         foreach (var segment in segments)
         {
+            if (node == null || node?.ValueKind == JsonValueKind.Null || node?.ValueKind == JsonValueKind.Undefined)
+            {
+                return null;
+            }
+
             if (int.TryParse(segment, out int index))
             {
                 // A number is used to reference the specific position in the array.
                 node = index >= 0 && node?.GetArrayLength() > index ? node?[index] : null;
             }
+            else if (node?.ValueKind == JsonValueKind.Array)
+            {
+                return node;
+            }
             else
             {
                 node = node?.TryGetProperty(segment, out JsonElement value) == true ? value : null;
-            }
-
-            if (node?.ValueKind == JsonValueKind.Null || node?.ValueKind == JsonValueKind.Undefined)
-            {
-                return null;
             }
         }
 

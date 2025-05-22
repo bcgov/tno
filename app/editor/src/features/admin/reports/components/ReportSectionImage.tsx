@@ -23,7 +23,7 @@ export const ReportSectionImage = ({ index }: IReportSectionImageProps) => {
         placeholder="Executive summary for this section or the whole report"
       />
       <Col>
-        <FormikText label="Url" name={`sections.${index}.settings.url`} />
+        <FormikText label="Url" name={`sections.${index}.settings.url`} required />
       </Col>
       <Checkbox
         name={`sections.${index}.settings.inTableOfContents`}

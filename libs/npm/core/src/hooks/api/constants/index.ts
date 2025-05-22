@@ -41,6 +41,7 @@ export * from './ProductTypeName';
 export * from './ReportDistributionFormat';
 export * from './ReportDistributionFormatName';
 export * from './ReportKindName';
+export * from './ReportSectionDataTypeOptions';
 export * from './ReportSectionOrderByOptions';
 export * from './ReportSectionType';
 export * from './ReportSectionTypeName';

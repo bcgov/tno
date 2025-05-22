@@ -3,6 +3,7 @@ import { defaultReportSection } from 'features/my-reports/constants';
 import { IReportForm } from 'features/my-reports/interfaces';
 import { useFormikContext } from 'formik';
 import React from 'react';
+import { BiSolidFileJson } from 'react-icons/bi';
 import {
   FaAlignJustify,
   FaChartPie,
@@ -134,6 +135,17 @@ export const AddSectionBar = () => {
           <Row gap="1rem">
             <FaImage />
             <label>Image</label>
+          </Row>
+        </Button>
+        <Button
+          onClick={() =>
+            addSection(values.sections.length, ReportSectionTypeName.Data, false, false)
+          }
+          disabled={isSubmitting}
+        >
+          <Row gap="1rem">
+            <BiSolidFileJson />
+            <label>Data</label>
           </Row>
         </Button>
       </Row>

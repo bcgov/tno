@@ -31,4 +31,9 @@ export enum ReportSectionType {
   /// This section displays an image.
   /// </summary>
   Image = 5,
+
+  /// <summary>
+  /// This section displays data from JSON, XML, or other 3rd party data.
+  /// </summary>
+  Data = 5,
 }

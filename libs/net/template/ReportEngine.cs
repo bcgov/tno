@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Xml;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Core.Extensions;
@@ -37,6 +38,11 @@ public class ReportEngine : IReportEngine
     protected ITemplateEngine<ChartEngineContentModel> ChartEngineContent { get; }
 
     /// <summary>
+    /// get - Report template engine for random data.
+    /// </summary>
+    protected ITemplateEngine<ReportEngineDataModel<dynamic>> ReportEngineData { get; }
+
+    /// <summary>
     /// get - HTTP client.
     /// </summary>
     protected IHttpRequestClient HttpClient { get; }
@@ -69,6 +75,7 @@ public class ReportEngine : IReportEngine
     /// <param name="reportEngineContent"></param>
     /// <param name="reportEngineAVOverview"></param>
     /// <param name="chartEngineContent"></param>
+    /// <param name="reportEngineData"></param>
     /// <param name="httpClient"></param>
     /// <param name="templateOptions"></param>
     /// <param name="chartsOptions"></param>
@@ -78,6 +85,7 @@ public class ReportEngine : IReportEngine
         ITemplateEngine<ReportEngineContentModel> reportEngineContent,
         ITemplateEngine<ReportEngineAVOverviewModel> reportEngineAVOverview,
         ITemplateEngine<ChartEngineContentModel> chartEngineContent,
+        ITemplateEngine<ReportEngineDataModel<dynamic>> reportEngineData,
         IHttpRequestClient httpClient,
         IOptions<TemplateOptions> templateOptions,
         IOptions<ChartsOptions> chartsOptions,
@@ -87,6 +95,7 @@ public class ReportEngine : IReportEngine
         this.ReportEngineContent = reportEngineContent;
         this.ReportEngineAVOverview = reportEngineAVOverview;
         this.ChartEngineContent = chartEngineContent;
+        this.ReportEngineData = reportEngineData;
         this.HttpClient = httpClient;
         this.TemplateOptions = templateOptions.Value;
         this.ChartsOptions = chartsOptions.Value;
@@ -351,6 +360,92 @@ public class ReportEngine : IReportEngine
         var key = (isPreview ? "PREVIEW" : "FINAL") + $"-report-template-{report.Template.Id}-body";
         var template = this.ReportEngineContent.GetOrAddTemplateInMemory(key, report.Template.Body)
             ?? throw new InvalidOperationException("Template does not exist");
+
+        // For each section that is JSON from 3rd party, fetch the JSON and save it.
+        await report.Sections.Where(section => section.SectionType == Entities.ReportSectionType.Data && section.IsEnabled).ForEachAsync(async section =>
+        {
+            var sectionData = sectionContent[section.Name];
+            var settings = section.Settings;
+            var url = !String.IsNullOrWhiteSpace(settings.Url) ? new Uri(settings.Url) : null;
+            if (url != null)
+            {
+                var response = await this.HttpClient.GetAsync(url);
+                if (response.IsSuccessStatusCode)
+                {
+                    var data = await response.Content.ReadAsStringAsync();
+                    if (settings.DataType?.Equals("json", StringComparison.InvariantCultureIgnoreCase) == true)
+                    {
+                        try
+                        {
+                            var json = JsonDocument.Parse(data);
+                            if (json != null && !String.IsNullOrWhiteSpace(settings.DataProperty))
+                            {
+                                var value = json.GetElementValue<string>(settings.DataProperty);
+                                sectionData.Data = value;
+                            }
+                            else if (json != null && !String.IsNullOrWhiteSpace(settings.DataTemplate))
+                            {
+                                var dataTemplateKey = $"{report.Id}-{section.Id}";
+                                var dataTemplate = this.ReportEngineData.GetOrAddTemplateInMemory(dataTemplateKey, settings.DataTemplate);
+                                var dataEngineModel = new ReportEngineDataModel<dynamic>(json);
+                                var dataHtml = await dataTemplate.RunAsync(instance =>
+                                {
+                                    instance.Model = dataEngineModel;
+                                    instance.Data = json;
+                                });
+                                sectionData.Data = dataHtml;
+                            }
+                            else
+                                sectionData.Data = data;
+                        }
+                        catch (Exception ex)
+                        {
+                            this.Logger.LogError(ex, "Failed to parse data from {url}", url);
+                            sectionData.Data = ex.GetAllMessages();
+                        }
+                    }
+                    else if (settings.DataType?.Equals("xml", StringComparison.InvariantCultureIgnoreCase) == true)
+                    {
+                        try
+                        {
+                            var xml = new XmlDocument();
+                            xml.LoadXml(data);
+                            if (xml != null && !String.IsNullOrWhiteSpace(settings.DataProperty))
+                            {
+                                var node = xml.SelectSingleNode(settings.DataProperty);
+                                if (node != null)
+                                {
+                                    sectionData.Data = node.InnerText;
+                                }
+                            }
+                            else if (xml != null && !String.IsNullOrWhiteSpace(settings.DataTemplate))
+                            {
+                                var dataTemplateKey = $"{report.Id}-{section.Id}";
+                                var dataTemplate = this.ReportEngineData.GetOrAddTemplateInMemory(dataTemplateKey, settings.DataTemplate);
+                                var dataEngineModel = new ReportEngineDataModel<dynamic>(xml);
+                                var dataHtml = await dataTemplate.RunAsync(instance =>
+                                {
+                                    instance.Model = dataEngineModel;
+                                    instance.Data = xml;
+                                });
+                                sectionData.Data = dataHtml;
+                            }
+                            else
+                                sectionData.Data = data;
+                        }
+                        catch (Exception ex)
+                        {
+                            this.Logger.LogError(ex, "Failed to parse data from {url}", url);
+                            sectionData.Data = ex.GetAllMessages();
+                        }
+                    }
+                    else
+                        sectionData.Data = data;
+                }
+                else
+                    this.Logger.LogError("Failed to fetch data from {url}, {status}", url, response.StatusCode);
+            }
+        });
 
         var model = new ReportEngineContentModel(report, reportInstance, sectionContent, this.TemplateOptions, uploadPath);
         var body = await template.RunAsync(instance =>

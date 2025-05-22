@@ -17,6 +17,7 @@ import * as styled from './styled';
 import {
   AddSectionBar,
   ReportSectionContent,
+  ReportSectionData,
   ReportSectionGallery,
   ReportSectionMediaAnalytics,
   ReportSectionTableOfContents,
@@ -213,6 +214,10 @@ export const ReportEditTemplateForm = () => {
                             {/* EXTERNAL IMAGE */}
                             <Show visible={section.sectionType === ReportSectionTypeName.Image}>
                               <ReportSectionImage index={index} />
+                            </Show>
+                            {/* EXTERNAL Data */}
+                            <Show visible={section.sectionType === ReportSectionTypeName.Data}>
+                              <ReportSectionData index={index} />
                             </Show>
                           </Section>
                         </div>

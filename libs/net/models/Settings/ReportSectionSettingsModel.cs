@@ -21,6 +21,10 @@ public class ReportSectionSettingsModel
     public string SortBy { get; set; } = "";
     public string SortDirection { get; set; } = "";
     public string Url { get; set; } = "";
+    public bool Preload { get; set; }
+    public string? DataType { get; set; }
+    public string? DataProperty { get; set; }
+    public string? DataTemplate { get; set; }
     #endregion
 
     #region Constructors
@@ -42,6 +46,10 @@ public class ReportSectionSettingsModel
         this.SortBy = settings.GetDictionaryJsonValue("sortBy", "", options)!;
         this.SortDirection = settings.GetDictionaryJsonValue("sortDirection", "", options)!;
         this.Url = settings.GetDictionaryJsonValue("url", "", options)!;
+        this.Preload = settings.GetDictionaryJsonValue("preload", false, options)!;
+        this.DataType = settings.GetDictionaryJsonValue<string?>("dataType", null, options)!;
+        this.DataProperty = settings.GetDictionaryJsonValue<string?>("dataProperty", null, options)!;
+        this.DataTemplate = settings.GetDictionaryJsonValue<string?>("dataTemplate", null, options)!;
     }
 
     public ReportSectionSettingsModel(JsonDocument settings, JsonSerializerOptions options)
@@ -60,6 +68,10 @@ public class ReportSectionSettingsModel
         this.SortBy = settings.GetElementValue("sortBy", "", options)!;
         this.SortDirection = settings.GetElementValue("sortDirection", "", options)!;
         this.Url = settings.GetElementValue("url", "", options)!;
+        this.Preload = settings.GetElementValue("preload", false, options)!;
+        this.DataType = settings.GetElementValue<string?>("dataType", null, options)!;
+        this.DataProperty = settings.GetElementValue<string?>("dataProperty", null, options)!;
+        this.DataTemplate = settings.GetElementValue<string?>("dataTemplate", null, options)!;
     }
     #endregion
 }
