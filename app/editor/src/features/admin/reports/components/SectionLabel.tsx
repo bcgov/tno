@@ -49,5 +49,12 @@ export const SectionLabel = ({ section }: ISectionLabelProps) => {
         Image: {section.settings.label}
       </Row>
     );
+  } else if (section.sectionType === ReportSectionTypeName.Data) {
+    return (
+      <Row gap="0.25rem" alignItems="center">
+        <SectionIcon type={section.sectionType} />
+        Data: {section.settings.label}
+      </Row>
+    );
   } else return <>Unknown</>;
 };

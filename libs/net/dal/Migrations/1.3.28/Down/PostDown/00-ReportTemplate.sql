@@ -1,4 +1,9 @@
-@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
+DO $$
+BEGIN
+
+-- Update custom report with latest template.
+UPDATE public."report_template" SET
+    "body" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
 @using System
 @using System.Linq
 @using TNO.Entities
@@ -321,23 +326,6 @@
         }
       }
     }
-    else if (section.Value.SectionType == ReportSectionType.Image)
-    {
-      @* IMAGE SECTION *@
-      var src = section.Value.Settings.Url;
-      var alt = section.Value.Settings.Label;
-      <div>
-        <img style="height:100%;width:100%;max-width:3024px" src="@src" alt="@alt" />
-      </div>
-    }
-    else if (section.Value.SectionType == ReportSectionType.Data)
-    {
-      @* IMAGE SECTION *@
-      var alt = section.Value.Settings.Label;
-      <div>
-        @(section.Value.Data)
-      </div>
-    }
 
     @if (!horizontalCharts && !endChartGroup)
     {
@@ -373,3 +361,7 @@
     </p>
   </div>
 </div>
+'
+WHERE "name" = 'Custom Report';
+
+END $$;
