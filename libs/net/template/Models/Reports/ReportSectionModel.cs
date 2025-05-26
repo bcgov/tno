@@ -75,6 +75,11 @@ public class ReportSectionModel : RazorEngineTemplateBase
     /// get/set - An array of content.
     /// </summary>
     public IEnumerable<ContentModel> Content { get; set; }
+
+    /// <summary>
+    /// get/set - Raw data to display in the section.
+    /// </summary>
+    public string? Data { get; set; }
     #endregion
 
     #region Constructors

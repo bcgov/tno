@@ -31,7 +31,7 @@ export const ReportSectionImage = React.forwardRef<HTMLDivElement, IReportSectio
               }}
             />
             <Col>
-              <FormikText name={`sections.${index}.settings.url`} label="URL" />
+              <FormikText name={`sections.${index}.settings.url`} label="URL" required />
             </Col>
           </Col>
         </Row>

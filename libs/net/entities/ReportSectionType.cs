@@ -34,4 +34,9 @@ public enum ReportSectionType
     /// This section displays an image.
     /// </summary>
     Image = 5,
+
+    /// <summary>
+    /// This section displays JSON, XML, or other types of 3rd party data
+    /// </summary>
+    Data = 6,
 }

@@ -35,6 +35,11 @@ export const ReportForm = styled(FormPage)`
       max-width: 100%;
     }
 
+    & .data-template {
+      min-height: 200px;
+      max-height: 500px;
+    }
+
     & .subject {
       max-height: 200px;
     }
