@@ -7,6 +7,39 @@ import { ISubscriberUserModel, ToggleButton } from 'tno-core';
 
 import * as styled from './styled';
 
+export const toggleVacationMode = async (
+  profile: ISubscriberUserModel | undefined,
+  impersonate: ISubscriberUserModel | undefined,
+  isVacationMode: boolean,
+  updateUser: (model: ISubscriberUserModel, impersonate?: boolean) => Promise<ISubscriberUserModel>,
+) => {
+  if (!profile) {
+    toast.error('User information is missing. Please try again later');
+    return;
+  }
+  const baseProfile = impersonate ?? profile;
+  const createUser = (): ISubscriberUserModel => {
+    // use impersonate if it exists, otherwise use profile
+    return {
+      ...baseProfile,
+      preferences: {
+        ...baseProfile.preferences,
+        isVacationMode: isVacationMode,
+      },
+    };
+  };
+  const user = createUser();
+
+  try {
+    await updateUser(user, !!impersonate);
+    toast.success('Vacation mode has successfully been updated.');
+  } catch (error) {
+    // Handle the error, if needed
+    toast.error('Vacation mode update failed for user.');
+    console.error('Failed to update user:', error);
+  }
+};
+
 const MyAccountSettings = () => {
   const { updateUser } = useUsers();
   const [{ profile, impersonate }] = useProfileStore();
@@ -16,40 +49,6 @@ const MyAccountSettings = () => {
   const enableReportSentiment: boolean = !!impersonate
     ? impersonate?.preferences?.enableReportSentiment ?? false
     : profile?.preferences?.enableReportSentiment ?? false;
-
-  const toggleVacationMode = React.useCallback(
-    async (
-      profile: ISubscriberUserModel | undefined,
-      impersonate: ISubscriberUserModel | undefined,
-      isVacationMode: boolean,
-    ) => {
-      if (!profile) {
-        toast.error('User information is missing. Please try again later');
-        return;
-      }
-      const baseProfile = impersonate ?? profile;
-      const createUser = (): ISubscriberUserModel => {
-        // use impersonate if it exists, otherwise use profile
-        return {
-          ...baseProfile,
-          preferences: {
-            ...baseProfile.preferences,
-            isVacationMode: isVacationMode,
-          },
-        };
-      };
-      const user = createUser();
-
-      try {
-        await updateUser(user, !!impersonate);
-        toast.success('Vacation mode has successfully been updated.');
-      } catch (error) {
-        // Handle the error, if needed
-        console.error('Failed to update user:', error);
-      }
-    },
-    [updateUser],
-  );
 
   const toggleReportSentiment = React.useCallback(
     async (
@@ -100,7 +99,7 @@ const MyAccountSettings = () => {
         <ToggleButton
           on={<FaToggleOn />}
           off={<FaToggleOff />}
-          onClick={() => toggleVacationMode(profile, impersonate, !isVacationMode)}
+          onClick={() => toggleVacationMode(profile, impersonate, !isVacationMode, updateUser)}
           width="25px"
           height="25px"
           label=""
