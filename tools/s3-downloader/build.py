@@ -13,8 +13,8 @@ from pathlib import Path
 
 def ensure_env_file():
     """Ensure .env file exists with real configuration for embedding."""
-    env_file = Path('.env')
-    env_example = Path('env_example.txt')
+    env_file = Path(".env")
+    env_example = Path("env_example.txt")
 
     if not env_file.exists():
         print("⚠️  No .env file found. Let's create one with your configuration...")
@@ -106,7 +106,7 @@ SPACE_WARNING_THRESHOLD={warning_threshold}
 """
 
         # Write .env file
-        with open(env_file, 'w') as f:
+        with open(env_file, "w") as f:
             f.write(env_content)
 
         print("\n✅ Created .env file with your configuration.")
@@ -125,7 +125,7 @@ def clean_build():
     print("🧹 Cleaning previous build artifacts...")
 
     # Directories to clean
-    dirs_to_clean = ['build', 'dist', '__pycache__']
+    dirs_to_clean = ["build", "dist", "__pycache__"]
 
     for dir_name in dirs_to_clean:
         if Path(dir_name).exists():
@@ -133,9 +133,9 @@ def clean_build():
             print(f"  Removed {dir_name}/")
 
     # Files to clean
-    files_to_clean = ['*.pyc', '*.pyo', '*.spec~']
+    files_to_clean = ["*.pyc", "*.pyo", "*.spec~"]
     for pattern in files_to_clean:
-        for file in Path('.').glob(pattern):
+        for file in Path(".").glob(pattern):
             file.unlink()
             print(f"  Removed {file}")
 
@@ -146,14 +146,14 @@ def run_pyinstaller():
     """Run PyInstaller with the spec file."""
     print("🔨 Running PyInstaller...")
 
-    spec_file = Path('s3_downloader.spec')
+    spec_file = Path("s3_downloader.spec")
     if not spec_file.exists():
         print("❌ s3_downloader.spec file not found!")
         return False
 
     try:
         # Run PyInstaller
-        cmd = [sys.executable, '-m', 'PyInstaller', '--clean', str(spec_file)]
+        cmd = [sys.executable, "-m", "PyInstaller", "--clean", str(spec_file)]
         subprocess.run(cmd, check=True, capture_output=True, text=True)
 
         print("✅ PyInstaller completed successfully.")
@@ -170,13 +170,13 @@ def copy_additional_files():
     """Copy additional files to the dist directory."""
     print("📋 Copying additional files...")
 
-    dist_dir = Path('dist')
+    dist_dir = Path("dist")
     if not dist_dir.exists():
         print("❌ dist directory not found!")
         return False
 
     # Files to copy
-    files_to_copy = ['README.md', 'env_example.txt']
+    files_to_copy = ["README.md", "env_example.txt"]
 
     for file_name in files_to_copy:
         src_file = Path(file_name)
@@ -189,15 +189,14 @@ def copy_additional_files():
     return True
 
 
-
 def print_summary():
     """Print build summary."""
-    dist_dir = Path('dist')
-    exe_file = dist_dir / 'S3Downloader.exe'
+    dist_dir = Path("dist")
+    exe_file = dist_dir / "S3Downloader.exe"
 
-    print("\n" + "="*50)
+    print("\n" + "=" * 50)
     print("🎉 BUILD COMPLETE!")
-    print("="*50)
+    print("=" * 50)
 
     if exe_file.exists():
         file_size = exe_file.stat().st_size / (1024 * 1024)  # Size in MB
@@ -211,10 +210,10 @@ def print_summary():
         for item in sorted(dist_dir.iterdir()):
             if item.is_file():
                 size = item.stat().st_size
-                if size > 1024*1024:
-                    size_str = f"{size/(1024*1024):.1f} MB"
+                if size > 1024 * 1024:
+                    size_str = f"{size / (1024 * 1024):.1f} MB"
                 elif size > 1024:
-                    size_str = f"{size/1024:.1f} KB"
+                    size_str = f"{size / 1024:.1f} KB"
                 else:
                     size_str = f"{size} B"
                 print(f"  📄 {item.name} ({size_str})")
@@ -230,7 +229,7 @@ def print_summary():
 def main():
     """Main build function."""
     print("🔨 S3 Downloader Build Script")
-    print("="*40)
+    print("=" * 40)
 
     # Change to script directory
     script_dir = Path(__file__).parent
@@ -254,12 +253,11 @@ def main():
     if not copy_additional_files():
         print("\n⚠️  Warning: Could not copy additional files.")
 
-
     # Step 5: Print summary
     print_summary()
 
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

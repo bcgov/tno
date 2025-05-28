@@ -10,6 +10,7 @@ from PySide6.QtCore import QObject, QThread, Signal
 
 from ..client.s3_client import S3Client
 from ..database.models import DownloadedFile, DownloadTask
+from ..settings.settings_loader import settings
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -98,6 +99,9 @@ class S3Worker(QThread):
 
                 # Download files and record in database
                 try:
+                    # Get max_files_per_task from settings or use default
+                    max_files_per_task = settings.downloader_behavior["MAX_FILES_PER_TASK"]
+
                     # Use the download_directory method which now creates database records
                     # Pass the network error handling parameters from the worker
                     # Also pass the progress callback
@@ -109,7 +113,7 @@ class S3Worker(QThread):
                         network_test_interval=self.network_test_interval,
                         on_progress=self.progress.emit,
                         exclude_downloaded=True,
-                        max_files_per_task=2000,
+                        max_files_per_task=max_files_per_task,  # Use configuration value
                         is_cancelled=lambda: self._is_cancelled,  # Pass cancellation checker
                     )
 

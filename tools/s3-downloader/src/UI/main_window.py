@@ -123,6 +123,7 @@ class MainWindow(QMainWindow):
         self.download_controller.download_stopped.connect(self.on_download_stopped)
         self.download_controller.download_progress.connect(self.on_download_progress)
         self.download_controller.download_finished.connect(self.on_download_finished)
+        self.download_controller.batch_completed.connect(self.on_batch_completed)
         # Connection testing is now handled automatically during download
 
         # Disk space monitoring is now handled by storage_info_widget
@@ -130,6 +131,7 @@ class MainWindow(QMainWindow):
         # Scheduler signals
         self.scheduler.download_triggered.connect(self.on_scheduled_download)
         self.scheduler.time_updated.connect(self.on_scheduler_time_updated)
+        self.scheduler.download_skipped.connect(self.on_scheduled_download_skipped)
 
     def initialize_ui(self):
         """Initialize UI with settings."""
@@ -171,6 +173,11 @@ class MainWindow(QMainWindow):
         )  # Don't run immediately, we're already starting a download
         self.schedule_info_widget.set_schedule_active(True)
         self.schedule_info_widget.set_next_download_time(self.scheduler.get_next_download_time())
+
+        # Refresh history panel to show the new task that was just created
+        # Note: There might be a small delay before the task appears in the database
+        # but this ensures the UI is updated as soon as possible
+        self.history_widget.load_history()
 
     @Slot()
     def on_download_stopped(self):
@@ -215,27 +222,51 @@ class MainWindow(QMainWindow):
             failed = data.get("failed", 0)
             task_id = data.get("task_id")
 
-            stats_msg = f"Stats: {successful} ok, {failed} failed, {total} total"
+            # Check if this is part of continuous download mode
+            if (
+                hasattr(self.download_controller, "is_continuous_mode")
+                and self.download_controller.is_continuous_mode
+            ):
+                batch_num = getattr(self.download_controller, "current_batch", 0)
+                stats_msg = (
+                    f"Batch {batch_num} Stats: {successful} ok, {failed} failed, {total} total"
+                )
+            else:
+                stats_msg = f"Stats: {successful} ok, {failed} failed, {total} total"
+
             if task_id:
                 stats_msg += f" (Task ID: {task_id})"
 
             self.log_widget.log_message(stats_msg)
 
-        # Update status bar
-        self.statusBar().showMessage(f"Download {'complete' if success else 'failed'}: {message}")
+        # Only update final status if not in continuous mode or if continuous mode is completed
+        is_continuous_active = (
+            hasattr(self.download_controller, "is_continuous_mode")
+            and self.download_controller.is_continuous_mode
+        )
 
-        # Update disk space info
-        self.storage_info_widget.update_disk_space_info()
+        # Refresh history panel for final completion (batch refreshes are handled by on_batch_completed)
+        if not is_continuous_active and data and data.get("task_id"):
+            self.history_widget.load_history()
 
-        # Update scheduler info if still active
-        if self.scheduler.is_running():
-            self.schedule_info_widget.set_schedule_active(True, not success)
-            self.schedule_info_widget.set_next_download_time(
-                self.scheduler.get_next_download_time()
+        if not is_continuous_active:
+            # Update status bar
+            self.statusBar().showMessage(
+                f"Download {'complete' if success else 'failed'}: {message}"
             )
 
-        # Refresh history panel
-        self.history_widget.load_history()
+            # Update disk space info
+            self.storage_info_widget.update_disk_space_info()
+
+            # Update scheduler info if still active
+            if self.scheduler.is_running():
+                self.schedule_info_widget.set_schedule_active(True, not success)
+                self.schedule_info_widget.set_next_download_time(
+                    self.scheduler.get_next_download_time()
+                )
+        else:
+            # In continuous mode, just update status to show we're continuing
+            self.statusBar().showMessage("Continuous download in progress...")
 
     @Slot(bool, float)
     def on_disk_space_status_changed(self, is_warning_active, free_ratio):
@@ -260,14 +291,58 @@ class MainWindow(QMainWindow):
     def on_scheduled_download(self):
         """Handle scheduled download trigger."""
         self.log_widget.log_message("Scheduled download triggered")
-        self.download_controller.execute_download_task()
+        logger.info("Attempting to start scheduled download")
+
+        # Try to execute scheduled download
+        success = self.download_controller.execute_scheduled_download()
+
+        if not success:
+            # Log skip using scheduler
+            self.scheduler.log_skip("download already in progress")
+
+            # Update the next download time for the scheduler
+            if self.scheduler.is_running():
+                self.schedule_info_widget.set_next_download_time(
+                    self.scheduler.get_next_download_time()
+                )
 
     @Slot()
     def on_scheduler_time_updated(self):
         """Handle scheduler time update."""
         self.schedule_info_widget.update_next_download_time()
 
+    @Slot(str)
+    def on_scheduled_download_skipped(self, reason):
+        """Handle when a scheduled download is skipped."""
+        message = f"Scheduled download skipped: {reason}"
+        self.log_widget.log_message(message)
+        logger.info(message)
+
     @Slot()
     def refresh_history(self):
         """Refresh the history panel."""
         self.history_widget.load_history()
+
+    @Slot(object)
+    def on_batch_completed(self, data):
+        """
+        Handle batch completion.
+
+        Args:
+            data: Additional data from the completed batch
+        """
+        # Always refresh history panel when a batch is completed
+        # This ensures new task records are visible immediately
+        if data and data.get("task_id"):
+            self.history_widget.load_history()
+
+            # Log batch completion info
+            total = data.get("total", 0)
+            successful = data.get("successful", 0)
+            failed = data.get("failed", 0)
+            task_id = data.get("task_id")
+
+            if hasattr(self.download_controller, "current_batch"):
+                batch_num = getattr(self.download_controller, "current_batch", 0)
+                stats_msg = f"Batch {batch_num} completed: {successful} ok, {failed} failed, {total} total (Task ID: {task_id})"
+                self.log_widget.log_message(stats_msg)

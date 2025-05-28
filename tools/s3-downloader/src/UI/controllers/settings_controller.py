@@ -14,11 +14,12 @@ class SettingsController:
         self.secret_key = ""
         self.timeout = 2
         self.local_path = ""
-        self.scheduler_interval = 3600
+        self.scheduler_interval = 86400  # Changed default to 24 hours
         self.max_consecutive_failures = 3
         self.max_failure_percentage = 0.3
         self.network_test_interval = 5
         self.space_warning_threshold = 0.1
+        self.max_files_per_task = 5000  # Add support for max files per task
 
         # Load settings
         self.load_settings()
@@ -49,6 +50,12 @@ class SettingsController:
             # Disk space settings
             self.space_warning_threshold = settings.disk_space["WARNING_THRESHOLD"]
 
+            # Downloader behavior settings
+            try:
+                self.max_files_per_task = settings.downloader_behavior["MAX_FILES_PER_TASK"]
+            except (AttributeError, KeyError):
+                self.max_files_per_task = 5000  # Fallback to 5000
+
             # Log loaded settings
             logger.info(
                 f"Loaded settings: "
@@ -60,7 +67,8 @@ class SettingsController:
                 f"max_consecutive_failures={self.max_consecutive_failures}, "
                 f"max_failure_percentage={self.max_failure_percentage}, "
                 f"network_test_interval={self.network_test_interval}, "
-                f"space_warning_threshold={self.space_warning_threshold}"
+                f"space_warning_threshold={self.space_warning_threshold}, "
+                f"max_files_per_task={self.max_files_per_task}"
             )
         except Exception as e:
             logger.error(f"Error loading settings: {e}")

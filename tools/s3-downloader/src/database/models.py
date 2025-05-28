@@ -181,6 +181,29 @@ class DownloadTask(BaseModel):
         """
         return cls.select().order_by(cls.start_time.desc()).limit(limit)
 
+    @classmethod
+    def create(cls, s3_prefix: str, local_path: str, total_files: int, status: str = None):
+        """
+        Create a new download task.
+
+        Args:
+            s3_prefix: S3 prefix being downloaded
+            local_path: Local path where files are being saved
+            total_files: Total number of files to download
+            status: Initial status (defaults to IN_PROGRESS)
+
+        Returns:
+            Created DownloadTask instance
+        """
+        if status is None:
+            status = TaskStatus.IN_PROGRESS.value
+
+        task = cls(
+            s3_prefix=s3_prefix, local_path=local_path, total_files=total_files, status=status
+        )
+        task.save()
+        return task
+
 
 class DownloadedFile(BaseModel):
     """Model for downloaded files."""
@@ -229,3 +252,33 @@ class DownloadedFile(BaseModel):
             Query of files for the task
         """
         return cls.select().where(cls.task == task_id).order_by(cls.download_time)
+
+    @classmethod
+    def create(
+        cls, task, s3_key: str, local_path: str, status: str = None, error_message: str = None
+    ):
+        """
+        Create a new downloaded file record.
+
+        Args:
+            task: DownloadTask instance
+            s3_key: S3 key of the file
+            local_path: Local path where file is saved
+            status: File status (defaults to PENDING)
+            error_message: Optional error message
+
+        Returns:
+            Created DownloadedFile instance
+        """
+        if status is None:
+            status = FileStatus.PENDING.value
+
+        file_record = cls(
+            task=task,
+            s3_key=s3_key,
+            local_path=local_path,
+            status=status,
+            error_message=error_message,
+        )
+        file_record.save()
+        return file_record

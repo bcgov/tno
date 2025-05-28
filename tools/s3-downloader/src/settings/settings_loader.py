@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from .default_settings import (
     DATABASE_SETTINGS,
     DISK_SPACE_SETTINGS,
+    DOWNLOADER_BEHAVIOR_SETTINGS,
     ERROR_HANDLING_SETTINGS,
     S3_SETTINGS,
     SCHEDULER_SETTINGS,
@@ -27,6 +28,7 @@ class Settings:
         self.storage = STORAGE_SETTINGS.copy()
         self.database = DATABASE_SETTINGS.copy()
         self.scheduler = SCHEDULER_SETTINGS.copy()
+        self.downloader_behavior = DOWNLOADER_BEHAVIOR_SETTINGS.copy()
         self.error_handling = ERROR_HANDLING_SETTINGS.copy()
         self.disk_space = DISK_SPACE_SETTINGS.copy()
 
@@ -50,6 +52,11 @@ class Settings:
 
         # Override scheduler settings
         self._override_from_env(self.scheduler, "SCHEDULER_INTERVAL", "INTERVAL", int)
+
+        # Override downloader behavior settings
+        self._override_from_env(
+            self.downloader_behavior, "MAX_FILES_PER_TASK", "MAX_FILES_PER_TASK", int
+        )
 
         # Override error handling settings
         self._override_from_env(

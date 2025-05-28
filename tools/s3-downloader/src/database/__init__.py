@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 def get_app_data_path() -> Path:
     """Get application data directory."""
-    if getattr(sys, 'frozen', False):
+    if getattr(sys, "frozen", False):
         # Running as exe, store database next to exe
         app_dir = Path(sys.executable).parent
     else:

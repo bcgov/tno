@@ -12,6 +12,7 @@ class Scheduler(QObject):
     # Signals
     download_triggered = Signal()  # Emitted when it's time to download
     time_updated = Signal()  # Emitted when the next download time is updated
+    download_skipped = Signal(str)  # Emitted when a download is skipped with reason
 
     def __init__(self, interval=3600):
         """
@@ -101,3 +102,13 @@ class Scheduler(QObject):
         self.next_download_time = datetime.datetime.now() + datetime.timedelta(
             seconds=self.interval
         )
+
+    def log_skip(self, reason="download in progress"):
+        """
+        Log that a download was skipped.
+
+        Args:
+            reason: Reason for skipping the download
+        """
+        logger.info(f"Scheduled download skipped: {reason}")
+        self.download_skipped.emit(reason)

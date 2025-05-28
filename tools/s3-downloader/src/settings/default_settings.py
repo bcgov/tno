@@ -18,7 +18,7 @@ S3_SETTINGS = {
 # Downloader Behavior Configuration
 DOWNLOADER_BEHAVIOR_SETTINGS = {
     # Maximum number of new files to download per task
-    "MAX_FILES_PER_TASK": 2000,
+    "MAX_FILES_PER_TASK": 5000,
     # Batch size for SQL queries when checking downloaded files
     "SQL_QUERY_BATCH_SIZE": 1000,
 }
@@ -38,7 +38,7 @@ DATABASE_SETTINGS = {
 # Scheduler Configuration
 SCHEDULER_SETTINGS = {
     # Download Interval (seconds)
-    "INTERVAL": 3600,
+    "INTERVAL": 86400,
 }
 
 # Network Error Handling Configuration
