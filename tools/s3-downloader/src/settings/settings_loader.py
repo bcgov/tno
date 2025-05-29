@@ -12,6 +12,7 @@ from .default_settings import (
     DISK_SPACE_SETTINGS,
     DOWNLOADER_BEHAVIOR_SETTINGS,
     ERROR_HANDLING_SETTINGS,
+    FILTER_SETTINGS,
     S3_SETTINGS,
     SCHEDULER_SETTINGS,
     STORAGE_SETTINGS,
@@ -31,6 +32,7 @@ class Settings:
         self.downloader_behavior = DOWNLOADER_BEHAVIOR_SETTINGS.copy()
         self.error_handling = ERROR_HANDLING_SETTINGS.copy()
         self.disk_space = DISK_SPACE_SETTINGS.copy()
+        self.filter = FILTER_SETTINGS.copy()
 
     def load_from_env(self) -> None:
         """Load settings from environment variables."""
@@ -74,6 +76,9 @@ class Settings:
             self.disk_space, "SPACE_WARNING_THRESHOLD", "WARNING_THRESHOLD", float
         )
 
+        # Override filter settings
+        self._override_exclude_prefixes_from_env()
+
     def _override_from_env(
         self,
         settings_dict: Dict[str, Any],
@@ -96,6 +101,17 @@ class Settings:
                 settings_dict[settings_key] = type_converter(env_value)
             except (ValueError, TypeError) as e:
                 print(f"Error converting {env_key} value '{env_value}': {e}")
+
+    def _override_exclude_prefixes_from_env(self) -> None:
+        """Override exclude prefixes from environment variable."""
+        exclude_prefixes = os.getenv("EXCLUDE_PREFIXES")
+        if exclude_prefixes:
+            try:
+                self.filter["EXCLUDE_PREFIXES"] = [
+                    prefix.strip() for prefix in exclude_prefixes.split(",")
+                ]
+            except ValueError as e:
+                print(f"Error parsing EXCLUDE_PREFIXES: {e}")
 
 
 # Create a singleton instance

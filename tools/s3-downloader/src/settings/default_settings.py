@@ -23,6 +23,12 @@ DOWNLOADER_BEHAVIOR_SETTINGS = {
     "SQL_QUERY_BATCH_SIZE": 1000,
 }
 
+# Filter Configuration
+FILTER_SETTINGS = {
+    # Prefixes/directories to exclude during download
+    "EXCLUDE_PREFIXES": ["FILES_ARCHIVE/"],
+}
+
 # Local Storage Configuration
 STORAGE_SETTINGS = {
     # Local Storage Path

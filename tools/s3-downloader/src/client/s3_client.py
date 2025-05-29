@@ -15,6 +15,7 @@ from botocore.exceptions import (
 
 # Import database models
 from ..database.models import DownloadedFile, DownloadTask
+from ..settings import settings
 from ..settings.default_settings import DOWNLOADER_BEHAVIOR_SETTINGS
 
 # type hint for TimeoutError
@@ -74,7 +75,11 @@ class S3Client:
         logger.info(f"S3 client initialized for bucket: {bucket_name}")
 
     def list_objects(
-        self, prefix: str = "", include_directories: bool = False, exclude_downloaded: bool = False
+        self,
+        prefix: str = "",
+        include_directories: bool = False,
+        exclude_downloaded: bool = False,
+        exclude_prefixes: Optional[List[str]] = None,
     ) -> List[dict]:
         """
         List objects in the S3 bucket with the given prefix.
@@ -83,6 +88,9 @@ class S3Client:
             prefix: Prefix to filter objects
             include_directories: Whether to include directories (objects ending with '/')
             exclude_downloaded: Whether to exclude already downloaded files from the result
+            exclude_prefixes: List of prefixes/directories to exclude (e.g., ['bb/', 'temp/'])
+                            Defaults to FILTER_SETTINGS["EXCLUDE_PREFIXES"]
+                            Can be overridden via EXCLUDE_PREFIXES environment variable
 
         Returns:
             List of objects in the bucket
@@ -171,6 +179,16 @@ class S3Client:
                 logger.debug(
                     f"Found {len(filtered_objects)} objects with prefix '{prefix}'{' (excluding downloaded)' if exclude_downloaded else ''}"
                 )
+
+            # If exclude_prefixes is provided, filter out objects that match any of the prefixes
+            if exclude_prefixes:
+                filtered_objects = [
+                    obj
+                    for obj in filtered_objects
+                    if not any(
+                        obj["Key"].startswith(exclude_prefix) for exclude_prefix in exclude_prefixes
+                    )
+                ]
 
             return filtered_objects
 
@@ -286,6 +304,7 @@ class S3Client:
         exclude_downloaded: bool = True,
         max_files_per_task: Optional[int] = DOWNLOADER_BEHAVIOR_SETTINGS["MAX_FILES_PER_TASK"],
         is_cancelled: Optional[Callable[[], bool]] = None,
+        exclude_prefixes: Optional[List[str]] = settings.filter["EXCLUDE_PREFIXES"],
     ) -> Dict[str, Any]:
         """
         Download all files in a directory (prefix) from S3.
@@ -301,6 +320,9 @@ class S3Client:
             exclude_downloaded: Whether to exclude already downloaded files from the download
             max_files_per_task: Maximum number of files to download per task
             is_cancelled: Optional function that returns True if the download should be cancelled
+            exclude_prefixes: List of prefixes/directories to exclude (e.g., ['bb/', 'temp/'])
+                            Defaults to FILTER_SETTINGS["EXCLUDE_PREFIXES"]
+                            Can be overridden via EXCLUDE_PREFIXES environment variable
 
         Returns:
             Dictionary with download statistics and task record
@@ -316,7 +338,9 @@ class S3Client:
         # get file list
         try:
             # List objects with exclude_downloaded filter
-            objects = self.list_objects(prefix, exclude_downloaded=exclude_downloaded)
+            objects = self.list_objects(
+                prefix, exclude_downloaded=exclude_downloaded, exclude_prefixes=exclude_prefixes
+            )
 
             # If no objects found at all
             if not objects:
