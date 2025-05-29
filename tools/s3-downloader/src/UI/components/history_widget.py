@@ -64,6 +64,9 @@ class HistoryWidget(QWidget):
         title_label.setStyleSheet(TITLE_STYLE)
         self.main_layout.addWidget(title_label)
 
+        # Create statistics section
+        self.create_statistics_section()
+
         # Create history table
         self.create_history_table()
 
@@ -87,6 +90,18 @@ class HistoryWidget(QWidget):
 
         # Load history data
         self.load_history()
+
+    def create_statistics_section(self):
+        """Create statistics section."""
+        # Create statistics layout
+        statistics_layout = QHBoxLayout()
+
+        # Create only downloaded files count label
+        self.total_files_label = QLabel("Downloaded files: 0")
+        statistics_layout.addWidget(self.total_files_label)
+
+        # Add statistics layout to main layout
+        self.main_layout.addLayout(statistics_layout)
 
     def create_history_table(self):
         """Create history table."""
@@ -228,6 +243,13 @@ class HistoryWidget(QWidget):
 
         # Get history data (increase limit to get more items for filtering)
         self.all_tasks = self.s3_controller.get_download_history(limit=1000)
+
+        # Update download count
+        try:
+            count = self.s3_controller.get_downloaded_files_count()
+            self.total_files_label.setText(f"Downloaded files: {count:,}")
+        except Exception as e:
+            self.total_files_label.setText("Downloaded files: Error")
 
         # Apply filters to update table
         self.apply_filters()

@@ -208,6 +208,15 @@ class S3Controller(QObject):
 
         return {"task": task, "files": files}
 
+    def get_downloaded_files_count(self) -> int:
+        """
+        Get count of downloaded files.
+
+        Returns:
+            Number of downloaded files
+        """
+        return DownloadedFile.get_total_downloaded_count()
+
     def initialize_client(
         self,
         bucket_name: str,

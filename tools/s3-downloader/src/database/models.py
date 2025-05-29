@@ -254,6 +254,16 @@ class DownloadedFile(BaseModel):
         return cls.select().where(cls.task == task_id).order_by(cls.download_time)
 
     @classmethod
+    def get_total_downloaded_count(cls) -> int:
+        """
+        Get total count of successfully downloaded files.
+
+        Returns:
+            Total number of downloaded files
+        """
+        return cls.select().where(cls.status == FileStatus.COMPLETED.value).count()
+
+    @classmethod
     def create(
         cls, task, s3_key: str, local_path: str, status: str = None, error_message: str = None
     ):
