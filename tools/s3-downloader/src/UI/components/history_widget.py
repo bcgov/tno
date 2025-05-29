@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
 
 from ..s3_controller import S3Controller
 from .file_details_dialog import FileDetailsDialog
+from .numeric_table_widget_item import NumericTableWidgetItem
 
 logger = logging.getLogger(__name__)
 
@@ -248,7 +249,7 @@ class HistoryWidget(QWidget):
         try:
             count = self.s3_controller.get_downloaded_files_count()
             self.total_files_label.setText(f"Downloaded files: {count:,}")
-        except Exception as e:
+        except Exception:
             self.total_files_label.setText("Downloaded files: Error")
 
         # Apply filters to update table
@@ -310,8 +311,8 @@ class HistoryWidget(QWidget):
 
             # ID
             task_id = getattr(task, "id", 0)
-            id_item = QTableWidgetItem(str(task_id))
-            id_item.setData(Qt.ItemDataRole.UserRole, task_id)
+            id_item = NumericTableWidgetItem(str(task_id), int(task_id))
+            id_item.setData(Qt.ItemDataRole.UserRole, task_id)  # Store for task selection
             self.history_table.setItem(i, 0, id_item)
 
             # Start Time
@@ -327,11 +328,16 @@ class HistoryWidget(QWidget):
             elif status == "Failed":
                 status_item.setForeground(QColor(255, 0, 0))  # Red
             self.history_table.setItem(i, 2, status_item)
-            files_count = getattr(task, "total_files", 0)
-            self.history_table.setItem(i, 3, QTableWidgetItem(str(files_count)))
 
+            # Files count
+            files_count = getattr(task, "total_files", 0)
+            files_item = NumericTableWidgetItem(str(files_count), int(files_count))
+            self.history_table.setItem(i, 3, files_item)
+
+            # Success count
             successful = getattr(task, "successful_downloads", 0)
-            self.history_table.setItem(i, 4, QTableWidgetItem(str(successful)))
+            success_item = NumericTableWidgetItem(str(successful), int(successful))
+            self.history_table.setItem(i, 4, success_item)
 
             # Path
             local_path = getattr(task, "local_path", "")

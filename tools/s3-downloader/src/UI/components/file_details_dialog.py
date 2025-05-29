@@ -16,6 +16,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from .numeric_table_widget_item import NumericTableWidgetItem
+
 
 class FileDetailsDialog(QDialog):
     """Dialog for displaying file download details with pagination and filtering."""
@@ -176,7 +178,8 @@ class FileDetailsDialog(QDialog):
             # Size
             size = getattr(file, "size", 0)
             size_str = f"{size / 1024:.1f} KB" if size > 0 else "N/A"
-            self.table.setItem(row, 2, QTableWidgetItem(size_str))
+            size_item = NumericTableWidgetItem(size_str, size if size > 0 else 0)
+            self.table.setItem(row, 2, size_item)
 
             # Download Time
             download_time = getattr(file, "download_time", None)
