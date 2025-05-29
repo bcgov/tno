@@ -182,7 +182,7 @@ class DownloadTask(BaseModel):
         return cls.select().order_by(cls.start_time.desc()).limit(limit)
 
     @classmethod
-    def create(cls, s3_prefix: str, local_path: str, total_files: int, status: str = None):
+    def create_task(cls, s3_prefix: str, local_path: str, total_files: int, status: Optional[str] = None):
         """
         Create a new download task.
 
@@ -264,8 +264,8 @@ class DownloadedFile(BaseModel):
         return cls.select().where(cls.status == FileStatus.COMPLETED.value).count()
 
     @classmethod
-    def create(
-        cls, task, s3_key: str, local_path: str, status: str = None, error_message: str = None
+    def create_file(
+        cls, task, s3_key: str, local_path: str, status: Optional[str] = None, error_message: Optional[str] = None
     ):
         """
         Create a new downloaded file record.

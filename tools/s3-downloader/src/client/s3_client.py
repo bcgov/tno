@@ -225,7 +225,7 @@ class S3Client:
         # Create file record if task record is provided
         file_record = None
         if task_record:
-            file_record = DownloadedFile.create(
+            file_record = DownloadedFile.create_file(
                 task=task_record, s3_key=s3_key, local_path=str(local_path_obj)
             )
 
@@ -358,7 +358,7 @@ class S3Client:
             TimeoutError,
         ) as e:
             # Network error during listing objects
-            task_record = DownloadTask.create(
+            task_record = DownloadTask.create_task(
                 s3_prefix=prefix,
                 local_path=str(local_dir_obj),
                 total_files=0,
@@ -376,7 +376,7 @@ class S3Client:
             }
 
         # Create download task record
-        task_record = DownloadTask.create(
+        task_record = DownloadTask.create_task(
             s3_prefix=prefix,
             local_path=str(local_dir_obj),
             total_files=len(objects),
@@ -459,7 +459,7 @@ class S3Client:
 
                 # Create a failed file record if it doesn't exist
                 if task_record:
-                    DownloadedFile.create(
+                    DownloadedFile.create_file(
                         task=task_record,
                         s3_key=obj["Key"],
                         local_path=local_path,
