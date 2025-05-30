@@ -14,18 +14,6 @@ from .models import DownloadedFile, DownloadTask, db
 logger = logging.getLogger(__name__)
 
 
-def get_app_data_path() -> Path:
-    """Get application data directory."""
-    if getattr(sys, "frozen", False):
-        # Running as exe, store database next to exe
-        app_dir = Path(sys.executable).parent
-    else:
-        # Running as script, use current directory
-        app_dir = Path.cwd()
-
-    return app_dir
-
-
 def get_db_path() -> str:
     """
     Get database path from settings.
@@ -41,10 +29,15 @@ def get_db_path() -> str:
     if db_path.startswith("sqlite:///"):
         db_path = db_path[10:]  # Remove 'sqlite:///'
 
-    # If it's a relative path, make it relative to app directory
+    # If it's a relative path, resolve it relative to current working directory
     if not os.path.isabs(db_path):
-        app_dir = get_app_data_path()
-        db_path = str(app_dir / db_path)
+        # For executable builds, use the directory where the exe is located
+        if getattr(sys, "frozen", False):
+            base_dir = Path(sys.executable).parent
+        else:
+            base_dir = Path.cwd()
+
+        db_path = str(base_dir / db_path)
 
     return db_path
 

@@ -8,55 +8,16 @@ class SettingsController:
 
     def __init__(self):
         """Initialize the settings controller."""
-        self.endpoint_url = ""
-        self.bucket_name = ""
-        self.access_key = ""
-        self.secret_key = ""
-        self.timeout = 2
-        self.local_path = ""
-        self.scheduler_interval = 86400  # Changed default to 24 hours
-        self.max_consecutive_failures = 3
-        self.max_failure_percentage = 0.3
-        self.network_test_interval = 5
-        self.space_warning_threshold = 0.1
-        self.max_files_per_task = 5000  # Add support for max files per task
+        from src.settings import settings
 
-        # Load settings
-        self.load_settings()
+        self.settings = settings
 
-    def load_settings(self):
-        """Load settings from settings module."""
+        # Log loaded settings for debugging
+        self._log_current_settings()
+
+    def _log_current_settings(self):
+        """Log current settings for debugging."""
         try:
-            from src.settings import settings
-
-            # S3 connection settings
-            self.endpoint_url = settings.s3["SERVICE_URL"]
-            self.bucket_name = settings.s3["BUCKET_NAME"]
-            self.access_key = settings.s3["ACCESS_KEY"]
-            self.secret_key = settings.s3["SECRET_KEY"]
-            self.timeout = settings.s3["TIMEOUT"]
-
-            # Local storage settings
-            self.local_path = settings.storage["PATH"]
-
-            # Scheduler settings
-            self.scheduler_interval = settings.scheduler["INTERVAL"]
-
-            # Network error handling settings
-            self.max_consecutive_failures = settings.error_handling["MAX_CONSECUTIVE_FAILURES"]
-            self.max_failure_percentage = settings.error_handling["MAX_FAILURE_PERCENTAGE"]
-            self.network_test_interval = settings.error_handling["NETWORK_TEST_INTERVAL"]
-
-            # Disk space settings
-            self.space_warning_threshold = settings.disk_space["WARNING_THRESHOLD"]
-
-            # Downloader behavior settings
-            try:
-                self.max_files_per_task = settings.downloader_behavior["MAX_FILES_PER_TASK"]
-            except (AttributeError, KeyError):
-                self.max_files_per_task = 5000  # Fallback to 5000
-
-            # Log loaded settings
             logger.info(
                 f"Loaded settings: "
                 f"endpoint={self.endpoint_url}, "
@@ -71,13 +32,73 @@ class SettingsController:
                 f"max_files_per_task={self.max_files_per_task}"
             )
         except Exception as e:
-            logger.error(f"Error loading settings: {e}")
+            logger.error(f"Error logging settings: {e}")
 
-    def update_local_path(self, path):
+    # S3 connection settings properties
+    @property
+    def endpoint_url(self) -> str:
+        return self.settings.s3["SERVICE_URL"]
+
+    @property
+    def bucket_name(self) -> str:
+        return self.settings.s3["BUCKET_NAME"]
+
+    @property
+    def access_key(self) -> str:
+        return self.settings.s3["ACCESS_KEY"]
+
+    @property
+    def secret_key(self) -> str:
+        return self.settings.s3["SECRET_KEY"]
+
+    @property
+    def timeout(self) -> int:
+        return self.settings.s3["TIMEOUT"]
+
+    # Local storage settings
+    @property
+    def local_path(self) -> str:
+        return self.settings.storage["PATH"]
+
+    # Scheduler settings
+    @property
+    def scheduler_interval(self) -> int:
+        return self.settings.scheduler["INTERVAL"]
+
+    # Error handling settings
+    @property
+    def max_consecutive_failures(self) -> int:
+        return self.settings.error_handling["MAX_CONSECUTIVE_FAILURES"]
+
+    @property
+    def max_failure_percentage(self) -> float:
+        return self.settings.error_handling["MAX_FAILURE_PERCENTAGE"]
+
+    @property
+    def network_test_interval(self) -> int:
+        return self.settings.error_handling["NETWORK_TEST_INTERVAL"]
+
+    # Disk space settings
+    @property
+    def space_warning_threshold(self) -> float:
+        return self.settings.disk_space["WARNING_THRESHOLD"]
+
+    # Downloader behavior settings
+    @property
+    def max_files_per_task(self) -> int:
+        try:
+            return self.settings.downloader_behavior["MAX_FILES_PER_TASK"]
+        except (AttributeError, KeyError):
+            logger.warning("MAX_FILES_PER_TASK not found in settings, using default value 5000")
+            return 5000
+
+    def update_local_path(self, path: str) -> None:
         """
         Update the local storage path.
 
         Args:
             path: New local storage path
         """
-        self.local_path = path
+        # Note: This updates the runtime settings, not the persistent configuration
+        self.settings.storage["PATH"] = path
+        logger.info(f"Updated local storage path to: {path}")

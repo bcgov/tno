@@ -2,7 +2,6 @@
 Settings loader for S3 downloader.
 """
 
-import os
 import sys
 from pathlib import Path
 from typing import Any, Callable, Dict
@@ -165,7 +164,6 @@ class Settings:
                 settings_dict[settings_key] = type_converter(env_value)
             except (ValueError, TypeError) as e:
                 print(f"Error converting {env_key} value '{env_value}': {e}")
-
 
     def _override_exclude_prefixes_from_env_dict(self, env_vars: Dict[str, str]) -> None:
         """Override exclude prefixes from environment variables dictionary."""
