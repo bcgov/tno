@@ -141,29 +141,6 @@ class Settings:
         # Override filter settings
         self._override_exclude_prefixes_from_env_dict(env_vars)
 
-    def _override_from_env(
-        self,
-        settings_dict: Dict[str, Any],
-        env_key: str,
-        settings_key: str,
-        type_converter: Callable[[str], Any],
-    ) -> None:
-        """
-        Override settings value from environment variable.
-
-        Args:
-            settings_dict: Settings dictionary to update
-            env_key: Environment variable key
-            settings_key: Settings key
-            type_converter: Function to convert string to appropriate type
-        """
-        env_value = os.getenv(env_key)
-        if env_value is not None:
-            try:
-                settings_dict[settings_key] = type_converter(env_value)
-            except (ValueError, TypeError) as e:
-                print(f"Error converting {env_key} value '{env_value}': {e}")
-
     def _override_from_env_dict(
         self,
         env_vars: Dict[str, str],
