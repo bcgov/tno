@@ -166,16 +166,6 @@ class Settings:
             except (ValueError, TypeError) as e:
                 print(f"Error converting {env_key} value '{env_value}': {e}")
 
-    def _override_exclude_prefixes_from_env(self) -> None:
-        """Override exclude prefixes from environment variable."""
-        exclude_prefixes = os.getenv("EXCLUDE_PREFIXES")
-        if exclude_prefixes:
-            try:
-                self.filter["EXCLUDE_PREFIXES"] = [
-                    prefix.strip() for prefix in exclude_prefixes.split(",")
-                ]
-            except ValueError as e:
-                print(f"Error parsing EXCLUDE_PREFIXES: {e}")
 
     def _override_exclude_prefixes_from_env_dict(self, env_vars: Dict[str, str]) -> None:
         """Override exclude prefixes from environment variables dictionary."""
