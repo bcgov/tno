@@ -10,6 +10,7 @@ import {
   IColProps,
   IContentModel,
   IFileReferenceModel,
+  IFilterSettingsModel,
   Row,
   Show,
 } from 'tno-core';
@@ -30,7 +31,7 @@ export interface IContentRowProps extends IColProps {
   popOutIds?: string;
   showSeries?: boolean;
   showTime?: boolean;
-  filter?: any;
+  filter?: IFilterSettingsModel;
   onCheckboxChange: (item: IContentModel, checked: boolean) => void;
   onRemove?: (item: IContentModel) => void;
   activeStream: { id: number; source: string };
@@ -49,7 +50,7 @@ export const ContentRow: React.FC<IContentRowProps> = ({
   showSeries,
   showTime,
   popOutIds,
-  filter,
+  filter = { search: '', size: 100, searchUnpublished: false },
   onCheckboxChange,
   onRemove,
   simpleView,
@@ -72,8 +73,12 @@ export const ContentRow: React.FC<IContentRowProps> = ({
     return formatSearch(item.headline, filter);
   }, [filter, item.headline]);
 
-  const bodyTermHighlighted = highlightTerms(body as string, highlighTerms ?? []);
-  const headerTermHighlighted = highlightTerms(headline as string, highlighTerms ?? []);
+  const bodyTermHighlighted = highlighTerms
+    ? highlightTerms(body as string, highlighTerms ?? [])
+    : [];
+  const headerTermHighlighted = highlighTerms
+    ? highlightTerms(headline as string, highlighTerms ?? [])
+    : [];
 
   /** This is a workaround for the autoplay attribute on <video>. Most chromium browser do not allow autoplay with the muted attribute included; however, we can avoid this issue by programatically calling play. The logic below will play the video
    * once the user clicks the inline play button. */
