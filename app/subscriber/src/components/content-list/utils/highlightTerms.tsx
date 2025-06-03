@@ -1,8 +1,13 @@
+// Function to escape special characters in a string for regex
+function escapeRegExp(str: string) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export const highlightTerms = (
   body: string,
   highlightedVals: string[],
 ): (string | JSX.Element)[] => {
-  if (typeof body !== 'string') {
+  if (typeof body !== 'string' || highlightedVals.length === 0) {
     return [body];
   }
 
@@ -10,11 +15,6 @@ export const highlightTerms = (
     `(${highlightedVals.map((term) => escapeRegExp(term)).join('|')})`,
     'gi',
   );
-
-  // Function to escape special characters in a string for regex
-  function escapeRegExp(str: string) {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
 
   // Split the body into segments based on the regex
   const segments = body.split(regex);
