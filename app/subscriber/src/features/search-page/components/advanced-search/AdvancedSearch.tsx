@@ -15,7 +15,6 @@ import {
   FaCheck,
   FaCircleCheck,
   FaCircleXmark,
-  FaClipboardCheck,
   FaDownLeftAndUpRightToCenter,
   FaGears,
   FaIcons,
