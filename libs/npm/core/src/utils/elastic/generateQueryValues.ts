@@ -2,7 +2,6 @@ import moment from 'moment';
 
 import { IFilterSettingsModel } from '../../hooks';
 import { generatePostedOnQuery } from './generatePostedOnQuery';
-import { generatePublishedOnQuery } from './generatePublishedOnQuery';
 import { generateQueryForActions } from './generateQueryForActions';
 import { generateQueryForExistCheck } from './generateQueryForExistCheck';
 import { generateRangeForArrayField } from './generateRangeForArrayField';
@@ -24,7 +23,6 @@ export const generateQueryValues = (
 ): any[] => {
   const actionFilters = generateQueryForActions(settings.actions ?? []);
   const values = [
-    generatePublishedOnQuery(settings),
     generatePostedOnQuery(settings),
     generateTerms('sourceId', settings.sourceIds),
     generateTerms('mediaTypeId', settings.mediaTypeIds),
