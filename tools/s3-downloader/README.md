@@ -150,9 +150,13 @@ python main.py
 ### Build Steps
 
 ```bash
+# use makefile to build
+make build 
+
+# or build manually 
 # Activate virtual environment
 make activate
-
+source .venv/Scripts/activate 
 # Run the build script
 python build.py
 ```

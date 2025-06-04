@@ -36,13 +36,14 @@ else
     VENV_ACTIVATE := $(ACTIVATE_SCRIPT)
 endif
 
-.PHONY: help activate deactivate install clean check-uv
+.PHONY: help activate deactivate install clean check-uv build
 
 help: ## Show this help message
 	@echo -e "${GREEN}Available targets:${RESET}"
 	@echo -e "  make ${YELLOW}activate${RESET}    Create and activate Python virtual environment using uv"
 	@echo -e "  make ${YELLOW}deactivate${RESET}  Deactivate the current virtual environment"
 	@echo -e "  make ${YELLOW}install${RESET}     Install dependencies using uv sync"
+	@echo -e "  make ${YELLOW}build${RESET}       Build the project using build.py"
 	@echo -e "  make ${YELLOW}clean${RESET}       Clean up temporary files and virtual environment"
 
 check-uv:
@@ -92,3 +93,18 @@ clean:  ## Clean up temporary files and virtual environment
 	@rm -rf "$(VENV_DIR)" __pycache__ .pytest_cache 2>/dev/null || true
 	@find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 	@find . -type f -name "*.py[co]" -delete 2>/dev/null || true
+
+build: check-uv  ## Build the project using build.py
+	@if [ ! -f "build.py" ]; then \
+		echo -e "${RED}[!] build.py not found in current directory.${RESET}"; \
+		exit 1; \
+	fi
+	@if [ -f "$(ACTIVATE_SCRIPT)" ]; then \
+		echo -e "${P} Building project..."; \
+		source "$(ACTIVATE_SCRIPT)" && $(PYTHON) build.py; \
+	else \
+		echo -e "${YELLOW}[!] Virtual environment not found. Creating it first...${RESET}"; \
+		make activate; \
+		echo -e "${P} Building project..."; \
+		source "$(ACTIVATE_SCRIPT)" && $(PYTHON) build.py; \
+	fi
