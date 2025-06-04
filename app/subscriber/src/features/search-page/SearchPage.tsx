@@ -1,4 +1,7 @@
-import { KnnSearchResponse } from '@elastic/elasticsearch/lib/api/types';
+import {
+  IndicesValidateQueryResponse,
+  KnnSearchResponse,
+} from '@elastic/elasticsearch/lib/api/types';
 import { BasicSearch } from 'components/basic-search';
 import { ContentList, ViewOptions } from 'components/content-list';
 import { DateFilter } from 'components/date-filter';
@@ -44,7 +47,12 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
       search: { filter, content },
       searchResults: { filter: secondaryFilter },
     },
-    { findContentWithElasticsearch, storeSearchFilter, storeSearchResultsFilter },
+    {
+      findContentWithElasticsearch,
+      storeSearchFilter,
+      storeSearchResultsFilter,
+      validateElasticsearchQuery,
+    },
   ] = useContent();
   const [{ frontPageImagesMediaTypeId }] = useLookup();
   const { width } = useWindowSize();
@@ -53,6 +61,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
   const [{ from, filter: activeFilter }, { storeFrom, storeFilter }] = useProfileStore();
   const { pathname } = useLocation();
   const [{ requests }] = useApp();
+  const [queryValidateResult, setQueryValidateResult] = React.useState<string[]>(['']);
 
   const [init, setInit] = React.useState(true); // React hooks are horrible...
   const [currDateResults, setCurrDateResults] = React.useState<IContentSearchResult[]>([]);
@@ -122,6 +131,24 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
     },
     [],
   );
+
+  const parseValidationResults = (data: IndicesValidateQueryResponse | undefined) => {
+    if (!data?.valid) {
+      const error = data?.explanations?.find((x) => x.error)?.error;
+      const regex = / at line \d+, column \d+/;
+      const found = (error ?? '').match(regex);
+      if (found) {
+        return [`ERROR: ${found[0]}`];
+      }
+      return ['--Failed to parse query--'];
+    }
+    return [''];
+  };
+
+  const validationResults = React.useCallback((res: IndicesValidateQueryResponse | undefined) => {
+    const parsedResult = parseValidationResults(res);
+    setQueryValidateResult(parsedResult);
+  }, []);
 
   // Check the secondary filter (FilterOptions component) and merge the options according to each search criteria.
   const mergeFilters = React.useCallback(
@@ -217,6 +244,28 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
     [findContentWithElasticsearch, genQuery, groupResults, mergeFilters],
   );
 
+  const validateQueryString = React.useCallback(
+    async (
+      filter: IFilterSettingsModel,
+      storedContent?: KnnSearchResponse<IContentModel>,
+      oneDay: boolean = false,
+    ) => {
+      try {
+        const settings = filterFormat(filter);
+        const query = genQuery(settings);
+        let res;
+        if (!storedContent) {
+          storeFrom(query.from ?? 0);
+          res = await validateElasticsearchQuery(query, filter.searchUnpublished, 'headline');
+          validationResults(res);
+        }
+      } catch {
+      } finally {
+      }
+    },
+    [genQuery, storeFrom, validateElasticsearchQuery, validationResults],
+  );
+
   React.useEffect(() => {
     // only fetch this when there's no call to the elastic search
     if (id && !activeFilter) return;
@@ -251,7 +300,12 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
         {/* LEFT SIDE */}
         <Show visible={showAdvanced}>
           <Col className="adv-search-container">
-            <AdvancedSearch onSearch={fetchResults} setSearchFilter={setSearchFilter} />
+            <AdvancedSearch
+              onSearch={fetchResults}
+              setSearchFilter={setSearchFilter}
+              validateQuery={validateQueryString}
+              queryValidateResult={queryValidateResult}
+            />
           </Col>
         </Show>
         {/* RIGHT SIDE */}

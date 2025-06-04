@@ -123,6 +123,29 @@ public class ContentController : ControllerBase
         var result = await _contentService.FindWithElasticsearchAsync(includeUnpublishedContent ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex, filter);
         return new JsonResult(result);
     }
+    
+    /// <summary>
+    /// Validate Elasticsearch query.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <param name="includeUnpublishedContent"></param>
+    /// <param name="fieldNames"></param>
+    /// <returns></returns>
+    [HttpPost("validate")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> ValidateElasticsearchQueryAsync([FromBody] JsonDocument filter, [FromQuery] bool includeUnpublishedContent = false,
+        [FromQuery] string? fieldNames = "")
+    {
+        // Exclude any content the user is not allowed to search for.
+        var user = _impersonate.GetCurrentUser();
+        filter = filter.AddExcludeSources(user.SourcesManyToMany.Select(s => s.SourceId));
+        filter = filter.AddExcludeMediaTypes(user.MediaTypesManyToMany.Select(s => s.MediaTypeId));
+
+        var result = await _contentService.ValidateElasticsearchSimpleQueryAsync(includeUnpublishedContent ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex, filter, fieldNames);
+        return new JsonResult(result);
+    }
 
     /// <summary>
     /// Find content for the specified 'id'.
