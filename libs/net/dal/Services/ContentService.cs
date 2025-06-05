@@ -194,7 +194,7 @@ public class ContentService : BaseService<Content, long>, IContentService
         var emptyResult = new Elastic.Models.ValidateResultModel();
         if (filter != null)
         {
-            JsonObject filterJsonObject = JsonSerializer.Deserialize<JsonObject>(filter);
+            JsonObject? filterJsonObject = JsonSerializer.Deserialize<JsonObject>(filter);
             if (filterJsonObject == null) return emptyResult;
 
             // remove "size" and "sort" fields which are not accepted by validate request
@@ -202,9 +202,9 @@ public class ContentService : BaseService<Content, long>, IContentService
             RemoveJsonObjectKey("sort", filterJsonObject);
             if (filterJsonObject["query"]?["bool"]?["must"] == null) return emptyResult;
 
-            JsonArray jsonArray = filterJsonObject["query"]["bool"]["must"].AsArray();
+            JsonArray? jsonArray = filterJsonObject["query"]?["bool"]?["must"]?.AsArray();
             var toRemoveIndexList = new List<int>();
-            for (int i = 0; i < jsonArray.Count(); i++)
+            for (int i = 0; i < jsonArray?.Count(); i++)
             {
                 var node = jsonArray[i];
                 if (node != null)
@@ -219,7 +219,7 @@ public class ContentService : BaseService<Content, long>, IContentService
                             {
                                 if (nodeValue["fields"] != null)
                                 {
-                                    var fieldsValues = nodeValue["fields"].AsArray();
+                                    var fieldsValues = nodeValue?["fields"]?.AsArray();
                                     UpdateFieldsArray(fieldsValues, arrayFieldNames);
                                 }
                             }
@@ -233,10 +233,13 @@ public class ContentService : BaseService<Content, long>, IContentService
             }
             for (int i = toRemoveIndexList.Count() - 1; i >= 0; i--)
             {
-                jsonArray.RemoveAt(toRemoveIndexList[i]);
+                jsonArray?.RemoveAt(toRemoveIndexList[i]);
             }
-
-            return await _client.ValidateAsync(index, JsonSerializer.Deserialize<JsonDocument>(filterJsonObject));
+            var query = JsonSerializer.Deserialize<JsonDocument>(filterJsonObject);
+            if (query != null)
+            {
+                return await _client.ValidateAsync(index, query);
+            }
         }
         return emptyResult;
     }
@@ -246,7 +249,7 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// </summary>
     /// <param name="fieldsValues"></param>
     /// <param name="arrayFieldName"></param>
-    private void UpdateFieldsArray(JsonArray fieldsValues, string? arrayFieldNames)
+    private void UpdateFieldsArray(JsonArray? fieldsValues, string? arrayFieldNames)
     {
         if (fieldsValues == null || string.IsNullOrEmpty(arrayFieldNames)) return;
         var toRemoveIndexList = new List<int>();
