@@ -278,7 +278,7 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
     [setSearchTerms, search, validateQuery],
   );
 
-  const QueryValidateContent = () => {
+  const QueryValidateContent = React.useCallback(() => {
     if (queryValidateResult[0].startsWith('ERROR:')) {
       return (
         <div className="query-title-container">
@@ -294,31 +294,9 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
         <FaCircleCheck className="query-icon-green" />
       </div>
     );
-  };
+  }, [queryValidateResult]);
 
-  const QueryValidateSection = () => {
-    if (queryValidateResult[0].startsWith('ERROR:')) {
-      return (
-        <ExpandableRow
-          icon={<></>}
-          iconTitle={<QueryValidateContent />}
-          title={''}
-          hasValues={false}
-        >
-          <Row alignItems="center" justifyContent="space-between">
-            <ParsedQueryErrorTextArea />
-          </Row>
-        </ExpandableRow>
-      );
-    }
-    return (
-      <Row alignItems="center" justifyContent="space-between" className="query-validate-row">
-        <QueryValidateContent />
-      </Row>
-    );
-  };
-
-  const ParsedQueryErrorTextArea = () => {
+  const ParsedQueryErrorTextArea = React.useCallback(() => {
     if (queryValidateResult[0].startsWith('ERROR:')) {
       const regexColumn = /, column \d+/;
       const regexNumber = /\d+/;
@@ -341,7 +319,29 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
       }
     }
     return null;
-  };
+  }, [queryValidateResult, searchTerms]);
+
+  const QueryValidateSection = React.useCallback(() => {
+    if (queryValidateResult[0].startsWith('ERROR:')) {
+      return (
+        <ExpandableRow
+          icon={<></>}
+          iconTitle={<QueryValidateContent />}
+          title={''}
+          hasValues={false}
+        >
+          <Row alignItems="center" justifyContent="space-between">
+            <ParsedQueryErrorTextArea />
+          </Row>
+        </ExpandableRow>
+      );
+    }
+    return (
+      <Row alignItems="center" justifyContent="space-between" className="query-validate-row">
+        <QueryValidateContent />
+      </Row>
+    );
+  }, [ParsedQueryErrorTextArea, QueryValidateContent, queryValidateResult]);
 
   const isAdvancedQueryType =
     (search.queryType ?? AdvancedQueryOperatorOptions.simpleQueryString) ===
