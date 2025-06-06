@@ -18,6 +18,7 @@ public interface IContentService : IBaseService<Content, long>
 
     IPaged<Content> FindWithDatabase(ContentFilter filter, bool asNoTracking = true);
     Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindWithElasticsearchAsync(string index, JsonDocument filter);
+    Task<Elastic.Models.ValidateResultModel> ValidateElasticsearchSimpleQueryAsync(string index, JsonDocument filter, string? arrayFieldNames);
     Content? FindByUid(string uid, string? source);
 
     /// <summary>

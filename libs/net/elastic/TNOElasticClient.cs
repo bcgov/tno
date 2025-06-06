@@ -96,6 +96,20 @@ namespace TNO.Elastic
             var response = await this.Client.PostAsync<SearchResultModel<T>>(url, content);
             return response ?? new SearchResultModel<T>();
         }
+
+        /// <summary>
+        /// Make a request to Elasticsearch to validate query
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        public async Task<ValidateResultModel> ValidateAsync(string index, JsonDocument query)
+        {
+            var url = this.Options.Url!.Append($"/{index}/_validate/query?explain=true");
+            var content = JsonContent.Create(query);
+            var response = await this.Client.PostAsync<ValidateResultModel>(url, content);
+            return response ?? new ValidateResultModel();
+        }
         #endregion
     }
 }

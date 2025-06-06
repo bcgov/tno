@@ -189,6 +189,10 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     font-weight: 700;
     margin-right: 0.5em;
   }
+  .query-title-label {
+    font-weight: 550;
+    color: #41393b;
+  }
 
   /* CHECKBOX OPTIONS PASSED IN THE SEARCH IN GROUP SECTION */
   .options {
@@ -216,8 +220,88 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
       padding-right: 0;
       padding-bottom: 0;
     }
-    .text-area {
+    .text-area-editor {
+      width: auto;
       resize: vertical;
+      padding: 0.3em;
+      border: 1px solid rgb(96, 96, 96);
+      border-radius: 0.3em;
+      height: 2.5em;
+      overflow-y: scroll;
+      resize: vertical;
+      textarea:focus {
+        outline: none;
+        border: none;
+      }
+      textarea::-moz-selection {
+        color: black;
+      }
+      textarea::selection {
+        color: black;
+      }
+    }
+  }
+  .query-text-red {
+    color: crimson;
+  }
+  .query-icon-red {
+    display: inline-block;
+    color: crimson;
+    width: 1em;
+    height: 1em;
+    margin-left: 0.4em;
+  }
+  .query-icon-green {
+    display: inline-block;
+    color: green;
+    width: 1em;
+    height: 1em;
+    margin-left: 0.4em;
+  }
+  .query-title-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+  }
+  .query-validate-row {
+    margin-top: 0.5em;
+    margin-left: 0.5em;
+  }
+
+  /* SEARCH VALIDATION */
+  .text-container-validate-div {
+    padding: 0;
+    width: 100%;
+    height: 3em;
+    font-size: 0.9em;
+    margin: 0;
+    overflow-wrap: break-word;
+    word-break: break-all;
+    overflow-y: scroll;
+    resize: vertical;
+    .text-area-text {
+      display: inline-block;
+      overflow-wrap: break-word;
+      word-break: break-all;
+    }
+    .text-area-red {
+      color: crimson;
+      display: inline-block;
+      overflow-wrap: break-word;
+      word-break: break-all;
+    }
+    .text-area-green {
+      color: green;
+      display: inline-block;
+      overflow-wrap: break-word;
+      word-break: break-all;
+    }
+    .text-area-underline {
+      color: crimson;
+      display: inline-block;
+      text-decoration: underline;
+      overflow-wrap: break-word;
+      word-break: break-all;
     }
   }
 

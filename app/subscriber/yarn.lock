@@ -4096,6 +4096,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/prismjs@npm:^1.26.5":
+  version: 1.26.5
+  resolution: "@types/prismjs@npm:1.26.5"
+  checksum: d208b04ee9b6de6b2dc916439a81baa47e64ab3659a66d3d34bc3e42faccba9d4b26f590d76f97f7978d1dfaafa0861f81172b1e3c68696dd7a42d73aaaf5b7b
+  languageName: node
+  linkType: hard
+
 "@types/prop-types@npm:*":
   version: 15.7.12
   resolution: "@types/prop-types@npm:15.7.12"
@@ -5703,6 +5710,15 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.4.0 || ^8.0.0-0 <8.0.0
   checksum: 150233571072b6b3dfe946242da39cba8587b7f908d1c006f7545fc88b0e3c3018d445739beb61e7a75835f0c2751dbe884a94ff9b245ec42369d9267e0e1b3f
+  languageName: node
+  linkType: hard
+
+"babel-plugin-prismjs@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "babel-plugin-prismjs@npm:2.1.0"
+  peerDependencies:
+    prismjs: ^1.18.0
+  checksum: 8bc59ca46b493cb255ec914e26a0dd39c1aaee881e3701d6726db40152d4a176a96ac1438f80b0d705b188bee4106538de809bc79dff9774400da3d8331affce
   languageName: node
   linkType: hard
 
@@ -11969,6 +11985,7 @@ __metadata:
     "@types/lodash.throttle": 4.1.9
     "@types/node": 20.12.12
     "@types/pretty": 2.0.3
+    "@types/prismjs": ^1.26.5
     "@types/react": 18.3.3
     "@types/react-beautiful-dnd": 13.1.8
     "@types/react-color": 3.0.12
@@ -11987,6 +12004,7 @@ __metadata:
     "@vitest/coverage-v8": 3.0.8
     "@vitest/ui": 3.0.7
     axios: 1.7.2
+    babel-plugin-prismjs: ^2.1.0
     chart.js: 4.4.4
     chartjs-plugin-datalabels: 2.2.0
     compression-webpack-plugin: 11.1.0
@@ -12006,6 +12024,7 @@ __metadata:
     moment: 2.30.1
     prettier: 2.8.4
     pretty-quick: 4.0.0
+    prismjs: ^1.30.0
     react: 18.3.1
     react-beautiful-dnd: 13.1.1
     react-color: 2.19.3
@@ -12018,6 +12037,7 @@ __metadata:
     react-router-dom: 6.23.1
     react-scripts: 5.0.1
     react-select: 5.8.0
+    react-simple-code-editor: ^0.14.1
     react-table: 7.8.0
     react-toastify: 10.0.5
     react-tooltip: 5.26.4
@@ -13773,6 +13793,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prismjs@npm:^1.30.0":
+  version: 1.30.0
+  resolution: "prismjs@npm:1.30.0"
+  checksum: a68eddd4c5f1c506badb5434b0b28a7cc2479ed1df91bc4218e6833c7971ef40c50ec481ea49749ac964256acb78d8b66a6bd11554938e8998e46c18b5f9a580
+  languageName: node
+  linkType: hard
+
 "proc-log@npm:^3.0.0":
   version: 3.0.0
   resolution: "proc-log@npm:3.0.0"
@@ -14421,6 +14448,16 @@ __metadata:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
   checksum: c8398cc0aefb5ee5438b6176c86676e2d3fed7457c16b0769f423a0da0ae431a7df25c2cadf13b709700882b8ebd80a58b1e557fec3e22ad3cbf60164ca9e745
+  languageName: node
+  linkType: hard
+
+"react-simple-code-editor@npm:^0.14.1":
+  version: 0.14.1
+  resolution: "react-simple-code-editor@npm:0.14.1"
+  peerDependencies:
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: b89571048a855d228598b54d93e1b407a47762ab26d17836b382194db022bf78866ff9fe1d5f0d7d1b1a62aa73798449d633bfec4f019cfcda84edb576ca82ab
   languageName: node
   linkType: hard
 

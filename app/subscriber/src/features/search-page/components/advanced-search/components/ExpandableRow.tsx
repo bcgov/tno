@@ -7,6 +7,8 @@ import { Col, Row } from 'tno-core';
 export interface IExpandableRowProps {
   /** icon to be displayed on the row */
   icon: React.ReactNode;
+  /** title of the row with icon */
+  iconTitle?: React.ReactNode;
   /** title of the row */
   title: string;
   /** children to be displayed when the row is expanded */
@@ -19,6 +21,7 @@ export interface IExpandableRowProps {
 export const ExpandableRow: React.FC<IExpandableRowProps> = ({
   children,
   icon,
+  iconTitle,
   title,
   hasValues = false,
 }) => {
@@ -35,6 +38,7 @@ export const ExpandableRow: React.FC<IExpandableRowProps> = ({
           float
         />
         {icon}
+        {iconTitle}
         {title}
         <Col className="action-icons">
           {hasValues ? (
