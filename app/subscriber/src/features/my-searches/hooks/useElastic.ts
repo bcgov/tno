@@ -1,8 +1,6 @@
 import React from 'react';
-import { toast } from 'react-toastify';
-import { useLookup } from 'store/hooks';
-import { useLookupStore } from 'store/slices';
-import { generateMustNotQuery, generateQuery, IFilterSettingsModel, Settings } from 'tno-core';
+import { useSettings } from 'store/hooks';
+import { generateMustNotQuery, generateQuery, IFilterSettingsModel } from 'tno-core';
 
 /**
  * Hook provides helper function to generate elasticsearch query.
@@ -10,20 +8,7 @@ import { generateMustNotQuery, generateQuery, IFilterSettingsModel, Settings } f
  * @returns Function to generate an elasticsearch query from configuration.
  */
 export const useElastic = () => {
-  const [{ isReady, settings }] = useLookup();
-  const [{ frontPageImagesMediaTypeId }, { storeSettingsFrontPageImagesMediaTypeId }] =
-    useLookupStore();
-
-  React.useEffect(() => {
-    if (isReady) {
-      const frontPageImagesMediaTypeId = settings.find(
-        (s) => s.name === Settings.FrontPageImageMediaType,
-      )?.value;
-      if (frontPageImagesMediaTypeId)
-        storeSettingsFrontPageImagesMediaTypeId(+frontPageImagesMediaTypeId);
-      else toast.error(`Configuration settings '${Settings.FrontPageImageMediaType}' is required.`);
-    }
-  }, [isReady, settings, storeSettingsFrontPageImagesMediaTypeId]);
+  const { frontPageImageMediaTypeId } = useSettings();
 
   return React.useCallback(
     (
@@ -31,20 +16,25 @@ export const useElastic = () => {
       query?: any,
       condition: 'must' | 'must_not' | 'filter' = 'must',
     ) => {
+      if (!frontPageImageMediaTypeId) return;
+
       var elastic = generateQuery(filter, query, condition);
-      // TODO: The first time this executes there will be no "frontPageImagesMediaTypeId" values...
-      // This is because React is horrible and doesn't have a way to await a state value...
-      if (
-        frontPageImagesMediaTypeId &&
-        !filter.mediaTypeIds?.includes(frontPageImagesMediaTypeId)
-      ) {
+      if (frontPageImageMediaTypeId && !filter.mediaTypeIds?.includes(frontPageImageMediaTypeId)) {
         // Do not include front page images in results unless they are specifically requested.
-        elastic = generateMustNotQuery({ mediaTypeIds: [frontPageImagesMediaTypeId] }, elastic);
-      } else {
-        elastic = generateMustNotQuery({}, elastic);
+        // filter.mediaTypeIds = [...(filter.mediaTypeIds ?? []), frontPageImageMediaTypeId];
+        const mustNotQuery = generateMustNotQuery({ mediaTypeIds: [frontPageImageMediaTypeId] });
+        elastic = {
+          ...elastic,
+          query: {
+            bool: {
+              ...elastic.query?.bool,
+              must_not: mustNotQuery.query?.bool?.must_not,
+            },
+          },
+        };
       }
       return elastic;
     },
-    [frontPageImagesMediaTypeId],
+    [frontPageImageMediaTypeId],
   );
 };

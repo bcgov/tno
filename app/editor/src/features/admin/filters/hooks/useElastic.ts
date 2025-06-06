@@ -16,12 +16,22 @@ export const useElastic = () => {
       query?: any,
       condition: 'must' | 'must_not' | 'filter' = 'must',
     ) => {
+      if (!frontpageImageMediaTypeId) return;
+
       var elastic = generateQuery(filter, query, condition);
       if (frontpageImageMediaTypeId && !filter.mediaTypeIds?.includes(frontpageImageMediaTypeId)) {
         // Do not include front page images in results unless they are specifically requested.
-        elastic = generateMustNotQuery({ mediaTypeIds: [frontpageImageMediaTypeId] }, elastic);
-      } else {
-        elastic = generateMustNotQuery({}, elastic);
+        // filter.mediaTypeIds = [...(filter.mediaTypeIds ?? []), frontPageImageMediaTypeId];
+        const mustNotQuery = generateMustNotQuery({ mediaTypeIds: [frontpageImageMediaTypeId] });
+        elastic = {
+          ...elastic,
+          query: {
+            bool: {
+              ...elastic.query?.bool,
+              must_not: mustNotQuery.query?.bool?.must_not,
+            },
+          },
+        };
       }
       return elastic;
     },
