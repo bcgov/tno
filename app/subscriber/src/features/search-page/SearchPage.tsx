@@ -198,6 +198,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
         newFilter = mergeFilters(newFilter);
         const settings = filterFormat(newFilter);
         const query = genQuery(settings);
+        if (!query) return;
         let res;
         let groupStoredContent = false;
         if (!storedContent) {

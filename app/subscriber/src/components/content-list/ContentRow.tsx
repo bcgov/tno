@@ -67,10 +67,10 @@ export const ContentRow: React.FC<IContentRowProps> = ({
 
   const body = React.useMemo(() => {
     const truncated = truncateTeaser(item.body || item.summary, 250);
-    return formatSearch(truncated, filter);
+    return filter.inStory ? formatSearch(truncated, filter) : truncated;
   }, [filter, item.body, item.summary]);
   const headline = React.useMemo(() => {
-    return formatSearch(item.headline, filter);
+    return filter.inHeadline ? formatSearch(item.headline, filter) : item.headline;
   }, [filter, item.headline]);
 
   const bodyTermHighlighted = highlighTerms

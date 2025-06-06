@@ -12,10 +12,10 @@ function escapeRegExp(string: string): string {
 
 // Split tokens, but keep quoted phrases and parentheses intact.
 const splitTokenGroupsRegex = /"([^"]+)"|\([^)]+\)|[^\s()"]+/g;
-// Find all keywords that should be removed from the search.
-const removeKeywordsRegex = /^AND|&&|\+|OR|\||\|\|$/g;
 // Split tokens by whitespace or quoted phrases, but keep quoted phrases intact.
-const slitTokensRegex = /"([^"]*)"|\S+/g;
+const splitTokensRegex = /"([^"]*)"|\S+/g;
+// Find all keywords that should be removed from the search.
+const removeKeywordsRegex = /^(AND|&&|\+|OR|\||\|\|)$/g;
 // Find any not keywords that identify tokens that should be excluded from the search.
 const notRegex = /^-|!|NOT/;
 
@@ -26,11 +26,11 @@ const notRegex = /^-|!|NOT/;
  */
 const extractTokens = (text: string) => {
   const value = text.replace(/[()]/g, '');
-  const tokens = value.match(slitTokensRegex);
+  const tokens = value.match(splitTokensRegex);
   return (
     tokens
       ?.filter((token) => token.match(removeKeywordsRegex) === null)
-      ?.map((token) => token.replaceAll('"', '')) || []
+      ?.map((token) => token.replaceAll('"', '').replace('+', '')) || []
   );
 };
 
@@ -73,8 +73,6 @@ export const formatSearch = (text: string, filter: IFilterSettingsModel) => {
 
   if (tokens.length === 0) return parse(text);
 
-  console.debug(tokens);
-
   let includePatterns: string[] = [];
   let excludePatterns: string[] = [];
 
@@ -104,7 +102,7 @@ export const formatSearch = (text: string, filter: IFilterSettingsModel) => {
 
   // Build the regular expression and bold the matched words
   let includeRegex = new RegExp(`(${includePatterns.join('|')})`, 'gi');
-  let boldedText = text.replace(includeRegex, `<b><mark>$&</mark></b>`);
+  let boldedText = text.replace(includeRegex, `<b>$&</b>`);
 
   // Use exclude patterns not bold "-"
   if (excludePatterns.length > 0) {
