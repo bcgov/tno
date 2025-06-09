@@ -256,8 +256,8 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
         const query = genQuery(settings);
         let res;
         if (!storedContent) {
-          storeFrom(query.from ?? 0);
-          res = await validateElasticsearchQuery(query, filter.searchUnpublished, 'headline');
+          storeFrom(query?.from ?? 0);
+          res = await validateElasticsearchQuery(query ?? {}, filter.searchUnpublished, 'headline');
           validationResults(res);
         }
       } catch {

@@ -282,9 +282,11 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
     if (queryValidateResult[0].startsWith('ERROR:')) {
       return (
         <div className="query-title-container">
-          <span className="query-title-label">{'Search Query Validation Failed'}</span>
-          <FaCircleXmark className="query-icon-red" />
-          <span className="query-text-red">{'Error:'}</span>
+          <span className="query-title-label">
+            {'Search Query Validation Failed'}
+            <FaCircleXmark className="query-icon-red" />
+            <span className="query-text-red">{'Error:'}</span>
+          </span>
         </div>
       );
     }
