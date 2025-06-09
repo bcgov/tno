@@ -5,7 +5,19 @@ Main window for the S3 downloader application.
 import logging
 
 from PySide6.QtCore import Slot
-from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QSplitter, QVBoxLayout, QWidget
+from PySide6.QtGui import QAction
+from PySide6.QtWidgets import (
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QHBoxLayout,
+    QLineEdit,
+    QMainWindow,
+    QSpinBox,
+    QSplitter,
+    QVBoxLayout,
+    QWidget,
+)
 
 from .components.buttons_panel import ButtonsPanel
 from .components.history_widget import HistoryWidget
@@ -38,6 +50,9 @@ class MainWindow(QMainWindow):
         self.settings_controller = SettingsController()
         self.download_controller = DownloadController(self.settings_controller)
         self.scheduler = Scheduler(self.settings_controller.scheduler_interval)
+
+        # Create menu bar
+        self.create_menu_bar()
 
         # Create central widget and main layout
         self.central_widget = QWidget()
@@ -78,6 +93,58 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("Ready")
 
         logger.info("Main window initialized")
+
+    def create_menu_bar(self):
+        """Create menu bar with settings options."""
+        self.menu_bar = self.menuBar()
+
+        self.settings_menu = self.menu_bar.addMenu("Settings")
+
+        self.s3_settings_action = QAction("S3 Settings", self)
+        self.s3_settings_action.triggered.connect(self.show_s3_settings)
+        self.settings_menu.addAction(self.s3_settings_action)
+
+    @Slot()
+    def show_s3_settings(self):
+        """Show S3 settings dialog."""
+        dialog = QDialog(self)
+        dialog.setWindowTitle("S3 settings")
+        dialog.setMinimumSize(400, 210)
+        layout = QFormLayout(dialog)
+
+        service_url = QLineEdit(self.settings_controller.s3_settings["SERVICE_URL"])
+        bucket_name = QLineEdit(self.settings_controller.s3_settings["BUCKET_NAME"])
+        access_key = QLineEdit(self.settings_controller.s3_settings["ACCESS_KEY"])
+        access_key.setEchoMode(QLineEdit.EchoMode.Password)  # password mode
+        secret_key = QLineEdit(self.settings_controller.s3_settings["SECRET_KEY"])
+        secret_key.setEchoMode(QLineEdit.EchoMode.Password)  # password mode
+        timeout = QSpinBox()
+        timeout.setRange(1, 300)
+        timeout.setValue(self.settings_controller.s3_settings["TIMEOUT"])
+
+        layout.addRow("service url:", service_url)
+        layout.addRow("bucket name:", bucket_name)
+        layout.addRow("access key:", access_key)
+        layout.addRow("secret key:", secret_key)
+        layout.addRow("timeout(seconds):", timeout)
+
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        )
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        layout.addRow(buttons)
+
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            s3_settings = {
+                "SERVICE_URL": service_url.text(),
+                "BUCKET_NAME": bucket_name.text(),
+                "ACCESS_KEY": access_key.text(),
+                "SECRET_KEY": secret_key.text(),
+                "TIMEOUT": timeout.value(),
+            }
+            self.settings_controller.update_settings("s3", s3_settings)
+            self.log_widget.log_message("S3 settings updated")
 
     def create_ui_components(self):
         """Create UI components."""
