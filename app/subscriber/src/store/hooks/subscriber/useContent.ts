@@ -1,4 +1,8 @@
-import { KnnSearchResponse, MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
+import {
+  IndicesValidateQueryResponse,
+  KnnSearchResponse,
+  MsearchMultisearchBody,
+} from '@elastic/elasticsearch/lib/api/types';
 import { AxiosResponse } from 'axios';
 import React from 'react';
 import { useContentStore } from 'store/slices';
@@ -18,6 +22,11 @@ export interface IContentController {
     includeUnpublishedContent: boolean,
     store?: keyof IContentState,
   ) => Promise<KnnSearchResponse<IContentModel>>;
+  validateElasticsearchQuery: (
+    filter: MsearchMultisearchBody,
+    includeUnpublishedContent: boolean,
+    fieldNames: string,
+  ) => Promise<IndicesValidateQueryResponse>;
   getContent: (id: number) => Promise<IContentModel | undefined>;
   download: (id: number, fileName: string) => Promise<unknown>;
   storeSearchFilter: (filter: IFilterSettingsModel) => void;
@@ -80,6 +89,16 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
               break;
           }
         }
+        return response.data;
+      },
+      validateElasticsearchQuery: async (
+        filter: MsearchMultisearchBody,
+        includeUnpublishedContent: boolean,
+        fieldNames: string,
+      ) => {
+        const response = await dispatch('validate-elasticsearch-query', () =>
+          api.validateElasticsearchQuery(filter, includeUnpublishedContent, fieldNames),
+        );
         return response.data;
       },
       getContent: async (id: number) => {

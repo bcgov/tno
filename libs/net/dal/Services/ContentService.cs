@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.Core.Exceptions;
@@ -19,6 +20,7 @@ public class ContentService : BaseService<Content, long>, IContentService
     #region Variables
     private readonly ITNOElasticClient _client;
     private static readonly ContentStatus[] _onlyPublished = new[] { ContentStatus.Publish, ContentStatus.Published };
+    private static readonly string[] ValidateQueryFieldNames = new string[] {"simple_query_string", "query_string"};
     #endregion
 
     #region Properties
@@ -178,6 +180,107 @@ public class ContentService : BaseService<Content, long>, IContentService
     public async Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindWithElasticsearchAsync(string index, JsonDocument filter)
     {
         return await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, filter);
+    }
+
+    /// <summary>
+    /// Validate JSON query and return results.
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="filter"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public async Task<Elastic.Models.ValidateResultModel> ValidateElasticsearchSimpleQueryAsync(string index, JsonDocument filter, string? arrayFieldNames)
+    {
+        var emptyResult = new Elastic.Models.ValidateResultModel();
+        if (filter != null)
+        {
+            JsonObject? filterJsonObject = JsonSerializer.Deserialize<JsonObject>(filter);
+            if (filterJsonObject == null) return emptyResult;
+
+            // remove "size" and "sort" fields which are not accepted by validate request
+            RemoveJsonObjectKey("size", filterJsonObject);
+            RemoveJsonObjectKey("sort", filterJsonObject);
+            if (filterJsonObject["query"]?["bool"]?["must"] == null) return emptyResult;
+
+            JsonArray? jsonArray = filterJsonObject["query"]?["bool"]?["must"]?.AsArray();
+            var toRemoveIndexList = new List<int>();
+            for (int i = 0; i < jsonArray?.Count(); i++)
+            {
+                var node = jsonArray[i];
+                if (node != null)
+                {
+                    if (ValidateQueryFieldNames.Any(x => node.AsObject().ContainsKey(x)))
+                    {
+                        var fieldName = ValidateQueryFieldNames.Where(x => node.AsObject().ContainsKey(x)).FirstOrDefault();
+                        if (!string.IsNullOrEmpty(fieldName))
+                        {
+                            var nodeValue = node[fieldName];
+                            if (nodeValue != null)
+                            {
+                                if (nodeValue["fields"] != null)
+                                {
+                                    var fieldsValues = nodeValue?["fields"]?.AsArray();
+                                    UpdateFieldsArray(fieldsValues, arrayFieldNames);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        toRemoveIndexList.Add(i);
+                    }
+                }
+            }
+            for (int i = toRemoveIndexList.Count() - 1; i >= 0; i--)
+            {
+                jsonArray?.RemoveAt(toRemoveIndexList[i]);
+            }
+            var query = JsonSerializer.Deserialize<JsonDocument>(filterJsonObject);
+            if (query != null)
+            {
+                return await _client.ValidateAsync(index, query);
+            }
+        }
+        return emptyResult;
+    }
+
+    /// <summary>
+    /// Customize field names array.
+    /// </summary>
+    /// <param name="fieldsValues"></param>
+    /// <param name="arrayFieldName"></param>
+    private void UpdateFieldsArray(JsonArray? fieldsValues, string? arrayFieldNames)
+    {
+        if (fieldsValues == null || string.IsNullOrEmpty(arrayFieldNames)) return;
+        var toRemoveIndexList = new List<int>();
+        for (int j = 0; j < fieldsValues.Count(); j++)
+        {
+            toRemoveIndexList.Add(j);
+        }
+        for (int j = toRemoveIndexList.Count() - 1; j >= 0; j--)
+        {
+            fieldsValues.RemoveAt(toRemoveIndexList[j]);
+        }
+        var fieldNameList = arrayFieldNames.Split(',');
+        foreach (var fieldName in fieldNameList)
+        {
+            fieldsValues.Add(JsonValue.Create(fieldName));            
+        }
+    }
+
+    /// <summary>
+    /// Remove json object key
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="jobject"></param>
+    /// <returns></returns>
+    private void RemoveJsonObjectKey(string key, JsonObject? jobject)
+    {
+        if (jobject == null) return;
+        if (jobject.ContainsKey(key))
+        {
+            jobject.Remove(key);
+        }
     }
 
     /// <summary>
