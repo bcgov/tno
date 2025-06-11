@@ -99,7 +99,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 var sourceContent = CreateSourceContent(manager.Ingest, item);
 
                 // Fetch content reference.
-                var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, sourceContent.Uid);
+                var reference = await this.FindContentReferenceAsync(sourceContent.Source, sourceContent.Uid);
                 if (reference == null)
                 {
                     reference = await AddContentReferenceAsync(manager.Ingest, item, sourceContent);
