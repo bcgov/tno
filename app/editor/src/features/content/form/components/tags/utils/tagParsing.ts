@@ -7,22 +7,32 @@ import { IParsedTag, Tag } from '../types';
  * input [tag1, tag2], output [{tag: 'TAG1', original: 'tag1'}, {tag: 'TAG2', original: 'tag2'}]
  */
 export const parseTagsWithOriginalFormat = (text: string): IParsedTag[] => {
-  const tagPattern = /\[([^\]]+)\]/g;
-  const matches = text.match(tagPattern);
-  if (!matches) return [];
+  // Only match tags at the very end of the text after any content
+  // This regex looks for tags that appear before </p> or at the end of text
+  const tagPattern = /(\s*\[([^\]]+)\])+(?=<\/p>|$)/;
+  const match = text.match(tagPattern);
+  if (!match) return [];
 
-  return matches
-    .map((match) =>
-      match
-        .slice(1, -1)
-        .split(',')
-        .map((tag: string) => tag.trim())
-        .map((tag: string) => ({
-          tag: tag.toUpperCase(),
-          original: tag,
-        })),
-    )
-    .flat();
+  // Extract all tag blocks from the matched portion
+  const tagBlocks = match[0].match(/\[([^\]]+)\]/g);
+  if (!tagBlocks) return [];
+
+  // Parse all tags from all blocks at the end
+  const allTags: IParsedTag[] = [];
+  tagBlocks.forEach((block) => {
+    const tagContent = block.slice(1, -1); // Remove [ and ]
+    tagContent.split(',').forEach((tag) => {
+      const trimmedTag = tag.trim();
+      if (trimmedTag) {
+        allTags.push({
+          tag: trimmedTag.toUpperCase(),
+          original: trimmedTag,
+        });
+      }
+    });
+  });
+
+  return allTags;
 };
 
 /**
@@ -66,8 +76,9 @@ export const formatTextWithTags = (
   const currentText = text ?? '';
   const hasTrailingNewline = currentText?.endsWith('\n') || false;
 
-  // remove all [...] formatted tags
-  let newText = (currentText || '').replace(/\s*\[([^\]]*)\](\s|$)*/g, '').trimEnd();
+  // Only remove tags at the end of the text (after content), preserve tags in middle lines
+  // This regex removes all consecutive tags that appear before </p> or at the end of text
+  let newText = (currentText || '').replace(/(\s*\[([^\]]*)\])+(?=<\/p>|$)/, '').trimEnd();
 
   // add new tags (if any)
   if (tagCodes.length > 0) {
