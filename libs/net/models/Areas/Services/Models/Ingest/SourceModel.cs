@@ -1,5 +1,5 @@
-using TNO.API.Models;
 using System.Text.Json;
+using TNO.API.Models;
 
 namespace TNO.API.Areas.Services.Models.Ingest;
 
@@ -50,22 +50,22 @@ public class SourceModel : AuditColumnsModel
     public LicenseModel? License { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - The default owner of this content.
     /// </summary>
     public int? OwnerId { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - The media type override for ingested content.
     /// </summary>
-    public int? MediaTypeId { get; set; }//fixed
+    public int? MediaTypeId { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - Whether to auto transcribe the content when ingested.
     /// </summary>
     public bool AutoTranscribe { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - Whether to disable the ability for subscribers to request a transcript.
     /// </summary>
     public bool DisableTranscribe { get; set; }
 
