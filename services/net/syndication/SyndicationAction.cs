@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Globalization;
 using System.Net.Http.Headers;
 using System.ServiceModel.Syndication;
@@ -32,6 +33,9 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
 {
     #region Variables
     private readonly IHttpRequestClient _httpClient;
+    private readonly object _lock = new object();
+    private string? _etag;
+    private readonly ConcurrentDictionary<string, int?> _sourceMediaTypeMap = new ConcurrentDictionary<string, int?>();
     #endregion
 
     #region Properties
@@ -66,6 +70,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
 
         // This ingest has just begun running.
         await manager.UpdateIngestStateFailedAttemptsAsync(manager.Ingest.FailedAttempts);
+        await GetSourcesConfigurationAsync();
 
         var url = GetUrl(manager.Ingest);
 
@@ -140,6 +145,37 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 // This ingest has just completed running for one content item.
                 await manager.UpdateIngestStateFailedAttemptsAsync(manager.Ingest.FailedAttempts);
             }
+        }
+    }
+
+    /// <summary>
+    /// Make a request to the API for all the source configurations.
+    /// Store their mediaTypeId override value in memory.
+    /// </summary>
+    /// <returns></returns>
+    private async Task GetSourcesConfigurationAsync()
+    {
+        try
+        {
+            // Fetch the latest configuration values.
+            var response = String.IsNullOrWhiteSpace(_etag) ? await this.Api.GetSourcesResponseAsync() : await this.Api.GetSourcesResponseWithEtagAsync(_etag);
+            var etag = this.Api.GetResponseEtag(response);
+            lock (_lock)
+            {
+                _etag = etag;
+            }
+            var sources = await this.Api.GetResponseDataAsync<SourceModel[]>(response);
+            if (sources != null)
+            {
+                foreach (var source in sources)
+                {
+                    _sourceMediaTypeMap.AddOrUpdate(source.Code, code => source.MediaTypeId, (code, oldId) => source.MediaTypeId);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            this.Logger.LogError(ex, "Failed to fetch sources");
         }
     }
 
@@ -275,6 +311,19 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     }
 
     /// <summary>
+    /// Determine the media type for the specified ingest and source.
+    /// If the source has an override, use it.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <param name="source"></param>
+    /// <returns></returns>
+    private int DetermineMediaType(IngestModel ingest, string source)
+    {
+        _sourceMediaTypeMap.TryGetValue(source, out var mediaTypeId);
+        return mediaTypeId ?? ingest.MediaTypeId;
+    }
+
+    /// <summary>
     /// Create a SourceContent object that can be sent to Kafka.
     /// </summary>
     /// <param name="ingest"></param>
@@ -287,6 +336,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
         var publishedOn = item.PublishDate.UtcDateTime != DateTime.MinValue ? item.PublishDate.UtcDateTime : (DateTime?)null;
         var uid = Runners.BaseService.GetContentHash(source, title, publishedOn);
+        var mediaTypeId = DetermineMediaType(ingest, source);
         string? media = null;
 
         // Extract values from namespaces.  I don't know a better way to do this.
@@ -304,7 +354,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             this.Options.DataLocation,
             source,
             contentType,
-            ingest.MediaTypeId,
+            mediaTypeId,
             uid,
             title,
             StringExtensions.ConvertTextToParagraphs(summary, @"[\r\n]+"),
