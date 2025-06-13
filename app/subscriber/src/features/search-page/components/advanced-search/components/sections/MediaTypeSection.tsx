@@ -1,5 +1,5 @@
 import React from 'react';
-import { useContent, useLookupOptions } from 'store/hooks';
+import { useApp, useContent, useLookupOptions } from 'store/hooks';
 import { Button, ButtonVariant, Checkbox, FieldSize, Row, Select, Show } from 'tno-core';
 
 import { IFilterDisplayProps } from './IFilterDisplayProps';
@@ -12,6 +12,7 @@ export const MediaTypeSection: React.FC<IFilterDisplayProps> = ({ displayFilters
     },
     { storeSearchFilter: storeFilter },
   ] = useContent();
+  const [{ userInfo }] = useApp();
   const [{ mediaTypeOptions }] = useLookupOptions();
 
   return (
@@ -35,24 +36,26 @@ export const MediaTypeSection: React.FC<IFilterDisplayProps> = ({ displayFilters
               Deselect All
             </Button>
           </div>
-          {mediaTypeOptions.map((item, index) => (
-            <div key={`chk-media-type-${index}`} className="chk-box-container chk-media-type">
-              <Checkbox
-                id={`chk-media-type-${index}`}
-                label={item.label}
-                checked={filter.mediaTypeIds?.includes(+item.value!)}
-                value={item.value}
-                onChange={(e) => {
-                  storeFilter({
-                    ...filter,
-                    mediaTypeIds: e.target.checked
-                      ? [...(filter.mediaTypeIds ?? []), +e.target.value] // add it
-                      : filter.mediaTypeIds?.filter((i) => i !== +e.target.value), // remove it
-                  });
-                }}
-              />
-            </div>
-          ))}
+          {mediaTypeOptions
+            .filter((mt) => !userInfo?.mediaTypes.includes(+mt.value!))
+            .map((item, index) => (
+              <div key={`chk-media-type-${index}`} className="chk-box-container chk-media-type">
+                <Checkbox
+                  id={`chk-media-type-${index}`}
+                  label={item.label}
+                  checked={filter.mediaTypeIds?.includes(+item.value!)}
+                  value={item.value}
+                  onChange={(e) => {
+                    storeFilter({
+                      ...filter,
+                      mediaTypeIds: e.target.checked
+                        ? [...(filter.mediaTypeIds ?? []), +e.target.value] // add it
+                        : filter.mediaTypeIds?.filter((i) => i !== +e.target.value), // remove it
+                    });
+                  }}
+                />
+              </div>
+            ))}
         </div>
       </Show>
       <Show visible={displayFiltersAsDropdown}>
