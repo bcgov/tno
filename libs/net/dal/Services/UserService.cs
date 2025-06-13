@@ -128,7 +128,10 @@ public class UserService : BaseService<User, int>, IUserService
     public User? FindByUsername(string username)
     {
         return this.Context.Users
-            .Where(u => u.Username.ToLower() == username.ToLower()).FirstOrDefault();
+            .Include(u => u.MediaTypes)
+            .Include(u => u.Sources)
+            .Where(u => u.Username.ToLower() == username.ToLower())
+            .FirstOrDefault();
     }
 
     public IEnumerable<User> FindByEmail(string email)
