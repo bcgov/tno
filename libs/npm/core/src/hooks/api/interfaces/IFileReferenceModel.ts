@@ -1,6 +1,7 @@
 import { IAuditColumnsModel } from './IAuditColumnsModel';
 
 export interface IFileReferenceModel extends IAuditColumnsModel {
+  id: number;
   contentId: number;
   contentType: string;
   fileName: string;
