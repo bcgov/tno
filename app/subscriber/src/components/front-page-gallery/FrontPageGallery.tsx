@@ -14,6 +14,8 @@ interface IFrontPageGallery extends React.HTMLAttributes<HTMLDivElement> {
 interface IImage {
   url: string;
   id: number;
+  contentId: number;
+  alt: string;
 }
 
 export const FrontPageGallery: React.FC<IFrontPageGallery> = ({ frontpages }) => {
@@ -26,8 +28,13 @@ export const FrontPageGallery: React.FC<IFrontPageGallery> = ({ frontpages }) =>
       frontpages
         .filter((fp) => fp.fileReferences?.length)
         .map(async (fp) => {
-          const result = await stream(fp.fileReferences![0].path);
-          return { url: result, id: fp.id };
+          const fr = fp.fileReferences[0];
+          return {
+            url: await stream(fr.path),
+            id: fr.id,
+            alt: fp.headline,
+            contentId: fp.id,
+          };
         }),
     );
     srcUrls.then((results) => setSrcUrls(results));
@@ -38,11 +45,11 @@ export const FrontPageGallery: React.FC<IFrontPageGallery> = ({ frontpages }) =>
       <Row justifyContent="center" className="content">
         {srcUrls.map((s) => (
           <img
-            key={s.url}
-            alt={`${s.id}`}
+            key={s.id}
+            alt={`${s.alt}`}
             className="front-page"
             src={s.url}
-            onClick={() => navigateAndScroll(`/view/${s.id}`)}
+            onClick={() => navigateAndScroll(`/view/${s.contentId}`)}
           />
         ))}
       </Row>
