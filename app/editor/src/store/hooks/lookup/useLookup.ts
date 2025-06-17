@@ -15,6 +15,7 @@ import {
   IMediaTypeModel,
   IMetricModel,
   IMinisterModel,
+  IOrganizationModel,
   IRoleModel,
   ISeriesModel,
   ISettingModel,
@@ -147,6 +148,11 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               saveToLocalStorage(StorageKeys.Settings, results.settings, store.storeSettings);
               saveToLocalStorage(StorageKeys.Holidays, results.holidays, store.storeHolidays);
               saveToLocalStorage(StorageKeys.Ministers, results.ministers, store.storeMinisters);
+              saveToLocalStorage(
+                StorageKeys.Organizations,
+                results.organizations,
+                store.storeOrganizations,
+              );
               return results;
             } else {
               const lookups = {
@@ -178,6 +184,10 @@ export const useLookup = (): [ILookupState, ILookupController] => {
                 settings: getFromLocalStorage<ISettingModel[]>(StorageKeys.Settings, []),
                 holidays: getFromLocalStorage<IHolidayModel[]>(StorageKeys.Holidays, []),
                 ministers: getFromLocalStorage<IMinisterModel[]>(StorageKeys.Ministers, []),
+                organizations: getFromLocalStorage<IOrganizationModel[]>(
+                  StorageKeys.Organizations,
+                  [],
+                ),
                 systemMessages: [],
               };
               store.storeActions(lookups.actions);
@@ -199,6 +209,10 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               store.storeSettings(lookups.settings);
               store.storeHolidays(lookups.holidays);
               store.storeMinisters(lookups.ministers);
+              console.log(
+                `====****-----lookups.organizations----${JSON.stringify(lookups.organizations)}`,
+              );
+              store.storeOrganizations(lookups.organizations);
               return lookups;
             }
           },
