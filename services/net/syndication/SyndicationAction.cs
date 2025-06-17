@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Globalization;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.ServiceModel.Syndication;
 using System.Text;
@@ -170,6 +171,14 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 foreach (var source in sources)
                 {
                     _sourceMediaTypeMap.AddOrUpdate(source.Code, code => source.MediaTypeId, (code, oldId) => source.MediaTypeId);
+                }
+                var current = _sourceMediaTypeMap.Keys.ToArray() ?? [];
+                var latest = sources.Select(s => s.Code).ToArray();
+                var removeSources = current.Where(code => !latest.Contains(code));
+                foreach (var source in removeSources)
+                {
+                    // Remove any sources that no longer exist.
+                    _sourceMediaTypeMap.Remove(source, out int? value);
                 }
             }
         }
