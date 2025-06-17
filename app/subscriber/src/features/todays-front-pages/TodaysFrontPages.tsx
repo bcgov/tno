@@ -3,7 +3,7 @@ import { DateFilter } from 'components/date-filter';
 import { FrontPageGallery } from 'components/front-page-gallery';
 import React from 'react';
 import { useApp, useContent, useSettings } from 'store/hooks';
-import { generateFilterQuery, IContentModel, IFilterSettingsModel, Loader } from 'tno-core';
+import { generateMustQuery, IContentModel, IFilterSettingsModel, Loader } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -63,7 +63,7 @@ export const TodaysFrontPages: React.FC = () => {
         frontPageFilter?.startDate !== filter?.startDate ||
         frontPageFilter?.endDate !== filter?.endDate)
     ) {
-      fetchResults(generateFilterQuery(frontPageFilter)).catch(() => {});
+      fetchResults(generateMustQuery(frontPageFilter)).catch(() => {});
       setFilter(frontPageFilter);
     }
   }, [fetchResults, filter?.dateOffset, filter?.endDate, filter?.startDate, frontPageFilter]);
