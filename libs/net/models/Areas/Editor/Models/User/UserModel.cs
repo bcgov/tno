@@ -80,6 +80,11 @@ public class UserModel
     public string Note { get; set; } = "";
 
     /// <summary>
+    /// get/set - An array of organization this user belongs to.
+    /// </summary>
+    public IEnumerable<OrganizationModel> Organizations { get; set; } = Array.Empty<OrganizationModel>();
+
+    /// <summary>
     /// get/set - The user preferences.
     /// </summary>
     public JsonDocument Preferences { get; set; } = JsonDocument.Parse("{}");
@@ -112,6 +117,9 @@ public class UserModel
         this.LastLoginOn = entity.LastLoginOn;
         this.Note = entity.Note;
         this.Preferences = entity.Preferences;
+        this.Organizations = entity.OrganizationsManyToMany.Where(o => o.Organization != null).Select(o => new OrganizationModel(o.Organization!));
+        if (entity.Organizations.Any())
+            this.Organizations = entity.Organizations.Select(o => new OrganizationModel(o));
     }
     #endregion
 }

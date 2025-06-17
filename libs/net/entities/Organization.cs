@@ -54,6 +54,7 @@ public class Organization : BaseType<int>
     /// <param name="parent"></param>
     public Organization(string name, Organization? parent = null) : base(0, name)
     {
+        this.Name = name;
         this.Parent = parent;
         this.ParentId = parent?.Id;
     }
@@ -67,6 +68,7 @@ public class Organization : BaseType<int>
     public Organization(int id, string name, int? parentId = null) : base(id, name)
     {
         this.ParentId = parentId;
+        this.Name = name;
     }
     #endregion
 }

@@ -105,6 +105,11 @@ public class UserModel : AuditColumnsModel
     public IEnumerable<OrganizationModel> Organizations { get; set; } = Array.Empty<OrganizationModel>();
 
     /// <summary>
+    /// get/set - An array of organization this user belongs to.
+    /// </summary>
+    public IEnumerable<ReportModel> Reports { get; set; } = Array.Empty<ReportModel>();
+
+    /// <summary>
     /// get/set - An array of folders owned by this user.
     /// </summary>
     public IEnumerable<FolderModel> Folders { get; set; } = Array.Empty<FolderModel>();
@@ -164,6 +169,9 @@ public class UserModel : AuditColumnsModel
         this.Organizations = entity.OrganizationsManyToMany.Where(o => o.Organization != null).Select(o => new OrganizationModel(o.Organization!));
         if (entity.Organizations.Any())
             this.Organizations = entity.Organizations.Select(o => new OrganizationModel(o));
+        this.Reports = entity.ReportSubscriptionsManyToMany.Where(r => r.Report != null).Select(r => new ReportModel(r.Report!));
+        if (entity.Reports.Any())
+            this.Reports = entity.Reports.Select(r => new ReportModel(r));
         this.Folders = entity.Folders.Select(f => new FolderModel(f, serializerOptions ?? JsonSerializerOptions.Default));
         this.Filters = entity.Filters.Select(f => new FilterModel(f, serializerOptions ?? JsonSerializerOptions.Default));
         this.Sources = entity.SourcesManyToMany.Select(s => s.SourceId).ToArray();
@@ -233,6 +241,7 @@ public class UserModel : AuditColumnsModel
         }));
 
         entity.OrganizationsManyToMany.AddRange(model.Organizations.Select(o => new Entities.UserOrganization(entity.Id, o.Id)));
+        entity.ReportSubscriptionsManyToMany.AddRange(model.Reports.Select(o => new Entities.UserReport(entity.Id, o.Id)));
         entity.SourcesManyToMany.AddRange(model.Sources.Select(s => new Entities.UserSource(entity.Id, s)));
         entity.MediaTypesManyToMany.AddRange(model.MediaTypes.Select(s => new Entities.UserMediaType(entity.Id, s)));
         entity.Distribution.AddRange(model.Distribution.Select(d => new Entities.UserDistribution(entity.Id, d.Id)));

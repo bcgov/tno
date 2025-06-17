@@ -2,13 +2,17 @@ import { InputOption } from 'features/content/list-view/components/tool-bar/filt
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useLookup, useLookupOptions } from 'store/hooks';
+import { useReports } from 'store/hooks/admin';
 import {
   Col,
-  FormikCheckbox,
+  FieldSize,
   FormikSelect,
   FormikText,
   FormikTextArea,
   getEnumStringOptions,
+  getSortableOptions,
+  IOptionItem,
+  IReportModel,
   IUserModel,
   OptionItem,
   Row,
@@ -26,6 +30,25 @@ export const UserFormDirectUser: React.FC = () => {
   const [{ roles }] = useLookup();
   const [{ mediaTypeOptions, sourceOptions }] = useLookupOptions();
   const { values, setFieldValue } = useFormikContext<IUserModel>();
+  const [, { findReports }] = useReports();
+  const [reports, setReports] = React.useState<IReportModel[]>([]);
+  const [reportOptions, setReportOptions] = React.useState<IOptionItem[]>([]);
+  const [{ organizations, organizationOptions }] = useLookupOptions();
+
+  const initReports = React.useCallback(async () => {
+    try {
+      findReports({})
+        .then((data) => {
+          setReportOptions(getSortableOptions(data));
+          setReports(data);
+        })
+        .catch(() => {});
+    } catch {}
+  }, [findReports]);
+
+  React.useEffect(() => {
+    if (values.id && reports.length < 1) initReports();
+  }, [initReports, reports.length, values.id]);
 
   const [roleOptions, setRoleOptions] = React.useState(
     roles.map((r) => new OptionItem(r.name, r.id, !r.isEnabled)),
@@ -55,9 +78,6 @@ export const UserFormDirectUser: React.FC = () => {
                 required
                 isClearable={false}
               />
-            </Col>
-            <Col justifyContent="center">
-              <FormikCheckbox label="Is Enabled" name="isEnabled" />
             </Col>
           </Row>
           <Row>
@@ -91,9 +111,6 @@ export const UserFormDirectUser: React.FC = () => {
             <Col flex="1">
               <FormikText name="preferredEmail" label="Preferred Email" type="email" />
             </Col>
-            <Col justifyContent="center">
-              <FormikCheckbox label="Email Verified" name="emailVerified" />
-            </Col>
           </Row>
           <Row>
             <Col className="form-inputs" flex="1">
@@ -121,40 +138,76 @@ export const UserFormDirectUser: React.FC = () => {
           </Row>
           <FormikTextArea name="note" label="Note" />
         </Section>
-        <Section className="frm-in">
-          <label>Authorization</label>
-          <p>Assign roles to the user to grant access to application.</p>
-          <FormikSelect
-            label="Roles"
-            name="roles"
-            options={roleOptions}
-            placeholder="Select roles"
-            isMulti
-            value={roleOptions.filter((o) => values.roles?.some((r) => r === o.value)) ?? ''}
-            onChange={(e) => {
-              if (e) {
-                const values = e as OptionItem[];
-                setFieldValue(
-                  'roles',
-                  values.map((v) => v.value),
-                );
+        <Section className="frm-in no-border">
+          <Section className="frm-in">
+            <FormikSelect
+              name="organizations"
+              value={
+                values.organizations?.map((ct) =>
+                  organizationOptions.find((o) => o.value === ct.id),
+                ) ?? []
               }
-            }}
-            closeMenuOnSelect={false}
-            hideSelectedOptions={false}
-            components={{
-              Option: InputOption,
-            }}
-          />
-          <p>Limit the number of devices an account can sign in with.</p>
-          <FormikText
-            name="uniqueLogins"
-            label="# of devices allowed"
-            type="number"
-            tooltip="Zero means there is no limit"
-          />
-          <Section>
-            <p>Select the sources and media types this user should not have access to.</p>
+              label="Ministry or organization"
+              options={organizationOptions}
+              onChange={(newValue) => {
+                const options = newValue as IOptionItem;
+                setFieldValue(
+                  'organizations',
+                  options ? organizations.filter((org) => options.value === org.id) : [],
+                );
+              }}
+            />
+            <FormikSelect
+              label="Reports"
+              isMulti
+              name="reports"
+              options={reportOptions}
+              value={
+                values.reports?.map((ct) => reportOptions.find((o) => o.value === ct.id)) ?? []
+              }
+              onChange={(newValue) => {
+                const options = newValue as IOptionItem[];
+                setFieldValue(
+                  'reports',
+                  options
+                    ? reports.filter((report) => options.some((o) => o.value === report.id))
+                    : [],
+                );
+              }}
+            />
+          </Section>
+          <Section className="frm-in">
+            <label>Permissions</label>
+            <FormikSelect
+              label="Roles"
+              name="roles"
+              options={roleOptions}
+              placeholder="Select roles"
+              isMulti
+              value={roleOptions.filter((o) => values.roles?.some((r) => r === o.value)) ?? ''}
+              onChange={(e) => {
+                if (e) {
+                  const values = e as OptionItem[];
+                  setFieldValue(
+                    'roles',
+                    values.map((v) => v.value),
+                  );
+                }
+              }}
+              closeMenuOnSelect={false}
+              hideSelectedOptions={false}
+              components={{
+                Option: InputOption,
+              }}
+            />
+            <p>Assign roles to the user to grant access to application.</p>
+            <FormikText
+              name="uniqueLogins"
+              label="# of devices allowed"
+              type="number"
+              tooltip="Zero means there is no limit"
+            />
+            <p>Limit the number of devices an account can sign in with.</p>
             <FormikSelect
               label="Block access to sources"
               name="source"

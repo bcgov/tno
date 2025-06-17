@@ -16,6 +16,45 @@ export const UserForm = styled(FormPage)`
     align-self: start;
   }
 
+  .no-border {
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .button-actions {
+    margin-left: 0.2em;
+    margin-right: 0.2em;
+  }
+
+  .info-bar {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .info-bar-icon {
+      color: #f8bb47;
+      width: 22px;
+      height: 22px;
+    }
+    .info-bar-header {
+      padding-left: 0.5em;
+      font-weight: bold;
+    }
+    .info-bar-button {
+      background-color: white;
+      text-align: center;
+      display: inline-block;
+      margin-right: 1em;
+    }
+    background-color: #fef1d8;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    padding: 1em;
+  }
+
   .distribution-list {
     > div:first-child {
       align-items: flex-end;

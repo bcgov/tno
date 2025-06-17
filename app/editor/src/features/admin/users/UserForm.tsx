@@ -1,5 +1,6 @@
 import { FormikForm } from 'components/formik';
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
+import { FaExclamationTriangle, FaGripLines, FaTrash } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useUsers } from 'store/hooks/admin';
@@ -7,10 +8,12 @@ import {
   Button,
   ButtonVariant,
   Col,
+  FormikCheckbox,
   IconButton,
   IUserModel,
   Modal,
   Row,
+  Section,
   Show,
   Tab,
   Tabs,
@@ -63,7 +66,7 @@ const UserForm: React.FC = () => {
         setUser(data);
       });
     }
-  }, [api, initUser, type, user?.id, userId]);
+  }, [api, initUser, type, user.id, user.isEnabled, userId]);
 
   React.useEffect(() => {
     setActive(tab ?? 'details');
@@ -78,6 +81,58 @@ const UserForm: React.FC = () => {
       if (!originalId) navigate(`/admin/users/${result.id}`);
     } catch {}
   };
+
+  const updateUserIsEnabled = React.useCallback(
+    async (userData: IUserModel) => {
+      try {
+        const result = await api.updateUser(userData);
+        setUser(result);
+        toast.success(`${result.username} has successfully been saved.`);
+      } catch {}
+    },
+    [api],
+  );
+
+  const toggleUserIsEnabled = React.useCallback(async () => {
+    try {
+      user.isEnabled = !user.isEnabled;
+      updateUserIsEnabled(user);
+    } catch {}
+  }, [updateUserIsEnabled, user]);
+
+  const isEnabledString = user.isEnabled ? '' : 'Account deactivated';
+
+  const HeaderBanner = React.useCallback(
+    (isSubmitting: any) => {
+      return (
+        <Show visible={user.isEnabled.toString() === 'false'}>
+          <div className="form-container">
+            <Section className="frm-in no-border">
+              <Row justifyContent="center">
+                <div className="info-bar">
+                  <span>
+                    <FaExclamationTriangle className="info-bar-icon" key="warning" />
+                    <span className="info-bar-header">{isEnabledString}</span>
+                  </span>
+                  <Button
+                    className="info-bar-button"
+                    onClick={() => {
+                      toggleUserIsEnabled();
+                    }}
+                    variant={ButtonVariant.secondary}
+                    disabled={isSubmitting.isSubmitting}
+                  >
+                    Reactivate
+                  </Button>
+                </div>
+              </Row>
+            </Section>
+          </div>
+        </Show>
+      );
+    },
+    [isEnabledString, toggleUserIsEnabled, user.isEnabled],
+  );
 
   return (
     <styled.UserForm>
@@ -151,9 +206,11 @@ const UserForm: React.FC = () => {
             >
               <Show visible={active === 'details'}>
                 <Show visible={values.accountType === UserAccountTypeName.Direct}>
+                  <HeaderBanner isSubmitting={isSubmitting} />
                   <UserFormDirectUser />
                 </Show>
                 <Show visible={values.accountType === UserAccountTypeName.Indirect}>
+                  <HeaderBanner isSubmitting={isSubmitting} />
                   <UserFormIndirectUser />
                 </Show>
                 <Show visible={values.accountType === UserAccountTypeName.Distribution}>
@@ -179,11 +236,40 @@ const UserForm: React.FC = () => {
               </Show>
             </Tabs>
             <Row justifyContent="center" className="form-inputs">
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} className="button-actions">
                 Save
               </Button>
+              <Show visible={values.isEnabled.toString() === 'true'}>
+                <Button
+                  className="button-actions"
+                  onClick={() => {
+                    toggleUserIsEnabled();
+                  }}
+                  variant={ButtonVariant.secondary}
+                  disabled={isSubmitting}
+                >
+                  Deactivate
+                </Button>
+              </Show>
+              <Show visible={values.isEnabled.toString() === 'false'}>
+                <Button
+                  className="button-actions"
+                  onClick={() => {
+                    toggleUserIsEnabled();
+                  }}
+                  variant={ButtonVariant.secondary}
+                  disabled={isSubmitting}
+                >
+                  Reactivate
+                </Button>
+              </Show>
               <Show visible={!!values.id}>
-                <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
+                <Button
+                  className="button-actions"
+                  onClick={toggle}
+                  variant={ButtonVariant.red}
+                  disabled={isSubmitting}
+                >
                   Delete
                 </Button>
               </Show>

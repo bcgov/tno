@@ -1,12 +1,17 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
+import { useLookupOptions } from 'store/hooks';
+import { useReports } from 'store/hooks/admin';
 import {
   Col,
-  FormikCheckbox,
+  FieldSize,
   FormikSelect,
   FormikText,
   FormikTextArea,
   getEnumStringOptions,
+  getSortableOptions,
+  IOptionItem,
+  IReportModel,
   IUserModel,
   Row,
   Section,
@@ -19,53 +24,108 @@ import {
  */
 export const UserFormIndirectUser: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IUserModel>();
+  const [{ organizations, organizationOptions }] = useLookupOptions();
+  const [, { findReports }] = useReports();
+  const [reports, setReports] = React.useState<IReportModel[]>([]);
+  const [reportOptions, setReportOptions] = React.useState<IOptionItem[]>([]);
 
   const accountTypeOptions = getEnumStringOptions(UserAccountTypeName).filter(
     (o) => o.value !== UserAccountTypeName.SystemAccount,
   );
 
+  const initReports = React.useCallback(async () => {
+    try {
+      findReports({})
+        .then((data) => {
+          setReportOptions(getSortableOptions(data));
+          setReports(data);
+        })
+        .catch(() => {});
+    } catch {}
+  }, [findReports]);
+
+  React.useEffect(() => {
+    if (values.id && reports.length < 1) initReports();
+  }, [initReports, reports.length, values.id]);
+
   return (
     <div className="form-container">
-      <Section className="frm-in">
-        <label>Account Information</label>
-        <FormikSelect
-          name="accountType"
-          label="Account Type"
-          options={accountTypeOptions}
-          value={accountTypeOptions.find((s) => s.value === values.accountType) || ''}
-          required
-          isClearable={false}
-        />
-        <FormikText
-          name="username"
-          label="Username"
-          required
-          onChange={(e) => setFieldValue('username', e.currentTarget.value.toUpperCase())}
-        />
-        <FormikText
-          name="email"
-          label="Email"
-          type="email"
-          required
-          onChange={(e) => setFieldValue('email', e.currentTarget.value)}
-        />
-        <Row>
-          <Col className="form-inputs">
-            <FormikText
-              name="displayName"
-              label="Display Name"
-              tooltip="Friendly name to use instead of username"
-            />
-            <FormikCheckbox label="Email Verified" name="emailVerified" />
-            <FormikCheckbox label="Is Enabled" name="isEnabled" />
-          </Col>
-          <Col className="form-inputs">
-            <FormikText name="firstName" label="First Name" />
-            <FormikText name="lastName" label="Last Name" />
-          </Col>
-        </Row>
-        <FormikTextArea name="note" label="Note" />
-      </Section>
+      <Row>
+        <Section className="frm-in">
+          <label>Account Information</label>
+          <FormikSelect
+            name="accountType"
+            label="Account Type"
+            options={accountTypeOptions}
+            value={accountTypeOptions.find((s) => s.value === values.accountType) || ''}
+            required
+            isClearable={false}
+          />
+          <FormikText
+            name="username"
+            label="Username"
+            required
+            onChange={(e) => setFieldValue('username', e.currentTarget.value.toUpperCase())}
+          />
+          <FormikText
+            name="email"
+            label="Email"
+            type="email"
+            required
+            onChange={(e) => setFieldValue('email', e.currentTarget.value)}
+          />
+          <FormikText
+            name="displayName"
+            label="Display Name"
+            tooltip="Friendly name to use instead of username"
+          />
+          <Row>
+            <Col className="form-inputs" flex="1">
+              <FormikText name="firstName" label="First Name" />
+            </Col>
+            <Col className="form-inputs" flex="1">
+              <FormikText name="lastName" label="Last Name" />
+            </Col>
+          </Row>
+          <FormikTextArea name="note" label="Note" />
+        </Section>
+        <Section className="frm-in">
+          <FormikSelect
+            name="organizations"
+            value={
+              values.organizations?.map((ct) =>
+                organizationOptions.find((o) => o.value === ct.id),
+              ) ?? []
+            }
+            label="Ministry or organization"
+            options={organizationOptions}
+            onChange={(newValue) => {
+              const options = newValue as IOptionItem;
+              setFieldValue(
+                'organizations',
+                options ? organizations.filter((org) => options.value === org.id) : [],
+              );
+            }}
+          />
+          <FormikSelect
+            label="Reports"
+            width={FieldSize.Big}
+            isMulti
+            name="reports"
+            options={reportOptions}
+            value={values.reports?.map((ct) => reportOptions.find((o) => o.value === ct.id)) ?? []}
+            onChange={(newValue) => {
+              const options = newValue as IOptionItem[];
+              setFieldValue(
+                'reports',
+                options
+                  ? reports.filter((report) => options.some((o) => o.value === report.id))
+                  : [],
+              );
+            }}
+          />
+        </Section>
+      </Row>
     </div>
   );
 };

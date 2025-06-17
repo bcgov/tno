@@ -17,4 +17,5 @@ export const defaultUser: IUserModel = {
   note: '',
   roles: [],
   uniqueLogins: 0,
+  organizations: [],
 };
