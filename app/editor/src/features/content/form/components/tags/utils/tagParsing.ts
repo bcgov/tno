@@ -20,7 +20,7 @@ export const parseTagsWithOriginalFormat = (text: string): IParsedTag[] => {
   // "bb[a] cc[c] time[ICBC,BC]" → matches [ICBC,BC] (at string end)
   // "<p>content[TAG]</p>" → matches [TAG] (before </p>)
   // "bb[a] cc[c] more text" → matches nothing (no tags at end)
-  const tagPattern = /\[([^\]]+)\](?=\s*(?:<\/p>|$))/g;
+  const tagPattern = /\[([^\]]+)\](?=\s*(?:<\/p>$))/g;
   const matches = text.match(tagPattern);
   if (!matches) return [];
 
@@ -92,7 +92,7 @@ export const formatTextWithTags = (
   //  "bb[a] cc[c] time[ICBC,BC]" → "bb[a] cc[c] time" (removes only end tags)
   //  "<p>content[TAG1][TAG2]</p>" → "<p>content</p>" (removes consecutive end tags)
   //  "bb[a] cc[c] more text" → unchanged (no tags at end to remove)
-  let newText = (currentText || '').replace(/(\s*\[([^\]]*)\])+(?=<\/p>|$)/, '').trimEnd();
+  let newText = (currentText || '').replace(/(\s*\[([^\]]*)\])+(?=<\/p>$)/, '').trimEnd();
 
   // add new tags (if any)
   if (tagCodes.length > 0) {
