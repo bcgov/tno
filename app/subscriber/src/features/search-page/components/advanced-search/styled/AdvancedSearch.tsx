@@ -222,13 +222,9 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     }
     .text-area-editor {
       width: auto;
-      resize: vertical;
-      padding: 0.3em;
       border: 1px solid rgb(96, 96, 96);
       border-radius: 0.3em;
-      height: 2.5em;
-      overflow-y: scroll;
-      resize: vertical;
+      height: 4em;
       textarea:focus {
         outline: none;
         border: none;

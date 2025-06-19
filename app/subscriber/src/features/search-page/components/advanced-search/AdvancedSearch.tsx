@@ -266,6 +266,10 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
     [search, searchTerms, genQuery, myFilters, addFilter, storeFilter, storeSearchFilter, navigate],
   );
 
+  const isAdvancedQueryType =
+    (search.queryType ?? AdvancedQueryOperatorOptions.simpleQueryString) ===
+    AdvancedQueryOperatorOptions.queryString;
+
   const handleSearchTermsChanged = React.useCallback(
     (value: string) => {
       setSearchTerms(value);
@@ -273,9 +277,11 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
         ...search,
         search: value,
       };
-      validateQuery?.(updatedFilterSettings);
+      if (isAdvancedQueryType) {
+        validateQuery?.(updatedFilterSettings);
+      }
     },
-    [setSearchTerms, search, validateQuery],
+    [search, isAdvancedQueryType, validateQuery],
   );
 
   const QueryValidateContent = React.useCallback(() => {
@@ -324,30 +330,29 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
   }, [queryValidateResult, searchTerms]);
 
   const QueryValidateSection = React.useCallback(() => {
-    if (queryValidateResult[0].startsWith('ERROR:')) {
+    if (isAdvancedQueryType) {
+      if (queryValidateResult[0].startsWith('ERROR:')) {
+        return (
+          <ExpandableRow
+            icon={<></>}
+            iconTitle={<QueryValidateContent />}
+            title={''}
+            hasValues={false}
+          >
+            <Row alignItems="center" justifyContent="space-between">
+              <ParsedQueryErrorTextArea />
+            </Row>
+          </ExpandableRow>
+        );
+      }
       return (
-        <ExpandableRow
-          icon={<></>}
-          iconTitle={<QueryValidateContent />}
-          title={''}
-          hasValues={false}
-        >
-          <Row alignItems="center" justifyContent="space-between">
-            <ParsedQueryErrorTextArea />
-          </Row>
-        </ExpandableRow>
+        <Row alignItems="center" justifyContent="space-between" className="query-validate-row">
+          <QueryValidateContent />
+        </Row>
       );
     }
-    return (
-      <Row alignItems="center" justifyContent="space-between" className="query-validate-row">
-        <QueryValidateContent />
-      </Row>
-    );
-  }, [ParsedQueryErrorTextArea, QueryValidateContent, queryValidateResult]);
-
-  const isAdvancedQueryType =
-    (search.queryType ?? AdvancedQueryOperatorOptions.simpleQueryString) ===
-    AdvancedQueryOperatorOptions.queryString;
+    return <></>;
+  }, [ParsedQueryErrorTextArea, QueryValidateContent, isAdvancedQueryType, queryValidateResult]);
 
   const toggleAdvancedQueryOperator = React.useCallback(() => {
     if (!search.queryType) {
@@ -440,16 +445,17 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
               <label className="search-in-label">Search for:</label>
               <ElasticQueryHelp queryType={search.queryType} />
               <Col className="text-area-container">
-                <div className="text-area-editor">
-                  <Editor
-                    id="searchText"
-                    value={searchTerms}
-                    onValueChange={handleSearchTermsChanged}
-                    highlight={(code: any) => {
-                      return highlight(code, languages.sql, 'sql');
-                    }}
-                  />
-                </div>
+                <Editor
+                  id="searchText"
+                  value={searchTerms}
+                  onValueChange={handleSearchTermsChanged}
+                  highlight={(code: any) => {
+                    return highlight(code, languages.sql, 'sql');
+                  }}
+                  className="text-area-editor"
+                  padding={5}
+                  style={{ overflow: 'auto', resize: 'vertical' }}
+                />
               </Col>
             </Row>
             <Col className="section">
