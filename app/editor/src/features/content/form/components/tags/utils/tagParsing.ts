@@ -7,7 +7,20 @@ import { IParsedTag, Tag } from '../types';
  * input [tag1, tag2], output [{tag: 'TAG1', original: 'tag1'}, {tag: 'TAG2', original: 'tag2'}]
  */
 export const parseTagsWithOriginalFormat = (text: string): IParsedTag[] => {
-  const tagPattern = /\[([^\]]+)\]/g;
+  // Core regex: Only matches tags at the very end of text or immediately before HTML paragraph closing tags
+  // Pattern breakdown:
+  // - \[([^\]]+)\] : Matches tag format like [TAG] and captures the content inside brackets
+  // - (?=\s*(?:<\/p>|$)) : Positive lookahead that ensures the tag is followed by:
+  //   - \s* : Zero or more whitespace characters
+  //   - <\/p> : HTML paragraph closing tag
+  //   - | : OR operator
+  //   - $ : End of string
+  //
+  // Examples:
+  // "bb[a] cc[c] time[ICBC,BC]" → matches [ICBC,BC] (at string end)
+  // "<p>content[TAG]</p>" → matches [TAG] (before </p>)
+  // "bb[a] cc[c] more text" → matches nothing (no tags at end)
+  const tagPattern = /\[([^\]]+)\](?=\s*(?:<\/p>$))/g;
   const matches = text.match(tagPattern);
   if (!matches) return [];
 
@@ -66,8 +79,20 @@ export const formatTextWithTags = (
   const currentText = text ?? '';
   const hasTrailingNewline = currentText?.endsWith('\n') || false;
 
-  // remove all [...] formatted tags
-  let newText = (currentText || '').replace(/\s*\[([^\]]*)\](\s|$)*/g, '').trimEnd();
+  // Removal regex: Only removes tags at the very end of text, preserving all middle-line content
+  //
+  // Pattern breakdown:
+  // - (\s*\[([^\]]*)\])+ : Matches one or more consecutive tag blocks with optional whitespace
+  //   - \s* : Zero or more whitespace before each tag
+  //   - \[([^\]]*)\] : Tag format [content], allows empty tags
+  //   - + : One or more occurrences
+  // - (?=<\/p>|$) : Positive lookahead ensuring tags are at end positions
+  //
+  // Examples:
+  //  "bb[a] cc[c] time[ICBC,BC]" → "bb[a] cc[c] time" (removes only end tags)
+  //  "<p>content[TAG1][TAG2]</p>" → "<p>content</p>" (removes consecutive end tags)
+  //  "bb[a] cc[c] more text" → unchanged (no tags at end to remove)
+  let newText = (currentText || '').replace(/(\s*\[([^\]]*)\])+(?=<\/p>$)/, '').trimEnd();
 
   // add new tags (if any)
   if (tagCodes.length > 0) {
