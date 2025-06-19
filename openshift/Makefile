@@ -79,4 +79,8 @@ up: ## Start up environment (e=environment).
 	$(info Start up environment (e=environment) [e=$(if $(e),$(e),dev)])
 	@cd ./scripts; ./up.sh $(if $(e),$(e),dev)
 
+annotate: ## Annotate an object.
+	$(info Annotate an object (n=name) [e=environment])
+	@cd ./scripts; ./annotate.sh $(if $(e),$(e),dev) $(n)
+
 .PHONY: local
