@@ -209,9 +209,6 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               store.storeSettings(lookups.settings);
               store.storeHolidays(lookups.holidays);
               store.storeMinisters(lookups.ministers);
-              console.log(
-                `====****-----lookups.organizations----${JSON.stringify(lookups.organizations)}`,
-              );
               store.storeOrganizations(lookups.organizations);
               return lookups;
             }
