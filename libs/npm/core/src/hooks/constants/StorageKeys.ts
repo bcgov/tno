@@ -19,4 +19,5 @@ export enum StorageKeys {
   Settings = 'settings',
   Holidays = 'holidays',
   SystemMessages = 'system_messages',
+  Organizations = 'organizations',
 }

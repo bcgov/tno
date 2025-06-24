@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -116,6 +117,8 @@ public class UserService : BaseService<User, int>, IUserService
         return this.Context.Users
             .Include(u => u.MediaTypesManyToMany)
             .Include(u => u.SourcesManyToMany)
+            .Include(u => u.OrganizationsManyToMany).ThenInclude(o => o.Organization)
+            .Include(u => u.ReportSubscriptionsManyToMany).ThenInclude(o => o.Report)
             .FirstOrDefault(u => u.Id == id);
     }
 
@@ -146,6 +149,11 @@ public class UserService : BaseService<User, int>, IUserService
         {
             source.User = entity;
             this.Context.Entry(source).State = EntityState.Added;
+        });
+        entity.OrganizationsManyToMany.ForEach(organization =>
+        {
+            organization.User = entity;
+            this.Context.Entry(organization).State = EntityState.Added;
         });
         entity.MediaTypesManyToMany.ForEach(mediaType =>
         {
@@ -187,6 +195,7 @@ public class UserService : BaseService<User, int>, IUserService
         if (String.IsNullOrWhiteSpace(entity.Code)) original.CodeCreatedOn = null;
         else if (original.Code != entity.Code) original.CodeCreatedOn = DateTime.UtcNow;
 
+        // update SourcesManyToMany
         var originalSources = this.Context.UserSources.Where(us => us.UserId == entity.Id).ToArray();
         originalSources.Except(entity.SourcesManyToMany).ForEach((source) =>
         {
@@ -202,6 +211,7 @@ public class UserService : BaseService<User, int>, IUserService
             }
         });
 
+        // update MediaTypesManyToMany
         var originalMediaTypes = this.Context.UserMediaTypes.Where(umt => umt.UserId == entity.Id).ToArray();
         originalMediaTypes.Except(entity.MediaTypesManyToMany).ForEach((mediaType) =>
         {
@@ -214,6 +224,38 @@ public class UserService : BaseService<User, int>, IUserService
             {
                 mediaType.UserId = original.Id;
                 this.Context.Entry(mediaType).State = EntityState.Added;
+            }
+        });
+
+        // update OrganizationsManyToMany
+        var originalOrganizations = this.Context.UserOrganizations.Where(umt => umt.UserId == entity.Id).ToArray();
+        originalOrganizations.Except(entity.OrganizationsManyToMany).ForEach((org) =>
+        {
+            this.Context.Entry(org).State = EntityState.Deleted;
+        });
+        entity.OrganizationsManyToMany.ForEach((org) =>
+        {
+            var originalOrganization = originalOrganizations.FirstOrDefault(s => s.OrganizationId == org.OrganizationId);
+            if (originalOrganization == null)
+            {
+                org.UserId = original.Id;
+                this.Context.Entry(org).State = EntityState.Added;
+            }
+        });
+
+        // update ReportSubscriptionsManyToMany
+        var originalReports = this.Context.UserReports.Where(umt => umt.UserId == entity.Id).ToArray();
+        originalReports.Except(entity.ReportSubscriptionsManyToMany).ForEach((org) =>
+        {
+            this.Context.Entry(org).State = EntityState.Deleted;
+        });
+        entity.ReportSubscriptionsManyToMany.ForEach((org) =>
+        {
+            var originalReport = originalReports.FirstOrDefault(s => s.ReportId == org.ReportId);
+            if (originalReport == null)
+            {
+                org.UserId = original.Id;
+                this.Context.Entry(org).State = EntityState.Added;
             }
         });
 

@@ -22,6 +22,7 @@ export interface ILookupOptionsState extends ILookupState {
   seriesOptions: IOptionItem[];
   contributorOptions: IOptionItem[];
   userOptions: IOptionItem[];
+  organizationOptions: IOptionItem[];
 }
 
 /**
@@ -41,13 +42,14 @@ export const useLookupOptions = ({ sourceMap }: ILookupOptionsProps = {}): [
   const [mediaTypeOptions, setMediaTypeOptions] = React.useState<IOptionItem[]>([]);
   const [userOptions, setUserOptions] = React.useState<IOptionItem[]>([]);
   const [ingestTypeOptions, setIngestTypeOptions] = React.useState<IOptionItem[]>([]);
+  const [organizationOptions, setOrganizationOptions] = React.useState<IOptionItem[]>([]);
 
   const userId =
     state.users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id ?? 0;
 
   React.useEffect(() => {
     setSourceOptions(getSourceOptions(state.sources, [], sourceMap));
-  }, [sourceMap, state.sources]);
+  }, [sourceMap, state.organizations, state.sources]);
 
   React.useEffect(() => {
     setSeriesOptions(getSortableOptions(state.series));
@@ -56,6 +58,10 @@ export const useLookupOptions = ({ sourceMap }: ILookupOptionsProps = {}): [
   React.useEffect(() => {
     setContributorOptions(getSortableOptions(state.contributors));
   }, [state.contributors]);
+
+  React.useEffect(() => {
+    setOrganizationOptions(getSortableOptions(state.organizations));
+  }, [state.organizations]);
 
   React.useEffect(() => {
     setMediaTypeOptions(getSortableOptions(state.mediaTypes));
@@ -82,6 +88,7 @@ export const useLookupOptions = ({ sourceMap }: ILookupOptionsProps = {}): [
       seriesOptions,
       contributorOptions,
       userOptions,
+      organizationOptions,
     },
     controller,
   ];

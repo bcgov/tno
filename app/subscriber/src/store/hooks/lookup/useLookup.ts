@@ -11,6 +11,7 @@ import {
   ILookupModel,
   IMediaTypeModel,
   IMetricModel,
+  IOrganizationModel,
   IRoleModel,
   ISeriesModel,
   ISettingModel,
@@ -94,6 +95,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
                 rules: getFromLocalStorage<ITopicScoreRuleModel[]>(StorageKeys.Rules, []),
                 ingestTypes: getFromLocalStorage<IIngestTypeModel[]>(StorageKeys.IngestTypes, []),
                 roles: getFromLocalStorage<IRoleModel[]>(StorageKeys.Roles, []),
+                organizations: getFromLocalStorage<IOrganizationModel[]>(StorageKeys.Roles, []),
                 contributors: getFromLocalStorage<IContributorModel[]>(
                   StorageKeys.Contributors,
                   [],
