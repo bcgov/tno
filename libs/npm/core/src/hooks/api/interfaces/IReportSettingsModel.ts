@@ -6,6 +6,7 @@ import {
 } from '.';
 
 export interface IReportSettingsModel {
+  from: string;
   subject: IReportSubjectSettingsModel;
   headline: IReportHeadlineSettingsModel;
   content: IReportContentSettingsModel;

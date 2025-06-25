@@ -52,6 +52,11 @@ public class ReportRequestModel
     public int? AssignedId { get; set; }
 
     /// <summary>
+    /// get/set - Email Address that this report will be sent from.
+    /// </summary>
+    public string? From { get; set; }
+
+    /// <summary>
     /// get/set - Comma separated email addresses that this report will be sent to instead of subscribers.
     /// </summary>
     public string To { get; set; } = "";

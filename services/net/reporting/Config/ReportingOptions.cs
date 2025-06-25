@@ -38,5 +38,10 @@ public class ReportingOptions : ServiceOptions
     /// get/set - Number of retries allowed when a concurrency error occurs.
     /// </summary>
     public int RetryConcurrencyFailureLimit { get; set; } = 10;
+
+    /// <summary>
+    /// get/set - The default email address to use when sending reports.
+    /// </summary>
+    public string DefaultFrom { get; set; } = "";
     #endregion
 }

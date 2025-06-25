@@ -233,7 +233,6 @@ public class ReportEngine : IReportEngine
         var optionsBytes = Encoding.UTF8.GetBytes(optionsJson);
         var optionsBase64 = Convert.ToBase64String(optionsBytes);
 
-
         // Send request to Charts API to generate base64
         var body = new StringContent(dataJson, Encoding.UTF8, System.Net.Mime.MediaTypeNames.Application.Json);
         var width = model.ChartTemplate.SectionSettings.Width.HasValue ? $"width={model.ChartTemplate.SectionSettings.Width.Value}" : "";
@@ -244,7 +243,7 @@ public class ReportEngine : IReportEngine
                 model.ChartTemplate.SectionSettings.ChartType ?? "bar",
                 $"?{width}{height}&options={optionsBase64}"),
             body);
-        this.Logger.LogDebug("Chart generated, chartTemplateId:{templateId} options:{options}", model.ChartTemplate.Id, optionsJson);
+        this.Logger.LogDebug("Chart generated, chartTemplateId:{templateId}", model.ChartTemplate.Id);
         return await response.Content.ReadAsStringAsync();
     }
 
@@ -499,7 +498,7 @@ public class ReportEngine : IReportEngine
                 {
                     chart.SectionSettings ??= new();
                     chart.SectionSettings.Options = MergeChartOptions(chart.Settings, chart.SectionSettings);
-                    var chartOptions = chart.SectionSettings.Options.ToJson();
+                    // var chartOptions = chart.SectionSettings.Options.ToJson();
 
                     var chartModel = new ChartEngineContentModel(
                         ReportSectionModel.GenerateChartUid(section.Id, chart.Id),
@@ -508,7 +507,7 @@ public class ReportEngine : IReportEngine
                         settings.UseAllContent ? null : content);
                     var chartRequestModel = new ChartRequestModel(chartModel);
                     var base64Image = await this.GenerateBase64ImageAsync(chartRequestModel);
-                    this.Logger.LogDebug("Chart generated, reportId:{reportId} instanceId:{instanceId} sectionId:{sectionId} chartId:{chartId} options:{options}", report.Id, reportInstance?.Id, section.Id, chart.Id, chartOptions);
+                    this.Logger.LogDebug("Chart generated, reportId:{reportId} instanceId:{instanceId} sectionId:{sectionId} chartId:{chartId}", report.Id, reportInstance?.Id, section.Id, chart.Id);
 
                     // Replace Chart Stubs with the generated image.
                     body = body.Replace(ReportSectionModel.GenerateChartUid(section.Id, chart.Id), base64Image);

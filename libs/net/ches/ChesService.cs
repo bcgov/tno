@@ -228,7 +228,7 @@ namespace TNO.Ches
         {
             ArgumentNullException.ThrowIfNull(email);
 
-            email.From = this.Options.From ?? email.From;
+            email.From = !String.IsNullOrWhiteSpace(this.Options.From) ? this.Options.From : email.From;
 
             if (this.Options.BccUser)
             {
