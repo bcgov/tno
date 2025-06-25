@@ -13,6 +13,7 @@ export const defaultReport = (ownerId: number, templateId: number): IReportForm 
     sortOrder: 0,
     hideEmptySections: false,
     settings: {
+      from: '',
       subject: {
         text: '',
         showTodaysDate: false,

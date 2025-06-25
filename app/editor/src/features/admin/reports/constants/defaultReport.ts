@@ -11,6 +11,7 @@ export const defaultReport: IReportModel = {
   templateId: 0,
   template: defaultReportTemplate,
   settings: {
+    from: '',
     subject: {
       text: '',
       showTodaysDate: false,
