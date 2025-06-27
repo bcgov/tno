@@ -123,21 +123,19 @@ export const ReportFormSections = () => {
       <Row gap="1rem">
         <Col className="frm-in options" flex="1">
           <div>
-            <label>Subject Line Options</label>
+            <label>Email Options</label>
           </div>
-          <Col>
-            <p>Customize the email subject line.</p>
-            <Row alignItems="center">
-              <Col flex="1">
-                <FormikText label="Text" name="settings.subject.text" required />
-              </Col>
-              <FormikCheckbox
-                label="Show Today's Date"
-                name="settings.subject.showTodaysDate"
-                tooltip="Whether today's date will be included in the report subject line"
-              />
-            </Row>
-          </Col>
+          <FormikText label="From" name="settings.from" />
+          <Row alignItems="center">
+            <Col flex="1">
+              <FormikText label="Subject" name="settings.subject.text" required />
+            </Col>
+            <FormikCheckbox
+              label="Show Today's Date"
+              name="settings.subject.showTodaysDate"
+              tooltip="Whether today's date will be included in the report subject line"
+            />
+          </Row>
         </Col>
         <ReportOptions />
       </Row>

@@ -7,6 +7,11 @@ public class ReportSettingsModel
 {
     #region Properties
     /// <summary>
+    /// get/set - The email from address.
+    /// </summary>
+    public string From { get; set; } = "";
+
+    /// <summary>
     /// get/set - Subject configuration settings.
     /// </summary>
     public ReportSubjectSettingsModel Subject { get; set; } = new();
@@ -42,6 +47,7 @@ public class ReportSettingsModel
 
     public ReportSettingsModel(Dictionary<string, object> settings, JsonSerializerOptions options)
     {
+        this.From = settings.GetDictionaryJsonValue<string>("from", "", options)!;
         this.Subject = settings.GetDictionaryJsonValue<ReportSubjectSettingsModel>("subject", new(), options)!;
         this.Headline = settings.GetDictionaryJsonValue<ReportHeadlineSettingsModel>("headline", new(), options)!;
         this.Content = settings.GetDictionaryJsonValue<ReportContentSettingsModel>("content", new(), options)!;
