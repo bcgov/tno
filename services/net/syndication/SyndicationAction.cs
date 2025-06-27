@@ -523,7 +523,13 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         {
             try
             {
-                using var xmlr = XmlReader.Create(new StringReader(data));
+                var settings = new XmlReaderSettings()
+                {
+                    IgnoreComments = false,
+                    IgnoreWhitespace = true,
+                    DtdProcessing = DtdProcessing.Parse,
+                };
+                using var xmlr = XmlReader.Create(new StringReader(data), settings);
                 var feed = SyndicationFeed.Load(xmlr);
                 return feed;
             }
