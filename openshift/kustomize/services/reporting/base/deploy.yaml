@@ -162,13 +162,13 @@ spec:
                 configMapKeyRef:
                   name: reporting-service
                   key: TOPICS
-
-            # CHES Configuration
-            - name: CHES__From
+            - name: Service__DefaultFrom
               valueFrom:
                 configMapKeyRef:
                   name: ches
                   key: CHES_FROM
+
+            # CHES Configuration
             - name: CHES__EmailEnabled
               valueFrom:
                 configMapKeyRef:

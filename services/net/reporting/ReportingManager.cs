@@ -782,6 +782,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         string linkBody,
         string fullBody)
     {
+        if (!String.IsNullOrWhiteSpace(report.Settings.From))
+        {
+            request.From = report.Settings.From;
+        }
+
         // TODO: This implementation can result in one set of emails being successful and the second failing.
         var responseModel = new ReportEmailResponseModel();
         try
@@ -1293,7 +1298,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
         if (this.Options.UseMailMerge)
         {
-            var merge = new EmailMergeModel(this.ChesOptions.From, contexts.Select(c => c.Context), subject, body)
+            var merge = new EmailMergeModel(request.From ?? this.Options.DefaultFrom, contexts.Select(c => c.Context), subject, body)
             {
                 // TODO: Extract values from report settings.
                 Encoding = EmailEncodings.Utf8,
@@ -1345,7 +1350,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 {
                     try
                     {
-                        var email = new EmailModel(this.ChesOptions.From, context.To.ToArray(), subject, body)
+                        var email = new EmailModel(request.From ?? this.Options.DefaultFrom, context.To.ToArray(), subject, body)
                         {
                             Cc = context.Cc.ToArray(),
                             Bcc = context.Bcc.ToArray(),
