@@ -119,7 +119,16 @@ public class UserService : BaseService<User, int>, IUserService
             .Include(u => u.SourcesManyToMany)
             .Include(u => u.OrganizationsManyToMany).ThenInclude(o => o.Organization)
             .Include(u => u.ReportSubscriptionsManyToMany).ThenInclude(o => o.Report)
+            .Include(u => u.UserUpdateHistory).ToList()
             .FirstOrDefault(u => u.Id == id);
+    }
+
+    public IEnumerable<User> GetUserUpdateHistory()
+    {
+        return this.Context.Users
+            .Include(u => u.ReportSubscriptionsManyToMany).ThenInclude(o => o.Report)
+            .Include(u => u.OrganizationsManyToMany).ThenInclude(o => o.Organization)
+            .Include(u => u.UserUpdateHistory).ToList();
     }
 
     public User? FindByUserKey(string key)
@@ -256,6 +265,16 @@ public class UserService : BaseService<User, int>, IUserService
             {
                 org.UserId = original.Id;
                 this.Context.Entry(org).State = EntityState.Added;
+            }
+        });
+        
+        // add user update history
+        var originalChanges = original.UserUpdateHistory.ToArray();
+        entity.UserUpdateHistory.ForEach(h =>
+        {
+            if (!originalChanges.Any(x => x.Id == h.Id && x.UserId == h.UserId))
+            {
+                original.UserUpdateHistory.Add(h);
             }
         });
 

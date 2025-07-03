@@ -5,7 +5,6 @@ import { useLookup, useLookupOptions } from 'store/hooks';
 import { useReports } from 'store/hooks/admin';
 import {
   Col,
-  FieldSize,
   FormikSelect,
   FormikText,
   FormikTextArea,
@@ -14,19 +13,23 @@ import {
   IOptionItem,
   IReportModel,
   IUserModel,
+  IUserUpdateHistoryModel,
   OptionItem,
   Row,
   Section,
   Show,
   UserAccountTypeName,
+  UserChangeTypeName,
   UserStatusName,
 } from 'tno-core';
+
+import { IUserFormProps } from './UserForm';
 
 /**
  * Provides a User Form to manage, create, update and delete a user.
  * @returns React component containing administrative user form.
  */
-export const UserFormDirectUser: React.FC = () => {
+export const UserFormDirectUser: React.FC<IUserFormProps> = (props) => {
   const [{ roles }] = useLookup();
   const [{ mediaTypeOptions, sourceOptions }] = useLookupOptions();
   const { values, setFieldValue } = useFormikContext<IUserModel>();
@@ -35,20 +38,18 @@ export const UserFormDirectUser: React.FC = () => {
   const [reportOptions, setReportOptions] = React.useState<IOptionItem[]>([]);
   const [{ organizations, organizationOptions }] = useLookupOptions();
 
-  const initReports = React.useCallback(async () => {
-    try {
-      findReports({})
-        .then((data) => {
-          setReportOptions(getSortableOptions(data));
-          setReports(data);
-        })
-        .catch(() => {});
-    } catch {}
-  }, [findReports]);
-
   React.useEffect(() => {
-    if (values.id && reports.length < 1) initReports();
-  }, [initReports, reports.length, values.id]);
+    if (values.id) {
+      try {
+        findReports({})
+          .then((data) => {
+            setReportOptions(getSortableOptions(data));
+            setReports(data);
+          })
+          .catch(() => {});
+      } catch {}
+    }
+  }, []);
 
   const [roleOptions, setRoleOptions] = React.useState(
     roles.map((r) => new OptionItem(r.name, r.id, !r.isEnabled)),
@@ -58,6 +59,21 @@ export const UserFormDirectUser: React.FC = () => {
   const accountTypeOptions = getEnumStringOptions(UserAccountTypeName).filter(
     (o) => o.value !== UserAccountTypeName.SystemAccount,
   );
+
+  const handleFieldUpdateHistory = (options: IOptionItem, changeType: UserChangeTypeName) => {
+    const changedValue = options?.value ? options.value : '';
+    const change: IUserUpdateHistoryModel = {
+      userId: values.id,
+      value: changedValue.toString(),
+      ChangeType: changeType,
+      id: 0,
+      dateOfChange: new Date(),
+    };
+    setFieldValue('userUpdateHistory', [...(values.userUpdateHistory ?? []), change]);
+    if (props.onUserChange) {
+      props.onUserChange(changeType);
+    }
+  };
 
   React.useEffect(() => {
     setRoleOptions(roles.map((r) => new OptionItem(r.name, r.id)));
@@ -77,6 +93,10 @@ export const UserFormDirectUser: React.FC = () => {
                 value={accountTypeOptions.find((s) => s.value === values.accountType) || ''}
                 required
                 isClearable={false}
+                onChange={(newValue) => {
+                  const options = newValue as IOptionItem;
+                  handleFieldUpdateHistory(options, UserChangeTypeName.AccountType);
+                }}
               />
             </Col>
           </Row>
@@ -155,6 +175,7 @@ export const UserFormDirectUser: React.FC = () => {
                   'organizations',
                   options ? organizations.filter((org) => options.value === org.id) : [],
                 );
+                handleFieldUpdateHistory(options, UserChangeTypeName.Organization);
               }}
             />
             <FormikSelect

@@ -13,16 +13,20 @@ import {
   IOptionItem,
   IReportModel,
   IUserModel,
+  IUserUpdateHistoryModel,
   Row,
   Section,
   UserAccountTypeName,
+  UserChangeTypeName,
 } from 'tno-core';
+
+import { IUserFormProps } from './UserForm';
 
 /**
  * Provides a User Form to manage, create, update and delete a user.
  * @returns React component containing administrative user form.
  */
-export const UserFormIndirectUser: React.FC = () => {
+export const UserFormIndirectUser: React.FC<IUserFormProps> = (props) => {
   const { values, setFieldValue } = useFormikContext<IUserModel>();
   const [{ organizations, organizationOptions }] = useLookupOptions();
   const [, { findReports }] = useReports();
@@ -33,20 +37,33 @@ export const UserFormIndirectUser: React.FC = () => {
     (o) => o.value !== UserAccountTypeName.SystemAccount,
   );
 
-  const initReports = React.useCallback(async () => {
-    try {
-      findReports({})
-        .then((data) => {
-          setReportOptions(getSortableOptions(data));
-          setReports(data);
-        })
-        .catch(() => {});
-    } catch {}
-  }, [findReports]);
-
   React.useEffect(() => {
-    if (values.id && reports.length < 1) initReports();
-  }, [initReports, reports.length, values.id]);
+    if (values.id) {
+      try {
+        findReports({})
+          .then((data) => {
+            setReportOptions(getSortableOptions(data));
+            setReports(data);
+          })
+          .catch(() => {});
+      } catch {}
+    }
+  }, []);
+
+  const handleFieldUpdateHistory = (options: IOptionItem, changeType: UserChangeTypeName) => {
+    const changedValue = options?.value ? options.value : '';
+    const change: IUserUpdateHistoryModel = {
+      userId: values.id,
+      value: changedValue.toString(),
+      ChangeType: changeType,
+      id: 0,
+      dateOfChange: new Date(),
+    };
+    setFieldValue('userUpdateHistory', [...(values.userUpdateHistory ?? []), change]);
+    if (props.onUserChange) {
+      props.onUserChange(changeType);
+    }
+  };
 
   return (
     <div className="form-container">
@@ -60,6 +77,10 @@ export const UserFormIndirectUser: React.FC = () => {
             value={accountTypeOptions.find((s) => s.value === values.accountType) || ''}
             required
             isClearable={false}
+            onChange={(newValue) => {
+              const options = newValue as IOptionItem;
+              handleFieldUpdateHistory(options, UserChangeTypeName.AccountType);
+            }}
           />
           <FormikText
             name="username"
@@ -105,6 +126,7 @@ export const UserFormIndirectUser: React.FC = () => {
                 'organizations',
                 options ? organizations.filter((org) => options.value === org.id) : [],
               );
+              handleFieldUpdateHistory(options, UserChangeTypeName.Organization);
             }}
           />
           <FormikSelect

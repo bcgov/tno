@@ -62,6 +62,8 @@ export * from './TopicType';
 export * from './TopicTypeName';
 export * from './UserAccountType';
 export * from './UserAccountTypeName';
+export * from './UserChangeType';
+export * from './UserChangeTypeName';
 export * from './UserStatus';
 export * from './UserStatusName';
 export * from './ValueType';

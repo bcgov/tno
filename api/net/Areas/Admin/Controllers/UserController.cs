@@ -38,6 +38,7 @@ public class UserController : ControllerBase
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly INotificationService _notificationService;
     private readonly IReportService _reportService;
+    private readonly IOrganizationService _organizationService;
     #endregion
 
     #region Constructors
@@ -50,13 +51,15 @@ public class UserController : ControllerBase
     /// <param name="serializerOptions"></param>
     /// <param name="notificationService"></param>
     /// <param name="reportService"></param>
+    /// <param name="organizationService"></param>
     public UserController(
         IUserService userService,
         IKeycloakService keycloakService,
         IKeycloakHelper keycloakHelper,
         IOptions<JsonSerializerOptions> serializerOptions,
         INotificationService notificationService,
-        IReportService reportService)
+        IReportService reportService,
+        IOrganizationService organizationService)
     {
         _userService = userService;
         _keycloakService = keycloakService;
@@ -64,6 +67,7 @@ public class UserController : ControllerBase
         _serializerOptions = serializerOptions.Value;
         _notificationService = notificationService;
         _reportService = reportService;
+        _organizationService = organizationService;
     }
     #endregion
 
@@ -84,6 +88,29 @@ public class UserController : ControllerBase
         var page = new Paged<UserModel>(result.Items.Select(u => new UserModel(u, _serializerOptions)), result.Page, result.Quantity, result.Total);
         return new JsonResult(page);
     }
+
+    /// <summary>
+    /// Return user billing report.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("billing-report")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<UserModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotModified)]
+    [SwaggerOperation(Tags = new[] { "User" })]
+    public IActionResult GetUserBillingReport()
+    {
+        var users = _userService.GetUserUpdateHistory()
+            .Select(u => new UserModel(u));
+
+        var userBillingReport = new UserBillingReport(_userService, _organizationService);
+        var report = userBillingReport.GenerateReport();
+        using var stream = new MemoryStream();
+        report.Write(stream);
+        var bytes = stream.ToArray();
+        return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "user_billing_report.xlsx");
+    }
+
 
     /// <summary>
     /// Find user for the specified 'id'.

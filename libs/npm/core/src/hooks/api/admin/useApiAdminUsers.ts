@@ -3,6 +3,7 @@ import React from 'react';
 
 import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
+import { useDownload } from '../../useDownload';
 import {
   IPaged,
   ITransferAccount,
@@ -28,6 +29,7 @@ export const useApiAdminUsers = (
   } = {},
 ) => {
   const api = useApi(options);
+  const download = useDownload(api);
 
   return React.useRef({
     findUsers: (filter: IUserFilter) => {
@@ -77,6 +79,13 @@ export const useApiAdminUsers = (
       return api.get<never, AxiosResponse<IUserNotificationModel[]>, any>(
         `/admin/users/${id}/notification/subscriptions`,
       );
+    },
+    generateUserBillingReport: () => {
+      return download({
+        url: `/admin/users/billing-report`,
+        method: 'get',
+        fileName: 'user_billing_report.xlsx',
+      });
     },
   }).current;
 };

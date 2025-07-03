@@ -2,6 +2,27 @@ import { FormPage } from 'components/formpage';
 import styled from 'styled-components';
 
 export const UserList = styled(FormPage)`
+  .export-button-container {
+    display: flex;
+    align-items: center;
+    border: none;
+  }
+  .export-button {
+    background-color: white;
+    color: #04814d;
+    margin-left: 1em;
+    border-radius: 6px;
+    border: 1px solid #04814d;
+    font-weight: normal;
+  }
+  .export-button:hover {
+    color: #04814d;
+  }
+  .export-button-icon {
+    width: 20px;
+    height: 20px;
+  }
+
   .filter-bar {
     padding: 1.5%;
     .txt {
