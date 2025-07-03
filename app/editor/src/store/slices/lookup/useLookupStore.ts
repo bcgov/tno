@@ -11,6 +11,7 @@ import {
   IMediaTypeModel,
   IMetricModel,
   IMinisterModel,
+  IOrganizationModel,
   IRoleModel,
   ISeriesModel,
   ISettingModel,
@@ -35,6 +36,7 @@ import {
   storeMediaTypes,
   storeMetrics,
   storeMinisters,
+  storeOrganizations,
   storeRoles,
   storeSeries,
   storeSettings,
@@ -72,6 +74,7 @@ export interface ILookupStore {
   storeSettings: (settings: ISettingModel[]) => void;
   storeHolidays: (users: IHolidayModel[]) => void;
   storeMinisters: (ministers: IMinisterModel[]) => void;
+  storeOrganizations: (organizations: IOrganizationModel[]) => void;
 }
 
 export const useLookupStore = (): [ILookupState, ILookupStore] => {
@@ -145,6 +148,9 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       },
       storeMinisters: (ministers: IMinisterModel[]) => {
         dispatch(storeMinisters(ministers));
+      },
+      storeOrganizations: (organizations: IOrganizationModel[]) => {
+        dispatch(storeOrganizations(organizations));
       },
     }),
     [dispatch],

@@ -2,30 +2,54 @@ import { InputOption } from 'features/content/list-view/components/tool-bar/filt
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useLookup, useLookupOptions } from 'store/hooks';
+import { useReports } from 'store/hooks/admin';
 import {
   Col,
-  FormikCheckbox,
   FormikSelect,
   FormikText,
   FormikTextArea,
   getEnumStringOptions,
+  getSortableOptions,
+  IOptionItem,
+  IReportModel,
   IUserModel,
+  IUserUpdateHistoryModel,
   OptionItem,
   Row,
   Section,
   Show,
   UserAccountTypeName,
+  UserChangeTypeName,
   UserStatusName,
 } from 'tno-core';
+
+import { IUserFormProps } from './UserForm';
 
 /**
  * Provides a User Form to manage, create, update and delete a user.
  * @returns React component containing administrative user form.
  */
-export const UserFormDirectUser: React.FC = () => {
+export const UserFormDirectUser: React.FC<IUserFormProps> = (props) => {
   const [{ roles }] = useLookup();
   const [{ mediaTypeOptions, sourceOptions }] = useLookupOptions();
   const { values, setFieldValue } = useFormikContext<IUserModel>();
+  const [, { findReports }] = useReports();
+  const [reports, setReports] = React.useState<IReportModel[]>([]);
+  const [reportOptions, setReportOptions] = React.useState<IOptionItem[]>([]);
+  const [{ organizations, organizationOptions }] = useLookupOptions();
+
+  React.useEffect(() => {
+    if (values.id) {
+      try {
+        findReports({})
+          .then((data) => {
+            setReportOptions(getSortableOptions(data));
+            setReports(data);
+          })
+          .catch(() => {});
+      } catch {}
+    }
+  }, []);
 
   const [roleOptions, setRoleOptions] = React.useState(
     roles.map((r) => new OptionItem(r.name, r.id, !r.isEnabled)),
@@ -35,6 +59,21 @@ export const UserFormDirectUser: React.FC = () => {
   const accountTypeOptions = getEnumStringOptions(UserAccountTypeName).filter(
     (o) => o.value !== UserAccountTypeName.SystemAccount,
   );
+
+  const handleFieldUpdateHistory = (options: IOptionItem, changeType: UserChangeTypeName) => {
+    const changedValue = options?.value ? options.value : '';
+    const change: IUserUpdateHistoryModel = {
+      userId: values.id,
+      value: changedValue.toString(),
+      ChangeType: changeType,
+      id: 0,
+      dateOfChange: new Date(),
+    };
+    setFieldValue('userUpdateHistory', [...(values.userUpdateHistory ?? []), change]);
+    if (props.onUserChange) {
+      props.onUserChange(changeType);
+    }
+  };
 
   React.useEffect(() => {
     setRoleOptions(roles.map((r) => new OptionItem(r.name, r.id)));
@@ -54,10 +93,11 @@ export const UserFormDirectUser: React.FC = () => {
                 value={accountTypeOptions.find((s) => s.value === values.accountType) || ''}
                 required
                 isClearable={false}
+                onChange={(newValue) => {
+                  const options = newValue as IOptionItem;
+                  handleFieldUpdateHistory(options, UserChangeTypeName.AccountType);
+                }}
               />
-            </Col>
-            <Col justifyContent="center">
-              <FormikCheckbox label="Is Enabled" name="isEnabled" />
             </Col>
           </Row>
           <Row>
@@ -91,9 +131,6 @@ export const UserFormDirectUser: React.FC = () => {
             <Col flex="1">
               <FormikText name="preferredEmail" label="Preferred Email" type="email" />
             </Col>
-            <Col justifyContent="center">
-              <FormikCheckbox label="Email Verified" name="emailVerified" />
-            </Col>
           </Row>
           <Row>
             <Col className="form-inputs" flex="1">
@@ -121,40 +158,77 @@ export const UserFormDirectUser: React.FC = () => {
           </Row>
           <FormikTextArea name="note" label="Note" />
         </Section>
-        <Section className="frm-in">
-          <label>Authorization</label>
-          <p>Assign roles to the user to grant access to application.</p>
-          <FormikSelect
-            label="Roles"
-            name="roles"
-            options={roleOptions}
-            placeholder="Select roles"
-            isMulti
-            value={roleOptions.filter((o) => values.roles?.some((r) => r === o.value)) ?? ''}
-            onChange={(e) => {
-              if (e) {
-                const values = e as OptionItem[];
-                setFieldValue(
-                  'roles',
-                  values.map((v) => v.value),
-                );
+        <Section className="frm-in no-border">
+          <Section className="frm-in">
+            <FormikSelect
+              name="organizations"
+              value={
+                values.organizations?.map((ct) =>
+                  organizationOptions.find((o) => o.value === ct.id),
+                ) ?? []
               }
-            }}
-            closeMenuOnSelect={false}
-            hideSelectedOptions={false}
-            components={{
-              Option: InputOption,
-            }}
-          />
-          <p>Limit the number of devices an account can sign in with.</p>
-          <FormikText
-            name="uniqueLogins"
-            label="# of devices allowed"
-            type="number"
-            tooltip="Zero means there is no limit"
-          />
-          <Section>
-            <p>Select the sources and media types this user should not have access to.</p>
+              label="Ministry or organization"
+              options={organizationOptions}
+              onChange={(newValue) => {
+                const options = newValue as IOptionItem;
+                setFieldValue(
+                  'organizations',
+                  options ? organizations.filter((org) => options.value === org.id) : [],
+                );
+                handleFieldUpdateHistory(options, UserChangeTypeName.Organization);
+              }}
+            />
+            <FormikSelect
+              label="Reports"
+              isMulti
+              name="reports"
+              options={reportOptions}
+              value={
+                values.reports?.map((ct) => reportOptions.find((o) => o.value === ct.id)) ?? []
+              }
+              onChange={(newValue) => {
+                const options = newValue as IOptionItem[];
+                setFieldValue(
+                  'reports',
+                  options
+                    ? reports.filter((report) => options.some((o) => o.value === report.id))
+                    : [],
+                );
+              }}
+            />
+          </Section>
+          <Section className="frm-in">
+            <label>Permissions</label>
+            <FormikSelect
+              label="Roles"
+              name="roles"
+              options={roleOptions}
+              placeholder="Select roles"
+              isMulti
+              value={roleOptions.filter((o) => values.roles?.some((r) => r === o.value)) ?? ''}
+              onChange={(e) => {
+                if (e) {
+                  const values = e as OptionItem[];
+                  setFieldValue(
+                    'roles',
+                    values.map((v) => v.value),
+                  );
+                }
+              }}
+              closeMenuOnSelect={false}
+              hideSelectedOptions={false}
+              components={{
+                Option: InputOption,
+              }}
+            />
+            <p>Assign roles to the user to grant access to application.</p>
+            <FormikText
+              name="uniqueLogins"
+              label="# of devices allowed"
+              type="number"
+              tooltip="Zero means there is no limit"
+            />
+            <p>Limit the number of devices an account can sign in with.</p>
             <FormikSelect
               label="Block access to sources"
               name="source"

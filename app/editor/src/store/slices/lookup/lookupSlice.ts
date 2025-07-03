@@ -10,6 +10,7 @@ import {
   IMediaTypeModel,
   IMetricModel,
   IMinisterModel,
+  IOrganizationModel,
   IRoleModel,
   ISeriesModel,
   ISettingModel,
@@ -46,6 +47,7 @@ export const initialLookupState: ILookupState = {
   settings: [],
   holidays: [],
   ministers: [],
+  organizations: [],
 };
 
 export const lookupSlice = createSlice({
@@ -126,6 +128,9 @@ export const lookupSlice = createSlice({
     storeMinisters(state: ILookupState, action: PayloadAction<IMinisterModel[]>) {
       state.ministers = action.payload;
     },
+    storeOrganizations(state: ILookupState, action: PayloadAction<IOrganizationModel[]>) {
+      state.organizations = action.payload;
+    },
   },
 });
 
@@ -152,4 +157,5 @@ export const {
   storeSettings,
   storeHolidays,
   storeMinisters,
+  storeOrganizations,
 } = lookupSlice.actions;

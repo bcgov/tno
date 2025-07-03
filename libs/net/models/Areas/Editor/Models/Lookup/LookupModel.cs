@@ -92,6 +92,11 @@ public class LookupModel
     /// get/set - An array of holidays for the current year.
     /// </summary>
     public IEnumerable<HolidayModel> Holidays { get; set; } = Array.Empty<HolidayModel>();
+    
+    /// <summary>
+    /// get/set - An array of all organizations.
+    /// </summary>
+    public IEnumerable<Organization.OrganizationModel> Organizations { get; set; } = Array.Empty<Organization.OrganizationModel>();
     #endregion
 
     #region Constructors
@@ -140,7 +145,8 @@ public class LookupModel
         IEnumerable<Entities.DataLocation> dataLocations,
         IEnumerable<Entities.Setting> settings,
         IEnumerable<HolidayModel> holidays,
-        JsonSerializerOptions options)
+        JsonSerializerOptions options,
+        IEnumerable<Entities.Organization> organizations)
     {
         this.Actions = actions.Select(a => new Action.ActionModel(a));
         this.Topics = topics.Select(a => new Topic.TopicModel(a));
@@ -158,6 +164,7 @@ public class LookupModel
         this.Users = users.Select(a => new User.UserModel(a));
         this.DataLocations = dataLocations.Select(a => new DataLocation.DataLocationModel(a));
         this.Settings = settings.Select(a => new Setting.SettingModel(a));
+        this.Organizations = organizations.Select(a => new Organization.OrganizationModel(a));
         this.Holidays = holidays;
     }
     #endregion

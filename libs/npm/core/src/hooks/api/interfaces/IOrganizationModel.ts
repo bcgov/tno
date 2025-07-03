@@ -6,4 +6,5 @@ export interface IOrganizationModel extends ISortableModel<number> {
   children: IOrganizationModel[];
   users: IUserModel[];
   ministers: IMinisterModel[];
+  name: string;
 }
