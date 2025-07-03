@@ -1,7 +1,9 @@
 import React from 'react';
+import { FaFileExcel, FaRegFileExcel } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
 import { useUsers } from 'store/hooks/admin';
 import {
+  Button,
   FieldSize,
   filterEnabledOptions,
   getEnumStringOptions,
@@ -9,6 +11,7 @@ import {
   OptionItem,
   Select,
   Text,
+  useApiAdminUsers,
   UserAccountTypeName,
   UserStatusName,
 } from 'tno-core';
@@ -26,6 +29,7 @@ interface IUserFilterProps {}
 export const UserFilter: React.FC<IUserFilterProps> = () => {
   const [{ userFilter }, { storeFilter }] = useUsers();
   const [lookups] = useLookup();
+  const api = useApiAdminUsers();
 
   const [filter, setFilter] = React.useState<IUserListFilter>({ ...userFilter, keyword: '' });
   const [roleOptions, setRoleOptions] = React.useState(
@@ -121,6 +125,15 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
             storeFilter({ sort: [], page: 0, quantity: 20 });
           }}
         />
+        <div className="export-button-container">
+          <Button
+            className="export-button"
+            onClick={async () => await api.generateUserBillingReport()}
+          >
+            <FaFileExcel className="icon spinner export-button-icon" />
+            Download Account Billing
+          </Button>
+        </div>
       </Row>
     </styled.UserFilter>
   );

@@ -243,6 +243,11 @@ public class User : AuditColumns
     public virtual List<Filter> Filters { get; } = new List<Filter>();
 
     /// <summary>
+    /// get - user change history.
+    /// </summary>
+    public virtual List<UserUpdateHistory> UserUpdateHistory { get; } = new List<UserUpdateHistory>();
+
+    /// <summary>
     /// get - Collection of organizations this user belongs to.
     /// </summary>
     public virtual List<Organization> Organizations { get; } = new List<Organization>();

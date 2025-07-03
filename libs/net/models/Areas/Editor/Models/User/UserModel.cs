@@ -1,4 +1,5 @@
 using System.Text.Json;
+using TNO.API.Areas.Admin.Models.User;
 using TNO.Entities;
 
 namespace TNO.API.Areas.Editor.Models.User;
@@ -85,6 +86,11 @@ public class UserModel
     public IEnumerable<OrganizationModel> Organizations { get; set; } = Array.Empty<OrganizationModel>();
 
     /// <summary>
+    /// get - user change history.
+    /// </summary>
+    public virtual List<UserUpdateHistory> UserUpdateHistory { get; } = new List<UserUpdateHistory>();
+
+    /// <summary>
     /// get/set - The user preferences.
     /// </summary>
     public JsonDocument Preferences { get; set; } = JsonDocument.Parse("{}");
@@ -119,7 +125,10 @@ public class UserModel
         this.Preferences = entity.Preferences;
         this.Organizations = entity.OrganizationsManyToMany.Where(o => o.Organization != null).Select(o => new OrganizationModel(o.Organization!));
         if (entity.Organizations.Any())
+        {
             this.Organizations = entity.Organizations.Select(o => new OrganizationModel(o));
+        }
+        this.UserUpdateHistory = entity.UserUpdateHistory;
     }
     #endregion
 }

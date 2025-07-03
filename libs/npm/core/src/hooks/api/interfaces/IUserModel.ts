@@ -10,6 +10,7 @@ import {
   IReportModel,
   IUserColleagueModel,
   IUserPreferencesModel,
+  IUserUpdateHistoryModel,
 } from '.';
 
 export interface IUserModel extends IAuditColumnsModel {
@@ -36,6 +37,7 @@ export interface IUserModel extends IAuditColumnsModel {
   folders?: IFolderModel[];
   filters?: IFilterModel[];
   reports?: IReportModel[];
+  userUpdateHistory?: IUserUpdateHistoryModel[];
   reportInstances?: IReportInstanceModel[];
   notifications?: INotificationModel[];
   colleagues?: IUserColleagueModel[];

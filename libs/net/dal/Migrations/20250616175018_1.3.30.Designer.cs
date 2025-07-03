@@ -6237,6 +6237,71 @@ namespace TNO.DAL.Migrations
                     b.ToTable("user_source");
                 });
 
+            modelBuilder.Entity("TNO.Entities.UserUpdateHistory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ChangeType")
+                        .HasColumnType("integer")
+                        .HasColumnName("change_type");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<DateTime>("DateOfChange")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_of_change");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("value");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("user_update_history");
+                });
+
             modelBuilder.Entity("TNO.Entities.WorkOrder", b =>
                 {
                     b.Property<long>("Id")
@@ -7410,6 +7475,17 @@ namespace TNO.DAL.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TNO.Entities.UserUpdateHistory", b =>
+                {
+                    b.HasOne("TNO.Entities.User", "User")
+                        .WithMany("UserUpdateHistory")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TNO.Entities.WorkOrder", b =>
                 {
                     b.HasOne("TNO.Entities.User", "Assigned")
@@ -7732,6 +7808,8 @@ namespace TNO.DAL.Migrations
                     b.Navigation("TimeTrackings");
 
                     b.Navigation("TonePools");
+
+                    b.Navigation("UserUpdateHistory");
 
                     b.Navigation("WorkOrderRequests");
 
