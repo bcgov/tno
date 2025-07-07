@@ -33,23 +33,7 @@ export const UserFormDirectUser: React.FC<IUserFormProps> = (props) => {
   const [{ roles }] = useLookup();
   const [{ mediaTypeOptions, sourceOptions }] = useLookupOptions();
   const { values, setFieldValue } = useFormikContext<IUserModel>();
-  const [, { findReports }] = useReports();
-  const [reports, setReports] = React.useState<IReportModel[]>([]);
-  const [reportOptions, setReportOptions] = React.useState<IOptionItem[]>([]);
   const [{ organizations, organizationOptions }] = useLookupOptions();
-
-  React.useEffect(() => {
-    if (values.id) {
-      try {
-        findReports({})
-          .then((data) => {
-            setReportOptions(getSortableOptions(data));
-            setReports(data);
-          })
-          .catch(() => {});
-      } catch {}
-    }
-  }, [values.id]);
 
   const [roleOptions, setRoleOptions] = React.useState(
     roles.map((r) => new OptionItem(r.name, r.id, !r.isEnabled)),
@@ -189,16 +173,17 @@ export const UserFormDirectUser: React.FC<IUserFormProps> = (props) => {
                 label="Reports"
                 isMulti
                 name="reports"
-                options={reportOptions}
+                options={props.reportOptions}
                 value={
-                  values.reports?.map((ct) => reportOptions.find((o) => o.value === ct.id)) ?? []
+                  values.reports?.map((ct) => props.reportOptions.find((o) => o.value === ct.id)) ??
+                  []
                 }
                 onChange={(newValue) => {
                   const options = newValue as IOptionItem[];
                   setFieldValue(
                     'reports',
                     options
-                      ? reports.filter((report) => options.some((o) => o.value === report.id))
+                      ? props.reports.filter((report) => options.some((o) => o.value === report.id))
                       : [],
                   );
                 }}

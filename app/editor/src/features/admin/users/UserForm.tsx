@@ -5,12 +5,16 @@ import { FaExclamationTriangle } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useUsers } from 'store/hooks/admin';
+import { useReports } from 'store/hooks/admin';
 import {
   Button,
   ButtonVariant,
   Col,
   FieldSize,
+  getSortableOptions,
   IconButton,
+  IOptionItem,
+  IReportModel,
   IUserModel,
   IUserUpdateHistoryModel,
   Modal,
@@ -38,6 +42,8 @@ import { UserReportSubscriptions } from './UserReportSubscriptions';
 export interface IUserFormProps {
   onUserChange?: (changeType: UserChangeTypeName) => void;
   banner?: ReactElement<any, any>;
+  reportOptions: IOptionItem<string | number | undefined>[];
+  reports: IReportModel[];
 }
 
 enum ActionType {
@@ -64,6 +70,9 @@ const UserForm: React.FC = () => {
   const [accountTypeChange, setAccountTypeChange] = React.useState(false);
   const [orgChange, setOrgChange] = React.useState(false);
   const [active, setActive] = React.useState('details');
+  const [, { findReports }] = useReports();
+  const [reports, setReports] = React.useState<IReportModel[]>([]);
+  const [reportOptions, setReportOptions] = React.useState<IOptionItem[]>([]);
 
   const initUser = React.useCallback((type?: string) => {
     const accountType =
@@ -85,9 +94,17 @@ const UserForm: React.FC = () => {
       setUser({ ...initUser(type), id: userId }); // Do this to stop double fetch.
       api.getUser(userId).then((data) => {
         setUser(data);
+        try {
+          findReports({})
+            .then((reportsData) => {
+              setReportOptions(getSortableOptions(reportsData));
+              setReports(reportsData);
+            })
+            .catch(() => {});
+        } catch {}
       });
     }
-  }, [api, initUser, type, user.id, user.isEnabled, userId]);
+  }, [api, findReports, initUser, type, user?.id, user.isEnabled, userId]);
 
   React.useEffect(() => {
     setActive(tab ?? 'details');
@@ -327,12 +344,16 @@ const UserForm: React.FC = () => {
                     <UserFormDirectUser
                       onUserChange={handleUserFieldChange}
                       banner={<HeaderBanner isSubmitting={isSubmitting} />}
+                      reports={reports}
+                      reportOptions={reportOptions}
                     />
                   </Show>
                   <Show visible={values.accountType === UserAccountTypeName.Indirect}>
                     <UserFormIndirectUser
                       onUserChange={handleUserFieldChange}
                       banner={<HeaderBanner isSubmitting={isSubmitting} />}
+                      reports={reports}
+                      reportOptions={reportOptions}
                     />
                   </Show>
                   <Show visible={values.accountType === UserAccountTypeName.Distribution}>

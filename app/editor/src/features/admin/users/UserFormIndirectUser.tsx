@@ -28,26 +28,10 @@ import { IUserFormProps } from './UserForm';
 export const UserFormIndirectUser: React.FC<IUserFormProps> = (props) => {
   const { values, setFieldValue } = useFormikContext<IUserModel>();
   const [{ organizations, organizationOptions }] = useLookupOptions();
-  const [, { findReports }] = useReports();
-  const [reports, setReports] = React.useState<IReportModel[]>([]);
-  const [reportOptions, setReportOptions] = React.useState<IOptionItem[]>([]);
 
   const accountTypeOptions = getEnumStringOptions(UserAccountTypeName).filter(
     (o) => o.value !== UserAccountTypeName.SystemAccount,
   );
-
-  React.useEffect(() => {
-    if (values.id) {
-      try {
-        findReports({})
-          .then((data) => {
-            setReportOptions(getSortableOptions(data));
-            setReports(data);
-          })
-          .catch(() => {});
-      } catch {}
-    }
-  }, [values.id]);
 
   const handleFieldUpdateHistory = React.useCallback(
     (options: IOptionItem, changeType: UserChangeTypeName) => {
@@ -141,16 +125,17 @@ export const UserFormIndirectUser: React.FC<IUserFormProps> = (props) => {
                 className="section-field-size-medium"
                 isMulti
                 name="reports"
-                options={reportOptions}
+                options={props.reportOptions}
                 value={
-                  values.reports?.map((ct) => reportOptions.find((o) => o.value === ct.id)) ?? []
+                  values.reports?.map((ct) => props.reportOptions.find((o) => o.value === ct.id)) ??
+                  []
                 }
                 onChange={(newValue) => {
                   const options = newValue as IOptionItem[];
                   setFieldValue(
                     'reports',
                     options
-                      ? reports.filter((report) => options.some((o) => o.value === report.id))
+                      ? props.reports.filter((report) => options.some((o) => o.value === report.id))
                       : [],
                   );
                 }}

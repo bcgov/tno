@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaFileExcel, FaRegFileExcel } from 'react-icons/fa';
+import { FaFileExcel } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
 import { useUsers } from 'store/hooks/admin';
 import {
