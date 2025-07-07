@@ -2,16 +2,13 @@ import { InputOption } from 'features/content/list-view/components/tool-bar/filt
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useLookup, useLookupOptions } from 'store/hooks';
-import { useReports } from 'store/hooks/admin';
 import {
   Col,
   FormikSelect,
   FormikText,
   FormikTextArea,
   getEnumStringOptions,
-  getSortableOptions,
   IOptionItem,
-  IReportModel,
   IUserModel,
   IUserUpdateHistoryModel,
   OptionItem,
