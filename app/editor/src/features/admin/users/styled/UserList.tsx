@@ -10,7 +10,7 @@ export const UserList = styled(FormPage)`
   .export-button {
     background-color: white;
     color: #04814d;
-    margin-left: 1em;
+    margin-left: 2em;
     border-radius: 6px;
     border: 1px solid #04814d;
     font-weight: normal;

@@ -22,9 +22,17 @@ export const UserForm = styled(FormPage)`
     margin: 0;
   }
 
+  .frm-in-right-most {
+    margin-right: 0;
+  }
+  .section-field-size-medium {
+    width: 30.5em;
+  }
+
   .button-actions {
-    margin-left: 0.2em;
-    margin-right: 0.2em;
+    margin-top: 1em;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
   }
 
   .info-bar {
@@ -33,11 +41,13 @@ export const UserForm = styled(FormPage)`
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0;
 
     .info-bar-icon {
       color: #f8bb47;
       width: 22px;
       height: 22px;
+      margin-left: 1em;
     }
     .info-bar-header {
       padding-left: 0.5em;

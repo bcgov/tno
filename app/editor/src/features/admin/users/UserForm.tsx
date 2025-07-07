@@ -1,6 +1,6 @@
 import { FormikForm } from 'components/formik';
 import { formatDate } from 'features/admin/users/utils/formatDate';
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { FaExclamationTriangle } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -15,7 +15,6 @@ import {
   IUserUpdateHistoryModel,
   Modal,
   Row,
-  Section,
   SelectDate,
   Show,
   Tab,
@@ -38,6 +37,7 @@ import { UserReportSubscriptions } from './UserReportSubscriptions';
 
 export interface IUserFormProps {
   onUserChange?: (changeType: UserChangeTypeName) => void;
+  banner?: ReactElement<any, any>;
 }
 
 enum ActionType {
@@ -227,25 +227,19 @@ const UserForm: React.FC = () => {
     (isSubmitting: any) => {
       return (
         <Show visible={user.isEnabled.toString() === 'false'}>
-          <div className="form-container">
-            <Section className="frm-in no-border">
-              <Row justifyContent="center">
-                <div className="info-bar">
-                  <span>
-                    <FaExclamationTriangle className="info-bar-icon" key="warning" />
-                    <span className="info-bar-header">{isEnabledString}</span>
-                  </span>
-                  <Button
-                    className="info-bar-button"
-                    onClick={toggleReactivate}
-                    variant={ButtonVariant.secondary}
-                    disabled={isSubmitting.isSubmitting}
-                  >
-                    Reactivate
-                  </Button>
-                </div>
-              </Row>
-            </Section>
+          <div className="info-bar">
+            <span>
+              <FaExclamationTriangle className="info-bar-icon" key="warning" />
+              <span className="info-bar-header">{isEnabledString}</span>
+            </span>
+            <Button
+              className="info-bar-button"
+              onClick={toggleReactivate}
+              variant={ButtonVariant.secondary}
+              disabled={isSubmitting.isSubmitting}
+            >
+              Reactivate
+            </Button>
           </div>
         </Show>
       );
@@ -330,12 +324,16 @@ const UserForm: React.FC = () => {
               >
                 <Show visible={active === 'details'}>
                   <Show visible={values.accountType === UserAccountTypeName.Direct}>
-                    <HeaderBanner isSubmitting={isSubmitting} />
-                    <UserFormDirectUser onUserChange={handleUserFieldChange} />
+                    <UserFormDirectUser
+                      onUserChange={handleUserFieldChange}
+                      banner={<HeaderBanner isSubmitting={isSubmitting} />}
+                    />
                   </Show>
                   <Show visible={values.accountType === UserAccountTypeName.Indirect}>
-                    <HeaderBanner isSubmitting={isSubmitting} />
-                    <UserFormIndirectUser onUserChange={handleUserFieldChange} />
+                    <UserFormIndirectUser
+                      onUserChange={handleUserFieldChange}
+                      banner={<HeaderBanner isSubmitting={isSubmitting} />}
+                    />
                   </Show>
                   <Show visible={values.accountType === UserAccountTypeName.Distribution}>
                     <UserFormDistribution />
