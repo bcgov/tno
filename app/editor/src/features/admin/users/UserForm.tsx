@@ -479,7 +479,7 @@ const UserForm: React.FC = () => {
                   {getModalNotes(ActionType.Deactivate)}
                   <SelectDate
                     name="deactivateDate"
-                    label="Date of change"
+                    label="Deactivation date"
                     width={FieldSize.Big}
                     dateFormat="MMMM dd, yyyy"
                     value={!!dateOfChange ? formatDate(dateOfChange.toString(), false) : ''}
@@ -519,6 +519,7 @@ const UserForm: React.FC = () => {
                       }
                     }}
                   />
+                  <p>Enter date changes are effective for billing purposes</p>
                 </div>
               }
               isShowing={accountBillingChangeShowing}

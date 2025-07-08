@@ -59,11 +59,8 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
     public ReportModel(Entities.Report entity) : base(entity)
     {
         this.TemplateId = entity.TemplateId;
-        // this.Template = entity.Template != null ? new ReportTemplateModel(entity.Template, options) : null;
         this.OwnerId = entity.OwnerId;
         this.IsPublic = entity.IsPublic;
-        // this.Settings = new ReportSettingsModel(JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>(), options);
-        // this.Sections = entity.Sections.Select(s => new ReportSectionModel(s, options));
         this.Subscribers = entity.SubscribersManyToMany.Select(s => new UserReportModel(s));
     }
 
