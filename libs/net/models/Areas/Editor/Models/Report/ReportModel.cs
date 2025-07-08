@@ -56,6 +56,18 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
     /// Creates a new instance of an ReportModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
+    public ReportModel(Entities.Report entity) : base(entity)
+    {
+        this.TemplateId = entity.TemplateId;
+        this.OwnerId = entity.OwnerId;
+        this.IsPublic = entity.IsPublic;
+        this.Subscribers = entity.SubscribersManyToMany.Select(s => new UserReportModel(s));
+    }
+
+    /// <summary>
+    /// Creates a new instance of an ReportModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="entity"></param>
     /// <param name="options"></param>
     public ReportModel(Entities.Report entity, JsonSerializerOptions options) : base(entity)
     {

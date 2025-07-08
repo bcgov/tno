@@ -1,5 +1,6 @@
 using System.Text.Json;
 using TNO.API.Models;
+using TNO.Entities;
 
 namespace TNO.API.Areas.Admin.Models.User;
 
@@ -105,6 +106,11 @@ public class UserModel : AuditColumnsModel
     public IEnumerable<OrganizationModel> Organizations { get; set; } = Array.Empty<OrganizationModel>();
 
     /// <summary>
+    /// get/set - An array of organization this user belongs to.
+    /// </summary>
+    public IEnumerable<ReportModel> Reports { get; set; } = Array.Empty<ReportModel>();
+
+    /// <summary>
     /// get/set - An array of folders owned by this user.
     /// </summary>
     public IEnumerable<FolderModel> Folders { get; set; } = Array.Empty<FolderModel>();
@@ -113,6 +119,11 @@ public class UserModel : AuditColumnsModel
     /// get/set - An array of filters owned by this user.
     /// </summary>
     public IEnumerable<FilterModel> Filters { get; set; } = Array.Empty<FilterModel>();
+
+    /// <summary>
+    /// get/set - user change history.
+    /// </summary>
+    public IEnumerable<UserUpdateHistoryModel> UserUpdateHistory { get; set; } = Array.Empty<UserUpdateHistoryModel>();
 
     /// <summary>
     /// get/set - An array of sources not accessible to this user.
@@ -164,8 +175,12 @@ public class UserModel : AuditColumnsModel
         this.Organizations = entity.OrganizationsManyToMany.Where(o => o.Organization != null).Select(o => new OrganizationModel(o.Organization!));
         if (entity.Organizations.Any())
             this.Organizations = entity.Organizations.Select(o => new OrganizationModel(o));
+        this.Reports = entity.ReportSubscriptionsManyToMany.Where(r => r.Report != null).Select(r => new ReportModel(r.Report!));
+        if (entity.Reports.Any())
+            this.Reports = entity.Reports.Select(r => new ReportModel(r));
         this.Folders = entity.Folders.Select(f => new FolderModel(f, serializerOptions ?? JsonSerializerOptions.Default));
         this.Filters = entity.Filters.Select(f => new FilterModel(f, serializerOptions ?? JsonSerializerOptions.Default));
+        this.UserUpdateHistory = entity.UserUpdateHistory.Select(f => new UserUpdateHistoryModel(f));
         this.Sources = entity.SourcesManyToMany.Select(s => s.SourceId).ToArray();
         this.MediaTypes = entity.MediaTypesManyToMany.Select(s => s.MediaTypeId).ToArray();
         this.Distribution = entity.Distribution.Where(d => d.LinkedUser != null).Select(d => new UserModel(d.LinkedUser!)).ToArray();
@@ -232,10 +247,12 @@ public class UserModel : AuditColumnsModel
             Settings = JsonDocument.Parse(JsonSerializer.Serialize(f.Settings)),
         }));
 
-        entity.OrganizationsManyToMany.AddRange(model.Organizations.Select(o => new Entities.UserOrganization(entity.Id, o.Id)));
-        entity.SourcesManyToMany.AddRange(model.Sources.Select(s => new Entities.UserSource(entity.Id, s)));
-        entity.MediaTypesManyToMany.AddRange(model.MediaTypes.Select(s => new Entities.UserMediaType(entity.Id, s)));
-        entity.Distribution.AddRange(model.Distribution.Select(d => new Entities.UserDistribution(entity.Id, d.Id)));
+        entity.UserUpdateHistory.AddRange(model.UserUpdateHistory.Select(f => new UserUpdateHistory(f.Id, f.UserId, f.ChangeType, f.DateOfChange, f.Value)));
+        entity.OrganizationsManyToMany.AddRange(model.Organizations.Select(o => new UserOrganization(entity.Id, o.Id)));
+        entity.ReportSubscriptionsManyToMany.AddRange(model.Reports.Select(o => new UserReport(entity.Id, o.Id)));
+        entity.SourcesManyToMany.AddRange(model.Sources.Select(s => new UserSource(entity.Id, s)));
+        entity.MediaTypesManyToMany.AddRange(model.MediaTypes.Select(s => new UserMediaType(entity.Id, s)));
+        entity.Distribution.AddRange(model.Distribution.Select(d => new UserDistribution(entity.Id, d.Id)));
 
         return entity;
     }

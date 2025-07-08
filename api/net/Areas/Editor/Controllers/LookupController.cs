@@ -49,7 +49,7 @@ public class LookupController : ControllerBase
     private readonly IDataLocationService _dataLocationService;
     private readonly ISettingService _settingService;
     private readonly IKeycloakService _keycloakService;
-
+    private readonly IOrganizationService _organizationService;
     private readonly Config.KeycloakOptions _keycloakOptions;
     private readonly ILogger _logger;
     #endregion
@@ -78,6 +78,7 @@ public class LookupController : ControllerBase
     /// <param name="keycloakOptions"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
+    /// <param name="organizationService"></param>
     public LookupController(
         IHttpRequestClient httpClient,
         IActionService actionService,
@@ -98,7 +99,8 @@ public class LookupController : ControllerBase
         IKeycloakService keycloakService,
         IOptions<Config.KeycloakOptions> keycloakOptions,
         IOptions<JsonSerializerOptions> serializerOptions,
-        ILogger<LookupController> logger)
+        ILogger<LookupController> logger,
+        IOrganizationService organizationService)
     {
         _httpClient = httpClient;
         _actionService = actionService;
@@ -119,6 +121,7 @@ public class LookupController : ControllerBase
         _keycloakService = keycloakService;
         _keycloakOptions = keycloakOptions.Value;
         _serializerOptions = serializerOptions.Value;
+        _organizationService = organizationService;
         _logger = logger;
     }
     #endregion
@@ -165,6 +168,7 @@ public class LookupController : ControllerBase
         var users = _userService.FindByRoles(roles.Where(x => x == ClientRole.Editor.ToString().ToLower()));
         var dataLocations = _dataLocationService.FindAll();
         var settings = _settingService.FindAll();
+        var organizations = _organizationService.FindAll();
         return new JsonResult(new LookupModel(
             actions,
             topics,
@@ -183,7 +187,8 @@ public class LookupController : ControllerBase
             dataLocations,
             settings,
             statHolidays?.Province?.Holidays ?? Array.Empty<HolidayModel>(),
-            _serializerOptions
+            _serializerOptions,
+            organizations
             ));
     }
     #endregion
