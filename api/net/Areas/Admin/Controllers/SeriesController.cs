@@ -129,8 +129,8 @@ public class SeriesController : ControllerBase
     /// <summary>
     /// Merge two series records..
     /// </summary>
-    /// <param name="intoId">the record to be merged into the master</param>
-    /// <param name="fromId">the master series record</param>
+    /// <param name="intoId">the master series record (destination)</param>
+    /// <param name="fromId">the record to be merged into the master</param>
     /// <returns></returns>
     [HttpPut("{intoId}/merge/{fromId}")]
     [Produces(MediaTypeNames.Application.Json)]
