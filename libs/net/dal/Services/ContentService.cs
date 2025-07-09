@@ -200,6 +200,7 @@ public class ContentService : BaseService<Content, long>, IContentService
             // remove "size" and "sort" fields which are not accepted by validate request
             RemoveJsonObjectKey("size", filterJsonObject);
             RemoveJsonObjectKey("sort", filterJsonObject);
+            RemoveJsonObjectKey("query.bool.filter", filterJsonObject);
             if (filterJsonObject["query"]?["bool"]?["must"] == null) return emptyResult;
 
             JsonArray? jsonArray = filterJsonObject["query"]?["bool"]?["must"]?.AsArray();
@@ -277,7 +278,34 @@ public class ContentService : BaseService<Content, long>, IContentService
     private void RemoveJsonObjectKey(string key, JsonObject? jobject)
     {
         if (jobject == null) return;
-        if (jobject.ContainsKey(key))
+        if (key.Contains("."))
+        {
+            if (jobject != null)
+            {
+                var keys = key.Split(".");
+                if (jobject.ContainsKey(keys[0]))
+                {
+                    var childObject = jobject[keys[0]]?.AsObject();
+                    if (keys.Length > 1 && !string.IsNullOrEmpty(keys[1]) &&
+                        childObject != null && childObject.ContainsKey(keys[1]))
+                    {
+                        if (keys.Length == 2)
+                        {
+                            childObject.Remove(keys[1]);
+                        }
+                        else if (keys.Length == 3 && !string.IsNullOrEmpty(keys[2]))
+                        {
+                            var subChildObject = childObject[keys[1]]?.AsObject();
+                            if (subChildObject != null && subChildObject.ContainsKey(keys[2]))
+                            {
+                                subChildObject.Remove(keys[2]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else if (jobject.ContainsKey(key))
         {
             jobject.Remove(key);
         }

@@ -142,13 +142,43 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
       }
       return ['--Failed to parse query--'];
     }
-    return [''];
+    return [];
   };
 
-  const validationResults = React.useCallback((res: IndicesValidateQueryResponse | undefined) => {
-    const parsedResult = parseValidationResults(res);
-    setQueryValidateResult(parsedResult);
+  const advancedQuerySyntaxHasWarning = React.useCallback((filter: IFilterSettingsModel) => {
+    try {
+      const warnings = [];
+      const query = filter.search;
+      if (filter.queryType === 'query-string') {
+        if (query) {
+          const regex = /[^|&][|&][^|&]/;
+          var match = regex.exec(query);
+          if (match) {
+            warnings.push(`WARNING: index: ${Number(match.index)}`);
+          }
+        }
+      }
+      if (warnings.length > 0) {
+        return warnings;
+      }
+    } catch {
+    } finally {
+    }
+    return [];
   }, []);
+
+  const validationResults = React.useCallback(
+    (res: IndicesValidateQueryResponse | undefined, filter: IFilterSettingsModel) => {
+      const errors = parseValidationResults(res);
+      if (errors.length < 1) {
+        const warnings = advancedQuerySyntaxHasWarning(filter);
+        setQueryValidateResult(warnings);
+        return;
+      }
+      setQueryValidateResult(errors);
+    },
+    [advancedQuerySyntaxHasWarning],
+  );
 
   // Check the secondary filter (FilterOptions component) and merge the options according to each search criteria.
   const mergeFilters = React.useCallback(
@@ -258,7 +288,7 @@ export const SearchPage: React.FC<ISearchType> = ({ showAdvanced, showDate: init
         if (!storedContent) {
           storeFrom(query?.from ?? 0);
           res = await validateElasticsearchQuery(query ?? {}, filter.searchUnpublished, 'headline');
-          validationResults(res);
+          validationResults(res, filter);
         }
       } catch {
       } finally {
