@@ -129,22 +129,22 @@ public class SeriesController : ControllerBase
     /// <summary>
     /// Merge two series records..
     /// </summary>
-    /// <param name="id">the master series record</param>
+    /// <param name="intoId">the master series record (destination)</param>
     /// <param name="fromId">the record to be merged into the master</param>
     /// <returns></returns>
-    [HttpPut("{id}/merge/{fromId}")]
+    [HttpPut("{intoId}/merge/{fromId}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(SeriesModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Series" })]
-    public IActionResult Merge(int id, int fromId)
+    public IActionResult Merge(int fromId, int intoId)
     {
         // make sure the merge target exists
-        var _ = _service.FindById(id) ?? throw new NoContentException();
+        var _ = _service.FindById(fromId) ?? throw new NoContentException();
         // make sure the merge source exists
-        _ = _service.FindById(fromId) ?? throw new NoContentException();
+        _ = _service.FindById(intoId) ?? throw new NoContentException();
         // merge the source into the target
-        var result = _service.Merge(id, fromId) ?? throw new NoContentException();
+        var result = _service.Merge(fromId, intoId) ?? throw new NoContentException();
         return new JsonResult(new SeriesModel(result));
     }
 
