@@ -139,12 +139,12 @@ public class SeriesService : BaseService<Series, int>, ISeriesService
         return base.UpdateAndSave(original);
     }
 
-    public Series? Merge(int intoId, int fromId)
+    public Series? Merge(int fromId, int intoId)
     {
         // get a list of content ids by finding all content records which refer to the fromId
         var contentIdsToUpdate = this.Context.Contents.Where((c) => c.SeriesId == fromId).Select((c) => c.Id).ToList();
         // if there are in fact records to update, update them
-        if (contentIdsToUpdate.Any())
+        if (contentIdsToUpdate.Count != 0)
         {
             this.Context.Contents
                 .Where(f => contentIdsToUpdate.Contains(f.Id))

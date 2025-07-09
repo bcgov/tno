@@ -71,7 +71,7 @@ const SeriesMerge: React.FC = () => {
                 Show/Program and then click the [Merge] button.
               </p>
               <p>
-                Any content which is asociated with the merged Show/Program, will be re-associated
+                Any content which is associated with the merged Show/Program, will be re-associated
                 with the current Show/Program.
               </p>
               <Row>
@@ -108,7 +108,7 @@ const SeriesMerge: React.FC = () => {
               confirmText="Yes, merge them"
               onConfirm={async () => {
                 try {
-                  await api.mergeSeries(targetSeriesId, Number(mergeSeriesSourceOption?.value));
+                  await api.mergeSeries(Number(mergeSeriesSourceOption?.value), targetSeriesId);
                   setMergeSeriesSourceOption(undefined);
                   toast.success(`Series/Program merge completed successfully.`);
                 } finally {
