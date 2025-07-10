@@ -49,9 +49,7 @@ const SeriesMerge: React.FC = () => {
   }, [api, targetSeries?.id, targetSeriesId]);
 
   React.useEffect(() => {
-    setSeriesOptions(
-      series.filter((f) => !f.isOther).map((m: any) => new OptionItem(m.name, m.id, !m.isEnabled)),
-    );
+    setSeriesOptions(series.map((m: any) => new OptionItem(m.name, m.id, !m.isEnabled)));
   }, [series]);
 
   return (

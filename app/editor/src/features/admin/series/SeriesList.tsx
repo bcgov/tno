@@ -12,6 +12,7 @@ const SeriesList: React.FC = () => {
   const navigate = useNavigate();
   const [{ series }, api] = useSeries();
 
+  const [pageIndex, setPageIndex] = React.useState(0);
   const [items, setItems] = React.useState<ISeriesModel[]>([]);
 
   React.useEffect(() => {
@@ -42,6 +43,7 @@ const SeriesList: React.FC = () => {
           onFilterChange={(filter) => {
             if (filter && filter.length) {
               const value = filter.toLocaleLowerCase();
+              setPageIndex(0);
               setItems(
                 series.filter(
                   (i) =>
@@ -52,6 +54,7 @@ const SeriesList: React.FC = () => {
                 ),
               );
             } else {
+              setPageIndex(0);
               setItems(series);
             }
           }}
@@ -62,7 +65,12 @@ const SeriesList: React.FC = () => {
           columns={columns}
           showSort={true}
           onRowClick={(row) => navigate(`${row.original.id}`)}
-          pagingEnabled={false}
+          pagingEnabled={true}
+          pageIndex={pageIndex}
+          pageSize={15}
+          onPageChange={(page) => {
+            setPageIndex(page.pageIndex);
+          }}
         />
       </FormPage>
     </styled.SeriesList>
