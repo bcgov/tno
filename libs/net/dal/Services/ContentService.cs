@@ -280,26 +280,23 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (jobject == null) return;
         if (key.Contains("."))
         {
-            if (jobject != null)
+            var keys = key.Split(".");
+            if (jobject.ContainsKey(keys[0]))
             {
-                var keys = key.Split(".");
-                if (jobject.ContainsKey(keys[0]))
+                var childObject = jobject[keys[0]]?.AsObject();
+                if (keys.Length > 1 && !string.IsNullOrEmpty(keys[1]) &&
+                    childObject != null && childObject.ContainsKey(keys[1]))
                 {
-                    var childObject = jobject[keys[0]]?.AsObject();
-                    if (keys.Length > 1 && !string.IsNullOrEmpty(keys[1]) &&
-                        childObject != null && childObject.ContainsKey(keys[1]))
+                    if (keys.Length == 2)
                     {
-                        if (keys.Length == 2)
+                        childObject.Remove(keys[1]);
+                    }
+                    else if (keys.Length == 3 && !string.IsNullOrEmpty(keys[2]))
+                    {
+                        var subChildObject = childObject[keys[1]]?.AsObject();
+                        if (subChildObject != null && subChildObject.ContainsKey(keys[2]))
                         {
-                            childObject.Remove(keys[1]);
-                        }
-                        else if (keys.Length == 3 && !string.IsNullOrEmpty(keys[2]))
-                        {
-                            var subChildObject = childObject[keys[1]]?.AsObject();
-                            if (subChildObject != null && subChildObject.ContainsKey(keys[2]))
-                            {
-                                subChildObject.Remove(keys[2]);
-                            }
+                            subChildObject.Remove(keys[2]);
                         }
                     }
                 }
