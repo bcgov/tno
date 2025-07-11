@@ -1,4 +1,3 @@
-using System;
 using Confluent.Kafka;
 using Elastic.Clients.Elasticsearch;
 using Elastic.Transport;
@@ -81,8 +80,12 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         this.Listener.OnStop += ListenerStopHandler;
 
         // TODO: Change to dependency injection.
-        var connect = new ElasticsearchClientSettings(new Uri(options.Value.ElasticsearchUri))
-            .Authentication(new BasicAuthentication(this.Options.ElasticsearchUsername, this.Options.ElasticsearchPassword));
+        var connect = new ElasticsearchClientSettings(new Uri(options.Value.ElasticsearchUri));
+
+        if (!String.IsNullOrWhiteSpace(this.Options.ElasticsearchUsername) && !String.IsNullOrWhiteSpace(this.Options.ElasticsearchPassword))
+            connect.Authentication(new BasicAuthentication(this.Options.ElasticsearchUsername, this.Options.ElasticsearchPassword));
+        else if (!String.IsNullOrWhiteSpace(this.Options.ElasticsearchApiKey))
+            connect.Authentication(new ApiKey(this.Options.ElasticsearchApiKey));
         this.Client = new ElasticsearchClient(connect);
 
         _cache = memoryCache;
@@ -334,7 +337,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             this.Logger.LogInformation("Content indexed.  Content ID: {id}, Index: {index}, Version: {version}", content.Id, this.Options.UnpublishedIndex, content.Version);
 
             // Tell the API to inform users of published content.
-            await SendNotifications(request, content);
+            if (!this.Options.IndexOnly)
+                await SendNotifications(request, content);
         }
         else
         {
@@ -361,7 +365,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         if (content.Status != ContentStatus.Published)
         {
             content.Status = ContentStatus.Published;
-            content = await this.Api.UpdateContentStatusAsync(content) ?? throw new InvalidOperationException($"Content failed to update. ID:{content.Id}");
+            if (!this.Options.IndexOnly)
+                content = await this.Api.UpdateContentStatusAsync(content) ?? throw new InvalidOperationException($"Content failed to update. ID:{content.Id}");
         }
 
         // Remove the transcript body if it hasn't been approved.
@@ -400,7 +405,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         if (content.Status != ContentStatus.Unpublished)
         {
             content.Status = ContentStatus.Unpublished;
-            content = await this.Api.UpdateContentAsync(content) ?? throw new InvalidOperationException($"Content failed to update. ID:{content.Id}");
+            if (!this.Options.IndexOnly)
+                content = await this.Api.UpdateContentStatusAsync(content) ?? throw new InvalidOperationException($"Content failed to update. ID:{content.Id}");
         }
 
         var document = new DeleteRequest<ContentModel>(content, this.Options.PublishedIndex, content.Id);
