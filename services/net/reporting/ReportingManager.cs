@@ -659,7 +659,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             if (subscriber.User?.AccountType == UserAccountType.Distribution)
             {
                 var distributionList = await this.Api.GetDistributionListAsync(subscriber.UserId);
-                if (distributionList.Any())
+                if (distributionList.Any(x => !x.IsVacationMode()))
                 {
                     return true;
                 }
@@ -1055,6 +1055,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var linkOnlyFormatSubscribers = report.Subscribers.Where(s =>
             s.IsSubscribed &&
             s.User != null &&
+            !s.User.IsVacationMode() &&
             LinkOnlyFormats.Contains(s.Format) &&
             (request.Resend ||
                 !userReportInstances.Any(uri =>
@@ -1064,6 +1065,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var fullTextFormatSubscribers = report.Subscribers.Where(s =>
             s.IsSubscribed &&
             s.User != null &&
+            !s.User.IsVacationMode() &&
             FullTextFormats.Contains(s.Format) &&
             (request.Resend ||
                 !userReportInstances.Any(uri =>
