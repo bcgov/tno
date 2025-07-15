@@ -24,3 +24,4 @@ data:
   NOTIFICATION_TOPIC: notify
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"
+  INDEX_ONLY: "false"

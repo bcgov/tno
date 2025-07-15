@@ -30,6 +30,11 @@ public class IndexingOptions : ServiceOptions
     public string ElasticsearchPassword { get; set; } = "";
 
     /// <summary>
+    /// get/set - Elasticsearch API key.
+    /// </summary>
+    public string ElasticsearchApiKey { get; set; } = "";
+
+    /// <summary>
     /// get/set - The name of the Elasticsearch index for unpublished content.
     /// </summary>
     public string UnpublishedIndex { get; set; } = "";
@@ -48,6 +53,12 @@ public class IndexingOptions : ServiceOptions
     /// get/set - The topic to publish hub notifications to.
     /// </summary>
     public string HubTopic { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Control whether the service will only perform index operations and nothing else.
+    ///           Useful for indexing to separate cluster.
+    /// </summary>
+    public bool IndexOnly { get; set; }
     #endregion
 
     #region Methods

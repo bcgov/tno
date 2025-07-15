@@ -1,0 +1,149 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: 9b301c-prod
+
+resources:
+  - ../../base
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+patches:
+  - target:
+      kind: Service
+      name: indexing-service
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /metadata/labels/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /metadata/labels/component
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/selector/component
+        value: indexing-service-cloud
+  - target:
+      kind: ConfigMap
+      name: indexing-service
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /metadata/labels/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /metadata/labels/component
+        value: indexing-service-cloud
+      - op: replace
+        path: /data/KAFKA_CLIENT_ID
+        value: IndexingCloud
+      - op: replace
+        path: /data/ELASTICSEARCH_URI
+        value: https://b2db74af434a489f9bfa8a55de3430a9.ca-central-1.aws.elastic-cloud.com
+      - op: replace
+        path: /data/UNPUBLISHED_INDEX
+        value: content
+      - op: replace
+        path: /data/PUBLISHED_INDEX
+        value: published_content
+      - op: replace
+        path: /data/INDEX_ONLY
+        value: "true"
+  - target:
+      kind: DeploymentConfig
+      name: indexing-service
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /metadata/labels/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /metadata/labels/component
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/selector/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/selector/component
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/selector/component
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/metadata/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/metadata/labels/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/metadata/labels/component
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/8/valueFrom/configMapKeyRef/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/10/valueFrom/configMapKeyRef/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/12/valueFrom/configMapKeyRef/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/13/valueFrom/secretKeyRef/name
+        value: elastic-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/14/valueFrom/secretKeyRef/name
+        value: elastic-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/15/valueFrom/secretKeyRef/name
+        value: elastic-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/16/valueFrom/configMapKeyRef/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/17/valueFrom/configMapKeyRef/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/18/valueFrom/configMapKeyRef/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/19/valueFrom/configMapKeyRef/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/20/valueFrom/configMapKeyRef/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/21/valueFrom/configMapKeyRef/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/23/valueFrom/configMapKeyRef/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/24/valueFrom/configMapKeyRef/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/replicas
+        value: 1
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: 100m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: 80Mi
+      - op: replace
+        path: /spec/triggers/1/imageChangeParams/containerNames/0
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/triggers/1/imageChangeParams/from/name
+        value: indexing-service:prod
+
+# image-registry.openshift-image-registry.svc:5000/9b301c-tools/indexing-service@sha256:8ee75f802edbb56db4f27a36e40fdd4ed27711a6f81d1a852bf2253e8cab4994
