@@ -240,11 +240,21 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
   .query-text-red {
     color: crimson;
   }
+  .query-text-orange {
+    color: orange;
+  }
   .query-icon-red {
     display: inline-block;
     color: crimson;
-    width: 1em;
-    height: 1em;
+    width: 1.2em;
+    height: 1.2em;
+    margin-left: 0.4em;
+  }
+  .query-icon-orange {
+    display: inline-block;
+    color: orange;
+    width: 1.2em;
+    height: 1.2em;
     margin-left: 0.4em;
   }
   .query-icon-green {
@@ -258,6 +268,7 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     display: flex;
     flex-direction: row;
     justify-content: left;
+    align-items: center;
   }
   .query-validate-row {
     margin-top: 0.5em;
@@ -292,12 +303,20 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
       overflow-wrap: break-word;
       word-break: break-all;
     }
-    .text-area-underline {
-      color: crimson;
+    .text-area-warning {
+      color: orange;
       display: inline-block;
-      text-decoration: underline;
       overflow-wrap: break-word;
       word-break: break-all;
+    }
+    .text-area-error {
+      color: crimson;
+      display: inline-block;
+      overflow-wrap: break-word;
+      word-break: break-all;
+    }
+    .text-area-underline {
+      text-decoration: underline;
     }
   }
 
