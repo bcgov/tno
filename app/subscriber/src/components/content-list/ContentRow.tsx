@@ -17,7 +17,7 @@ import {
 
 import { Attributes } from './Attributes';
 import { ContentListContext } from './ContentListContext';
-import { ContentReportPin } from './ContentReportPin';
+import { ContentReportTag } from './ContentReportTag';
 import * as styled from './styled';
 import { determineToneIcon, truncateTeaser } from './utils';
 import { highlightTerms } from './utils/highlightTerms';
@@ -217,8 +217,10 @@ export const ContentRow: React.FC<IContentRowProps> = ({
               }}
             />
           </Show>
-          <ContentReportPin contentId={item.id} />
         </Row>
+      </Row>
+      <Row>
+        <ContentReportTag contentId={item.id} />
       </Row>
       <Show visible={!simpleView}>
         <Attributes
