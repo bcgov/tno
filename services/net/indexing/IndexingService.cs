@@ -1,6 +1,5 @@
 using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Caching.Memory;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.Indexing.Config;
@@ -41,7 +40,6 @@ public class IndexingService : KafkaConsumerService
         base.ConfigureServices(services);
         services
             .Configure<IndexingOptions>(this.Configuration.GetSection("Service"))
-            .Configure<ProducerConfig>(this.Configuration.GetSection("Kafka:Producer"))
             .Configure<AdminClientConfig>(this.Configuration.GetSection("Kafka:Admin"))
             .AddSingleton<IKafkaAdmin, KafkaAdmin>()
             .AddTransient<IKafkaListener<string, IndexRequestModel>, KafkaListener<string, IndexRequestModel>>()
