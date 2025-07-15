@@ -1,7 +1,7 @@
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: 9b301c-prod
+namespace: 9b301c-test
 
 resources:
   - ../../base
@@ -46,7 +46,7 @@ patches:
         path: /data/ELASTICSEARCH_URI
         value: https://b2db74af434a489f9bfa8a55de3430a9.ca-central-1.aws.elastic-cloud.com
       - op: replace
-        path: /data/UNPUBLISHED_INDEX
+        path: /data/CONTENT_INDEX
         value: content
       - op: replace
         path: /data/PUBLISHED_INDEX
@@ -144,6 +144,4 @@ patches:
         value: indexing-service-cloud
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
-        value: indexing-service:prod
-
-# image-registry.openshift-image-registry.svc:5000/9b301c-tools/indexing-service@sha256:8ee75f802edbb56db4f27a36e40fdd4ed27711a6f81d1a852bf2253e8cab4994
+        value: indexing-service:test

@@ -201,8 +201,9 @@ DB_POSTGRES_USERNAME=$dbUser
 DB_POSTGRES_PASSWORD=$password
 
 # Elastic__Url=http://localhost:$portElastic
-ELASTIC_USERNAME=$elasticUser
-ELASTIC_PASSWORD=$password
+Elastic__Username=$elasticUser
+Elastic__Password=$password
+Elastic__ApiKey=
 
 Reporting__ViewContentUrl=http://localhost:$portNginxSubscriber/view/
 Charts__Url=http://charts:8080
@@ -553,9 +554,10 @@ Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
-Service__ElasticsearchUri=http://host.docker.internal:$portElastic
-Service__ElasticsearchUsername=$elasticUser
-Service__ElasticsearchPassword=$password
+Elastic__Url=http://host.docker.internal:$portElastic
+Elastic__Username=$elasticUser
+Elastic__Password=$password
+Elastic__ApiKey=
 
 CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
 CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
@@ -618,8 +620,8 @@ CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}
 
 # Elastic__Url=host.docker.internal:$portElastic
-ELASTIC_USERNAME=$elasticUser
-ELASTIC_PASSWORD=$password" >> ./services/net/notification/.env
+Elastic__Username=$elasticUser
+Elastic__Password=$password" >> ./services/net/notification/.env
     echo "./services/net/notification/.env created"
 fi
 
@@ -695,8 +697,8 @@ Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 
 # Elastic__Url=host.docker.internal:$portElastic
-ELASTIC_USERNAME=$elasticUser
-ELASTIC_PASSWORD=$password" >> ./services/net/folder-collection/.env
+Elastic__Username=$elasticUser
+Elastic__Password=$password" >> ./services/net/folder-collection/.env
     echo "./services/net/folder-collection/.env created"
 fi
 
@@ -833,9 +835,9 @@ ConnectionStrings__TNO=Host=host.docker.internal:$portDatabase;Database=$dbName;
 DB_POSTGRES_USERNAME=$dbUser
 DB_POSTGRES_PASSWORD=$password
 
-ELASTIC_USERNAME=$elasticUser
-ELASTIC_PASSWORD=$password
 Elastic__Url=http://host.docker.internal:$portElastic
+Elastic__Username=$elasticUser
+Elastic__Password=$password
 # Elastic__MigrationVersion=1.0.1" >> ./tools/elastic/migration/.env
     echo "./tools/elastic/migration/.env created"
 fi

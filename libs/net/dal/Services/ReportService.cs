@@ -884,7 +884,7 @@ public class ReportService : BaseService<Report, int>, IReportService
                     query = query.ExcludeBCUpdates();
 
                 // Determine index.
-                var defaultIndex = filterSettings.SearchUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex;
+                var defaultIndex = filterSettings.SearchUnpublished ? _elasticOptions.ContentIndex : _elasticOptions.PublishedIndex;
                 var content = await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query);
                 var contentHits = content.Hits.Hits.ToArray();
 
@@ -1060,7 +1060,7 @@ public class ReportService : BaseService<Report, int>, IReportService
                 query = query.IncludeOnlyLatestPosted(previousInstance.PublishedOn);
 
             // Determine index.
-            var defaultIndex = filterSettings.SearchUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex;
+            var defaultIndex = filterSettings.SearchUnpublished ? _elasticOptions.ContentIndex : _elasticOptions.PublishedIndex;
             var content = await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query);
 
             // Fetch custom content versions for the requestor.

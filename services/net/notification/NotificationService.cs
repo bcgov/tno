@@ -44,7 +44,7 @@ public class NotificationService : KafkaConsumerService
         services
             .Configure<NotificationOptions>(this.Configuration.GetSection("Service"))
             .Configure<TemplateOptions>(this.Configuration.GetSection("Reporting"))
-            .AddElasticSingleton(this.Configuration, this.Environment)
+            .AddSingletonElastic(this.Configuration, this.Environment)
             .AddTransient<IKafkaListener<string, NotificationRequestModel>, KafkaListener<string, NotificationRequestModel>>()
             .AddTransient<INotificationValidator, NotificationValidator>()
             .AddSingleton<IServiceManager, NotificationManager>()

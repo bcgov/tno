@@ -13,9 +13,24 @@ public class ElasticOptions
     public Uri? Url { get; set; }
 
     /// <summary>
-    /// get/set - The name of the Elasticsearch index for unpublished content.
+    /// get/set - Elasticsearch username.
     /// </summary>
-    public string UnpublishedIndex { get; set; } = "unpublished_content";
+    public string Username { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Elasticsearch password.
+    /// </summary>
+    public string Password { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Elasticsearch API key.
+    /// </summary>
+    public string ApiKey { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The name of the Elasticsearch index for all content.
+    /// </summary>
+    public string ContentIndex { get; set; } = "unpublished_content";
 
     /// <summary>
     /// get/set - The name of the Elasticsearch index for published content.

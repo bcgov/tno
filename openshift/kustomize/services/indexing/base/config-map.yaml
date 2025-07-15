@@ -19,7 +19,7 @@ data:
   MAX_FAIL_LIMIT: "5"
   TOPICS: index
   ELASTICSEARCH_URI: http://elastic:9200
-  UNPUBLISHED_INDEX: unpublished_content
+  CONTENT_INDEX: unpublished_content
   PUBLISHED_INDEX: content
   NOTIFICATION_TOPIC: notify
   CHES_EMAIL_ENABLED: "true"

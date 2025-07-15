@@ -122,6 +122,18 @@ services:
     #   retries: 3
     #   start_period: 15s
 
+
+  indexer:
+    profiles:
+      - indexer
+    build:
+      context: ./
+      dockerfile: tools/indexer/Dockerfile
+    env_file:
+      - tools/indexer/.env
+    networks:
+      - tno
+
   ####################### API #######################
   api:
     image: tno:api

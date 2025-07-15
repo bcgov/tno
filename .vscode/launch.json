@@ -310,6 +310,23 @@
       "envFile": "${workspaceFolder}/tools/elastic/migration/.env"
     },
     {
+      // Use IntelliSense to find out which attributes exist for C# debugging
+      // Use hover for the description of the existing attributes
+      // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
+      "name": "Run Elastic Indexer Service",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-elastic-indexer",
+      // If you have changed target frameworks, make sure to update the program path.
+      "program": "${workspaceFolder}/tools/indexer/bin/Debug/net9.0/TNO.Tools.ElasticIndexer.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/tools/indexer",
+      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
+      "console": "internalConsole",
+      "stopAtEntry": false,
+      "envFile": "${workspaceFolder}/tools/indexer/.env"
+    },
+    {
       "name": ".NET Core Attach",
       "type": "coreclr",
       "request": "attach"

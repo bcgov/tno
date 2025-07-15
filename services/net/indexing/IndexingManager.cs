@@ -8,6 +8,7 @@ using TNO.API.Areas.Services.Models.Content;
 using TNO.Ches;
 using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
+using TNO.Elastic;
 using TNO.Entities;
 using TNO.Kafka;
 using TNO.Kafka.Models;
@@ -29,6 +30,11 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     #endregion
 
     #region Properties
+    /// <summary>
+    /// get/set - The elastic configuration options.
+    /// </summary>
+    protected ElasticOptions ElasticOptions { get; set; }
+
     /// <summary>
     /// get - Kafka admin client.
     /// </summary>
@@ -58,6 +64,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <param name="listener"></param>
     /// <param name="api"></param>
     /// <param name="chesService"></param>
+    /// <param name="elasticOptions"></param>
     /// <param name="chesOptions"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
@@ -67,12 +74,14 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         IKafkaListener<string, IndexRequestModel> listener,
         IApiService api,
         IChesService chesService,
+        IOptions<ElasticOptions> elasticOptions,
         IOptions<ChesOptions> chesOptions,
         IOptions<IndexingOptions> options,
         ILogger<IndexingManager> logger,
         IMemoryCache memoryCache)
         : base(api, chesService, chesOptions, options, logger)
     {
+        this.ElasticOptions = elasticOptions.Value;
         this.KafkaAdmin = kafkaAdmin;
         this.Listener = listener;
         this.Listener.IsLongRunningJob = false;
@@ -80,12 +89,12 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         this.Listener.OnStop += ListenerStopHandler;
 
         // TODO: Change to dependency injection.
-        var connect = new ElasticsearchClientSettings(new Uri(options.Value.ElasticsearchUri));
+        var connect = new ElasticsearchClientSettings(this.ElasticOptions.Url);
 
-        if (!String.IsNullOrWhiteSpace(this.Options.ElasticsearchUsername) && !String.IsNullOrWhiteSpace(this.Options.ElasticsearchPassword))
-            connect.Authentication(new BasicAuthentication(this.Options.ElasticsearchUsername, this.Options.ElasticsearchPassword));
-        else if (!String.IsNullOrWhiteSpace(this.Options.ElasticsearchApiKey))
-            connect.Authentication(new ApiKey(this.Options.ElasticsearchApiKey));
+        if (!String.IsNullOrWhiteSpace(this.ElasticOptions.Username) && !String.IsNullOrWhiteSpace(this.ElasticOptions.Password))
+            connect.Authentication(new BasicAuthentication(this.ElasticOptions.Username, this.ElasticOptions.Password));
+        else if (!String.IsNullOrWhiteSpace(this.ElasticOptions.ApiKey))
+            connect.Authentication(new ApiKey(this.ElasticOptions.ApiKey));
         this.Client = new ElasticsearchClient(connect);
 
         _cache = memoryCache;
@@ -197,8 +206,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns>True if the consumer should retry the message.</returns>
     private void ListenerErrorHandler(object sender, ErrorEventArgs e)
     {
-        this.Logger.LogDebug("ListenerErrorHandler:BEGIN");
-        this.Logger.LogDebug($"ListenerErrorHandler: Retries={_retries}");
+        this.Logger.LogDebug("ListenerErrorHandler: Retries={_retries}", _retries);
         // Only the first retry will count as a failure.
         if (_retries == 0)
             this.State.RecordFailure();
@@ -211,7 +219,6 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                 this.Logger.LogDebug("ListenerErrorHandler: Stop on IsFatal");
             }
         }
-        this.Logger.LogDebug("ListenerErrorHandler:END");
     }
 
     /// <summary>
@@ -221,7 +228,6 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <param name="e"></param>
     private void ListenerStopHandler(object sender, EventArgs e)
     {
-        this.Logger.LogDebug("ListenerStopHandler:BEGIN");
         if (_consumer != null &&
             !_notRunning.Contains(_consumer.Status) &&
             _cancelToken != null && !_cancelToken.IsCancellationRequested)
@@ -229,7 +235,6 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             this.Logger.LogDebug("ListenerStopHandler.Cancel");
             _cancelToken.Cancel();
         }
-        this.Logger.LogDebug("ListenerStopHandler:END");
     }
 
     /// <summary>
@@ -288,8 +293,6 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task ProcessIndexRequestAsync(ConsumeResult<string, IndexRequestModel> result)
     {
-        this.Logger.LogDebug($"ProcessIndexRequestAsync:BEGIN:{result.Message.Key}");
-
         this.Logger.LogInformation("Indexing content from Topic: {Topic}, Content ID: {Key}", result.Topic, result.Message.Key);
         var model = result.Message.Value;
 
@@ -318,7 +321,6 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         }
         // Indexing is completed, pass the baton to the folder process.
         await this.Api.SendMessageAsync(model);
-        this.Logger.LogDebug($"ProcessIndexRequestAsync:END:{result.Message.Key}");
     }
 
     /// <summary>
@@ -328,13 +330,11 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task IndexContentAsync(IndexRequestModel request, ContentModel content)
     {
-        this.Logger.LogDebug($"IndexContentAsync:BEGIN:{content.Id}");
-
-        var document = new IndexRequest<ContentModel>(content, this.Options.UnpublishedIndex, content.Id);
+        var document = new IndexRequest<ContentModel>(content, this.ElasticOptions.ContentIndex, content.Id);
         var response = await this.Client.IndexAsync(document);
         if (response.IsSuccess())
         {
-            this.Logger.LogInformation("Content indexed.  Content ID: {id}, Index: {index}, Version: {version}", content.Id, this.Options.UnpublishedIndex, content.Version);
+            this.Logger.LogInformation("Content indexed.  Content ID: {id}, Index: {index}, Version: {version}", content.Id, this.ElasticOptions.ContentIndex, content.Version);
 
             // Tell the API to inform users of published content.
             if (!this.Options.IndexOnly)
@@ -344,9 +344,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         {
             // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
             if (response.TryGetOriginalException(out Exception? ex))
-                this.Logger.LogError(ex, "Content failed to index.  Content ID: {id}, Index: {index}", content.Id, this.Options.UnpublishedIndex);
+                this.Logger.LogError(ex, "Content failed to index.  Content ID: {id}, Index: {index}", content.Id, this.ElasticOptions.ContentIndex);
         }
-        this.Logger.LogDebug($"IndexContentAsync:END:{content.Id}");
     }
 
     /// <summary>
@@ -360,7 +359,6 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task<ContentModel> PublishContentAsync(ContentModel content)
     {
-        this.Logger.LogDebug($"PublishContentAsync:BEGIN:{content.Id}");
         // Update the status of the content to indicate it has been published.
         if (content.Status != ContentStatus.Published)
         {
@@ -372,21 +370,20 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         // Remove the transcript body if it hasn't been approved.
         var body = content.Body;
         if (!content.IsApproved && content.ContentType == ContentType.AudioVideo) content.Body = "";
-        var document = new IndexRequest<ContentModel>(content, this.Options.PublishedIndex, content.Id);
+        var document = new IndexRequest<ContentModel>(content, this.ElasticOptions.PublishedIndex, content.Id);
         var response = await this.Client.IndexAsync(document);
         content.Body = body;
         if (response.IsSuccess())
         {
-            this.Logger.LogInformation("Content published.  Content ID: {id}, Index: {index}, Version: {version}", content.Id, this.Options.PublishedIndex, content.Version);
+            this.Logger.LogInformation("Content published.  Content ID: {id}, Index: {index}, Version: {version}", content.Id, this.ElasticOptions.PublishedIndex, content.Version);
         }
         else
         {
             // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
             if (response.TryGetOriginalException(out Exception? ex))
-                this.Logger.LogError(ex, "Content failed to publish.  Content ID: {id}, Index: {index}", content.Id, this.Options.PublishedIndex);
+                this.Logger.LogError(ex, "Content failed to publish.  Content ID: {id}, Index: {index}", content.Id, this.ElasticOptions.PublishedIndex);
         }
 
-        this.Logger.LogDebug($"PublishContentAsync:END:{content.Id}");
         return content;
     }
 
@@ -399,8 +396,6 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task<ContentModel> UnpublishContentAsync(ContentModel content)
     {
-        this.Logger.LogDebug($"UnpublishContentAsync:BEGIN:{content.Id}");
-
         // Update the status of the content to indicate it has been unpublished.
         if (content.Status != ContentStatus.Unpublished)
         {
@@ -409,19 +404,18 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                 content = await this.Api.UpdateContentStatusAsync(content) ?? throw new InvalidOperationException($"Content failed to update. ID:{content.Id}");
         }
 
-        var document = new DeleteRequest<ContentModel>(content, this.Options.PublishedIndex, content.Id);
+        var document = new DeleteRequest<ContentModel>(content, this.ElasticOptions.PublishedIndex, content.Id);
         var response = await this.Client.DeleteAsync(document);
         if (response.IsSuccess())
         {
-            this.Logger.LogInformation("Content unpublished.  Content ID: {id}, Index: {index}, Version: {version}", content.Id, this.Options.PublishedIndex, content.Version);
+            this.Logger.LogInformation("Content unpublished.  Content ID: {id}, Index: {index}, Version: {version}", content.Id, this.ElasticOptions.PublishedIndex, content.Version);
         }
         else
         {
             // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
             if (response.TryGetOriginalException(out Exception? ex))
-                this.Logger.LogError(ex, "Content failed to unpublish.  Content ID: {id}, Index: {index}", content.Id, this.Options.PublishedIndex);
+                this.Logger.LogError(ex, "Content failed to unpublish.  Content ID: {id}, Index: {index}", content.Id, this.ElasticOptions.PublishedIndex);
         }
-        this.Logger.LogDebug($"UnpublishContentAsync:END:{content.Id}");
         return content;
     }
 
@@ -432,12 +426,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task DeleteContentAsync(long contentId)
     {
-        this.Logger.LogDebug($"DeleteContentAsync:BEGIN:{contentId}");
-
-        await DeleteContentAsync(contentId, this.Options.PublishedIndex);
-        await DeleteContentAsync(contentId, this.Options.UnpublishedIndex);
-
-        this.Logger.LogDebug($"DeleteContentAsync:END:{contentId}");
+        await DeleteContentAsync(contentId, this.ElasticOptions.PublishedIndex);
+        await DeleteContentAsync(contentId, this.ElasticOptions.ContentIndex);
     }
 
     /// <summary>
@@ -448,7 +438,6 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task DeleteContentAsync(long contentId, string index)
     {
-        this.Logger.LogDebug($"DeleteContentAsync:BEGIN:{contentId}:{index}");
         var request = new DeleteRequest<ContentModel>(index, contentId);
         var response = await this.Client.DeleteAsync(request);
         if (response.IsSuccess())
@@ -461,7 +450,6 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             if (response.TryGetOriginalException(out Exception? ex))
                 this.Logger.LogError(ex, "Content failed to delete.  Content ID: {id}, Index: {index}", contentId, index);
         }
-        this.Logger.LogDebug($"DeleteContentAsync:END:{contentId}:{index}");
     }
 
     /// <summary>
@@ -474,8 +462,6 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <exception cref="InvalidOperationException"></exception>
     private async Task SendNotifications(IndexRequestModel request, ContentModel content)
     {
-        this.Logger.LogDebug($"SendNotifications:BEGIN:{content.Id}");
-
         var cacheKey = $"{CacheKeyPrefix}{content.Id}";
 
         if (!_cache.TryGetValue(cacheKey, out _))
@@ -497,15 +483,13 @@ public class IndexingManager : ServiceManager<IndexingOptions>
 
                 // add to cache
                 _cache.Set(cacheKey, true, cacheEntryOptions);
-                this.Logger.LogInformation($"Notification for Content {content.Id} was sent, added to cache.");
+                this.Logger.LogInformation("Notification for Content {contentId} was sent, added to cache.", content.Id);
             }
         }
         else
         {
-            this.Logger.LogInformation($"Notification for Content {content.Id} was recently sent, skipping this notification request.");
+            this.Logger.LogInformation("Notification for Content {contentId} was recently sent, skipping this notification request.", content.Id);
         }
-
-        this.Logger.LogDebug($"SendNotifications:END:{content.Id}");
     }
     #endregion
 }

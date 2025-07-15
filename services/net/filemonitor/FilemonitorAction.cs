@@ -729,9 +729,10 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             xml = $"{xml}</story><date>{DateTime.Now:MM-dd-yyyy}</date></bcng>";
 
             var match = _storyBody.Match(xml);
-            if (match.Success)
+            var find = match.Groups["body"].Value;
+            if (match.Success && !String.IsNullOrWhiteSpace(find))
             {
-                xml = xml.Replace(match.Groups["body"].Value, this.Options.FailedStoryBody);
+                xml = xml.Replace(find, this.Options.FailedStoryBody);
             }
 
             File.WriteAllText(filePath, xml);
