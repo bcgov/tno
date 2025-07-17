@@ -10,20 +10,6 @@ generatorOptions:
   disableNameSuffixHash: true
 
 patches:
-  # - target:
-  #     kind: DeploymentConfig
-  #     name: indexer-service
-  #   patch: |-
-  #     - op: replace
-  #       path: /spec/triggers/1/imageChangeParams/from/name
-  #       value: indexer-service:test
-  # - target:
-  #     kind: Deployment
-  #     name: indexer-service
-  #   patch: |-
-  #     - op: replace
-  #       path: /spec/template/spec/containers/0/image
-  #       value: image-registry.openshift-image-registry.svc:5000/9b301c-tools/indexer-service:test
   - target:
       kind: Job
       name: indexer-service
