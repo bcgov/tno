@@ -6,10 +6,15 @@ import { toast } from 'react-toastify';
 import { useApp, useProducts } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
 import {
+  getEnumStringOptions,
   IProductModel,
   IUserProductModel,
   Loader,
+  OptionItem,
   ProductRequestStatusName,
+  ProductTypeName,
+  ReportDistributionFormatName,
+  Select,
   Show,
   useModal,
 } from 'tno-core';
@@ -31,6 +36,12 @@ export const MyProducts: React.FC = () => {
   const [products, setProducts] = React.useState<IProductModel[]>([]);
   const [active, setActive] = React.useState<ISelectedProduct>();
   const [isLoading, setIsLoading] = React.useState(true);
+  const formatOptions = getEnumStringOptions(ReportDistributionFormatName).filter(
+    (option) => option.value !== 'ReceiveBoth',
+  );
+  const [distributionFormat, setDistributionFormat] = React.useState<ReportDistributionFormatName>(
+    ReportDistributionFormatName.LinkOnly,
+  );
 
   const userId = impersonate?.id ?? userInfo?.id ?? 0;
 
@@ -75,6 +86,77 @@ export const MyProducts: React.FC = () => {
     },
     [toggleSubscription],
   );
+  const getProductType = React.useCallback(
+    (productId: Number) => {
+      const product = products.find((product) => product.id === productId);
+      if (product) {
+        return product.productType;
+      }
+    },
+    [products],
+  );
+
+  const modalBody = React.useCallback(
+    (active: ISelectedProduct) => {
+      if (active.userProduct.isSubscribed) {
+        switch (active.userProduct.status) {
+          case ProductRequestStatusName.RequestUnsubscribe:
+            return `Are you sure you wish to unsubscribe to ${active.product.name}`;
+          default:
+            return `Are you sure you wish to cancel your pending request to unsubscribe to ${active.product.name}`;
+        }
+      } else {
+        switch (active.userProduct.status) {
+          case ProductRequestStatusName.RequestSubscription:
+            return (
+              <>
+                <p>Are you sure you wish to subscribe to {active.product.name}</p>
+                {getProductType(active.userProduct.productId) === ProductTypeName.Report ? (
+                  <div key="format" className="modal-select">
+                    <p>Please select email format:</p>
+                    <Select
+                      name="subscribersFormat"
+                      options={formatOptions}
+                      isClearable={false}
+                      value={formatOptions.find((o) => o.value === distributionFormat) ?? ''}
+                      onChange={(newValue: any) => {
+                        const option = newValue as OptionItem;
+                        if (option) {
+                          setDistributionFormat(option.value as ReportDistributionFormatName);
+                        }
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div></div>
+                )}
+              </>
+            );
+          default:
+            return `Are you sure you wish to cancel your pending request to subscribe to ${active.product.name}`;
+        }
+      }
+    },
+    [distributionFormat, formatOptions, getProductType],
+  );
+
+  const modalConfirmText = React.useCallback((active: ISelectedProduct) => {
+    if (active.userProduct.isSubscribed) {
+      switch (active.userProduct.status) {
+        case ProductRequestStatusName.RequestUnsubscribe:
+          return `Yes, request to unsubscribe`;
+        default:
+          return `Yes, cancel my pending request to unsubscribe`;
+      }
+    } else {
+      switch (active.userProduct.status) {
+        case ProductRequestStatusName.RequestSubscription:
+          return `Yes, request to subscribe`;
+        default:
+          return `Yes, cancel my pending request to subscribe`;
+      }
+    }
+  }, []);
 
   return (
     <styled.MyProducts>
@@ -167,46 +249,18 @@ export const MyProducts: React.FC = () => {
         type="default"
         confirmText={active && modalConfirmText(active)}
         onConfirm={() => {
-          if (active) handleToggleSubscription(active.product, active.userProduct);
+          if (active) {
+            const newUserProduct = Object.assign({}, active?.userProduct, {
+              format: distributionFormat,
+            });
+            const subscription = Object.assign({}, active, {
+              userProduct: newUserProduct,
+            });
+            handleToggleSubscription(subscription.product, subscription.userProduct);
+          }
           toggle();
         }}
       />
     </styled.MyProducts>
   );
-};
-
-const modalBody = (active: ISelectedProduct) => {
-  if (active.userProduct.isSubscribed) {
-    switch (active.userProduct.status) {
-      case ProductRequestStatusName.RequestUnsubscribe:
-        return `Are you sure you wish to unsubscribe to ${active.product.name}`;
-      default:
-        return `Are you sure you wish to cancel your pending request to unsubscribe to ${active.product.name}`;
-    }
-  } else {
-    switch (active.userProduct.status) {
-      case ProductRequestStatusName.RequestSubscription:
-        return `Are you sure you wish to subscribe to ${active.product.name}`;
-      default:
-        return `Are you sure you wish to cancel your pending request to subscribe to ${active.product.name}`;
-    }
-  }
-};
-
-const modalConfirmText = (active: ISelectedProduct) => {
-  if (active.userProduct.isSubscribed) {
-    switch (active.userProduct.status) {
-      case ProductRequestStatusName.RequestUnsubscribe:
-        return `Yes, request to unsubscribe`;
-      default:
-        return `Yes, cancel my pending request to unsubscribe`;
-    }
-  } else {
-    switch (active.userProduct.status) {
-      case ProductRequestStatusName.RequestSubscription:
-        return `Yes, request to subscribe`;
-      default:
-        return `Yes, cancel my pending request to subscribe`;
-    }
-  }
 };

@@ -30,7 +30,11 @@ public class ProductController : ControllerBase
 {
     #region Variables
     private readonly IProductService _productService;
+    private readonly IReportService _reportService;
     private readonly IImpersonationHelper _impersonate;
+    
+    private const ReportDistributionFormat DefaultFormat = ReportDistributionFormat.LinkOnly;
+    private const EmailSentTo DefaultSendTo = EmailSentTo.To;
     #endregion
 
     #region Constructors
@@ -39,12 +43,15 @@ public class ProductController : ControllerBase
     /// </summary>
     /// <param name="productService"></param>
     /// <param name="impersonateHelper"></param>
+    /// <param name="reportService"></param>
     public ProductController(
         IProductService productService,
-        IImpersonationHelper impersonateHelper)
+        IImpersonationHelper impersonateHelper,
+        IReportService reportService)
     {
         _productService = productService;
         _impersonate = impersonateHelper;
+        _reportService = reportService;
     }
     #endregion
 
@@ -83,6 +90,7 @@ public class ProductController : ControllerBase
     {
         var user = _impersonate.GetCurrentUser();
         var originalProduct = _productService.FindById(model.ProductId) ?? throw new NoContentException("Product does not exist");
+        bool createNewSubscription = false;
 
         var userProductSubscription = originalProduct.SubscribersManyToMany.FirstOrDefault(s => s.UserId == user.Id);
         if (userProductSubscription == null)
@@ -90,6 +98,7 @@ public class ProductController : ControllerBase
             // Add a request to subscribe to this product.
             userProductSubscription = new UserProduct(user.Id, model.ProductId, model.Status);
             _productService.AddAndSave(userProductSubscription);
+            createNewSubscription = true;
         }
         else
         {
@@ -101,6 +110,37 @@ public class ProductController : ControllerBase
            userProductSubscription.Status == ProductRequestStatus.RequestUnsubscribe)
         {
             await _productService.SendSubscriptionRequestEmailAsync(userProductSubscription);
+        }
+
+        // update the report subscription format and send to
+        if (userProductSubscription.Status == ProductRequestStatus.RequestSubscription && originalProduct.ProductType == ProductType.Report)
+        {
+            if (createNewSubscription)
+            {
+                var newReportSubscription = new UserReport(user.Id, originalProduct.TargetProductId, false,
+                                            model.Format ?? DefaultFormat, model.SendTo ?? DefaultSendTo);
+                _reportService.AddAndSave(newReportSubscription);
+            }
+            else
+            {
+                var originalReport = _reportService.FindById(originalProduct.TargetProductId) ?? null;
+                if (originalReport != null)
+                {
+                    var originalUserReport = originalReport.SubscribersManyToMany
+                                            .Where(x => x.UserId == user.Id && x.ReportId == originalProduct.TargetProductId).FirstOrDefault();
+                    if (originalUserReport != null)
+                    {
+                        originalUserReport.Format = model.Format ?? DefaultFormat;
+                        originalUserReport.SendTo = model.SendTo ?? DefaultSendTo;
+                        _reportService.UpdateAndSave(originalUserReport);
+                    }
+                    else
+                    {
+                        var newReportSubscription = new UserReport(user.Id, originalProduct.TargetProductId, false);
+                        _reportService.AddAndSave(newReportSubscription);
+                    }
+                }
+            }
         }
         return new JsonResult(new UserProductModel(userProductSubscription));
     }
