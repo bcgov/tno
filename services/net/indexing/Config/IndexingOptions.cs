@@ -15,36 +15,6 @@ public class IndexingOptions : ServiceOptions
     public string Topics { get; set; } = "";
 
     /// <summary>
-    /// get/set - Uri to Elasticsearch API.
-    /// </summary>
-    public string ElasticsearchUri { get; set; } = "";
-
-    /// <summary>
-    /// get/set - Elasticsearch username.
-    /// </summary>
-    public string ElasticsearchUsername { get; set; } = "";
-
-    /// <summary>
-    /// get/set - Elasticsearch password.
-    /// </summary>
-    public string ElasticsearchPassword { get; set; } = "";
-
-    /// <summary>
-    /// get/set - Elasticsearch API key.
-    /// </summary>
-    public string ElasticsearchApiKey { get; set; } = "";
-
-    /// <summary>
-    /// get/set - The name of the Elasticsearch index for unpublished content.
-    /// </summary>
-    public string UnpublishedIndex { get; set; } = "";
-
-    /// <summary>
-    /// get/set - The name of the Elasticsearch index for published content.
-    /// </summary>
-    public string PublishedIndex { get; set; } = "";
-
-    /// <summary>
     /// get/set - The topic to publish notifications to.
     /// </summary>
     public string NotificationTopic { get; set; } = "";

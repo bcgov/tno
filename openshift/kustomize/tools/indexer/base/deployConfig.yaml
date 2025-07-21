@@ -1,0 +1,122 @@
+# How the app will be deployed to the pod.
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: indexer-service
+  namespace: default
+  annotations:
+    description: Defines how to deploy indexer service
+  labels:
+    name: indexer-service
+    part-of: tno
+    version: 1.0.0
+    component: indexer-service
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  replicas: 1
+  selector:
+    name: indexer-service
+    part-of: tno
+    component: indexer-service
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      name: indexer-service
+      labels:
+        name: indexer-service
+        part-of: tno
+        component: indexer-service
+    spec:
+      containers:
+        - name: indexer-service
+          image: ""
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 20m
+              memory: 50Mi
+          env:
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+
+            - name: Logging__LogLevel__TNO
+              value: Information
+
+            - name: Service__Page
+              value: "1"
+            - name: Service__Quantity
+              value: "1000"
+
+            - name: ConnectionStrings__TNO
+              valueFrom:
+                configMapKeyRef:
+                  name: api
+                  key: CONNECTION_STRING
+            - name: DB_POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: database
+                  key: USERNAME
+            - name: DB_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database
+                  key: PASSWORD
+
+            - name: Elastic__Url
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service-cloud
+                  key: ELASTICSEARCH_URI
+            - name: Elastic__Username
+              valueFrom:
+                secretKeyRef:
+                  name: elastic-cloud
+                  key: USERNAME
+            - name: Elastic__Password
+              valueFrom:
+                secretKeyRef:
+                  name: elastic-cloud
+                  key: PASSWORD
+            - name: Elastic__ApiKey
+              valueFrom:
+                secretKeyRef:
+                  name: elastic-cloud
+                  key: ApiKey
+            - name: Elastic__ContentIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service-cloud
+                  key: CONTENT_INDEX
+            - name: Elastic__PublishedIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service-cloud
+                  key: PUBLISHED_INDEX
+
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - indexer-service
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: indexer-service:dev

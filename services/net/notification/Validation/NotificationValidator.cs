@@ -258,7 +258,7 @@ public class NotificationValidator : INotificationValidator
         if (!String.IsNullOrWhiteSpace(filter.Search) && (filter.InHeadline == true || filter.InByline == true || filter.InStory == true))
         {
             // Make a request to Elasticsearch to compare the text search.
-            var index = filter.SearchUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex;
+            var index = filter.SearchUnpublished ? _elasticOptions.ContentIndex : _elasticOptions.PublishedIndex;
             var query = ModifyElasticQuery(this.Notification.Query, this.Content.Id);
             var response = await this.Client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, query);
 

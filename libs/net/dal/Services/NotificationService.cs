@@ -281,7 +281,7 @@ public class NotificationService : BaseService<Notification, int>, INotification
 
         var ownerId = requestorId ?? notification.OwnerId; // TODO: Handle users generating instances for a notifications they do not own.
 
-        var defaultIndex = filter.SearchUnpublished ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex;
+        var defaultIndex = filter.SearchUnpublished ? _elasticOptions.ContentIndex : _elasticOptions.PublishedIndex;
         var query = notification.Query;
         var topStoryLastRunOnSetting = _settingService.FindByName(TopStoryLastRunOn);
 

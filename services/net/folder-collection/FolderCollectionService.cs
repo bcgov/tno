@@ -42,7 +42,7 @@ public class FolderCollectionService : KafkaConsumerService
         services
             .Configure<FolderCollectionOptions>(this.Configuration.GetSection("Service"))
             .Configure<AdminClientConfig>(this.Configuration.GetSection("Kafka:Admin"))
-            .AddElasticSingleton(this.Configuration, this.Environment)
+            .AddSingletonElastic(this.Configuration, this.Environment)
             .AddSingleton<IKafkaAdmin, KafkaAdmin>()
             .AddTransient<IKafkaListener<string, IndexRequestModel>, KafkaListener<string, IndexRequestModel>>()
             .AddSingleton<IServiceManager, FolderCollectionManager>();

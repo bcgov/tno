@@ -649,5 +649,42 @@
       ],
       "problemMatcher": "$msCompile"
     }
+    ,
+    {
+      "label": "build-elastic-indexer",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/tools/indexer/TNO.Tools.ElasticIndexer.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-elastic-indexer",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/tools/indexer/TNO.Tools.ElasticIndexer.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-elastic-indexer",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/tools/indexer/TNO.Tools.ElasticIndexer.csproj",
+      ],
+      "problemMatcher": "$msCompile"
+    }
   ]
 }

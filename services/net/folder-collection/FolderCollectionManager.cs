@@ -462,7 +462,7 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
 
         if (!String.IsNullOrWhiteSpace(filter.Settings.Search))
         {
-            var index = filter.Settings.SearchUnpublished ? this.ElasticOptions.UnpublishedIndex : this.ElasticOptions.PublishedIndex;
+            var index = filter.Settings.SearchUnpublished ? this.ElasticOptions.ContentIndex : this.ElasticOptions.PublishedIndex;
             var query = ModifyElasticQuery(filter.Query, content.Id);
             var result = await this.Client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, query);
 

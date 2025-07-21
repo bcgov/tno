@@ -175,7 +175,7 @@ public class ChartTemplateController : ControllerBase
             if (filter != null)
             {
                 var filterSettings = JsonSerializer.Deserialize<API.Models.Settings.FilterSettingsModel>(filter.Settings);
-                var index = filterSettings?.SearchUnpublished == true ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex;
+                var index = filterSettings?.SearchUnpublished == true ? _elasticOptions.ContentIndex : _elasticOptions.PublishedIndex;
                 content = content.AppendRange(await _reportHelper.FindContentAsync(filter.Query, index));
             }
         }

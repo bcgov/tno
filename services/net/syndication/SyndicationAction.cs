@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using System.Globalization;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.ServiceModel.Syndication;
 using System.Text;

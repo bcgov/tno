@@ -147,16 +147,31 @@ spec:
                 configMapKeyRef:
                   name: api
                   key: ELASTIC_URIS
-            - name: ELASTIC_USERNAME
+            - name: Elastic__Username
               valueFrom:
                 secretKeyRef:
                   name: elastic
                   key: USERNAME
-            - name: ELASTIC_PASSWORD
+            - name: Elastic__Password
               valueFrom:
                 secretKeyRef:
                   name: elastic
                   key: PASSWORD
+            - name: Elastic__ApiKey
+              valueFrom:
+                secretKeyRef:
+                  name: elastic
+                  key: ApiKey
+            - name: Elastic__ContentIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: CONTENT_INDEX
+            - name: Elastic__PublishedIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: PUBLISHED_INDEX
 
             - name: Reporting__SubscriberAppUrl
               valueFrom:

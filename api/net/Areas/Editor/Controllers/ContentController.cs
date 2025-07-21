@@ -155,7 +155,7 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> FindWithElasticsearchAsync([FromBody] JsonDocument filter, [FromQuery] bool includeUnpublishedContent = false)
     {
-        var result = await _contentService.FindWithElasticsearchAsync(includeUnpublishedContent ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex, filter);
+        var result = await _contentService.FindWithElasticsearchAsync(includeUnpublishedContent ? _elasticOptions.ContentIndex : _elasticOptions.PublishedIndex, filter);
         return new JsonResult(result);
     }
 

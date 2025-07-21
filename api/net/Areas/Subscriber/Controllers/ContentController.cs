@@ -120,10 +120,10 @@ public class ContentController : ControllerBase
         filter = filter.AddExcludeSources(user.SourcesManyToMany.Select(s => s.SourceId));
         filter = filter.AddExcludeMediaTypes(user.MediaTypesManyToMany.Select(s => s.MediaTypeId));
 
-        var result = await _contentService.FindWithElasticsearchAsync(includeUnpublishedContent ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex, filter);
+        var result = await _contentService.FindWithElasticsearchAsync(includeUnpublishedContent ? _elasticOptions.ContentIndex : _elasticOptions.PublishedIndex, filter);
         return new JsonResult(result);
     }
-    
+
     /// <summary>
     /// Validate Elasticsearch query.
     /// </summary>
@@ -143,7 +143,7 @@ public class ContentController : ControllerBase
         filter = filter.AddExcludeSources(user.SourcesManyToMany.Select(s => s.SourceId));
         filter = filter.AddExcludeMediaTypes(user.MediaTypesManyToMany.Select(s => s.MediaTypeId));
 
-        var result = await _contentService.ValidateElasticsearchSimpleQueryAsync(includeUnpublishedContent ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex, filter, fieldNames);
+        var result = await _contentService.ValidateElasticsearchSimpleQueryAsync(includeUnpublishedContent ? _elasticOptions.ContentIndex : _elasticOptions.PublishedIndex, filter, fieldNames);
         return new JsonResult(result);
     }
 
