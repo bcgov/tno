@@ -1,5 +1,6 @@
 using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
+using TNO.Elastic;
 using TNO.Kafka;
 using TNO.Kafka.Models;
 using TNO.Services.Indexing.Config;
@@ -39,6 +40,7 @@ public class IndexingService : KafkaConsumerService
     {
         base.ConfigureServices(services);
         services
+            .Configure<ElasticOptions>(this.Configuration.GetSection("Elastic"))
             .Configure<IndexingOptions>(this.Configuration.GetSection("Service"))
             .Configure<AdminClientConfig>(this.Configuration.GetSection("Kafka:Admin"))
             .AddSingleton<IKafkaAdmin, KafkaAdmin>()

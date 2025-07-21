@@ -22,7 +22,6 @@ namespace TNO.Elastic
         #region Properties
         protected ElasticOptions Options { get; }
         protected IHttpRequestClient Client { get; }
-        protected BasicAuthenticationCredentials Credentials { get; }
         #endregion
 
         #region Constructors
@@ -36,11 +35,22 @@ namespace TNO.Elastic
             this.Client = httpClient;
             this.Options = options.Value;
             if (this.Options.Url == null) throw new ConfigurationException("Elastic Url configuration is required.");
-            var username = Environment.GetEnvironmentVariable("ELASTIC_USERNAME") ?? throw new ConfigurationException("Elastic environment variable 'ELASTIC_USERNAME' is required.");
-            var password = Environment.GetEnvironmentVariable("ELASTIC_PASSWORD") ?? throw new ConfigurationException("Elastic environment variable 'ELASTIC_PASSWORD' is required.");
-            this.Credentials = new BasicAuthenticationCredentials(username, password);
-            var credentials = Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes($"{this.Credentials.Username}:{password}"));
-            this.Client.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+            var username = !String.IsNullOrWhiteSpace(this.Options.Username)
+                ? this.Options.Username
+                : Environment.GetEnvironmentVariable("ELASTIC_USERNAME");
+            var password = !String.IsNullOrWhiteSpace(this.Options.Password)
+                ? this.Options.Password
+                : Environment.GetEnvironmentVariable("ELASTIC_PASSWORD");
+
+            if (!String.IsNullOrWhiteSpace(username) && !String.IsNullOrWhiteSpace(password))
+            {
+                var credentials = Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes($"{username}:{password}"));
+                this.Client.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+            }
+            else if (!String.IsNullOrWhiteSpace(this.Options.ApiKey))
+            {
+                this.Client.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("ApiKey", this.Options.ApiKey);
+            }
         }
         #endregion
 
@@ -54,15 +64,29 @@ namespace TNO.Elastic
         private static ConnectionSettings GetConnectionSettings(ElasticOptions options)
         {
             if (options.Url == null) throw new ConfigurationException("Elastic configuration property 'Elastic:Url' is required'");
-            var username = Environment.GetEnvironmentVariable("ELASTIC_USERNAME") ?? throw new ConfigurationException("Elastic environment variable 'ELASTIC_USERNAME' is required.");
-            var password = Environment.GetEnvironmentVariable("ELASTIC_PASSWORD") ?? throw new ConfigurationException("Elastic environment variable 'ELASTIC_PASSWORD' is required.");
+            var username = !String.IsNullOrWhiteSpace(options.Username)
+                ? options.Username
+                : Environment.GetEnvironmentVariable("ELASTIC_USERNAME");
+            var password = !String.IsNullOrWhiteSpace(options.Password)
+                ? options.Password
+                : Environment.GetEnvironmentVariable("ELASTIC_PASSWORD");
 
-            return new ConnectionSettings(options.Url)
-                .BasicAuthentication(username, password)
-                .DefaultIndex(options.UnpublishedIndex)
+            var connection = new ConnectionSettings(options.Url)
+                .DefaultIndex(options.ContentIndex)
                 .EnableApiVersioningHeader()
                 .RequestTimeout(new TimeSpan(0, 30, 0))
                 .ThrowExceptions();
+
+            if (!String.IsNullOrWhiteSpace(username) && !String.IsNullOrWhiteSpace(password))
+            {
+                connection.BasicAuthentication(username, password);
+            }
+            else if (!String.IsNullOrWhiteSpace(options.ApiKey))
+            {
+                connection.ApiKeyAuthentication(new ApiKeyAuthenticationCredentials(options.ApiKey));
+            }
+
+            return connection;
         }
 
         /// <summary>

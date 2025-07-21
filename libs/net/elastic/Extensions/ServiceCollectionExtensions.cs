@@ -43,7 +43,7 @@ public static class ServiceCollectionExtensions
     /// <param name="env"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public static IServiceCollection AddElasticSingleton(this IServiceCollection services, IConfiguration config, IHostEnvironment env)
+    public static IServiceCollection AddSingletonElastic(this IServiceCollection services, IConfiguration config, IHostEnvironment env)
     {
         var options = config.GetSection("Elastic");
         services

@@ -60,6 +60,45 @@ public static class ServiceCollectionExtensions
     /// Add a PostgreSQL DbContext to the service collection.
     /// </summary>
     /// <param name="services"></param>
+    /// <param name="connectionString"></param>
+    /// <param name="env"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public static IServiceCollection AddSingletonTNOContext(this IServiceCollection services, string connectionString, IHostEnvironment env)
+    {
+        if (String.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("Argument is required and cannot be null, empty or whitespace.", nameof(connectionString));
+
+        var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+        dataSourceBuilder.EnableDynamicJson();
+        var dataSource = dataSourceBuilder.Build();
+        services.AddDbContext<TNOContext>(options =>
+        {
+            var db = options.UseNpgsql(dataSource, options =>
+            {
+                options.CommandTimeout((int)TimeSpan.FromMinutes(5).TotalSeconds);
+            });
+            options.EnableSensitiveDataLogging(env.IsDevelopment());
+            options.EnableDetailedErrors(env.IsDevelopment());
+            if (env.IsDevelopment())
+            {
+                var debugLoggerFactory = LoggerFactory
+                    .Create(builder =>
+                    {
+                        builder
+                            .AddConsole()
+                            .AddDebug();
+                    });
+                db.UseLoggerFactory(debugLoggerFactory);
+            }
+        }, ServiceLifetime.Singleton);
+
+        return services;
+    }
+
+    /// <summary>
+    /// Add a PostgreSQL DbContext to the service collection.
+    /// </summary>
+    /// <param name="services"></param>
     /// <param name="config"></param>
     /// <param name="env"></param>
     /// <returns></returns>
@@ -74,6 +113,23 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
+    /// Add a PostgreSQL DbContext to the service collection.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="config"></param>
+    /// <param name="env"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddSingletonTNOContext(this IServiceCollection services, IConfiguration config, IHostEnvironment env)
+    {
+        var postgresBuilder = new NpgsqlConnectionStringBuilder(config["ConnectionStrings:TNO"])
+        {
+            Username = config["DB_POSTGRES_USERNAME"],
+            Password = config["DB_POSTGRES_PASSWORD"]
+        };
+        return services.AddSingletonTNOContext(postgresBuilder.ConnectionString, env);
+    }
+
+    /// <summary>
     /// Add a PostgreSQL DbContext to the service collection and all the related services.
     /// </summary>
     /// <param name="services"></param>
@@ -84,7 +140,7 @@ public static class ServiceCollectionExtensions
     /// <exception cref="InvalidOperationException"></exception>
     public static IServiceCollection AddTNOServices(this IServiceCollection services, IConfiguration config, IHostEnvironment env)
     {
-        if (config == null) throw new ArgumentNullException(nameof(config));
+        ArgumentNullException.ThrowIfNull(config);
 
         services.AddTNOContext(config, env)
             .AddStorageConfig(config)
@@ -97,8 +153,39 @@ public static class ServiceCollectionExtensions
         var tnoServiceTypes = assembly.GetTypes().Where(t => !t.IsAbstract && t.IsClass && t.GetInterfaces().Any(i => i.Name.Equals(type.Name)));
         foreach (var serviceType in tnoServiceTypes)
         {
-            var sinterface = serviceType.GetInterface($"I{serviceType.Name}") ?? throw new InvalidOperationException($"Service type '{serviceType.Name}' is missing its interface.");
-            services.AddScoped(sinterface, serviceType);
+            var sInterface = serviceType.GetInterface($"I{serviceType.Name}") ?? throw new InvalidOperationException($"Service type '{serviceType.Name}' is missing its interface.");
+            services.AddScoped(sInterface, serviceType);
+        }
+
+        return services;
+    }
+
+    /// <summary>
+    /// Add a PostgreSQL DbContext to the service collection and all the related services.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="config"></param>
+    /// <param name="env"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    public static IServiceCollection AddSingletonTNOServices(this IServiceCollection services, IConfiguration config, IHostEnvironment env)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+
+        services.AddSingletonTNOContext(config, env)
+            .AddStorageConfig(config)
+            .AddSingletonElastic(config, env)
+            .AddSingleton<IElasticsearchService, ElasticsearchService>();
+
+        // Find all the configuration classes.
+        var assembly = typeof(BaseService).Assembly;
+        var type = typeof(IBaseService);
+        var tnoServiceTypes = assembly.GetTypes().Where(t => !t.IsAbstract && t.IsClass && t.GetInterfaces().Any(i => i.Name.Equals(type.Name)));
+        foreach (var serviceType in tnoServiceTypes)
+        {
+            var sInterface = serviceType.GetInterface($"I{serviceType.Name}") ?? throw new InvalidOperationException($"Service type '{serviceType.Name}' is missing its interface.");
+            services.AddSingleton(sInterface, serviceType);
         }
 
         return services;

@@ -67,7 +67,7 @@ public abstract class TNOMigration : Migration
                     try
                     {
                         var model = new ContentModel(item, _serializerOptions);
-                        var unpublishedRequest = new IndexRequest<ContentModel>(model, $"{builder.MigrationOptions.UnpublishedIndex}_v{this.Version}", model.Id);
+                        var unpublishedRequest = new IndexRequest<ContentModel>(model, $"{builder.MigrationOptions.ContentIndex}_v{this.Version}", model.Id);
                         var response = await builder.IndexingClient.IndexAsync(unpublishedRequest, cancellationToken);
                         if (!response.IsValidResponse)
                         {

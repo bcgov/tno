@@ -43,14 +43,18 @@ public class TNOElasticClient : ElasticsearchClient
     /// <param name="serializerOptions"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
-    private static IElasticsearchClientSettings GetClientSettings(ElasticOptions elasticOptions, JsonSerializerOptions serializerOptions)
+    private static ElasticsearchClientSettings GetClientSettings(ElasticOptions elasticOptions, JsonSerializerOptions serializerOptions)
     {
         if (elasticOptions.Url == null) throw new ConfigurationException($"Elastic configuration property 'Elastic:Url' is required'");
-        var username = Environment.GetEnvironmentVariable("ELASTIC_USERNAME") ?? throw new ConfigurationException($"Elastic environment variable 'ELASTIC_USERNAME' is required.");
-        var password = Environment.GetEnvironmentVariable("ELASTIC_PASSWORD") ?? throw new ConfigurationException($"Elastic environment variable 'ELASTIC_PASSWORD' is required.");
+        var username = !String.IsNullOrWhiteSpace(elasticOptions.Username)
+            ? elasticOptions.Username
+            : Environment.GetEnvironmentVariable("ELASTIC_USERNAME");
+        var password = !String.IsNullOrWhiteSpace(elasticOptions.Password)
+            ? elasticOptions.Password
+            : Environment.GetEnvironmentVariable("ELASTIC_PASSWORD");
 
         var pool = new SingleNodePool(elasticOptions.Url);
-        return new ElasticsearchClientSettings(pool, (serializer, settings) => new DefaultSourceSerializer(settings, (options) =>
+        var settings = new ElasticsearchClientSettings(pool, (serializer, settings) => new DefaultSourceSerializer(settings, (options) =>
         {
             options.AllowTrailingCommas = serializerOptions.AllowTrailingCommas;
             options.DefaultBufferSize = serializerOptions.DefaultBufferSize;
@@ -70,9 +74,15 @@ public class TNOElasticClient : ElasticsearchClient
             options.UnknownTypeHandling = serializerOptions.UnknownTypeHandling;
             options.WriteIndented = serializerOptions.WriteIndented;
         }))
-            .Authentication(new BasicAuthentication(username, password))
             .PrettyJson(true)
             .ThrowExceptions();
+
+        if (!String.IsNullOrWhiteSpace(username) && !String.IsNullOrWhiteSpace(password))
+            settings.Authentication(new BasicAuthentication(username, password));
+        else if (!String.IsNullOrWhiteSpace(elasticOptions.ApiKey))
+            settings.Authentication(new ApiKey(elasticOptions.ApiKey));
+
+        return settings;
     }
     #endregion
 }

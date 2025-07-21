@@ -121,7 +121,7 @@ public class ContentController : ControllerBase
         filter = filter.AddExcludeSources(user.SourcesManyToMany.Select(s => s.SourceId));
         filter = filter.AddExcludeMediaTypes(user.MediaTypesManyToMany.Select(s => s.MediaTypeId));
 
-        var result = await _contentService.FindWithElasticsearchAsync(includeUnpublishedContent ? _elasticOptions.UnpublishedIndex : _elasticOptions.PublishedIndex, filter);
+        var result = await _contentService.FindWithElasticsearchAsync(includeUnpublishedContent ? _elasticOptions.ContentIndex : _elasticOptions.PublishedIndex, filter);
         return new JsonResult(result);
     }
 

@@ -109,26 +109,36 @@ spec:
                   key: KAFKA_BOOTSTRAP_SERVERS
 
             # Elasticsearch Configuration
-            - name: Service__ElasticsearchUri
+            - name: Elastic__Url
               valueFrom:
                 configMapKeyRef:
                   name: indexing-service
                   key: ELASTICSEARCH_URI
-            - name: Service__ElasticsearchUsername
+            - name: Elastic__Username
               valueFrom:
                 secretKeyRef:
                   name: elastic
                   key: USERNAME
-            - name: Service__ElasticsearchPassword
+            - name: Elastic__Password
               valueFrom:
                 secretKeyRef:
                   name: elastic
                   key: PASSWORD
-            - name: Service__ElasticsearchApiKey
+            - name: Elastic__ApiKey
               valueFrom:
                 secretKeyRef:
                   name: elastic
                   key: ApiKey
+            - name: Elastic__ContentIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: CONTENT_INDEX
+            - name: Elastic__PublishedIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: PUBLISHED_INDEX
 
             # Indexing Service Configuration
             - name: Service__MaxFailLimit
@@ -141,16 +151,6 @@ spec:
                 configMapKeyRef:
                   name: indexing-service
                   key: TOPICS
-            - name: Service__UnpublishedIndex
-              valueFrom:
-                configMapKeyRef:
-                  name: indexing-service
-                  key: UNPUBLISHED_INDEX
-            - name: Service__PublishedIndex
-              valueFrom:
-                configMapKeyRef:
-                  name: indexing-service
-                  key: PUBLISHED_INDEX
             - name: Service__NotificationTopic
               valueFrom:
                 configMapKeyRef:
