@@ -7,6 +7,10 @@ export const MyProducts = styled(Col)`
     margin-bottom: 1em;
   }
 
+  .modal-select {
+    width: 80%;
+  }
+
   .product-container {
     svg {
       margin-right: 0.5em;

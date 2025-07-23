@@ -172,4 +172,16 @@ public interface IReportService : IBaseService<Report, int>
     /// <param name="cutOff"></param>
     /// <returns></returns>
     IEnumerable<API.Areas.Services.Models.Report.ChesReportMessagesModel> GetChesMessageIds(ReportStatus status, DateTime cutOff);
+
+    /// <summary>
+    /// Add the user report.
+    /// </summary>
+    /// <param name="subscription"></param>
+    void AddAndSave(UserReport subscription);
+
+    /// <summary>
+    /// Update the user report.
+    /// </summary>
+    /// <param name="subscription"></param>
+    void UpdateAndSave(UserReport subscription);
 }
