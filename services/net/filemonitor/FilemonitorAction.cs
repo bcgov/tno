@@ -893,9 +893,17 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <returns></returns>
     private static List<Author> GetAuthorList(string author)
     {
+        // Remove "by " prefix (exactly 3 characters, case insensitive) from the beginning of the author string
+        var cleanedAuthor = author?.Trim() ?? "";
+        if (cleanedAuthor.Length >= 3 &&
+            cleanedAuthor.Substring(0, 3).Equals("by ", StringComparison.OrdinalIgnoreCase))
+        {
+            cleanedAuthor = cleanedAuthor.Substring(3).Trim();
+        }
+
         var authors = new List<Author>
             {
-                new Author(author.Trim(), "", "")
+                new Author(cleanedAuthor, "", "")
             };
         return authors;
     }
