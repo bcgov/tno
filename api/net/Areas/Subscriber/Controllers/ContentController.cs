@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
 using System.Web;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
@@ -161,6 +162,33 @@ public class ContentController : ControllerBase
         }
         var stream = _fileReferenceService.Download(fileReference, _storageOptions.GetUploadPath());
         return File(stream, fileReference.ContentType);
+    }
+
+    /// <summary>
+    /// Download the specified file.
+    /// Only allow configured file types to be freely downloaded.
+    /// This endpoint provides images for emails primarily.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    [AllowAnonymous]
+    [HttpGet("download")]
+    [Produces("application/octet-stream")]
+    [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public IActionResult AnonymousDownloadFile(string path)
+    {
+        var ext = Path.GetExtension(path).Substring(1);
+        if (!_storageOptions.AllowAnonymousDownloadFileTypes.Any(value => String.Equals(value, ext, StringComparison.OrdinalIgnoreCase))) throw new InvalidOperationException("Unable to download file.");
+
+        path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
+        var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
+        if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File/folder does not exist: '{path}'");
+
+        var info = new ItemModel(safePath, true);
+        var stream = System.IO.File.OpenRead(safePath);
+        return File(stream, contentType: info.MimeType!, fileDownloadName: info.Name, enableRangeProcessing: false);
     }
 
     /// <summary>

@@ -608,6 +608,7 @@ Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
+# Service__UploadPath=../data
 
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
 

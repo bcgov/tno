@@ -23,5 +23,10 @@ public class NotificationOptions : ServiceOptions
     /// get/set - Ignore any content that was indexed before this day offset.
     /// </summary>
     public int? IgnoreContentPublishedBeforeOffset { get; set; }
+
+    /// <summary>
+    /// get/set - The path files are uploaded to in the API.
+    /// </summary>
+    public string? UploadPath { get; set; }
     #endregion
 }

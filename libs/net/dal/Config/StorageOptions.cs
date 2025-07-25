@@ -22,6 +22,11 @@ public class StorageOptions
     public string CapturePath { get; set; } = "/usr/app/av";
 
     /// <summary>
+    /// get/set - An array of allowed file types that can be downloaded anonymously.
+    /// </summary>
+    public string[] AllowAnonymousDownloadFileTypes { get; set; } = [];
+
+    /// <summary>
     /// get/set - The current environment.
     /// </summary>
     public IWebHostEnvironment? Environment { get; set; }

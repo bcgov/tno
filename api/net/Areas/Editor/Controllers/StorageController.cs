@@ -547,7 +547,7 @@ public class StorageController : ControllerBase
         var uploadedFiles = new List<string>();
         var failedUploads = new List<string>();
         // check if s3 credentials are set
-        if (!_s3Options.IsS3Enabled )
+        if (!_s3Options.IsS3Enabled)
         {
             return BadRequest("S3 is not enabled or credentials are not set");
         }
