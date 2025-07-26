@@ -13,7 +13,7 @@ scale () {
   oc scale $type $name -n 9b301c-$env --replicas=$replicas
 }
 
-# Stop everyting
+# Stop everything
 # scale api 0 sts
 scale charts-api 0 dc $env
 scale api-services 0 dc $env
@@ -21,15 +21,15 @@ scale editor 0 dc $env
 scale subscriber 0 dc $env
 
 # scale capture-service 0 dc $env
-scale contentmigration-service 0 dc $env
-scale contentmigration-historic-service 0 dc $env
 scale filemonitor-service 0 dc $env
 scale syndication-service 0 dc $env
 scale image-service 0 dc $env
 
 scale indexing-service 0 dc $env
+if [[ "$env" != "dev" ]]; then
+  scale indexing-service-cloud 0 dc $env
+fi
 scale content-service 0 dc $env
-scale content-historic-service 0 dc $env
 
 scale filecopy-service 0 dc $env
 scale folder-collection-service 0 dc $env

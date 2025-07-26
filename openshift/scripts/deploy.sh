@@ -35,12 +35,11 @@ podsFileMonitor=$(getPods filemonitor-service dc $env)
 podsSyndication=$(getPods syndication-service dc $env)
 podsImage=$(getPods image-service dc $env)
 
-podsContentMigration=$(getPods contentmigration-service dc $env)
-podsContentMigrationHistoric=$(getPods contentmigration-historic-service dc $env)
-
 podsIndexing=$(getPods indexing-service dc $env)
+if [[ "$env" != "dev" ]]; then
+  podsIndexingCloud=$(getPods indexing-service-cloud dc $env)
+fi
 podsContent=$(getPods content-service dc $env)
-podsContentTNOHistoric=$(getPods content-historic-service dc $env)
 
 podsFolderCollection=$(getPods folder-collection-service dc $env)
 
@@ -56,7 +55,7 @@ podsNotification=$(getPods notification-service dc $env)
 podsEventHandler=$(getPods event-handler-service dc $env)
 podsChesRetry=$(getPods ches-retry-service dc $env)
 
-# Stop everyting
+# Stop everything
 ./stop.sh $env
 
 # APIs
@@ -74,8 +73,6 @@ oc tag editor:$tag editor:$env
 oc tag subscriber:$tag subscriber:$env
 
 # Ingest Services
-# oc tag capture-service:$tag capture-service:$env
-oc tag contentmigration-service:$tag contentmigration-service:$env
 oc tag filemonitor-service:$tag filemonitor-service:$env
 oc tag syndication-service:$tag syndication-service:$env
 oc tag image-service:$tag image-service:$env
@@ -88,7 +85,6 @@ oc tag content-service:$tag content-service:$env
 oc tag folder-collection-service:$tag folder-collection-service:$env
 
 # Transform Services
-# oc tag clip-service:$tag clip-service:$env
 oc tag ffmpeg-service:$tag ffmpeg-service:$env
 oc tag nlp-service:$tag nlp-service:$env
 oc tag extract-quotes-service:$tag extract-quotes-service:$env
@@ -101,27 +97,24 @@ oc tag notification-service:$tag notification-service:$env
 oc tag event-handler-service:$tag event-handler-service:$env
 oc tag ches-retry-service:$tag ches-retry-service:$env
 
-# Start everying
+# Start everything
 scale api $podsApi sts $env
 scale charts-api $podsCharts dc $env
 scale editor $podsEditor dc $env
 scale subscriber $podsSubscriber dc $env
-
-# scale capture-service $podsCapture dc $env
-scale contentmigration-service $podsContentMigration dc $env
-scale contentmigration-historic-service $podsContentMigrationHistoric dc $env
 
 scale filemonitor-service $podsFileMonitor dc $env
 scale syndication-service $podsSyndication dc $env
 scale image-service $podsImage dc $env
 
 scale indexing-service $podsIndexing dc $env
+if [[ "$env" != "dev" ]]; then
+  scale indexing-service-cloud $podsIndexingCloud dc $env
+fi
 scale content-service $podsContent dc $env
-scale content-historic-service $podsContentTNOHistoric dc $env
 
 scale folder-collection-service $podsFolderCollection dc $env
 
-# scale clip-service $podsClip dc $env
 scale ffmpeg-service $podsFFmpeg dc $env
 scale nlp-service $podsNLP dc $env
 scale extract-quotes-service $podsExtractQuotes dc $env
