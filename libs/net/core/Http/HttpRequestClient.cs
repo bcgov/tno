@@ -69,6 +69,7 @@ namespace TNO.Core.Http
 
         /// <summary>
         /// Deserialize the specified 'response' into the specified type of 'TModel'.
+        /// Returns null if no content is returned and the status code is successful.
         /// </summary>
         /// <typeparam name="TModel"></typeparam>
         /// <param name="response"></param>
@@ -78,20 +79,29 @@ namespace TNO.Core.Http
             var responseStream = await response.Content.ReadAsStreamAsync();
             // var data = await response.Content.ReadAsByteArrayAsync();
             var contentType = response.Content.Headers.ContentType;
+            var body = "";
             try
             {
-                if (contentType?.MediaType?.Contains("json", StringComparison.InvariantCultureIgnoreCase) == true)
+                if (contentType?.MediaType?.Contains("json", StringComparison.InvariantCultureIgnoreCase) == true && response.IsSuccessStatusCode)
                     return JsonSerializer.Deserialize<TModel>(responseStream, _serializeOptions);
+                else if (response.IsSuccessStatusCode)
+                    return default;
+                else if (response.StatusCode == HttpStatusCode.NotModified)
+                    return default;
             }
             catch (Exception ex)
             {
+                // Catch deserialization errors and log the response data.
                 var data = responseStream.ReadAllBytes();
-                var body = Encoding.Default.GetString(data);
+                body = Encoding.Default.GetString(data);
                 _logger.LogError(ex, "Failed to deserialize response: {body}", body);
                 throw;
             }
 
-            throw new HttpClientRequestException(response, $"Response must contain JSON but was '{contentType?.MediaType}'.");
+            // Throw exception because the response failed and cannot be deserialized.
+            var errorEx = new HttpClientRequestException($"Response must contain JSON but was '{contentType?.MediaType}'.", response.StatusCode);
+            errorEx.Data["body"] = body;
+            throw errorEx;
         }
 
         #region HttpResponseMessage Methods
