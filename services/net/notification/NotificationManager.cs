@@ -433,7 +433,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
 
         var subscribers = await GetNotificationSubscribersAsync(notification, content);
 
-        var body = await GenerateNotificationBodyAsync(notification, content, null, request.IsPreview);
+        var body = await GenerateNotificationBodyAsync(notification, content, this.Options.UploadPath, request.IsPreview);
         var subject = string.Empty;
         if (!String.IsNullOrWhiteSpace(request.To))
         {

@@ -258,7 +258,10 @@ public static partial class StringExtensions
     public static bool FileExists(this string path, bool ignoreCase = false)
     {
         var directory = Path.GetDirectoryName(path) ?? "";
-        return directory.DirectoryExists() && File.Exists(path) && Directory.GetFiles(directory).Any(f => String.Compare(f, path, ignoreCase) == 0);
+
+        var actualDir = Path.GetFullPath(directory);
+        var actualPath = Path.GetFullPath(path);
+        return directory.DirectoryExists() && File.Exists(path) && Directory.GetFiles(actualDir).Any(f => String.Compare(f, actualPath, ignoreCase) == 0);
     }
 
     /// <summary>
@@ -274,7 +277,8 @@ public static partial class StringExtensions
 
         var parent = directory.Parent?.FullName ?? "";
 
-        return Directory.GetFileSystemEntries(parent).Any(f => String.Compare(f, path, ignoreCase) == 0);
+        var actualPath = Path.GetFullPath(path);
+        return Directory.GetFileSystemEntries(parent).Any(f => String.Compare(f, actualPath, ignoreCase) == 0);
     }
 
     /// <summary>

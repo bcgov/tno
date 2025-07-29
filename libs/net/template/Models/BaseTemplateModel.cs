@@ -72,10 +72,10 @@ public abstract class BaseTemplateModel<T> : RazorEngineTemplateBase
     public static string? GetImageContent(string uploadPath, string? path)
     {
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
-        var safePath = Path.Combine(uploadPath, path);
-        if (!safePath.FileExists()) return null;
+        var fullPath = Path.Combine(uploadPath, path).Replace('\\', '/');
+        if (!fullPath.FileExists()) return null;
 
-        using FileStream fileStream = new(safePath, FileMode.Open, FileAccess.Read);
+        using FileStream fileStream = new(fullPath, FileMode.Open, FileAccess.Read);
         var imageBytes = new byte[fileStream.Length];
         fileStream.ReadExactly(imageBytes, 0, (int)fileStream.Length);
         return Convert.ToBase64String(imageBytes);
