@@ -190,6 +190,11 @@ public class ContentFilter : PageFilter
     /// get/set - The story text to search for.
     /// </summary>
     public string? StoryText { get; set; }
+
+    /// <summary>
+    /// get/set - An array of include statements.
+    /// </summary>
+    public string[]? Includes { get; set; }
     #endregion
 
     #region Constructors
