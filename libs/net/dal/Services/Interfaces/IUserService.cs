@@ -13,6 +13,8 @@ public interface IUserService : IBaseService<User, int>
 
     User? FindByUserKey(string key);
 
+    IEnumerable<User> GetUserUpdateHistory();
+
     User UpdateDistributionList(User entity);
 
     User UpdatePreferences(User user);

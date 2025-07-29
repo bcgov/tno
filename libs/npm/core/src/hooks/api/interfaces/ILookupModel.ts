@@ -8,6 +8,7 @@ import {
   IMediaTypeModel,
   IMetricModel,
   IMinisterModel,
+  IOrganizationModel,
   IRoleModel,
   ISeriesModel,
   ISettingModel,
@@ -42,4 +43,5 @@ export interface ILookupModel {
   holidays: IHolidayModel[];
   ministers: IMinisterModel[];
   systemMessages: ISystemMessageModel[];
+  organizations: IOrganizationModel[];
 }

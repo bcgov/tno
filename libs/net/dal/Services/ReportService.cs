@@ -1173,6 +1173,7 @@ public class ReportService : BaseService<Report, int>, IReportService
         return saveChanges ? await Context.SaveChangesAsync() : await Task.FromResult(0);
     }
 
+
     /// <summary>
     /// Unsubscribe the specified 'userId' to the specified report.
     /// </summary>
@@ -1318,6 +1319,40 @@ public class ReportService : BaseService<Report, int>, IReportService
         }
 
         return messages;
+    }    
+
+    /// <summary>
+    /// Add the user report.
+    /// </summary>
+    /// <param name="subscription"></param>
+    public void AddAndSave(UserReport subscription)
+    {
+        this.Context.Add(subscription);
+        try
+        {
+            this.Context.SaveChanges();
+        } catch (Exception ex)
+        {
+            this.Logger.LogError(ex, $"ReportService - AddAndSave ReportId: {subscription.ReportId}, UserId: {subscription.UserId} throws exception.");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Update the user report.
+    /// </summary>
+    /// <param name="subscription"></param>
+    public void UpdateAndSave(UserReport subscription)
+    {
+        this.Context.Update(subscription);
+        try
+        {
+            this.Context.SaveChanges();
+        } catch (Exception ex)
+        {
+            this.Logger.LogError(ex, $"ReportService - UpdateAndSave ReportId: {subscription.ReportId}, UserId: {subscription.UserId} throws exception.");
+            throw;
+        }
     }
     #endregion
 }

@@ -1,14 +1,26 @@
+import 'prismjs/themes/prism.css';
+import 'prismjs/components/prism-sql';
+
 import { PageSection } from 'components/section';
 import { useElastic } from 'features/my-searches/hooks';
 import { useSearchPageContext } from 'features/search-page/SearchPageContext';
 import { filterFormat } from 'features/search-page/utils';
+import { highlight, languages } from 'prismjs';
 import React from 'react';
 import { BsCalendarEvent, BsSun } from 'react-icons/bs';
-import { FaCaretSquareDown, FaCheckSquare, FaPlay, FaRegSmile } from 'react-icons/fa';
+import {
+  FaCaretSquareDown,
+  FaCheckSquare,
+  FaExclamationCircle,
+  FaPlay,
+  FaRegSmile,
+} from 'react-icons/fa';
 import { FaSave } from 'react-icons/fa';
 import {
   FaBookmark,
   FaCheck,
+  FaCircleCheck,
+  FaCircleXmark,
   FaDownLeftAndUpRightToCenter,
   FaGears,
   FaIcons,
@@ -23,6 +35,7 @@ import {
 } from 'react-icons/fa6';
 import { IoIosCog, IoMdRefresh } from 'react-icons/io';
 import { useNavigate } from 'react-router-dom';
+import Editor from 'react-simple-code-editor';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useFilters, useLookup } from 'store/hooks';
 import { useProfileStore } from 'store/slices';
@@ -38,7 +51,6 @@ import {
   setCookie,
   Show,
   Text,
-  TextArea,
   ToggleButton,
   ToggleGroup,
 } from 'tno-core';
@@ -71,6 +83,9 @@ export interface IAdvancedSearchProps {
 
   /** Function to update the search terms state */
   setSearchFilter: React.Dispatch<React.SetStateAction<IFilterSettingsModel | null>>;
+
+  validateQuery?: (filter: IFilterSettingsModel) => void;
+  queryValidateResult: string[];
 }
 
 /***
@@ -78,7 +93,12 @@ export interface IAdvancedSearchProps {
  * @param expanded - determines whether the advanced search form is expanded or not
  * @param setExpanded - function that controls the expanded state of the advanced search form
  */
-export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch, setSearchFilter }) => {
+export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
+  onSearch,
+  setSearchFilter,
+  validateQuery,
+  queryValidateResult,
+}) => {
   const navigate = useNavigate();
   const [{ myFilters }, { addFilter, updateFilter }] = useFilters();
   const [
@@ -144,7 +164,6 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch, setSe
       ...search,
       search: searchTerms,
     };
-
     onSearch?.(updatedFilterSettings);
     storeSearchFilter(updatedFilterSettings);
     setSearchFilter(updatedFilterSettings);
@@ -253,19 +272,131 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch, setSe
     [search, searchTerms, genQuery, myFilters, addFilter, storeFilter, storeSearchFilter, navigate],
   );
 
-  const handleSearchTermsChanged = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const value = e.target.value;
-
-      // Update the state with the new search terms object
-      setSearchTerms(value);
-    },
-    [setSearchTerms],
-  );
-
   const isAdvancedQueryType =
     (search.queryType ?? AdvancedQueryOperatorOptions.simpleQueryString) ===
     AdvancedQueryOperatorOptions.queryString;
+
+  const handleSearchTermsChanged = React.useCallback(
+    (value: string) => {
+      setSearchTerms(value);
+      const updatedFilterSettings = {
+        ...search,
+        search: value,
+      };
+      if (isAdvancedQueryType) {
+        validateQuery?.(updatedFilterSettings);
+      }
+    },
+    [search, isAdvancedQueryType, validateQuery],
+  );
+
+  const QueryValidateContent = React.useCallback(() => {
+    if (
+      queryValidateResult.length > 0 &&
+      (queryValidateResult[0].startsWith('ERROR:') || queryValidateResult[0].startsWith('WARNING:'))
+    ) {
+      return (
+        <div className="query-title-container">
+          <span className="query-title-label">{'Search Query Validation Failed'}</span>
+          {queryValidateResult[0].startsWith('ERROR:') ? (
+            <>
+              <FaCircleXmark className="query-icon-red" />
+              <span className="query-text-red">{'Error:'}</span>
+            </>
+          ) : (
+            <>
+              <FaExclamationCircle className="query-icon-orange" />
+              <span className="query-text-orange">{'Warning:'}</span>
+            </>
+          )}
+        </div>
+      );
+    }
+    return (
+      <div className="query-title-container">
+        <span className="query-title-label">{'Search Query Validation Pass'}</span>
+        <FaCircleCheck className="query-icon-green" />
+      </div>
+    );
+  }, [queryValidateResult]);
+
+  const ParsedQueryErrorTextArea = React.useCallback(() => {
+    let warningReason = '';
+    if (queryValidateResult.length > 0 && queryValidateResult[0].startsWith('WARNING:')) {
+      const warning = queryValidateResult[0];
+      const regexIndexString = / index: \d+/;
+      const regexIndex = /\d+/;
+      const indexStringMatch = warning.match(regexIndexString);
+      const indexMatch = indexStringMatch ? indexStringMatch[0].match(regexIndex) : null;
+      const startIndex = indexMatch ? Number(indexMatch[0]) : -1;
+      if (startIndex >= 0) {
+        let endIndex = searchTerms.substring(startIndex + 1).indexOf(' ');
+        endIndex = startIndex + (endIndex === -1 || endIndex === 0 ? 1 : endIndex);
+        const textBeforeWarning = searchTerms.substring(0, startIndex + 1);
+        const textWarning = searchTerms.substring(startIndex + 1, endIndex + 1);
+        const textAfterWarning = searchTerms.substring(endIndex + 1);
+        return (
+          <div className="text-container-validate-div">
+            <span className="text-area-warning">{warningReason}&nbsp;</span>
+            <span className="text-area-text">{textBeforeWarning}&nbsp;</span>
+            <span className="text-area-warning text-area-underline">{textWarning}&nbsp;</span>
+            <span className="text-area-text">{textAfterWarning}</span>
+          </div>
+        );
+      }
+    }
+    if (queryValidateResult.length > 0 && queryValidateResult[0].startsWith('ERROR:')) {
+      const regexColumn = /, column \d+/;
+      const regexNumber = /\d+/;
+      const errorString = queryValidateResult[0];
+      const colMatch = errorString.match(regexColumn);
+      const colIndex = colMatch ? colMatch[0].match(regexNumber) : null;
+      const endIndex = colIndex ? Number(colIndex[0]) : 0;
+      if (endIndex > 0) {
+        const startIndex = searchTerms.substring(0, endIndex).lastIndexOf(' ');
+        const textBeforeError = searchTerms.substring(0, startIndex + 1);
+        const textError = searchTerms.substring(startIndex + 1, endIndex);
+        const textAfterError = searchTerms.substring(endIndex);
+        return (
+          <div className="text-container-validate-div">
+            <span className="text-area-text">{textBeforeError}&nbsp;</span>
+            <span className="text-area-error text-area-underline">{textError}&nbsp;</span>
+            <span className="text-area-text">{textAfterError}</span>
+          </div>
+        );
+      }
+    }
+    return null;
+  }, [queryValidateResult, searchTerms]);
+
+  const QueryValidateSection = React.useCallback(() => {
+    if (isAdvancedQueryType) {
+      if (
+        queryValidateResult.length > 0 &&
+        (queryValidateResult[0].startsWith('ERROR:') ||
+          queryValidateResult[0].startsWith('WARNING:'))
+      ) {
+        return (
+          <ExpandableRow
+            icon={<></>}
+            iconTitle={<QueryValidateContent />}
+            title={''}
+            hasValues={false}
+          >
+            <Row alignItems="center" justifyContent="space-between">
+              <ParsedQueryErrorTextArea />
+            </Row>
+          </ExpandableRow>
+        );
+      }
+      return (
+        <Row alignItems="center" justifyContent="space-between" className="query-validate-row">
+          <QueryValidateContent />
+        </Row>
+      );
+    }
+    return <></>;
+  }, [ParsedQueryErrorTextArea, QueryValidateContent, isAdvancedQueryType, queryValidateResult]);
 
   const toggleAdvancedQueryOperator = React.useCallback(() => {
     if (!search.queryType) {
@@ -358,12 +489,24 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({ onSearch, setSe
               <label className="search-in-label">Search for:</label>
               <ElasticQueryHelp queryType={search.queryType} />
               <Col className="text-area-container">
-                <TextArea
+                <Editor
+                  id="searchText"
                   value={searchTerms}
-                  className="text-area"
-                  name="search"
-                  onChange={handleSearchTermsChanged}
+                  onValueChange={handleSearchTermsChanged}
+                  highlight={(code: any) => {
+                    return highlight(code, languages.sql, 'sql');
+                  }}
+                  className="text-area-editor"
+                  padding={8}
+                  style={{ overflow: 'hidden', resize: 'vertical' }}
                 />
+              </Col>
+            </Row>
+            <Col className="section">
+              <QueryValidateSection />
+            </Col>
+            <Row className="search-for-row">
+              <Col className="text-area-container space-top">
                 <SearchInGroup />
               </Col>
             </Row>

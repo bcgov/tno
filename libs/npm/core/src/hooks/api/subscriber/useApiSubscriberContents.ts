@@ -1,4 +1,8 @@
-import { KnnSearchResponse, MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
+import {
+  IndicesValidateQueryResponse,
+  KnnSearchResponse,
+  MsearchMultisearchBody,
+} from '@elastic/elasticsearch/lib/api/types';
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
@@ -28,6 +32,28 @@ export const useApiSubscriberContents = (
         `/subscriber/contents/search${
           includeUnpublishedContent ? `?includeUnpublishedContent=${includeUnpublishedContent}` : ''
         }`,
+        filter,
+      );
+    },
+    validateElasticsearchQuery: (
+      filter: MsearchMultisearchBody,
+      includeUnpublishedContent: boolean = false,
+      fieldNames: string = '',
+    ) => {
+      let params = includeUnpublishedContent
+        ? `includeUnpublishedContent=${includeUnpublishedContent}`
+        : '';
+      const secondParam = fieldNames ? `fieldNames=${fieldNames}` : '';
+      if (params && secondParam) {
+        params = `${params}&&${secondParam}`;
+      } else if (!params && secondParam) {
+        params = secondParam;
+      }
+      if (params) {
+        params = `?${params}`;
+      }
+      return api.post<MsearchMultisearchBody, AxiosResponse<IndicesValidateQueryResponse>, any>(
+        `/subscriber/contents/validate${params}`,
         filter,
       );
     },

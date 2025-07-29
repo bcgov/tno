@@ -124,6 +124,7 @@ export * from './IUserPreferencesModel';
 export * from './IUserProductModel';
 export * from './IUserReportModel';
 export * from './IUserSourceModel';
+export * from './IUserUpdateHistoryModel';
 export * from './IValidationErrorModel';
 export * from './IWorkOrderContentModel';
 export * from './IWorkOrderFilter';
