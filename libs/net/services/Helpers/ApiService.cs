@@ -304,11 +304,22 @@ public class ApiService : IApiService
         var response = await GetSourcesResponseAsync();
         return await GetResponseDataAsync<IEnumerable<API.Areas.Services.Models.Ingest.SourceModel>?>(response);
     }
+
+    /// <summary>
+    /// Get all sources if etag has changed.
+    /// </summary>
+    /// <param name="etag"></param>
+    /// <returns></returns>
     public async Task<HttpResponseMessage> GetSourcesResponseWithEtagAsync(string etag)
     {
         var url = this.Options.ApiUrl.Append($"services/sources");
         return await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url, etag));
     }
+
+    /// <summary>
+    /// Get all sources.
+    /// </summary>
+    /// <returns></returns>
     public async Task<HttpResponseMessage> GetSourcesResponseAsync()
     {
         var url = this.Options.ApiUrl.Append($"services/sources");
