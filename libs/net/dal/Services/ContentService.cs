@@ -20,7 +20,7 @@ public class ContentService : BaseService<Content, long>, IContentService
     #region Variables
     private readonly ITNOElasticClient _client;
     private static readonly ContentStatus[] _onlyPublished = new[] { ContentStatus.Publish, ContentStatus.Published };
-    private static readonly string[] ValidateQueryFieldNames = new string[] {"simple_query_string", "query_string"};
+    private static readonly string[] ValidateQueryFieldNames = new string[] { "simple_query_string", "query_string" };
     #endregion
 
     #region Properties
@@ -62,6 +62,14 @@ public class ContentService : BaseService<Content, long>, IContentService
             .Include(c => c.TonePoolsManyToMany).ThenInclude(ct => ct.TonePool)
             .Include(c => c.Owner)
             .AsQueryable();
+
+        if (filter.Includes != null)
+        {
+            foreach (var include in filter.Includes)
+            {
+                query = query.Include(include);
+            }
+        }
 
         if (asNoTracking)
             query = query.AsNoTracking();
@@ -265,7 +273,7 @@ public class ContentService : BaseService<Content, long>, IContentService
         var fieldNameList = arrayFieldNames.Split(',');
         foreach (var fieldName in fieldNameList)
         {
-            fieldsValues.Add(JsonValue.Create(fieldName));            
+            fieldsValues.Add(JsonValue.Create(fieldName));
         }
     }
 
