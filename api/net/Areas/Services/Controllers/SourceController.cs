@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.Ingest;
+using TNO.API.Filters;
 using TNO.API.Models;
 using TNO.DAL.Services;
 using TNO.Keycloak;
-using TNO.API.Filters;
 
 namespace TNO.API.Areas.Services.Controllers;
 
@@ -67,9 +67,10 @@ public class SourceController : ControllerBase
     /// Get an array of sources.
     /// </summary>
     /// <returns></returns>
-    [HttpGet]
+    [HttpGet, HttpHead]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<SourceModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotModified)]
     [SwaggerOperation(Tags = new[] { "Source" })]
     [ETagCacheTableFilter("sources")]
     public IActionResult GetSources()

@@ -21,15 +21,15 @@ scale editor 1 dc $env
 scale subscriber 1 dc $env
 
 # scale capture-service 1 dc $env
-scale contentmigration-service 1 dc $env
-scale contentmigration-historic-service 1 dc $env
 scale filemonitor-service 1 dc $env
 scale syndication-service 1 dc $env
 scale image-service 1 dc $env
 
 scale indexing-service 1 dc $env
+if [[ "$env" != "dev" ]]; then
+  scale indexing-service-cloud 1 dc $env
+fi
 scale content-service 1 dc $env
-scale content-historic-service 1 dc $env
 
 scale filecopy-service 1 dc $env
 scale folder-collection-service 1 dc $env

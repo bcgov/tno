@@ -118,16 +118,6 @@ spec:
         )
 
         declare -A COMPONENT5=(
-          [id]="content"
-          [name]="content-historic-service"
-          [type]="dc"
-          [replicas]="1"
-          [action]="stop"
-          [build]="no"
-          [env]="dev test prod"
-        )
-
-        declare -A COMPONENT6=(
           [id]="indexing"
           [name]="indexing-service"
           [type]="dc"
@@ -135,6 +125,16 @@ spec:
           [action]="stop"
           [build]="yes"
           [env]="dev test prod"
+        )
+
+        declare -A COMPONENT6=(
+          [id]="indexing-cloud"
+          [name]="indexing-service-cloud"
+          [type]="dc"
+          [replicas]="1"
+          [action]="stop"
+          [build]="no"
+          [env]="test prod"
         )
 
         declare -A COMPONENT7=(
@@ -269,46 +269,6 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT20=(
-          [id]="capture"
-          [name]="capture-service"
-          [type]="dc"
-          [replicas]="0"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
-
-        declare -A COMPONENT21=(
-          [id]="clip"
-          [name]="clip-service"
-          [type]="dc"
-          [replicas]="0"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
-
-        declare -A COMPONENT22=(
-          [id]="contentmigration"
-          [name]="contentmigration-service"
-          [type]="dc"
-          [replicas]="1"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
-
-        declare -A COMPONENT23=(
-          [id]="contentmigration"
-          [name]="contentmigration-historic-service"
-          [type]="dc"
-          [replicas]="1"
-          [action]="stop"
-          [build]="no"
-          [env]="dev"
-        )
-
         declare -n component;
 
         # ***************************************************
@@ -364,10 +324,18 @@ spec:
         done
 
         # Start all services if API was deployed.
-        if [ "${BUILD_API}" = true ] || [ "$(params.DEPLOY)" = "api" ] || [ "$(params.DEPLOY)" = "all" ]; then
+        if [ "${BUILD_API}" = true ] || [ "$(params.DEPLOY)" = "api" ] || [ "$(params.DEPLOY)" = "all" ] || [ "$(params.DEPLOY)" = "${component[id]}" ]; then
           for component in ${!COMPONENT@}; do
+            # Dynamic variable to control what will be built.
+            TVAR="BUILD_${component[id]}"
+            COMPONENT=${TVAR//\-/_}
+            COMPONENT=${COMPONENT^^}
+            echo $COMPONENT=${!COMPONENT}
+
+            IFS=' ' read -r -a env_array <<< "${component[env]}"
+
             for env in "${env_array[@]}"; do
-              if [[ "${component[action]}" = "stop" ]] && [[ $env =~ "$(params.ENV)" ]] && [[ "${component[replicas]}" -gt "0" ]]; then
+              if [[ "${component[action]}" = "stop" ]] && [[ "$env" =~ "$(params.ENV)" ]] && [[ "${component[replicas]}" -gt "0" ]]; then
                 echo "Starting ${component[name]}"
                 oc scale ${component[type]} ${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV) --replicas=${component[replicas]}
                 # oc rollout status --watch --timeout=$(params.TIMEOUT) ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)

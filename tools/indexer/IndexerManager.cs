@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Linq.Expressions;
+using System.Text.Json;
 using Elastic.Clients.Elasticsearch;
 using Elastic.Clients.Elasticsearch.Core.Bulk;
 using Elastic.Transport;
@@ -125,6 +126,18 @@ public class IndexerManager : ServiceManager<IndexerOptions>
                 SourceIds = this.Options.SourceIds,
                 Sort = ["id"],
             };
+            contentFilter.Includes = new[]
+            {
+                "ActionsManyToMany.Action",
+                "TopicsManyToMany.Topic",
+                "Labels",
+                "TagsManyToMany.Tag",
+                "TimeTrackings",
+                "FileReferences",
+                "Links",
+                "Quotes",
+            };
+
             // Make a request for more content.
             results = _contentService.FindWithDatabase(contentFilter);
             count += results.Items.Count;
