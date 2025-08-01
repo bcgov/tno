@@ -117,17 +117,18 @@ public class IndexerManager : ServiceManager<IndexerOptions>
         do
         {
             var success = true;
-            var contentFilter = new ContentFilter()
+            var contentFilter = new ContentFilter
             {
                 Page = this.Options.Page,
                 Quantity = this.Options.Quantity,
                 CreatedStartOn = this.Options.CreatedStartOn,
                 CreatedEndOn = this.Options.CreatedEndOn,
+                PublishedStartOn = this.Options.PublishedStartOn,
+                PublishedEndOn = this.Options.PublishedEndOn,
                 SourceIds = this.Options.SourceIds,
                 Sort = ["id"],
-            };
-            contentFilter.Includes = new[]
-            {
+                Includes =
+            [
                 "ActionsManyToMany.Action",
                 "TopicsManyToMany.Topic",
                 "Labels",
@@ -136,6 +137,7 @@ public class IndexerManager : ServiceManager<IndexerOptions>
                 "FileReferences",
                 "Links",
                 "Quotes",
+            ]
             };
 
             // Make a request for more content.
@@ -207,6 +209,7 @@ public class IndexerManager : ServiceManager<IndexerOptions>
             if (success)
             {
                 this.State.ResetFailures();
+                this.Logger.LogInformation("Last Content Item Indexed. Id: {id}", results.Items.LastOrDefault()?.Id);
                 this.Logger.LogInformation("Indexed page: {page}, total items: {count:N0}", this.Options.Page, count);
                 this.Options.Page++;
             }
