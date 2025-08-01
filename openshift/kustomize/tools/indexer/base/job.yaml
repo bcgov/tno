@@ -40,7 +40,7 @@ spec:
             - name: Service__Page
               value: "1"
             - name: Service__Quantity
-              value: "1000"
+              value: "500"
             - name: ConnectionStrings__TNO
               valueFrom:
                 configMapKeyRef:
