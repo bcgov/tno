@@ -1,3 +1,4 @@
+import { InputOption } from 'features/content/list-view/components/tool-bar/filter';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useLookupOptions } from 'store/hooks';
@@ -10,6 +11,7 @@ import {
   IOptionItem,
   IUserModel,
   IUserUpdateHistoryModel,
+  OptionItem,
   Row,
   Section,
   UserAccountTypeName,
@@ -24,7 +26,8 @@ import { IUserFormProps } from './UserForm';
  */
 export const UserFormIndirectUser: React.FC<IUserFormProps> = (props) => {
   const { values, setFieldValue } = useFormikContext<IUserModel>();
-  const [{ organizations, organizationOptions }] = useLookupOptions();
+  const [{ organizations, organizationOptions, mediaTypeOptions, sourceOptions }] =
+    useLookupOptions();
 
   const accountTypeOptions = getEnumStringOptions(UserAccountTypeName).filter(
     (o) => o.value !== UserAccountTypeName.SystemAccount,
@@ -135,6 +138,59 @@ export const UserFormIndirectUser: React.FC<IUserFormProps> = (props) => {
                       ? props.reports.filter((report) => options.some((o) => o.value === report.id))
                       : [],
                   );
+                }}
+              />
+            </Section>
+            <Section>
+              <FormikSelect
+                label="Block access to sources"
+                name="source"
+                options={sourceOptions}
+                placeholder="Select sources"
+                tooltip="Block this user from access to the specified sources"
+                isMulti
+                value={sourceOptions.filter(
+                  (o) => values.sources?.some((r) => (r === o.value ? +o.value : undefined)) ?? '',
+                )}
+                onChange={(e) => {
+                  if (e) {
+                    const options = e as OptionItem[];
+                    setFieldValue(
+                      'sources',
+                      options.filter((v) => v.value).map((v) => v.value),
+                    );
+                  }
+                }}
+                closeMenuOnSelect={false}
+                hideSelectedOptions={false}
+                components={{
+                  Option: InputOption,
+                }}
+              />
+              <FormikSelect
+                label="Block access to media types"
+                name="mediaTypes"
+                options={mediaTypeOptions}
+                placeholder="Select media types"
+                tooltip="Block this user access to the specified media types"
+                isMulti
+                value={mediaTypeOptions.filter(
+                  (o) =>
+                    values.mediaTypes?.some((r) => (r === o.value ? +o.value : undefined)) ?? '',
+                )}
+                onChange={(e) => {
+                  if (e) {
+                    const options = e as OptionItem[];
+                    setFieldValue(
+                      'mediaTypes',
+                      options.filter((v) => v.value).map((v) => v.value),
+                    );
+                  }
+                }}
+                closeMenuOnSelect={false}
+                hideSelectedOptions={false}
+                components={{
+                  Option: InputOption,
                 }}
               />
             </Section>
