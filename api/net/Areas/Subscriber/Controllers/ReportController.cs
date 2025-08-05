@@ -464,7 +464,7 @@ public class ReportController : ControllerBase
             var ownerId = result.OwnerId ?? currentInstance.OwnerId;
             if (ownerId.HasValue)
             {
-                user = _userService.FindById(ownerId.Value) ?? throw new NotAuthorizedException();
+                user = _userService.FindByIdMinimal(ownerId.Value) ?? throw new NotAuthorizedException();
                 await _kafkaMessenger.SendMessageAsync(
                     _kafkaHubOptions.HubTopic,
                     new KafkaHubMessage(HubEvent.SendUser, user.Username, new KafkaInvocationMessage(MessageTarget.ReportStatus, new[] { new ReportMessageModel(currentInstance) }))
