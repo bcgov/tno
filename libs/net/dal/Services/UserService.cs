@@ -147,6 +147,8 @@ public class UserService : BaseService<User, int>, IUserService
     public User? FindByUserKey(string key)
     {
         return this.Context.Users
+            .Include(u => u.MediaTypes)
+            .Include(u => u.Sources)
             .Where(u => u.Key == key).FirstOrDefault();
     }
 
@@ -280,7 +282,7 @@ public class UserService : BaseService<User, int>, IUserService
                 this.Context.Entry(org).State = EntityState.Added;
             }
         });
-        
+
         // add user update history
         var originalChanges = original.UserUpdateHistory.ToArray();
         entity.UserUpdateHistory.ForEach(h =>
