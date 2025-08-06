@@ -123,6 +123,19 @@ public class UserService : BaseService<User, int>, IUserService
             .FirstOrDefault(u => u.Id == id);
     }
 
+    /// <summary>
+    /// Find user by ID with minimal data (optimized for performance).
+    /// Only returns basic user information without related entities.
+    /// </summary>
+    /// <param name="id">User ID</param>
+    /// <returns>User with minimal data or null if not found</returns>
+    public User? FindByIdMinimal(int id)
+    {
+        return this.Context.Users
+            .AsNoTracking()  // Don't track changes for better performance
+            .FirstOrDefault(u => u.Id == id);
+    }
+
     public IEnumerable<User> GetUserUpdateHistory()
     {
         return this.Context.Users
@@ -134,6 +147,8 @@ public class UserService : BaseService<User, int>, IUserService
     public User? FindByUserKey(string key)
     {
         return this.Context.Users
+            .Include(u => u.MediaTypes)
+            .Include(u => u.Sources)
             .Where(u => u.Key == key).FirstOrDefault();
     }
 
@@ -267,7 +282,7 @@ public class UserService : BaseService<User, int>, IUserService
                 this.Context.Entry(org).State = EntityState.Added;
             }
         });
-        
+
         // add user update history
         var originalChanges = original.UserUpdateHistory.ToArray();
         entity.UserUpdateHistory.ForEach(h =>

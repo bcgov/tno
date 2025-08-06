@@ -30,6 +30,16 @@ public class IndexerOptions : ServiceOptions
     public DateTime? CreatedEndOn { get; set; }
 
     /// <summary>
+    /// get/set - Only include content published on or after this date.
+    /// </summary>
+    public DateTime? PublishedStartOn { get; set; }
+
+    /// <summary>
+    /// get/set - Only included content published on or before this date.
+    /// </summary>
+    public DateTime? PublishedEndOn { get; set; }
+
+    /// <summary>
     /// get/set - An array of source IDs.
     /// </summary>
     public long[] SourceIds { get; set; } = [];

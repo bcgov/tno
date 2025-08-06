@@ -22,6 +22,14 @@ public interface IUserService : IBaseService<User, int>
     User? FindByUsername(string username);
     IEnumerable<User> FindByEmail(string email);
     IEnumerable<User> FindByRoles(IEnumerable<string> roles);
+
+    /// <summary>
+    /// Find user by ID with minimal data (optimized for performance).
+    /// Only returns basic user information without related entities.
+    /// </summary>
+    /// <param name="id">User ID</param>
+    /// <returns>User with minimal data or null if not found</returns>
+    User? FindByIdMinimal(int id);
     User? TransferAccount(API.Areas.Admin.Models.User.TransferAccountModel account);
 
     IEnumerable<User> GetDistributionList(int userId);
