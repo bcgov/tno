@@ -188,3 +188,42 @@ oc rollout latest dc/api-services -n 9b301c-${podenv}
 oc patch -n 9b301c-${podenv} dc/api-services -p '{ "spec": { "template": { "spec": { "containers": [{ "name": "api-services", "env": [{ "name": "DB_POSTGRES_USERNAME", "valueFrom": { "secretKeyRef": { "name": "montford", "key": "USERNAME" }}}]}]}}}}'
 oc patch -n 9b301c-${podenv} dc/api-services -p '{ "spec": { "template": { "spec": { "containers": [{ "name": "api-services", "env": [{ "name": "DB_POSTGRES_PASSWORD", "valueFrom": { "secretKeyRef": { "name": "montford", "key": "PASSWORD" }}}]}]}}}}'
 ```
+
+## Connect to Database with PSQL
+
+Refer to link for more information <https://www.cloudbees.com/blog/tuning-postgresql-with-pgbench>
+
+```bash
+psql -h localhost -p 5432 -U {user} postgres
+
+# Connect to DB in Openshift with port forwarding.
+psql -h host.docker.internal -p 22222 -U postgres postgres
+
+# Create a database
+CREATE DATABASE example;
+
+# Exit
+\q
+
+# Initialize the test
+pgbench -h localhost -U {user} -i -s 50 example
+
+# Establish baseline
+# -c = # of clients
+# -j = # of threads
+# -t = # of transactions per client
+pgbench -h localhost -U {user} -c 10 -j 2 -t 10000 example
+
+# Result means number of transactions per second.
+# Local Docker Container
+# tps = 932.629023 (including connections establishing)
+# tps = 932.640011 (excluding connections establishing)
+
+# Openshift Docker Container
+# tps = 128.765301 (including connections establishing)
+# tps = 128.772876 (excluding connections establishing)
+
+# VM Database
+# tps = 122.663370 (including connections establishing)
+# tps = 122.672520 (excluding connections establishing)
+```
