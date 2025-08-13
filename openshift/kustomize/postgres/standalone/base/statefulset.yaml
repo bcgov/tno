@@ -64,6 +64,9 @@ spec:
             requests:
               cpu: 50m
               memory: 2Gi
+            limits:
+              cpu: 2000m
+              memory: 32Gi
           env:
             - name: POSTGRESQL_DATABASE
               value: tno
