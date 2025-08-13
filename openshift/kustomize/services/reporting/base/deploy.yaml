@@ -36,6 +36,10 @@ spec:
         part-of: tno
         component: reporting-service
     spec:
+      volumes:
+        - name: api-storage
+          persistentVolumeClaim:
+            claimName: api-storage
       containers:
         - name: reporting-service
           image: ""
@@ -43,6 +47,9 @@ spec:
           ports:
             - containerPort: 8080
               protocol: TCP
+          volumeMounts:
+            - name: api-storage
+              mountPath: /mnt/data
           resources:
             requests:
               cpu: 20m
@@ -68,6 +75,8 @@ spec:
                 configMapKeyRef:
                   name: services
                   key: EMAIL_FAILURE_TO
+            - name: Service__ImageVolumePath
+              value: /mnt/data
 
             # Authentication Configuration
             - name: Auth__Keycloak__Authority

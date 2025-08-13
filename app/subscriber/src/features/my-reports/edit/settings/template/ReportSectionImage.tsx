@@ -30,6 +30,11 @@ export const ReportSectionImage = React.forwardRef<HTMLDivElement, IReportSectio
                 setFieldValue(`sections.${index}.settings.inTableOfContents`, e.target.checked);
               }}
             />
+            <FormikCheckbox
+              name={`sections.${index}.settings.cacheData`}
+              label="Cache Image"
+              tooltip="This will cache the image in MMI"
+            />
             <Col>
               <FormikText name={`sections.${index}.settings.url`} label="URL" required />
             </Col>
