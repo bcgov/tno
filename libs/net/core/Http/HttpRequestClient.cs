@@ -79,7 +79,6 @@ namespace TNO.Core.Http
             var responseStream = await response.Content.ReadAsStreamAsync();
             // var data = await response.Content.ReadAsByteArrayAsync();
             var contentType = response.Content.Headers.ContentType;
-            var body = "";
             try
             {
                 if (contentType?.MediaType?.Contains("json", StringComparison.InvariantCultureIgnoreCase) == true && response.IsSuccessStatusCode)
@@ -93,14 +92,15 @@ namespace TNO.Core.Http
             {
                 // Catch deserialization errors and log the response data.
                 var data = responseStream.ReadAllBytes();
-                body = Encoding.Default.GetString(data);
+                var body = Encoding.Default.GetString(data);
                 _logger.LogError(ex, "Failed to deserialize response: {body}", body);
                 throw;
             }
 
             // Throw exception because the response failed and cannot be deserialized.
             var errorEx = new HttpClientRequestException($"Response must contain JSON but was '{contentType?.MediaType}'.", response.StatusCode);
-            errorEx.Data["body"] = body;
+            var responseBytes = responseStream.ReadAllBytes();
+            errorEx.Data["body"] = Encoding.Default.GetString(responseBytes);
             throw errorEx;
         }
 
