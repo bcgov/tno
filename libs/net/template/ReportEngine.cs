@@ -332,6 +332,31 @@ public class ReportEngine : IReportEngine
         return subject.RemoveInvalidUtf8Characters().RemoveInvalidUnicodeCharacters();
     }
 
+    private static string? GetFileExtension(string? contentType)
+    {
+        if (string.IsNullOrEmpty(contentType))
+            return null;
+
+        switch (contentType.ToLower())
+        {
+            case "image/jpeg":
+            case "image/jpg":
+                return ".jpg";
+            case "image/png":
+                return ".png";
+            case "image/gif":
+                return ".gif";
+            case "image/bmp":
+                return ".bmp";
+            case "image/webp":
+                return ".webp";
+            case "image/tiff":
+                return ".tiff";
+            default:
+                return null; // Unknown or unsupported type
+        }
+    }
+
     /// <summary>
     /// Generate the output of the report with the Razor engine.
     /// </summary>
@@ -339,7 +364,7 @@ public class ReportEngine : IReportEngine
     /// <param name="reportInstanceId"></param>
     /// <param name="sectionContent"></param>
     /// <param name="getLinkedReport"></param>
-    /// <param name="uploadPath"></param>
+    /// <param name="pathToFiles"></param>
     /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
     /// <returns></returns>
@@ -349,7 +374,7 @@ public class ReportEngine : IReportEngine
         API.Areas.Services.Models.ReportInstance.ReportInstanceModel? reportInstance,
         Dictionary<string, ReportSectionModel> sectionContent,
         Func<int, int?, Task<Dictionary<string, ReportSectionModel>>> getLinkedReportAsync,
-        string? uploadPath = null,
+        string? pathToFiles = null,
         bool viewOnWebOnly = false,
         bool isPreview = false)
     {
@@ -360,93 +385,146 @@ public class ReportEngine : IReportEngine
         var template = this.ReportEngineContent.GetOrAddTemplateInMemory(key, report.Template.Body)
             ?? throw new InvalidOperationException("Template does not exist");
 
-        // For each section that is JSON from 3rd party, fetch the JSON and save it.
-        await report.Sections.Where(section => section.SectionType == Entities.ReportSectionType.Data && section.IsEnabled).ForEachAsync(async section =>
+        // Only make requests for data and image sections if they will be included in the output.
+        // The viewOnWebOnly flag means the email will only include a link to the report.
+        if (!viewOnWebOnly)
         {
-            var sectionData = sectionContent[section.Name];
-            var settings = section.Settings;
-            var url = !String.IsNullOrWhiteSpace(settings.Url) ? new Uri(settings.Url) : null;
-            if (url != null)
+            if (!String.IsNullOrWhiteSpace(pathToFiles))
             {
-                var response = await this.HttpClient.GetAsync(url);
-                if (response.IsSuccessStatusCode)
+                var currentDate = DateTime.UtcNow;
+                // For each section that is an image from 3rd party, fetch the image and cache it.
+                await report.Sections
+                    .Where(section => section.SectionType == Entities.ReportSectionType.Image && section.IsEnabled && section.Settings.CacheData == true)
+                    .ForEachAsync(async section =>
                 {
-                    var data = await response.Content.ReadAsStringAsync();
-                    if (settings.DataType?.Equals("json", StringComparison.InvariantCultureIgnoreCase) == true)
+                    var sectionData = sectionContent[section.Name];
+                    var settings = section.Settings;
+                    var url = !String.IsNullOrWhiteSpace(settings.Url) ? new Uri(settings.Url) : null;
+                    if (url != null)
                     {
-                        try
+                        var response = await this.HttpClient.GetAsync(url);
+                        if (response.IsSuccessStatusCode)
                         {
-                            var json = JsonDocument.Parse(data);
-                            if (json != null && !String.IsNullOrWhiteSpace(settings.DataProperty))
+                            // Get the Content-Type header (e.g., "image/jpeg", "image/png")
+                            var contentType = response.Content.Headers.ContentType?.MediaType;
+                            var fileExtension = GetFileExtension(contentType) ?? ".bin";
+                            using (Stream imageStream = await response.Content.ReadAsStreamAsync())
                             {
-                                var value = json.GetElementValue<string>(settings.DataProperty);
-                                sectionData.Data = value;
-                            }
-                            else if (json != null && !String.IsNullOrWhiteSpace(settings.DataTemplate))
-                            {
-                                var dataTemplateKey = $"{report.Id}-{section.Id}";
-                                var dataTemplate = this.ReportEngineData.GetOrAddTemplateInMemory(dataTemplateKey, settings.DataTemplate);
-                                var dataEngineModel = new ReportEngineDataModel<dynamic>(json);
-                                var dataHtml = await dataTemplate.RunAsync(instance =>
+                                byte[] imageBytes;
+                                using (var memoryStream = new MemoryStream())
                                 {
-                                    instance.Model = dataEngineModel;
-                                    instance.Data = json;
-                                });
-                                sectionData.Data = dataHtml;
-                            }
-                            else
-                                sectionData.Data = data;
-                        }
-                        catch (Exception ex)
-                        {
-                            this.Logger.LogError(ex, "Failed to parse data from {url}", url);
-                            sectionData.Data = ex.GetAllMessages();
-                        }
-                    }
-                    else if (settings.DataType?.Equals("xml", StringComparison.InvariantCultureIgnoreCase) == true)
-                    {
-                        try
-                        {
-                            var xml = new XmlDocument();
-                            xml.LoadXml(data);
-                            if (xml != null && !String.IsNullOrWhiteSpace(settings.DataProperty))
-                            {
-                                var node = xml.SelectSingleNode(settings.DataProperty);
-                                if (node != null)
-                                {
-                                    sectionData.Data = node.InnerText;
+                                    await imageStream.CopyToAsync(memoryStream, 81920);
+                                    imageBytes = memoryStream.ToArray();
                                 }
+
+                                var pathToImage = $"reports/{report.Id}-{report.Name}/image-{sectionData.Id}-{currentDate:yyyy-MM-dd}{fileExtension}";
+                                var fullPath = Path.Combine(pathToFiles, pathToImage);
+                                var directory = Path.GetDirectoryName(fullPath);
+                                if (!string.IsNullOrEmpty(directory))
+                                    Directory.CreateDirectory(directory);
+
+                                await File.WriteAllBytesAsync(fullPath, imageBytes);
+
+                                // Update the section to include the new image.
+                                sectionData.Settings.UrlCache = this.TemplateOptions.SubscriberAppUrl?.Append($"api/subscriber/contents/download?path={pathToImage}").AbsoluteUri;
                             }
-                            else if (xml != null && !String.IsNullOrWhiteSpace(settings.DataTemplate))
-                            {
-                                var dataTemplateKey = $"{report.Id}-{section.Id}";
-                                var dataTemplate = this.ReportEngineData.GetOrAddTemplateInMemory(dataTemplateKey, settings.DataTemplate);
-                                var dataEngineModel = new ReportEngineDataModel<dynamic>(xml);
-                                var dataHtml = await dataTemplate.RunAsync(instance =>
-                                {
-                                    instance.Model = dataEngineModel;
-                                    instance.Data = xml;
-                                });
-                                sectionData.Data = dataHtml;
-                            }
-                            else
-                                sectionData.Data = data;
                         }
-                        catch (Exception ex)
+                        else
+                            this.Logger.LogError("Failed to fetch data from {url}, {status}", url, response.StatusCode);
+                    }
+                });
+            }
+
+            // For each section that is JSON from 3rd party, fetch the JSON and save it.
+            await report.Sections
+                .Where(section => section.SectionType == Entities.ReportSectionType.Data && section.IsEnabled)
+                .ForEachAsync(async section =>
+            {
+                var sectionData = sectionContent[section.Name];
+                var settings = section.Settings;
+                var url = !String.IsNullOrWhiteSpace(settings.Url) ? new Uri(settings.Url) : null;
+                if (url != null)
+                {
+                    var response = await this.HttpClient.GetAsync(url);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var data = await response.Content.ReadAsStringAsync();
+                        if (settings.DataType?.Equals("json", StringComparison.InvariantCultureIgnoreCase) == true)
                         {
-                            this.Logger.LogError(ex, "Failed to parse data from {url}", url);
-                            sectionData.Data = ex.GetAllMessages();
+                            try
+                            {
+                                var json = JsonDocument.Parse(data);
+                                if (json != null && !String.IsNullOrWhiteSpace(settings.DataProperty))
+                                {
+                                    var value = json.GetElementValue<string>(settings.DataProperty);
+                                    sectionData.Data = value;
+                                }
+                                else if (json != null && !String.IsNullOrWhiteSpace(settings.DataTemplate))
+                                {
+                                    var dataTemplateKey = $"{report.Id}-{section.Id}";
+                                    var dataTemplate = this.ReportEngineData.GetOrAddTemplateInMemory(dataTemplateKey, settings.DataTemplate);
+                                    var dataEngineModel = new ReportEngineDataModel<dynamic>(json);
+                                    var dataHtml = await dataTemplate.RunAsync(instance =>
+                                    {
+                                        instance.Model = dataEngineModel;
+                                        instance.Data = json;
+                                    });
+                                    sectionData.Data = dataHtml;
+                                }
+                                else
+                                    sectionData.Data = data;
+                            }
+                            catch (Exception ex)
+                            {
+                                this.Logger.LogError(ex, "Failed to parse data from {url}", url);
+                                sectionData.Data = ex.GetAllMessages();
+                            }
                         }
+                        else if (settings.DataType?.Equals("xml", StringComparison.InvariantCultureIgnoreCase) == true)
+                        {
+                            try
+                            {
+                                var xml = new XmlDocument();
+                                xml.LoadXml(data);
+                                if (xml != null && !String.IsNullOrWhiteSpace(settings.DataProperty))
+                                {
+                                    var node = xml.SelectSingleNode(settings.DataProperty);
+                                    if (node != null)
+                                    {
+                                        sectionData.Data = node.InnerText;
+                                    }
+                                }
+                                else if (xml != null && !String.IsNullOrWhiteSpace(settings.DataTemplate))
+                                {
+                                    var dataTemplateKey = $"{report.Id}-{section.Id}";
+                                    var dataTemplate = this.ReportEngineData.GetOrAddTemplateInMemory(dataTemplateKey, settings.DataTemplate);
+                                    var dataEngineModel = new ReportEngineDataModel<dynamic>(xml);
+                                    var dataHtml = await dataTemplate.RunAsync(instance =>
+                                    {
+                                        instance.Model = dataEngineModel;
+                                        instance.Data = xml;
+                                    });
+                                    sectionData.Data = dataHtml;
+                                }
+                                else
+                                    sectionData.Data = data;
+                            }
+                            catch (Exception ex)
+                            {
+                                this.Logger.LogError(ex, "Failed to parse data from {url}", url);
+                                sectionData.Data = ex.GetAllMessages();
+                            }
+                        }
+                        else
+                            sectionData.Data = data;
                     }
                     else
-                        sectionData.Data = data;
+                        this.Logger.LogError("Failed to fetch data from {url}, {status}", url, response.StatusCode);
                 }
-                else
-                    this.Logger.LogError("Failed to fetch data from {url}, {status}", url, response.StatusCode);
-            }
-        });
+            });
+        }
 
-        var model = new ReportEngineContentModel(report, reportInstance, sectionContent, this.TemplateOptions, uploadPath);
+        var model = new ReportEngineContentModel(report, reportInstance, sectionContent, this.TemplateOptions, pathToFiles);
         var body = await template.RunAsync(instance =>
         {
             instance.ReportId = report.Id;

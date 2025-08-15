@@ -69,7 +69,7 @@ public abstract class BaseTemplateModel<T> : RazorEngineTemplateBase
     /// <param name="uploadPath"></param>
     /// <param name="path"></param>
     /// <returns></returns>
-    public static string? GetImageContent(string uploadPath, string? path)
+    public static string? ConvertImageToBase64String(string uploadPath, string? path)
     {
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var fullPath = Path.Combine(uploadPath, path).Replace('\\', '/');

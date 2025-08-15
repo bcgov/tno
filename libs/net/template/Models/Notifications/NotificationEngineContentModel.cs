@@ -29,7 +29,7 @@ public class NotificationEngineContentModel : BaseTemplateModel<ContentModel>
 
         // Convert any images to base64 and include them in the email.
         if (!string.IsNullOrWhiteSpace(uploadPath) && this.Content.ContentType == Entities.ContentType.Image)
-            this.Content.ImageContent = GetImageContent(uploadPath, this.Content.FileReferences.FirstOrDefault()?.Path);
+            this.Content.ImageContent = ConvertImageToBase64String(uploadPath, this.Content.FileReferences.FirstOrDefault()?.Path);
     }
 
     /// <summary>

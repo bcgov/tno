@@ -376,6 +376,8 @@ services:
       - services/net/reporting/.env
     ports:
       - ${REPORTING_PORT:-40031}:8081
+    volumes:
+      - tno-av-data:/data
     depends_on:
       - api
       - broker
