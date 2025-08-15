@@ -12,6 +12,8 @@ public class ReportSectionSettingsModel
     public bool ShowHeadlines { get; set; }
     public bool ShowFullStory { get; set; }
     public bool ShowImage { get; set; }
+    public bool? ConvertToBase64Image { get; set; }
+    public bool? CacheData { get; set; }
     public string Direction { get; set; } = "";
     public bool RemoveDuplicates { get; set; }
     public bool OverrideExcludeHistorical { get; set; }
@@ -21,6 +23,7 @@ public class ReportSectionSettingsModel
     public string SortBy { get; set; } = "";
     public string SortDirection { get; set; } = "";
     public string Url { get; set; } = "";
+    public string? UrlCache { get; set; }
     public bool Preload { get; set; }
     public string? DataType { get; set; }
     public string? DataProperty { get; set; }
@@ -37,6 +40,8 @@ public class ReportSectionSettingsModel
         this.ShowHeadlines = settings.GetDictionaryJsonValue("showHeadlines", false, options);
         this.ShowFullStory = settings.GetDictionaryJsonValue("showFullStory", false, options);
         this.ShowImage = settings.GetDictionaryJsonValue("showImage", false, options);
+        this.ConvertToBase64Image = settings.GetDictionaryJsonValue("convertToBase64Image", false, options);
+        this.CacheData = settings.GetDictionaryJsonValue("cacheData", false, options);
         this.Direction = settings.GetDictionaryJsonValue("direction", "", options)!;
         this.RemoveDuplicates = settings.GetDictionaryJsonValue("removeDuplicates", false, options)!;
         this.OverrideExcludeHistorical = settings.GetDictionaryJsonValue("overrideExcludeHistorical", false, options)!;
@@ -46,6 +51,7 @@ public class ReportSectionSettingsModel
         this.SortBy = settings.GetDictionaryJsonValue("sortBy", "", options)!;
         this.SortDirection = settings.GetDictionaryJsonValue("sortDirection", "", options)!;
         this.Url = settings.GetDictionaryJsonValue("url", "", options)!;
+        this.UrlCache = settings.GetDictionaryJsonValue<string?>("urlCache", null, options)!;
         this.Preload = settings.GetDictionaryJsonValue("preload", false, options)!;
         this.DataType = settings.GetDictionaryJsonValue<string?>("dataType", null, options)!;
         this.DataProperty = settings.GetDictionaryJsonValue<string?>("dataProperty", null, options)!;
@@ -59,6 +65,8 @@ public class ReportSectionSettingsModel
         this.ShowHeadlines = settings.GetElementValue("showHeadlines", false, options);
         this.ShowFullStory = settings.GetElementValue("showFullStory", false, options);
         this.ShowImage = settings.GetElementValue("showImage", false, options);
+        this.ConvertToBase64Image = settings.GetElementValue("convertToBase64Image", false, options);
+        this.CacheData = settings.GetElementValue("cacheData", false, options);
         this.Direction = settings.GetElementValue("direction", "", options)!;
         this.RemoveDuplicates = settings.GetElementValue("removeDuplicates", false, options)!;
         this.OverrideExcludeHistorical = settings.GetElementValue("overrideExcludeHistorical", false, options)!;
@@ -68,6 +76,7 @@ public class ReportSectionSettingsModel
         this.SortBy = settings.GetElementValue("sortBy", "", options)!;
         this.SortDirection = settings.GetElementValue("sortDirection", "", options)!;
         this.Url = settings.GetElementValue("url", "", options)!;
+        this.UrlCache = settings.GetElementValue<string?>("urlCache", null, options)!;
         this.Preload = settings.GetElementValue("preload", false, options)!;
         this.DataType = settings.GetElementValue<string?>("dataType", null, options)!;
         this.DataProperty = settings.GetElementValue<string?>("dataProperty", null, options)!;

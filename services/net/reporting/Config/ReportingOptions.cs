@@ -43,5 +43,10 @@ public class ReportingOptions : ServiceOptions
     /// get/set - The default email address to use when sending reports.
     /// </summary>
     public string DefaultFrom { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The path to where images are saved.
+    /// </summary>
+    public string ImageVolumePath { get; set; } = "";
     #endregion
 }
