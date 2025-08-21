@@ -885,7 +885,10 @@ public class ReportService : BaseService<Report, int>, IReportService
 
                 // Determine index.
                 var defaultIndex = filterSettings.SearchUnpublished ? _elasticOptions.ContentIndex : _elasticOptions.PublishedIndex;
-                var content = await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query);
+
+                // Add retry logic for Elasticsearch query to handle failures
+                var content = await RetryElasticsearchQueryAsync(async () =>
+                    await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query));
                 var contentHits = content.Hits.Hits.ToArray();
 
                 // Fetch custom content versions for the requestor.
@@ -938,6 +941,30 @@ public class ReportService : BaseService<Report, int>, IReportService
         }
 
         return searchResults;
+    }
+
+    /// <summary>
+    /// Retry Elasticsearch query once after 200ms to handle intermittent failures.
+    /// This helps resolve issues like JSON parsing failures in BC Updates filtering.
+    /// </summary>
+    /// <typeparam name="T">The return type of the Elasticsearch operation</typeparam>
+    /// <param name="operation">The Elasticsearch operation to retry</param>
+    /// <returns>The result of the successful operation</returns>
+    private async Task<T> RetryElasticsearchQueryAsync<T>(Func<Task<T>> operation)
+    {
+        try
+        {
+            return await operation();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex,
+                "Elasticsearch query failed. Retrying in 200ms. Error: {ErrorMessage}",
+                ex.Message);
+
+            await Task.Delay(200);
+            return await operation();
+        }
     }
 
     /// <summary>
@@ -1061,7 +1088,8 @@ public class ReportService : BaseService<Report, int>, IReportService
 
             // Determine index.
             var defaultIndex = filterSettings.SearchUnpublished ? _elasticOptions.ContentIndex : _elasticOptions.PublishedIndex;
-            var content = await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query);
+            var content = await RetryElasticsearchQueryAsync(async () =>
+                await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query));
 
             // Fetch custom content versions for the requestor.
             var contentIds = content.Hits.Hits.Select(h => h.Source.Id).Distinct().ToArray();
