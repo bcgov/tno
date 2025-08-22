@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace TNO.API.Areas.Subscriber.Models.User;
 
 /// <summary>
@@ -47,11 +45,6 @@ public class UserModel
     /// get/set - Last name of user.
     /// </summary>
     public string LastName { get; set; } = "";
-
-    /// <summary>
-    /// get/set - The user preferences.
-    /// </summary>
-    public JsonDocument Preferences { get; set; } = JsonDocument.Parse("{}");
     #endregion
 
     #region Constructors
@@ -74,7 +67,6 @@ public class UserModel
         this.DisplayName = entity.DisplayName;
         this.FirstName = entity.FirstName;
         this.LastName = entity.LastName;
-        this.Preferences = entity.Preferences;
     }
     #endregion
 
@@ -91,7 +83,6 @@ public class UserModel
             FirstName = model.FirstName,
             LastName = model.LastName,
             DisplayName = model.DisplayName,
-            Preferences = model.Preferences,
             PreferredEmail = model.PreferredEmail,
         };
 

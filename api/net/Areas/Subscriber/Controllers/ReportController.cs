@@ -185,6 +185,25 @@ public class ReportController : ControllerBase
     }
 
     /// <summary>
+    /// Get the owner of the report.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/owner")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult GetReportOwner(int id)
+    {
+        var report = _reportService.FindById(id) ?? throw new NoContentException();
+        if (!report.OwnerId.HasValue) return NoContent();
+        var user = _userService.FindById(report.OwnerId.Value) ?? throw new NotAuthorizedException();
+        return new JsonResult(new UserModel(user));
+    }
+
+    /// <summary>
     /// Find all report instances for the specified report 'id' and 'ownerId'.
     /// </summary>
     /// <param name="reportId"></param>

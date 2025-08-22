@@ -6,7 +6,7 @@ import React from 'react';
 import { FaTelegramPlane } from 'react-icons/fa';
 import { FaRegClock } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { useApp, useReportInstances } from 'store/hooks';
+import { useApp, useReportInstances, useReports } from 'store/hooks';
 import {
   Claim,
   Col,
@@ -35,6 +35,7 @@ import * as styled from './styled';
 export const ReportViewForm: React.FC = () => {
   const { values, isSubmitting, setFieldValue, setSubmitting } = useReportEditContext();
   const [{ sendReportInstance }] = useReportInstances();
+  const [, { getReportOwner }] = useReports();
   const [{ userInfo }] = useApp();
 
   const [to, setTo] = React.useState('');
@@ -47,13 +48,27 @@ export const ReportViewForm: React.FC = () => {
   const [{ publishReportInstance }] = useReportInstances();
 
   const handleSend = React.useCallback(
-    async (id: number, to: string) => {
+    async (instanceId: number, to: string) => {
       try {
-        await sendReportInstance(id, to);
+        await sendReportInstance(instanceId, to);
         toast.success('Report has been submitted.');
       } catch {}
     },
     [sendReportInstance],
+  );
+
+  const handleSendToOwner = React.useCallback(
+    async (reportId: number, instanceId: number) => {
+      try {
+        const owner = await getReportOwner(reportId);
+        const email = owner?.preferredEmail ? owner.preferredEmail : owner?.email;
+        if (!email) {
+          toast.error('This report does not have an owner');
+        }
+        await handleSend(instanceId, email!);
+      } catch {}
+    },
+    [getReportOwner, handleSend],
   );
 
   const handlePublish = React.useCallback(
@@ -112,16 +127,30 @@ export const ReportViewForm: React.FC = () => {
         </Row>
       </Col>
 
-      <Show visible={isAdmin}>
-        <Row gap="1rem">
-          <Col flex="1">
+      <Row gap="1rem">
+        <Col flex="1">
+          <Show visible={isAdmin || !!values.ownerId}>
             <Row alignItems="baseline" gap="0.5rem">
               <FaRegClock />
               <div className="preview-block-headline">Send a Test</div>
             </Row>
-
+            <Row alignItems="flex-start" className="preview-send-details-row">
+              <Button
+                className="send-test-button"
+                disabled={isSubmitting}
+                variant="secondary"
+                onClick={() => !!instance?.id && handleSendToOwner(values.id, instance.id)}
+                style={{ backgroundColor: 'transparent' }}
+              >
+                <FaTelegramPlane />
+                Send to Report Owner
+              </Button>
+            </Row>
+          </Show>
+          <Show visible={isAdmin}>
             <Row alignItems="flex-start" className="preview-send-details-row">
               <Col>
+                <hr />
                 <p>
                   Sending a report to a specific email address does not register the 'Last sent'
                   date. Only use this for testing.
@@ -147,9 +176,9 @@ export const ReportViewForm: React.FC = () => {
                 </Text>
               </Col>
             </Row>
-          </Col>
-        </Row>
-      </Show>
+          </Show>
+        </Col>
+      </Row>
 
       <Row gap="1rem">
         <Col flex="1">
