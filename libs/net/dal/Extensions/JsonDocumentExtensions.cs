@@ -235,9 +235,9 @@ public static class JsonDocumentExtensions
         {
             jsonNode = JsonNode.Parse(query.ToJson());
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
-            return query;
+            throw new InvalidOperationException("BC Updates exclusion failed due to JSON parsing error", ex);
         }
 
         var json = jsonNode?.AsObject();
