@@ -1,4 +1,3 @@
-using System.Text.Json;
 using TNO.API.Models;
 
 namespace TNO.API.Areas.Subscriber.Models.User;
@@ -46,8 +45,7 @@ public class UserColleagueModel : AuditColumnsModel
     /// Creates a new instance of an UserModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    /// <param name="serializerOptions"></param>
-    public UserColleagueModel(Entities.UserColleague entity, JsonSerializerOptions? serializerOptions = null) : base(entity)
+    public UserColleagueModel(Entities.UserColleague entity) : base(entity)
     {
         this.UserId = entity.UserId;
         this.ColleagueId = entity.ColleagueId;
@@ -59,9 +57,8 @@ public class UserColleagueModel : AuditColumnsModel
     /// <summary>
     /// Creates a new instance of a User object.
     /// </summary>
-    /// <param name="options"></param>
     /// <returns></returns>
-    public Entities.UserColleague ToEntity(JsonSerializerOptions options)
+    public Entities.UserColleague ToEntity()
     {
         var entity = (Entities.UserColleague)this;
         return entity;

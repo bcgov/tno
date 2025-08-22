@@ -16,6 +16,12 @@ export const ReportViewForm = styled.div`
   .preview-send-details-row {
     margin-left: 1.5rem;
     gap: 1rem;
+
+    hr {
+      width: 100%;
+      border: none;
+      border-top: solid 1px grey;
+    }
   }
   .hide {
     display: none;
