@@ -10,6 +10,7 @@ import {
   IReportInstanceModel,
   IReportModel,
   IReportResultModel,
+  IUserModel,
   useApi,
 } from '../..';
 
@@ -43,6 +44,11 @@ export const useApiSubscriberReports = (
     getReport: (id: number, includeContent?: boolean) => {
       return api.get<never, AxiosResponse<IReportModel | undefined>, any>(
         `/subscriber/reports/${id}${includeContent ? `?includeContent=true` : ''}`,
+      );
+    },
+    getReportOwner: (id: number) => {
+      return api.get<never, AxiosResponse<IUserModel | undefined>, any>(
+        `/subscriber/reports/${id}/owner`,
       );
     },
     findInstancesForReportId: (
