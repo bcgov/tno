@@ -145,7 +145,7 @@ public class UserController : ControllerBase
     {
         var user = _impersonate.GetCurrentUser();
         var result = _userColleagueService.RemoveColleague(user.Id, colleagueId) ?? throw new InvalidOperationException("No colleague to delete.");
-        var deletedModel = new UserColleagueModel(result, _serializerOptions);
+        var deletedModel = new UserColleagueModel(result);
         return CreatedAtAction(nameof(DeleteColleague), new { id = result?.ColleagueId }, deletedModel);
     }
     #endregion
