@@ -16,7 +16,7 @@ public static class StringExtensions
     static readonly Regex EndOfQuote = RegexSettings.EndOfQuoteRegex();
     static readonly Regex RemoveSimpleKeywords = RegexSettings.RemoveSimpleKeywordsRegex();
     static readonly Regex RemoveAdvancedKeywords = RegexSettings.RemoveAdvancedKeywordsRegex();
-
+    static readonly Regex RemoveFieldedSearch = RegexSettings.RemoveFieldedSearchRegex();
     #endregion
 
     #region Methods
@@ -32,12 +32,13 @@ public static class StringExtensions
         var isAdvanced = queryType == "query-string";
         var keywords = new List<string>();
         var startOfPhrase = -1;
-        var endOfPhrase = -1;
+        int endOfPhrase;
         var phrase = new StringBuilder();
 
         if (isAdvanced)
         {
-            var cleanSearch = RemoveAdvancedKeywords.Replace(search, " ");
+            var cleanSearch = RemoveFieldedSearch.Replace(search, " ");
+            cleanSearch = RemoveAdvancedKeywords.Replace(cleanSearch, " ");
             var tokens = cleanSearch.Split(" ", StringSplitOptions.RemoveEmptyEntries);
 
             // Iterate through each token to determine whether it is a keyword that should be marked.
