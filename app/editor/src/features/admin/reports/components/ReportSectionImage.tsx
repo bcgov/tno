@@ -42,6 +42,11 @@ export const ReportSectionImage = ({ index }: IReportSectionImageProps) => {
         label="Cache Image"
         tooltip="Save a copy in MMI"
       />
+      <FormikCheckbox
+        name={`sections.${index}.settings.convertToBase64Image`}
+        label="Convert Images to Base64"
+        tooltip="This format is not well supported by all email clients and can significantly increase the size of the report.  Use with caution."
+      />
     </Col>
   );
 };
