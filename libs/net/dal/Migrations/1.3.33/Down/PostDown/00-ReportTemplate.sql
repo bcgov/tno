@@ -1,4 +1,9 @@
-@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
+DO $$
+BEGIN
+
+-- Update custom report with latest template.
+UPDATE public."report_template" SET
+    "body" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
 @using System
 @using System.Linq
 @using TNO.Entities
@@ -7,7 +12,6 @@
   var pageBreak = Settings.Sections.UsePageBreaks ? "page-break-after: always;" : "";
   var utcOffset = ReportExtensions.GetUtcOffset(System.DateTime.Now, "Pacific Standard Time");
   var hasImages = Sections.Any(section => section.Value.SectionType == TNO.Entities.ReportSectionType.Image);
-  var subscriberAppUrl = @SubscriberAppUrl?.ToString();
 }
 
 <style>
@@ -19,7 +23,7 @@
 
 </style>
 
-<center><div style="margin-bottom: 25px; color:#FFFFF6;"><img src="@($"{subscriberAppUrl}assets/reports/MMI_logo_white.png")" width="600"></div></center>
+<center><div style="margin-bottom: 25px; color:#FFFFF6;"><img src="@($"{SubscriberAppUrl}assets/reports/MMI_logo_white.png")" width="600"></div></center>
 
 @* This is the Do Not Forward disclaimer *@
 <div><p style="background-color: #FFF7E1; color: #876503; text-align: center; font-size: 1em; font-weight: 700; line-height: 1.1em; letter-spacing: 0.08px; padding: 10px 0px; margin: 6px 0px 20px 0px;">DO NOT FORWARD THIS REPORT IN FULL &mdash; OR IN PART &mdash;  TO ANYONE</p></div>
@@ -191,8 +195,7 @@
           }
 
           var containImage = body.Contains("<img");
-          var filePath = content.FileReferences.FirstOrDefault()?.Path;
-          var hasImageToDisplay = ((!string.IsNullOrEmpty(content.ImageContent) || !string.IsNullOrEmpty(filePath)) && section.Value.Settings.ShowImage) || containImage;
+          var hasImageToDisplay = (!string.IsNullOrEmpty(content.ImageContent) && section.Value.Settings.ShowImage) || containImage;
 
           /**
             * Checks if there is no image to display and the section settings do not allow showing the full story.
@@ -256,23 +259,15 @@
           }
           @if (hasImageToDisplay)
           {
-            if (!string.IsNullOrEmpty(content.ImageContent) && section.Value.Settings.ShowImage)
-            {
-              var src = $"data:{content.ContentType};base64," + content.ImageContent;
-              <div><img src="@src" alt="@content.FileReferences.FirstOrDefault()?.FileName" /></div>
-            }
-            else if (!string.IsNullOrEmpty(filePath) && section.Value.Settings.ShowImage)
-            {
-              var apiFileUrl = subscriberAppUrl + "api/subscriber/contents/download?path=" + filePath;
-              <div><img src="@(apiFileUrl)" alt="@content.Headline" /></div>
-            }
+            var src = $"data:{content.ContentType};base64," + content.ImageContent;
+            <div><img src="@src" alt="@content.FileReferences.FirstOrDefault()?.FileName" /></div>
           }
           @if (Settings.Content.ShowLinkToStory && !isPrivate)
           {
             @* LINK TO STORY ON WEBSITE *@
             <div>
               <span style="font-size: .85em; text-transform:uppercase; vertical-align: middle; background-color:#FFF; border:#ccc 1px solid; margin:20 auto; padding:6px 10px;">
-                <a href="@($"{ViewContentUrl}{content.Id}")" target="_blank" style="color: #6750a4; text-decoration: none;">View Article <img height="14" style="max-width: 14px; height: 14px;" valign="absmiddle" src="@($"{subscriberAppUrl}assets/reports/follow_link.png")"></a>
+                <a href="@($"{ViewContentUrl}{content.Id}")" target="_blank" style="color: #6750a4; text-decoration: none;">View Article <img height="14" style="max-width: 14px; height: 14px;" valign="absmiddle" src="@($"{SubscriberAppUrl}assets/reports/follow_link.png")"></a>
               </span>
             </div>
           }
@@ -280,7 +275,7 @@
           {
             <div>
               <span style="font-size: .85em; text-transform:uppercase; vertical-align: middle; background-color:#FFF; border:#ccc 1px solid; margin:20 auto; padding:6px 10px;">
-                <a rel="noreferrer" href="@($"{sourceUrl}")" target="_blank" style="color: #6750a4; text-decoration: none;">View Article (external site)<img height="14" style="max-width: 14px; height: 14px;" valign="absmiddle" src="@($"{subscriberAppUrl}assets/reports/follow_link.png")"></a>
+                <a rel="noreferrer" href="@($"{sourceUrl}")" target="_blank" style="color: #6750a4; text-decoration: none;">View Article (external site)<img height="14" style="max-width: 14px; height: 14px;" valign="absmiddle" src="@($"{SubscriberAppUrl}assets/reports/follow_link.png")"></a>
               </span>
             </div>
           }
@@ -308,19 +303,10 @@
           @for (var i = 0; i < sectionContent.Length; i++)
           {
             var content = sectionContent[i];
-            var filePath = content.FileReferences.FirstOrDefault()?.Path;
+            var fileName = content.FileReferences.FirstOrDefault()?.FileName ?? content.Id.ToString();
+            var src = $"data:{content.ContentType};base64," + content.ImageContent;
 
-            if (!string.IsNullOrEmpty(content.ImageContent))
-            {
-              var src = $"data:{content.ContentType};base64," + content.ImageContent;
-              var fileName = content.FileReferences.FirstOrDefault()?.FileName ?? content.Id.ToString();
-              <img style="height:min-content" src="@src" alt="@fileName" />
-            }
-            else if (!string.IsNullOrEmpty(filePath))
-            {
-              var apiFileUrl = subscriberAppUrl + "api/subscriber/contents/download?path=" + filePath;
-              <img style="height:min-content" src="@(apiFileUrl)" alt="@content.Headline" />
-            }
+            <img style="height:min-content" src="@src" alt="@fileName" />
           }
         </div>
       }
@@ -329,18 +315,13 @@
         for (var i = 0; i < sectionContent.Length; i++)
         {
           var content = sectionContent[i];
-          var filePath = content.FileReferences.FirstOrDefault()?.Path;
-
+          var fileName = content.FileReferences.FirstOrDefault()?.FileName ?? content.Id.ToString();
+          var src = $"data:{content.ContentType};base64," + content.ImageContent;
           if (!string.IsNullOrEmpty(content.ImageContent))
           {
-            var src = $"data:{content.ContentType};base64," + content.ImageContent;
-            var fileName = content.FileReferences.FirstOrDefault()?.FileName ?? content.Id.ToString();
-            <div><img style="height:min-content" src="@src" alt="@fileName" /></div>
-          }
-          else if (!string.IsNullOrEmpty(filePath))
-          {
-            var apiFileUrl = subscriberAppUrl + "api/subscriber/contents/download?path=" + filePath;
-            <div><img style="height:min-content" src="@(apiFileUrl)" alt="@content.Headline" /></div>
+            <div>
+              <img style="height:min-content" src="@src" alt="@fileName" />
+            </div>
           }
         }
       }
@@ -381,7 +362,7 @@
 @* FOOTER *@
 <div style="width:100%">
   <hr style="background-color:#646293; border-width:0;height:1px;line-height:0;width:100%; margin-top:20px; margin-bottom:10px;"/>
-  <a style="text-transform:uppercase; color:#fff;" href="@($"{subscriberAppUrl}{(ReportInstanceId.HasValue ? $"report/instances/{ReportInstanceId }" : $"reports/{ReportId}")}/view")" target="_blank">
+  <a style="text-transform:uppercase; color:#fff;" href="@($"{SubscriberAppUrl}{(ReportInstanceId.HasValue ? $"report/instances/{ReportInstanceId }" : $"reports/{ReportId}")}/view")" target="_blank">
     <div style="vertical-align:middle; text-align: center; background-color:#6750A4; border:#ccc 1px solid; margin:20px 20px; padding:6px 10px;">
       View this report as a web page
     </div>
@@ -397,3 +378,7 @@
     </p>
   </div>
 </div>
+'
+WHERE "name" = 'Custom Report';
+
+END $$;

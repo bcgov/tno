@@ -1,4 +1,9 @@
-@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
+DO $$
+BEGIN
+
+-- Update custom report with latest template.
+UPDATE public."report_template" SET
+    "body" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
 @using System
 @using System.Linq
 @using TNO.Entities
@@ -6,7 +11,6 @@
 @{
     var pageBreak = Settings.Sections.UsePageBreaks ? "page-break-after: always;" : "";
     var utcOffset = ReportExtensions.GetUtcOffset(System.DateTime.Now, "Pacific Standard Time");
-    var subscriberAppUrl = @SubscriberAppUrl?.ToString();
 }
 <h1 id="top" style="margin: 0; padding: 0;">@Settings.Subject.Text</h1>
 <a name="top"></a>
@@ -39,8 +43,6 @@ else
                     for (var i = 0; i < sectionContent.Length; i++)
                     {
                         var content = sectionContent[i];
-                        var filePath = content.FileReferences.FirstOrDefault()?.Path;
-                        var apiFileUrl = subscriberAppUrl + "api/subscriber/contents/download?path=" + filePath;
                         <div style="width:20rem;padding:0.5rem;">
                             <h3>@content.Source?.Name</h3>
                             <p>@content.PublishedOn?.AddHours(utcOffset).ToString("dddd, MMMM d, yyyy")</p>
@@ -48,10 +50,6 @@ else
                             {
                                 var src = $"data:{content.ContentType};base64," + content.ImageContent;
                                 <p><img src="@src" alt="@content.FileReferences.FirstOrDefault()?.FileName" /></p>
-                            }
-                            else if (!string.IsNullOrEmpty(filePath))
-                            {
-                                <p><img src="@(apiFileUrl)" alt="@(content.Headline)" /></p>
                             }
                         </div>
                     }
@@ -67,3 +65,7 @@ else
     Copying, retransmitting, archiving, redistributing, selling, licensing, or emailing the material to any third party
     or any employee of the Province who is not authorized to access the material is prohibited.
 </p>
+'
+WHERE "name" = 'Frontpages Report';
+
+END $$;
