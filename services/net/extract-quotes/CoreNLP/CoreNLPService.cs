@@ -1,13 +1,15 @@
-using TNO.Core.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using TNO.API.Areas.Services.Models.Content;
+using TNO.Core.Exceptions;
+using TNO.Core.Http;
 using TNO.Services.ExtractQuotes.Config;
 using TNO.Services.ExtractQuotes.CoreNLP.models;
-using Microsoft.Extensions.Logging;
-using TNO.API.Areas.Services.Models.Content;
 
 namespace TNO.Services.NLP.ExtractQuotes;
 
-public interface ICoreNLPService {
+public interface ICoreNLPService
+{
     Task<AnnotationResponse?> PerformAnnotation(string text);
     Task<AnnotationResponse?> PerformAnnotationWithExistingQuotes(string text, IEnumerable<QuoteModel> existingQuotes);
 }
@@ -15,7 +17,7 @@ public interface ICoreNLPService {
 /// <summary>
 /// CoreNLPService class, provides a wrapper service for the Core NLP API.
 /// </summary>
-public class CoreNLPService: ICoreNLPService
+public class CoreNLPService : ICoreNLPService
 {
     #region Properties
     /// <summary>
@@ -97,6 +99,20 @@ public class CoreNLPService: ICoreNLPService
             this.FailureCount = 0;
             return response;
         }
+        catch (HttpClientRequestException ex)
+        {
+            if (this.Options.RetryLimit <= ++this.FailureCount)
+            {
+                this.FailureCount = 0;
+                throw;
+            }
+
+            var response = ex.Response?.Content.ReadAsStringAsync().Result;
+            // Wait before retrying.
+            this.Logger.LogError(ex, "Retry attempt {count}.{newline}Error:{body}", this.FailureCount, Environment.NewLine, response);
+            await Task.Delay(this.Options.RetryDelayMS);
+            return await RetryRequestAsync<T>(callbackDelegate);
+        }
         catch (Exception ex)
         {
             if (this.Options.RetryLimit <= ++this.FailureCount)
@@ -106,7 +122,7 @@ public class CoreNLPService: ICoreNLPService
             }
 
             // Wait before retrying.
-            this.Logger.LogError(ex, "Retry attempt {count}.{newline}Error:{body}", this.FailureCount, Environment.NewLine, ex.Data["Body"]);
+            this.Logger.LogError(ex, "Retry attempt {count}.", this.FailureCount);
             await Task.Delay(this.Options.RetryDelayMS);
             return await RetryRequestAsync<T>(callbackDelegate);
         }
