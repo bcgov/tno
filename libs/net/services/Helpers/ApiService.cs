@@ -105,6 +105,20 @@ public class ApiService : IApiService
             this.FailureCount = 0;
             return response;
         }
+        catch (HttpClientRequestException ex)
+        {
+            if (this.Options.RetryLimit <= ++this.FailureCount)
+            {
+                this.FailureCount = 0;
+                throw;
+            }
+
+            // Wait before retrying.
+            var response = ex.Response?.Content.ReadAsStringAsync().Result;
+            this.Logger.LogError(ex, "Retry attempt {count}.{newline}Error:{body}", this.FailureCount, Environment.NewLine, response);
+            await Task.Delay(this.Options.RetryDelayMS);
+            return await RetryRequestAsync<T>(callbackDelegate);
+        }
         catch (Exception ex)
         {
             if (this.Options.RetryLimit <= ++this.FailureCount)
@@ -114,7 +128,7 @@ public class ApiService : IApiService
             }
 
             // Wait before retrying.
-            this.Logger.LogError(ex, "Retry attempt {count}.{newline}Error:{body}", this.FailureCount, Environment.NewLine, ex.Data["Body"]);
+            this.Logger.LogError(ex, "Retry attempt {count}", this.FailureCount);
             await Task.Delay(this.Options.RetryDelayMS);
             return await RetryRequestAsync<T>(callbackDelegate);
         }
@@ -138,11 +152,11 @@ public class ApiService : IApiService
             catch (HttpClientRequestException ex)
             {
                 // If it's a concurrency error, keep trying.  Otherwise throw the error.
+                var response = ex.Response?.Content.ReadAsStringAsync().Result;
                 this.Logger.LogError(ex, "Failed to complete request.  Determining if this is a concurrency error.");
-                var data = ex.Data["Body"] as string;
-                if (!String.IsNullOrWhiteSpace(data))
+                if (!String.IsNullOrWhiteSpace(response))
                 {
-                    var json = JsonSerializer.Deserialize<API.Models.ErrorResponseModel>(data, _serializerOptions);
+                    var json = JsonSerializer.Deserialize<API.Models.ErrorResponseModel>(response, _serializerOptions);
                     if (json != null && json.Type == nameof(Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException))
                     {
                         // A concurrency error can be resolved by loading the latest and reapplying the values.

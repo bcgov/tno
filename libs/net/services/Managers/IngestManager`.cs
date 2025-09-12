@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Ches;
 using TNO.Ches.Configuration;
+using TNO.Core.Exceptions;
 using TNO.Services.Config;
 
 namespace TNO.Services.Managers;
@@ -124,7 +125,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
 
                             if (!theLatest.IsEnabled ||
                                 !theLatest.IngestSchedules.Any(d => d.Schedule?.IsEnabled == true) ||
-                                !theLatest.DataLocations.Any(d => d.Name.ToLower() == Options.DataLocation.ToLower()))
+                                !theLatest.DataLocations.Any(d => d.Name.Equals(Options.DataLocation, StringComparison.CurrentCultureIgnoreCase)))
                             {
                                 await manager.StopAsync();
                                 continue;
@@ -172,9 +173,10 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                         // Successful run clears any errors.
                         this.State.ResetFailures();
                     }
-                    catch (HttpRequestException ex)
+                    catch (HttpClientRequestException ex)
                     {
-                        this.Logger.LogError(ex, "Ingest [{name}] failed to run. This is failure [{failures}] out of [{maxFailures}] maximum retries. Response: {Data}", ingest.Name, manager.Ingest.FailedAttempts + 1, manager.Ingest.RetryLimit, ex.Data["Body"]);
+                        var response = ex.Response?.Content.ReadAsStringAsync().Result;
+                        this.Logger.LogError(ex, "Ingest [{name}] failed to run. This is failure [{failures}] out of [{maxFailures}] maximum retries. Response: {Data}", ingest.Name, manager.Ingest.FailedAttempts + 1, manager.Ingest.RetryLimit, response);
 
                         // Update ingest with failure.
                         await manager.RecordFailureAsync(ex);
