@@ -74,14 +74,20 @@ DB_VOLUME=/var/lib/pgsql/data
 ## Backup Commands
 
 ```bash
+# RSH into database backup pod
+oc -n 9b301c-test rsh db-backup-855b845cc7-zrk7t
+
+# Test connection
+psql -h postgres -U admin -d tno
+
 # Backup and zip
-pg_dump -h postgres -U admin -C -Fc -v -d tno | gzip > /mnt/data/dev.tar.gz
+pg_dump -h postgres -U admin -C -Fc -v -d tno | gzip > /backups/dev.tar.gz
+
+# Copy file to local
+oc -n 9b301c-dev rsync db-backup-855b845cc7-zrk7t:/backups/dev.tar.gz /D/db
 
 # Unzip
 gzip -dk dev.tar.gz
-
-# Copy file to local
-oc -n 9b301c-dev rsync psql-4-zdbv6:/mnt/data/dev.tar.gz /D/db
 
 # Copy file to database server
 scp -v /D/db/dev.tar.gz jerfos_a@142.34.249.231:/u02/data/postgres
