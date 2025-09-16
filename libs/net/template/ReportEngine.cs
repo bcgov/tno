@@ -448,11 +448,12 @@ public class ReportEngine : IReportEngine
                     var response = await this.HttpClient.GetAsync(url);
                     if (response.IsSuccessStatusCode)
                     {
-                        var data = await response.Content.ReadAsStringAsync();
                         if (settings.DataType?.Equals("json", StringComparison.InvariantCultureIgnoreCase) == true)
                         {
+                            // The URL points to a JSON file.
                             try
                             {
+                                var data = await response.Content.ReadAsStringAsync();
                                 var json = JsonDocument.Parse(data);
                                 if (json != null && !String.IsNullOrWhiteSpace(settings.DataProperty))
                                 {
@@ -482,8 +483,10 @@ public class ReportEngine : IReportEngine
                         }
                         else if (settings.DataType?.Equals("xml", StringComparison.InvariantCultureIgnoreCase) == true)
                         {
+                            // The URL points to an XML file.
                             try
                             {
+                                var data = await response.Content.ReadAsStringAsync();
                                 var xml = new XmlDocument();
                                 xml.LoadXml(data);
                                 if (xml != null && !String.IsNullOrWhiteSpace(settings.DataProperty))
@@ -515,8 +518,51 @@ public class ReportEngine : IReportEngine
                                 sectionData.Data = ex.GetAllMessages();
                             }
                         }
+                        else if (settings.DataType?.Equals("csv", StringComparison.InvariantCultureIgnoreCase) == true)
+                        {
+                            // The URL points to a CSV file.
+                            try
+                            {
+                                if (response.Content.Headers.ContentType?.MediaType?.Contains("text/csv") == true)
+                                {
+                                    var data = await response.Content.ReadAsStreamAsync();
+                                    using var reader = new StreamReader(data);
+                                    using var csv = new CsvHelper.CsvReader(reader, System.Globalization.CultureInfo.InvariantCulture);
+                                    var records = csv.GetRecords<dynamic>().ToList();
+                                    var dataEngineModel = new ReportEngineDataModel<dynamic>(records);
+                                    if (!String.IsNullOrWhiteSpace(settings.DataTemplate))
+                                    {
+                                        var dataTemplateKey = $"{report.Id}-{section.Id}";
+                                        var dataTemplate = this.ReportEngineData.GetOrAddTemplateInMemory(dataTemplateKey, settings.DataTemplate);
+                                        var dataHtml = await dataTemplate.RunAsync(instance =>
+                                        {
+                                            instance.Model = dataEngineModel;
+                                            instance.Data = records;
+                                        });
+                                        sectionData.Data = dataHtml;
+                                    }
+                                    else
+                                    {
+                                        sectionData.Data = JsonSerializer.Serialize(records, this.SerializerOptions);
+                                    }
+                                }
+                                else
+                                {
+                                    var data = await response.Content.ReadAsStringAsync();
+                                    sectionData.Data = data;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                this.Logger.LogError(ex, "Failed to parse CSV data from {url}", url);
+                                sectionData.Data = ex.GetAllMessages();
+                            }
+                        }
                         else
+                        {
+                            var data = await response.Content.ReadAsStringAsync();
                             sectionData.Data = data;
+                        }
                     }
                     else
                         this.Logger.LogError("Failed to fetch data from {url}, {status}", url, response.StatusCode);

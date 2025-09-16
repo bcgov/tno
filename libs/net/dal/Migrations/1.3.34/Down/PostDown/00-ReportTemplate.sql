@@ -1,4 +1,9 @@
-@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
+DO $$
+BEGIN
+
+-- Update custom report with latest template.
+UPDATE public."report_template" SET
+    "body" = '@inherits RazorEngineCore.RazorEngineTemplateBase<TNO.TemplateEngine.Models.Reports.ReportEngineContentModel>
 @using System
 @using System.Linq
 @using TNO.Entities
@@ -6,7 +11,7 @@
 @{
   var pageBreak = Settings.Sections.UsePageBreaks ? "page-break-after: always;" : "";
   var utcOffset = ReportExtensions.GetUtcOffset(System.DateTime.Now, "Pacific Standard Time");
-  var hasImages = Sections.Any(section => section.Value.SectionType == TNO.Entities.ReportSectionType.Image || section.Value.SectionType == TNO.Entities.ReportSectionType.Data);
+  var hasImages = Sections.Any(section => section.Value.SectionType == TNO.Entities.ReportSectionType.Image);
   var subscriberAppUrl = @SubscriberAppUrl?.ToString();
 }
 
@@ -46,9 +51,7 @@
     var sectionContent = section.Value.Content.ToArray();
 
     if (!section.Value.IsEnabled) continue;
-    if (sectionContent.Length == 0 && section.Value.Settings.HideEmpty
-      && section.Value.SectionType != TNO.Entities.ReportSectionType.Image
-      && section.Value.SectionType != TNO.Entities.ReportSectionType.Data) continue;
+    if (sectionContent.Length == 0 && section.Value.Settings.HideEmpty) continue;
 
     // Horizontal Chart is if this section and the next section is a Media Analytics chart.
     var horizontalCharts = section.Value.SectionType == ReportSectionType.MediaAnalytics && section.Value.Settings.Direction == "row"
@@ -358,7 +361,7 @@
     }
     else if (section.Value.SectionType == ReportSectionType.Data)
     {
-      @* DATA SECTION *@
+      @* IMAGE SECTION *@
       var alt = section.Value.Settings.Label;
       <div>
         @(section.Value.Data)
@@ -399,3 +402,7 @@
     </p>
   </div>
 </div>
+'
+WHERE "name" = 'Custom Report';
+
+END $$;
