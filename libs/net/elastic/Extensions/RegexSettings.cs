@@ -29,5 +29,8 @@ public static partial class RegexSettings
 
     [GeneratedRegex(@"(\sAND\s|\sOR\s|\sNOT\s|\s?\&\&\s?|\s?\|\|\s?|\s?[\+\-\!]\s?)", RegexOptions.IgnoreCase)]
     public static partial Regex RemoveAdvancedKeywordsRegex();
+
+    [GeneratedRegex(@"\b\w+:/(\\/|[^/])*/")]
+    public static partial Regex RemoveFieldedSearchRegex();
     #endregion
 }

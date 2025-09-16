@@ -30,6 +30,16 @@ export const ReportSectionImage = React.forwardRef<HTMLDivElement, IReportSectio
                 setFieldValue(`sections.${index}.settings.inTableOfContents`, e.target.checked);
               }}
             />
+            <FormikCheckbox
+              name={`sections.${index}.settings.cacheData`}
+              label="Cache Image"
+              tooltip="This will cache the image in MMI"
+            />
+            <FormikCheckbox
+              name={`sections.${index}.settings.convertToBase64Image`}
+              label="Convert Images to Base64"
+              tooltip="This format is not well supported by all email clients and can significantly increase the size of the report.  Use with caution."
+            />
             <Col>
               <FormikText name={`sections.${index}.settings.url`} label="URL" required />
             </Col>

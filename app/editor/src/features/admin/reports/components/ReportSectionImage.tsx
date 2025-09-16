@@ -1,5 +1,5 @@
 import { useFormikContext } from 'formik';
-import { Checkbox, Col, FormikText, FormikTextArea, IReportModel } from 'tno-core';
+import { Checkbox, Col, FormikCheckbox, FormikText, FormikTextArea, IReportModel } from 'tno-core';
 
 export interface IReportSectionImageProps {
   index: number;
@@ -36,6 +36,16 @@ export const ReportSectionImage = ({ index }: IReportSectionImageProps) => {
         onChange={(e) => {
           setFieldValue(`sections.${index}.settings.inTableOfContents`, e.target.checked);
         }}
+      />
+      <FormikCheckbox
+        name={`sections.${index}.settings.cacheData`}
+        label="Cache Image"
+        tooltip="Save a copy in MMI"
+      />
+      <FormikCheckbox
+        name={`sections.${index}.settings.convertToBase64Image`}
+        label="Convert Images to Base64"
+        tooltip="This format is not well supported by all email clients and can significantly increase the size of the report.  Use with caution."
       />
     </Col>
   );

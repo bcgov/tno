@@ -70,13 +70,13 @@ public class ReportEngineContentModel : BaseTemplateModel<IEnumerable<ContentMod
     /// <param name="reportInstance"></param>
     /// <param name="sections"></param>
     /// <param name="options"></param>
-    /// <param name="uploadPath"></param>
+    /// <param name="pathToFiles"></param>
     public ReportEngineContentModel(
         API.Areas.Services.Models.Report.ReportModel report,
         API.Areas.Services.Models.ReportInstance.ReportInstanceModel? reportInstance,
         Dictionary<string, ReportSectionModel> sections,
         Config.TemplateOptions options,
-        string? uploadPath = null)
+        string? pathToFiles = null)
         : base(Array.Empty<ContentModel>())
     {
         this.ReportId = report.Id;
@@ -93,11 +93,17 @@ public class ReportEngineContentModel : BaseTemplateModel<IEnumerable<ContentMod
         this.Content = sections.SelectMany(s => s.Value.Content).DistinctBy(c => c.Id);
 
         // Convert any images to base64 and include them in the email.
-        if (!string.IsNullOrWhiteSpace(uploadPath) && this.Content.Any())
-            sections.SelectMany(s => s.Value.Content).Where(c => c.ContentType == Entities.ContentType.Image).ForEach(c =>
+        if (!string.IsNullOrWhiteSpace(pathToFiles) && this.Content.Any())
+        {
+            sections
+                .Where(s => s.Value.Settings.ShowImage && s.Value.Settings.ConvertToBase64Image == true)
+                .SelectMany(s => s.Value.Content)
+                .Where(c => c.ContentType == Entities.ContentType.Image)
+                .ForEach(c =>
             {
-                c.ImageContent = GetImageContent(uploadPath, c.FileReferences.FirstOrDefault()?.Path);
+                c.ImageContent = ConvertImageToBase64String(pathToFiles, c.FileReferences.FirstOrDefault()?.Path);
             });
+        }
     }
     #endregion
 }

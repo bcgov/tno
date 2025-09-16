@@ -16,7 +16,7 @@ public static class StringExtensions
     static readonly Regex EndOfQuote = RegexSettings.EndOfQuoteRegex();
     static readonly Regex RemoveSimpleKeywords = RegexSettings.RemoveSimpleKeywordsRegex();
     static readonly Regex RemoveAdvancedKeywords = RegexSettings.RemoveAdvancedKeywordsRegex();
-
+    static readonly Regex RemoveFieldedSearch = RegexSettings.RemoveFieldedSearchRegex();
     #endregion
 
     #region Methods
@@ -32,12 +32,13 @@ public static class StringExtensions
         var isAdvanced = queryType == "query-string";
         var keywords = new List<string>();
         var startOfPhrase = -1;
-        var endOfPhrase = -1;
+        int endOfPhrase;
         var phrase = new StringBuilder();
 
         if (isAdvanced)
         {
-            var cleanSearch = RemoveAdvancedKeywords.Replace(search, " ");
+            var cleanSearch = RemoveFieldedSearch.Replace(search, " ");
+            cleanSearch = RemoveAdvancedKeywords.Replace(cleanSearch, " ");
             var tokens = cleanSearch.Split(" ", StringSplitOptions.RemoveEmptyEntries);
 
             // Iterate through each token to determine whether it is a keyword that should be marked.
@@ -159,13 +160,17 @@ public static class StringExtensions
 
     /// <summary>
     /// Add html mark tags to each keyword.
+    /// If markRawTag is false, we will use span with style. this is useful for email clients like Outlook.
+    /// If markRawTag is true, we will use the raw tag name.
     /// </summary>
     /// <param name="text"></param>
     /// <param name="keywords"></param>
-    /// <param name="mark"></param>
+    /// <param name="tagName"></param>
+    /// <param name="markRawTag"></param>
     /// <returns></returns>
-    public static string MarkKeywords(this string text, IEnumerable<string> keywords, string tagName = "mark")
+    public static string MarkKeywords(this string text, IEnumerable<string> keywords, string tagName = "mark", bool markRawTag = false)
     {
+        const string highlightStyle = "background-color:#fff59e;color:inherit;";
         var values = String.Join("|", keywords.Where(v => !String.IsNullOrWhiteSpace(v)));
         return Regex.Replace(text, $@"\b({values})", match =>
         {
@@ -178,7 +183,11 @@ public static class StringExtensions
             values = values.Distinct().Where(v => !String.IsNullOrWhiteSpace(v)).ToList();
             var result = String.Join("", values);
             if (values.Count != 0)
+            {
+                if (!String.IsNullOrWhiteSpace(tagName) && !markRawTag && tagName.Equals("mark", StringComparison.OrdinalIgnoreCase))
+                    return $"<span style=\"{highlightStyle}\">{result}</span>";
                 return $"<{tagName}>{result}</{tagName}>";
+            }
             return result;
         }, RegexOptions.IgnoreCase);
     }

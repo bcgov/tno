@@ -91,8 +91,8 @@ public class UserModel
             FirstName = model.FirstName,
             LastName = model.LastName,
             DisplayName = model.DisplayName,
-            Preferences = model.Preferences,
             PreferredEmail = model.PreferredEmail,
+            Preferences = model.Preferences,
         };
 
         return entity;

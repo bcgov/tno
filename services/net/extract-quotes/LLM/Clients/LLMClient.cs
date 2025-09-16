@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using TNO.Core.Exceptions;
 using TNO.Core.Http;
 using TNO.Services.ExtractQuotes.Config;
 using TNO.Services.ExtractQuotes.LLM.Models;
@@ -61,6 +62,23 @@ public class LLMClient : ILLMClient
         {
             return await callbackDelegate();
         }
+        catch (HttpClientRequestException ex)
+        {
+            // Use Interlocked.Increment for thread-safe increment and wrap-around
+            int currentFailureCount = Interlocked.Increment(ref _failureCount);
+            if (_options.RetryLimit <= currentFailureCount)
+            {
+                Interlocked.Exchange(ref _failureCount, 0); // Reset the counter
+                throw;
+            }
+
+            var response = ex.Response?.Content.ReadAsStringAsync().Result;
+            // Wait before retrying
+            _logger.LogError(ex, "LLM API retry attempt {count}.{newline}Error:{body}",
+                currentFailureCount, Environment.NewLine, response);
+            await Task.Delay(_options.RetryDelayMS);
+            return await RetryRequestAsync<T>(callbackDelegate);
+        }
         catch (Exception ex)
         {
             // Use Interlocked.Increment for thread-safe increment and wrap-around
@@ -72,8 +90,7 @@ public class LLMClient : ILLMClient
             }
 
             // Wait before retrying
-            _logger.LogError(ex, "LLM API retry attempt {count}.{newline}Error:{body}",
-                currentFailureCount, Environment.NewLine, ex.Data["Body"]);
+            _logger.LogError(ex, "LLM API retry attempt {count}.", currentFailureCount);
             await Task.Delay(_options.RetryDelayMS);
             return await RetryRequestAsync<T>(callbackDelegate);
         }

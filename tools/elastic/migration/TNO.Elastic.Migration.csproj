@@ -15,6 +15,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
     <PackageReference Include="System.CommandLine.DragonFruit" Version="0.4.0-alpha.22114.1" />
     <PackageReference Include="Elastic.Clients.Elasticsearch" Version="8.16.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
   </ItemGroup>
 
   <ItemGroup>

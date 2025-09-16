@@ -7,6 +7,7 @@ import {
   IReportInstanceModel,
   IReportModel,
   IReportResultModel,
+  IUserModel,
   sortable,
   useApiSubscriberReports,
 } from 'tno-core';
@@ -15,6 +16,7 @@ interface IReportController {
   findMyReports: (filter?: IReportFilter) => Promise<IReportModel[]>;
   findPublicReports: (filter?: IReportFilter) => Promise<IReportModel[]>;
   getReport: (id: number, includeContent?: boolean) => Promise<IReportModel | undefined>;
+  getReportOwner: (id: number) => Promise<IUserModel | undefined>;
   findInstancesForReportId: (id: number, ownerId?: number) => Promise<IReportInstanceModel[]>;
   addReport: (model: IReportModel) => Promise<IReportModel>;
   updateReport: (model: IReportModel, updateInstances?: boolean) => Promise<IReportModel>;
@@ -76,6 +78,12 @@ export const useReports = (): [IProfileState, IReportController] => {
             return result;
           });
         }
+        return response.data;
+      },
+      getReportOwner: async (id: number) => {
+        const response = await dispatch<IUserModel | undefined>('get-report-owner', () =>
+          api.getReportOwner(id),
+        );
         return response.data;
       },
       findInstancesForReportId: async (

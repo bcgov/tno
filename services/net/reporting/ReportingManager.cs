@@ -746,8 +746,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             var retry = IsRetry(request, instance);
             var subject = resend || retry ? instance!.Subject : await this.ReportEngine.GenerateReportSubjectAsync(report, instance, sectionContent, false, false);
             // We regenerate the link only email because we don't save it.  This could be an issue if the template needed content information in it.
-            var linkOnlyFormatBody = await this.ReportEngine.GenerateReportBodyAsync(report, instance, sectionContent, GetLinkedReportAsync, null, true, false);
-            var fullTextFormatBody = resend || retry ? instance!.Body : await this.ReportEngine.GenerateReportBodyAsync(report, instance, sectionContent, GetLinkedReportAsync, null, false, false);
+            var linkOnlyFormatBody = await this.ReportEngine.GenerateReportBodyAsync(report, instance, sectionContent, GetLinkedReportAsync, this.Options.ImageVolumePath, true, false);
+            var fullTextFormatBody = resend || retry ? instance!.Body : await this.ReportEngine.GenerateReportBodyAsync(report, instance, sectionContent, GetLinkedReportAsync, this.Options.ImageVolumePath, false, false);
 
             return (subject, linkOnlyFormatBody, fullTextFormatBody);
         }

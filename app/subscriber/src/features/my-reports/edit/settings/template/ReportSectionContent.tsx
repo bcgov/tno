@@ -68,6 +68,11 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
             tooltip="Display the image for each content item in this section (if there is an image)"
           />
           <FormikCheckbox
+            name={`sections.${index}.settings.convertToBase64Image`}
+            label="Convert Images to Base64"
+            tooltip="This format is not well supported by all email clients and can significantly increase the size of the report.  Use with caution."
+          />
+          <FormikCheckbox
             name={`sections.${index}.settings.showHeadlines`}
             label="Show additional Table of Content for this section"
             tooltip="Display a Table of Contents at the beginning of this section."
