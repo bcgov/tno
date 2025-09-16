@@ -1,5 +1,7 @@
 
 using System.Text.Json;
+using System.Globalization;
+using System.Text;
 using Microsoft.Extensions.Options;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
@@ -206,6 +208,8 @@ public class ReportHelper : IReportHelper
             return new ReportSectionModel(section, content, aggregations);
         });
 
+        // Apply optional title-based de-duplication per section settings.
+        ApplyTitleDeduplication(sections);
         var result = await GenerateReportAsync(model, null, sections, viewOnWebOnly, isPreview);
         result.Data = JsonDocument.Parse(JsonSerializer.Serialize(elasticResults));
         return result;
@@ -230,10 +234,84 @@ public class ReportHelper : IReportHelper
         bool viewOnWebOnly = false,
         bool isPreview = false)
     {
+        // Apply optional title-based de-duplication per section settings.
+        ApplyTitleDeduplication(sections);
         var subject = await _reportEngine.GenerateReportSubjectAsync(report, reportInstance, sections, viewOnWebOnly, isPreview);
         var body = await _reportEngine.GenerateReportBodyAsync(report, reportInstance, sections, GetLinkedReportContent, _storageOptions.GetUploadPath(), viewOnWebOnly, isPreview);
 
         return new ReportResultModel() { ReportId = report.Id, InstanceId = reportInstance?.Id, Subject = subject, Body = body };
+    }
+
+    /// <summary>
+    /// When a section has Settings.RemoveDuplicateTitles enabled, remove items whose headline
+    /// duplicates another story's headline in the overall report, keeping only the earliest story.
+    /// Earliest is determined by PublishedOn, then PostedOn, then SortOrder as tie-breaker.
+    /// </summary>
+    /// <param name="sections">Sections keyed by name.</param>
+    private static void ApplyTitleDeduplication(Dictionary<string, ReportSectionModel> sections)
+    {
+        if (sections == null || sections.Count == 0) return;
+
+        // Build a map of normalized headline -> earliest content item (by PublishedOn/PostedOn/SortOrder)
+        var earliestByTitle = new Dictionary<string, ContentModel>(StringComparer.Ordinal);
+
+        DateTime MinDate = DateTime.MinValue;
+        foreach (var section in sections.Values)
+        {
+            foreach (var item in section.Content)
+            {
+                var title = (item?.Headline ?? "").Trim();
+                var key = NormalizeTitle(title);
+                if (string.IsNullOrWhiteSpace(key)) continue;
+                var ts = item.PublishedOn ?? item.PostedOn ?? MinDate.AddSeconds(item.SortOrder);
+                if (!earliestByTitle.TryGetValue(key, out var existing))
+                {
+                    earliestByTitle[key] = item;
+                }
+                else
+                {
+                    var existingTs = existing.PublishedOn ?? existing.PostedOn ?? MinDate.AddSeconds(existing.SortOrder);
+                    if (ts < existingTs) earliestByTitle[key] = item;
+                }
+            }
+        }
+
+        // Now filter sections that have RemoveDuplicateTitles enabled
+        foreach (var section in sections.Values)
+        {
+            if (!section.Settings.RemoveDuplicateTitles || section.SectionType != TNO.Entities.ReportSectionType.Content) continue;
+
+            var filtered = section.Content.Where(item =>
+            {
+                var key = NormalizeTitle(item?.Headline ?? "");
+                if (string.IsNullOrWhiteSpace(key)) return true; // nothing to dedupe
+                if (!earliestByTitle.TryGetValue(key, out var earliest)) return true; // no dup group
+                return item.Id == earliest.Id; // keep only earliest occurrence; drop others
+            }).ToArray();
+
+            section.Content = filtered;
+        }
+    }
+
+    /// <summary>
+    /// Normalize a title for duplicate comparison:
+    /// - trim
+    /// - lowercase (invariant)
+    /// - remove diacritics
+    /// - remove all non-letter/digit characters (ignore punctuation/whitespace)
+    /// </summary>
+    private static string NormalizeTitle(string title)
+    {
+        if (string.IsNullOrWhiteSpace(title)) return string.Empty;
+        var t = title.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormD);
+        var sb = new StringBuilder(t.Length);
+        foreach (var ch in t)
+        {
+            var uc = CharUnicodeInfo.GetUnicodeCategory(ch);
+            if (uc == UnicodeCategory.NonSpacingMark) continue; // strip diacritics
+            if (char.IsLetterOrDigit(ch)) sb.Append(ch);
+        }
+        return sb.ToString();
     }
 
     #region AV Overview
