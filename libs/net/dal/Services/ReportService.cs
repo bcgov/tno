@@ -684,6 +684,82 @@ public class ReportService : BaseService<Report, int>, IReportService
     }
 
     /// <summary>
+    /// Fast path to add content to an existing report instance without triggering a full graph update.
+    /// Only inserts new ReportInstanceContent rows for the current instance and valid sections.
+    /// If no instance exists it will generate a new instance first.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    public async Task<Report?> FastAddContentToReportAsync(int id, int? ownerId, IEnumerable<ReportInstanceContent> content)
+    {
+        var report = FindById(id) ?? throw new NoContentException("Report does not exist");
+        var instance = GetCurrentReportInstance(id, ownerId);
+
+        if (instance == null)
+        {
+            // Reuse existing logic to create an instance; this avoids re-implementing initialization rules.
+            instance = await GenerateReportInstanceAsync(id, ownerId);
+            // Refresh to get instance.Id and avoid tracking issues.
+            instance = GetCurrentReportInstance(id, ownerId) ?? instance;
+        }
+
+        // Validate sections against report definition and normalize inputs.
+        var validSections = report.Sections.Select(s => s.Name).ToHashSet();
+        var additions = content
+            .Where(c => validSections.Contains(c.SectionName))
+            .Select(c => new ReportInstanceContent(instance.Id, c.ContentId, c.SectionName, c.SortOrder))
+            .ToList();
+
+        if (!additions.Any()) return report;
+
+        // Filter out duplicates already in the instance (only among relevant sections/content IDs).
+        var newContentIds = additions.Select(a => a.ContentId).Distinct().ToArray();
+        var newSections = additions.Select(a => a.SectionName).Distinct().ToArray();
+
+        var existingKeys = this.Context.ReportInstanceContents
+            .AsNoTracking()
+            .Where(ric => ric.InstanceId == instance.Id && newContentIds.Contains(ric.ContentId) && newSections.Contains(ric.SectionName))
+            .Select(ric => new { ric.ContentId, ric.SectionName })
+            .ToArray()
+            .Select(x => (x.ContentId, x.SectionName))
+            .ToHashSet();
+
+        additions = additions
+            .Where(a => !existingKeys.Contains((a.ContentId, a.SectionName)))
+            .ToList();
+
+        if (!additions.Any()) return report;
+
+        // Compute start sort orders per section for appending.
+        var maxSortPerSection = this.Context.ReportInstanceContents
+            .AsNoTracking()
+            .Where(ric => ric.InstanceId == instance.Id && newSections.Contains(ric.SectionName))
+            .GroupBy(ric => ric.SectionName)
+            .Select(g => new { SectionName = g.Key, Max = (int?)g.Max(x => x.SortOrder) ?? 0 })
+            .ToDictionary(x => x.SectionName, x => x.Max);
+
+        foreach (var group in additions.GroupBy(a => a.SectionName))
+        {
+            var start = maxSortPerSection.TryGetValue(group.Key, out var max) ? max + 1 : 0;
+            var i = 0;
+            foreach (var a in group.OrderBy(a => a.SortOrder))
+            {
+                a.SortOrder = start + i++;
+                // Ensure navigation properties aren't causing EF to pull full graphs.
+                a.Content = null;
+                a.Instance = null;
+            }
+        }
+
+        this.Context.ReportInstanceContents.AddRange(additions);
+        this.CommitTransaction();
+
+        return report;
+    }
+
+    /// <summary>
     /// Get the latest instances for the specified report 'id' and 'ownerId'.
     /// </summary>
     /// <param name="id"></param>

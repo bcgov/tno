@@ -101,7 +101,7 @@ export const useApiSubscriberReports = (
     },
     addContentToReport: (reportId: number, content: IReportInstanceContentModel[]) => {
       return api.post<never, AxiosResponse<IReportModel>, any>(
-        `/subscriber/reports/${reportId}/content`,
+        `/subscriber/reports/${reportId}/content/fast`,
         content,
       );
     },

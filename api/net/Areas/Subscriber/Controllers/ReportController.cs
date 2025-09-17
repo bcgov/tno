@@ -496,6 +496,55 @@ public class ReportController : ControllerBase
     }
 
     /// <summary>
+    /// Fast path: Add specified content to the current report instance with minimal DB updates.
+    /// Avoids full instance graph merges for large reports.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    /// <exception cref="NotAuthorizedException"></exception>
+    /// <exception cref="NoContentException"></exception>
+    [HttpPost("{id}/content/fast")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public async Task<IActionResult> FastAddContentToReportAsync(int id, [FromBody] IEnumerable<ReportInstanceContentModel> content)
+    {
+        var user = _impersonate.GetCurrentUser();
+        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
+        if (report.OwnerId != user.Id &&
+            !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&
+            !report.IsPublic) throw new NotAuthorizedException("Not authorized to review this report");
+
+        var addContent = content.Select(c => (Entities.ReportInstanceContent)c);
+        if (addContent.Any())
+        {
+            var result = await _reportService.FastAddContentToReportAsync(id, user.Id, addContent) ?? throw new NoContentException("Report does not exist");
+
+            var instances = _reportService.GetLatestInstances(id, user.Id);
+            var currentInstance = instances.FirstOrDefault() ?? throw new InvalidOperationException("Unable to add content to a report without an instance");
+            currentInstance.ContentManyToMany.Clear();
+            currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
+            result.Instances.Clear();
+            result.Instances.AddRange(instances);
+
+            var ownerId = result.OwnerId ?? currentInstance.OwnerId;
+            if (ownerId.HasValue)
+            {
+                user = _userService.FindByIdMinimal(ownerId.Value) ?? throw new NotAuthorizedException();
+                await _kafkaMessenger.SendMessageAsync(
+                    _kafkaHubOptions.HubTopic,
+                    new KafkaHubMessage(HubEvent.SendUser, user.Username, new KafkaInvocationMessage(MessageTarget.ReportStatus, new[] { new ReportMessageModel(currentInstance) }))
+                );
+            }
+            return new JsonResult(new ReportModel(result, _serializerOptions));
+        }
+
+        return new JsonResult(new ReportModel(report, _serializerOptions));
+    }
+
+    /// <summary>
     /// Find all content currently in any of 'my' reports current instances.
     /// </summary>
     /// <returns></returns>

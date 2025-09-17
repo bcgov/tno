@@ -84,6 +84,17 @@ public interface IReportService : IBaseService<Report, int>
     Task<Report?> AddContentToReportAsync(int id, int? ownerId, IEnumerable<ReportInstanceContent> content);
 
     /// <summary>
+    /// Fast path to add the specified 'content' to the specified report 'id' by inserting only new
+    /// ReportInstanceContent rows without updating the full instance graph.
+    /// Intended for large reports where graph merges are expensive.
+    /// </summary>
+    /// <param name="id">Report ID</param>
+    /// <param name="ownerId">Owner of the current instance</param>
+    /// <param name="content">ReportInstanceContent items to add</param>
+    /// <returns>The updated report</returns>
+    Task<Report?> FastAddContentToReportAsync(int id, int? ownerId, IEnumerable<ReportInstanceContent> content);
+
+    /// <summary>
     /// Get the current instance for the specified report 'id'.
     /// </summary>
     /// <param name="id"></param>
