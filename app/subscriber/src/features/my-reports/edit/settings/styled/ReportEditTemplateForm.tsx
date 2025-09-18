@@ -131,4 +131,10 @@ export const ReportEditTemplateForm = styled.div`
       z-index: 1000;
     }
   }
+
+  .data-template-editor {
+    border: solid 1px lightgrey;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+  }
 `;
