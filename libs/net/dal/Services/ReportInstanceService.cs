@@ -104,6 +104,28 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
     }
 
     /// <summary>
+    /// Lightweight variant that fetches core content details without expensive navigation graphs.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public IEnumerable<ReportInstanceContent> GetContentForInstanceBasic(long id)
+    {
+        return this.Context.ReportInstanceContents
+            .AsNoTracking()
+            .Include(cm2m => cm2m.Content)
+                .ThenInclude(c => c!.Source)
+            .Include(cm2m => cm2m.Content)
+                .ThenInclude(c => c!.MediaType)
+            .Include(cm2m => cm2m.Content)
+                .ThenInclude(c => c!.Series)
+            .Include(cm2m => cm2m.Content)
+                .ThenInclude(c => c!.Contributor)
+            .Where(ric => ric.InstanceId == id)
+            .OrderBy(ric => ric.SortOrder)
+            .ToArray();
+    }
+
+    /// <summary>
     /// Add the new report instance to the context, but do not save to the database yet.
     /// </summary>
     /// <param name="entity"></param>

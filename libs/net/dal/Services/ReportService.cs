@@ -695,14 +695,14 @@ public class ReportService : BaseService<Report, int>, IReportService
     public async Task<Report?> FastAddContentToReportAsync(int id, int? ownerId, IEnumerable<ReportInstanceContent> content)
     {
         var report = FindById(id) ?? throw new NoContentException("Report does not exist");
-        var instance = GetCurrentReportInstance(id, ownerId);
+        var instance = GetCurrentReportInstanceMetadata(id, ownerId);
 
         if (instance == null)
         {
             // Reuse existing logic to create an instance; this avoids re-implementing initialization rules.
             instance = await GenerateReportInstanceAsync(id, ownerId);
             // Refresh to get instance.Id and avoid tracking issues.
-            instance = GetCurrentReportInstance(id, ownerId) ?? instance;
+            instance = GetCurrentReportInstanceMetadata(id, ownerId) ?? instance;
         }
 
         // Validate sections against report definition and normalize inputs.
@@ -718,13 +718,7 @@ public class ReportService : BaseService<Report, int>, IReportService
         var newContentIds = additions.Select(a => a.ContentId).Distinct().ToArray();
         var newSections = additions.Select(a => a.SectionName).Distinct().ToArray();
 
-        var existingKeys = this.Context.ReportInstanceContents
-            .AsNoTracking()
-            .Where(ric => ric.InstanceId == instance.Id && newContentIds.Contains(ric.ContentId) && newSections.Contains(ric.SectionName))
-            .Select(ric => new { ric.ContentId, ric.SectionName })
-            .ToArray()
-            .Select(x => (x.ContentId, x.SectionName))
-            .ToHashSet();
+        var existingKeys = GetInstanceContentKeys(instance.Id, newContentIds, newSections);
 
         additions = additions
             .Where(a => !existingKeys.Contains((a.ContentId, a.SectionName)))
@@ -810,6 +804,81 @@ public class ReportService : BaseService<Report, int>, IReportService
             query = query.Include(i => i.ContentManyToMany);
 
         return query.OrderByDescending(i => i.Id).FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Lightweight lookup for the latest report instance metadata without loading navigation properties.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="ownerId"></param>
+    /// <returns></returns>
+    private ReportInstance? GetCurrentReportInstanceMetadata(int id, int? ownerId = null)
+    {
+        var query = this.Context.ReportInstances
+            .AsNoTracking()
+            .Where(i => i.ReportId == id);
+
+        if (ownerId.HasValue)
+            query = query.Where(ri => ri.OwnerId == ownerId);
+
+        var instance = query
+            .OrderByDescending(i => i.Id)
+            .Select(ri => new
+            {
+                ri.Id,
+                ri.ReportId,
+                ri.OwnerId,
+                ri.Status,
+                ri.PublishedOn,
+                ri.SentOn,
+                ri.Subject,
+                ri.Body,
+                ri.Response,
+                ri.CreatedOn,
+                ri.CreatedBy,
+                ri.UpdatedOn,
+                ri.UpdatedBy,
+                ri.Version,
+            })
+            .FirstOrDefault();
+
+        if (instance == null) return null;
+
+        var result = new ReportInstance(instance.Id, instance.ReportId, instance.OwnerId);
+        result.Status = instance.Status;
+        result.PublishedOn = instance.PublishedOn;
+        result.SentOn = instance.SentOn;
+        result.Subject = instance.Subject;
+        result.Body = instance.Body;
+        result.Response = instance.Response;
+        result.CreatedOn = instance.CreatedOn;
+        result.CreatedBy = instance.CreatedBy;
+        result.UpdatedOn = instance.UpdatedOn;
+        result.UpdatedBy = instance.UpdatedBy;
+        result.Version = instance.Version;
+        return result;
+    }
+
+    /// <summary>
+    /// Fetch existing content keys for the specified instance using a single lightweight query.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="contentIds"></param>
+    /// <param name="sectionNames"></param>
+    /// <returns></returns>
+    private HashSet<(long ContentId, string SectionName)> GetInstanceContentKeys(long instanceId, IEnumerable<long> contentIds, IEnumerable<string> sectionNames)
+    {
+        var idArray = contentIds?.Distinct().ToArray() ?? Array.Empty<long>();
+        var sectionArray = sectionNames?.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToArray() ?? Array.Empty<string>();
+        if (idArray.Length == 0 || sectionArray.Length == 0) return new HashSet<(long, string)>();
+
+        return this.Context.ReportInstanceContents
+            .AsNoTracking()
+            .Where(ric => ric.InstanceId == instanceId && idArray.Contains(ric.ContentId) && sectionArray.Contains(ric.SectionName))
+            .Select(ric => new { ric.ContentId, ric.SectionName })
+            .ToArray()
+            .Select(x => (x.ContentId, x.SectionName))
+            .ToHashSet();
     }
 
     /// <summary>
