@@ -358,9 +358,8 @@ public class ReportController : ControllerBase
     {
         var user = _impersonate.GetCurrentUser();
         var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
-        if (report.OwnerId != user.Id)
-            throw new NotAuthorizedException("Not authorized to modify this report");
-
+        if (report.OwnerId != user.Id &&
+            !report.IsPublic) throw new NotAuthorizedException("Not authorized to modify this report");
         var instances = _reportService.GetLatestInstances(id, user.Id);
         var currentInstance = instances.FirstOrDefault();
         if (currentInstance == null)
@@ -433,9 +432,8 @@ public class ReportController : ControllerBase
     {
         var user = _impersonate.GetCurrentUser();
         var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
-        if (report.OwnerId != user.Id)
-            throw new NotAuthorizedException("Not authorized to modify this report");
-
+        if (report.OwnerId != user.Id &&
+            !report.IsPublic) throw new NotAuthorizedException("Not authorized to modify this report");
         var instance = await _reportService.RegenerateReportInstanceSectionAsync(id, sectionId, user.Id);
         _reportInstanceService.ClearChangeTracker();
         instance = _reportInstanceService.UpdateAndSave(instance, true);
@@ -462,9 +460,8 @@ public class ReportController : ControllerBase
     {
         var user = _impersonate.GetCurrentUser();
         var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
-        if (report.OwnerId != user.Id)
-            throw new NotAuthorizedException("Not authorized to modify this report");
-
+        if (report.OwnerId != user.Id &&
+            !report.IsPublic) throw new NotAuthorizedException("Not authorized to modify this report");
         var addContent = content.Select((c) => (Entities.ReportInstanceContent)c);
         if (addContent.Any())
         {
@@ -510,9 +507,8 @@ public class ReportController : ControllerBase
     {
         var user = _impersonate.GetCurrentUser();
         var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
-        if (report.OwnerId != user.Id)
-            throw new NotAuthorizedException("Not authorized to modify this report");
-
+        if (report.OwnerId != user.Id &&
+            !report.IsPublic) throw new NotAuthorizedException("Not authorized to modify this report");
         var addContent = content.Select(c => (Entities.ReportInstanceContent)c);
         if (addContent.Any())
         {
