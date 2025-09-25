@@ -1,7 +1,6 @@
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using TNO.DAL.Models;
 using TNO.Entities;
 
 namespace TNO.API.Areas.Subscriber.Models.Report;
@@ -23,24 +22,5 @@ public class ReportContentMutationModel
     public string? Response { get; set; }
     public IEnumerable<ReportInstanceContentModel> Added { get; set; } = Enumerable.Empty<ReportInstanceContentModel>();
     public bool InstanceCreated { get; set; }
-    #endregion
-
-    #region Constructors
-    public ReportContentMutationModel() { }
-
-    public ReportContentMutationModel(ReportContentMutation mutation)
-    {
-        ReportId = mutation.ReportId;
-        InstanceId = mutation.Instance.Id;
-        OwnerId = mutation.Instance.OwnerId;
-        Status = mutation.Instance.Status;
-        PublishedOn = mutation.Instance.PublishedOn;
-        SentOn = mutation.Instance.SentOn;
-        Subject = mutation.Instance.Subject;
-        Body = mutation.Instance.Body;
-        Response = mutation.Instance.Response;
-        Added = mutation.Added.Select(c => new ReportInstanceContentModel(c)).ToArray();
-        InstanceCreated = mutation.InstanceCreated;
-    }
     #endregion
 }

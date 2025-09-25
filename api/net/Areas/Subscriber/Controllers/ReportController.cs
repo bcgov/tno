@@ -539,23 +539,22 @@ public class ReportController : ControllerBase
             );
         }
 
-        return new JsonResult(new ReportContentMutationModel(mutation));
-    }
+        var mutationModel = new ReportContentMutationModel
+        {
+            ReportId = mutation.ReportId,
+            InstanceId = mutation.Instance.Id,
+            OwnerId = mutation.Instance.OwnerId,
+            Status = mutation.Instance.Status,
+            PublishedOn = mutation.Instance.PublishedOn,
+            SentOn = mutation.Instance.SentOn,
+            Subject = mutation.Instance.Subject,
+            Body = mutation.Instance.Body,
+            Response = mutation.Instance.Response,
+            Added = mutation.Added.Select(c => new ReportInstanceContentModel(c)).ToArray(),
+            InstanceCreated = mutation.InstanceCreated
+        };
 
-    /// <summary>
-    /// Find all content currently in any of 'my' reports current instances.
-    /// </summary>
-    /// <returns></returns>
-    /// <exception cref="NotAuthorizedException"></exception>
-    [HttpGet("all-content")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(Dictionary<int, long[]>), (int)HttpStatusCode.OK)]
-    [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult GetAllContentInMyReports()
-    {
-        var user = _impersonate.GetCurrentUser();
-        var result = _reportService.GetAllContentInMyReports(user.Id);
-        return new JsonResult(result);
+        return new JsonResult(mutationModel);
     }
 
     /// <summary>

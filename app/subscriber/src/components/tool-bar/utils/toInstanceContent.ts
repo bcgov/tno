@@ -1,6 +1,9 @@
 import { IContentModel, IReportInstanceContentModel } from 'tno-core';
 
-export type MinimalReportInstanceContent = Pick<IReportInstanceContentModel, 'instanceId' | 'contentId' | 'sectionName' | 'sortOrder'>;
+export type MinimalReportInstanceContent = Pick<
+  IReportInstanceContentModel,
+  'instanceId' | 'contentId' | 'sectionName' | 'sortOrder'
+>;
 
 /**
  * Converts an array of content to an array of report instance content.

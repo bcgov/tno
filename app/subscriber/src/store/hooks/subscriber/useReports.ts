@@ -7,12 +7,11 @@ import {
   IReportInstanceModel,
   IReportModel,
   IReportResultModel,
-  ReportStatusName,
   IUserModel,
+  ReportStatusName,
   sortable,
   useApiSubscriberReports,
 } from 'tno-core';
-
 
 export interface IReportContentMutationModel {
   reportId: number;
@@ -53,8 +52,10 @@ const mergeInstanceContent = (
   });
   const merged = Array.from(byKey.values());
   merged.sort((a, b) => {
-    const sectionIndexA = sectionOrder[a.sectionName?.toLowerCase() ?? ''] ?? Number.MAX_SAFE_INTEGER;
-    const sectionIndexB = sectionOrder[b.sectionName?.toLowerCase() ?? ''] ?? Number.MAX_SAFE_INTEGER;
+    const sectionIndexA =
+      sectionOrder[a.sectionName?.toLowerCase() ?? ''] ?? Number.MAX_SAFE_INTEGER;
+    const sectionIndexB =
+      sectionOrder[b.sectionName?.toLowerCase() ?? ''] ?? Number.MAX_SAFE_INTEGER;
     if (sectionIndexA === sectionIndexB) return a.sortOrder - b.sortOrder;
     return sectionIndexA - sectionIndexB;
   });
@@ -91,7 +92,7 @@ const mergeReportWithContentMutation = (
   const instanceIndex = instances.findIndex((instance) => instance.id === mutation.instanceId);
 
   if (instanceIndex === -1) {
-    if (!(mutation.added?.length)) return report;
+    if (!mutation.added?.length) return report;
     const newInstance = createInstanceFromMutation(report, mutation, sectionOrder);
     const nextInstances = mutation.instanceCreated
       ? [newInstance, ...instances]
@@ -129,7 +130,10 @@ interface IReportController {
   previewReport: (id: number) => Promise<IReportResultModel>;
   generateReport: (id: number, regenerate?: boolean) => Promise<IReportModel>;
   regenerateSection: (id: number, sectionId: number) => Promise<IReportInstanceModel>;
-  addContentToReport: (id: number, content: IReportInstanceContentModel[]) => Promise<IReportContentMutationModel | undefined>;
+  addContentToReport: (
+    id: number,
+    content: IReportInstanceContentModel[],
+  ) => Promise<IReportContentMutationModel | undefined>;
   getAllContentInMyReports: () => Promise<{ [reportId: number]: number[] }>;
   RequestToSubscribe: (id: number, email: string) => void;
   RequestToUnsubscribe: (id: number, email: string) => void;
@@ -325,7 +329,10 @@ export const useReports = (): [IProfileState, IReportController] => {
         );
         const mutation = response.data as unknown as IReportContentMutationModel | undefined;
         if (response.status === 200 && mutation) {
-          const addedIds = mutation.added?.map((contentItem: IReportInstanceContentModel) => contentItem.contentId) ?? [];
+          const addedIds =
+            mutation.added?.map(
+              (contentItem: IReportInstanceContentModel) => contentItem.contentId,
+            ) ?? [];
           if (addedIds.length) {
             storeReportContent((reports) => {
               const existing = reports[id] ?? [];
