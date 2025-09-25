@@ -1,4 +1,5 @@
 
+using System.Linq;
 using System.Net;
 using System.Net.Mime;
 using System.Text;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
+using TNO.Models.Filters;
 using TNO.API.Areas.Subscriber.Models.Report;
 using TNO.API.Config;
 using TNO.API.Helpers;
@@ -162,7 +164,6 @@ public class ReportController : ControllerBase
     /// <returns></returns>
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult FindById(int id, bool includeContent = false)
@@ -333,7 +334,7 @@ public class ReportController : ControllerBase
     public async Task<IActionResult> Preview(int id)
     {
         var user = _impersonate.GetCurrentUser();
-        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
+        var report = _reportService.Find(new ReportFilter { Ids = new[] { id } }, false).FirstOrDefault() ?? throw new NoContentException("Report does not exist");
         if (report.OwnerId != user.Id && // User does not own the report
             !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to preview this report"); // Report is not public
@@ -357,7 +358,7 @@ public class ReportController : ControllerBase
     public async Task<IActionResult> Generate(int id, [FromQuery] bool regenerate = false)
     {
         var user = _impersonate.GetCurrentUser();
-        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
+        var report = _reportService.Find(new ReportFilter { Ids = new[] { id } }, false).FirstOrDefault() ?? throw new NoContentException("Report does not exist");
         if (report.OwnerId != user.Id &&
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to modify this report");
         var instances = _reportService.GetLatestInstances(id, user.Id);
@@ -431,7 +432,7 @@ public class ReportController : ControllerBase
     public async Task<IActionResult> RegenerateSection(int id, int sectionId)
     {
         var user = _impersonate.GetCurrentUser();
-        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
+        var report = _reportService.Find(new ReportFilter { Ids = new[] { id } }, false).FirstOrDefault() ?? throw new NoContentException("Report does not exist");
         if (report.OwnerId != user.Id &&
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to modify this report");
         var instance = await _reportService.RegenerateReportInstanceSectionAsync(id, sectionId, user.Id);
@@ -459,7 +460,7 @@ public class ReportController : ControllerBase
     public async Task<IActionResult> AddContentToReportAsync(int id, [FromBody] IEnumerable<ReportInstanceContentModel> content)
     {
         var user = _impersonate.GetCurrentUser();
-        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
+        var report = _reportService.Find(new ReportFilter { Ids = new[] { id } }, false).FirstOrDefault() ?? throw new NoContentException("Report does not exist");
         if (report.OwnerId != user.Id &&
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to modify this report");
         var addContent = content.Select((c) => (Entities.ReportInstanceContent)c);
@@ -500,40 +501,45 @@ public class ReportController : ControllerBase
     /// <exception cref="NoContentException"></exception>
     [HttpPost("{id}/content/fast")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ReportContentMutationModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> FastAddContentToReportAsync(int id, [FromBody] IEnumerable<ReportInstanceContentModel> content)
     {
         var user = _impersonate.GetCurrentUser();
-        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
+        var report = _reportService.Find(new ReportFilter { Ids = new[] { id } }, false).FirstOrDefault() ?? throw new NoContentException("Report does not exist");
         if (report.OwnerId != user.Id &&
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to modify this report");
         var addContent = content.Select(c => (Entities.ReportInstanceContent)c);
-        if (addContent.Any())
+        if (!addContent.Any())
         {
-            var result = await _reportService.FastAddContentToReportAsync(id, user.Id, addContent) ?? throw new NoContentException("Report does not exist");
-
-            var instances = _reportService.GetLatestInstances(id, user.Id);
-            var currentInstance = instances.FirstOrDefault() ?? throw new InvalidOperationException("Unable to add content to a report without an instance");
-            currentInstance.ContentManyToMany.Clear();
-            currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstanceBasic(currentInstance.Id));
-            result.Instances.Clear();
-            result.Instances.AddRange(instances);
-
-            var ownerId = result.OwnerId ?? currentInstance.OwnerId;
-            if (ownerId.HasValue)
+            return new JsonResult(new ReportContentMutationModel
             {
-                user = _userService.FindByIdMinimal(ownerId.Value) ?? throw new NotAuthorizedException();
-                await _kafkaMessenger.SendMessageAsync(
-                    _kafkaHubOptions.HubTopic,
-                    new KafkaHubMessage(HubEvent.SendUser, user.Username, new KafkaInvocationMessage(MessageTarget.ReportStatus, new[] { new ReportMessageModel(currentInstance) }))
-                );
-            }
-            return new JsonResult(new ReportModel(result, _serializerOptions));
+                ReportId = id,
+                InstanceId = 0,
+                OwnerId = report.OwnerId,
+                Status = ReportStatus.Pending,
+                Added = System.Array.Empty<ReportInstanceContentModel>(),
+                InstanceCreated = false
+            });
         }
 
-        return new JsonResult(new ReportModel(report, _serializerOptions));
+        var mutation = await _reportService.FastAddContentToReportAsync(id, user.Id, addContent) ?? throw new NoContentException("Report does not exist");
+
+        var ownerId = mutation.Instance.OwnerId ?? report.OwnerId;
+        if (ownerId.HasValue)
+        {
+            var owner = _userService.FindByIdMinimal(ownerId.Value) ?? throw new NotAuthorizedException();
+            await _kafkaMessenger.SendMessageAsync(
+                _kafkaHubOptions.HubTopic,
+                new KafkaHubMessage(
+                    HubEvent.SendUser,
+                    owner.Username,
+                    new KafkaInvocationMessage(MessageTarget.ReportStatus, new[] { new ReportMessageModel(mutation.Instance) }))
+            );
+        }
+
+        return new JsonResult(new ReportContentMutationModel(mutation));
     }
 
     /// <summary>
@@ -565,7 +571,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> RequestSubscription(int id, string applicantEmail)
     {
-        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
+        var report = _reportService.Find(new ReportFilter { Ids = new[] { id } }, false).FirstOrDefault() ?? throw new NoContentException("Report does not exist");
         var user = _userService.FindByEmail(applicantEmail).FirstOrDefault() ?? throw new InvalidOperationException("User does not exist");
         var isSubscribed = report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id);
         if (isSubscribed)
@@ -628,7 +634,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> RequestUnsubscription(int id, string applicantEmail)
     {
-        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
+        var report = _reportService.Find(new ReportFilter { Ids = new[] { id } }, false).FirstOrDefault() ?? throw new NoContentException("Report does not exist");
 
         var user = _userService.FindByEmail(applicantEmail).FirstOrDefault() ?? throw new InvalidOperationException("User does not exist");
         var isSubscribed = report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id);

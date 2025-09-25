@@ -1,3 +1,4 @@
+using TNO.DAL.Models;
 using TNO.Entities;
 using TNO.Models.Filters;
 
@@ -92,7 +93,7 @@ public interface IReportService : IBaseService<Report, int>
     /// <param name="ownerId">Owner of the current instance</param>
     /// <param name="content">ReportInstanceContent items to add</param>
     /// <returns>The updated report</returns>
-    Task<Report?> FastAddContentToReportAsync(int id, int? ownerId, IEnumerable<ReportInstanceContent> content);
+    Task<ReportContentMutation?> FastAddContentToReportAsync(int id, int? ownerId, IEnumerable<ReportInstanceContent> content);
 
     /// <summary>
     /// Get the current instance for the specified report 'id'.
