@@ -1,6 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using TNO.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -692,29 +696,31 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// <param name="ownerId"></param>
     /// <param name="content"></param>
     /// <returns></returns>
-    public async Task<Report?> FastAddContentToReportAsync(int id, int? ownerId, IEnumerable<ReportInstanceContent> content)
+    public async Task<ReportContentMutation?> FastAddContentToReportAsync(int id, int? ownerId, IEnumerable<ReportInstanceContent> content)
     {
-        var report = FindById(id) ?? throw new NoContentException("Report does not exist");
-        var instance = GetCurrentReportInstanceMetadata(id, ownerId);
+        if (!this.Context.Reports.AsNoTracking().Any(r => r.Id == id))
+            throw new NoContentException("Report does not exist");
 
-        if (instance == null)
+        var validSections = GetReportSectionNames(id);
+
+        var instance = GetCurrentReportInstanceMetadata(id, ownerId);
+        var instanceCreated = false;
+
+        if (instance == null || IsInstanceLocked(instance))
         {
-            // Reuse existing logic to create an instance; this avoids re-implementing initialization rules.
-            instance = await GenerateReportInstanceAsync(id, ownerId);
-            // Refresh to get instance.Id and avoid tracking issues.
+            instance = await GenerateReportInstanceAsync(id, ownerId, null, true);
             instance = GetCurrentReportInstanceMetadata(id, ownerId) ?? instance;
+            instanceCreated = true;
         }
 
-        // Validate sections against report definition and normalize inputs.
-        var validSections = report.Sections.Select(s => s.Name).ToHashSet();
         var additions = content
-            .Where(c => validSections.Contains(c.SectionName))
+            .Where(c => !string.IsNullOrWhiteSpace(c.SectionName) && validSections.Contains(c.SectionName))
             .Select(c => new ReportInstanceContent(instance.Id, c.ContentId, c.SectionName, c.SortOrder))
             .ToList();
 
-        if (!additions.Any()) return report;
+        if (!additions.Any())
+            return new ReportContentMutation(id, instance, Array.Empty<ReportInstanceContent>(), instanceCreated);
 
-        // Filter out duplicates already in the instance (only among relevant sections/content IDs).
         var newContentIds = additions.Select(a => a.ContentId).Distinct().ToArray();
         var newSections = additions.Select(a => a.SectionName).Distinct().ToArray();
 
@@ -724,9 +730,9 @@ public class ReportService : BaseService<Report, int>, IReportService
             .Where(a => !existingKeys.Contains((a.ContentId, a.SectionName)))
             .ToList();
 
-        if (!additions.Any()) return report;
+        if (!additions.Any())
+            return new ReportContentMutation(id, instance, Array.Empty<ReportInstanceContent>(), instanceCreated);
 
-        // Compute start sort orders per section for appending.
         var maxSortPerSection = this.Context.ReportInstanceContents
             .AsNoTracking()
             .Where(ric => ric.InstanceId == instance.Id && newSections.Contains(ric.SectionName))
@@ -737,20 +743,20 @@ public class ReportService : BaseService<Report, int>, IReportService
         foreach (var group in additions.GroupBy(a => a.SectionName))
         {
             var start = maxSortPerSection.TryGetValue(group.Key, out var max) ? max + 1 : 0;
-            var i = 0;
-            foreach (var a in group.OrderBy(a => a.SortOrder))
+            var offset = 0;
+            foreach (var addition in group.OrderBy(a => a.SortOrder))
             {
-                a.SortOrder = start + i++;
-                // Ensure navigation properties aren't causing EF to pull full graphs.
-                a.Content = null;
-                a.Instance = null;
+                addition.SortOrder = start + offset++;
+                addition.Content = null;
+                addition.Instance = null;
             }
         }
 
         this.Context.ReportInstanceContents.AddRange(additions);
         this.CommitTransaction();
 
-        return report;
+        var appended = additions.ToArray();
+        return new ReportContentMutation(id, instance, appended, instanceCreated);
     }
 
     /// <summary>
@@ -879,6 +885,19 @@ public class ReportService : BaseService<Report, int>, IReportService
             .ToArray()
             .Select(x => (x.ContentId, x.SectionName))
             .ToHashSet();
+    }
+    private static bool IsInstanceLocked(ReportInstance instance)
+    {
+        return instance.Status >= ReportStatus.Accepted && instance.Status != ReportStatus.Reopen;
+    }
+
+    private HashSet<string> GetReportSectionNames(int reportId)
+    {
+        return this.Context.ReportSections
+            .AsNoTracking()
+            .Where(rs => rs.ReportId == reportId)
+            .Select(rs => rs.Name)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>
