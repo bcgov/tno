@@ -334,7 +334,7 @@ public class ReportController : ControllerBase
     public async Task<IActionResult> Preview(int id)
     {
         var user = _impersonate.GetCurrentUser();
-        var report = _reportService.Find(new ReportFilter { Ids = new[] { id } }, false).FirstOrDefault() ?? throw new NoContentException("Report does not exist");
+        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
         if (report.OwnerId != user.Id && // User does not own the report
             !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to preview this report"); // Report is not public
@@ -580,7 +580,7 @@ public class ReportController : ControllerBase
         }
 
         StringBuilder message = new StringBuilder();
-        message.AppendLine("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">");
+        message.AppendLine("<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">");
         message.AppendLine("<HTML>");
         message.AppendLine("<BODY>");
         message.AppendLine($"<p><strong>User Name</strong>: {user.DisplayName}</p>");
@@ -645,7 +645,7 @@ public class ReportController : ControllerBase
         }
 
         StringBuilder message = new StringBuilder();
-        message.AppendLine("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">");
+        message.AppendLine("<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">");
         message.AppendLine("<HTML>");
         message.AppendLine("<BODY>");
         message.AppendLine($"<p><strong>User Name</strong>: {user.DisplayName}</p>");
