@@ -334,7 +334,7 @@ public class ReportController : ControllerBase
     public async Task<IActionResult> Preview(int id)
     {
         var user = _impersonate.GetCurrentUser();
-        var report = _reportService.Find(new ReportFilter { Ids = new[] { id } }, false).FirstOrDefault() ?? throw new NoContentException("Report does not exist");
+        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
         if (report.OwnerId != user.Id && // User does not own the report
             !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to preview this report"); // Report is not public
