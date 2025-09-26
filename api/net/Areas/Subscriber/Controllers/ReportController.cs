@@ -580,7 +580,7 @@ public class ReportController : ControllerBase
         }
 
         StringBuilder message = new StringBuilder();
-        message.AppendLine("<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">");
+        message.AppendLine("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">");
         message.AppendLine("<HTML>");
         message.AppendLine("<BODY>");
         message.AppendLine($"<p><strong>User Name</strong>: {user.DisplayName}</p>");
@@ -645,7 +645,7 @@ public class ReportController : ControllerBase
         }
 
         StringBuilder message = new StringBuilder();
-        message.AppendLine("<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">");
+        message.AppendLine("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">");
         message.AppendLine("<HTML>");
         message.AppendLine("<BODY>");
         message.AppendLine($"<p><strong>User Name</strong>: {user.DisplayName}</p>");
