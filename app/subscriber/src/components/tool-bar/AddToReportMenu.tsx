@@ -11,13 +11,12 @@ import {
   Link,
   Loader,
   ReportSectionTypeName,
-  ReportStatusName,
   Row,
   Show,
 } from 'tno-core';
 
 import * as styled from './styled';
-import { toInstanceContent } from './utils';
+import { toInstanceContentPayload } from './utils';
 
 export interface IAddToReportMenuProps {
   content: IContentModel[];
@@ -25,8 +24,7 @@ export interface IAddToReportMenuProps {
   onClear?: () => void;
 }
 export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onClear }) => {
-  const [{ myReports }, { addContentToReport, findMyReports, getReport, generateReport }] =
-    useReports();
+  const [{ myReports }, { addContentToReport, findMyReports }] = useReports();
   const [{ requests }] = useApp();
 
   const [activeReport, setActiveReport] = React.useState<IReportModel>();
@@ -57,44 +55,14 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
     async (report: IReportModel, sectionName: string, content: IContentModel[]) => {
       try {
         setInProgress({ sectionName, value: true });
-        let currentReport: IReportModel | undefined = { ...report };
-        let instance = currentReport.instances.length ? currentReport.instances[0] : undefined;
+        const payload = toInstanceContentPayload(content, 0, sectionName, 0);
+        const result = await addContentToReport(report.id, payload);
 
-        if (!report.instances.length) {
-          // Fetch the report because the one in memory has no instances.
-          currentReport = await getReport(report.id, true);
-
-          // The report does not have an instance, we must create one to add content.
-          // This should only occur the first time after a new report is created.
-          if (!currentReport?.instances.length) {
-            currentReport = await generateReport(report.id, true);
-          }
-          instance = currentReport.instances.length ? currentReport.instances[0] : undefined;
-        }
-
-        if (
-          instance &&
-          [ReportStatusName.Accepted, ReportStatusName.Completed, ReportStatusName.Failed].includes(
-            instance.status,
-          )
-        ) {
-          // Start the next report.
-          currentReport = await generateReport(report.id, true);
-          instance = currentReport.instances.length ? currentReport.instances[0] : undefined;
-        }
-
-        if (!currentReport || !instance) {
-          toast.error('Failed to generate a new report');
-          return;
-        }
-
-        const convertedContent = toInstanceContent(content, instance.id, sectionName, 0);
-        await addContentToReport(currentReport.id, convertedContent);
-
+        const addedCount = result?.added?.length ?? content.length;
         toast.success(() => (
           <div>
-            {content.length} stories added to report:
-            <Link to={`reports/${currentReport!.id}/content`}>{currentReport!.name}</Link>
+            {addedCount} stories added to report:
+            <Link to={`reports/${report.id}/content`}>{report.name}</Link>
           </div>
         ));
         onClear?.();
@@ -106,7 +74,7 @@ export const AddToReportMenu: React.FC<IAddToReportMenuProps> = ({ content, onCl
         setSearchQuery('');
       }
     },
-    [addContentToReport, onClear, getReport, generateReport],
+    [addContentToReport, onClear],
   );
 
   return (

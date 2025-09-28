@@ -420,7 +420,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     private async Task GetXmlArticlesAsync(string dir, IIngestActionManager manager, Dictionary<string, string> sources)
     {
         var ingest = manager.Ingest;
-        var fileList = GetFileList(dir);
+        var fileList = GetFileList(manager, dir);
         var isBylineTitleCase = manager.Ingest.GetConfigurationValue<bool>("bylineTitleCase", false);
         var namespacesValue = manager.Ingest.GetConfigurationValue<string>("namespaces", "[]");
         var namespaces = JsonSerializer.Deserialize<XmlNamespace[]>(namespacesValue) ?? Array.Empty<XmlNamespace>();
@@ -488,11 +488,11 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         }
     }
 
-    private IEnumerable<string> GetFileList(string dir)
+    private IEnumerable<string> GetFileList(IIngestActionManager manager, string dir)
     {
         var directoryExists = Directory.Exists(dir);
         var result = directoryExists ? Directory.GetFiles(dir) : Array.Empty<string>();
-        if (!directoryExists) Logger.LogWarning("Directory '{dir}' does not exist.", dir);
+        if (!directoryExists) Logger.LogWarning("Directory '{dir}' does not exist for {manager}.", dir, manager.Ingest.Name);
         return result;
     }
 
@@ -510,7 +510,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     private async Task GetFmsArticlesAsync(string dir, IIngestActionManager manager, Dictionary<string, string> sources)
     {
         var ingest = manager.Ingest;
-        var fileList = GetFileList(dir);
+        var fileList = GetFileList(manager, dir);
         var isBylineTitleCase = manager.Ingest.GetConfigurationValue<bool>("bylineTitleCase", false);
 
         // Iterate over the files in the list and process the stories they contain.

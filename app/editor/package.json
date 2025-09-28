@@ -60,7 +60,11 @@
     "redux-logger": "3.0.6",
     "styled-components": "6.1.11",
     "stylis": "4.3.2",
+<<<<<<< HEAD
     "tno-core": "1.0.22"
+=======
+    "tno-core": "1.0.23"
+>>>>>>> mmi-3243-update
   },
   "devDependencies": {
     "@simbathesailor/use-what-changed": "2.0.0",

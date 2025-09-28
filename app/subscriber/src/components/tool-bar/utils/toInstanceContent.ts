@@ -1,5 +1,10 @@
 import { IContentModel, IReportInstanceContentModel } from 'tno-core';
 
+export type MinimalReportInstanceContent = Pick<
+  IReportInstanceContentModel,
+  'instanceId' | 'contentId' | 'sectionName' | 'sortOrder'
+>;
+
 /**
  * Converts an array of content to an array of report instance content.
  * @param content The content to convert.
@@ -21,4 +26,22 @@ export const toInstanceContent = (
       sortOrder: sortOrder,
     };
   });
+};
+
+/**
+ * Converts content into a lightweight payload for the fast append endpoint.
+ * Drops the nested content graph to trim the request size.
+ */
+export const toInstanceContentPayload = (
+  content: IContentModel[],
+  instanceId: number,
+  sectionName: string,
+  sortOrder: number,
+): MinimalReportInstanceContent[] => {
+  return content.map((c) => ({
+    contentId: c.id,
+    sectionName,
+    instanceId,
+    sortOrder,
+  }));
 };

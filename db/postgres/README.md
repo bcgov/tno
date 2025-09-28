@@ -73,15 +73,30 @@ DB_VOLUME=/var/lib/pgsql/data
 
 ## Backup Commands
 
+```sql
+-- Delete all tables in database
+DO $$ DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+        EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE';
+    END LOOP;
+END $$;
+```
+
 ```bash
 # RSH into database backup pod
-oc -n 9b301c-test rsh db-backup-855b845cc7-zrk7t
+oc -n 9b301c-prod rsh db-backup-7f759fc647-6f98l
 
 # Test connection
 psql -h postgres -U admin -d tno
+psql -h moonstep.tno.gov.bc.ca -U mmiadminp -d mmip
 
 # Backup and zip
 pg_dump -h postgres -U admin -C -Fc -v -d tno | gzip > /backups/dev.tar.gz
+pg_dump -h postgres -U admin -C -Fc -v -d tno > /backups/prod.sql
+
+pg_restore -U mmiadminp -h moonstep.tno.gov.bc.ca -d mmip -v -Fc /backups/prod.sql
 
 # Copy file to local
 oc -n 9b301c-dev rsync db-backup-855b845cc7-zrk7t:/backups/dev.tar.gz /D/db

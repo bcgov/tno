@@ -1,4 +1,5 @@
 
+using System.Linq;
 using System.Net;
 using System.Net.Mime;
 using System.Text;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
+using TNO.Models.Filters;
 using TNO.API.Areas.Subscriber.Models.Report;
 using TNO.API.Config;
 using TNO.API.Helpers;
@@ -162,7 +164,6 @@ public class ReportController : ControllerBase
     /// <returns></returns>
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult FindById(int id, bool includeContent = false)
@@ -357,11 +358,9 @@ public class ReportController : ControllerBase
     public async Task<IActionResult> Generate(int id, [FromQuery] bool regenerate = false)
     {
         var user = _impersonate.GetCurrentUser();
-        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
-        if (report.OwnerId != user.Id && // User does not own the report
-            !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
-            !report.IsPublic) throw new NotAuthorizedException("Not authorized to review this report"); // Report is not public
-
+        var report = _reportService.Find(new ReportFilter { Ids = new[] { id } }, false).FirstOrDefault() ?? throw new NoContentException("Report does not exist");
+        if (report.OwnerId != user.Id &&
+            !report.IsPublic) throw new NotAuthorizedException("Not authorized to modify this report");
         var instances = _reportService.GetLatestInstances(id, user.Id);
         var currentInstance = instances.FirstOrDefault();
         if (currentInstance == null)
@@ -433,11 +432,9 @@ public class ReportController : ControllerBase
     public async Task<IActionResult> RegenerateSection(int id, int sectionId)
     {
         var user = _impersonate.GetCurrentUser();
-        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
-        if (report.OwnerId != user.Id && // User does not own the report
-            !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
-            !report.IsPublic) throw new NotAuthorizedException("Not authorized to review this report"); // Report is not public
-
+        var report = _reportService.Find(new ReportFilter { Ids = new[] { id } }, false).FirstOrDefault() ?? throw new NoContentException("Report does not exist");
+        if (report.OwnerId != user.Id &&
+            !report.IsPublic) throw new NotAuthorizedException("Not authorized to modify this report");
         var instance = await _reportService.RegenerateReportInstanceSectionAsync(id, sectionId, user.Id);
         _reportInstanceService.ClearChangeTracker();
         instance = _reportInstanceService.UpdateAndSave(instance, true);
@@ -463,11 +460,9 @@ public class ReportController : ControllerBase
     public async Task<IActionResult> AddContentToReportAsync(int id, [FromBody] IEnumerable<ReportInstanceContentModel> content)
     {
         var user = _impersonate.GetCurrentUser();
-        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
-        if (report.OwnerId != user.Id && // User does not own the report
-            !report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id) &&  // User is not subscribed to the report
-            !report.IsPublic) throw new NotAuthorizedException("Not authorized to review this report"); // Report is not public
-
+        var report = _reportService.Find(new ReportFilter { Ids = new[] { id } }, false).FirstOrDefault() ?? throw new NoContentException("Report does not exist");
+        if (report.OwnerId != user.Id &&
+            !report.IsPublic) throw new NotAuthorizedException("Not authorized to modify this report");
         var addContent = content.Select((c) => (Entities.ReportInstanceContent)c);
         if (addContent.Any())
         {
@@ -476,7 +471,7 @@ public class ReportController : ControllerBase
             var instances = _reportService.GetLatestInstances(id, user.Id);
             var currentInstance = instances.FirstOrDefault() ?? throw new InvalidOperationException("Unable to add content to a report without an instance");
             currentInstance.ContentManyToMany.Clear();
-            currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(currentInstance.Id));
+            currentInstance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstanceBasic(currentInstance.Id));
             result.Instances.Clear();
             result.Instances.AddRange(instances);
 
@@ -496,19 +491,70 @@ public class ReportController : ControllerBase
     }
 
     /// <summary>
-    /// Find all content currently in any of 'my' reports current instances.
+    /// Fast path: Add specified content to the current report instance with minimal DB updates.
+    /// Avoids full instance graph merges for large reports.
     /// </summary>
+    /// <param name="id"></param>
+    /// <param name="content"></param>
     /// <returns></returns>
     /// <exception cref="NotAuthorizedException"></exception>
-    [HttpGet("all-content")]
+    /// <exception cref="NoContentException"></exception>
+    [HttpPost("{id}/content/fast")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(Dictionary<int, long[]>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ReportContentMutationModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult GetAllContentInMyReports()
+    public async Task<IActionResult> FastAddContentToReportAsync(int id, [FromBody] IEnumerable<ReportInstanceContentModel> content)
     {
         var user = _impersonate.GetCurrentUser();
-        var result = _reportService.GetAllContentInMyReports(user.Id);
-        return new JsonResult(result);
+        var report = _reportService.Find(new ReportFilter { Ids = new[] { id } }, false).FirstOrDefault() ?? throw new NoContentException("Report does not exist");
+        if (report.OwnerId != user.Id &&
+            !report.IsPublic) throw new NotAuthorizedException("Not authorized to modify this report");
+        var addContent = content.Select(c => (Entities.ReportInstanceContent)c);
+        if (!addContent.Any())
+        {
+            return new JsonResult(new ReportContentMutationModel
+            {
+                ReportId = id,
+                InstanceId = 0,
+                OwnerId = report.OwnerId,
+                Status = ReportStatus.Pending,
+                Added = System.Array.Empty<ReportInstanceContentModel>(),
+                InstanceCreated = false
+            });
+        }
+
+        var mutation = await _reportService.FastAddContentToReportAsync(id, user.Id, addContent) ?? throw new NoContentException("Report does not exist");
+
+        var ownerId = mutation.Instance.OwnerId ?? report.OwnerId;
+        if (ownerId.HasValue)
+        {
+            var owner = _userService.FindByIdMinimal(ownerId.Value) ?? throw new NotAuthorizedException();
+            await _kafkaMessenger.SendMessageAsync(
+                _kafkaHubOptions.HubTopic,
+                new KafkaHubMessage(
+                    HubEvent.SendUser,
+                    owner.Username,
+                    new KafkaInvocationMessage(MessageTarget.ReportStatus, new[] { new ReportMessageModel(mutation.Instance) }))
+            );
+        }
+
+        var mutationModel = new ReportContentMutationModel
+        {
+            ReportId = mutation.ReportId,
+            InstanceId = mutation.Instance.Id,
+            OwnerId = mutation.Instance.OwnerId,
+            Status = mutation.Instance.Status,
+            PublishedOn = mutation.Instance.PublishedOn,
+            SentOn = mutation.Instance.SentOn,
+            Subject = mutation.Instance.Subject,
+            Body = mutation.Instance.Body,
+            Response = mutation.Instance.Response,
+            Added = mutation.Added.Select(c => new ReportInstanceContentModel(c)).ToArray(),
+            InstanceCreated = mutation.InstanceCreated
+        };
+
+        return new JsonResult(mutationModel);
     }
 
     /// <summary>
@@ -524,7 +570,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> RequestSubscription(int id, string applicantEmail)
     {
-        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
+        var report = _reportService.Find(new ReportFilter { Ids = new[] { id } }, false).FirstOrDefault() ?? throw new NoContentException("Report does not exist");
         var user = _userService.FindByEmail(applicantEmail).FirstOrDefault() ?? throw new InvalidOperationException("User does not exist");
         var isSubscribed = report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id);
         if (isSubscribed)
@@ -587,7 +633,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> RequestUnsubscription(int id, string applicantEmail)
     {
-        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
+        var report = _reportService.Find(new ReportFilter { Ids = new[] { id } }, false).FirstOrDefault() ?? throw new NoContentException("Report does not exist");
 
         var user = _userService.FindByEmail(applicantEmail).FirstOrDefault() ?? throw new InvalidOperationException("User does not exist");
         var isSubscribed = report.SubscribersManyToMany.Any(s => s.IsSubscribed && s.UserId == user.Id);
