@@ -1,5 +1,4 @@
 
-using System.Linq;
 using System.Net;
 using System.Net.Mime;
 using System.Text;
@@ -8,7 +7,6 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
-using TNO.Models.Filters;
 using TNO.API.Areas.Subscriber.Models.Report;
 using TNO.API.Config;
 using TNO.API.Helpers;
@@ -17,6 +15,7 @@ using TNO.API.Models.SignalR;
 using TNO.Ches;
 using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Kafka;
@@ -549,7 +548,7 @@ public class ReportController : ControllerBase
             SentOn = mutation.Instance.SentOn,
             Subject = mutation.Instance.Subject,
             Body = mutation.Instance.Body,
-            Response = mutation.Instance.Response,
+            Response = mutation.Instance.Response.ToJson(),
             Added = mutation.Added.Select(c => new ReportInstanceContentModel(c)).ToArray(),
             InstanceCreated = mutation.InstanceCreated
         };
