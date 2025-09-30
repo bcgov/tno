@@ -1,11 +1,7 @@
 {
   "name": "tno-core",
   "description": "TNO shared library",
-<<<<<<< HEAD
-  "version": "1.0.22",
-=======
   "version": "1.0.23",
->>>>>>> mmi-3243-update
   "homepage": "https://github.com/bcgov/tno",
   "license": "Apache-2.0",
   "files": [
