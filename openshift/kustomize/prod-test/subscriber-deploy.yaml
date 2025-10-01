@@ -1,0 +1,102 @@
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: subscriber-validator
+  namespace: 9b301c-prod
+  annotations:
+    description: Defines how to deploy subscriber
+  labels:
+    name: subscriber-app-validator
+    part-of: tno
+    version: 1.0.0
+    component: subscriber-validator
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  replicas: 1
+  selector:
+    name: subscriber-validator
+    part-of: tno
+    component: subscriber-validator
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      name: subscriber-validator
+      labels:
+        name: subscriber-validator
+        part-of: tno
+        component: subscriber-validator
+    spec:
+      volumes:
+        - name: subscriber-keycloak
+          configMap:
+            name: subscriber-sso
+            items:
+              - key: keycloak.json
+                path: keycloak.json
+        - name: subscriber-public-storage
+          persistentVolumeClaim:
+            claimName: subscriber-public-storage
+      containers:
+        - name: subscriber-validator
+          image: image-registry.openshift-image-registry.svc:5000/9b301c-tools/subscriber:validator
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 25m
+              memory: 30Mi
+            limits:
+              cpu: 50m
+              memory: 100Mi
+          volumeMounts:
+            - name: subscriber-keycloak
+              mountPath: /usr/share/nginx/html/keycloak.json
+              subPath: keycloak.json
+            - name: subscriber-public-storage
+              mountPath: /usr/share/nginx/html/public/videos
+          livenessProbe:
+            httpGet:
+              path: "/nginx-status"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: "/nginx-status"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10
+            timeoutSeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - subscriber-validator
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: subscriber:validator
