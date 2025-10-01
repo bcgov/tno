@@ -221,10 +221,10 @@ export const useReports = (): [IProfileState, IReportController] => {
         return response.data;
       },
       addContentToReport: async (id: number, content: IReportInstanceContentModel[]) => {
-        const response = await dispatch<IReportModel>('add-content-to-report', () =>
+        const response = await dispatch<IReportContentMutationModel>('add-content-to-report', () =>
           api.addContentToReport(id, content),
         );
-        const mutation = response.data as unknown as IReportContentMutationModel | undefined;
+        const mutation = response.data;
         if (response.status === 200 && mutation) {
           const addedIds =
             mutation.added?.map(

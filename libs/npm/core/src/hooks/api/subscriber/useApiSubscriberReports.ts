@@ -89,7 +89,7 @@ export const useApiSubscriberReports = (
       );
     },
     generateReport: (reportId: number, regenerate: boolean | undefined = false) => {
-      return api.post<IReportInstanceContentModel[], AxiosResponse<IReportContentMutationModel>, any>(
+      return api.post<IReportInstanceContentModel[], AxiosResponse<IReportModel>, any>(
         `/subscriber/reports/${reportId}/generate${
           regenerate !== undefined ? `?regenerate=${regenerate}` : ''
         }`,
