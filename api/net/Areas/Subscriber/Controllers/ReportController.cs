@@ -444,6 +444,22 @@ public class ReportController : ControllerBase
     }
 
     /// <summary>
+    /// Find all content currently in any of 'my' reports current instances.
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="NotAuthorizedException"></exception>
+    [HttpGet("all-content")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(Dictionary<int, long[]>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult GetAllContentInMyReports()
+    {
+        var user = _impersonate.GetCurrentUser();
+        var result = _reportService.GetAllContentInMyReports(user.Id);
+        return new JsonResult(result);
+    }
+
+    /// <summary>
     /// Add the specified content to the current report instance.
     /// </summary>
     /// <param name="id"></param>
