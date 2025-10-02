@@ -1,3 +1,4 @@
+using System;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -100,6 +101,55 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
             .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TonePoolsManyToMany).ThenInclude(t => t.TonePool)
             .Where(ric => ric.InstanceId == id)
             .OrderBy(ric => ric.SortOrder)
+            .ToArray();
+    }
+
+    /// <summary>
+    /// Get a subset of content items for the specified instance.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="contentKeys"></param>
+    /// <returns></returns>
+    public IEnumerable<ReportInstanceContent> GetContentForInstance(long id, IEnumerable<(long ContentId, string SectionName)> contentKeys)
+    {
+        var keys = contentKeys?
+            .Select(k => (k.ContentId, Section: k.SectionName ?? string.Empty))
+            .Distinct()
+            .ToArray() ?? Array.Empty<(long ContentId, string Section)>();
+
+        if (keys.Length == 0) return Array.Empty<ReportInstanceContent>();
+
+        var contentIds = keys.Select(k => k.ContentId).Distinct().ToArray();
+        var sections = keys.Select(k => k.Section).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToArray();
+
+        var query = this.Context.ReportInstanceContents
+            .AsNoTracking()
+            .Include(cm2m => cm2m.Content)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.Source)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.MediaType)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.Series)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.Contributor)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.ActionsManyToMany).ThenInclude(c => c.Action)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TopicsManyToMany).ThenInclude(c => c.Topic)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.Labels)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TagsManyToMany)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TimeTrackings)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.FileReferences)
+            .Include(cm2m => cm2m.Content).ThenInclude(c => c!.TonePoolsManyToMany).ThenInclude(t => t.TonePool)
+            .Where(ric => ric.InstanceId == id && contentIds.Contains(ric.ContentId));
+
+        if (sections.Length > 0)
+            query = query.Where(ric => sections.Contains(ric.SectionName));
+
+        var results = query.OrderBy(ric => ric.SortOrder).ToArray();
+
+        if (sections.Length == 0)
+            return results;
+
+        return results
+            .Where(ric => keys.Any(k =>
+                k.ContentId == ric.ContentId &&
+                string.Equals(k.Section, ric.SectionName ?? string.Empty, StringComparison.OrdinalIgnoreCase)))
             .ToArray();
     }
 

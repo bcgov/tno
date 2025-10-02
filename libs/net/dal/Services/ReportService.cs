@@ -756,14 +756,11 @@ public class ReportService : BaseService<Report, int>, IReportService
         this.CommitTransaction();
 
         var additionKeys = additions
-            .Select(a => new { a.ContentId, a.SectionName })
+            .Select(a => (a.ContentId, a.SectionName ?? string.Empty))
             .ToArray();
 
         var appended = _reportInstanceService
-            .GetContentForInstance(instance.Id)
-            .Where(ric => additionKeys.Any(key =>
-                key.ContentId == ric.ContentId &&
-                string.Equals(key.SectionName, ric.SectionName, StringComparison.OrdinalIgnoreCase)))
+            .GetContentForInstance(instance.Id, additionKeys)
             .ToArray();
 
         return new ReportContentMutation(id, instance, appended, instanceCreated);
