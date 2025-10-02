@@ -373,7 +373,7 @@ public class ReportController : ControllerBase
     public async Task<IActionResult> Generate(int id, [FromQuery] bool regenerate = false)
     {
         var user = _impersonate.GetCurrentUser();
-        var report = _reportService.Find(new ReportFilter { Ids = new[] { id } }, false).FirstOrDefault() ?? throw new NoContentException("Report does not exist");
+        var report = _reportService.FindById(id) ?? throw new NoContentException("Report does not exist");
         if (report.OwnerId != user.Id &&
             !report.IsPublic) throw new NotAuthorizedException("Not authorized to modify this report");
         var instances = _reportService.GetLatestInstances(id, user.Id);
