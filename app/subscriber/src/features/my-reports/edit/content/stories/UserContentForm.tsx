@@ -55,6 +55,10 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
   const [{ tonePools }] = useLookup();
 
   const content = values?.content;
+  const controlId = React.useCallback(
+    (field: string) => `${field}-${content?.id ?? values?.contentId ?? 'new'}`,
+    [content?.id, values?.contentId],
+  );
 
   if (!values || !content) return null;
 
@@ -65,6 +69,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
       </Show>
       <Show visible={show === 'all'}>
         <TextArea
+          id={controlId('headline')}
           name={`headline`}
           label="Headline"
           disabled={disabled}
@@ -80,6 +85,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
           }}
         />
         <Text
+          id={controlId('sourceUrl')}
           name={`sourceUrl`}
           label="URL"
           disabled={disabled}
@@ -92,6 +98,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
           }}
         />
         <Text
+          id={controlId('otherSource')}
           name={`otherSource`}
           label="Source"
           disabled={disabled}
@@ -106,6 +113,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
           }}
         />
         <Text
+          id={controlId('byline')}
           name={`byline`}
           label="Byline"
           disabled={disabled}
@@ -120,6 +128,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
         />
         <Row gap="0.5rem">
           <SelectDate
+            id={controlId('publishedOn-date')}
             name={`publishedOn`}
             label="Published On"
             disabled={disabled}
@@ -139,6 +148,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
             }}
           />
           <TimeInput
+            id={controlId('publishedOn-time')}
             name={`publishedOn`}
             label="Time"
             disabled={!content.publishedOn || disabled}
@@ -175,6 +185,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
       </Show>
       <Show visible={['all', 'summary'].includes(show)}>
         <Wysiwyg
+          id={controlId('summary')}
           name={`summary`}
           label="Summary"
           disabled={disabled}
@@ -186,6 +197,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
       </Show>
       <Show visible={show === 'all'}>
         <Wysiwyg
+          id={controlId('body')}
           name={`body`}
           label="Body"
           disabled={disabled}
@@ -195,6 +207,7 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
           }}
         />
         <SentimentPicker
+          id={controlId('tonePools')}
           name="tonePools"
           value={content.tonePools.length ? content.tonePools[0].value : 0}
           disabled={disabled}
