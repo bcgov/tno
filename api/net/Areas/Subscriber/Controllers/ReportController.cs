@@ -1,4 +1,4 @@
-
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Mime;
@@ -223,6 +223,21 @@ public class ReportController : ControllerBase
         var take = qty > 0 ? qty.Value : 10;
         var result = _reportInstanceService.FindInstancesForReportId(reportId, ownerId, skip, take);
         return new JsonResult(result.Select(ri => new ReportInstanceModel(ri)));
+    }
+
+    /// <summary>
+    /// Get all content identifiers contained within the current user's reports.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("all-content")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(Dictionary<int, long[]>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult GetAllContentInMyReports()
+    {
+        var user = _impersonate.GetCurrentUser();
+        var result = _reportService.GetAllContentInMyReports(user.Id);
+        return new JsonResult(result);
     }
 
     /// <summary>
