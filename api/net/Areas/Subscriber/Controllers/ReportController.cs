@@ -23,6 +23,7 @@ using TNO.Kafka;
 using TNO.Kafka.SignalR;
 using TNO.Keycloak;
 using TNO.Models.Filters;
+using TNO.Core.Extensions;
 
 namespace TNO.API.Areas.Subscriber.Controllers;
 
@@ -564,7 +565,7 @@ public class ReportController : ControllerBase
             SentOn = mutation.Instance.SentOn,
             Subject = mutation.Instance.Subject,
             Body = mutation.Instance.Body,
-            Response = mutation.Instance.Response,
+            Response = mutation.Instance.Response.ToJson(),
             Added = mutation.Added.Select(c => new ReportInstanceContentModel(c)).ToArray(),
             InstanceCreated = mutation.InstanceCreated
         };
