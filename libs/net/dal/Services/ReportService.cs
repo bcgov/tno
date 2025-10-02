@@ -755,7 +755,17 @@ public class ReportService : BaseService<Report, int>, IReportService
         this.Context.ReportInstanceContents.AddRange(additions);
         this.CommitTransaction();
 
-        var appended = additions.ToArray();
+        var additionKeys = additions
+            .Select(a => new { a.ContentId, a.SectionName })
+            .ToArray();
+
+        var appended = _reportInstanceService
+            .GetContentForInstance(instance.Id)
+            .Where(ric => additionKeys.Any(key =>
+                key.ContentId == ric.ContentId &&
+                string.Equals(key.SectionName, ric.SectionName, StringComparison.OrdinalIgnoreCase)))
+            .ToArray();
+
         return new ReportContentMutation(id, instance, appended, instanceCreated);
     }
 
