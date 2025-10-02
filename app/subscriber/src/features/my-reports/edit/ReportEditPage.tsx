@@ -45,6 +45,7 @@ export const ReportEditPage = () => {
   const [report, setReport] = React.useState<IReportForm>(
     defaultReport(userInfo?.id ?? 0, defaultReportTemplateId ?? 0),
   );
+  const [autoGeneratePending, setAutoGeneratePending] = React.useState(false);
 
   const instance = report.instances.length ? report.instances[0] : undefined;
   const canEdit = instance
@@ -101,18 +102,29 @@ export const ReportEditPage = () => {
   // if not, call generateReport to populate instances array
   React.useEffect(() => {
     const reportId = parseInt(id ?? '0');
-    // The report has either never generated an instance, or the last instance was already sent.
-    if (report && !!reportId && report.id === reportId && !report?.instances?.length) {
-      const reportId = parseInt(id ?? '0');
-      generateReport(reportId)
-        .then((result) => {
-          setReport(toForm(result, true));
-        })
-        .catch(() => {});
+    if (!report || !reportId || report.id !== reportId) {
+      setAutoGeneratePending(false);
+      return;
     }
+
+    if (report.instances?.length) {
+      if (autoGeneratePending) setAutoGeneratePending(false);
+      return;
+    }
+
+    if (autoGeneratePending) return;
+
+    setAutoGeneratePending(true);
+    generateReport(reportId)
+      .then((result) => {
+        setReport(toForm(result, true));
+      })
+      .catch(() => {
+        setAutoGeneratePending(false);
+      });
     // Only generate a report if it's missing an instance.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [report]);
+  }, [report, autoGeneratePending]);
 
   React.useEffect(() => {
     const reportId = parseInt(id ?? '0');
@@ -127,6 +139,7 @@ export const ReportEditPage = () => {
       } else if (existingReport && !hasFetchedContent) {
         // Case 2: Partial Data: call generateReport to get missing data
         // We have existing report loaded, but no content present in instance data
+        setAutoGeneratePending(false);
         setReport(toForm({ ...existingReport, instances: [] }));
       } else {
         // Case 3: No report data present, fetch entire report + instance + content data
