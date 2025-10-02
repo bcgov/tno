@@ -207,7 +207,6 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
           }}
         />
         <SentimentPicker
-          id={controlId('tonePools')}
           name="tonePools"
           value={content.tonePools.length ? content.tonePools[0].value : 0}
           disabled={disabled}
