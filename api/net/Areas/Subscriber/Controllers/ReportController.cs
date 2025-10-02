@@ -1,4 +1,3 @@
-
 using System.Net;
 using System.Net.Mime;
 using System.Text;
@@ -225,6 +224,21 @@ public class ReportController : ControllerBase
     }
 
     /// <summary>
+    /// Get all content identifiers contained within the current user's reports.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("all-content")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(Dictionary<int, long[]>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult GetAllContentInMyReports()
+    {
+        var user = _impersonate.GetCurrentUser();
+        var result = _reportService.GetAllContentInMyReports(user.Id);
+        return new JsonResult(result);
+    }
+
+    /// <summary>
     /// Add report for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
@@ -441,22 +455,6 @@ public class ReportController : ControllerBase
         instance.ContentManyToMany.AddRange(_reportInstanceService.GetContentForInstance(instance.Id));
 
         return new JsonResult(new ReportInstanceModel(instance));
-    }
-
-    /// <summary>
-    /// Find all content currently in any of 'my' reports current instances.
-    /// </summary>
-    /// <returns></returns>
-    /// <exception cref="NotAuthorizedException"></exception>
-    [HttpGet("all-content")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(Dictionary<int, long[]>), (int)HttpStatusCode.OK)]
-    [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult GetAllContentInMyReports()
-    {
-        var user = _impersonate.GetCurrentUser();
-        var result = _reportService.GetAllContentInMyReports(user.Id);
-        return new JsonResult(result);
     }
 
     /// <summary>

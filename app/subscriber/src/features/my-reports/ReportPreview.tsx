@@ -43,6 +43,7 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const autoGenerateRef = React.useRef<number | null>(null);
 
   const instance = report?.instances.length ? report.instances[0] : undefined;
   const hasSubscribers = report?.subscribers?.some((s) => s.isSubscribed === true) ?? false;
@@ -61,25 +62,41 @@ export const ReportPreview = ({ report, onFetch, onClose }: IReportPreviewProps)
   // If there is no instance first fetch the report information to see if there should be one.
   // If there still is no instance, then it must be initialized.
   React.useEffect(() => {
-    if (!!report && !instance && !isLoading) {
-      setIsLoading(true);
-      fetchReport(report.id)
-        .then(async (report) => {
-          try {
-            if (report && !report?.instances.length) {
-              const result = await generateReport(report.id, true);
-              onFetch?.(result);
-            } else onFetch?.(report);
-          } catch (ex) {
-            throw ex;
-          }
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
+    if (!report) {
+      autoGenerateRef.current = null;
+      return;
     }
-  }, [fetchReport, generateReport, instance, isLoading, onFetch, report]);
 
+    const reportId = report.id;
+
+    if (instance) {
+      if (autoGenerateRef.current === reportId) autoGenerateRef.current = null;
+      return;
+    }
+
+    if (isLoading || autoGenerateRef.current === reportId) return;
+
+    autoGenerateRef.current = reportId;
+    setIsLoading(true);
+    fetchReport(report.id)
+      .then(async (report) => {
+        try {
+          if (report && !report?.instances.length) {
+            const result = await generateReport(report.id, true);
+            onFetch?.(result);
+          } else onFetch?.(report);
+        } catch (ex) {
+          autoGenerateRef.current = null;
+          throw ex;
+        }
+      })
+      .catch(() => {
+        autoGenerateRef.current = null;
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [fetchReport, generateReport, instance, isLoading, onFetch, report]);
   const handleRefresh = React.useCallback(
     async (instanceId: number, regenerate?: boolean) => {
       try {
