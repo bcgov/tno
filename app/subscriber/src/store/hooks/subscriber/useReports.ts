@@ -12,6 +12,9 @@ import {
   useApiSubscriberReports,
 } from 'tno-core';
 
+import { IReportContentMutationModel } from './interfaces/IReportContentMutationModel';
+import { mergeReportWithContentMutation } from './utils/reportContentMutationHelpers';
+
 interface IReportController {
   findMyReports: (filter?: IReportFilter) => Promise<IReportModel[]>;
   findPublicReports: (filter?: IReportFilter) => Promise<IReportModel[]>;
@@ -24,7 +27,10 @@ interface IReportController {
   previewReport: (id: number) => Promise<IReportResultModel>;
   generateReport: (id: number, regenerate?: boolean) => Promise<IReportModel>;
   regenerateSection: (id: number, sectionId: number) => Promise<IReportInstanceModel>;
-  addContentToReport: (id: number, content: IReportInstanceContentModel[]) => Promise<IReportModel>;
+  addContentToReport: (
+    id: number,
+    content: IReportInstanceContentModel[],
+  ) => Promise<IReportContentMutationModel | undefined>;
   getAllContentInMyReports: () => Promise<{ [reportId: number]: number[] }>;
   RequestToSubscribe: (id: number, email: string) => void;
   RequestToUnsubscribe: (id: number, email: string) => void;
@@ -215,31 +221,27 @@ export const useReports = (): [IProfileState, IReportController] => {
         return response.data;
       },
       addContentToReport: async (id: number, content: IReportInstanceContentModel[]) => {
-        const response = await dispatch<IReportModel>('add-content-to-report', () =>
+        const response = await dispatch<IReportContentMutationModel>('add-content-to-report', () =>
           api.addContentToReport(id, content),
         );
-        if (response.status === 200) {
-          storeMyReports((reports) => {
-            if (!response.data) return reports;
-            var contains = false;
-            const results = reports.map((r) => {
-              // If the report exists then we don't need to add it.
-              if (r.id === id) contains = true;
-              return r.id === id ? response.data! : r;
+        const mutation = response.data;
+        if (response.status === 200 && mutation) {
+          const addedIds =
+            mutation.added?.map(
+              (contentItem: IReportInstanceContentModel) => contentItem.contentId,
+            ) ?? [];
+          if (addedIds.length) {
+            storeReportContent((reports) => {
+              const existing = reports[id] ?? [];
+              const merged = Array.from(new Set([...existing, ...addedIds]));
+              return { ...reports, [id]: merged };
             });
-
-            if (contains) return results;
-            return [response.data!, ...reports];
-          });
-          storeReportContent((reports) => {
-            const result = { ...reports };
-            result[id] = response.data.instances.length
-              ? response.data.instances[0].content.map((c) => c.contentId)
-              : reports[id] ?? [];
-            return result;
-          });
+          }
+          storeMyReports((reports) =>
+            reports.map((report) => mergeReportWithContentMutation(report, mutation)),
+          );
         }
-        return response.data;
+        return mutation;
       },
       getAllContentInMyReports: async () => {
         const response = await dispatch<{ [reportId: number]: number[] }>(

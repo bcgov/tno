@@ -72,6 +72,7 @@ export * from './IProductFilter';
 export * from './IProductModel';
 export * from './IQuoteModel';
 export * from './IRegisterModel';
+export * from './IReportContentMutationModel';
 export * from './IReportContentSettingsModel';
 export * from './IReportFilter';
 export * from './IReportHeadlineSettingsModel';
