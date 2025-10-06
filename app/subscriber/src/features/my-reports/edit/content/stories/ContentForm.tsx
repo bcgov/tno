@@ -50,6 +50,10 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const [, { getMyTonePool }] = useTonePool();
 
   const userId = impersonate?.id ?? userInfo?.id ?? 0;
+  const controlId = React.useCallback(
+    (field: string) => `${field}-${content?.id ?? 'new'}`,
+    [content?.id],
+  );
   const isAV = content?.contentType === ContentTypeName.AudioVideo;
   const versions = content?.versions?.[userId] ?? {
     byline: content?.byline,
@@ -129,6 +133,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
       <Loader visible={loading} />
       <Show visible={show === 'all'}>
         <TextArea
+          id={controlId('headline')}
           name={`headline`}
           label="Headline"
           rows={1}
@@ -150,12 +155,14 @@ export const ContentForm: React.FC<IContentFormProps> = ({
           value={versions.headline}
         />
         <Text
+          id={controlId('source')}
           name={`source`}
           label="Source"
           disabled={disabled}
           value={content.otherSource ? content.otherSource : content.source?.name}
         />
         <Text
+          id={controlId('byline')}
           name={`byline`}
           label="Byline"
           disabled={disabled}
@@ -178,6 +185,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
       </Show>
       <Show visible={['all', 'summary'].includes(show)}>
         <Wysiwyg
+          id={controlId('summary')}
           name={`summary`}
           label="Summary"
           urlOptions={reportContent}
@@ -201,6 +209,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
       </Show>
       <Show visible={show === 'all'}>
         <Wysiwyg
+          id={controlId('body')}
           name={`body`}
           label="Body"
           value={versions.body}

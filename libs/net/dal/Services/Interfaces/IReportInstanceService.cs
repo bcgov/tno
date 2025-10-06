@@ -28,6 +28,8 @@ public interface IReportInstanceService : IBaseService<ReportInstance, long>
     /// <param name="id"></param>
     /// <returns></returns>
     IEnumerable<ReportInstanceContent> GetContentForInstance(long id);
+    IEnumerable<ReportInstanceContent> GetContentForInstance(long id, IEnumerable<(long ContentId, string SectionName)> contentKeys);
+    IEnumerable<ReportInstanceContent> GetContentForInstanceBasic(long id);
 
     /// <summary>
     /// Update the report instance in the context, but do not save to the database yet.
