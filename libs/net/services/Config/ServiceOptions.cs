@@ -35,9 +35,9 @@ public class ServiceOptions
     public bool AutoRestartAfterCriticalFailure { get; set; } = true;
 
     /// <summary>
-    /// get/set - Number of millisecond delay before restarting service after a critical sequence of failures (default: 30 seconds).
+    /// get/set - Number of millisecond delay before restarting service after a critical sequence of failures (default: 120 seconds).
     /// </summary>
-    public int RetryAfterCriticalFailureDelayMS { get; set; } = 30000;
+    public int RetryAfterCriticalFailureDelayMS { get; set; } = 120000;
 
     /// <summary>
     /// get/set - The URL to the API.
