@@ -1,0 +1,97 @@
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: editor-validator
+  namespace: 9b301c-prod
+  annotations:
+    description: Defines how to deploy editor
+  labels:
+    name: editor-app-validator
+    part-of: tno
+    version: 1.0.0
+    component: editor-validator
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  replicas: 1
+  selector:
+    name: editor-validator
+    part-of: tno
+    component: editor-validator
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      name: editor-validator
+      labels:
+        name: editor-validator
+        part-of: tno
+        component: editor-validator
+    spec:
+      volumes:
+        - name: editor-keycloak
+          configMap:
+            name: editor-sso
+            items:
+              - key: keycloak.json
+                path: keycloak.json
+      containers:
+        - name: editor-validator
+          image: image-registry.openshift-image-registry.svc:5000/9b301c-tools/editor:validator
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 25m
+              memory: 30Mi
+            limits:
+              cpu: 50m
+              memory: 100Mi
+          volumeMounts:
+            - name: editor-keycloak
+              mountPath: /usr/share/nginx/html/keycloak.json
+              subPath: keycloak.json
+          livenessProbe:
+            httpGet:
+              path: "/nginx-status"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: "/nginx-status"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10
+            timeoutSeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - editor-validator
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: editor:validator

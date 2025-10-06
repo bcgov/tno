@@ -1,0 +1,32 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: subscriber-validator
+  namespace: 9b301c-prod
+  annotations:
+    description: Route for subscriber application.
+    haproxy.router.openshift.io/balance: source
+    haproxy.router.openshift.io/cookie_name: mmi
+    haproxy.router.openshift.io/timeout: 2m
+  labels:
+    name: subscriber-validator
+    part-of: tno
+    version: 1.0.0
+    component: subscriber-validator
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  host: mmi-subscriber-validator.apps.silver.devops.gov.bc.ca
+  path: ""
+  port:
+    targetPort: 8080-tcp
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+    # caCertificate: ""
+    # certificate: ""
+    # key: ""
+  to:
+    kind: Service
+    name: subscriber-validator
+    weight: 100

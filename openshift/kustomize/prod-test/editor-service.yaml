@@ -1,0 +1,25 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: editor-validator
+  namespace: 9b301c-prod
+  annotations:
+    description: Exposes and load balances the application pods.
+  labels:
+    name: editor-app-validator
+    part-of: tno
+    version: 1.0.0
+    component: editor-validator
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    part-of: tno
+    component: editor-validator
+  sessionAffinity: None
+  type: ClusterIP
