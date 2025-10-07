@@ -84,10 +84,6 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
 
                 await PostRunAsync(actionResult);
             }
-            catch
-            {
-                throw;
-            }
             finally
             {
                 this.IsRunning = false;

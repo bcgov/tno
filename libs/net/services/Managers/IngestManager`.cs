@@ -77,11 +77,19 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
         {
             if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause || this.State.Status == ServiceStatus.RequestFailed)
             {
+                // Stop all running ingest processes.
                 await StopAllAsync();
                 this.State.Stop();
             }
 
-            if (this.State.Status == ServiceStatus.Sleeping || this.State.Status == ServiceStatus.Paused)
+            if (this.State.Status == ServiceStatus.Failed && this.Options.AutoRestartAfterCriticalFailure)
+            {
+                // If the service should auto-restart, wait a bit and then resume.
+                await Task.Delay(this.Options.RetryAfterCriticalFailureDelayMS);
+                this.State.Resume();
+            }
+
+            if (this.State.Status != ServiceStatus.Running)
             {
                 this.Logger.LogDebug("The service is not running '{Status}'", this.State.Status);
             }
@@ -134,7 +142,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                     }
 
                     // If the service isn't running, don't make additional requests.
-                    if (this.State.Status != ServiceStatus.Running) continue;
+                    if (this.State.Status != ServiceStatus.Running) break;
 
                     try
                     {
@@ -208,9 +216,6 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
             // It could also result in a longer than planned delay if the action manager is awaited (currently it is).
             this.Logger.LogDebug("Service sleeping for {delay:n0} ms", delay);
             await Task.Delay(delay);
-
-            // after the service has slept after a number of failures it needs to be woken up
-            this.State.Resume();
 
             await RefreshIngestsAsync();
         }
