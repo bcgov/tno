@@ -708,9 +708,20 @@ public class ReportService : BaseService<Report, int>, IReportService
 
         if (instance == null || IsInstanceLocked(instance))
         {
-            instance = await GenerateReportInstanceAsync(id, ownerId, null, true);
-            instance = GetCurrentReportInstanceMetadata(id, ownerId) ?? instance;
-            instanceCreated = true;
+            // Fall back to the existing, full graph code path which will create a new instance
+            // and persist all of the supplied content. This handles scenarios where we don't yet
+            // have an instance (e.g. a brand-new report) as well as locked instances.
+            _ = await AddContentToReportAsync(id, ownerId, content);
+
+            instance = GetCurrentReportInstance(id, ownerId, includeContent: true)
+                ?? throw new InvalidOperationException("Unable to create report instance for content append");
+
+            var appendedFull = instance.ContentManyToMany
+                .OrderBy(c => c.SectionName)
+                .ThenBy(c => c.SortOrder)
+                .ToArray();
+
+            return new ReportContentMutation(id, instance, appendedFull, true);
         }
 
         var additions = content
