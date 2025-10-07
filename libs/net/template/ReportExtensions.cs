@@ -720,7 +720,7 @@ public static partial class ReportExtensions
         {
             return settings.GroupBy switch
             {
-                "dayMonthYear" => $"{DateTime.ParseExact(dataset.Key, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None):dd-MM-yyyy}",
+                "dayMonthYear" => $"{DateTime.ParseExact(dataset.Key, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None):dd-MMM-yyyy}",
                 "monthDay" => $"{DateTime.ParseExact(dataset.Key, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None):MMM-dd}",
                 "monthYear" => $"{DateTime.ParseExact(dataset.Key, "yyyyMM", null, System.Globalization.DateTimeStyles.None):MMM-yyyy}",
                 _ => dataset.Key,
