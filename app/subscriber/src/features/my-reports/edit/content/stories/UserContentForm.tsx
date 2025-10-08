@@ -206,25 +206,27 @@ export const UserContentForm: React.FC<IUserContentFormProps> = ({
             onContentChange?.({ ...values, content: { ...content, body: text } });
           }}
         />
-        <SentimentPicker
-          name="tonePools"
-          value={content.tonePools.length ? content.tonePools[0].value : 0}
-          disabled={disabled}
-          onChange={(value: number) => {
-            const contentTonePools: IContentTonePoolModel[] = content.tonePools.length
-              ? content.tonePools.map<IContentTonePoolModel>((tp, index) =>
-                  index === 0 ? { ...tp, value } : tp,
-                )
-              : [{ ...tonePools[0], value }];
-            onContentChange?.({
-              ...values,
-              content: {
-                ...content,
-                tonePools: contentTonePools,
-              },
-            });
-          }}
-        />
+        <div id={controlId('tonePools')}>
+          <SentimentPicker
+            name="tonePools"
+            value={content.tonePools.length ? content.tonePools[0].value : 0}
+            disabled={disabled}
+            onChange={(value: number) => {
+              const contentTonePools: IContentTonePoolModel[] = content.tonePools.length
+                ? content.tonePools.map<IContentTonePoolModel>((tp, index) =>
+                    index === 0 ? { ...tp, value } : tp,
+                  )
+                : [{ ...tonePools[0], value }];
+              onContentChange?.({
+                ...values,
+                content: {
+                  ...content,
+                  tonePools: contentTonePools,
+                },
+              });
+            }}
+          />
+        </div>
       </Show>
     </Col>
   );
