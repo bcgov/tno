@@ -84,6 +84,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             default: throw new InvalidOperationException($"Invalid import file format defined for '{manager.Ingest.Name}'");
         }
 
+        this.Logger.LogDebug("Ingestion service action complete for ingest '{name}'", manager.Ingest.Name);
+
         return ServiceActionResult.Success;
     }
 
@@ -183,8 +185,44 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     private async Task<IEnumerable<ISftpFile>> FetchFileListingAsync(SftpClient client, string path)
     {
         this.Logger.LogDebug("Requesting files at this path '{path}'", path);
-        // TODO: Fetch file from source data location.  Only continue if the image exists.
-        return await Task.Factory.FromAsync<IEnumerable<ISftpFile>>((callback, obj) => client.BeginListDirectory(path, callback, obj), client.EndListDirectory, null);
+        try
+        {
+            // Create cancellation token with timeout
+            using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5)); // 5 minute timeout
+
+            var task = Task.Factory.FromAsync<IEnumerable<ISftpFile>>(
+                (callback, obj) => client.BeginListDirectory(path, callback, obj),
+                client.EndListDirectory,
+                null);
+
+            // Wait for task completion or timeout
+            await using var registration = cts.Token.Register(() =>
+            {
+                if (!task.IsCompleted)
+                {
+                    this.Logger.LogWarning("SFTP list directory operation timed out for path '{path}'", path);
+                    try
+                    {
+                        client.Disconnect(); // Force disconnect on timeout
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Logger.LogError(ex, "Error disconnecting SFTP client after timeout");
+                    }
+                }
+            });
+
+            return await task.WaitAsync(cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            throw new TimeoutException($"SFTP list directory operation timed out for path '{path}'");
+        }
+        catch (Exception ex)
+        {
+            this.Logger.LogError(ex, "Error listing SFTP directory '{path}'", path);
+            throw;
+        }
     }
 
     /// <summary>

@@ -10,11 +10,6 @@ public interface IServiceActionManager
     /// get - Whether the current manager is running.
     /// </summary>
     public bool IsRunning { get; }
-
-    /// <summary>
-    /// get - The number of times this action process has been run.
-    /// </summary>
-    public int RanCounter { get; }
     #endregion
 
     #region Methods
