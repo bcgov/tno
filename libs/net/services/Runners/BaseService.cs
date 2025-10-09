@@ -225,12 +225,7 @@ public abstract class BaseService
             }
             catch (Exception ex)
             {
-                if (!options.AutoRestartAfterCriticalFailure)
-                    throw;
-
                 _logger.LogCritical(ex, "Service critical failure");
-
-                // Wait to try again.
                 if (options.AutoRestartAfterCriticalFailure)
                     await Task.Delay(options.RetryAfterCriticalFailureDelayMS);
             }

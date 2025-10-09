@@ -20,7 +20,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
 {
     #region Variables
     private readonly IngestManagerFactory<TActionManager, TOption> _factory;
-    private readonly Dictionary<int, TActionManager> _ingests = new();
+    private readonly Dictionary<int, TActionManager> _ingestManagers = [];
     private readonly IServiceScope _serviceScope;
     #endregion
 
@@ -28,7 +28,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
     /// <summary>
     /// get - A collection of ingest configurations currently being run.
     /// </summary>
-    protected List<IngestModel> Ingests { get; private set; } = new List<IngestModel>();
+    protected List<IngestModel> Ingests { get; private set; } = [];
     #endregion
 
     #region Constructors
@@ -111,8 +111,8 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
 
                     // Maintain a dictionary of managers for each ingest.
                     // Fire event for the ingest scheduler.
-                    if (!_ingests.ContainsKey(ingest.Id)) _ingests.Add(ingest.Id, _factory.Create(ingest, _serviceScope));
-                    var manager = _ingests[ingest.Id];
+                    if (!_ingestManagers.ContainsKey(ingest.Id)) _ingestManagers.Add(ingest.Id, _factory.Create(ingest, _serviceScope));
+                    var manager = _ingestManagers[ingest.Id];
 
                     // Ask all live threads to stop.
                     if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause || this.State.Status == ServiceStatus.RequestFailed)
@@ -181,23 +181,15 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                         // Successful run clears any errors.
                         this.State.ResetFailures();
                     }
-                    catch (HttpClientRequestException ex)
-                    {
-                        var response = ex.Response?.Content.ReadAsStringAsync().Result;
-                        this.Logger.LogError(ex, "Ingest [{name}] failed to run. This is failure [{failures}] out of [{maxFailures}] maximum retries. Response: {Data}", ingest.Name, manager.Ingest.FailedAttempts + 1, manager.Ingest.RetryLimit, response);
-
-                        // Update ingest with failure.
-                        await manager.RecordFailureAsync(ex);
-                        this.State.RecordFailure();
-                        // Reached limit return to ingest manager, send email.
-                        if (manager.Ingest.FailedAttempts >= manager.Ingest.RetryLimit)
-                        {
-                            await this.SendErrorEmailAsync($"Ingest [{ingest.Name}] failed. Reached [{manager.Ingest.RetryLimit}] maximum retries.", ex);
-                        }
-                    }
                     catch (Exception ex)
                     {
-                        this.Logger.LogError(ex, "Ingest [{name}] failed to run. This is failure [{failures}] out of [{maxFailures}] maximum retries.", ingest.Name, manager.Ingest.FailedAttempts + 1, manager.Ingest.RetryLimit);
+                        if (ex is HttpClientRequestException httpEx)
+                        {
+                            var response = httpEx.Response?.Content.ReadAsStringAsync().Result;
+                            this.Logger.LogError(ex, "Ingest [{name}] failed to run. This is failure [{failures}] out of [{maxFailures}] maximum retries. Response: {Data}", ingest.Name, manager.Ingest.FailedAttempts + 1, manager.Ingest.RetryLimit, response);
+                        }
+                        else
+                            this.Logger.LogError(ex, "Ingest [{name}] failed to run. This is failure [{failures}] out of [{maxFailures}] maximum retries.", ingest.Name, manager.Ingest.FailedAttempts + 1, manager.Ingest.RetryLimit);
 
                         // Update ingest with failure.
                         await manager.RecordFailureAsync(ex);
@@ -241,8 +233,8 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                 {
                     this.Ingests[currentIngestIndex] = latestIngest;
 
-                    if (_ingests.ContainsKey(latestIngest.Id))
-                        _ingests[latestIngest.Id].Ingest = latestIngest;
+                    if (_ingestManagers.TryGetValue(latestIngest.Id, out var value))
+                        value.Ingest = latestIngest;
                 }
             }
             else
@@ -250,8 +242,6 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                 this.Ingests.Add(latestIngest);
             }
         }
-        this.Ingests.Clear();
-        this.Ingests.AddRange(ingests);
     }
 
     /// <summary>
@@ -260,7 +250,8 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
     /// <returns></returns>
     private async Task StopAllAsync()
     {
-        foreach (var manager in _ingests.Values)
+        this.Logger.LogInformation("Stopping all ingests");
+        foreach (var manager in _ingestManagers.Values)
         {
             await manager.StopAsync();
         }
@@ -282,7 +273,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                     this.Options.ReuseIngests,
                     this.Ingests.Where(i => i.IngestType?.Name == ingestType).ToArray());
                 // Only add the ingest configured for this data location.
-                ingests.AddRange(results.Where(i => i.DataLocations.Any(d => d.Name.ToLower() == this.Options.DataLocation.ToLower())));
+                ingests.AddRange(results.Where(i => i.DataLocations.Any(d => d.Name.Equals(this.Options.DataLocation, StringComparison.CurrentCultureIgnoreCase))));
             }
             catch (Exception ex)
             {
