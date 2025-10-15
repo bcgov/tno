@@ -83,7 +83,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 break;
             default: throw new InvalidOperationException($"Invalid import file format defined for '{manager.Ingest.Name}'");
         }
-        ;
+
+        this.Logger.LogDebug("Ingestion service action complete for ingest '{name}'", manager.Ingest.Name);
 
         return ServiceActionResult.Success;
     }
@@ -184,8 +185,44 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     private async Task<IEnumerable<ISftpFile>> FetchFileListingAsync(SftpClient client, string path)
     {
         this.Logger.LogDebug("Requesting files at this path '{path}'", path);
-        // TODO: Fetch file from source data location.  Only continue if the image exists.
-        return await Task.Factory.FromAsync<IEnumerable<ISftpFile>>((callback, obj) => client.BeginListDirectory(path, callback, obj), client.EndListDirectory, null);
+        try
+        {
+            // Create cancellation token with timeout
+            using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5)); // 5 minute timeout
+
+            var task = Task.Factory.FromAsync<IEnumerable<ISftpFile>>(
+                (callback, obj) => client.BeginListDirectory(path, callback, obj),
+                client.EndListDirectory,
+                null);
+
+            // Wait for task completion or timeout
+            await using var registration = cts.Token.Register(() =>
+            {
+                if (!task.IsCompleted)
+                {
+                    this.Logger.LogWarning("SFTP list directory operation timed out for path '{path}'", path);
+                    try
+                    {
+                        client.Disconnect(); // Force disconnect on timeout
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Logger.LogError(ex, "Error disconnecting SFTP client after timeout");
+                    }
+                }
+            });
+
+            return await task.WaitAsync(cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            throw new TimeoutException($"SFTP list directory operation timed out for path '{path}'");
+        }
+        catch (Exception ex)
+        {
+            this.Logger.LogError(ex, "Error listing SFTP directory '{path}'", path);
+            throw;
+        }
     }
 
     /// <summary>
@@ -419,8 +456,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <exception cref="FormatException"></exception>
     private async Task GetXmlArticlesAsync(string dir, IIngestActionManager manager, Dictionary<string, string> sources)
     {
-        var ingest = manager.Ingest;
-        var fileList = GetFileList(dir);
+        var fileList = GetFileList(manager, dir);
         var isBylineTitleCase = manager.Ingest.GetConfigurationValue<bool>("bylineTitleCase", false);
         var namespacesValue = manager.Ingest.GetConfigurationValue<string>("namespaces", "[]");
         var namespaces = JsonSerializer.Deserialize<XmlNamespace[]>(namespacesValue) ?? Array.Empty<XmlNamespace>();
@@ -430,26 +466,26 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             try
             {
                 // Extract a list of stories from the current document.
-                var document = GetValidXmlDocument(path, ingest);
+                var document = GetValidXmlDocument(path, manager.Ingest);
                 if (document != null)
                 {
                     var namespaceManager = new XmlNamespaceManager(document.NameTable);
                     namespaces.ForEach(ns => namespaceManager.AddNamespace(ns.Id, ns.Href));
 
-                    var elementList = document.GetElementsByTagName(ingest.GetConfigurationValue(Fields.Item));
+                    var elementList = document.GetElementsByTagName(manager.Ingest.GetConfigurationValue(Fields.Item));
 
                     // Iterate over the list of stories and add a new item to the articles list for each story.
                     foreach (XmlElement story in elementList)
                     {
-                        var paperName = GetXmlData(story, Fields.PaperName, ingest, namespaceManager);
-                        var code = GetItemSourceCode(ingest, paperName, sources);
-                        var mediaTypeId = await GetMediaTypeIdAsync(ingest, code, sources);
-                        var headline = GetXmlData(story, Fields.Headline, ingest, namespaceManager);
-                        var publishedOn = GetPublishedOn(GetXmlData(story, Fields.Date, ingest, namespaceManager), ingest, this.Options);
+                        var paperName = GetXmlData(story, Fields.PaperName, manager.Ingest, namespaceManager);
+                        var code = GetItemSourceCode(manager.Ingest, paperName, sources);
+                        var mediaTypeId = await GetMediaTypeIdAsync(manager.Ingest, code, sources);
+                        var headline = GetXmlData(story, Fields.Headline, manager.Ingest, namespaceManager);
+                        var publishedOn = GetPublishedOn(GetXmlData(story, Fields.Date, manager.Ingest, namespaceManager), manager.Ingest, this.Options);
                         var contentHash = Runners.BaseService.GetContentHash(code, headline, publishedOn);
-                        var author = FormatText(manager, GetXmlData(story, Fields.Author, ingest, namespaceManager));
-                        var summary = GetXmlData(story, Fields.Summary, ingest, namespaceManager);
-                        var body = GetXmlData(story, Fields.Story, ingest, namespaceManager);
+                        var author = FormatText(manager, GetXmlData(story, Fields.Author, manager.Ingest, namespaceManager));
+                        var summary = GetXmlData(story, Fields.Summary, manager.Ingest, namespaceManager);
+                        var body = GetXmlData(story, Fields.Story, manager.Ingest, namespaceManager);
 
                         var item = new SourceContent(
                             this.Options.DataLocation,
@@ -462,11 +498,11 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                             FormatText(manager, body),
                             publishedOn)
                         {
-                            Page = GetXmlData(story, Fields.Page, ingest, namespaceManager),
-                            Section = GetXmlData(story, Fields.Section, ingest, namespaceManager),
-                            Language = ingest.GetConfigurationValue("language"),
+                            Page = GetXmlData(story, Fields.Page, manager.Ingest, namespaceManager),
+                            Section = GetXmlData(story, Fields.Section, manager.Ingest, namespaceManager),
+                            Language = manager.Ingest.GetConfigurationValue("language"),
                             Authors = GetAuthorList(isBylineTitleCase ? ToTitleCase(author) : author),
-                            ExternalUid = GetXmlData(story, Fields.Id, ingest, namespaceManager)
+                            ExternalUid = GetXmlData(story, Fields.Id, manager.Ingest, namespaceManager)
                         };
 
                         await ImportArticleAsync(manager, item);
@@ -478,21 +514,21 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             catch (Exception ex)
             {
                 // Reached limit return to ingest manager.
-                if (ingest.FailedAttempts + 1 >= ingest.RetryLimit)
-                    throw new FormatException($"File contents for ingest '{ingest.Name}' is invalid.", ex);
+                if (manager.Ingest.FailedAttempts + 1 >= manager.Ingest.RetryLimit)
+                    throw new FormatException($"File contents for ingest '{manager.Ingest.Name}' is invalid.", ex);
 
-                this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}', File: {file}", ingest.Name, path);
+                this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}', File: {file}", manager.Ingest.Name, path);
                 await manager.RecordFailureAsync(ex);
                 await manager.SendEmailAsync($"Failed to ingest item for ingest '{manager.Ingest.Name}', File: {path}", ex);
             }
         }
     }
 
-    private IEnumerable<string> GetFileList(string dir)
+    private IEnumerable<string> GetFileList(IIngestActionManager manager, string dir)
     {
         var directoryExists = Directory.Exists(dir);
         var result = directoryExists ? Directory.GetFiles(dir) : Array.Empty<string>();
-        if (!directoryExists) Logger.LogWarning("Directory '{dir}' does not exist.", dir);
+        if (!directoryExists) Logger.LogWarning("Directory '{dir}' does not exist for {manager}.", dir, manager.Ingest.Name);
         return result;
     }
 
@@ -509,8 +545,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <exception cref="FormatException"></exception>
     private async Task GetFmsArticlesAsync(string dir, IIngestActionManager manager, Dictionary<string, string> sources)
     {
-        var ingest = manager.Ingest;
-        var fileList = GetFileList(dir);
+        var fileList = GetFileList(manager, dir);
         var isBylineTitleCase = manager.Ingest.GetConfigurationValue<bool>("bylineTitleCase", false);
 
         // Iterate over the files in the list and process the stories they contain.
@@ -520,38 +555,38 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             {
                 // Extract a list of stories from the current document. Replace the story delimiter with a string that
                 // facilitates the extraction of stories using regular expressions in single-line mode.
-                var text = ReadFileContents(path, ingest);
+                var text = ReadFileContents(path, manager.Ingest);
                 if (text != null)
                 {
-                    var entries = text.Split(ingest.GetConfigurationValue(Fields.Item)).Where(t => !String.IsNullOrWhiteSpace(t)).Select(t => t.Trim());
+                    var entries = text.Split(manager.Ingest.GetConfigurationValue(Fields.Item)).Where(t => !String.IsNullOrWhiteSpace(t)).Select(t => t.Trim());
 
                     // Iterate over the list of stories and add a new item to the articles list for each story.
                     foreach (var entry in entries)
                     {
                         // Single line mode prevents matching on "\n\n", so replace this with a meaningful field delimiter.
-                        var papername = GetFmsData(entry, Fields.PaperName, ingest);
-                        var code = GetItemSourceCode(ingest, papername, sources);
-                        var author = GetFmsData(entry, Fields.Author, ingest);
+                        var papername = GetFmsData(entry, Fields.PaperName, manager.Ingest);
+                        var code = GetItemSourceCode(manager.Ingest, papername, sources);
+                        var author = GetFmsData(entry, Fields.Author, manager.Ingest);
 
                         if (!String.IsNullOrEmpty(code)) // This is a valid newspaper source
                         {
-                            var mediaTypeId = await GetMediaTypeIdAsync(ingest, code, sources);
+                            var mediaTypeId = await GetMediaTypeIdAsync(manager.Ingest, code, sources);
                             var item = new SourceContent(
                                 this.Options.DataLocation,
                                 code,
                                 ContentType.PrintContent,
                                 mediaTypeId,
-                                GetFmsData(entry, Fields.Id, ingest),
-                                GetFmsData(entry, Fields.Headline, ingest),
-                                GetFmsData(entry, Fields.Summary, ingest),
-                                GetFmsData(entry, Fields.Story, ingest, "$"),
-                                GetPublishedOn(GetFmsData(entry, Fields.Date, ingest), ingest, this.Options))
+                                GetFmsData(entry, Fields.Id, manager.Ingest),
+                                GetFmsData(entry, Fields.Headline, manager.Ingest),
+                                GetFmsData(entry, Fields.Summary, manager.Ingest),
+                                GetFmsData(entry, Fields.Story, manager.Ingest, "$"),
+                                GetPublishedOn(GetFmsData(entry, Fields.Date, manager.Ingest), manager.Ingest, this.Options))
                             {
-                                Page = GetFmsData(entry, Fields.Page, ingest),
-                                Section = GetFmsData(entry, Fields.Section, ingest),
-                                Language = ingest.GetConfigurationValue("language"),
+                                Page = GetFmsData(entry, Fields.Page, manager.Ingest),
+                                Section = GetFmsData(entry, Fields.Section, manager.Ingest),
+                                Language = manager.Ingest.GetConfigurationValue("language"),
 
-                                Labels = GetLabelList(entry, ingest),
+                                Labels = GetLabelList(entry, manager.Ingest),
                                 Authors = GetAuthorList(isBylineTitleCase ? ToTitleCase(author) : author),
                             };
 
@@ -563,10 +598,10 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             catch (Exception ex)
             {
                 // Reached limit return to ingest manager.
-                if (ingest.FailedAttempts + 1 >= ingest.RetryLimit)
-                    throw new FormatException($"File contents for ingest '{ingest.Name}' is invalid.", ex);
+                if (manager.Ingest.FailedAttempts + 1 >= manager.Ingest.RetryLimit)
+                    throw new FormatException($"File contents for ingest '{manager.Ingest.Name}' is invalid.", ex);
 
-                this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}', File: {file}", ingest.Name, path);
+                this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}', File: {file}", manager.Ingest.Name, path);
                 await manager.RecordFailureAsync(ex);
                 await manager.SendEmailAsync($"Failed to ingest item for ingest '{manager.Ingest.Name}', File: {path}", ex);
             }

@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Web;
 using Microsoft.Extensions.Logging;
@@ -172,14 +173,23 @@ namespace TNO.Ches
             }
             catch (HttpClientRequestException ex)
             {
-                if (ex.Response != null)
+                if (ex.Response != null && ex.Response.Content.Headers.ContentType?.MediaType?.Contains("json", StringComparison.InvariantCultureIgnoreCase) == true)
                 {
-                    var response = await this.Client.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
-                    var error = String.Join(Environment.NewLine, response?.Errors.Select(e => e.Message) ?? []);
-                    _logger.LogError(ex, "Failed to send/receive request: {code} {url}.  Error: {error}", ex.StatusCode, url, error);
-                    throw new ChesException(ex, this.Client, response);
+                    var stream = await ex.Response.Content.ReadAsStreamAsync();
+                    if (stream.CanSeek && stream.Position == stream.Length && stream.Length > 0)
+                    {
+                        var response = await this.Client.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
+                        var error = String.Join(Environment.NewLine, response?.Errors.Select(e => e.Message) ?? []);
+                        _logger.LogError(ex, "Failed to send/receive request: {code} {url}.  Error: {error}", ex.StatusCode, url, error);
+                        throw new ChesException(ex, this.Client, response);
+                    }
                 }
                 _logger.LogError(ex, "Failed to send/receive request: {code} {url}.  Error: {error}", ex.StatusCode, url, ex.GetAllMessages());
+                throw new ChesException("Failed to send message to CHES", ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send/receive request: {url}.  Error: {error}", url, ex.GetAllMessages());
                 throw new ChesException("Failed to send message to CHES", ex);
             }
         }

@@ -8,7 +8,8 @@ import * as styled from './styled';
 
 const toningOptions = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5];
 
-export interface ISentimentPickerProps<T> {
+export interface ISentimentPickerProps<T>
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   /** The name of the field. */
   name: string | keyof T;
   /** The label of the field. */
@@ -35,6 +36,7 @@ export const SentimentPicker = <T extends object>({
   error,
   onChange,
   required,
+  className,
   ...rest
 }: ISentimentPickerProps<T>) => {
   const [active, setActive] = React.useState(initValue);
@@ -56,7 +58,11 @@ export const SentimentPicker = <T extends object>({
   };
 
   return (
-    <styled.SentimentPicker className="frm-in multi-group" required={required}>
+    <styled.SentimentPicker
+      className={`frm-in multi-group${className ? ` ${className}` : ''}`}
+      required={required}
+      {...rest}
+    >
       {label && <label>{label}</label>}
       <Row>
         {' '}

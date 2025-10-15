@@ -720,7 +720,7 @@ public static partial class ReportExtensions
         {
             return settings.GroupBy switch
             {
-                "dayMonthYear" => $"{DateTime.ParseExact(dataset.Key, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None):dd-MM-yyyy}",
+                "dayMonthYear" => $"{DateTime.ParseExact(dataset.Key, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None):dd-MMM-yyyy}",
                 "monthDay" => $"{DateTime.ParseExact(dataset.Key, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None):MMM-dd}",
                 "monthYear" => $"{DateTime.ParseExact(dataset.Key, "yyyyMM", null, System.Globalization.DateTimeStyles.None):MMM-yyyy}",
                 _ => dataset.Key,
@@ -801,6 +801,46 @@ public static partial class ReportExtensions
             }
         }
         return values.ToArray();
+    }
+
+    /// <summary>
+    /// Abbreviate and format the number.
+    /// </summary>
+    /// <param name="number"></param>
+    /// <param name="format"></param>
+    /// <returns></returns>
+    public static string? AbbreviateNumber(int? number, string format = "#,##0")
+    {
+        if (number == null)
+        {
+            return null;
+        }
+        if (number >= 1_000_000)
+        {
+            return $"{number.Value / 1_000_000.0:F1}M";
+        }
+        if (number >= 1_000)
+        {
+            return $"{number.Value / 1_000.0:F1}K";
+        }
+        return number?.ToString(format);
+    }
+
+    /// <summary>
+    /// Format the integer and abbreviate if required.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="abbreviate"></param>
+    /// <param name="format"></param>
+    /// <returns></returns>
+    public static string? FormatInteger(string? value, bool abbreviate = false, string format = "#,##0")
+    {
+        if (!String.IsNullOrWhiteSpace(value) && int.TryParse(value, out int number))
+        {
+            if (!abbreviate) return number.ToString(format);
+            else return AbbreviateNumber(number);
+        }
+        return value;
     }
     #endregion
 }

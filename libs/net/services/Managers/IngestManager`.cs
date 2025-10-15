@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Ches;
 using TNO.Ches.Configuration;
+using TNO.Core.Exceptions;
 using TNO.Services.Config;
 
 namespace TNO.Services.Managers;
@@ -19,7 +20,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
 {
     #region Variables
     private readonly IngestManagerFactory<TActionManager, TOption> _factory;
-    private readonly Dictionary<int, TActionManager> _ingests = new();
+    private readonly Dictionary<int, TActionManager> _ingestManagers = [];
     private readonly IServiceScope _serviceScope;
     #endregion
 
@@ -27,7 +28,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
     /// <summary>
     /// get - A collection of ingest configurations currently being run.
     /// </summary>
-    protected List<IngestModel> Ingests { get; private set; } = new List<IngestModel>();
+    protected List<IngestModel> Ingests { get; private set; } = [];
     #endregion
 
     #region Constructors
@@ -76,11 +77,19 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
         {
             if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause || this.State.Status == ServiceStatus.RequestFailed)
             {
+                // Stop all running ingest processes.
                 await StopAllAsync();
                 this.State.Stop();
             }
 
-            if (this.State.Status == ServiceStatus.Sleeping || this.State.Status == ServiceStatus.Paused)
+            if (this.State.Status == ServiceStatus.Failed && this.Options.AutoRestartAfterCriticalFailure)
+            {
+                // If the service should auto-restart, wait a bit and then resume.
+                await Task.Delay(this.Options.RetryAfterCriticalFailureDelayMS);
+                this.State.Resume();
+            }
+
+            if (this.State.Status != ServiceStatus.Running)
             {
                 this.Logger.LogDebug("The service is not running '{Status}'", this.State.Status);
             }
@@ -102,8 +111,8 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
 
                     // Maintain a dictionary of managers for each ingest.
                     // Fire event for the ingest scheduler.
-                    if (!_ingests.ContainsKey(ingest.Id)) _ingests.Add(ingest.Id, _factory.Create(ingest, _serviceScope));
-                    var manager = _ingests[ingest.Id];
+                    if (!_ingestManagers.ContainsKey(ingest.Id)) _ingestManagers.Add(ingest.Id, _factory.Create(ingest, _serviceScope));
+                    var manager = _ingestManagers[ingest.Id];
 
                     // Ask all live threads to stop.
                     if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause || this.State.Status == ServiceStatus.RequestFailed)
@@ -124,7 +133,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
 
                             if (!theLatest.IsEnabled ||
                                 !theLatest.IngestSchedules.Any(d => d.Schedule?.IsEnabled == true) ||
-                                !theLatest.DataLocations.Any(d => d.Name.ToLower() == Options.DataLocation.ToLower()))
+                                !theLatest.DataLocations.Any(d => d.Name.Equals(Options.DataLocation, StringComparison.CurrentCultureIgnoreCase)))
                             {
                                 await manager.StopAsync();
                                 continue;
@@ -133,7 +142,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                     }
 
                     // If the service isn't running, don't make additional requests.
-                    if (this.State.Status != ServiceStatus.Running) continue;
+                    if (this.State.Status != ServiceStatus.Running) break;
 
                     try
                     {
@@ -172,22 +181,15 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                         // Successful run clears any errors.
                         this.State.ResetFailures();
                     }
-                    catch (HttpRequestException ex)
-                    {
-                        this.Logger.LogError(ex, "Ingest [{name}] failed to run. This is failure [{failures}] out of [{maxFailures}] maximum retries. Response: {Data}", ingest.Name, manager.Ingest.FailedAttempts + 1, manager.Ingest.RetryLimit, ex.Data["Body"]);
-
-                        // Update ingest with failure.
-                        await manager.RecordFailureAsync(ex);
-                        this.State.RecordFailure();
-                        // Reached limit return to ingest manager, send email.
-                        if (manager.Ingest.FailedAttempts >= manager.Ingest.RetryLimit)
-                        {
-                            await this.SendErrorEmailAsync($"Ingest [{ingest.Name}] failed. Reached [{manager.Ingest.RetryLimit}] maximum retries.", ex);
-                        }
-                    }
                     catch (Exception ex)
                     {
-                        this.Logger.LogError(ex, "Ingest [{name}] failed to run. This is failure [{failures}] out of [{maxFailures}] maximum retries.", ingest.Name, manager.Ingest.FailedAttempts + 1, manager.Ingest.RetryLimit);
+                        if (ex is HttpClientRequestException httpEx)
+                        {
+                            var response = httpEx.Response?.Content.ReadAsStringAsync().Result;
+                            this.Logger.LogError(ex, "Ingest [{name}] failed to run. This is failure [{failures}] out of [{maxFailures}] maximum retries. Response: {Data}", ingest.Name, manager.Ingest.FailedAttempts + 1, manager.Ingest.RetryLimit, response);
+                        }
+                        else
+                            this.Logger.LogError(ex, "Ingest [{name}] failed to run. This is failure [{failures}] out of [{maxFailures}] maximum retries.", ingest.Name, manager.Ingest.FailedAttempts + 1, manager.Ingest.RetryLimit);
 
                         // Update ingest with failure.
                         await manager.RecordFailureAsync(ex);
@@ -206,9 +208,6 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
             // It could also result in a longer than planned delay if the action manager is awaited (currently it is).
             this.Logger.LogDebug("Service sleeping for {delay:n0} ms", delay);
             await Task.Delay(delay);
-
-            // after the service has slept after a number of failures it needs to be woken up
-            this.State.Resume();
 
             await RefreshIngestsAsync();
         }
@@ -234,8 +233,8 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                 {
                     this.Ingests[currentIngestIndex] = latestIngest;
 
-                    if (_ingests.ContainsKey(latestIngest.Id))
-                        _ingests[latestIngest.Id].Ingest = latestIngest;
+                    if (_ingestManagers.TryGetValue(latestIngest.Id, out var value))
+                        value.Ingest = latestIngest;
                 }
             }
             else
@@ -243,8 +242,6 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                 this.Ingests.Add(latestIngest);
             }
         }
-        this.Ingests.Clear();
-        this.Ingests.AddRange(ingests);
     }
 
     /// <summary>
@@ -253,7 +250,8 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
     /// <returns></returns>
     private async Task StopAllAsync()
     {
-        foreach (var manager in _ingests.Values)
+        this.Logger.LogInformation("Stopping all ingests");
+        foreach (var manager in _ingestManagers.Values)
         {
             await manager.StopAsync();
         }
@@ -275,7 +273,7 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
                     this.Options.ReuseIngests,
                     this.Ingests.Where(i => i.IngestType?.Name == ingestType).ToArray());
                 // Only add the ingest configured for this data location.
-                ingests.AddRange(results.Where(i => i.DataLocations.Any(d => d.Name.ToLower() == this.Options.DataLocation.ToLower())));
+                ingests.AddRange(results.Where(i => i.DataLocations.Any(d => d.Name.Equals(this.Options.DataLocation, StringComparison.CurrentCultureIgnoreCase))));
             }
             catch (Exception ex)
             {

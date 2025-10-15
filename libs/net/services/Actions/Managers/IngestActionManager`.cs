@@ -162,13 +162,17 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     public virtual bool VerifySchedule(DateTime date, ScheduleModel schedule)
     {
         if (!this.Ingest.IsEnabled || !this.Ingest.IngestSchedules.Any(s => s.Schedule?.IsEnabled == true)) return false;
-        return VerifyDelay(date, schedule) &&
+        var result = VerifyDelay(date, schedule) &&
             VerifyRepeat(date, schedule) &&
             VerifyRunOn(date, schedule) &&
             VerifyStartAt(date, schedule) &&
             VerifyDayOfMonth(date, schedule) &&
             VerifyWeekDay(date, schedule) &&
             VerifyMonth(date, schedule);
+
+        if (!result)
+            this.Logger.LogDebug("Ingest [{name}] schedule [{schedule}] verification result: {result}", this.Ingest.Name, schedule.Name, result);
+        return result;
     }
 
     /// <summary>

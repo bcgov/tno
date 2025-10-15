@@ -11,11 +11,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Serilog;
+using Serilog.Formatting.Compact;
 using TNO.Ches;
 using TNO.Core.Http;
 using TNO.Core.Http.Configuration;
 using TNO.Services.Config;
 using TNO.Services.Controllers;
+using TNO.Services.Logging;
 
 namespace TNO.Services.Runners;
 
@@ -29,7 +32,7 @@ public abstract class BaseService
     /// <summary>
     /// The logger for the service.
     /// </summary>
-    private readonly ILogger _logger;
+    private readonly Microsoft.Extensions.Logging.ILogger _logger;
     #endregion
 
     #region Properties
@@ -58,9 +61,20 @@ public abstract class BaseService
     {
         DotNetEnv.Env.Load($"{System.Environment.CurrentDirectory}{Path.DirectorySeparatorChar}.env");
         var builder = WebApplication.CreateBuilder(args);
+        builder.Host.UseSerilog((hostingContext, loggerConfiguration) =>
+        {
+            loggerConfiguration
+                .ReadFrom.Configuration(hostingContext.Configuration) // Load from appsettings.json "Serilog" section
+                .Enrich.With(new CustomLevelEnricher())
+                .Enrich.With(new ExceptionEnricher())
+                .Enrich.With(new MessageEnricher());
+            // Add more enrichers, filters, or overrides as needed.
+        });
+
         this.Environment = builder.Environment;
         this.Configuration = Configure(builder, args)
             .Build();
+
         ConfigureServices(builder.Services);
         this.App = builder.Build();
         Console.OutputEncoding = Encoding.UTF8;
@@ -114,10 +128,13 @@ public abstract class BaseService
                 options.WriteIndented = jsonSerializerOptions.WriteIndented;
                 options.Converters.Add(new JsonStringEnumConverter());
             })
-            .AddLogging(options =>
+            .AddLogging(builder =>
             {
-                options.AddConfiguration(this.Configuration.GetSection("Logging"));
-                options.AddConsole();
+                builder.AddConfiguration(this.Configuration.GetSection("Logging"));
+                // builder.AddConsole();
+
+                builder.ClearProviders();
+                builder.AddSerilog(dispose: true);
             })
             .AddTransient<JwtSecurityTokenHandler>()
             .AddChesSingletonService(this.Configuration.GetSection("CHES"))
@@ -208,12 +225,7 @@ public abstract class BaseService
             }
             catch (Exception ex)
             {
-                if (!options.AutoRestartAfterCriticalFailure)
-                    throw;
-
                 _logger.LogCritical(ex, "Service critical failure");
-
-                // Wait to try again.
                 if (options.AutoRestartAfterCriticalFailure)
                     await Task.Delay(options.RetryAfterCriticalFailureDelayMS);
             }

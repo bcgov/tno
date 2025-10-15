@@ -5,6 +5,7 @@ import { toQueryString } from '../../../utils';
 import {
   defaultEnvelope,
   ILifecycleToasts,
+  IReportContentMutationModel,
   IReportFilter,
   IReportInstanceContentModel,
   IReportInstanceModel,
@@ -88,7 +89,7 @@ export const useApiSubscriberReports = (
       );
     },
     generateReport: (reportId: number, regenerate: boolean | undefined = false) => {
-      return api.post<never, AxiosResponse<IReportModel>, any>(
+      return api.post<IReportInstanceContentModel[], AxiosResponse<IReportModel>, any>(
         `/subscriber/reports/${reportId}/generate${
           regenerate !== undefined ? `?regenerate=${regenerate}` : ''
         }`,
@@ -100,8 +101,8 @@ export const useApiSubscriberReports = (
       );
     },
     addContentToReport: (reportId: number, content: IReportInstanceContentModel[]) => {
-      return api.post<never, AxiosResponse<IReportModel>, any>(
-        `/subscriber/reports/${reportId}/content`,
+      return api.post<IReportInstanceContentModel[], AxiosResponse<IReportContentMutationModel>, any>(
+        `/subscriber/reports/${reportId}/content/fast`,
         content,
       );
     },

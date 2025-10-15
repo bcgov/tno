@@ -1,0 +1,272 @@
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: api-validator
+  namespace: 9b301c-prod
+  annotations:
+    description: Defines how to deploy api
+  labels:
+    name: api-validator
+    part-of: tno
+    version: 1.0.0
+    component: api-validator
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  replicas: 1
+  test: false
+  selector:
+    part-of: tno
+    component: api-validator
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - api-validator
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: api:validator
+  template:
+    metadata:
+      name: api-validator
+      labels:
+        part-of: tno
+        component: api-validator
+    spec:
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: api-storage
+          persistentVolumeClaim:
+            claimName: api-storage
+        - name: ingest-storage
+          persistentVolumeClaim:
+            claimName: ingest-storage
+      containers:
+        - name: api-validator
+          image: image-registry.openshift-image-registry.svc:5000/9b301c-tools/api:validator
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: api-storage
+              mountPath: /mnt/data
+            - name: ingest-storage
+              mountPath: /mnt/ingest
+          resources:
+            requests:
+              cpu: 100m
+              memory: 350Mi
+          env:
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+            - name: HubPath
+              value: /hub
+            - name: Charts__Url
+              value: "http://charts-api:8080"
+
+            - name: Kafka__Consumer__GroupId
+              value: api-validator
+
+            - name: Logging__LogLevel__TNO
+              value: Debug
+
+            - name: Storage__UploadPath
+              value: /mnt/data
+            - name: Storage__CapturePath
+              value: /mnt/ingest
+
+            - name: Keycloak__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_AUTHORITY
+            - name: Keycloak__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_AUDIENCE
+            - name: Keycloak__Issuer
+              valueFrom:
+                configMapKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_ISSUER
+            - name: Keycloak__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_CLIENT_ID
+            - name: Keycloak__ServiceAccount__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_SERVICEACCOUNT_AUTHORITY
+            - name: Keycloak__ServiceAccount__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_CLIENT_SECRET
+
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: api
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            - name: ConnectionStrings__TNO
+              valueFrom:
+                configMapKeyRef:
+                  name: api
+                  key: CONNECTION_STRING
+            - name: DB_POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: moonstep
+                  key: USERNAME
+            - name: DB_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: moonstep
+                  key: PASSWORD
+
+            - name: Elastic__Url
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service-cloud
+                  key: ELASTICSEARCH_URI
+            - name: Elastic__Username
+              valueFrom:
+                secretKeyRef:
+                  name: elastic-cloud
+                  key: USERNAME
+            - name: Elastic__Password
+              valueFrom:
+                secretKeyRef:
+                  name: elastic-cloud
+                  key: PASSWORD
+            - name: Elastic__ApiKey
+              valueFrom:
+                secretKeyRef:
+                  name: elastic-cloud
+                  key: ApiKey
+            - name: Elastic__ContentIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service-cloud
+                  key: CONTENT_INDEX
+            - name: Elastic__PublishedIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service-cloud
+                  key: PUBLISHED_INDEX
+
+            - name: Reporting__SubscriberAppUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-shared
+                  key: REPORTING_SUBSCRIBER_URL
+            - name: Reporting__ViewContentUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-shared
+                  key: REPORTING_VIEW_CONTENT_URL
+            - name: Reporting__RequestTranscriptUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-shared
+                  key: REPORTING_REQUEST_TRANSCRIPT_URL
+
+            # S3 Configuration
+            - name: S3_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-backup-credentials
+                  key: S3_ACCESS_KEY
+            - name: S3_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-backup-credentials
+                  key: S3_SECRET_KEY
+            - name: S3_BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: s3-backup-credentials
+                  key: S3_BUCKET_NAME
+            - name: S3_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: s3-backup-credentials
+                  key: S3_SERVICE_URL
+
+            # CHES Configuration
+            - name: CHES__From
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_FROM
+            - name: CHES__EmailEnabled
+              valueFrom:
+                configMapKeyRef:
+                  name: api
+                  key: CHES_EMAIL_ENABLED
+            - name: CHES__EmailAuthorized
+              valueFrom:
+                configMapKeyRef:
+                  name: api
+                  key: CHES_EMAIL_AUTHORIZED
+
+            - name: CHES__AuthUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_AUTH_URL
+            - name: CHES__HostUri
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_HOST_URI
+            - name: CHES__Username
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: USERNAME
+            - name: CHES__Password
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: PASSWORD
+
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 60
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 3

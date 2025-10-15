@@ -97,11 +97,8 @@ namespace TNO.Core.Http
                 throw;
             }
 
-            // Throw exception because the response failed and cannot be deserialized.
-            var errorEx = new HttpClientRequestException($"Response must contain JSON but was '{contentType?.MediaType}'.", response.StatusCode);
-            var responseBytes = responseStream.ReadAllBytes();
-            errorEx.Data["body"] = Encoding.Default.GetString(responseBytes);
-            throw errorEx;
+            // The request response was a failure, wrap exception.
+            throw new HttpClientRequestException(response);
         }
 
         #region HttpResponseMessage Methods

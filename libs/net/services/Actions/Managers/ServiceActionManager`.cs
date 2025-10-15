@@ -26,11 +26,6 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     public bool IsRunning { get; protected set; }
 
     /// <summary>
-    /// get - The number of times this data source process has been run.
-    /// </summary>
-    public int RanCounter { get; protected set; }
-
-    /// <summary>
     /// get - Configuration options for the service.
     /// </summary>
     protected TOptions Options { get; private set; }
@@ -43,7 +38,7 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of a DataSourceIngestManager object, initializes with specified parameters.
+    /// Creates a new instance of a ServiceActionManager object, initializes with specified parameters.
     /// </summary>
     /// <param name="ches"></param>
     /// <param name="chesOptions"></param>
@@ -67,7 +62,7 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
 
     #region Methods
     /// <summary>
-    /// Based on the schedule run the process for this data source.
+    /// Based on the schedule run the process for this action.
     /// </summary>
     public virtual async Task RunAsync()
     {
@@ -80,18 +75,16 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
 
                 var actionResult = await PerformActionAsync();
 
-                this.RanCounter++;
-
                 await PostRunAsync(actionResult);
-            }
-            catch
-            {
-                throw;
             }
             finally
             {
                 this.IsRunning = false;
             }
+        }
+        else if (this.IsRunning)
+        {
+            this.Logger.LogWarning("The action is currently already running.");
         }
     }
 
