@@ -1,9 +1,9 @@
 ARG BUILD_CONFIGURATION=Release
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 
-RUN apt-get update --fix-missing && apt-get -y upgrade
-RUN apt -y install curl libc6-dev libgdiplus ffmpeg
-RUN apt-get clean
+# RUN apt-get update --fix-missing && apt-get -y upgrade
+# RUN apt -y install curl libc6-dev libgdiplus ffmpeg
+# RUN apt-get clean
 
 EXPOSE 443 8080
 

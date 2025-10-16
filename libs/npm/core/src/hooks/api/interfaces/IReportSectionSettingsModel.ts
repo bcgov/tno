@@ -8,7 +8,6 @@ export interface IReportSectionSettingsModel {
   cacheData?: boolean;
   direction: 'row' | 'column';
   removeDuplicates: boolean;
-  removeDuplicateTitles?: boolean;
   overrideExcludeHistorical: boolean;
   inTableOfContents?: boolean;
   hideEmpty: boolean;
