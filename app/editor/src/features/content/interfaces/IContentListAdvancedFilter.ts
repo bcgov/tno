@@ -8,4 +8,9 @@ export interface IContentListAdvancedFilter {
   searchTerm: string;
   startDate?: string | null;
   endDate?: string | null;
+  secondaryFieldType?: AdvancedSearchKeys;
+  secondaryLogicalOperator?: LogicalOperator | '';
+  secondarySearchTerm?: string;
+  secondaryStartDate?: string | null;
+  secondaryEndDate?: string | null;
 }

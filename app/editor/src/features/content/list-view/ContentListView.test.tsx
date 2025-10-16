@@ -1,4 +1,5 @@
 import { render, waitFor } from '@testing-library/react';
+import { AdvancedSearchKeys } from 'features/content/constants';
 import { mockContent, TestWrapper } from 'test/utils';
 import { ContentStatusName, ContentTypeName } from 'tno-core';
 
@@ -27,6 +28,8 @@ const mockUseLookupOptions = [
     ingestTypeOptions: [],
     mediaTypeOptions: [],
     sourceOptions: [],
+    seriesOptions: [],
+    series: [],
     userOptions: [],
   },
 ];
@@ -34,7 +37,14 @@ const mockUseLookupOptions = [
 const mockUseContent = [
   {
     filter: {},
-    filterAdvanced: {},
+    filterAdvanced: {
+      fieldType: AdvancedSearchKeys.Source,
+      logicalOperator: '',
+      searchTerm: '',
+      secondaryFieldType: AdvancedSearchKeys.Source,
+      secondaryLogicalOperator: '',
+      secondarySearchTerm: '',
+    },
     content: {
       items: [
         {
@@ -79,14 +89,16 @@ jest.mock('store/hooks', () => ({
   useLookup: () => mockUseLookups,
 }));
 
-it('renders correctly...', async () => {
-  const { container } = render(
+it('renders advanced search rows', async () => {
+  const { getAllByTestId } = render(
     <TestWrapper>
       <ContentListView />
     </TestWrapper>,
   );
-  // TODO: This snapshot isn't waiting for the `findContent` to resolve.
-  await waitFor(() => expect(container).toMatchSnapshot());
+  await waitFor(() => {
+    const rows = getAllByTestId(/advanced-search-row-/);
+    expect(rows.length).toBe(2);
+  });
 });
 
 it('displays username without idir tag', async () => {
