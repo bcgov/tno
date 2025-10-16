@@ -19,6 +19,15 @@ export const queryToFilterAdvanced = (
       searchTerm: search.searchTerm ?? filter.searchTerm,
       startDate: search.startDate ?? filter.startDate,
       endDate: search.endDate ?? filter.endDate,
+      secondaryFieldType: search.secondaryFieldType ?? filter.secondaryFieldType,
+      secondaryLogicalOperator: convertTo(
+        search.secondaryLogicalOperator,
+        'string',
+        filter.secondaryLogicalOperator,
+      ),
+      secondarySearchTerm: search.secondarySearchTerm ?? filter.secondarySearchTerm,
+      secondaryStartDate: search.secondaryStartDate ?? filter.secondaryStartDate,
+      secondaryEndDate: search.secondaryEndDate ?? filter.secondaryEndDate,
     };
   }
   return filter;
