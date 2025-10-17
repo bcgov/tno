@@ -29,6 +29,9 @@ export const initialContentState: IContentState = {
     fieldType: AdvancedSearchKeys.Source,
     logicalOperator: LogicalOperator.Contains,
     searchTerm: '',
+    secondaryFieldType: AdvancedSearchKeys.Source,
+    secondaryLogicalOperator: LogicalOperator.Contains,
+    secondarySearchTerm: '',
   },
   filterPaper: {
     pageIndex: 0,
@@ -53,6 +56,9 @@ export const initialContentState: IContentState = {
     fieldType: AdvancedSearchKeys.Headline,
     logicalOperator: LogicalOperator.Contains,
     searchTerm: '',
+    secondaryFieldType: AdvancedSearchKeys.Source,
+    secondaryLogicalOperator: LogicalOperator.Contains,
+    secondarySearchTerm: '',
   },
 };
 

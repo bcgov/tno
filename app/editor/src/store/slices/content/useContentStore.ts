@@ -2,6 +2,7 @@ import { AdvancedSearchKeys } from 'features/content/constants';
 import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
 import React from 'react';
 import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
+import { LogicalOperator } from 'tno-core';
 
 import {
   storeContentFilter,
@@ -30,6 +31,9 @@ var filterAdvanced: IContentListAdvancedFilter = {
   fieldType: AdvancedSearchKeys.Source,
   logicalOperator: '',
   searchTerm: '',
+  secondaryFieldType: AdvancedSearchKeys.Source,
+  secondaryLogicalOperator: LogicalOperator.Contains,
+  secondarySearchTerm: '',
 };
 
 export const useContentStore = (props?: IContentProps): [IContentState, IContentStore] => {
