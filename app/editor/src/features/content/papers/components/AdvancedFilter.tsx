@@ -45,9 +45,189 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
 }) => {
   const [{ filterPaper, filterPaperAdvanced: filterAdvanced }, { storeFilterPaperAdvanced }] =
     useContent();
-  const [{ sourceOptions }] = useLookupOptions();
+  const [{ sourceOptions, seriesOptions, series }] = useLookupOptions();
 
   const [statusOptions] = React.useState(getEnumStringOptions(ContentStatusName));
+
+  const showsAndProgramsOptions = React.useMemo(() => {
+    const allowedSeries = new Set(series.filter((s) => s.isEnabled && !s.isOther).map((s) => s.id));
+    return seriesOptions.filter(
+      (option) => option.value !== undefined && allowedSeries.has(Number(option.value)),
+    );
+  }, [series, seriesOptions]);
+
+  const updateAdvancedFilter = React.useCallback(
+    (values: Partial<IContentListAdvancedFilter>) => {
+      storeFilterPaperAdvanced({ ...filterAdvanced, ...values });
+    },
+    [filterAdvanced, storeFilterPaperAdvanced],
+  );
+
+  const executeSearch = React.useCallback(() => {
+    onSearch({ ...filterPaper, pageIndex: 0, ...filterAdvanced });
+    const queryParams: Record<string, unknown> = {
+      ...filterPaper,
+      pageIndex: 0,
+      fieldType: filterAdvanced.fieldType,
+      searchTerm: filterAdvanced.searchTerm,
+    };
+    if (filterAdvanced.secondarySearchTerm) {
+      queryParams.secondaryFieldType = filterAdvanced.secondaryFieldType;
+      queryParams.secondarySearchTerm = filterAdvanced.secondarySearchTerm;
+    }
+    replaceQueryParams(queryParams, {
+      includeEmpty: false,
+      convertObject: (value) => {
+        if (instanceOfIOption(value)) return value.value;
+        return value.toString();
+      },
+    });
+  }, [filterAdvanced, filterPaper, onSearch]);
+
+  const buildAdvancedRow = React.useCallback(
+    (rowKey: 'primary' | 'secondary') => {
+      const isSecondary = rowKey === 'secondary';
+      const fieldTypeKey = isSecondary ? 'secondaryFieldType' : 'fieldType';
+      const searchTermKey = isSecondary ? 'secondarySearchTerm' : 'searchTerm';
+
+      const currentFieldType = (filterAdvanced as any)[fieldTypeKey] ?? AdvancedSearchKeys.Source;
+      const currentSearchTerm = (filterAdvanced as any)[searchTermKey] ?? '';
+
+      const setFieldType = (value: AdvancedSearchKeys) =>
+        updateAdvancedFilter({
+          [fieldTypeKey]: value,
+          [searchTermKey]: '',
+        } as Partial<IContentListAdvancedFilter>);
+
+      const setSearchTerm = (value: string) =>
+        updateAdvancedFilter({
+          [searchTermKey]: value,
+        } as Partial<IContentListAdvancedFilter>);
+
+      return (
+        <Row
+          key={rowKey}
+          data-testid={`paper-advanced-row-${rowKey}`}
+          gap="0.5em"
+          alignItems="center"
+        >
+          <Select
+            name={isSecondary ? 'paperFieldTypeSecondary' : 'paperFieldType'}
+            options={advancedSearchOptions}
+            className="select"
+            width="20ch"
+            isClearable={false}
+            value={advancedSearchOptions.find((ft) => ft.value === currentFieldType)}
+            onChange={(newValue) => {
+              const option =
+                newValue instanceof OptionItem ? newValue.toInterface() : (newValue as IOptionItem);
+              setFieldType(option.value as AdvancedSearchKeys);
+            }}
+          />
+          <Show
+            visible={
+              ![
+                AdvancedSearchKeys.Source,
+                AdvancedSearchKeys.Series,
+                AdvancedSearchKeys.Status,
+                AdvancedSearchKeys.PublishedOn,
+                AdvancedSearchKeys.CreatedOn,
+                AdvancedSearchKeys.UpdatedOn,
+              ].includes(currentFieldType)
+            }
+          >
+            <Text
+              name={isSecondary ? 'paperSearchTermSecondary' : 'paperSearchTerm'}
+              value={currentSearchTerm}
+              onKeyUpCapture={(e) => {
+                if (e.key === 'Enter') executeSearch();
+              }}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+              }}
+            />
+          </Show>
+          <Show visible={currentFieldType === AdvancedSearchKeys.Status}>
+            <Select
+              name={isSecondary ? 'paperSearchTermSecondaryStatus' : 'paperSearchTermStatus'}
+              width={FieldSize.Medium}
+              onKeyUpCapture={(e) => {
+                if (e.key === 'Enter') executeSearch();
+              }}
+              onChange={(newValue: any) => {
+                if (!newValue) setSearchTerm('');
+                else {
+                  const optionItem = statusOptions.find((ds) => ds.value === newValue.value);
+                  setSearchTerm(optionItem?.value?.toString() ?? '');
+                }
+              }}
+              options={statusOptions}
+              value={statusOptions.find((s) => String(s.value) === String(currentSearchTerm))}
+            />
+          </Show>
+          <Show visible={currentFieldType === AdvancedSearchKeys.Source}>
+            <Select
+              name={isSecondary ? 'paperSearchTermSecondarySource' : 'paperSearchTermSource'}
+              width={FieldSize.Medium}
+              onChange={(newValue: any) => {
+                if (!newValue) setSearchTerm('');
+                else {
+                  const optionItem = filterEnabledOptions(sourceOptions, newValue.value).find(
+                    (ds) => ds.value === newValue.value,
+                  );
+                  setSearchTerm(optionItem?.value?.toString() ?? '');
+                }
+              }}
+              options={filterEnabledOptions(sourceOptions, currentSearchTerm)}
+              value={sourceOptions.find(
+                (s: IOptionItem) => String(s.value) === String(currentSearchTerm),
+              )}
+            />
+          </Show>
+          <Show visible={currentFieldType === AdvancedSearchKeys.Series}>
+            <Select
+              name={isSecondary ? 'paperSearchTermSecondarySeries' : 'paperSearchTermSeries'}
+              width={FieldSize.Medium}
+              onChange={(newValue: any) => {
+                if (!newValue) setSearchTerm('');
+                else setSearchTerm(newValue.value?.toString() ?? '');
+              }}
+              options={showsAndProgramsOptions}
+              value={showsAndProgramsOptions.find(
+                (s: IOptionItem) => String(s.value) === String(currentSearchTerm),
+              )}
+            />
+          </Show>
+          <Show
+            visible={[
+              AdvancedSearchKeys.Status,
+              AdvancedSearchKeys.PublishedOn,
+              AdvancedSearchKeys.CreatedOn,
+              AdvancedSearchKeys.UpdatedOn,
+            ].includes(currentFieldType)}
+          >
+            <SelectDate
+              name={isSecondary ? 'paperSearchTermSecondaryDate' : 'paperSearchTermDate'}
+              width="15ch"
+              isClearable
+              value={moment(currentSearchTerm).isValid() ? currentSearchTerm : undefined}
+              onChange={(value) => {
+                setSearchTerm(value ? moment(value).format('YYYY-MM-DD') : '');
+              }}
+            />
+          </Show>
+        </Row>
+      );
+    },
+    [
+      executeSearch,
+      filterAdvanced,
+      showsAndProgramsOptions,
+      sourceOptions,
+      statusOptions,
+      updateAdvancedFilter,
+    ],
+  );
 
   const search = fromQueryString(window.location.search, {
     arrays: ['contentTypes', 'sourceIds', 'mediaTypeIds', 'sort'],
@@ -61,6 +241,8 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
         ...filterAdvanced,
         fieldType: search.fieldType ?? AdvancedSearchKeys.Source,
         searchTerm: search.searchTerm ?? '',
+        secondaryFieldType: search.secondaryFieldType ?? filterAdvanced.secondaryFieldType,
+        secondarySearchTerm: search.secondarySearchTerm ?? filterAdvanced.secondarySearchTerm,
       });
     }
     // Only load the URL parameters the first time.
@@ -109,141 +291,12 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
           />
         </Row>
         <Row nowrap>
-          <Row>
-            <Select
-              name="fieldType"
-              options={advancedSearchOptions}
-              className="select"
-              width="20ch"
-              isClearable={false}
-              value={advancedSearchOptions.find((ft) => ft.value === filterAdvanced.fieldType)}
-              onChange={(newValue) => {
-                const value =
-                  newValue instanceof OptionItem
-                    ? newValue.toInterface()
-                    : (newValue as IOptionItem);
-                storeFilterPaperAdvanced({
-                  ...filterAdvanced,
-                  fieldType: value.value,
-                  searchTerm: '',
-                });
-              }}
-            />
-            <Show
-              visible={
-                ![
-                  AdvancedSearchKeys.Source,
-                  AdvancedSearchKeys.Status,
-                  AdvancedSearchKeys.PublishedOn,
-                  AdvancedSearchKeys.CreatedOn,
-                  AdvancedSearchKeys.UpdatedOn,
-                ].includes(filterAdvanced.fieldType)
-              }
-            >
-              <Text
-                name="searchTerm"
-                value={filterAdvanced.searchTerm}
-                onKeyUpCapture={(e) => {
-                  if (e.key === 'Enter')
-                    onSearch({ ...filterPaper, pageIndex: 0, ...filterAdvanced });
-                }}
-                onChange={(e) => {
-                  storeFilterPaperAdvanced({
-                    ...filterAdvanced,
-                    searchTerm: e.target.value,
-                  });
-                }}
-              />
-            </Show>
-            <Show visible={filterAdvanced.fieldType === AdvancedSearchKeys.Status}>
-              <Select
-                name="searchTerm"
-                width={FieldSize.Medium}
-                onKeyUpCapture={(e) => {
-                  if (e.key === 'Enter')
-                    onSearch({ ...filterPaper, pageIndex: 0, ...filterAdvanced });
-                }}
-                onChange={(newValue: any) => {
-                  if (!newValue) storeFilterPaperAdvanced({ ...filterAdvanced, searchTerm: '' });
-                  else {
-                    const optionItem = statusOptions.find((ds) => ds.value === newValue.value);
-                    storeFilterPaperAdvanced({
-                      ...filterAdvanced,
-                      searchTerm: optionItem?.value?.toString() ?? '',
-                    });
-                  }
-                }}
-                options={statusOptions}
-                value={statusOptions.find(
-                  (s) => String(s.value) === String(filterAdvanced.searchTerm),
-                )}
-              />
-            </Show>
-            <Show visible={filterAdvanced.fieldType === AdvancedSearchKeys.Source}>
-              <Select
-                name="searchTerm"
-                width={FieldSize.Medium}
-                onChange={(newValue: any) => {
-                  if (!newValue) storeFilterPaperAdvanced({ ...filterAdvanced, searchTerm: '' });
-                  else {
-                    const optionItem = filterEnabledOptions(sourceOptions, newValue.value).find(
-                      (ds) => ds.value === newValue.value,
-                    );
-                    storeFilterPaperAdvanced({
-                      ...filterAdvanced,
-                      searchTerm: optionItem?.value?.toString() ?? '',
-                    });
-                  }
-                }}
-                options={filterEnabledOptions(sourceOptions, filterAdvanced.searchTerm)}
-                value={sourceOptions.find(
-                  (s: IOptionItem) => String(s.value) === String(filterAdvanced.searchTerm),
-                )}
-              />
-            </Show>
-            <Show
-              visible={[
-                AdvancedSearchKeys.Status,
-                AdvancedSearchKeys.PublishedOn,
-                AdvancedSearchKeys.CreatedOn,
-                AdvancedSearchKeys.UpdatedOn,
-              ].includes(filterAdvanced.fieldType)}
-            >
-              <SelectDate
-                name="searchTeam"
-                width="15ch"
-                isClearable
-                value={
-                  moment(filterAdvanced.searchTerm).isValid()
-                    ? filterAdvanced.searchTerm
-                    : undefined
-                }
-                onChange={(value) => {
-                  storeFilterPaperAdvanced({
-                    ...filterAdvanced,
-                    searchTerm: moment(value).format('YYYY-MM-DD'),
-                  });
-                }}
-              />
-            </Show>
-          </Row>
+          <Col gap="0.5em">
+            {buildAdvancedRow('primary')}
+            {buildAdvancedRow('secondary')}
+          </Col>
           <Row alignContent="center">
-            <FaArrowAltCircleRight
-              onClick={() => {
-                onSearch({ ...filterPaper, pageIndex: 0, ...filterAdvanced });
-                replaceQueryParams(
-                  { ...filterPaper, ...filterAdvanced },
-                  {
-                    includeEmpty: false,
-                    convertObject: (value) => {
-                      if (instanceOfIOption(value)) return value.value;
-                      return value.toString();
-                    },
-                  },
-                );
-              }}
-              className="action-button"
-            />
+            <FaArrowAltCircleRight onClick={executeSearch} className="action-button" />
           </Row>
         </Row>
       </Col>
