@@ -9,6 +9,7 @@ export const advancedSearchOptions = [
   new OptionItem('Story', AdvancedSearchKeys.Story),
   new OptionItem('Transcript', AdvancedSearchKeys.Body),
   new OptionItem('Source', AdvancedSearchKeys.Source),
+  new OptionItem('Shows & Programs', AdvancedSearchKeys.Series),
   new OptionItem('Byline', AdvancedSearchKeys.Byline),
   new OptionItem('Section', AdvancedSearchKeys.Section),
   new OptionItem('Page', AdvancedSearchKeys.Page),
