@@ -120,17 +120,19 @@ public interface IReportService : IBaseService<Report, int>
     /// <param name="instanceId"></param>
     /// <param name="ownerId"></param>
     /// <param name="includeContent"></param>
+    /// <param name="qty"></param>
     /// <returns></returns>
-    ReportInstance? GetPreviousReportInstance(int id, long? instanceId, int? ownerId = null, bool includeContent = false);
+    ReportInstance[] GetPreviousReportInstances(int id, long? instanceId, int? ownerId = null, bool includeContent = false, int qty = 2);
 
     /// <summary>
     /// Get the content from the current report instance for the specified 'reportId'.
     /// </summary>
     /// <param name="reportId"></param>
     /// <param name="ownerId"></param>
+    /// <param name="previousInstancesQty"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    IEnumerable<long> GetReportInstanceContentToExclude(int reportId, int? ownerId);
+    IEnumerable<long> GetReportInstanceContentToExclude(int reportId, int? ownerId, int previousInstancesQty = 2);
 
     /// <summary>
     /// Get the content from the related report instances for the specified 'reportId'.

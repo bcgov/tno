@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using TNO.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -12,6 +7,7 @@ using TNO.API.Models.Settings;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Extensions;
+using TNO.DAL.Models;
 using TNO.Elastic;
 using TNO.Entities;
 using TNO.Models.Filters;
@@ -926,8 +922,9 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// <param name="instanceId"></param>
     /// <param name="ownerId"></param>
     /// <param name="includeContent"></param>
+    /// <param name="qty">Number of prior instances.</param>
     /// <returns></returns>
-    public ReportInstance? GetPreviousReportInstance(int id, long? instanceId, int? ownerId = null, bool includeContent = false)
+    public ReportInstance[] GetPreviousReportInstances(int id, long? instanceId, int? ownerId = null, bool includeContent = false, int qty = 2)
     {
         var query = this.Context.ReportInstances
             .AsNoTracking()
@@ -946,7 +943,7 @@ public class ReportService : BaseService<Report, int>, IReportService
         else
             query = query.Include(i => i.ContentManyToMany);
 
-        return query.FirstOrDefault();
+        return query.Take(qty).ToArray();
     }
 
     /// <summary>
@@ -971,11 +968,13 @@ public class ReportService : BaseService<Report, int>, IReportService
                 .Where(ri => ri.OwnerId == ownerId)
                 .FirstOrDefault(ri => ri.Id == instanceId) :
             GetCurrentReportInstance(report.Id, ownerId);
-        var previousInstance = currentInstance?.SentOn.HasValue == true ? currentInstance : GetPreviousReportInstance(report.Id, instanceId ?? (currentInstance?.Id), ownerId);
+        var previousInstances = GetPreviousReportInstances(report.Id, instanceId ?? (currentInstance?.Id), ownerId);
+        var instances = currentInstance?.SentOn.HasValue == true ? [currentInstance, .. previousInstances] : previousInstances;
+        var previousInstance = instances.FirstOrDefault();
 
         // Create an array of content from the previous instance to exclude.
         var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical
-            ? previousInstance?.ContentManyToMany.Select((c) => c.ContentId).ToArray() ?? Array.Empty<long>()
+            ? instances?.SelectMany(pi => pi.ContentManyToMany.Select((c) => c.ContentId)).ToArray() ?? Array.Empty<long>()
             : Array.Empty<long>();
 
         // When an auto report runs it may need to exclude content in the currently unsent report.
@@ -1166,7 +1165,8 @@ public class ReportService : BaseService<Report, int>, IReportService
         var reportSettings = JsonSerializer.Deserialize<ReportSettingsModel>(report.Settings.ToJson(), _serializerOptions) ?? new();
 
         var ownerId = requestorId ?? reportInstance.OwnerId; // TODO: Handle users generating instances for a report they do not own.
-        var previousInstance = reportInstance != null ? GetPreviousReportInstance(report.Id, reportInstance.Id, ownerId) : null;
+        var previousInstances = reportInstance != null ? GetPreviousReportInstances(report.Id, reportInstance.Id, ownerId) : null;
+        var previousInstance = previousInstances?.FirstOrDefault();
 
         // Organize the content sections, and remove the specified section.
         var currentInstanceContent = reportInstance?.ContentManyToMany.Where(c => c.SectionName != section.Name).ToArray() ?? Array.Empty<ReportInstanceContent>();
@@ -1189,8 +1189,8 @@ public class ReportService : BaseService<Report, int>, IReportService
         });
 
         // Create an array of content from the previous instance to exclude from the report.
-        var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical && previousInstance != null
-            ? previousInstance?.ContentManyToMany.Select((c) => c.ContentId).ToArray() ?? Array.Empty<long>()
+        var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical && previousInstances?.Length > 0
+            ? previousInstances?.SelectMany(pi => pi.ContentManyToMany.Select((c) => c.ContentId).ToArray()) ?? Array.Empty<long>()
             : Array.Empty<long>();
 
         // Fetch other reports to exclude any content within them.
@@ -1290,15 +1290,18 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// <summary>
     /// Get the content from the current report instance for the specified 'reportId' and 'ownerId'.
     /// Including the 'ownerId' ensures the report the user generates is coupled with prior instances for the same user.
+    /// Also get the previous report instances to exclude their content as well.
     /// </summary>
     /// <param name="reportId"></param>
     /// <param name="ownerId"></param>
+    /// <param name="previousInstancesQty"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public IEnumerable<long> GetReportInstanceContentToExclude(int reportId, int? ownerId)
+    public IEnumerable<long> GetReportInstanceContentToExclude(int reportId, int? ownerId, int previousInstancesQty = 2)
     {
         var instance = GetCurrentReportInstance(reportId, ownerId);
-        return instance?.ContentManyToMany.Select(c => c.ContentId).ToArray() ?? Array.Empty<long>();
+        var previousInstances = GetPreviousReportInstances(reportId, instance?.Id, ownerId, false, previousInstancesQty);
+        return instance?.ContentManyToMany.Select(c => c.ContentId).AppendRange(previousInstances?.SelectMany(pi => pi.ContentManyToMany.Select((c) => c.ContentId)) ?? []) ?? [];
     }
 
     /// <summary>
@@ -1529,7 +1532,7 @@ public class ReportService : BaseService<Report, int>, IReportService
         }
 
         return messages;
-    }    
+    }
 
     /// <summary>
     /// Add the user report.
@@ -1541,7 +1544,8 @@ public class ReportService : BaseService<Report, int>, IReportService
         try
         {
             this.Context.SaveChanges();
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             this.Logger.LogError(ex, $"ReportService - AddAndSave ReportId: {subscription.ReportId}, UserId: {subscription.UserId} throws exception.");
             throw;
@@ -1558,7 +1562,8 @@ public class ReportService : BaseService<Report, int>, IReportService
         try
         {
             this.Context.SaveChanges();
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             this.Logger.LogError(ex, $"ReportService - UpdateAndSave ReportId: {subscription.ReportId}, UserId: {subscription.UserId} throws exception.");
             throw;
