@@ -40,10 +40,11 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
   const [filter, setFilter] = React.useState(oFilter);
 
   const showsAndProgramsOptions = React.useMemo(() => {
-    const allowedSeries = new Set(series.filter((s) => s.isEnabled && !s.isOther).map((s) => s.id));
-    return seriesOptions.filter(
+    const allowedSeries = new Set(series.filter((s) => s.isEnabled).map((s) => s.id));
+    const enabledOptions = seriesOptions.filter(
       (option) => option.value !== undefined && allowedSeries.has(Number(option.value)),
     );
+    return [new OptionItem('()', '()'), ...enabledOptions];
   }, [series, seriesOptions]);
 
   const updateAdvancedFilter = React.useCallback(
