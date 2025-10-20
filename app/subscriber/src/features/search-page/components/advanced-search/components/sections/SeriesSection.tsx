@@ -25,7 +25,7 @@ export const SeriesSection: React.FC<IFilterDisplayProps> = ({ displayFiltersAsD
   const seriesOptions = useMemo(
     () =>
       series
-        .filter((f) => f.isEnabled && !f.isOther)
+        .filter((f) => f.isEnabled)
         .map((s) => {
           return { value: s.id, label: s.name };
         }),
