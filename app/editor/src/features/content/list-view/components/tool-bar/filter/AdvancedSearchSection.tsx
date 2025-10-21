@@ -48,7 +48,7 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
     const sortedOptions = [...enabledOptions].sort(
       sortObject((item) => String(item.label ?? '').toLocaleLowerCase()),
     );
-    return [new OptionItem('()', '()'), ...sortedOptions];
+    return [new OptionItem('[NONE]', '[NONE]'), ...sortedOptions];
   }, [series, seriesOptions]);
 
   const updateAdvancedFilter = React.useCallback(
