@@ -86,7 +86,11 @@ export const useElasticsearch = () => {
           case AdvancedSearchKeys.Series: {
             const sanitized = typeof term === 'string' ? term.trim() : term;
             if (sanitized === '' || sanitized === undefined || sanitized === null) return undefined;
+<<<<<<< HEAD
             if (sanitized === '[NONE]') {
+=======
+            if (sanitized === '()') {
+>>>>>>> 35f53cc93ad1550703f7576ab47ab4be14b3d925
               return {
                 bool: {
                   should: [
