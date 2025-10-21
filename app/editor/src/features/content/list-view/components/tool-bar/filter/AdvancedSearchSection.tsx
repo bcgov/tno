@@ -20,6 +20,7 @@ import {
   Select,
   SelectDate,
   Show,
+  sortObject,
   Text,
   ToolBarSection,
 } from 'tno-core';
@@ -44,11 +45,9 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
     const enabledOptions = seriesOptions.filter(
       (option) => option.value !== undefined && allowedSeries.has(Number(option.value)),
     );
-    const sortedOptions = [...enabledOptions].sort((a, b) => {
-      const labelA = typeof a.label === 'string' ? a.label : String(a.label ?? '');
-      const labelB = typeof b.label === 'string' ? b.label : String(b.label ?? '');
-      return labelA.localeCompare(labelB, undefined, { sensitivity: 'base' });
-    });
+    const sortedOptions = [...enabledOptions].sort(
+      sortObject((item) => String(item.label ?? '').toLocaleLowerCase()),
+    );
     return [new OptionItem('()', '()'), ...sortedOptions];
   }, [series, seriesOptions]);
 
