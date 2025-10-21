@@ -20,6 +20,7 @@ import {
   Select,
   SelectDate,
   Show,
+  sortObject,
   Text,
   ToolBarSection,
 } from 'tno-core';
@@ -54,7 +55,10 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
     const enabledOptions = seriesOptions.filter(
       (option) => option.value !== undefined && allowedSeries.has(Number(option.value)),
     );
-    return [new OptionItem('()', '()'), ...enabledOptions];
+    const sortedOptions = [...enabledOptions].sort(
+      sortObject((item) => String(item.label ?? '').toLocaleLowerCase()),
+    );
+    return [new OptionItem('()', '()'), ...sortedOptions];
   }, [series, seriesOptions]);
 
   const updateAdvancedFilter = React.useCallback(
