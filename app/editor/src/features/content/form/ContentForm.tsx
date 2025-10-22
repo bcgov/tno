@@ -121,27 +121,55 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
   const [seriesOtherOptions, setSeriesOtherOptions] = React.useState<IOptionItem[]>([]);
   const [seriesOtherCreated, setSeriesOtherCreated] = React.useState<string>('');
+  const [contentPrepTime, setContentPrepTime] = React.useState<string>('');
 
   const contentId = parseInt(id ?? '0');
   const urlParams = new URLSearchParams(window.location.search);
   const showPostedOn = ['', 'true'].includes(urlParams.get('showPostedOn') ?? 'false');
 
-  React.useEffect(() => {
-    setSeriesOptions(
-      series.filter((f) => !f.isOther).map((m: any) => new OptionItem(m.name, m.id, !m.isEnabled)),
-    );
-  }, [series]);
+  // Function to filter series based on source and other criteria
+  const filterSeries = React.useCallback(
+    (sourceId: number | '', seriesId: number | '', isOther: boolean = false) => {
+      return series.filter(
+        (f) =>
+          f.isOther === isOther &&
+          ((!!seriesId && f.id === seriesId) || // Include current selected
+            (f.isEnabled && (!sourceId || !f.sourceId || f.sourceId === sourceId))),
+      );
+    },
+    [series],
+  );
+
+  // Function to create series options based on source and other criteria
+  const filterSeriesOptions = React.useCallback(
+    (sourceId: number | '', seriesId: number | '') => {
+      const options = filterSeries(sourceId, seriesId, false).map(
+        (m) => new OptionItem<number | ''>(m.name, m.id, !m.isEnabled),
+      );
+      setSeriesOptions(options);
+    },
+    [filterSeries],
+  );
+
+  // Function to create other series options based on source and other criteria
+  const filterSeriesOtherOptions = React.useCallback(
+    (sourceId: number | '', seriesId: number | '') => {
+      let options = filterSeries(sourceId, seriesId, true).map(
+        (m) => new OptionItem<number | ''>(m.name, m.id, !m.isEnabled),
+      );
+      if (seriesOtherCreated) options = options.concat(new OptionItem(seriesOtherCreated, ''));
+      setSeriesOtherOptions(options);
+    },
+    [filterSeries, seriesOtherCreated],
+  );
 
   React.useEffect(() => {
-    // create a list of "Other Series" options
-    // and concat the created value if necessary
-    let filteredSeriesOptions = series
-      .filter((f) => f.isOther)
-      .map((m: any) => new OptionItem(m.name, m.id, !m.isEnabled));
-    if (seriesOtherCreated)
-      filteredSeriesOptions = filteredSeriesOptions.concat(new OptionItem(seriesOtherCreated, ''));
-    setSeriesOtherOptions(filteredSeriesOptions);
-  }, [series, seriesOtherCreated]);
+    filterSeriesOptions(form.sourceId, form.seriesId);
+  }, [filterSeriesOptions, form.seriesId, form.sourceId]);
+
+  React.useEffect(() => {
+    filterSeriesOtherOptions(form.sourceId, form.seriesId);
+  }, [filterSeriesOtherOptions, form.sourceId, form.seriesId]);
 
   React.useEffect(() => {
     if (contentId > 0 && contentId !== form.id) {
@@ -152,7 +180,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
   React.useEffect(() => {
     setAvStream();
   }, [setAvStream]);
-  const [contentPrepTime, setContentPrepTime] = React.useState<string>('');
+
+  const onPrepTimeChanged = React.useCallback((value: string) => {
+    setContentPrepTime(value);
+  }, []);
+
   return (
     <styled.ContentForm className="content-form fvh" ref={refForm}>
       <FormPage className="fvh">
@@ -170,10 +202,6 @@ const ContentForm: React.FC<IContentFormProps> = ({
             {(props: FormikProps<IContentForm>) => {
               const source = sources.find((s) => s.id === props.values.sourceId);
               const program = series.find((s) => s.id === props.values.seriesId);
-
-              const onPrepTimeChanged = (value: string) => {
-                setContentPrepTime(value);
-              };
 
               return (
                 <Col className="content-col fvh">
@@ -241,6 +269,14 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                       if (!!source?.mediaTypeId)
                                         props.setFieldValue('mediaTypeId', source.mediaTypeId);
                                     }
+                                    filterSeriesOptions(
+                                      newValue?.value ?? '',
+                                      props.values.seriesId,
+                                    );
+                                    filterSeriesOtherOptions(
+                                      newValue?.value ?? '',
+                                      props.values.seriesId,
+                                    );
                                   }}
                                   options={filterEnabledOptions(
                                     sourceOptions,
@@ -628,10 +664,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                         (s: any) => s.value === props.values.seriesId,
                                       ) ?? ''
                                     }
-                                    options={filterEnabledOptions(
-                                      seriesOptions,
-                                      props.values.seriesId,
-                                    )}
+                                    options={seriesOptions}
                                     isDisabled={!!props.values.otherSeries}
                                     onChange={(e) => {
                                       props.setFieldValue('otherSeries', '');
@@ -646,8 +679,13 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                       options={seriesOtherOptions}
                                       onChange={(e: any) => {
                                         let foundSeries: ISeriesModel | undefined;
-                                        foundSeries = series.find((c) => c.id === e.value);
-                                        if (!!foundSeries && foundSeries.isOther) {
+                                        foundSeries = series.find((c) => c.id === e?.value);
+                                        if (e?.value == null || e?.value === '') {
+                                          // Clear selected value
+                                          props.setFieldValue('otherSeries', '');
+                                          props.setFieldValue('seriesId', '');
+                                          setSeriesOtherCreated('');
+                                        } else if (!!foundSeries && foundSeries.isOther) {
                                           // this is a known "Other Series"
                                           props.setFieldValue('otherSeries', '');
                                           props.setFieldValue('seriesId', foundSeries.id);
@@ -657,10 +695,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                       onCreateOption={(inputValue: string) => {
                                         // this is a "created" option, but we need to check if
                                         // it's a duplicate of an existing option this is !isOther
+                                        const value = inputValue.trim();
                                         let foundSeries: ISeriesModel | undefined = series.find(
                                           (s) =>
                                             s.name.toLocaleLowerCase() ===
-                                            inputValue.toLocaleLowerCase(),
+                                            value.toLocaleLowerCase(),
                                         );
                                         if (!!foundSeries) {
                                           // this is an existing series - not isOther
@@ -669,10 +708,10 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                           setSeriesOtherCreated('');
                                         } else {
                                           // this is a new "other" series
-                                          props.setFieldValue('otherSeries', inputValue);
+                                          props.setFieldValue('otherSeries', value);
                                           props.setFieldValue('seriesId', undefined);
                                           // save the new created series/program name
-                                          setSeriesOtherCreated(inputValue);
+                                          setSeriesOtherCreated(value);
                                         }
                                       }}
                                       value={
