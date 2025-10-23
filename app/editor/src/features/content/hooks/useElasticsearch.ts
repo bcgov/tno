@@ -83,8 +83,30 @@ export const useElasticsearch = () => {
             });
           case AdvancedSearchKeys.Source:
             return generateTerm('sourceId', Number(term));
-          case AdvancedSearchKeys.Series:
-            return generateTerm('seriesId', Number(term));
+          case AdvancedSearchKeys.Series: {
+            const sanitized = typeof term === 'string' ? term.trim() : term;
+            if (sanitized === '' || sanitized === undefined || sanitized === null) return undefined;
+            if (sanitized === '[NONE]') {
+              return {
+                bool: {
+                  should: [
+                    {
+                      bool: {
+                        must_not: [{ exists: { field: 'seriesId' } }],
+                      },
+                    },
+                    {
+                      term: { seriesId: 0 },
+                    },
+                  ],
+                  minimum_should_match: 1,
+                },
+              };
+            }
+            const value = Number(sanitized);
+            if (Number.isNaN(value)) return undefined;
+            return generateTerm('seriesId', value);
+          }
           case AdvancedSearchKeys.Section:
             return generateTerm('section', term);
           case AdvancedSearchKeys.Page:
