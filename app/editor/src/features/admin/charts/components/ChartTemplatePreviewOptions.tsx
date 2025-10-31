@@ -831,7 +831,7 @@ export const ChartTemplatePreviewOptions = () => {
             <Row>
               <Text
                 name="xLegend"
-                label="X Title"
+                label="X Axis Title"
                 value={chartRequestForm.settings.xLegend ?? ''}
                 onChange={(e) =>
                   setChartRequestForm({
@@ -866,11 +866,70 @@ export const ChartTemplatePreviewOptions = () => {
                   });
                 }}
               />
+              <Text
+                name="xMinRotation"
+                label="Min Rotation"
+                value={chartRequestForm.settings.xMinRotation ?? ''}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.currentTarget.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        xMinRotation: value ? value : undefined,
+                      },
+                    ),
+                  });
+                }}
+              />
+              <Text
+                name="xMaxRotation"
+                label="Max Rotation"
+                value={chartRequestForm.settings.xMaxRotation ?? ''}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.currentTarget.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        xMaxRotation: value ? value : undefined,
+                      },
+                    ),
+                  });
+                }}
+              />
+              <Col justifyContent="center">
+                <Checkbox
+                  name="xAutoSkip"
+                  label="Auto skip"
+                  checked={chartRequestForm.settings.xAutoSkip ?? true}
+                  onChange={(e) => {
+                    setChartRequestForm({
+                      ...chartRequestForm,
+                      settings: mergeChartSettings(
+                        values.settings.options,
+                        chartRequestForm.settings,
+                        {
+                          xAutoSkip: e.target.checked,
+                        },
+                      ),
+                    });
+                  }}
+                />
+              </Col>
             </Row>
             <Row>
               <Text
                 name="yLegend"
-                label="Y Title"
+                label="Y Axis Title"
                 value={chartRequestForm.settings.yLegend ?? ''}
                 onChange={(e) =>
                   setChartRequestForm({
@@ -905,6 +964,65 @@ export const ChartTemplatePreviewOptions = () => {
                   });
                 }}
               />
+              <Text
+                name="yMinRotation"
+                label="Min Rotation"
+                value={chartRequestForm.settings.yMinRotation ?? ''}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.currentTarget.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        yMinRotation: value ? value : undefined,
+                      },
+                    ),
+                  });
+                }}
+              />
+              <Text
+                name="yMaxRotation"
+                label="Max Rotation"
+                value={chartRequestForm.settings.yMaxRotation ?? ''}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.currentTarget.value);
+                  setChartRequestForm({
+                    ...chartRequestForm,
+                    settings: mergeChartSettings(
+                      values.settings.options,
+                      chartRequestForm.settings,
+                      {
+                        yMaxRotation: value ? value : undefined,
+                      },
+                    ),
+                  });
+                }}
+              />
+              <Col justifyContent="center">
+                <Checkbox
+                  name="yAutoSkip"
+                  label="Auto skip"
+                  checked={chartRequestForm.settings.yAutoSkip ?? true}
+                  onChange={(e) => {
+                    setChartRequestForm({
+                      ...chartRequestForm,
+                      settings: mergeChartSettings(
+                        values.settings.options,
+                        chartRequestForm.settings,
+                        {
+                          yAutoSkip: e.target.checked,
+                        },
+                      ),
+                    });
+                  }}
+                />
+              </Col>
             </Row>
           </Col>
         </Row>

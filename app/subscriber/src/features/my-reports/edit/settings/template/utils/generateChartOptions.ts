@@ -37,7 +37,10 @@ export const generateChartOptions = (
           },
         },
         ticks: {
+          autoSkip: chartSectionSettings.xAutoSkip,
           stepSize: chartSectionSettings.scaleTicksStepSize,
+          minRotation: chartSectionSettings.xMinRotation,
+          maxRotation: chartSectionSettings.xMaxRotation,
           font: {
             size: chartSectionSettings.xLegendFontSize,
           },
@@ -60,7 +63,10 @@ export const generateChartOptions = (
           },
         },
         ticks: {
+          yAutoSkip: chartSectionSettings.yAutoSkip,
           stepSize: chartSectionSettings.scaleTicksStepSize,
+          minRotation: chartSectionSettings.yMinRotation,
+          maxRotation: chartSectionSettings.yMaxRotation,
           font: {
             size: chartSectionSettings.yLegendFontSize,
           },
