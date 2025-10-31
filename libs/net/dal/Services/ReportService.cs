@@ -1,3 +1,4 @@
+using System;
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,7 @@ public class ReportService : BaseService<Report, int>, IReportService
     private readonly ITNOElasticClient _elasticClient;
     private readonly IReportInstanceService _reportInstanceService;
     private readonly JsonSerializerOptions _serializerOptions;
+    private static readonly TimeSpan DuplicateTitleWindow = TimeSpan.FromDays(3);
     #endregion
 
     #region Constructors
@@ -523,6 +525,9 @@ public class ReportService : BaseService<Report, int>, IReportService
                 }
             });
         }
+
+        if (reportSettings.Content.RemoveDuplicateTitles3Days)
+            instanceContent = FilterDuplicateTitlesWithinWindow(instanceContent, DuplicateTitleWindow);
 
         return new ReportInstance(
             instanceId ?? 0,
@@ -1029,6 +1034,9 @@ public class ReportService : BaseService<Report, int>, IReportService
                     .OrderBy(fc => fc.SortOrder)
                     .ToArray();
 
+                if (sectionSettings.RemoveDuplicateTitles3Days || reportSettings.Content.RemoveDuplicateTitles3Days)
+                    content = FilterDuplicateTitlesWithinWindow(content, DuplicateTitleWindow);
+
                 var folderContent = new Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>();
                 folderContent.Hits.Hits = content
                     .Select(c => new Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>()
@@ -1070,6 +1078,10 @@ public class ReportService : BaseService<Report, int>, IReportService
                 // Add retry logic for Elasticsearch query to handle failures
                 var content = await RetryElasticsearchQueryAsync(async () =>
                     await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query));
+                if (sectionSettings.RemoveDuplicateTitles3Days || reportSettings.Content.RemoveDuplicateTitles3Days)
+                    content.Hits.Hits = FilterDuplicateTitlesWithinWindow(
+                        content.Hits.Hits ?? Array.Empty<Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>>(),
+                        DuplicateTitleWindow);
                 var contentHits = content.Hits.Hits.ToArray();
 
                 // Fetch custom content versions for the requestor.
@@ -1236,6 +1248,9 @@ public class ReportService : BaseService<Report, int>, IReportService
                 .OrderBy(fc => fc.SortOrder)
                 .ToArray();
 
+            if (sectionSettings.RemoveDuplicateTitles3Days || reportSettings.Content.RemoveDuplicateTitles3Days)
+                content = FilterDuplicateTitlesWithinWindow(content, DuplicateTitleWindow);
+
             var folderContent = new Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>();
             folderContent.Hits.Hits = content
                 .Select(c => new Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>()
@@ -1272,6 +1287,10 @@ public class ReportService : BaseService<Report, int>, IReportService
             var defaultIndex = filterSettings.SearchUnpublished ? _elasticOptions.ContentIndex : _elasticOptions.PublishedIndex;
             var content = await RetryElasticsearchQueryAsync(async () =>
                 await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query));
+            if (sectionSettings.RemoveDuplicateTitles3Days || reportSettings.Content.RemoveDuplicateTitles3Days)
+                content.Hits.Hits = FilterDuplicateTitlesWithinWindow(
+                    content.Hits.Hits ?? Array.Empty<Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>>(),
+                    DuplicateTitleWindow);
 
             // Fetch custom content versions for the requestor.
             var contentIds = content.Hits.Hits.Select(h => h.Source.Id).Distinct().ToArray();
@@ -1285,6 +1304,171 @@ public class ReportService : BaseService<Report, int>, IReportService
         }
 
         return searchResults;
+    }
+
+    private FolderContent[] FilterDuplicateTitlesWithinWindow(FolderContent[] items, TimeSpan window)
+    {
+        if (items.Length == 0) return items;
+
+        var keep = new bool[items.Length];
+        Array.Fill(keep, true);
+        var threshold = DateTime.UtcNow - window;
+
+        var metadata = items.Select((item, index) => new
+        {
+            Item = item,
+            Index = index,
+            Title = NormalizeHeadline(item.Content?.Headline),
+            Date = GetComparableDate(item.Content)
+        }).ToArray();
+
+        foreach (var group in metadata
+            .Where(x => !string.IsNullOrWhiteSpace(x.Title))
+            .GroupBy(x => x.Title!, StringComparer.OrdinalIgnoreCase))
+        {
+            var recent = group.Where(x => x.Date >= threshold).ToArray();
+            if (recent.Length <= 1) continue;
+
+            var latest = recent
+                .OrderByDescending(x => x.Date)
+                .ThenByDescending(x => x.Item.Content?.UpdatedOn ?? DateTime.MinValue)
+                .ThenByDescending(x => x.Item.ContentId)
+                .First();
+
+            foreach (var entry in recent)
+            {
+                if (entry.Index != latest.Index)
+                    keep[entry.Index] = false;
+            }
+        }
+
+        var results = new List<FolderContent>(items.Length);
+        for (var i = 0; i < items.Length; i++)
+        {
+            if (keep[i]) results.Add(items[i]);
+        }
+
+        return results.ToArray();
+    }
+
+    private Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>[] FilterDuplicateTitlesWithinWindow(
+        IEnumerable<Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>> hits,
+        TimeSpan window)
+    {
+        var hitArray = hits.ToArray();
+        if (hitArray.Length == 0) return hitArray;
+
+        var keep = new bool[hitArray.Length];
+        Array.Fill(keep, true);
+        var threshold = DateTime.UtcNow - window;
+
+        var metadata = hitArray.Select((hit, index) => new
+        {
+            Hit = hit,
+            Index = index,
+            Title = NormalizeHeadline(hit.Source?.Headline),
+            Date = GetComparableDate(hit.Source)
+        }).ToArray();
+
+        foreach (var group in metadata
+            .Where(x => !string.IsNullOrWhiteSpace(x.Title))
+            .GroupBy(x => x.Title!, StringComparer.OrdinalIgnoreCase))
+        {
+            var recent = group.Where(x => x.Date >= threshold).ToArray();
+            if (recent.Length <= 1) continue;
+
+            var latest = recent
+                .OrderByDescending(x => x.Date)
+                .ThenByDescending(x => x.Hit.Source?.UpdatedOn ?? DateTime.MinValue)
+                .ThenByDescending(x => x.Hit.Source?.Id ?? 0)
+                .First();
+
+            foreach (var entry in recent)
+            {
+                if (entry.Index != latest.Index)
+                    keep[entry.Index] = false;
+            }
+        }
+
+        var results = new List<Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>>(hitArray.Length);
+        for (var i = 0; i < hitArray.Length; i++)
+        {
+            if (keep[i]) results.Add(hitArray[i]);
+        }
+
+        return results.ToArray();
+    }
+
+    private List<ReportInstanceContent> FilterDuplicateTitlesWithinWindow(List<ReportInstanceContent> content, TimeSpan window)
+    {
+        if (content.Count == 0) return content;
+
+        var keep = new bool[content.Count];
+        Array.Fill(keep, true);
+        var threshold = DateTime.UtcNow - window;
+
+        var metadata = content.Select((item, index) => new
+        {
+            Item = item,
+            Index = index,
+            Title = NormalizeHeadline(item.Content?.Headline),
+            Date = GetComparableDate(item.Content)
+        }).ToArray();
+
+        foreach (var group in metadata
+            .Where(x => !string.IsNullOrWhiteSpace(x.Title))
+            .GroupBy(x => x.Title!, StringComparer.OrdinalIgnoreCase))
+        {
+            var recent = group.Where(x => x.Date >= threshold).ToArray();
+            if (recent.Length <= 1) continue;
+
+            var latest = recent
+                .OrderByDescending(x => x.Date)
+                .ThenByDescending(x => x.Item.Content?.UpdatedOn ?? DateTime.MinValue)
+                .ThenByDescending(x => x.Item.ContentId)
+                .First();
+
+            foreach (var entry in recent)
+            {
+                if (entry.Index != latest.Index)
+                    keep[entry.Index] = false;
+            }
+        }
+
+        var results = new List<ReportInstanceContent>(content.Count);
+        for (var i = 0; i < content.Count; i++)
+        {
+            if (keep[i]) results.Add(content[i]);
+        }
+
+        foreach (var sectionGroup in results.GroupBy(c => c.SectionName))
+        {
+            var order = 0;
+            foreach (var item in sectionGroup.OrderBy(c => c.SortOrder))
+                item.SortOrder = order++;
+        }
+
+        return results;
+    }
+
+    private static string? NormalizeHeadline(string? headline)
+    {
+        return string.IsNullOrWhiteSpace(headline) ? null : headline.Trim().ToUpperInvariant();
+    }
+
+    private static DateTime GetComparableDate(API.Areas.Services.Models.Content.ContentModel? content)
+    {
+        return content == null ? DateTime.MinValue : GetComparableDate(content.PublishedOn, content.PostedOn, content.UpdatedOn, content.CreatedOn);
+    }
+
+    private static DateTime GetComparableDate(Content? content)
+    {
+        return content == null ? DateTime.MinValue : GetComparableDate(content.PublishedOn, content.PostedOn, content.UpdatedOn, content.CreatedOn);
+    }
+
+    private static DateTime GetComparableDate(DateTime? publishedOn, DateTime? postedOn, DateTime? updatedOn, DateTime? createdOn)
+    {
+        return publishedOn ?? postedOn ?? updatedOn ?? createdOn ?? DateTime.MinValue;
     }
 
     /// <summary>

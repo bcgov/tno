@@ -12,6 +12,7 @@ public class ReportContentSettingsModel
     public IEnumerable<int> ExcludeReports { get; set; } = Array.Empty<int>();
     public bool ShowLinkToStory { get; set; }
     public bool HighlightKeywords { get; set; }
+    public bool RemoveDuplicateTitles3Days { get; set; }
 
     /// <summary>
     /// get/set - Accumulate content on each run until sent.
@@ -45,6 +46,7 @@ public class ReportContentSettingsModel
         this.ExcludeReports = settings.GetDictionaryJsonValue("excludeReports", Array.Empty<int>(), options)!;
         this.ShowLinkToStory = settings.GetDictionaryJsonValue("showLinkToStory", false, options)!;
         this.HighlightKeywords = settings.GetDictionaryJsonValue("highlightKeywords", false, options)!;
+        this.RemoveDuplicateTitles3Days = settings.GetDictionaryJsonValue("removeDuplicateTitles3Days", false, options)!;
         this.CopyPriorInstance = settings.GetDictionaryJsonValue("copyPriorInstance", false, options)!;
         this.ClearOnStartNewReport = settings.GetDictionaryJsonValue("clearOnStartNewReport", false, options)!;
         this.ExcludeContentInUnsentReport = settings.GetDictionaryJsonValue("excludeContentInUnsentReport", true, options)!;
