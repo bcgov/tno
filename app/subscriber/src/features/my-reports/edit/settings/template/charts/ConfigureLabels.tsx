@@ -191,7 +191,7 @@ export const ConfigureLabels: React.FC<IConfigureLabelsProps> = ({
         />
       </Row>
       <label>Chart Labels</label>
-      <Col>
+      <Col gap="0.25rem">
         <Row gap="1rem">
           <Col flex="1">
             <FormikText
@@ -323,6 +323,108 @@ export const ConfigureLabels: React.FC<IConfigureLabelsProps> = ({
               );
             }}
           />
+        </Row>
+        <FormikCheckbox
+          label="Skip X axis labels to prevent overlap"
+          name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.xAutoSkip`}
+          checked={chart.sectionSettings.xAutoSkip ?? true}
+          onChange={(e) => {
+            setFieldValue(
+              `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+              mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                xAutoSkip: e.target.checked,
+              }),
+            );
+          }}
+        />
+        <FormikCheckbox
+          label="Skip Y axis labels to prevent overlap"
+          name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.yAutoSkip`}
+          checked={chart.sectionSettings.yAutoSkip ?? true}
+          onChange={(e) => {
+            setFieldValue(
+              `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+              mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                yAutoSkip: e.target.checked,
+              }),
+            );
+          }}
+        />
+        <Row gap="1rem">
+          <Col>
+            <label>X Axis Rotation</label>
+            <Row gap="1rem">
+              <FormikText
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.xMinRotation`}
+                label="Min"
+                value={chart.sectionSettings.xMinRotation ?? ''}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.currentTarget.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      xMinRotation: value ? value : undefined,
+                    }),
+                  );
+                }}
+              />
+              <FormikText
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.xMaxRotation`}
+                label="Max"
+                value={chart.sectionSettings.xMaxRotation ?? ''}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.currentTarget.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      xMaxRotation: value ? value : undefined,
+                    }),
+                  );
+                }}
+              />
+            </Row>
+          </Col>
+          <Col>
+            <label>Y Axis Rotation</label>
+            <Row gap="1rem">
+              <FormikText
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.yMinRotation`}
+                label="Min"
+                value={chart.sectionSettings.yMinRotation ?? ''}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.currentTarget.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      yMinRotation: value ? value : undefined,
+                    }),
+                  );
+                }}
+              />
+              <FormikText
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.yMaxRotation`}
+                label="Max"
+                value={chart.sectionSettings.yMaxRotation ?? ''}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.currentTarget.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      yMaxRotation: value ? value : undefined,
+                    }),
+                  );
+                }}
+              />
+            </Row>
+          </Col>
         </Row>
       </Col>
     </Col>

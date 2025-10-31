@@ -52,11 +52,21 @@ export interface IChartSectionSettingsModel {
   /** The X axis legend title */
   xLegend?: string;
   xLegendFontSize?: number;
+  /** Whether to skip x axis values to save space */
+  xAutoSkip?: boolean;
+  /** Rotate the x axis labels */
+  xMinRotation?: number;
+  xMaxRotation?: number;
   /** Whether to show the axis information on the chart */
   yShowAxisLabels?: boolean;
   /** The Y axis legend title */
   yLegend?: string;
   yLegendFontSize?: number;
+  /** Whether to skip x axis values to save space */
+  yAutoSkip?: boolean;
+  /** Rotate the y axis labels */
+  yMinRotation?: number;
+  yMaxRotation?: number;
   /** Whether to show the data value labels in the chart */
   showDataLabels?: boolean;
   dataLabelFontSize?: number;

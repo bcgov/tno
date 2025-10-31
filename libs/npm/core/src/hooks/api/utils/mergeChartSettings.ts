@@ -46,9 +46,15 @@ export const mergeChartSettings = (
     xLegend: override.xLegend,
     xLegendFontSize: override.xLegendFontSize,
     xShowAxisLabels: override.xShowAxisLabels,
+    xAutoSkip: override.xAutoSkip,
+    xMinRotation: override.xMinRotation,
+    xMaxRotation: override.xMaxRotation,
     yLegend: override.yLegend,
     yLegendFontSize: override.yLegendFontSize,
     yShowAxisLabels: override.yShowAxisLabels,
+    yAutoSkip: override.yAutoSkip,
+    yMinRotation: override.yMinRotation,
+    yMaxRotation: override.yMaxRotation,
     isHorizontal: override.isHorizontal ?? true,
     datasetColors: override.datasetColors,
     datasetBorderColors: override.datasetBorderColors,
@@ -150,7 +156,10 @@ export const mergeChartSettings = (
           },
           ticks: {
             ...xScales.ticks,
+            autoSkip: override.xAutoSkip,
             stepSize: override.scaleTicksStepSize ? override.scaleTicksStepSize : undefined,
+            minRotation: override.xMinRotation,
+            maxRotation: override.xMaxRotation,
             font: {
               size: override.xLegendFontSize,
             },
@@ -170,7 +179,10 @@ export const mergeChartSettings = (
           },
           ticks: {
             ...yScales.ticks,
+            autoSkip: override.yAutoSkip,
             stepSize: override.scaleTicksStepSize ? override.scaleTicksStepSize : undefined,
+            minRotation: override.yMinRotation,
+            maxRotation: override.yMaxRotation,
             font: {
               size: override.yLegendFontSize,
             },
