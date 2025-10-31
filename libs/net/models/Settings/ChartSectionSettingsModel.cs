@@ -162,6 +162,21 @@ public class ChartSectionSettingsModel
     public int? XLegendFontSize { get; set; }
 
     /// <summary>
+    /// get/set - Whether to skip x axis values to save space
+    /// </summary>
+    public bool? XAutoSkip { get; set; }
+
+    /// <summary>
+    /// get/set - The minimum rotation for X axis labels.
+    /// </summary>
+    public int? XMinRotation { get; set; }
+
+    /// <summary>
+    /// get/set - The maximum rotation for X axis labels.
+    /// </summary>
+    public int? XMaxRotation { get; set; }
+
+    /// <summary>
     /// get/set -
     /// </summary>
     public bool? YShowAxisLabels { get; set; }
@@ -176,6 +191,21 @@ public class ChartSectionSettingsModel
     /// get/set - Legend Y axis title font size
     /// </summary>
     public int? YLegendFontSize { get; set; }
+
+    /// <summary>
+    /// get/set - Whether to skip y axis values to save space
+    /// </summary>
+    public bool? YAutoSkip { get; set; }
+
+    /// <summary>
+    /// get/set - The minimum rotation for Y axis labels.
+    /// </summary>
+    public int? YMinRotation { get; set; }
+
+    /// <summary>
+    /// get/set - The maximum rotation for Y axis labels.
+    /// </summary>
+    public int? YMaxRotation { get; set; }
 
     /// <summary>
     /// get/set -

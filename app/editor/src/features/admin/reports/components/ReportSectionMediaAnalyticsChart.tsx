@@ -813,6 +813,55 @@ export const ReportSectionMediaAnalyticsChart = ({
                   );
                 }}
               />
+              <Text
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.xMinRotation`}
+                label="Min Rotation"
+                value={chart.sectionSettings.xMinRotation}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      xMinRotation: value ? value : undefined,
+                    }),
+                  );
+                }}
+              />
+              <Text
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.xMaxRotation`}
+                label="Max Rotation"
+                value={chart.sectionSettings.xMaxRotation}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      xMaxRotation: value ? value : undefined,
+                    }),
+                  );
+                }}
+              />
+              <Col justifyContent="center">
+                <FormikCheckbox
+                  label="Auto skip"
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.xAutoSkip`}
+                  checked={chart.sectionSettings.xAutoSkip ?? true}
+                  onChange={(e) => {
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                      {
+                        ...mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                          xAutoSkip: e.target.checked,
+                        }),
+                      },
+                    );
+                  }}
+                />
+              </Col>
             </Row>
             <Row>
               <FormikText
@@ -844,6 +893,55 @@ export const ReportSectionMediaAnalyticsChart = ({
                   );
                 }}
               />
+              <Text
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.yMinRotation`}
+                label="Min Rotation"
+                value={chart.sectionSettings.yMinRotation}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      yMinRotation: value ? value : undefined,
+                    }),
+                  );
+                }}
+              />
+              <Text
+                name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.yMaxRotation`}
+                label="Max Rotation"
+                value={chart.sectionSettings.yMaxRotation}
+                width="10ch"
+                type="number"
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setFieldValue(
+                    `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                    mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                      yMaxRotation: value ? value : undefined,
+                    }),
+                  );
+                }}
+              />
+              <Col justifyContent="center">
+                <FormikCheckbox
+                  label="Auto skip"
+                  name={`sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings.yAutoSkip`}
+                  checked={chart.sectionSettings.yAutoSkip ?? true}
+                  onChange={(e) => {
+                    setFieldValue(
+                      `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
+                      {
+                        ...mergeChartSettings(chart.settings.options, chart.sectionSettings, {
+                          yAutoSkip: e.target.checked,
+                        }),
+                      },
+                    );
+                  }}
+                />
+              </Col>
             </Row>
           </Col>
         </Row>
