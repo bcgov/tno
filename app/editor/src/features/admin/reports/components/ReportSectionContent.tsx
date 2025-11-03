@@ -68,6 +68,11 @@ export const ReportSectionContent = ({ index }: IReportSectionContentProps) => {
           label="Remove Duplicate Content"
           tooltip="Remove content from this section that is in above sections"
         />
+        <FormikCheckbox
+          name={`sections.${index}.settings.removeDuplicateTitles3Days`}
+          label="Remove duplicate titles from the last 3 days"
+          tooltip="Keep only the most recent story when duplicate titles are published within the past three days."
+        />
         <Show visible={!!section.folderId || !!section.linkedReportId}>
           <FormikCheckbox
             name={`sections.${index}.settings.overrideExcludeHistorical`}
