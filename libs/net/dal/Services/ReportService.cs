@@ -968,23 +968,23 @@ public class ReportService : BaseService<Report, int>, IReportService
                 .Where(ri => ri.OwnerId == ownerId)
                 .FirstOrDefault(ri => ri.Id == instanceId) :
             GetCurrentReportInstance(report.Id, ownerId);
-        var previousInstances = GetPreviousReportInstances(report.Id, instanceId ?? (currentInstance?.Id), ownerId);
+        var previousInstances = GetPreviousReportInstances(report.Id, instanceId ?? currentInstance?.Id, ownerId);
         var instances = currentInstance?.SentOn.HasValue == true ? [currentInstance, .. previousInstances] : previousInstances;
         var previousInstance = instances.FirstOrDefault();
 
         // Create an array of content from the previous instance to exclude.
         var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical
-            ? instances?.SelectMany(pi => pi.ContentManyToMany.Select((c) => c.ContentId)).ToArray() ?? Array.Empty<long>()
+            ? [.. instances.SelectMany(pi => pi.ContentManyToMany.Select((c) => c.ContentId)).Distinct()]
             : Array.Empty<long>();
 
         // When an auto report runs it may need to exclude content in the currently unsent report.
         if (currentInstance != null && currentInstance.SentOn.HasValue == false
             && (reportSettings.Content.ExcludeContentInUnsentReport || !reportSettings.Content.ClearOnStartNewReport))
-            excludeHistoricalContentIds = excludeHistoricalContentIds.AppendRange(currentInstance.ContentManyToMany.Select(c => c.ContentId)).Distinct().ToArray();
+            excludeHistoricalContentIds = [.. excludeHistoricalContentIds.AppendRange(currentInstance.ContentManyToMany.Select(c => c.ContentId)).Distinct()];
 
         // Fetch other reports to exclude any content within them.
         var excludeReportContentIds = reportSettings.Content.ExcludeReports.Any()
-            ? reportSettings.Content.ExcludeReports.SelectMany((reportId) => this.GetReportInstanceContentToExclude(reportId, ownerId)).Distinct().ToArray()
+            ? [.. reportSettings.Content.ExcludeReports.SelectMany((reportId) => this.GetReportInstanceContentToExclude(reportId, ownerId)).Distinct()]
             : Array.Empty<long>();
 
         var excludeAboveSectionContentIds = new List<long>();
@@ -1019,10 +1019,10 @@ public class ReportService : BaseService<Report, int>, IReportService
                 if (!sectionSettings.OverrideExcludeHistorical)
                 {
                     var excludeContentIds = excludeHistoricalContentIds.AppendRange(excludeReportContentIds).Distinct().ToArray();
-                    if (excludeContentIds.Any())
+                    if (excludeContentIds.Length != 0)
                         query = query.Where(fc => !excludeContentIds.Contains(fc.ContentId));
                 }
-                else if (excludeReportContentIds.Any())
+                else if (excludeReportContentIds.Length != 0)
                     query = query.Where(fc => !excludeReportContentIds.Contains(fc.ContentId));
 
                 var content = query
@@ -1047,8 +1047,8 @@ public class ReportService : BaseService<Report, int>, IReportService
                 // Modify the query to exclude content.
                 var excludeContentIds = excludeHistoricalContentIds.AppendRange(excludeReportContentIds).Distinct().ToArray();
                 var excludeOnlyTheseContentIds = !sectionSettings.OverrideExcludeHistorical ? excludeContentIds : excludeReportContentIds;
-                var excludeAboveAndHistorical = sectionSettings.RemoveDuplicates ? excludeOnlyTheseContentIds.AppendRange(excludeAboveSectionContentIds).Distinct().ToArray() : excludeOnlyTheseContentIds;
-                var query = excludeAboveAndHistorical.Any()
+                var excludeAboveAndHistorical = sectionSettings.RemoveDuplicates ? [.. excludeOnlyTheseContentIds.AppendRange(excludeAboveSectionContentIds).Distinct()] : excludeOnlyTheseContentIds;
+                var query = excludeAboveAndHistorical.Length != 0
                     ? section.Filter.Query.AddExcludeContent(excludeAboveAndHistorical)
                     : section.Filter.Query;
 
