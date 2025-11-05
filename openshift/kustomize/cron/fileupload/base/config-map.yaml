@@ -1,0 +1,27 @@
+---
+# Configuration settings
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: fileupload-service
+  namespace: default
+  annotations:
+    description: FileUpload service configuration settings
+    created-by: Jacob.Wang
+  labels:
+    name: fileupload-service
+    part-of: tno
+    version: 1.0.0
+    component: fileupload-service
+    managed-by: kustomize
+data:
+  MAX_FAIL_LIMIT: "5"
+  LIMIT: "-1"                     # upload all files
+  DAYS_BEFORE_START: "365"        # query files published from (today - N days)
+  DAYS_BEFORE_END: "3"            # query files published to (today - N days)
+  FORCE: "false"                  # Force re-upload even if already uploaded
+  AUTO_RESTART_AFTER_CRITICAL_FAILURE: "false"  # exit after one execution
+  CHES_EMAIL_ENABLED: "true"
+  CHES_EMAIL_AUTHORIZED: "true"
+  SEND_EMAIL_ON_FAILURE: "true"
+
