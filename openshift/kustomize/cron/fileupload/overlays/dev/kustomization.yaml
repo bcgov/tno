@@ -10,13 +10,6 @@ images:
     newTag: latest
 patches:
   - target:
-      kind: CronJob
-      name: fileupload-service
-    patch: |-
-      - op: replace
-        path: /spec/schedule
-        value: "0 2 * * *"     # run once a day at 2 AM UTC
-  - target:
       kind: ConfigMap
       name: fileupload-service
     patch: |-

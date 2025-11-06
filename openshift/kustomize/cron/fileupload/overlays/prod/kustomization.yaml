@@ -8,12 +8,4 @@ resources:
 images:
   - name: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/fileupload-service
     newTag: latest
-patches:
-  - target:
-      kind: CronJob
-      name: fileupload-service
-    patch: |-
-      - op: replace
-        path: /spec/schedule
-        value: "0 2 * * *"
 
