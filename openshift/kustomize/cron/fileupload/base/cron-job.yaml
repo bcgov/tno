@@ -26,9 +26,6 @@ spec:
             component: fileupload-service
         spec:
           restartPolicy: OnFailure
-          securityContext:
-            runAsUser: 1010230000
-            fsGroup: 1010230000
           containers:
             - name: fileupload-service
               image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/fileupload-service:latest
