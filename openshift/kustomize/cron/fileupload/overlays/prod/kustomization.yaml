@@ -7,7 +7,7 @@ resources:
   - ../../base
 images:
   - name: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/fileupload-service
-    newTag: prod
+    newTag: latest
 patches:
   - target:
       kind: CronJob
@@ -16,14 +16,4 @@ patches:
       - op: replace
         path: /spec/schedule
         value: "0 2 * * *"
-  - target:
-      kind: ConfigMap
-      name: fileupload-service
-    patch: |-
-      - op: replace
-        path: /data/DAYS_BEFORE_START
-        value: "365"
-      - op: replace
-        path: /data/DAYS_BEFORE_END
-        value: "7"
 
