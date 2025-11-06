@@ -14,7 +14,7 @@ metadata:
     created-by: Jacob.Wang
 spec:
   # ttlSecondsAfterFinished: 100
-  schedule: "0 2 * * *" # Every day at 2 AM UTC
+  schedule: "0 3 * * *" # Every day at 3 AM UTC
   # schedule: "*/5 * * * *" # For testing: Every 5 minutes
   jobTemplate:
     spec:
