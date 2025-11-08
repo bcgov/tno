@@ -527,7 +527,12 @@ public class ReportService : BaseService<Report, int>, IReportService
         }
 
         if (reportSettings.Content.RemoveDuplicateTitles3Days)
-            instanceContent = FilterDuplicateTitlesWithinWindow(instanceContent, DuplicateTitleWindow);
+        {
+            var titleHistory = BuildTitleHistory(
+                GetPreviousReportInstances(report.Id, instanceId, requestorId ?? report.OwnerId, includeContent: true, qty: 10),
+                DuplicateTitleWindow);
+            instanceContent = FilterDuplicateTitlesWithinWindow(instanceContent, DuplicateTitleWindow, titleHistory);
+        }
 
         return new ReportInstance(
             instanceId ?? 0,
@@ -966,16 +971,31 @@ public class ReportService : BaseService<Report, int>, IReportService
         var reportSettings = JsonSerializer.Deserialize<ReportSettingsModel>(report.Settings.ToJson(), _serializerOptions) ?? new();
 
         var ownerId = requestorId ?? report.OwnerId; // TODO: Handle users generating instances for a report they do not own.
+        var sectionSettingsLookup = report.Sections
+            .ToDictionary(
+                s => s.Name,
+                s => JsonSerializer.Deserialize<ReportSectionSettingsModel>(s.Settings.ToJson(), _serializerOptions) ?? new ReportSectionSettingsModel());
+        var requiresDuplicateHistory = reportSettings.Content.RemoveDuplicateTitles3Days || sectionSettingsLookup.Values.Any(s => s.RemoveDuplicateTitles3Days);
         var currentInstance = instanceId.HasValue ?
             this.Context.ReportInstances
                 .AsNoTracking()
                 .Include(ri => ri.ContentManyToMany)
+                    .ThenInclude(c => c.Content)
                 .Where(ri => ri.OwnerId == ownerId)
                 .FirstOrDefault(ri => ri.Id == instanceId) :
-            GetCurrentReportInstance(report.Id, ownerId);
-        var previousInstances = GetPreviousReportInstances(report.Id, instanceId ?? currentInstance?.Id, ownerId);
+            GetCurrentReportInstance(report.Id, ownerId, includeContent: true);
+        var previousInstances = GetPreviousReportInstances(
+            report.Id,
+            instanceId ?? currentInstance?.Id,
+            ownerId,
+            includeContent: true,
+            qty: requiresDuplicateHistory ? 10 : 2);
         var instances = currentInstance?.SentOn.HasValue == true ? [currentInstance, .. previousInstances] : previousInstances;
         var previousInstance = instances.FirstOrDefault();
+
+        ISet<string>? titleHistory = requiresDuplicateHistory
+            ? BuildTitleHistory(instances, DuplicateTitleWindow, currentInstance)
+            : null;
 
         // Create an array of content from the previous instance to exclude.
         var excludeHistoricalContentIds = reportSettings.Content.ExcludeHistorical
@@ -996,7 +1016,7 @@ public class ReportService : BaseService<Report, int>, IReportService
 
         foreach (var section in report.Sections.OrderBy(s => s.SortOrder))
         {
-            var sectionSettings = JsonSerializer.Deserialize<ReportSectionSettingsModel>(section.Settings.ToJson(), _serializerOptions) ?? new();
+            var sectionSettings = sectionSettingsLookup[section.Name];
 
             // Content in a folder is added first.
             if (section.FolderId.HasValue)
@@ -1034,8 +1054,15 @@ public class ReportService : BaseService<Report, int>, IReportService
                     .OrderBy(fc => fc.SortOrder)
                     .ToArray();
 
-                if (sectionSettings.RemoveDuplicateTitles3Days || reportSettings.Content.RemoveDuplicateTitles3Days)
-                    content = FilterDuplicateTitlesWithinWindow(content, DuplicateTitleWindow);
+                var removeDuplicateTitles = sectionSettings.RemoveDuplicateTitles3Days || reportSettings.Content.RemoveDuplicateTitles3Days;
+                if (removeDuplicateTitles)
+                {
+                    content = FilterDuplicateTitlesWithinWindow(content, DuplicateTitleWindow, titleHistory);
+                }
+                else if (titleHistory != null)
+                {
+                    AddTitlesToHistory(content, DuplicateTitleWindow, titleHistory);
+                }
 
                 var folderContent = new Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>();
                 folderContent.Hits.Hits = content
@@ -1078,11 +1105,23 @@ public class ReportService : BaseService<Report, int>, IReportService
                 // Add retry logic for Elasticsearch query to handle failures
                 var content = await RetryElasticsearchQueryAsync(async () =>
                     await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query));
-                if (sectionSettings.RemoveDuplicateTitles3Days || reportSettings.Content.RemoveDuplicateTitles3Days)
-                    content.Hits.Hits = FilterDuplicateTitlesWithinWindow(
-                        content.Hits.Hits ?? Array.Empty<Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>>(),
-                        DuplicateTitleWindow);
-                var contentHits = content.Hits.Hits.ToArray();
+                var removeDuplicateTitles = sectionSettings.RemoveDuplicateTitles3Days || reportSettings.Content.RemoveDuplicateTitles3Days;
+                var hits = content.Hits.Hits ?? Array.Empty<Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>>();
+                if (content.Hits.Hits == null)
+                    content.Hits.Hits = hits;
+
+                if (removeDuplicateTitles)
+                {
+                    hits = FilterDuplicateTitlesWithinWindow(
+                        hits,
+                        DuplicateTitleWindow,
+                        titleHistory);
+                    content.Hits.Hits = hits;
+                }
+                else if (titleHistory != null)
+                {
+                    AddTitlesToHistory(hits, DuplicateTitleWindow, titleHistory);
+                }
 
                 // Fetch custom content versions for the requestor.
                 var contentIds = content.Hits.Hits.Select(h => h.Source.Id).Distinct().ToArray();
@@ -1177,7 +1216,16 @@ public class ReportService : BaseService<Report, int>, IReportService
         var reportSettings = JsonSerializer.Deserialize<ReportSettingsModel>(report.Settings.ToJson(), _serializerOptions) ?? new();
 
         var ownerId = requestorId ?? reportInstance.OwnerId; // TODO: Handle users generating instances for a report they do not own.
-        var previousInstances = reportInstance != null ? GetPreviousReportInstances(report.Id, reportInstance.Id, ownerId) : null;
+        var sectionSettings = JsonSerializer.Deserialize<ReportSectionSettingsModel>(section.Settings.ToJson(), _serializerOptions) ?? new();
+        var removeDuplicateTitles = sectionSettings.RemoveDuplicateTitles3Days || reportSettings.Content.RemoveDuplicateTitles3Days;
+        var previousInstances = reportInstance != null
+            ? GetPreviousReportInstances(
+                report.Id,
+                reportInstance.Id,
+                ownerId,
+                includeContent: true,
+                qty: removeDuplicateTitles ? 10 : 2)
+            : null;
         var previousInstance = previousInstances?.FirstOrDefault();
 
         // Organize the content sections, and remove the specified section.
@@ -1217,7 +1265,12 @@ public class ReportService : BaseService<Report, int>, IReportService
         if (reportInstance != null)
             excludeAboveSectionContentIds.AddRange(contentAbove.Select(c => c.ContentId).ToArray());
 
-        var sectionSettings = JsonSerializer.Deserialize<ReportSectionSettingsModel>(section.Settings.ToJson(), _serializerOptions) ?? new();
+        ISet<string>? titleHistory = removeDuplicateTitles
+            ? BuildTitleHistory(
+                previousInstances ?? Array.Empty<ReportInstance>(),
+                DuplicateTitleWindow,
+                reportInstance)
+            : null;
 
         if (section.FolderId.HasValue)
         {
@@ -1248,8 +1301,10 @@ public class ReportService : BaseService<Report, int>, IReportService
                 .OrderBy(fc => fc.SortOrder)
                 .ToArray();
 
-            if (sectionSettings.RemoveDuplicateTitles3Days || reportSettings.Content.RemoveDuplicateTitles3Days)
-                content = FilterDuplicateTitlesWithinWindow(content, DuplicateTitleWindow);
+            if (removeDuplicateTitles)
+            {
+                content = FilterDuplicateTitlesWithinWindow(content, DuplicateTitleWindow, titleHistory);
+            }
 
             var folderContent = new Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>();
             folderContent.Hits.Hits = content
@@ -1287,10 +1342,13 @@ public class ReportService : BaseService<Report, int>, IReportService
             var defaultIndex = filterSettings.SearchUnpublished ? _elasticOptions.ContentIndex : _elasticOptions.PublishedIndex;
             var content = await RetryElasticsearchQueryAsync(async () =>
                 await _elasticClient.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(defaultIndex, query));
-            if (sectionSettings.RemoveDuplicateTitles3Days || reportSettings.Content.RemoveDuplicateTitles3Days)
+            if (removeDuplicateTitles)
+            {
                 content.Hits.Hits = FilterDuplicateTitlesWithinWindow(
                     content.Hits.Hits ?? Array.Empty<Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>>(),
-                    DuplicateTitleWindow);
+                    DuplicateTitleWindow,
+                    titleHistory);
+            }
 
             // Fetch custom content versions for the requestor.
             var contentIds = content.Hits.Hits.Select(h => h.Source.Id).Distinct().ToArray();
@@ -1306,7 +1364,79 @@ public class ReportService : BaseService<Report, int>, IReportService
         return searchResults;
     }
 
-    private FolderContent[] FilterDuplicateTitlesWithinWindow(FolderContent[] items, TimeSpan window)
+    private ISet<string> BuildTitleHistory(IEnumerable<ReportInstance> instances, TimeSpan window, ReportInstance? currentInstance = null)
+    {
+        var history = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var threshold = DateTime.UtcNow - window;
+
+        void AddTitles(IEnumerable<ReportInstanceContent> contents, bool ignoreThreshold)
+        {
+            foreach (var item in contents)
+            {
+                var title = NormalizeHeadline(item.Content?.Headline);
+                if (string.IsNullOrWhiteSpace(title)) continue;
+
+                var date = GetComparableDate(item.Content);
+                if (!ignoreThreshold && date < threshold) continue;
+
+                history.Add(title);
+            }
+        }
+
+        if (currentInstance != null)
+        {
+            var includeAll = currentInstance.SentOn.HasValue == false;
+            if (includeAll || (currentInstance.SentOn ?? currentInstance.PublishedOn ?? DateTime.MinValue) >= threshold)
+                AddTitles(currentInstance.ContentManyToMany, includeAll);
+        }
+
+        foreach (var instance in instances)
+        {
+            var includeAll = instance.SentOn.HasValue == false;
+            if (!includeAll && (instance.SentOn ?? instance.PublishedOn ?? DateTime.MinValue) < threshold)
+                continue;
+
+            AddTitles(instance.ContentManyToMany, includeAll);
+        }
+
+        return history;
+    }
+
+    private void AddTitlesToHistory(IEnumerable<FolderContent> items, TimeSpan window, ISet<string>? titleHistory)
+    {
+        if (titleHistory == null) return;
+
+        var threshold = DateTime.UtcNow - window;
+        foreach (var item in items)
+        {
+            var title = NormalizeHeadline(item.Content?.Headline);
+            if (string.IsNullOrWhiteSpace(title)) continue;
+
+            var date = GetComparableDate(item.Content);
+            if (date < threshold) continue;
+
+            titleHistory.Add(title);
+        }
+    }
+
+    private void AddTitlesToHistory(IEnumerable<Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>> hits, TimeSpan window, ISet<string>? titleHistory)
+    {
+        if (titleHistory == null) return;
+
+        var threshold = DateTime.UtcNow - window;
+        foreach (var hit in hits)
+        {
+            var title = NormalizeHeadline(hit.Source?.Headline);
+            if (string.IsNullOrWhiteSpace(title)) continue;
+
+            var date = GetComparableDate(hit.Source);
+            if (date < threshold) continue;
+
+            titleHistory.Add(title);
+        }
+    }
+
+    private FolderContent[] FilterDuplicateTitlesWithinWindow(FolderContent[] items, TimeSpan window, ISet<string>? titleHistory = null)
     {
         if (items.Length == 0) return items;
 
@@ -1321,6 +1451,17 @@ public class ReportService : BaseService<Report, int>, IReportService
             Title = NormalizeHeadline(item.Content?.Headline),
             Date = GetComparableDate(item.Content)
         }).ToArray();
+
+        if (titleHistory != null)
+        {
+            foreach (var entry in metadata)
+            {
+                if (string.IsNullOrWhiteSpace(entry.Title)) continue;
+                if (entry.Date < threshold) continue;
+                if (titleHistory.Contains(entry.Title))
+                    keep[entry.Index] = false;
+            }
+        }
 
         foreach (var group in metadata
             .Where(x => !string.IsNullOrWhiteSpace(x.Title))
@@ -1345,7 +1486,16 @@ public class ReportService : BaseService<Report, int>, IReportService
         var results = new List<FolderContent>(items.Length);
         for (var i = 0; i < items.Length; i++)
         {
-            if (keep[i]) results.Add(items[i]);
+            if (keep[i])
+            {
+                results.Add(items[i]);
+                if (titleHistory != null)
+                {
+                    var title = metadata[i].Title;
+                    if (!string.IsNullOrWhiteSpace(title) && metadata[i].Date >= threshold)
+                        titleHistory.Add(title);
+                }
+            }
         }
 
         return results.ToArray();
@@ -1353,7 +1503,8 @@ public class ReportService : BaseService<Report, int>, IReportService
 
     private Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>[] FilterDuplicateTitlesWithinWindow(
         IEnumerable<Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>> hits,
-        TimeSpan window)
+        TimeSpan window,
+        ISet<string>? titleHistory = null)
     {
         var hitArray = hits.ToArray();
         if (hitArray.Length == 0) return hitArray;
@@ -1369,6 +1520,17 @@ public class ReportService : BaseService<Report, int>, IReportService
             Title = NormalizeHeadline(hit.Source?.Headline),
             Date = GetComparableDate(hit.Source)
         }).ToArray();
+
+        if (titleHistory != null)
+        {
+            foreach (var entry in metadata)
+            {
+                if (string.IsNullOrWhiteSpace(entry.Title)) continue;
+                if (entry.Date < threshold) continue;
+                if (titleHistory.Contains(entry.Title))
+                    keep[entry.Index] = false;
+            }
+        }
 
         foreach (var group in metadata
             .Where(x => !string.IsNullOrWhiteSpace(x.Title))
@@ -1393,13 +1555,22 @@ public class ReportService : BaseService<Report, int>, IReportService
         var results = new List<Elastic.Models.HitModel<API.Areas.Services.Models.Content.ContentModel>>(hitArray.Length);
         for (var i = 0; i < hitArray.Length; i++)
         {
-            if (keep[i]) results.Add(hitArray[i]);
+            if (keep[i])
+            {
+                results.Add(hitArray[i]);
+                if (titleHistory != null)
+                {
+                    var title = metadata[i].Title;
+                    if (!string.IsNullOrWhiteSpace(title) && metadata[i].Date >= threshold)
+                        titleHistory.Add(title);
+                }
+            }
         }
 
         return results.ToArray();
     }
 
-    private List<ReportInstanceContent> FilterDuplicateTitlesWithinWindow(List<ReportInstanceContent> content, TimeSpan window)
+    private List<ReportInstanceContent> FilterDuplicateTitlesWithinWindow(List<ReportInstanceContent> content, TimeSpan window, ISet<string>? titleHistory = null)
     {
         if (content.Count == 0) return content;
 
@@ -1414,6 +1585,17 @@ public class ReportService : BaseService<Report, int>, IReportService
             Title = NormalizeHeadline(item.Content?.Headline),
             Date = GetComparableDate(item.Content)
         }).ToArray();
+
+        if (titleHistory != null)
+        {
+            foreach (var entry in metadata)
+            {
+                if (string.IsNullOrWhiteSpace(entry.Title)) continue;
+                if (entry.Date < threshold) continue;
+                if (titleHistory.Contains(entry.Title))
+                    keep[entry.Index] = false;
+            }
+        }
 
         foreach (var group in metadata
             .Where(x => !string.IsNullOrWhiteSpace(x.Title))
@@ -1438,7 +1620,16 @@ public class ReportService : BaseService<Report, int>, IReportService
         var results = new List<ReportInstanceContent>(content.Count);
         for (var i = 0; i < content.Count; i++)
         {
-            if (keep[i]) results.Add(content[i]);
+            if (keep[i])
+            {
+                results.Add(content[i]);
+                if (titleHistory != null)
+                {
+                    var title = metadata[i].Title;
+                    if (!string.IsNullOrWhiteSpace(title) && metadata[i].Date >= threshold)
+                        titleHistory.Add(title);
+                }
+            }
         }
 
         foreach (var sectionGroup in results.GroupBy(c => c.SectionName))
