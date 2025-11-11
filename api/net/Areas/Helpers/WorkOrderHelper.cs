@@ -167,13 +167,6 @@ public class WorkOrderHelper : IWorkOrderHelper
         if (this.Content == null || this.Content.Id != contentId)
             this.Content = _contentService.FindById(contentId) ?? throw new NoContentException("Content does not exist");
         if (String.IsNullOrWhiteSpace(_kafkaOptions.TranscriptionTopic)) throw new ConfigurationException("Kafka transcription topic not configured.");
-        bool skipKafka = false;
-        string skipDescription = "User request transcription while editor is working on it. Automatic transcription is bypassed";
-
-        if (HasExistingTranscript(contentId) && !this.Content.IsApproved)
-        {
-            skipKafka = true;
-        }
 
         if (this.Content.IsApproved && force == false) throw new InvalidOperationException("Content is already approved");
         // Only allow one work order transcript request at a time.
@@ -191,15 +184,12 @@ public class WorkOrderHelper : IWorkOrderHelper
                 new Entities.WorkOrder(
                     Entities.WorkOrderType.Transcription,
                     requestor,
-                    skipKafka ? skipDescription : "",
+                    "",
                     this.Content,
                     configuration
                     ));
 
-            if (!skipKafka)
-            {
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.TranscriptionTopic, new TNO.Kafka.Models.TranscriptRequestModel(workOrder));
-            }
+            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.TranscriptionTopic, new TNO.Kafka.Models.TranscriptRequestModel(workOrder));
             return workOrder;
         }
         return workOrders.OrderByDescending(w => w.CreatedOn).First();
