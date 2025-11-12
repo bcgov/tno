@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
@@ -993,8 +994,15 @@ public class ReportService : BaseService<Report, int>, IReportService
         var instances = currentInstance?.SentOn.HasValue == true ? [currentInstance, .. previousInstances] : previousInstances;
         var previousInstance = instances.FirstOrDefault();
 
+        var historyInstances = BuildHistoryInstances(
+            instances,
+            requiresDuplicateHistory,
+            report,
+            instanceId ?? currentInstance?.Id,
+            ownerId);
+
         ISet<string>? titleHistory = requiresDuplicateHistory
-            ? BuildTitleHistory(instances, DuplicateTitleWindow, currentInstance)
+            ? BuildTitleHistory(historyInstances, DuplicateTitleWindow, currentInstance)
             : null;
 
         // Create an array of content from the previous instance to exclude.
@@ -1265,9 +1273,16 @@ public class ReportService : BaseService<Report, int>, IReportService
         if (reportInstance != null)
             excludeAboveSectionContentIds.AddRange(contentAbove.Select(c => c.ContentId).ToArray());
 
+        var historyInstances = BuildHistoryInstances(
+            previousInstances ?? Array.Empty<ReportInstance>(),
+            removeDuplicateTitles,
+            report,
+            reportInstance?.Id,
+            ownerId);
+
         ISet<string>? titleHistory = removeDuplicateTitles
             ? BuildTitleHistory(
-                previousInstances ?? Array.Empty<ReportInstance>(),
+                historyInstances,
                 DuplicateTitleWindow,
                 reportInstance)
             : null;
@@ -1400,6 +1415,29 @@ public class ReportService : BaseService<Report, int>, IReportService
         }
 
         return history;
+    }
+
+    private IEnumerable<ReportInstance> BuildHistoryInstances(
+        IEnumerable<ReportInstance> baseInstances,
+        bool dedupEnabled,
+        Report report,
+        long? instanceId,
+        int? requestorId)
+    {
+        if (!dedupEnabled || !report.OwnerId.HasValue) return baseInstances;
+        if (requestorId.HasValue && requestorId.Value == report.OwnerId.Value) return baseInstances;
+
+        var ownerInstances = GetPreviousReportInstances(
+            report.Id,
+            instanceId,
+            report.OwnerId,
+            includeContent: true,
+            qty: 10);
+
+        if (ownerInstances.Length == 0) return baseInstances;
+
+        var existingInstanceIds = new HashSet<long>(baseInstances.Select(i => i.Id));
+        return [.. baseInstances, .. ownerInstances.Where(i => !existingInstanceIds.Contains(i.Id))];
     }
 
     private void AddTitlesToHistory(IEnumerable<FolderContent> items, TimeSpan window, ISet<string>? titleHistory)
