@@ -29,7 +29,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     private CancellationTokenSource? _cancelToken;
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
-    private readonly WorkOrderStatus[] _ignoreWorkOrders = new WorkOrderStatus[] { WorkOrderStatus.Completed };
+    private readonly WorkOrderStatus[] _ignoreWorkOrders = new WorkOrderStatus[] { WorkOrderStatus.Completed, WorkOrderStatus.Cancelled };
     private int _retries = 0;
 
     #endregion
@@ -369,43 +369,60 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             if (!String.IsNullOrEmpty(safePath))
             {
                 this.Logger.LogInformation("Validating work order.  Content ID: {Id}, Path: {file}", requestContentId, safePath);
-                var hasWorkOrder = await UpdateWorkOrderAsync(request, WorkOrderStatus.InProgress);
-
-                if (hasWorkOrder)
+                var workOrder = await UpdateWorkOrderAsync(request, content.IsApproved ? WorkOrderStatus.Cancelled : WorkOrderStatus.InProgress);
+                if (workOrder?.Status == WorkOrderStatus.InProgress)
                 {
                     var original = content.Body;
                     var fileBytes = File.ReadAllBytes(safePath);
                     var transcript = await RequestTranscriptionAsync(requestContentId, fileBytes); // TODO: Extract language from data source.
 
-                    // Fetch content again because it may have been updated by an external source.
-                    // This can introduce issues if the transcript has been edited as now it will overwrite what was changed.
-                    content = (await this.Api.FindContentByIdAsync(requestContentId))!;
-                    if (content != null && !String.IsNullOrWhiteSpace(transcript))
+                    // Fetch latest work order to ensure they haven't changed during transcription process.
+                    workOrder = await this.Api.FindWorkOrderAsync(workOrder.Id);
+                    if (workOrder?.Status == WorkOrderStatus.Cancelled)
                     {
-                        // The transcription may have been edited during this process and now those changes will be lost.
-                        if (String.CompareOrdinal(original, content.Body) != 0) this.Logger.LogWarning("Transcription will be overwritten.  Content ID: {Id}", requestContentId);
-
-                        content.Body = GetFormattedTranscript(transcript);
-                        await this.Api.UpdateContentAsync(content); // TODO: This can result in an editor getting a optimistic concurrency error.
-                        this.Logger.LogInformation("Transcription updated.  Content ID: {Id}", requestContentId);
-
-                        await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
-                    }
-                    else if (String.IsNullOrWhiteSpace(transcript))
-                    {
-                        this.Logger.LogWarning("Content did not generate a transcript. Content ID: {Id}", requestContentId);
-                        var emptyTranscriptException = new EmptyTranscriptException(requestContentId);
-                        await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed, emptyTranscriptException);
+                        this.Logger.LogWarning("Work order has been cancelled during transcription process.  Content ID: {id}, File: {path}", requestContentId, safePath);
                     }
                     else
                     {
-                        // The content is no longer available for some reason.
-                        this.Logger.LogError("Content no longer exists. Content ID: {Id}", requestContentId);
-                        var contentNotFoundException = new ContentNotFoundException(requestContentId);
-                        await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed, contentNotFoundException);
+                        // Fetch content again because it may have been updated by an external source.
+                        // This can introduce issues if the transcript has been edited as now it will overwrite what was changed.
+                        content = (await this.Api.FindContentByIdAsync(requestContentId))!;
+                        if (content != null && !String.IsNullOrWhiteSpace(transcript) && !content.IsApproved)
+                        {
+                            // The transcription may have been edited during this process and now those changes will be lost.
+                            if (String.CompareOrdinal(original, content.Body) != 0) this.Logger.LogWarning("Transcription will be overwritten.  Content ID: {Id}", requestContentId);
+
+                            content.Body = GetFormattedTranscript(transcript);
+                            await this.Api.UpdateContentAsync(content); // TODO: This can result in an editor getting a optimistic concurrency error.
+                            this.Logger.LogInformation("Transcription updated.  Content ID: {Id}", requestContentId);
+
+                            await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
+                        }
+                        else if (content != null && content.IsApproved)
+                        {
+                            this.Logger.LogWarning("Content is approved, transcription will not be updated.  Content ID: {Id}", requestContentId);
+                            await UpdateWorkOrderAsync(request, WorkOrderStatus.Cancelled);
+                        }
+                        else if (String.IsNullOrWhiteSpace(transcript))
+                        {
+                            this.Logger.LogWarning("Content did not generate a transcript. Content ID: {Id}", requestContentId);
+                            var emptyTranscriptException = new EmptyTranscriptException(requestContentId);
+                            await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed, emptyTranscriptException);
+                        }
+                        else
+                        {
+                            // The content is no longer available for some reason.
+                            this.Logger.LogError("Content no longer exists. Content ID: {Id}", requestContentId);
+                            var contentNotFoundException = new ContentNotFoundException(requestContentId);
+                            await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed, contentNotFoundException);
+                        }
                     }
                 }
-                else
+                else if (workOrder?.Status == WorkOrderStatus.Cancelled)
+                {
+                    this.Logger.LogWarning("Work order has been cancelled.  Content ID: {id}, File: {path}", requestContentId, safePath);
+                }
+                else if (workOrder == null)
                 {
                     this.Logger.LogWarning("Request ignored because it does not have a work order.  Content ID: {id}, File: {path}", requestContentId, safePath);
                 }
@@ -455,7 +472,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <param name="request"></param>
     /// <param name="status"></param>
     /// <returns>Whether a work order exists or is not required.</returns>
-    private async Task<bool> UpdateWorkOrderAsync(TranscriptRequestModel request, WorkOrderStatus status, Exception? reason = null)
+    private async Task<API.Areas.Services.Models.WorkOrder.WorkOrderModel?> UpdateWorkOrderAsync(TranscriptRequestModel request, WorkOrderStatus status, Exception? reason = null)
     {
         if (request.WorkOrderId > 0)
         {
@@ -463,18 +480,17 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             if (workOrder != null && !_ignoreWorkOrders.Contains(workOrder.Status))
             {
                 workOrder.Status = status;
-                await this.Api.UpdateWorkOrderAsync(workOrder);
+                workOrder = await this.Api.UpdateWorkOrderAsync(workOrder);
 
                 if (status == WorkOrderStatus.Failed && reason != null)
                 {
                     await this.SendErrorEmailAsync($"Work order failed for Content ID: {request.ContentId}", reason);
                     this.Logger.LogError(reason, "Work order failed for Content ID: {ContentId}", request.ContentId);
                 }
-
-                return true;
             }
+            return workOrder;
         }
-        return !this.Options.AcceptOnlyWorkOrders;
+        return null;
     }
 
     /// <summary>

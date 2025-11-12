@@ -609,16 +609,18 @@ public class ContentController : ControllerBase
     public async Task<IActionResult> StreamAsync([FromQuery] string path)
     {
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
-        //find file from s3
-        var stream = await _s3StorageService.DownloadFromS3Async(path);
-        if (stream != null)
-        {
-            return File(stream, "application/octet-stream");
-        }
-        //find file from local
+
+        // find file from local
         path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
-        if (!safePath.FileExists()) throw new NoContentException("File does not exist");
+
+        if (!safePath.FileExists())
+        {
+            // find file from s3
+            var stream = await _s3StorageService.DownloadFromS3Async(path);
+            if (stream != null) return File(stream, "application/octet-stream");
+            else throw new NoContentException("File does not exist");
+        }
 
         var info = new ItemModel(safePath);
         var fileStream = System.IO.File.OpenRead(safePath);
