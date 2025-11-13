@@ -22,6 +22,7 @@ export const generateReportSection = (options: IGenerateReportSectionOptions) =>
       showImage: false,
       direction: 'row',
       removeDuplicates: false,
+      removeDuplicateTitles3Days: false,
       overrideExcludeHistorical: false,
       hideEmpty: false,
       groupBy: '',

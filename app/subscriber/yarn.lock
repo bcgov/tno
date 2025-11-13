@@ -6089,17 +6089,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30001587, caniuse-lite@npm:^1.0.30001599":
-  version: 1.0.30001621
-  resolution: "caniuse-lite@npm:1.0.30001621"
-  checksum: 0afb65bbf558faea769c16e831fbbd5600c684c0f6bb4ffbc0d38528671fb5cb5d88714804241a88c61872ce289f7c6333aef6cfdfb09277bda0dbdf0aab3459
-  languageName: node
-  linkType: hard
-
-"caniuse-lite@npm:^1.0.30001688":
-  version: 1.0.30001702
-  resolution: "caniuse-lite@npm:1.0.30001702"
-  checksum: ba8e88f0ef09a16f36de805c9491c3047986ab6bb1e0dc66f03067dce5e197be1c98cfaed21867bad851985f775b8d4fa50e7e37537c116a5fe1ae623dfd400c
+"caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30001587, caniuse-lite@npm:^1.0.30001599, caniuse-lite@npm:^1.0.30001688":
+  version: 1.0.30001751
+  resolution: "caniuse-lite@npm:1.0.30001751"
+  checksum: d11e25c44e40c21e7b7492a25c9fd60f4c04e94aa265573f7c487666f5e1b5ca3ed09d09560336f959237063616255cb294d415511bb6cf0486eb2cb6a3a4318
   languageName: node
   linkType: hard
 
@@ -12049,7 +12042,7 @@ __metadata:
     sheetjs: "file:packages/xlsx-0.20.1.tgz"
     styled-components: 6.1.11
     stylis: 4.3.2
-    tno-core: 1.0.27
+    tno-core: 1.0.28
     typescript: 4.9.5
     vitest: 3.0.7
   languageName: unknown
@@ -16404,9 +16397,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:1.0.27":
-  version: 1.0.27
-  resolution: "tno-core@npm:1.0.27"
+"tno-core@npm:1.0.28":
+  version: 1.0.28
+  resolution: "tno-core@npm:1.0.28"
   dependencies:
     "@elastic/elasticsearch": ^8.13.1
     "@fortawesome/free-solid-svg-icons": ^6.4.2
@@ -16439,7 +16432,7 @@ __metadata:
     styled-components: ^6.1.11
     stylis: ^4.3.2
     yup: ^1.1.1
-  checksum: 0a37ba95419455d675d723d1373aab1c17d534d85c9ead4192653bb722b8da1d2c386444b4bdc9c4a806f0df8fc54f2e944ee24f7ae32d3ff9b28445b841384b
+  checksum: 69ecabc7713077cf82d686e05335a373a83f609d4eac6298f197ed6801ce832d5624801e2fb5eccafef971e7c0c88509a3178aae95a8b2f131086ced71e5b6c9
   languageName: node
   linkType: hard
 

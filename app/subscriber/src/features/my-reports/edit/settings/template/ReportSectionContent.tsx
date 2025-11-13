@@ -41,6 +41,28 @@ export const ReportSectionContent = React.forwardRef<HTMLDivElement, IReportSect
               not apply to charts that link to other reports)
             </span>
           </Row>
+          <Row>
+            <FormikCheckbox
+              name={`sections.${index}.settings.removeDuplicateTitles3Days`}
+              label="Remove duplicate titles from the last 3 days"
+            />
+            <span className="info">
+              Keep only the most recent story when duplicate titles occur within the last three
+              days.
+            </span>
+          </Row>
+          <Row>
+            <FormikCheckbox
+              name={`sections.${index}.settings.overrideExcludeHistorical`}
+              label={`Include all content from linked ${
+                section.folderId ? 'folder' : 'report'
+              } even if in prior report`}
+            />
+            <span className="info">
+              This overrides the report option "Exclude stories that have been sent out in previous
+              report" for this section only.
+            </span>
+          </Row>
           <Show visible={!!section.folderId || !!section.linkedReportId}>
             <Row>
               <FormikCheckbox

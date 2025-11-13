@@ -44,6 +44,11 @@ export const ReportContentOptions = () => {
               name="settings.content.excludeHistorical"
               tooltip="Exclude content already reported on in prior instances of this report"
             />
+            <FormikCheckbox
+              label="Remove duplicate titles from the last 3 days"
+              name="settings.content.removeDuplicateTitles3Days"
+              tooltip="Keep only the most recent story when duplicate titles are published within the past three days."
+            />
             <FormikSelect
               label="Excludes content already reported on in the selected reports"
               name="settings.content.excludeReports"

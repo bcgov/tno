@@ -3,7 +3,7 @@ import { Modal } from 'components/modal';
 import { RefreshButton } from 'components/refresh-button';
 import { StartNextReportInfo } from 'features/my-reports/components';
 import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
-import { toForm } from 'features/my-reports/utils';
+import { sanitizeReport, toForm } from 'features/my-reports/utils';
 import React from 'react';
 import { FaArrowsRotate, FaToggleOff, FaToggleOn } from 'react-icons/fa6';
 import { FaAngleDown, FaMinus } from 'react-icons/fa6';
@@ -190,13 +190,15 @@ export const ReportEditContentForm = React.forwardRef<
             if (
               excludeContentInUnsentReport !== values.settings.content.excludeContentInUnsentReport
             ) {
-              const result = await updateReport({
-                ...values,
-                settings: {
-                  ...values.settings,
-                  content: { ...values.settings.content, excludeContentInUnsentReport },
-                },
-              });
+              const result = await updateReport(
+                sanitizeReport({
+                  ...values,
+                  settings: {
+                    ...values.settings,
+                    content: { ...values.settings.content, excludeContentInUnsentReport },
+                  },
+                }),
+              );
               form = toForm(result);
             }
             form = await onGenerate(form, true);
@@ -205,17 +207,19 @@ export const ReportEditContentForm = React.forwardRef<
               excludeContentInUnsentReport !== values.settings.content.excludeContentInUnsentReport
             ) {
               setExcludeContentInUnsentReport(values.settings.content.excludeContentInUnsentReport);
-              const result = await updateReport({
-                ...form,
-                settings: {
-                  ...values.settings,
-                  content: {
-                    ...values.settings.content,
-                    excludeContentInUnsentReport:
-                      values.settings.content.excludeContentInUnsentReport,
+              const result = await updateReport(
+                sanitizeReport({
+                  ...form,
+                  settings: {
+                    ...values.settings,
+                    content: {
+                      ...values.settings.content,
+                      excludeContentInUnsentReport:
+                        values.settings.content.excludeContentInUnsentReport,
+                    },
                   },
-                },
-              });
+                }),
+              );
               form = toForm(result);
             }
             if (form) updateForm(form);

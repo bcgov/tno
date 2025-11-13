@@ -12,6 +12,7 @@ export * from './hideEmptySections';
 export * from './isAutoSend';
 export * from './isAutoSendDisabled';
 export * from './moveContent';
+export * from './sanitizeReport';
 export * from './setAutoSend';
 export * from './sortContent';
 export * from './sortReportContent';

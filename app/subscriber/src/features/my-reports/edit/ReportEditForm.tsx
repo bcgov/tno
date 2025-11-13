@@ -16,7 +16,7 @@ import {
 } from 'tno-core';
 
 import { IReportForm, IReportInstanceContentForm } from '../interfaces';
-import { toForm } from '../utils';
+import { sanitizeReport, toForm } from '../utils';
 import {
   ReportContentMenuOption,
   ReportHistoryMenuOption,
@@ -125,10 +125,14 @@ export const ReportEditForm = React.forwardRef<HTMLDivElement | null, IReportEdi
 
     const handleStartNewReport = React.useCallback(
       async (values: IReportForm) => {
+        const sanitizedValues = sanitizeReport(values);
         try {
           setSubmitting(true);
-          const result = await updateReport(values);
-          const form = await onGenerate(toForm({ ...result, instances: values.instances }), true);
+          const result = await updateReport(sanitizedValues);
+          const form = await onGenerate(
+            toForm({ ...result, instances: sanitizedValues.instances }),
+            true,
+          );
           if (form) updateForm(form);
         } catch {
         } finally {

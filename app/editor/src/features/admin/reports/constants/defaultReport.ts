@@ -27,6 +27,7 @@ export const defaultReport: IReportModel = {
       excludeHistorical: false,
       excludeReports: [],
       highlightKeywords: false,
+      removeDuplicateTitles3Days: false,
       showLinkToStory: false,
       clearFolders: false,
       onlyNewContent: false,

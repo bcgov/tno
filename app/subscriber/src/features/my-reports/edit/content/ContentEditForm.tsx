@@ -3,7 +3,7 @@ import { Bar } from 'components/bar';
 import { Sentiment } from 'components/sentiment';
 import { IReportForm, IReportInstanceContentForm } from 'features/my-reports/interfaces';
 import { IContentValidationErrors } from 'features/my-reports/interfaces/IContentValidationErrors';
-import { toForm } from 'features/my-reports/utils';
+import { sanitizeReport, toForm } from 'features/my-reports/utils';
 import { formatDate } from 'features/utils';
 import React from 'react';
 import { useApp, useContent, useReports } from 'store/hooks';
@@ -186,7 +186,7 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
               }
               let contentIndex = 0;
 
-              const updatedReport = {
+              const updatedReport = sanitizeReport({
                 ...values,
                 instances: values.instances.map((instance) => ({
                   ...instance,
@@ -197,7 +197,9 @@ export const ContentEditForm = React.forwardRef<HTMLDivElement | null, IContentE
                     return c;
                   }),
                 })),
-              };
+              });
+
+              setValues(updatedReport);
 
               // Update the report instances with the latest content.
               const reportResult = await updateReport(updatedReport, true);
