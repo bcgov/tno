@@ -5,6 +5,7 @@ export interface IReportContentSettingsModel {
   excludeReports: number[];
   showLinkToStory: boolean;
   highlightKeywords: boolean;
+  removeDuplicateTitles3Days: boolean;
   copyPriorInstance: boolean;
   clearOnStartNewReport: boolean;
   excludeContentInUnsentReport: boolean;

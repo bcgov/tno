@@ -16,7 +16,7 @@ import { Col, IReportMessageModel, MessageTargetKey, ReportStatusName, Show } fr
 
 import { defaultReport } from '../constants';
 import { IReportForm } from '../interfaces';
-import { sortContent, toForm } from '../utils';
+import { sanitizeReport, sortContent, toForm } from '../utils';
 import { ContentEditForm } from './content';
 import { ReportEditContextProvider } from './ReportEditContext';
 import { ReportEditForm } from './ReportEditForm';
@@ -210,27 +210,28 @@ export const ReportEditPage = () => {
 
   const handleSubmit = React.useCallback(
     async (values: IReportForm) => {
+      const sanitizedValues = sanitizeReport(values);
       try {
-        const originalId = values.id;
-        const originalReportSections = values.sections;
+        const originalId = sanitizedValues.id;
+        const originalReportSections = sanitizedValues.sections;
         const sameNameReport = myReports.some(
           (r) =>
-            r.name.trim().toLocaleLowerCase() === values.name.trim().toLocaleLowerCase() &&
-            r.id !== values.id,
+            r.name.trim().toLocaleLowerCase() === sanitizedValues.name.trim().toLocaleLowerCase() &&
+            r.id !== sanitizedValues.id,
         );
         if (sameNameReport) {
-          toast.error(`A report with the name '${values.name}' already exists.`);
+          toast.error(`A report with the name '${sanitizedValues.name}' already exists.`);
         } else {
-          if (values.instances.length) {
+          if (sanitizedValues.instances.length) {
             // Apply new sort order values for content to stop content from moving around when it has the same sort order value.
-            values.instances[0] = {
-              ...values.instances[0],
-              content: sortContent(values.instances[0].content, true),
+            sanitizedValues.instances[0] = {
+              ...sanitizedValues.instances[0],
+              content: sortContent(sanitizedValues.instances[0].content, true),
             };
           }
           const report = originalId
             ? await updateReport(
-                values,
+                sanitizedValues,
                 instance &&
                   [
                     ReportStatusName.Pending,
@@ -240,15 +241,15 @@ export const ReportEditPage = () => {
                   ].includes(instance.status),
               )
             : await addReport({
-                ...values,
-                ownerId: values.ownerId ?? userInfo?.id ?? 0,
+                ...sanitizedValues,
+                ownerId: sanitizedValues.ownerId ?? userInfo?.id ?? 0,
                 settings: {
-                  ...values.settings,
+                  ...sanitizedValues.settings,
                   subject: {
-                    ...values.settings.subject,
-                    text: values.settings.subject.text.length // Default email subject line
-                      ? values.settings.subject.text
-                      : values.name,
+                    ...sanitizedValues.settings.subject,
+                    text: sanitizedValues.settings.subject.text.length // Default email subject line
+                      ? sanitizedValues.settings.subject.text
+                      : sanitizedValues.name,
                   },
                 },
               });
