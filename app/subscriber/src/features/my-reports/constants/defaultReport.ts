@@ -30,6 +30,7 @@ export const defaultReport = (ownerId: number, templateId: number): IReportForm 
         excludeReports: [],
         highlightKeywords: false,
         showLinkToStory: false,
+        removeDuplicateTitles3Days: false,
         clearFolders: false,
         onlyNewContent: false,
         copyPriorInstance: false,

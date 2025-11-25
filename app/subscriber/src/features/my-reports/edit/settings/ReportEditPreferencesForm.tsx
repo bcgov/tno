@@ -102,6 +102,16 @@ export const ReportEditPreferencesForm = () => {
           name="settings.content.excludeHistorical"
           label="Exclude stories that have been sent out in previous report"
         />
+        <Row>
+          <FormikCheckbox
+            name="settings.content.removeDuplicateTitles3Days"
+            label="Remove duplicate titles from the last 3 days"
+          />
+          <span className="info">
+            Keep only the most recent story when duplicate titles are published within the past
+            three days.
+          </span>
+        </Row>
         <Checkbox
           label="Exclude stories that appeared in the following report(s):"
           checked={excludeContentInReports}
