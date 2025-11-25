@@ -16,6 +16,7 @@ public class ReportSectionSettingsModel
     public bool? CacheData { get; set; }
     public string Direction { get; set; } = "";
     public bool RemoveDuplicates { get; set; }
+    public bool RemoveDuplicateTitles3Days { get; set; }
     public bool OverrideExcludeHistorical { get; set; }
     public bool? InTableOfContents { get; set; }
     public bool HideEmpty { get; set; }
@@ -44,6 +45,7 @@ public class ReportSectionSettingsModel
         this.CacheData = settings.GetDictionaryJsonValue("cacheData", false, options);
         this.Direction = settings.GetDictionaryJsonValue("direction", "", options)!;
         this.RemoveDuplicates = settings.GetDictionaryJsonValue("removeDuplicates", false, options)!;
+        this.RemoveDuplicateTitles3Days = settings.GetDictionaryJsonValue("removeDuplicateTitles3Days", false, options)!;
         this.OverrideExcludeHistorical = settings.GetDictionaryJsonValue("overrideExcludeHistorical", false, options)!;
         this.InTableOfContents = settings.GetDictionaryJsonValue<bool?>("inTableOfContents", null, options)!;
         this.HideEmpty = settings.GetDictionaryJsonValue("hideEmpty", false, options)!;
@@ -69,6 +71,7 @@ public class ReportSectionSettingsModel
         this.CacheData = settings.GetElementValue("cacheData", false, options);
         this.Direction = settings.GetElementValue("direction", "", options)!;
         this.RemoveDuplicates = settings.GetElementValue("removeDuplicates", false, options)!;
+        this.RemoveDuplicateTitles3Days = settings.GetElementValue("removeDuplicateTitles3Days", false, options)!;
         this.OverrideExcludeHistorical = settings.GetElementValue("overrideExcludeHistorical", false, options)!;
         this.InTableOfContents = settings.GetElementValue<bool?>("inTableOfContents", null, options)!;
         this.HideEmpty = settings.GetElementValue("hideEmpty", false, options)!;

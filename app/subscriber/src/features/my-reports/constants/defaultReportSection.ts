@@ -29,6 +29,7 @@ export const defaultReportSection = (
     showImage: false,
     direction: type === ReportSectionTypeName.Gallery ? 'row' : 'column',
     removeDuplicates: false,
+    removeDuplicateTitles3Days: false,
     overrideExcludeHistorical: false,
     hideEmpty:
       type === ReportSectionTypeName.TableOfContents ||
