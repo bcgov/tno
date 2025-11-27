@@ -1,0 +1,210 @@
+---
+# How the app will be deployed to the pod.
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: image-service
+  namespace: default
+  annotations:
+    description: Defines how to deploy image-service
+    created-by: jeremy.foster, alessia.yanchen
+  labels:
+    name: image-service
+    part-of: tno
+    version: 1.0.0
+    component: image-service
+    managed-by: kustomize
+spec:
+  replicas: 1
+  selector:
+    name: image-service
+    part-of: tno
+    component: image-service
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      name: image-service
+      labels:
+        name: image-service
+        part-of: tno
+        component: image-service
+    spec:
+      volumes:
+        - name: ingest-storage
+          persistentVolumeClaim:
+            claimName: ingest-storage
+        - name: ssh-key
+          secret:
+            secretName: ssh-key # name of the Secret
+            optional: false
+            defaultMode: 420
+      containers:
+        - name: image-service
+          image: ""
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: ingest-storage
+              mountPath: /data
+            - name: ssh-key
+              mountPath: /keys
+              readOnly: true
+          resources:
+            limits:
+              cpu: 35m
+              memory: 120Mi
+            requests:
+              cpu: 15m
+              memory: 75Mi
+          env:
+            # .NET Configuration
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+
+            - name: Logging__LogLevel__TNO
+              value: Information
+
+            # Common Service Configuration
+            - name: Service__ApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: API_HOST_URL
+            - name: Service__DataLocation
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: DATA_LOCATION
+            - name: Service__EmailTo
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: EMAIL_FAILURE_TO
+
+            # Authentication Configuration
+            - name: Auth__Keycloak__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUTHORITY
+            - name: Auth__Keycloak__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUDIENCE
+            - name: Auth__Keycloak__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_CLIENT_SECRET
+
+            - name: Service__VolumePath
+              valueFrom:
+                configMapKeyRef:
+                  name: image-service
+                  key: VOLUME_PATH
+            - name: Service__MaxFailLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: image-service
+                  key: MAX_FAIL_LIMIT
+            - name: Service__Topics
+              valueFrom:
+                configMapKeyRef:
+                  name: image-service
+                  key: TOPICS
+            - name: Service__PrivateKeysPath
+              valueFrom:
+                configMapKeyRef:
+                  name: image-service
+                  key: KEY_PATH
+            - name: Service__PrivateKeyFileName
+              valueFrom:
+                secretKeyRef:
+                  name: ssh-key
+                  key: id_rsa
+
+            # CHES Configuration
+            - name: CHES__From
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_FROM
+            - name: CHES__EmailEnabled
+              valueFrom:
+                configMapKeyRef:
+                  name: image-service
+                  key: CHES_EMAIL_ENABLED
+            - name: CHES__EmailAuthorized
+              valueFrom:
+                configMapKeyRef:
+                  name: image-service
+                  key: CHES_EMAIL_AUTHORIZED
+
+            - name: CHES__AuthUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_AUTH_URL
+            - name: CHES__HostUri
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_HOST_URI
+            - name: CHES__Username
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: USERNAME
+            - name: CHES__Password
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: PASSWORD
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - image-service
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: image-service:dev

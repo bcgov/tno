@@ -29,28 +29,7 @@ patches:
     patch: |-
       - op: replace
         path: /spec/host
-        value: mmi-dev.apps.silver.devops.gov.bc.ca
-  - target:
-      kind: Route
-      name: subscriber-0
-    patch: |-
-      - op: replace
-        path: /spec/host
-        value: mmi-dev-0.apps.silver.devops.gov.bc.ca
-  - target:
-      kind: Route
-      name: subscriber-1
-    patch: |-
-      - op: replace
-        path: /spec/host
-        value: mmi-dev-1.apps.silver.devops.gov.bc.ca
-  - target:
-      kind: Route
-      name: subscriber-2
-    patch: |-
-      - op: replace
-        path: /spec/host
-        value: mmi-dev-2.apps.silver.devops.gov.bc.ca
+        value: mmia-dev.apps.silver.devops.gov.bc.ca
   - target:
       kind: Route
       name: subscriber-tls
@@ -59,24 +38,15 @@ patches:
         path: /spec/host
         value: dev.mmi.gov.bc.ca
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: subscriber
     patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/subscriber:dev
       - op: replace
         path: /spec/replicas
         value: 1
       - op: replace
-        path: /spec/template/spec/containers/0/resources/requests/cpu
-        value: 20m
-      - op: replace
-        path: /spec/template/spec/containers/0/resources/requests/memory
-        value: 50Mi
-      - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
-        value: 100m
-      - op: replace
-        path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 100Mi
-      - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: subscriber:dev
+        value: 40m

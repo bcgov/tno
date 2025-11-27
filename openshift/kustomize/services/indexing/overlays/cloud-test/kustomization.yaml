@@ -44,7 +44,8 @@ patches:
         value: IndexingCloud
       - op: replace
         path: /data/ELASTICSEARCH_URI
-        value: https://b2db74af434a489f9bfa8a55de3430a9.ca-central-1.aws.elastic-cloud.com
+        value: https://test-mmi.es.ca-central-1.aws.elastic-cloud.com
+        value_old: https://b2db74af434a489f9bfa8a55de3430a9.ca-central-1.aws.elastic-cloud.com
       - op: replace
         path: /data/CONTENT_INDEX
         value: content
@@ -55,7 +56,7 @@ patches:
         path: /data/INDEX_ONLY
         value: "true"
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: indexing-service
     patch: |-
       - op: replace
@@ -68,13 +69,10 @@ patches:
         path: /metadata/labels/component
         value: indexing-service-cloud
       - op: replace
-        path: /spec/selector/name
+        path: /spec/selector/matchLabels/name
         value: indexing-service-cloud
       - op: replace
-        path: /spec/selector/component
-        value: indexing-service-cloud
-      - op: replace
-        path: /spec/selector/component
+        path: /spec/selector/matchLabels/component
         value: indexing-service-cloud
       - op: replace
         path: /spec/template/metadata/name
@@ -98,20 +96,17 @@ patches:
         path: /spec/template/spec/containers/0/env/12/valueFrom/configMapKeyRef/name
         value: indexing-service-cloud
       - op: replace
-        path: /spec/template/spec/containers/0/env/13/valueFrom/secretKeyRef/name
-        value: elastic-cloud
-      - op: replace
-        path: /spec/template/spec/containers/0/env/14/valueFrom/secretKeyRef/name
-        value: elastic-cloud
+        path: /spec/template/spec/containers/0/env/14/valueFrom/configMapKeyRef/name
+        value: indexing-service-cloud
       - op: replace
         path: /spec/template/spec/containers/0/env/15/valueFrom/secretKeyRef/name
         value: elastic-cloud
       - op: replace
-        path: /spec/template/spec/containers/0/env/16/valueFrom/configMapKeyRef/name
-        value: indexing-service-cloud
+        path: /spec/template/spec/containers/0/env/16/valueFrom/secretKeyRef/name
+        value: elastic-cloud
       - op: replace
-        path: /spec/template/spec/containers/0/env/17/valueFrom/configMapKeyRef/name
-        value: indexing-service-cloud
+        path: /spec/template/spec/containers/0/env/17/valueFrom/secretKeyRef/name
+        value: elastic-cloud
       - op: replace
         path: /spec/template/spec/containers/0/env/18/valueFrom/configMapKeyRef/name
         value: indexing-service-cloud
@@ -125,14 +120,20 @@ patches:
         path: /spec/template/spec/containers/0/env/21/valueFrom/configMapKeyRef/name
         value: indexing-service-cloud
       - op: replace
+        path: /spec/template/spec/containers/0/env/22/valueFrom/configMapKeyRef/name
+        value: indexing-service-cloud
+      - op: replace
         path: /spec/template/spec/containers/0/env/23/valueFrom/configMapKeyRef/name
         value: indexing-service-cloud
       - op: replace
-        path: /spec/template/spec/containers/0/env/24/valueFrom/configMapKeyRef/name
+        path: /spec/template/spec/containers/0/env/25/valueFrom/configMapKeyRef/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/26/valueFrom/configMapKeyRef/name
         value: indexing-service-cloud
       - op: replace
         path: /spec/replicas
-        value: 1
+        value: 3
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
         value: 100m
@@ -140,8 +141,14 @@ patches:
         path: /spec/template/spec/containers/0/resources/requests/memory
         value: 80Mi
       - op: replace
-        path: /spec/triggers/1/imageChangeParams/containerNames/0
-        value: indexing-service-cloud
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: 200m
       - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: indexing-service:test
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: 250Mi
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: image-registry.openshift-image-registry.svc:5000/9b301c-tools/indexing-service:test
+      - op: replace
+        path: /metadata/annotations/image.openshift.io~1triggers
+        value: '[{"from": {"kind": "ImageStreamTag", "name": "indexing-service:test", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"indexing-service-cloud\")].image"}]'

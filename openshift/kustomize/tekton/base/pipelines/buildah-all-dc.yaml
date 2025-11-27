@@ -1,0 +1,294 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: buildah-all
+  annotations:
+    tekton.dev/displayName: Buildah Pipeline
+    tekton.dev/pipelines.minVersion: 0.17.0
+    tekton.dev/tags: build deploy
+  labels:
+    name: buildah-all
+    part-of: tno
+    version: 1.0.0
+    component: pipeline
+    managed-by: kustomize
+spec:
+  params:
+    - name: GIT_SOURCE
+      description: >-
+        The git revision reference to build.
+      type: string
+      default: dev
+    - name: GIT_REF
+      description: >-
+        The git revision reference to build.
+      type: string
+      default: ""
+
+    - name: CONTEXT
+      description: >-
+        The root path to the git repo.
+      type: string
+      default: tno
+
+    - name: COMPONENT
+      description: >-
+        Identify the components to build and deploy [*|all|[name]].
+      type: string
+      default: "*"
+    - name: WAIT
+      description: Whether to wait for each service pod to scale back up [yes|no].
+      default: "no"
+
+    - name: IMAGE_TAG
+      description: >-
+        The tag given to the built images.
+        Use this to create versioned images.
+      type: string
+      default: latest
+
+    - name: PROJECT_SHORTNAME
+      description: >-
+        The project namespace shortname.
+        The part before the "-" (i.e. 9b301c-dev = 9b301c).
+      type: string
+      default: 9b301c
+
+    - name: DEPLOY_TO
+      description: >-
+        Identify the environment to deploy the solution to [dev,test,prod,tools].
+      type: string
+      default: dev
+
+    - name: EDITOR_URL
+      description: The URL to the web application that will be ZAP scanned.
+      type: string
+      default: https://tno-dev.apps.silver.devops.gov.bc.ca
+
+    - name: SUBSCRIBER_URL
+      description: The URL to the web application that will be ZAP scanned.
+      type: string
+      default: https://mmi-dev.apps.silver.devops.gov.bc.ca
+
+  tasks:
+    - name: wait
+      params:
+        - name: PIPELINE_NAME
+          value: $(context.pipelineRun.name)
+      taskRef:
+        kind: Task
+        name: pipeline-wait
+
+    - name: git
+      params:
+        - name: GIT_SOURCE
+          value: $(params.GIT_SOURCE)
+        - name: GIT_REF
+          value: $(params.GIT_REF)
+        - name: CONTEXT
+          value: $(params.CONTEXT)
+      runAfter:
+        - wait
+      taskRef:
+        kind: Task
+        name: git-conditions
+      workspaces:
+        - name: source
+          workspace: source
+        - name: output
+          workspace: conditions
+
+    - name: build-all
+      params:
+        - name: CONTEXT
+          value: $(params.CONTEXT)
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: BUILD
+          value: $(params.COMPONENT)
+      runAfter:
+        - git
+      taskRef:
+        kind: Task
+        name: build-all
+      workspaces:
+        - name: source
+          workspace: source
+        - name: conditions
+          workspace: conditions
+        - name: build
+          workspace: build
+
+    - name: maintenance-on-editor
+      params:
+        - name: PROJECT
+          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+        - name: ROUTE
+          value: editor-tls
+        - name: SERVICE
+          value: nginx
+      runAfter:
+        - build-all
+      taskRef:
+        kind: Task
+        name: oc-patch-route
+
+    - name: maintenance-on-subscriber
+      params:
+        - name: PROJECT
+          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+        - name: ROUTE
+          value: subscriber-tls
+        - name: SERVICE
+          value: nginx
+      runAfter:
+        - build-all
+      taskRef:
+        kind: Task
+        name: oc-patch-route
+
+    - name: db-migration
+      params:
+        - name: DB_SECRET_NAME
+          value: crunchy-pguser-admin
+        - name: API_NAME
+          value: api
+        - name: IMAGE
+          value: db-migration
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: DEPLOY
+          value: $(params.COMPONENT)
+        - name: DEPLOY_TO
+          value: $(params.DEPLOY_TO)
+      runAfter:
+        - maintenance-on-editor
+        - maintenance-on-subscriber
+      taskRef:
+        kind: Task
+        name: db-migration-conditional
+      workspaces:
+        - name: conditions
+          workspace: conditions
+
+#     - name: elastic-migration
+#       params:
+#         - name: DB_SECRET_NAME
+#           value: crunchy-pguser-admin
+#         - name: API_NAME
+#           value: api
+#         - name: IMAGE
+#           value: elastic-migration
+#         - name: IMAGE_TAG
+#           value: $(params.IMAGE_TAG)
+#         - name: DEPLOY
+#           value: $(params.COMPONENT)
+#         - name: DEPLOY_TO
+#           value: $(params.DEPLOY_TO)
+#       runAfter:
+#         - db-migration
+#       taskRef:
+#         kind: Task
+# #        name: elastic-migration-conditional
+#         name: elastic-migration
+#       workspaces:
+#         - name: conditions
+#           workspace: conditions
+
+    - name: deploy-all
+      params:
+        - name: PROJECT_SHORTNAME
+          value: $(params.PROJECT_SHORTNAME)
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: ENV
+          value: $(params.DEPLOY_TO)
+        - name: DEPLOY
+          value: $(params.COMPONENT)
+        - name: WAIT
+          value: $(params.WAIT)
+      runAfter:
+        # - elastic-migration
+        - db-migration
+      taskRef:
+        kind: Task
+        name: deploy-all
+      workspaces:
+        - name: conditions
+          workspace: conditions
+
+    - name: maintenance-off-editor
+      params:
+        - name: PROJECT
+          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+        - name: ROUTE
+          value: editor-tls
+        - name: SERVICE
+          value: editor
+      runAfter:
+        - deploy-all
+      taskRef:
+        kind: Task
+        name: oc-patch-route
+
+    - name: maintenance-off-subscriber
+      params:
+        - name: PROJECT
+          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+        - name: ROUTE
+          value: subscriber-tls
+        - name: SERVICE
+          value: subscriber
+      runAfter:
+        - deploy-all
+      taskRef:
+        kind: Task
+        name: oc-patch-route
+
+    - name: owasp-scan-editor
+      params:
+        - name: TARGET_URL
+          value: $(params.EDITOR_URL)
+        - name: SCAN_TYPE
+          value: quick
+        - name: SCAN_DURATION
+          value: "1"
+      runAfter:
+        - maintenance-off-editor
+      taskRef:
+        kind: Task
+        name: owasp-scanner
+      workspaces:
+        - name: owasp-settings
+          workspace: owasp-settings
+
+    - name: owasp-scan-subscriber
+      params:
+        - name: TARGET_URL
+          value: $(params.SUBSCRIBER_URL)
+        - name: SCAN_TYPE
+          value: quick
+        - name: SCAN_DURATION
+          value: "1"
+      runAfter:
+        - maintenance-off-subscriber
+      taskRef:
+        kind: Task
+        name: owasp-scanner
+      workspaces:
+        - name: owasp-settings
+          workspace: owasp-settings
+
+  workspaces:
+    - description: |
+        Git repo source code.
+      name: source
+    - description: |
+        Pipeline configuration file.
+      name: conditions
+    - description: |
+        Pipeline build volume
+      name: build
+    - description: |
+        mounts /zap/wrk to store generated configs and results.
+      name: owasp-settings

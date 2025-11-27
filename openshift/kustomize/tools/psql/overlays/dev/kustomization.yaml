@@ -8,9 +8,9 @@ resources:
 
 patches:
   - target:
-      kind: DeploymentConfig
-      name: nginx
+      kind: Deployment
+      name: psql
     patch: |-
       - op: replace
-        path: /spec/replicas
-        value: 1
+        path: /spec/template/spec/containers/0/image
+        value: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/psql:dev

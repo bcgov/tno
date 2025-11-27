@@ -1,0 +1,33 @@
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: editor-validator
+  namespace: default
+  annotations:
+    description: Route for editor application.
+    haproxy.router.openshift.io/balance: source
+    haproxy.router.openshift.io/cookie_name: mmi
+    haproxy.router.openshift.io/timeout: 2m
+  labels:
+    name: editor-validator
+    part-of: tno
+    version: 1.0.0
+    component: editor-validator
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  host: mmi-editor-validator.apps.silver.devops.gov.bc.ca
+  path: ""
+  port:
+    targetPort: 8080-tcp
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+    # caCertificate: ""
+    # certificate: ""
+    # key: ""
+  to:
+    kind: Service
+    name: editor-validator
+    weight: 100

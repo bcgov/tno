@@ -1,12 +1,13 @@
 ---
 # How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: subscriber
   namespace: default
   annotations:
     description: Defines how to deploy subscriber
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "subscriber:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"subscriber\")].image"}]'
   labels:
     name: subscriber-app
     part-of: tno
@@ -17,17 +18,15 @@ metadata:
 spec:
   replicas: 1
   selector:
-    name: subscriber
-    part-of: tno
-    component: subscriber
+    matchLabels:
+      name: subscriber
+      part-of: tno
+      component: subscriber
   strategy:
-    rollingParams:
-      intervalSeconds: 1
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-      timeoutSeconds: 600
-      updatePeriodSeconds: 1
-    type: Rolling
   template:
     metadata:
       name: subscriber
@@ -48,7 +47,7 @@ spec:
             claimName: subscriber-public-storage
       containers:
         - name: subscriber
-          image: ""
+          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/subscriber:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -68,7 +67,7 @@ spec:
               mountPath: /usr/share/nginx/html/public/videos
           livenessProbe:
             httpGet:
-              path: "/nginx-status"
+              path: '/nginx-status'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -78,7 +77,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: "/nginx-status"
+              path: '/nginx-status'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 10
@@ -90,15 +89,3 @@ spec:
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
-  test: false
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - subscriber
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: subscriber:dev

@@ -8,24 +8,24 @@ resources:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: ches-retry-service
     patch: |-
       - op: replace
         path: /spec/replicas
         value: 1
       - op: replace
+        path: /metadata/annotations/image.openshift.io~1triggers
+        value: '[{"from": {"kind": "ImageStreamTag", "name": "ches-retry-service:prod", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"ches-retry-service\")].image"}]'
+      - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
         value: 20m
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
-        value: 50Mi
-      - op: replace
-        path: /spec/template/spec/containers/0/resources/limits/cpu
-        value: 100m
-      - op: replace
-        path: /spec/template/spec/containers/0/resources/limits/memory
         value: 100Mi
       - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: ches-retry-service:prod
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: 50m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: 150Mi

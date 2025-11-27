@@ -18,7 +18,7 @@ patches:
         path: /data/GENERATE_ALERTS_ON_CONTENT_MIGRATION
         value: "false"
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: contentmigration-historic-service
     patch: |-
       - op: replace
@@ -36,9 +36,6 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 350Mi
-      - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: contentmigration-service:test
       - op: replace
         path: /spec/template/spec/containers/0/env/0/value
         value: Staging

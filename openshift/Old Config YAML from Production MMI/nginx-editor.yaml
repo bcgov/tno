@@ -1,0 +1,236 @@
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  annotations:
+    description: Defines how to deploy nginx
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","metadata":{"annotations":{"description":"Defines how to deploy nginx"},"labels":{"component":"nginx-editor","created-by":"jeremy.foster","managed-by":"kustomize","name":"nginx-editor","part-of":"tno","version":"1.0.0"},"name":"nginx-editor","namespace":"9b301c-prod"},"spec":{"replicas":1,"selector":{"component":"nginx-editor","name":"nginx-editor","part-of":"tno"},"strategy":{"rollingParams":{"intervalSeconds":1,"maxSurge":"25%","maxUnavailable":"25%","timeoutSeconds":600,"updatePeriodSeconds":1},"type":"Rolling"},"template":{"metadata":{"labels":{"component":"nginx-editor","name":"nginx-editor","part-of":"tno"},"name":"nginx-editor"},"spec":{"containers":[{"image":"","imagePullPolicy":"Always","name":"nginx-editor","ports":[{"containerPort":8080,"protocol":"TCP"}],"resources":{"limits":{"cpu":"50m","memory":"100Mi"},"requests":{"cpu":"20m","memory":"35Mi"}}}],"dnsPolicy":"ClusterFirst","restartPolicy":"Always","securityContext":{},"terminationGracePeriodSeconds":30}},"test":false,"triggers":[{"type":"ConfigChange"},{"imageChangeParams":{"automatic":true,"containerNames":["nginx-editor"],"from":{"kind":"ImageStreamTag","name":"nginx-editor:prod","namespace":"9b301c-tools"}},"type":"ImageChange"}]}}
+  resourceVersion: "16185281301"
+  name: nginx-editor
+  uid: e9f81466-484c-44d1-9532-9d243474496d
+  creationTimestamp: "2024-07-01T15:20:25Z"
+  generation: 24
+  managedFields:
+    - manager: kubectl-create
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2024-07-01T15:20:25Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:metadata":
+          "f:annotations":
+            .: {}
+            "f:description": {}
+            "f:kubectl.kubernetes.io/last-applied-configuration": {}
+          "f:labels":
+            .: {}
+            "f:component": {}
+            "f:created-by": {}
+            "f:managed-by": {}
+            "f:name": {}
+            "f:part-of": {}
+            "f:version": {}
+        "f:spec":
+          "f:replicas": {}
+          "f:selector":
+            .: {}
+            "f:component": {}
+            "f:name": {}
+            "f:part-of": {}
+          "f:strategy":
+            "f:activeDeadlineSeconds": {}
+            "f:rollingParams":
+              .: {}
+              "f:intervalSeconds": {}
+              "f:maxSurge": {}
+              "f:maxUnavailable": {}
+              "f:timeoutSeconds": {}
+              "f:updatePeriodSeconds": {}
+            "f:type": {}
+          "f:template":
+            .: {}
+            "f:metadata":
+              .: {}
+              "f:creationTimestamp": {}
+              "f:labels":
+                .: {}
+                "f:component": {}
+                "f:name": {}
+                "f:part-of": {}
+              "f:name": {}
+            "f:spec":
+              .: {}
+              "f:containers":
+                .: {}
+                'k:{"name":"nginx-editor"}':
+                  .: {}
+                  "f:imagePullPolicy": {}
+                  "f:name": {}
+                  "f:ports":
+                    .: {}
+                    'k:{"containerPort":8080,"protocol":"TCP"}':
+                      .: {}
+                      "f:containerPort": {}
+                      "f:protocol": {}
+                  "f:resources":
+                    .: {}
+                    "f:limits":
+                      .: {}
+                      "f:cpu": {}
+                      "f:memory": {}
+                    "f:requests":
+                      .: {}
+                      "f:cpu": {}
+                      "f:memory": {}
+                  "f:terminationMessagePath": {}
+                  "f:terminationMessagePolicy": {}
+              "f:dnsPolicy": {}
+              "f:restartPolicy": {}
+              "f:schedulerName": {}
+              "f:securityContext": {}
+              "f:terminationGracePeriodSeconds": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2024-11-03T02:46:02Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:spec":
+          "f:template":
+            "f:spec":
+              "f:containers":
+                'k:{"name":"nginx-editor"}':
+                  "f:image": {}
+          "f:triggers": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-10-01T13:07:29Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:status":
+          "f:updatedReplicas": {}
+          "f:readyReplicas": {}
+          "f:conditions":
+            .: {}
+            'k:{"type":"Available"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:status": {}
+              "f:type": {}
+            'k:{"type":"Progressing"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:reason": {}
+              "f:status": {}
+              "f:type": {}
+          "f:details":
+            .: {}
+            "f:causes": {}
+            "f:message": {}
+          "f:replicas": {}
+          "f:availableReplicas": {}
+          "f:observedGeneration": {}
+          "f:unavailableReplicas": {}
+          "f:latestVersion": {}
+      subresource: status
+  namespace: 9b301c-prod
+  labels:
+    component: nginx-editor
+    created-by: jeremy.foster
+    managed-by: kustomize
+    name: nginx-editor
+    part-of: tno
+    version: 1.0.0
+spec:
+  strategy:
+    type: Rolling
+    rollingParams:
+      updatePeriodSeconds: 1
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      maxUnavailable: 25%
+      maxSurge: 25%
+    resources: {}
+    activeDeadlineSeconds: 21600
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - nginx-editor
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: "nginx-editor:prod"
+        lastTriggeredImage: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/nginx-editor@sha256:726d32fcd32c30a48770ff62bfb26c01c117c1731d7bc227983d3917f8f5b274"
+  replicas: 3
+  revisionHistoryLimit: 10
+  test: false
+  selector:
+    component: nginx-editor
+    name: nginx-editor
+    part-of: tno
+  template:
+    metadata:
+      name: nginx-editor
+      creationTimestamp: null
+      labels:
+        component: nginx-editor
+        name: nginx-editor
+        part-of: tno
+    spec:
+      containers:
+        - name: nginx-editor
+          image: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/nginx-editor@sha256:726d32fcd32c30a48770ff62bfb26c01c117c1731d7bc227983d3917f8f5b274"
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 50m
+              memory: 100Mi
+            requests:
+              cpu: 20m
+              memory: 35Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+status:
+  observedGeneration: 24
+  details:
+    message: image change
+    causes:
+      - type: ImageChange
+        imageTrigger:
+          from:
+            kind: DockerImage
+            name: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/nginx-editor@sha256:726d32fcd32c30a48770ff62bfb26c01c117c1731d7bc227983d3917f8f5b274"
+  availableReplicas: 3
+  unavailableReplicas: 0
+  latestVersion: 3
+  updatedReplicas: 3
+  conditions:
+    - type: Progressing
+      status: "True"
+      lastUpdateTime: "2024-11-03T02:46:34Z"
+      lastTransitionTime: "2024-11-03T02:46:30Z"
+      reason: NewReplicationControllerAvailable
+      message: replication controller "nginx-editor-3" successfully rolled out
+    - type: Available
+      status: "True"
+      lastUpdateTime: "2025-10-01T13:07:29Z"
+      lastTransitionTime: "2025-10-01T13:07:29Z"
+      message: Deployment config has minimum availability.
+  replicas: 3
+  readyReplicas: 3

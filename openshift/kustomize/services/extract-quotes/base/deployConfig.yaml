@@ -1,0 +1,271 @@
+---
+# How the app will be deployed to the pod.
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: extract-quotes-service
+  namespace: default
+  annotations:
+    description: Defines how to deploy extract-quotes-service
+    created-by: jeremy.foster
+  labels:
+    name: extract-quotes-service
+    part-of: tno
+    version: 1.0.0
+    component: extract-quotes-service
+    managed-by: kustomize
+spec:
+  replicas: 1
+  selector:
+    name: extract-quotes-service
+    part-of: tno
+    component: extract-quotes-service
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      name: extract-quotes-service
+      labels:
+        name: extract-quotes-service
+        part-of: tno
+        component: extract-quotes-service
+    spec:
+      containers:
+        - name: extract-quotes-service
+          image: ""
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 20m
+              memory: 80Mi
+            limits:
+              cpu: 100m
+              memory: 150Mi
+          env:
+            # .NET Configuration
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+
+            - name: Logging__LogLevel__TNO
+              value: Information
+
+            # Common Service Configuration
+            - name: Service__ApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: API_HOST_URL
+            - name: Service__EmailTo
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: EMAIL_FAILURE_TO
+
+            # Authentication Configuration
+            - name: Auth__Keycloak__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUTHORITY
+            - name: Auth__Keycloak__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUDIENCE
+            - name: Auth__Keycloak__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_CLIENT_SECRET
+
+            - name: Kafka__Admin__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Admin__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            - name: Kafka__Consumer__GroupId
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Consumer__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            # Service Configuration
+            - name: Service__MaxFailLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: MAX_FAIL_LIMIT
+            - name: Service__Topics
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: TOPICS
+            - name: Service__CoreNLPApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: CORENLP_URL
+            - name: Service__ExtractQuotesOnIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: EXTRACT_QUOTES_ON_INDEX
+            - name: Service__ExtractQuotesOnPublish
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: EXTRACT_QUOTES_ON_PUBLISH
+            - name: Service__IgnoreContentPublishedBeforeOffset
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: IGNORE_CONTENT_PUBLISHED_BEFORE_OFFSET
+
+            # LLM Configuration
+            - name: Service__UseLLM
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: USE_LLM
+            - name: Service__PrimaryModelName
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: PRIMARY_MODEL_NAME
+            - name: Service__PrimaryApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: PRIMARY_API_URL
+            - name: Service__FallbackModelName
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: FALLBACK_MODEL_NAME
+            - name: Service__FallbackApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: FALLBACK_API_URL
+            - name: Service__MaxRequestsPerMinute
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: MAX_REQUESTS_PER_MINUTE
+            - name: Service__RetryLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: RETRY_LIMIT
+            - name: Service__RetryDelayMS
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: RETRY_DELAY_MS
+            - name: Service__PrimaryApiKeys
+              valueFrom:
+                secretKeyRef:
+                  name: llm-api-keys
+                  key: PRIMARY_API_KEYS
+            - name: Service__FallbackApiKeys
+              valueFrom:
+                secretKeyRef:
+                  name: llm-api-keys
+                  key: FALLBACK_API_KEYS
+
+            # CHES Configuration
+            - name: CHES__From
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_FROM
+            - name: CHES__EmailEnabled
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: CHES_EMAIL_ENABLED
+            - name: CHES__EmailAuthorized
+              valueFrom:
+                configMapKeyRef:
+                  name: extract-quotes-service
+                  key: CHES_EMAIL_AUTHORIZED
+
+            - name: CHES__AuthUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_AUTH_URL
+            - name: CHES__HostUri
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_HOST_URI
+            - name: CHES__Username
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: USERNAME
+            - name: CHES__Password
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: PASSWORD
+
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - extract-quotes-service
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: extract-quotes-service:dev

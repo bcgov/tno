@@ -1,0 +1,524 @@
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  annotations:
+    created-by: jeremy.foster
+    description: Defines how to deploy ffmpeg-service
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","metadata":{"annotations":{"created-by":"jeremy.foster","description":"Defines how to deploy ffmpeg-service"},"labels":{"component":"ffmpeg-service","managed-by":"kustomize","name":"ffmpeg-service","part-of":"tno","version":"1.0.0"},"name":"ffmpeg-service","namespace":"9b301c-prod"},"spec":{"replicas":1,"selector":{"component":"ffmpeg-service","name":"ffmpeg-service","part-of":"tno"},"strategy":{"rollingParams":{"intervalSeconds":1,"maxSurge":"25%","maxUnavailable":"25%","timeoutSeconds":600,"updatePeriodSeconds":1},"type":"Rolling"},"template":{"metadata":{"labels":{"component":"ffmpeg-service","name":"ffmpeg-service","part-of":"tno"},"name":"ffmpeg-service"},"spec":{"containers":[{"env":[{"name":"ASPNETCORE_ENVIRONMENT","value":"Production"},{"name":"ASPNETCORE_URLS","value":"http://+:8080"},{"name":"Logging__LogLevel__TNO","value":"Information"},{"name":"Service__ApiUrl","valueFrom":{"configMapKeyRef":{"key":"API_HOST_URL","name":"services"}}},{"name":"Service__EmailTo","valueFrom":{"configMapKeyRef":{"key":"EMAIL_FAILURE_TO","name":"services"}}},{"name":"Auth__Keycloak__Authority","valueFrom":{"configMapKeyRef":{"key":"KEYCLOAK_AUTHORITY","name":"services"}}},{"name":"Auth__Keycloak__Audience","valueFrom":{"configMapKeyRef":{"key":"KEYCLOAK_AUDIENCE","name":"services"}}},{"name":"Auth__Keycloak__Secret","valueFrom":{"secretKeyRef":{"key":"KEYCLOAK_CLIENT_SECRET","name":"keycloak"}}},{"name":"Kafka__Admin__ClientId","valueFrom":{"configMapKeyRef":{"key":"KAFKA_CLIENT_ID","name":"ffmpeg-service"}}},{"name":"Kafka__Admin__BootstrapServers","valueFrom":{"configMapKeyRef":{"key":"KAFKA_BOOTSTRAP_SERVERS","name":"services"}}},{"name":"Kafka__Consumer__GroupId","valueFrom":{"configMapKeyRef":{"key":"KAFKA_CLIENT_ID","name":"ffmpeg-service"}}},{"name":"Kafka__Consumer__BootstrapServers","valueFrom":{"configMapKeyRef":{"key":"KAFKA_BOOTSTRAP_SERVERS","name":"services"}}},{"name":"Service__MaxFailLimit","valueFrom":{"configMapKeyRef":{"key":"MAX_FAIL_LIMIT","name":"ffmpeg-service"}}},{"name":"Service__Topics","valueFrom":{"configMapKeyRef":{"key":"TOPICS","name":"ffmpeg-service"}}},{"name":"Service__VolumePath","valueFrom":{"configMapKeyRef":{"key":"VOLUME_PATH","name":"ffmpeg-service"}}},{"name":"CHES__From","valueFrom":{"configMapKeyRef":{"key":"CHES_FROM","name":"ches"}}},{"name":"CHES__EmailEnabled","valueFrom":{"configMapKeyRef":{"key":"CHES_EMAIL_ENABLED","name":"ffmpeg-service"}}},{"name":"CHES__EmailAuthorized","valueFrom":{"configMapKeyRef":{"key":"CHES_EMAIL_AUTHORIZED","name":"ffmpeg-service"}}},{"name":"CHES__AuthUrl","valueFrom":{"configMapKeyRef":{"key":"CHES_AUTH_URL","name":"ches"}}},{"name":"CHES__HostUri","valueFrom":{"configMapKeyRef":{"key":"CHES_HOST_URI","name":"ches"}}},{"name":"CHES__Username","valueFrom":{"secretKeyRef":{"key":"USERNAME","name":"ches"}}},{"name":"CHES__Password","valueFrom":{"secretKeyRef":{"key":"PASSWORD","name":"ches"}}}],"image":"","imagePullPolicy":"Always","livenessProbe":{"failureThreshold":3,"httpGet":{"path":"/health","port":8080,"scheme":"HTTP"},"initialDelaySeconds":30,"periodSeconds":20,"successThreshold":1,"timeoutSeconds":30},"name":"ffmpeg-service","ports":[{"containerPort":8080,"protocol":"TCP"}],"readinessProbe":{"failureThreshold":3,"httpGet":{"path":"/health","port":8080,"scheme":"HTTP"},"initialDelaySeconds":30,"periodSeconds":20,"successThreshold":1,"timeoutSeconds":30},"resources":{"limits":{"cpu":"75m","memory":"300Mi"},"requests":{"cpu":"20m","memory":"100Mi"}},"volumeMounts":[{"mountPath":"/data","name":"api-storage"}]}],"dnsPolicy":"ClusterFirst","restartPolicy":"Always","securityContext":{},"terminationGracePeriodSeconds":30,"volumes":[{"name":"api-storage","persistentVolumeClaim":{"claimName":"api-storage"}}]}},"test":false,"triggers":[{"type":"ConfigChange"},{"imageChangeParams":{"automatic":true,"containerNames":["ffmpeg-service"],"from":{"kind":"ImageStreamTag","name":"ffmpeg-service:prod","namespace":"9b301c-tools"}},"type":"ImageChange"}]}}
+  resourceVersion: "17207295667"
+  name: ffmpeg-service
+  uid: 5b9d3043-a70e-4b5d-b8fb-ef5f19bf53d5
+  creationTimestamp: "2024-04-29T20:14:19Z"
+  generation: 467
+  managedFields:
+    - manager: kubectl-create
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2024-04-29T20:14:19Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:metadata":
+          "f:annotations":
+            .: {}
+            "f:created-by": {}
+            "f:description": {}
+            "f:kubectl.kubernetes.io/last-applied-configuration": {}
+          "f:labels":
+            .: {}
+            "f:component": {}
+            "f:managed-by": {}
+            "f:name": {}
+            "f:part-of": {}
+            "f:version": {}
+        "f:spec":
+          "f:replicas": {}
+          "f:selector":
+            .: {}
+            "f:component": {}
+            "f:name": {}
+            "f:part-of": {}
+          "f:strategy":
+            "f:activeDeadlineSeconds": {}
+            "f:rollingParams":
+              .: {}
+              "f:intervalSeconds": {}
+              "f:maxSurge": {}
+              "f:maxUnavailable": {}
+              "f:timeoutSeconds": {}
+              "f:updatePeriodSeconds": {}
+            "f:type": {}
+          "f:template":
+            .: {}
+            "f:metadata":
+              .: {}
+              "f:creationTimestamp": {}
+              "f:labels":
+                .: {}
+                "f:component": {}
+                "f:name": {}
+                "f:part-of": {}
+              "f:name": {}
+            "f:spec":
+              .: {}
+              "f:containers":
+                .: {}
+                'k:{"name":"ffmpeg-service"}':
+                  "f:volumeMounts":
+                    .: {}
+                    'k:{"mountPath":"/data"}':
+                      .: {}
+                      "f:mountPath": {}
+                      "f:name": {}
+                  "f:terminationMessagePolicy": {}
+                  .: {}
+                  "f:resources":
+                    .: {}
+                    "f:requests":
+                      .: {}
+                      "f:cpu": {}
+                      "f:memory": {}
+                  "f:livenessProbe":
+                    .: {}
+                    "f:failureThreshold": {}
+                    "f:httpGet":
+                      .: {}
+                      "f:path": {}
+                      "f:port": {}
+                      "f:scheme": {}
+                    "f:initialDelaySeconds": {}
+                    "f:periodSeconds": {}
+                    "f:successThreshold": {}
+                    "f:timeoutSeconds": {}
+                  "f:env":
+                    'k:{"name":"Service__MaxFailLimit"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__From"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Auth__Keycloak__Audience"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Kafka__Consumer__GroupId"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__HostUri"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__AuthUrl"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__VolumePath"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__EmailTo"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__Topics"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__Username"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"Auth__Keycloak__Secret"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    .: {}
+                    'k:{"name":"Kafka__Admin__BootstrapServers"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Kafka__Consumer__BootstrapServers"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__Password"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"Kafka__Admin__ClientId"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__EmailAuthorized"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"ASPNETCORE_ENVIRONMENT"}':
+                      .: {}
+                      "f:name": {}
+                      "f:value": {}
+                    'k:{"name":"ASPNETCORE_URLS"}':
+                      .: {}
+                      "f:name": {}
+                      "f:value": {}
+                    'k:{"name":"Logging__LogLevel__TNO"}':
+                      .: {}
+                      "f:name": {}
+                      "f:value": {}
+                    'k:{"name":"Service__ApiUrl"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__EmailEnabled"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Auth__Keycloak__Authority"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                  "f:readinessProbe":
+                    .: {}
+                    "f:failureThreshold": {}
+                    "f:httpGet":
+                      .: {}
+                      "f:path": {}
+                      "f:port": {}
+                      "f:scheme": {}
+                    "f:initialDelaySeconds": {}
+                    "f:periodSeconds": {}
+                    "f:successThreshold": {}
+                    "f:timeoutSeconds": {}
+                  "f:terminationMessagePath": {}
+                  "f:imagePullPolicy": {}
+                  "f:ports":
+                    .: {}
+                    'k:{"containerPort":8080,"protocol":"TCP"}':
+                      .: {}
+                      "f:containerPort": {}
+                      "f:protocol": {}
+                  "f:name": {}
+              "f:dnsPolicy": {}
+              "f:restartPolicy": {}
+              "f:schedulerName": {}
+              "f:securityContext": {}
+              "f:terminationGracePeriodSeconds": {}
+              "f:volumes":
+                .: {}
+                'k:{"name":"api-storage"}':
+                  .: {}
+                  "f:name": {}
+                  "f:persistentVolumeClaim":
+                    .: {}
+                    "f:claimName": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-11-26T06:03:11Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:spec":
+          "f:template":
+            "f:spec":
+              "f:containers":
+                'k:{"name":"ffmpeg-service"}':
+                  "f:image": {}
+          "f:triggers": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-11-26T06:04:49Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:status":
+          "f:updatedReplicas": {}
+          "f:readyReplicas": {}
+          "f:conditions":
+            .: {}
+            'k:{"type":"Available"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:status": {}
+              "f:type": {}
+            'k:{"type":"Progressing"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:reason": {}
+              "f:status": {}
+              "f:type": {}
+          "f:details":
+            .: {}
+            "f:causes": {}
+            "f:message": {}
+          "f:replicas": {}
+          "f:availableReplicas": {}
+          "f:observedGeneration": {}
+          "f:unavailableReplicas": {}
+          "f:latestVersion": {}
+      subresource: status
+  namespace: 9b301c-prod
+  labels:
+    component: ffmpeg-service
+    managed-by: kustomize
+    name: ffmpeg-service
+    part-of: tno
+    version: 1.0.0
+spec:
+  strategy:
+    type: Rolling
+    rollingParams:
+      updatePeriodSeconds: 1
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      maxUnavailable: 25%
+      maxSurge: 25%
+    resources: {}
+    activeDeadlineSeconds: 21600
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - ffmpeg-service
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: "ffmpeg-service:prod"
+        lastTriggeredImage: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/ffmpeg-service@sha256:8c0063dc7841f3cfa6baf27e45edc362cdb999d2a067d9b5013a96097a440b69"
+  replicas: 3
+  revisionHistoryLimit: 10
+  test: false
+  selector:
+    component: ffmpeg-service
+    name: ffmpeg-service
+    part-of: tno
+  template:
+    metadata:
+      name: ffmpeg-service
+      creationTimestamp: null
+      labels:
+        component: ffmpeg-service
+        name: ffmpeg-service
+        part-of: tno
+    spec:
+      volumes:
+        - name: api-storage
+          persistentVolumeClaim:
+            claimName: api-storage
+      containers:
+        - resources:
+            requests:
+              cpu: 20m
+              memory: 100Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          name: ffmpeg-service
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: "http://+:8080"
+            - name: Logging__LogLevel__TNO
+              value: Information
+            - name: Service__ApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: API_HOST_URL
+            - name: Service__EmailTo
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: EMAIL_FAILURE_TO
+            - name: Auth__Keycloak__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUTHORITY
+            - name: Auth__Keycloak__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUDIENCE
+            - name: Auth__Keycloak__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_CLIENT_SECRET
+            - name: Kafka__Admin__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: ffmpeg-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Admin__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+            - name: Kafka__Consumer__GroupId
+              valueFrom:
+                configMapKeyRef:
+                  name: ffmpeg-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Consumer__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+            - name: Service__MaxFailLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: ffmpeg-service
+                  key: MAX_FAIL_LIMIT
+            - name: Service__Topics
+              valueFrom:
+                configMapKeyRef:
+                  name: ffmpeg-service
+                  key: TOPICS
+            - name: Service__VolumePath
+              valueFrom:
+                configMapKeyRef:
+                  name: ffmpeg-service
+                  key: VOLUME_PATH
+            - name: CHES__From
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_FROM
+            - name: CHES__EmailEnabled
+              valueFrom:
+                configMapKeyRef:
+                  name: ffmpeg-service
+                  key: CHES_EMAIL_ENABLED
+            - name: CHES__EmailAuthorized
+              valueFrom:
+                configMapKeyRef:
+                  name: ffmpeg-service
+                  key: CHES_EMAIL_AUTHORIZED
+            - name: CHES__AuthUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_AUTH_URL
+            - name: CHES__HostUri
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_HOST_URI
+            - name: CHES__Username
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: USERNAME
+            - name: CHES__Password
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: PASSWORD
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: api-storage
+              mountPath: /data
+          terminationMessagePolicy: File
+          image: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/ffmpeg-service@sha256:8c0063dc7841f3cfa6baf27e45edc362cdb999d2a067d9b5013a96097a440b69"
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+status:
+  observedGeneration: 467
+  details:
+    message: image change
+    causes:
+      - type: ImageChange
+        imageTrigger:
+          from:
+            kind: DockerImage
+            name: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/ffmpeg-service@sha256:8c0063dc7841f3cfa6baf27e45edc362cdb999d2a067d9b5013a96097a440b69"
+  availableReplicas: 3
+  unavailableReplicas: 0
+  latestVersion: 97
+  updatedReplicas: 3
+  conditions:
+    - type: Progressing
+      status: "True"
+      lastUpdateTime: "2025-11-26T06:03:17Z"
+      lastTransitionTime: "2025-11-26T06:03:17Z"
+      reason: NewReplicationControllerAvailable
+      message: replication controller "ffmpeg-service-97" successfully rolled out
+    - type: Available
+      status: "True"
+      lastUpdateTime: "2025-11-26T06:04:49Z"
+      lastTransitionTime: "2025-11-26T06:04:49Z"
+      message: Deployment config has minimum availability.
+  replicas: 3
+  readyReplicas: 3

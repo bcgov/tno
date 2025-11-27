@@ -11,7 +11,7 @@ generatorOptions:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: contentmigration-historic-service
     patch: |-
       - op: replace
@@ -29,9 +29,6 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 350Mi
-      - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: contentmigration-service:dev
       - op: replace
         path: /spec/template/spec/containers/0/env/0/value
         value: Development

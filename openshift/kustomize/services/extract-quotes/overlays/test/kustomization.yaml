@@ -16,7 +16,7 @@ secretGenerator:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: extract-quotes-service
     patch: |-
       - op: replace
@@ -34,9 +34,6 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 150Mi
-      - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: extract-quotes-service:test
   - target:
       kind: ConfigMap
       name: extract-quotes-service

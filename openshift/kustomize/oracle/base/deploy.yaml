@@ -1,12 +1,13 @@
 ---
 # How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: oracle-db
   namespace: default
   annotations:
     description: Defines how to deploy oracle-db
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "oracle-db:prod", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"oracle-db\")].image"}]'
   labels:
     name: oracle-db
     part-of: tno
@@ -16,17 +17,15 @@ metadata:
 spec:
   replicas: 1
   selector:
-    name: oracle-db
-    part-of: tno
-    component: oracle-db
+    matchLabels:
+      name: oracle-db
+      part-of: tno
+      component: oracle-db
   strategy:
-    rollingParams:
-      intervalSeconds: 1
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-      timeoutSeconds: 600
-      updatePeriodSeconds: 1
-    type: Rolling
   template:
     metadata:
       name: oracle-db
@@ -40,8 +39,8 @@ spec:
           persistentVolumeClaim:
             claimName: oracle-db
       containers:
-        - name: oracle-db
-          image: ""
+        - name: oracle
+          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/oracle:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -71,15 +70,3 @@ spec:
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
-  test: false
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - oracle-db
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: oracle-db:prod

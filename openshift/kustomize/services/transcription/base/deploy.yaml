@@ -1,13 +1,14 @@
 ---
 # How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: transcription-service
   namespace: default
   annotations:
     description: Defines how to deploy transcription-service
     created-by: jeremy.foster
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "transcription-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"transcription-service\")].image"}]'
   labels:
     name: transcription-service
     part-of: tno
@@ -17,17 +18,15 @@ metadata:
 spec:
   replicas: 1
   selector:
-    name: transcription-service
-    part-of: tno
-    component: transcription-service
+    matchLabels:
+      name: transcription-service
+      part-of: tno
+      component: transcription-service
   strategy:
-    rollingParams:
-      intervalSeconds: 1
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-      timeoutSeconds: 600
-      updatePeriodSeconds: 1
-    type: Rolling
   template:
     metadata:
       name: transcription-service
@@ -42,7 +41,7 @@ spec:
             claimName: api-storage
       containers:
         - name: transcription-service
-          image: ""
+          image: image-registry.openshift-image-registry.svc:5000/9b301c-tools/transcription-service:prod
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -53,7 +52,10 @@ spec:
           resources:
             requests:
               cpu: 20m
-              memory: 80Mi
+              memory: 100Mi
+            limits:
+              cpu: 50m
+              memory: 2Gi
           env:
             # .NET Configuration
             - name: ASPNETCORE_ENVIRONMENT
@@ -61,7 +63,7 @@ spec:
             - name: ASPNETCORE_URLS
               value: http://+:8080
 
-            - name: Logging__LogLevel__TNO
+            - name: Serilog__MinimumLevel__Override__TNO
               value: Information
 
             # Common Service Configuration
@@ -176,22 +178,22 @@ spec:
                   key: OLD_TNO_CONTENT_TAG_NAME
 
             # S3 Configuration
-            - name: S3_ACCESS_KEY
+            - name: S3__AccessKey
               valueFrom:
                 secretKeyRef:
                   name: s3-backup-credentials
                   key: S3_ACCESS_KEY
-            - name: S3_SECRET_KEY
+            - name: S3__SecretKey
               valueFrom:
                 secretKeyRef:
                   name: s3-backup-credentials
                   key: S3_SECRET_KEY
-            - name: S3_BUCKET_NAME
+            - name: S3__BucketName
               valueFrom:
                 secretKeyRef:
                   name: s3-backup-credentials
                   key: S3_BUCKET_NAME
-            - name: S3_SERVICE_URL
+            - name: S3__ServiceUrl
               valueFrom:
                 secretKeyRef:
                   name: s3-backup-credentials
@@ -258,15 +260,3 @@ spec:
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
-  test: false
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - transcription-service
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: transcription-service:dev

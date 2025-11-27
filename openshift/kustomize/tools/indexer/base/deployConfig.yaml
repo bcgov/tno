@@ -1,6 +1,5 @@
-# How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: indexer-service
   namespace: default
@@ -16,17 +15,15 @@ metadata:
 spec:
   replicas: 1
   selector:
-    name: indexer-service
-    part-of: tno
-    component: indexer-service
+    matchLabels:
+      name: indexer-service
+      part-of: tno
+      component: indexer-service
   strategy:
-    rollingParams:
-      intervalSeconds: 1
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-      timeoutSeconds: 600
-      updatePeriodSeconds: 1
-    type: Rolling
   template:
     metadata:
       name: indexer-service
@@ -37,7 +34,7 @@ spec:
     spec:
       containers:
         - name: indexer-service
-          image: ""
+          image: image-registry.openshift-image-registry.svc:5000/9b301c-tools/indexer-service:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -49,15 +46,12 @@ spec:
           env:
             - name: ASPNETCORE_URLS
               value: http://+:8080
-
             - name: Logging__LogLevel__TNO
               value: Information
-
             - name: Service__Page
               value: "1"
             - name: Service__Quantity
               value: "1000"
-
             - name: ConnectionStrings__TNO
               valueFrom:
                 configMapKeyRef:
@@ -73,7 +67,6 @@ spec:
                 secretKeyRef:
                   name: database
                   key: PASSWORD
-
             - name: Elastic__Url
               valueFrom:
                 configMapKeyRef:
@@ -104,19 +97,7 @@ spec:
                 configMapKeyRef:
                   name: indexing-service-cloud
                   key: PUBLISHED_INDEX
-
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - indexer-service
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: indexer-service:dev

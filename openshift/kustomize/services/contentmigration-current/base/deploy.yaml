@@ -1,13 +1,14 @@
 ---
 # How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: contentmigration-service
   namespace: default
   annotations:
     description: Defines how to deploy contentmigration-service
     created-by: kyle.morris
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "contentmigration-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"contentmigration-service\")].image"}]'
   labels:
     name: contentmigration-service
     part-of: tno
@@ -17,17 +18,15 @@ metadata:
 spec:
   replicas: 1
   selector:
-    name: contentmigration-service
-    part-of: tno
-    component: contentmigration-service
+    matchLabels:
+      name: contentmigration-service
+      part-of: tno
+      component: contentmigration-service
   strategy:
-    rollingParams:
-      intervalSeconds: 1
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-      timeoutSeconds: 600
-      updatePeriodSeconds: 1
-    type: Rolling
   template:
     metadata:
       name: contentmigration-service
@@ -199,15 +198,3 @@ spec:
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
-  test: false
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - contentmigration-service
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: contentmigration-service:dev

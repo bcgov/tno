@@ -1,12 +1,13 @@
 ---
 # How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: editor
   namespace: default
   annotations:
     description: Defines how to deploy editor
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "editor:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"editor\")].image"}]'
   labels:
     name: editor-app
     part-of: tno
@@ -17,17 +18,15 @@ metadata:
 spec:
   replicas: 1
   selector:
-    name: editor
-    part-of: tno
-    component: editor
+    matchLabels:
+      name: editor
+      part-of: tno
+      component: editor
   strategy:
-    rollingParams:
-      intervalSeconds: 1
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-      timeoutSeconds: 600
-      updatePeriodSeconds: 1
-    type: Rolling
   template:
     metadata:
       name: editor
@@ -45,7 +44,7 @@ spec:
                 path: keycloak.json
       containers:
         - name: editor
-          image: ""
+          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/editor:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -63,7 +62,7 @@ spec:
               subPath: keycloak.json
           livenessProbe:
             httpGet:
-              path: "/nginx-status"
+              path: '/nginx-status'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -73,7 +72,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: "/nginx-status"
+              path: '/nginx-status'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 10
@@ -85,15 +84,3 @@ spec:
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
-  test: false
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - editor
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: editor:dev

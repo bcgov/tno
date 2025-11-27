@@ -1,47 +1,60 @@
 #!/bin/bash
 
 env=${1-dev}
-echo "Deploying to $env"
+echo "Starting up environment $env"
 
 oc project 9b301c-tools
 
 scale () {
   name=${1-}
   replicas=${2-0}
-  type=${3-dc}
+  type=${3-deployment}
   env=${4-'dev'}
   oc scale $type $name -n 9b301c-$env --replicas=$replicas
 }
 
-# Stop everyting
-# scale api 1 sts
-scale charts-api 1 dc $env
-scale api-services 2 dc $env
-scale editor 1 dc $env
-scale subscriber 1 dc $env
+# Start everything (25 services total - oracle not in dev)
 
-# scale capture-service 1 dc $env
-scale filemonitor-service 1 dc $env
-scale syndication-service 1 dc $env
-scale image-service 1 dc $env
-
-scale indexing-service 1 dc $env
-if [[ "$env" != "dev" ]]; then
-  scale indexing-service-cloud 1 dc $env
+# Stateless Services (10 services)
+scale nginx 1 deployment $env
+scale editor 1 deployment $env
+scale subscriber 1 deployment $env
+scale charts-api 1 deployment $env
+if [[ "$env" == "dev" ]]; then
+  scale api-services 1 deployment $env
+else
+  scale api-services 2 deployment $env
 fi
-scale content-service 1 dc $env
+scale corenlp 1 deployment $env
+scale nlp-service 1 deployment $env
+scale ffmpeg-service 1 deployment $env
+scale transcription-service 1 deployment $env
+scale extract-quotes-service 1 deployment $env
 
-scale filecopy-service 1 dc $env
-scale folder-collection-service 1 dc $env
+# Kafka Consumers - Stateless (7 services)
+scale folder-collection-service 1 deployment $env
+scale content-service 1 deployment $env
+scale indexing-service 1 deployment $env
+scale event-handler-service 1 deployment $env
+scale notification-service 1 deployment $env
+scale reporting-service 1 deployment $env
+scale ches-retry-service 1 deployment $env
 
-# scale clip-service 1 dc $env
-scale ffmpeg-service 1 dc $env
-scale nlp-service 1 dc $env
-scale extract-quotes-service 1 dc $env
-scale transcription-service 1 dc $env
+# Kafka Consumers - Single-Instance (4 services)
+scale scheduler-service 1 deployment $env
+scale filemonitor-service 1 deployment $env
+scale syndication-service 1 deployment $env
+scale image-service 1 deployment $env
 
-scale scheduler-service 1 dc $env
-scale reporting-service 1 dc $env
-scale notification-service 1 dc $env
-scale event-handler-service 1 dc $env
-scale ches-retry-service 1 dc $env
+# Supporting Services (4 services - oracle not in dev)
+# scale oracle 1 deployment $env  # Not deployed in dev
+scale psql 1 deployment $env
+scale kowl 1 deployment $env
+scale nginx-editor 1 deployment $env
+scale nginx-subscriber 1 deployment $env
+
+# Services not currently deployed (commented out for future use)
+# scale filecopy-service 1 deployment $env
+# scale capture-service 1 deployment $env
+# scale clip-service 1 deployment $env
+# scale indexing-service-cloud 1 deployment $env

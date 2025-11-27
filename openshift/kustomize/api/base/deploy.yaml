@@ -1,11 +1,12 @@
 ---
 # How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: api
   namespace: default
   annotations:
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "api:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"api\")].image"}]'
     description: Defines how to deploy api
   labels:
     name: api
@@ -16,29 +17,15 @@ metadata:
     created-by: jeremy.foster
 spec:
   replicas: 1
-  test: false
   selector:
-    part-of: tno
-    component: api
+    matchLabels:
+      part-of: tno
+      component: api
   strategy:
-    rollingParams:
-      intervalSeconds: 1
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-      timeoutSeconds: 600
-      updatePeriodSeconds: 1
-    type: Rolling
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - api
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: api:dev
   template:
     metadata:
       name: api
@@ -59,7 +46,7 @@ spec:
             claimName: ingest-storage
       containers:
         - name: api
-          image: ""
+          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -80,6 +67,8 @@ spec:
               value: /hub
             - name: Charts__Url
               value: "http://charts-api:8080"
+            - name: Kafka__Consumer__GroupId
+              value: api-validator
 
             - name: Logging__LogLevel__TNO
               value: Information

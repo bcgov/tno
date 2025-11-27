@@ -10,3 +10,10 @@ generatorOptions:
   disableNameSuffixHash: true
 
 patches:
+  - target:
+      kind: Deployment
+      name: oracle
+    patch: |-
+      - op: replace
+        path: /metadata/annotations/image.openshift.io~1triggers
+        value: '[{"from": {"kind": "ImageStreamTag", "name": "oracle:prod", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"oracle\")].image"}]'

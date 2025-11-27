@@ -1,13 +1,14 @@
 ---
 # How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: image-service
   namespace: default
   annotations:
     description: Defines how to deploy image-service
     created-by: jeremy.foster, alessia.yanchen
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "image-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"image-service\")].image"}]'
   labels:
     name: image-service
     part-of: tno
@@ -17,17 +18,15 @@ metadata:
 spec:
   replicas: 1
   selector:
-    name: image-service
-    part-of: tno
-    component: image-service
+    matchLabels:
+      name: image-service
+      part-of: tno
+      component: image-service
   strategy:
-    rollingParams:
-      intervalSeconds: 1
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-      timeoutSeconds: 600
-      updatePeriodSeconds: 1
-    type: Rolling
   template:
     metadata:
       name: image-service
@@ -47,7 +46,7 @@ spec:
             defaultMode: 420
       containers:
         - name: image-service
-          image: ""
+          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/image-service:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -174,7 +173,7 @@ spec:
                   key: PASSWORD
           livenessProbe:
             httpGet:
-              path: "/health"
+              path: '/health'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -184,7 +183,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: "/health"
+              path: '/health'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -196,15 +195,3 @@ spec:
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
-  test: false
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - image-service
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: image-service:dev

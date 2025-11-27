@@ -1,0 +1,182 @@
+---
+# How the app will be deployed to the pod.
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: ches-retry-service
+  namespace: default
+  annotations:
+    description: Defines how to deploy ches-retry-service
+    created-by: jeremy.foster
+  labels:
+    name: ches-retry-service
+    part-of: tno
+    version: 1.0.0
+    component: ches-retry-service
+    managed-by: kustomize
+spec:
+  replicas: 1
+  selector:
+    name: ches-retry-service
+    part-of: tno
+    component: ches-retry-service
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      name: ches-retry-service
+      labels:
+        name: ches-retry-service
+        part-of: tno
+        component: ches-retry-service
+    spec:
+      containers:
+        - name: ches-retry-service
+          image: ""
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 20m
+              memory: 50Mi
+            limits:
+              cpu: 100m
+              memory: 100Mi
+          env:
+            # .NET Configuration
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+
+            - name: Logging__LogLevel__TNO
+              value: Information
+
+            # Common Service Configuration
+            - name: Service__ApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: API_HOST_URL
+            - name: Service__EmailTo
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: EMAIL_FAILURE_TO
+            - name: Service__RetryTimeLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: ches-retry-service
+                  key: RETRY_TIME_LIMIT
+            - name: Service__RetryTimeScope
+              valueFrom:
+                configMapKeyRef:
+                  name: ches-retry-service
+                  key: RETRY_TIME_SCOPE
+
+            # Authentication Configuration
+            - name: Auth__Keycloak__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUTHORITY
+            - name: Auth__Keycloak__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUDIENCE
+            - name: Auth__Keycloak__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_CLIENT_SECRET
+
+            # Service Configuration
+            - name: Service__MaxFailLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: ches-retry-service
+                  key: MAX_FAIL_LIMIT
+
+            # CHES Configuration
+            - name: CHES__From
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_FROM
+            - name: CHES__EmailEnabled
+              valueFrom:
+                configMapKeyRef:
+                  name: ches-retry-service
+                  key: CHES_EMAIL_ENABLED
+            - name: CHES__EmailAuthorized
+              valueFrom:
+                configMapKeyRef:
+                  name: ches-retry-service
+                  key: CHES_EMAIL_AUTHORIZED
+
+            - name: CHES__AuthUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_AUTH_URL
+            - name: CHES__HostUri
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_HOST_URI
+            - name: CHES__Username
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: USERNAME
+            - name: CHES__Password
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: PASSWORD
+
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - ches-retry-service
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: ches-retry-service:dev

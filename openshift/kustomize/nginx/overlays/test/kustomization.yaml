@@ -8,15 +8,15 @@ resources:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: nginx
     patch: |-
       - op: replace
         path: /spec/replicas
         value: 1
       - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: nginx:test
+        path: /spec/template/spec/containers/0/image
+        value: image-registry.openshift-image-registry.svc:5000/9b301c-tools/nginx:test
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
         value: 20m
@@ -29,3 +29,6 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 100Mi
+      - op: replace
+        path: /metadata/annotations/image.openshift.io~1triggers
+        value: '[{"from": {"kind": "ImageStreamTag", "name": "nginx:test", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"nginx\")].image"}]'

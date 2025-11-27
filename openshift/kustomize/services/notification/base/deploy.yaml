@@ -1,13 +1,14 @@
 ---
 # How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: notification-service
   namespace: default
   annotations:
     description: Defines how to deploy notification-service
     created-by: jeremy.foster
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "notification-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"notification-service\")].image"}]'
   labels:
     name: notification-service
     part-of: tno
@@ -17,17 +18,15 @@ metadata:
 spec:
   replicas: 1
   selector:
-    name: notification-service
-    part-of: tno
-    component: notification-service
+    matchLabels:
+      name: notification-service
+      part-of: tno
+      component: notification-service
   strategy:
-    rollingParams:
-      intervalSeconds: 1
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-      timeoutSeconds: 600
-      updatePeriodSeconds: 1
-    type: Rolling
   template:
     metadata:
       name: notification-service
@@ -42,7 +41,7 @@ spec:
             claimName: api-storage
       containers:
         - name: notification-service
-          image: ""
+          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/notification-service:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -53,7 +52,10 @@ spec:
           resources:
             requests:
               cpu: 20m
-              memory: 80Mi
+              memory: 100Mi
+            limits:
+              cpu: 50m
+              memory: 250Mi
           env:
             # .NET Configuration
             - name: ASPNETCORE_ENVIRONMENT
@@ -138,7 +140,7 @@ spec:
                   name: notification-service
                   key: TOPICS
             - name: Service__UploadPath
-              value: "/mnt/data"
+              value: '/mnt/data'
             - name: Service__IgnoreContentPublishedBeforeOffset
               valueFrom:
                 configMapKeyRef:
@@ -171,8 +173,8 @@ spec:
             - name: Elastic__Url
               valueFrom:
                 configMapKeyRef:
-                  name: api
-                  key: ELASTIC_URIS
+                  name: indexing-service
+                  key: ELASTICSEARCH_URI
             - name: Elastic__ContentIndex
               valueFrom:
                 configMapKeyRef:
@@ -243,7 +245,7 @@ spec:
                   key: PASSWORD
           livenessProbe:
             httpGet:
-              path: "/health"
+              path: '/health'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -253,7 +255,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: "/health"
+              path: '/health'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -265,15 +267,3 @@ spec:
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
-  test: false
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - notification-service
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: notification-service:dev

@@ -1,0 +1,306 @@
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  annotations:
+    description: Defines how to deploy editor
+  resourceVersion: "16697615795"
+  name: editor-validator
+  uid: f687bb6b-4657-4c76-9450-3e9da97262be
+  creationTimestamp: "2025-10-01T20:22:42Z"
+  generation: 7
+  managedFields:
+    - manager: Mozilla
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-10-01T20:22:42Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:metadata":
+          "f:annotations":
+            .: {}
+            "f:description": {}
+          "f:labels":
+            .: {}
+            "f:component": {}
+            "f:created-by": {}
+            "f:managed-by": {}
+            "f:name": {}
+            "f:part-of": {}
+            "f:version": {}
+        "f:spec":
+          "f:replicas": {}
+          "f:selector":
+            .: {}
+            "f:component": {}
+            "f:name": {}
+            "f:part-of": {}
+          "f:strategy":
+            "f:activeDeadlineSeconds": {}
+            "f:rollingParams":
+              .: {}
+              "f:intervalSeconds": {}
+              "f:maxSurge": {}
+              "f:maxUnavailable": {}
+              "f:timeoutSeconds": {}
+              "f:updatePeriodSeconds": {}
+            "f:type": {}
+          "f:template":
+            .: {}
+            "f:metadata":
+              .: {}
+              "f:creationTimestamp": {}
+              "f:labels":
+                .: {}
+                "f:component": {}
+                "f:name": {}
+                "f:part-of": {}
+              "f:name": {}
+            "f:spec":
+              .: {}
+              "f:containers":
+                .: {}
+                'k:{"name":"editor-validator"}':
+                  "f:volumeMounts":
+                    .: {}
+                    'k:{"mountPath":"/usr/share/nginx/html/keycloak.json"}':
+                      .: {}
+                      "f:mountPath": {}
+                      "f:name": {}
+                      "f:subPath": {}
+                  "f:terminationMessagePolicy": {}
+                  .: {}
+                  "f:resources":
+                    .: {}
+                    "f:limits":
+                      .: {}
+                      "f:cpu": {}
+                      "f:memory": {}
+                    "f:requests":
+                      .: {}
+                      "f:cpu": {}
+                      "f:memory": {}
+                  "f:livenessProbe":
+                    .: {}
+                    "f:failureThreshold": {}
+                    "f:httpGet":
+                      .: {}
+                      "f:path": {}
+                      "f:port": {}
+                      "f:scheme": {}
+                    "f:initialDelaySeconds": {}
+                    "f:periodSeconds": {}
+                    "f:successThreshold": {}
+                    "f:timeoutSeconds": {}
+                  "f:readinessProbe":
+                    .: {}
+                    "f:failureThreshold": {}
+                    "f:httpGet":
+                      .: {}
+                      "f:path": {}
+                      "f:port": {}
+                      "f:scheme": {}
+                    "f:initialDelaySeconds": {}
+                    "f:periodSeconds": {}
+                    "f:successThreshold": {}
+                    "f:timeoutSeconds": {}
+                  "f:terminationMessagePath": {}
+                  "f:imagePullPolicy": {}
+                  "f:ports":
+                    .: {}
+                    'k:{"containerPort":8080,"protocol":"TCP"}':
+                      .: {}
+                      "f:containerPort": {}
+                      "f:protocol": {}
+                  "f:name": {}
+              "f:dnsPolicy": {}
+              "f:restartPolicy": {}
+              "f:schedulerName": {}
+              "f:securityContext": {}
+              "f:terminationGracePeriodSeconds": {}
+              "f:volumes":
+                .: {}
+                'k:{"name":"editor-keycloak"}':
+                  .: {}
+                  "f:configMap":
+                    .: {}
+                    "f:defaultMode": {}
+                    "f:items": {}
+                    "f:name": {}
+                  "f:name": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-10-21T22:58:11Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:spec":
+          "f:template":
+            "f:spec":
+              "f:containers":
+                'k:{"name":"editor-validator"}':
+                  "f:image": {}
+          "f:triggers": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-10-21T22:58:38Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:status":
+          "f:updatedReplicas": {}
+          "f:readyReplicas": {}
+          "f:conditions":
+            .: {}
+            'k:{"type":"Available"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:status": {}
+              "f:type": {}
+            'k:{"type":"Progressing"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:reason": {}
+              "f:status": {}
+              "f:type": {}
+          "f:details":
+            .: {}
+            "f:causes": {}
+            "f:message": {}
+          "f:replicas": {}
+          "f:availableReplicas": {}
+          "f:observedGeneration": {}
+          "f:unavailableReplicas": {}
+          "f:latestVersion": {}
+      subresource: status
+  namespace: 9b301c-prod
+  labels:
+    component: editor-validator
+    created-by: jeremy.foster
+    managed-by: kustomize
+    name: editor-app-validator
+    part-of: tno
+    version: 1.0.0
+spec:
+  strategy:
+    type: Rolling
+    rollingParams:
+      updatePeriodSeconds: 1
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      maxUnavailable: 25%
+      maxSurge: 25%
+    resources: {}
+    activeDeadlineSeconds: 21600
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - editor-validator
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: "editor:validator"
+        lastTriggeredImage: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/editor@sha256:200b26eb650a91be0391b7bcd52ec4f02dbb74b197523a6d89c7a72c6427525c"
+  replicas: 1
+  revisionHistoryLimit: 10
+  test: false
+  selector:
+    component: editor-validator
+    name: editor-validator
+    part-of: tno
+  template:
+    metadata:
+      name: editor-validator
+      creationTimestamp: null
+      labels:
+        component: editor-validator
+        name: editor-validator
+        part-of: tno
+    spec:
+      volumes:
+        - name: editor-keycloak
+          configMap:
+            name: editor-sso
+            items:
+              - key: keycloak.json
+                path: keycloak.json
+            defaultMode: 420
+      containers:
+        - resources:
+            limits:
+              cpu: 50m
+              memory: 100Mi
+            requests:
+              cpu: 25m
+              memory: 30Mi
+          readinessProbe:
+            httpGet:
+              path: /nginx-status
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10
+            timeoutSeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          name: editor-validator
+          livenessProbe:
+            httpGet:
+              path: /nginx-status
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: editor-keycloak
+              mountPath: /usr/share/nginx/html/keycloak.json
+              subPath: keycloak.json
+          terminationMessagePolicy: File
+          image: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/editor@sha256:200b26eb650a91be0391b7bcd52ec4f02dbb74b197523a6d89c7a72c6427525c"
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+status:
+  observedGeneration: 7
+  details:
+    message: image change
+    causes:
+      - type: ImageChange
+        imageTrigger:
+          from:
+            kind: DockerImage
+            name: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/editor@sha256:200b26eb650a91be0391b7bcd52ec4f02dbb74b197523a6d89c7a72c6427525c"
+  availableReplicas: 1
+  unavailableReplicas: 0
+  latestVersion: 6
+  updatedReplicas: 1
+  conditions:
+    - type: Available
+      status: "True"
+      lastUpdateTime: "2025-10-01T20:23:05Z"
+      lastTransitionTime: "2025-10-01T20:23:05Z"
+      message: Deployment config has minimum availability.
+    - type: Progressing
+      status: "True"
+      lastUpdateTime: "2025-10-21T22:58:38Z"
+      lastTransitionTime: "2025-10-21T22:58:34Z"
+      reason: NewReplicationControllerAvailable
+      message: replication controller "editor-validator-6" successfully rolled out
+  replicas: 1
+  readyReplicas: 1

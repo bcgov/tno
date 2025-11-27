@@ -16,7 +16,7 @@ secretGenerator:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: transcription-service
     patch: |-
       - op: replace
@@ -27,13 +27,13 @@ patches:
         value: 20m
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
-        value: 80Mi
+        value: 100Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
-        value: 75m
+        value: 50m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 300Mi
       - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: transcription-service:dev
+        path: /spec/template/spec/containers/0/image
+        value: image-registry.openshift-image-registry.svc:5000/9b301c-tools/transcription-service:dev

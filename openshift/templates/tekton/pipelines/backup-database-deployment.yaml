@@ -1,0 +1,42 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: backup-database-deployment
+  annotations:
+    description: >-
+      Make a remote SSH connection to the database backup service and start a backup.
+      This version works with Kubernetes Deployments (not DeploymentConfigs).
+    tags: oc,rsh,database,backup,deployment
+spec:
+  params:
+    - name: PROJECT_NAMESPACE
+      description: The project namespace name.
+      type: string
+      default: 9b301c-dev
+    - name: DEPLOYMENT_NAME
+      description: The name of the database backup Deployment.
+      type: string
+      default: backup
+    - name: ARGS
+      description: >-
+        The arguments to include when executing the backup.sh script.
+        -l : List existing backups
+        -h : Display help information
+        -c : Display current configuration
+        -1 : Run a single backup
+        -r <spec> : Restore the database with the specified <spec>
+      type: string
+      default: '-1'
+
+  tasks:
+    - name: backup
+      taskRef:
+        name: oc-backup-deployment
+        kind: Task
+      params:
+        - name: PROJECT_NAMESPACE
+          value: $(params.PROJECT_NAMESPACE)
+        - name: DEPLOYMENT_NAME
+          value: $(params.DEPLOYMENT_NAME)
+        - name: ARGS
+          value: $(params.ARGS)

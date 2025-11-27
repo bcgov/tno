@@ -1,11 +1,12 @@
 ---
 # How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: api-services
   namespace: default
   annotations:
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "api:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"api-services\")].image"}]'
     description: Defines how to deploy api
   labels:
     name: api-services
@@ -16,29 +17,15 @@ metadata:
     created-by: jeremy.foster
 spec:
   replicas: 1
-  test: false
   selector:
-    part-of: tno
-    component: api-services
+    matchLabels:
+      part-of: tno
+      component: api-services
   strategy:
-    rollingParams:
-      intervalSeconds: 1
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-      timeoutSeconds: 600
-      updatePeriodSeconds: 1
-    type: Rolling
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - api-services
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: api:dev
   template:
     metadata:
       name: api-services
@@ -59,7 +46,7 @@ spec:
             claimName: ingest-storage
       containers:
         - name: api-services
-          image: ""
+          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -79,7 +66,7 @@ spec:
             - name: HubPath
               value: /hub
             - name: Charts__Url
-              value: "http://charts-api:8080"
+              value: 'http://charts-api:8080'
 
             - name: Logging__LogLevel__TNO
               value: Information
@@ -90,7 +77,7 @@ spec:
               value: /mnt/ingest
 
             - name: SignalR__EnableKafkaBackPlane
-              value: "false"
+              value: 'false'
 
             - name: Keycloak__Authority
               valueFrom:
@@ -137,19 +124,19 @@ spec:
             - name: DB_POSTGRES_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: database
+                  name: montford
                   key: USERNAME
             - name: DB_POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: database
+                  name: montford
                   key: PASSWORD
 
             - name: Elastic__Url
               valueFrom:
                 configMapKeyRef:
-                  name: api
-                  key: ELASTIC_URIS
+                  name: indexing-service
+                  key: ELASTICSEARCH_URI
             - name: Elastic__Username
               valueFrom:
                 secretKeyRef:
@@ -160,6 +147,16 @@ spec:
                 secretKeyRef:
                   name: elastic
                   key: PASSWORD
+            - name: Elastic__ContentIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: CONTENT_INDEX
+            - name: Elastic__PublishedIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: PUBLISHED_INDEX
 
             - name: Reporting__SubscriberAppUrl
               valueFrom:
@@ -238,7 +235,7 @@ spec:
 
           livenessProbe:
             httpGet:
-              path: "/health"
+              path: '/health'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -248,7 +245,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: "/health"
+              path: '/health'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
