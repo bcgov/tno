@@ -2,7 +2,7 @@ import { UnauthenticatedHome } from 'features/home';
 import { UserInfo } from 'features/login';
 import { Menu } from 'features/navbar';
 import React from 'react';
-import { Link, Outlet, useSearchParams } from 'react-router-dom';
+import { Link, Outlet, useLocation, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { IWorkOrderToast, useApiHub, useToastError } from 'store/hooks';
 import {
@@ -50,10 +50,12 @@ const DefaultLayout: React.FC<ILayoutProps> = ({
   useToastError();
   const [searchParams] = useSearchParams({ showNav: 'true' });
   const { toggle: toggleSystemMessage, isShowing: showSystemMessage } = useModal();
+  const location = useLocation();
 
   const [toastIds, setToastIds] = React.useState<IWorkOrderToast[]>([]);
   const showNav = initShowNav ?? searchParams.get('showNav') === 'true';
   const [systemMessage, setSystemMessage] = React.useState<ISystemMessageModel>();
+  const isReportInstanceView = /^\/report\/instances\/.*\/view$/.test(location.pathname);
 
   React.useEffect(() => {
     keycloak.instance.onTokenExpired = () => {
@@ -148,11 +150,20 @@ const DefaultLayout: React.FC<ILayoutProps> = ({
           </LayoutErrorBoundary>
         </div>
       </Show>
-      <Show visible={!keycloak.authenticated}>
+      <Show visible={!keycloak.authenticated && !isReportInstanceView}>
         <div className="main-window">
           <main style={{ backgroundColor: '#f2f2f2' }}>
             <UnauthenticatedHome />
           </main>
+        </div>
+      </Show>
+      <Show visible={!keycloak.authenticated && isReportInstanceView}>
+        <div className="main-window">
+          <LayoutErrorBoundary>
+            <main>
+              <Outlet />
+            </main>
+          </LayoutErrorBoundary>
         </div>
       </Show>
       <Modal

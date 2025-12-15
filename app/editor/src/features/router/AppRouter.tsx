@@ -1,4 +1,5 @@
 import { AdminRouter } from 'features/admin';
+import ReportInstancesRedirect from 'features/reports/ReportInstancesRedirect';
 import React, { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useApp } from 'store/hooks';
@@ -40,8 +41,10 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
   React.useEffect(() => {
     // There is a race condition, when keycloak is ready state related to user claims will not be.
     // Additionally, when the user is not authenticated keycloak also is not initialized (which makes no sense).
-    if (!authenticated && !window.location.pathname.startsWith('/login'))
+    const isReportInstanceView = /^\/report\/instances\/.*\/view$/.test(window.location.pathname);
+    if (!authenticated && !window.location.pathname.startsWith('/login') && !isReportInstanceView) {
       navigate(`/login?redirectTo=${window.location.pathname}`);
+    }
   }, [authenticated, navigate]);
 
   return (
@@ -124,6 +127,9 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
           />
           <Route path="clips" element={<RequestClip />} />
           <Route path="transcriptions" element={<TranscriptionList />} />
+
+          {/* Temporary redirect for unauthenticated users accessing report instances */}
+          <Route path="report/instances/:id/view" element={<ReportInstancesRedirect />} />
 
           <Route
             path="report/instances/:id/view"
