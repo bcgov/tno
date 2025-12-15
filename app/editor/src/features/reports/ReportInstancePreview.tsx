@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaPaperPlane } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
-import { useApp, useReportInstances, useReports } from 'store/hooks';
+import { useApp, useReportInstances, useReports, useSettings } from 'store/hooks';
 import { useUsers } from 'store/hooks/admin';
 import {
   Button,
@@ -24,10 +24,13 @@ const ReportInstancePreview: React.FC = () => {
   const { id } = useParams();
   const instanceId = parseInt(id ?? '');
   const [{ userInfo }] = useApp();
+  const { editorUrl, subscriberUrl } = useSettings();
 
   const [isLoading, setIsLoading] = React.useState(true);
   const [view, setView] = React.useState<IReportResultModel | undefined>();
   const [report, setReport] = React.useState<IReportModel>();
+
+  console.error('ReportInstancePreview ');
 
   const handlePreviewReport = React.useCallback(
     async (instanceId: number) => {
@@ -67,14 +70,21 @@ const ReportInstancePreview: React.FC = () => {
         (v) => v,
       );
 
-      const htmlBlob = new Blob([email.body], { type: 'text/html' });
-      const textBlob = new Blob([email.body], { type: 'text/plain' });
+      // Replace the URL so that it points to the external site.
+      let fixed_body = email.body;
+      if (editorUrl && subscriberUrl) {
+        const urlReplaceRegex = new RegExp(editorUrl, 'gi');
+        fixed_body = email.body.replace(urlReplaceRegex, subscriberUrl);
+      }
+
+      const htmlBlob = new Blob([fixed_body], { type: 'text/html' });
+      const textBlob = new Blob([fixed_body], { type: 'text/plain' });
       const clip = new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob });
       navigator.clipboard.write([clip]);
       const bcc = subscribers.length ? `bcc=${emails.join('; ')}` : '';
       window.location.href = `mailto:${to}?${bcc}&subject=${email.subject}&body=Click Paste - Keep Source Formatting`;
     },
-    [getDistributionListById],
+    [editorUrl, getDistributionListById, subscriberUrl],
   );
 
   React.useEffect(() => {
