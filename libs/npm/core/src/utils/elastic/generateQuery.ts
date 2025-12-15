@@ -21,6 +21,8 @@ export const generateQuery = (
   else if (condition === 'filter') elastic = generateFilterQuery(settings, query);
   else if (condition === 'must_not') elastic = generateMustNotQuery(settings, query);
 
+  if (!elastic.query || Object.keys(elastic.query).length === 0) elastic.query = { match_all: {} };
+
   if (settings.size) elastic = { ...elastic, size: settings.size };
   if (settings.from) elastic = { ...elastic, from: settings.from };
 

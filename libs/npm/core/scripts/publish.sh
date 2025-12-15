@@ -29,7 +29,8 @@ elif [ "$version" == "p" ]; then
 fi
 npm version $version
 
-yarn npm publish
+yarn config set registry https://registry.npmjs.org
+yarn npm publish --access public
 
 package_version=$(node -p "require('./package.json').version")
 echo "version: $package_version"
