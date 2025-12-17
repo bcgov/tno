@@ -1,13 +1,14 @@
 ---
 # How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: event-handler-service
   namespace: default
   annotations:
     description: Defines how to deploy event-handler-service
     created-by: jeremy.foster
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "event-handler-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"event-handler-service\")].image"}]'
   labels:
     name: event-handler-service
     part-of: tno
@@ -17,17 +18,15 @@ metadata:
 spec:
   replicas: 1
   selector:
-    name: event-handler-service
-    part-of: tno
-    component: event-handler-service
+    matchLabels:
+      name: event-handler-service
+      part-of: tno
+      component: event-handler-service
   strategy:
-    rollingParams:
-      intervalSeconds: 1
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-      timeoutSeconds: 600
-      updatePeriodSeconds: 1
-    type: Rolling
   template:
     metadata:
       name: event-handler-service
@@ -38,7 +37,7 @@ spec:
     spec:
       containers:
         - name: event-handler-service
-          image: ""
+          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/event-handler-service:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -163,7 +162,7 @@ spec:
 
           livenessProbe:
             httpGet:
-              path: "/health"
+              path: '/health'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -173,7 +172,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: "/health"
+              path: '/health'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -185,15 +184,3 @@ spec:
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
-  test: false
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - event-handler-service
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: event-handler-service:dev

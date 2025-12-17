@@ -1,13 +1,14 @@
 ---
 # How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: folder-collection-service
   namespace: default
   annotations:
     description: Defines how to deploy folder-collection-service
     created-by: jeremy.foster
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "folder-collection-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"folder-collection-service\")].image"}]'
   labels:
     name: folder-collection-service
     part-of: tno
@@ -17,17 +18,15 @@ metadata:
 spec:
   replicas: 1
   selector:
-    name: folder-collection-service
-    part-of: tno
-    component: folder-collection-service
+    matchLabels:
+      name: folder-collection-service
+      part-of: tno
+      component: folder-collection-service
   strategy:
-    rollingParams:
-      intervalSeconds: 1
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-      timeoutSeconds: 600
-      updatePeriodSeconds: 1
-    type: Rolling
   template:
     metadata:
       name: folder-collection-service
@@ -38,18 +37,18 @@ spec:
     spec:
       containers:
         - name: folder-collection-service
-          image: ""
+          image: ''
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
               protocol: TCP
           resources:
             limits:
-              cpu: 50m
+              cpu: 75m
               memory: 150Mi
             requests:
-              cpu: 25m
-              memory: 80Mi
+              cpu: 20m
+              memory: 100Mi
           env:
             # .NET Configuration
             - name: ASPNETCORE_ENVIRONMENT
@@ -115,8 +114,8 @@ spec:
             - name: Elastic__Url
               valueFrom:
                 configMapKeyRef:
-                  name: api
-                  key: ELASTIC_URIS
+                  name: indexing-service
+                  key: ELASTICSEARCH_URI
             - name: Elastic__ContentIndex
               valueFrom:
                 configMapKeyRef:
@@ -199,7 +198,7 @@ spec:
                   key: PASSWORD
           livenessProbe:
             httpGet:
-              path: "/health"
+              path: '/health'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -209,7 +208,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: "/health"
+              path: '/health'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -221,15 +220,3 @@ spec:
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
-  test: false
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - folder-collection-service
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: folder-collection-service:dev

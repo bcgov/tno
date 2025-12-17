@@ -8,24 +8,56 @@ resources:
 
 patches:
   - target:
-      kind: DeploymentConfig
-      name: api
+      kind: Deployment
+      name: api-services
     patch: |-
       - op: replace
+        path: /spec/strategy
+        value:
+          type: Recreate
+      - op: replace
         path: /spec/replicas
-        value: 3
+        value: 2
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
         value: 100m
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
         value: 350Mi
+      - op: add
+        path: /spec/template/spec/containers/0/resources/limits
+        value:
+          cpu: 500m
+          memory: 1536Mi
       - op: replace
-        path: /spec/template/spec/containers/0/resources/limits/cpu
-        value: 500m
+        path: /metadata/annotations/image.openshift.io~1triggers
+        value: '[{"from": {"kind": "ImageStreamTag", "name": "api-services:test", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"api-services\")].image"}]'
       - op: replace
-        path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 1256Mi
+        path: /spec/template/spec/containers/0/env/15/valueFrom/secretKeyRef/name
+        value: mooncrest
       - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: image-registry.openshift-image-registry.svc:5000/9b301c-tools/api:prod
+        path: /spec/template/spec/containers/0/env/16/valueFrom/secretKeyRef/name
+        value: mooncrest
+      - op: replace
+        path: /spec/template/spec/containers/0/env/17/valueFrom/configMapKeyRef/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/18/valueFrom/secretKeyRef/name
+        value: elastic-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/19/valueFrom/secretKeyRef/name
+        value: elastic-cloud
+      - op: add
+        path: /spec/template/spec/containers/0/env/20
+        value:
+          name: Elastic__ApiKey
+          valueFrom:
+            secretKeyRef:
+              key: ApiKey
+              name: elastic-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/21/valueFrom/configMapKeyRef/name
+        value: indexing-service-cloud
+      - op: replace
+        path: /spec/template/spec/containers/0/env/22/valueFrom/configMapKeyRef/name
+        value: indexing-service-cloud

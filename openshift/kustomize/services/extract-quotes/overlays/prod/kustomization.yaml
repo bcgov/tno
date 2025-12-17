@@ -8,7 +8,7 @@ resources:
 
 generatorOptions:
   disableNameSuffixHash: true
-  
+
 secretGenerator:
   - name: llm-api-keys
     type: Opaque
@@ -16,12 +16,15 @@ secretGenerator:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: extract-quotes-service
     patch: |-
       - op: replace
         path: /spec/replicas
-        value: 1
+        value: 3
+      - op: replace
+        path: /metadata/annotations/image.openshift.io~1triggers
+        value: '[{"from": {"kind": "ImageStreamTag", "name": "extract-quotes-service:prod", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"extract-quotes-service\")].image"}]'
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
         value: 20m
@@ -34,9 +37,6 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 150Mi
-      - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: extract-quotes-service:prod
   - target:
       kind: ConfigMap
       name: extract-quotes-service
@@ -44,6 +44,9 @@ patches:
       - op: replace
         path: /data/CHES_EMAIL_ENABLED
         value: "true"
+      - op: replace
+        path: /metadata/annotations/image.openshift.io~1triggers
+        value: '[{"from": {"kind": "ImageStreamTag", "name": "extract-quotes-service:prod", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"extract-quotes-service\")].image"}]'
       - op: replace
         path: /data/CHES_EMAIL_AUTHORIZED
         value: "true"

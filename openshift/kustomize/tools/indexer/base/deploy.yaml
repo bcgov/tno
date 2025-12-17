@@ -16,6 +16,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
+      matchLabels:
       name: indexer-service
       part-of: tno
       component: indexer-service

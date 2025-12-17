@@ -11,7 +11,7 @@ generatorOptions:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: ches-retry-service
     patch: |-
       - op: replace
@@ -30,5 +30,5 @@ patches:
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 100Mi
       - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: ches-retry-service:dev
+        path: /spec/template/spec/containers/0/image
+        value: image-registry.openshift-image-registry.svc:5000/9b301c-tools/ches-retry-service:dev

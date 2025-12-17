@@ -8,7 +8,7 @@ resources:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: kowl
     patch: |-
       - op: replace
@@ -19,16 +19,16 @@ patches:
         value: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/kafka:v1.5.0
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
-        value: 15m
+        value: 10m
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
-        value: 50Mi
+        value: 100Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
         value: 50m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 100Mi
+        value: 150Mi
   - target:
       kind: Route
       name: kowl

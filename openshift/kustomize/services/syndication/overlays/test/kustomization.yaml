@@ -16,7 +16,7 @@ generatorOptions:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: syndication-service
     patch: |-
       - op: replace
@@ -27,16 +27,13 @@ patches:
         value: 20m
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
-        value: 80Mi
+        value: 128Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
         value: 40m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 128Mi
-      - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: syndication-service:test
+        value: 196Mi
       - op: replace
         path: /spec/template/spec/containers/0/env/0/value
         value: Staging

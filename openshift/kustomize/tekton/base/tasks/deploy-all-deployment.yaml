@@ -1,0 +1,349 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-all-deployment
+  annotations:
+    tekton.dev/displayName: openshift client
+    tekton.dev/pipelines.minVersion: 0.12.1
+    tekton.dev/tags: cli
+    description: >-
+      This task will tag a specific image with the environment name.
+      This will deploy the image if there is a Deployment trigger listening for the environment tag.
+      This version works with Kubernetes Deployments (not DeploymentConfigs).
+  labels:
+    name: oc-all-deployment
+    part-of: tno
+    version: 1.0.0
+    component: task
+    managed-by: kustomize
+spec:
+  params:
+    - name: PROJECT_SHORTNAME
+      description: The project namespace.
+      type: string
+      default: 9b301c
+    - name: IMAGE_TAG
+      description: The tag given to the built image.
+      type: string
+      default: latest
+    - name: ENV
+      description: The environment to deploy to.
+      type: string
+    - name: TIMEOUT
+      description: The timeout before it will stop waiting for the pod to become available.
+      type: string
+      default: '600s'
+
+    - name: DEPLOY
+      description: Whether to deploy a component, or all [*|all|[name]].
+      default: '*'
+
+    - name: WAIT
+      description: Whether to wait for each service pod to scale back up [yes|no].
+      default: 'no'
+  workspaces:
+    - name: conditions
+      mountPath: /data
+
+  steps:
+    - name: deploy
+      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      resources: {}
+      script: |
+        # set -xe
+
+        # Place config into environment variables.
+        if test -f $(workspaces.conditions.path)/build.env; then
+          export $(grep -v '^#' $(workspaces.conditions.path)/build.env | xargs)
+        else
+          echo 'Workspace conditions build.env not found'
+          exit 1;
+        fi
+
+        # ***************************************************
+        # An array of all the objects for the solution.
+        # ***************************************************
+
+        # Applications
+
+        declare -A COMPONENT0=(
+          [id]="api"
+          [name]="api"
+          [type]="sts"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT1=(
+          [id]="charts-api"
+          [name]="charts-api"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="maintenance"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT2=(
+          [id]="editor"
+          [name]="editor"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="maintenance"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT3=(
+          [id]="subscriber"
+          [name]="subscriber"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="maintenance"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        # Processing Services
+
+        declare -A COMPONENT4=(
+          [id]="content"
+          [name]="content-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT5=(
+          [id]="indexing"
+          [name]="indexing-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT6=(
+          [id]="indexing-cloud"
+          [name]="indexing-service-cloud"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="no"
+          [env]="test prod"
+        )
+
+        declare -A COMPONENT7=(
+          [id]="transcription"
+          [name]="transcription-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT8=(
+          [id]="nlp"
+          [name]="nlp-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT9=(
+          [id]="extract-quotes"
+          [name]="extract-quotes-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT10=(
+          [id]="reporting"
+          [name]="reporting-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT11=(
+          [id]="notification"
+          [name]="notification-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT12=(
+          [id]="scheduler"
+          [name]="scheduler-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT13=(
+          [id]="folder-collection"
+          [name]="folder-collection-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT14=(
+          [id]="ffmpeg"
+          [name]="ffmpeg-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT15=(
+          [id]="event-handler"
+          [name]="event-handler-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT16=(
+          [id]="ches-retry"
+          [name]="ches-retry-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        # Ingest Services
+
+        declare -A COMPONENT17=(
+          [id]="syndication"
+          [name]="syndication-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT18=(
+          [id]="filemonitor"
+          [name]="filemonitor-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT19=(
+          [id]="image"
+          [name]="image-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -n component;
+
+        # ***************************************************
+        # Work
+        # ***************************************************
+
+        # Stop all services if API needs to be deployed.
+        # If the component was auto built by the build step, or all components are to built, or a specific component was requested to be built.
+        if [ "${BUILD_API}" = true ] || [ "$(params.DEPLOY)" = "api" ] || [ "$(params.DEPLOY)" = "all" ]; then
+          echo "Scale down"
+          for component in ${!COMPONENT@}; do
+            IFS=' ' read -r -a env_array <<< "${component[env]}"
+            for env in "${env_array[@]}"; do
+              if [[ "${component[action]}" = "stop" ]] && [[ $env =~ "$(params.ENV)" ]]; then
+                echo "Stopping ${component[id]}"
+                oc scale ${component[type]} ${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV) --replicas=0
+              fi
+            done
+          done
+        fi
+
+        # Loop through each component and deploy if required.
+        for component in ${!COMPONENT@}; do
+          # Dynamic variable to control what will be built.
+          TVAR="BUILD_${component[id]}"
+          COMPONENT=${TVAR//\-/_}
+          COMPONENT=${COMPONENT^^}
+          echo $COMPONENT=${!COMPONENT}
+
+          IFS=' ' read -r -a env_array <<< "${component[env]}"
+
+          # Check if this image needs to be deployed.
+          # If the component was auto built by the build step, or all components are to built, or a specific component was requested to be built.
+          if [ "${!COMPONENT}" = true ] || [ "$(params.DEPLOY)" = "all" ] || [ "$(params.DEPLOY)" = "${component[id]}" ]; then
+            for env in "${env_array[@]}"; do
+              if [[ "$env" =~ "$(params.ENV)" ]]; then
+                if [[ "${component[build]}" = "yes" ]]; then
+                  echo "Tagging image to trigger deployment to ${component[name]}:$(params.ENV)"
+                  oc tag ${component[name]}:$(params.IMAGE_TAG) ${component[name]}:$(params.ENV)
+                fi
+
+                if [ "${component[type]}" = "sts" ]; then
+                  oc rollout restart ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+                fi
+
+                echo "Waiting for deployment to roll out"
+                oc rollout status --watch --timeout=$(params.TIMEOUT) ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+              else
+                echo "${component[id]} does not deploy to $(params.ENV)"
+              fi
+            done
+          fi
+        done
+
+        # Start all services if API was deployed.
+        if [ "${BUILD_API}" = true ] || [ "$(params.DEPLOY)" = "api" ] || [ "$(params.DEPLOY)" = "all" ] || [ "$(params.DEPLOY)" = "${component[id]}" ]; then
+          for component in ${!COMPONENT@}; do
+            # Dynamic variable to control what will be built.
+            TVAR="BUILD_${component[id]}"
+            COMPONENT=${TVAR//\-/_}
+            COMPONENT=${COMPONENT^^}
+            echo $COMPONENT=${!COMPONENT}
+
+            IFS=' ' read -r -a env_array <<< "${component[env]}"
+
+            for env in "${env_array[@]}"; do
+              if [[ "${component[action]}" = "stop" ]] && [[ "$env" =~ "$(params.ENV)" ]] && [[ "${component[replicas]}" -gt "0" ]]; then
+                echo "Starting ${component[name]}"
+                oc scale ${component[type]} ${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV) --replicas=${component[replicas]}
+                # oc rollout status --watch --timeout=$(params.TIMEOUT) ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+                if [ "$(params.WAIT)" = "yes" ]; then
+                  oc wait --for=condition=available --timeout=$(params.TIMEOUT) ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+                fi
+              fi
+            done
+          done
+        fi

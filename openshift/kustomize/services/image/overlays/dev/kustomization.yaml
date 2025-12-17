@@ -11,27 +11,27 @@ generatorOptions:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: image-service
     patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/image-service:dev
       - op: replace
         path: /spec/replicas
         value: 1
       - op: replace
-        path: /spec/template/spec/containers/0/resources/requests/cpu
-        value: 15m
-      - op: replace
-        path: /spec/template/spec/containers/0/resources/requests/memory
-        value: 75Mi
-      - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
         value: 35m
       - op: replace
-        path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 120Mi
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: 15m
       - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: image-service:dev
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: 128Mi
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: 75Mi
       - op: replace
         path: /spec/template/spec/containers/0/env/0/value
         value: Development

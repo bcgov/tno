@@ -1,0 +1,658 @@
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  annotations:
+    created-by: jeremy.foster
+    description: Defines how to deploy transcription-service
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","metadata":{"annotations":{"created-by":"jeremy.foster","description":"Defines how to deploy transcription-service"},"labels":{"component":"transcription-service","managed-by":"kustomize","name":"transcription-service","part-of":"tno","version":"1.0.0"},"name":"transcription-service","namespace":"9b301c-prod"},"spec":{"replicas":2,"selector":{"component":"transcription-service","name":"transcription-service","part-of":"tno"},"strategy":{"rollingParams":{"intervalSeconds":1,"maxSurge":"25%","maxUnavailable":"25%","timeoutSeconds":600,"updatePeriodSeconds":1},"type":"Rolling"},"template":{"metadata":{"labels":{"component":"transcription-service","name":"transcription-service","part-of":"tno"},"name":"transcription-service"},"spec":{"containers":[{"env":[{"name":"ASPNETCORE_ENVIRONMENT","value":"Production"},{"name":"ASPNETCORE_URLS","value":"http://+:8080"},{"name":"Logging__LogLevel__TNO","value":"Information"},{"name":"Service__ApiUrl","valueFrom":{"configMapKeyRef":{"key":"API_HOST_URL","name":"services"}}},{"name":"Service__EmailTo","valueFrom":{"configMapKeyRef":{"key":"EMAIL_FAILURE_TO","name":"services"}}},{"name":"Auth__Keycloak__Authority","valueFrom":{"configMapKeyRef":{"key":"KEYCLOAK_AUTHORITY","name":"services"}}},{"name":"Auth__Keycloak__Audience","valueFrom":{"configMapKeyRef":{"key":"KEYCLOAK_AUDIENCE","name":"services"}}},{"name":"Auth__Keycloak__Secret","valueFrom":{"secretKeyRef":{"key":"KEYCLOAK_CLIENT_SECRET","name":"keycloak"}}},{"name":"Kafka__Admin__ClientId","valueFrom":{"configMapKeyRef":{"key":"KAFKA_CLIENT_ID","name":"transcription-service"}}},{"name":"Kafka__Admin__BootstrapServers","valueFrom":{"configMapKeyRef":{"key":"KAFKA_BOOTSTRAP_SERVERS","name":"services"}}},{"name":"Kafka__Consumer__GroupId","valueFrom":{"configMapKeyRef":{"key":"KAFKA_CLIENT_ID","name":"transcription-service"}}},{"name":"Kafka__Consumer__BootstrapServers","valueFrom":{"configMapKeyRef":{"key":"KAFKA_BOOTSTRAP_SERVERS","name":"services"}}},{"name":"Kafka__Producer__ClientId","valueFrom":{"configMapKeyRef":{"key":"KAFKA_CLIENT_ID","name":"transcription-service"}}},{"name":"Kafka__Producer__BootstrapServers","valueFrom":{"configMapKeyRef":{"key":"KAFKA_BOOTSTRAP_SERVERS","name":"services"}}},{"name":"Service__AzureRegion","valueFrom":{"secretKeyRef":{"key":"AZURE_REGION","name":"azure-cognitive-services"}}},{"name":"Service__AzureCognitiveServicesKey","valueFrom":{"secretKeyRef":{"key":"AZURE_COGNITIVE_SERVICES_KEY","name":"azure-cognitive-services"}}},{"name":"Service__MaxFailLimit","valueFrom":{"configMapKeyRef":{"key":"MAX_FAIL_LIMIT","name":"transcription-service"}}},{"name":"Service__Topics","valueFrom":{"configMapKeyRef":{"key":"TOPICS","name":"transcription-service"}}},{"name":"Service__VolumePath","valueFrom":{"configMapKeyRef":{"key":"VOLUME_PATH","name":"transcription-service"}}},{"name":"Service__NotificationTopic","valueFrom":{"configMapKeyRef":{"key":"NOTIFICATION_TOPIC","name":"transcription-service"}}},{"name":"CHES__From","valueFrom":{"configMapKeyRef":{"key":"CHES_FROM","name":"ches"}}},{"name":"CHES__EmailEnabled","valueFrom":{"configMapKeyRef":{"key":"CHES_EMAIL_ENABLED","name":"transcription-service"}}},{"name":"CHES__EmailAuthorized","valueFrom":{"configMapKeyRef":{"key":"CHES_EMAIL_AUTHORIZED","name":"transcription-service"}}},{"name":"CHES__AuthUrl","valueFrom":{"configMapKeyRef":{"key":"CHES_AUTH_URL","name":"ches"}}},{"name":"CHES__HostUri","valueFrom":{"configMapKeyRef":{"key":"CHES_HOST_URI","name":"ches"}}},{"name":"CHES__Username","valueFrom":{"secretKeyRef":{"key":"USERNAME","name":"ches"}}},{"name":"CHES__Password","valueFrom":{"secretKeyRef":{"key":"PASSWORD","name":"ches"}}}],"image":"","imagePullPolicy":"Always","livenessProbe":{"failureThreshold":3,"httpGet":{"path":"/health","port":8080,"scheme":"HTTP"},"initialDelaySeconds":30,"periodSeconds":20,"successThreshold":1,"timeoutSeconds":30},"name":"transcription-service","ports":[{"containerPort":8080,"protocol":"TCP"}],"readinessProbe":{"failureThreshold":3,"httpGet":{"path":"/health","port":8080,"scheme":"HTTP"},"initialDelaySeconds":30,"periodSeconds":20,"successThreshold":1,"timeoutSeconds":30},"resources":{"limits":{"cpu":"75m","memory":"300Mi"},"requests":{"cpu":"20m","memory":"80Mi"}},"volumeMounts":[{"mountPath":"/data","name":"api-storage"}]}],"dnsPolicy":"ClusterFirst","restartPolicy":"Always","securityContext":{},"terminationGracePeriodSeconds":30,"volumes":[{"name":"api-storage","persistentVolumeClaim":{"claimName":"api-storage"}}]}},"test":false,"triggers":[{"type":"ConfigChange"},{"imageChangeParams":{"automatic":true,"containerNames":["transcription-service"],"from":{"kind":"ImageStreamTag","name":"transcription-service:prod","namespace":"9b301c-tools"}},"type":"ImageChange"}]}}
+  resourceVersion: "17207300230"
+  name: transcription-service
+  uid: 78aa2570-69a0-4f2c-aaa9-92e8805cdf80
+  creationTimestamp: "2024-04-29T20:33:44Z"
+  generation: 534
+  managedFields:
+    - manager: kubectl-create
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2024-04-29T20:33:44Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:metadata":
+          "f:annotations":
+            .: {}
+            "f:created-by": {}
+            "f:description": {}
+            "f:kubectl.kubernetes.io/last-applied-configuration": {}
+          "f:labels":
+            .: {}
+            "f:component": {}
+            "f:managed-by": {}
+            "f:name": {}
+            "f:part-of": {}
+            "f:version": {}
+        "f:spec":
+          "f:replicas": {}
+          "f:selector":
+            .: {}
+            "f:component": {}
+            "f:name": {}
+            "f:part-of": {}
+          "f:strategy":
+            "f:activeDeadlineSeconds": {}
+            "f:rollingParams":
+              .: {}
+              "f:intervalSeconds": {}
+              "f:maxSurge": {}
+              "f:maxUnavailable": {}
+              "f:timeoutSeconds": {}
+              "f:updatePeriodSeconds": {}
+            "f:type": {}
+          "f:template":
+            .: {}
+            "f:metadata":
+              .: {}
+              "f:creationTimestamp": {}
+              "f:labels":
+                .: {}
+                "f:component": {}
+                "f:name": {}
+                "f:part-of": {}
+              "f:name": {}
+            "f:spec":
+              .: {}
+              "f:containers":
+                .: {}
+                'k:{"name":"transcription-service"}':
+                  "f:volumeMounts":
+                    .: {}
+                    'k:{"mountPath":"/data"}':
+                      .: {}
+                      "f:mountPath": {}
+                      "f:name": {}
+                  "f:terminationMessagePolicy": {}
+                  .: {}
+                  "f:resources":
+                    .: {}
+                    "f:requests":
+                      .: {}
+                      "f:cpu": {}
+                      "f:memory": {}
+                  "f:livenessProbe":
+                    .: {}
+                    "f:failureThreshold": {}
+                    "f:httpGet":
+                      .: {}
+                      "f:path": {}
+                      "f:port": {}
+                      "f:scheme": {}
+                    "f:initialDelaySeconds": {}
+                    "f:periodSeconds": {}
+                    "f:successThreshold": {}
+                    "f:timeoutSeconds": {}
+                  "f:env":
+                    'k:{"name":"Service__MaxFailLimit"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__From"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Auth__Keycloak__Audience"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Kafka__Consumer__GroupId"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__HostUri"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__AzureCognitiveServicesKey"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"CHES__AuthUrl"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__VolumePath"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__EmailTo"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom": {}
+                    'k:{"name":"Service__Topics"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Kafka__Producer__BootstrapServers"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__Username"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"Auth__Keycloak__Secret"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    .: {}
+                    'k:{"name":"Kafka__Admin__BootstrapServers"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Kafka__Consumer__BootstrapServers"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Kafka__Producer__ClientId"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__Password"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"Service__AzureRegion"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"Kafka__Admin__ClientId"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__NotificationTopic"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__EmailAuthorized"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"ASPNETCORE_ENVIRONMENT"}':
+                      .: {}
+                      "f:name": {}
+                      "f:value": {}
+                    'k:{"name":"ASPNETCORE_URLS"}':
+                      .: {}
+                      "f:name": {}
+                      "f:value": {}
+                    'k:{"name":"Service__ApiUrl"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__EmailEnabled"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Auth__Keycloak__Authority"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                  "f:readinessProbe":
+                    .: {}
+                    "f:failureThreshold": {}
+                    "f:httpGet":
+                      .: {}
+                      "f:path": {}
+                      "f:port": {}
+                      "f:scheme": {}
+                    "f:initialDelaySeconds": {}
+                    "f:periodSeconds": {}
+                    "f:successThreshold": {}
+                    "f:timeoutSeconds": {}
+                  "f:terminationMessagePath": {}
+                  "f:imagePullPolicy": {}
+                  "f:ports":
+                    .: {}
+                    'k:{"containerPort":8080,"protocol":"TCP"}':
+                      .: {}
+                      "f:containerPort": {}
+                      "f:protocol": {}
+                  "f:name": {}
+              "f:dnsPolicy": {}
+              "f:restartPolicy": {}
+              "f:schedulerName": {}
+              "f:securityContext": {}
+              "f:terminationGracePeriodSeconds": {}
+              "f:volumes":
+                .: {}
+                'k:{"name":"api-storage"}':
+                  .: {}
+                  "f:name": {}
+                  "f:persistentVolumeClaim":
+                    .: {}
+                    "f:claimName": {}
+    - manager: Mozilla
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-11-11T16:35:04Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:spec":
+          "f:template":
+            "f:spec":
+              "f:containers":
+                'k:{"name":"transcription-service"}':
+                  "f:env":
+                    'k:{"name":"S3__AccessKey"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"S3__BucketName"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"S3__SecretKey"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"S3__ServiceUrl"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"Serilog__MinimumLevel__Override__TNO"}':
+                      .: {}
+                      "f:name": {}
+                      "f:value": {}
+                    'k:{"name":"Service__EmailTo"}':
+                      "f:valueFrom":
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__IgnoreContentPublishedBeforeOffset"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__OldTnoContentTagName"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-11-26T06:03:11Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:spec":
+          "f:template":
+            "f:spec":
+              "f:containers":
+                'k:{"name":"transcription-service"}':
+                  "f:image": {}
+          "f:triggers": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-11-26T06:05:10Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:status":
+          "f:updatedReplicas": {}
+          "f:readyReplicas": {}
+          "f:conditions":
+            .: {}
+            'k:{"type":"Available"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:status": {}
+              "f:type": {}
+            'k:{"type":"Progressing"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:reason": {}
+              "f:status": {}
+              "f:type": {}
+          "f:details":
+            .: {}
+            "f:causes": {}
+            "f:message": {}
+          "f:replicas": {}
+          "f:availableReplicas": {}
+          "f:observedGeneration": {}
+          "f:unavailableReplicas": {}
+          "f:latestVersion": {}
+      subresource: status
+  namespace: 9b301c-prod
+  labels:
+    component: transcription-service
+    managed-by: kustomize
+    name: transcription-service
+    part-of: tno
+    version: 1.0.0
+spec:
+  strategy:
+    type: Rolling
+    rollingParams:
+      updatePeriodSeconds: 1
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      maxUnavailable: 25%
+      maxSurge: 25%
+    resources: {}
+    activeDeadlineSeconds: 21600
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - transcription-service
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: "transcription-service:prod"
+        lastTriggeredImage: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/transcription-service@sha256:bc4fedc1b38c7021b16763520d996f28a9d185a35b23306f8eadb59f60c40994"
+  replicas: 6
+  revisionHistoryLimit: 10
+  test: false
+  selector:
+    component: transcription-service
+    name: transcription-service
+    part-of: tno
+  template:
+    metadata:
+      name: transcription-service
+      creationTimestamp: null
+      labels:
+        component: transcription-service
+        name: transcription-service
+        part-of: tno
+    spec:
+      volumes:
+        - name: api-storage
+          persistentVolumeClaim:
+            claimName: api-storage
+      containers:
+        - resources:
+            requests:
+              cpu: 20m
+              memory: 80Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          name: transcription-service
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: "http://+:8080"
+            - name: Serilog__MinimumLevel__Override__TNO
+              value: Information
+            - name: Service__ApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: API_HOST_URL
+            - name: Service__EmailTo
+              valueFrom:
+                configMapKeyRef:
+                  name: support
+                  key: EMAIL_FAILURE_TO
+            - name: Auth__Keycloak__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUTHORITY
+            - name: Auth__Keycloak__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUDIENCE
+            - name: Auth__Keycloak__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_CLIENT_SECRET
+            - name: Kafka__Admin__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Admin__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+            - name: Kafka__Consumer__GroupId
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Consumer__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+            - name: Kafka__Producer__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Producer__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+            - name: Service__AzureRegion
+              valueFrom:
+                secretKeyRef:
+                  name: azure-cognitive-services
+                  key: AZURE_REGION
+            - name: Service__AzureCognitiveServicesKey
+              valueFrom:
+                secretKeyRef:
+                  name: azure-cognitive-services
+                  key: AZURE_COGNITIVE_SERVICES_KEY
+            - name: Service__MaxFailLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: MAX_FAIL_LIMIT
+            - name: Service__Topics
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: TOPICS
+            - name: Service__VolumePath
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: VOLUME_PATH
+            - name: Service__NotificationTopic
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: NOTIFICATION_TOPIC
+            - name: Service__IgnoreContentPublishedBeforeOffset
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: IGNORE_CONTENT_PUBLISHED_BEFORE_OFFSET
+            - name: CHES__From
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_FROM
+            - name: CHES__EmailEnabled
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: CHES_EMAIL_ENABLED
+            - name: CHES__EmailAuthorized
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: CHES_EMAIL_AUTHORIZED
+            - name: CHES__AuthUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_AUTH_URL
+            - name: CHES__HostUri
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_HOST_URI
+            - name: CHES__Username
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: USERNAME
+            - name: CHES__Password
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: PASSWORD
+            - name: S3__AccessKey
+              valueFrom:
+                secretKeyRef:
+                  name: s3-backup-credentials
+                  key: S3_ACCESS_KEY
+            - name: S3__SecretKey
+              valueFrom:
+                secretKeyRef:
+                  name: s3-backup-credentials
+                  key: S3_SECRET_KEY
+            - name: S3__BucketName
+              valueFrom:
+                secretKeyRef:
+                  name: s3-backup-credentials
+                  key: S3_BUCKET_NAME
+            - name: S3__ServiceUrl
+              valueFrom:
+                secretKeyRef:
+                  name: s3-backup-credentials
+                  key: S3_SERVICE_URL
+            - name: Service__OldTnoContentTagName
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: OLD_TNO_CONTENT_TAG_NAME
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: api-storage
+              mountPath: /data
+          terminationMessagePolicy: File
+          image: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/transcription-service@sha256:bc4fedc1b38c7021b16763520d996f28a9d185a35b23306f8eadb59f60c40994"
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+status:
+  observedGeneration: 534
+  details:
+    message: image change
+    causes:
+      - type: ImageChange
+        imageTrigger:
+          from:
+            kind: DockerImage
+            name: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/transcription-service@sha256:bc4fedc1b38c7021b16763520d996f28a9d185a35b23306f8eadb59f60c40994"
+  availableReplicas: 6
+  unavailableReplicas: 0
+  latestVersion: 115
+  updatedReplicas: 6
+  conditions:
+    - type: Progressing
+      status: "True"
+      lastUpdateTime: "2025-11-26T06:03:22Z"
+      lastTransitionTime: "2025-11-26T06:03:22Z"
+      reason: NewReplicationControllerAvailable
+      message: replication controller "transcription-service-115" successfully rolled out
+    - type: Available
+      status: "True"
+      lastUpdateTime: "2025-11-26T06:05:06Z"
+      lastTransitionTime: "2025-11-26T06:05:06Z"
+      message: Deployment config has minimum availability.
+  replicas: 6
+  readyReplicas: 6

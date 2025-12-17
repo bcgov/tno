@@ -15,24 +15,15 @@ patches:
         path: /spec/host
         value: tno-charts-api-dev.apps.silver.devops.gov.bc.ca
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: charts-api
     patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/charts-api:dev
       - op: replace
         path: /spec/replicas
         value: 1
       - op: replace
-        path: /spec/template/spec/containers/0/resources/requests/cpu
-        value: 20m
-      - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
-        value: 75Mi
-      - op: replace
-        path: /spec/template/spec/containers/0/resources/limits/cpu
-        value: 35m
-      - op: replace
-        path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 100Mi
-      - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: charts-api:dev
+        value: 50Mi

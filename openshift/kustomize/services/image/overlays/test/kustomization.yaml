@@ -11,7 +11,7 @@ generatorOptions:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: image-service
     patch: |-
       - op: replace
@@ -28,10 +28,7 @@ patches:
         value: 35m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 120Mi
-      - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: image-service:test
+        value: 200Mi
       - op: replace
         path: /spec/template/spec/containers/0/env/0/value
         value: Staging

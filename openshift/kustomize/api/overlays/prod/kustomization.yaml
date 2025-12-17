@@ -82,7 +82,7 @@ patches:
         path: /spec/host
         value: mmi.gov.bc.ca
   # - target:
-  #     kind: DeploymentConfig
+  #     kind: Deployment
   #     name: api
   #   patch: |-
   #     - op: replace
@@ -100,8 +100,6 @@ patches:
   #     - op: replace
   #       path: /spec/template/spec/containers/0/resources/limits/memory
   #       value: 1536Mi
-  #     - op: replace
-  #       path: /spec/triggers/1/imageChangeParams/from/name
   #       value: api:prod
   - target:
       kind: StatefulSet

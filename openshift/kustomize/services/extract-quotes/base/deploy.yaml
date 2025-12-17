@@ -1,13 +1,14 @@
 ---
 # How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: extract-quotes-service
   namespace: default
   annotations:
     description: Defines how to deploy extract-quotes-service
     created-by: jeremy.foster
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "extract-quotes-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"extract-quotes-service\")].image"}]'
   labels:
     name: extract-quotes-service
     part-of: tno
@@ -17,17 +18,15 @@ metadata:
 spec:
   replicas: 1
   selector:
-    name: extract-quotes-service
-    part-of: tno
-    component: extract-quotes-service
+    matchLabels:
+      name: extract-quotes-service
+      part-of: tno
+      component: extract-quotes-service
   strategy:
-    rollingParams:
-      intervalSeconds: 1
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-      timeoutSeconds: 600
-      updatePeriodSeconds: 1
-    type: Rolling
   template:
     metadata:
       name: extract-quotes-service
@@ -38,7 +37,7 @@ spec:
     spec:
       containers:
         - name: extract-quotes-service
-          image: ""
+          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/extract-quotes-service:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -235,7 +234,7 @@ spec:
 
           livenessProbe:
             httpGet:
-              path: "/health"
+              path: '/health'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -245,7 +244,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: "/health"
+              path: '/health'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -257,15 +256,3 @@ spec:
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
-  test: false
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - extract-quotes-service
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: extract-quotes-service:dev

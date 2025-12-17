@@ -8,7 +8,7 @@ resources:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: ches-retry-service
     patch: |-
       - op: replace
@@ -26,6 +26,3 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 100Mi
-      - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: ches-retry-service:test

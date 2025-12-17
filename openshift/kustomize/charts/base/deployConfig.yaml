@@ -1,0 +1,91 @@
+---
+# How the app will be deployed to the pod.
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: charts-api
+  namespace: default
+  annotations:
+    description: Defines how to deploy charts-api
+  labels:
+    name: charts-api
+    part-of: tno
+    version: 1.0.0
+    component: charts-api
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  replicas: 1
+  selector:
+    name: charts-api
+    part-of: tno
+    component: charts-api
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      name: charts-api
+      labels:
+        name: charts-api
+        part-of: tno
+        component: charts-api
+    spec:
+      containers:
+        - name: charts-api
+          image: ""
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 35m
+              memory: 100Mi
+            requests:
+              cpu: 20m
+              memory: 75Mi
+          env:
+            - name: PORT
+              value: "8080"
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10
+            timeoutSeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - charts-api
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: charts-api:dev

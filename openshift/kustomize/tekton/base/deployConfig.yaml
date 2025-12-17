@@ -1,0 +1,62 @@
+---
+# How the app will be deployed to the pod.
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: git
+  namespace: default
+  annotations:
+    description: Defines how to deploy git
+    created-by: jeremy.foster
+  labels:
+    name: git
+    part-of: tno
+    version: 1.0.0
+    component: git
+    managed-by: kustomize
+spec:
+  replicas: 1
+  test: false
+  triggers:
+    - type: ConfigChange
+  selector:
+    part-of: tno
+    component: git
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      name: git
+      labels:
+        part-of: tno
+        component: git
+    spec:
+      volumes:
+        - name: pipelines
+          persistentVolumeClaim:
+            claimName: pipelines
+      containers:
+        - name: git
+          image: bitnami/git:latest
+          imagePullPolicy: Always
+          ports:
+          volumeMounts:
+            - name: pipelines
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 20m
+              memory: 50Mi
+            limits:
+              cpu: 50m
+              memory: 150Mi
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30

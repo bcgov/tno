@@ -1,12 +1,13 @@
 ---
 # How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: charts-api
   namespace: default
   annotations:
     description: Defines how to deploy charts-api
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "charts-api:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"charts-api\")].image"}]'
   labels:
     name: charts-api
     part-of: tno
@@ -17,17 +18,15 @@ metadata:
 spec:
   replicas: 1
   selector:
-    name: charts-api
-    part-of: tno
-    component: charts-api
+    matchLabels:
+      name: charts-api
+      part-of: tno
+      component: charts-api
   strategy:
-    rollingParams:
-      intervalSeconds: 1
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-      timeoutSeconds: 600
-      updatePeriodSeconds: 1
-    type: Rolling
   template:
     metadata:
       name: charts-api
@@ -38,7 +37,7 @@ spec:
     spec:
       containers:
         - name: charts-api
-          image: ""
+          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/charts-api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -52,10 +51,10 @@ spec:
               memory: 75Mi
           env:
             - name: PORT
-              value: "8080"
+              value: '8080'
           livenessProbe:
             httpGet:
-              path: "/health"
+              path: '/health'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -65,7 +64,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: "/health"
+              path: '/health'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 10
@@ -77,15 +76,3 @@ spec:
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
-  test: false
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - charts-api
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: charts-api:dev

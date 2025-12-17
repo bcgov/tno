@@ -11,7 +11,7 @@ generatorOptions:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: content-historic-service
     patch: |-
       - op: replace
@@ -30,5 +30,5 @@ patches:
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 350Mi
       - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: content-service:prod
+        path: /metadata/annotations/image.openshift.io~1triggers
+        value: '[{"from": {"kind": "ImageStreamTag", "name": "content-historic:prod", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"content-historic\")].image"}]'

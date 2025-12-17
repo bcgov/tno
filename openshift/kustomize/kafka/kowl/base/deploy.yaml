@@ -1,7 +1,7 @@
 ---
 # How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: kowl
   namespace: default
@@ -17,19 +17,15 @@ metadata:
 spec:
   replicas: 1
   selector:
-    name: kowl
-    part-of: tno
-    component: kowl
+    matchLabels:
+      name: kowl
+      part-of: tno
+      component: kowl
   strategy:
-    rollingParams:
-      intervalSeconds: 1
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-      timeoutSeconds: 600
-      updatePeriodSeconds: 1
-    type: Rolling
-  triggers:
-    - type: ConfigChange
   template:
     metadata:
       name: kowl

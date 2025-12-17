@@ -1,0 +1,309 @@
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  annotations:
+    description: Defines how to deploy editor
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","metadata":{"annotations":{"description":"Defines how to deploy editor"},"labels":{"component":"editor","created-by":"jeremy.foster","managed-by":"kustomize","name":"editor-app","part-of":"tno","version":"1.0.0"},"name":"editor","namespace":"9b301c-prod"},"spec":{"replicas":1,"selector":{"component":"editor","name":"editor","part-of":"tno"},"strategy":{"rollingParams":{"intervalSeconds":1,"maxSurge":"25%","maxUnavailable":"25%","timeoutSeconds":600,"updatePeriodSeconds":1},"type":"Rolling"},"template":{"metadata":{"labels":{"component":"editor","name":"editor","part-of":"tno"},"name":"editor"},"spec":{"containers":[{"image":"","imagePullPolicy":"Always","livenessProbe":{"failureThreshold":3,"httpGet":{"path":"/nginx-status","port":8080,"scheme":"HTTP"},"initialDelaySeconds":30,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":60},"name":"editor","ports":[{"containerPort":8080,"protocol":"TCP"}],"readinessProbe":{"failureThreshold":3,"httpGet":{"path":"/nginx-status","port":8080,"scheme":"HTTP"},"initialDelaySeconds":10,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":60},"resources":{"limits":{"cpu":"100m","memory":"100Mi"},"requests":{"cpu":"20m","memory":"50Mi"}},"volumeMounts":[{"mountPath":"/usr/share/nginx/html/keycloak.json","name":"editor-keycloak","subPath":"keycloak.json"}]}],"dnsPolicy":"ClusterFirst","restartPolicy":"Always","securityContext":{},"terminationGracePeriodSeconds":30,"volumes":[{"configMap":{"items":[{"key":"keycloak.json","path":"keycloak.json"}],"name":"editor-sso"},"name":"editor-keycloak"}]}},"test":false,"triggers":[{"type":"ConfigChange"},{"imageChangeParams":{"automatic":true,"containerNames":["editor"],"from":{"kind":"ImageStreamTag","name":"editor:prod","namespace":"9b301c-tools"}},"type":"ImageChange"}]}}
+  resourceVersion: "17207282714"
+  name: editor
+  uid: acc914f4-94e2-4eab-b939-8261db8dd19f
+  creationTimestamp: "2024-04-29T18:57:21Z"
+  generation: 511
+  managedFields:
+    - manager: kubectl-create
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2024-04-29T18:57:21Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:metadata":
+          "f:annotations":
+            .: {}
+            "f:description": {}
+            "f:kubectl.kubernetes.io/last-applied-configuration": {}
+          "f:labels":
+            .: {}
+            "f:component": {}
+            "f:created-by": {}
+            "f:managed-by": {}
+            "f:name": {}
+            "f:part-of": {}
+            "f:version": {}
+        "f:spec":
+          "f:replicas": {}
+          "f:selector":
+            .: {}
+            "f:component": {}
+            "f:name": {}
+            "f:part-of": {}
+          "f:strategy":
+            "f:activeDeadlineSeconds": {}
+            "f:rollingParams":
+              .: {}
+              "f:intervalSeconds": {}
+              "f:maxSurge": {}
+              "f:maxUnavailable": {}
+              "f:timeoutSeconds": {}
+              "f:updatePeriodSeconds": {}
+            "f:type": {}
+          "f:template":
+            .: {}
+            "f:metadata":
+              .: {}
+              "f:creationTimestamp": {}
+              "f:labels":
+                .: {}
+                "f:component": {}
+                "f:name": {}
+                "f:part-of": {}
+              "f:name": {}
+            "f:spec":
+              .: {}
+              "f:containers":
+                .: {}
+                'k:{"name":"editor"}':
+                  "f:volumeMounts":
+                    .: {}
+                    'k:{"mountPath":"/usr/share/nginx/html/keycloak.json"}':
+                      .: {}
+                      "f:mountPath": {}
+                      "f:name": {}
+                      "f:subPath": {}
+                  "f:terminationMessagePolicy": {}
+                  .: {}
+                  "f:resources":
+                    .: {}
+                    "f:limits":
+                      .: {}
+                      "f:cpu": {}
+                      "f:memory": {}
+                    "f:requests":
+                      .: {}
+                      "f:cpu": {}
+                      "f:memory": {}
+                  "f:livenessProbe":
+                    .: {}
+                    "f:failureThreshold": {}
+                    "f:httpGet":
+                      .: {}
+                      "f:path": {}
+                      "f:port": {}
+                      "f:scheme": {}
+                    "f:initialDelaySeconds": {}
+                    "f:periodSeconds": {}
+                    "f:successThreshold": {}
+                    "f:timeoutSeconds": {}
+                  "f:readinessProbe":
+                    .: {}
+                    "f:failureThreshold": {}
+                    "f:httpGet":
+                      .: {}
+                      "f:path": {}
+                      "f:port": {}
+                      "f:scheme": {}
+                    "f:initialDelaySeconds": {}
+                    "f:periodSeconds": {}
+                    "f:successThreshold": {}
+                    "f:timeoutSeconds": {}
+                  "f:terminationMessagePath": {}
+                  "f:imagePullPolicy": {}
+                  "f:ports":
+                    .: {}
+                    'k:{"containerPort":8080,"protocol":"TCP"}':
+                      .: {}
+                      "f:containerPort": {}
+                      "f:protocol": {}
+                  "f:name": {}
+              "f:dnsPolicy": {}
+              "f:restartPolicy": {}
+              "f:schedulerName": {}
+              "f:securityContext": {}
+              "f:terminationGracePeriodSeconds": {}
+              "f:volumes":
+                .: {}
+                'k:{"name":"editor-keycloak"}':
+                  .: {}
+                  "f:configMap":
+                    .: {}
+                    "f:defaultMode": {}
+                    "f:items": {}
+                    "f:name": {}
+                  "f:name": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-11-26T06:03:09Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:spec":
+          "f:template":
+            "f:spec":
+              "f:containers":
+                'k:{"name":"editor"}':
+                  "f:image": {}
+          "f:triggers": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-11-26T06:03:37Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:status":
+          "f:updatedReplicas": {}
+          "f:readyReplicas": {}
+          "f:conditions":
+            .: {}
+            'k:{"type":"Available"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:status": {}
+              "f:type": {}
+            'k:{"type":"Progressing"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:reason": {}
+              "f:status": {}
+              "f:type": {}
+          "f:details":
+            .: {}
+            "f:causes": {}
+            "f:message": {}
+          "f:replicas": {}
+          "f:availableReplicas": {}
+          "f:observedGeneration": {}
+          "f:unavailableReplicas": {}
+          "f:latestVersion": {}
+      subresource: status
+  namespace: 9b301c-prod
+  labels:
+    component: editor
+    created-by: jeremy.foster
+    managed-by: kustomize
+    name: editor-app
+    part-of: tno
+    version: 1.0.0
+spec:
+  strategy:
+    type: Rolling
+    rollingParams:
+      updatePeriodSeconds: 1
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      maxUnavailable: 25%
+      maxSurge: 25%
+    resources: {}
+    activeDeadlineSeconds: 21600
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - editor
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: "editor:prod"
+        lastTriggeredImage: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/editor@sha256:71beec827f098dd536a0f64f7c2478938687251abc2e5b642baf33294f07b6d0"
+  replicas: 3
+  revisionHistoryLimit: 10
+  test: false
+  selector:
+    component: editor
+    name: editor
+    part-of: tno
+  template:
+    metadata:
+      name: editor
+      creationTimestamp: null
+      labels:
+        component: editor
+        name: editor
+        part-of: tno
+    spec:
+      volumes:
+        - name: editor-keycloak
+          configMap:
+            name: editor-sso
+            items:
+              - key: keycloak.json
+                path: keycloak.json
+            defaultMode: 420
+      containers:
+        - resources:
+            limits:
+              cpu: 100m
+              memory: 100Mi
+            requests:
+              cpu: 20m
+              memory: 50Mi
+          readinessProbe:
+            httpGet:
+              path: /nginx-status
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10
+            timeoutSeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          name: editor
+          livenessProbe:
+            httpGet:
+              path: /nginx-status
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: editor-keycloak
+              mountPath: /usr/share/nginx/html/keycloak.json
+              subPath: keycloak.json
+          terminationMessagePolicy: File
+          image: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/editor@sha256:71beec827f098dd536a0f64f7c2478938687251abc2e5b642baf33294f07b6d0"
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+status:
+  observedGeneration: 511
+  details:
+    message: image change
+    causes:
+      - type: ImageChange
+        imageTrigger:
+          from:
+            kind: DockerImage
+            name: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/editor@sha256:71beec827f098dd536a0f64f7c2478938687251abc2e5b642baf33294f07b6d0"
+  availableReplicas: 3
+  unavailableReplicas: 0
+  latestVersion: 139
+  updatedReplicas: 3
+  conditions:
+    - type: Progressing
+      status: "True"
+      lastUpdateTime: "2025-11-26T06:03:16Z"
+      lastTransitionTime: "2025-11-26T06:03:16Z"
+      reason: NewReplicationControllerAvailable
+      message: replication controller "editor-139" successfully rolled out
+    - type: Available
+      status: "True"
+      lastUpdateTime: "2025-11-26T06:03:37Z"
+      lastTransitionTime: "2025-11-26T06:03:37Z"
+      message: Deployment config has minimum availability.
+  replicas: 3
+  readyReplicas: 3

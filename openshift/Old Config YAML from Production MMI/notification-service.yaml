@@ -1,0 +1,686 @@
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  annotations:
+    created-by: jeremy.foster
+    description: Defines how to deploy notification-service
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","metadata":{"annotations":{"created-by":"jeremy.foster","description":"Defines how to deploy notification-service"},"labels":{"component":"notification-service","managed-by":"kustomize","name":"notification-service","part-of":"tno","version":"1.0.0"},"name":"notification-service","namespace":"9b301c-prod"},"spec":{"replicas":1,"selector":{"component":"notification-service","name":"notification-service","part-of":"tno"},"strategy":{"rollingParams":{"intervalSeconds":1,"maxSurge":"25%","maxUnavailable":"25%","timeoutSeconds":600,"updatePeriodSeconds":1},"type":"Rolling"},"template":{"metadata":{"labels":{"component":"notification-service","name":"notification-service","part-of":"tno"},"name":"notification-service"},"spec":{"containers":[{"env":[{"name":"ASPNETCORE_ENVIRONMENT","value":"Production"},{"name":"ASPNETCORE_URLS","value":"http://+:8080"},{"name":"Logging__LogLevel__TNO","value":"Information"},{"name":"Service__ApiUrl","valueFrom":{"configMapKeyRef":{"key":"API_HOST_URL","name":"services"}}},{"name":"Service__EmailTo","valueFrom":{"configMapKeyRef":{"key":"EMAIL_FAILURE_TO","name":"services"}}},{"name":"Auth__Keycloak__Authority","valueFrom":{"configMapKeyRef":{"key":"KEYCLOAK_AUTHORITY","name":"services"}}},{"name":"Auth__Keycloak__Audience","valueFrom":{"configMapKeyRef":{"key":"KEYCLOAK_AUDIENCE","name":"services"}}},{"name":"Auth__Keycloak__Secret","valueFrom":{"secretKeyRef":{"key":"KEYCLOAK_CLIENT_SECRET","name":"keycloak"}}},{"name":"Kafka__Admin__ClientId","valueFrom":{"configMapKeyRef":{"key":"KAFKA_CLIENT_ID","name":"notification-service"}}},{"name":"Kafka__Admin__BootstrapServers","valueFrom":{"configMapKeyRef":{"key":"KAFKA_BOOTSTRAP_SERVERS","name":"services"}}},{"name":"Kafka__Consumer__GroupId","valueFrom":{"configMapKeyRef":{"key":"KAFKA_CLIENT_ID","name":"notification-service"}}},{"name":"Kafka__Consumer__BootstrapServers","valueFrom":{"configMapKeyRef":{"key":"KAFKA_BOOTSTRAP_SERVERS","name":"services"}}},{"name":"Kafka__Producer__ClientId","valueFrom":{"configMapKeyRef":{"key":"KAFKA_CLIENT_ID","name":"notification-service"}}},{"name":"Kafka__Producer__BootstrapServers","valueFrom":{"configMapKeyRef":{"key":"KAFKA_BOOTSTRAP_SERVERS","name":"services"}}},{"name":"Service__MaxFailLimit","valueFrom":{"configMapKeyRef":{"key":"MAX_FAIL_LIMIT","name":"notification-service"}}},{"name":"Service__Topics","valueFrom":{"configMapKeyRef":{"key":"TOPICS","name":"notification-service"}}},{"name":"Reporting__SubscriberAppUrl","valueFrom":{"configMapKeyRef":{"key":"REPORTING_BASE_URL","name":"reporting-shared"}}},{"name":"Reporting__ViewContentUrl","valueFrom":{"configMapKeyRef":{"key":"REPORTING_VIEW_CONTENT_URL","name":"reporting-shared"}}},{"name":"Reporting__RequestTranscriptUrl","valueFrom":{"configMapKeyRef":{"key":"REPORTING_REQUEST_TRANSCRIPT_URL","name":"reporting-shared"}}},{"name":"Reporting__AddToReportUrl","valueFrom":{"configMapKeyRef":{"key":"REPORTING_ADD_TO_REPORT_URL","name":"reporting-shared"}}},{"name":"CHES__From","valueFrom":{"configMapKeyRef":{"key":"CHES_FROM","name":"ches"}}},{"name":"CHES__EmailEnabled","valueFrom":{"configMapKeyRef":{"key":"CHES_EMAIL_ENABLED","name":"notification-service"}}},{"name":"CHES__EmailAuthorized","valueFrom":{"configMapKeyRef":{"key":"CHES_EMAIL_AUTHORIZED","name":"notification-service"}}},{"name":"CHES__AuthUrl","valueFrom":{"configMapKeyRef":{"key":"CHES_AUTH_URL","name":"ches"}}},{"name":"CHES__HostUri","valueFrom":{"configMapKeyRef":{"key":"CHES_HOST_URI","name":"ches"}}},{"name":"CHES__Username","valueFrom":{"secretKeyRef":{"key":"USERNAME","name":"ches"}}},{"name":"CHES__Password","valueFrom":{"secretKeyRef":{"key":"PASSWORD","name":"ches"}}}],"image":"","imagePullPolicy":"Always","livenessProbe":{"failureThreshold":3,"httpGet":{"path":"/health","port":8080,"scheme":"HTTP"},"initialDelaySeconds":30,"periodSeconds":20,"successThreshold":1,"timeoutSeconds":30},"name":"notification-service","ports":[{"containerPort":8080,"protocol":"TCP"}],"readinessProbe":{"failureThreshold":3,"httpGet":{"path":"/health","port":8080,"scheme":"HTTP"},"initialDelaySeconds":30,"periodSeconds":20,"successThreshold":1,"timeoutSeconds":30},"resources":{"limits":{"cpu":"100m","memory":"200Mi"},"requests":{"cpu":"20m","memory":"80Mi"}}}],"dnsPolicy":"ClusterFirst","restartPolicy":"Always","securityContext":{},"terminationGracePeriodSeconds":30}},"test":false,"triggers":[{"type":"ConfigChange"},{"imageChangeParams":{"automatic":true,"containerNames":["notification-service"],"from":{"kind":"ImageStreamTag","name":"notification-service:prod","namespace":"9b301c-tools"}},"type":"ImageChange"}]}}
+  resourceVersion: "17207295824"
+  name: notification-service
+  uid: f7ab13d9-b22a-4599-883f-c3e0a303d606
+  creationTimestamp: "2024-04-29T20:14:38Z"
+  generation: 557
+  managedFields:
+    - manager: kubectl-create
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2024-04-29T20:14:38Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:metadata":
+          "f:annotations":
+            .: {}
+            "f:created-by": {}
+            "f:description": {}
+            "f:kubectl.kubernetes.io/last-applied-configuration": {}
+          "f:labels":
+            .: {}
+            "f:component": {}
+            "f:managed-by": {}
+            "f:name": {}
+            "f:part-of": {}
+            "f:version": {}
+        "f:spec":
+          "f:replicas": {}
+          "f:selector":
+            .: {}
+            "f:component": {}
+            "f:name": {}
+            "f:part-of": {}
+          "f:strategy":
+            "f:activeDeadlineSeconds": {}
+            "f:rollingParams":
+              .: {}
+              "f:intervalSeconds": {}
+              "f:maxSurge": {}
+              "f:maxUnavailable": {}
+              "f:timeoutSeconds": {}
+              "f:updatePeriodSeconds": {}
+            "f:type": {}
+          "f:template":
+            .: {}
+            "f:metadata":
+              .: {}
+              "f:creationTimestamp": {}
+              "f:labels":
+                .: {}
+                "f:component": {}
+                "f:name": {}
+                "f:part-of": {}
+              "f:name": {}
+            "f:spec":
+              .: {}
+              "f:containers":
+                .: {}
+                'k:{"name":"notification-service"}':
+                  "f:terminationMessagePolicy": {}
+                  .: {}
+                  "f:resources":
+                    .: {}
+                    "f:limits": {}
+                    "f:requests":
+                      .: {}
+                      "f:cpu": {}
+                  "f:livenessProbe":
+                    .: {}
+                    "f:failureThreshold": {}
+                    "f:httpGet":
+                      .: {}
+                      "f:path": {}
+                      "f:port": {}
+                      "f:scheme": {}
+                    "f:initialDelaySeconds": {}
+                    "f:periodSeconds": {}
+                    "f:successThreshold": {}
+                    "f:timeoutSeconds": {}
+                  "f:env":
+                    'k:{"name":"Service__MaxFailLimit"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__From"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Auth__Keycloak__Audience"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Kafka__Consumer__GroupId"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__HostUri"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__AuthUrl"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__EmailTo"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom": {}
+                    'k:{"name":"Reporting__RequestTranscriptUrl"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__Topics"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Kafka__Producer__BootstrapServers"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__Username"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"Auth__Keycloak__Secret"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    .: {}
+                    'k:{"name":"Kafka__Admin__BootstrapServers"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Kafka__Consumer__BootstrapServers"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Kafka__Producer__ClientId"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__Password"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"Kafka__Admin__ClientId"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__EmailAuthorized"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Reporting__SubscriberAppUrl"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom": {}
+                    'k:{"name":"ASPNETCORE_ENVIRONMENT"}':
+                      .: {}
+                      "f:name": {}
+                      "f:value": {}
+                    'k:{"name":"ASPNETCORE_URLS"}':
+                      .: {}
+                      "f:name": {}
+                      "f:value": {}
+                    'k:{"name":"Logging__LogLevel__TNO"}':
+                      .: {}
+                      "f:name": {}
+                    'k:{"name":"Reporting__ViewContentUrl"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__ApiUrl"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__EmailEnabled"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Auth__Keycloak__Authority"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Reporting__AddToReportUrl"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                  "f:readinessProbe":
+                    .: {}
+                    "f:failureThreshold": {}
+                    "f:httpGet":
+                      .: {}
+                      "f:path": {}
+                      "f:port": {}
+                      "f:scheme": {}
+                    "f:initialDelaySeconds": {}
+                    "f:periodSeconds": {}
+                    "f:successThreshold": {}
+                    "f:timeoutSeconds": {}
+                  "f:terminationMessagePath": {}
+                  "f:imagePullPolicy": {}
+                  "f:ports":
+                    .: {}
+                    'k:{"containerPort":8080,"protocol":"TCP"}':
+                      .: {}
+                      "f:containerPort": {}
+                      "f:protocol": {}
+                  "f:name": {}
+              "f:dnsPolicy": {}
+              "f:restartPolicy": {}
+              "f:schedulerName": {}
+              "f:securityContext": {}
+              "f:terminationGracePeriodSeconds": {}
+    - manager: Mozilla
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-09-08T00:03:53Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:spec":
+          "f:template":
+            "f:spec":
+              "f:containers":
+                'k:{"name":"notification-service"}':
+                  "f:env":
+                    'k:{"name":"Elastic__ContentIndex"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__IgnoreContentPublishedBeforeOffset"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Elastic__Password"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"Service__EmailTo"}':
+                      "f:valueFrom":
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Elastic__PublishedIndex"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Elastic__ApiKey"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"Service__UploadPath"}':
+                      .: {}
+                      "f:name": {}
+                      "f:value": {}
+                    'k:{"name":"Reporting__SubscriberAppUrl"}':
+                      "f:valueFrom":
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Logging__LogLevel__TNO"}':
+                      "f:value": {}
+                    'k:{"name":"Elastic__Username"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"Elastic__Url"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                  "f:resources":
+                    "f:limits":
+                      "f:cpu": {}
+                      "f:memory": {}
+                    "f:requests":
+                      "f:memory": {}
+                  "f:volumeMounts":
+                    .: {}
+                    'k:{"mountPath":"/mnt/data"}':
+                      .: {}
+                      "f:mountPath": {}
+                      "f:name": {}
+              "f:volumes":
+                .: {}
+                'k:{"name":"api-storage"}':
+                  .: {}
+                  "f:name": {}
+                  "f:persistentVolumeClaim":
+                    .: {}
+                    "f:claimName": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-11-26T06:03:12Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:spec":
+          "f:template":
+            "f:spec":
+              "f:containers":
+                'k:{"name":"notification-service"}':
+                  "f:image": {}
+          "f:triggers": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-11-26T06:04:50Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:status":
+          "f:updatedReplicas": {}
+          "f:readyReplicas": {}
+          "f:conditions":
+            .: {}
+            'k:{"type":"Available"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:status": {}
+              "f:type": {}
+            'k:{"type":"Progressing"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:reason": {}
+              "f:status": {}
+              "f:type": {}
+          "f:details":
+            .: {}
+            "f:causes": {}
+            "f:message": {}
+          "f:replicas": {}
+          "f:availableReplicas": {}
+          "f:observedGeneration": {}
+          "f:unavailableReplicas": {}
+          "f:latestVersion": {}
+      subresource: status
+  namespace: 9b301c-prod
+  labels:
+    component: notification-service
+    managed-by: kustomize
+    name: notification-service
+    part-of: tno
+    version: 1.0.0
+spec:
+  strategy:
+    type: Rolling
+    rollingParams:
+      updatePeriodSeconds: 1
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      maxUnavailable: 25%
+      maxSurge: 25%
+    resources: {}
+    activeDeadlineSeconds: 21600
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - notification-service
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: "notification-service:prod"
+        lastTriggeredImage: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/notification-service@sha256:54950e195bb7ff86cb1b81c26bb7733399671d18a4d525319d46cf0acf493439"
+  replicas: 6
+  revisionHistoryLimit: 10
+  test: false
+  selector:
+    component: notification-service
+    name: notification-service
+    part-of: tno
+  template:
+    metadata:
+      name: notification-service
+      creationTimestamp: null
+      labels:
+        component: notification-service
+        name: notification-service
+        part-of: tno
+    spec:
+      volumes:
+        - name: api-storage
+          persistentVolumeClaim:
+            claimName: api-storage
+      containers:
+        - resources:
+            limits:
+              cpu: 50m
+              memory: 500Mi
+            requests:
+              cpu: 20m
+              memory: 350Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          name: notification-service
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: "http://+:8080"
+            - name: Logging__LogLevel__TNO
+              value: Information
+            - name: Service__ApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: API_HOST_URL
+            - name: Service__EmailTo
+              valueFrom:
+                configMapKeyRef:
+                  name: support
+                  key: EMAIL_FAILURE_TO
+            - name: Auth__Keycloak__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUTHORITY
+            - name: Auth__Keycloak__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUDIENCE
+            - name: Auth__Keycloak__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_CLIENT_SECRET
+            - name: Kafka__Admin__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Admin__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+            - name: Kafka__Consumer__GroupId
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Consumer__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+            - name: Kafka__Producer__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Producer__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+            - name: Service__MaxFailLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: MAX_FAIL_LIMIT
+            - name: Service__Topics
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: TOPICS
+            - name: Service__UploadPath
+              value: /mnt/data
+            - name: Service__IgnoreContentPublishedBeforeOffset
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: IGNORE_CONTENT_PUBLISHED_BEFORE_OFFSET
+            - name: Reporting__SubscriberAppUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-shared
+                  key: REPORTING_SUBSCRIBER_URL
+            - name: Reporting__ViewContentUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-shared
+                  key: REPORTING_VIEW_CONTENT_URL
+            - name: Reporting__RequestTranscriptUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-shared
+                  key: REPORTING_REQUEST_TRANSCRIPT_URL
+            - name: Reporting__AddToReportUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-shared
+                  key: REPORTING_ADD_TO_REPORT_URL
+            - name: Elastic__Url
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service-cloud
+                  key: ELASTICSEARCH_URI
+            - name: Elastic__ContentIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service-cloud
+                  key: CONTENT_INDEX
+            - name: Elastic__PublishedIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service-cloud
+                  key: PUBLISHED_INDEX
+            - name: CHES__From
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_FROM
+            - name: CHES__EmailEnabled
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: CHES_EMAIL_ENABLED
+            - name: CHES__EmailAuthorized
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: CHES_EMAIL_AUTHORIZED
+            - name: CHES__AuthUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_AUTH_URL
+            - name: CHES__HostUri
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_HOST_URI
+            - name: CHES__Username
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: USERNAME
+            - name: CHES__Password
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: PASSWORD
+            - name: Elastic__Username
+              valueFrom:
+                secretKeyRef:
+                  name: elastic-cloud
+                  key: USERNAME
+            - name: Elastic__Password
+              valueFrom:
+                secretKeyRef:
+                  name: elastic-cloud
+                  key: PASSWORD
+            - name: Elastic__ApiKey
+              valueFrom:
+                secretKeyRef:
+                  name: elastic-cloud
+                  key: ApiKey
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: api-storage
+              mountPath: /mnt/data
+          terminationMessagePolicy: File
+          image: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/notification-service@sha256:54950e195bb7ff86cb1b81c26bb7733399671d18a4d525319d46cf0acf493439"
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+status:
+  observedGeneration: 557
+  details:
+    message: image change
+    causes:
+      - type: ImageChange
+        imageTrigger:
+          from:
+            kind: DockerImage
+            name: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/notification-service@sha256:54950e195bb7ff86cb1b81c26bb7733399671d18a4d525319d46cf0acf493439"
+  availableReplicas: 6
+  unavailableReplicas: 0
+  latestVersion: 130
+  updatedReplicas: 6
+  conditions:
+    - type: Progressing
+      status: "True"
+      lastUpdateTime: "2025-11-26T06:03:18Z"
+      lastTransitionTime: "2025-11-26T06:03:18Z"
+      reason: NewReplicationControllerAvailable
+      message: replication controller "notification-service-130" successfully rolled out
+    - type: Available
+      status: "True"
+      lastUpdateTime: "2025-11-26T06:04:46Z"
+      lastTransitionTime: "2025-11-26T06:04:46Z"
+      message: Deployment config has minimum availability.
+  replicas: 6
+  readyReplicas: 6

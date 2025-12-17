@@ -47,7 +47,7 @@ clean: ## Delete old pods that are no longer running (n=[dev,test,prod,tools]).
 	$(info Delete old pods that are no longer running n=$(NAMESPACE)-$(if $(n),$(n),dev))
 	@oc delete pod --field-selector=status.phase==Succeeded -n $(NAMESPACE)-$(if $(n),$(n),dev)
 
-pod: ## Get the full pod names for the specified DeployConfig (n=label name).
+pod: ## Get the full pod names for the specified Deployment (n=label name).
 	$(info Get the pod names for the label [name=$(n)])
 	@cd ./scripts; ./get-pod-name.sh $(n)
 

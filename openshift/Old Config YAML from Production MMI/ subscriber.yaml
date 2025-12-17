@@ -1,0 +1,337 @@
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  annotations:
+    description: Defines how to deploy subscriber
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","metadata":{"annotations":{"description":"Defines how to deploy subscriber"},"labels":{"component":"subscriber","created-by":"jeremy.foster","managed-by":"kustomize","name":"subscriber-app","part-of":"tno","version":"1.0.0"},"name":"subscriber","namespace":"9b301c-prod"},"spec":{"replicas":1,"selector":{"component":"subscriber","name":"subscriber","part-of":"tno"},"strategy":{"rollingParams":{"intervalSeconds":1,"maxSurge":"25%","maxUnavailable":"25%","timeoutSeconds":600,"updatePeriodSeconds":1},"type":"Rolling"},"template":{"metadata":{"labels":{"component":"subscriber","name":"subscriber","part-of":"tno"},"name":"subscriber"},"spec":{"containers":[{"image":"","imagePullPolicy":"Always","livenessProbe":{"failureThreshold":3,"httpGet":{"path":"/nginx-status","port":8080,"scheme":"HTTP"},"initialDelaySeconds":30,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":60},"name":"subscriber","ports":[{"containerPort":8080,"protocol":"TCP"}],"readinessProbe":{"failureThreshold":3,"httpGet":{"path":"/nginx-status","port":8080,"scheme":"HTTP"},"initialDelaySeconds":10,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":60},"resources":{"limits":{"cpu":"100m","memory":"100Mi"},"requests":{"cpu":"20m","memory":"50Mi"}},"volumeMounts":[{"mountPath":"/usr/share/nginx/html/keycloak.json","name":"subscriber-keycloak","subPath":"keycloak.json"}]}],"dnsPolicy":"ClusterFirst","restartPolicy":"Always","securityContext":{},"terminationGracePeriodSeconds":30,"volumes":[{"configMap":{"items":[{"key":"keycloak.json","path":"keycloak.json"}],"name":"subscriber-sso"},"name":"subscriber-keycloak"}]}},"test":false,"triggers":[{"type":"ConfigChange"},{"imageChangeParams":{"automatic":true,"containerNames":["subscriber"],"from":{"kind":"ImageStreamTag","name":"subscriber:prod","namespace":"9b301c-tools"}},"type":"ImageChange"}]}}
+  resourceVersion: "17207287680"
+  name: subscriber
+  uid: 4d917d69-d1fd-45cb-a619-fc88a781c4f6
+  creationTimestamp: "2024-04-29T18:57:44Z"
+  generation: 533
+  managedFields:
+    - manager: kubectl-create
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2024-04-29T18:57:44Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:metadata":
+          "f:annotations":
+            .: {}
+            "f:description": {}
+            "f:kubectl.kubernetes.io/last-applied-configuration": {}
+          "f:labels":
+            .: {}
+            "f:component": {}
+            "f:created-by": {}
+            "f:managed-by": {}
+            "f:name": {}
+            "f:part-of": {}
+            "f:version": {}
+        "f:spec":
+          "f:replicas": {}
+          "f:selector":
+            .: {}
+            "f:component": {}
+            "f:name": {}
+            "f:part-of": {}
+          "f:strategy":
+            "f:activeDeadlineSeconds": {}
+            "f:rollingParams":
+              .: {}
+              "f:intervalSeconds": {}
+              "f:maxSurge": {}
+              "f:maxUnavailable": {}
+              "f:timeoutSeconds": {}
+              "f:updatePeriodSeconds": {}
+            "f:type": {}
+          "f:template":
+            .: {}
+            "f:metadata":
+              .: {}
+              "f:creationTimestamp": {}
+              "f:labels":
+                .: {}
+                "f:component": {}
+                "f:name": {}
+                "f:part-of": {}
+              "f:name": {}
+            "f:spec":
+              .: {}
+              "f:containers":
+                .: {}
+                'k:{"name":"subscriber"}':
+                  "f:volumeMounts":
+                    .: {}
+                    'k:{"mountPath":"/usr/share/nginx/html/keycloak.json"}':
+                      .: {}
+                      "f:mountPath": {}
+                      "f:name": {}
+                      "f:subPath": {}
+                  "f:terminationMessagePolicy": {}
+                  .: {}
+                  "f:resources":
+                    .: {}
+                    "f:limits":
+                      .: {}
+                      "f:cpu": {}
+                      "f:memory": {}
+                    "f:requests":
+                      .: {}
+                      "f:cpu": {}
+                      "f:memory": {}
+                  "f:livenessProbe":
+                    .: {}
+                    "f:failureThreshold": {}
+                    "f:httpGet":
+                      .: {}
+                      "f:path": {}
+                      "f:port": {}
+                      "f:scheme": {}
+                    "f:initialDelaySeconds": {}
+                    "f:periodSeconds": {}
+                    "f:successThreshold": {}
+                    "f:timeoutSeconds": {}
+                  "f:readinessProbe":
+                    .: {}
+                    "f:failureThreshold": {}
+                    "f:httpGet":
+                      .: {}
+                      "f:path": {}
+                      "f:port": {}
+                      "f:scheme": {}
+                    "f:initialDelaySeconds": {}
+                    "f:periodSeconds": {}
+                    "f:successThreshold": {}
+                    "f:timeoutSeconds": {}
+                  "f:terminationMessagePath": {}
+                  "f:imagePullPolicy": {}
+                  "f:ports":
+                    .: {}
+                    'k:{"containerPort":8080,"protocol":"TCP"}':
+                      .: {}
+                      "f:containerPort": {}
+                      "f:protocol": {}
+                  "f:name": {}
+              "f:dnsPolicy": {}
+              "f:restartPolicy": {}
+              "f:schedulerName": {}
+              "f:securityContext": {}
+              "f:terminationGracePeriodSeconds": {}
+              "f:volumes":
+                .: {}
+                'k:{"name":"subscriber-keycloak"}':
+                  .: {}
+                  "f:configMap":
+                    .: {}
+                    "f:defaultMode": {}
+                    "f:items": {}
+                    "f:name": {}
+                  "f:name": {}
+    - manager: Mozilla
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2024-08-03T05:34:52Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:spec":
+          "f:template":
+            "f:spec":
+              "f:containers":
+                'k:{"name":"subscriber"}':
+                  "f:volumeMounts":
+                    'k:{"mountPath":"/usr/share/nginx/html/public/videos"}':
+                      .: {}
+                      "f:mountPath": {}
+                      "f:name": {}
+              "f:volumes":
+                'k:{"name":"subscriber-public-storage"}':
+                  .: {}
+                  "f:name": {}
+                  "f:persistentVolumeClaim":
+                    .: {}
+                    "f:claimName": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-11-26T06:03:10Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:spec":
+          "f:template":
+            "f:spec":
+              "f:containers":
+                'k:{"name":"subscriber"}':
+                  "f:image": {}
+          "f:triggers": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-11-26T06:04:05Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:status":
+          "f:updatedReplicas": {}
+          "f:readyReplicas": {}
+          "f:conditions":
+            .: {}
+            'k:{"type":"Available"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:status": {}
+              "f:type": {}
+            'k:{"type":"Progressing"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:reason": {}
+              "f:status": {}
+              "f:type": {}
+          "f:details":
+            .: {}
+            "f:causes": {}
+            "f:message": {}
+          "f:replicas": {}
+          "f:availableReplicas": {}
+          "f:observedGeneration": {}
+          "f:unavailableReplicas": {}
+          "f:latestVersion": {}
+      subresource: status
+  namespace: 9b301c-prod
+  labels:
+    component: subscriber
+    created-by: jeremy.foster
+    managed-by: kustomize
+    name: subscriber-app
+    part-of: tno
+    version: 1.0.0
+spec:
+  strategy:
+    type: Rolling
+    rollingParams:
+      updatePeriodSeconds: 1
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      maxUnavailable: 25%
+      maxSurge: 25%
+    resources: {}
+    activeDeadlineSeconds: 21600
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - subscriber
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: "subscriber:prod"
+        lastTriggeredImage: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/subscriber@sha256:1e99b2d2cff996e88789e74e954a42024624d102f046d5ad0d97484d60287efd"
+  replicas: 3
+  revisionHistoryLimit: 10
+  test: false
+  selector:
+    component: subscriber
+    name: subscriber
+    part-of: tno
+  template:
+    metadata:
+      name: subscriber
+      creationTimestamp: null
+      labels:
+        component: subscriber
+        name: subscriber
+        part-of: tno
+    spec:
+      volumes:
+        - name: subscriber-keycloak
+          configMap:
+            name: subscriber-sso
+            items:
+              - key: keycloak.json
+                path: keycloak.json
+            defaultMode: 420
+        - name: subscriber-public-storage
+          persistentVolumeClaim:
+            claimName: subscriber-public-storage
+      containers:
+        - resources:
+            limits:
+              cpu: 100m
+              memory: 100Mi
+            requests:
+              cpu: 20m
+              memory: 50Mi
+          readinessProbe:
+            httpGet:
+              path: /nginx-status
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10
+            timeoutSeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          name: subscriber
+          livenessProbe:
+            httpGet:
+              path: /nginx-status
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: subscriber-keycloak
+              mountPath: /usr/share/nginx/html/keycloak.json
+              subPath: keycloak.json
+            - name: subscriber-public-storage
+              mountPath: /usr/share/nginx/html/public/videos
+          terminationMessagePolicy: File
+          image: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/subscriber@sha256:1e99b2d2cff996e88789e74e954a42024624d102f046d5ad0d97484d60287efd"
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+status:
+  observedGeneration: 533
+  details:
+    message: image change
+    causes:
+      - type: ImageChange
+        imageTrigger:
+          from:
+            kind: DockerImage
+            name: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/subscriber@sha256:1e99b2d2cff996e88789e74e954a42024624d102f046d5ad0d97484d60287efd"
+  availableReplicas: 3
+  unavailableReplicas: 0
+  latestVersion: 163
+  updatedReplicas: 3
+  conditions:
+    - type: Progressing
+      status: "True"
+      lastUpdateTime: "2025-11-26T06:03:16Z"
+      lastTransitionTime: "2025-11-26T06:03:16Z"
+      reason: NewReplicationControllerAvailable
+      message: replication controller "subscriber-163" successfully rolled out
+    - type: Available
+      status: "True"
+      lastUpdateTime: "2025-11-26T06:04:05Z"
+      lastTransitionTime: "2025-11-26T06:04:05Z"
+      message: Deployment config has minimum availability.
+  replicas: 3
+  readyReplicas: 3

@@ -1,10 +1,11 @@
 # How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: nginx-editor
   namespace: default
   annotations:
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "nginx-editor:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"nginx-editor\")].image"}]'
     description: Defines how to deploy nginx
   labels:
     name: nginx-editor
@@ -16,17 +17,15 @@ metadata:
 spec:
   replicas: 1
   selector:
-    name: nginx-editor
-    part-of: tno
-    component: nginx-editor
+    matchLabels:
+      name: nginx-editor
+      part-of: tno
+      component: nginx-editor
   strategy:
-    rollingParams:
-      intervalSeconds: 1
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-      timeoutSeconds: 600
-      updatePeriodSeconds: 1
-    type: Rolling
   template:
     metadata:
       name: nginx-editor
@@ -73,22 +72,10 @@ spec:
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
-  test: false
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - nginx-editor
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: nginx-editor:dev
 ---
 # How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: nginx-subscriber
   namespace: default
@@ -104,17 +91,15 @@ metadata:
 spec:
   replicas: 1
   selector:
-    name: nginx-subscriber
-    part-of: tno
-    component: nginx-subscriber
+    matchLabels:
+      name: nginx-subscriber
+      part-of: tno
+      component: nginx-subscriber
   strategy:
-    rollingParams:
-      intervalSeconds: 1
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-      timeoutSeconds: 600
-      updatePeriodSeconds: 1
-    type: Rolling
   template:
     metadata:
       name: nginx-subscriber
@@ -161,15 +146,3 @@ spec:
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
-  test: false
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - nginx-subscriber
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: nginx-subscriber:dev

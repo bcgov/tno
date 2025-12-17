@@ -1,0 +1,250 @@
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  annotations:
+    description: Defines how to deploy corenlp
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","metadata":{"annotations":{"description":"Defines how to deploy corenlp"},"labels":{"component":"corenlp","created-by":"kyle.morris","managed-by":"kustomize","name":"corenlp","part-of":"tno","version":"1.0.0"},"name":"corenlp","namespace":"9b301c-prod"},"spec":{"replicas":1,"selector":{"component":"corenlp","name":"corenlp","part-of":"tno"},"strategy":{"rollingParams":{"intervalSeconds":1,"maxSurge":"25%","maxUnavailable":"25%","timeoutSeconds":600,"updatePeriodSeconds":1},"type":"Rolling"},"template":{"metadata":{"labels":{"component":"corenlp","name":"corenlp","part-of":"tno"},"name":"corenlp"},"spec":{"containers":[{"image":"image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/corenlp:prod","imagePullPolicy":"Always","name":"corenlp","ports":[{"containerPort":9000,"protocol":"TCP"}],"resources":{"limits":{"cpu":"500m","memory":"6G"},"requests":{"cpu":"250m","memory":"2G"}}}],"dnsPolicy":"ClusterFirst","restartPolicy":"Always","securityContext":{},"terminationGracePeriodSeconds":30}},"triggers":[{"type":"ConfigChange"},{"imageChangeParams":{"automatic":true,"containerNames":["corenlp"],"from":{"kind":"ImageStreamTag","name":"corenlp:prod","namespace":"9b301c-tools"}},"type":"ImageChange"}]}}
+  resourceVersion: "15880664847"
+  name: corenlp
+  uid: 07167877-2485-4b4d-b824-25e334982986
+  creationTimestamp: "2024-04-29T18:43:38Z"
+  generation: 4
+  managedFields:
+    - manager: kubectl-create
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2024-04-29T18:43:38Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:metadata":
+          "f:annotations":
+            .: {}
+            "f:description": {}
+          "f:labels":
+            .: {}
+            "f:component": {}
+            "f:created-by": {}
+            "f:managed-by": {}
+            "f:name": {}
+            "f:part-of": {}
+            "f:version": {}
+        "f:spec":
+          "f:replicas": {}
+          "f:selector":
+            .: {}
+            "f:component": {}
+            "f:name": {}
+            "f:part-of": {}
+          "f:strategy":
+            "f:activeDeadlineSeconds": {}
+            "f:rollingParams":
+              .: {}
+              "f:intervalSeconds": {}
+              "f:maxSurge": {}
+              "f:maxUnavailable": {}
+              "f:timeoutSeconds": {}
+              "f:updatePeriodSeconds": {}
+            "f:type": {}
+          "f:template":
+            .: {}
+            "f:metadata":
+              .: {}
+              "f:creationTimestamp": {}
+              "f:labels":
+                .: {}
+                "f:component": {}
+                "f:name": {}
+                "f:part-of": {}
+              "f:name": {}
+            "f:spec":
+              .: {}
+              "f:containers":
+                .: {}
+                'k:{"name":"corenlp"}':
+                  .: {}
+                  "f:imagePullPolicy": {}
+                  "f:name": {}
+                  "f:ports":
+                    .: {}
+                    'k:{"containerPort":9000,"protocol":"TCP"}':
+                      .: {}
+                      "f:containerPort": {}
+                      "f:protocol": {}
+                  "f:resources":
+                    .: {}
+                    "f:limits": {}
+                    "f:requests": {}
+                  "f:terminationMessagePath": {}
+                  "f:terminationMessagePolicy": {}
+              "f:dnsPolicy": {}
+              "f:restartPolicy": {}
+              "f:schedulerName": {}
+              "f:securityContext": {}
+              "f:terminationGracePeriodSeconds": {}
+    - manager: kubectl-client-side-apply
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2024-04-29T19:01:50Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:metadata":
+          "f:annotations":
+            "f:kubectl.kubernetes.io/last-applied-configuration": {}
+        "f:spec":
+          "f:template":
+            "f:spec":
+              "f:containers":
+                'k:{"name":"corenlp"}':
+                  "f:resources":
+                    "f:limits":
+                      "f:cpu": {}
+                      "f:memory": {}
+                    "f:requests":
+                      "f:cpu": {}
+                      "f:memory": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2024-04-29T19:01:51Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:spec":
+          "f:template":
+            "f:spec":
+              "f:containers":
+                'k:{"name":"corenlp"}':
+                  "f:image": {}
+          "f:triggers": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-09-07T23:05:51Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:status":
+          "f:updatedReplicas": {}
+          "f:readyReplicas": {}
+          "f:conditions":
+            .: {}
+            'k:{"type":"Available"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:status": {}
+              "f:type": {}
+            'k:{"type":"Progressing"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:reason": {}
+              "f:status": {}
+              "f:type": {}
+          "f:details":
+            .: {}
+            "f:causes": {}
+            "f:message": {}
+          "f:replicas": {}
+          "f:availableReplicas": {}
+          "f:observedGeneration": {}
+          "f:unavailableReplicas": {}
+          "f:latestVersion": {}
+      subresource: status
+  namespace: 9b301c-prod
+  labels:
+    component: corenlp
+    created-by: kyle.morris
+    managed-by: kustomize
+    name: corenlp
+    part-of: tno
+    version: 1.0.0
+spec:
+  strategy:
+    type: Rolling
+    rollingParams:
+      updatePeriodSeconds: 1
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      maxUnavailable: 25%
+      maxSurge: 25%
+    resources: {}
+    activeDeadlineSeconds: 21600
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - corenlp
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: "corenlp:prod"
+        lastTriggeredImage: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/corenlp@sha256:7370fa92b52ddd26d2ab7d95d2769914b08ed33abae076b4ee83f84f598f5431"
+  replicas: 1
+  revisionHistoryLimit: 10
+  test: false
+  selector:
+    component: corenlp
+    name: corenlp
+    part-of: tno
+  template:
+    metadata:
+      name: corenlp
+      creationTimestamp: null
+      labels:
+        component: corenlp
+        name: corenlp
+        part-of: tno
+    spec:
+      containers:
+        - name: corenlp
+          image: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/corenlp@sha256:7370fa92b52ddd26d2ab7d95d2769914b08ed33abae076b4ee83f84f598f5431"
+          ports:
+            - containerPort: 9000
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 500m
+              memory: 6G
+            requests:
+              cpu: 250m
+              memory: 2G
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+status:
+  observedGeneration: 4
+  details:
+    message: image change
+    causes:
+      - type: ImageChange
+        imageTrigger:
+          from:
+            kind: DockerImage
+            name: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/corenlp@sha256:7370fa92b52ddd26d2ab7d95d2769914b08ed33abae076b4ee83f84f598f5431"
+  availableReplicas: 1
+  unavailableReplicas: 0
+  latestVersion: 3
+  updatedReplicas: 1
+  conditions:
+    - type: Progressing
+      status: "True"
+      lastUpdateTime: "2024-04-29T19:02:07Z"
+      lastTransitionTime: "2024-04-29T19:02:03Z"
+      reason: NewReplicationControllerAvailable
+      message: replication controller "corenlp-3" successfully rolled out
+    - type: Available
+      status: "True"
+      lastUpdateTime: "2025-09-07T23:05:51Z"
+      lastTransitionTime: "2025-09-07T23:05:51Z"
+      message: Deployment config has minimum availability.
+  replicas: 1
+  readyReplicas: 1

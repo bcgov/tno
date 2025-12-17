@@ -1,0 +1,44 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: oc-backup-deployment
+  annotations:
+    tekton.dev/displayName: openshift client
+    tekton.dev/pipelines.minVersion: 0.12.1
+    tekton.dev/tags: cli
+  labels:
+    app.kubernetes.io/version: '0.1'
+    operator.tekton.dev/provider-type: redhat
+spec:
+  description: >-
+    This task makes a remote SSH connection to the database backup service and starts a backup.
+    This version works with Kubernetes Deployments (not DeploymentConfigs).
+  params:
+    - name: PROJECT_NAMESPACE
+      description: The project namespace to run the database backup in.
+      type: string
+      default: 9b301c-dev
+    - name: DEPLOYMENT_NAME
+      description: The name of the Deployment that is running the database backup service.
+      type: string
+    - name: ARGS
+      description: >-
+        The arguments to include when executing the backup.sh script.
+        -l : List existing backups
+        -h : Display help information
+        -c : Display current configuration
+        -1 : Run a single backup
+        -r <spec> : Restore the database with the specified <spec>
+      type: string
+      default: '-1'
+  steps:
+    - name: build
+      image: 'image-registry.openshift-image-registry.svc:5000/openshift/cli:latest'
+      resources: {}
+      script: |
+        set -xe
+        echo "Running Database Backup (Deployment version)"
+        # Get the first pod from the deployment
+        POD=$(oc get pods -n $(params.PROJECT_NAMESPACE) -l name=$(params.DEPLOYMENT_NAME) -o jsonpath='{.items[0].metadata.name}')
+        echo "Connecting to pod: $POD"
+        oc rsh -n $(params.PROJECT_NAMESPACE) $POD bash -c './backup.sh $(params.ARGS)'

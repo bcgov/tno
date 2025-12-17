@@ -22,5 +22,8 @@ spec:
   selector:
     part-of: tno
     component: api-services
-  sessionAffinity: None
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800 # 3 hours - required for SignalR persistent connections
   type: ClusterIP

@@ -8,7 +8,7 @@ resources:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: corenlp
     patch: |-
       - op: replace

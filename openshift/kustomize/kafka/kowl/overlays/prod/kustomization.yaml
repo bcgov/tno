@@ -8,7 +8,7 @@ resources:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: kowl
     patch: |-
       - op: replace

@@ -1,0 +1,235 @@
+---
+# How the app will be deployed to the pod.
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: folder-collection-service
+  namespace: default
+  annotations:
+    description: Defines how to deploy folder-collection-service
+    created-by: jeremy.foster
+  labels:
+    name: folder-collection-service
+    part-of: tno
+    version: 1.0.0
+    component: folder-collection-service
+    managed-by: kustomize
+spec:
+  replicas: 1
+  selector:
+    name: folder-collection-service
+    part-of: tno
+    component: folder-collection-service
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      name: folder-collection-service
+      labels:
+        name: folder-collection-service
+        part-of: tno
+        component: folder-collection-service
+    spec:
+      containers:
+        - name: folder-collection-service
+          image: ""
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 50m
+              memory: 150Mi
+            requests:
+              cpu: 25m
+              memory: 80Mi
+          env:
+            # .NET Configuration
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+
+            - name: Logging__LogLevel__TNO
+              value: Information
+
+            # Common Service Configuration
+            - name: Service__ApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: API_HOST_URL
+            - name: Service__EmailTo
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: EMAIL_FAILURE_TO
+
+            # Authentication Configuration
+            - name: Auth__Keycloak__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUTHORITY
+            - name: Auth__Keycloak__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUDIENCE
+            - name: Auth__Keycloak__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_CLIENT_SECRET
+
+            - name: Kafka__Admin__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: folder-collection-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Admin__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            - name: Kafka__Consumer__GroupId
+              valueFrom:
+                configMapKeyRef:
+                  name: folder-collection-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Consumer__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            # Elasticsearch Configuration
+            - name: Elastic__Url
+              valueFrom:
+                configMapKeyRef:
+                  name: api
+                  key: ELASTIC_URIS
+            - name: Elastic__ContentIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: CONTENT_INDEX
+            - name: Elastic__PublishedIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: PUBLISHED_INDEX
+            - name: Elastic__Username
+              valueFrom:
+                secretKeyRef:
+                  name: elastic
+                  key: USERNAME
+            - name: Elastic__Password
+              valueFrom:
+                secretKeyRef:
+                  name: elastic
+                  key: PASSWORD
+            - name: Elastic__ApiKey
+              valueFrom:
+                secretKeyRef:
+                  name: elastic
+                  key: ApiKey
+
+            # Indexing Service Configuration
+            - name: Service__MaxFailLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: folder-collection-service
+                  key: MAX_FAIL_LIMIT
+            - name: Service__Topics
+              valueFrom:
+                configMapKeyRef:
+                  name: folder-collection-service
+                  key: TOPICS
+            - name: Service__IgnoreContentPublishedBeforeOffset
+              valueFrom:
+                configMapKeyRef:
+                  name: folder-collection-service
+                  key: IGNORE_CONTENT_PUBLISHED_BEFORE_OFFSET
+
+            # CHES Configuration
+            - name: CHES__From
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_FROM
+            - name: CHES__EmailEnabled
+              valueFrom:
+                configMapKeyRef:
+                  name: folder-collection-service
+                  key: CHES_EMAIL_ENABLED
+            - name: CHES__EmailAuthorized
+              valueFrom:
+                configMapKeyRef:
+                  name: folder-collection-service
+                  key: CHES_EMAIL_AUTHORIZED
+
+            - name: CHES__AuthUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_AUTH_URL
+            - name: CHES__HostUri
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_HOST_URI
+            - name: CHES__Username
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: USERNAME
+            - name: CHES__Password
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: PASSWORD
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - folder-collection-service
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: folder-collection-service:dev
