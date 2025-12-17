@@ -1,13 +1,14 @@
 ---
 # How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: indexing-service
   namespace: default
   annotations:
     description: Defines how to deploy indexing-service
     created-by: jeremy.foster
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "indexing-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"indexing-service\")].image"}]'
   labels:
     name: indexing-service
     part-of: tno
@@ -17,17 +18,15 @@ metadata:
 spec:
   replicas: 3
   selector:
-    name: indexing-service
-    part-of: tno
-    component: indexing-service
+    matchLabels:
+      name: indexing-service
+      part-of: tno
+      component: indexing-service
   strategy:
-    rollingParams:
-      intervalSeconds: 1
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-      timeoutSeconds: 600
-      updatePeriodSeconds: 1
-    type: Rolling
   template:
     metadata:
       name: indexing-service
@@ -38,15 +37,18 @@ spec:
     spec:
       containers:
         - name: indexing-service
-          image: ""
+          image: ''
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
               protocol: TCP
           resources:
             requests:
-              cpu: 25m
-              memory: 80Mi
+              cpu: 20m
+              memory: 100Mi
+            limits:
+              cpu: 40m
+              memory: 200Mi
           env:
             # .NET Configuration
             - name: ASPNETCORE_ENVIRONMENT
@@ -103,6 +105,16 @@ spec:
                   name: indexing-service
                   key: KAFKA_CLIENT_ID
             - name: Kafka__Consumer__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+            - name: Kafka__Producer__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Producer__BootstrapServers
               valueFrom:
                 configMapKeyRef:
                   name: services
@@ -201,7 +213,7 @@ spec:
                   key: PASSWORD
           livenessProbe:
             httpGet:
-              path: "/health"
+              path: '/health'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -211,7 +223,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: "/health"
+              path: '/health'
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -223,15 +235,3 @@ spec:
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
-  test: false
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - indexing-service
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: indexing-service:dev

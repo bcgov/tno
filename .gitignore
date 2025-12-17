@@ -19,3 +19,15 @@ auth/keycloak/config/*.log
 /services/net/image/keys
 /services/net/image/data
 
+# TLS certificates - managed separately, not in git
+openshift/kustomize/.tls-certs/*.crt
+openshift/kustomize/.tls-certs/*.key
+openshift/kustomize/.tls-certs/*.pem
+!openshift/kustomize/.tls-certs/README.md
+
+# Migration backups - contains sensitive data and cluster state
+openshift/kustomize/.migration-backup/
+!openshift/kustomize/.migration-backup/README.md
+
+# Deployment update YAMLs - safe to commit (no secrets/routes)
+!openshift/kustomize/**/overlays/**/*-deployment-update.yaml

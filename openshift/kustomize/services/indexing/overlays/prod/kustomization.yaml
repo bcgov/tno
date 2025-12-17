@@ -11,24 +11,24 @@ generatorOptions:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: indexing-service
     patch: |-
       - op: replace
         path: /spec/replicas
-        value: 1
+        value: 3
+      - op: replace
+        path: /metadata/annotations/image.openshift.io~1triggers
+        value: '[{"from": {"kind": "ImageStreamTag", "name": "indexing-service:prod", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"indexing-service\")].image"}]'
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
-        value: 100m
+        value: 20m
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
-        value: 80Mi
+        value: 100Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
-        value: 150m
+        value: 50m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 256Mi
-      - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: indexing-service:prod
+        value: 200Mi

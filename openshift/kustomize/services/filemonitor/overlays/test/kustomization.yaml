@@ -11,7 +11,7 @@ generatorOptions:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: filemonitor-service
     patch: |-
       - op: replace
@@ -29,9 +29,6 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 150Mi
-      - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: filemonitor-service:test
       - op: replace
         path: /spec/template/spec/containers/0/env/0/value
         value: Staging

@@ -1,0 +1,76 @@
+# This file contains ONLY the resources needed for deployment updates
+# Generated from: oc kustomize overlays/ENV
+#
+# Included: Deployment, ConfigMap, Service
+# Excluded: Route, Secret, PVC, StatefulSet (managed separately)
+#
+# Safe to apply with: oc apply -f this-file.yaml
+---
+---
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    description: Defines how to deploy Kowl
+  labels:
+    component: kowl
+    created-by: jeremy.foster
+    managed-by: kustomize
+    name: kowl
+    part-of: tno
+    version: 1.0.0
+  name: kowl
+  namespace: 9b301c-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: kowl
+      name: kowl
+      part-of: tno
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        component: kowl
+        name: kowl
+        part-of: tno
+      name: kowl
+    spec:
+      containers:
+        - env:
+            - name: KAFKA_BROKERS
+              value: kafka-broker-0.kafka-headless:29092,kafka-broker-1.kafka-headless:29092,kafka-broker-2.kafka-headless:29092
+          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/kafka:v1.5.0
+          imagePullPolicy: Always
+          name: kowl
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 50m
+              memory: 150Mi
+            requests:
+              cpu: 10m
+              memory: 100Mi
+          volumeMounts:
+            - mountPath: /etc/kowl
+              name: kowl-config
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - configMap:
+            items:
+              - key: config.yaml
+                path: config.yaml
+            name: kowl
+          name: kowl-config

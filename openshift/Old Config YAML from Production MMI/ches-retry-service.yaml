@@ -1,0 +1,469 @@
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  annotations:
+    created-by: jeremy.foster
+    description: Defines how to deploy ches-retry-service
+  resourceVersion: "17207290155"
+  name: ches-retry-service
+  uid: a66d8667-ab61-4e65-8bf4-8138d893bb82
+  creationTimestamp: "2025-02-14T06:37:40Z"
+  generation: 124
+  managedFields:
+    - manager: kubectl-create
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-02-14T06:37:40Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:metadata":
+          "f:annotations":
+            .: {}
+            "f:created-by": {}
+            "f:description": {}
+          "f:labels":
+            .: {}
+            "f:component": {}
+            "f:managed-by": {}
+            "f:name": {}
+            "f:part-of": {}
+            "f:version": {}
+        "f:spec":
+          "f:replicas": {}
+          "f:selector":
+            .: {}
+            "f:component": {}
+            "f:name": {}
+            "f:part-of": {}
+          "f:strategy":
+            "f:activeDeadlineSeconds": {}
+            "f:rollingParams":
+              .: {}
+              "f:intervalSeconds": {}
+              "f:maxSurge": {}
+              "f:maxUnavailable": {}
+              "f:timeoutSeconds": {}
+              "f:updatePeriodSeconds": {}
+            "f:type": {}
+          "f:template":
+            .: {}
+            "f:metadata":
+              .: {}
+              "f:creationTimestamp": {}
+              "f:labels":
+                .: {}
+                "f:component": {}
+                "f:name": {}
+                "f:part-of": {}
+              "f:name": {}
+            "f:spec":
+              .: {}
+              "f:containers":
+                .: {}
+                'k:{"name":"ches-retry-service"}':
+                  "f:terminationMessagePolicy": {}
+                  .: {}
+                  "f:resources":
+                    .: {}
+                    "f:requests":
+                      .: {}
+                      "f:cpu": {}
+                  "f:livenessProbe":
+                    .: {}
+                    "f:failureThreshold": {}
+                    "f:httpGet":
+                      .: {}
+                      "f:path": {}
+                      "f:port": {}
+                      "f:scheme": {}
+                    "f:initialDelaySeconds": {}
+                    "f:periodSeconds": {}
+                    "f:successThreshold": {}
+                    "f:timeoutSeconds": {}
+                  "f:env":
+                    'k:{"name":"Service__MaxFailLimit"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__From"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Auth__Keycloak__Audience"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__HostUri"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__AuthUrl"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__RetryTimeScope"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__EmailTo"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__Username"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"Auth__Keycloak__Secret"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"Service__RetryTimeLimit"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    .: {}
+                    'k:{"name":"CHES__Password"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"CHES__EmailAuthorized"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"ASPNETCORE_ENVIRONMENT"}':
+                      .: {}
+                      "f:name": {}
+                      "f:value": {}
+                    'k:{"name":"ASPNETCORE_URLS"}':
+                      .: {}
+                      "f:name": {}
+                      "f:value": {}
+                    'k:{"name":"Logging__LogLevel__TNO"}':
+                      .: {}
+                      "f:name": {}
+                      "f:value": {}
+                    'k:{"name":"Service__ApiUrl"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__EmailEnabled"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Auth__Keycloak__Authority"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                  "f:readinessProbe":
+                    .: {}
+                    "f:failureThreshold": {}
+                    "f:httpGet":
+                      .: {}
+                      "f:path": {}
+                      "f:port": {}
+                      "f:scheme": {}
+                    "f:initialDelaySeconds": {}
+                    "f:periodSeconds": {}
+                    "f:successThreshold": {}
+                    "f:timeoutSeconds": {}
+                  "f:terminationMessagePath": {}
+                  "f:imagePullPolicy": {}
+                  "f:ports":
+                    .: {}
+                    'k:{"containerPort":8080,"protocol":"TCP"}':
+                      .: {}
+                      "f:containerPort": {}
+                      "f:protocol": {}
+                  "f:name": {}
+              "f:dnsPolicy": {}
+              "f:restartPolicy": {}
+              "f:schedulerName": {}
+              "f:securityContext": {}
+              "f:terminationGracePeriodSeconds": {}
+    - manager: Mozilla
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-02-26T06:12:11Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:spec":
+          "f:template":
+            "f:spec":
+              "f:containers":
+                'k:{"name":"ches-retry-service"}':
+                  "f:resources":
+                    "f:requests":
+                      "f:memory": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-11-26T06:03:12Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:spec":
+          "f:template":
+            "f:spec":
+              "f:containers":
+                'k:{"name":"ches-retry-service"}':
+                  "f:image": {}
+          "f:triggers": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-11-26T06:04:19Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:status":
+          "f:updatedReplicas": {}
+          "f:readyReplicas": {}
+          "f:conditions":
+            .: {}
+            'k:{"type":"Available"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:status": {}
+              "f:type": {}
+            'k:{"type":"Progressing"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:reason": {}
+              "f:status": {}
+              "f:type": {}
+          "f:details":
+            .: {}
+            "f:causes": {}
+            "f:message": {}
+          "f:replicas": {}
+          "f:availableReplicas": {}
+          "f:observedGeneration": {}
+          "f:unavailableReplicas": {}
+          "f:latestVersion": {}
+      subresource: status
+  namespace: 9b301c-prod
+  labels:
+    component: ches-retry-service
+    managed-by: kustomize
+    name: ches-retry-service
+    part-of: tno
+    version: 1.0.0
+spec:
+  strategy:
+    type: Rolling
+    rollingParams:
+      updatePeriodSeconds: 1
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      maxUnavailable: 25%
+      maxSurge: 25%
+    resources: {}
+    activeDeadlineSeconds: 21600
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - ches-retry-service
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: "ches-retry-service:prod"
+        lastTriggeredImage: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/ches-retry-service@sha256:7610514b21da5bba26e74625e97dbf0443c4a23566278a0afaed64be9d1c32ee"
+  replicas: 1
+  revisionHistoryLimit: 10
+  test: false
+  selector:
+    component: ches-retry-service
+    name: ches-retry-service
+    part-of: tno
+  template:
+    metadata:
+      name: ches-retry-service
+      creationTimestamp: null
+      labels:
+        component: ches-retry-service
+        name: ches-retry-service
+        part-of: tno
+    spec:
+      containers:
+        - resources:
+            requests:
+              cpu: 20m
+              memory: 100Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          name: ches-retry-service
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: "http://+:8080"
+            - name: Logging__LogLevel__TNO
+              value: Information
+            - name: Service__ApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: API_HOST_URL
+            - name: Service__EmailTo
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: EMAIL_FAILURE_TO
+            - name: Service__RetryTimeLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: ches-retry-service
+                  key: RETRY_TIME_LIMIT
+            - name: Service__RetryTimeScope
+              valueFrom:
+                configMapKeyRef:
+                  name: ches-retry-service
+                  key: RETRY_TIME_SCOPE
+            - name: Auth__Keycloak__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUTHORITY
+            - name: Auth__Keycloak__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUDIENCE
+            - name: Auth__Keycloak__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_CLIENT_SECRET
+            - name: Service__MaxFailLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: ches-retry-service
+                  key: MAX_FAIL_LIMIT
+            - name: CHES__From
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_FROM
+            - name: CHES__EmailEnabled
+              valueFrom:
+                configMapKeyRef:
+                  name: ches-retry-service
+                  key: CHES_EMAIL_ENABLED
+            - name: CHES__EmailAuthorized
+              valueFrom:
+                configMapKeyRef:
+                  name: ches-retry-service
+                  key: CHES_EMAIL_AUTHORIZED
+            - name: CHES__AuthUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_AUTH_URL
+            - name: CHES__HostUri
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_HOST_URI
+            - name: CHES__Username
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: USERNAME
+            - name: CHES__Password
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: PASSWORD
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          imagePullPolicy: Always
+          terminationMessagePolicy: File
+          image: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/ches-retry-service@sha256:7610514b21da5bba26e74625e97dbf0443c4a23566278a0afaed64be9d1c32ee"
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+status:
+  observedGeneration: 124
+  details:
+    message: image change
+    causes:
+      - type: ImageChange
+        imageTrigger:
+          from:
+            kind: DockerImage
+            name: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/ches-retry-service@sha256:7610514b21da5bba26e74625e97dbf0443c4a23566278a0afaed64be9d1c32ee"
+  availableReplicas: 1
+  unavailableReplicas: 0
+  latestVersion: 35
+  updatedReplicas: 1
+  conditions:
+    - type: Progressing
+      status: "True"
+      lastUpdateTime: "2025-11-26T06:03:18Z"
+      lastTransitionTime: "2025-11-26T06:03:18Z"
+      reason: NewReplicationControllerAvailable
+      message: replication controller "ches-retry-service-35" successfully rolled out
+    - type: Available
+      status: "True"
+      lastUpdateTime: "2025-11-26T06:04:19Z"
+      lastTransitionTime: "2025-11-26T06:04:19Z"
+      message: Deployment config has minimum availability.
+  replicas: 1
+  readyReplicas: 1

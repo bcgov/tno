@@ -19,14 +19,15 @@ If you choose to run the solution with Docker you will need to install the follo
 There are a number of Windows related dependencies that are required to take advantage of some of the automated build scripts.
 These scripts simplify the process of setting up your environment, but can be performed manually if you do not want to install the following.
 
-| Windows                                                | Mac                                                     | Description                                                                             |
-| ------------------------------------------------------ | ------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| [Git Bash](https://git-scm.com/)                       |                                                         | All scripts in this project are `bash` which natively isn't supported by Windows.       |
-| [chocolately](https://chocolatey.org/install)          |                                                         | Package manager for Windows.                                                            |
-| [make](https://community.chocolatey.org/packages/make) | [make](https://formulae.brew.sh/formula/make)           | Useful tool for speeding up common activities.                                          |
-|                                                        | [coreutils](https://formulae.brew.sh/formula/coreutils) |
-|                                                        | [grep](https://formulae.brew.sh/formula/grep)           | Macos doesn't natively support GNU Grep, so you need to install it. `brew install grep` |
-|                                                        | [gnupg](https://formulae.brew.sh/formula/gnupg)         | Generate signing keys `brew install gpnupg`                                             |
+| Windows                                                      | Mac                                                     | Description                                                                             |
+| ------------------------------------------------------------ | ------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| [Git Bash](https://git-scm.com/)                             |                                                         | All scripts in this project are `bash` which natively isn't supported by Windows.       |
+| [chocolately](https://chocolatey.org/install)                |                                                         | Package manager for Windows.                                                            |
+| [make](https://community.chocolatey.org/packages/make)       | [make](https://formulae.brew.sh/formula/make)           |
+| We used this tool to speed up common development activities. |
+|                                                              | [coreutils](https://formulae.brew.sh/formula/coreutils) |
+|                                                              | [grep](https://formulae.brew.sh/formula/grep)           | Macos doesn't natively support GNU Grep, so you need to install it. `brew install grep` |
+|                                                              | [gnupg](https://formulae.brew.sh/formula/gnupg)         | Generate signing keys `brew install gpnupg`                                             |
 
 ## Development Containers
 

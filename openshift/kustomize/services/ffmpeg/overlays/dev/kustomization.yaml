@@ -11,7 +11,7 @@ generatorOptions:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: ffmpeg-service
     patch: |-
       - op: replace
@@ -29,6 +29,3 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 300Mi
-      - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: ffmpeg-service:dev

@@ -11,7 +11,7 @@ generatorOptions:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: scheduler-service
     patch: |-
       - op: replace
@@ -25,10 +25,7 @@ patches:
         value: 80Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
-        value: 100m
+        value: 50m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 150Mi
-      - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: scheduler-service:test
+        value: 100Mi

@@ -11,7 +11,7 @@ generatorOptions:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: content-service
     patch: |-
       - op: replace
@@ -19,16 +19,10 @@ patches:
         value: 2
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
-        value: 50m
+        value: 20m
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
-        value: 128Mi
+        value: 250Mi
       - op: replace
-        path: /spec/template/spec/containers/0/resources/limits/cpu
-        value: 75m
-      - op: replace
-        path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 256Mi
-      - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: content-service:dev
+        path: /spec/template/spec/containers/0/image
+        value: image-registry.openshift-image-registry.svc:5000/9b301c-tools/content-service:dev

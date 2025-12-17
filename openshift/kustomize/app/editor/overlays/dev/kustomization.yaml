@@ -32,51 +32,21 @@ patches:
         value: tno-dev.apps.silver.devops.gov.bc.ca
   - target:
       kind: Route
-      name: editor-0
-    patch: |-
-      - op: replace
-        path: /spec/host
-        value: tno-dev-0.apps.silver.devops.gov.bc.ca
-  - target:
-      kind: Route
-      name: editor-1
-    patch: |-
-      - op: replace
-        path: /spec/host
-        value: tno-dev-1.apps.silver.devops.gov.bc.ca
-  - target:
-      kind: Route
-      name: editor-2
-    patch: |-
-      - op: replace
-        path: /spec/host
-        value: tno-dev-2.apps.silver.devops.gov.bc.ca
-  - target:
-      kind: Route
       name: editor-tls
     patch: |-
       - op: replace
         path: /spec/host
         value: dev.editor.mmi.gov.bc.ca
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: editor
     patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/editor:dev
       - op: replace
         path: /spec/replicas
         value: 1
       - op: replace
-        path: /spec/template/spec/containers/0/resources/requests/cpu
-        value: 20m
-      - op: replace
-        path: /spec/template/spec/containers/0/resources/requests/memory
-        value: 50Mi
-      - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
-        value: 100m
-      - op: replace
-        path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 100Mi
-      - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: editor:dev
+        value: 40m

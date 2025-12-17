@@ -1,11 +1,12 @@
 # How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: psql
   namespace: default
   annotations:
     description: Defines how to deploy psql
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "psql:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"psql\")].image"}]'
   labels:
     name: psql
     part-of: tno
@@ -16,17 +17,15 @@ metadata:
 spec:
   replicas: 1
   selector:
-    name: psql
-    part-of: tno
-    component: database
+    matchLabels:
+      name: psql
+      part-of: tno
+      component: database
   strategy:
-    rollingParams:
-      intervalSeconds: 1
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-      timeoutSeconds: 600
-      updatePeriodSeconds: 1
-    type: Rolling
   template:
     metadata:
       name: psql
@@ -41,7 +40,7 @@ spec:
             claimName: backup-verification
       containers:
         - name: psql
-          image: ""
+          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/psql:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -60,15 +59,3 @@ spec:
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
-  test: false
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - psql
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: psql:dev

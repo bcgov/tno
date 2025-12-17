@@ -62,8 +62,8 @@ spec:
             requests:
               cpu: 25m
               memory: 100Mi
-  backups:
-    pgbackrest:
+      backups:
+        pgbackrest:
       # restore:
       #   enabled: true
       #   repoName: repo1
@@ -109,8 +109,8 @@ spec:
             requests:
               cpu: 25m
               memory: 50Mi
-  proxy:
-    pgBouncer:
+      proxy:
+        pgBouncer:
       config:
         global:
           client_tls_sslmode: disable

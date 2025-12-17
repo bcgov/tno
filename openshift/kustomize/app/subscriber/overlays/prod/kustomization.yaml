@@ -59,12 +59,12 @@ patches:
         path: /spec/host
         value: mmi.gov.bc.ca
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: subscriber
     patch: |-
       - op: replace
         path: /spec/replicas
-        value: 1
+        value: 3
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
         value: 20m
@@ -78,5 +78,5 @@ patches:
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 100Mi
       - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: subscriber:prod
+        path: /metadata/annotations/image.openshift.io~1triggers
+        value: '[{"from": {"kind": "ImageStreamTag", "name": "subscriber:prod", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"subscriber\")].image"}]'

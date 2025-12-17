@@ -1,0 +1,67 @@
+---
+# How the app will be deployed to the pod.
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: corenlp
+  namespace: default
+  annotations:
+    description: Defines how to deploy corenlp
+  labels:
+    name: corenlp
+    part-of: tno
+    version: 1.0.0
+    component: corenlp
+    managed-by: kustomize
+    created-by: kyle.morris
+spec:
+  replicas: 1
+  selector:
+    name: corenlp
+    part-of: tno
+    component: corenlp
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - corenlp
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: corenlp:dev
+  template:
+    metadata:
+      name: corenlp
+      labels:
+        name: corenlp
+        part-of: tno
+        component: corenlp
+    spec:
+      containers:
+        - name: corenlp
+          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/corenlp:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9000
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 250m
+              memory: 2G
+            limits:
+              cpu: 500m
+              memory: 6G
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30

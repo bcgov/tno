@@ -11,12 +11,15 @@ generatorOptions:
 
 patches:
   - target:
-      kind: DeploymentConfig
+      kind: Deployment
       name: filemonitor-service
     patch: |-
       - op: replace
         path: /spec/replicas
-        value: 2
+        value: 1
+      - op: replace
+        path: /metadata/annotations/image.openshift.io~1triggers
+        value: '[{"from": {"kind": "ImageStreamTag", "name": "filemonitor-service:prod", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"filemonitor-service\")].image"}]'
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
         value: 25m
@@ -29,9 +32,6 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 150Mi
-      - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: filemonitor-service:prod
       - op: replace
         path: /spec/template/spec/containers/0/env/0/value
         value: Production
