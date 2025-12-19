@@ -1,0 +1,42 @@
+# Station specific configuration for CKNW. Adjust as needed.
+name: CKNW
+sample_rate: 16000
+transcription:
+  provider: azure_speech
+  diarization: true
+  max_speakers: 10
+  language: en-CA
+text:
+  chunk_size_s: 3.0
+  chunk_overlap_ratio: 0.5
+  llm_segmentation: true
+  llm_model: gpt-4o-mini
+  system_prompt: |
+    You are the CKNW News Segment Tool. Each transcript row is a single spoken sentence with precise
+    HH:MM:SS.mmm timestamps. Produce clip boundaries that align exactly with sentence start and end
+    times so downstream ffmpeg jobs can cut clean audio. Keep clips chronological and respond only
+    with the JSON requested by the user.
+  max_stories: 15
+  llm_prompt: |
+    Review the timestamped transcript and break it into at most {{max_clips}} clips. Each clip must
+    be exactly one sentence: use the sentence start timestamp for `start` and the matching sentence
+    end timestamp for `end`. Never merge sentences, invent timestamps, or let clips overlap. Return
+    ONLY JSON in this shape:
+    {
+      "clips": [
+        {"title": "concise slug", "summary": "1-2 sentence recap", "start": 0.0, "end": 45.2}
+      ]
+    }
+    Additional requirements:
+    - start/end are decimal seconds from program start.
+    - Titles are 3-8 words; summaries capture the key fact or guest.
+    - If the transcript lacks enough information, return {"clips": []}.
+
+    Transcript:
+    {{transcript}}
+heuristics:
+  keyword_patterns:
+    - "(?i)we'll have more on that"
+    - "(?i)back after the break"
+    - "(?i)you're listening to"
+    - "(?i)CKNW"
