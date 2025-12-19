@@ -173,6 +173,7 @@ export portContent=40025
 export portIndexing=40026
 export portTranscription=40027
 export portNlp=40028
+export portAutoClipper=40029
 export portCoreNlp=40038
 export portNotification=40030
 export portReporting=40031

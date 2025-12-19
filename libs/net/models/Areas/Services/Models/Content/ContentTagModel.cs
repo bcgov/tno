@@ -50,6 +50,20 @@ public class ContentTagModel : AuditColumnsModel
     /// <summary>
     /// Creates a new instance of an ContentTagModel, initializes with specified parameter.
     /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="tagId"></param>
+    /// <param name="code"></param>
+    /// <param name="name"></param>
+    public ContentTagModel(int tagId, string code, string name)
+    {
+        this.Id = tagId;
+        this.Code = code;
+        this.Name = name;
+    }
+
+    /// <summary>
+    /// Creates a new instance of an ContentTagModel, initializes with specified parameter.
+    /// </summary>
     /// <param name="entity"></param>
     public ContentTagModel(Entities.ContentTag entity)
     {

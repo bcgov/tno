@@ -1,0 +1,87 @@
+# Station specific configuration for CKNW. Adjust as needed.
+name: CKNW
+sample_rate: 16000
+transcription:
+  provider: azure_speech
+  diarization: false
+  max_speakers: 10
+  language: en-CA
+text:
+  chunk_size_s: 3.0
+  chunk_overlap_ratio: 0.5
+  heuristic_boundary_weight: 0.35
+  keyword_categories:
+    "(?i)traffic": Traffic
+    "(?i)weather": Weather
+    "(?i)sponsor": Ad
+    "(?i)commercial": Ad
+    "(?i)up next": Promo
+    "(?i)coming up": Promo
+  llm_segmentation: true
+  llm_model: gpt-5.1-chat
+  llm_temperature: 1
+  system_prompt: |
+    You are a Broadcast Structure Parser. Your ONLY job is to detect segment transitions.
+    Output MUST be a single, raw JSON object.
+    CRITICAL: Start your response with '{' and end with '}'.
+    DO NOT use markdown, backticks, or "```json" blocks. No introductory or closing text.
+  max_stories: 15
+  llm_prompt: |
+    Identify every point in the transcript where the topic or segment type changes.
+
+    # STRUCTURAL RULES (To Prevent Bundling)
+    1. **The Sign-off Rule**: Phrases like "Global News," "CBC News," or "Reporting live" followed by a name mark the END of a segment. The very next sentence MUST be a new boundary.
+    2. **The Handoff Rule**: When an anchor introduces a reporter (e.g., "As Joshua reports..."), the boundary starts at the ANCHOR'S introduction line.
+    3. **Mandatory Category Split**: News, Traffic, Weather, and Ads MUST be isolated. Never bundle a Traffic report with a News story.
+    4. **Zero Bloating**: Treat every unique headline as a separate clip. If the topic shifts from a shooting to a stabbing, create two distinct boundaries.
+
+    # OUTPUT FORMAT (Raw JSON ONLY)
+    {
+      "boundaries": [
+        {
+          "index": [Sentence Number],
+          "category": "News | Traffic | Weather | Ad | Promo",
+          "title": "[Short Slug]",
+          "summary": "[One Sentence Recap]",
+          "score": 0.95
+        }
+      ]
+    }
+
+    Transcript:
+    {{transcript}}
+heuristics:
+  pattern_entries:
+    # --- Existing Patterns ---
+    - pattern: "(?i)coming up"
+      weight: 0.65
+      category: Promo
+      note: Host tease for the next story
+    - pattern: "(?i)after the break"
+      weight: 0.65
+      category: Promo
+      note: Signals a hard break/transition
+
+    # --- New Anchor-Specific Patterns ---
+    - pattern: "(?i)Ian Wilson"
+      weight: 0.85
+      category: Traffic
+      note: Mandatory Traffic anchor introduction
+    - pattern: "(?i)Mark Madryga"
+      weight: 0.85
+      category: Weather
+      note: Mandatory Weather anchor introduction
+    - pattern: "(?i)John Straight"
+      weight: 0.60
+      category: News
+      note: Primary News anchor reset
+
+    # --- Service Cues ---
+    - pattern: "(?i)traffic update"
+      weight: 0.6
+      category: Traffic
+      note: Recurring traffic block
+    - pattern: "(?i)weather update"
+      weight: 0.55
+      category: Weather
+      note: Weather hits are their own segments

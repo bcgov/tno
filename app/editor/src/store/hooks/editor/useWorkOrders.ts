@@ -17,6 +17,7 @@ interface IWorkOrderController {
   findWorkOrders: (filter: IWorkOrderFilter) => Promise<AxiosResponse<IPaged<IWorkOrderModel>>>;
   updateWorkOrder: (workOrder: IWorkOrderModel) => Promise<AxiosResponse<IWorkOrderModel>>;
   transcribe: (content: IContentModel) => Promise<AxiosResponse<IWorkOrderModel>>;
+  autoClip: (content: IContentModel) => Promise<AxiosResponse<IWorkOrderModel>>;
   nlp: (content: IContentModel) => Promise<AxiosResponse<IWorkOrderModel>>;
   requestFile: (locationId: number, path: string) => Promise<AxiosResponse<IWorkOrderModel>>;
   ffmpeg: (content: IContentModel) => Promise<AxiosResponse<IWorkOrderModel>>;
@@ -43,6 +44,9 @@ export const useWorkOrders = (): [IWorkOrderState, IWorkOrderController] => {
       },
       transcribe: async (content: IContentModel) => {
         return await dispatch('transcribe-content', () => api.transcribe(content));
+      },
+      autoClip: async (content: IContentModel) => {
+        return await dispatch('auto-clip-content', () => api.autoClip(content));
       },
       nlp: async (content: IContentModel) => {
         return await dispatch('nlp-content', () => api.nlp(content));

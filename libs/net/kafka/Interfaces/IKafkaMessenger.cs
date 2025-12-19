@@ -42,6 +42,14 @@ public interface IKafkaMessenger
     /// <param name="topic"></param>
     /// <param name="request"></param>
     /// <returns></returns>
+    public Task<DeliveryResult<string, ClipRequestModel>?> SendMessageAsync(string topic, ClipRequestModel request);
+
+    /// <summary>
+    /// Send a message to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
     public Task<DeliveryResult<string, IndexRequestModel>?> SendMessageAsync(string topic, IndexRequestModel request);
 
     /// <summary>
