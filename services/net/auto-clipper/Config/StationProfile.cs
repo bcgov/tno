@@ -25,6 +25,7 @@ public class StationTextProfile
 {
     public double ChunkSizeSeconds { get; set; } = 3.0;
     public double ChunkOverlapRatio { get; set; } = 0.5;
+    public double HeuristicBoundaryWeight { get; set; } = 0.15;
     public bool LlmSegmentation { get; set; } = true;
     public string LlmModel { get; set; } = string.Empty;
     public string LlmPrompt { get; set; } = string.Empty;

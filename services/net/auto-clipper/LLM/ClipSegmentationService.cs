@@ -15,14 +15,22 @@ namespace TNO.Services.AutoClipper.LLM;
 
 public class ClipSegmentationService : IClipSegmentationService
 {
-    private const string DefaultSystemPrompt = "You are a news segment tool. Read timestamped transcripts, keep clips chronological, and output only JSON suitable for ffmpeg cuts.";
+    private const string DefaultSystemPrompt = "You are a news segment tool. Analyse timestamped transcripts, choose where new stories begin, and output JSON suitable for ffmpeg clip creation.";
 
     private const string DefaultPrompt = """
-You will receive a transcript where each sentence already has a precise start and end timestamp (HH:MM:SS.mmm). Break the program into at most {{max_clips}} clips by selecting whole sentences only:
-- Use the sentence start timestamp for `start` and the same sentence end timestamp for `end`.
-- Never merge sentences, invent timestamps, or allow clips to overlap.
-- Return ONLY JSON of the form [{"title":string, "summary":string, "start":number, "end":number}] where start/end are expressed in seconds.
-- Keep clips in chronological order so downstream ffmpeg calls can cut clean audio segments.
+You will receive a transcript formatted as numbered sentences (index. timestamp range :: sentence).
+Identify up to {{max_clips}} places where a new story starts and return ONLY JSON:
+{
+  \"boundaries\": [
+    {\"index\": 12, \"title\": \"slug\", \"summary\": \"recap\", \"score\": 0.82}
+  ]
+}
+
+Rules:
+- `index` is the numbered sentence (1-based) where the new story begins.
+- `score` ranges from 0-1; higher means stronger confidence.
+- Keep boundaries chronological and avoid duplicates.
+- Do not invent timestamps; rely only on the provided lines.
 
 Transcript:
 {{transcript}}
@@ -99,21 +107,29 @@ Transcript:
             ? overrides!.PromptOverride!
             : string.IsNullOrWhiteSpace(_options.LlmPrompt) ? DefaultPrompt : _options.LlmPrompt;
         var limit = overrides?.PromptCharacterLimit ?? Math.Max(1000, _options.LlmPromptCharacterLimit);
-        var builder = new StringBuilder();
-        foreach (var segment in transcript)
-        {
-            var line = $"{FormatTimestamp(segment.Start)} --> {FormatTimestamp(segment.End)} :: {segment.Text?.Trim()}";
-            if (builder.Length + line.Length > limit)
-                break;
-            builder.AppendLine(line);
-        }
+        var transcriptBody = BuildPromptTranscript(transcript, limit);
 
         var maxClips = overrides?.MaxStories ?? _options.LlmMaxStories;
         if (maxClips <= 0) maxClips = _options.LlmMaxStories;
 
         return template
             .Replace("{{max_clips}}", maxClips.ToString(CultureInfo.InvariantCulture))
-            .Replace("{{transcript}}", builder.ToString());
+            .Replace("{{transcript}}", transcriptBody);
+    }
+
+    private string BuildPromptTranscript(IReadOnlyList<TimestampedTranscript> transcript, int limit)
+    {
+        var builder = new StringBuilder();
+        for (var i = 0; i < transcript.Count; i++)
+        {
+            var sentence = transcript[i];
+            if (string.IsNullOrWhiteSpace(sentence.Text)) continue;
+            var line = $"{i + 1}. {FormatTimestamp(sentence.Start)} --> {FormatTimestamp(sentence.End)} :: {sentence.Text.Trim()}";
+            if (builder.Length + line.Length > limit)
+                break;
+            builder.AppendLine(line);
+        }
+        return builder.ToString();
     }
 
     private string BuildRequestUri()
@@ -123,7 +139,7 @@ Transcript:
         if (string.IsNullOrWhiteSpace(baseUrl) || string.IsNullOrWhiteSpace(deployment))
             throw new InvalidOperationException("LLM configuration is missing the Azure OpenAI endpoint or deployment name.");
 
-        var version = string.IsNullOrWhiteSpace(_options.LlmApiVersion) ? "2024-02-15-preview" : _options.LlmApiVersion;
+        var version = string.IsNullOrWhiteSpace(_options.LlmApiVersion) ? "2024-07-18" : _options.LlmApiVersion;
         var path = $"{baseUrl}/openai/deployments/{deployment}/chat/completions";
         return string.IsNullOrWhiteSpace(version) ? path : $"{path}?api-version={version}";
     }
@@ -150,30 +166,24 @@ Transcript:
             var elements = root?.ValueKind switch
             {
                 JsonValueKind.Array => root.Value.EnumerateArray(),
-                JsonValueKind.Object when root.Value.TryGetProperty("clips", out var clips) => clips.EnumerateArray(),
+                JsonValueKind.Object when root.Value.TryGetProperty("boundaries", out var boundaries) => boundaries.EnumerateArray(),
                 _ => Enumerable.Empty<JsonElement>()
             };
 
-            var list = new List<ClipDefinition>();
+            var candidates = new List<BoundaryCandidate>();
             foreach (var item in elements)
             {
+                if (!item.TryGetProperty("index", out var indexElement) || !indexElement.TryGetInt32(out var rawIndex) || rawIndex <= 0)
+                    continue;
+                var zeroIndex = Math.Clamp(rawIndex - 1, 0, transcript.Count - 1);
                 var title = item.TryGetProperty("title", out var titleElement) ? titleElement.GetString() ?? "Clip" : "Clip";
                 var summary = item.TryGetProperty("summary", out var summaryElement) ? summaryElement.GetString() ?? string.Empty : string.Empty;
-                var start = ReadTime(item, "start");
-                var end = ReadTime(item, "end");
-
-                if (end <= start)
-                    continue;
-
-                var snapped = SnapToTranscriptBounds(transcript, start, end);
-                if (snapped == null)
-                    continue;
-
-                var (alignedStart, alignedEnd) = snapped.Value;
-                list.Add(new ClipDefinition(title, summary, alignedStart, alignedEnd));
+                var score = item.TryGetProperty("score", out var scoreElement) && scoreElement.TryGetDouble(out var rawScore) ? Math.Clamp(rawScore, 0, 1) : 1.0;
+                candidates.Add(new BoundaryCandidate(zeroIndex, title, summary, score));
             }
 
-            return FilterOverlaps(list);
+            var threshold = Math.Clamp(_options.LlmBoundaryScoreThreshold, 0, 1);
+            return CreateClipDefinitions(transcript, candidates, threshold);
         }
         catch (Exception ex)
         {
@@ -181,6 +191,52 @@ Transcript:
             return Array.Empty<ClipDefinition>();
         }
     }
+
+    private IReadOnlyList<ClipDefinition> CreateClipDefinitions(IReadOnlyList<TimestampedTranscript> transcript, List<BoundaryCandidate> candidates, double threshold)
+    {
+        if (transcript == null || transcript.Count == 0)
+            return Array.Empty<ClipDefinition>();
+
+        var map = new Dictionary<int, BoundaryCandidate>();
+        foreach (var candidate in candidates)
+        {
+            var index = Math.Clamp(candidate.Index, 0, transcript.Count - 1);
+            if (!map.TryGetValue(index, out var existing) || candidate.Score > existing.Score)
+                map[index] = candidate with { Index = index };
+        }
+
+        var ordered = map.Values.OrderBy(c => c.Index).ToList();
+        if (ordered.Count == 0)
+            ordered.Add(new BoundaryCandidate(0, "Full Program", "AutoClipper fallback clip", 1));
+
+        if (ordered[0].Index != 0)
+            ordered.Insert(0, ordered[0] with { Index = 0, Score = 1 });
+
+        var filtered = new List<BoundaryCandidate>();
+        foreach (var candidate in ordered)
+        {
+            if (candidate.Index == 0 || candidate.Score >= threshold)
+                filtered.Add(candidate);
+        }
+        if (filtered.Count == 0)
+            filtered.Add(new BoundaryCandidate(0, "Full Program", "AutoClipper fallback clip", 1));
+
+        var list = new List<ClipDefinition>();
+        for (var i = 0; i < filtered.Count; i++)
+        {
+            var boundary = filtered[i];
+            var start = transcript[boundary.Index].Start;
+            var end = i + 1 < filtered.Count ? transcript[filtered[i + 1].Index].Start : transcript[^1].End;
+            if (end <= start) continue;
+            var title = string.IsNullOrWhiteSpace(boundary.Title) ? $"Clip {i + 1}" : boundary.Title;
+            var summary = string.IsNullOrWhiteSpace(boundary.Summary) ? string.Empty : boundary.Summary;
+            list.Add(new ClipDefinition(title, summary, start, end));
+        }
+
+        return FilterOverlaps(list);
+    }
+
+    private sealed record BoundaryCandidate(int Index, string Title, string Summary, double Score);
 
     private static string StripCodeFence(string body)
     {

@@ -57,7 +57,7 @@ var options = Options.Create(new AutoClipperOptions
     LlmApiUrl = RequireEnv("AUTOCLIP_HARNESS_LLM_URL"),
     LlmApiKey = RequireEnv("AUTOCLIP_HARNESS_LLM_KEY"),
     LlmDeployment = RequireEnv("AUTOCLIP_HARNESS_LLM_DEPLOYMENT"),
-    LlmApiVersion = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_LLM_VERSION") ?? "2024-02-15-preview",
+    LlmApiVersion = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_LLM_VERSION") ?? "2024-07-18",
     LlmPrompt = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_PROMPT")
         ?? (string.IsNullOrWhiteSpace(stationProfile.Text.LlmPrompt) ? string.Empty : stationProfile.Text.LlmPrompt),
     LlmMaxStories = int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_MAX_STORIES"), out var maxStories) ? maxStories : 5,
@@ -131,7 +131,7 @@ static string BuildPromptDebug(ClipSegmentationSettings settings, IReadOnlyList<
     builder.AppendLine(settings?.PromptOverride ?? "<none>");
     builder.AppendLine();
     builder.AppendLine("Transcript Preview:");
-    builder.AppendLine(BuildTranscriptDocument(segments));
+    builder.AppendLine(BuildNumberedTranscript(segments));
     return builder.ToString();
 }
 
@@ -187,6 +187,19 @@ static ClipDefinition? NormalizeClipDefinition(ClipDefinition definition, IReadO
 
 static IReadOnlyList<TimestampedTranscript> ExtractTranscriptRange(IReadOnlyList<TimestampedTranscript> segments, TimeSpan start, TimeSpan end)
     => segments.Where(s => s.End > start && s.Start < end).ToArray();
+
+static string BuildNumberedTranscript(IReadOnlyList<TimestampedTranscript> segments)
+{
+    if (segments == null || segments.Count == 0) return string.Empty;
+    var sb = new StringBuilder();
+    for (var i = 0; i < segments.Count; i++)
+    {
+        var segment = segments[i];
+        if (string.IsNullOrWhiteSpace(segment.Text)) continue;
+        sb.AppendLine($"{i + 1}. {FormatTimestamp(segment.Start)} --> {FormatTimestamp(segment.End)} :: {segment.Text.Trim()}");
+    }
+    return sb.ToString();
+}
 
 static string BuildTranscriptDocument(IReadOnlyList<TimestampedTranscript> segments)
 {

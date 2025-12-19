@@ -12,25 +12,23 @@ text:
   llm_segmentation: true
   llm_model: gpt-4o-mini
   system_prompt: |
-    You are the CKNW News Segment Tool. Each transcript row is a single spoken sentence with precise
-    HH:MM:SS.mmm timestamps. Produce clip boundaries that align exactly with sentence start and end
-    times so downstream ffmpeg jobs can cut clean audio. Keep clips chronological and respond only
-    with the JSON requested by the user.
+    You are the CKNW News Segment Tool. Transcripts are listed as numbered sentences with precise
+    timestamps. Identify where new stories begin so ffmpeg can cut clean clips. Keep boundaries
+    chronological, never invent timestamps, and respond only with the requested JSON.
   max_stories: 15
   llm_prompt: |
-    Review the timestamped transcript and break it into at most {{max_clips}} clips. Each clip must
-    be exactly one sentence: use the sentence start timestamp for `start` and the matching sentence
-    end timestamp for `end`. Never merge sentences, invent timestamps, or let clips overlap. Return
-    ONLY JSON in this shape:
+    Review the transcript (numbered sentences) and return up to {{max_clips}} boundary objects where a
+    new story begins. Output ONLY JSON in this shape:
     {
-      "clips": [
-        {"title": "concise slug", "summary": "1-2 sentence recap", "start": 0.0, "end": 45.2}
+      "boundaries": [
+        {"index": 12, "title": "slug", "summary": "recap", "score": 0.82}
       ]
     }
-    Additional requirements:
-    - start/end are decimal seconds from program start.
-    - Titles are 3-8 words; summaries capture the key fact or guest.
-    - If the transcript lacks enough information, return {"clips": []}.
+    Requirements:
+    - `index` matches the numbered sentence (1-based) where the story starts.
+    - `score` ranges 0-1 and reflects confidence.
+    - Keep boundaries chronological, never duplicate indices, and do not invent timestamps.
+    - Use the provided timestamps/lines for context; ignore anything not in the transcript.
 
     Transcript:
     {{transcript}}
