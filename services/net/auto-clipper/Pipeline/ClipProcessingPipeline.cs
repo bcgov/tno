@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Services.AutoClipper.Audio;
@@ -60,8 +61,15 @@ public class ClipProcessingPipeline
             ModelOverride = string.IsNullOrWhiteSpace(profile.Text.LlmModel) ? null : profile.Text.LlmModel,
             SystemPrompt = string.IsNullOrWhiteSpace(profile.Text.SystemPrompt) ? null : profile.Text.SystemPrompt,
             PromptCharacterLimit = profile.Text.PromptCharacterLimit,
-            MaxStories = profile.Text.MaxStories
+            MaxStories = profile.Text.MaxStories,
+            KeywordPatterns = profile.Heuristics.KeywordPatterns?.ToArray(),
+            HeuristicBoundaryWeight = profile.Text.HeuristicBoundaryWeight,
+            KeywordCategories = profile.Text.KeywordCategories?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
         };
     }
 }
+
+
+
+
 

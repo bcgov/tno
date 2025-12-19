@@ -9,6 +9,12 @@ transcription:
 text:
   chunk_size_s: 3.0
   chunk_overlap_ratio: 0.5
+  heuristic_boundary_weight: 0.2
+  keyword_categories:
+    "(?i)traffic": Traffic
+    "(?i)weather": Weather
+    "(?i)sponsor": Ad
+    "(?i)commercial": Ad
   llm_segmentation: true
   llm_model: gpt-4o-mini
   system_prompt: |
@@ -25,8 +31,8 @@ text:
       ]
     }
     Requirements:
-    - `index` matches the numbered sentence (1-based) where the story starts.
-    - `score` ranges 0-1 and reflects confidence.
+    - index matches the numbered sentence (1-based) where the story starts.
+    - score ranges 0-1 and reflects confidence.
     - Keep boundaries chronological, never duplicate indices, and do not invent timestamps.
     - Use the provided timestamps/lines for context; ignore anything not in the transcript.
 

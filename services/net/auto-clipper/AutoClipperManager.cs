@@ -590,7 +590,7 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
             Status = ContentStatus.Draft,
             Uid = BaseService.GetContentHash(sourceContent.Source?.Code ?? "AutoClipper", $"{sourceContent.Uid}-clip-{clipIndex}", sourceContent.PublishedOn),
             Headline = $"{sourceContent.Headline} [AutoClipper #{clipIndex}] {definition.Title}",
-            Summary = $"[AutoClipper] {clipSummary}",
+            Summary = $"[AutoClipper:{definition.Category}] {clipSummary}",
             Body = transcriptBody,
             SourceUrl = sourceContent.SourceUrl,
             PublishedOn = sourceContent.PublishedOn,
@@ -689,3 +689,4 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
     /// <returns>destination file name</returns>
     #endregion
 }
+

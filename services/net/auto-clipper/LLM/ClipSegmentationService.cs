@@ -1,4 +1,5 @@
-
+using System;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -17,6 +18,8 @@ public class ClipSegmentationService : IClipSegmentationService
 {
     private const string DefaultSystemPrompt = "You are a news segment tool. Analyse timestamped transcripts, choose where new stories begin, and output JSON suitable for ffmpeg clip creation.";
 
+    private const int ParagraphSentenceCount = 4;
+
     private const string DefaultPrompt = """
 You will receive a transcript formatted as numbered sentences (index. timestamp range :: sentence).
 Identify up to {{max_clips}} places where a new story starts and return ONLY JSON:
@@ -29,8 +32,12 @@ Identify up to {{max_clips}} places where a new story starts and return ONLY JSO
 Rules:
 - `index` is the numbered sentence (1-based) where the new story begins.
 - `score` ranges from 0-1; higher means stronger confidence.
+- Consider the optional heuristic cues before discarding a boundary.
 - Keep boundaries chronological and avoid duplicates.
 - Do not invent timestamps; rely only on the provided lines.
+
+Heuristic cues (if provided):
+{{heuristic_notes}}
 
 Transcript:
 {{transcript}}
@@ -57,7 +64,8 @@ Transcript:
 
         try
         {
-            var prompt = BuildPrompt(transcript, settings);
+            var heuristicHits = BuildHeuristicHits(transcript, settings);
+            var prompt = BuildPrompt(transcript, settings, heuristicHits);
             var systemPrompt = string.IsNullOrWhiteSpace(settings?.SystemPrompt) ? DefaultSystemPrompt : settings!.SystemPrompt!;
             var payload = new
             {
@@ -79,7 +87,7 @@ Transcript:
             var body = await response.Content.ReadAsStringAsync(cancellationToken);
             response.EnsureSuccessStatusCode();
 
-            var clipDefinitions = ParseResponse(body, transcript);
+            var clipDefinitions = ParseResponse(body, transcript, settings, heuristicHits);
             if (clipDefinitions.Count == 0)
             {
                 _logger.LogWarning("LLM segmentation did not return any clips. Falling back to a single clip definition.");
@@ -101,25 +109,36 @@ Transcript:
         return new ClipDefinition("Full Program", "AutoClipper fallback clip", TimeSpan.Zero, end);
     }
 
-    private string BuildPrompt(IReadOnlyList<TimestampedTranscript> transcript, ClipSegmentationSettings? overrides)
+    private string BuildPrompt(IReadOnlyList<TimestampedTranscript> transcript, ClipSegmentationSettings? overrides, IReadOnlyList<HeuristicHit> heuristicHits)
     {
         var template = !string.IsNullOrWhiteSpace(overrides?.PromptOverride)
             ? overrides!.PromptOverride!
             : string.IsNullOrWhiteSpace(_options.LlmPrompt) ? DefaultPrompt : _options.LlmPrompt;
+        var includesHeuristicPlaceholder = template.Contains("{{heuristic_notes}}");
         var limit = overrides?.PromptCharacterLimit ?? Math.Max(1000, _options.LlmPromptCharacterLimit);
         var transcriptBody = BuildPromptTranscript(transcript, limit);
+        var heuristicNotes = BuildHeuristicNotes(heuristicHits, transcript);
 
         var maxClips = overrides?.MaxStories ?? _options.LlmMaxStories;
         if (maxClips <= 0) maxClips = _options.LlmMaxStories;
 
-        return template
+        var prompt = template
             .Replace("{{max_clips}}", maxClips.ToString(CultureInfo.InvariantCulture))
-            .Replace("{{transcript}}", transcriptBody);
+            .Replace("{{transcript}}", transcriptBody)
+            .Replace("{{heuristic_notes}}", heuristicNotes);
+
+        if (!includesHeuristicPlaceholder && !string.IsNullOrWhiteSpace(heuristicNotes))
+        {
+            prompt += "\n\nHeuristic cues (for reference):\n" + heuristicNotes;
+        }
+
+        return prompt;
     }
 
     private string BuildPromptTranscript(IReadOnlyList<TimestampedTranscript> transcript, int limit)
     {
         var builder = new StringBuilder();
+        builder.AppendLine("Sentences:");
         for (var i = 0; i < transcript.Count; i++)
         {
             var sentence = transcript[i];
@@ -129,7 +148,85 @@ Transcript:
                 break;
             builder.AppendLine(line);
         }
+
+        builder.AppendLine();
+        builder.AppendLine("Paragraphs:");
+        var paragraphNumber = 1;
+        var index = 0;
+        while (index < transcript.Count && builder.Length < limit)
+        {
+            var start = index;
+            var end = Math.Min(index + ParagraphSentenceCount, transcript.Count);
+            var sentences = new List<string>();
+            for (var j = start; j < end; j++)
+            {
+                var sentence = transcript[j];
+                if (string.IsNullOrWhiteSpace(sentence.Text)) continue;
+                sentences.Add(sentence.Text.Trim());
+            }
+
+            if (sentences.Count > 0)
+            {
+                var line = $"Paragraph {paragraphNumber} (sentences {start + 1}-{end}): {string.Join(" / ", sentences)}";
+                if (builder.Length + line.Length > limit) break;
+                builder.AppendLine(line);
+                paragraphNumber++;
+            }
+
+            index += ParagraphSentenceCount;
+        }
+
         return builder.ToString();
+    }
+
+    private string BuildHeuristicNotes(IReadOnlyList<HeuristicHit>? hits, IReadOnlyList<TimestampedTranscript> transcript)
+    {
+        if (hits == null || hits.Count == 0) return "<none>";
+        var sb = new StringBuilder();
+        foreach (var hit in hits.OrderBy(h => h.Index))
+        {
+            var sentence = transcript[hit.Index];
+            var snippet = string.IsNullOrWhiteSpace(sentence.Text) ? string.Empty : sentence.Text.Trim();
+            sb.AppendLine($"Sentence {hit.Index + 1} ({FormatTimestamp(sentence.Start)}): pattern '{hit.Pattern}' -> {snippet}");
+        }
+        return sb.ToString().Trim();
+    }
+
+    private IReadOnlyList<HeuristicHit> BuildHeuristicHits(IReadOnlyList<TimestampedTranscript> transcript, ClipSegmentationSettings? settings)
+    {
+        if (transcript == null || transcript.Count == 0) return Array.Empty<HeuristicHit>();
+        if (settings?.KeywordPatterns == null || settings.KeywordPatterns.Count == 0) return Array.Empty<HeuristicHit>();
+        var weight = settings.HeuristicBoundaryWeight ?? 0;
+        if (weight <= 0) return Array.Empty<HeuristicHit>();
+
+        var hits = new List<HeuristicHit>();
+        var categoryLookup = settings.KeywordCategories ?? new Dictionary<string, string>();
+        foreach (var pattern in settings.KeywordPatterns)
+        {
+            if (string.IsNullOrWhiteSpace(pattern)) continue;
+            Regex regex;
+            try
+            {
+                regex = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Invalid heuristic pattern: {Pattern}", pattern);
+                continue;
+            }
+
+            var category = categoryLookup.TryGetValue(pattern, out var mappedCategory) ? mappedCategory : null;
+
+            for (var i = 0; i < transcript.Count; i++)
+            {
+                var textValue = transcript[i].Text;
+                if (string.IsNullOrWhiteSpace(textValue)) continue;
+                if (regex.IsMatch(textValue))
+                    hits.Add(new HeuristicHit(i, pattern, weight, category));
+            }
+        }
+
+        return hits;
     }
 
     private string BuildRequestUri()
@@ -144,7 +241,7 @@ Transcript:
         return string.IsNullOrWhiteSpace(version) ? path : $"{path}?api-version={version}";
     }
 
-    private IReadOnlyList<ClipDefinition> ParseResponse(string? body, IReadOnlyList<TimestampedTranscript> transcript)
+    private IReadOnlyList<ClipDefinition> ParseResponse(string? body, IReadOnlyList<TimestampedTranscript> transcript, ClipSegmentationSettings? settings, IReadOnlyList<HeuristicHit> heuristicHits)
     {
         if (string.IsNullOrWhiteSpace(body)) return Array.Empty<ClipDefinition>();
 
@@ -178,12 +275,13 @@ Transcript:
                 var zeroIndex = Math.Clamp(rawIndex - 1, 0, transcript.Count - 1);
                 var title = item.TryGetProperty("title", out var titleElement) ? titleElement.GetString() ?? "Clip" : "Clip";
                 var summary = item.TryGetProperty("summary", out var summaryElement) ? summaryElement.GetString() ?? string.Empty : string.Empty;
+                var category = item.TryGetProperty("category", out var categoryElement) ? categoryElement.GetString() : null;
                 var score = item.TryGetProperty("score", out var scoreElement) && scoreElement.TryGetDouble(out var rawScore) ? Math.Clamp(rawScore, 0, 1) : 1.0;
-                candidates.Add(new BoundaryCandidate(zeroIndex, title, summary, score));
+                candidates.Add(new BoundaryCandidate(zeroIndex, title, summary, score, false, category));
             }
 
             var threshold = Math.Clamp(_options.LlmBoundaryScoreThreshold, 0, 1);
-            return CreateClipDefinitions(transcript, candidates, threshold);
+            return CreateClipDefinitions(transcript, candidates, threshold, heuristicHits);
         }
         catch (Exception ex)
         {
@@ -192,7 +290,7 @@ Transcript:
         }
     }
 
-    private IReadOnlyList<ClipDefinition> CreateClipDefinitions(IReadOnlyList<TimestampedTranscript> transcript, List<BoundaryCandidate> candidates, double threshold)
+    private IReadOnlyList<ClipDefinition> CreateClipDefinitions(IReadOnlyList<TimestampedTranscript> transcript, List<BoundaryCandidate> candidates, double threshold, IReadOnlyList<HeuristicHit> heuristicHits)
     {
         if (transcript == null || transcript.Count == 0)
             return Array.Empty<ClipDefinition>();
@@ -205,12 +303,23 @@ Transcript:
                 map[index] = candidate with { Index = index };
         }
 
+        if (heuristicHits != null && heuristicHits.Count > 0)
+        {
+            foreach (var hit in heuristicHits)
+            {
+                var index = Math.Clamp(hit.Index, 0, transcript.Count - 1);
+                var heuristicCandidate = new BoundaryCandidate(index, $"Heuristic boundary ({hit.Pattern})", string.Empty, hit.Weight, true, hit.Category);
+                if (!map.TryGetValue(index, out var existing) || heuristicCandidate.Score > existing.Score)
+                    map[index] = heuristicCandidate;
+            }
+        }
+
         var ordered = map.Values.OrderBy(c => c.Index).ToList();
         if (ordered.Count == 0)
             ordered.Add(new BoundaryCandidate(0, "Full Program", "AutoClipper fallback clip", 1));
 
         if (ordered[0].Index != 0)
-            ordered.Insert(0, ordered[0] with { Index = 0, Score = 1 });
+            ordered.Insert(0, ordered[0] with { Index = 0, Score = 1, IsHeuristic = false });
 
         var filtered = new List<BoundaryCandidate>();
         foreach (var candidate in ordered)
@@ -226,17 +335,37 @@ Transcript:
         {
             var boundary = filtered[i];
             var start = transcript[boundary.Index].Start;
+            var endIndex = i + 1 < filtered.Count ? filtered[i + 1].Index : transcript.Count - 1;
             var end = i + 1 < filtered.Count ? transcript[filtered[i + 1].Index].Start : transcript[^1].End;
             if (end <= start) continue;
             var title = string.IsNullOrWhiteSpace(boundary.Title) ? $"Clip {i + 1}" : boundary.Title;
             var summary = string.IsNullOrWhiteSpace(boundary.Summary) ? string.Empty : boundary.Summary;
-            list.Add(new ClipDefinition(title, summary, start, end));
+            var category = DetermineCategory(boundary, heuristicHits, boundary.Index, endIndex) ?? "News";
+            list.Add(new ClipDefinition(title, summary, start, end, category));
+            _logger.LogInformation("Boundary {BoundaryIndex}: {Title} ({Start}-{End}) Score={Score:0.00} Heuristic={IsHeuristic} Category={Category}", boundary.Index + 1, title, start, end, boundary.Score, boundary.IsHeuristic, category);
         }
 
         return FilterOverlaps(list);
     }
 
-    private sealed record BoundaryCandidate(int Index, string Title, string Summary, double Score);
+
+
+
+    private string? DetermineCategory(BoundaryCandidate boundary, IReadOnlyList<HeuristicHit>? hits, int startIndex, int endIndex)
+    {
+        if (!string.IsNullOrWhiteSpace(boundary.Category)) return boundary.Category;
+        if (hits == null || hits.Count == 0) return null;
+        var best = hits
+            .Where(h => h.Index >= startIndex && h.Index <= endIndex)
+            .OrderByDescending(h => h.Weight)
+            .ThenBy(h => h.Index)
+            .FirstOrDefault(h => !string.IsNullOrWhiteSpace(h.Category));
+        return best?.Category;
+    }
+
+    private sealed record BoundaryCandidate(int Index, string Title, string Summary, double Score, bool IsHeuristic = false, string? Category = null);
+
+    private sealed record HeuristicHit(int Index, string Pattern, double Weight, string? Category);
 
     private static string StripCodeFence(string body)
     {
@@ -300,3 +429,6 @@ Transcript:
         return result;
     }
 }
+
+
+

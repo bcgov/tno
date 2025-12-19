@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using System.Linq;
 using System.Text;
 using Microsoft.Extensions.Logging;
@@ -118,7 +119,7 @@ foreach (var definition in clipDefinitions)
     var clipPath = await CreateClipFileAsync(input, outputDir, normalized.Start, normalized.End, index);
     var transcriptPath = Path.Combine(outputDir, $"clip_{index:00}.txt");
     await File.WriteAllTextAsync(transcriptPath, transcriptBody);
-    Console.WriteLine($"[HARNESS] Saved clip #{index} -> {clipPath}\n[HARNESS] Transcript -> {transcriptPath}");
+    Console.WriteLine($"[HARNESS] Saved clip #{index} ({normalized.Category}) -> {clipPath}\n[HARNESS] Transcript -> {transcriptPath}");
     index++;
 }
 
@@ -130,63 +131,18 @@ static string BuildPromptDebug(ClipSegmentationSettings settings, IReadOnlyList<
     builder.AppendLine("Prompt Override:");
     builder.AppendLine(settings?.PromptOverride ?? "<none>");
     builder.AppendLine();
+    builder.AppendLine("Heuristic Patterns:");
+    builder.AppendLine(settings?.KeywordPatterns != null && settings.KeywordPatterns.Count > 0
+        ? string.Join(", ", settings.KeywordPatterns)
+        : "<none>");
+    builder.AppendLine();
+    builder.AppendLine("Heuristic Hits:");
+    builder.AppendLine(BuildHeuristicHitReport(settings, segments));
+    builder.AppendLine();
     builder.AppendLine("Transcript Preview:");
     builder.AppendLine(BuildNumberedTranscript(segments));
     return builder.ToString();
 }
-
-static string RequireEnv(string key)
-{
-    var value = Environment.GetEnvironmentVariable(key);
-    if (string.IsNullOrWhiteSpace(value)) throw new InvalidOperationException($"Environment variable '{key}' must be set for the AutoClipper harness.");
-    return value;
-}
-
-static void LoadEnvFile(string path)
-{
-    if (!File.Exists(path)) return;
-    foreach (var rawLine in File.ReadAllLines(path))
-    {
-        var line = rawLine.Trim();
-        if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#")) continue;
-        var separator = line.IndexOf('=');
-        if (separator <= 0) continue;
-        var key = line[..separator].Trim();
-        var value = line[(separator + 1)..].Trim();
-        Environment.SetEnvironmentVariable(key, value);
-    }
-}
-
-static ClipSegmentationSettings BuildSegmentationSettings(StationProfile profile)
-{
-    return new ClipSegmentationSettings
-    {
-        PromptOverride = string.IsNullOrWhiteSpace(profile.Text.LlmPrompt) ? null : profile.Text.LlmPrompt,
-        ModelOverride = string.IsNullOrWhiteSpace(profile.Text.LlmModel) ? null : profile.Text.LlmModel,
-        SystemPrompt = string.IsNullOrWhiteSpace(profile.Text.SystemPrompt) ? null : profile.Text.SystemPrompt,
-        PromptCharacterLimit = profile.Text.PromptCharacterLimit,
-        MaxStories = profile.Text.MaxStories
-    };
-}
-
-static ClipDefinition? NormalizeClipDefinition(ClipDefinition definition, IReadOnlyList<TimestampedTranscript> segments)
-{
-    if (segments.Count == 0) return null;
-    var maxEnd = segments[^1].End;
-    var start = definition.Start < TimeSpan.Zero ? TimeSpan.Zero : definition.Start;
-    var end = definition.End > maxEnd ? maxEnd : definition.End;
-    if (end <= start) return null;
-
-    var first = segments.FirstOrDefault(s => s.End > start);
-    var last = segments.LastOrDefault(s => s.Start < end);
-    if (first == null || last == null) return null;
-    start = first.Start;
-    end = last.End;
-    return end <= start ? null : definition with { Start = start, End = end };
-}
-
-static IReadOnlyList<TimestampedTranscript> ExtractTranscriptRange(IReadOnlyList<TimestampedTranscript> segments, TimeSpan start, TimeSpan end)
-    => segments.Where(s => s.End > start && s.Start < end).ToArray();
 
 static string BuildNumberedTranscript(IReadOnlyList<TimestampedTranscript> segments)
 {
@@ -199,6 +155,35 @@ static string BuildNumberedTranscript(IReadOnlyList<TimestampedTranscript> segme
         sb.AppendLine($"{i + 1}. {FormatTimestamp(segment.Start)} --> {FormatTimestamp(segment.End)} :: {segment.Text.Trim()}");
     }
     return sb.ToString();
+}
+
+static string BuildHeuristicHitReport(ClipSegmentationSettings? settings, IReadOnlyList<TimestampedTranscript> segments)
+{
+    if (settings?.KeywordPatterns == null || settings.KeywordPatterns.Count == 0 || segments == null || segments.Count == 0)
+        return "<none>";
+
+    var hits = new List<string>();
+    foreach (var pattern in settings.KeywordPatterns)
+    {
+        if (string.IsNullOrWhiteSpace(pattern)) continue;
+        try
+        {
+            var regex = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            for (var i = 0; i < segments.Count; i++)
+            {
+                var sentence = segments[i];
+                if (string.IsNullOrWhiteSpace(sentence.Text)) continue;
+                if (regex.IsMatch(sentence.Text))
+                    hits.Add($"Sentence {i + 1} matches pattern '{pattern}'");
+            }
+        }
+        catch
+        {
+            continue;
+        }
+    }
+
+    return hits.Count == 0 ? "<none>" : string.Join(Environment.NewLine, hits);
 }
 
 static string BuildTranscriptDocument(IReadOnlyList<TimestampedTranscript> segments)
@@ -248,6 +233,67 @@ static async Task<string> CreateClipFileAsync(string srcFile, string outputDir, 
 
 static bool IsWindows() => OperatingSystem.IsWindows();
 
+
+
+
+
+
+
+static ClipSegmentationSettings BuildSegmentationSettings(StationProfile profile)
+{
+    return new ClipSegmentationSettings
+    {
+        PromptOverride = string.IsNullOrWhiteSpace(profile.Text.LlmPrompt) ? null : profile.Text.LlmPrompt,
+        ModelOverride = string.IsNullOrWhiteSpace(profile.Text.LlmModel) ? null : profile.Text.LlmModel,
+        SystemPrompt = string.IsNullOrWhiteSpace(profile.Text.SystemPrompt) ? null : profile.Text.SystemPrompt,
+        PromptCharacterLimit = profile.Text.PromptCharacterLimit,
+        MaxStories = profile.Text.MaxStories,
+        KeywordPatterns = profile.Heuristics.KeywordPatterns?.ToArray(),
+        HeuristicBoundaryWeight = profile.Text.HeuristicBoundaryWeight,
+        KeywordCategories = profile.Text.KeywordCategories?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
+    };
+}
+static string RequireEnv(string key)
+{
+    var value = Environment.GetEnvironmentVariable(key);
+    if (string.IsNullOrWhiteSpace(value)) throw new InvalidOperationException($"Environment variable '{key}' must be set for the AutoClipper harness.");
+    return value;
+}
+
+static void LoadEnvFile(string path)
+{
+    if (!File.Exists(path)) return;
+    foreach (var rawLine in File.ReadAllLines(path))
+    {
+        var line = rawLine.Trim();
+        if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#")) continue;
+        var separator = line.IndexOf('=');
+        if (separator <= 0) continue;
+        var key = line[..separator].Trim();
+        var value = line[(separator + 1)..].Trim();
+        Environment.SetEnvironmentVariable(key, value);
+    }
+}
+
+
+static ClipDefinition? NormalizeClipDefinition(ClipDefinition definition, IReadOnlyList<TimestampedTranscript> segments)
+{
+    if (segments.Count == 0) return null;
+    var maxEnd = segments[^1].End;
+    var start = definition.Start < TimeSpan.Zero ? TimeSpan.Zero : definition.Start;
+    var end = definition.End > maxEnd ? maxEnd : definition.End;
+    if (end <= start) return null;
+
+    var first = segments.FirstOrDefault(s => s.End > start);
+    var last = segments.LastOrDefault(s => s.Start < end);
+    if (first == null || last == null) return null;
+    start = first.Start;
+    end = last.End;
+    return end <= start ? null : definition with { Start = start, End = end };
+}
+
+static IReadOnlyList<TimestampedTranscript> ExtractTranscriptRange(IReadOnlyList<TimestampedTranscript> segments, TimeSpan start, TimeSpan end)
+    => segments.Where(s => s.End > start && s.Start < end).ToArray();
 
 
 
