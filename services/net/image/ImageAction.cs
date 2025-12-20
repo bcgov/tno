@@ -148,12 +148,12 @@ public class ImageAction : IngestAction<ImageOptions>
                 bool isNewSourceContent = false;
                 bool isUpdatedSourceContent = false;
                 // We're only interested in the files that were copied.
-                var localFiles = Directory.GetFiles(outputPath);
+                var localFiles = Directory.GetFiles(outputPath).Select(f => Path.GetFileName(f));
                 localFiles = localFiles.Where(path => match.Match(path).Success).ToArray();
                 foreach (var path in localFiles)
                 {
-                    var fileName = Path.GetFileName(path);
-                    var newReference = CreateContentReference(manager.Ingest, fileName);
+                    var fullPath = Path.Join(outputPath, path);
+                    var newReference = CreateContentReference(manager.Ingest, fullPath);
                     var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, newReference.Uid);
                     if (reference == null)
                     {
@@ -189,7 +189,7 @@ public class ImageAction : IngestAction<ImageOptions>
                     {
                         reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
                         if (reference != null)
-                            await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference, fileName));
+                            await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference, fullPath));
                     }
 
                     // This ingest has just imported a story.
@@ -230,7 +230,7 @@ public class ImageAction : IngestAction<ImageOptions>
         if (deleteZip)
         {
             File.Delete(path);
-        };
+        }
     }
 
     /// <summary>
