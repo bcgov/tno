@@ -16,13 +16,13 @@ using TNO.API.Models.SignalR;
 using TNO.Ches;
 using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Kafka;
 using TNO.Kafka.SignalR;
 using TNO.Keycloak;
 using TNO.Models.Filters;
-using TNO.Core.Extensions;
 
 namespace TNO.API.Areas.Subscriber.Controllers;
 
@@ -493,7 +493,7 @@ public class ReportController : ControllerBase
             var ownerId = result.OwnerId ?? currentInstance.OwnerId;
             if (ownerId.HasValue)
             {
-                user = _userService.FindByIdMinimal(ownerId.Value) ?? throw new NotAuthorizedException();
+                user = _userService.FindById(ownerId.Value, null) ?? throw new NotAuthorizedException();
                 await _kafkaMessenger.SendMessageAsync(
                     _kafkaHubOptions.HubTopic,
                     new KafkaHubMessage(HubEvent.SendUser, user.Username, new KafkaInvocationMessage(MessageTarget.ReportStatus, new[] { new ReportMessageModel(currentInstance) }))
@@ -544,7 +544,7 @@ public class ReportController : ControllerBase
         var ownerId = mutation.Instance.OwnerId ?? report.OwnerId;
         if (ownerId.HasValue)
         {
-            var owner = _userService.FindByIdMinimal(ownerId.Value) ?? throw new NotAuthorizedException();
+            var owner = _userService.FindById(ownerId.Value, null) ?? throw new NotAuthorizedException();
             await _kafkaMessenger.SendMessageAsync(
                 _kafkaHubOptions.HubTopic,
                 new KafkaHubMessage(

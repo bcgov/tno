@@ -117,6 +117,27 @@ public class NotificationService : BaseService<Notification, int>, INotification
     }
 
     /// <summary>
+    /// Provides a simple way to allow the caller to decide which includes are required.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="include"></param>
+    /// <returns></returns>
+    public Notification? FindById(int id, Func<IQueryable<Notification>, IQueryable<Notification>>? include, bool asNoTracking = true)
+    {
+        IQueryable<Notification> query = this.Context.Notifications;
+
+        if (asNoTracking)
+            query = query.AsNoTracking();
+
+        if (include != null)
+        {
+            query = include(query);
+        }
+
+        return query.FirstOrDefault(u => u.Id == id);
+    }
+
+    /// <summary>
     /// Add the new report to the database.
     /// Add subscribers to the report.
     /// </summary>

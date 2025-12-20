@@ -44,6 +44,7 @@ public class ReportController : ControllerBase
     private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly ILogger<ReportController> _logger;
     private readonly JsonSerializerOptions _serializerOptions;
+    private readonly Helpers.WatchSubscriptionChange _watch;
     #endregion
 
     #region Constructors
@@ -59,6 +60,7 @@ public class ReportController : ControllerBase
     /// <param name="serviceScopeFactory"></param>
     /// <param name="logger"></param>
     /// <param name="kafkaOptions"></param>
+    /// <param name="watch"></param>
     /// <param name="serializerOptions"></param>
     public ReportController(
         IReportService reportService,
@@ -70,6 +72,7 @@ public class ReportController : ControllerBase
         IServiceScopeFactory serviceScopeFactory,
         ILogger<ReportController> logger,
         IOptions<KafkaOptions> kafkaOptions,
+        Helpers.WatchSubscriptionChange watch,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _reportService = reportService;
@@ -81,6 +84,7 @@ public class ReportController : ControllerBase
         _serviceScopeFactory = serviceScopeFactory;
         _logger = logger;
         _kafkaOptions = kafkaOptions.Value;
+        _watch = watch;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -176,10 +180,12 @@ public class ReportController : ControllerBase
     [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult Update([FromBody] ReportModel model)
+    public async Task<IActionResult> Update([FromBody] ReportModel model)
     {
-        var result = _reportService.UpdateAndSave(model.ToEntity(_serializerOptions, false));
-        var report = _reportService.FindById(result.Id) ?? throw new NoContentException("Report does not exist");
+        var report = model.ToEntity(_serializerOptions, false);
+        await _watch.AlertReportSubscriptionChangedAsync(report, this.User, "API Admin Report Controller Update endpoint.");
+        var result = _reportService.UpdateAndSave(report);
+        report = _reportService.FindById(result.Id) ?? throw new NoContentException("Report does not exist");
         return new JsonResult(new ReportModel(report, _serializerOptions));
     }
 
