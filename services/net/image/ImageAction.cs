@@ -150,16 +150,16 @@ public class ImageAction : IngestAction<ImageOptions>
                 // We're only interested in the files that were copied.
                 var localFiles = Directory.GetFiles(outputPath).Select(f => Path.GetFileName(f));
                 localFiles = localFiles.Where(path => match.Match(path).Success).ToArray();
-                foreach (var path in localFiles)
+                foreach (var filename in localFiles)
                 {
-                    var fullPath = Path.Join(outputPath, path);
+                    var fullPath = Path.Join(outputPath, filename);
                     var newReference = CreateContentReference(manager.Ingest, fullPath);
                     var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, newReference.Uid);
                     if (reference == null)
                     {
                         isNewSourceContent = true;
                         reference = await this.Api.AddContentReferenceAsync(newReference);
-                        Logger.LogDebug($"Image Ingest : ADD NEW : [{manager.Ingest.IngestType?.Name ?? "Image"} - {manager.Ingest.Name}] : {path}");
+                        Logger.LogDebug($"Image Ingest : ADD NEW : [{manager.Ingest.IngestType?.Name ?? "Image"} - {manager.Ingest.Name}] : {filename}");
                     }
                     else
                     {
@@ -170,11 +170,11 @@ public class ImageAction : IngestAction<ImageOptions>
                             // update the existing reference published on date with the new date
                             reference.PublishedOn = newReference.PublishedOn;
 
-                            Logger.LogDebug($"Image Ingest : UPDATE : [{manager.Ingest.IngestType?.Name ?? "Image"} - {manager.Ingest.Name}] : {path}");
+                            Logger.LogDebug($"Image Ingest : UPDATE : [{manager.Ingest.IngestType?.Name ?? "Image"} - {manager.Ingest.Name}] : {filename}");
                         }
                         else
                         {
-                            Logger.LogDebug($"Image Ingest : SKIP EXISTING : [{manager.Ingest.IngestType?.Name ?? "Image"} - {manager.Ingest.Name}] : {path}");
+                            Logger.LogDebug($"Image Ingest : SKIP EXISTING : [{manager.Ingest.IngestType?.Name ?? "Image"} - {manager.Ingest.Name}] : {filename}");
                         }
                     }
 
@@ -189,7 +189,7 @@ public class ImageAction : IngestAction<ImageOptions>
                     {
                         reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
                         if (reference != null)
-                            await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference, fullPath));
+                            await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference, filename));
                     }
 
                     // This ingest has just imported a story.
