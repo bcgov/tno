@@ -70,7 +70,7 @@ public class WatchSubscriptionChange
         /// <summary>
         /// get/set - The user email.
         /// </summary>
-        public string UserEmail { get; set; }
+        public string UserLabel { get; set; }
 
         /// <summary>
         /// get/set - The primary key to the report/product/notification.
@@ -87,14 +87,14 @@ public class WatchSubscriptionChange
         /// </summary>
         /// <param name="changeType"></param>
         /// <param name="userId"></param>
-        /// <param name="email"></param>
+        /// <param name="userLabel"></param>
         /// <param name="id"></param>
         /// <param name="name"></param>
-        public SubscriptionChange(SubscriptionChangeType changeType, int userId, string email, int id, string name)
+        public SubscriptionChange(SubscriptionChangeType changeType, int userId, string userLabel, int id, string name)
         {
             this.ChangeType = changeType;
             this.UserId = userId;
-            this.UserEmail = email;
+            this.UserLabel = userLabel;
             this.Id = id;
             this.Name = name;
         }
@@ -184,7 +184,7 @@ public class WatchSubscriptionChange
             body.Append($"""
             <h2>Removed from Products</h2>
             <ol style="margin:0; padding:0; margin-left:20px;">
-            {String.Join('\n', productRemoved.Select(r => $"<li><div>{r.UserEmail} was removed from ID:{r.Id} \"{r.Name}\"</div></li>").ToArray())}
+            {String.Join('\n', productRemoved.Select(r => $"<li><div>{r.UserLabel} was removed from ID:{r.Id} \"{r.Name}\"</div></li>").ToArray())}
             </ol>
             """);
         }
@@ -195,7 +195,7 @@ public class WatchSubscriptionChange
             body.Append($"""
             <h2>Removed from Reports</h2>
             <ol style="margin:0; padding:0; margin-left:20px;">
-            {String.Join('\n', reportRemoved.Select(r => $"<li><div>{r.UserEmail} was removed from ID:{r.Id} \"{r.Name}\"</div></li>").ToArray())}
+            {String.Join('\n', reportRemoved.Select(r => $"<li><div>{r.UserLabel} was removed from ID:{r.Id} \"{r.Name}\"</div></li>").ToArray())}
             </ol>
             """);
         }
@@ -206,7 +206,7 @@ public class WatchSubscriptionChange
             body.Append($"""
             <h2>Unsubscribed from Reports</h2>
             <ol style="margin:0; padding:0; margin-left:20px;">
-            {String.Join('\n', reportUnsubscribed.Select(r => $"<li><div>{r.UserEmail} was unsubscribed from ID:{r.Id} \"{r.Name}\"</div></li>").ToArray())}
+            {String.Join('\n', reportUnsubscribed.Select(r => $"<li><div>{r.UserLabel} was unsubscribed from ID:{r.Id} \"{r.Name}\"</div></li>").ToArray())}
             </ol>
             """);
         }
@@ -217,7 +217,7 @@ public class WatchSubscriptionChange
             body.Append($"""
             <h2>Removed from Notifications</h2>
             <ol style="margin:0; padding:0; margin-left:20px;">
-            {String.Join('\n', notificationRemoved.Select(r => $"<li><div>{r.UserEmail} was removed from ID:{r.Id} \"{r.Name}\"</div></li>").ToArray())}
+            {String.Join('\n', notificationRemoved.Select(r => $"<li><div>{r.UserLabel} was removed from ID:{r.Id} \"{r.Name}\"</div></li>").ToArray())}
             </ol>
             """);
         }
@@ -228,7 +228,7 @@ public class WatchSubscriptionChange
             body.Append($"""
             <h2>Unsubscribed from Notifications</h2>
             <ol style="margin:0; padding:0; margin-left:20px;">
-            {String.Join('\n', notificationUnsubscribed.Select(r => $"<li><div>{r.UserEmail} was unsubscribed from ID:{r.Id} \"{r.Name}\"</div></li>").ToArray())}
+            {String.Join('\n', notificationUnsubscribed.Select(r => $"<li><div>{r.UserLabel} was unsubscribed from ID:{r.Id} \"{r.Name}\"</div></li>").ToArray())}
             </ol>
             """);
         }
@@ -468,7 +468,12 @@ public class WatchSubscriptionChange
                 if (found == null)
                 {
                     _logger.LogWarning("User product subscription removed.  User Email: {Email} ProductId: {ProductId}", currentUser.Email, sub.ProductId);
-                    changes.Add(new SubscriptionChange(SubscriptionChangeType.ProductRemoved, currentUser.Id, currentUser.Email, sub.ProductId, ""));
+                    changes.Add(new SubscriptionChange(
+                        SubscriptionChangeType.ProductRemoved,
+                        currentUser.Id,
+                        String.IsNullOrWhiteSpace(currentUser.Email) ? currentUser.Username : currentUser.Email,
+                        sub.ProductId,
+                        ""));
                 }
             }
         }
@@ -484,7 +489,12 @@ public class WatchSubscriptionChange
                     if (ignore?.HasFlag(SubscriptionChangeType.ReportRemoved) != true)
                     {
                         _logger.LogWarning("User report subscription removed.  User Email: {Email} ReportId: {ReportId}", currentUser.Email, sub.ReportId);
-                        changes.Add(new SubscriptionChange(SubscriptionChangeType.ReportRemoved, currentUser.Id, currentUser.Email, sub.ReportId, ""));
+                        changes.Add(new SubscriptionChange(
+                            SubscriptionChangeType.ReportRemoved,
+                            currentUser.Id,
+                            String.IsNullOrWhiteSpace(currentUser.Email) ? currentUser.Username : currentUser.Email,
+                            sub.ReportId,
+                            ""));
                     }
                 }
                 else if (sub.IsSubscribed && !found.IsSubscribed)
@@ -492,7 +502,12 @@ public class WatchSubscriptionChange
                     if (ignore?.HasFlag(SubscriptionChangeType.ReportUnsubscribed) != true)
                     {
                         _logger.LogWarning("User unsubscribed from report.  User Email: {Email} ReportId: {ReportId}", currentUser.Email, sub.ReportId);
-                        changes.Add(new SubscriptionChange(SubscriptionChangeType.ReportUnsubscribed, currentUser.Id, currentUser.Email, sub.ReportId, ""));
+                        changes.Add(new SubscriptionChange(
+                            SubscriptionChangeType.ReportUnsubscribed,
+                            currentUser.Id,
+                            String.IsNullOrWhiteSpace(currentUser.Email) ? currentUser.Username : currentUser.Email,
+                            sub.ReportId,
+                            ""));
                     }
                 }
             }
@@ -509,7 +524,12 @@ public class WatchSubscriptionChange
                     if (ignore?.HasFlag(SubscriptionChangeType.NotificationRemoved) != true)
                     {
                         _logger.LogWarning("User notification subscription removed.  User Email: {Email} NotificationId: {NotificationId}", currentUser.Email, sub.NotificationId);
-                        changes.Add(new SubscriptionChange(SubscriptionChangeType.NotificationRemoved, currentUser.Id, currentUser.Email, sub.NotificationId, ""));
+                        changes.Add(new SubscriptionChange(
+                            SubscriptionChangeType.NotificationRemoved,
+                            currentUser.Id,
+                            String.IsNullOrWhiteSpace(currentUser.Email) ? currentUser.Username : currentUser.Email,
+                            sub.NotificationId,
+                            ""));
                     }
                 }
                 else if (sub.IsSubscribed && !found.IsSubscribed)
@@ -517,7 +537,12 @@ public class WatchSubscriptionChange
                     if (ignore?.HasFlag(SubscriptionChangeType.NotificationUnsubscribed) != true)
                     {
                         _logger.LogWarning("User unsubscribed from notification.  User Email: {Email} NotificationId: {NotificationId}", currentUser.Email, sub.NotificationId);
-                        changes.Add(new SubscriptionChange(SubscriptionChangeType.NotificationUnsubscribed, currentUser.Id, currentUser.Email, sub.NotificationId, ""));
+                        changes.Add(new SubscriptionChange(
+                            SubscriptionChangeType.NotificationUnsubscribed,
+                            currentUser.Id,
+                            String.IsNullOrWhiteSpace(currentUser.Email) ? currentUser.Username : currentUser.Email,
+                            sub.NotificationId,
+                            ""));
                     }
                 }
             }
@@ -597,12 +622,22 @@ public class WatchSubscriptionChange
             if (found == null)
             {
                 _logger.LogWarning("User report subscription removed.  User Email: {Email} ReportID: {ReportId} {Report} ", sub.User?.Email, sub.ReportId, report.Name);
-                changes.Add(new SubscriptionChange(SubscriptionChangeType.ReportRemoved, sub.UserId, sub.User?.Email!, sub.ReportId, report.Name));
+                changes.Add(new SubscriptionChange(
+                    SubscriptionChangeType.ReportRemoved,
+                    sub.UserId,
+                    String.IsNullOrWhiteSpace(sub.User?.Email) ? sub.User?.Username! : sub.User?.Email!,
+                    sub.ReportId,
+                    report.Name));
             }
             else if (sub.IsSubscribed && !found.IsSubscribed)
             {
                 _logger.LogWarning("User unsubscribed from report.  User Email: {Email} ReportID: {ReportId} {Report}", sub.User?.Email, sub.ReportId, report.Name);
-                changes.Add(new SubscriptionChange(SubscriptionChangeType.ReportUnsubscribed, sub.UserId, sub.User?.Email!, sub.ReportId, report.Name));
+                changes.Add(new SubscriptionChange(
+                    SubscriptionChangeType.ReportUnsubscribed,
+                    sub.UserId,
+                    String.IsNullOrWhiteSpace(sub.User?.Email) ? sub.User?.Username! : sub.User?.Email!,
+                    sub.ReportId,
+                    report.Name));
             }
         }
 
@@ -628,7 +663,12 @@ public class WatchSubscriptionChange
             if (found == null)
             {
                 _logger.LogWarning("User product subscription removed.  User Email: {Email} ProductId: {ProductId} {Product} ", sub.User?.Email, sub.ProductId, product.Name);
-                changes.Add(new SubscriptionChange(SubscriptionChangeType.ProductRemoved, sub.UserId, sub.User?.Email!, sub.ProductId, product.Name));
+                changes.Add(new SubscriptionChange(
+                    SubscriptionChangeType.ProductRemoved,
+                    sub.UserId,
+                    String.IsNullOrWhiteSpace(sub.User?.Email) ? sub.User?.Username! : sub.User?.Email!,
+                    sub.ProductId,
+                    product.Name));
             }
             else if (currentProduct.ProductType == Entities.ProductType.Report)
             {
@@ -637,7 +677,12 @@ public class WatchSubscriptionChange
                 if (currentSub != null && reportSub != null && currentSub.IsSubscribed && !reportSub.IsSubscribed)
                 {
                     _logger.LogWarning("User unsubscribed from report.  User Email: {Email} ReportId: {ReportId} {Report} ", sub.User?.Email, currentProduct.TargetProductId, product.Name);
-                    changes.Add(new SubscriptionChange(SubscriptionChangeType.ReportUnsubscribed, sub.UserId, sub.User?.Email!, currentProduct.TargetProductId, product.Name));
+                    changes.Add(new SubscriptionChange(
+                        SubscriptionChangeType.ReportUnsubscribed,
+                        sub.UserId,
+                        String.IsNullOrWhiteSpace(sub.User?.Email) ? sub.User?.Username! : sub.User?.Email!,
+                        currentProduct.TargetProductId,
+                        product.Name));
                 }
             }
             else if (currentProduct.ProductType == Entities.ProductType.Notification)
@@ -647,7 +692,12 @@ public class WatchSubscriptionChange
                 if (currentSub != null && reportSub != null && currentSub.IsSubscribed && !reportSub.IsSubscribed)
                 {
                     _logger.LogWarning("User unsubscribed from notification.  User Email: {Email} NotificationId: {NotificationId} {Notification} ", sub.User?.Email, currentProduct.TargetProductId, product.Name);
-                    changes.Add(new SubscriptionChange(SubscriptionChangeType.NotificationUnsubscribed, sub.UserId, sub.User?.Email!, currentProduct.TargetProductId, product.Name));
+                    changes.Add(new SubscriptionChange(
+                        SubscriptionChangeType.NotificationUnsubscribed,
+                        sub.UserId,
+                        String.IsNullOrWhiteSpace(sub.User?.Email) ? sub.User?.Username! : sub.User?.Email!,
+                        currentProduct.TargetProductId,
+                        product.Name));
                 }
             }
         }
@@ -678,12 +728,22 @@ public class WatchSubscriptionChange
             if (found == null)
             {
                 _logger.LogWarning("User notification subscription removed.  User Email: {Email} NotificationId: {NotificationId} {Notification} ", sub.User?.Email, sub.NotificationId, notification.Name);
-                changes.Add(new SubscriptionChange(SubscriptionChangeType.NotificationRemoved, sub.UserId, sub.User?.Email!, sub.NotificationId, notification.Name));
+                changes.Add(new SubscriptionChange(
+                    SubscriptionChangeType.NotificationRemoved,
+                    sub.UserId,
+                    String.IsNullOrWhiteSpace(sub.User?.Email) ? sub.User?.Username! : sub.User?.Email!,
+                    sub.NotificationId,
+                    notification.Name));
             }
             else if (sub.IsSubscribed && !found.IsSubscribed)
             {
                 _logger.LogWarning("User unsubscribed from notification.  User Email: {Email} NotificationId: {NotificationId} {Notification}", sub.User?.Email, sub.NotificationId, notification.Name);
-                changes.Add(new SubscriptionChange(SubscriptionChangeType.NotificationUnsubscribed, sub.UserId, sub.User?.Email!, sub.NotificationId, notification.Name));
+                changes.Add(new SubscriptionChange(
+                    SubscriptionChangeType.NotificationUnsubscribed,
+                    sub.UserId,
+                    String.IsNullOrWhiteSpace(sub.User?.Email) ? sub.User?.Username! : sub.User?.Email!,
+                    sub.NotificationId,
+                    notification.Name));
             }
         }
 
