@@ -36,6 +36,7 @@ public class ReportInstanceController : ControllerBase
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaHubConfig _kafkaHubOptions;
     private readonly JsonSerializerOptions _serializerOptions;
+    private readonly Helpers.WatchSubscriptionChange _watch;
     #endregion
 
     #region Constructors
@@ -46,18 +47,21 @@ public class ReportInstanceController : ControllerBase
     /// <param name="userService"></param>
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaHubOptions"></param>
+    /// <param name="watch"></param>
     /// <param name="serializerOptions"></param>
     public ReportInstanceController(
         IReportInstanceService reportInstanceService,
         IUserService userService,
         IKafkaMessenger kafkaMessenger,
         IOptions<KafkaHubConfig> kafkaHubOptions,
+        Helpers.WatchSubscriptionChange watch,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _reportInstanceService = reportInstanceService;
         _userService = userService;
         _kafkaMessenger = kafkaMessenger;
         _kafkaHubOptions = kafkaHubOptions.Value;
+        _watch = watch;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -119,7 +123,12 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public async Task<IActionResult> UpdateAsync([FromBody] ReportInstanceModel model, bool updateContent = true)
     {
-        var result = _reportInstanceService.UpdateAndSave((Entities.ReportInstance)model, updateContent) ?? throw new NoContentException();
+        var reportInstance = (Entities.ReportInstance)model;
+        // TODO: The report should not be updated by this process.
+        if (reportInstance.Report != null)
+            await _watch.AlertReportSubscriptionChangedAsync(reportInstance.Report, this.User, "API Service Report Instance Controller Update endpoint.");
+
+        var result = _reportInstanceService.UpdateAndSave(reportInstance, updateContent) ?? throw new NoContentException();
         var ownerId = result.OwnerId ?? result.Report?.OwnerId;
         if (ownerId.HasValue)
         {
@@ -147,7 +156,6 @@ public class ReportInstanceController : ControllerBase
         var content = _reportInstanceService.GetContentForInstance(id);
         return new JsonResult(content.Select(c => new ReportInstanceContentModel(c)));
     }
-
 
     /// <summary>
     /// Get all user report instances for the specified instance 'id'.

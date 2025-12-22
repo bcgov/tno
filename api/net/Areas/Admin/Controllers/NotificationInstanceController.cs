@@ -30,6 +30,7 @@ public class NotificationInstanceController : ControllerBase
     #region Variables
     private readonly INotificationInstanceService _service;
     private readonly JsonSerializerOptions _serializerOptions;
+    private readonly Helpers.WatchSubscriptionChange _watch;
     #endregion
 
     #region Constructors
@@ -37,10 +38,15 @@ public class NotificationInstanceController : ControllerBase
     /// Creates a new instance of a NotificationInstanceController object, initializes with specified parameters.
     /// </summary>
     /// <param name="service"></param>
+    /// <param name="watch"></param>
     /// <param name="serializerOptions"></param>
-    public NotificationInstanceController(INotificationInstanceService service, IOptions<JsonSerializerOptions> serializerOptions)
+    public NotificationInstanceController(
+        INotificationInstanceService service,
+        Helpers.WatchSubscriptionChange watch,
+        IOptions<JsonSerializerOptions> serializerOptions)
     {
         _service = service;
+        _watch = watch;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -88,9 +94,13 @@ public class NotificationInstanceController : ControllerBase
     [ProducesResponseType(typeof(NotificationInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "NotificationInstance" })]
-    public IActionResult Update([FromBody] NotificationInstanceModel model)
+    public async Task<IActionResult> UpdateAsync([FromBody] NotificationInstanceModel model)
     {
-        var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions));
+        var notificationInstance = model.ToEntity(_serializerOptions);
+        // TODO: This shouldn't occur, but if it does we want to know.
+        if (notificationInstance.Notification != null)
+            await _watch.AlertNotificationSubscriptionChangedAsync(notificationInstance.Notification, this.User, "API Admin Notification Instance Controller Update endpoint.");
+        var result = _service.UpdateAndSave(notificationInstance);
         return new JsonResult(new NotificationInstanceModel(result, _serializerOptions));
     }
 

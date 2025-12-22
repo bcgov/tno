@@ -41,6 +41,7 @@ public class ReportController : ControllerBase
     private readonly IKafkaMessenger _kafkaProducer;
     private readonly KafkaOptions _kafkaOptions;
     private readonly JsonSerializerOptions _serializerOptions;
+    private readonly Helpers.WatchSubscriptionChange _watch;
     #endregion
 
     #region Constructors
@@ -52,6 +53,7 @@ public class ReportController : ControllerBase
     /// <param name="reportHelper"></param>
     /// <param name="kafkaProducer"></param>
     /// <param name="kafkaOptions"></param>
+    /// <param name="watch"></param>
     /// <param name="serializerOptions"></param>
     public ReportController(
         IReportService reportService,
@@ -59,6 +61,7 @@ public class ReportController : ControllerBase
         IReportHelper reportHelper,
         IKafkaMessenger kafkaProducer,
         IOptions<KafkaOptions> kafkaOptions,
+        Helpers.WatchSubscriptionChange watch,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _reportService = reportService;
@@ -66,6 +69,7 @@ public class ReportController : ControllerBase
         _reportHelper = reportHelper;
         _kafkaProducer = kafkaProducer;
         _kafkaOptions = kafkaOptions.Value;
+        _watch = watch;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -146,7 +150,7 @@ public class ReportController : ControllerBase
     [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult Update([FromBody] ReportModel model)
+    public async Task<IActionResult> UpdateAsync([FromBody] ReportModel model)
     {
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException($"User [{username}] does not exist");
@@ -154,8 +158,10 @@ public class ReportController : ControllerBase
         if (result.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to update this report");
         _reportService.ClearChangeTracker(); // Remove the report from context.
 
-        result = _reportService.UpdateAndSave(model.ToEntity(_serializerOptions));
-        var report = _reportService.FindById(result.Id) ?? throw new NoContentException("Report does not exist");
+        var report = model.ToEntity(_serializerOptions);
+        await _watch.AlertReportSubscriptionChangedAsync(report, user, "API Editor User Controller Update endpoint.");
+        result = _reportService.UpdateAndSave(report);
+        report = _reportService.FindById(result.Id) ?? throw new NoContentException("Report does not exist");
         return new JsonResult(new ReportModel(report, _serializerOptions));
     }
 

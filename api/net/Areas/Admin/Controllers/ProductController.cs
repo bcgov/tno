@@ -30,6 +30,7 @@ public class ProductController : ControllerBase
     private readonly IReportService _reportService;
     private readonly INotificationService _notificationService;
     private readonly ILogger<ProductController> _logger;
+    private readonly Helpers.WatchSubscriptionChange _watch;
     #endregion
 
     #region Constructors
@@ -39,16 +40,19 @@ public class ProductController : ControllerBase
     /// <param name="productService"></param>
     /// <param name="reportService"></param>
     /// <param name="notificationService"></param>
+    /// <param name="watch"></param>
     /// <param name="logger"></param>
     public ProductController(
         IProductService productService,
         IReportService reportService,
         INotificationService notificationService,
+        Helpers.WatchSubscriptionChange watch,
         ILogger<ProductController> logger)
     {
         _productService = productService;
         _reportService = reportService;
         _notificationService = notificationService;
+        _watch = watch;
         _logger = logger;
     }
     #endregion
@@ -115,10 +119,12 @@ public class ProductController : ControllerBase
     [ProducesResponseType(typeof(ProductModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Product" })]
-    public IActionResult Update([FromBody] ProductModel model)
+    public async Task<IActionResult> UpdateAsync([FromBody] ProductModel model)
     {
         // TODO: Update the notification or report subscribers.
-        var product = _productService.UpdateAndSave(model.ToEntity());
+        var product = model.ToEntity();
+        await _watch.AlertProductSubscriptionChangedAsync(product, this.User, "API Admin Product Controller Update endpoint.");
+        product = _productService.UpdateAndSave(product);
         product = _productService.FindById(product.Id, true) ?? throw new NoContentException("Product does not exist");
         return new JsonResult(new ProductModel(product));
     }

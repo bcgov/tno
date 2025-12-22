@@ -82,6 +82,8 @@ config.GetSection("SignalR").Bind(signalROptions);
 builder.Services.AddOptions<TNO.API.Config.KeycloakOptions>().Bind(config.GetSection("Keycloak"));
 builder.Services.AddSingleton<IAuthorizationHandler, KeycloakClientRoleHandler>();
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, ClientRoleAuthorizationPolicyProvider>();
+builder.Services.AddOptions<TNO.API.Areas.Helpers.WatchSubscriptionChange.WatchOptions>().Bind(config.GetSection("Watch"));
+builder.Services.AddScoped<TNO.API.Areas.Helpers.WatchSubscriptionChange>();
 builder.Services.AddAuthorization(options =>
     {
         // options.AddPolicy("administrator", policy => policy.Requirements.Add(new KeycloakClientRoleRequirement("administrator")));

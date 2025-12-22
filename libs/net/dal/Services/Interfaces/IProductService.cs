@@ -24,8 +24,18 @@ public interface IProductService : IBaseService<Product, int>
     /// </summary>
     /// <param name="id"></param>
     /// <param name="includeSubscriptions"></param>
+    /// <param name="asNoTracking"></param>
     /// <returns></returns>
-    Product? FindById(int id, bool includeSubscriptions);
+    Product? FindById(int id, bool includeSubscriptions, bool asNoTracking = false);
+
+    /// <summary>
+    /// Provides a simple way to allow the caller to decide which includes are required.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="include"></param>
+    /// <param name="asNoTracking"></param>
+    /// <returns></returns>
+    Product? FindById(int id, Func<IQueryable<Product>, IQueryable<Product>>? include, bool asNoTracking = true);
 
     /// <summary>
     /// Add the user product.

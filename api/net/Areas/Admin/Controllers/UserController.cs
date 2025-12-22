@@ -39,6 +39,7 @@ public class UserController : ControllerBase
     private readonly INotificationService _notificationService;
     private readonly IReportService _reportService;
     private readonly IOrganizationService _organizationService;
+    private readonly Helpers.WatchSubscriptionChange _watch;
     #endregion
 
     #region Constructors
@@ -52,6 +53,7 @@ public class UserController : ControllerBase
     /// <param name="notificationService"></param>
     /// <param name="reportService"></param>
     /// <param name="organizationService"></param>
+    /// <param name="watch"></param>
     public UserController(
         IUserService userService,
         IKeycloakService keycloakService,
@@ -59,7 +61,8 @@ public class UserController : ControllerBase
         IOptions<JsonSerializerOptions> serializerOptions,
         INotificationService notificationService,
         IReportService reportService,
-        IOrganizationService organizationService)
+        IOrganizationService organizationService,
+        Helpers.WatchSubscriptionChange watch)
     {
         _userService = userService;
         _keycloakService = keycloakService;
@@ -68,6 +71,7 @@ public class UserController : ControllerBase
         _notificationService = notificationService;
         _reportService = reportService;
         _organizationService = organizationService;
+        _watch = watch;
     }
     #endregion
 
@@ -159,6 +163,9 @@ public class UserController : ControllerBase
     [SwaggerOperation(Tags = new[] { "User" })]
     public async Task<IActionResult> UpdateAsync([FromBody] UserModel model)
     {
+        var user = (Entities.User)model;
+        await _watch.AlertUserSubscriptionChangedAsync(user, this.User, "API Admin User Controller Update endpoint.",
+            Helpers.WatchSubscriptionChange.SubscriptionChangeType.ProductRemoved | Helpers.WatchSubscriptionChange.SubscriptionChangeType.NotificationRemoved | Helpers.WatchSubscriptionChange.SubscriptionChangeType.NotificationUnsubscribed);
         if (Guid.TryParse(model.Key, out Guid key))
         {
             var kUser = await _keycloakService.GetUserAsync(key);
@@ -168,7 +175,7 @@ public class UserController : ControllerBase
             }
         }
 
-        var user = _userService.UpdateDistributionList((Entities.User)model);
+        user = _userService.UpdateDistributionList(user);
         if (!model.IsEnabled)
         {
             await _notificationService.Unsubscribe(model.Id);

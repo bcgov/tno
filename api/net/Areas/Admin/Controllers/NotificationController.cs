@@ -44,6 +44,7 @@ public class NotificationController : ControllerBase
     private readonly IKafkaMessenger _kafkaProducer;
     private readonly KafkaOptions _kafkaOptions;
     private readonly JsonSerializerOptions _serializerOptions;
+    private readonly Helpers.WatchSubscriptionChange _watch;
     #endregion
 
     #region Constructors
@@ -56,6 +57,7 @@ public class NotificationController : ControllerBase
     /// <param name="notificationHelper"></param>
     /// <param name="kafkaProducer"></param>
     /// <param name="kafkaOptions"></param>
+    /// <param name="watch"></param>
     /// <param name="serializerOptions"></param>
     public NotificationController(
         INotificationService notificationService,
@@ -64,6 +66,7 @@ public class NotificationController : ControllerBase
         INotificationHelper notificationHelper,
         IKafkaMessenger kafkaProducer,
         IOptions<KafkaOptions> kafkaOptions,
+        Helpers.WatchSubscriptionChange watch,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _notificationService = notificationService;
@@ -72,6 +75,7 @@ public class NotificationController : ControllerBase
         _notificationHelper = notificationHelper;
         _kafkaProducer = kafkaProducer;
         _kafkaOptions = kafkaOptions.Value;
+        _watch = watch;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -136,9 +140,11 @@ public class NotificationController : ControllerBase
     [ProducesResponseType(typeof(NotificationModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
-    public IActionResult Update([FromBody] NotificationModel model)
+    public async Task<IActionResult> UpdateAsync([FromBody] NotificationModel model)
     {
-        var result = _notificationService.UpdateAndSave(model.ToEntity(_serializerOptions, true));
+        var notification = model.ToEntity(_serializerOptions, true);
+        await _watch.AlertNotificationSubscriptionChangedAsync(notification, this.User, "API Admin Notification Controller Update endpoint.");
+        var result = _notificationService.UpdateAndSave(notification);
         result = _notificationService.FindById(result.Id) ?? throw new NoContentException();
         return new JsonResult(new NotificationModel(result, _serializerOptions));
     }

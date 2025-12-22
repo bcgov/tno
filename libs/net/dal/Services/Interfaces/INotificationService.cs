@@ -13,6 +13,14 @@ public interface INotificationService : IBaseService<Notification, int>
     IEnumerable<Notification> Find(NotificationFilter filter);
 
     /// <summary>
+    /// Provides a simple way to allow the caller to decide which includes are required.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="include"></param>
+    /// <returns></returns>
+    Notification? FindById(int id, Func<IQueryable<Notification>, IQueryable<Notification>>? include, bool asNoTracking = true);
+
+    /// <summary>
     /// Unsubscribe the specified 'userId' from all reports.
     /// </summary>
     /// <param name="userId"></param>
