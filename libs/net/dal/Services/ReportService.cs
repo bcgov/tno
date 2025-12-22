@@ -132,6 +132,28 @@ public class ReportService : BaseService<Report, int>, IReportService
         return report;
     }
 
+
+    /// <summary>
+    /// Provides a simple way to allow the caller to decide which includes are required.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="include"></param>
+    /// <returns></returns>
+    public Report? FindById(int id, Func<IQueryable<Report>, IQueryable<Report>>? include, bool asNoTracking = true)
+    {
+        IQueryable<Report> query = this.Context.Reports;
+
+        if (asNoTracking)
+            query = query.AsNoTracking();
+
+        if (include != null)
+        {
+            query = include(query);
+        }
+
+        return query.FirstOrDefault(u => u.Id == id);
+    }
+
     /// <summary>
     /// Get reports based on the filter for the dashboard.
     /// </summary>

@@ -54,6 +54,7 @@ objects:
           - deployments
           - statefulsets
           - statefulsets/scale
+          - deployments/scale
         verbs:
           - create
           - get
@@ -134,7 +135,6 @@ objects:
       apiGroup: rbac.authorization.k8s.io
       kind: Role
       name: ${NAME}
-      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
     subjects:
       - kind: ServiceAccount
         name: ${NAME}

@@ -172,15 +172,43 @@ public class ProductService : BaseService<Product, int>, IProductService
     }
 
     /// <summary>
+    /// Provides a simple way to allow the caller to decide which includes are required.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="include"></param>
+    /// <param name="asNoTracking"></param>
+    /// <returns></returns>
+    public Product? FindById(int id, Func<IQueryable<Product>, IQueryable<Product>>? include, bool asNoTracking = true)
+    {
+        IQueryable<Product> query = this.Context.Products;
+
+        if (asNoTracking)
+            query = query.AsNoTracking();
+
+        if (include != null)
+        {
+            query = include(query);
+        }
+
+        return query.FirstOrDefault(u => u.Id == id);
+    }
+
+    /// <summary>
     /// Find the report for the specified 'id'.
     /// Also include the user subscriptions to the linked product types.
     /// </summary>
     /// <param name="id"></param>
     /// <param name="includeSubscriptions"></param>
+    /// <param name="asNoTracking"></param>
     /// <returns></returns>
-    public Product? FindById(int id, bool includeSubscriptions)
+    public Product? FindById(int id, bool includeSubscriptions, bool asNoTracking = false)
     {
-        var product = this.Context.Products
+        IQueryable<Product> query = this.Context.Products;
+
+        if (asNoTracking)
+            query = query.AsNoTracking();
+
+        var product = query
             .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
             .FirstOrDefault(r => r.Id == id);
 
@@ -441,7 +469,8 @@ public class ProductService : BaseService<Product, int>, IProductService
         try
         {
             this.Context.SaveChanges();
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             this.Logger.LogError(ex, $"ProductService - AddAndSave ProductId: {subscription.ProductId}, UserId: {subscription.UserId} throws exception.");
             throw;
@@ -458,7 +487,8 @@ public class ProductService : BaseService<Product, int>, IProductService
         try
         {
             this.Context.SaveChanges();
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             this.Logger.LogError(ex, $"ProductService - UpdateAndSave ProductId: {subscription.ProductId}, UserId: {subscription.UserId} throws exception.");
             throw;
@@ -493,7 +523,8 @@ public class ProductService : BaseService<Product, int>, IProductService
         try
         {
             this.Context.SaveChanges();
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             this.Logger.LogError(ex, $"ProductService - Unsubscribe userId: {userId}, productId: {productId} throws exception.");
             throw;
@@ -529,7 +560,8 @@ public class ProductService : BaseService<Product, int>, IProductService
         try
         {
             this.Context.SaveChanges();
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             this.Logger.LogError(ex, $"ProductService - Subscribe userId: {userId}, productId: {productId} throws exception.");
             throw;
@@ -568,7 +600,7 @@ public class ProductService : BaseService<Product, int>, IProductService
             message.AppendLine($"<p><strong>Action</strong>: UNSUBSCRIBE</p>");
         }
 
-		message.AppendLine($"<p><a href=\"https://editor.mmi.gov.bc.ca/admin/products/{product.Id}\" target=\"_blank\">Link to request</a></p>");
+        message.AppendLine($"<p><a href=\"https://editor.mmi.gov.bc.ca/admin/products/{product.Id}\" target=\"_blank\">Link to request</a></p>");
         message.AppendLine("</BODY>");
         message.AppendLine("</HTML>");
 

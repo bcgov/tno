@@ -15,6 +15,14 @@ public interface IReportService : IBaseService<Report, int>
     IEnumerable<Report> Find(ReportFilter filter, bool populateFullModel = true);
 
     /// <summary>
+    /// Provides a simple way to allow the caller to decide which includes are required.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="include"></param>
+    /// <returns></returns>
+    Report? FindById(int id, Func<IQueryable<Report>, IQueryable<Report>>? include, bool asNoTracking = true);
+
+    /// <summary>
     /// Make a request to Elasticsearch to find content for the specified 'report'.
     /// It will generate content for each section.
     /// </summary>

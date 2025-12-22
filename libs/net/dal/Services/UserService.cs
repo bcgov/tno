@@ -1,5 +1,5 @@
+using System.Linq.Expressions;
 using System.Security.Claims;
-using System.Text.Json;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -124,16 +124,24 @@ public class UserService : BaseService<User, int>, IUserService
     }
 
     /// <summary>
-    /// Find user by ID with minimal data (optimized for performance).
-    /// Only returns basic user information without related entities.
+    /// Provides a simple way to allow the caller to decide which includes are required.
     /// </summary>
-    /// <param name="id">User ID</param>
-    /// <returns>User with minimal data or null if not found</returns>
-    public User? FindByIdMinimal(int id)
+    /// <param name="id"></param>
+    /// <param name="include"></param>
+    /// <returns></returns>
+    public User? FindById(int id, Func<IQueryable<User>, IQueryable<User>>? include, bool asNoTracking = true)
     {
-        return this.Context.Users
-            .AsNoTracking()  // Don't track changes for better performance
-            .FirstOrDefault(u => u.Id == id);
+        IQueryable<User> query = this.Context.Users;
+
+        if (asNoTracking)
+            query = query.AsNoTracking();
+
+        if (include != null)
+        {
+            query = include(query);
+        }
+
+        return query.FirstOrDefault(u => u.Id == id);
     }
 
     public IEnumerable<User> GetUserUpdateHistory()

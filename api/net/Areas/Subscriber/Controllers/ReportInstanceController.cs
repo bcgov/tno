@@ -43,6 +43,7 @@ public class ReportInstanceController : ControllerBase
     private readonly IKafkaMessenger _kafkaProducer;
     private readonly KafkaOptions _kafkaOptions;
     private readonly JsonSerializerOptions _serializerOptions;
+    private readonly Helpers.WatchSubscriptionChange _watch;
     #endregion
 
     #region Constructors
@@ -56,6 +57,7 @@ public class ReportInstanceController : ControllerBase
     /// <param name="reportHelper"></param>
     /// <param name="kafkaProducer"></param>
     /// <param name="kafkaOptions"></param>
+    /// <param name="watch"></param>
     /// <param name="serializerOptions"></param>
     public ReportInstanceController(
         IReportService reportService,
@@ -65,6 +67,7 @@ public class ReportInstanceController : ControllerBase
         IReportHelper reportHelper,
         IKafkaMessenger kafkaProducer,
         IOptions<KafkaOptions> kafkaOptions,
+        Helpers.WatchSubscriptionChange watch,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _reportService = reportService;
@@ -74,6 +77,7 @@ public class ReportInstanceController : ControllerBase
         _reportHelper = reportHelper;
         _kafkaProducer = kafkaProducer;
         _kafkaOptions = kafkaOptions.Value;
+        _watch = watch;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -138,13 +142,17 @@ public class ReportInstanceController : ControllerBase
     [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
-    public IActionResult Update([FromBody] ReportInstanceModel model)
+    public async Task<IActionResult> UpdateAsync([FromBody] ReportInstanceModel model)
     {
+        var reportInstance = (Entities.ReportInstance)model;
         var user = _impersonate.GetCurrentUser();
+        // TODO: The report should not be updated by this process.
+        if (reportInstance.Report != null)
+            await _watch.AlertReportSubscriptionChangedAsync(reportInstance.Report, this.User, "API Subscriber Report Instance Controller Update endpoint.");
         var instance = _reportInstanceService.FindByKey(model.Id) ?? throw new NoContentException("Report does not exist");
         if (instance.OwnerId != user.Id) throw new NotAuthorizedException("Not authorized to update this report"); // Report is not public
         _reportInstanceService.ClearChangeTracker();
-        _reportInstanceService.UpdateAndSave((Entities.ReportInstance)model, true);
+        _reportInstanceService.UpdateAndSave(reportInstance, true);
         return FindById(model.Id);
     }
 

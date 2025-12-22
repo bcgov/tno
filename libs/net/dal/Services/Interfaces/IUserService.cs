@@ -24,12 +24,14 @@ public interface IUserService : IBaseService<User, int>
     IEnumerable<User> FindByRoles(IEnumerable<string> roles);
 
     /// <summary>
-    /// Find user by ID with minimal data (optimized for performance).
-    /// Only returns basic user information without related entities.
+    /// Find user by ID.
     /// </summary>
     /// <param name="id">User ID</param>
+    /// <param name="include">Allow caller to decide what to include.</param>
+    /// <param name="asNoTracking">Whether to turn of tracking (default = true)</param>
     /// <returns>User with minimal data or null if not found</returns>
-    User? FindByIdMinimal(int id);
+    User? FindById(int id, Func<IQueryable<User>, IQueryable<User>>? include, bool asNoTracking = true);
+
     User? TransferAccount(API.Areas.Admin.Models.User.TransferAccountModel account);
 
     IEnumerable<User> GetDistributionList(int userId);
