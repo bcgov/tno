@@ -76,6 +76,7 @@ Transcript:
             };
 
             var requestUri = BuildRequestUri();
+            _logger.LogDebug("Sending LLM segmentation request to {RequestUri} with payload: {Payload}", requestUri, JsonSerializer.Serialize(payload));
             using var request = new HttpRequestMessage(HttpMethod.Post, requestUri);
             request.Headers.Add("api-key", _options.LlmApiKey);
             request.Content = JsonContent.Create(payload);
@@ -88,15 +89,15 @@ Transcript:
             if (clipDefinitions.Count == 0)
             {
                 _logger.LogWarning("LLM segmentation did not return any clips. Falling back to a single clip definition.");
-                return new[] { BuildFallbackClip(transcript) };
+                return [BuildFallbackClip(transcript)];
             }
 
             return clipDefinitions;
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to segment transcript with LLM. Falling back to a single clip definition.");
-            return new[] { BuildFallbackClip(transcript) };
+            _logger.LogError(ex, "Failed to segment transcript with LLM. Falling back to a single clip definition.");
+            return [BuildFallbackClip(transcript)];
         }
     }
 
