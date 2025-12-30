@@ -844,7 +844,10 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                   <Row alignItems="center" gap="0.25rem">
                                     <WorkOrderStatus
                                       workOrders={form.workOrders}
-                                      type={WorkOrderTypeName.Transcription}
+                                      type={[
+                                        WorkOrderTypeName.Transcription,
+                                        WorkOrderTypeName.AutoClip,
+                                      ]}
                                     />
                                     <span>Transcript</span>
                                     <Show visible={!!props.values.body}>
