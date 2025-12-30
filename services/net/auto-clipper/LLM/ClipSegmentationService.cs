@@ -54,10 +54,10 @@ Transcript:
     public async Task<IReadOnlyList<ClipDefinition>> GenerateClipsAsync(IReadOnlyList<TimestampedTranscript> transcript, ClipSegmentationSettings? settings, CancellationToken cancellationToken)
     {
         if (transcript == null || transcript.Count == 0)
-            return Array.Empty<ClipDefinition>();
+            return [];
 
         if (string.IsNullOrWhiteSpace(_options.LlmApiUrl) || string.IsNullOrWhiteSpace(_options.LlmApiKey) || string.IsNullOrWhiteSpace(_options.LlmDeployment))
-            return new[] { BuildFallbackClip(transcript) };
+            throw new InvalidOperationException("LLM configuration is missing the Azure OpenAI endpoint, deployment name, or API key.");
 
         try
         {
@@ -88,16 +88,16 @@ Transcript:
             var clipDefinitions = ParseResponse(body, transcript, settings, heuristicHits);
             if (clipDefinitions.Count == 0)
             {
-                _logger.LogWarning("LLM segmentation did not return any clips. Falling back to a single clip definition.");
-                return [BuildFallbackClip(transcript)];
+                _logger.LogWarning("LLM segmentation did not return any clips.");
+                return [];
             }
 
             return clipDefinitions;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to segment transcript with LLM. Falling back to a single clip definition.");
-            return [BuildFallbackClip(transcript)];
+            _logger.LogError(ex, "Failed to segment transcript with LLM.");
+            return [];
         }
     }
 
