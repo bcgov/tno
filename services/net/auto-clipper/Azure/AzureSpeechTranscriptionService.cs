@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using Microsoft.Extensions.Logging;
@@ -93,7 +88,8 @@ public class AzureSpeechTranscriptionService : IAzureSpeechTranscriptionService
 
         return speechConfig;
     }
-    private async Task<List<TimestampedTranscript>> RecognizeAsync(AudioConfig audioConfig, SpeechTranscriptionRequest request, Stream? fileStream, PushAudioInputStream? pushStream, CancellationToken cancellationToken)
+
+    private async Task<TimestampedTranscript[]> RecognizeAsync(AudioConfig audioConfig, SpeechTranscriptionRequest request, Stream? fileStream, PushAudioInputStream? pushStream, CancellationToken cancellationToken)
     {
         var transcripts = new List<TimestampedTranscript>();
         var speechConfig = CreateSpeechConfig(request);
@@ -111,6 +107,7 @@ public class AzureSpeechTranscriptionService : IAzureSpeechTranscriptionService
                 var start = TimeSpan.FromTicks(e.Result.OffsetInTicks);
                 var end = start + e.Result.Duration;
                 transcripts.Add(new TimestampedTranscript(start, end, e.Result.Text));
+                _logger.LogDebug("Speech transcription process. \"{text}...\"", e.Result.Text?[0..Math.Min(e.Result.Text.Length, 25)]);
             }
         };
 
@@ -153,7 +150,7 @@ public class AzureSpeechTranscriptionService : IAzureSpeechTranscriptionService
         if (sessionStarted && !sessionStopped)
             throw new InvalidOperationException("Azure Speech session ended unexpectedly without a stop notification.");
 
-        return transcripts;
+        return [.. transcripts];
     }
 
     private static async Task WriteStreamAsync(PushAudioInputStream pushStream, Stream fileStream, CancellationToken cancellationToken)

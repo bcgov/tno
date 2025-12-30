@@ -3,7 +3,7 @@
 The AutoClipper service consumes clip requests from Kafka, normalizes audio, transcribes it with Azure Speech, and
 segments the transcript into clips using a boundary-aware LLM workflow boosted by station heuristics. Key concepts:
 
-- **Station profiles** (Config/Stations/*.yml) define language, sample rate, heuristic keywords, custom prompts, and
+- **Station profiles** (Config/Stations/\*.yml) define language, sample rate, heuristic keywords, custom prompts, and
   category mappings for weather/traffic/ads.
 - **Pipeline** (ClipProcessingPipeline) normalizes audio, transcribes via AzureSpeechTranscriptionService, and feeds
   transcripts plus station config into ClipSegmentationService.
@@ -18,7 +18,8 @@ segments the transcript into clips using a boundary-aware LLM workflow boosted b
 
 ## Configuration
 
-Important Service__ env vars:
-- Service__AzureSpeechKey / Service__AzureSpeechRegion
-- Service__LlmApiUrl, Service__LlmApiKey, Service__LlmDeployment, Service__LlmApiVersion
-- Service__StationConfigPath (optional override for station YAML directory)
+Important Service\_\_ env vars:
+
+- Service**AzureSpeechKey / Service**AzureSpeechRegion
+- Service**LlmApiUrl, Service**LlmApiKey, Service**LlmDeployment, Service**LlmApiVersion
+- Service\_\_StationConfigPath (optional override for station YAML directory)

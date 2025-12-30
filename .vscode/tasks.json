@@ -29,12 +29,7 @@
       "label": "watch",
       "command": "dotnet",
       "type": "process",
-      "args": [
-        "watch",
-        "run",
-        "--project",
-        "${workspaceFolder}/api/net/TNO.API.csproj"
-      ],
+      "args": ["watch", "run", "--project", "${workspaceFolder}/api/net/TNO.API.csproj"],
       "problemMatcher": "$msCompile"
     },
     {
@@ -213,7 +208,43 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/transcription/TNO.Services.Transcription.csproj"
+        "${workspaceFolder}/services/net/atranscription/TNO.Services.Transcription.csproj"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-auto-clipper",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/services/net/auto-clipper/TNO.Services.AutoClipper.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-auto-clipper",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/services/net/auto-clipper/TNO.Services.AutoClipper.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-auto-clipper",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/services/net/auto-clipper/TNO.Services.TranAutoClipperscription.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -357,7 +388,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/tools/elastic/migration/TNO.Elastic.Migration.csproj",
+        "${workspaceFolder}/tools/elastic/migration/TNO.Elastic.Migration.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -393,7 +424,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/notification/TNO.Services.Notification.csproj",
+        "${workspaceFolder}/services/net/notification/TNO.Services.Notification.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -429,7 +460,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/reporting/TNO.Services.Reporting.csproj",
+        "${workspaceFolder}/services/net/reporting/TNO.Services.Reporting.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -465,7 +496,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/scheduler/TNO.Services.Scheduler.csproj",
+        "${workspaceFolder}/services/net/scheduler/TNO.Services.Scheduler.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -501,7 +532,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/folder-collection/TNO.Services.FolderCollection.csproj",
+        "${workspaceFolder}/services/net/folder-collection/TNO.Services.FolderCollection.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -537,7 +568,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/ffmpeg/TNO.Services.FFmpeg.csproj",
+        "${workspaceFolder}/services/net/ffmpeg/TNO.Services.FFmpeg.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -573,7 +604,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/extract-quotes/TNO.Services.ExtractQuotes.csproj",
+        "${workspaceFolder}/services/net/extract-quotes/TNO.Services.ExtractQuotes.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -609,7 +640,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/event-handler/TNO.Services.EventHandler.csproj",
+        "${workspaceFolder}/services/net/event-handler/TNO.Services.EventHandler.csproj"
       ],
       "problemMatcher": "$msCompile"
     },
@@ -645,11 +676,10 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/ches-retry/TNO.Services.ChesRetry.csproj",
+        "${workspaceFolder}/services/net/ches-retry/TNO.Services.ChesRetry.csproj"
       ],
       "problemMatcher": "$msCompile"
-    }
-    ,
+    },
     {
       "label": "build-elastic-indexer",
       "command": "dotnet",
@@ -682,7 +712,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/tools/indexer/TNO.Tools.ElasticIndexer.csproj",
+        "${workspaceFolder}/tools/indexer/TNO.Tools.ElasticIndexer.csproj"
       ],
       "problemMatcher": "$msCompile"
     }

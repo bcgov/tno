@@ -9,8 +9,10 @@ import { IWorkOrderModel, WorkOrderStatusName, WorkOrderTypeName } from 'tno-cor
  */
 export const isWorkOrderStatus = (
   workOrders: IWorkOrderModel[] | undefined,
-  type: WorkOrderTypeName,
+  type: WorkOrderTypeName | WorkOrderTypeName[],
   status: WorkOrderStatusName[],
 ) => {
+  if (Array.isArray(type))
+    return workOrders?.some((i) => type.includes(i.workType) && status.includes(i.status)) ?? false;
   return workOrders?.some((i) => i.workType === type && status.includes(i.status)) ?? false;
 };

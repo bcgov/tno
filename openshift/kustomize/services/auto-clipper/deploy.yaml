@@ -1,0 +1,322 @@
+apiVersion: v1
+data:
+  CHES_EMAIL_AUTHORIZED: "true"
+  CHES_EMAIL_ENABLED: "true"
+  KAFKA_CLIENT_ID: AutoClipper
+  LLM_API_URL: https://mmiopenai.cognitiveservices.azure.com
+  LLM_DEPLOYMENT_NAME: gpt-4o-mini
+  LLM_MODEL_NAME: ""
+  MAX_FAIL_LIMIT: "5"
+  TOPICS: request-clips
+  VOLUME_PATH: /data
+kind: ConfigMap
+metadata:
+  annotations:
+    created-by: jeremy.foster
+    description: Transcription service configuration settings
+  labels:
+    component: auto-clipper-service
+    managed-by: kustomize
+    name: auto-clipper-service
+    part-of: tno
+    version: 1.0.0
+  name: auto-clipper-service
+  namespace: 9b301c-dev
+---
+apiVersion: v1
+data:
+  AZURE_OPENAI_KEY: |
+    R0VUdE5ZUllSeXBxRUNCRTIzU3FBSHFRYWE4SFJSSGRheFQzc1RvNTRlanZxTzBaaHU4TU
+    pRUUo5OUJMQUM0ZjFjTVhKM3czQUFBQkFDT0c5SE9V
+kind: Secret
+metadata:
+  name: azure-openai
+  namespace: 9b301c-dev
+type: stringData
+---
+apiVersion: v1
+data:
+  AZURE_REGION: d2VzdHVz
+  AZURE_SPEECH_SERVICES_KEY: |
+    Q0FNVlh2dnVBZjZKaWdJekpCdG1YdEZEQkVLVE01NHRad2taMkJUNnhPMWhWeWJoaDlCU0
+    pRUUo5OUJMQUM0ZjFjTVhKM3czQUFBWUFDT0dVeUdF
+kind: Secret
+metadata:
+  name: azure-speech-services
+  namespace: 9b301c-dev
+type: stringData
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    created-by: jeremy.foster
+    description: Exposes and load balances the application pods.
+  labels:
+    component: auto-clipper-service
+    managed-by: kustomize
+    name: auto-clipper-service
+    part-of: tno
+    version: 1.0.0
+  name: auto-clipper-service
+  namespace: 9b301c-dev
+spec:
+  ports:
+  - name: 8080-tcp
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    component: auto-clipper-service
+    part-of: tno
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    created-by: jeremy.foster
+    description: Defines how to deploy auto-clipper-service
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "auto-clipper-service:dev",
+      "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"auto-clipper-service\")].image"}]'
+  labels:
+    component: auto-clipper-service
+    managed-by: kustomize
+    name: auto-clipper-service
+    part-of: tno
+    version: 1.0.0
+  name: auto-clipper-service
+  namespace: 9b301c-dev
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      component: auto-clipper-service
+      name: auto-clipper-service
+      part-of: tno
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        component: auto-clipper-service
+        name: auto-clipper-service
+        part-of: tno
+      name: auto-clipper-service
+    spec:
+      containers:
+      - env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Production
+        - name: ASPNETCORE_URLS
+          value: http://+:8080
+        - name: Serilog__MinimumLevel__Override__TNO
+          value: Information
+        - name: Service__ApiUrl
+          valueFrom:
+            configMapKeyRef:
+              key: API_HOST_URL
+              name: services
+        - name: Service__EmailTo
+          valueFrom:
+            configMapKeyRef:
+              key: EMAIL_FAILURE_TO
+              name: services
+        - name: Service__NoticeEmailTo
+          valueFrom:
+            configMapKeyRef:
+              key: EMAIL_NOTICE_TO
+              name: services
+        - name: Auth__Keycloak__Authority
+          valueFrom:
+            configMapKeyRef:
+              key: KEYCLOAK_AUTHORITY
+              name: services
+        - name: Auth__Keycloak__Audience
+          valueFrom:
+            configMapKeyRef:
+              key: KEYCLOAK_AUDIENCE
+              name: services
+        - name: Auth__Keycloak__Secret
+          valueFrom:
+            secretKeyRef:
+              key: KEYCLOAK_CLIENT_SECRET
+              name: keycloak
+        - name: Kafka__Admin__ClientId
+          valueFrom:
+            configMapKeyRef:
+              key: KAFKA_CLIENT_ID
+              name: auto-clipper-service
+        - name: Kafka__Admin__BootstrapServers
+          valueFrom:
+            configMapKeyRef:
+              key: KAFKA_BOOTSTRAP_SERVERS
+              name: services
+        - name: Kafka__Consumer__GroupId
+          valueFrom:
+            configMapKeyRef:
+              key: KAFKA_CLIENT_ID
+              name: auto-clipper-service
+        - name: Kafka__Consumer__BootstrapServers
+          valueFrom:
+            configMapKeyRef:
+              key: KAFKA_BOOTSTRAP_SERVERS
+              name: services
+        - name: Kafka__Producer__ClientId
+          valueFrom:
+            configMapKeyRef:
+              key: KAFKA_CLIENT_ID
+              name: auto-clipper-service
+        - name: Kafka__Producer__BootstrapServers
+          valueFrom:
+            configMapKeyRef:
+              key: KAFKA_BOOTSTRAP_SERVERS
+              name: services
+        - name: Service__AzureSpeechRegion
+          valueFrom:
+            secretKeyRef:
+              key: AZURE_REGION
+              name: azure-speech-services
+        - name: Service__AzureSpeechKey
+          valueFrom:
+            secretKeyRef:
+              key: AZURE_SPEECH_SERVICES_KEY
+              name: azure-speech-services
+        - name: Service__LlmApiKey
+          valueFrom:
+            secretKeyRef:
+              key: AZURE_OPENAI_KEY
+              name: azure-openai
+        - name: Service__MaxFailLimit
+          valueFrom:
+            configMapKeyRef:
+              key: MAX_FAIL_LIMIT
+              name: auto-clipper-service
+        - name: Service__Topics
+          valueFrom:
+            configMapKeyRef:
+              key: TOPICS
+              name: auto-clipper-service
+        - name: Service__VolumePath
+          valueFrom:
+            configMapKeyRef:
+              key: VOLUME_PATH
+              name: auto-clipper-service
+        - name: Service__LlmApiUrl
+          valueFrom:
+            configMapKeyRef:
+              key: LLM_API_URL
+              name: auto-clipper-service
+        - name: Service__LlmModel
+          valueFrom:
+            configMapKeyRef:
+              key: LLM_MODEL_NAME
+              name: auto-clipper-service
+        - name: Service__LlmDeployment
+          valueFrom:
+            configMapKeyRef:
+              key: LLM_DEPLOYMENT_NAME
+              name: auto-clipper-service
+        - name: S3__AccessKey
+          valueFrom:
+            secretKeyRef:
+              key: S3_ACCESS_KEY
+              name: s3-backup-credentials
+        - name: S3__SecretKey
+          valueFrom:
+            secretKeyRef:
+              key: S3_SECRET_KEY
+              name: s3-backup-credentials
+        - name: S3__BucketName
+          valueFrom:
+            secretKeyRef:
+              key: S3_BUCKET_NAME
+              name: s3-backup-credentials
+        - name: S3__ServiceUrl
+          valueFrom:
+            secretKeyRef:
+              key: S3_SERVICE_URL
+              name: s3-backup-credentials
+        - name: CHES__From
+          valueFrom:
+            configMapKeyRef:
+              key: CHES_FROM
+              name: ches
+        - name: CHES__EmailEnabled
+          valueFrom:
+            configMapKeyRef:
+              key: CHES_EMAIL_ENABLED
+              name: auto-clipper-service
+        - name: CHES__EmailAuthorized
+          valueFrom:
+            configMapKeyRef:
+              key: CHES_EMAIL_AUTHORIZED
+              name: auto-clipper-service
+        - name: CHES__AuthUrl
+          valueFrom:
+            configMapKeyRef:
+              key: CHES_AUTH_URL
+              name: ches
+        - name: CHES__HostUri
+          valueFrom:
+            configMapKeyRef:
+              key: CHES_HOST_URI
+              name: ches
+        - name: CHES__Username
+          valueFrom:
+            secretKeyRef:
+              key: USERNAME
+              name: ches
+        - name: CHES__Password
+          valueFrom:
+            secretKeyRef:
+              key: PASSWORD
+              name: ches
+        image: image-registry.openshift-image-registry.svc:5000/9b301c-tools/auto-clipper-service:dev
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          successThreshold: 1
+          timeoutSeconds: 30
+        name: auto-clipper-service
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          successThreshold: 1
+          timeoutSeconds: 30
+        resources:
+          limits:
+            cpu: 50m
+            memory: 300Mi
+          requests:
+            cpu: 20m
+            memory: 100Mi
+        volumeMounts:
+        - mountPath: /data
+          name: api-storage
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: api-storage
+        persistentVolumeClaim:
+          claimName: api-storage

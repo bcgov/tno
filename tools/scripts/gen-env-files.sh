@@ -69,6 +69,7 @@ CONTENTMIGRATION_PORT=$portContentMigration
 INDEXING_PORT=$portIndexing
 IMAGE_PORT=$portImage
 TRANSCRIPTION_PORT=$portTranscription
+AUTO_CLIPPER_PORT=$portAutoClipper
 NLP_PORT=$portNlp
 CORENLP_PORT=$portCoreNlp
 NOTIFICATION_PORT=$portNotification
@@ -538,6 +539,43 @@ CHES__EmailAuthorized=true
 
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/transcription/.env
     echo "./services/net/transcription/.env created"
+fi
+
+## Auto Clipper Service
+if test -f "./services/net/auto-clipper/.env"; then
+    echo "./services/net/auto-clipper/.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
+Auth__Keycloak__Audience=mmi-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
+
+Service__ApiUrl=http://host.docker.internal:$portApi/api
+
+CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
+CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__EmailAuthorized=true
+# CHES__OverrideTo=
+
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
+
+# Configure Azure Speech Service
+Service__AzureSpeechKey={ENTER A VALID AZURE KEY}
+Service__AzureSpeechRegion=westus
+
+# Configure Azure OpenAI/Foundary LLM Service
+Service__LlmApiUrl=https://mmiopenai.cognitiveservices.azure.com
+Service__LlmApiKey={ENTER A VALID AZURE KEY}
+Service__LlmModel=
+Service__LlmDeployment=gpt-4o-mini
+Service__LlmPrompt=" >> ./services/net/auto-clipper/.env
+    echo "./services/net/auto-clipper/.env created"
 fi
 
 ## Indexing Service

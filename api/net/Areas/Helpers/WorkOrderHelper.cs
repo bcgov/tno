@@ -137,6 +137,24 @@ public class WorkOrderHelper : IWorkOrderHelper
     }
 
     /// <summary>
+    /// Request a auto clip for the specified 'contentId'.
+    /// Only allow one active auto clip request.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="force">Whether to force a request regardless of the prior requests state</param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    /// <exception cref="ConfigurationException"></exception>
+    /// <exception cref="NotAuthorizedException"></exception>
+    public async Task<Entities.WorkOrder> RequestAutoClipAsync(long contentId, bool force = false)
+    {
+        string username = _principal.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User is missing");
+
+        return await RequestAutoClipAsync(contentId, user, force);
+    }
+
+    /// <summary>
     /// Determine if the content has an existing transcript.
     /// </summary>
     /// <param name="contentId"></param>
@@ -190,6 +208,51 @@ public class WorkOrderHelper : IWorkOrderHelper
                     ));
 
             await _kafkaMessenger.SendMessageAsync(_kafkaOptions.TranscriptionTopic, new TNO.Kafka.Models.TranscriptRequestModel(workOrder));
+            return workOrder;
+        }
+        return workOrders.OrderByDescending(w => w.CreatedOn).First();
+    }
+
+    /// <summary>
+    /// Request a auto clip for the specified 'contentId'.
+    /// Only allow one active auto clip request.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="requestor"></param>
+    /// <param name="force">Whether to force a request regardless of the prior requests state</param>
+    /// <returns></returns>
+    /// <exception cref="NoContentException"></exception>
+    /// <exception cref="ConfigurationException"></exception>
+    /// <exception cref="NotAuthorizedException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    public async Task<Entities.WorkOrder> RequestAutoClipAsync(long contentId, Entities.User requestor, bool force = false)
+    {
+        if (this.Content == null || this.Content.Id != contentId)
+            this.Content = _contentService.FindById(contentId) ?? throw new NoContentException("Content does not exist");
+        if (String.IsNullOrWhiteSpace(_kafkaOptions.AutoClipTopic)) throw new ConfigurationException("Kafka auto clip topic not configured.");
+
+        if (this.Content.IsApproved && force == false) throw new InvalidOperationException("Content is already approved");
+        // Only allow one work order auto clip request at a time.
+        // TODO: Handle blocked work orders stuck in progress.
+        var workOrders = _workOrderService.FindByContentId(contentId);
+
+        // Add the user to the content notification.
+        _notificationService.SubscriberUserToContent(requestor.Id, contentId);
+
+        if (force || !workOrders.Any(o => o.WorkType == Entities.WorkOrderType.AutoClip || !WorkLimiterStatus.Contains(o.Status)))
+        {
+            var headlineString = $"{{ \"headline\": \"{this.Content.Headline.Replace("\n", "")}\" }}";
+            var configuration = JsonDocument.Parse(headlineString);
+            var workOrder = _workOrderService.AddAndSave(
+                new Entities.WorkOrder(
+                    Entities.WorkOrderType.AutoClip,
+                    requestor,
+                    "",
+                    this.Content,
+                    configuration
+                    ));
+
+            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.AutoClipTopic, new TNO.Kafka.Models.ClipRequestModel(workOrder));
             return workOrder;
         }
         return workOrders.OrderByDescending(w => w.CreatedOn).First();

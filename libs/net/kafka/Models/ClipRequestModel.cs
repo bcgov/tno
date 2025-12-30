@@ -25,7 +25,7 @@ public class ClipRequestModel : WorkOrderModel
     /// <summary>
     /// Creates a new instance of a ClipRequestModel object.
     /// </summary>
-    public ClipRequestModel() : base(WorkOrderType.AutoClipper) { }
+    public ClipRequestModel() : base(WorkOrderType.AutoClip) { }
 
     /// <summary>
     /// Creates a new instance of a ClipRequestModel object, initializes with specified parameters.
@@ -36,7 +36,7 @@ public class ClipRequestModel : WorkOrderModel
     /// <param name="requestor"></param>
     /// <param name="language"></param>
     public ClipRequestModel(long workOrderId, long contentId, int? requestorId, string requestor, string language = "en-US")
-        : base(workOrderId, WorkOrderType.AutoClipper, requestorId, requestor, DateTime.UtcNow)
+        : base(workOrderId, WorkOrderType.AutoClip, requestorId, requestor, DateTime.UtcNow)
     {
         this.ContentId = contentId;
         if (!string.IsNullOrWhiteSpace(language)) this.Language = language;

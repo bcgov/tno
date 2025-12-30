@@ -1,12 +1,5 @@
-using System;
-
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -29,7 +22,6 @@ using TNO.Services.Runners;
 
 namespace TNO.Services.AutoClipper;
 
-
 /// <summary>
 /// AutoClipperManager class, provides a Kafka Consumer service which imports audio from all active topics.
 /// </summary>
@@ -44,7 +36,8 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
     private readonly WorkOrderStatus[] _ignoreWorkOrders = new WorkOrderStatus[] { WorkOrderStatus.Completed, WorkOrderStatus.Cancelled };
     private int _retries = 0;
-
+    private string? _etag = null;
+    private API.Areas.Editor.Models.Tag.TagModel[]? _tags = [];
     #endregion
 
     #region Properties
@@ -325,13 +318,13 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
                 using (var fileStream = new FileStream(tmpFilePath, FileMode.Create, FileAccess.Write))
                 {
                     s3FileStream.CopyTo(fileStream);
-                    this.Logger.LogDebug($"S3 file {s3Path} is downloaded to: {tmpFilePath}");
+                    this.Logger.LogDebug("S3 file {path} is downloaded to: {file}", s3Path, tmpFilePath);
                     return tmpFilePath;
                 }
             }
             else
             {
-                this.Logger.LogError($"Cannot download file {s3Path} from S3");
+                this.Logger.LogError("Cannot download file {file} from S3", s3Path);
             }
         }
         else
@@ -458,6 +451,14 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         await this.Api.UpdateContentAsync(content);
         this.Logger.LogInformation("Primary transcript updated.  Content ID: {Id}", requestContentId);
 
+        // Fetch tags once for all clips from the API.
+        var tagsResponse = await this.Api.GetTagsResponseWithEtagAsync(_etag ?? "");
+        if (tagsResponse != null && tagsResponse.StatusCode == System.Net.HttpStatusCode.OK)
+        {
+            _tags = await this.Api.GetResponseDataAsync<API.Areas.Editor.Models.Tag.TagModel[]>(tagsResponse);
+            _etag = this.Api.GetResponseEtag(tagsResponse);
+        }
+
         var clipIndex = 1;
         foreach (var definition in clipDefinitions)
         {
@@ -543,8 +544,16 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         var duration = Math.Max(1, (end - start).TotalSeconds);
         var process = new System.Diagnostics.Process();
         process.StartInfo.Verb = "clip";
-        process.StartInfo.FileName = "/bin/sh";
-        process.StartInfo.Arguments = $"-c \"ffmpeg -y -ss {start.TotalSeconds.ToString("0.###", CultureInfo.InvariantCulture)} -i '{srcFile}' -t {duration.ToString("0.###", CultureInfo.InvariantCulture)} -c copy '{clipPath}' 2>&1\"";
+        if (OperatingSystem.IsWindows())
+        {
+            process.StartInfo.FileName = "cmd";
+            process.StartInfo.Arguments = $"/c ffmpeg -y -ss {start.TotalSeconds.ToString("0.###", CultureInfo.InvariantCulture)} -i \"{srcFile}\" -t {duration.ToString("0.###", CultureInfo.InvariantCulture)} -c copy \"{clipPath}\"";
+        }
+        else
+        {
+            process.StartInfo.FileName = "/bin/sh";
+            process.StartInfo.Arguments = $"-c \"ffmpeg -y -ss {start.TotalSeconds.ToString("0.###", CultureInfo.InvariantCulture)} -i '{srcFile}' -t {duration.ToString("0.###", CultureInfo.InvariantCulture)} -c copy '{clipPath}' 2>&1\"";
+        }
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.CreateNoWindow = true;
@@ -558,7 +567,7 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
 
     private async Task CreateClipContentAsync(ContentModel parentContent, ClipDefinition definition, string transcriptBody, string clipPath, int clipIndex)
     {
-        var clipContent = BuildClipContentModel(parentContent, definition, transcriptBody, clipIndex);
+        var clipContent = await BuildClipContentModelAsync(parentContent, definition, transcriptBody, clipIndex);
         var created = await this.Api.AddContentAsync(clipContent);
         if (created == null) return;
 
@@ -567,11 +576,14 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         this.Logger.LogInformation("Clip content created. Parent Content: {ParentId}, Clip Content: {ClipId}", parentContent.Id, created?.Id);
     }
 
-    private ContentModel BuildClipContentModel(ContentModel sourceContent, ClipDefinition definition, string transcriptBody, int clipIndex)
+    private async Task<ContentModel> BuildClipContentModelAsync(ContentModel sourceContent, ClipDefinition definition, string transcriptBody, int clipIndex)
     {
         var clipSummary = string.IsNullOrWhiteSpace(definition.Summary)
             ? $"Clip covering {FormatTimestamp(definition.Start)} to {FormatTimestamp(definition.End)}"
             : definition.Summary;
+
+        var autoTags = _tags?.Where(t => this.Options.ApplyTags.Contains(t.Code));
+        var tags = autoTags != null ? sourceContent.Tags.AppendRange(autoTags.Select(at => new ContentTagModel(at.Id, at.Code, at.Name))) : sourceContent.Tags;
 
         return new ContentModel
         {
@@ -589,18 +601,17 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
             Byline = sourceContent.Byline,
             Status = ContentStatus.Draft,
             Uid = BaseService.GetContentHash(sourceContent.Source?.Code ?? "AutoClipper", $"{sourceContent.Uid}-clip-{clipIndex}", sourceContent.PublishedOn),
-            Headline = $"{sourceContent.Headline} [AutoClipper #{clipIndex}] {definition.Title}",
-            Summary = $"[AutoClipper:{definition.Category}] {clipSummary}",
+            Headline = $"{definition.Title}",
+            Summary = $"[AutoClipper:{definition.Category}]\n{clipSummary}",
             Body = transcriptBody,
             SourceUrl = sourceContent.SourceUrl,
             PublishedOn = sourceContent.PublishedOn,
             PostedOn = DateTime.UtcNow,
-            Tags = sourceContent.Tags,
+            Tags = tags,
             Topics = sourceContent.Topics,
             Actions = sourceContent.Actions,
             Labels = sourceContent.Labels,
-            TimeTrackings = sourceContent.TimeTrackings,
-            IsHidden = true
+            IsHidden = false
         };
     }
 
@@ -614,8 +625,6 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         if (!isSyncedToS3) return;
         CleanupS3Files(files);
     }
-
-
 
     /// <summary>
     /// Format the transcript to include newlines.
@@ -631,8 +640,8 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         foreach (var segment in segments)
         {
             if (string.IsNullOrWhiteSpace(segment.Text)) continue;
-            sb.AppendLine(index.ToString(CultureInfo.InvariantCulture));
-            sb.AppendLine($"{FormatTimestamp(segment.Start)} --> {FormatTimestamp(segment.End)}");
+            // sb.AppendLine(index.ToString(CultureInfo.InvariantCulture));
+            // sb.AppendLine($"{FormatTimestamp(segment.Start)} --> {FormatTimestamp(segment.End)}");
             sb.AppendLine(segment.Text.Trim());
             sb.AppendLine();
             index++;

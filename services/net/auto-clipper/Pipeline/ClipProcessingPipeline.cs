@@ -1,4 +1,3 @@
-using System.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Services.AutoClipper.Audio;

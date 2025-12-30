@@ -19,7 +19,7 @@ text:
   llm_model: gpt-4o-mini
   system_prompt: |
     You are the CKNW News Segment Tool. Transcripts are listed as numbered sentences with precise
-    timestamps. Identify where new stories begin so ffmpeg can cut clean clips. Keep boundaries
+    timestamps. Identify where new stories begin so ffmpeg can cut clean clips. The top news stories are often stated at the beginning of the transcript. Keep boundaries
     chronological, never invent timestamps, and respond only with the requested JSON.
   max_stories: 15
   llm_prompt: |
@@ -42,5 +42,6 @@ heuristics:
   keyword_patterns:
     - "(?i)we'll have more on that"
     - "(?i)back after the break"
+    - "(?i)this is Mike Smith"
     - "(?i)you're listening to"
     - "(?i)CKNW"

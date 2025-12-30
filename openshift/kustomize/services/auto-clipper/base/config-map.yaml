@@ -1,0 +1,26 @@
+---
+# Configuration settings
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: auto-clipper-service
+  namespace: default
+  annotations:
+    description: Transcription service configuration settings
+    created-by: jeremy.foster
+  labels:
+    name: auto-clipper-service
+    part-of: tno
+    version: 1.0.0
+    component: auto-clipper-service
+    managed-by: kustomize
+data:
+  KAFKA_CLIENT_ID: AutoClipper
+  MAX_FAIL_LIMIT: "5"
+  TOPICS: request-clips
+  VOLUME_PATH: /data
+  CHES_EMAIL_ENABLED: "true"
+  CHES_EMAIL_AUTHORIZED: "true"
+  LLM_API_URL: "https://mmiopenai.cognitiveservices.azure.com"
+  LLM_MODEL_NAME: ""
+  LLM_DEPLOYMENT_NAME: "gpt-4o-mini"

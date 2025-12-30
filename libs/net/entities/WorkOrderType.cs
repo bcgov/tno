@@ -28,5 +28,5 @@ public enum WorkOrderType
     /// <summary>
     /// A request to generate clips and transcripts via the auto clipper pipeline.
     /// </summary>
-    AutoClipper = 4,
+    AutoClip = 4,
 }

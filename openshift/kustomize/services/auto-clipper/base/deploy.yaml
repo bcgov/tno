@@ -1,0 +1,267 @@
+---
+# How the app will be deployed to the pod.
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: auto-clipper-service
+  namespace: default
+  annotations:
+    description: Defines how to deploy auto-clipper-service
+    created-by: jeremy.foster
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "auto-clipper-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"auto-clipper-service\")].image"}]'
+  labels:
+    name: auto-clipper-service
+    part-of: tno
+    version: 1.0.0
+    component: auto-clipper-service
+    managed-by: kustomize
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: auto-clipper-service
+      part-of: tno
+      component: auto-clipper-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      name: auto-clipper-service
+      labels:
+        name: auto-clipper-service
+        part-of: tno
+        component: auto-clipper-service
+    spec:
+      volumes:
+        - name: api-storage
+          persistentVolumeClaim:
+            claimName: api-storage
+      containers:
+        - name: auto-clipper-service
+          image: image-registry.openshift-image-registry.svc:5000/9b301c-tools/auto-clipper-service:prod
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: api-storage
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 20m
+              memory: 100Mi
+            limits:
+              cpu: 50m
+              memory: 2Gi
+          env:
+            # .NET Configuration
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+
+            - name: Serilog__MinimumLevel__Override__TNO
+              value: Information
+
+            # Common Service Configuration
+            - name: Service__ApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: API_HOST_URL
+            - name: Service__EmailTo
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: EMAIL_FAILURE_TO
+            - name: Service__NoticeEmailTo
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: EMAIL_NOTICE_TO
+
+            # Authentication Configuration
+            - name: Auth__Keycloak__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUTHORITY
+            - name: Auth__Keycloak__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUDIENCE
+            - name: Auth__Keycloak__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_CLIENT_SECRET
+
+            - name: Kafka__Admin__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: auto-clipper-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Admin__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            - name: Kafka__Consumer__GroupId
+              valueFrom:
+                configMapKeyRef:
+                  name: auto-clipper-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Consumer__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            - name: Kafka__Producer__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: auto-clipper-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Producer__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            # Azure Cognitive Services Configuration
+            - name: Service__AzureSpeechRegion
+              valueFrom:
+                secretKeyRef:
+                  name: azure-speech-services
+                  key: AZURE_REGION
+            - name: Service__AzureSpeechKey
+              valueFrom:
+                secretKeyRef:
+                  name: azure-speech-services
+                  key: AZURE_SPEECH_SERVICES_KEY
+            - name: Service__LlmApiKey
+              valueFrom:
+                secretKeyRef:
+                  name: azure-openai
+                  key: AZURE_OPENAI_KEY
+
+            # Service Configuration
+            - name: Service__MaxFailLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: auto-clipper-service
+                  key: MAX_FAIL_LIMIT
+            - name: Service__Topics
+              valueFrom:
+                configMapKeyRef:
+                  name: auto-clipper-service
+                  key: TOPICS
+            - name: Service__VolumePath
+              valueFrom:
+                configMapKeyRef:
+                  name: auto-clipper-service
+                  key: VOLUME_PATH
+            - name: Service__LlmApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: auto-clipper-service
+                  key: LLM_API_URL
+            - name: Service__LlmModel
+              valueFrom:
+                configMapKeyRef:
+                  name: auto-clipper-service
+                  key: LLM_MODEL_NAME
+            - name: Service__LlmDeployment
+              valueFrom:
+                configMapKeyRef:
+                  name: auto-clipper-service
+                  key: LLM_DEPLOYMENT_NAME
+
+            # S3 Configuration
+            - name: S3__AccessKey
+              valueFrom:
+                secretKeyRef:
+                  name: s3-backup-credentials
+                  key: S3_ACCESS_KEY
+            - name: S3__SecretKey
+              valueFrom:
+                secretKeyRef:
+                  name: s3-backup-credentials
+                  key: S3_SECRET_KEY
+            - name: S3__BucketName
+              valueFrom:
+                secretKeyRef:
+                  name: s3-backup-credentials
+                  key: S3_BUCKET_NAME
+            - name: S3__ServiceUrl
+              valueFrom:
+                secretKeyRef:
+                  name: s3-backup-credentials
+                  key: S3_SERVICE_URL
+
+            # CHES Configuration
+            - name: CHES__From
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_FROM
+            - name: CHES__EmailEnabled
+              valueFrom:
+                configMapKeyRef:
+                  name: auto-clipper-service
+                  key: CHES_EMAIL_ENABLED
+            - name: CHES__EmailAuthorized
+              valueFrom:
+                configMapKeyRef:
+                  name: auto-clipper-service
+                  key: CHES_EMAIL_AUTHORIZED
+
+            - name: CHES__AuthUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_AUTH_URL
+            - name: CHES__HostUri
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_HOST_URI
+            - name: CHES__Username
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: USERNAME
+            - name: CHES__Password
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: PASSWORD
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30

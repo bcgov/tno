@@ -1,22 +1,19 @@
-using System;
-using System.Text.RegularExpressions;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Services.AutoClipper.Azure;
 using TNO.Services.AutoClipper.Config;
+using TNO.Services.AutoClipper.LLM.Models;
 
 namespace TNO.Services.AutoClipper.LLM;
 
 public class ClipSegmentationService : IClipSegmentationService
 {
-    private const string DefaultSystemPrompt = "You are a news segment tool. Analyse timestamped transcripts, choose where new stories begin, and output JSON suitable for ffmpeg clip creation.";
+    private const string DefaultSystemPrompt = "You are a news segment tool. Analyze timestamped transcripts, choose where new stories begin, and output JSON suitable for ffmpeg clip creation.";
 
     private const int ParagraphSentenceCount = 4;
 
@@ -243,41 +240,37 @@ Transcript:
 
     private IReadOnlyList<ClipDefinition> ParseResponse(string? body, IReadOnlyList<TimestampedTranscript> transcript, ClipSegmentationSettings? settings, IReadOnlyList<HeuristicHit> heuristicHits)
     {
-        if (string.IsNullOrWhiteSpace(body)) return Array.Empty<ClipDefinition>();
+        if (string.IsNullOrWhiteSpace(body)) return [];
 
         try
         {
             body = StripCodeFence(body);
-            using var document = JsonDocument.Parse(body);
-            JsonElement? root = document.RootElement;
-            if (document.RootElement.TryGetProperty("choices", out var choices) && choices.ValueKind == JsonValueKind.Array && choices.GetArrayLength() > 0)
+            var doc = JsonSerializer.Deserialize<LLMResponse>(body);
+            if (doc == null || doc.Choices == null || doc.Choices.Count == 0)
             {
-                var choice = choices[0];
-                if (choice.TryGetProperty("message", out var message) && message.TryGetProperty("content", out var contentElement))
-                {
-                    var contentString = StripCodeFence(contentElement.GetString() ?? "[]");
-                    root = JsonDocument.Parse(contentString).RootElement;
-                }
+                _logger.LogWarning("LLM response deserialization resulted in null or empty choices.");
+                return [];
             }
 
-            var elements = root?.ValueKind switch
-            {
-                JsonValueKind.Array => root.Value.EnumerateArray(),
-                JsonValueKind.Object when root.Value.TryGetProperty("boundaries", out var boundaries) => boundaries.EnumerateArray(),
-                _ => Enumerable.Empty<JsonElement>()
-            };
-
             var candidates = new List<BoundaryCandidate>();
-            foreach (var item in elements)
+            foreach (var content in doc.Choices?.Select(c => c.Message?.Content).Where(c => c != null) ?? [])
             {
-                if (!item.TryGetProperty("index", out var indexElement) || !indexElement.TryGetInt32(out var rawIndex) || rawIndex <= 0)
-                    continue;
-                var zeroIndex = Math.Clamp(rawIndex - 1, 0, transcript.Count - 1);
-                var title = item.TryGetProperty("title", out var titleElement) ? titleElement.GetString() ?? "Clip" : "Clip";
-                var summary = item.TryGetProperty("summary", out var summaryElement) ? summaryElement.GetString() ?? string.Empty : string.Empty;
-                var category = item.TryGetProperty("category", out var categoryElement) ? categoryElement.GetString() : null;
-                var score = item.TryGetProperty("score", out var scoreElement) && scoreElement.TryGetDouble(out var rawScore) ? Math.Clamp(rawScore, 0, 1) : 1.0;
-                candidates.Add(new BoundaryCandidate(zeroIndex, title, summary, score, false, category));
+                if (content == null) continue;
+
+                var boundaries = JsonSerializer.Deserialize<TranscriptBoundaries>(content!);
+                if (boundaries == null || boundaries.Boundaries == null) continue;
+                foreach (var boundary in boundaries.Boundaries)
+                {
+                    var rawIndex = boundary.Index;
+                    if (rawIndex <= 0)
+                        continue;
+                    var zeroIndex = Math.Clamp(rawIndex - 1, 0, transcript.Count - 1);
+                    var title = string.IsNullOrWhiteSpace(boundary.Title) ? "Clip" : boundary.Title;
+                    var summary = string.IsNullOrWhiteSpace(boundary.Summary) ? string.Empty : boundary.Summary;
+                    var category = string.IsNullOrWhiteSpace(boundary.Category) ? null : boundary.Category;
+                    var score = Math.Clamp(boundary.Score, 0, 1);
+                    candidates.Add(new BoundaryCandidate(zeroIndex, title, summary, score, false, category));
+                }
             }
 
             var threshold = Math.Clamp(_options.LlmBoundaryScoreThreshold, 0, 1);
@@ -285,15 +278,15 @@ Transcript:
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Unable to parse LLM segmentation response. Raw body: {body}", body);
-            return Array.Empty<ClipDefinition>();
+            _logger.LogError(ex, "Unable to parse LLM segmentation response. Raw body: {body}", body);
+            return [];
         }
     }
 
     private IReadOnlyList<ClipDefinition> CreateClipDefinitions(IReadOnlyList<TimestampedTranscript> transcript, List<BoundaryCandidate> candidates, double threshold, IReadOnlyList<HeuristicHit> heuristicHits)
     {
         if (transcript == null || transcript.Count == 0)
-            return Array.Empty<ClipDefinition>();
+            return [];
 
         var map = new Dictionary<int, BoundaryCandidate>();
         foreach (var candidate in candidates)

@@ -16,8 +16,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.41.1" />
-    <PackageReference Include="YamlDotNet" Version="15.3.0" />
+    <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.47.0" />
+    <PackageReference Include="YamlDotNet" Version="16.3.0" />
+
+    <!-- Force latest to remove warnings -->
+    <PackageReference Include="System.Formats.Asn1" Version="10.0.1" />
+
+    <!-- Force removal of old ASP.NET Core 2.2 packages -->
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Core" Version="2.3.6" ExcludeAssets="All" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.3.0" ExcludeAssets="All" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using TNO.Services.Config;
 
 namespace TNO.Services.AutoClipper.Config;
@@ -8,8 +6,9 @@ public class AutoClipperOptions : ServiceOptions
 {
     public string Topics { get; set; } = "request-clips";
     public string VolumePath { get; set; } = "";
+    public string[] ApplyTags { get; set; } = [];
     public bool AcceptOnlyWorkOrders { get; set; } = true;
-    public string[] ConvertToAudio { get; set; } = Array.Empty<string>();
+    public string[] ConvertToAudio { get; set; } = [];
     public int? IgnoreContentPublishedBeforeOffset { get; set; } = null;
     public string OldTnoContentTagName { get; set; } = "";
     public string AzureSpeechKey { get; set; } = "";
