@@ -574,7 +574,8 @@ Service__LlmApiUrl=https://mmiopenai.cognitiveservices.azure.com
 Service__LlmApiKey={ENTER A VALID AZURE KEY}
 Service__LlmModel=
 Service__LlmDeployment=gpt-4o-mini
-Service__LlmPrompt=" >> ./services/net/auto-clipper/.env
+Service__LlmPrompt=
+Service__LlmApiVersion=2025-01-01-preview" >> ./services/net/auto-clipper/.env
     echo "./services/net/auto-clipper/.env created"
 fi
 

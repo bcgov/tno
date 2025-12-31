@@ -181,6 +181,11 @@ spec:
                 configMapKeyRef:
                   name: auto-clipper-service
                   key: LLM_DEPLOYMENT_NAME
+            - name: Service__LlmApiVersion
+              valueFrom:
+                configMapKeyRef:
+                  name: auto-clipper-service
+                  key: LLM_API_VERSION
 
             # S3 Configuration
             - name: S3__AccessKey

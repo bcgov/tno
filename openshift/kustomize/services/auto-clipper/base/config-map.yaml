@@ -21,6 +21,7 @@ data:
   VOLUME_PATH: /data
   CHES_EMAIL_ENABLED: "true"
   CHES_EMAIL_AUTHORIZED: "true"
-  LLM_API_URL: "https://mmiopenai.cognitiveservices.azure.com"
+  LLM_API_URL: "https://mmiopenai.openai.azure.com/"
   LLM_MODEL_NAME: ""
   LLM_DEPLOYMENT_NAME: "gpt-4o-mini"
+  LLM_API_VERSION: "gpt-4o-mini"
