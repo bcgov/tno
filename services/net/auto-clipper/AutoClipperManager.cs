@@ -585,6 +585,10 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         var autoTags = _tags?.Where(t => this.Options.ApplyTags.Contains(t.Code));
         var tags = autoTags != null ? sourceContent.Tags.AppendRange(autoTags.Select(at => new ContentTagModel(at.Id, at.Code, at.Name))) : sourceContent.Tags;
 
+        // Calculate clip time = parent content publish time + clip start offset
+        var clipTime = sourceContent.PublishedOn?.Add(definition.Start);
+        var timePrefix = clipTime?.ToString("HH:mm");
+
         return new ContentModel
         {
             ContentType = sourceContent.ContentType,
@@ -601,11 +605,11 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
             Byline = sourceContent.Byline,
             Status = ContentStatus.Draft,
             Uid = BaseService.GetContentHash(sourceContent.Source?.Code ?? "AutoClipper", $"{sourceContent.Uid}-clip-{clipIndex}", sourceContent.PublishedOn),
-            Headline = $"{definition.Title}",
+            Headline = string.IsNullOrEmpty(timePrefix) ? definition.Title : $"{timePrefix} - {definition.Title}",
             Summary = $"[AutoClipper:{definition.Category}]\n{clipSummary}",
             Body = transcriptBody,
             SourceUrl = sourceContent.SourceUrl,
-            PublishedOn = sourceContent.PublishedOn,
+            PublishedOn = clipTime ?? sourceContent.PublishedOn,
             PostedOn = DateTime.UtcNow,
             Tags = tags,
             Topics = sourceContent.Topics,
