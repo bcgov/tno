@@ -49,8 +49,10 @@ export const TalkwalkerCollageTemplate = `@using System
           StartRow = startRow,
           ColSpan = colSpan,
           RowSpan = rowSpan,
-          Width = $"{colSpan * 50}px",
-          Height = $"{rowSpan * 50}px",
+          Width = $"{colSpan * 50}",
+          Height = $"{rowSpan * 50}",
+          StyleWidth = $"{colSpan * 50}px",
+          StyleHeight = $"{rowSpan * 50}px",
           Img = image,
           Engagement = ReportExtensions.FormatInteger(image["engagement"] as String, true),
           Url = image["url"] as String,
@@ -130,12 +132,14 @@ export const TalkwalkerCollageTemplate = `@using System
                 var placed = placedList.FirstOrDefault(p => p.StartRow == r && p.StartCol == c);
                 if (placed != null)
                 {
-                    <td rowspan="@placed.RowSpan" colspan="@placed.ColSpan" style="width: @placed.Width; height: @placed.Height;">
-                      <a href="@placed.Url" target="_blank">
-                        <img src="@GetString(placed.Img, "images.url")" alt="Engagement: @GetInt(placed.Img, "engagement")" style="width: @placed.Width; height: @placed.Height;" />
-                        <div style="color: white; position: absolute; background-color: rgba(0,0,0,0.5); width: 100%; bottom: 0; text-align: center;">@placed.Engagement</div>
+                  <td rowspan="@placed.RowSpan" colspan="@placed.ColSpan" Width="@placed.Width" Height="@placed.Height" bgcolor="#000000" valign="top" style="width: @placed.StyleWidth; height: @placed.StyleHeight;">
+                    <div style="height: @placed.StyleHeight; position: relative; font-size: 0;"> 
+                      <a href="@placed.Url" target="_blank" style="display: block; width: 100%; height: 100%; text-decoration: none;">
+                        <img src="@GetString(placed.Img, "images.url")" alt="Engagement: @GetInt(placed.Img, "engagement")" style="width: @placed.StyleWidth; height: @placed.StyleHeight; display: block; vertical-align: bottom; border: 0; margin: 0; padding: 0;" width="@placed.Width" height="@placed.Height" border="0" align="absbottom" />
+                        <div style="font-size: 16px; color: white; position: absolute; background-color: rgba(0,0,0,0.5); width: 100%; bottom: 0; left: 0; text-align: center;">@placed.Engagement</div>
                       </a>
-                    </td>
+                    </div>
+                  </td>
                 }
                 else if (occupied[c, r])
                 {
