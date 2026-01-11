@@ -41,7 +41,7 @@ spec:
             claimName: api-storage
       containers:
         - name: reporting-service
-          image: ''
+          image: ""
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -152,6 +152,33 @@ spec:
                   name: reporting-shared
                   key: REPORTING_ADD_TO_REPORT_URL
 
+            # Reports Azure AI
+            - name: Azure__AI__ProjectEndpoint
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-azure-ai
+                  key: ProjectEndpoint
+            - name: Azure__AI__ApiKey
+              valueFrom:
+                secretKeyRef:
+                  name: reporting-azure-ai
+                  key: ApiKey
+            - name: Azure__AI__DefaultModelDeploymentName
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-azure-ai
+                  key: DefaultModelDeploymentName
+            - name: Azure__AI__DefaultSystemPrompt
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-azure-ai
+                  key: DefaultSystemPrompt
+            - name: Azure__AI__DefaultUserPrompt
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-azure-ai
+                  key: DefaultUserPrompt
+
             # Service Configuration
             - name: Service__MaxFailLimit
               valueFrom:
@@ -179,7 +206,7 @@ spec:
                   name: ches
                   key: CHES_FROM
             - name: Service__UseMailMerge
-              value: 'false'
+              value: "false"
 
             # CHES Configuration
             - name: CHES__EmailEnabled
@@ -227,7 +254,7 @@ spec:
 
           livenessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -237,7 +264,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
