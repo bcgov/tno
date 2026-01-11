@@ -35,5 +35,10 @@ export enum ReportSectionType {
   /// <summary>
   /// This section displays data from JSON, XML, or other 3rd party data.
   /// </summary>
-  Data = 5,
+  Data = 6,
+
+  /// <summary>
+  /// This section displays AI summary.
+  /// </summary>
+  AI = 7,
 }

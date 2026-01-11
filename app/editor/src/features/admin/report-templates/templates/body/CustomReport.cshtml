@@ -364,6 +364,14 @@
         @(section.Value.Data)
       </div>
     }
+    else if (section.Value.SectionType == ReportSectionType.AI)
+    {
+      @* AI SECTION *@
+      var alt = section.Value.Settings.Label;
+      <div>
+        @(section.Value.Data)
+      </div>
+    }
 
     @if (!horizontalCharts && !endChartGroup)
     {

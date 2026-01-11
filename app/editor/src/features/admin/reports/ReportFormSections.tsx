@@ -19,6 +19,7 @@ import {
   ReportContentOptions,
   ReportHeadlineOptions,
   ReportOptions,
+  ReportSectionAI,
   ReportSectionContent,
   ReportSectionData,
   ReportSectionGallery,
@@ -162,6 +163,12 @@ export const ReportFormSections = () => {
             </Button>
             <Button
               variant={ButtonVariant.secondary}
+              onClick={() => handleAddSection(ReportSectionTypeName.AI)}
+            >
+              AI
+            </Button>
+            <Button
+              variant={ButtonVariant.secondary}
               onClick={() => handleAddSection(ReportSectionTypeName.Content)}
             >
               Media Stories
@@ -276,6 +283,9 @@ export const ReportFormSections = () => {
                       </Show>
                       <Show visible={section.sectionType === ReportSectionTypeName.Data}>
                         <ReportSectionData index={index} />
+                      </Show>
+                      <Show visible={section.sectionType === ReportSectionTypeName.AI}>
+                        <ReportSectionAI index={index} />
                       </Show>
                     </>
                   )}
