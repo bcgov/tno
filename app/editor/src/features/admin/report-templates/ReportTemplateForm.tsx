@@ -7,7 +7,7 @@ import {
   Button,
   ButtonVariant,
   IconButton,
-  IReportTemplateModel,
+  type IReportTemplateModel,
   Modal,
   ReportTypeName,
   Row,
@@ -69,7 +69,9 @@ const ReportTemplateForm: React.FC = () => {
         iconType="back"
         label="Back to report templates"
         className="back-button"
-        onClick={() => navigate('/admin/report/templates')}
+        onClick={() => {
+          navigate('/admin/report/templates');
+        }}
       />
       <Row alignSelf="flex-start">
         <p>

@@ -1,6 +1,6 @@
-import { IContentForm } from 'features/content/form/interfaces';
+import { type IContentForm } from 'features/content/form/interfaces';
 import { useFormikContext } from 'formik';
-import React, { ButtonHTMLAttributes } from 'react';
+import React, { type ButtonHTMLAttributes } from 'react';
 import { FileUploader } from 'react-drag-drop-files';
 import { FaDownload, FaTrash, FaUpload } from 'react-icons/fa';
 import {
@@ -16,7 +16,7 @@ import {
 } from 'tno-core';
 
 import { useContentForm } from '../../hooks';
-import { IFile } from '.';
+import { type IFile } from '.';
 import * as styled from './styled';
 import { generateName } from './utils';
 
@@ -62,7 +62,7 @@ export const Upload: React.FC<IUploadProps> = ({
   const [file, setFile] = React.useState<IFile>();
   const [fileName, setFileName] = React.useState<string>();
   const [fileBlobUrl, setFileBlobUrl] = React.useState<string>();
-  const fileReference = values.fileReferences.length ? values.fileReferences[0] : undefined;
+  const fileReference = values.fileReferences.length > 0 ? values.fileReferences[0] : undefined;
 
   React.useEffect(() => {
     const newFileName = generateName(initFile);
@@ -139,7 +139,7 @@ export const Upload: React.FC<IUploadProps> = ({
             handleChange={(e: any) => {
               onSelect?.(e);
               const file = e as IFile;
-              if (!!file) {
+              if (file) {
                 setFile(file);
               }
             }}
@@ -191,7 +191,7 @@ export const Upload: React.FC<IUploadProps> = ({
             onClick={() => onDownload?.()}
             disabled={!onDownload || !file || !downloadable || !fileName || !fileReference}
             className="file-name"
-            tooltip={`Download ${!!fileName ? fileName : 'not available'}`}
+            tooltip={`Download ${fileName || 'not available'}`}
           >
             <FaDownload />
           </Button>

@@ -1,16 +1,16 @@
-import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
+import { type IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
+import { type IAdminState, useAdminStore } from 'store/slices';
 import {
-  IPaged,
-  ITransferAccount,
-  IUserAVOverviewModel,
-  IUserFilter,
-  IUserModel,
-  IUserNotificationModel,
-  IUserProductModel,
-  IUserReportModel,
+  type IPaged,
+  type ITransferAccount,
+  type IUserAVOverviewModel,
+  type IUserFilter,
+  type IUserModel,
+  type IUserNotificationModel,
+  type IUserProductModel,
+  type IUserReportModel,
   useApiAdminUsers,
 } from 'tno-core';
 
@@ -40,7 +40,7 @@ export const useUsers = (): [IAdminState, IUserController] => {
       findUsers: async (filter: IUserFilter, isSilent: boolean | undefined = false) => {
         const response = await dispatch<IPaged<IUserModel>>(
           'find-users',
-          () => api.findUsers(filter),
+          async () => await api.findUsers(filter),
           undefined,
           isSilent,
         );
@@ -48,7 +48,7 @@ export const useUsers = (): [IAdminState, IUserController] => {
         return response.data;
       },
       getUser: async (id: number) => {
-        const response = await dispatch<IUserModel>('get-user', () => api.getUser(id));
+        const response = await dispatch<IUserModel>('get-user', async () => await api.getUser(id));
         store.storeUsers((users) => ({
           ...users,
           items: users.items.map((ds) => {
@@ -59,13 +59,19 @@ export const useUsers = (): [IAdminState, IUserController] => {
         return response.data;
       },
       addUser: async (model: IUserModel) => {
-        const response = await dispatch<IUserModel>('add-user', () => api.addUser(model));
+        const response = await dispatch<IUserModel>(
+          'add-user',
+          async () => await api.addUser(model),
+        );
         store.storeUsers((users) => ({ ...users, items: [response.data, ...users.items] }));
         await lookup.getLookups();
         return response.data;
       },
       updateUser: async (model: IUserModel) => {
-        const response = await dispatch<IUserModel>('update-user', () => api.updateUser(model));
+        const response = await dispatch<IUserModel>(
+          'update-user',
+          async () => await api.updateUser(model),
+        );
         store.storeUsers((users) => ({
           ...users,
           items: users.items.map((ds) => {
@@ -77,7 +83,10 @@ export const useUsers = (): [IAdminState, IUserController] => {
         return response.data;
       },
       deleteUser: async (model: IUserModel) => {
-        const response = await dispatch<IUserModel>('delete-user', () => api.deleteUser(model));
+        const response = await dispatch<IUserModel>(
+          'delete-user',
+          async () => await api.deleteUser(model),
+        );
         store.storeUsers((users) => ({
           ...users,
           items: users.items.filter((ds) => ds.id !== response.data.id),
@@ -86,8 +95,9 @@ export const useUsers = (): [IAdminState, IUserController] => {
         return response.data;
       },
       transferAccount: async (model: ITransferAccount) => {
-        const response = await dispatch<IUserModel>('transfer-account', () =>
-          api.transferAccount(model),
+        const response = await dispatch<IUserModel>(
+          'transfer-account',
+          async () => await api.transferAccount(model),
         );
         store.storeUsers((users) => ({
           ...users,
@@ -99,34 +109,37 @@ export const useUsers = (): [IAdminState, IUserController] => {
         return response.data;
       },
       getDistributionListById: async (id: number) => {
-        const response = await dispatch<IUserModel[]>('get-distribution-list', () =>
-          api.getDistributionListById(id),
+        const response = await dispatch<IUserModel[]>(
+          'get-distribution-list',
+          async () => await api.getDistributionListById(id),
         );
         return response.data;
       },
       getUserProductSubscriptions: async (id: number) => {
-        const response = await dispatch<IUserProductModel[]>('get-user-product-subscriptions', () =>
-          api.getUserProductSubscriptions(id),
+        const response = await dispatch<IUserProductModel[]>(
+          'get-user-product-subscriptions',
+          async () => await api.getUserProductSubscriptions(id),
         );
         return response.data;
       },
       getUserReportSubscriptions: async (id: number) => {
-        const response = await dispatch<IUserReportModel[]>('get-user-report-subscriptions', () =>
-          api.getUserReportSubscriptions(id),
+        const response = await dispatch<IUserReportModel[]>(
+          'get-user-report-subscriptions',
+          async () => await api.getUserReportSubscriptions(id),
         );
         return response.data;
       },
       getUserEveningOverviewSubscriptions: async (id: number) => {
         const response = await dispatch<IUserAVOverviewModel[]>(
           'get-user-evening-overview-subscriptions',
-          () => api.getUserEveningOverviewSubscriptions(id),
+          async () => await api.getUserEveningOverviewSubscriptions(id),
         );
         return response.data;
       },
       getUserNotificationSubscriptions: async (id: number) => {
         const response = await dispatch<IUserNotificationModel[]>(
           'get-user-notification-subscriptions',
-          () => api.getUserNotificationSubscriptions(id),
+          async () => await api.getUserNotificationSubscriptions(id),
         );
         return response.data;
       },

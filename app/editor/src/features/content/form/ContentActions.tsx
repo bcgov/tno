@@ -9,15 +9,15 @@ import {
   FormikCheckbox,
   FormikText,
   FormikTextArea,
-  IActionModel,
-  IContentActionModel,
+  type IActionModel,
+  type IContentActionModel,
   Row,
   useNamespace,
   ValueType,
 } from 'tno-core';
 
 import { ActionNames } from './constants/actionsEnum';
-import { IContentForm } from './interfaces';
+import { type IContentForm } from './interfaces';
 import { StyledShortcutKey } from './styled';
 import { getDefaultCommentaryExpiryValue } from './utils';
 
@@ -82,7 +82,12 @@ export const ContentActions = React.forwardRef<HTMLDivElement, IContentActionsPr
 
     React.useEffect(() => {
       // Make sure the available actions are all included in the content.
-      if (!!init && alertActionId && !!actions.length && values.actions.length !== actions.length) {
+      if (
+        !!init &&
+        alertActionId &&
+        !(actions.length === 0) &&
+        values.actions.length !== actions.length
+      ) {
         const defaultActions = [...values.actions];
         actions.forEach((action) => {
           let found = values.actions.find((va) => va.id === action.id);
@@ -118,7 +123,7 @@ export const ContentActions = React.forwardRef<HTMLDivElement, IContentActionsPr
       setHidden((state) => {
         return formActions.map((a) => {
           const found = state.find((i) => i.id === a.id);
-          return { id: a.id, value: !!a.value ? true : found?.value ?? false };
+          return { id: a.id, value: a.value ? true : found?.value ?? false };
         });
       });
     }, [formActions]);
@@ -132,7 +137,7 @@ export const ContentActions = React.forwardRef<HTMLDivElement, IContentActionsPr
             const checkToggled = toggle(checked);
             const newValue =
               checkToggled === 'true' ? (actionName === 'Commentary' ? '3' : 'true') : '';
-            setFieldValue(field('value', actionIndex), newValue ? newValue : checkToggled);
+            setFieldValue(field('value', actionIndex), newValue || checkToggled);
           }
         };
 
@@ -243,7 +248,7 @@ export const ContentActions = React.forwardRef<HTMLDivElement, IContentActionsPr
               {a.id === commentaryActionId && <FaHourglassHalf className="icon-indicator" />}
               <FormikText
                 name={field('value', actionIndex)}
-                disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}
+                disabled={!(hidden.find((h) => h.id === a.id)?.value ?? true)}
                 required={!!hidden.find((h) => h.id === a.id)?.value}
                 width={FieldSize.Tiny}
                 className="small-txt"
@@ -254,7 +259,7 @@ export const ContentActions = React.forwardRef<HTMLDivElement, IContentActionsPr
             <FormikTextArea
               name={field('value', actionIndex)}
               label={a.valueLabel}
-              disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}
+              disabled={!(hidden.find((h) => h.id === a.id)?.value ?? true)}
               required={!!hidden.find((h) => h.id === a.id)?.value}
             />
           )}
@@ -263,7 +268,7 @@ export const ContentActions = React.forwardRef<HTMLDivElement, IContentActionsPr
               name={field('value', actionIndex)}
               label={a.valueLabel}
               type="number"
-              disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}
+              disabled={!(hidden.find((h) => h.id === a.id)?.value ?? true)}
               required={!!hidden.find((h) => h.id === a.id)?.value}
             />
           )}

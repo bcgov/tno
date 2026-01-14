@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
-import { IMediaTypeModel, useApiAdminMediaTypes } from 'tno-core';
+import { type IAdminState, useAdminStore } from 'store/slices';
+import { type IMediaTypeModel, useApiAdminMediaTypes } from 'tno-core';
 
 interface IMediaTypeController {
   findAllMediaTypes: () => Promise<IMediaTypeModel[]>;
@@ -20,15 +20,17 @@ export const useMediaTypes = (): [IAdminState, IMediaTypeController] => {
   const controller = React.useMemo(
     () => ({
       findAllMediaTypes: async () => {
-        const response = await dispatch<IMediaTypeModel[]>('find-all-media-types', () =>
-          api.findAllMediaTypes(),
+        const response = await dispatch<IMediaTypeModel[]>(
+          'find-all-media-types',
+          async () => await api.findAllMediaTypes(),
         );
         store.storeMediaTypes(response.data);
         return response.data;
       },
       getMediaType: async (id: number) => {
-        const response = await dispatch<IMediaTypeModel>('get-media-type', () =>
-          api.getMediaType(id),
+        const response = await dispatch<IMediaTypeModel>(
+          'get-media-type',
+          async () => await api.getMediaType(id),
         );
         store.storeMediaTypes((mediaTypes) =>
           mediaTypes.map((ds) => {
@@ -39,8 +41,9 @@ export const useMediaTypes = (): [IAdminState, IMediaTypeController] => {
         return response.data;
       },
       addMediaType: async (model: IMediaTypeModel) => {
-        const response = await dispatch<IMediaTypeModel>('add-media-type', () =>
-          api.addMediaType(model),
+        const response = await dispatch<IMediaTypeModel>(
+          'add-media-type',
+          async () => await api.addMediaType(model),
         );
         store.storeMediaTypes((mediaTypes) => {
           return [...mediaTypes, response.data].sort((a, b) =>
@@ -51,8 +54,9 @@ export const useMediaTypes = (): [IAdminState, IMediaTypeController] => {
         return response.data;
       },
       updateMediaType: async (model: IMediaTypeModel) => {
-        const response = await dispatch<IMediaTypeModel>('update-media-type', () =>
-          api.updateMediaType(model),
+        const response = await dispatch<IMediaTypeModel>(
+          'update-media-type',
+          async () => await api.updateMediaType(model),
         );
         store.storeMediaTypes((mediaTypes) =>
           mediaTypes.map((ds) => {
@@ -64,8 +68,9 @@ export const useMediaTypes = (): [IAdminState, IMediaTypeController] => {
         return response.data;
       },
       deleteMediaType: async (model: IMediaTypeModel) => {
-        const response = await dispatch<IMediaTypeModel>('delete-media-type', () =>
-          api.deleteMediaType(model),
+        const response = await dispatch<IMediaTypeModel>(
+          'delete-media-type',
+          async () => await api.deleteMediaType(model),
         );
         store.storeMediaTypes((mediaTypes) =>
           mediaTypes.filter((ds) => ds.id !== response.data.id),

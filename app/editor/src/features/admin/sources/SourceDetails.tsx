@@ -10,13 +10,13 @@ import {
   FormikTextArea,
   getSortableOptions,
   getUserOptions,
-  IOptionItem,
+  type IOptionItem,
   OptionItem,
 } from 'tno-core';
 import { Col } from 'tno-core/dist/components/flex';
 
 import { TimeZones } from '../ingests/configurations/constants';
-import { ISourceForm } from './interfaces';
+import { type ISourceForm } from './interfaces';
 import * as styled from './styled';
 
 interface ISourceDetailsProps {}

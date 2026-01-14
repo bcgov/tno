@@ -17,9 +17,9 @@ import {
   FormikText,
   FormikTextArea,
   getEnumStringOptions,
-  IActionModel,
+  type IActionModel,
   IconButton,
-  IOptionItem,
+  type IOptionItem,
   LabelPosition,
   Modal,
   Row,
@@ -41,7 +41,7 @@ const ActionForm: React.FC = () => {
   const { state } = useLocation();
   const { toggle, isShowing } = useModal();
 
-  const [action, setAction] = React.useState<IActionModel>((state as any)?.action ?? defaultAction);
+  const [action, setAction] = React.useState<IActionModel>(state?.action ?? defaultAction);
 
   const actionId = Number(id);
   const contentTypeOptions = getEnumStringOptions(ContentTypeName);
@@ -71,7 +71,9 @@ const ActionForm: React.FC = () => {
         iconType="back"
         label="Back to actions"
         className="back-button"
-        onClick={() => navigate('/admin/actions')}
+        onClick={() => {
+          navigate('/admin/actions');
+        }}
       />
       <FormikForm
         initialValues={action}
@@ -123,7 +125,7 @@ const ActionForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.updatedOn ? moment(values.updatedOn).toString() : undefined
+                      values.updatedOn ? moment(values.updatedOn).toString() : undefined
                     }
                     onChange={noop}
                     name="updatedOn"
@@ -141,7 +143,7 @@ const ActionForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.createdOn ? moment(values.createdOn).toString() : undefined
+                      values.createdOn ? moment(values.createdOn).toString() : undefined
                     }
                     onChange={noop}
                     name="createdOn"

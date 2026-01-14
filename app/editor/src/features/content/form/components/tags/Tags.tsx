@@ -1,14 +1,14 @@
-import { IContentForm } from 'features/content/form/interfaces';
+import { type IContentForm } from 'features/content/form/interfaces';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaListAlt } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
-import { Button, Col, FieldSize, IOptionItem, Row, Select } from 'tno-core';
+import { Button, Col, FieldSize, type IOptionItem, Row, Select } from 'tno-core';
 
 import { DraggableTagList } from './DraggableTagList';
 import * as styled from './styled';
 import { TagsProvider, useTagsContext } from './TagsContext';
-import { ITagsProps } from './types';
+import { type ITagsProps } from './types';
 
 /**
  * Internal Tags component that uses the context
@@ -32,7 +32,9 @@ const TagsComponent: React.FC = () => {
             maxMenuHeight={120}
             menuPlacement="top"
             value={selectedOptions}
-            onChange={(newValue) => addTags(newValue as IOptionItem[])}
+            onChange={(newValue) => {
+              addTags(newValue as IOptionItem[]);
+            }}
           />
           <Button
             tooltip="Show tag list"

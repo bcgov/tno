@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
-import { IIngestModel, IPaged, useApiAdminIngests } from 'tno-core';
+import { type IAdminState, useAdminStore } from 'store/slices';
+import { type IIngestModel, type IPaged, useApiAdminIngests } from 'tno-core';
 
 interface IIngestController {
   findAllIngests: () => Promise<IIngestModel[]>;
@@ -23,20 +23,25 @@ export const useIngests = (): [IAdminState, IIngestController] => {
   const controller = React.useMemo(
     () => ({
       findAllIngests: async () => {
-        const response = await dispatch<IIngestModel[]>('find-all-ingests', () =>
-          api.findAllIngests(),
+        const response = await dispatch<IIngestModel[]>(
+          'find-all-ingests',
+          async () => await api.findAllIngests(),
         );
         store.storeIngests(response.data);
         return response.data;
       },
       findIngests: async () => {
-        const response = await dispatch<IPaged<IIngestModel>>('find-ingests', () =>
-          api.findIngests(),
+        const response = await dispatch<IPaged<IIngestModel>>(
+          'find-ingests',
+          async () => await api.findIngests(),
         );
         return response.data;
       },
       getIngest: async (id: number) => {
-        const response = await dispatch<IIngestModel>('get-ingest', () => api.getIngest(id));
+        const response = await dispatch<IIngestModel>(
+          'get-ingest',
+          async () => await api.getIngest(id),
+        );
         store.storeIngests((ingests) =>
           ingests.map((ds) => {
             if (ds.id === response.data.id) return response.data;
@@ -46,13 +51,17 @@ export const useIngests = (): [IAdminState, IIngestController] => {
         return response.data;
       },
       addIngest: async (model: IIngestModel) => {
-        const response = await dispatch<IIngestModel>('add-ingest', () => api.addIngest(model));
+        const response = await dispatch<IIngestModel>(
+          'add-ingest',
+          async () => await api.addIngest(model),
+        );
         store.storeIngests((ingests) => [...ingests, response.data]);
         return response.data;
       },
       updateIngest: async (model: IIngestModel) => {
-        const response = await dispatch<IIngestModel>('update-ingest', () =>
-          api.updateIngest(model),
+        const response = await dispatch<IIngestModel>(
+          'update-ingest',
+          async () => await api.updateIngest(model),
         );
         store.storeIngests((ingests) =>
           ingests.map((ds) => {
@@ -63,8 +72,9 @@ export const useIngests = (): [IAdminState, IIngestController] => {
         return response.data;
       },
       setIngestEnabledStatus: async (ingestId: number, newStatus: boolean) => {
-        const response = await dispatch<IIngestModel>('update-ingest-enabled', () =>
-          api.setIngestEnabledStatus(ingestId, newStatus),
+        const response = await dispatch<IIngestModel>(
+          'update-ingest-enabled',
+          async () => await api.setIngestEnabledStatus(ingestId, newStatus),
         );
         store.storeIngests((ingests) =>
           ingests.map((ds) => {
@@ -75,8 +85,9 @@ export const useIngests = (): [IAdminState, IIngestController] => {
         return response.data;
       },
       deleteIngest: async (model: IIngestModel) => {
-        const response = await dispatch<IIngestModel>('delete-ingest', () =>
-          api.deleteIngest(model),
+        const response = await dispatch<IIngestModel>(
+          'delete-ingest',
+          async () => await api.deleteIngest(model),
         );
         store.storeIngests((ingests) => ingests.filter((ds) => ds.id !== response.data.id));
         return response.data;
@@ -85,8 +96,9 @@ export const useIngests = (): [IAdminState, IIngestController] => {
         store.storeIngests(ingests);
       },
       resetIngestFailures: async (ingestId: number) => {
-        const response = await dispatch<IIngestModel>('reset-ingest-failures', () =>
-          api.resetIngestFailures(ingestId),
+        const response = await dispatch<IIngestModel>(
+          'reset-ingest-failures',
+          async () => await api.resetIngestFailures(ingestId),
         );
         store.storeIngests((ingests) =>
           ingests.map((ds) => {

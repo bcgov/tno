@@ -11,8 +11,8 @@ import {
   Col,
   hasErrors,
   IconButton,
-  IReportModel,
-  IUserReportModel,
+  type IReportModel,
+  type IUserReportModel,
   Modal,
   Row,
   Show,
@@ -125,7 +125,9 @@ const ReportForm: React.FC = () => {
                 iconType="back"
                 label="Back to reports"
                 className="back-button"
-                onClick={() => navigate('/admin/reports')}
+                onClick={() => {
+                  navigate('/admin/reports');
+                }}
               />
               <Col flex="1"></Col>
               <Button
@@ -139,7 +141,9 @@ const ReportForm: React.FC = () => {
               </Button>
               <Button
                 variant={ButtonVariant.secondary}
-                onClick={() => handlePublish(values)}
+                onClick={async () => {
+                  await handlePublish(values);
+                }}
                 disabled={!hasSubscribers(values.subscribers)}
               >
                 Send
@@ -147,8 +151,8 @@ const ReportForm: React.FC = () => {
               <Show visible={!!values.id}>
                 <Button
                   variant={ButtonVariant.secondary}
-                  onClick={() =>
-                    handleSubmit({
+                  onClick={async () => {
+                    await handleSubmit({
                       ...values,
                       id: 0,
                       name: `${values.name}-${new Date().getTime()}`,
@@ -163,8 +167,8 @@ const ReportForm: React.FC = () => {
                       subscribers: [],
                       instances: [],
                       events: [],
-                    })
-                  }
+                    });
+                  }}
                 >
                   Copy
                 </Button>
@@ -179,7 +183,7 @@ const ReportForm: React.FC = () => {
                   <>
                     <Tab
                       label="Report"
-                      showErrorOnSave={{ value: true, savePressed: savePressed }}
+                      showErrorOnSave={{ value: true, savePressed }}
                       setShowValidationToast={setShowValidationToast}
                       hasErrors={hasErrors(errors, ['name'])}
                       onClick={() => {
@@ -189,7 +193,7 @@ const ReportForm: React.FC = () => {
                     />
                     <Tab
                       label="Template"
-                      showErrorOnSave={{ value: true, savePressed: savePressed }}
+                      showErrorOnSave={{ value: true, savePressed }}
                       setShowValidationToast={setShowValidationToast}
                       hasErrors={hasErrors(errors, ['templateId'])}
                       onClick={() => {
@@ -201,7 +205,7 @@ const ReportForm: React.FC = () => {
                       <>
                         <Tab
                           label="Sections"
-                          showErrorOnSave={{ value: true, savePressed: savePressed }}
+                          showErrorOnSave={{ value: true, savePressed }}
                           setShowValidationToast={setShowValidationToast}
                           hasErrors={hasErrors(errors, ['settings'])}
                           onClick={() => {
@@ -225,7 +229,7 @@ const ReportForm: React.FC = () => {
                         />
                         <Tab
                           label="Scheduler"
-                          showErrorOnSave={{ value: true, savePressed: savePressed }}
+                          showErrorOnSave={{ value: true, savePressed }}
                           setShowValidationToast={setShowValidationToast}
                           hasErrors={hasErrors(errors, ['events'])}
                           onClick={() => {
@@ -289,7 +293,9 @@ const ReportForm: React.FC = () => {
                     </Button>
                     <Button
                       variant={ButtonVariant.secondary}
-                      onClick={() => handlePublish(values)}
+                      onClick={async () => {
+                        await handlePublish(values);
+                      }}
                       disabled={!hasSubscribers(values.subscribers)}
                     >
                       Send

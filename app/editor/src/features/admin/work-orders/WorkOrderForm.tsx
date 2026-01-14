@@ -26,7 +26,7 @@ import {
 } from 'tno-core';
 
 import { defaultWorkOrder } from './constants';
-import { IWorkOrderForm } from './interfaces';
+import { type IWorkOrderForm } from './interfaces';
 import * as styled from './styled';
 import { toForm, toModel } from './utils';
 
@@ -52,9 +52,9 @@ const WorkOrderForm: React.FC = () => {
   React.useEffect(() => {
     if (!!workOrderId && workOrder?.id !== workOrderId) {
       setWorkOrder({ ...defaultWorkOrder, id: workOrderId }); // Do this to stop double fetch.
-      api.getWorkOrder(workOrderId).then((data) => {
+      api.getWorkOrder(workOrderId).then(async (data) => {
         setWorkOrder(toForm(data));
-        return findUsers({ includeUserId: data.requestorId, quantity: 50 });
+        return await findUsers({ includeUserId: data.requestorId, quantity: 50 });
       });
     }
   }, [api, findUsers, workOrder?.id, workOrderId]);
@@ -70,7 +70,7 @@ const WorkOrderForm: React.FC = () => {
         ? await api.addWorkOrder(toModel(values))
         : await api.updateWorkOrder(toModel(values));
       setWorkOrder(toForm(result));
-      toast.success(`Work order has successfully been saved.`);
+      toast.success('Work order has successfully been saved.');
       if (!originalId) navigate(`/work/orders/${result.id}`);
     } catch {}
   };
@@ -85,7 +85,9 @@ const WorkOrderForm: React.FC = () => {
         iconType="back"
         label="Back to WorkOrders"
         className="back-button"
-        onClick={() => navigate('/admin/work/orders')}
+        onClick={() => {
+          navigate('/admin/work/orders');
+        }}
       />
       <FormikForm
         initialValues={workOrder}
@@ -138,9 +140,9 @@ const WorkOrderForm: React.FC = () => {
                   <FormikText name="configuration.headline" label="Content Headline" disabled>
                     <Button
                       variant={ButtonVariant.secondary}
-                      onClick={() =>
-                        goToContent(values.configuration.contentId ?? values.contentId ?? 0)
-                      }
+                      onClick={() => {
+                        goToContent(values.configuration.contentId ?? values.contentId ?? 0);
+                      }}
                     >
                       Go
                     </Button>
@@ -156,7 +158,7 @@ const WorkOrderForm: React.FC = () => {
                 <Col flex="1 1 0">
                   <FormikDatePicker
                     selectedDate={
-                      !!values.updatedOn ? moment(values.updatedOn).toString() : undefined
+                      values.updatedOn ? moment(values.updatedOn).toString() : undefined
                     }
                     onChange={noop}
                     name="updatedOn"
@@ -172,7 +174,7 @@ const WorkOrderForm: React.FC = () => {
                 <Col flex="1 1 0">
                   <FormikDatePicker
                     selectedDate={
-                      !!values.createdOn ? moment(values.createdOn).toString() : undefined
+                      values.createdOn ? moment(values.createdOn).toString() : undefined
                     }
                     onChange={noop}
                     name="createdOn"
@@ -202,7 +204,7 @@ const WorkOrderForm: React.FC = () => {
               onConfirm={async () => {
                 try {
                   await api.deleteWorkOrder(toModel(values));
-                  toast.success(`Work order has successfully been deleted.`);
+                  toast.success('Work order has successfully been deleted.');
                   navigate('/admin/work/orders');
                 } finally {
                   toggle();

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
-import { IPaged, ITagFilter, ITagModel, useApiAdminTags } from 'tno-core';
+import { type IAdminState, useAdminStore } from 'store/slices';
+import { type IPaged, type ITagFilter, type ITagModel, useApiAdminTags } from 'tno-core';
 
 interface ITagController {
   findAllTags: () => Promise<ITagModel[]>;
@@ -21,16 +21,22 @@ export const useTags = (): [IAdminState, ITagController] => {
   const controller = React.useMemo(
     () => ({
       findAllTags: async () => {
-        const response = await dispatch<ITagModel[]>('find-all-tags', () => api.findAllTags());
+        const response = await dispatch<ITagModel[]>(
+          'find-all-tags',
+          async () => await api.findAllTags(),
+        );
         store.storeTags(response.data);
         return response.data;
       },
       findTag: async (filter: ITagFilter) => {
-        const response = await dispatch<IPaged<ITagModel>>('find-tag', () => api.findTags(filter));
+        const response = await dispatch<IPaged<ITagModel>>(
+          'find-tag',
+          async () => await api.findTags(filter),
+        );
         return response.data;
       },
       getTag: async (id: number) => {
-        const response = await dispatch<ITagModel>('get-tag', () => api.getTag(id));
+        const response = await dispatch<ITagModel>('get-tag', async () => await api.getTag(id));
         store.storeTags((tags) =>
           tags.map((ds) => {
             if (ds.id === response.data.id) return response.data;
@@ -40,13 +46,16 @@ export const useTags = (): [IAdminState, ITagController] => {
         return response.data;
       },
       addTag: async (model: ITagModel) => {
-        const response = await dispatch<ITagModel>('add-tag', () => api.addTag(model));
+        const response = await dispatch<ITagModel>('add-tag', async () => await api.addTag(model));
         store.storeTags((tags) => [...tags, response.data]);
         await lookup.getLookups();
         return response.data;
       },
       updateTag: async (model: ITagModel) => {
-        const response = await dispatch<ITagModel>('update-tag', () => api.updateTag(model));
+        const response = await dispatch<ITagModel>(
+          'update-tag',
+          async () => await api.updateTag(model),
+        );
         store.storeTags((tags) =>
           tags.map((ds) => {
             if (ds.id === response.data.id) return response.data;
@@ -57,7 +66,10 @@ export const useTags = (): [IAdminState, ITagController] => {
         return response.data;
       },
       deleteTag: async (model: ITagModel) => {
-        const response = await dispatch<ITagModel>('delete-tag', () => api.deleteTag(model));
+        const response = await dispatch<ITagModel>(
+          'delete-tag',
+          async () => await api.deleteTag(model),
+        );
         store.storeTags((tags) => tags.filter((ds) => ds.id !== response.data.id));
         await lookup.getLookups();
         return response.data;

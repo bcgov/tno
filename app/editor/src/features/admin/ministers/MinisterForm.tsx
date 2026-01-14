@@ -5,7 +5,6 @@ import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useMinisters } from 'store/hooks/admin';
-import { IMinisterModel, Modal, useModal } from 'tno-core';
 import {
   Button,
   ButtonVariant,
@@ -16,9 +15,12 @@ import {
   FormikText,
   FormikTextArea,
   IconButton,
+  type IMinisterModel,
   LabelPosition,
+  Modal,
   Row,
   Show,
+  useModal,
 } from 'tno-core';
 
 import { defaultMinister } from './constants';
@@ -37,7 +39,7 @@ const MinisterForm: React.FC = () => {
 
   const ministerId = Number(id);
   const [minister, setMinister] = React.useState<IMinisterModel>(
-    (state as any)?.minister ?? defaultMinister,
+    state?.minister ?? defaultMinister,
   );
 
   React.useEffect(() => {
@@ -67,7 +69,9 @@ const MinisterForm: React.FC = () => {
         iconType="back"
         label="Back to Ministers"
         className="back-button"
-        onClick={() => navigate('/admin/ministers')}
+        onClick={() => {
+          navigate('/admin/ministers');
+        }}
       />
       <FormikForm
         initialValues={minister}
@@ -105,7 +109,7 @@ const MinisterForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.updatedOn ? moment(values.updatedOn).toString() : undefined
+                      values.updatedOn ? moment(values.updatedOn).toString() : undefined
                     }
                     onChange={noop}
                     name="updatedOn"
@@ -123,7 +127,7 @@ const MinisterForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.createdOn ? moment(values.createdOn).toString() : undefined
+                      values.createdOn ? moment(values.createdOn).toString() : undefined
                     }
                     onChange={noop}
                     name="createdOn"

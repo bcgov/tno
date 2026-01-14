@@ -1,4 +1,4 @@
-import { IFolderForm } from '../interfaces';
+import { type IFolderForm } from '../interfaces';
 
 export const defaultFolder: IFolderForm = {
   id: 0,

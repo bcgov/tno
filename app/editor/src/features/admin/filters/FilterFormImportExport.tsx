@@ -9,16 +9,7 @@ import React from 'react';
 import Editor from 'react-simple-code-editor';
 import { toast } from 'react-toastify';
 import { useLookupOptions } from 'store/hooks';
-import {
-  Button,
-  ButtonVariant,
-  Col,
-  generateQuery,
-  IFilterModel,
-  IFilterSettingsModel,
-  Row,
-  Show,
-} from 'tno-core';
+import { Button, ButtonVariant, Col, generateQuery, type IFilterModel, Row, Show } from 'tno-core';
 
 import { exportFilter, parseExportedFilter } from './utils';
 
@@ -37,7 +28,7 @@ export const FilterFormImportExport: React.FC = () => {
       try {
         const rawExportedFilter = JSON.parse(data);
 
-        var importedFilter = parseExportedFilter(
+        const importedFilter = parseExportedFilter(
           rawExportedFilter,
           actions,
           contributors,
@@ -47,7 +38,7 @@ export const FilterFormImportExport: React.FC = () => {
         );
         setValues({ ...importedFilter });
 
-        const query = generateQuery(importedFilter.settings as IFilterSettingsModel, null);
+        const query = generateQuery(importedFilter.settings, null);
         setFieldValue('query', query);
       } catch (ex) {
         const error = ex as Error;
@@ -78,7 +69,7 @@ export const FilterFormImportExport: React.FC = () => {
             <Button
               variant={ButtonVariant.secondary}
               onClick={() => {
-                var exportedFilter = exportFilter(
+                const exportedFilter = exportFilter(
                   values.name,
                   values.description,
                   values.settings,

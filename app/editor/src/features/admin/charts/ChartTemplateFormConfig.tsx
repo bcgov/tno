@@ -74,7 +74,7 @@ export const ChartTemplateFormConfig: React.FC<IChartTemplateFormConfigProps> = 
             label="Flip X and Y axis"
             checked={values.settings.options?.indexAxis === 'y'}
             onChange={(e) => {
-              var sectionSettings = mergeChartSettings(
+              const sectionSettings = mergeChartSettings(
                 values.settings.options,
                 values.sectionSettings,
                 {
@@ -94,7 +94,7 @@ export const ChartTemplateFormConfig: React.FC<IChartTemplateFormConfigProps> = 
             label="Show Legend"
             checked={values.settings.options?.plugins?.legend?.display ?? ''}
             onChange={(e) => {
-              var sectionSettings = mergeChartSettings(
+              const sectionSettings = mergeChartSettings(
                 values.settings.options,
                 values.sectionSettings,
                 {
@@ -114,7 +114,7 @@ export const ChartTemplateFormConfig: React.FC<IChartTemplateFormConfigProps> = 
             label="Show Data Labels"
             checked={values.settings.options?.plugins?.datalabels?.labels?.title?.display ?? ''}
             onChange={(e) => {
-              var sectionSettings = mergeChartSettings(
+              const sectionSettings = mergeChartSettings(
                 values.settings.options,
                 values.sectionSettings,
                 {

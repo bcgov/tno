@@ -1,6 +1,6 @@
-import { AxiosError } from 'axios';
-import { IStream } from 'features/storage/interfaces';
-import { FormikHelpers, FormikProps } from 'formik';
+import { type AxiosError } from 'axios';
+import { type IStream } from 'features/storage/interfaces';
+import { type FormikHelpers, type FormikProps } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -16,20 +16,20 @@ import {
 import {
   ContentStatusName,
   ContentTypeName,
-  IContentActionMessageModel,
-  IContentMessageModel,
-  IContentModel,
-  IResponseErrorModel,
-  IWorkOrderMessageModel,
+  type IContentActionMessageModel,
+  type IContentMessageModel,
+  type IContentModel,
+  type IResponseErrorModel,
+  type IWorkOrderMessageModel,
   MessageTargetKey,
   WorkOrderStatusName,
   WorkOrderTypeName,
 } from 'tno-core';
 
-import { IContentFormProps } from '..';
-import { IFile } from '../components/upload';
+import { type IContentFormProps } from '..';
+import { type IFile } from '../components/upload';
 import { defaultFormValues } from '../constants';
-import { IContentForm } from '../interfaces';
+import { type IContentForm } from '../interfaces';
 import { getContentPath, toForm, toModel, triggerFormikValidate } from '../utils';
 
 export const useContentForm = ({
@@ -66,9 +66,9 @@ export const useContentForm = ({
   );
 
   const userId = userInfo?.id ?? '';
-  const fileReference = form.fileReferences.length ? form.fileReferences[0] : undefined;
+  const fileReference = form.fileReferences.length > 0 ? form.fileReferences[0] : undefined;
   const path = fileReference?.path;
-  const file = !!fileReference
+  const file = fileReference
     ? ({
         name: fileReference.fileName,
         size: fileReference.size,
@@ -77,7 +77,7 @@ export const useContentForm = ({
 
   const updateForm = React.useCallback(
     async (content: IContentModel | undefined) => {
-      if (!!content) {
+      if (content) {
         setForm(toForm(content));
         const res = await findWorkOrders({ contentId: content.id });
         setForm({ ...toForm(content), workOrders: res.data.items });
@@ -204,13 +204,13 @@ export const useContentForm = ({
   }, []);
 
   const setAvStream = React.useCallback(() => {
-    if (!!path) {
+    if (path) {
       const encodedPath = encodeURIComponent(path);
 
       getStream(encodedPath)
         .then((result) => {
           setStream(
-            !!result
+            result
               ? {
                   url: result,
                   type: fileReference?.contentType,
@@ -235,20 +235,20 @@ export const useContentForm = ({
         if (!values.id) {
           // Only new content is initialized.
           values.contentType = contentType;
-          values.ownerId = !!userId ? userId : '';
+          values.ownerId = userId || '';
         }
 
         const model = toModel(values);
         contentResult = !form.id ? await addContent(model) : await updateContent(model);
 
-        if (!!values.file) {
+        if (values.file) {
           // TODO: Make it possible to upload on the initial save instead of a separate request.
           // Upload the file if one has been added.
           const content = await upload(contentResult, values.file);
           result = toForm({ ...content, tonePools: values.tonePools });
         } else if (
           !originalId &&
-          !!values.fileReferences.length &&
+          !(values.fileReferences.length === 0) &&
           !values.fileReferences[0].isUploaded
         ) {
           // TODO: Make it possible to upload on the initial save instead of a separate request.
@@ -263,7 +263,7 @@ export const useContentForm = ({
 
         toast.success(`"${contentResult.headline}" has successfully been saved.`);
 
-        if (!!contentResult?.seriesId) {
+        if (contentResult?.seriesId) {
           // A dynamically added series has been added, fetch the latests series.
           const newSeries = series.find((s) => s.id === contentResult?.seriesId);
           if (!newSeries) getSeries();
@@ -275,7 +275,7 @@ export const useContentForm = ({
         }
       } catch {
         // If the upload fails, we still need to update the form from the original update.
-        if (!!contentResult) {
+        if (contentResult) {
           result = toForm(contentResult);
           setForm({ ...result, workOrders: form.workOrders });
           if (!originalId) navigate(getContentPath(contentResult.id, contentResult?.contentType));
@@ -359,9 +359,9 @@ export const useContentForm = ({
 
         if (response.status === 200) toast.success('A transcript has been requested');
         else if (response.status === 208) {
-          if (response.data.status === WorkOrderStatusName.Completed)
+          if (response.data.status === WorkOrderStatusName.Completed) {
             toast.warn('Content has already been transcribed');
-          else toast.warn(`An active request for transcription already exists`);
+          } else toast.warn('An active request for transcription already exists');
         }
       } catch {
         // Ignore this failure it is handled by our global ajax requests.
@@ -381,9 +381,9 @@ export const useContentForm = ({
 
         if (response.status === 200) toast.success('An auto clip has been requested');
         else if (response.status === 208) {
-          if (response.data.status === WorkOrderStatusName.Completed)
+          if (response.data.status === WorkOrderStatusName.Completed) {
             toast.warn('Content has already been auto clipped');
-          else toast.warn(`An active request for auto clipping already exists`);
+          } else toast.warn('An active request for auto clipping already exists');
         }
       } catch {
         // Ignore this failure it is handled by our global ajax requests.
@@ -403,9 +403,9 @@ export const useContentForm = ({
 
         if (response.status === 200) toast.success('An NLP has been requested');
         else if (response.status === 208) {
-          if (response.data.status === WorkOrderStatusName.Completed)
+          if (response.data.status === WorkOrderStatusName.Completed) {
             toast.warn('Content has already been processed by NLP');
-          else toast.warn(`An active request for NLP already exists`);
+          } else toast.warn('An active request for NLP already exists');
         }
       } catch {
         // Ignore this failure it is handled by our global ajax requests.
@@ -423,9 +423,9 @@ export const useContentForm = ({
 
         if (response.status === 200) toast.success('A FFmpeg process has been requested');
         else if (response.status === 208) {
-          if (response.data.status === WorkOrderStatusName.Completed)
+          if (response.data.status === WorkOrderStatusName.Completed) {
             toast.warn('Content has already been processed by FFmpeg');
-          else toast.warn(`An active request for FFmpeg already exists`);
+          } else toast.warn('An active request for FFmpeg already exists');
         }
       } catch {
         // Ignore this failure it is handled by our global ajax requests.

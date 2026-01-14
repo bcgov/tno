@@ -15,8 +15,8 @@ import {
   FormikText,
   FormikTextArea,
   getUserOptions,
-  IReportModel,
-  OptionItem,
+  type IReportModel,
+  type OptionItem,
   Row,
   Show,
   UserAccountTypeName,
@@ -98,11 +98,13 @@ export const ReportFormDetails: React.FC = () => {
           label="Name"
           onChange={(e) => {
             const name = e.target.value;
-            if (!values.settings.subject.text || values.settings.subject.text === values.name)
+            if (!values.settings.subject.text || values.settings.subject.text === values.name) {
               setFieldValue('settings.subject.text', name);
+            }
             setFieldValue('name', name);
-            if (values.templateId === 0)
+            if (values.templateId === 0) {
               setFieldValue('template.name', `${name}-${Date.now().toString()}`);
+            }
           }}
           placeholder="Enter unique report name"
         />
@@ -127,7 +129,12 @@ export const ReportFormDetails: React.FC = () => {
             }}
           />
           <Col className="frm-in">
-            <Button variant={ButtonVariant.secondary} onClick={() => handleReassignOwnership()}>
+            <Button
+              variant={ButtonVariant.secondary}
+              onClick={() => {
+                handleReassignOwnership();
+              }}
+            >
               Apply ownership to filters/folders in report
             </Button>
           </Col>
@@ -156,9 +163,7 @@ export const ReportFormDetails: React.FC = () => {
               <Row>
                 <FormikText width={FieldSize.Small} disabled name="updatedBy" label="Updated By" />
                 <FormikDatePicker
-                  selectedDate={
-                    !!values.updatedOn ? moment(values.updatedOn).toString() : undefined
-                  }
+                  selectedDate={values.updatedOn ? moment(values.updatedOn).toString() : undefined}
                   onChange={noop}
                   name="updatedOn"
                   label="Updated On"
@@ -169,9 +174,7 @@ export const ReportFormDetails: React.FC = () => {
               <Row>
                 <FormikText width={FieldSize.Small} disabled name="createdBy" label="Created By" />
                 <FormikDatePicker
-                  selectedDate={
-                    !!values.createdOn ? moment(values.createdOn).toString() : undefined
-                  }
+                  selectedDate={values.createdOn ? moment(values.createdOn).toString() : undefined}
                   onChange={noop}
                   name="createdOn"
                   label="Created On"

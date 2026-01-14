@@ -1,4 +1,4 @@
-import { IAVOverviewInstanceModel, IAVOverviewTemplateModel } from 'tno-core';
+import { type IAVOverviewInstanceModel, type IAVOverviewTemplateModel } from 'tno-core';
 
 export const defaultAVOverviewInstance = (
   template: IAVOverviewTemplateModel,

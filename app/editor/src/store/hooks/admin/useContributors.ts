@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
-import { IContributorModel, useApiAdminContributors } from 'tno-core';
+import { type IAdminState, useAdminStore } from 'store/slices';
+import { type IContributorModel, useApiAdminContributors } from 'tno-core';
 
 interface IContributorController {
   findAllContributor: () => Promise<IContributorModel[]>;
@@ -20,15 +20,17 @@ export const useContributors = (): [IAdminState, IContributorController] => {
   const controller = React.useMemo(
     () => ({
       findAllContributor: async () => {
-        const response = await dispatch<IContributorModel[]>('find-all-contributors', () =>
-          api.findAllContributors(),
+        const response = await dispatch<IContributorModel[]>(
+          'find-all-contributors',
+          async () => await api.findAllContributors(),
         );
         store.storeContributors(response.data);
         return response.data;
       },
       getContributor: async (id: number) => {
-        const response = await dispatch<IContributorModel>('get-contributors', () =>
-          api.getContributor(id),
+        const response = await dispatch<IContributorModel>(
+          'get-contributors',
+          async () => await api.getContributor(id),
         );
         store.storeContributors((contributors) =>
           contributors.map((ds) => {
@@ -39,16 +41,18 @@ export const useContributors = (): [IAdminState, IContributorController] => {
         return response.data;
       },
       addContributor: async (model: IContributorModel) => {
-        const response = await dispatch<IContributorModel>('add-contributors', () =>
-          api.addContributor(model),
+        const response = await dispatch<IContributorModel>(
+          'add-contributors',
+          async () => await api.addContributor(model),
         );
         store.storeContributors((contributors) => [...contributors, response.data]);
         await lookup.getLookups();
         return response.data;
       },
       updateContributor: async (model: IContributorModel) => {
-        const response = await dispatch<IContributorModel>('update-contributors', () =>
-          api.updateContributor(model),
+        const response = await dispatch<IContributorModel>(
+          'update-contributors',
+          async () => await api.updateContributor(model),
         );
         store.storeContributors((contributors) =>
           contributors.map((ds) => {
@@ -60,8 +64,9 @@ export const useContributors = (): [IAdminState, IContributorController] => {
         return response.data;
       },
       deleteContributor: async (model: IContributorModel) => {
-        const response = await dispatch<IContributorModel>('delete-contributors', () =>
-          api.deleteContributor(model),
+        const response = await dispatch<IContributorModel>(
+          'delete-contributors',
+          async () => await api.deleteContributor(model),
         );
         store.storeContributors((contributors) =>
           contributors.filter((ds) => ds.id !== response.data.id),

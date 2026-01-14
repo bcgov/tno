@@ -11,7 +11,7 @@ import {
   FieldSize,
   FormikSelect,
   FormikText,
-  IOptionItem,
+  type IOptionItem,
   Modal,
   OptionItem,
   Row,
@@ -19,7 +19,7 @@ import {
 } from 'tno-core';
 
 import { defaultSeries } from './constants';
-import { ISeriesForm } from './interfaces';
+import { type ISeriesForm } from './interfaces';
 import * as styled from './styled';
 import { toForm } from './utils';
 
@@ -32,7 +32,7 @@ const SeriesMerge: React.FC = () => {
   const [{ series }] = useLookup();
 
   const [targetSeries, setTargetSeries] = React.useState<ISeriesForm>(
-    (state as any)?.series ?? defaultSeries,
+    state?.series ?? defaultSeries,
   );
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
   const [mergeSeriesSourceOption, setMergeSeriesSourceOption] = React.useState<IOptionItem>();
@@ -108,7 +108,7 @@ const SeriesMerge: React.FC = () => {
                 try {
                   await api.mergeSeries(Number(mergeSeriesSourceOption?.value), targetSeriesId);
                   setMergeSeriesSourceOption(undefined);
-                  toast.success(`Series/Program merge completed successfully.`);
+                  toast.success('Series/Program merge completed successfully.');
                 } finally {
                   toggle();
                 }

@@ -1,10 +1,14 @@
-import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellEllipsis, ITagModel } from 'tno-core';
+import {
+  type Column,
+  type UseFiltersColumnOptions,
+  type UseSortByColumnOptions,
+} from 'react-table';
+import { CellEllipsis, type ITagModel } from 'tno-core';
 
 /** columns for tag list popout when user is on the content form. */
-export const columns: (Column<ITagModel> &
-  UseSortByColumnOptions<ITagModel> &
-  UseFiltersColumnOptions<ITagModel>)[] = [
+export const columns: Array<
+  Column<ITagModel> & UseSortByColumnOptions<ITagModel> & UseFiltersColumnOptions<ITagModel>
+> = [
   {
     id: 'code',
     Header: 'Code',

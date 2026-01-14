@@ -1,5 +1,12 @@
 import { useFormikContext } from 'formik';
-import { Checkbox, Col, FormikCheckbox, FormikText, FormikTextArea, IReportModel } from 'tno-core';
+import {
+  Checkbox,
+  Col,
+  FormikCheckbox,
+  FormikText,
+  FormikTextArea,
+  type IReportModel,
+} from 'tno-core';
 
 export interface IReportSectionImageProps {
   index: number;

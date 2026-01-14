@@ -2,7 +2,7 @@ import { FormPage } from 'components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLicenses } from 'store/hooks/admin';
-import { Col, FlexboxTable, IconButton, ILicenseModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, type ILicenseModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { LicenseFilter } from './LicenseFilter';
@@ -15,7 +15,7 @@ const LicenseList: React.FC = () => {
   const [items, setItems] = React.useState<ILicenseModel[]>([]);
 
   React.useEffect(() => {
-    if (!licenses.length) {
+    if (licenses.length === 0) {
       api.findAllLicenses().then((data) => {
         setItems(data);
       });
@@ -33,8 +33,10 @@ const LicenseList: React.FC = () => {
           </Col>
           <IconButton
             iconType="plus"
-            label={`Add new licence`}
-            onClick={() => navigate(`/admin/licences/0`)}
+            label={'Add new licence'}
+            onClick={() => {
+              navigate('/admin/licences/0');
+            }}
           />
         </Row>
         <LicenseFilter
@@ -59,7 +61,9 @@ const LicenseList: React.FC = () => {
           data={items}
           columns={columns}
           showSort={true}
-          onRowClick={(row) => navigate(`${row.original.id}`)}
+          onRowClick={(row) => {
+            navigate(`${row.original.id}`);
+          }}
           pagingEnabled={false}
         />
       </FormPage>

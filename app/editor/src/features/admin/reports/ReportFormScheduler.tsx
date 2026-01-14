@@ -1,6 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { IReportModel } from 'tno-core';
+import { type IReportModel } from 'tno-core';
 
 import { defaultReportSchedule } from './constants/defaultReportSchedule';
 import { ReportSchedule } from './ReportSchedule';

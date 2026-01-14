@@ -7,11 +7,11 @@ import {
   Col,
   Grid,
   IconButton,
-  IGridHeaderColumnProps,
-  ISystemMessageModel,
+  type IGridHeaderColumnProps,
+  type ISystemMessageModel,
   Link,
   Row,
-  SortDirection,
+  type SortDirection,
 } from 'tno-core';
 
 import * as styled from './styled';
@@ -27,7 +27,7 @@ export const SystemMessageList: React.FC = () => {
   const fetch = React.useCallback(async () => {
     try {
       const messages = await findSystemMessages();
-      return setMessages(messages);
+      setMessages(messages);
     } catch {}
   }, [findSystemMessages]);
 
@@ -58,10 +58,16 @@ export const SystemMessageList: React.FC = () => {
         <IconButton
           iconType="plus"
           label="System Message"
-          onClick={() => navigate('/admin/system-messages/0')}
+          onClick={() => {
+            navigate('/admin/system-messages/0');
+          }}
         />
       </Row>
-      <SystemMessageFilter onSearch={(keywords) => setFilter(keywords)} />
+      <SystemMessageFilter
+        onSearch={(keywords) => {
+          setFilter(keywords);
+        }}
+      />
       <Grid
         items={messages.filter((m) => !filter || m.name.includes(filter))}
         onSortChange={async (column, direction) => {

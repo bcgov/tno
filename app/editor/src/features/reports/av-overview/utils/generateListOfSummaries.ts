@@ -1,4 +1,8 @@
-import { getDistinct, IAVOverviewSectionItemModel, IAVOverviewSectionModel } from 'tno-core';
+import {
+  getDistinct,
+  type IAVOverviewSectionItemModel,
+  type IAVOverviewSectionModel,
+} from 'tno-core';
 
 export interface ISectionSummary {
   key: string;
@@ -11,17 +15,18 @@ export interface ISectionSummary {
  * @returns An array of section summaries.
  */
 export const generateListOfSummaries = (sections: IAVOverviewSectionModel[]) => {
-  let summaries: ISectionSummary[] = [];
-  if (sections && sections.length) {
+  const summaries: ISectionSummary[] = [];
+  if (sections && sections.length > 0) {
     sections.forEach((section, sectionIndex) => {
       summaries.push(
         ...section?.items?.reduce(function (
-          acc: Array<ISectionSummary>,
+          acc: ISectionSummary[],
           current: IAVOverviewSectionItemModel,
           itemIndex: number,
         ) {
-          if (current.summary)
+          if (current.summary) {
             acc.push({ key: `${sectionIndex}-${itemIndex}`, text: current.summary });
+          }
           return acc;
         },
         []),

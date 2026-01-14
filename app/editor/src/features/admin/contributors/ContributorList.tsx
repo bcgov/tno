@@ -2,7 +2,7 @@ import { FormPage } from 'components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContributors } from 'store/hooks/admin';
-import { Col, FlexboxTable, IconButton, IContributorModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, type IContributorModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { ContributorFilter } from './ContributorFilter';
@@ -15,7 +15,7 @@ const ContributorList: React.FC = () => {
   const [items, setItems] = React.useState<IContributorModel[]>([]);
 
   React.useEffect(() => {
-    if (!contributors.length) {
+    if (contributors.length === 0) {
       api.findAllContributor().then((data) => {
         setItems(data);
       });
@@ -31,8 +31,10 @@ const ContributorList: React.FC = () => {
           <Col flex="1 1 0">Provides a way to manage columnist and pundit list.</Col>
           <IconButton
             iconType="plus"
-            label={`Add new columnist/pundit`}
-            onClick={() => navigate(`/admin/contributors/0`)}
+            label={'Add new columnist/pundit'}
+            onClick={() => {
+              navigate('/admin/contributors/0');
+            }}
           />
         </Row>
         <ContributorFilter
@@ -58,7 +60,9 @@ const ContributorList: React.FC = () => {
           data={items}
           columns={columns}
           showSort={true}
-          onRowClick={(row) => navigate(`${row.original.id}`)}
+          onRowClick={(row) => {
+            navigate(`${row.original.id}`);
+          }}
           pagingEnabled={false}
         />
       </FormPage>

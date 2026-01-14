@@ -8,10 +8,10 @@ import {
   FormikSelect,
   getEnumStringOptions,
   Grid,
-  IReportModel,
-  IUserFilter,
-  IUserReportModel,
-  OptionItem,
+  type IReportModel,
+  type IUserFilter,
+  type IUserReportModel,
+  type OptionItem,
   ReportDistributionFormatName,
   SortDirection,
 } from 'tno-core';
@@ -107,12 +107,12 @@ export const ReportFormSubscribers: React.FC = () => {
             checked={values.subscribers.some((u) => u.userId === row.userId && u.isSubscribed)}
             onChange={(e) => {
               const user = { ...row, isSubscribed: e.target.checked };
-              if (values.subscribers.some((u) => u.userId === user.userId))
+              if (values.subscribers.some((u) => u.userId === user.userId)) {
                 setFieldValue(
                   'subscribers',
                   values.subscribers.map((item) => (item.userId === user.userId ? user : item)),
                 );
-              else setFieldValue('subscribers', [user, ...values.subscribers]);
+              } else setFieldValue('subscribers', [user, ...values.subscribers]);
             }}
           />,
           <CellEllipsis key="2">{row.username}</CellEllipsis>,

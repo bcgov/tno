@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { ContentStatusName, ContentTypeName } from 'tno-core';
 
-import { IContentForm } from '../interfaces';
+import { type IContentForm } from '../interfaces';
 
 export const defaultFormValues = (contentType: ContentTypeName): IContentForm => {
   const publishedOn = moment();
@@ -10,7 +10,7 @@ export const defaultFormValues = (contentType: ContentTypeName): IContentForm =>
     uid: '',
     sourceUrl: '',
     status: ContentStatusName.Draft,
-    contentType: contentType,
+    contentType,
     sourceId: '',
     otherSource: '',
     tempSource: '',

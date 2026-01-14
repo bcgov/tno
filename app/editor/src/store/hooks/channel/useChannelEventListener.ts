@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ChannelMessage } from './ChannelMessage';
+import { type ChannelMessage } from './ChannelMessage';
 
 /**
  * Hook provides a way to add and remove a listener to the specified channel.
@@ -17,7 +17,9 @@ export const useChannelEventListener = <T extends keyof BroadcastChannelEventMap
     const channel = channelRef.current;
     if (channel && listener) {
       channel.addEventListener(event, listener);
-      return () => channel.removeEventListener(event, listener);
+      return () => {
+        channel.removeEventListener(event, listener);
+      };
     }
   }, [channelRef, event, listener]);
 };

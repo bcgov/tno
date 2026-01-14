@@ -3,7 +3,7 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { Col } from 'tno-core';
 
-import { IFolderForm } from './interfaces';
+import { type IFolderForm } from './interfaces';
 
 export const FolderFormContent: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IFolderForm>();

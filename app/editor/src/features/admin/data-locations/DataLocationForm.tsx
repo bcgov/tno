@@ -26,7 +26,7 @@ import {
 } from 'tno-core';
 
 import { defaultDataLocation } from './constants';
-import { IDataLocationForm } from './interfaces';
+import { type IDataLocationForm } from './interfaces';
 import * as styled from './styled';
 import { toForm, toModel } from './utils';
 
@@ -41,7 +41,7 @@ const DataLocationForm: React.FC = () => {
 
   const [loading, setLoading] = React.useState(true);
   const [dataLocation, setDataLocation] = React.useState<IDataLocationForm>(
-    (state as any)?.dataLocation ?? defaultDataLocation,
+    state?.dataLocation ?? defaultDataLocation,
   );
 
   const dataLocationId = Number(id);
@@ -83,7 +83,9 @@ const DataLocationForm: React.FC = () => {
         iconType="back"
         label="Back to DataLocations"
         className="back-button"
-        onClick={() => navigate('/admin/data/locations')}
+        onClick={() => {
+          navigate('/admin/data/locations');
+        }}
       />
       <FormikForm
         initialValues={dataLocation}
@@ -104,7 +106,7 @@ const DataLocationForm: React.FC = () => {
                 options={connectionOptions}
                 onChange={(newValue: any) => {
                   const connection = connections.find((c) => c.id === newValue.value);
-                  if (!!connection) setFieldValue('connection', connection);
+                  if (connection) setFieldValue('connection', connection);
                 }}
               />
               <FormikText
@@ -129,7 +131,7 @@ const DataLocationForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.updatedOn ? moment(values.updatedOn).toString() : undefined
+                      values.updatedOn ? moment(values.updatedOn).toString() : undefined
                     }
                     onChange={noop}
                     name="updatedOn"
@@ -147,7 +149,7 @@ const DataLocationForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.createdOn ? moment(values.createdOn).toString() : undefined
+                      values.createdOn ? moment(values.createdOn).toString() : undefined
                     }
                     onChange={noop}
                     name="createdOn"

@@ -1,6 +1,6 @@
-import { AVOverviewTemplateTypeName } from 'tno-core';
+import { type AVOverviewTemplateTypeName } from 'tno-core';
 
-import { IAVOverviewTemplateForm } from '../interfaces';
+import { type IAVOverviewTemplateForm } from '../interfaces';
 
 export const defaultAVOverviewTemplate = (
   templateType: AVOverviewTemplateTypeName,

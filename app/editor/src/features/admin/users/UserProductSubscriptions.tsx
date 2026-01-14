@@ -1,7 +1,7 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useUsers } from 'store/hooks/admin';
-import { formatDate, Grid, IUserModel, IUserProductModel, Link } from 'tno-core';
+import { formatDate, Grid, type IUserModel, type IUserProductModel, Link } from 'tno-core';
 
 export const UserProductSubscriptions: React.FC = () => {
   const { values } = useFormikContext<IUserModel>();
@@ -10,9 +10,11 @@ export const UserProductSubscriptions: React.FC = () => {
   const [subscriptions, setSubscriptions] = React.useState<IUserProductModel[]>([]);
 
   React.useEffect(() => {
-    if (!subscriptions.length && values.id) {
+    if (subscriptions.length === 0 && values.id) {
       getUserProductSubscriptions(values.id)
-        .then((data) => setSubscriptions(data))
+        .then((data) => {
+          setSubscriptions(data);
+        })
         .catch(() => {});
     }
   }, [getUserProductSubscriptions, subscriptions.length, values.id]);

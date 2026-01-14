@@ -1,6 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { Col, FormikCheckbox, FormikSelect, FormikText, IIngestModel, Row } from 'tno-core';
+import { Col, FormikCheckbox, FormikSelect, FormikText, type IIngestModel, Row } from 'tno-core';
 
 import { TimeZones } from './constants';
 import { ImportContent } from './ImportContent';

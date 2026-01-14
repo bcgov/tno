@@ -6,7 +6,7 @@ import {
   AVOverviewItemTypeName,
   Button,
   ButtonVariant,
-  IAVOverviewInstanceModel,
+  type IAVOverviewInstanceModel,
   Modal,
   Row,
   Show,
@@ -17,7 +17,7 @@ import { defaultAVOverviewSectionItem } from './constants';
 import { EditBroadcastDetails } from './EditBroadcastDetails';
 import { OverviewSectionForm } from './OverviewSectionForm';
 import * as styled from './styled';
-import { ISectionSummary } from './utils';
+import { type ISectionSummary } from './utils';
 
 export interface IOverviewSectionProps {
   editable?: boolean;
@@ -39,7 +39,7 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({
 
   const handleDeleteSection = (index: number) => {
     values.sections.splice(index, 1);
-    setFieldValue(`sections`, values.sections);
+    setFieldValue('sections', values.sections);
   };
 
   const handleAddItem = (index: number) => {
@@ -47,7 +47,7 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({
       ...section.items,
       defaultAVOverviewSectionItem(
         section.id,
-        !section.items.length ? AVOverviewItemTypeName.Intro : AVOverviewItemTypeName.Story,
+        section.items.length === 0 ? AVOverviewItemTypeName.Intro : AVOverviewItemTypeName.Story,
         section.startTime,
         section.items.length,
       ),
@@ -80,25 +80,31 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({
             <Button
               disabled={!section.name}
               variant={ButtonVariant.action}
-              onClick={() => handleAddItem(index)}
+              onClick={() => {
+                handleAddItem(index);
+              }}
             >
               New story <MdAdd className="icon" />
             </Button>
             <Button
               variant={ButtonVariant.danger}
-              onClick={() => toggle()}
-              disabled={!section.items.length}
+              onClick={() => {
+                toggle();
+              }}
+              disabled={section.items.length === 0}
             >
               Clear all story text <MdClear className="icon" />
             </Button>
           </Row>
           <Button
             variant={ButtonVariant.danger}
-            onClick={() => handleDeleteSection(index)}
+            onClick={() => {
+              handleDeleteSection(index);
+            }}
             tooltip={
-              !!section.items.length ? 'Delete all items before deleting section' : undefined
+              section.items.length > 0 ? 'Delete all items before deleting section' : undefined
             }
-            disabled={!!section.items.length}
+            disabled={!(section.items.length === 0)}
           >
             Delete section
             <FaTrash className="delete" />

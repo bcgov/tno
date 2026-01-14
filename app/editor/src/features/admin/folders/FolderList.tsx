@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFolders } from 'store/hooks/admin';
 import { useAdminStore } from 'store/slices';
-import { Col, FlexboxTable, IconButton, IFolderModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, type IFolderModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { FolderFilter } from './FolderFilter';
@@ -50,8 +50,10 @@ export const FolderList: React.FC = () => {
           <Col flex="1 1 0">A folder provides a way to collect content for reports.</Col>
           <IconButton
             iconType="plus"
-            label={`Add new folder`}
-            onClick={() => navigate(`/admin/folders/0`)}
+            label={'Add new folder'}
+            onClick={() => {
+              navigate('/admin/folders/0');
+            }}
           />
         </Row>
         <FolderFilter />
@@ -60,7 +62,9 @@ export const FolderList: React.FC = () => {
           data={items}
           columns={columns}
           showSort={true}
-          onRowClick={(row) => navigate(`${row.original.id}`)}
+          onRowClick={(row) => {
+            navigate(`${row.original.id}`);
+          }}
           pagingEnabled={false}
         />
       </FormPage>

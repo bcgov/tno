@@ -1,11 +1,21 @@
 import { Status } from 'components/status';
 import { TabControl } from 'components/tab-control';
 import { AdvancedSearchKeys } from 'features/content/constants';
-import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
+import {
+  type IContentListAdvancedFilter,
+  type IContentListFilter,
+} from 'features/content/interfaces';
 import { naturalSortValue } from 'features/content/list-view/utils/naturalSort';
 import { useContent } from 'store/hooks';
-import { IContentSearchResult } from 'store/slices';
-import { CellEllipsis, Checkbox, ITableHookColumn, LogicalOperator, Page, Row } from 'tno-core';
+import { type IContentSearchResult } from 'store/slices';
+import {
+  CellEllipsis,
+  Checkbox,
+  type ITableHookColumn,
+  LogicalOperator,
+  type Page,
+  Row,
+} from 'tno-core';
 
 export interface IColumnProps {
   fetch: (
@@ -17,7 +27,7 @@ export interface IColumnProps {
 export const useColumns = ({
   fetch,
   onClickUse,
-}: IColumnProps): ITableHookColumn<IContentSearchResult>[] => {
+}: IColumnProps): Array<ITableHookColumn<IContentSearchResult>> => {
   const [{ filterPaper, filterPaperAdvanced }, { storeFilterPaperAdvanced }] = useContent();
 
   return [
@@ -84,7 +94,9 @@ export const useColumns = ({
       cell: (cell) => (
         <Status
           value={cell.original.status}
-          onClick={(status) => onClickUse?.({ ...cell.original, status: status })}
+          onClick={(status) => {
+            onClickUse?.({ ...cell.original, status });
+          }}
         />
       ),
     },

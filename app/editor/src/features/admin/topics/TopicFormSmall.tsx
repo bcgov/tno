@@ -6,7 +6,7 @@ import {
   ButtonVariant,
   FieldSize,
   FormikText,
-  ITopicModel,
+  type ITopicModel,
   Loader,
   Row,
   ToggleGroup,

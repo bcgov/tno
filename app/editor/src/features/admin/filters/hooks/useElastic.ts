@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSettings } from 'store/hooks';
-import { generateMustNotQuery, generateQuery, IFilterSettingsModel } from 'tno-core';
+import { generateMustNotQuery, generateQuery, type IFilterSettingsModel } from 'tno-core';
 
 /**
  * Hook provides helper function to generate elasticsearch query.
@@ -18,7 +18,7 @@ export const useElastic = () => {
     ) => {
       if (!frontpageImageMediaTypeId) return;
 
-      var elastic = generateQuery(filter, query, condition);
+      let elastic = generateQuery(filter, query, condition);
       if (frontpageImageMediaTypeId && !filter.mediaTypeIds?.includes(frontpageImageMediaTypeId)) {
         // Do not include front page images in results unless they are specifically requested.
         // filter.mediaTypeIds = [...(filter.mediaTypeIds ?? []), frontPageImageMediaTypeId];

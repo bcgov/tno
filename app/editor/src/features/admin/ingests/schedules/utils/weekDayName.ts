@@ -1,7 +1,7 @@
 import { ScheduleWeekDay, ScheduleWeekDayName } from 'tno-core';
 
 export const weekDayName = (value: ScheduleWeekDay | ScheduleWeekDay[]) => {
-  var values = Array.isArray(value) ? value : [value];
+  const values = Array.isArray(value) ? value : [value];
 
   if (
     values.includes(ScheduleWeekDay.Sunday) &&
@@ -11,15 +11,17 @@ export const weekDayName = (value: ScheduleWeekDay | ScheduleWeekDay[]) => {
     values.includes(ScheduleWeekDay.Thursday) &&
     values.includes(ScheduleWeekDay.Friday) &&
     values.includes(ScheduleWeekDay.Saturday)
-  )
+  ) {
     return 'All';
+  }
 
   if (
     values.includes(ScheduleWeekDay.Sunday) &&
     values.includes(ScheduleWeekDay.Saturday) &&
     ((values.includes(ScheduleWeekDay.NA) && values.length === 3) || values.length === 2)
-  )
+  ) {
     return 'Weekends';
+  }
 
   if (
     !values.includes(ScheduleWeekDay.Sunday) &&
@@ -29,8 +31,9 @@ export const weekDayName = (value: ScheduleWeekDay | ScheduleWeekDay[]) => {
     values.includes(ScheduleWeekDay.Thursday) &&
     values.includes(ScheduleWeekDay.Friday) &&
     !values.includes(ScheduleWeekDay.Saturday)
-  )
+  ) {
     return 'Weekdays';
+  }
 
   const result = values
     .filter((v) => v !== ScheduleWeekDay.NA)

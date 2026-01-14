@@ -13,8 +13,8 @@ import {
   FormikText,
   FormikTextArea,
   getUserOptions,
-  IFolderModel,
-  OptionItem,
+  type IFolderModel,
+  type OptionItem,
   Row,
   Show,
   UserAccountTypeName,
@@ -105,7 +105,7 @@ export const FolderFormDetails: React.FC = () => {
             <Row>
               <FormikText width={FieldSize.Small} disabled name="updatedBy" label="Updated By" />
               <FormikDatePicker
-                selectedDate={!!values.updatedOn ? moment(values.updatedOn).toString() : undefined}
+                selectedDate={values.updatedOn ? moment(values.updatedOn).toString() : undefined}
                 onChange={noop}
                 name="updatedOn"
                 label="Updated On"
@@ -116,7 +116,7 @@ export const FolderFormDetails: React.FC = () => {
             <Row>
               <FormikText width={FieldSize.Small} disabled name="createdBy" label="Created By" />
               <FormikDatePicker
-                selectedDate={!!values.createdOn ? moment(values.createdOn).toString() : undefined}
+                selectedDate={values.createdOn ? moment(values.createdOn).toString() : undefined}
                 onChange={noop}
                 name="createdOn"
                 label="Created On"

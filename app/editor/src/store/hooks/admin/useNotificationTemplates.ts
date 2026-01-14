@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
-import { INotificationTemplateModel, useApiAdminNotificationTemplates } from 'tno-core';
+import { type IAdminState, useAdminStore } from 'store/slices';
+import { type INotificationTemplateModel, useApiAdminNotificationTemplates } from 'tno-core';
 
 interface INotificationTemplateController {
   findAllNotificationTemplates: () => Promise<INotificationTemplateModel[]>;
@@ -32,7 +32,7 @@ export const useNotificationTemplates = (): [
       findAllNotificationTemplates: async () => {
         const response = await dispatch<INotificationTemplateModel[]>(
           'find-all-notification-templates',
-          () => api.findAllNotificationTemplates(),
+          async () => await api.findAllNotificationTemplates(),
         );
         store.storeNotificationTemplates(response.data);
         setInitialized(true);
@@ -41,7 +41,7 @@ export const useNotificationTemplates = (): [
       getNotificationTemplate: async (id: number) => {
         const response = await dispatch<INotificationTemplateModel>(
           'get-notification-template',
-          () => api.getNotificationTemplate(id),
+          async () => await api.getNotificationTemplate(id),
         );
         store.storeNotificationTemplates((notificationTemplates) =>
           notificationTemplates.map((ds) => {
@@ -54,7 +54,7 @@ export const useNotificationTemplates = (): [
       addNotificationTemplate: async (model: INotificationTemplateModel) => {
         const response = await dispatch<INotificationTemplateModel>(
           'add-notification-template',
-          () => api.addNotificationTemplate(model),
+          async () => await api.addNotificationTemplate(model),
         );
         store.storeNotificationTemplates((notificationTemplates) => [
           ...notificationTemplates,
@@ -66,7 +66,7 @@ export const useNotificationTemplates = (): [
       updateNotificationTemplate: async (model: INotificationTemplateModel) => {
         const response = await dispatch<INotificationTemplateModel>(
           'update-notification-template',
-          () => api.updateNotificationTemplate(model),
+          async () => await api.updateNotificationTemplate(model),
         );
         store.storeNotificationTemplates((notificationTemplates) =>
           notificationTemplates.map((ds) => {
@@ -80,7 +80,7 @@ export const useNotificationTemplates = (): [
       deleteNotificationTemplate: async (model: INotificationTemplateModel) => {
         const response = await dispatch<INotificationTemplateModel>(
           'delete-notification-template',
-          () => api.deleteNotificationTemplate(model),
+          async () => await api.deleteNotificationTemplate(model),
         );
         store.storeNotificationTemplates((notificationTemplates) =>
           notificationTemplates.filter((ds) => ds.id !== response.data.id),

@@ -1,5 +1,5 @@
 import React from 'react';
-import { toast, ToastOptions } from 'react-toastify';
+import { toast, type ToastOptions } from 'react-toastify';
 import { Col } from 'tno-core';
 
 import { useApp } from './useApp';
@@ -22,7 +22,7 @@ export const useToastError = () => {
   const [errors, setErrors] = React.useState(state.errors);
 
   React.useEffect(() => {
-    if (state.errors.length) {
+    if (state.errors.length > 0) {
       setErrors((se) => {
         return state.errors;
       });

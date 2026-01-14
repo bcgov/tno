@@ -1,10 +1,10 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
+import { type IAdminState, useAdminStore } from 'store/slices';
 import {
-  IContentReferenceFilter,
-  IContentReferenceModel,
-  IPaged,
+  type IContentReferenceFilter,
+  type IContentReferenceModel,
+  type IPaged,
   useApiAdminContentReferences,
 } from 'tno-core';
 
@@ -49,31 +49,35 @@ export const useContentReferences = (): [IAdminState, IContentReferenceControlle
       findContentReferences: async (filter: IContentReferenceFilter) => {
         const response = await dispatch<IPaged<IContentReferenceModel>>(
           'find-content-references',
-          () => api.findContentReferences(filter),
+          async () => await api.findContentReferences(filter),
         );
         return response.data;
       },
       getContentReference: async (source: string, uid: string) => {
-        const response = await dispatch<IContentReferenceModel>('get-content-reference', () =>
-          api.getContentReference(source, uid),
+        const response = await dispatch<IContentReferenceModel>(
+          'get-content-reference',
+          async () => await api.getContentReference(source, uid),
         );
         return response.data;
       },
       updateContentReference: async (model: IContentReferenceModel) => {
-        const response = await dispatch<IContentReferenceModel>('update-data-source', () =>
-          api.updateContentReference(model),
+        const response = await dispatch<IContentReferenceModel>(
+          'update-data-source',
+          async () => await api.updateContentReference(model),
         );
         return response.data;
       },
       deleteContentReference: async (model: IContentReferenceModel) => {
-        const response = await dispatch<IContentReferenceModel>('delete-data-source', () =>
-          api.deleteContentReference(model),
+        const response = await dispatch<IContentReferenceModel>(
+          'delete-data-source',
+          async () => await api.deleteContentReference(model),
         );
         return response.data;
       },
       findContentIds: async (uid: string) => {
-        const response = await dispatch<number[]>('find-content-references-content-ids', () =>
-          api.findContentIds(uid),
+        const response = await dispatch<number[]>(
+          'find-content-references-content-ids',
+          async () => await api.findContentIds(uid),
         );
         return response.data;
       },

@@ -7,7 +7,7 @@ import {
   Col,
   Grid,
   IconButton,
-  IProductModel,
+  type IProductModel,
   Link,
   ProductRequestStatusName,
   Row,
@@ -25,7 +25,7 @@ const ProductList: React.FC = () => {
   const [isReady, setIsReady] = React.useState(false);
 
   React.useEffect(() => {
-    if (!products.length && !isReady) {
+    if (products.length === 0 && !isReady) {
       setIsReady(true);
       findProducts({})
         .then((data) => {
@@ -46,13 +46,15 @@ const ProductList: React.FC = () => {
           </Col>
           <IconButton
             iconType="plus"
-            label={`Add new product`}
-            onClick={() => navigate(`/admin/products/0`)}
+            label={'Add new product'}
+            onClick={() => {
+              navigate('/admin/products/0');
+            }}
           />
         </Row>
         <ProductFilter
           onChange={(filter) => {
-            if (filter && filter.keyword?.length) {
+            if (filter?.keyword?.length) {
               const value = filter.keyword.toLocaleLowerCase();
               setItems(
                 products.filter(
@@ -66,7 +68,7 @@ const ProductList: React.FC = () => {
             }
           }}
           onSearch={(filter) => {
-            if (filter && filter.keyword?.length) {
+            if (filter?.keyword?.length) {
               const value = filter.keyword.toLocaleLowerCase();
               setItems(
                 products.filter(

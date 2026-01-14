@@ -5,8 +5,8 @@ import {
   DragDropContext,
   Draggable,
   Droppable,
-  DropResult,
-  ResponderProvided,
+  type DropResult,
+  type ResponderProvided,
 } from 'react-beautiful-dnd';
 import { FaGripLines, FaTrash } from 'react-icons/fa';
 import { useContent } from 'store/hooks';
@@ -18,12 +18,12 @@ import {
   FormikSelect,
   FormikTextArea,
   FormikTimeInput,
-  IAVOverviewInstanceModel,
-  IAVOverviewSectionItemModel,
-  IAVOverviewSectionModel,
-  IAVOverviewTemplateSectionItemModel,
-  IContentModel,
-  IOptionItem,
+  type IAVOverviewInstanceModel,
+  type IAVOverviewSectionItemModel,
+  type IAVOverviewSectionModel,
+  type IAVOverviewTemplateSectionItemModel,
+  type IContentModel,
+  type IOptionItem,
   OptionItem,
   Row,
   Show,
@@ -34,7 +34,7 @@ import { SummarySuggestion } from './SummarySuggestion';
 import {
   generateElasticsearchQuery,
   generateListOfSummaries,
-  ISectionSummary,
+  type ISectionSummary,
   stringifyNumber,
 } from './utils';
 
@@ -70,7 +70,7 @@ export const OverviewSectionForm: React.FC<IOverviewSectionFormProps> = ({
   const eveningOverviewItemTypeOptions = castEnumToOptions(AVOverviewItemTypeName);
   const section = values.sections[index];
 
-  /** fetch pieces of content that are related to the series to display as options for associated clips, search for clips published after the start time if it is specified - otherwise filter based on that day.*/
+  /** fetch pieces of content that are related to the series to display as options for associated clips, search for clips published after the start time if it is specified - otherwise filter based on that day. */
   const findClips = React.useCallback(
     async (startDate: string | Date, startTime: string, seriesId?: number, sourceId?: number) => {
       try {
@@ -87,11 +87,11 @@ export const OverviewSectionForm: React.FC<IOverviewSectionFormProps> = ({
     (
       sectionIndex: number,
       section: IAVOverviewSectionModel,
-      clips: IOptionItem<string | number | undefined>[],
+      clips: Array<IOptionItem<string | number | undefined>>,
     ) => {
       // check if any previously selected clips are no longer available, if not, unselect them
-      var isUpdated = false;
-      var sectionItems = section.items.map((item) => {
+      let isUpdated = false;
+      const sectionItems = section.items.map((item) => {
         if (item.contentId && !clips.some((clip) => clip.value === item.contentId)) {
           isUpdated = true;
           return { ...item, contentId: undefined };
@@ -116,7 +116,7 @@ export const OverviewSectionForm: React.FC<IOverviewSectionFormProps> = ({
       if (!result.destination) {
         return;
       }
-      var updatedList = [...items];
+      const updatedList = [...items];
       // Remove dragged item
       const [reorderedItem] = updatedList.splice(result.source.index, 1);
       // Add dropped item
@@ -181,12 +181,12 @@ export const OverviewSectionForm: React.FC<IOverviewSectionFormProps> = ({
 
   return (
     <styled.OverviewSectionForm>
-      <Show visible={!section.items.length}>
+      <Show visible={section.items.length === 0}>
         <div className="no-items">
           There are no items in this section, add a source then click "New story" to begin.
         </div>
       </Show>
-      <Show visible={!!section.items.length}>
+      <Show visible={!(section.items.length === 0)}>
         <div className="grid">
           <Row className="header">
             <div></div>
@@ -200,7 +200,9 @@ export const OverviewSectionForm: React.FC<IOverviewSectionFormProps> = ({
           </Row>
           <div className="contents">
             <DragDropContext
-              onDragEnd={(result, provided) => handleDrop(index, section.items, result, provided)}
+              onDragEnd={(result, provided) => {
+                handleDrop(index, section.items, result, provided);
+              }}
             >
               <Droppable droppableId="list-container" isDropDisabled={!editable}>
                 {(provided) => (
@@ -219,7 +221,7 @@ export const OverviewSectionForm: React.FC<IOverviewSectionFormProps> = ({
                           {(provided) => (
                             <div
                               ref={provided.innerRef}
-                              key={itemIndex + `item.id`}
+                              key={itemIndex + 'item.id'}
                               {...provided.dragHandleProps}
                               {...provided.draggableProps}
                             >
@@ -229,7 +231,7 @@ export const OverviewSectionForm: React.FC<IOverviewSectionFormProps> = ({
                                 </Col>
                                 <Col>
                                   <FormikSelect
-                                    key={itemIndex + `select`}
+                                    key={itemIndex + 'select'}
                                     name={`sections.${index}.items.${itemIndex}.itemType`}
                                     width={FieldSize.Small}
                                     options={eveningOverviewItemTypeOptions}
@@ -276,7 +278,9 @@ export const OverviewSectionForm: React.FC<IOverviewSectionFormProps> = ({
                                   }}
                                 >
                                   <div
-                                    onClick={() => setShowAutoCompleteForIndex(null)}
+                                    onClick={() => {
+                                      setShowAutoCompleteForIndex(null);
+                                    }}
                                     style={{
                                       display:
                                         showAutoCompleteForIndex === itemIndex ? 'block' : 'none',
@@ -315,7 +319,9 @@ export const OverviewSectionForm: React.FC<IOverviewSectionFormProps> = ({
                                     itemIndex={itemIndex}
                                     show={itemIndex === showAutoCompleteForIndex}
                                     suggestions={summaries}
-                                    onClose={() => setShowAutoCompleteForIndex(null)}
+                                    onClose={() => {
+                                      setShowAutoCompleteForIndex(null);
+                                    }}
                                   />
                                 </Col>
                                 <Col flex="0.1 1 20em">
@@ -328,7 +334,7 @@ export const OverviewSectionForm: React.FC<IOverviewSectionFormProps> = ({
                                     onChange={(newValue) => {
                                       const option = newValue as OptionItem;
                                       const item = section.items[itemIndex];
-                                      if (option && option.value) {
+                                      if (option?.value) {
                                         const content = contentItems?.find(
                                           (ci) => ci.id === option.value,
                                         );
@@ -352,8 +358,10 @@ export const OverviewSectionForm: React.FC<IOverviewSectionFormProps> = ({
                                 <FaTrash
                                   style={{ flexShrink: 0 }}
                                   className="clear-item"
-                                  key={itemIndex + `trash`}
-                                  onClick={() => handleDeleteItem(index, itemIndex, section.items)}
+                                  key={itemIndex + 'trash'}
+                                  onClick={() => {
+                                    handleDeleteItem(index, itemIndex, section.items);
+                                  }}
                                 />
                               </Row>
                             </div>

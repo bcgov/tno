@@ -1,4 +1,4 @@
-import { IContributorForm } from '../interfaces';
+import { type IContributorForm } from '../interfaces';
 
 export const defaultContributor: IContributorForm = {
   id: 0,

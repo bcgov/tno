@@ -4,7 +4,7 @@ import {
   FormikCheckbox,
   FormikSelect,
   FormikText,
-  IIngestModel,
+  type IIngestModel,
   Row,
   useFormikHelpers,
 } from 'tno-core';

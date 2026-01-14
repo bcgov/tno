@@ -2,7 +2,7 @@ import { CategoryScale } from 'chart.js';
 import Chart from 'chart.js/auto';
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
-import { ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
+import { type ChartJSOrUndefined } from 'react-chartjs-2/dist/types';
 import { Button } from 'tno-core';
 
 Chart.register(CategoryScale);

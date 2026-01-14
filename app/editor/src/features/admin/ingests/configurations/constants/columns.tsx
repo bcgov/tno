@@ -1,10 +1,10 @@
 import { FaTrash } from 'react-icons/fa';
-import { Button, ButtonVariant, FormikText, ITableHookColumn } from 'tno-core';
+import { Button, ButtonVariant, FormikText, type ITableHookColumn } from 'tno-core';
 
 export const columns = (
   onClick: (event: any) => {},
   onChange: (event: any, cell: any, isSource?: boolean) => void,
-): ITableHookColumn<any>[] => {
+): Array<ITableHookColumn<any>> => {
   return [
     {
       label: 'Name',
@@ -17,7 +17,9 @@ export const columns = (
             name="name"
             title="name"
             value={cell.original.name}
-            onChange={(e: any) => onChange(e, cell, false)}
+            onChange={(e: any) => {
+              onChange(e, cell, false);
+            }}
             style={{ width: '280px' }}
           />
         );
@@ -34,7 +36,9 @@ export const columns = (
             name="source"
             title="source"
             value={cell.original.source}
-            onChange={(e: any) => onChange(e, cell)}
+            onChange={(e: any) => {
+              onChange(e, cell);
+            }}
             style={{ width: '180px' }}
           />
         );

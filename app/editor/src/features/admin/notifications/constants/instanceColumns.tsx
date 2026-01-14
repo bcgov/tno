@@ -1,6 +1,6 @@
-import { CellDate, CellEllipsis, IReportInstanceModel, ITableHookColumn } from 'tno-core';
+import { CellDate, CellEllipsis, type IReportInstanceModel, type ITableHookColumn } from 'tno-core';
 
-export const instanceColumns = (): ITableHookColumn<IReportInstanceModel>[] => [
+export const instanceColumns = (): Array<ITableHookColumn<IReportInstanceModel>> => [
   {
     label: 'Published On',
     accessor: 'publishedOn',

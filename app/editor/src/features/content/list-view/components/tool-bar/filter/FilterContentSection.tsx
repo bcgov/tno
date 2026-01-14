@@ -1,4 +1,4 @@
-import { IContentListFilter } from 'features/content/interfaces';
+import { type IContentListFilter } from 'features/content/interfaces';
 import React from 'react';
 import { FaClock, FaFilter, FaIcons, FaUsers } from 'react-icons/fa';
 import { useApp, useContent, useLookupOptions } from 'store/hooks';
@@ -8,7 +8,7 @@ import {
   filterEnabledOptions,
   fromQueryString,
   getUserOptions,
-  IOptionItem,
+  type IOptionItem,
   replaceQueryParams,
   Row,
   Select,
@@ -97,15 +97,21 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = () => 
                     },
                     {
                       label: '24 HRS',
-                      onClick: () => onChange({ ...filter, timeFrame: 1 }),
+                      onClick: () => {
+                        onChange({ ...filter, timeFrame: 1 });
+                      },
                     },
                     {
                       label: '48 HRS',
-                      onClick: () => onChange({ ...filter, timeFrame: 2 }),
+                      onClick: () => {
+                        onChange({ ...filter, timeFrame: 2 });
+                      },
                     },
                     {
                       label: 'ALL',
-                      onClick: () => onChange({ ...filter, timeFrame: 3 }),
+                      onClick: () => {
+                        onChange({ ...filter, timeFrame: 3 });
+                      },
                     },
                   ]}
                 />
@@ -117,17 +123,22 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = () => 
                   options={[
                     {
                       label: 'ALL CONTENT',
-                      onClick: () => onChange({ ...filter, userId: 0 }),
+                      onClick: () => {
+                        onChange({ ...filter, userId: 0 });
+                      },
                     },
                     {
                       label: 'MY CONTENT',
-                      onClick: () => onChange({ ...filter, userId: userInfo?.id ?? 0 }),
+                      onClick: () => {
+                        onChange({ ...filter, userId: userInfo?.id ?? 0 });
+                      },
                     },
                     {
                       label: 'OTHER',
                       dropDownOptions: filterEnabledOptions(userOptions),
-                      onClick: (e, option) =>
-                        onOtherClick(filter, option?.value ? +option.value : undefined),
+                      onClick: (e, option) => {
+                        onOtherClick(filter, option?.value ? +option.value : undefined);
+                      },
                     },
                   ]}
                 />
@@ -162,7 +173,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = () => 
                     onChange({
                       ...filter,
                       pageIndex: 0,
-                      mediaTypeIds: mediaTypeIds,
+                      mediaTypeIds,
                     });
                   }}
                 />

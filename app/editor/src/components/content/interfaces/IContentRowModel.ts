@@ -1,4 +1,4 @@
-import { IContentModel } from 'tno-core';
+import { type IContentModel } from 'tno-core';
 
 export interface IContentRowModel {
   sortOrder: number;

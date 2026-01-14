@@ -1,6 +1,11 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { IReportFilter, IReportModel, IReportResultModel, useApiEditorReports } from 'tno-core';
+import {
+  type IReportFilter,
+  type IReportModel,
+  type IReportResultModel,
+  useApiEditorReports,
+} from 'tno-core';
 
 interface IReportController {
   findReports: (filter: IReportFilter) => Promise<IReportModel[]>;
@@ -20,44 +25,55 @@ export const useReports = (): [IReportController] => {
   const controller = React.useMemo(
     () => ({
       findReports: async (filter: IReportFilter) => {
-        const response = await dispatch<IReportModel[]>('find-all-reports', () =>
-          api.findReports(filter),
+        const response = await dispatch<IReportModel[]>(
+          'find-all-reports',
+          async () => await api.findReports(filter),
         );
         return response.data;
       },
       getReport: async (id: number) => {
-        const response = await dispatch<IReportModel | undefined>('get-report', () =>
-          api.getReport(id),
+        const response = await dispatch<IReportModel | undefined>(
+          'get-report',
+          async () => await api.getReport(id),
         );
         return response.data;
       },
       addReport: async (model: IReportModel) => {
-        const response = await dispatch<IReportModel>('add-report', () => api.addReport(model));
+        const response = await dispatch<IReportModel>(
+          'add-report',
+          async () => await api.addReport(model),
+        );
         await lookup.getLookups();
         return response.data;
       },
       updateReport: async (model: IReportModel) => {
-        const response = await dispatch<IReportModel>('update-report', () =>
-          api.updateReport(model),
+        const response = await dispatch<IReportModel>(
+          'update-report',
+          async () => await api.updateReport(model),
         );
         await lookup.getLookups();
         return response.data;
       },
       deleteReport: async (model: IReportModel) => {
-        const response = await dispatch<IReportModel>('delete-report', () =>
-          api.deleteReport(model),
+        const response = await dispatch<IReportModel>(
+          'delete-report',
+          async () => await api.deleteReport(model),
         );
         await lookup.getLookups();
         return response.data;
       },
       previewReport: async (reportId: number) => {
-        const response = await dispatch<IReportResultModel>('preview-report', () =>
-          api.previewReport(reportId),
+        const response = await dispatch<IReportResultModel>(
+          'preview-report',
+          async () => await api.previewReport(reportId),
         );
         return response.data;
       },
       publishReport: async (reportId: number) => {
-        const response = await dispatch<never>('publish-report', () => api.publishReport(reportId));
+        const response = await dispatch<never>(
+          'publish-report',
+          async () => await api.publishReport(reportId),
+        );
         return response.data;
       },
     }),

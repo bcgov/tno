@@ -1,4 +1,4 @@
-import { IChartRequestForm } from '../interfaces';
+import { type IChartRequestForm } from '../interfaces';
 import { defaultChartJSOptions } from '.';
 
 export const defaultChartRequestForm: IChartRequestForm = {

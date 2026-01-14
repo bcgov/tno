@@ -1,4 +1,4 @@
-import { ISortBy } from 'features/interfaces';
+import { type ISortBy } from 'features/interfaces';
 
 /**
  * Creates an array of sort parameters from the provided sorting information.
@@ -9,9 +9,9 @@ import { ISortBy } from 'features/interfaces';
 export const applySortBy = (sortBy?: ISortBy[]) => {
   if (sortBy === undefined || sortBy.length === 0) return undefined;
 
-  var sort: string[] = [];
+  const sort: string[] = [];
   for (let i = 0; i < sortBy.length; i++) {
-    let column = sortBy[i].id;
+    const column = sortBy[i].id;
     if (column === 'section') {
       sort.push(`page${sortBy[i].desc ? ' desc' : ''}`);
       sort.push(`${column}${sortBy[i].desc ? ' desc' : ''}`);

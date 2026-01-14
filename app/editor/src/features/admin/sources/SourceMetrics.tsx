@@ -1,9 +1,9 @@
 import { getIn, useFormikContext } from 'formik';
 import React from 'react';
 import { useLookup } from 'store/hooks';
-import { FieldSize, FormikText, IMetricModel, Row, useNamespace } from 'tno-core';
+import { FieldSize, FormikText, type IMetricModel, Row, useNamespace } from 'tno-core';
 
-import { ISourceForm } from './interfaces';
+import { type ISourceForm } from './interfaces';
 import * as styled from './styled';
 
 export const SourceMetrics: React.FC = (props) => {

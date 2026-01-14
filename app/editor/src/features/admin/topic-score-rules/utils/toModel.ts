@@ -1,6 +1,6 @@
-import { ITopicScoreRuleModel } from 'tno-core';
+import { type ITopicScoreRuleModel } from 'tno-core';
 
-import { ITopicScoreRuleForm } from './../interfaces';
+import { type ITopicScoreRuleForm } from './../interfaces';
 
 export const toModel = (values: ITopicScoreRuleForm): ITopicScoreRuleModel => {
   return {

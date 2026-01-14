@@ -5,11 +5,11 @@ import { Link } from 'react-router-dom';
 import {
   CellDate,
   CellEllipsis,
-  IContentTopicModel,
-  IFolderContentModel,
-  ITableHookColumn,
-  ITableInternalCell,
-  ITopicModel,
+  type IContentTopicModel,
+  type IFolderContentModel,
+  type ITableHookColumn,
+  type ITableInternalCell,
+  type ITopicModel,
   OptionItem,
   Select,
   Show,
@@ -28,7 +28,7 @@ const possibleScores = Array.from(Array(maxTopicScore + 1).keys()).map(
 export const useColumns = (
   topics: ITopicModel[],
   handleSubmit: (values: IFolderContentModel) => Promise<void>,
-): ITableHookColumn<IFolderContentModel>[] => {
+): Array<ITableHookColumn<IFolderContentModel>> => {
   const [isContentUpdating, setIsContentUpdating] = React.useState<number[]>([]);
   const toggleContentUpdatingStatus = (contentId: number) => {
     setIsContentUpdating((state) => {
@@ -64,11 +64,11 @@ export const useColumns = (
           // if the original topic was "Not Applicable", it may be because no topic was set
           // this logic below avoids a reference to an empty array
           score:
-            topic!.id === topicIdNotApplicable
+            topic.id === topicIdNotApplicable
               ? 0
-              : cell.original.content!.topics.length === 0
+              : cell.original.content.topics.length === 0
               ? 0
-              : cell.original.content!.topics[0].score,
+              : cell.original.content.topics[0].score,
         },
       ];
       toggleContentUpdatingStatus(cell.original.contentId);
@@ -83,7 +83,7 @@ export const useColumns = (
     cell: ITableInternalCell<IFolderContentModel>,
   ) => {
     if (cell.original.content) {
-      let newScore = (newValue as OptionItem).value;
+      const newScore = (newValue as OptionItem).value;
       const updatedFolderContent = {
         ...cell.original,
       } as IFolderContentModel;
@@ -104,7 +104,7 @@ export const useColumns = (
     }, 500);
   };
 
-  const result: ITableHookColumn<IFolderContentModel>[] = [
+  const result: Array<ITableHookColumn<IFolderContentModel>> = [
     {
       label: 'Topic Name',
       accessor: 'name',
@@ -134,12 +134,14 @@ export const useColumns = (
       accessor: 'pageSection',
       label: 'Page:Section',
       cell: (cell) => {
-        var cellTextComponents = [];
-        if (cell.original.content!.page && cell.original.content!.page.length > 0)
+        const cellTextComponents = [];
+        if (cell.original.content!.page && cell.original.content!.page.length > 0) {
           cellTextComponents.push(cell.original.content!.page);
-        if (cell.original.content!.section && cell.original.content!.section.length > 0)
+        }
+        if (cell.original.content!.section && cell.original.content!.section.length > 0) {
           cellTextComponents.push(cell.original.content!.section);
-        var cellText: string =
+        }
+        const cellText: string =
           cellTextComponents.length === 2
             ? cellTextComponents.join(':')
             : cellTextComponents.join('');
@@ -169,11 +171,13 @@ export const useColumns = (
             }
             filteredTopics={topics}
             value={
-              !!cell.original.content!.topics!.length
+              cell.original.content!.topics.length > 0
                 ? cell.original.content!.topics[0].id
                 : topicIdNotApplicable
             }
-            handleTopicChange={async (e: any) => await handleTopicChange(e, cell)}
+            handleTopicChange={async (e: any) => {
+              await handleTopicChange(e, cell);
+            }}
           />
         );
       },
@@ -189,8 +193,8 @@ export const useColumns = (
               name="score"
               isDisabled={
                 isRowContentUpdating(cell.original.contentId) ||
-                (cell.original.content!.topics!.length > 0 &&
-                  cell.original.content!.topics![0].id === topicIdNotApplicable)
+                (cell.original.content!.topics.length > 0 &&
+                  cell.original.content!.topics[0].id === topicIdNotApplicable)
               }
               isClearable={false}
               clearValue={''}
@@ -205,8 +209,8 @@ export const useColumns = (
               value={possibleScores?.find(
                 (o) =>
                   o.value ===
-                  (cell.original.content!.topics!.length > 0
-                    ? cell.original.content!.topics![0].score
+                  (cell.original.content!.topics.length > 0
+                    ? cell.original.content!.topics[0].score
                     : 0),
               )}
               onChange={(newValue) => {
@@ -215,15 +219,15 @@ export const useColumns = (
             />
             <div className="maxScore">
               &nbsp;&le;&nbsp;
-              <Show visible={cell.original!.maxTopicScore !== undefined}>
+              <Show visible={cell.original.maxTopicScore !== undefined}>
                 <dfn
                   title="max score as calculated by matched rule"
                   className="score-max-hint-text"
                 >
-                  {cell.original!.maxTopicScore}
+                  {cell.original.maxTopicScore}
                 </dfn>
               </Show>
-              <Show visible={cell.original!.maxTopicScore === undefined}>
+              <Show visible={cell.original.maxTopicScore === undefined}>
                 <dfn title="no rule match" className="score-max-no-rule-match">
                   {maxTopicScore}
                 </dfn>

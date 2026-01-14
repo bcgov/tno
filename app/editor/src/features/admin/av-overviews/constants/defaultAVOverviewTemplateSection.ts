@@ -1,4 +1,4 @@
-import { AVOverviewTemplateTypeName, IAVOverviewTemplateSectionModel } from 'tno-core';
+import { type AVOverviewTemplateTypeName, type IAVOverviewTemplateSectionModel } from 'tno-core';
 
 export const defaultAVOverviewTemplateSection = (
   templateType: AVOverviewTemplateTypeName,

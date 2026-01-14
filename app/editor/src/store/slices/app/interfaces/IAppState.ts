@@ -1,7 +1,7 @@
-import { HubConnectionState } from '@microsoft/signalr';
-import { IUserInfoModel } from 'tno-core';
+import { type HubConnectionState } from '@microsoft/signalr';
+import { type IUserInfoModel } from 'tno-core';
 
-import { IAjaxRequest, IErrorModel, IUserOptions } from '.';
+import { type IAjaxRequest, type IErrorModel, type IUserOptions } from '.';
 
 export interface IAppState {
   /** The current Java Web Token */

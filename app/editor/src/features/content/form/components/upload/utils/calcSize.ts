@@ -5,9 +5,10 @@
  * @returns
  */
 export const calcSize = (bytes?: number, descriptor: string = 'MB') => {
-  var value = '';
-  if (!!bytes)
+  let value = '';
+  if (bytes) {
     value = (bytes / 1024 / 1024).toLocaleString(undefined, { maximumFractionDigits: 2 });
+  }
 
   if (descriptor === undefined || !value) descriptor = '';
 

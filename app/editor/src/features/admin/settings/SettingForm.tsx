@@ -15,7 +15,7 @@ import {
   FormikText,
   FormikTextArea,
   IconButton,
-  ISettingModel,
+  type ISettingModel,
   LabelPosition,
   Modal,
   Row,
@@ -37,9 +37,7 @@ const SettingForm: React.FC = () => {
   const { state } = useLocation();
   const { toggle, isShowing } = useModal();
 
-  const [setting, setSetting] = React.useState<ISettingModel>(
-    (state as any)?.setting ?? defaultSetting,
-  );
+  const [setting, setSetting] = React.useState<ISettingModel>(state?.setting ?? defaultSetting);
 
   const settingId = Number(id);
 
@@ -68,7 +66,9 @@ const SettingForm: React.FC = () => {
         iconType="back"
         label="Back to settings"
         className="back-button"
-        onClick={() => navigate('/admin/settings')}
+        onClick={() => {
+          navigate('/admin/settings');
+        }}
       />
       <FormikForm
         initialValues={setting}
@@ -105,7 +105,7 @@ const SettingForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.updatedOn ? moment(values.updatedOn).toString() : undefined
+                      values.updatedOn ? moment(values.updatedOn).toString() : undefined
                     }
                     onChange={noop}
                     name="updatedOn"
@@ -123,7 +123,7 @@ const SettingForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.createdOn ? moment(values.createdOn).toString() : undefined
+                      values.createdOn ? moment(values.createdOn).toString() : undefined
                     }
                     onChange={noop}
                     name="createdOn"

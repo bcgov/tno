@@ -11,7 +11,7 @@ import {
 } from 'store/hooks';
 import {
   ContentTypeName,
-  IOptionItem,
+  type IOptionItem,
   Modal,
   OptionItem,
   replaceQueryParams,
@@ -22,11 +22,11 @@ import {
   useModal,
 } from 'tno-core';
 
-import { IContentListFilter } from '../interfaces';
+import { type IContentListFilter } from '../interfaces';
 import { CreateNewSection } from '../list-view/components/tool-bar/filter';
 import { getPreviewReportRoute } from '../utils';
 import { AdvancedFilter, ContentFilter } from './components';
-import { IReportInfo } from './interfaces';
+import { type IReportInfo } from './interfaces';
 import * as styled from './styled';
 
 export interface IPaperToolbarProps {
@@ -60,14 +60,14 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
     try {
       setIsLoading(true);
       const preview = await previewReport(reportID);
-      let noContentToastText = 'Report content is empty. Please add content before sending.';
+      const noContentToastText = 'Report content is empty. Please add content before sending.';
       if (preview.body && preview.body === '\n') {
         toast.error(
           `Report template is inactive, check the settings ReportID with value ${reportID}.`,
         );
         return false;
       } else {
-        let keywords = 'There is no content in this report';
+        const keywords = 'There is no content in this report';
         const isReportEmpty = preview.body?.toLowerCase().includes(keywords.toLowerCase());
         if (isReportEmpty) {
           toast.error(noContentToastText);
@@ -102,10 +102,11 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
               if (frontPageImagesReportId) {
                 const route = getPreviewReportRoute(+frontPageImagesReportId);
                 window.open(route, '_blank');
-              } else
+              } else {
                 toast.error(
                   `Configuration setting "${Settings.FrontPageImagesReport}" is missing.`,
                 );
+              }
             }}
           />
           <FaFileInvoice
@@ -179,7 +180,7 @@ export const PaperToolbar: React.FC<IPaperToolbarProps> = ({ onSearch }) => {
         confirmText="Yes, Send"
         onConfirm={async () => {
           try {
-            if (sendInfo && sendInfo.value) {
+            if (sendInfo?.value) {
               if (sendInfo.action === 'report') {
                 await publishReport(sendInfo.value);
                 toast.success(`Request to send ${sendInfo.name} report has been submitted.`);

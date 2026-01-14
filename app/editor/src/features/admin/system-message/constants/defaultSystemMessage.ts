@@ -1,4 +1,4 @@
-import { ISystemMessageModel } from 'tno-core';
+import { type ISystemMessageModel } from 'tno-core';
 
 export const defaultSystemMessage: ISystemMessageModel = {
   id: 0,

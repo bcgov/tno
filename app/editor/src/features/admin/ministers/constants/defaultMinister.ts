@@ -1,4 +1,4 @@
-import { IMinisterModel } from 'tno-core';
+import { type IMinisterModel } from 'tno-core';
 
 export const defaultMinister: IMinisterModel = {
   id: 0,

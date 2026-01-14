@@ -7,8 +7,8 @@ import {
   ButtonVariant,
   Checkbox,
   IconButton,
-  IDashboardFilter,
-  IReportModel,
+  type IDashboardFilter,
+  type IReportModel,
   Loader,
   ReportStatusName,
   Row,
@@ -57,17 +57,25 @@ export const ReportDashboard: React.FC = () => {
           name="failed"
           label="Show failed only"
           checked={filter.status?.includes(ReportStatusName.Failed)}
-          onChange={(e) =>
+          onChange={(e) => {
             setFilter((filter) => ({
               ...filter,
               status: e.target.checked ? [ReportStatusName.Failed] : [],
-            }))
-          }
+            }));
+          }}
         />
-        <Text name="keyword" value={search ?? ''} onChange={(e) => setSearch(e.target.value)}>
+        <Text
+          name="keyword"
+          value={search ?? ''}
+          onChange={(e) => {
+            setSearch(e.target.value);
+          }}
+        >
           <IconButton
             iconType="search"
-            onClick={(e) => setFilter((filter) => ({ ...filter, page: 1, keyword: search }))}
+            onClick={(e) => {
+              setFilter((filter) => ({ ...filter, page: 1, keyword: search }));
+            }}
           />
         </Text>
       </Row>
@@ -92,7 +100,9 @@ export const ReportDashboard: React.FC = () => {
           <Button
             variant={ButtonVariant.link}
             title="Previous"
-            onClick={() => setFilter((filter) => ({ ...filter, page: filter.page! - 1 }))}
+            onClick={() => {
+              setFilter((filter) => ({ ...filter, page: filter.page! - 1 }));
+            }}
           >
             <FaArrowAltCircleLeft />
           </Button>
@@ -112,7 +122,9 @@ export const ReportDashboard: React.FC = () => {
           <Button
             variant={ButtonVariant.link}
             title="Next"
-            onClick={() => setFilter((filter) => ({ ...filter, page: filter.page! + 1 }))}
+            onClick={() => {
+              setFilter((filter) => ({ ...filter, page: filter.page! + 1 }));
+            }}
           >
             <FaArrowAltCircleRight />
           </Button>

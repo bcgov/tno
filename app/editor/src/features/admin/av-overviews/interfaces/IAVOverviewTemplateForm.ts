@@ -1,4 +1,4 @@
-import { IAVOverviewTemplateModel } from 'tno-core';
+import { type IAVOverviewTemplateModel } from 'tno-core';
 
 export interface IAVOverviewTemplateForm extends IAVOverviewTemplateModel {
   // Internal property to identify a new record.

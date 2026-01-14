@@ -1,6 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { IReportModel, IReportResultModel } from 'tno-core';
+import { type IReportModel, type IReportResultModel } from 'tno-core';
 
 import { defaultReport } from './constants';
 import { openPreviewInNewTab } from './utils/openPreviewInNewTab';
@@ -67,7 +67,9 @@ export const ReportTemplateContextProvider: React.FC<IReportTemplateContextProvi
 
   const [preview, setPreview] = React.useState<IReportResultModel | undefined>(value);
 
-  const openPreview = () => preview && openPreviewInNewTab(preview);
+  const openPreview = () => {
+    preview && openPreviewInNewTab(preview);
+  };
 
   return (
     <ReportTemplateContext.Provider

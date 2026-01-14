@@ -5,25 +5,33 @@ import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useApp } from 'store/hooks';
 import { Claim, ContentTypeName, InternalServerError, NotFound } from 'tno-core';
 
-const DefaultLayout = lazy(() => import('components/layout/DefaultLayout'));
-const AccessRequest = lazy(() => import('features/access-request/AccessRequest'));
-const RequestClip = lazy(() => import('features/clips/RequestClip'));
-const ContentForm = lazy(() => import('features/content/form/ContentForm'));
-const ContentListView = lazy(() => import('features/content/list-view/ContentListView'));
-const Papers = lazy(() => import('features/content/papers/Papers'));
-const DemoPage = lazy(() => import('features/demo/DemoPage'));
-const Login = lazy(() => import('features/login/Login'));
-const AVOverview = lazy(() => import('features/reports/av-overview/AVOverview'));
-const AVOverviewPreview = lazy(() => import('features/reports/av-overview/AVOverviewPreview'));
-const ReportInstancePreview = lazy(() => import('features/reports/ReportInstancePreview'));
-const ReportPreview = lazy(() => import('features/reports/ReportPreview'));
-const ReportsRouter = lazy(() => import('features/reports/ReportsRouter'));
-const StorageListView = lazy(() => import('features/storage/StorageListView'));
-const PrivateRoute = lazy(() => import('features/router/PrivateRoute'));
-const TranscriptionList = lazy(
-  () => import('features/work-orders/transcription/TranscriptionList'),
+const DefaultLayout = lazy(async () => await import('components/layout/DefaultLayout'));
+const AccessRequest = lazy(async () => await import('features/access-request/AccessRequest'));
+const RequestClip = lazy(async () => await import('features/clips/RequestClip'));
+const ContentForm = lazy(async () => await import('features/content/form/ContentForm'));
+const ContentListView = lazy(
+  async () => await import('features/content/list-view/ContentListView'),
 );
-const EventOfTheDayList = lazy(() => import('features/admin/event-of-the-day/EventOfTheDayList'));
+const Papers = lazy(async () => await import('features/content/papers/Papers'));
+const DemoPage = lazy(async () => await import('features/demo/DemoPage'));
+const Login = lazy(async () => await import('features/login/Login'));
+const AVOverview = lazy(async () => await import('features/reports/av-overview/AVOverview'));
+const AVOverviewPreview = lazy(
+  async () => await import('features/reports/av-overview/AVOverviewPreview'),
+);
+const ReportInstancePreview = lazy(
+  async () => await import('features/reports/ReportInstancePreview'),
+);
+const ReportPreview = lazy(async () => await import('features/reports/ReportPreview'));
+const ReportsRouter = lazy(async () => await import('features/reports/ReportsRouter'));
+const StorageListView = lazy(async () => await import('features/storage/StorageListView'));
+const PrivateRoute = lazy(async () => await import('features/router/PrivateRoute'));
+const TranscriptionList = lazy(
+  async () => await import('features/work-orders/transcription/TranscriptionList'),
+);
+const EventOfTheDayList = lazy(
+  async () => await import('features/admin/event-of-the-day/EventOfTheDayList'),
+);
 
 export interface IAppRouter {
   name: string;

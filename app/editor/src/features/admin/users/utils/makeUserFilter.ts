@@ -1,6 +1,6 @@
-import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
-import { ISortBy } from 'features/interfaces';
-import { IUserFilter } from 'tno-core';
+import { type IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
+import { type ISortBy } from 'features/interfaces';
+import { type IUserFilter } from 'tno-core';
 
 /**
  * Creates a IUserFilter that can be passed to the API hook endpoint.
@@ -10,7 +10,7 @@ import { IUserFilter } from 'tno-core';
 export const makeUserFilter = (filter: IUserListFilter): IUserFilter => {
   return {
     ...filter,
-    accountTypes: filter.accountType ? [filter.accountType] : [],
+    accountTypes: filter.accountType != null ? [filter.accountType] : [],
     page: filter.page + 1,
     quantity: filter.quantity,
     sort: applySortBy(filter.sort),
@@ -26,9 +26,9 @@ export const makeUserFilter = (filter: IUserListFilter): IUserFilter => {
 const applySortBy = (sortBy?: ISortBy[]) => {
   if (sortBy === undefined || sortBy.length === 0) return undefined;
 
-  var sort: string[] = [];
+  const sort: string[] = [];
   for (let i = 0; i < sortBy.length; i++) {
-    let column = sortBy[i].id;
+    const column = sortBy[i].id;
     sort.push(`${column}${sortBy[i].desc ? ' desc' : ''}`);
   }
   return sort;

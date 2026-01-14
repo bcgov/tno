@@ -6,11 +6,11 @@ import {
   generateRangeForDates,
   generateSimpleQueryString,
   generateTerm,
-  IFilterSettingsModel,
+  type IFilterSettingsModel,
 } from 'tno-core';
 
 import { AdvancedSearchKeys } from '../constants';
-import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
+import { type IContentListAdvancedFilter, type IContentListFilter } from '../interfaces';
 import { useActionFilters } from '../papers/hooks';
 import { getSortBy } from '../utils';
 
@@ -56,7 +56,7 @@ export const useElasticsearch = () => {
       };
 
       const createClause = (type?: AdvancedSearchKeys, term?: string): any => {
-        if (!type || !term) return undefined;
+        if (type == null || !term) return undefined;
         const defaultOperator = 'and';
         switch (type) {
           case AdvancedSearchKeys.Id:

@@ -11,9 +11,9 @@ import {
   Checkbox,
   Col,
   FormikSelect,
-  IOptionItem,
-  IReportModel,
-  IReportTemplateModel,
+  type IOptionItem,
+  type IReportModel,
+  type IReportTemplateModel,
   Overlay,
   Row,
   Settings,
@@ -63,9 +63,9 @@ export const ReportFormTemplate: React.FC = () => {
 
   React.useEffect(() => {
     findAllReportTemplates()
-      .then((templates) =>
-        setTemplateOptions(getReportTemplateOptions(templates, values.templateId)),
-      )
+      .then((templates) => {
+        setTemplateOptions(getReportTemplateOptions(templates, values.templateId));
+      })
       .catch(() => {
         // Handled already.
       });
@@ -119,7 +119,9 @@ export const ReportFormTemplate: React.FC = () => {
         name="enableEdit"
         label="Enable editing template"
         checked={enableEdit}
-        onChange={(e) => setEnableEdit(e.target.checked)}
+        onChange={(e) => {
+          setEnableEdit(e.target.checked);
+        }}
       />
       <Col className="code">
         <Show visible={!enableEdit}>
@@ -150,7 +152,7 @@ export const ReportFormTemplate: React.FC = () => {
             <Editor
               id="txa-subject-template"
               value={values.template?.subject ?? ''}
-              onValueChange={(code) => setFieldValue('template.subject', code)}
+              onValueChange={async (code) => await setFieldValue('template.subject', code)}
               highlight={(code) => {
                 return highlight(code, languages.cshtml, 'razor');
               }}
@@ -163,7 +165,7 @@ export const ReportFormTemplate: React.FC = () => {
             <Editor
               id="txa-body-template"
               value={values.template?.body ?? ''}
-              onValueChange={(code) => setFieldValue('template.body', code)}
+              onValueChange={async (code) => await setFieldValue('template.body', code)}
               highlight={(code) => {
                 return highlight(code, languages.cshtml, 'razor');
               }}

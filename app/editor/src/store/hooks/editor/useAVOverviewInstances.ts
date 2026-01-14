@@ -1,6 +1,10 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
-import { IAVOverviewInstanceModel, IReportResultModel, useApiEditorAVOverviews } from 'tno-core';
+import {
+  type IAVOverviewInstanceModel,
+  type IReportResultModel,
+  useApiEditorAVOverviews,
+} from 'tno-core';
 
 interface IAVOverviewController {
   findAVOverview: (publishedOn: Date | string) => Promise<IAVOverviewInstanceModel | undefined>;
@@ -21,44 +25,49 @@ export const useAVOverviewInstances = (): [IAVOverviewController] => {
       findAVOverview: async (publishedOn: Date | string) => {
         const response = await dispatch<IAVOverviewInstanceModel | undefined>(
           'find-av-overviews',
-          () => api.findAVOverview(publishedOn),
+          async () => await api.findAVOverview(publishedOn),
         );
         return response.data;
       },
       getAVOverview: async (id: number) => {
         const response = await dispatch<IAVOverviewInstanceModel | undefined>(
           'get-av-overview',
-          () => api.getAVOverview(id),
+          async () => await api.getAVOverview(id),
         );
         return response.data;
       },
       addAVOverview: async (model: IAVOverviewInstanceModel) => {
-        const response = await dispatch<IAVOverviewInstanceModel>('add-av-overview', () =>
-          api.addAVOverview(model),
+        const response = await dispatch<IAVOverviewInstanceModel>(
+          'add-av-overview',
+          async () => await api.addAVOverview(model),
         );
         return response.data;
       },
       updateAVOverview: async (model: IAVOverviewInstanceModel) => {
-        const response = await dispatch<IAVOverviewInstanceModel>('update-av-overview', () =>
-          api.updateAVOverview(model),
+        const response = await dispatch<IAVOverviewInstanceModel>(
+          'update-av-overview',
+          async () => await api.updateAVOverview(model),
         );
         return response.data;
       },
       deleteAVOverview: async (model: IAVOverviewInstanceModel) => {
-        const response = await dispatch<IAVOverviewInstanceModel>('delete-av-overview', () =>
-          api.deleteAVOverview(model),
+        const response = await dispatch<IAVOverviewInstanceModel>(
+          'delete-av-overview',
+          async () => await api.deleteAVOverview(model),
         );
         return response.data;
       },
       viewAVOverview: async (instanceId: number) => {
-        const response = await dispatch<IReportResultModel>('view-av-overview', () =>
-          api.viewAVOverview(instanceId),
+        const response = await dispatch<IReportResultModel>(
+          'view-av-overview',
+          async () => await api.viewAVOverview(instanceId),
         );
         return response.data;
       },
       publishAVOverview: async (instanceId: number) => {
-        const response = await dispatch<IAVOverviewInstanceModel>('publish-av-overview', () =>
-          api.publishAVOverview(instanceId),
+        const response = await dispatch<IAVOverviewInstanceModel>(
+          'publish-av-overview',
+          async () => await api.publishAVOverview(instanceId),
         );
         return response.data;
       },

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { IInfoPanelProps } from '..';
+import { type IInfoPanelProps } from '..';
 
 export const InfoPanel = styled.div<IInfoPanelProps>`
   background-color: ${(props) => props.backgroundColor};

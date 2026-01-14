@@ -1,6 +1,12 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { FlexboxTable, FormikCheckbox, FormikSelect, FormikText, IIngestModel } from 'tno-core';
+import {
+  FlexboxTable,
+  FormikCheckbox,
+  FormikSelect,
+  FormikText,
+  type IIngestModel,
+} from 'tno-core';
 
 import { TimeZones } from './constants';
 import { columns } from './constants/columns';
@@ -22,14 +28,15 @@ export const Syndication: React.FC = (props) => {
     return data;
   }, [values.configuration.sources]);
 
-  const [items, setItems] = React.useState<{ id: number; name: string; source: string }[]>(
+  const [items, setItems] = React.useState<Array<{ id: number; name: string; source: string }>>(
     initialItems(),
   );
 
   const updateItems = React.useCallback(
     (updatedItems: any[]) => {
-      if (updatedItems.filter((x) => !x.name && !x.source).length === 0)
+      if (updatedItems.filter((x) => !x.name && !x.source).length === 0) {
         updatedItems.push({ id: updatedItems.length + 1, name: '', source: '' });
+      }
       setItems(updatedItems);
       setFieldValue(
         'configuration.sources',

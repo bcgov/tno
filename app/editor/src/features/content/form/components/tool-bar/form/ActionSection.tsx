@@ -1,5 +1,5 @@
 import { ContentActions } from 'features/content/form';
-import { IContentForm } from 'features/content/form/interfaces';
+import { type IContentForm } from 'features/content/form/interfaces';
 import React from 'react';
 import { FaHighlighter } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';

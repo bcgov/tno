@@ -23,7 +23,9 @@ export const ContentTranscriptForm: React.FC<IContentTranscriptFormProps> = ({ s
         className="content-body"
         name="body"
         tags={tags}
-        onChange={(text) => getTags('body', text)}
+        onChange={(text) => {
+          getTags('body', text);
+        }}
       />
     </styled.ContentTranscriptForm>
   );

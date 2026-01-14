@@ -4,7 +4,7 @@ import React from 'react';
 import { FaArrowDown, FaArrowUp, FaTrash } from 'react-icons/fa';
 import { useLookup, useLookupOptions } from 'store/hooks';
 import { useTopicScoreRules } from 'store/hooks/admin';
-import { IAjaxRequest } from 'store/slices';
+import { type IAjaxRequest } from 'store/slices';
 import {
   Button,
   ButtonVariant,
@@ -14,14 +14,14 @@ import {
   FormikText,
   FormikTimeInput,
   getSortableOptions,
-  IOptionItem,
+  type IOptionItem,
   Loader,
   Row,
   Show,
 } from 'tno-core';
 
 import { defaultTopicScoreRule } from './constants';
-import { ITopicScoreRuleForm } from './interfaces';
+import { type ITopicScoreRuleForm } from './interfaces';
 import * as styled from './styled';
 import { toForm, toModel } from './utils';
 import { TopicScoreRulesSchema } from './validation';
@@ -41,7 +41,7 @@ const TopicScoreRuleList: React.FC = () => {
 
   const findAll = React.useCallback(async () => {
     await api.findAllTopicScoreRules().then((data) => {
-      if (!!data.length) setItems(data.map((r) => toForm(r)));
+      if (data.length > 0) setItems(data.map((r) => toForm(r)));
       else setItems([defaultTopicScoreRule]);
     });
   }, [api]);
@@ -78,8 +78,8 @@ const TopicScoreRuleList: React.FC = () => {
   };
 
   const addTopicScoreRule = (index: number, values: ITopicScoreRuleForm[]) => {
-    var items = [...values];
-    var newItem = { ...defaultTopicScoreRule, sortOrder: index };
+    const items = [...values];
+    const newItem = { ...defaultTopicScoreRule, sortOrder: index };
     if (
       index > 0 &&
       index < values.length &&
@@ -156,10 +156,12 @@ const TopicScoreRuleList: React.FC = () => {
 
                   return (
                     <Show key={`${item}-${index}`} visible={!item.remove}>
-                      <Show visible={index === 0 && !!rules.length}>
+                      <Show visible={index === 0 && !(rules.length === 0)}>
                         <Row
                           className="add-row"
-                          onClick={() => addTopicScoreRule(index, values)}
+                          onClick={() => {
+                            addTopicScoreRule(index, values);
+                          }}
                         ></Row>
                       </Show>
                       <div className={`grid-row${item.id === 0 ? ' adding' : ''}`}>
@@ -174,7 +176,7 @@ const TopicScoreRuleList: React.FC = () => {
                             styles={{ menuPortal: (base) => ({ ...base, zIndex: 2 }) }}
                             onChange={(newValue) => {
                               const value = (newValue as IOptionItem).value;
-                              if (!!value) {
+                              if (value) {
                                 setItems(
                                   values.map((t, i) =>
                                     i === index ? { ...item, sourceId: value as number } : t,
@@ -195,7 +197,7 @@ const TopicScoreRuleList: React.FC = () => {
                             isDisabled={!values[index].sourceId}
                             onChange={(newValue) => {
                               const value = (newValue as IOptionItem).value;
-                              if (!!value) {
+                              if (value) {
                                 setItems(
                                   values.map((t, i) =>
                                     i === index ? { ...item, seriesId: value as number } : t,
@@ -208,31 +210,31 @@ const TopicScoreRuleList: React.FC = () => {
                         <div>
                           <FormikText name={`${index}.section`} />
                         </div>
-                        <div className={`center`}>
+                        <div className={'center'}>
                           <FormikText
                             name={`${index}.pageMin`}
                             width="4em"
                             className="text-right"
                           />
                         </div>
-                        <div className={`center`}>
+                        <div className={'center'}>
                           <FormikText
                             name={`${index}.pageMax`}
                             width="4em"
                             className="text-right"
                           />
                         </div>
-                        <div className={`center`}>
+                        <div className={'center'}>
                           <FormikCheckbox name={`${index}.hasImage`} value={true} />
                         </div>
-                        <div className={`center`}>
+                        <div className={'center'}>
                           <FormikText
                             name={`${index}.characterMin`}
                             width="4em"
                             className="text-right"
                           />
                         </div>
-                        <div className={`center`}>
+                        <div className={'center'}>
                           <FormikText
                             name={`${index}.characterMax`}
                             width="4em"
@@ -243,16 +245,16 @@ const TopicScoreRuleList: React.FC = () => {
                           <FormikTimeInput
                             name={`${index}.timeMin`}
                             width="7em"
-                            value={!!item.timeMin ? item.timeMin : ''}
-                            placeholder={!!item.timeMin ? item.timeMin : 'HH:MM:SS'}
+                            value={item.timeMin ? item.timeMin : ''}
+                            placeholder={item.timeMin ? item.timeMin : 'HH:MM:SS'}
                           />
                         </div>
                         <div>
                           <FormikTimeInput
                             name={`${index}.timeMax`}
                             width="7em"
-                            value={!!item.timeMax ? item.timeMax : ''}
-                            placeholder={!!item.timeMax ? item.timeMax : 'HH:MM:SS'}
+                            value={item.timeMax ? item.timeMax : ''}
+                            placeholder={item.timeMax ? item.timeMax : 'HH:MM:SS'}
                           />
                         </div>
                         <div>
@@ -263,7 +265,7 @@ const TopicScoreRuleList: React.FC = () => {
                             className="text-right"
                           />
                         </div>
-                        <div className={`actions`}>
+                        <div className={'actions'}>
                           <Row nowrap>
                             <Col>
                               <Button
@@ -275,8 +277,8 @@ const TopicScoreRuleList: React.FC = () => {
                                   items[index - 1].sourceId !== item.sourceId
                                 }
                                 onClick={() => {
-                                  var results = [...values];
-                                  var above = results[index - 1];
+                                  const results = [...values];
+                                  const above = results[index - 1];
                                   results.splice(index, 1);
                                   results.splice(index - 1, 0, {
                                     ...item,
@@ -295,8 +297,8 @@ const TopicScoreRuleList: React.FC = () => {
                                   items[index + 1].sourceId !== item.sourceId
                                 }
                                 onClick={async () => {
-                                  var results = [...values];
-                                  var below = results[index + 1];
+                                  const results = [...values];
+                                  const below = results[index + 1];
                                   results.splice(index, 1);
                                   results.splice(index + 1, 0, {
                                     ...item,
@@ -311,7 +313,7 @@ const TopicScoreRuleList: React.FC = () => {
                             </Col>
                             <Button
                               variant={ButtonVariant.danger}
-                              disabled={!rules.length}
+                              disabled={rules.length === 0}
                               onClick={async (e) => {
                                 setFieldValue(`${index}.remove`, true);
                               }}
@@ -321,10 +323,12 @@ const TopicScoreRuleList: React.FC = () => {
                           </Row>
                         </div>
                       </div>
-                      <Show visible={!!rules.length}>
+                      <Show visible={!(rules.length === 0)}>
                         <Row
                           className="add-row"
-                          onClick={() => addTopicScoreRule(index + 1, values)}
+                          onClick={() => {
+                            addTopicScoreRule(index + 1, values);
+                          }}
                         ></Row>
                       </Show>
                     </Show>

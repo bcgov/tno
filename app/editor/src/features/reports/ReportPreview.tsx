@@ -2,7 +2,7 @@ import React from 'react';
 import { FaCopy } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
 import { useReports } from 'store/hooks';
-import { Button, ButtonVariant, Col, IReportResultModel, Loading, Show } from 'tno-core';
+import { Button, ButtonVariant, Col, type IReportResultModel, Loading, Show } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -52,7 +52,9 @@ const ReportPreview: React.FC = () => {
               <Button
                 variant={ButtonVariant.link}
                 title="Copy"
-                onClick={() => preview && copy(preview)}
+                onClick={() => {
+                  preview && copy(preview);
+                }}
               >
                 <FaCopy />
               </Button>

@@ -10,8 +10,8 @@ import { useIngests, useIngestTypes } from 'store/hooks/admin';
 import {
   Checkbox,
   Col,
-  IIngestMessageModel,
-  IIngestModel,
+  type IIngestMessageModel,
+  type IIngestModel,
   MessageTargetKey,
   Row,
   Section,
@@ -49,8 +49,8 @@ export const Dashboard: React.FC = () => {
   const [groups, setGroups] = React.useState(groupIngests(ingests));
 
   React.useEffect(() => {
-    if (!ingests.length) findAllIngests().catch(() => {});
-    if (!ingestTypeOptions.length) findAllIngestTypes().catch(() => {});
+    if (ingests.length === 0) findAllIngests().catch(() => {});
+    if (ingestTypeOptions.length === 0) findAllIngestTypes().catch(() => {});
     // Only on init
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -128,7 +128,9 @@ export const Dashboard: React.FC = () => {
             name="showAll"
             label="Show All"
             checked={showAll}
-            onChange={(e) => setShowAll(e.target.checked)}
+            onChange={(e) => {
+              setShowAll(e.target.checked);
+            }}
           />
         </Row>
         <Row>
@@ -150,14 +152,18 @@ export const Dashboard: React.FC = () => {
                           <FaEdit
                             title="Edit"
                             className="button-link"
-                            onClick={() => navigate(`/admin/ingests/${ingest.id}`)}
+                            onClick={() => {
+                              navigate(`/admin/ingests/${ingest.id}`);
+                            }}
                           />
                         </div>
                         <div>
                           <FaBugSlash
                             title="Reset"
                             className="button-link"
-                            onClick={() => handleReset(ingest.id)}
+                            onClick={async () => {
+                              await handleReset(ingest.id);
+                            }}
                           />
                         </div>
                       </Row>
@@ -173,7 +179,9 @@ export const Dashboard: React.FC = () => {
                             name={`chkIsEnabled-${ingest.id}`}
                             label="Enabled"
                             checked={ingest.isEnabled}
-                            onChange={(e) => handleStatus(ingest.id, e.target.checked)}
+                            onChange={async (e) => {
+                              await handleStatus(ingest.id, e.target.checked);
+                            }}
                           />
                         </Col>
                       </Row>

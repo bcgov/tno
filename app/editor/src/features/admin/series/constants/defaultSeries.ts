@@ -1,4 +1,4 @@
-import { ISeriesForm } from '../interfaces';
+import { type ISeriesForm } from '../interfaces';
 
 export const defaultSeries: ISeriesForm = {
   id: 0,

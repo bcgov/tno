@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
-import { IFilterFilter, IFilterModel, useApiAdminFilters } from 'tno-core';
+import { type IAdminState, useAdminStore } from 'store/slices';
+import { type IFilterFilter, type IFilterModel, useApiAdminFilters } from 'tno-core';
 
 interface IFilterController {
   findFilters: (filter: IFilterFilter) => Promise<IFilterModel[]>;
@@ -21,15 +21,19 @@ export const useFilters = (): [IAdminState & { initialized: boolean }, IFilterCo
   const controller = React.useMemo(
     () => ({
       findFilters: async (filter: IFilterFilter) => {
-        const response = await dispatch<IFilterModel[]>('find-all-filters', () =>
-          api.findFilters(filter),
+        const response = await dispatch<IFilterModel[]>(
+          'find-all-filters',
+          async () => await api.findFilters(filter),
         );
         store.storeFilters(response.data);
         setInitialized(true);
         return response.data;
       },
       getFilter: async (id: number) => {
-        const response = await dispatch<IFilterModel>('get-filter', () => api.getFilter(id));
+        const response = await dispatch<IFilterModel>(
+          'get-filter',
+          async () => await api.getFilter(id),
+        );
         store.storeFilters((filters) =>
           filters.map((ds) => {
             if (ds.id === response.data.id) return response.data;
@@ -39,14 +43,18 @@ export const useFilters = (): [IAdminState & { initialized: boolean }, IFilterCo
         return response.data;
       },
       addFilter: async (model: IFilterModel) => {
-        const response = await dispatch<IFilterModel>('add-filter', () => api.addFilter(model));
+        const response = await dispatch<IFilterModel>(
+          'add-filter',
+          async () => await api.addFilter(model),
+        );
         store.storeFilters((filters) => [...filters, response.data]);
         await lookup.getLookups();
         return response.data;
       },
       updateFilter: async (model: IFilterModel) => {
-        const response = await dispatch<IFilterModel>('update-filter', () =>
-          api.updateFilter(model),
+        const response = await dispatch<IFilterModel>(
+          'update-filter',
+          async () => await api.updateFilter(model),
         );
         store.storeFilters((filters) =>
           filters.map((ds) => {
@@ -58,8 +66,9 @@ export const useFilters = (): [IAdminState & { initialized: boolean }, IFilterCo
         return response.data;
       },
       deleteFilter: async (model: IFilterModel) => {
-        const response = await dispatch<IFilterModel>('delete-filter', () =>
-          api.deleteFilter(model),
+        const response = await dispatch<IFilterModel>(
+          'delete-filter',
+          async () => await api.deleteFilter(model),
         );
         store.storeFilters((filters) => filters.filter((ds) => ds.id !== response.data.id));
         await lookup.getLookups();

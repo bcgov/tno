@@ -2,7 +2,7 @@ import { FormPage } from 'components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTags } from 'store/hooks/admin';
-import { Col, FlexboxTable, IconButton, ITagModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, type ITagModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import * as styled from './styled';
@@ -15,7 +15,7 @@ const TagList: React.FC = () => {
   const [items, setItems] = React.useState<ITagModel[]>([]);
 
   React.useEffect(() => {
-    if (!tags.length) {
+    if (tags.length === 0) {
       api.findAllTags().then((data) => {
         setItems(data);
       });
@@ -31,8 +31,10 @@ const TagList: React.FC = () => {
           <Col flex="1 1 0">Tags provide a way to identify content.</Col>
           <IconButton
             iconType="plus"
-            label={`Add new tag`}
-            onClick={() => navigate(`/admin/tags/0`)}
+            label={'Add new tag'}
+            onClick={() => {
+              navigate('/admin/tags/0');
+            }}
           />
         </Row>
         <TagFilter
@@ -57,7 +59,9 @@ const TagList: React.FC = () => {
           data={items}
           columns={columns}
           showSort={true}
-          onRowClick={(row) => navigate(`${row.original.id}`)}
+          onRowClick={(row) => {
+            navigate(`${row.original.id}`);
+          }}
           pagingEnabled={false}
         />
       </FormPage>

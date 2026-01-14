@@ -1,4 +1,4 @@
-import { IParsedTag, Tag } from '../types';
+import { type IParsedTag, type Tag } from '../types';
 
 /**
  * Parse tags with their original format from text

@@ -2,9 +2,9 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { useUsers } from 'store/hooks/admin';
 import {
-  IProductModel,
-  IUserFilter,
-  IUserProductModel,
+  type IProductModel,
+  type IUserFilter,
+  type IUserProductModel,
   ProductRequestStatusName,
   ProductTypeName,
   Show,
@@ -50,8 +50,8 @@ export const ProductSubscribersForm = () => {
     // Merge users with subscribers to this product.
     setSubscribers(
       users.items.map<IUserProductModel>((user) => {
-        var subscription = values.subscribers.find((s) => s.userId === user.id);
-        var userSubscription: IUserProductModel = {
+        const subscription = values.subscribers.find((s) => s.userId === user.id);
+        const userSubscription: IUserProductModel = {
           username: user.username,
           email: user.email,
           preferredEmail: user.preferredEmail,
@@ -78,7 +78,9 @@ export const ProductSubscribersForm = () => {
       <ProductFilter
         filter={filter}
         productId={values.id}
-        onSearch={async (filter: IUserFilter) => setFilter({ ...filter, page: 1 })}
+        onSearch={async (filter: IUserFilter) => {
+          setFilter({ ...filter, page: 1 });
+        }}
       />
       <Show visible={values.productType === ProductTypeName.Report}>
         <ProductReportSubscribersForm

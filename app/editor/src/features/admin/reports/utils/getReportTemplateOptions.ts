@@ -1,4 +1,9 @@
-import { getSortableOptions, IReportTemplateModel, OptionItem, ReportTypeName } from 'tno-core';
+import {
+  getSortableOptions,
+  type IReportTemplateModel,
+  OptionItem,
+  ReportTypeName,
+} from 'tno-core';
 
 export const getReportTemplateOptions = (
   reportTemplates: IReportTemplateModel[],

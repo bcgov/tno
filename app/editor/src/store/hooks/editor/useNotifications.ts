@@ -13,8 +13,9 @@ export const useNotifications = (): [INotificationController] => {
   const controller = React.useMemo(
     () => ({
       publishNotification: async (notificationId: number) => {
-        const response = await dispatch<never>('publish-notification', () =>
-          api.publishNotification(notificationId),
+        const response = await dispatch<never>(
+          'publish-notification',
+          async () => await api.publishNotification(notificationId),
         );
         return response.data;
       },

@@ -1,4 +1,4 @@
-import { ITopicScoreRuleForm } from '../interfaces';
+import { type ITopicScoreRuleForm } from '../interfaces';
 
 export const defaultTopicScoreRule: ITopicScoreRuleForm = {
   id: 0,

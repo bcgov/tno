@@ -5,12 +5,12 @@ import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useConnections } from 'store/hooks/admin';
-import { ConnectionTypeName, IConnectionModel, Modal, useModal } from 'tno-core';
 import {
   Button,
   ButtonVariant,
   castEnumToOptions,
   Col,
+  ConnectionTypeName,
   FieldSize,
   FormikCheckbox,
   FormikDatePicker,
@@ -18,9 +18,12 @@ import {
   FormikText,
   FormikTextArea,
   IconButton,
+  type IConnectionModel,
   LabelPosition,
+  Modal,
   Row,
   Show,
+  useModal,
 } from 'tno-core';
 
 import { ConnectionConfiguration } from './configurations';
@@ -40,7 +43,7 @@ const ConnectionForm: React.FC = () => {
 
   const connectionId = Number(id);
   const [connection, setConnection] = React.useState<IConnectionModel>(
-    (state as any)?.connection ?? defaultConnection,
+    state?.connection ?? defaultConnection,
   );
   const connectionTypeOptions = castEnumToOptions(ConnectionTypeName);
 
@@ -71,7 +74,9 @@ const ConnectionForm: React.FC = () => {
         iconType="back"
         label="Back to Connections"
         className="back-button"
-        onClick={() => navigate('/admin/connections')}
+        onClick={() => {
+          navigate('/admin/connections');
+        }}
       />
       <FormikForm
         initialValues={connection}
@@ -119,7 +124,7 @@ const ConnectionForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.updatedOn ? moment(values.updatedOn).toString() : undefined
+                      values.updatedOn ? moment(values.updatedOn).toString() : undefined
                     }
                     onChange={noop}
                     name="updatedOn"
@@ -137,7 +142,7 @@ const ConnectionForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.createdOn ? moment(values.createdOn).toString() : undefined
+                      values.createdOn ? moment(values.createdOn).toString() : undefined
                     }
                     onChange={noop}
                     name="createdOn"

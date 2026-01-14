@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDataLocations } from 'store/hooks/admin';
-import { Col, FlexboxTable, IconButton, IDataLocationModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, type IDataLocationModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { DataLocationFilter } from './DataLocationFilter';
@@ -14,7 +14,7 @@ const DataLocationList: React.FC = () => {
   const [items, setItems] = React.useState<IDataLocationModel[]>([]);
 
   React.useEffect(() => {
-    if (!dataLocations.length) {
+    if (dataLocations.length === 0) {
       api.findAllDataLocations().then((data) => {
         setItems(data);
       });
@@ -32,8 +32,10 @@ const DataLocationList: React.FC = () => {
         </Col>
         <IconButton
           iconType="plus"
-          label={`Add new data location`}
-          onClick={() => navigate(`/admin/data/locations/0`)}
+          label={'Add new data location'}
+          onClick={() => {
+            navigate('/admin/data/locations/0');
+          }}
         />
       </Row>
       <DataLocationFilter
@@ -57,7 +59,9 @@ const DataLocationList: React.FC = () => {
         data={items}
         columns={columns}
         showSort={true}
-        onRowClick={(row) => navigate(`${row.original.id}`)}
+        onRowClick={(row) => {
+          navigate(`${row.original.id}`);
+        }}
         pagingEnabled={false}
       />
     </styled.DataLocationList>

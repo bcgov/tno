@@ -1,5 +1,5 @@
 import { FormikForm } from 'components/formik';
-import moment, { Moment } from 'moment';
+import moment, { type Moment } from 'moment';
 import React from 'react';
 import {
   FaArrowAltCircleLeft,
@@ -16,7 +16,7 @@ import {
   Button,
   ButtonVariant,
   Col,
-  IAVOverviewInstanceModel,
+  type IAVOverviewInstanceModel,
   Modal,
   Row,
   SelectDate,
@@ -31,7 +31,7 @@ import {
 } from './constants';
 import { OverviewSection } from './OverviewSection';
 import * as styled from './styled';
-import { generateListOfSummaries, getIsEditable, ISectionSummary } from './utils';
+import { generateListOfSummaries, getIsEditable, type ISectionSummary } from './utils';
 
 /** Evening overview section, contains table of items, and list of overview sections */
 const AVOverview: React.FC = () => {
@@ -103,7 +103,12 @@ const AVOverview: React.FC = () => {
           >
             Preview <FaBinoculars className="icon" />
           </Button>
-          <Button disabled={!instance.id} onClick={() => toggle()}>
+          <Button
+            disabled={!instance.id}
+            onClick={() => {
+              toggle();
+            }}
+          >
             Publish <FaPaperPlane className="icon" />
           </Button>
         </div>
@@ -185,8 +190,8 @@ const AVOverview: React.FC = () => {
             <Row className="buttons">
               <Button
                 variant={ButtonVariant.action}
-                onClick={() =>
-                  setFieldValue('sections', [
+                onClick={async () =>
+                  await setFieldValue('sections', [
                     ...values.sections,
                     defaultAVOverviewSection(values.id),
                   ])

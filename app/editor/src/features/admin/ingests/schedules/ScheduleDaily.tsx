@@ -8,7 +8,7 @@ import {
   FormikText,
   FormikTextArea,
   FormikTimeInput,
-  IIngestModel,
+  type IIngestModel,
   ScheduleTypeName,
   ScheduleWeekDayName,
   selectWeekDays,
@@ -36,8 +36,9 @@ export const ScheduleDaily: React.FC<IScheduleDailyProps> = ({
     if (
       values.scheduleType === ScheduleTypeName.Daily &&
       (values.schedules.length === 0 || values.schedules.length > 1)
-    )
-      setFieldValue(`schedules`, [defaultSchedule()]);
+    ) {
+      setFieldValue('schedules', [defaultSchedule()]);
+    }
   }, [setFieldValue, values.scheduleType, values.schedules.length]);
 
   return (
@@ -56,7 +57,7 @@ export const ScheduleDaily: React.FC<IScheduleDailyProps> = ({
               name={field('startAt')}
               value={getIn(values, field('startAt')) ?? ''}
               width="7em"
-              onChange={(e: any) => setFieldValue(field('startAt'), e.target.value)}
+              onChange={async (e: any) => await setFieldValue(field('startAt'), e.target.value)}
               placeholder="HH:MM:SS"
               required
             />
@@ -65,7 +66,7 @@ export const ScheduleDaily: React.FC<IScheduleDailyProps> = ({
               name={field('stopAt')}
               value={getIn(values, field('stopAt')) ?? ''}
               width="7em"
-              onChange={(e: any) => setFieldValue(field('stopAt'), e.target.value)}
+              onChange={async (e: any) => await setFieldValue(field('stopAt'), e.target.value)}
               placeholder="HH:MM:SS"
               required
             />
@@ -78,7 +79,7 @@ export const ScheduleDaily: React.FC<IScheduleDailyProps> = ({
               type="number"
               required
               width={FieldSize.Tiny}
-              value={!!delayMS ? +delayMS / 1000 : ''}
+              value={delayMS ? +delayMS / 1000 : ''}
               min={1}
               onChange={(e) => {
                 const value = Number(e.target.value) * 1000;

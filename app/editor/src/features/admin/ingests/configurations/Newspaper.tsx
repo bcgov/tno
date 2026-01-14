@@ -8,7 +8,7 @@ import {
   FormikCheckbox,
   FormikSelect,
   FormikText,
-  IIngestModel,
+  type IIngestModel,
   OptionItem,
   Row,
 } from 'tno-core';
@@ -39,14 +39,15 @@ export const Newspaper: React.FC = (props) => {
     return data;
   }, [values.configuration.sources]);
 
-  const [items, setItems] = React.useState<{ id: number; name: string; source: string }[]>(
+  const [items, setItems] = React.useState<Array<{ id: number; name: string; source: string }>>(
     initialItems(),
   );
 
   const updateItems = React.useCallback(
     (updatedItems: any[]) => {
-      if (updatedItems.filter((x) => !x.name && !x.source).length === 0)
+      if (updatedItems.filter((x) => !x.name && !x.source).length === 0) {
         updatedItems.push({ id: updatedItems.length + 1, name: '', source: '' });
+      }
       setItems(updatedItems);
       setFieldValue(
         'configuration.sources',

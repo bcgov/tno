@@ -1,4 +1,4 @@
-import { AxiosError, AxiosResponse } from 'axios';
+import { type AxiosError, type AxiosResponse } from 'axios';
 import React from 'react';
 import { useAppStore } from 'store/slices';
 
@@ -33,21 +33,21 @@ export const useAjaxWrapper = () => {
           let detail = '';
           const data = ae.response?.data as any;
           if (ae.response?.status === 401) message = 'Authentication required.';
-          else if (ae.response?.status === 403)
+          else if (ae.response?.status === 403) {
             message = 'Authorization required.  Your account does not have access.';
-          else if (typeof data === 'string' && !!data) message = data;
+          } else if (typeof data === 'string' && !!data) message = data;
           else if (
             data instanceof Blob &&
             data.type &&
-            data.type.toLocaleLowerCase().indexOf('json') !== -1
+            data.type.toLocaleLowerCase().includes('json')
           ) {
             const json = JSON.parse(await data.text());
             message = json.error;
             detail = message !== json.detail ? json.detail : undefined;
-          } else if (!!data?.error) {
+          } else if (data?.error) {
             message = `${data?.error}`;
             detail = message.trim() !== data?.details?.trim() ? data?.details : undefined;
-          } else if (!!data?.errors) {
+          } else if (data?.errors) {
             message = Object.entries(data.errors)
               .map((p) => p.toString())
               .toString();
@@ -56,7 +56,7 @@ export const useAjaxWrapper = () => {
             status: ae.response?.status,
             statusText: ae.response?.statusText,
             data: ae.response?.data,
-            message: message,
+            message,
             detail,
           });
 

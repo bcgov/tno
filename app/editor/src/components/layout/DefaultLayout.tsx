@@ -4,13 +4,13 @@ import { Menu } from 'features/navbar';
 import React from 'react';
 import { Link, Outlet, useLocation, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { IWorkOrderToast, useApiHub, useToastError } from 'store/hooks';
+import { type IWorkOrderToast, useApiHub, useToastError } from 'store/hooks';
 import {
   Button,
   ButtonVariant,
   Header,
-  ISystemMessageModel,
-  IWorkOrderMessageModel,
+  type ISystemMessageModel,
+  type IWorkOrderMessageModel,
   MessageTargetKey,
   Modal,
   Show,
@@ -46,7 +46,7 @@ const DefaultLayout: React.FC<ILayoutProps> = ({
 }) => {
   const keycloak = useKeycloakWrapper();
   const { setToken } = React.useContext(SummonContext);
-  var hub = useApiHub();
+  const hub = useApiHub();
   useToastError();
   const [searchParams] = useSearchParams({ showNav: 'true' });
   const { toggle: toggleSystemMessage, isShowing: showSystemMessage } = useModal();
@@ -135,7 +135,12 @@ const DefaultLayout: React.FC<ILayoutProps> = ({
       <UserInfo />
       <Show visible={keycloak.authenticated}>
         <Header name={name}>
-          <Button onClick={() => keycloak.instance.logout()} name="signOut">
+          <Button
+            onClick={async () => {
+              await keycloak.instance.logout();
+            }}
+            name="signOut"
+          >
             Sign Out
           </Button>
         </Header>

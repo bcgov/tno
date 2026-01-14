@@ -1,4 +1,10 @@
-import { getSortableOptions, IFilterModel, IFolderModel, IReportModel, OptionItem } from 'tno-core';
+import {
+  getSortableOptions,
+  type IFilterModel,
+  type IFolderModel,
+  type IReportModel,
+  OptionItem,
+} from 'tno-core';
 
 export const getSortableItems = <T extends IFolderModel | IFilterModel | IReportModel>(
   items: T[],

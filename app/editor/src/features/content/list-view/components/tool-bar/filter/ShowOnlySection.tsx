@@ -1,15 +1,15 @@
 import { showOnlyOptions, ShowOnlyValues } from 'features/content/constants';
-import { IContentListFilter } from 'features/content/interfaces';
+import { type IContentListFilter } from 'features/content/interfaces';
 import React from 'react';
 import { FaEye } from 'react-icons/fa';
-import { ActionDelegate } from 'store';
+import { type ActionDelegate } from 'store';
 import { useContent } from 'store/hooks';
 import {
   Checkbox,
   Col,
   ContentTypeName,
   FieldSize,
-  IOptionItem,
+  type IOptionItem,
   replaceQueryParams,
   Row,
   Select,
@@ -50,14 +50,17 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
     calcWidth();
 
     // Return a function to disconnect the event listener
-    return () => window.removeEventListener('resize', calcWidth);
+    return () => {
+      window.removeEventListener('resize', calcWidth);
+    };
   }, []);
 
   const selectedValues = React.useMemo(() => {
     const getSelectedOptions = (filter: IContentListFilter) => {
       const selectedOptions: IOptionItem[] = [];
-      if (filter.contentTypes?.includes(ContentTypeName.PrintContent))
+      if (filter.contentTypes?.includes(ContentTypeName.PrintContent)) {
         selectedOptions.push(showOnlyOptions[0]);
+      }
       if (filter.hasTopic) selectedOptions.push(showOnlyOptions[1]);
       if (filter.commentary) selectedOptions.push(showOnlyOptions[2]);
       if (filter.topStory) selectedOptions.push(showOnlyOptions[3]);
@@ -72,7 +75,7 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
   const onChange = React.useCallback(
     (action: ActionDelegate<IContentListFilter>) => {
       storeFilter((filter) => {
-        var result = typeof action === 'function' ? action(filter) : action;
+        const result = typeof action === 'function' ? action(filter) : action;
         replaceQueryParams({ ...result, ...filterAdvanced }, { includeEmpty: false });
         return result;
       });
@@ -127,7 +130,7 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
                 name="isPrintContent"
                 label="Print Content"
                 tooltip="Newspaper content without audio/video"
-                checked={filter.contentTypes?.includes(ContentTypeName.PrintContent) === true}
+                checked={filter.contentTypes?.includes(ContentTypeName.PrintContent)}
                 onChange={(e) => {
                   onChange({
                     ...filter,

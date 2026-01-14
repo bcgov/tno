@@ -1,4 +1,4 @@
-import { IContentListAdvancedFilter } from 'features/content/interfaces';
+import { type IContentListAdvancedFilter } from 'features/content/interfaces';
 import { convertTo, fromQueryString } from 'tno-core';
 
 /**
@@ -12,7 +12,7 @@ export const queryToFilterAdvanced = (
   queryString: string,
 ): IContentListAdvancedFilter => {
   const search = fromQueryString(queryString);
-  if (!!Object.keys(search).length) {
+  if (Object.keys(search).length > 0) {
     return {
       fieldType: filter.fieldType,
       logicalOperator: convertTo(search.logicalOperator, 'string', filter.logicalOperator),

@@ -1,4 +1,4 @@
-import { AVOverviewTemplateTypeName, IAVOverviewTemplateModel } from 'tno-core';
+import { AVOverviewTemplateTypeName, type IAVOverviewTemplateModel } from 'tno-core';
 
 export const defaultAVOverviewTemplate: IAVOverviewTemplateModel = {
   templateType: AVOverviewTemplateTypeName.Weekday,

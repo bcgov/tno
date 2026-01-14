@@ -1,6 +1,6 @@
 import { WorkOrderStatusName, WorkOrderTypeName } from 'tno-core';
 
-import { IWorkOrderForm } from '../interfaces';
+import { type IWorkOrderForm } from '../interfaces';
 
 export const defaultWorkOrder: IWorkOrderForm = {
   id: 0,

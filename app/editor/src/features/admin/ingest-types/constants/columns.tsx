@@ -1,6 +1,6 @@
-import { CellCheckbox, CellEllipsis, IIngestTypeModel, ITableHookColumn } from 'tno-core';
+import { CellCheckbox, CellEllipsis, type IIngestTypeModel, type ITableHookColumn } from 'tno-core';
 
-export const columns: ITableHookColumn<IIngestTypeModel>[] = [
+export const columns: Array<ITableHookColumn<IIngestTypeModel>> = [
   {
     label: 'Name',
     accessor: 'name',

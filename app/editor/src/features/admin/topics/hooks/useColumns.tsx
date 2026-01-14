@@ -4,8 +4,8 @@ import {
   Button,
   ButtonVariant,
   Col,
-  ITableHookColumn,
-  ITopicModel,
+  type ITableHookColumn,
+  type ITopicModel,
   Text,
   ToggleGroup,
   TopicTypeName,
@@ -15,7 +15,7 @@ export const useColumns = (
   onClick: (event: any) => {},
   handleSubmit: (values: ITopicModel) => Promise<void>,
   loading: boolean,
-): ITableHookColumn<ITopicModel>[] => {
+): Array<ITableHookColumn<ITopicModel>> => {
   const [topicModel, setTopicModel] = React.useState<ITopicModel>();
 
   const handleChange = async (event: any, cell: any) => {
@@ -31,7 +31,7 @@ export const useColumns = (
     await handleSubmit(topicModel);
   };
 
-  const result: ITableHookColumn<ITopicModel>[] = [
+  const result: Array<ITableHookColumn<ITopicModel>> = [
     {
       label: 'Topic Name',
       accessor: 'name',
@@ -47,7 +47,9 @@ export const useColumns = (
                   ? topicModel.name
                   : cell.original.name
               }
-              onBlur={async () => await handleBlur(cell)}
+              onBlur={async () => {
+                await handleBlur(cell);
+              }}
               onChange={async (e: any) => {
                 // because we update the related TopicModel with every change
                 // and the input value is bound to that model, we need to store
@@ -89,8 +91,9 @@ export const useColumns = (
                 !topicModel ||
                 cell.original.id !== topicModel.id ||
                 cell.original.topicType === topicModel.topicType
-              )
+              ) {
                 return;
+              }
 
               await handleSubmit(topicModel);
             }}

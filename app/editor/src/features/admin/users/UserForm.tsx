@@ -1,11 +1,10 @@
 import { FormikForm } from 'components/formik';
 import { formatDate } from 'features/admin/users/utils/formatDate';
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { FaExclamationTriangle } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useUsers } from 'store/hooks/admin';
-import { useReports } from 'store/hooks/admin';
+import { useReports, useUsers } from 'store/hooks/admin';
 import {
   Button,
   ButtonVariant,
@@ -13,10 +12,10 @@ import {
   FieldSize,
   getSortableOptions,
   IconButton,
-  IOptionItem,
-  IReportModel,
-  IUserModel,
-  IUserUpdateHistoryModel,
+  type IOptionItem,
+  type IReportModel,
+  type IUserModel,
+  type IUserUpdateHistoryModel,
   Modal,
   Row,
   SelectDate,
@@ -42,7 +41,7 @@ import { UserReportSubscriptions } from './UserReportSubscriptions';
 export interface IUserFormProps {
   onUserChange?: (changeType: UserChangeTypeName) => void;
   banner?: ReactElement<any, any>;
-  reportOptions: IOptionItem<string | number | undefined>[];
+  reportOptions: Array<IOptionItem<string | number | undefined>>;
   reports: IReportModel[];
 }
 
@@ -144,7 +143,7 @@ const UserForm: React.FC = () => {
         value: toUpdate.isEnabled.toString(),
         ChangeType: changeType,
         id: 0,
-        dateOfChange: dateOfChange,
+        dateOfChange,
       };
       try {
         toUpdate.userUpdateHistory = [...(values.userUpdateHistory ?? []), change];
@@ -270,7 +269,9 @@ const UserForm: React.FC = () => {
         iconType="back"
         label="Back to Users"
         className="back-button"
-        onClick={() => navigate('/admin/users')}
+        onClick={() => {
+          navigate('/admin/users');
+        }}
       />
       <FormikForm
         initialValues={user}
@@ -452,7 +453,7 @@ const UserForm: React.FC = () => {
                     label="Date of change"
                     width={FieldSize.Big}
                     dateFormat="MMMM dd, yyyy"
-                    value={!!dateOfChange ? formatDate(dateOfChange.toString(), false) : ''}
+                    value={dateOfChange ? formatDate(dateOfChange.toString(), false) : ''}
                     onChange={(date) => {
                       if (date) {
                         setDateOfChange(date);
@@ -482,7 +483,7 @@ const UserForm: React.FC = () => {
                     label="Deactivation date"
                     width={FieldSize.Big}
                     dateFormat="MMMM dd, yyyy"
-                    value={!!dateOfChange ? formatDate(dateOfChange.toString(), false) : ''}
+                    value={dateOfChange ? formatDate(dateOfChange.toString(), false) : ''}
                     onChange={(date) => {
                       if (date) {
                         setDateOfChange(date);
@@ -512,7 +513,7 @@ const UserForm: React.FC = () => {
                     label="Date of change"
                     width={FieldSize.Big}
                     dateFormat="MMMM dd, yyyy"
-                    value={!!dateOfChange ? formatDate(dateOfChange.toString(), false) : ''}
+                    value={dateOfChange ? formatDate(dateOfChange.toString(), false) : ''}
                     onChange={(date) => {
                       if (date) {
                         setDateOfChange(date);

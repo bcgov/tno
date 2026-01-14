@@ -8,18 +8,18 @@ import {
   useReports,
 } from 'store/hooks/admin';
 import {
-  IFilterModel,
-  IFolderModel,
-  INotificationModel,
-  IProductModel,
-  IReportModel,
-  IReportSectionModel,
-  ISortableModel,
-  ITransferAccount,
-  ITransferObject,
-  ITransferReport,
-  ITransferReportSection,
-  IUserModel,
+  type IFilterModel,
+  type IFolderModel,
+  type INotificationModel,
+  type IProductModel,
+  type IReportModel,
+  type IReportSectionModel,
+  type ISortableModel,
+  type ITransferAccount,
+  type ITransferObject,
+  type ITransferReport,
+  type ITransferReportSection,
+  type IUserModel,
 } from 'tno-core';
 
 import { defaultTransferAccount } from '../constants';

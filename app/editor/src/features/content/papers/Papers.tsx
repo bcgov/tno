@@ -1,11 +1,11 @@
-import { SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
+import { type SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
 import { Status } from 'components/status';
 import { NavigateOptions, TabControl, useTab } from 'components/tab-control';
 import React, { useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApiHub, useApp, useContent, useLocalStorage, useSettings } from 'store/hooks';
-import { IContentSearchResult, storeContentFilterAdvanced } from 'store/slices';
+import { type IContentSearchResult, storeContentFilterAdvanced } from 'store/slices';
 import { useCastContentToSearchResult } from 'store/slices/content/hooks/useCastContentToSearchResult';
 import {
   CellEllipsis,
@@ -13,8 +13,8 @@ import {
   Col,
   ContentStatusName,
   Grid,
-  IContentModel,
-  IGridHeaderColumnProps,
+  type IContentModel,
+  type IGridHeaderColumnProps,
   LogicalOperator,
   MessageTargetKey,
   Page,
@@ -25,13 +25,13 @@ import {
 
 import { AdvancedSearchKeys } from '../constants';
 import { useElasticsearch } from '../hooks';
-import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
+import { type IContentListAdvancedFilter, type IContentListFilter } from '../interfaces';
 import { defaultPage } from '../list-view/constants';
 import { queryToFilter, queryToFilterAdvanced } from '../list-view/utils';
 import { ReportActions } from './components';
 import { defaultPaperFilter, defaultTotals } from './constants';
 import { usePaperSources, useSortContent } from './hooks';
-import { ITotalsInfo } from './interfaces';
+import { type ITotalsInfo } from './interfaces';
 import { PaperToolbar } from './PaperToolbar';
 import * as styled from './styled';
 import { calcTotals } from './utils';
@@ -73,7 +73,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
   const [isFilterLoading, setIsFilterLoading] = React.useState(true);
   const [selected, setSelected] = React.useState<IContentSearchResult[]>([]);
   const [focusedRowIndex, setFocusedRowIndex] = React.useState(id);
-  const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const rowRefs = useRef<Array<HTMLDivElement | null>>([]);
   const [currentResultsPage, setCurrentResultsPage] = React.useState(defaultPage);
   const [totals, setTotals] = React.useState<ITotalsInfo>(defaultTotals);
 
@@ -166,7 +166,7 @@ const Papers: React.FC<IPapersProps> = (props) => {
         );
         const items = results.hits.hits
           .filter((h) => !!h._source)
-          .map((h) => h._source! as IContentModel)
+          .map((h) => h._source!)
           .sort(sortContent(filter.sort))
           .map((c) => castContentToSearchResult(c));
         const page = new Page(
@@ -446,18 +446,18 @@ const Papers: React.FC<IPapersProps> = (props) => {
                     >
                       <Checkbox
                         name={`chk-content-${row.id}`}
-                        onChange={(e) =>
+                        onChange={(e) => {
                           setSelected((selected) => {
                             if (e.target.checked) return [...selected, row];
                             else return selected.filter((c) => c.id !== row.id);
-                          })
-                        }
+                          });
+                        }}
                         checked={selected.some((c) => c.id === row.id)}
                       />
                     </div>
                   ),
-                  isSelected: isSelected,
-                  isFocused: isFocused,
+                  isSelected,
+                  isFocused,
                 },
                 {
                   column: (
@@ -467,13 +467,15 @@ const Papers: React.FC<IPapersProps> = (props) => {
                         if (rowIndex) rowRefs.current[rowIndex] = el;
                       }}
                       className="clickable"
-                      onClick={(e) => handleContentClick(row.id, e)}
+                      onClick={(e) => {
+                        handleContentClick(row.id, e);
+                      }}
                     >
                       <CellEllipsis>{row.headline}</CellEllipsis>
                     </div>
                   ),
-                  isSelected: isSelected,
-                  isFocused: isFocused,
+                  isSelected,
+                  isFocused,
                 },
                 {
                   column: (
@@ -483,13 +485,15 @@ const Papers: React.FC<IPapersProps> = (props) => {
                       ref={(el) => {
                         if (rowIndex) rowRefs.current[rowIndex] = el;
                       }}
-                      onClick={(e) => handleContentClick(row.id, e)}
+                      onClick={(e) => {
+                        handleContentClick(row.id, e);
+                      }}
                     >
                       <CellEllipsis>{row.otherSource}</CellEllipsis>
                     </div>
                   ),
-                  isSelected: isSelected,
-                  isFocused: isFocused,
+                  isSelected,
+                  isFocused,
                 },
                 {
                   column: (
@@ -497,8 +501,8 @@ const Papers: React.FC<IPapersProps> = (props) => {
                       <CellEllipsis>{row.byline}</CellEllipsis>
                     </div>
                   ),
-                  isSelected: isSelected,
-                  isFocused: isFocused,
+                  isSelected,
+                  isFocused,
                 },
                 {
                   column: (
@@ -508,19 +512,23 @@ const Papers: React.FC<IPapersProps> = (props) => {
                       ref={(el) => {
                         if (rowIndex) rowRefs.current[rowIndex] = el;
                       }}
-                      onClick={(e) => handleContentClick(row.id, e)}
+                      onClick={(e) => {
+                        handleContentClick(row.id, e);
+                      }}
                     >
                       <CellEllipsis
                         className="clickable"
                         key=""
-                        onClick={(e) => handleContentClick(row.id, e)}
+                        onClick={(e) => {
+                          handleContentClick(row.id, e);
+                        }}
                       >
                         {row.mediaType}
                       </CellEllipsis>
                     </div>
                   ),
-                  isSelected: isSelected,
-                  isFocused: isFocused,
+                  isSelected,
+                  isFocused,
                 },
                 {
                   column: (
@@ -530,13 +538,15 @@ const Papers: React.FC<IPapersProps> = (props) => {
                       ref={(el) => {
                         if (rowIndex) rowRefs.current[rowIndex] = el;
                       }}
-                      onClick={(e) => handleContentClick(row.id, e)}
+                      onClick={(e) => {
+                        handleContentClick(row.id, e);
+                      }}
                     >
                       {pageSection}
                     </div>
                   ),
-                  isSelected: isSelected,
-                  isFocused: isFocused,
+                  isSelected,
+                  isFocused,
                 },
                 {
                   column: (
@@ -549,12 +559,14 @@ const Papers: React.FC<IPapersProps> = (props) => {
                     >
                       <Status
                         value={row.status}
-                        onClick={(status) => handleClickUse({ ...row, status: status })}
+                        onClick={(status) => {
+                          handleClickUse({ ...row, status });
+                        }}
                       />
                     </div>
                   ),
-                  isSelected: isSelected,
-                  isFocused: isFocused,
+                  isSelected,
+                  isFocused,
                 },
               ];
             }}

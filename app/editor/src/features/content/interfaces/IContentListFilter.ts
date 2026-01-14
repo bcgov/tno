@@ -1,5 +1,5 @@
-import { ISortBy } from 'features/interfaces';
-import { ContentTypeName } from 'tno-core';
+import { type ISortBy } from 'features/interfaces';
+import { type ContentTypeName } from 'tno-core';
 
 export interface IContentListFilter {
   pageIndex: number;

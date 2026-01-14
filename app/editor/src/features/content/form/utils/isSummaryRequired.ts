@@ -1,4 +1,4 @@
-import { IContentForm } from '../interfaces';
+import { type IContentForm } from '../interfaces';
 
 /**
  * Determine if content.summary is a required field.

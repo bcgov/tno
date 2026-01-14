@@ -1,7 +1,10 @@
-import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
+import {
+  type IContentListAdvancedFilter,
+  type IContentListFilter,
+} from 'features/content/interfaces';
 import React from 'react';
 import { useLookup, useSettings } from 'store/hooks';
-import { IFilterActionSettingsModel } from 'tno-core';
+import { type IFilterActionSettingsModel } from 'tno-core';
 
 /**
  * Generate an array of action filters based on the specified 'filter' and array of 'actions'.
@@ -18,28 +21,31 @@ export const useActionFilters = () => {
       const result: IFilterActionSettingsModel[] = [];
       if (filter.commentary) {
         const action = actions.find((x) => x.id === commentaryActionId);
-        if (action)
+        if (action) {
           result.push({
             id: action.id,
             value: '*',
             valueType: action.valueType,
           });
+        }
       }
       if (filter.topStory) {
         const action = actions.find((x) => x.id === topStoryActionId);
-        if (action)
+        if (action) {
           result.push({
             id: action.id,
             value: 'true',
           });
+        }
       }
       if (filter.featuredStory) {
         const action = actions.find((x) => x.id === featuredStoryActionId);
-        if (action)
+        if (action) {
           result.push({
             id: action.id,
             value: 'true',
           });
+        }
       }
       return result;
     },

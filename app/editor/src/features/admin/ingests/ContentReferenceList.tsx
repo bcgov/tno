@@ -1,7 +1,7 @@
 import { useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
-import { Row as rtRow, SortingRule } from 'react-table';
+import { type Row as rtRow, type SortingRule } from 'react-table';
 import { toast } from 'react-toastify';
 import { useApp, useLookup } from 'store/hooks';
 import { useContentReferences } from 'store/hooks/admin';
@@ -9,10 +9,10 @@ import {
   FieldSize,
   getSortableOptions,
   IconButton,
-  IContentReferenceFilter,
-  IContentReferenceModel,
-  IIngestModel,
-  IPage,
+  type IContentReferenceFilter,
+  type IContentReferenceModel,
+  type IIngestModel,
+  type IPage,
   OptionItem,
   Page,
   PagedTable,
@@ -27,7 +27,7 @@ import {
   defaultContentReferenceFilter,
   defaultContentReferencePage,
 } from './constants';
-import { IContentReferenceListFilter } from './interfaces';
+import { type IContentReferenceListFilter } from './interfaces';
 import * as styled from './styled';
 
 export interface IContentReferenceListProps {}
@@ -50,12 +50,13 @@ const ContentReferenceList: React.FC<IContentReferenceListProps> = (props) => {
   // Extract possible sources for this ingest from the configuration, or list all options.
   const configSources = [values.source?.code]
     .concat(values.configuration?.sources?.split('&').map((s: string) => s.split('=')[1]) ?? [])
-    .filter((s) => s !== undefined) as string[];
-  const ingestSources = configSources.length
-    ? configSources
-        .map((code) => sources.find((source) => source.code === code)!)
-        .filter((source) => !!source)
-    : sources;
+    .filter((s) => s !== undefined);
+  const ingestSources =
+    configSources.length > 0
+      ? configSources
+          .map((code) => sources.find((source) => source.code === code)!)
+          .filter((source) => !!source)
+      : sources;
   const sourceOptions = getSortableOptions(
     ingestSources,
     values.sourceId,
@@ -80,7 +81,8 @@ const ContentReferenceList: React.FC<IContentReferenceListProps> = (props) => {
           publishedEndOn: filter.publishedEndOn
             ? moment(filter.publishedEndOn).toISOString()
             : undefined,
-          sort: filter.sort.length ? filter.sort.map((s) => `${s.id}${s.desc ? ' desc' : ''}`) : [],
+          sort:
+            filter.sort.length > 0 ? filter.sort.map((s) => `${s.id}${s.desc ? ' desc' : ''}`) : [],
         };
         const result = await findContentReferences(query);
         setPage(new Page(result.page - 1, result.quantity, result.items, result.total));
@@ -96,14 +98,15 @@ const ContentReferenceList: React.FC<IContentReferenceListProps> = (props) => {
 
   const handleChangePage = React.useCallback(
     (pi: number, ps?: number) => {
-      if (filter.pageIndex !== pi || filter.pageSize !== ps)
+      if (filter.pageIndex !== pi || filter.pageSize !== ps) {
         setFilter({ ...filter, pageIndex: pi, pageSize: ps ?? filter.pageSize });
+      }
     },
     [filter],
   );
 
   const handleChangeSort = React.useCallback(
-    (sortBy: SortingRule<IContentReferenceModel>[]) => {
+    (sortBy: Array<SortingRule<IContentReferenceModel>>) => {
       const sorts = sortBy.map((sb) => ({ id: sb.id, desc: sb.desc }));
       const same = sorts.every(
         (val, i) => val.id === filter.sort[i]?.id && val.desc === filter.sort[i]?.desc,
@@ -118,7 +121,7 @@ const ContentReferenceList: React.FC<IContentReferenceListProps> = (props) => {
   const handleRowClick = React.useCallback(
     async (row: rtRow<IContentReferenceModel>) => {
       const ids = await findContentIds(row.original.uid);
-      if (ids.length) {
+      if (ids.length > 0) {
         window.open(`/contents/${ids[0]}`, '_blank');
       } else {
         toast.error('No content found, the uid may have been changed.');
@@ -157,26 +160,26 @@ const ContentReferenceList: React.FC<IContentReferenceListProps> = (props) => {
           name="startDate"
           label="Published On Start"
           placeholderText="YYYY MM DD"
-          selected={!!filter.publishedStartOn ? new Date(filter.publishedStartOn) : undefined}
+          selected={filter.publishedStartOn ? new Date(filter.publishedStartOn) : undefined}
           width={FieldSize.Small}
-          onChange={(date) =>
+          onChange={(date) => {
             setFilter({
               ...filter,
-              publishedStartOn: !!date ? date.toString() : '',
-            })
-          }
+              publishedStartOn: date ? date.toString() : '',
+            });
+          }}
         />
         <SelectDate
           name="endDate"
           label="Published On End"
           placeholderText="YYYY MM DD"
-          selected={!!filter.publishedEndOn ? new Date(filter.publishedEndOn) : undefined}
+          selected={filter.publishedEndOn ? new Date(filter.publishedEndOn) : undefined}
           width={FieldSize.Small}
           onChange={(date) => {
             date?.setHours(23, 59, 59);
             setFilter({
               ...filter,
-              publishedEndOn: !!date ? date.toString() : '',
+              publishedEndOn: date ? date.toString() : '',
             });
           }}
         />
@@ -196,7 +199,7 @@ const ContentReferenceList: React.FC<IContentReferenceListProps> = (props) => {
       <PagedTable
         columns={contentReferenceColumns}
         page={page}
-        isLoading={!!requests.length}
+        isLoading={!(requests.length === 0)}
         sorting={{ sortBy: filter.sort }}
         onChangePage={handleChangePage}
         onChangeSort={handleChangeSort}

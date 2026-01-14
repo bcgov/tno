@@ -2,7 +2,7 @@ import React from 'react';
 import { toast } from 'react-toastify';
 import { useStorage } from 'store/hooks';
 
-import { FetchState, IUploadManager, IUploadState } from './interfaces';
+import { FetchState, type IUploadManager, type IUploadState } from './interfaces';
 import { UploadContext, UploadFilesContext } from './UploadContext';
 
 export interface IUploadContextWrapperProps {

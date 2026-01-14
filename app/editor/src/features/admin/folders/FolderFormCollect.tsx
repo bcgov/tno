@@ -1,4 +1,4 @@
-import { IContentRowModel } from 'components/content';
+import { type IContentRowModel } from 'components/content';
 import { useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
@@ -17,9 +17,9 @@ import {
   FormikText,
   FormikTimeInput,
   getDistinct,
-  IContentModel,
-  IFilterModel,
-  OptionItem,
+  type IContentModel,
+  type IFilterModel,
+  type OptionItem,
   Row,
   ScheduleWeekDayName,
   selectWeekDays,
@@ -27,7 +27,7 @@ import {
   sortObject,
 } from 'tno-core';
 
-import { IFolderForm } from './interfaces';
+import { type IFolderForm } from './interfaces';
 import { createSchedule, getFilterOptions } from './utils';
 
 export const FolderFormCollect: React.FC = () => {
@@ -41,7 +41,7 @@ export const FolderFormCollect: React.FC = () => {
   const [filter, setFilter] = React.useState<IFilterModel>();
 
   React.useEffect(() => {
-    if (!filters.length) {
+    if (filters.length === 0) {
       findFilters({})
         .then((filters) => {
           setFilterOptions(getFilterOptions(filters, values.filterId));
@@ -59,7 +59,7 @@ export const FolderFormCollect: React.FC = () => {
         );
         if (results.hits.hits.length) {
           const existing = [...values.content].sort(sortObject((c) => c.sortOrder));
-          const maxSortOrder = existing.length ? existing[existing.length - 1].sortOrder : 0;
+          const maxSortOrder = existing.length > 0 ? existing[existing.length - 1].sortOrder : 0;
           const content: IContentRowModel[] = getDistinct(
             [
               ...existing,
@@ -101,7 +101,9 @@ export const FolderFormCollect: React.FC = () => {
           <Button
             variant={ButtonVariant.secondary}
             disabled={!values.filterId}
-            onClick={() => handleRun(filters.find((f) => f.id === values.filterId)!)}
+            onClick={async () => {
+              await handleRun(filters.find((f) => f.id === values.filterId)!);
+            }}
           >
             Run
           </Button>
@@ -114,11 +116,11 @@ export const FolderFormCollect: React.FC = () => {
       <Col gap="1rem" style={{ position: 'relative' }}>
         <Row gap="1rem">
           <p>Schedule when this folder will have content removed automatically.</p>
-          <Show visible={!values.events.length}>
+          <Show visible={values.events.length === 0}>
             <Button
               variant={ButtonVariant.secondary}
-              onClick={() =>
-                setValues({
+              onClick={async () =>
+                await setValues({
                   ...values,
                   events: [createSchedule(values.name, values.description)],
                 })
@@ -128,12 +130,12 @@ export const FolderFormCollect: React.FC = () => {
             </Button>
           </Show>
         </Row>
-        <Show visible={!!values.events.length}>
+        <Show visible={!(values.events.length === 0)}>
           <Row gap="1rem">
             <Col gap="1rem">
-              <FormikCheckbox name={`events.0.isEnabled`} label="Enabled" value={true} />
+              <FormikCheckbox name={'events.0.isEnabled'} label="Enabled" value={true} />
               <FormikTimeInput
-                name={`events.0.startAt`}
+                name={'events.0.startAt'}
                 label="Run at"
                 width="7em"
                 placeholder="HH:MM:SS"
@@ -146,7 +148,7 @@ export const FolderFormCollect: React.FC = () => {
                 showTimeSelect
                 dateFormat="MM/dd/yyyy HH:mm:ss"
                 value={
-                  values.events.length && values.events[0].runOn
+                  values.events.length > 0 && values.events[0].runOn
                     ? moment(values.events[0].runOn).format('MM/DD/yyyy HH:mm:ss')
                     : undefined
                 }
@@ -160,43 +162,43 @@ export const FolderFormCollect: React.FC = () => {
               <label>Weekdays</label>
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Monday"
-                name={`events.0.runOnWeekDays`}
+                name={'events.0.runOnWeekDays'}
                 value={ScheduleWeekDayName.Monday}
                 onBeforeChange={(value) => selectWeekDays(value)}
               />
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Tuesday"
-                name={`events.0.runOnWeekDays`}
+                name={'events.0.runOnWeekDays'}
                 value={ScheduleWeekDayName.Tuesday}
                 onBeforeChange={(value) => selectWeekDays(value)}
               />
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Wednesday"
-                name={`events.0.runOnWeekDays`}
+                name={'events.0.runOnWeekDays'}
                 value={ScheduleWeekDayName.Wednesday}
                 onBeforeChange={(value) => selectWeekDays(value)}
               />
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Thursday"
-                name={`events.0.runOnWeekDays`}
+                name={'events.0.runOnWeekDays'}
                 value={ScheduleWeekDayName.Thursday}
                 onBeforeChange={(value) => selectWeekDays(value)}
               />
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Friday"
-                name={`events.0.runOnWeekDays`}
+                name={'events.0.runOnWeekDays'}
                 value={ScheduleWeekDayName.Friday}
                 onBeforeChange={(value) => selectWeekDays(value)}
               />
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Saturday"
-                name={`events.0.runOnWeekDays`}
+                name={'events.0.runOnWeekDays'}
                 value={ScheduleWeekDayName.Saturday}
                 onBeforeChange={(value) => selectWeekDays(value)}
               />
               <FormikStringEnumCheckbox<ScheduleWeekDayName>
                 label="Sunday"
-                name={`events.0.runOnWeekDays`}
+                name={'events.0.runOnWeekDays'}
                 value={ScheduleWeekDayName.Sunday}
                 onBeforeChange={(value) => selectWeekDays(value)}
               />
@@ -215,16 +217,16 @@ export const FolderFormCollect: React.FC = () => {
               </Row>
             </Col>
             <Col>
-              <FormikText name={`events.0.requestSentOn`} label="Last Request Sent On" disabled>
+              <FormikText name={'events.0.requestSentOn'} label="Last Request Sent On" disabled>
                 <Button
                   variant={ButtonVariant.danger}
                   tooltip="Clear last request sent on"
-                  onClick={() => setFieldValue(`events.0.requestSentOn`, undefined)}
+                  onClick={async () => await setFieldValue('events.0.requestSentOn', undefined)}
                 >
                   <FaEraser />
                 </Button>
               </FormikText>
-              <FormikText name={`events.0.lastRanOn`} label="Last Ran On" disabled />
+              <FormikText name={'events.0.lastRanOn'} label="Last Ran On" disabled />
             </Col>
           </Row>
         </Show>

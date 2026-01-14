@@ -11,7 +11,7 @@ import {
   WorkOrderTypeName,
 } from 'tno-core';
 
-import { IWorkOrderListFilter } from './interfaces/IWorkOrderListFilter';
+import { type IWorkOrderListFilter } from './interfaces/IWorkOrderListFilter';
 import * as styled from './styled';
 
 interface IWorkOrderFilterProps {}

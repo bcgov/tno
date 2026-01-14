@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useApp } from 'store/hooks';
-import { Claim, NotAuthorized, Role, useKeycloakWrapper } from 'tno-core';
+import { type Claim, NotAuthorized, type Role, useKeycloakWrapper } from 'tno-core';
 
 /**
  * PrivateRoute properties.
@@ -14,11 +14,11 @@ interface IPrivateRouteProps {
   /**
    * A role the user belongs to.
    */
-  roles?: Role | Array<Role>;
+  roles?: Role | Role[];
   /**
    * A claim the user has.
    */
-  claims?: Claim | Array<Claim>;
+  claims?: Claim | Claim[];
   /**
    * The element to load if authorized.
    */
@@ -59,7 +59,7 @@ const PrivateRoute = ({
       </div>
     );
   }
-  return element ? element : <>{children}</>;
+  return element || <>{children}</>;
 };
 
 export default PrivateRoute;

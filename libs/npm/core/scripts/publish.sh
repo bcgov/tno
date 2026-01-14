@@ -1,8 +1,8 @@
 #!/bin/bash
 
-user=$(yarn npm whoami)
-
-if [[ "$user" == *"No authentication configured for request"* ]]; then
+# Ensure you are logged in.
+if ! yarn npm whoami >/dev/null 2>&1; then
+  echo "Logging in..."
   yarn npm login
 fi
 

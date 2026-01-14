@@ -7,7 +7,7 @@ import {
   Col,
   Grid,
   IconButton,
-  ISourceModel,
+  type ISourceModel,
   Link,
   Row,
 } from 'tno-core';
@@ -24,7 +24,10 @@ interface ISourceListProps {}
  * @param predicate Predicate function or property name(s) that will be used for sorting.
  * @returns A new array sorted.
  */
-const sortArray = <T,>(items: T[], predicate: keyof T | (keyof T)[] | ((item: T) => any)): T[] => {
+const sortArray = <T,>(
+  items: T[],
+  predicate: keyof T | Array<keyof T> | ((item: T) => any),
+): T[] => {
   return [...items].sort((a, b) => {
     let valueA: any;
     let valueB: any;
@@ -32,7 +35,7 @@ const sortArray = <T,>(items: T[], predicate: keyof T | (keyof T)[] | ((item: T)
       valueA = predicate(a);
       valueB = predicate(b);
     } else if (Array.isArray(predicate)) {
-      var sort: number = 0;
+      let sort: number = 0;
       for (let i = 0; i < predicate.length; i++) {
         valueA = a[predicate[i]];
         valueB = b[predicate[i]];
@@ -54,7 +57,7 @@ const SourceList: React.FC<ISourceListProps> = (props) => {
   const [items, setItems] = React.useState<ISourceModel[]>([]);
 
   React.useEffect(() => {
-    if (sources.length) {
+    if (sources.length > 0) {
       setItems(sortArray(sources, ['sortOrder', 'name', 'code']));
     } else {
       api.findAllSources().then((data) => {
@@ -71,20 +74,16 @@ const SourceList: React.FC<ISourceListProps> = (props) => {
           case 'mediaType':
             return [...items].sort((a: any, b: any) =>
               sortData(
-                a['mediaType'] ? a['mediaType']['name'] : '',
-                b['mediaType'] ? b['mediaType']['name'] : '',
+                a.mediaType ? a.mediaType.name : '',
+                b.mediaType ? b.mediaType.name : '',
                 direction,
               ),
             );
           case 'configuration.isDailyPaper':
             return [...items].sort((a: any, b: any) =>
               sortData(
-                (a['configuration']
-                  ? a['configuration']['isDailyPaper'] ?? false
-                  : false) as boolean,
-                (b['configuration']
-                  ? b['configuration']['isDailyPaper'] ?? false
-                  : false) as boolean,
+                (a.configuration ? a.configuration.isDailyPaper ?? false : false) as boolean,
+                (b.configuration ? b.configuration.isDailyPaper ?? false : false) as boolean,
                 direction,
               ),
             );
@@ -117,7 +116,9 @@ const SourceList: React.FC<ISourceListProps> = (props) => {
         <IconButton
           iconType="plus"
           label="Add New Source"
-          onClick={() => navigate('/admin/sources/0')}
+          onClick={() => {
+            navigate('/admin/sources/0');
+          }}
         />
       </Row>
       <SourceFilter
@@ -140,7 +141,9 @@ const SourceList: React.FC<ISourceListProps> = (props) => {
       <Grid
         items={items}
         showPaging={false}
-        onSortChange={(column, direction) => handleOnSorting(column, direction)}
+        onSortChange={(column, direction) => {
+          handleOnSorting(column, direction);
+        }}
         renderHeader={() => [
           { name: 'name', label: 'Name', sortable: true },
           { name: 'code', label: 'Code', size: '15%', sortable: true },

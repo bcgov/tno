@@ -1,4 +1,4 @@
-import { ISortBy } from 'features/interfaces';
+import { type ISortBy } from 'features/interfaces';
 
 export const defaultSort: ISortBy[] = [
   { id: 'source.sortOrder' },
