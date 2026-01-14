@@ -23,10 +23,4 @@ export interface IReportSectionSettingsModel {
   dataType?: string;
   dataProperty?: string;
   dataTemplate?: string;
-  deploymentName?: string;
-  systemPrompt?: string;
-  userPrompt?: string;
-  choiceIndex?: number;
-  choiceQty?: number;
-  temperature?: number;
 }

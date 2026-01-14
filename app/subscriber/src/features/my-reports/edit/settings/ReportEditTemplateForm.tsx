@@ -16,7 +16,6 @@ import { useReportEditContext } from '../ReportEditContext';
 import * as styled from './styled';
 import {
   AddSectionBar,
-  ReportSectionAI,
   ReportSectionContent,
   ReportSectionData,
   ReportSectionGallery,
@@ -219,10 +218,6 @@ export const ReportEditTemplateForm = () => {
                             {/* EXTERNAL Data */}
                             <Show visible={section.sectionType === ReportSectionTypeName.Data}>
                               <ReportSectionData index={index} />
-                            </Show>
-                            {/* AI */}
-                            <Show visible={section.sectionType === ReportSectionTypeName.AI}>
-                              <ReportSectionAI index={index} />
                             </Show>
                           </Section>
                         </div>

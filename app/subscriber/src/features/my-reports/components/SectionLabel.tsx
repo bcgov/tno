@@ -75,13 +75,5 @@ export const SectionLabel = ({ section, showIcon = true, showTotal }: ISectionLa
         <span>{section.settings.label}</span>
       </Row>
     );
-  } else if (section.sectionType === ReportSectionTypeName.AI) {
-    return (
-      <Row gap="0.25rem" alignItems="center" className="section-header-label">
-        {showIcon && <SectionIcon type={section.sectionType} />}
-        <span>AI:</span>
-        <span>{section.settings.label}</span>
-      </Row>
-    );
   } else return <>Unknown</>;
 };

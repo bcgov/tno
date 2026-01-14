@@ -5,7 +5,6 @@ using System.Text.Json.Nodes;
 using System.Xml;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
 using TNO.TemplateEngine.Config;
@@ -13,8 +12,6 @@ using TNO.TemplateEngine.Models;
 using TNO.TemplateEngine.Models.Charts;
 using TNO.TemplateEngine.Models.Charts.Options;
 using TNO.TemplateEngine.Models.Reports;
-
-#pragma warning disable OPENAI001
 
 namespace TNO.TemplateEngine;
 
@@ -61,11 +58,6 @@ public class ReportEngine : IReportEngine
     protected ChartsOptions ChartsOptions { get; }
 
     /// <summary>
-    /// get - Azure options.
-    /// </summary>
-    protected AzureOptions AzureOptions { get; }
-
-    /// <summary>
     /// get - Serialization options.
     /// </summary>
     protected JsonSerializerOptions SerializerOptions { get; }
@@ -87,7 +79,6 @@ public class ReportEngine : IReportEngine
     /// <param name="httpClient"></param>
     /// <param name="templateOptions"></param>
     /// <param name="chartsOptions"></param>
-    /// <param name="azureOptions"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
     public ReportEngine(
@@ -98,7 +89,6 @@ public class ReportEngine : IReportEngine
         IHttpRequestClient httpClient,
         IOptions<TemplateOptions> templateOptions,
         IOptions<ChartsOptions> chartsOptions,
-        IOptions<AzureOptions> azureOptions,
         IOptions<JsonSerializerOptions> serializerOptions,
         ILogger<ReportEngine> logger)
     {
@@ -109,7 +99,6 @@ public class ReportEngine : IReportEngine
         this.HttpClient = httpClient;
         this.TemplateOptions = templateOptions.Value;
         this.ChartsOptions = chartsOptions.Value;
-        this.AzureOptions = azureOptions.Value;
         this.SerializerOptions = serializerOptions.Value;
         this.Logger = logger;
     }
@@ -400,13 +389,185 @@ public class ReportEngine : IReportEngine
         // The viewOnWebOnly flag means the email will only include a link to the report.
         if (!viewOnWebOnly)
         {
-            await GenerateReportImageSectionsAsync(report, sectionContent, pathToFiles);
+            if (!String.IsNullOrWhiteSpace(pathToFiles))
+            {
+                var currentDate = DateTime.UtcNow;
+                // For each section that is an image from 3rd party, fetch the image and cache it.
+                await report.Sections
+                    .Where(section => section.SectionType == Entities.ReportSectionType.Image && section.IsEnabled && section.Settings.CacheData == true)
+                    .ForEachAsync(async section =>
+                {
+                    var sectionData = sectionContent[section.Name];
+                    var settings = section.Settings;
+                    var url = !String.IsNullOrWhiteSpace(settings.Url) ? new Uri(settings.Url) : null;
+                    if (url != null)
+                    {
+                        var response = await this.HttpClient.GetAsync(url);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            // Get the Content-Type header (e.g., "image/jpeg", "image/png")
+                            var contentType = response.Content.Headers.ContentType?.MediaType;
+                            var fileExtension = GetFileExtension(contentType) ?? ".bin";
+                            using (Stream imageStream = await response.Content.ReadAsStreamAsync())
+                            {
+                                byte[] imageBytes;
+                                using (var memoryStream = new MemoryStream())
+                                {
+                                    await imageStream.CopyToAsync(memoryStream, 81920);
+                                    imageBytes = memoryStream.ToArray();
+                                }
 
-            // Perform AI processes on the report.
-            await GenerateReportAISectionsAsync(report, sectionContent);
+                                var pathToImage = $"reports/{report.Id}-{report.Name}/image-{sectionData.Id}-{currentDate:yyyy-MM-dd}{fileExtension}";
+                                var fullPath = Path.Combine(pathToFiles, pathToImage);
+                                var directory = Path.GetDirectoryName(fullPath);
+                                if (!string.IsNullOrEmpty(directory))
+                                    Directory.CreateDirectory(directory);
+
+                                await File.WriteAllBytesAsync(fullPath, imageBytes);
+
+                                // Update the section to include the new image.
+                                sectionData.Settings.UrlCache = this.TemplateOptions.SubscriberAppUrl?.Append($"api/subscriber/contents/download?path={pathToImage}").AbsoluteUri;
+                            }
+                        }
+                        else
+                            this.Logger.LogError("Failed to fetch data from {url}, {status}", url, response.StatusCode);
+                    }
+                });
+            }
 
             // For each section that is JSON from 3rd party, fetch the JSON and save it.
-            await GenerateReportDataSectionsAsync(report, sectionContent);
+            await report.Sections
+                .Where(section => section.SectionType == Entities.ReportSectionType.Data && section.IsEnabled)
+                .ForEachAsync(async section =>
+            {
+                var sectionData = sectionContent[section.Name];
+                var settings = section.Settings;
+                var url = !String.IsNullOrWhiteSpace(settings.Url) ? new Uri(settings.Url) : null;
+                if (url != null)
+                {
+                    var response = await this.HttpClient.GetAsync(url);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        if (settings.DataType?.Equals("json", StringComparison.InvariantCultureIgnoreCase) == true)
+                        {
+                            // The URL points to a JSON file.
+                            try
+                            {
+                                var data = await response.Content.ReadAsStringAsync();
+                                var json = JsonDocument.Parse(data);
+                                if (json != null && !String.IsNullOrWhiteSpace(settings.DataProperty))
+                                {
+                                    var value = json.GetElementValue<string>(settings.DataProperty);
+                                    sectionData.Data = value;
+                                }
+                                else if (json != null && !String.IsNullOrWhiteSpace(settings.DataTemplate))
+                                {
+                                    var dataTemplateKey = $"{report.Id}-{section.Id}";
+                                    var dataTemplate = this.ReportEngineData.GetOrAddTemplateInMemory(dataTemplateKey, settings.DataTemplate);
+                                    var dataEngineModel = new ReportEngineDataModel<dynamic>(json);
+                                    var dataHtml = await dataTemplate.RunAsync(instance =>
+                                    {
+                                        instance.Model = dataEngineModel;
+                                        instance.Data = json;
+                                    });
+                                    sectionData.Data = dataHtml;
+                                }
+                                else
+                                    sectionData.Data = data;
+                            }
+                            catch (Exception ex)
+                            {
+                                this.Logger.LogError(ex, "Failed to parse data from {url}", url);
+                                sectionData.Data = ex.GetAllMessages();
+                            }
+                        }
+                        else if (settings.DataType?.Equals("xml", StringComparison.InvariantCultureIgnoreCase) == true)
+                        {
+                            // The URL points to an XML file.
+                            try
+                            {
+                                var data = await response.Content.ReadAsStringAsync();
+                                var xml = new XmlDocument();
+                                xml.LoadXml(data);
+                                if (xml != null && !String.IsNullOrWhiteSpace(settings.DataProperty))
+                                {
+                                    var node = xml.SelectSingleNode(settings.DataProperty);
+                                    if (node != null)
+                                    {
+                                        sectionData.Data = node.InnerText;
+                                    }
+                                }
+                                else if (xml != null && !String.IsNullOrWhiteSpace(settings.DataTemplate))
+                                {
+                                    var dataTemplateKey = $"{report.Id}-{section.Id}";
+                                    var dataTemplate = this.ReportEngineData.GetOrAddTemplateInMemory(dataTemplateKey, settings.DataTemplate);
+                                    var dataEngineModel = new ReportEngineDataModel<dynamic>(xml);
+                                    var dataHtml = await dataTemplate.RunAsync(instance =>
+                                    {
+                                        instance.Model = dataEngineModel;
+                                        instance.Data = xml;
+                                    });
+                                    sectionData.Data = dataHtml;
+                                }
+                                else
+                                    sectionData.Data = data;
+                            }
+                            catch (Exception ex)
+                            {
+                                this.Logger.LogError(ex, "Failed to parse data from {url}", url);
+                                sectionData.Data = ex.GetAllMessages();
+                            }
+                        }
+                        else if (settings.DataType?.Equals("csv", StringComparison.InvariantCultureIgnoreCase) == true)
+                        {
+                            // The URL points to a CSV file.
+                            try
+                            {
+                                if (response.Content.Headers.ContentType?.MediaType?.Contains("text/csv") == true)
+                                {
+                                    var data = await response.Content.ReadAsStreamAsync();
+                                    using var reader = new StreamReader(data);
+                                    using var csv = new CsvHelper.CsvReader(reader, System.Globalization.CultureInfo.InvariantCulture);
+                                    var records = csv.GetRecords<dynamic>().ToList();
+                                    var dataEngineModel = new ReportEngineDataModel<dynamic>(records);
+                                    if (!String.IsNullOrWhiteSpace(settings.DataTemplate))
+                                    {
+                                        var dataTemplateKey = $"{report.Id}-{section.Id}";
+                                        var dataTemplate = this.ReportEngineData.GetOrAddTemplateInMemory(dataTemplateKey, settings.DataTemplate);
+                                        var dataHtml = await dataTemplate.RunAsync(instance =>
+                                        {
+                                            instance.Model = dataEngineModel;
+                                            instance.Data = records;
+                                        });
+                                        sectionData.Data = dataHtml;
+                                    }
+                                    else
+                                    {
+                                        sectionData.Data = JsonSerializer.Serialize(records, this.SerializerOptions);
+                                    }
+                                }
+                                else
+                                {
+                                    var data = await response.Content.ReadAsStringAsync();
+                                    sectionData.Data = data;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                this.Logger.LogError(ex, "Failed to parse CSV data from {url}", url);
+                                sectionData.Data = ex.GetAllMessages();
+                            }
+                        }
+                        else
+                        {
+                            var data = await response.Content.ReadAsStringAsync();
+                            sectionData.Data = data;
+                        }
+                    }
+                    else
+                        this.Logger.LogError("Failed to fetch data from {url}, {status}", url, response.StatusCode);
+                }
+            });
         }
 
         var model = new ReportEngineContentModel(report, reportInstance, sectionContent, this.TemplateOptions, pathToFiles);
@@ -479,360 +640,6 @@ public class ReportEngine : IReportEngine
         }
 
         return body.RemoveInvalidUtf8Characters().RemoveInvalidUnicodeCharacters();
-    }
-
-    /// <summary>
-    /// Generate the image section so that they can display image files.
-    /// </summary>
-    /// <param name="report"></param>
-    /// <param name="sectionContent"></param>
-    /// <param name="pathToFiles"></param>
-    /// <returns></returns>
-    private async Task GenerateReportImageSectionsAsync(
-        API.Areas.Services.Models.Report.ReportModel report,
-        Dictionary<string, ReportSectionModel> sectionContent,
-        string? pathToFiles = null)
-    {
-        if (!String.IsNullOrWhiteSpace(pathToFiles))
-        {
-            var currentDate = DateTime.UtcNow;
-            // For each section that is an image from 3rd party, fetch the image and cache it.
-            await report.Sections
-                .Where(section => section.SectionType == Entities.ReportSectionType.Image && section.IsEnabled && section.Settings.CacheData == true)
-                .ForEachAsync(async section =>
-            {
-                var sectionData = sectionContent[section.Name];
-                var settings = section.Settings;
-                var url = !String.IsNullOrWhiteSpace(settings.Url) ? new Uri(settings.Url) : null;
-                if (url != null)
-                {
-                    var response = await this.HttpClient.GetAsync(url);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        // Get the Content-Type header (e.g., "image/jpeg", "image/png")
-                        var contentType = response.Content.Headers.ContentType?.MediaType;
-                        var fileExtension = GetFileExtension(contentType) ?? ".bin";
-                        using (Stream imageStream = await response.Content.ReadAsStreamAsync())
-                        {
-                            byte[] imageBytes;
-                            using (var memoryStream = new MemoryStream())
-                            {
-                                await imageStream.CopyToAsync(memoryStream, 81920);
-                                imageBytes = memoryStream.ToArray();
-                            }
-
-                            var pathToImage = $"reports/{report.Id}-{report.Name}/image-{sectionData.Id}-{currentDate:yyyy-MM-dd}{fileExtension}";
-                            var fullPath = Path.Combine(pathToFiles, pathToImage);
-                            var directory = Path.GetDirectoryName(fullPath);
-                            if (!string.IsNullOrEmpty(directory))
-                                Directory.CreateDirectory(directory);
-
-                            await File.WriteAllBytesAsync(fullPath, imageBytes);
-
-                            // Update the section to include the new image.
-                            sectionData.Settings.UrlCache = this.TemplateOptions.SubscriberAppUrl?.Append($"api/subscriber/contents/download?path={pathToImage}").AbsoluteUri;
-                        }
-                    }
-                    else
-                        this.Logger.LogError("Failed to fetch data from {url}, {status}", url, response.StatusCode);
-                }
-            });
-        }
-    }
-
-
-    /// <summary>
-    /// Generate the data sections in the report.
-    /// </summary>
-    /// <param name="report"></param>
-    /// <param name="sectionContent"></param>
-    /// <returns></returns>
-    private async Task GenerateReportDataSectionsAsync(
-        API.Areas.Services.Models.Report.ReportModel report,
-        Dictionary<string, ReportSectionModel> sectionContent)
-    {
-        await report.Sections
-         .Where(section => section.SectionType == Entities.ReportSectionType.Data && section.IsEnabled)
-         .ForEachAsync(async section =>
-     {
-         var sectionData = sectionContent[section.Name];
-         var settings = section.Settings;
-         var url = !String.IsNullOrWhiteSpace(settings.Url) ? new Uri(settings.Url) : null;
-         if (url != null)
-         {
-             var response = await this.HttpClient.GetAsync(url);
-             if (response.IsSuccessStatusCode)
-             {
-                 if (settings.DataType?.Equals("json", StringComparison.InvariantCultureIgnoreCase) == true)
-                 {
-                     // The URL points to a JSON file.
-                     try
-                     {
-                         var data = await response.Content.ReadAsStringAsync();
-                         var json = JsonDocument.Parse(data);
-                         if (json != null && !String.IsNullOrWhiteSpace(settings.DataProperty))
-                         {
-                             var value = json.GetElementValue<string>(settings.DataProperty);
-                             sectionData.Data = value;
-                         }
-                         else if (json != null && !String.IsNullOrWhiteSpace(settings.DataTemplate))
-                         {
-                             var dataTemplateKey = $"{report.Id}-{section.Id}";
-                             var dataTemplate = this.ReportEngineData.GetOrAddTemplateInMemory(dataTemplateKey, settings.DataTemplate);
-                             var dataEngineModel = new ReportEngineDataModel<dynamic>(json);
-                             var dataHtml = await dataTemplate.RunAsync(instance =>
-                             {
-                                 instance.Model = dataEngineModel;
-                                 instance.Data = json;
-                             });
-                             sectionData.Data = dataHtml;
-                         }
-                         else
-                             sectionData.Data = data;
-                     }
-                     catch (Exception ex)
-                     {
-                         this.Logger.LogError(ex, "Failed to parse data from {url}", url);
-                         sectionData.Data = ex.GetAllMessages();
-                     }
-                 }
-                 else if (settings.DataType?.Equals("xml", StringComparison.InvariantCultureIgnoreCase) == true)
-                 {
-                     // The URL points to an XML file.
-                     try
-                     {
-                         var data = await response.Content.ReadAsStringAsync();
-                         var xml = new XmlDocument();
-                         xml.LoadXml(data);
-                         if (xml != null && !String.IsNullOrWhiteSpace(settings.DataProperty))
-                         {
-                             var node = xml.SelectSingleNode(settings.DataProperty);
-                             if (node != null)
-                             {
-                                 sectionData.Data = node.InnerText;
-                             }
-                         }
-                         else if (xml != null && !String.IsNullOrWhiteSpace(settings.DataTemplate))
-                         {
-                             var dataTemplateKey = $"{report.Id}-{section.Id}";
-                             var dataTemplate = this.ReportEngineData.GetOrAddTemplateInMemory(dataTemplateKey, settings.DataTemplate);
-                             var dataEngineModel = new ReportEngineDataModel<dynamic>(xml);
-                             var dataHtml = await dataTemplate.RunAsync(instance =>
-                             {
-                                 instance.Model = dataEngineModel;
-                                 instance.Data = xml;
-                             });
-                             sectionData.Data = dataHtml;
-                         }
-                         else
-                             sectionData.Data = data;
-                     }
-                     catch (Exception ex)
-                     {
-                         this.Logger.LogError(ex, "Failed to parse data from {url}", url);
-                         sectionData.Data = ex.GetAllMessages();
-                     }
-                 }
-                 else if (settings.DataType?.Equals("csv", StringComparison.InvariantCultureIgnoreCase) == true)
-                 {
-                     // The URL points to a CSV file.
-                     try
-                     {
-                         if (response.Content.Headers.ContentType?.MediaType?.Contains("text/csv") == true)
-                         {
-                             var data = await response.Content.ReadAsStreamAsync();
-                             using var reader = new StreamReader(data);
-                             using var csv = new CsvHelper.CsvReader(reader, System.Globalization.CultureInfo.InvariantCulture);
-                             var records = csv.GetRecords<dynamic>().ToList();
-                             var dataEngineModel = new ReportEngineDataModel<dynamic>(records);
-                             if (!String.IsNullOrWhiteSpace(settings.DataTemplate))
-                             {
-                                 var dataTemplateKey = $"{report.Id}-{section.Id}";
-                                 var dataTemplate = this.ReportEngineData.GetOrAddTemplateInMemory(dataTemplateKey, settings.DataTemplate);
-                                 var dataHtml = await dataTemplate.RunAsync(instance =>
-                                 {
-                                     instance.Model = dataEngineModel;
-                                     instance.Data = records;
-                                 });
-                                 sectionData.Data = dataHtml;
-                             }
-                             else
-                             {
-                                 sectionData.Data = JsonSerializer.Serialize(records, this.SerializerOptions);
-                             }
-                         }
-                         else
-                         {
-                             var data = await response.Content.ReadAsStringAsync();
-                             sectionData.Data = data;
-                         }
-                     }
-                     catch (Exception ex)
-                     {
-                         this.Logger.LogError(ex, "Failed to parse CSV data from {url}", url);
-                         sectionData.Data = ex.GetAllMessages();
-                     }
-                 }
-                 else
-                 {
-                     var data = await response.Content.ReadAsStringAsync();
-                     sectionData.Data = data;
-                 }
-             }
-             else
-                 this.Logger.LogError("Failed to fetch data from {url}, {status}", url, response.StatusCode);
-         }
-     });
-    }
-
-    /// <summary>
-    /// Generate the AI sections of the report.
-    /// </summary>
-    /// <param name="report"></param>
-    /// <param name="sectionContent"></param>
-    /// <param name=""></param>
-    /// <returns></returns>
-    private async Task GenerateReportAISectionsAsync(
-        API.Areas.Services.Models.Report.ReportModel report,
-        Dictionary<string, ReportSectionModel> sectionContent)
-    {
-        var includesAI = report.Sections.Any(s => s.SectionType == Entities.ReportSectionType.AI && s.IsEnabled);
-        if (includesAI)
-        {
-            var projectEndpoint = this.AzureOptions.AI?.ProjectEndpoint;
-            var apiKey = this.AzureOptions.AI?.ApiKey;
-            var defaultAgentName = this.AzureOptions.AI?.DefaultAgentName;
-
-            if (projectEndpoint == null)
-            {
-                this.Logger.LogError("Azure AI configuration 'Azure.AI.ProjectEndpoint' is required.");
-            }
-            else if (String.IsNullOrWhiteSpace(apiKey))
-            {
-                this.Logger.LogError("Azure AI configuration 'Azure.AI.ApiKey' is required.");
-            }
-            else
-            {
-                var allContent = new StringBuilder("## Data\n### Sections");
-                var serializer = new JsonSerializerOptions(JsonSerializerDefaults.Web)
-                {
-                    WriteIndented = true,
-                    Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-                };
-                foreach (var section in sectionContent.Where(sc => sc.Value.Content.Any()))
-                {
-                    allContent.AppendLine($"#### {section.Value.Settings.Label}");
-                    var sectionContentJson = section.Value.Content.Select(c => new
-                    {
-                        headline = c.Headline,
-                        text = !String.IsNullOrWhiteSpace(c.Body) ? c.Body : c.Summary,
-                        byline = c.Byline,
-                        source = c.Source?.Name ?? c.OtherSource,
-                        publishedOn = c.PublishedOn,
-                        mediaType = c.MediaType?.Name,
-                        series = c.Series?.Name ?? c.OtherSeries,
-                        sentiment = c.TonePools.FirstOrDefault()?.Value,
-                        tags = c.Tags.Select(t => t.Code).ToArray(),
-                        actions = c.Actions.Select(a => a.Name),
-                    }).ToArray();
-                    allContent.AppendLine($"```json\n{JsonSerializer.Serialize(sectionContentJson, serializer)}\n```");
-                }
-
-                // Generate AI results.
-                await report.Sections
-                    .Where(section => section.SectionType == Entities.ReportSectionType.AI && section.IsEnabled)
-                    .ForEachAsync(async section =>
-                {
-                    var sectionData = sectionContent[section.Name];
-                    var settings = section.Settings;
-                    var deploymentModelName = !String.IsNullOrWhiteSpace(settings.DeploymentName) ? settings.DeploymentName : this.AzureOptions.AI?.DefaultModelDeploymentName;
-                    var systemPrompt = !String.IsNullOrWhiteSpace(settings.SystemPrompt) ? settings.SystemPrompt : this.AzureOptions.AI?.DefaultSystemPrompt;
-                    var userPrompt = new StringBuilder(!String.IsNullOrWhiteSpace(settings.UserPrompt) ? settings.UserPrompt : this.AzureOptions.AI?.DefaultUserPrompt);
-                    var choiceIndex = settings.ChoiceIndex;
-                    var temperature = settings.Temperature;
-                    var resultCount = settings.ChoiceQty;
-
-                    if (String.IsNullOrWhiteSpace(deploymentModelName))
-                    {
-                        this.Logger.LogError("Azure AI deployment model name is required for report: {ReportId} and section: {SectionId}", report.Id, section.Settings.Label);
-                        sectionData.Data = $"Azure AI deployment model name is required";
-                    }
-                    else if (String.IsNullOrWhiteSpace(userPrompt.ToString()))
-                    {
-                        this.Logger.LogError("Azure AI user prompt is required for report: {ReportId} and section: {SectionId}", report.Id, section.Settings.Label);
-                        sectionData.Data = $"Azure AI user prompt is required";
-                    }
-                    else
-                    {
-                        this.Logger.LogDebug("Starting AI summary for section {Section}", section.Settings.Label);
-                        var requestBody = new
-                        {
-                            model = deploymentModelName,
-                            temperature = temperature,
-                            n = resultCount,
-                            messages = new object[]
-                            {
-                                new
-                                {
-                                    role = "system",
-                                    content = new object[] { new { type = "text", text = systemPrompt }},
-                                },
-                                new
-                                {
-                                    role = "user",
-                                    content = new object[]
-                                    {
-                                        new { type = "text", text = userPrompt.ToString() },
-                                        new { type = "text", text = allContent.ToString() },
-                                    }
-                                }
-                            }
-                        };
-                        var jsonBody = JsonSerializer.Serialize(requestBody, serializer);
-                        var requestMessage = new HttpRequestMessage(HttpMethod.Post, projectEndpoint);
-                        requestMessage.Headers.Add("api-key", apiKey);
-                        requestMessage.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
-
-                        this.Logger.LogDebug("HTTP request made: {method}:{uri}", requestMessage.Method, requestMessage.RequestUri);
-                        var response = await this.HttpClient.Client.SendAsync(requestMessage);
-
-                        if (response.IsSuccessStatusCode)
-                        {
-                            var responseJson = await response.Content.ReadAsStringAsync();
-                            var responseData = JsonSerializer.Deserialize<TNO.Models.Azure.ChatCompletionResponse>(responseJson);
-                            if (responseData != null)
-                            {
-                                if (choiceIndex.HasValue && choiceIndex.Value == -1)
-                                {
-                                    // Return all choices.
-                                    var choices = new StringBuilder();
-                                    for (var i = 0; i < responseData.Choices.Count; i++)
-                                    {
-                                        choices.AppendLine($"## Choice {i + 1}");
-                                        choices.AppendLine(responseData.Choices[i].Message.Content);
-                                    }
-                                }
-                                else
-                                {
-                                    var choice = responseData.Choices.Count > choiceIndex ? responseData.Choices[choiceIndex ?? 0] : responseData.Choices.FirstOrDefault();
-                                    if (choice != null)
-                                    {
-                                        sectionData.Data = choice.Message.Content;
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            var responseJson = await response.Content.ReadAsStringAsync();
-                            var ex = new HttpClientRequestException(response);
-                            this.Logger.LogError(ex, "Failed to generate AI response for report: {ReportId} and section: {SectionId}.", report.Id, section.Settings.Label);
-                            sectionData.Data = $"{ex.GetAllMessages()}\n{responseJson}";
-                        }
-                    }
-                });
-            }
-        }
     }
 
     /// <summary>

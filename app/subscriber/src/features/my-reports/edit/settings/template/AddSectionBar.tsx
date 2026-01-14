@@ -6,7 +6,6 @@ import React from 'react';
 import { BiSolidFileJson } from 'react-icons/bi';
 import {
   FaAlignJustify,
-  FaBrain,
   FaChartPie,
   FaImage,
   FaImages,
@@ -83,15 +82,6 @@ export const AddSectionBar = () => {
           <Row gap="1rem">
             <FaList />
             <label>Table of Contents</label>
-          </Row>
-        </Button>
-        <Button
-          onClick={() => addSection(values.sections.length, ReportSectionTypeName.AI, false, false)}
-          disabled={isSubmitting}
-        >
-          <Row gap="1rem">
-            <FaBrain />
-            <label>AI</label>
           </Row>
         </Button>
         <Button

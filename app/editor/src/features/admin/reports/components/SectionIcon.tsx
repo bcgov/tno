@@ -1,5 +1,5 @@
 import { BiSolidFileJson } from 'react-icons/bi';
-import { FaAlignJustify, FaBrain, FaChartPie, FaImage, FaList, FaNewspaper } from 'react-icons/fa6';
+import { FaAlignJustify, FaChartPie, FaImage, FaList, FaNewspaper } from 'react-icons/fa6';
 import { ReportSectionTypeName } from 'tno-core';
 
 export interface ISectionIconProps {
@@ -21,7 +21,5 @@ export const SectionIcon = ({ type }: ISectionIconProps) => {
     return <FaImage />;
   } else if (type === ReportSectionTypeName.Data) {
     return <BiSolidFileJson />;
-  } else if (type === ReportSectionTypeName.AI) {
-    return <FaBrain />;
   } else return null;
 };

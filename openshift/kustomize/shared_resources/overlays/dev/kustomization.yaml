@@ -13,9 +13,6 @@ secretGenerator:
   - name: database
     type: stringData
     env: database.env
-  - name: reporting-azure-ai
-    type: stringData
-    env: reporting-azure-ai.env
 
 resources:
   - ../../base

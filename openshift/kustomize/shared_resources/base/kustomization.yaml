@@ -7,7 +7,6 @@ resources:
   - services-config-map.yaml
   - ches-config-map.yaml
   - reporting-shared-config-map.yaml
-  - reporting-azure-ai-config-map.yaml
   - pvc.yaml
   - service-account.yaml
 

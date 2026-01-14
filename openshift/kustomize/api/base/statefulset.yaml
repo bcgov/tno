@@ -205,33 +205,6 @@ spec:
                   name: reporting-shared
                   key: REPORTING_REQUEST_TRANSCRIPT_URL
 
-            # Reports Azure AI
-            - name: Azure__AI__ProjectEndpoint
-              valueFrom:
-                configMapKeyRef:
-                  name: reporting-azure-ai
-                  key: ProjectEndpoint
-            - name: Azure__AI__ApiKey
-              valueFrom:
-                secretKeyRef:
-                  name: reporting-azure-ai
-                  key: ApiKey
-            - name: Azure__AI__DefaultModelDeploymentName
-              valueFrom:
-                configMapKeyRef:
-                  name: reporting-azure-ai
-                  key: DefaultModelDeploymentName
-            - name: Azure__AI__DefaultSystemPrompt
-              valueFrom:
-                configMapKeyRef:
-                  name: reporting-azure-ai
-                  key: DefaultSystemPrompt
-            - name: Azure__AI__DefaultUserPrompt
-              valueFrom:
-                configMapKeyRef:
-                  name: reporting-azure-ai
-                  key: DefaultUserPrompt
-
             # S3 Configuration
             - name: S3_ACCESS_KEY
               valueFrom:

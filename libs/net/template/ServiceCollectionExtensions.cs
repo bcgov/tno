@@ -20,7 +20,6 @@ public static class ServiceCollectionExtensions
         return services
             .Configure<ChartsOptions>(config.GetSection("Charts"))
             .Configure<TemplateOptions>(config.GetSection("Reporting"))
-            .Configure<AzureOptions>(config.GetSection("Azure"))
             .AddScoped<IRazorEngine, RazorEngine>()
             .AddScoped<ITemplateEngine<Models.Notifications.NotificationEngineContentModel>, TemplateEngine<Models.Notifications.NotificationEngineContentModel>>()
             .AddScoped<ITemplateEngine<Models.Reports.ReportEngineContentModel>, TemplateEngine<Models.Reports.ReportEngineContentModel>>()
@@ -41,7 +40,6 @@ public static class ServiceCollectionExtensions
         return services
             .Configure<ChartsOptions>(config.GetSection("Charts"))
             .Configure<TemplateOptions>(config.GetSection("Reporting"))
-            .Configure<AzureOptions>(config.GetSection("Azure"))
             .AddSingleton<IRazorEngine, RazorEngine>()
             .AddSingleton<ITemplateEngine<Models.Notifications.NotificationEngineContentModel>, TemplateEngine<Models.Notifications.NotificationEngineContentModel>>()
             .AddSingleton<ITemplateEngine<Models.Reports.ReportEngineContentModel>, TemplateEngine<Models.Reports.ReportEngineContentModel>>()
