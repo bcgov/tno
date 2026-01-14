@@ -218,6 +218,13 @@ AZURE_VIDEO_ANALYZER_LOCATION=$azureVideoLocation
 
 KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBrokerAdvertisedExternal
 
+Azure__AI__ProjectEndpoint=https://mmi-ai-foundry-east-us-2.openai.azure.com/openai/v1/chat/completions
+Azure__AI__ApiKey={API KEY}
+Azure__AI__DefaultModelDeploymentName=gpt-5.1-chat
+Azure__AI__DefaultAgentName=
+Azure__AI__DefaultSystemPrompt=\"You are a report writer.  Review the report data and generate summaries and analysis.  The report data is JSON, each section groups related content and contains an array of story records. The `content.text` property contains the story information.  The output generated must be in simple HTML that works within Outlook email client.  Place all the output in a <div>\{output\}</div>.\"
+Azure__AI__DefaultUserPrompt=\"Create an executive summary of the report data.  Do not start the response with a heading.  The summary should be the first paragraph.  If the output includes a breakdown of related stories, use the heading \"Topics\".  Do not state your intention, simply summarize the data.\"
+
 ################################################
 # Only required when running in devcontainer for debugging.
 ################################################
@@ -269,21 +276,6 @@ CHES__Username={GET CHES USERNAME}
 CHES__Password={GET CHES PASSWORD}
 CHES__EmailAuthorized=true" >> ./api/net/.env
     echo "./api/net/.env created"
-fi
-
-# API - CSS
-if test -f "./tools/css-api/.env"; then
-    echo "./tools/css-api/.env exists"
-else
-echo \
-"ASPNETCORE_ENVIRONMENT=Development
-ASPNETCORE_URLS=http://+:8080
-
-# Keycloak API
-Keycloak__RealmPath=/realms/
-Keycloak__AdminPath=/admin/realms/
-Keycloak__Secret={GET KEYCLOAK SERVICE ACCOUNT}" >> ./tools/css-api/.env
-    echo "./tools/css-api/.env created"
 fi
 
 # API - Charts
@@ -649,7 +641,14 @@ CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/o
 CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
 CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
-CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}" >> ./services/net/reporting/.env
+CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}
+
+Azure__AI__ProjectEndpoint=https://mmi-ai-foundry-east-us-2.openai.azure.com/openai/v1/chat/completions
+Azure__AI__ApiKey={API KEY}
+Azure__AI__DefaultModelDeploymentName=gpt-5.1-chat
+Azure__AI__DefaultAgentName=
+Azure__AI__DefaultSystemPrompt=\"You are a report writer.  Review the report data and generate summaries and analysis.  The report data is JSON, each section groups related content and contains an array of story records. The `content.text` property contains the story information.  The output generated must be in simple HTML that works within Outlook email client.  Place all the output in a <div>\{output\}</div>.\"
+Azure__AI__DefaultUserPrompt=\"Create an executive summary of the report data.  Do not start the response with a heading.  The summary should be the first paragraph.  If the output includes a breakdown of related stories, use the heading \"Topics\".  Do not state your intention, simply summarize the data.\"" >> ./services/net/reporting/.env
     echo "./services/net/reporting/.env created"
 fi
 
