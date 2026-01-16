@@ -21,7 +21,7 @@ segments the transcript into clips using a boundary-aware LLM workflow boosted b
 Important Service\_\_ env vars:
 
 - Service**AzureSpeechKey / Service**AzureSpeechRegion
-- Service__AzureSpeechStorageConnectionString / Service__AzureSpeechStorageContainer (batch upload destination for Azure Speech).
-- Service__AzureSpeechBatchEndpoint, Service__AzureSpeechBatchApiVersion, Service__AzureSpeechBatchPollingIntervalSeconds, Service__AzureSpeechBatchTimeoutMinutes, Service__AzureSpeechStorageSasExpiryMinutes (optional batch tuning).
+- Service**AzureSpeechStorageConnectionString / Service**AzureSpeechStorageContainer (batch upload destination for Azure Speech).
+- Service**AzureSpeechBatchEndpoint, Service**AzureSpeechBatchApiVersion, Service**AzureSpeechBatchPollingIntervalSeconds, Service**AzureSpeechBatchTimeoutMinutes, Service\_\_AzureSpeechStorageSasExpiryMinutes (optional batch tuning).
 - Service**LlmApiUrl, Service**LlmApiKey, Service**LlmDeployment, Service**LlmApiVersion
 - Service\_\_StationConfigPath (optional override for station YAML directory)

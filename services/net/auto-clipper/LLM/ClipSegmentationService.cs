@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http.Json;
 using System.Text;
@@ -6,12 +5,17 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 using TNO.Services.AutoClipper.Azure;
 using TNO.Services.AutoClipper.Config;
 using TNO.Services.AutoClipper.LLM.Models;
 
 namespace TNO.Services.AutoClipper.LLM;
 
+/// <summary>
+/// ClipSegmentationService class, provides a way to send a transcript to Azure Open AI to identify separate stories within the transcript.
+/// </summary>
 public class ClipSegmentationService : IClipSegmentationService
 {
     private const string DefaultSystemPrompt = "You are a news segment tool. Analyze timestamped transcripts, choose where new stories begin, and output JSON suitable for ffmpeg clip creation.";
@@ -57,8 +61,8 @@ Transcript:
         if (transcript == null || transcript.Count == 0)
             return [];
 
-        if (string.IsNullOrWhiteSpace(_options.LlmApiUrl) || string.IsNullOrWhiteSpace(_options.LlmApiKey) || string.IsNullOrWhiteSpace(_options.LlmDeployment))
-            throw new InvalidOperationException("LLM configuration is missing the Azure OpenAI endpoint, deployment name, or API key.");
+        if (_options.LlmApiUrl == null || string.IsNullOrWhiteSpace(_options.LlmApiKey))
+            throw new InvalidOperationException("LLM configuration is missing the Azure OpenAI endpoint, or API key.");
 
         try
         {
@@ -67,8 +71,8 @@ Transcript:
             var systemPrompt = string.IsNullOrWhiteSpace(settings?.SystemPrompt) ? DefaultSystemPrompt : settings!.SystemPrompt!;
             var payload = new
             {
-                model = string.IsNullOrWhiteSpace(settings?.ModelOverride) ? _options.LlmModel : settings!.ModelOverride!,
-                temperature = _options.LlmTemperature,
+                model = string.IsNullOrWhiteSpace(settings?.ModelOverride) ? _options.LlmDefaultModel : settings!.ModelOverride!,
+                temperature = settings!.TemperatureOverride,
                 messages = new object[]
                 {
                     new { role = "system", content = systemPrompt },
@@ -76,7 +80,7 @@ Transcript:
                 }
             };
 
-            var requestUri = BuildRequestUri();
+            var requestUri = _options.LlmApiUrl;
             _logger.LogDebug("Sending LLM segmentation request to {RequestUri} with payload: {Payload}", requestUri, JsonSerializer.Serialize(payload));
             using var request = new HttpRequestMessage(HttpMethod.Post, requestUri);
             request.Headers.Add("api-key", _options.LlmApiKey);
@@ -84,28 +88,31 @@ Transcript:
 
             using var response = await _httpClient.SendAsync(request, cancellationToken);
             var body = await response.Content.ReadAsStringAsync(cancellationToken);
-            response.EnsureSuccessStatusCode();
 
-            var clipDefinitions = ParseResponse(body, transcript, settings, heuristicHits);
-            if (clipDefinitions.Count == 0)
+            if (response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("LLM segmentation did not return any clips.");
+
+                var clipDefinitions = ParseResponse(body, transcript, settings, heuristicHits);
+                if (clipDefinitions.Count == 0)
+                {
+                    _logger.LogWarning("LLM segmentation did not return any clips.");
+                    return [];
+                }
+
+                return clipDefinitions;
+            }
+            else
+            {
+                var responseException = new HttpClientRequestException(response);
+                _logger.LogError(responseException, "Failed to segment transcript with LLM. Error: {Details}", body);
                 return [];
             }
-
-            return clipDefinitions;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to segment transcript with LLM.");
+            _logger.LogError(ex, "Failed to segment transcript with LLM. Error: {Details}", ex.GetAllMessages());
             return [];
         }
-    }
-
-    private ClipDefinition BuildFallbackClip(IReadOnlyList<TimestampedTranscript> transcript)
-    {
-        var end = transcript[^1].End;
-        return new ClipDefinition("Full Program", "AutoClipper fallback clip", TimeSpan.Zero, end);
     }
 
     private string BuildPrompt(IReadOnlyList<TimestampedTranscript> transcript, ClipSegmentationSettings? overrides, IReadOnlyList<HeuristicHit> heuristicHits)
@@ -118,8 +125,8 @@ Transcript:
         var transcriptBody = BuildPromptTranscript(transcript, limit);
         var heuristicNotes = BuildHeuristicNotes(heuristicHits, transcript);
 
-        var maxClips = overrides?.MaxStories ?? _options.LlmMaxStories;
-        if (maxClips <= 0) maxClips = _options.LlmMaxStories;
+        var maxClips = overrides?.MaxStories ?? _options.MaxStoriesFromClip;
+        if (maxClips <= 0) maxClips = _options.MaxStoriesFromClip;
 
         var prompt = template
             .Replace("{{max_clips}}", maxClips.ToString(CultureInfo.InvariantCulture))
@@ -142,7 +149,7 @@ Transcript:
         return _options.LlmPromptCharacterLimit > 0 ? _options.LlmPromptCharacterLimit : null;
     }
 
-    private string BuildPromptTranscript(IReadOnlyList<TimestampedTranscript> transcript, int? limit)
+    private static string BuildPromptTranscript(IReadOnlyList<TimestampedTranscript> transcript, int? limit)
     {
         var builder = new StringBuilder();
         builder.AppendLine("Sentences:");
@@ -186,7 +193,7 @@ Transcript:
         return builder.ToString();
     }
 
-    private string BuildHeuristicNotes(IReadOnlyList<HeuristicHit>? hits, IReadOnlyList<TimestampedTranscript> transcript)
+    private static string BuildHeuristicNotes(IReadOnlyList<HeuristicHit>? hits, IReadOnlyList<TimestampedTranscript> transcript)
     {
         if (hits == null || hits.Count == 0) return "<none>";
         var sb = new StringBuilder();
@@ -267,17 +274,6 @@ Transcript:
         }
 
         return hits;
-    }
-    private string BuildRequestUri()
-    {
-        var baseUrl = _options.LlmApiUrl?.TrimEnd('/') ?? string.Empty;
-        var deployment = string.IsNullOrWhiteSpace(_options.LlmDeployment) ? _options.LlmModel : _options.LlmDeployment;
-        if (string.IsNullOrWhiteSpace(baseUrl) || string.IsNullOrWhiteSpace(deployment))
-            throw new InvalidOperationException("LLM configuration is missing the Azure OpenAI endpoint or deployment name.");
-
-        var version = string.IsNullOrWhiteSpace(_options.LlmApiVersion) ? "2024-07-18" : _options.LlmApiVersion;
-        var path = $"{baseUrl}/openai/deployments/{deployment}/chat/completions";
-        return string.IsNullOrWhiteSpace(version) ? path : $"{path}?api-version={version}";
     }
 
     private IReadOnlyList<ClipDefinition> ParseResponse(string? body, IReadOnlyList<TimestampedTranscript> transcript, ClipSegmentationSettings? settings, IReadOnlyList<HeuristicHit> heuristicHits)
@@ -383,10 +379,7 @@ Transcript:
         return FilterOverlaps(list);
     }
 
-
-
-
-    private string? DetermineCategory(BoundaryCandidate boundary, IReadOnlyList<HeuristicHit>? hits, int startIndex, int endIndex)
+    private static string? DetermineCategory(BoundaryCandidate boundary, IReadOnlyList<HeuristicHit>? hits, int startIndex, int endIndex)
     {
         if (!string.IsNullOrWhiteSpace(boundary.Category)) return boundary.Category;
         if (hits == null || hits.Count == 0) return null;

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace TNO.Services.AutoClipper.Config;
 
 public class StationProfile
@@ -29,6 +27,7 @@ public class StationTextProfile
     public Dictionary<string, string> KeywordCategories { get; set; } = new();
     public bool LlmSegmentation { get; set; } = true;
     public string LlmModel { get; set; } = string.Empty;
+    public float? LlmTemperature { get; set; }
     public string LlmPrompt { get; set; } = string.Empty;
     public string? SystemPrompt { get; set; }
     public bool? LlmDiarization { get; set; } = null;

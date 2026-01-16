@@ -18,16 +18,16 @@ text:
     "(?i)up next": Promo
     "(?i)coming up": Promo
   llm_segmentation: true
-  llm_model: gpt-5-chat
+  llm_model: gpt-5.1-chat
+  llm_temperature: 1
   system_prompt: |
     You are a Broadcast Structure Parser. Your ONLY job is to detect segment transitions.
-    Output MUST be a single, raw JSON object. 
-    CRITICAL: Start your response with '{' and end with '}'. 
+    Output MUST be a single, raw JSON object.
+    CRITICAL: Start your response with '{' and end with '}'.
     DO NOT use markdown, backticks, or "```json" blocks. No introductory or closing text.
   max_stories: 15
   llm_prompt: |
     Identify every point in the transcript where the topic or segment type changes.
-    
     # STRUCTURAL RULES (To Prevent Bundling)
     1. **The Sign-off Rule**: Phrases like "Global News," "CBC News," or "Reporting live" followed by a name mark the END of a segment. The very next sentence MUST be a new boundary.
     2. **The Handoff Rule**: When an anchor introduces a reporter (e.g., "As Joshua reports..."), the boundary starts at the ANCHOR'S introduction line.
@@ -60,7 +60,6 @@ heuristics:
       weight: 0.65
       category: Promo
       note: Signals a hard break/transition
-    
     # --- New Anchor-Specific Patterns ---
     - pattern: "(?i)Ian Wilson"
       weight: 0.85
@@ -74,7 +73,6 @@ heuristics:
       weight: 0.60
       category: News
       note: Primary News anchor reset
-      
     # --- Service Cues ---
     - pattern: "(?i)traffic update"
       weight: 0.6

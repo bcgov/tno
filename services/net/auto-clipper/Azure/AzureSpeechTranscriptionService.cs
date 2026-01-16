@@ -1,23 +1,19 @@
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Xml;
 using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
-using System.Globalization;
-using Microsoft.CognitiveServices.Speech;
-using Microsoft.CognitiveServices.Speech.Audio;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Services.AutoClipper.Config;
 
 namespace TNO.Services.AutoClipper.Azure;
 
+/// <summary>
+/// AzureSpeechTranscriptionService class, provides a way to send a file to Azure Speech service and get a transcription.
+/// </summary>
 public class AzureSpeechTranscriptionService : IAzureSpeechTranscriptionService
 {
     private const string DefaultApiVersion = "v3.2";
@@ -64,7 +60,7 @@ public class AzureSpeechTranscriptionService : IAzureSpeechTranscriptionService
             var transcriptJson = await DownloadTranscriptAsync(transcriptUrl, cancellationToken).ConfigureAwait(false);
             var segments = ParseTranscript(transcriptJson);
 
-            if (segments.Count == 0)
+            if (segments.Length == 0)
                 _logger.LogWarning("Azure batch transcription produced no transcript entries for {File}", filePath);
 
             return segments;
@@ -142,7 +138,7 @@ public class AzureSpeechTranscriptionService : IAzureSpeechTranscriptionService
         return EnsureApiVersion(location);
     }
 
-    private object BuildTranscriptionPayload(Uri contentUri, string fileName, SpeechTranscriptionRequest request)
+    private static object BuildTranscriptionPayload(Uri contentUri, string fileName, SpeechTranscriptionRequest request)
     {
         var properties = new Dictionary<string, object?>
         {
@@ -243,7 +239,7 @@ public class AzureSpeechTranscriptionService : IAzureSpeechTranscriptionService
         return await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    private IReadOnlyList<TimestampedTranscript> ParseTranscript(string? json)
+    private static TimestampedTranscript[] ParseTranscript(string? json)
     {
         if (string.IsNullOrWhiteSpace(json)) return Array.Empty<TimestampedTranscript>();
 

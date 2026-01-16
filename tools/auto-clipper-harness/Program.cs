@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 using System.Text.RegularExpressions;
 using System.Linq;
 using System.Text;
+=======
+using System.Text;
+using System.Text.RegularExpressions;
+>>>>>>> e41951503d8d57194e1557753932d767ad8bb60b
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Services.AutoClipper.Audio;
@@ -62,13 +67,11 @@ var options = Options.Create(new AutoClipperOptions
     AzureSpeechStorageConnectionString = RequireEnv("AUTOCLIP_HARNESS_STORAGE_CONNECTION_STRING"),
     AzureSpeechStorageContainer = RequireEnv("AUTOCLIP_HARNESS_STORAGE_CONTAINER"),
     AzureSpeechStorageSasExpiryMinutes = int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_STORAGE_SAS_MINUTES"), out var sasMinutes) ? sasMinutes : 180,
-    LlmApiUrl = RequireEnv("AUTOCLIP_HARNESS_LLM_URL"),
+    LlmApiUrl = new Uri(RequireEnv("AUTOCLIP_HARNESS_LLM_URL")),
     LlmApiKey = RequireEnv("AUTOCLIP_HARNESS_LLM_KEY"),
-    LlmDeployment = RequireEnv("AUTOCLIP_HARNESS_LLM_DEPLOYMENT"),
-    LlmApiVersion = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_LLM_VERSION") ?? "2024-07-18",
     LlmPrompt = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_PROMPT")
         ?? (string.IsNullOrWhiteSpace(stationProfile.Text.LlmPrompt) ? string.Empty : stationProfile.Text.LlmPrompt),
-    LlmMaxStories = int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_MAX_STORIES"), out var maxStories) ? maxStories : 5,
+    MaxStoriesFromClip = int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_MAX_STORIES"), out var maxStories) ? maxStories : 5,
     VolumePath = Path.GetDirectoryName(Path.GetFullPath(input)) ?? ".",
     DefaultTranscriptLanguage = stationProfile.Transcription.Language ?? "en-US"
 });
@@ -301,6 +304,10 @@ static ClipSegmentationSettings BuildSegmentationSettings(StationProfile profile
     {
         PromptOverride = string.IsNullOrWhiteSpace(profile.Text.LlmPrompt) ? null : profile.Text.LlmPrompt,
         ModelOverride = string.IsNullOrWhiteSpace(profile.Text.LlmModel) ? null : profile.Text.LlmModel,
+<<<<<<< HEAD
+=======
+        TemperatureOverride = profile.Text.LlmTemperature,
+>>>>>>> e41951503d8d57194e1557753932d767ad8bb60b
         SystemPrompt = string.IsNullOrWhiteSpace(profile.Text.SystemPrompt) ? null : profile.Text.SystemPrompt,
         PromptCharacterLimit = profile.Text.PromptCharacterLimit,
         MaxStories = profile.Text.MaxStories,

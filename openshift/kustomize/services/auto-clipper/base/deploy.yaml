@@ -133,7 +133,7 @@ spec:
                   name: services
                   key: KAFKA_BOOTSTRAP_SERVERS
 
-            # Azure Cognitive Services Configuration
+            # Azure Speech Services Configuration
             - name: Service__AzureSpeechRegion
               valueFrom:
                 secretKeyRef:
@@ -144,6 +144,16 @@ spec:
                 secretKeyRef:
                   name: azure-speech-services
                   key: AZURE_SPEECH_SERVICES_KEY
+            - name: Service__AzureSpeechStorageConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: azure-speech-services
+                  key: STORAGE_CONNECTIONSTRING
+            - name: Service__AzureSpeechStorageContainer
+              valueFrom:
+                secretKeyRef:
+                  name: azure-speech-services
+                  key: STORAGE_CONTAINER
             - name: Service__LlmApiKey
               valueFrom:
                 secretKeyRef:
@@ -171,21 +181,11 @@ spec:
                 configMapKeyRef:
                   name: auto-clipper-service
                   key: LLM_API_URL
-            - name: Service__LlmModel
+            - name: Service__LlmDefaultModel
               valueFrom:
                 configMapKeyRef:
                   name: auto-clipper-service
                   key: LLM_MODEL_NAME
-            - name: Service__LlmDeployment
-              valueFrom:
-                configMapKeyRef:
-                  name: auto-clipper-service
-                  key: LLM_DEPLOYMENT_NAME
-            - name: Service__LlmApiVersion
-              valueFrom:
-                configMapKeyRef:
-                  name: auto-clipper-service
-                  key: LLM_API_VERSION
 
             # S3 Configuration
             - name: S3__AccessKey

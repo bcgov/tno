@@ -3,6 +3,9 @@ using Microsoft.Extensions.Logging;
 
 namespace TNO.Services.AutoClipper.Audio;
 
+/// <summary>
+/// AudioNormalizer class, provides a way to normalize files to ensure we only send wav files for transcription.
+/// </summary>
 public class AudioNormalizer : IAudioNormalizer
 {
     private readonly ILogger<AudioNormalizer> _logger;
@@ -12,7 +15,15 @@ public class AudioNormalizer : IAudioNormalizer
         _logger = logger;
     }
 
-    public async Task<string> NormalizeAsync(string sourceFile, int targetSampleRate, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Create a new wav file if required.
+    /// </summary>
+    /// <param name="sourceFile"></param>
+    /// <param name="targetSampleRate"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public async Task<string> NormalizeAsync(string sourceFile, int targetSampleRate, CancellationToken? cancellationToken = default)
     {
         var directory = Path.GetDirectoryName(sourceFile) ?? ".";
         var normalizedFile = Path.Combine(directory, $"{Path.GetFileNameWithoutExtension(sourceFile)}.{targetSampleRate}hz.normalized.wav");
@@ -47,7 +58,7 @@ public class AudioNormalizer : IAudioNormalizer
         process.StartInfo.CreateNoWindow = true;
         process.Start();
         var output = await process.StandardOutput.ReadToEndAsync();
-        await process.WaitForExitAsync(cancellationToken);
+        await process.WaitForExitAsync(cancellationToken ?? default);
         if (process.ExitCode != 0)
         {
             _logger.LogError("ffmpeg normalization failed: {Output}", output);

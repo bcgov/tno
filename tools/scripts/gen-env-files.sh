@@ -569,13 +569,14 @@ Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
 Service__AzureSpeechKey={ENTER A VALID AZURE KEY}
 Service__AzureSpeechRegion=westus
 
+Service__AzureSpeechStorageConnectionString={Connection String}
+Service__AzureSpeechStorageContainer=batch-transcripts
+
 # Configure Azure OpenAI/Foundary LLM Service
 Service__LlmApiUrl=https://mmiopenai.cognitiveservices.azure.com
 Service__LlmApiKey={ENTER A VALID AZURE KEY}
-Service__LlmModel=
-Service__LlmDeployment=gpt-4o-mini
-Service__LlmPrompt=
-Service__LlmApiVersion=2025-01-01-preview" >> ./services/net/auto-clipper/.env
+Service__LlmDefaultModel=gpt-5.1-chat
+Service__LlmPrompt=" >> ./services/net/auto-clipper/.env
     echo "./services/net/auto-clipper/.env created"
 fi
 

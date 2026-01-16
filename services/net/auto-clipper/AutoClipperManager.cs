@@ -113,6 +113,7 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
 
                     if (topics.Length != 0)
                     {
+                        await GetTagsAsync();
                         this.Listener.Subscribe(topics);
                         ConsumeMessages();
                     }
@@ -132,6 +133,21 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
             // The delay ensures we don't have a run away thread.
             this.Logger.LogDebug("Service sleeping for {delay} ms", delay);
             await Task.Delay(delay);
+        }
+    }
+
+    /// <summary>
+    /// Get an array of tags from the API.
+    /// </summary>
+    /// <returns></returns>
+    private async Task GetTagsAsync()
+    {
+        // Fetch tags once for all clips from the API.
+        var tagsResponse = await this.Api.GetTagsResponseWithEtagAsync(_etag ?? "");
+        if (tagsResponse != null && tagsResponse.StatusCode == System.Net.HttpStatusCode.OK)
+        {
+            _tags = await this.Api.GetResponseDataAsync<API.Areas.Editor.Models.Tag.TagModel[]>(tagsResponse);
+            _etag = this.Api.GetResponseEtag(tagsResponse);
         }
     }
 
@@ -224,14 +240,6 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
                 var content = await this.Api.FindContentByIdAsync(request.ContentId);
                 if (content != null)
                 {
-                    // If the content was published before the specified offset, ignore it.
-                    if (!string.IsNullOrEmpty(Options.OldTnoContentTagName)
-                        && content.Tags.Any(x => x.Code.ToUpperInvariant() == Options.OldTnoContentTagName.ToUpperInvariant()))
-                    {
-                        this.Logger.LogWarning($"The content has been ignored. It was tagged as old TNO content. Key: {result.Message.Key}, Content ID: {request.ContentId}");
-                        return;
-                    }
-
                     // TODO: Handle multi-threading so that more than one transcription can be performed at a time.
                     await ProcessClipRequestAsync(request, content);
                 }
@@ -284,7 +292,7 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
     /// Clean up temp files that are downloaded from s3 or generated from downloaded s3 file
     /// </summary>
     /// <param name="files"></param>
-    private void CleanupS3Files(params string[] files)
+    private static void CleanupS3Files(params string[] files)
     {
         foreach (var file in files)
         {
@@ -335,6 +343,19 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
     }
 
     /// <summary>
+    /// Delete any files that were copied or generated.
+    /// </summary>
+    /// <param name="generatedClipFiles"></param>
+    /// <param name="isSyncedToS3"></param>
+    /// <param name="downloadedFile"></param>
+    /// <returns></returns>
+    private static async Task CleanUpFilesAsync(IEnumerable<string> generatedClipFiles, bool isSyncedToS3, string downloadedFile)
+    {
+        CleanupLocalFiles(generatedClipFiles);
+        CleanupTemporaryFiles(isSyncedToS3, downloadedFile);
+    }
+
+    /// <summary>
     /// Make a request to generate a transcription for the specified 'content'.
     /// </summary>
     /// <param name="request"></param>
@@ -345,9 +366,6 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
     {
         var requestContentId = request.ContentId;
         this.Logger.LogInformation("Auto clipper request received.  Content ID: {Id}", requestContentId);
-
-        var stationCode = content.Source?.Code ?? content.Source?.Name ?? "default";
-        var stationProfile = _stationConfiguration.GetProfile(stationCode);
 
         var contentFile = content.FileReferences.FirstOrDefault();
         var relativePath = contentFile?.Path;
@@ -369,6 +387,7 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
             }
         }
 
+        // If the file doesn't exist don't continue.
         if (!File.Exists(clipSourcePath))
         {
             this.Logger.LogError("File does not exist for content. Content ID: {Id}, Path: {Path}", requestContentId, clipSourcePath);
@@ -378,6 +397,7 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
             return;
         }
 
+        // When a work order has been cancelled don't continue.
         var workOrder = await UpdateWorkOrderAsync(request, content.IsApproved ? WorkOrderStatus.Cancelled : WorkOrderStatus.InProgress);
         var originalBody = content.Body;
         if (workOrder?.Status != WorkOrderStatus.InProgress)
@@ -386,11 +406,14 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
                 this.Logger.LogWarning("Work order has been cancelled.  Content ID: {id}", requestContentId);
             else
                 this.Logger.LogWarning("Request ignored because it does not have a work order.  Content ID: {id}", requestContentId);
-            CleanupLocalFiles(generatedClipFiles);
-            CleanupTemporaryFiles(isSyncedToS3, downloadedFile);
+            await CleanUpFilesAsync(generatedClipFiles, isSyncedToS3, downloadedFile);
             return;
         }
 
+        // Send file to Azure Speech Services for transcription.
+        // Then send transcription to Azure Open AI to extract separate stories from the transcription.
+        var stationCode = content.Source?.Code ?? content.Source?.Name ?? "default";
+        var stationProfile = _stationConfiguration.GetProfile(stationCode);
         var targetSampleRate = stationProfile.Transcription.SampleRate > 0 ? stationProfile.Transcription.SampleRate : stationProfile.SampleRate;
         var processingContext = new ClipProcessingContext(
             clipSourcePath,
@@ -399,120 +422,93 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
             targetSampleRate);
         var pipelineResult = await _processingPipeline.ExecuteAsync(processingContext, _cancelToken?.Token ?? CancellationToken.None);
         var segments = pipelineResult.Segments;
-        var clipDefinitions = pipelineResult.ClipDefinitions?.OrderBy(c => c.Start).ToArray() ?? Array.Empty<ClipDefinition>();
+        var clipDefinitions = pipelineResult.ClipDefinitions?.OrderBy(c => c.Start).ToArray() ?? [];
 
+        // If there were no segments in the transcript don't continue.
         if (segments.Count == 0)
         {
             var exception = new EmptyTranscriptException(requestContentId);
             await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed, exception);
-            CleanupLocalFiles(generatedClipFiles);
-            CleanupTemporaryFiles(isSyncedToS3, downloadedFile);
+            await CleanUpFilesAsync(generatedClipFiles, isSyncedToS3, downloadedFile);
             return;
         }
 
-        if (clipDefinitions.Length == 0)
-        {
-            clipDefinitions = new[] { new ClipDefinition("Full Program", "AutoClipper fallback", TimeSpan.Zero, segments[^1].End) };
-        }
-
+        // If the work order has been cancelled, don't continue.
         workOrder = await this.Api.FindWorkOrderAsync(workOrder.Id);
         if (workOrder?.Status == WorkOrderStatus.Cancelled)
         {
             this.Logger.LogWarning("Work order has been cancelled during processing.  Content ID: {id}", requestContentId);
-            CleanupLocalFiles(generatedClipFiles);
-            CleanupTemporaryFiles(isSyncedToS3, downloadedFile);
+            await CleanUpFilesAsync(generatedClipFiles, isSyncedToS3, downloadedFile);
             return;
         }
 
+        // If content doesn't exist, don't continue.
         content = (await this.Api.FindContentByIdAsync(requestContentId))!;
         if (content == null)
         {
             var exception = new ContentNotFoundException(requestContentId);
             await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed, exception);
-            CleanupLocalFiles(generatedClipFiles);
-            CleanupTemporaryFiles(isSyncedToS3, downloadedFile);
+            await CleanUpFilesAsync(generatedClipFiles, isSyncedToS3, downloadedFile);
             return;
         }
 
-        if (content.IsApproved)
-        {
-            this.Logger.LogWarning("Content is approved; transcription will not be updated.  Content ID: {Id}", requestContentId);
-            await UpdateWorkOrderAsync(request, WorkOrderStatus.Cancelled);
-            CleanupLocalFiles(generatedClipFiles);
-            CleanupTemporaryFiles(isSyncedToS3, downloadedFile);
-            return;
-        }
-
+        // Generate the full transcript.
         var transcriptBody = BuildTranscriptDocument(segments);
         if (!string.Equals(originalBody, content.Body, StringComparison.Ordinal))
             this.Logger.LogWarning("Transcript will be overwritten.  Content ID: {Id}", requestContentId);
 
-        content.Body = transcriptBody;
-        await this.Api.UpdateContentAsync(content);
-        this.Logger.LogInformation("Primary transcript updated.  Content ID: {Id}", requestContentId);
-
-        // Fetch tags once for all clips from the API.
-        var tagsResponse = await this.Api.GetTagsResponseWithEtagAsync(_etag ?? "");
-        if (tagsResponse != null && tagsResponse.StatusCode == System.Net.HttpStatusCode.OK)
+        // If content transcript has been approved do not update the transcript on the original story.
+        if (!content.IsApproved)
         {
-            _tags = await this.Api.GetResponseDataAsync<API.Areas.Editor.Models.Tag.TagModel[]>(tagsResponse);
-            _etag = this.Api.GetResponseEtag(tagsResponse);
+            content.Body = transcriptBody;
+            await this.Api.UpdateContentAsync(content);
+            this.Logger.LogInformation("Primary transcript updated.  Content ID: {Id}", requestContentId);
         }
 
-        var clipIndex = 1;
-        foreach (var definition in clipDefinitions)
+        // For each separate story identified, create a new story and send it to the API.
+        for (var clipIndex = 0; clipIndex < clipDefinitions.Length; clipIndex++)
         {
-            var normalized = NormalizeClipDefinition(definition, segments);
-            if (normalized == null)
-            {
-                this.Logger.LogWarning("Skipped invalid clip definition for content {Id}", requestContentId);
-                continue;
-            }
-
-            var clipTranscriptSegments = ExtractTranscriptRange(segments, normalized.Start, normalized.End);
-            if (clipTranscriptSegments.Count == 0)
-            {
-                this.Logger.LogWarning("No transcript rows found for clip {clip}", definition.Title);
-                continue;
-            }
-
-            var clipTranscript = BuildTranscriptDocument(clipTranscriptSegments);
-            if (string.IsNullOrWhiteSpace(clipTranscript))
-            {
-                this.Logger.LogWarning("Empty transcript for clip definition {clip}", definition.Title);
-                continue;
-            }
-
-            string clipPath;
             try
             {
-                clipPath = await CreateClipFileAsync(clipSourcePath, $"autoclip_{requestContentId}", normalized.Start, normalized.End);
+                var definition = clipDefinitions[clipIndex];
+                var normalized = NormalizeClipDefinition(definition, segments);
+                if (normalized == null)
+                {
+                    this.Logger.LogWarning("Skipped invalid clip definition for content {Id}", requestContentId);
+                    continue;
+                }
+
+                var clipTranscriptSegments = ExtractTranscriptRange(segments, normalized.Start, normalized.End);
+                if (clipTranscriptSegments.Length == 0)
+                {
+                    this.Logger.LogWarning("No transcript rows found for clip {clip}", definition.Title);
+                    continue;
+                }
+
+                var clipTranscript = BuildTranscriptDocument(clipTranscriptSegments);
+                if (string.IsNullOrWhiteSpace(clipTranscript))
+                {
+                    this.Logger.LogWarning("Empty transcript for clip definition {clip}", definition.Title);
+                    continue;
+                }
+
+                var clipPath = await CreateClipFileAsync(clipSourcePath, $"autoclip_{requestContentId}", normalized.Start, normalized.End);
                 generatedClipFiles.Add(clipPath);
+
+                await CreateClipContentAsync(content, normalized, clipTranscript, clipPath, clipIndex);
             }
             catch (Exception ex)
             {
                 this.Logger.LogError(ex, "Failed to generate clip media for content {Id}", requestContentId);
                 continue;
             }
-
-            try
-            {
-                await CreateClipContentAsync(content, normalized, clipTranscript, clipPath, clipIndex);
-            }
-            catch (Exception ex)
-            {
-                this.Logger.LogError(ex, "Failed to create clip content for content {Id}", requestContentId);
-            }
-
-            clipIndex++;
         }
 
         await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
-        CleanupLocalFiles(generatedClipFiles);
-        CleanupTemporaryFiles(isSyncedToS3, downloadedFile);
+        await CleanUpFilesAsync(generatedClipFiles, isSyncedToS3, downloadedFile);
     }
 
-    private ClipDefinition? NormalizeClipDefinition(ClipDefinition definition, IReadOnlyList<TimestampedTranscript> segments)
+    private static ClipDefinition? NormalizeClipDefinition(ClipDefinition definition, IReadOnlyList<TimestampedTranscript> segments)
     {
         if (segments.Count == 0) return null;
         var maxEnd = segments[^1].End;
@@ -530,12 +526,12 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         return definition with { Start = start, End = end };
     }
 
-    private IReadOnlyList<TimestampedTranscript> ExtractTranscriptRange(IReadOnlyList<TimestampedTranscript> segments, TimeSpan start, TimeSpan end)
+    private static TimestampedTranscript[] ExtractTranscriptRange(IReadOnlyList<TimestampedTranscript> segments, TimeSpan start, TimeSpan end)
     {
-        return segments.Where(s => s.End > start && s.Start < end).ToArray();
+        return [.. segments.Where(s => s.End > start && s.Start < end)];
     }
 
-    private async Task<string> CreateClipFileAsync(string srcFile, string outputPrefix, TimeSpan start, TimeSpan end)
+    private static async Task<string> CreateClipFileAsync(string srcFile, string outputPrefix, TimeSpan start, TimeSpan end)
     {
         var directory = Path.GetDirectoryName(srcFile) ?? Path.GetTempPath();
         var ext = Path.GetExtension(srcFile);
@@ -567,7 +563,7 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
 
     private async Task CreateClipContentAsync(ContentModel parentContent, ClipDefinition definition, string transcriptBody, string clipPath, int clipIndex)
     {
-        var clipContent = await BuildClipContentModelAsync(parentContent, definition, transcriptBody, clipIndex);
+        var clipContent = BuildClipContentModel(parentContent, definition, transcriptBody, clipIndex);
         var created = await this.Api.AddContentAsync(clipContent);
         if (created == null) return;
 
@@ -576,7 +572,7 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         this.Logger.LogInformation("Clip content created. Parent Content: {ParentId}, Clip Content: {ClipId}", parentContent.Id, created?.Id);
     }
 
-    private async Task<ContentModel> BuildClipContentModelAsync(ContentModel sourceContent, ClipDefinition definition, string transcriptBody, int clipIndex)
+    private ContentModel BuildClipContentModel(ContentModel sourceContent, ClipDefinition definition, string transcriptBody, int clipIndex)
     {
         var clipSummary = string.IsNullOrWhiteSpace(definition.Summary)
             ? $"Clip covering {FormatTimestamp(definition.Start)} to {FormatTimestamp(definition.End)}"
@@ -615,12 +611,12 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         };
     }
 
-    private void CleanupLocalFiles(IEnumerable<string> files)
+    private static void CleanupLocalFiles(IEnumerable<string> files)
     {
         CleanupS3Files(files.Where(f => !string.IsNullOrWhiteSpace(f)).ToArray());
     }
 
-    private void CleanupTemporaryFiles(bool isSyncedToS3, params string[] files)
+    private static void CleanupTemporaryFiles(bool isSyncedToS3, params string[] files)
     {
         if (!isSyncedToS3) return;
         CleanupS3Files(files);
@@ -682,20 +678,6 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         }
         return null;
     }
-
-    /// <summary>
-    /// Stream the audio file to Azure and return the speech to text output.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="data"></param>
-    /// <param name="language"></param>
-    /// <returns></returns>
-    /// <summary>
-    /// video to audio
-    /// </summary>
-    /// <param name="srcFile">source file path</param>
-    /// <param name="destFile">destination file path</param>
-    /// <returns>destination file name</returns>
     #endregion
 }
 

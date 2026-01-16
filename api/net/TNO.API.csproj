@@ -16,12 +16,17 @@
     <PackageReference Include="Microsoft.AspnetCore.Authentication.jwtBearer" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.1.0" />
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.2.1" />
-    <!-- <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.1" /> -->
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.0.0" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="8.2.1" />
     <PackageReference Include="FTTLib.dll" Version="1.1.7" />
     <PackageReference Include="SSH.NET" Version="2024.2.0" />
 
+    <!-- Force latest to remove warnings -->
+    <PackageReference Include="System.Formats.Asn1" Version="10.0.1" />
+
+    <!-- Force removal of old ASP.NET Core 2.2 packages -->
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Core" Version="2.3.6" ExcludeAssets="All" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.3.0" ExcludeAssets="All" />
   </ItemGroup>
 
   <ItemGroup>

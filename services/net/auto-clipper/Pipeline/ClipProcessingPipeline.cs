@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Linq;
 using TNO.Services.AutoClipper.Audio;
 using TNO.Services.AutoClipper.Azure;
 using TNO.Services.AutoClipper.Config;
@@ -53,12 +52,13 @@ public class ClipProcessingPipeline
         return new ClipProcessingResult(normalizedPath, language, segments, clipDefinitions, segmentationSettings);
     }
 
-    private ClipSegmentationSettings BuildSegmentationSettings(StationProfile profile)
+    private static ClipSegmentationSettings BuildSegmentationSettings(StationProfile profile)
     {
         return new ClipSegmentationSettings
         {
             PromptOverride = string.IsNullOrWhiteSpace(profile.Text.LlmPrompt) ? null : profile.Text.LlmPrompt,
             ModelOverride = string.IsNullOrWhiteSpace(profile.Text.LlmModel) ? null : profile.Text.LlmModel,
+            TemperatureOverride = profile.Text.LlmTemperature,
             SystemPrompt = string.IsNullOrWhiteSpace(profile.Text.SystemPrompt) ? null : profile.Text.SystemPrompt,
             PromptCharacterLimit = profile.Text.PromptCharacterLimit,
             MaxStories = profile.Text.MaxStories,
