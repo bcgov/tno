@@ -148,6 +148,29 @@ public class WorkOrderController : ControllerBase
     }
 
     /// <summary>
+    /// Request an auto clip for the content for the specified 'contentId'.
+    /// Publish message to kafka to request an auto clip.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    [HttpPost("auto-clip/{contentId}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(WorkOrderMessageModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "WorkOrder" })]
+    public async Task<IActionResult> RequestAutoClipAsync(long contentId)
+    {
+        var workOrder = await _workOrderHelper.RequestAutoClipAsync(contentId, true);
+        if (workOrder.Status != WorkOrderStatus.Submitted)
+            return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions))
+            {
+                StatusCode = (int)HttpStatusCode.AlreadyReported
+            };
+
+        return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions));
+    }
+
+    /// <summary>
     /// Request a Natural Language Processing for the content for the specified 'contentId'.
     /// Publish message to kafka to request a NLP.
     /// </summary>

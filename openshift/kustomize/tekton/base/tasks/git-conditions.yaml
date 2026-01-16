@@ -177,6 +177,7 @@ spec:
         build_service 'scheduler'
         build_service 'syndication'
         build_service 'transcription'
+        build_service 'auto-clipper'
 
         echo "Build the following component."
         cat build.env | xargs echo

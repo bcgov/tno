@@ -18,4 +18,9 @@ export enum WorkOrderType {
   /// A request for content to be sent for FFmpeg actions.
   /// </summary>
   FFmpeg = 3,
+
+  /// <summary>
+  /// A request for content to be sent for auto clipping and transcription.
+  /// </summary>
+  AutoClip = 4,
 }

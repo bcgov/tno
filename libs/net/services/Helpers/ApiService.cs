@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 using FTTLib;
 using Microsoft.AspNetCore.WebUtilities;
@@ -246,6 +245,14 @@ public class ApiService : IApiService
     public async Task<HttpResponseMessage> GetLookupsResponseWithEtagAsync(string etag)
     {
         var url = this.Options.ApiUrl.Append($"editor/lookups");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url, etag));
+    }
+    #endregion
+
+    #region Tags
+    public async Task<HttpResponseMessage> GetTagsResponseWithEtagAsync(string etag)
+    {
+        var url = this.Options.ApiUrl.Append($"editor/tags");
         return await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url, etag));
     }
     #endregion

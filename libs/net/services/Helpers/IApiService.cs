@@ -75,6 +75,10 @@ public interface IApiService
     public Task<HttpResponseMessage> GetLookupsResponseWithEtagAsync(string etag);
     #endregion
 
+    #region Tags
+    Task<HttpResponseMessage> GetTagsResponseWithEtagAsync(string etag);
+    #endregion
+
     #region Sources
     /// <summary>
     /// Make a request to the API to fetch all sources.

@@ -13,7 +13,7 @@ export interface ITranscriptionStatusProps {
   /** An array of work orders. */
   workOrders: IWorkOrderModel[] | undefined;
   /** The type of work order. */
-  type: WorkOrderTypeName;
+  type: WorkOrderTypeName[] | WorkOrderTypeName;
 }
 
 /**

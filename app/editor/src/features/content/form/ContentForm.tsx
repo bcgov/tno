@@ -86,6 +86,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
     handlePublish,
     handleUnpublish,
     handleTranscribe,
+    handleAutoClip,
     handleNLP,
     goToNext,
     file,
@@ -105,6 +106,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
   const { id } = useParams();
   const { isShowing: showDeleteModal, toggle: toggleDelete } = useModal();
   const { isShowing: showTranscribeModal, toggle: toggleTranscribe } = useModal();
+  const { isShowing: showAutoClipModal, toggle: toggleAutoClip } = useModal();
   const { isShowing: showNLPModal, toggle: toggleNLP } = useModal();
 
   const refForm = React.useRef<HTMLDivElement>(null);
@@ -842,7 +844,10 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                   <Row alignItems="center" gap="0.25rem">
                                     <WorkOrderStatus
                                       workOrders={form.workOrders}
-                                      type={WorkOrderTypeName.Transcription}
+                                      type={[
+                                        WorkOrderTypeName.Transcription,
+                                        WorkOrderTypeName.AutoClip,
+                                      ]}
                                     />
                                     <span>Transcript</span>
                                     <Show visible={!!props.values.body}>
@@ -1073,7 +1078,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                               onClick={() =>
                                 isWorkOrderStatus(
                                   form.workOrders,
-                                  WorkOrderTypeName.Transcription,
+                                  [WorkOrderTypeName.Transcription, WorkOrderTypeName.AutoClip],
                                   [WorkOrderStatusName.Completed],
                                 )
                                   ? toggleTranscribe()
@@ -1089,6 +1094,27 @@ const ContentForm: React.FC<IContentFormProps> = ({
                               }
                             >
                               Transcribe
+                            </Button>
+                            <Button
+                              onClick={() =>
+                                isWorkOrderStatus(
+                                  form.workOrders,
+                                  [WorkOrderTypeName.Transcription, WorkOrderTypeName.AutoClip],
+                                  [WorkOrderStatusName.Completed],
+                                )
+                                  ? toggleAutoClip()
+                                  : handleAutoClip(props.values, props)
+                              }
+                              variant={ButtonVariant.action}
+                              disabled={
+                                props.values.isApproved ||
+                                props.isSubmitting ||
+                                !props.values.fileReferences.length ||
+                                (props.values.fileReferences.length > 0 &&
+                                  !props.values.fileReferences[0].isUploaded)
+                              }
+                            >
+                              Clip
                             </Button>
                           </Show>
                           <Show
@@ -1156,6 +1182,21 @@ const ContentForm: React.FC<IContentFormProps> = ({
                         await handleTranscribe(props.values, props);
                       } finally {
                         toggleTranscribe();
+                      }
+                    }}
+                  />
+                  <Modal
+                    headerText="Confirm Auto Clip Request"
+                    body="Content has already been auto clipped, do you want to auto clip again?"
+                    isShowing={showAutoClipModal}
+                    hide={toggleAutoClip}
+                    type="default"
+                    confirmText="Yes, auto clip"
+                    onConfirm={async () => {
+                      try {
+                        await handleAutoClip(props.values, props);
+                      } finally {
+                        toggleAutoClip();
                       }
                     }}
                   />
