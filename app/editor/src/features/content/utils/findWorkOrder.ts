@@ -8,7 +8,10 @@ import { IWorkOrderModel, WorkOrderTypeName } from 'tno-core';
  */
 export const findWorkOrder = (
   workOrders: IWorkOrderModel[] | undefined,
-  type: WorkOrderTypeName,
+  type: WorkOrderTypeName | WorkOrderTypeName[],
 ) => {
+  if (Array.isArray(type)) {
+    return workOrders?.find((i) => type.includes(i.workType));
+  }
   return workOrders?.find((i) => i.workType === type);
 };

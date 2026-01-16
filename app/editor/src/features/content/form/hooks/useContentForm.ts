@@ -51,7 +51,7 @@ export const useContentForm = ({
       stream: getStream,
     },
   ] = useContent();
-  const [, { findWorkOrders, transcribe, nlp, ffmpeg }] = useWorkOrders();
+  const [, { findWorkOrders, transcribe, autoClip, nlp, ffmpeg }] = useWorkOrders();
   const [{ series }, { getSeries }] = useLookupOptions();
   const [{ settings }] = useLookup();
 
@@ -370,6 +370,28 @@ export const useContentForm = ({
     [form.workOrders, handleSubmit, transcribe],
   );
 
+  const handleAutoClip = React.useCallback(
+    async (values: IContentForm, formikHelpers: FormikHelpers<IContentForm>) => {
+      try {
+        // TODO: Only save when required.
+        // Save before submitting request.
+        const content = await handleSubmit(values, formikHelpers);
+        const response = await autoClip(toModel(values));
+        setForm({ ...content, workOrders: [response.data, ...form.workOrders] });
+
+        if (response.status === 200) toast.success('An auto clip has been requested');
+        else if (response.status === 208) {
+          if (response.data.status === WorkOrderStatusName.Completed)
+            toast.warn('Content has already been auto clipped');
+          else toast.warn(`An active request for auto clipping already exists`);
+        }
+      } catch {
+        // Ignore this failure it is handled by our global ajax requests.
+      }
+    },
+    [form.workOrders, handleSubmit, autoClip],
+  );
+
   const handleNLP = React.useCallback(
     async (values: IContentForm, formikHelpers: FormikHelpers<IContentForm>) => {
       try {
@@ -434,6 +456,7 @@ export const useContentForm = ({
     handlePublish,
     handleUnpublish,
     handleTranscribe,
+    handleAutoClip,
     handleNLP,
     handleFFmpeg,
     goToNext,

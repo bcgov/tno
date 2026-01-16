@@ -1,0 +1,42 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: 9b301c-prod
+
+resources:
+  - ../../base
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+secretGenerator:
+  - name: azure-speech-services
+    type: stringData
+    env: azure.env
+  - name: azure-openai
+    type: stringData
+    env: openai.env
+
+patches:
+  - target:
+      kind: Deployment
+      name: auto-clipper-service
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 6
+      - op: replace
+        path: /metadata/annotations/image.openshift.io~1triggers
+        value: '[{"from": {"kind": "ImageStreamTag", "name": "auto-clipper-service:prod", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"transcription-service\")].image"}]'
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: 20m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: 80Mi
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: 50m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: 2Gi

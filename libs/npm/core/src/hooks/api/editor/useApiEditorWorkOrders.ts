@@ -36,6 +36,11 @@ export const useApiEditorWorkOrders = (
         `/editor/work/orders/transcribe/${content.id}`,
       );
     },
+    autoClip: (content: IContentModel) => {
+      return api.post<never, AxiosResponse<IWorkOrderModel>, any>(
+        `/editor/work/orders/auto-clip/${content.id}`,
+      );
+    },
     nlp: (content: IContentModel) => {
       return api.post<never, AxiosResponse<IWorkOrderModel>, any>(
         `/editor/work/orders/nlp/${content.id}`,

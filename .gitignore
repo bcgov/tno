@@ -19,6 +19,9 @@ auth/keycloak/config/*.log
 /services/net/image/keys
 /services/net/image/data
 
+**/[Bb]in/
+**/[Oo]bj/
+
 # TLS certificates - managed separately, not in git
 openshift/kustomize/.tls-certs/*.crt
 openshift/kustomize/.tls-certs/*.key

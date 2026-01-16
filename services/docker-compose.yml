@@ -13,10 +13,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 250M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
     env_file:
       - services/net/syndication/.env
@@ -47,10 +47,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 250M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
     env_file:
       - services/net/fileupload/.env
@@ -81,10 +81,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 250M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
     env_file:
       - services/net/image/.env
@@ -117,10 +117,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 500M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
     env_file:
       - services/net/filemonitor/.env
@@ -153,10 +153,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 250M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
     env_file:
       - services/net/content/.env
@@ -189,10 +189,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 250M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
     env_file:
       - services/net/contentmigration/.env
@@ -226,10 +226,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 250M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
     env_file:
       - services/net/indexing/.env
@@ -261,15 +261,51 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 250M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
     env_file:
       - services/net/transcription/.env
     ports:
       - ${TRANSCRIPTION_PORT:-40027}:8081
+    depends_on:
+      - api
+      - broker
+    networks:
+      - tno
+    volumes:
+      - tno-api-data:/data
+    healthcheck:
+      test: curl -s -f http://localhost:8081/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  auto-clipper:
+    image: tno:auto-clipper
+    profiles:
+      - all
+      - service
+    restart: "no"
+    container_name: tno-auto-clipper
+    build:
+      context: ./
+      dockerfile: services/net/auto-clipper/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 250M
+        reservations:
+          cpus: "0.05"
+          memory: 50M
+    env_file:
+      - services/net/auto-clipper/.env
+    ports:
+      - ${AUTO_CLIPPER_PORT:-40029}:8081
     depends_on:
       - api
       - broker
@@ -297,10 +333,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 250M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
     env_file:
       - services/net/nlp/.env
@@ -331,10 +367,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 250M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
     env_file:
       - services/net/notification/.env
@@ -367,10 +403,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 250M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
     env_file:
       - services/net/reporting/.env
@@ -403,10 +439,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 250M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
     env_file:
       - services/net/folder-collection/.env
@@ -424,7 +460,6 @@ services:
       retries: 3
       start_period: 30s
 
-
   extract-quotes:
     image: tno:extract-quotes
     profiles:
@@ -438,10 +473,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 250M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
     env_file:
       - services/net/extract-quotes/.env
@@ -466,10 +501,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
+          cpus: "1"
           memory: 2G
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 100M
     env_file:
       - services/net/ffmpeg/.env
@@ -502,10 +537,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 250M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
     env_file:
       - services/net/scheduler/.env
@@ -536,10 +571,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 250M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
     env_file:
       - services/net/event-handler/.env

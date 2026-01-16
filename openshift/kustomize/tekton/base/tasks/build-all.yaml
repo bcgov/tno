@@ -242,6 +242,13 @@ spec:
           [dockerfile]="/tools/elastic/migration/Dockerfile"
         )
 
+        declare -A COMPONENT21=(
+          [id]="auto-clipper"
+          [image]="auto-clipper-service"
+          [context]=""
+          [dockerfile]="/services/net/auto-clipper/Dockerfile"
+        )
+
         declare -n component;
 
         # Loop through each component and build if required.
