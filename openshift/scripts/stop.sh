@@ -19,8 +19,9 @@ scale () {
 scale nginx 0 deployment $env
 scale editor 0 deployment $env
 scale subscriber 0 deployment $env
+scale nginx-editor 0 deployment $env
+scale nginx-subscriber 0 deployment $env
 scale charts-api 0 deployment $env
-scale api-services 0 deployment $env
 scale corenlp 0 deployment $env
 scale nlp-service 0 deployment $env
 scale ffmpeg-service 0 deployment $env
@@ -35,6 +36,7 @@ scale event-handler-service 0 deployment $env
 scale notification-service 0 deployment $env
 scale reporting-service 0 deployment $env
 scale ches-retry-service 0 deployment $env
+scale auto-clipper-service 0 deployment $env
 
 # Kafka Consumers - Single-Instance (4 services)
 scale scheduler-service 0 deployment $env
@@ -42,12 +44,12 @@ scale filemonitor-service 0 deployment $env
 scale syndication-service 0 deployment $env
 scale image-service 0 deployment $env
 
+scale api-services 0 deployment $env
+scale api 0 statefulset $env
+
 # Supporting Services (4 services - oracle not in dev)
 # scale oracle 0 deployment $env  # Not deployed in dev
-scale psql 0 deployment $env
-scale kowl 0 deployment $env
-scale nginx-editor 0 deployment $env
-scale nginx-subscriber 0 deployment $env
+# scale kowl 0 deployment $env
 
 # Services not currently deployed (commented out for future use)
 # scale filecopy-service 0 deployment $env
