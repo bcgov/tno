@@ -16,15 +16,17 @@ scale () {
 # Start everything (25 services total - oracle not in dev)
 
 # Stateless Services (10 services)
+scale api 2 statefulset $env
+scale api-services 1 deployment $env
+
+# Wait until API is running
+oc rollout status statefulset/api --timeout=10m -n 9b301c-$env
+oc rollout status deployment/api-services --timeout=10m -n 9b301c-$env
+
 scale nginx 1 deployment $env
 scale editor 1 deployment $env
 scale subscriber 1 deployment $env
 scale charts-api 1 deployment $env
-if [[ "$env" == "dev" ]]; then
-  scale api-services 1 deployment $env
-else
-  scale api-services 2 deployment $env
-fi
 scale corenlp 1 deployment $env
 scale nlp-service 1 deployment $env
 scale ffmpeg-service 1 deployment $env
@@ -48,8 +50,7 @@ scale image-service 1 deployment $env
 
 # Supporting Services (4 services - oracle not in dev)
 # scale oracle 1 deployment $env  # Not deployed in dev
-scale psql 1 deployment $env
-scale kowl 1 deployment $env
+# scale kowl 1 deployment $env
 scale nginx-editor 1 deployment $env
 scale nginx-subscriber 1 deployment $env
 
