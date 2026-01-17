@@ -33,7 +33,10 @@ scale () {
 podsNginx=$(getPods nginx deployment $env)
 podsEditor=$(getPods editor deployment $env)
 podsSubscriber=$(getPods subscriber deployment $env)
+podsNginxEditor=$(getPods nginx-editor deployment $env)
+podsNginxSubscriber=$(getPods nginx-subscriber deployment $env)
 podsCharts=$(getPods charts-api deployment $env)
+podsApi=$(getPods api statefulset $env)
 podsApiServices=$(getPods api-services deployment $env)
 podsCorenlp=$(getPods corenlp deployment $env)
 podsNLP=$(getPods nlp-service deployment $env)
@@ -49,6 +52,7 @@ podsEventHandler=$(getPods event-handler-service deployment $env)
 podsNotification=$(getPods notification-service deployment $env)
 podsReporting=$(getPods reporting-service deployment $env)
 podsChesRetry=$(getPods ches-retry-service deployment $env)
+podsAutoClipper=$(getPods auto-clipper-service deployment $env)
 
 # Kafka Consumers - Single-Instance (4 services)
 podsScheduler=$(getPods scheduler-service deployment $env)
@@ -56,12 +60,8 @@ podsFileMonitor=$(getPods filemonitor-service deployment $env)
 podsSyndication=$(getPods syndication-service deployment $env)
 podsImage=$(getPods image-service deployment $env)
 
-# Supporting Services (4 services - oracle not in dev)
-# podsOracle=$(getPods oracle deployment $env)  # Not deployed in dev
-podsPsql=$(getPods psql deployment $env)
+# Supporting Services
 podsKowl=$(getPods kowl deployment $env)
-podsNginxEditor=$(getPods nginx-editor deployment $env)
-podsNginxSubscriber=$(getPods nginx-subscriber deployment $env)
 
 # Removed/Not Currently Deployed
 # podsFilecopy=$(getPods filecopy-service deployment $env)
@@ -95,15 +95,13 @@ oc tag event-handler-service:$tag event-handler-service:$env
 oc tag notification-service:$tag notification-service:$env
 oc tag reporting-service:$tag reporting-service:$env
 oc tag ches-retry-service:$tag ches-retry-service:$env
+oc tag auto-clipper-service:$tag auto-clipper-service:$env
 
 # Kafka Consumers (Single-Instance)
 oc tag scheduler-service:$tag scheduler-service:$env
 oc tag filemonitor-service:$tag filemonitor-service:$env
 oc tag syndication-service:$tag syndication-service:$env
 oc tag image-service:$tag image-service:$env
-
-# Supporting Services (no image tagging needed - use specific versions)
-# oracle, psql, kowl, nginx-editor, nginx-subscriber
 
 # Removed/Not Currently Deployed
 # oc tag filecopy-service:$tag filecopy-service:$env
@@ -115,11 +113,19 @@ oc tag image-service:$tag image-service:$env
 echo "Scaling services back to original replica counts"
 
 # Stateless Services
+scale api $podsApi statefulset $env
+scale api-services $podsApiServices deployment $env
+
+# Wait until the API is running
+oc rollout status statefulset/api --timeout=10m -n 9b301c-$env
+oc rollout status deployment/api-services --timeout=10m -n 9b301c-$env
+
 scale nginx $podsNginx deployment $env
 scale editor $podsEditor deployment $env
 scale subscriber $podsSubscriber deployment $env
+scale nginx-editor $podsNginxEditor deployment $env
+scale nginx-subscriber $podsNginxSubscriber deployment $env
 scale charts-api $podsCharts deployment $env
-scale api-services $podsApiServices deployment $env
 scale corenlp $podsCorenlp deployment $env
 scale nlp-service $podsNLP deployment $env
 scale ffmpeg-service $podsFFmpeg deployment $env
@@ -134,6 +140,7 @@ scale event-handler-service $podsEventHandler deployment $env
 scale notification-service $podsNotification deployment $env
 scale reporting-service $podsReporting deployment $env
 scale ches-retry-service $podsChesRetry deployment $env
+scale auto-clipper-service $podsAutoClipper deployment $env
 
 # Kafka Consumers (Single-Instance)
 scale scheduler-service $podsScheduler deployment $env
@@ -143,10 +150,7 @@ scale image-service $podsImage deployment $env
 
 # Supporting Services
 # scale oracle $podsOracle deployment $env  # Not deployed in dev
-scale psql $podsPsql deployment $env
 scale kowl $podsKowl deployment $env
-scale nginx-editor $podsNginxEditor deployment $env
-scale nginx-subscriber $podsNginxSubscriber deployment $env
 
 # Removed/Not Currently Deployed
 # scale filecopy-service $podsFilecopy deployment $env
