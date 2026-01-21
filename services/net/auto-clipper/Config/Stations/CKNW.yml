@@ -19,7 +19,7 @@ text:
     "(?i)coming up": Promo
   llm_segmentation: true
   llm_model: gpt-5.1-chat
-  llm_temperature: 0.0 # Set to 0.0 for deterministic JSON and stable indices.
+  llm_temperature: 0 # Set to 0.0 for deterministic JSON and stable indices.
   system_prompt: |
     You are a Broadcast Structure Parser. Your ONLY job is to detect segment transitions.
     Output MUST be a single, raw JSON object. 
@@ -62,7 +62,6 @@ text:
     {{transcript}}
 heuristics:
   pattern_entries:
-    # --- Existing Patterns ---
     - pattern: "(?i)coming up"
       weight: 0.65
       category: Promo
@@ -71,7 +70,6 @@ heuristics:
       weight: 0.65
       category: Promo
       note: Signals a hard break/transition
-    # --- New Anchor-Specific Patterns ---
     - pattern: "(?i)Ian Wilson"
       weight: 0.85
       category: Traffic
@@ -84,7 +82,6 @@ heuristics:
       weight: 0.60
       category: News
       note: Primary News anchor reset
-    # --- Service Cues ---
     - pattern: "(?i)traffic update"
       weight: 0.6
       category: Traffic
