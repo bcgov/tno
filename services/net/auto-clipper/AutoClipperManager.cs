@@ -586,6 +586,9 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         var clipTime = sourceContent.PublishedOn?.Add(definition.Start);
         var timePrefix = clipTime?.ToString("HH:mm");
         var clipTitle = FormatClipTitle(definition.Title);
+        var categoryLabel = FormatClipCategory(definition.Category);
+        var headlineCore = string.IsNullOrEmpty(timePrefix) ? clipTitle : $"{timePrefix} - {clipTitle}";
+        var headline = string.IsNullOrEmpty(categoryLabel) ? headlineCore : $"[{categoryLabel}] {headlineCore}";
 
         return new ContentModel
         {
@@ -603,7 +606,7 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
             Byline = sourceContent.Byline,
             Status = ContentStatus.Draft,
             Uid = BaseService.GetContentHash(sourceContent.Source?.Code ?? "AutoClipper", $"{sourceContent.Uid}-clip-{clipIndex}", sourceContent.PublishedOn),
-            Headline = string.IsNullOrEmpty(timePrefix) ? clipTitle : $"{timePrefix} - {clipTitle}",
+            Headline = headline,
             Summary = $"[AutoClipper:{definition.Category}]\n{clipSummary}",
             Body = transcriptBody,
             SourceUrl = sourceContent.SourceUrl,
@@ -662,6 +665,12 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         normalized = CamelCaseBoundaryRegex.Replace(normalized, " ");
         normalized = Regex.Replace(normalized, "\\s+", " ").Trim();
         return normalized;
+    }
+
+    private static string FormatClipCategory(string? category)
+    {
+        if (string.IsNullOrWhiteSpace(category)) return string.Empty;
+        return Regex.Replace(category.Trim(), "\\s+", " ");
     }
 
     private static string FormatTimestamp(TimeSpan value)
