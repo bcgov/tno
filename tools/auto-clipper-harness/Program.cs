@@ -1,4 +1,5 @@
 using System.Text;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -38,7 +39,6 @@ var stationConfigPath = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_STA
 var stationOptions = Options.Create(new AutoClipperOptions { StationConfigPath = stationConfigPath });
 var stationConfiguration = new StationConfigurationService(stationOptions, loggerFactory.CreateLogger<StationConfigurationService>());
 var stationProfile = stationConfiguration.GetProfile(stationCode);
-
 var language = args.Length > 1
     ? args[1]
     : Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_LANGUAGE")
@@ -46,9 +46,18 @@ var language = args.Length > 1
 var sampleRate = int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_SAMPLE_RATE"), out var sr)
     ? sr
     : (stationProfile.Transcription.SampleRate > 0 ? stationProfile.Transcription.SampleRate : 16000);
-
 var audioNormalizer = new AudioNormalizer(loggerFactory.CreateLogger<AudioNormalizer>());
 var workingFile = await audioNormalizer.NormalizeAsync(input, sampleRate);
+var llmBaseUrl = RequireEnv("AUTOCLIP_HARNESS_LLM_URL").Trim();
+var llmDeployment = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_LLM_DEPLOYMENT");
+var llmVersion = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_LLM_VERSION") ?? "2024-07-18";
+var llmModel = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_LLM_MODEL");
+var llmEndpoint = BuildLlmEndpointUri(llmBaseUrl, llmDeployment, llmVersion);
+var defaultModel = string.IsNullOrWhiteSpace(llmModel)
+    ? (!string.IsNullOrWhiteSpace(llmDeployment) ? llmDeployment : "gpt-4o-mini")
+    : llmModel;
+
+
 
 var options = Options.Create(new AutoClipperOptions
 {
@@ -60,21 +69,21 @@ var options = Options.Create(new AutoClipperOptions
     AzureSpeechBatchTimeoutMinutes = int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_BATCH_TIMEOUT_MINUTES"), out var batchTimeoutMinutes) ? batchTimeoutMinutes : 45,
     AzureSpeechStorageConnectionString = RequireEnv("AUTOCLIP_HARNESS_STORAGE_CONNECTION_STRING"),
     AzureSpeechStorageContainer = RequireEnv("AUTOCLIP_HARNESS_STORAGE_CONTAINER"),
-    AzureSpeechStorageSasExpiryMinutes = int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_STORAGE_SAS_MINUTES"), out var sasMinutes) ? sasMinutes : 180,
-    LlmApiUrl = new Uri(RequireEnv("AUTOCLIP_HARNESS_LLM_URL")),
+    AzureSpeechStorageSasExpiryMinutes = int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_STORAGE_SAS_MINUTES"), out var sasMinutes) ? sasMinutes : 180,    LlmApiUrl = llmEndpoint,
+
     LlmApiKey = RequireEnv("AUTOCLIP_HARNESS_LLM_KEY"),
+
+    LlmDefaultModel = defaultModel,
     LlmPrompt = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_PROMPT")
         ?? (string.IsNullOrWhiteSpace(stationProfile.Text.LlmPrompt) ? string.Empty : stationProfile.Text.LlmPrompt),
     MaxStoriesFromClip = int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_MAX_STORIES"), out var maxStories) ? maxStories : 5,
     VolumePath = Path.GetDirectoryName(Path.GetFullPath(input)) ?? ".",
     DefaultTranscriptLanguage = stationProfile.Transcription.Language ?? "en-US"
 });
-
 var speechLogger = loggerFactory.CreateLogger<AzureSpeechTranscriptionService>();
 var llmLogger = loggerFactory.CreateLogger<ClipSegmentationService>();
 var speechService = new AzureSpeechTranscriptionService(new HttpClient(), options, speechLogger);
 var llmService = new ClipSegmentationService(new HttpClient(), options, llmLogger);
-
 var transcriptionRequest = new SpeechTranscriptionRequest
 {
     Language = language,
@@ -86,12 +95,10 @@ var transcriptionRequest = new SpeechTranscriptionRequest
 Console.WriteLine($"[HARNESS] Transcribing {workingFile} ...");
 var segments = await speechService.TranscribeAsync(workingFile, transcriptionRequest, CancellationToken.None);
 Console.WriteLine($"[HARNESS] Received {segments.Count} transcript segments");
-
 var fullTranscriptBody = BuildTranscriptDocument(segments);
 var fullTranscriptPath = Path.Combine(outputDir, "transcript_full.txt");
 await File.WriteAllTextAsync(fullTranscriptPath, fullTranscriptBody ?? string.Empty);
 Console.WriteLine($"[HARNESS] Full transcript -> {fullTranscriptPath}");
-
 var segmentationSettings = BuildSegmentationSettings(stationProfile);
 Console.WriteLine("[HARNESS] Asking LLM for clip definitions ...");
 var promptDebugPath = Path.Combine(outputDir, "llm_prompt_debug.txt");
@@ -101,7 +108,6 @@ var clipDefinitions = (await llmService.GenerateClipsAsync(segments, segmentatio
     .OrderBy(c => c.Start)
     .ToArray();
 Console.WriteLine($"[HARNESS] LLM returned {clipDefinitions.Length} clip candidates");
-
 var index = 1;
 foreach (var definition in clipDefinitions)
 {
@@ -292,6 +298,19 @@ static bool IsWindows() => OperatingSystem.IsWindows();
 
 
 
+
+static Uri BuildLlmEndpointUri(string baseUrl, string? deployment, string apiVersion)
+{
+    if (string.IsNullOrWhiteSpace(baseUrl))
+        throw new InvalidOperationException("AUTOCLIP_HARNESS_LLM_URL must be set.");
+    if (baseUrl.Contains("/chat/completions", StringComparison.OrdinalIgnoreCase))
+        return new Uri(baseUrl);
+    if (string.IsNullOrWhiteSpace(deployment))
+        throw new InvalidOperationException("AUTOCLIP_HARNESS_LLM_DEPLOYMENT must be set when using a base LLM URL.");
+    var version = string.IsNullOrWhiteSpace(apiVersion) ? "2024-07-18" : apiVersion;
+    return new Uri($"{baseUrl.TrimEnd('/')}/openai/deployments/{deployment}/chat/completions?api-version={version}");
+}
+
 static ClipSegmentationSettings BuildSegmentationSettings(StationProfile profile)
 {
     return new ClipSegmentationSettings
@@ -358,6 +377,7 @@ static ClipDefinition? NormalizeClipDefinition(ClipDefinition definition, IReadO
 
 static IReadOnlyList<TimestampedTranscript> ExtractTranscriptRange(IReadOnlyList<TimestampedTranscript> segments, TimeSpan start, TimeSpan end)
     => segments.Where(s => s.End > start && s.Start < end).ToArray();
+
 
 
 

@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -584,6 +585,10 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         // Calculate clip time = parent content publish time + clip start offset
         var clipTime = sourceContent.PublishedOn?.Add(definition.Start);
         var timePrefix = clipTime?.ToString("HH:mm");
+        var clipTitle = FormatClipTitle(definition.Title);
+        var categoryLabel = FormatClipCategory(definition.Category);
+        var headlineCore = string.IsNullOrEmpty(timePrefix) ? clipTitle : $"{timePrefix} - {clipTitle}";
+        var headline = string.IsNullOrEmpty(categoryLabel) ? headlineCore : $"[{categoryLabel}] {headlineCore}";
 
         return new ContentModel
         {
@@ -601,7 +606,7 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
             Byline = sourceContent.Byline,
             Status = ContentStatus.Draft,
             Uid = BaseService.GetContentHash(sourceContent.Source?.Code ?? "AutoClipper", $"{sourceContent.Uid}-clip-{clipIndex}", sourceContent.PublishedOn),
-            Headline = string.IsNullOrEmpty(timePrefix) ? definition.Title : $"{timePrefix} - {definition.Title}",
+            Headline = headline,
             Summary = $"[AutoClipper:{definition.Category}]\n{clipSummary}",
             Body = transcriptBody,
             SourceUrl = sourceContent.SourceUrl,
@@ -650,6 +655,24 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         return sb.ToString().Trim();
     }
 
+    private static readonly Regex CamelCaseBoundaryRegex = new("(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", RegexOptions.Compiled);
+
+    private static string FormatClipTitle(string? title)
+    {
+        if (string.IsNullOrWhiteSpace(title)) return "Clip";
+        var normalized = title.Trim();
+        normalized = normalized.Replace('_', ' ').Replace('-', ' ');
+        normalized = CamelCaseBoundaryRegex.Replace(normalized, " ");
+        normalized = Regex.Replace(normalized, "\\s+", " ").Trim();
+        return normalized;
+    }
+
+    private static string FormatClipCategory(string? category)
+    {
+        if (string.IsNullOrWhiteSpace(category)) return string.Empty;
+        return Regex.Replace(category.Trim(), "\\s+", " ");
+    }
+
     private static string FormatTimestamp(TimeSpan value)
     {
         var hours = (int)Math.Floor(value.TotalHours);
@@ -684,4 +707,3 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
     }
     #endregion
 }
-

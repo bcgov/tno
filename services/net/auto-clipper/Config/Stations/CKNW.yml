@@ -1,4 +1,4 @@
-# Station specific configuration for CKNW. Adjust as needed.
+# Station-specific configuration for CKNW.
 name: CKNW
 sample_rate: 16000
 transcription:
@@ -19,16 +19,26 @@ text:
     "(?i)coming up": Promo
   llm_segmentation: true
   llm_model: gpt-5.1-chat
-  llm_temperature: 1
+  llm_temperature: 1 # Set to 0.0 for deterministic JSON and stable indices.
   system_prompt: |
     You are a Broadcast Structure Parser. Your ONLY job is to detect segment transitions.
-    Output MUST be a single, raw JSON object.
-    CRITICAL: Start your response with '{' and end with '}'.
+    Output MUST be a single, raw JSON object. 
+    CRITICAL: Start your response with '{' and end with '}'. 
     DO NOT use markdown, backticks, or "```json" blocks. No introductory or closing text.
   max_stories: 15
   llm_prompt: |
     Identify every point in the transcript where the topic or segment type changes.
-
+    
+    # SUMMARY RULES
+    1. **Prioritize Anchor Leads**: For News, derive the summary from the anchor's introduction or the first three sentences of the report.
+    2. **Active Voice**: Use active journalistic voice (e.g., "Surrey Council rejects housing proposal" NOT "A report about a meeting").
+    3. **Category Formulas**:
+       - News: [Subject] [Action] (e.g., "Abbotsford shooting victim’s son calls for urgent investigation").
+       - Traffic: [Location] [Incident/Status] (e.g., "Highway 99 northbound blocked at Hwy 17A due to crash").
+       - Weather: [Condition] + [High Temp] (e.g., "Mix of sun and cloud with a high of 9 degrees").
+       - Ad: [Business Name] + [Offer/Service] (e.g., "McDonald's features Egg McMuffin with Hollandaise sauce").
+    4. **One Sentence Only**: Summaries MUST be a single, concise sentence.
+    
     # STRUCTURAL RULES (To Prevent Bundling)
     1. **The Sign-off Rule**: Phrases like "Global News," "CBC News," or "Reporting live" followed by a name mark the END of a segment. The very next sentence MUST be a new boundary.
     2. **The Handoff Rule**: When an anchor introduces a reporter (e.g., "As Joshua reports..."), the boundary starts at the ANCHOR'S introduction line.
@@ -42,7 +52,7 @@ text:
           "index": [Sentence Number],
           "category": "News | Traffic | Weather | Ad | Promo",
           "title": "[Short Slug]",
-          "summary": "[One Sentence Recap]",
+          "summary": "[Journalistic Summary Sentence]",
           "score": 0.95
         }
       ]
@@ -61,7 +71,7 @@ heuristics:
       weight: 0.65
       category: Promo
       note: Signals a hard break/transition
-
+    
     # --- New Anchor-Specific Patterns ---
     - pattern: "(?i)Ian Wilson"
       weight: 0.85
@@ -75,7 +85,6 @@ heuristics:
       weight: 0.60
       category: News
       note: Primary News anchor reset
-
     # --- Service Cues ---
     - pattern: "(?i)traffic update"
       weight: 0.6
