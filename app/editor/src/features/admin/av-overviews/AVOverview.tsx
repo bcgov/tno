@@ -22,7 +22,7 @@ import {
   getReportTemplateOptions,
   templateTypeOptions,
 } from './constants';
-import { IAVOverviewTemplateForm } from './interfaces';
+import { type IAVOverviewTemplateForm } from './interfaces';
 import { OverviewSection } from './OverviewSection';
 import { OverviewSubscribers } from './OverviewSubscribers';
 import * as styled from './styled';
@@ -67,7 +67,7 @@ const AVOverview: React.FC = () => {
           ? await api.addAVOverview(values)
           : await api.updateAVOverview(values);
         setTemplate(template);
-        toast.success(`Data has successfully been saved.`);
+        toast.success('Data has successfully been saved.');
       } catch {}
     },
     [api],
@@ -138,7 +138,7 @@ const AVOverview: React.FC = () => {
                     onClick={() => {}}
                     variant={ButtonVariant.success}
                     type="submit"
-                    disabled={!values.sections.length}
+                    disabled={values.sections.length === 0}
                     className="save-items"
                   >
                     Save Template
@@ -155,8 +155,8 @@ const AVOverview: React.FC = () => {
                 <Row className="buttons">
                   <Button
                     variant={ButtonVariant.action}
-                    onClick={() =>
-                      setFieldValue('sections', [
+                    onClick={async () =>
+                      await setFieldValue('sections', [
                         ...values.sections,
                         defaultAVOverviewTemplateSection(values.templateType),
                       ])
@@ -164,7 +164,7 @@ const AVOverview: React.FC = () => {
                   >
                     New broadcast section <MdAdd className="icon" />
                   </Button>
-                  <Show visible={!!values.sections.length}>
+                  <Show visible={!(values.sections.length === 0)}>
                     <Button
                       onClick={() => {}}
                       variant={ButtonVariant.success}

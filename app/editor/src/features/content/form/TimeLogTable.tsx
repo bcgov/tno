@@ -1,11 +1,11 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useLookup } from 'store/hooks';
-import { GridTable, ITimeTrackingModel, Row } from 'tno-core';
+import { GridTable, type ITimeTrackingModel, Row } from 'tno-core';
 
-import { ITimeTrackingForm } from './components/time-log/interfaces';
+import { type ITimeTrackingForm } from './components/time-log/interfaces';
 import { timeLogColumns } from './constants';
-import { IContentForm } from './interfaces';
+import { type IContentForm } from './interfaces';
 import * as styled from './styled';
 
 /** Table used to display time log for users creating and updating content. */

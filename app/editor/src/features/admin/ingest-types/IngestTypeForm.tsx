@@ -5,7 +5,6 @@ import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useIngestTypes } from 'store/hooks/admin';
-import { IIngestTypeModel, useModal } from 'tno-core';
 import {
   Button,
   ButtonVariant,
@@ -17,10 +16,12 @@ import {
   FormikText,
   FormikTextArea,
   IconButton,
+  type IIngestTypeModel,
   LabelPosition,
   Modal,
   Row,
   Show,
+  useModal,
 } from 'tno-core';
 
 import { contentTypeOptions, defaultIngestType } from './constants';
@@ -35,7 +36,7 @@ const IngestTypeForm: React.FC = () => {
 
   const ingestTypeId = Number(id);
   const [ingestType, setIngestType] = React.useState<IIngestTypeModel>(
-    (state as any)?.ingestType ?? defaultIngestType,
+    state?.ingestType ?? defaultIngestType,
   );
 
   const { toggle, isShowing } = useModal();
@@ -67,7 +68,9 @@ const IngestTypeForm: React.FC = () => {
         iconType="back"
         label="Back to Ingest Types"
         className="back-button"
-        onClick={() => navigate('/admin/ingest/types')}
+        onClick={() => {
+          navigate('/admin/ingest/types');
+        }}
       />
       <FormikForm
         initialValues={ingestType}
@@ -115,7 +118,7 @@ const IngestTypeForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.updatedOn ? moment(values.updatedOn).toString() : undefined
+                      values.updatedOn ? moment(values.updatedOn).toString() : undefined
                     }
                     onChange={noop}
                     name="updatedOn"
@@ -133,7 +136,7 @@ const IngestTypeForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.createdOn ? moment(values.createdOn).toString() : undefined
+                      values.createdOn ? moment(values.createdOn).toString() : undefined
                     }
                     onChange={noop}
                     name="createdOn"

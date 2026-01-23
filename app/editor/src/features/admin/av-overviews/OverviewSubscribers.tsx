@@ -9,13 +9,13 @@ import {
   FormikSelect,
   getEnumStringOptions,
   Grid,
-  IUserAVOverviewModel,
-  IUserFilter,
-  OptionItem,
+  type IUserAVOverviewModel,
+  type IUserFilter,
+  type OptionItem,
   SortDirection,
 } from 'tno-core';
 
-import { IAVOverviewTemplateForm } from './interfaces';
+import { type IAVOverviewTemplateForm } from './interfaces';
 import { ListFilter } from './ListFilter';
 
 /**
@@ -93,12 +93,12 @@ export const OverviewSubscribers: React.FC = () => {
             checked={values.subscribers.some((u) => u.id === row.id && u.isSubscribed)}
             onChange={(e) => {
               const user = { ...row, isSubscribed: e.target.checked };
-              if (values.subscribers.some((u) => u.id === user.id))
+              if (values.subscribers.some((u) => u.id === user.id)) {
                 setFieldValue(
                   'subscribers',
                   values.subscribers.map((item) => (item.id === user.id ? user : item)),
                 );
-              else setFieldValue('subscribers', [user, ...values.subscribers]);
+              } else setFieldValue('subscribers', [user, ...values.subscribers]);
             }}
           />,
           <CellEllipsis key="">{row.username}</CellEllipsis>,

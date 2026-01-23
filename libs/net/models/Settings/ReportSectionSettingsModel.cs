@@ -29,6 +29,12 @@ public class ReportSectionSettingsModel
     public string? DataType { get; set; }
     public string? DataProperty { get; set; }
     public string? DataTemplate { get; set; }
+    public string? DeploymentName { get; set; }
+    public string? SystemPrompt { get; set; }
+    public string? UserPrompt { get; set; }
+    public int? ChoiceIndex { get; set; }
+    public int? ChoiceQty { get; set; }
+    public float? Temperature { get; set; }
     #endregion
 
     #region Constructors
@@ -58,6 +64,12 @@ public class ReportSectionSettingsModel
         this.DataType = settings.GetDictionaryJsonValue<string?>("dataType", null, options)!;
         this.DataProperty = settings.GetDictionaryJsonValue<string?>("dataProperty", null, options)!;
         this.DataTemplate = settings.GetDictionaryJsonValue<string?>("dataTemplate", null, options)!;
+        this.DeploymentName = settings.GetDictionaryJsonValue<string?>("deploymentName", null, options)!;
+        this.SystemPrompt = settings.GetDictionaryJsonValue<string?>("systemPrompt", null, options)!;
+        this.UserPrompt = settings.GetDictionaryJsonValue<string?>("userPrompt", null, options)!;
+        this.ChoiceIndex = settings.GetDictionaryJsonValue<int?>("choiceIndex", null, options)!;
+        this.ChoiceQty = settings.GetDictionaryJsonValue<int?>("choiceQty", null, options)!;
+        this.Temperature = settings.GetDictionaryJsonValue<float?>("temperature", null, options)!;
     }
 
     public ReportSectionSettingsModel(JsonDocument settings, JsonSerializerOptions options)
@@ -84,6 +96,12 @@ public class ReportSectionSettingsModel
         this.DataType = settings.GetElementValue<string?>("dataType", null, options)!;
         this.DataProperty = settings.GetElementValue<string?>("dataProperty", null, options)!;
         this.DataTemplate = settings.GetElementValue<string?>("dataTemplate", null, options)!;
+        this.DeploymentName = settings.GetElementValue<string?>("deploymentName", null, options)!;
+        this.SystemPrompt = settings.GetElementValue<string?>("systemPrompt", null, options)!;
+        this.UserPrompt = settings.GetElementValue<string?>("userPrompt", null, options)!;
+        this.ChoiceIndex = settings.GetElementValue<int?>("choiceIndex", null, options)!;
+        this.ChoiceQty = settings.GetElementValue<int?>("choiceQty", null, options)!;
+        this.Temperature = settings.GetElementValue<float?>("temperature", null, options)!;
     }
     #endregion
 }

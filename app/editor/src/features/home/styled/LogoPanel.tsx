@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { ILogoPanelProps } from '..';
+import { type ILogoPanelProps } from '..';
 
 export const LogoPanel = styled.div<ILogoPanelProps>`
   background-color: ${(props) => props.backgroundColor};

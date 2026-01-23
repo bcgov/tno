@@ -1,4 +1,9 @@
-import { ContentStatusName, ContentTypeName, IContentModel, WorkOrderStatusName } from 'tno-core';
+import {
+  type ContentStatusName,
+  type ContentTypeName,
+  type IContentModel,
+  type WorkOrderStatusName,
+} from 'tno-core';
 
 export interface IContentSearchResult {
   id: number;

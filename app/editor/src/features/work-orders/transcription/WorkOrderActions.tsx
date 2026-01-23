@@ -1,6 +1,6 @@
 import { useTab } from 'components/tab-control';
 import { FaPen, FaStop } from 'react-icons/fa6';
-import { IWorkOrderModel, Row, Show, WorkOrderStatusName } from 'tno-core';
+import { type IWorkOrderModel, Row, Show, WorkOrderStatusName } from 'tno-core';
 
 export interface IWorkOrderActionsProps {
   row: IWorkOrderModel;
@@ -27,7 +27,9 @@ export const WorkOrderActions: React.FC<IWorkOrderActionsProps> = ({ row, onCanc
         <FaPen
           className="button button-link completed clickable"
           title="Review"
-          onClick={() => navigate(row.contentId ?? 0, '/contents')}
+          onClick={() => {
+            navigate(row.contentId ?? 0, '/contents');
+          }}
         />
       </Show>
     </Row>

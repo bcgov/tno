@@ -1,11 +1,11 @@
 import React from 'react';
-import { IAppState, IErrorModel, IUserOptions, useAppStore } from 'store/slices';
+import { type IAppState, type IErrorModel, type IUserOptions, useAppStore } from 'store/slices';
 import {
   AccountAuthStateName,
   getFromLocalStorage,
-  IRegisterModel,
-  IUserInfoModel,
-  IUserModel,
+  type IRegisterModel,
+  type IUserInfoModel,
+  type IUserModel,
   saveToLocalStorage,
   useApiAuth,
   useKeycloakWrapper,
@@ -100,7 +100,7 @@ export const useApp = (): [IAppState, IAppController] => {
 
         const options = getFromLocalStorage<IUserOptions>('options', {});
         store.storeUserOptions(options);
-        return Promise.resolve(options);
+        return await Promise.resolve(options);
       },
       storeUserOptions: (options: IUserOptions) => {
         saveToLocalStorage('options', options);
@@ -109,22 +109,29 @@ export const useApp = (): [IAppState, IAppController] => {
       getUserInfo: async (refresh: boolean = false) => {
         try {
           if (userInfo.id !== 0 && !refresh) return userInfo;
-          const response = await dispatch('get-user-info', () => api.getUserInfo());
+          const response = await dispatch('get-user-info', async () => await api.getUserInfo());
           userInfo = response.data;
           store.storeUserInfo(userInfo);
-          if ((!keycloak.hasClaim() || refresh) && !!response.data.roles.length)
+          if ((!keycloak.hasClaim() || refresh) && !(response.data.roles.length === 0)) {
             await keycloak.instance.updateToken(86400);
+          }
           return userInfo;
         } catch (error) {
           throw error;
         }
       },
       requestCode: async (model: IRegisterModel) => {
-        return (await dispatch<IRegisterModel>('request-code', () => api.requestCode(model))).data;
+        return (
+          await dispatch<IRegisterModel>('request-code', async () => await api.requestCode(model))
+        ).data;
       },
       requestApproval: async (model: IUserModel) => {
-        return (await dispatch<IUserModel>('request-approval', () => api.requestApproval(model)))
-          .data;
+        return (
+          await dispatch<IUserModel>(
+            'request-approval',
+            async () => await api.requestApproval(model),
+          )
+        ).data;
       },
       addError: store.addError,
       removeError: store.removeError,

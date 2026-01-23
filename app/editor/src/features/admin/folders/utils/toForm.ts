@@ -1,6 +1,6 @@
-import { IFolderModel, ScheduleMonthName, ScheduleWeekDayName } from 'tno-core';
+import { type IFolderModel, ScheduleMonthName, ScheduleWeekDayName } from 'tno-core';
 
-import { IFolderForm } from '../interfaces';
+import { type IFolderForm } from '../interfaces';
 
 export const toForm = (model: IFolderModel): IFolderForm => {
   return {

@@ -1,4 +1,4 @@
-import { formatDashboardDate, INotificationInstanceModel } from 'tno-core';
+import { formatDashboardDate, type INotificationInstanceModel } from 'tno-core';
 
 export const getLastSent = (instance: INotificationInstanceModel) => {
   const sentOn = instance?.sentOn;

@@ -1,7 +1,12 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
-import { IFolderContentModel, IFolderFilter, IFolderModel, useApiAdminFolders } from 'tno-core';
+import { type IAdminState, useAdminStore } from 'store/slices';
+import {
+  type IFolderContentModel,
+  type IFolderFilter,
+  type IFolderModel,
+  useApiAdminFolders,
+} from 'tno-core';
 
 interface IFolderController {
   findFolders: (filter: IFolderFilter) => Promise<IFolderModel[]>;
@@ -22,16 +27,18 @@ export const useFolders = (): [IAdminState & { initialized: boolean }, IFolderCo
   const controller = React.useMemo(
     () => ({
       findFolders: async (filter: IFolderFilter) => {
-        const response = await dispatch<IFolderModel[]>('find-all-folders', () =>
-          api.findFolders(filter),
+        const response = await dispatch<IFolderModel[]>(
+          'find-all-folders',
+          async () => await api.findFolders(filter),
         );
         store.storeFolders(response.data);
         setInitialized(true);
         return response.data;
       },
       getFolder: async (id: number, includeContent: boolean = false) => {
-        const response = await dispatch<IFolderModel>('get-folder', () =>
-          api.getFolder(id, includeContent),
+        const response = await dispatch<IFolderModel>(
+          'get-folder',
+          async () => await api.getFolder(id, includeContent),
         );
         store.storeFolders((folders) =>
           folders.map((ds) => {
@@ -42,20 +49,25 @@ export const useFolders = (): [IAdminState & { initialized: boolean }, IFolderCo
         return response.data;
       },
       getContentInFolder: async (id: number, includeMaxTopicScore: boolean = false) => {
-        const response = await dispatch<IFolderContentModel[]>('get-folder-content', () =>
-          api.getContentInFolder(id, includeMaxTopicScore),
+        const response = await dispatch<IFolderContentModel[]>(
+          'get-folder-content',
+          async () => await api.getContentInFolder(id, includeMaxTopicScore),
         );
         return response.data;
       },
       addFolder: async (model: IFolderModel) => {
-        const response = await dispatch<IFolderModel>('add-folder', () => api.addFolder(model));
+        const response = await dispatch<IFolderModel>(
+          'add-folder',
+          async () => await api.addFolder(model),
+        );
         store.storeFolders((folders) => [...folders, response.data]);
         await lookup.getLookups();
         return response.data;
       },
       updateFolder: async (model: IFolderModel) => {
-        const response = await dispatch<IFolderModel>('update-folder', () =>
-          api.updateFolder(model),
+        const response = await dispatch<IFolderModel>(
+          'update-folder',
+          async () => await api.updateFolder(model),
         );
         store.storeFolders((folders) =>
           folders.map((ds) => {
@@ -67,8 +79,9 @@ export const useFolders = (): [IAdminState & { initialized: boolean }, IFolderCo
         return response.data;
       },
       deleteFolder: async (model: IFolderModel) => {
-        const response = await dispatch<IFolderModel>('delete-folder', () =>
-          api.deleteFolder(model),
+        const response = await dispatch<IFolderModel>(
+          'delete-folder',
+          async () => await api.deleteFolder(model),
         );
         store.storeFolders((folders) => folders.filter((ds) => ds.id !== response.data.id));
         await lookup.getLookups();

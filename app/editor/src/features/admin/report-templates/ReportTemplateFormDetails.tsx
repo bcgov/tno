@@ -9,7 +9,7 @@ import {
   FormikDatePicker,
   FormikText,
   FormikTextArea,
-  IReportTemplateModel,
+  type IReportTemplateModel,
   Row,
   Show,
 } from 'tno-core';
@@ -42,7 +42,7 @@ export const ReportTemplateFormDetails: React.FC = () => {
           <Row>
             <FormikText width={FieldSize.Small} disabled name="updatedBy" label="Updated By" />
             <FormikDatePicker
-              selectedDate={!!values.updatedOn ? moment(values.updatedOn).toString() : undefined}
+              selectedDate={values.updatedOn ? moment(values.updatedOn).toString() : undefined}
               onChange={noop}
               name="updatedOn"
               label="Updated On"
@@ -53,7 +53,7 @@ export const ReportTemplateFormDetails: React.FC = () => {
           <Row>
             <FormikText width={FieldSize.Small} disabled name="createdBy" label="Created By" />
             <FormikDatePicker
-              selectedDate={!!values.createdOn ? moment(values.createdOn).toString() : undefined}
+              selectedDate={values.createdOn ? moment(values.createdOn).toString() : undefined}
               onChange={noop}
               name="createdOn"
               label="Created On"

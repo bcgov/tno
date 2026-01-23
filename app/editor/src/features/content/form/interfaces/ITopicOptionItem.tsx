@@ -1,4 +1,4 @@
-import { TopicTypeName } from 'tno-core';
+import { type TopicTypeName } from 'tno-core';
 
 export interface ITopicOptionItem {
   value: number;

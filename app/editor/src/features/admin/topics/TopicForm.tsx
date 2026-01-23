@@ -17,7 +17,7 @@ import {
   FormikTextArea,
   getEnumStringOptions,
   IconButton,
-  ITopicModel,
+  type ITopicModel,
   LabelPosition,
   Modal,
   Row,
@@ -38,7 +38,7 @@ export const TopicForm: React.FC = () => {
   const navigate = useNavigate();
   const { toggle, isShowing } = useModal();
 
-  const [topic, setTopic] = React.useState<ITopicModel>((state as any)?.topic ?? defaultTopic);
+  const [topic, setTopic] = React.useState<ITopicModel>(state?.topic ?? defaultTopic);
 
   const topicId = Number(id);
   const topicTypeOptions = getEnumStringOptions(TopicTypeName);
@@ -68,7 +68,9 @@ export const TopicForm: React.FC = () => {
         iconType="back"
         label="Back to Topics"
         className="back-button"
-        onClick={() => navigate('/admin/topics')}
+        onClick={() => {
+          navigate('/admin/topics');
+        }}
       />
       <FormikForm
         initialValues={topic}
@@ -117,7 +119,7 @@ export const TopicForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.updatedOn ? moment(values.updatedOn).toString() : undefined
+                      values.updatedOn ? moment(values.updatedOn).toString() : undefined
                     }
                     onChange={noop}
                     name="updatedOn"
@@ -135,7 +137,7 @@ export const TopicForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.createdOn ? moment(values.createdOn).toString() : undefined
+                      values.createdOn ? moment(values.createdOn).toString() : undefined
                     }
                     onChange={noop}
                     name="createdOn"

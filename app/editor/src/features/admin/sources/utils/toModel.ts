@@ -1,6 +1,6 @@
-import { ISourceModel } from 'tno-core';
+import { type ISourceModel } from 'tno-core';
 
-import { ISourceForm } from '../interfaces';
+import { type ISourceForm } from '../interfaces';
 
 export const toModel = (form: ISourceForm): ISourceModel => {
   return {

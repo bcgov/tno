@@ -1,7 +1,7 @@
 import { useFormikContext } from 'formik';
 import { useLookup } from 'store/hooks';
 
-import { IContentForm } from '../interfaces';
+import { type IContentForm } from '../interfaces';
 
 export interface IExtractTagsProps {
   setParsedTags?: React.Dispatch<React.SetStateAction<string[]>>;

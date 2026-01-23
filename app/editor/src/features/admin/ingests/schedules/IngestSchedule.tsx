@@ -5,7 +5,7 @@ import {
   FieldSize,
   FormikSelect,
   getEnumStringOptions,
-  IIngestModel,
+  type IIngestModel,
   Row,
   ScheduleTypeName,
   Show,

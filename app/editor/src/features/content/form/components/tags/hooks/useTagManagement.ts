@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { IContentForm, Tag } from '../types';
+import { type IContentForm, type Tag } from '../types';
 import {
   createOriginalFormatMap,
   formatTextWithTags,
@@ -39,8 +39,8 @@ export const useTagManagement = ({ values, tags, setFieldValue }: UseTagManageme
    */
   const extractTagsFromFields = useCallback(() => {
     // Get tags from both fields
-    const bodyTags = parseTagsWithOriginalFormat((values.body as string) || '');
-    const summaryTags = parseTagsWithOriginalFormat((values.summary as string) || '');
+    const bodyTags = parseTagsWithOriginalFormat(values.body || '');
+    const summaryTags = parseTagsWithOriginalFormat(values.summary || '');
 
     // Combine tags from both fields
     const allTagCodes = [...bodyTags, ...summaryTags].map((t) => t.tag.toUpperCase());

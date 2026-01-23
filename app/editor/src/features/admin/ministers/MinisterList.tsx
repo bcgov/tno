@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from 'store/hooks';
 import { useMinisters } from 'store/hooks/admin';
-import { Col, FlexboxTable, IconButton, IMinisterModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, type IMinisterModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { MinisterFilter } from './MinisterFilter';
@@ -20,7 +20,7 @@ const MinisterList: React.FC = () => {
   const [{ requests }] = useApp();
 
   React.useEffect(() => {
-    if (!ministers.length) {
+    if (ministers.length === 0) {
       api.findAllMinisters().then((data) => {
         setItems(data);
       });
@@ -39,8 +39,10 @@ const MinisterList: React.FC = () => {
         </Col>
         <IconButton
           iconType="plus"
-          label={`Add new minister`}
-          onClick={() => navigate(`/admin/ministers/0`)}
+          label={'Add new minister'}
+          onClick={() => {
+            navigate('/admin/ministers/0');
+          }}
         />
       </Row>
       <MinisterFilter
@@ -64,7 +66,9 @@ const MinisterList: React.FC = () => {
         data={items}
         columns={columns}
         showSort={true}
-        onRowClick={(row) => navigate(`${row.original.id}`)}
+        onRowClick={(row) => {
+          navigate(`${row.original.id}`);
+        }}
         pagingEnabled={false}
         isLoading={!!requests.some((r) => r.url === 'find-all-ministers')}
       />

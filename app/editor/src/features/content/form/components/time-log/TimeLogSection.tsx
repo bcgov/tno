@@ -1,4 +1,4 @@
-import { IContentForm } from 'features/content/form/interfaces';
+import { type IContentForm } from 'features/content/form/interfaces';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaRegListAlt } from 'react-icons/fa';
@@ -62,7 +62,7 @@ export const TimeLogSection: React.FC<ITimeLogSectionProps> = ({
             <FaRegListAlt
               className="action-button"
               onClick={() => {
-                if (!!values.timeTrackings) setFieldValue('timeTrackings', values.timeTrackings);
+                if (values.timeTrackings) setFieldValue('timeTrackings', values.timeTrackings);
                 toggle();
               }}
             />

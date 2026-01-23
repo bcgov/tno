@@ -1,14 +1,20 @@
-import { KnnSearchResponse, MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
-import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
-import React from 'react';
-import { ActionDelegate } from 'store';
-import { useContentStore } from 'store/slices';
-import { IContentProps, IContentState } from 'store/slices/content';
 import {
-  IContentListModel,
-  IContentModel,
-  IContentTopicModel,
-  INotificationInstanceModel,
+  type KnnSearchResponse,
+  type MsearchMultisearchBody,
+} from '@elastic/elasticsearch/lib/api/types';
+import {
+  type IContentListAdvancedFilter,
+  type IContentListFilter,
+} from 'features/content/interfaces';
+import React from 'react';
+import { type ActionDelegate } from 'store';
+import { useContentStore } from 'store/slices';
+import { type IContentProps, type IContentState } from 'store/slices/content';
+import {
+  type IContentListModel,
+  type IContentModel,
+  type IContentTopicModel,
+  type INotificationInstanceModel,
   useApiEditorContents,
 } from 'tno-core';
 
@@ -53,23 +59,32 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         filter: MsearchMultisearchBody,
         includeUnpublishedContent: boolean,
       ) => {
-        const response = await dispatch('find-contents-with-elasticsearch', () =>
-          api.findContentWithElasticsearch(filter, includeUnpublishedContent),
+        const response = await dispatch(
+          'find-contents-with-elasticsearch',
+          async () => await api.findContentWithElasticsearch(filter, includeUnpublishedContent),
         );
         return response.data;
       },
       getContent: async (id: number) => {
-        const response = await dispatch('get-content', () => api.getContent(id), 'content');
+        const response = await dispatch(
+          'get-content',
+          async () => await api.getContent(id),
+          'content',
+        );
         return response.status === 204 ? undefined : response.data;
       },
       addContent: async (content: IContentModel) => {
-        const response = await dispatch('add-content', () => api.addContent(content), 'content');
+        const response = await dispatch(
+          'add-content',
+          async () => await api.addContent(content),
+          'content',
+        );
         return response.data;
       },
       updateContent: async (content: IContentModel) => {
         const response = await dispatch(
           'update-content',
-          () => api.updateContent(content),
+          async () => await api.updateContent(content),
           'content',
         );
         return response.data;
@@ -77,7 +92,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       updateContentList: async (content: IContentListModel) => {
         const response = await dispatch(
           'update-content-list',
-          () => api.updateContentList(content),
+          async () => await api.updateContentList(content),
           'content',
         );
         return response.data;
@@ -85,7 +100,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       updateContentTopics: async (id: number, topics?: IContentTopicModel[]) => {
         const response = await dispatch(
           'update-content-topics',
-          () => api.updateContentTopics(id, topics ?? []),
+          async () => await api.updateContentTopics(id, topics ?? []),
           'content',
         );
         return response.data;
@@ -93,41 +108,63 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       deleteContent: async (content: IContentModel) => {
         const response = await dispatch(
           'delete-content',
-          () => api.deleteContent(content),
+          async () => await api.deleteContent(content),
           'content',
         );
         return response.data;
       },
       publishContent: async (content: IContentModel) => {
-        return (await dispatch('publish-content', () => api.publishContent(content), 'content'))
-          .data;
+        return (
+          await dispatch(
+            'publish-content',
+            async () => await api.publishContent(content),
+            'content',
+          )
+        ).data;
       },
       unpublishContent: async (content: IContentModel) => {
-        return (await dispatch('unpublish-content', () => api.unpublishContent(content), 'content'))
-          .data;
+        return (
+          await dispatch(
+            'unpublish-content',
+            async () => await api.unpublishContent(content),
+            'content',
+          )
+        ).data;
       },
       upload: async (content: IContentModel, file: File) => {
-        return (await dispatch('upload-content', () => api.upload(content, file), 'content')).data;
+        return (
+          await dispatch('upload-content', async () => await api.upload(content, file), 'content')
+        ).data;
       },
       download: async (id: number, fileName: string) => {
-        return (await dispatch('download-content', () => api.download(id, fileName), 'content'))
-          .data;
+        return (
+          await dispatch(
+            'download-content',
+            async () => await api.download(id, fileName),
+            'content',
+          )
+        ).data;
       },
       attach: async (contentId: number, locationId: number, path: string) => {
         return (
           await dispatch<IContentModel>(
             'attach-content',
-            () => api.attach(contentId, locationId, path),
+            async () => await api.attach(contentId, locationId, path),
             'content',
           )
         ).data;
       },
       stream: async (path: string) => {
-        return (await dispatch('stream-content', () => api.stream(path), 'content')).data;
+        return (await dispatch('stream-content', async () => await api.stream(path), 'content'))
+          .data;
       },
       getNotificationsFor: async (id: number) => {
         return (
-          await dispatch('content-notifications', () => api.getNotificationsFor(id), 'content')
+          await dispatch(
+            'content-notifications',
+            async () => await api.getNotificationsFor(id),
+            'content',
+          )
         ).data;
       },
       storeFilter: actions.storeFilter,

@@ -1,68 +1,92 @@
 import React, { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
-const Dashboard = lazy(() => import('features/admin/dashboard/Dashboard'));
-const ActionForm = lazy(() => import('features/admin/actions/ActionForm'));
-const ActionList = lazy(() => import('features/admin/actions/ActionList'));
-const AVOverview = lazy(() => import('features/admin/av-overviews/AVOverview'));
-const ChartTemplateForm = lazy(() => import('features/admin/charts/ChartTemplateForm'));
-const ConnectionForm = lazy(() => import('features/admin/connections/ConnectionForm'));
-const ConnectionList = lazy(() => import('features/admin/connections/ConnectionList'));
-const ContentReferenceList = lazy(() => import('features/admin/ingests/ContentReferenceList'));
-const ContributorForm = lazy(() => import('features/admin/contributors/ContributorForm'));
-const ContributorList = lazy(() => import('features/admin/contributors/ContributorList'));
-const DataLocationForm = lazy(() => import('features/admin/data-locations/DataLocationForm'));
-const DataLocationList = lazy(() => import('features/admin/data-locations/DataLocationList'));
-const FilterForm = lazy(() => import('features/admin/filters/FilterForm'));
-const FilterList = lazy(() => import('features/admin/filters/FilterList'));
-const FolderForm = lazy(() => import('features/admin/folders/FolderForm'));
-const FolderList = lazy(() => import('features/admin/folders/FolderList'));
-const IngestDetails = lazy(() => import('features/admin/ingests/IngestDetails'));
-const IngestForm = lazy(() => import('features/admin/ingests/IngestForm'));
-const IngestList = lazy(() => import('features/admin/ingests/IngestList'));
-const IngestSchedule = lazy(() => import('features/admin/ingests/schedules/IngestSchedule'));
-const IngestSettings = lazy(() => import('features/admin/ingests/IngestSettings'));
-const IngestTypeForm = lazy(() => import('features/admin/ingest-types/IngestTypeForm'));
-const IngestTypeList = lazy(() => import('features/admin/ingest-types/IngestTypeList'));
-const LicenseForm = lazy(() => import('features/admin/licenses/LicenseForm'));
-const LicenseList = lazy(() => import('features/admin/licenses/LicenseList'));
-const MediaTypeForm = lazy(() => import('features/admin/media-types/MediaTypeForm'));
-const MediaTypeList = lazy(() => import('features/admin/media-types/MediaTypeList'));
-const MinisterForm = lazy(() => import('features/admin/ministers/MinisterForm'));
-const MinisterList = lazy(() => import('features/admin/ministers/MinisterList'));
-const NotificationForm = lazy(() => import('features/admin/notifications/NotificationForm'));
-const NotificationList = lazy(() => import('features/admin/notifications/NotificationList'));
-const ProductForm = lazy(() => import('features/admin/products/ProductForm'));
-const ProductList = lazy(() => import('features/admin/products/ProductList'));
-const ReachEarnedMedia = lazy(() => import('features/admin/sources/ReachEarnedMedia'));
-const ReportAdmin = lazy(() => import('features/admin/reports/ReportAdmin'));
-const ReportForm = lazy(() => import('features/admin/reports/ReportForm'));
-const ReportDashboard = lazy(() => import('features/admin/reports/dashboard/ReportDashboard'));
+const Dashboard = lazy(async () => await import('features/admin/dashboard/Dashboard'));
+const ActionForm = lazy(async () => await import('features/admin/actions/ActionForm'));
+const ActionList = lazy(async () => await import('features/admin/actions/ActionList'));
+const AVOverview = lazy(async () => await import('features/admin/av-overviews/AVOverview'));
+const ChartTemplateForm = lazy(async () => await import('features/admin/charts/ChartTemplateForm'));
+const ConnectionForm = lazy(async () => await import('features/admin/connections/ConnectionForm'));
+const ConnectionList = lazy(async () => await import('features/admin/connections/ConnectionList'));
+const ContentReferenceList = lazy(
+  async () => await import('features/admin/ingests/ContentReferenceList'),
+);
+const ContributorForm = lazy(
+  async () => await import('features/admin/contributors/ContributorForm'),
+);
+const ContributorList = lazy(
+  async () => await import('features/admin/contributors/ContributorList'),
+);
+const DataLocationForm = lazy(
+  async () => await import('features/admin/data-locations/DataLocationForm'),
+);
+const DataLocationList = lazy(
+  async () => await import('features/admin/data-locations/DataLocationList'),
+);
+const FilterForm = lazy(async () => await import('features/admin/filters/FilterForm'));
+const FilterList = lazy(async () => await import('features/admin/filters/FilterList'));
+const FolderForm = lazy(async () => await import('features/admin/folders/FolderForm'));
+const FolderList = lazy(async () => await import('features/admin/folders/FolderList'));
+const IngestDetails = lazy(async () => await import('features/admin/ingests/IngestDetails'));
+const IngestForm = lazy(async () => await import('features/admin/ingests/IngestForm'));
+const IngestList = lazy(async () => await import('features/admin/ingests/IngestList'));
+const IngestSchedule = lazy(
+  async () => await import('features/admin/ingests/schedules/IngestSchedule'),
+);
+const IngestSettings = lazy(async () => await import('features/admin/ingests/IngestSettings'));
+const IngestTypeForm = lazy(async () => await import('features/admin/ingest-types/IngestTypeForm'));
+const IngestTypeList = lazy(async () => await import('features/admin/ingest-types/IngestTypeList'));
+const LicenseForm = lazy(async () => await import('features/admin/licenses/LicenseForm'));
+const LicenseList = lazy(async () => await import('features/admin/licenses/LicenseList'));
+const MediaTypeForm = lazy(async () => await import('features/admin/media-types/MediaTypeForm'));
+const MediaTypeList = lazy(async () => await import('features/admin/media-types/MediaTypeList'));
+const MinisterForm = lazy(async () => await import('features/admin/ministers/MinisterForm'));
+const MinisterList = lazy(async () => await import('features/admin/ministers/MinisterList'));
+const NotificationForm = lazy(
+  async () => await import('features/admin/notifications/NotificationForm'),
+);
+const NotificationList = lazy(
+  async () => await import('features/admin/notifications/NotificationList'),
+);
+const ProductForm = lazy(async () => await import('features/admin/products/ProductForm'));
+const ProductList = lazy(async () => await import('features/admin/products/ProductList'));
+const ReachEarnedMedia = lazy(async () => await import('features/admin/sources/ReachEarnedMedia'));
+const ReportAdmin = lazy(async () => await import('features/admin/reports/ReportAdmin'));
+const ReportForm = lazy(async () => await import('features/admin/reports/ReportForm'));
+const ReportDashboard = lazy(
+  async () => await import('features/admin/reports/dashboard/ReportDashboard'),
+);
 const NotificationsDashboard = lazy(
-  () => import('features/admin/notifications/dashboard/NotificationsDashboard'),
+  async () => await import('features/admin/notifications/dashboard/NotificationsDashboard'),
 );
-const ReportTemplateForm = lazy(() => import('features/admin/report-templates/ReportTemplateForm'));
-const SeriesDetails = lazy(() => import('features/admin/series/SeriesDetails'));
-const SeriesForm = lazy(() => import('features/admin/series/SeriesForm'));
-const SeriesList = lazy(() => import('features/admin/series/SeriesList'));
-const SeriesMerge = lazy(() => import('features/admin/series/SeriesMerge'));
-const SettingForm = lazy(() => import('features/admin/settings/SettingForm'));
-const SettingList = lazy(() => import('features/admin/settings/SettingList'));
-const SourceDetails = lazy(() => import('features/admin/sources/SourceDetails'));
-const SourceForm = lazy(() => import('features/admin/sources/SourceForm'));
-const SourceList = lazy(() => import('features/admin/sources/SourceList'));
-const SystemMessageList = lazy(() => import('features/admin/system-message/SystemMessageList'));
-const SystemMessageForm = lazy(() => import('features/admin/system-message/SystemMessageForm'));
-const TagList = lazy(() => import('features/admin/tags/TagList'));
-const TagsForm = lazy(() => import('features/admin/tags/TagsForm'));
-const TopicList = lazy(() => import('features/admin/topics/TopicList'));
+const ReportTemplateForm = lazy(
+  async () => await import('features/admin/report-templates/ReportTemplateForm'),
+);
+const SeriesDetails = lazy(async () => await import('features/admin/series/SeriesDetails'));
+const SeriesForm = lazy(async () => await import('features/admin/series/SeriesForm'));
+const SeriesList = lazy(async () => await import('features/admin/series/SeriesList'));
+const SeriesMerge = lazy(async () => await import('features/admin/series/SeriesMerge'));
+const SettingForm = lazy(async () => await import('features/admin/settings/SettingForm'));
+const SettingList = lazy(async () => await import('features/admin/settings/SettingList'));
+const SourceDetails = lazy(async () => await import('features/admin/sources/SourceDetails'));
+const SourceForm = lazy(async () => await import('features/admin/sources/SourceForm'));
+const SourceList = lazy(async () => await import('features/admin/sources/SourceList'));
+const SystemMessageList = lazy(
+  async () => await import('features/admin/system-message/SystemMessageList'),
+);
+const SystemMessageForm = lazy(
+  async () => await import('features/admin/system-message/SystemMessageForm'),
+);
+const TagList = lazy(async () => await import('features/admin/tags/TagList'));
+const TagsForm = lazy(async () => await import('features/admin/tags/TagsForm'));
+const TopicList = lazy(async () => await import('features/admin/topics/TopicList'));
 const TopicScoreRuleList = lazy(
-  () => import('features/admin/topic-score-rules/TopicScoreRuleList'),
+  async () => await import('features/admin/topic-score-rules/TopicScoreRuleList'),
 );
-const UserForm = lazy(() => import('features/admin/users/UserForm'));
-const UserList = lazy(() => import('features/admin/users/UserList'));
-const WorkOrderForm = lazy(() => import('features/admin/work-orders/WorkOrderForm'));
-const WorkOrderList = lazy(() => import('features/admin/work-orders/WorkOrderList'));
+const UserForm = lazy(async () => await import('features/admin/users/UserForm'));
+const UserList = lazy(async () => await import('features/admin/users/UserList'));
+const WorkOrderForm = lazy(async () => await import('features/admin/work-orders/WorkOrderForm'));
+const WorkOrderList = lazy(async () => await import('features/admin/work-orders/WorkOrderList'));
 
 export const AdminRouter: React.FC = () => {
   return (

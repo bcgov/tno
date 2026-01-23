@@ -5,7 +5,7 @@ export interface IElasticQueryHelpProps {
 }
 
 export const ElasticQueryHelp: React.FC<IElasticQueryHelpProps> = ({ queryType }) => {
-  if (queryType === 'simple-query-string')
+  if (queryType === 'simple-query-string') {
     return (
       <Col>
         <div>
@@ -39,8 +39,9 @@ export const ElasticQueryHelp: React.FC<IElasticQueryHelpProps> = ({ queryType }
         </div>
       </Col>
     );
+  }
 
-  if (queryType === 'query-string')
+  if (queryType === 'query-string') {
     return (
       <Col>
         <div>
@@ -77,6 +78,7 @@ export const ElasticQueryHelp: React.FC<IElasticQueryHelpProps> = ({ queryType }
         </div>
       </Col>
     );
+  }
 
   return null;
 };

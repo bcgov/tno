@@ -1,5 +1,5 @@
 import React from 'react';
-import { Checkbox, ITransferObject, Show, Text } from 'tno-core';
+import { Checkbox, type ITransferObject, Show, Text } from 'tno-core';
 
 export interface ITransferObjectsProps {
   /** A name to prepend to each input control. */
@@ -74,7 +74,7 @@ export const TransferObjects: React.FC<ITransferObjectsProps> = ({
           );
         })}
       </div>
-      <Show visible={!items.length}>
+      <Show visible={items.length === 0}>
         <p>{emptyMessage}</p>
       </Show>
     </div>

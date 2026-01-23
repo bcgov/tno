@@ -1,10 +1,10 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
+import { type IAdminState, useAdminStore } from 'store/slices';
 import {
-  IChartPreviewRequestModel,
-  IChartResultModel,
-  IChartTemplateModel,
+  type IChartPreviewRequestModel,
+  type IChartResultModel,
+  type IChartTemplateModel,
   useApiAdminChartTemplates,
 } from 'tno-core';
 
@@ -32,16 +32,18 @@ export const useChartTemplates = (): [
   const controller = React.useMemo(
     () => ({
       findAllChartTemplates: async () => {
-        const response = await dispatch<IChartTemplateModel[]>('find-all-chart-templates', () =>
-          api.findAllChartTemplates(),
+        const response = await dispatch<IChartTemplateModel[]>(
+          'find-all-chart-templates',
+          async () => await api.findAllChartTemplates(),
         );
         store.storeChartTemplates(response.data);
         setInitialized(true);
         return response.data;
       },
       getChartTemplate: async (id: number) => {
-        const response = await dispatch<IChartTemplateModel>('get-chart-template', () =>
-          api.getChartTemplate(id),
+        const response = await dispatch<IChartTemplateModel>(
+          'get-chart-template',
+          async () => await api.getChartTemplate(id),
         );
         store.storeChartTemplates((chartTemplates) =>
           chartTemplates.map((ds) => {
@@ -52,16 +54,18 @@ export const useChartTemplates = (): [
         return response.data;
       },
       addChartTemplate: async (model: IChartTemplateModel) => {
-        const response = await dispatch<IChartTemplateModel>('add-chart-template', () =>
-          api.addChartTemplate(model),
+        const response = await dispatch<IChartTemplateModel>(
+          'add-chart-template',
+          async () => await api.addChartTemplate(model),
         );
         store.storeChartTemplates((chartTemplates) => [...chartTemplates, response.data]);
         await lookup.getLookups();
         return response.data;
       },
       updateChartTemplate: async (model: IChartTemplateModel) => {
-        const response = await dispatch<IChartTemplateModel>('update-chart-template', () =>
-          api.updateChartTemplate(model),
+        const response = await dispatch<IChartTemplateModel>(
+          'update-chart-template',
+          async () => await api.updateChartTemplate(model),
         );
         store.storeChartTemplates((chartTemplates) =>
           chartTemplates.map((ds) => {
@@ -73,8 +77,9 @@ export const useChartTemplates = (): [
         return response.data;
       },
       deleteChartTemplate: async (model: IChartTemplateModel) => {
-        const response = await dispatch<IChartTemplateModel>('delete-chart-template', () =>
-          api.deleteChartTemplate(model),
+        const response = await dispatch<IChartTemplateModel>(
+          'delete-chart-template',
+          async () => await api.deleteChartTemplate(model),
         );
         store.storeChartTemplates((chartTemplates) =>
           chartTemplates.filter((ds) => ds.id !== response.data.id),
@@ -83,20 +88,23 @@ export const useChartTemplates = (): [
         return response.data;
       },
       previewJson: async (model: IChartPreviewRequestModel) => {
-        const response = await dispatch<IChartResultModel>('preview-chart-template-json', () =>
-          api.previewJson(model),
+        const response = await dispatch<IChartResultModel>(
+          'preview-chart-template-json',
+          async () => await api.previewJson(model),
         );
         return response.data;
       },
       previewBase64: async (model: IChartPreviewRequestModel) => {
-        const response = await dispatch<string>('preview-chart-template-base64', () =>
-          api.previewBase64(model),
+        const response = await dispatch<string>(
+          'preview-chart-template-base64',
+          async () => await api.previewBase64(model),
         );
         return response.data;
       },
       previewImage: async (model: IChartPreviewRequestModel) => {
-        const response = await dispatch<any>('preview-chart-template-image', () =>
-          api.previewImage(model),
+        const response = await dispatch<any>(
+          'preview-chart-template-image',
+          async () => await api.previewImage(model),
         );
         return response.data;
       },

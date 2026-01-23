@@ -6,7 +6,7 @@ import { useChartTemplates } from 'store/hooks/admin';
 import {
   Button,
   ButtonVariant,
-  IChartTemplateModel,
+  type IChartTemplateModel,
   IconButton,
   Modal,
   Row,
@@ -70,7 +70,9 @@ const ChartTemplateForm: React.FC = () => {
         iconType="back"
         label="Back to chart templates"
         className="back-button"
-        onClick={() => navigate('/admin/chart/templates')}
+        onClick={() => {
+          navigate('/admin/chart/templates');
+        }}
       />
       <Row alignSelf="flex-start">
         <p>

@@ -1,6 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { FormikSelect, IIngestModel } from 'tno-core';
+import { FormikSelect, type IIngestModel } from 'tno-core';
 
 import { VideoClip, VideoHDMI, VideoRPi, VideoStream, VideoTuner } from '.';
 import { serviceTypes } from './constants';
@@ -10,7 +10,7 @@ import * as styled from './styled';
 export const Video: React.FC = (props) => {
   const { values, setFieldValue } = useFormikContext<IIngestModel>();
 
-  let ServiceTypes = serviceTypes(values.ingestType?.name);
+  const ServiceTypes = serviceTypes(values.ingestType?.name);
   const ConnectionSettings = () => {
     switch (values.configuration.serviceType) {
       case 'stream':

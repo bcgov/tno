@@ -7,14 +7,14 @@ import {
   CellEllipsis,
   Col,
   Grid,
-  IGridHeaderColumnProps,
-  IWorkOrderModel,
+  type IGridHeaderColumnProps,
+  type IWorkOrderModel,
   Page,
   Row,
   SortDirection,
 } from 'tno-core';
 
-import { IWorkOrderListFilter } from './interfaces/IWorkOrderListFilter';
+import { type IWorkOrderListFilter } from './interfaces/IWorkOrderListFilter';
 import * as styled from './styled';
 import { makeWorkOrderFilter } from './utils/makeWorkOrderFilter';
 import { WorkOrderListFilter } from './WorkOrderListFilter';
@@ -128,35 +128,65 @@ const WorkOrderList = () => {
           return [
             {
               column: (
-                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div
+                  key=""
+                  className="clickable"
+                  onClick={() => {
+                    navigate(`${row.id}`);
+                  }}
+                >
                   <CellEllipsis>{row.workType}</CellEllipsis>
                 </div>
               ),
             },
             {
               column: (
-                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div
+                  key=""
+                  className="clickable"
+                  onClick={() => {
+                    navigate(`${row.id}`);
+                  }}
+                >
                   <CellEllipsis>{row.configuration?.headline}</CellEllipsis>
                 </div>
               ),
             },
             {
               column: (
-                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div
+                  key=""
+                  className="clickable"
+                  onClick={() => {
+                    navigate(`${row.id}`);
+                  }}
+                >
                   <CellDate value={row.createdOn} />
                 </div>
               ),
             },
             {
               column: (
-                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div
+                  key=""
+                  className="clickable"
+                  onClick={() => {
+                    navigate(`${row.id}`);
+                  }}
+                >
                   <CellDate value={row.updatedOn} />
                 </div>
               ),
             },
             {
               column: (
-                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div
+                  key=""
+                  className="clickable"
+                  onClick={() => {
+                    navigate(`${row.id}`);
+                  }}
+                >
                   <CellEllipsis key="">{row.status}</CellEllipsis>
                 </div>
               ),

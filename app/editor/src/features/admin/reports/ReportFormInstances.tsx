@@ -5,8 +5,8 @@ import { useReports } from 'store/hooks/admin';
 import {
   Checkbox,
   FlexboxTable,
-  IReportInstanceModel,
-  IReportModel,
+  type IReportInstanceModel,
+  type IReportModel,
   Modal,
   ReportStatusName,
   useModal,
@@ -109,7 +109,7 @@ export const ReportFormInstance: React.FC = () => {
           try {
             if (instance) {
               await handleDelete(instance);
-              toast.success(`Report instance has successfully been deleted.`);
+              toast.success('Report instance has successfully been deleted.');
             }
           } catch {
             // Globally handled
@@ -130,7 +130,9 @@ export const ReportFormInstance: React.FC = () => {
               name="resend"
               label="Resend to all subscribers"
               checked={resend}
-              onChange={(e) => setResend(e.target.checked)}
+              onChange={(e) => {
+                setResend(e.target.checked);
+              }}
             />
           </div>
         }
@@ -142,7 +144,7 @@ export const ReportFormInstance: React.FC = () => {
           try {
             if (instance) {
               await handleResend(instance, resend);
-              toast.success(`Request to resend Report instance has successfully been sent.`);
+              toast.success('Request to resend Report instance has successfully been sent.');
             }
           } catch {
             // Globally handled

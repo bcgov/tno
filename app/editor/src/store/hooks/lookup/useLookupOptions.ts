@@ -1,12 +1,12 @@
 import React from 'react';
-import { ILookupController, useLookup } from 'store/hooks';
-import { ILookupState } from 'store/slices';
+import { type ILookupController, useLookup } from 'store/hooks';
+import { type ILookupState } from 'store/slices';
 import {
   getSortableOptions,
   getSourceOptions,
-  IOptionItem,
-  ISourceModel,
-  IUserModel,
+  type IOptionItem,
+  type ISourceModel,
+  type IUserModel,
   OptionItem,
   useKeycloakWrapper,
 } from 'tno-core';
@@ -73,7 +73,7 @@ export const useLookupOptions = ({ sourceMap }: ILookupOptionsProps = {}): [
 
   React.useEffect(() => {
     // If for some reason the current user does not exist in the local list, go fetch a new list from the api.
-    if (!userId && !!state.users.length && state.isReady) {
+    if (!userId && !(state.users.length === 0) && state.isReady) {
       controller.getUsers(true).catch();
     }
     setUserOptions(state.users.map((u) => new OptionItem(u.displayName, u.id)));
@@ -83,7 +83,7 @@ export const useLookupOptions = ({ sourceMap }: ILookupOptionsProps = {}): [
     {
       ...state,
       ingestTypeOptions,
-      mediaTypeOptions: mediaTypeOptions,
+      mediaTypeOptions,
       sourceOptions,
       seriesOptions,
       contributorOptions,

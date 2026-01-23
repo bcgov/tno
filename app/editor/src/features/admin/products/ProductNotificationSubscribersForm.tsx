@@ -3,9 +3,9 @@ import {
   CellEllipsis,
   Checkbox,
   Grid,
-  IProductModel,
-  IUserFilter,
-  IUserProductModel,
+  type IProductModel,
+  type IUserFilter,
+  type IUserProductModel,
   ProductRequestStatusName,
   SortDirection,
 } from 'tno-core';
@@ -62,14 +62,14 @@ export const ProductNotificationSubscribersForm: React.FC<
                 isSubscribed: e.currentTarget.checked,
                 status: ProductRequestStatusName.NA,
               };
-              if (values.subscribers.some((u) => u.userId === row.userId))
+              if (values.subscribers.some((u) => u.userId === row.userId)) {
                 setFieldValue(
                   'subscribers',
                   values.subscribers.map((item) =>
                     item.userId === row.userId ? subscription : item,
                   ),
                 );
-              else setFieldValue('subscribers', [subscription, ...values.subscribers]);
+              } else setFieldValue('subscribers', [subscription, ...values.subscribers]);
             }}
           />,
           <CellEllipsis key="2">{row.username}</CellEllipsis>,

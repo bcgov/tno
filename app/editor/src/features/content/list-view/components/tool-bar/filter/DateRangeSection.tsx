@@ -23,13 +23,13 @@ export const DateRangeSection: React.FC<IDateRangeSectionProps> = () => {
         className="select-date"
         name="startDate"
         placeholderText="mm/dd/yyyy"
-        selected={!!filterAdvanced.startDate ? new Date(filterAdvanced.startDate) : undefined}
+        selected={filterAdvanced.startDate ? new Date(filterAdvanced.startDate) : undefined}
         width="8em"
         onChange={(date) => {
           storeFilter((filter) => ({ ...filter, timeFrame: 0 }));
           storeFilterAdvanced((filter) => ({
             ...filter,
-            startDate: !!date ? date.toString() : undefined,
+            startDate: date ? date.toString() : undefined,
           }));
         }}
       />
@@ -38,13 +38,13 @@ export const DateRangeSection: React.FC<IDateRangeSectionProps> = () => {
         className="select-date"
         name="endDate"
         placeholderText="mm/dd/yyyy"
-        selected={!!filterAdvanced.endDate ? new Date(filterAdvanced.endDate) : undefined}
+        selected={filterAdvanced.endDate ? new Date(filterAdvanced.endDate) : undefined}
         width="8em"
         onChange={(date) => {
           date?.setHours(23, 59, 59);
           storeFilterAdvanced((filter) => ({
             ...filter,
-            endDate: !!date ? date.toString() : undefined,
+            endDate: date ? date.toString() : undefined,
           }));
           storeFilter((filter) => ({ ...filter, timeFrame: 0 }));
         }}

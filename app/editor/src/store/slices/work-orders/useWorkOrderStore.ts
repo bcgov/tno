@@ -1,8 +1,8 @@
 import React from 'react';
-import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
-import { IWorkOrderFilter } from 'tno-core';
+import { type ActionDelegate, useAppDispatch, useAppSelector } from 'store';
+import { type IWorkOrderFilter } from 'tno-core';
 
-import { IWorkOrderState } from './interfaces';
+import { type IWorkOrderState } from './interfaces';
 import { storeTranscriptFilter } from './workOrderSlice';
 
 export interface IWorkOrderStore {
@@ -16,9 +16,9 @@ export const useWorkOrderStore = (): [IWorkOrderState, IWorkOrderStore] => {
   const controller = React.useMemo(
     () => ({
       storeTranscriptFilter: (filter: IWorkOrderFilter | ActionDelegate<IWorkOrderFilter>) => {
-        if (typeof filter === 'function')
+        if (typeof filter === 'function') {
           dispatch(storeTranscriptFilter(filter(state.transcriptFilter)));
-        else dispatch(storeTranscriptFilter(filter));
+        } else dispatch(storeTranscriptFilter(filter));
       },
     }),
     [dispatch, state.transcriptFilter],

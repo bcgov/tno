@@ -10,8 +10,8 @@ import {
   Checkbox,
   Col,
   FormikSelect,
-  INotificationModel,
-  IOptionItem,
+  type INotificationModel,
+  type IOptionItem,
   Overlay,
   Row,
   Show,
@@ -32,9 +32,9 @@ export const NotificationFormTemplate = () => {
 
   React.useEffect(() => {
     findAllNotificationTemplates()
-      .then((templates) =>
-        setTemplateOptions(getNotificationTemplateOptions(templates, values.templateId)),
-      )
+      .then((templates) => {
+        setTemplateOptions(getNotificationTemplateOptions(templates, values.templateId));
+      })
       .catch(() => {});
     // Fetch users on initial load only.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -96,7 +96,9 @@ export const NotificationFormTemplate = () => {
         name="enableEdit"
         label="Enable editing template"
         checked={enableEdit}
-        onChange={(e) => setEnableEdit(e.target.checked)}
+        onChange={(e) => {
+          setEnableEdit(e.target.checked);
+        }}
       />
       <Col className="code">
         <Show visible={!enableEdit}>
@@ -122,7 +124,7 @@ export const NotificationFormTemplate = () => {
             <Editor
               id="txa-subject"
               value={values.template?.subject ?? ''}
-              onValueChange={(code) => setFieldValue('template.subject', code)}
+              onValueChange={async (code) => await setFieldValue('template.subject', code)}
               highlight={(code) => {
                 return highlight(code, languages.cshtml, 'razor');
               }}
@@ -135,7 +137,7 @@ export const NotificationFormTemplate = () => {
             <Editor
               id="txa-template"
               value={values.template?.body ?? ''}
-              onValueChange={(code) => setFieldValue('template.body', code)}
+              onValueChange={async (code) => await setFieldValue('template.body', code)}
               highlight={(code) => {
                 return highlight(code, languages.cshtml, 'razor');
               }}

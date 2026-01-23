@@ -1,13 +1,13 @@
 import { FormikForm } from 'components/formik';
 import { FormPage } from 'components/formpage';
-import { FormikProps } from 'formik';
+import { type FormikProps } from 'formik';
 import moment from 'moment';
 import React from 'react';
 import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import CreatableSelect from 'react-select/creatable';
 import { useLookup, useLookupOptions } from 'store/hooks';
-import { IAjaxRequest } from 'store/slices';
+import { type IAjaxRequest } from 'store/slices';
 import {
   Area,
   Button,
@@ -27,9 +27,9 @@ import {
   FormikText,
   FormikTextArea,
   hasErrors,
-  IOptionItem,
-  ISeriesModel,
-  ITimeTrackingModel,
+  type IOptionItem,
+  type ISeriesModel,
+  type ITimeTrackingModel,
   Modal,
   OptionItem,
   Row,
@@ -54,10 +54,10 @@ import {
   ContentStoryForm,
   ContentTranscriptForm,
 } from '.';
-import { ContentFormToolBar, IFile, Tags, TimeLogSection, Topic, Upload } from './components';
+import { ContentFormToolBar, type IFile, Tags, TimeLogSection, Topic, Upload } from './components';
 import { useContentForm } from './hooks';
 import { ImageSection } from './ImageSection';
-import { IContentForm } from './interfaces';
+import { type IContentForm } from './interfaces';
 import * as styled from './styled';
 import { getTargetField, setTime, toModel } from './utils';
 import { WorkOrderStatus } from './WorkOrderStatus';
@@ -229,7 +229,9 @@ const ContentForm: React.FC<IContentFormProps> = ({
                             className="minimize-details"
                             variant={ButtonVariant.link}
                             tooltip="Maximize Details"
-                            onClick={() => setSize(1)}
+                            onClick={() => {
+                              setSize(1);
+                            }}
                           >
                             <FaBars />
                           </Button>
@@ -262,14 +264,16 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                     ) ?? ''
                                   }
                                   onChange={(newValue: any) => {
-                                    if (!!newValue) {
+                                    if (newValue) {
                                       const source = sources.find((ds) => ds.id === newValue.value);
                                       props.setFieldValue('sourceId', newValue.value);
                                       props.setFieldValue('otherSource', source?.code ?? '');
-                                      if (!!source?.licenseId)
+                                      if (source?.licenseId) {
                                         props.setFieldValue('licenseId', source.licenseId);
-                                      if (!!source?.mediaTypeId)
+                                      }
+                                      if (source?.mediaTypeId) {
                                         props.setFieldValue('mediaTypeId', source.mediaTypeId);
+                                      }
                                     }
                                     filterSeriesOptions(
                                       newValue?.value ?? '',
@@ -287,11 +291,11 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                     (x) =>
                                       props.values.contentType !== ContentTypeName.Image ||
                                       (typeof x.label === 'string'
-                                        ? (x.label as string).includes('(TC)') ||
-                                          (x.label as string).includes('(PROVINCE)') ||
-                                          (x.label as string).includes('(GLOBE)') ||
-                                          (x.label as string).includes('(POST)') ||
-                                          (x.label as string).includes('(SUN)')
+                                        ? x.label.includes('(TC)') ||
+                                          x.label.includes('(PROVINCE)') ||
+                                          x.label.includes('(GLOBE)') ||
+                                          x.label.includes('(POST)') ||
+                                          x.label.includes('(SUN)')
                                         : false),
                                   )}
                                   required={
@@ -326,7 +330,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                     const value = e.currentTarget.value;
                                     props.setFieldValue('tempSource', value);
                                     props.setFieldValue('otherSource', value);
-                                    if (!!value) {
+                                    if (value) {
                                       props.setFieldValue('sourceId', undefined);
                                     }
                                   }}
@@ -463,8 +467,9 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                   }
                                 }}
                                 onKeyUp={() => {
-                                  if (textDecorationStyle !== 'none')
+                                  if (textDecorationStyle !== 'none') {
                                     setTextDecorationStyle('none');
+                                  }
                                   if (cursorStyle !== 'text') setCursorStyle('text');
                                 }}
                                 onClick={(e) => {
@@ -504,17 +509,17 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                   autoComplete="false"
                                   width={FieldSize.Medium}
                                   selectedDate={
-                                    !!props.values.publishedOn
+                                    props.values.publishedOn
                                       ? moment(props.values.publishedOn).toString()
                                       : undefined
                                   }
                                   value={
-                                    !!props.values.publishedOn
+                                    props.values.publishedOn
                                       ? moment(props.values.publishedOn).format('MMM D, yyyy')
                                       : ''
                                   }
                                   onChange={(date) => {
-                                    if (!!props.values.publishedOnTime) {
+                                    if (props.values.publishedOnTime) {
                                       const hours = props.values.publishedOnTime?.split(':');
                                       if (!!hours && !!date) {
                                         date.setHours(
@@ -536,10 +541,10 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                   disabled={!props.values.publishedOn}
                                   width="8em"
                                   value={
-                                    !!props.values.publishedOn ? props.values.publishedOnTime : ''
+                                    props.values.publishedOn ? props.values.publishedOnTime : ''
                                   }
                                   placeholder={
-                                    !!props.values.publishedOn
+                                    props.values.publishedOn
                                       ? props.values.publishedOnTime
                                       : 'HH:MM:SS'
                                   }
@@ -548,7 +553,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                       e.target.value = e.target.value.replaceAll('_', '0');
                                     }
                                     const date = setTime(props.values.publishedOn, e.target.value);
-                                    if (!!date) {
+                                    if (date) {
                                       props.setFieldValue(
                                         'publishedOn',
                                         moment(date).format('MMM D, yyyy HH:mm:ss'),
@@ -561,7 +566,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                   }}
                                   onChange={(e) => {
                                     const date = setTime(props.values.publishedOn, e.target.value);
-                                    if (!!date) {
+                                    if (date) {
                                       props.setFieldValue(
                                         'publishedOn',
                                         moment(date).format('MMM D, yyyy HH:mm:ss'),
@@ -581,17 +586,17 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                   autoComplete="false"
                                   width={FieldSize.Medium}
                                   selectedDate={
-                                    !!props.values.postedOn
+                                    props.values.postedOn
                                       ? moment(props.values.postedOn).toString()
                                       : undefined
                                   }
                                   value={
-                                    !!props.values.postedOn
+                                    props.values.postedOn
                                       ? moment(props.values.postedOn).format('MMM D, yyyy')
                                       : ''
                                   }
                                   onChange={(date) => {
-                                    if (!!props.values.postedOnTime) {
+                                    if (props.values.postedOnTime) {
                                       const hours = props.values.postedOnTime?.split(':');
                                       if (!!hours && !!date) {
                                         date.setHours(
@@ -612,9 +617,9 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                   label="Time"
                                   disabled={!props.values.postedOn}
                                   width="7em"
-                                  value={!!props.values.postedOn ? props.values.postedOnTime : ''}
+                                  value={props.values.postedOn ? props.values.postedOnTime : ''}
                                   placeholder={
-                                    !!props.values.postedOn ? props.values.postedOnTime : 'HH:MM:SS'
+                                    props.values.postedOn ? props.values.postedOnTime : 'HH:MM:SS'
                                   }
                                   onBlur={(e) => {
                                     if (e.target.value.indexOf('_')) {
@@ -624,7 +629,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                       props.values.postedOn ?? '',
                                       e.target.value,
                                     );
-                                    if (!!date) {
+                                    if (date) {
                                       props.setFieldValue(
                                         'postedOn',
                                         moment(date).format('MMM D, yyyy HH:mm:ss'),
@@ -640,7 +645,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                       props.values.postedOn ?? '',
                                       e.target.value,
                                     );
-                                    if (!!date) {
+                                    if (date) {
                                       props.setFieldValue(
                                         'postedOn',
                                         moment(date).format('MMM D, yyyy HH:mm:ss'),
@@ -698,12 +703,12 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                         // this is a "created" option, but we need to check if
                                         // it's a duplicate of an existing option this is !isOther
                                         const value = inputValue.trim();
-                                        let foundSeries: ISeriesModel | undefined = series.find(
+                                        const foundSeries: ISeriesModel | undefined = series.find(
                                           (s) =>
                                             s.name.toLocaleLowerCase() ===
                                             value.toLocaleLowerCase(),
                                         );
-                                        if (!!foundSeries) {
+                                        if (foundSeries) {
                                           // this is an existing series - not isOther
                                           props.setFieldValue('seriesId', foundSeries.id);
                                           props.setFieldValue('otherSeries', '');
@@ -749,7 +754,7 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                   name={'selTopic'}
                                   className={'topic-select'}
                                   value={
-                                    !!props.values.topics?.length
+                                    props.values.topics?.length
                                       ? props.values.topics[0].id
                                       : undefined
                                   }
@@ -826,19 +831,23 @@ const ContentForm: React.FC<IContentFormProps> = ({
                                   hasErrors(props.errors, ['publishedOn', 'tone', 'summary']) &&
                                   active !== 'summary'
                                 }
-                                showErrorOnSave={{ value: true, savePressed: savePressed }}
+                                showErrorOnSave={{ value: true, savePressed }}
                                 setShowValidationToast={setShowValidationToast}
                               />
                               <Tab
                                 label={`Quotes (${props.values.quotes.length})`}
-                                onClick={() => setActive('quotes')}
+                                onClick={() => {
+                                  setActive('quotes');
+                                }}
                                 active={active === 'quotes'}
                               />
                               <Show
                                 visible={props.values.contentType === ContentTypeName.AudioVideo}
                               >
                                 <Tab
-                                  onClick={() => setActive('transcript')}
+                                  onClick={() => {
+                                    setActive('transcript');
+                                  }}
                                   active={active === 'transcript'}
                                 >
                                   <Row alignItems="center" gap="0.25rem">
@@ -1000,8 +1009,8 @@ const ContentForm: React.FC<IContentFormProps> = ({
                               const entry: ITimeTrackingModel = {
                                 id: 0,
                                 contentId: props.values.id,
-                                userId: userId,
-                                activity: !!props.values.id ? 'Updated' : 'Created',
+                                userId,
+                                activity: props.values.id ? 'Updated' : 'Created',
                                 effort: +Number.parseInt(contentPrepTime),
                                 createdOn: moment().toLocaleString(),
                               };
@@ -1075,20 +1084,20 @@ const ContentForm: React.FC<IContentFormProps> = ({
                             }
                           >
                             <Button
-                              onClick={() =>
+                              onClick={async () => {
                                 isWorkOrderStatus(
                                   form.workOrders,
                                   [WorkOrderTypeName.Transcription, WorkOrderTypeName.AutoClip],
                                   [WorkOrderStatusName.Completed],
                                 )
                                   ? toggleTranscribe()
-                                  : handleTranscribe(props.values, props)
-                              }
+                                  : handleTranscribe(props.values, props);
+                              }}
                               variant={ButtonVariant.action}
                               disabled={
                                 props.values.isApproved ||
                                 props.isSubmitting ||
-                                !props.values.fileReferences.length ||
+                                props.values.fileReferences.length === 0 ||
                                 (props.values.fileReferences.length > 0 &&
                                   !props.values.fileReferences[0].isUploaded)
                               }
@@ -1096,20 +1105,20 @@ const ContentForm: React.FC<IContentFormProps> = ({
                               Transcribe
                             </Button>
                             <Button
-                              onClick={() =>
+                              onClick={async () => {
                                 isWorkOrderStatus(
                                   form.workOrders,
                                   [WorkOrderTypeName.Transcription, WorkOrderTypeName.AutoClip],
                                   [WorkOrderStatusName.Completed],
                                 )
                                   ? toggleAutoClip()
-                                  : handleAutoClip(props.values, props)
-                              }
+                                  : handleAutoClip(props.values, props);
+                              }}
                               variant={ButtonVariant.action}
                               disabled={
                                 props.values.isApproved ||
                                 props.isSubmitting ||
-                                !props.values.fileReferences.length ||
+                                props.values.fileReferences.length === 0 ||
                                 (props.values.fileReferences.length > 0 &&
                                   !props.values.fileReferences[0].isUploaded)
                               }
@@ -1140,7 +1149,9 @@ const ContentForm: React.FC<IContentFormProps> = ({
                           >
                             <Button
                               variant={ButtonVariant.cyan}
-                              onClick={() => goToNext(props.values)}
+                              onClick={() => {
+                                goToNext(props.values);
+                              }}
                             >
                               Next Snippet
                             </Button>

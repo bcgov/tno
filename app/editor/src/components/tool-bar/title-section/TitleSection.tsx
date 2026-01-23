@@ -1,5 +1,5 @@
 import React from 'react';
-import { Col, IToolBarSectionProps, Row, Show, ToolBarSection } from 'tno-core';
+import { Col, type IToolBarSectionProps, Row, Show, ToolBarSection } from 'tno-core';
 
 export interface ITitleSectionProps extends IToolBarSectionProps {
   /** Section icon. */

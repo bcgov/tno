@@ -46,10 +46,10 @@ export const separateDatasets = (
     const items = data.filter((item) => options.isInGroup?.(item, group));
     const key =
       (items.length ? options.getLabel!(items[0]) : undefined) ??
-      `${group}` ??
+      group ??
       options?.labelValueWhenEmpty ??
       '';
-    results[key] = items;
+    results[`${key}`] = items;
   });
 
   return results;

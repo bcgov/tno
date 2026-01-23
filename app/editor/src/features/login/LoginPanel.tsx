@@ -31,18 +31,38 @@ export const LoginPanel: React.FC = () => {
         <Col alignItems="center" gap="1em">
           <p>Sign In</p>
           <Show visible={!isLocal}>
-            <Button className="white azure-logo" onClick={() => login('css-oidc')}>
+            <Button
+              className="white azure-logo"
+              onClick={() => {
+                login('css-oidc');
+              }}
+            >
               IDIR
             </Button>
-            <Button className="white azure-logo" onClick={() => login('azure-entra')}>
+            <Button
+              className="white azure-logo"
+              onClick={() => {
+                login('azure-entra');
+              }}
+            >
               Microsoft
             </Button>
-            <Button className="signIn" onClick={() => login()}>
+            <Button
+              className="signIn"
+              onClick={() => {
+                login();
+              }}
+            >
               Other
             </Button>
           </Show>
           <Show visible={isLocal}>
-            <Button className="signIn" onClick={() => login()}>
+            <Button
+              className="signIn"
+              onClick={() => {
+                login();
+              }}
+            >
               Local
             </Button>
           </Show>

@@ -1,6 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { ISourceModel } from 'tno-core';
+import { type ISourceModel } from 'tno-core';
 
 import { SourceMetrics } from '.';
 import * as styled from './styled';

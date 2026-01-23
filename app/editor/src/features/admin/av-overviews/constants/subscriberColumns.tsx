@@ -1,11 +1,17 @@
-import { CellEllipsis, Checkbox, ITableHookColumn, IUserAVOverviewModel, Row } from 'tno-core';
+import {
+  CellEllipsis,
+  Checkbox,
+  type ITableHookColumn,
+  type IUserAVOverviewModel,
+  Row,
+} from 'tno-core';
 
-import { IAVOverviewTemplateForm } from '../interfaces';
+import { type IAVOverviewTemplateForm } from '../interfaces';
 
 export const subscriberColumns = (
   overviewForm: IAVOverviewTemplateForm,
   setFieldValue: (field: string, value: any, shouldValidate?: boolean | undefined) => void,
-): ITableHookColumn<IUserAVOverviewModel>[] => [
+): Array<ITableHookColumn<IUserAVOverviewModel>> => [
   {
     label: '',
     accessor: 'id',
@@ -17,12 +23,12 @@ export const subscriberColumns = (
         checked={overviewForm.subscribers.some((u) => u.id === cell.original.id && u.isSubscribed)}
         onChange={(e) => {
           const user = { ...cell.original, isSubscribed: e.target.checked };
-          if (overviewForm.subscribers.some((u) => u.id === cell.original.id))
+          if (overviewForm.subscribers.some((u) => u.id === cell.original.id)) {
             setFieldValue(
               'subscribers',
               overviewForm.subscribers.map((item) => (item.id === cell.original.id ? user : item)),
             );
-          else setFieldValue('subscribers', [user, ...overviewForm.subscribers]);
+          } else setFieldValue('subscribers', [user, ...overviewForm.subscribers]);
         }}
       />
     ),

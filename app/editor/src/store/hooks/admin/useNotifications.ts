@@ -1,12 +1,12 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
+import { type IAdminState, useAdminStore } from 'store/slices';
 import {
-  IDashboardFilter,
-  INotificationFilter,
-  INotificationInstanceModel,
-  INotificationModel,
-  INotificationResultModel,
+  type IDashboardFilter,
+  type INotificationFilter,
+  type INotificationInstanceModel,
+  type INotificationModel,
+  type INotificationResultModel,
   useApiAdminNotifications,
 } from 'tno-core';
 
@@ -37,15 +37,17 @@ export const useNotifications = (): [IAdminState, INotificationController] => {
   const controller = React.useMemo(
     () => ({
       findNotifications: async (filter?: INotificationFilter) => {
-        const response = await dispatch<INotificationModel[]>('find-Notifications', () =>
-          api.findNotifications(filter),
+        const response = await dispatch<INotificationModel[]>(
+          'find-Notifications',
+          async () => await api.findNotifications(filter),
         );
         store.storeNotifications(response.data);
         return response.data;
       },
       getNotification: async (id: number) => {
-        const response = await dispatch<INotificationModel>('get-Notification', () =>
-          api.getNotification(id),
+        const response = await dispatch<INotificationModel>(
+          'get-Notification',
+          async () => await api.getNotification(id),
         );
         store.storeNotifications((Notifications) =>
           Notifications.map((ds) => {
@@ -56,16 +58,18 @@ export const useNotifications = (): [IAdminState, INotificationController] => {
         return response.data;
       },
       addNotification: async (model: INotificationModel) => {
-        const response = await dispatch<INotificationModel>('add-Notification', () =>
-          api.addNotification(model),
+        const response = await dispatch<INotificationModel>(
+          'add-Notification',
+          async () => await api.addNotification(model),
         );
         store.storeNotifications((Notifications) => [...Notifications, response.data]);
         await lookup.getLookups();
         return response.data;
       },
       updateNotification: async (model: INotificationModel) => {
-        const response = await dispatch<INotificationModel>('update-Notification', () =>
-          api.updateNotification(model),
+        const response = await dispatch<INotificationModel>(
+          'update-Notification',
+          async () => await api.updateNotification(model),
         );
         store.storeNotifications((Notifications) =>
           Notifications.map((ds) => {
@@ -77,8 +81,9 @@ export const useNotifications = (): [IAdminState, INotificationController] => {
         return response.data;
       },
       deleteNotification: async (model: INotificationModel) => {
-        const response = await dispatch<INotificationModel>('delete-Notification', () =>
-          api.deleteNotification(model),
+        const response = await dispatch<INotificationModel>(
+          'delete-Notification',
+          async () => await api.deleteNotification(model),
         );
         store.storeNotifications((Notifications) =>
           Notifications.filter((ds) => ds.id !== response.data.id),
@@ -87,20 +92,23 @@ export const useNotifications = (): [IAdminState, INotificationController] => {
         return response.data;
       },
       previewNotification: async (model: INotificationModel, contentId: number) => {
-        const response = await dispatch<INotificationResultModel>('preview-Notification', () =>
-          api.previewNotification(model, contentId),
+        const response = await dispatch<INotificationResultModel>(
+          'preview-Notification',
+          async () => await api.previewNotification(model, contentId),
         );
         return response.data;
       },
       sendNotification: async (model: INotificationModel, to: string, contentId?: number) => {
-        const response = await dispatch<INotificationModel>('send-Notification', () =>
-          api.sendNotification(model, to, contentId),
+        const response = await dispatch<INotificationModel>(
+          'send-Notification',
+          async () => await api.sendNotification(model, to, contentId),
         );
         return response.data;
       },
       getDashboard: async (filter: IDashboardFilter) => {
-        const response = await dispatch<INotificationInstanceModel[]>('get-dashboard', () =>
-          api.getDashboard(filter),
+        const response = await dispatch<INotificationInstanceModel[]>(
+          'get-dashboard',
+          async () => await api.getDashboard(filter),
         );
         return response.data;
       },

@@ -10,8 +10,8 @@ import {
   FaRegImage,
   FaTrash,
 } from 'react-icons/fa';
-import { Column, UseSortByColumnOptions } from 'react-table';
-import { Col, IItemModel, isImageFile, isVideoOrAudioFile, Row, Show } from 'tno-core';
+import { type Column, type UseSortByColumnOptions } from 'react-table';
+import { Col, type IItemModel, isImageFile, isVideoOrAudioFile, Row, Show } from 'tno-core';
 
 interface IColumnOptions {
   isStorage?: boolean;
@@ -25,7 +25,7 @@ interface IColumnOptions {
 /** columns located within file for state manipulation */
 export const fileExplorerColumns = (
   options?: IColumnOptions,
-): (Column<IItemModel> & UseSortByColumnOptions<IItemModel>)[] => [
+): Array<Column<IItemModel> & UseSortByColumnOptions<IItemModel>> => [
   {
     id: 'isDirectory',
     Header: () => <div className="list-icon"></div>,
@@ -71,7 +71,7 @@ export const fileExplorerColumns = (
     accessor: 'size',
     maxWidth: 35,
     Cell: ({ value }) => (
-      <div className="ft-row">{!!value ? `${(value / 1000000).toFixed(2)} MB` : ''}</div>
+      <div className="ft-row">{value ? `${(value / 1000000).toFixed(2)} MB` : ''}</div>
     ),
   },
   {

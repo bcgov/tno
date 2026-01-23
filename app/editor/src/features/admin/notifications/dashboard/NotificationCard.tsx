@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaCircleChevronDown, FaCircleChevronUp } from 'react-icons/fa6';
-import { INotificationInstanceModel, NotificationStatusName, TextArea } from 'tno-core';
+import { type INotificationInstanceModel, NotificationStatusName, TextArea } from 'tno-core';
 
 import { getLastSent, getStatus } from './utils';
 
@@ -14,14 +14,14 @@ export const NotificationCard: React.FC<INotificationCardProps> = ({ instance })
 
   const stringifyResponse = React.useCallback((data: any) => {
     try {
-      return data ? JSON.stringify(data, undefined, `\t`) : '';
+      return data ? JSON.stringify(data, undefined, '\t') : '';
     } catch {
       return '';
     }
   }, []);
 
   return (
-    <div className={`notification-card`}>
+    <div className={'notification-card'}>
       <div>{instance.notification.name}</div>
       <div>{instance.subject}</div>
       <div>{instance.notification.owner?.email}</div>
@@ -30,7 +30,11 @@ export const NotificationCard: React.FC<INotificationCardProps> = ({ instance })
       </div>
       <div>{getLastSent(instance)}</div>
       <div className="buttons">
-        <div onClick={() => setExpand((value) => !value)}>
+        <div
+          onClick={() => {
+            setExpand((value) => !value);
+          }}
+        >
           {expand ? <FaCircleChevronUp /> : <FaCircleChevronDown />}
         </div>
       </div>
@@ -39,12 +43,12 @@ export const NotificationCard: React.FC<INotificationCardProps> = ({ instance })
           <div className="response">
             <div
               className="buttons left"
-              onClick={() =>
+              onClick={() => {
                 setExpandResponse((value) => ({
                   ...value,
                   [instance.id]: !value[instance.id],
-                }))
-              }
+                }));
+              }}
             >
               <h3>CHES Response</h3>
               <div>
@@ -59,9 +63,9 @@ export const NotificationCard: React.FC<INotificationCardProps> = ({ instance })
           </div>
           <h3>Subscribers</h3>
           <div className="subscribers">
-            {!instance.notification.subscribers.length && (
+            {instance.notification.subscribers.length === 0 && (
               <div className="subscriber">
-                {!instance.notification.subscribers.length && 'No Subscribers'}
+                {instance.notification.subscribers.length === 0 && 'No Subscribers'}
               </div>
             )}
             {instance.notification.subscribers.map((subscriber) => {

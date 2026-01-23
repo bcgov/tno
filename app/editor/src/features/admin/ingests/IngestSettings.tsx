@@ -8,7 +8,7 @@ import {
   FormikSelect,
   FormikText,
   getSortableOptions,
-  IIngestModel,
+  type IIngestModel,
   Row,
   Section,
   Show,
@@ -96,7 +96,7 @@ const IngestSettings: React.FC<IIngestSettingsProps> = () => {
               options={connectionOptions}
               onChange={(newValue: any) => {
                 const source = connections.find((c) => c.id === newValue.value);
-                if (!!source) setFieldValue('sourceConnection', source);
+                if (source) setFieldValue('sourceConnection', source);
               }}
               required
             />
@@ -221,7 +221,7 @@ const IngestSettings: React.FC<IIngestSettingsProps> = () => {
               options={connectionOptions}
               onChange={(newValue: any) => {
                 const source = connections.find((c) => c.id === newValue.value);
-                if (!!source) setFieldValue('destinationConnection', source);
+                if (source) setFieldValue('destinationConnection', source);
               }}
               required
             />

@@ -8,7 +8,7 @@ import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
 import { useContent } from 'store/hooks';
-import { Button, ButtonVariant, Col, IContentModel, IFilterModel, Row } from 'tno-core';
+import { Button, ButtonVariant, Col, type IContentModel, type IFilterModel, Row } from 'tno-core';
 
 /**
  * The page used to view and edit report filter.
@@ -37,7 +37,12 @@ export const FilterFormPreview: React.FC = () => {
     <Col>
       <h2>{values.name}</h2>
       <Row>
-        <Button variant={ButtonVariant.success} onClick={() => fetchResults(values)}>
+        <Button
+          variant={ButtonVariant.success}
+          onClick={async () => {
+            await fetchResults(values);
+          }}
+        >
           Fetch Results
         </Button>
       </Row>

@@ -1,4 +1,4 @@
-import { IDataLocationForm } from '../interfaces';
+import { type IDataLocationForm } from '../interfaces';
 
 export const defaultDataLocation: IDataLocationForm = {
   id: 0,

@@ -15,7 +15,7 @@ import {
   datasetValueOptions,
   FormikSelect,
   groupByOptions,
-  OptionItem,
+  type OptionItem,
   Row,
 } from 'tno-core';
 

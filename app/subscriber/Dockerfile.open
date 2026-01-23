@@ -1,4 +1,4 @@
-FROM image-registry.openshift-image-registry.svc:5000/9b301c-tools/node:18-bullseye as build-deps
+FROM image-registry.openshift-image-registry.svc:5000/9b301c-tools/node:18-bullseye AS build-deps
 
 USER root
 

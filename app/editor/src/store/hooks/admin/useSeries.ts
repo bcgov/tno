@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
-import { IPaged, ISeriesFilter, ISeriesModel, useApiAdminSeries } from 'tno-core';
+import { type IAdminState, useAdminStore } from 'store/slices';
+import { type IPaged, type ISeriesFilter, type ISeriesModel, useApiAdminSeries } from 'tno-core';
 
 interface ISeriesController {
   findAllSeries: () => Promise<ISeriesModel[]>;
@@ -22,20 +22,25 @@ export const useSeries = (): [IAdminState, ISeriesController] => {
   const controller = React.useMemo(
     () => ({
       findAllSeries: async () => {
-        const response = await dispatch<ISeriesModel[]>('find-all-series', () =>
-          api.findAllSeries(),
+        const response = await dispatch<ISeriesModel[]>(
+          'find-all-series',
+          async () => await api.findAllSeries(),
         );
         store.storeSeries(response.data);
         return response.data;
       },
       findSeries: async (filter: ISeriesFilter) => {
-        const response = await dispatch<IPaged<ISeriesModel>>('find-series', () =>
-          api.findSeries(filter),
+        const response = await dispatch<IPaged<ISeriesModel>>(
+          'find-series',
+          async () => await api.findSeries(filter),
         );
         return response.data;
       },
       getSeries: async (id: number) => {
-        const response = await dispatch<ISeriesModel>('get-series', () => api.getSeries(id));
+        const response = await dispatch<ISeriesModel>(
+          'get-series',
+          async () => await api.getSeries(id),
+        );
         store.storeSeries((series) =>
           series.map((ds) => {
             if (ds.id === response.data.id) return response.data;
@@ -45,14 +50,18 @@ export const useSeries = (): [IAdminState, ISeriesController] => {
         return response.data;
       },
       addSeries: async (model: ISeriesModel) => {
-        const response = await dispatch<ISeriesModel>('add-series', () => api.addSeries(model));
+        const response = await dispatch<ISeriesModel>(
+          'add-series',
+          async () => await api.addSeries(model),
+        );
         store.storeSeries((series) => [...series, response.data]);
         await lookup.getLookups();
         return response.data;
       },
       updateSeries: async (model: ISeriesModel) => {
-        const response = await dispatch<ISeriesModel>('update-series', () =>
-          api.updateSeries(model),
+        const response = await dispatch<ISeriesModel>(
+          'update-series',
+          async () => await api.updateSeries(model),
         );
         store.storeSeries((series) =>
           series.map((ds) => {
@@ -64,16 +73,18 @@ export const useSeries = (): [IAdminState, ISeriesController] => {
         return response.data;
       },
       deleteSeries: async (model: ISeriesModel) => {
-        const response = await dispatch<ISeriesModel>('delete-series', () =>
-          api.deleteSeries(model),
+        const response = await dispatch<ISeriesModel>(
+          'delete-series',
+          async () => await api.deleteSeries(model),
         );
         store.storeSeries((series) => series.filter((ds) => ds.id !== response.data.id));
         await lookup.getLookups();
         return response.data;
       },
       mergeSeries: async (fromSeriesId: number, intoSeriesId: number) => {
-        const response = await dispatch<ISeriesModel>('merge-series', () =>
-          api.mergeSeries(fromSeriesId, intoSeriesId),
+        const response = await dispatch<ISeriesModel>(
+          'merge-series',
+          async () => await api.mergeSeries(fromSeriesId, intoSeriesId),
         );
         await lookup.getLookups();
         return response.data;

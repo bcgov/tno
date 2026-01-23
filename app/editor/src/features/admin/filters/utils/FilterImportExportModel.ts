@@ -1,4 +1,4 @@
-import { IFilterImportExportModel } from './IFilterImportExportModel';
+import { type IFilterImportExportModel } from './IFilterImportExportModel';
 
 export class FilterImportExportModel implements IFilterImportExportModel {
   name?: string | undefined;

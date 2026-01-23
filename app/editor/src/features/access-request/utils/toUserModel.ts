@@ -1,4 +1,4 @@
-import { IUserInfoModel, IUserModel } from 'tno-core';
+import { type IUserInfoModel, type IUserModel } from 'tno-core';
 
 import { defaultUser } from '../constants';
 

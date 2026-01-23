@@ -39,4 +39,9 @@ public enum ReportSectionType
     /// This section displays JSON, XML, or other types of 3rd party data
     /// </summary>
     Data = 6,
+
+    /// <summary>
+    /// This section displays an AI summary
+    /// </summary>
+    AI = 7,
 }

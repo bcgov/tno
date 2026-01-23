@@ -9,7 +9,7 @@ import {
   ButtonVariant,
   Col,
   IconButton,
-  IIngestModel,
+  type IIngestModel,
   IngestSchema,
   Modal,
   Row,
@@ -33,7 +33,7 @@ const IngestForm: React.FC<IIngestProps> = (props) => {
 
   const ingestId = Number(id);
   const [showStatus, setShowStatus] = React.useState<boolean>(true);
-  const [ingest, setIngest] = React.useState<IIngestModel>((state as any)?.ingest ?? defaultIngest);
+  const [ingest, setIngest] = React.useState<IIngestModel>(state?.ingest ?? defaultIngest);
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -77,15 +77,28 @@ const IngestForm: React.FC<IIngestProps> = (props) => {
           iconType="back"
           label="Back to Ingests"
           className="back-button"
-          onClick={() => navigate('/admin/ingests')}
+          onClick={() => {
+            navigate('/admin/ingests');
+          }}
         />
         <Col flex="1" className="info">
           <p>This provides a way to configure ingestion services.</p>
         </Col>
-        <Button onClick={() => setShowStatus(!showStatus)} tooltip={'Toggle status information'}>
+        <Button
+          onClick={() => {
+            setShowStatus(!showStatus);
+          }}
+          tooltip={'Toggle status information'}
+        >
           {showStatus ? <FaEyeSlash /> : <FaEye />}
         </Button>
-        <Button variant={ButtonVariant.secondary} tooltip="Reload" onClick={() => reload()}>
+        <Button
+          variant={ButtonVariant.secondary}
+          tooltip="Reload"
+          onClick={async () => {
+            await reload();
+          }}
+        >
           <FaSpinner />
         </Button>
       </Row>

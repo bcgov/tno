@@ -1,5 +1,5 @@
 import React from 'react';
-import { IUserProductModel, Row, ToggleGroup } from 'tno-core';
+import { type IUserProductModel, Row, ToggleGroup } from 'tno-core';
 
 export interface IUserApproveDenyProps {
   user: IUserProductModel;
@@ -14,9 +14,16 @@ export const UserApproveDeny: React.FC<IUserApproveDenyProps> = ({ user, onChang
         options={[
           {
             label: 'Approve',
-            onClick: () => onChange(true),
+            onClick: () => {
+              onChange(true);
+            },
           },
-          { label: 'Reject', onClick: () => onChange(false) },
+          {
+            label: 'Reject',
+            onClick: () => {
+              onChange(false);
+            },
+          },
         ]}
         className="toggle-group"
       />

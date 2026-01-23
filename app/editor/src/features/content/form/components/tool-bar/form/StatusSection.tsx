@@ -1,6 +1,6 @@
 import { Status } from 'components/status';
 import { ContentNavigation } from 'features/content/form';
-import { IContentForm } from 'features/content/form/interfaces';
+import { type IContentForm } from 'features/content/form/interfaces';
 import { getStatusText } from 'features/content/list-view/utils';
 import { Col, Row, Show, ToolBarSection } from 'tno-core';
 

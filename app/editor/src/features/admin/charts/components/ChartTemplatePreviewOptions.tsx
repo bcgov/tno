@@ -10,7 +10,7 @@ import {
   legendAlignOptions,
   legendPositionOptions,
   mergeChartSettings,
-  OptionItem,
+  type OptionItem,
   Row,
   Select,
   Text,
@@ -53,7 +53,9 @@ export const ChartTemplatePreviewOptions = () => {
         <ToggleButton
           on={<FaMinus />}
           off={<FaAngleDown />}
-          onClick={() => setShow(!show)}
+          onClick={() => {
+            setShow(!show);
+          }}
           value={show}
         />
       </Row>
@@ -86,7 +88,7 @@ export const ChartTemplatePreviewOptions = () => {
                 value={chartRequestForm.settings.width ?? ''}
                 type="number"
                 width="10ch"
-                onChange={(e) =>
+                onChange={(e) => {
                   setChartRequestForm({
                     ...chartRequestForm,
                     settings: mergeChartSettings(
@@ -96,8 +98,8 @@ export const ChartTemplatePreviewOptions = () => {
                         width: parseInt(e.target.value),
                       },
                     ),
-                  })
-                }
+                  });
+                }}
               />
               <Text
                 name="height"
@@ -105,7 +107,7 @@ export const ChartTemplatePreviewOptions = () => {
                 value={chartRequestForm.settings.height ?? ''}
                 type="number"
                 width="10ch"
-                onChange={(e) =>
+                onChange={(e) => {
                   setChartRequestForm({
                     ...chartRequestForm,
                     settings: mergeChartSettings(
@@ -115,8 +117,8 @@ export const ChartTemplatePreviewOptions = () => {
                         height: parseInt(e.target.value),
                       },
                     ),
-                  })
-                }
+                  });
+                }}
               />
             </Row>
             <Col>
@@ -379,7 +381,7 @@ export const ChartTemplatePreviewOptions = () => {
                       values.settings.options,
                       chartRequestForm.settings,
                       {
-                        dataLabelFontSize: value ? value : undefined,
+                        dataLabelFontSize: value || undefined,
                       },
                     ),
                   });
@@ -625,7 +627,7 @@ export const ChartTemplatePreviewOptions = () => {
                 label="Legend Title"
                 disabled={!chartRequestForm.settings.showLegend}
                 value={chartRequestForm.settings.legendTitle ?? ''}
-                onChange={(e) =>
+                onChange={(e) => {
                   setChartRequestForm({
                     ...chartRequestForm,
                     settings: mergeChartSettings(
@@ -635,8 +637,8 @@ export const ChartTemplatePreviewOptions = () => {
                         legendTitle: e.target.value,
                       },
                     ),
-                  })
-                }
+                  });
+                }}
               />
               <Text
                 name="legendTitle-font-size"
@@ -653,7 +655,7 @@ export const ChartTemplatePreviewOptions = () => {
                       values.settings.options,
                       chartRequestForm.settings,
                       {
-                        legendTitleFontSize: value ? value : undefined,
+                        legendTitleFontSize: value || undefined,
                       },
                     ),
                   });
@@ -676,7 +678,7 @@ export const ChartTemplatePreviewOptions = () => {
                       values.settings.options,
                       chartRequestForm.settings,
                       {
-                        legendLabelFontSize: value ? value : undefined,
+                        legendLabelFontSize: value || undefined,
                       },
                     ),
                   });
@@ -697,7 +699,7 @@ export const ChartTemplatePreviewOptions = () => {
                       values.settings.options,
                       chartRequestForm.settings,
                       {
-                        legendLabelBoxWidth: value ? value : undefined,
+                        legendLabelBoxWidth: value || undefined,
                       },
                     ),
                   });
@@ -755,7 +757,7 @@ export const ChartTemplatePreviewOptions = () => {
                 name="title"
                 label="Chart title"
                 value={chartRequestForm.settings.title ?? ''}
-                onChange={(e) =>
+                onChange={(e) => {
                   setChartRequestForm({
                     ...chartRequestForm,
                     settings: mergeChartSettings(
@@ -765,8 +767,8 @@ export const ChartTemplatePreviewOptions = () => {
                         title: e.target.value,
                       },
                     ),
-                  })
-                }
+                  });
+                }}
               />
               <Text
                 name="title-font-size"
@@ -782,7 +784,7 @@ export const ChartTemplatePreviewOptions = () => {
                       values.settings.options,
                       chartRequestForm.settings,
                       {
-                        titleFontSize: value ? value : undefined,
+                        titleFontSize: value || undefined,
                       },
                     ),
                   });
@@ -794,7 +796,7 @@ export const ChartTemplatePreviewOptions = () => {
                 name="subtitle"
                 label="Chart subtitle"
                 value={chartRequestForm.settings.subtitle ?? ''}
-                onChange={(e) =>
+                onChange={(e) => {
                   setChartRequestForm({
                     ...chartRequestForm,
                     settings: mergeChartSettings(
@@ -804,8 +806,8 @@ export const ChartTemplatePreviewOptions = () => {
                         subtitle: e.target.value,
                       },
                     ),
-                  })
-                }
+                  });
+                }}
               />
               <Text
                 name="subtitle-font-size"
@@ -821,7 +823,7 @@ export const ChartTemplatePreviewOptions = () => {
                       values.settings.options,
                       chartRequestForm.settings,
                       {
-                        subtitleFontSize: value ? value : undefined,
+                        subtitleFontSize: value || undefined,
                       },
                     ),
                   });
@@ -833,7 +835,7 @@ export const ChartTemplatePreviewOptions = () => {
                 name="xLegend"
                 label="X Axis Title"
                 value={chartRequestForm.settings.xLegend ?? ''}
-                onChange={(e) =>
+                onChange={(e) => {
                   setChartRequestForm({
                     ...chartRequestForm,
                     settings: mergeChartSettings(
@@ -843,8 +845,8 @@ export const ChartTemplatePreviewOptions = () => {
                         xLegend: e.target.value,
                       },
                     ),
-                  })
-                }
+                  });
+                }}
               />
               <Text
                 name="xLegend-font-size"
@@ -860,7 +862,7 @@ export const ChartTemplatePreviewOptions = () => {
                       values.settings.options,
                       chartRequestForm.settings,
                       {
-                        xLegendFontSize: value ? value : undefined,
+                        xLegendFontSize: value || undefined,
                       },
                     ),
                   });
@@ -880,7 +882,7 @@ export const ChartTemplatePreviewOptions = () => {
                       values.settings.options,
                       chartRequestForm.settings,
                       {
-                        xMinRotation: value ? value : undefined,
+                        xMinRotation: value || undefined,
                       },
                     ),
                   });
@@ -900,7 +902,7 @@ export const ChartTemplatePreviewOptions = () => {
                       values.settings.options,
                       chartRequestForm.settings,
                       {
-                        xMaxRotation: value ? value : undefined,
+                        xMaxRotation: value || undefined,
                       },
                     ),
                   });
@@ -931,7 +933,7 @@ export const ChartTemplatePreviewOptions = () => {
                 name="yLegend"
                 label="Y Axis Title"
                 value={chartRequestForm.settings.yLegend ?? ''}
-                onChange={(e) =>
+                onChange={(e) => {
                   setChartRequestForm({
                     ...chartRequestForm,
                     settings: mergeChartSettings(
@@ -941,8 +943,8 @@ export const ChartTemplatePreviewOptions = () => {
                         yLegend: e.target.value,
                       },
                     ),
-                  })
-                }
+                  });
+                }}
               />
               <Text
                 name="yLegend-font-size"
@@ -958,7 +960,7 @@ export const ChartTemplatePreviewOptions = () => {
                       values.settings.options,
                       chartRequestForm.settings,
                       {
-                        yLegendFontSize: value ? value : undefined,
+                        yLegendFontSize: value || undefined,
                       },
                     ),
                   });
@@ -978,7 +980,7 @@ export const ChartTemplatePreviewOptions = () => {
                       values.settings.options,
                       chartRequestForm.settings,
                       {
-                        yMinRotation: value ? value : undefined,
+                        yMinRotation: value || undefined,
                       },
                     ),
                   });
@@ -998,7 +1000,7 @@ export const ChartTemplatePreviewOptions = () => {
                       values.settings.options,
                       chartRequestForm.settings,
                       {
-                        yMaxRotation: value ? value : undefined,
+                        yMaxRotation: value || undefined,
                       },
                     ),
                   });

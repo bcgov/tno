@@ -1,4 +1,4 @@
-import { IReportTemplateSettingsModel } from 'tno-core';
+import { type IReportTemplateSettingsModel } from 'tno-core';
 
 export interface IReportTemplateImportExportModel {
   name: string;

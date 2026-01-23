@@ -1,4 +1,4 @@
-import { IActionModel, ValueType } from 'tno-core';
+import { type IActionModel, ValueType } from 'tno-core';
 
 export const defaultAction: IActionModel = {
   id: 0,

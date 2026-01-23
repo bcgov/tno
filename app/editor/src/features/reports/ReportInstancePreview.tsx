@@ -8,8 +8,8 @@ import {
   ButtonVariant,
   Col,
   getDistinct,
-  IReportModel,
-  IReportResultModel,
+  type IReportModel,
+  type IReportResultModel,
   Loading,
   Show,
   UserAccountTypeName,
@@ -81,7 +81,7 @@ const ReportInstancePreview: React.FC = () => {
       const textBlob = new Blob([fixed_body], { type: 'text/plain' });
       const clip = new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob });
       navigator.clipboard.write([clip]);
-      const bcc = subscribers.length ? `bcc=${emails.join('; ')}` : '';
+      const bcc = subscribers.length > 0 ? `bcc=${emails.join('; ')}` : '';
       window.location.href = `mailto:${to}?${bcc}&subject=${email.subject}&body=Click Paste - Keep Source Formatting`;
     },
     [editorUrl, getDistributionListById, subscriberUrl],
@@ -104,11 +104,11 @@ const ReportInstancePreview: React.FC = () => {
               <Button
                 variant={ButtonVariant.link}
                 title="Open Email"
-                onClick={() =>
-                  userInfo &&
-                  report &&
-                  view &&
-                  prepareEmail(userInfo.preferredEmail ?? userInfo.email, report, view)
+                onClick={async () =>
+                  await (userInfo &&
+                    report &&
+                    view &&
+                    prepareEmail(userInfo.preferredEmail ?? userInfo.email, report, view))
                 }
               >
                 <FaPaperPlane />

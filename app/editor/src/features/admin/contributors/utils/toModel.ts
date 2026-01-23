@@ -1,6 +1,6 @@
-import { IContributorModel } from 'tno-core';
+import { type IContributorModel } from 'tno-core';
 
-import { IContributorForm } from '../interfaces';
+import { type IContributorForm } from '../interfaces';
 
 export const toModel = (values: IContributorForm): IContributorModel => {
   return {

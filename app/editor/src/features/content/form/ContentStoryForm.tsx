@@ -6,7 +6,7 @@ import { useLookup } from 'store/hooks';
 import { ContentTypeName, FormikContentWysiwyg, Show } from 'tno-core';
 
 import { useExtractTags } from './hooks';
-import { IContentForm } from './interfaces';
+import { type IContentForm } from './interfaces';
 import { MediaSummary } from './MediaSummary';
 import * as styled from './styled';
 import { isSummaryRequired } from './utils';
@@ -68,7 +68,9 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
           label={isBodyContent ? 'Story' : 'Summary'}
           name={fieldName}
           tags={tags}
-          onChange={(text) => getTags(fieldName, text)}
+          onChange={(text) => {
+            getTags(fieldName, text);
+          }}
         />
       </Show>
     </styled.ContentStoryForm>

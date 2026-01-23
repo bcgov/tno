@@ -62,7 +62,7 @@ export const Tabs: React.FC<ITabsProps> = ({
           {(children as (props?: ITab) => React.ReactNode)(active)}
         </div>
       ) : (
-        <div className="tab-container">{children}</div> ?? <></>
+        <div className="tab-container">{children}</div>
       )}
     </styled.Tabs>
   );

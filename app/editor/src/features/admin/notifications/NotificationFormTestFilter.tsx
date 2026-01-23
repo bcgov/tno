@@ -3,13 +3,13 @@ import 'prismjs/components/prism-csharp';
 import 'prismjs/components/prism-cshtml';
 import 'prismjs/components/prism-json';
 
-import { MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
+import { type MsearchMultisearchBody } from '@elastic/elasticsearch/lib/api/types';
 import { useFormikContext } from 'formik';
 import { highlight, languages } from 'prismjs';
 import React from 'react';
 import Editor from 'react-simple-code-editor';
 import { useContent } from 'store/hooks';
-import { Button, ButtonVariant, Col, IContentModel, IFilterModel, Row } from 'tno-core';
+import { Button, ButtonVariant, Col, type IContentModel, type IFilterModel, Row } from 'tno-core';
 
 /**
  * The page used to view and edit notification filter.
@@ -35,7 +35,12 @@ export const NotificationFormTestFilter: React.FC = () => {
     <Col>
       <h2>{values.name}</h2>
       <Row>
-        <Button variant={ButtonVariant.success} onClick={() => fetchResults(values.query)}>
+        <Button
+          variant={ButtonVariant.success}
+          onClick={async () => {
+            await fetchResults(values.query);
+          }}
+        >
           Fetch Results
         </Button>
       </Row>

@@ -1,7 +1,7 @@
 import { ContentStatusName, ContentTypeName } from 'tno-core';
 import { array, date, number, object, string } from 'yup';
 
-import { IContentForm } from '../form/interfaces';
+import { type IContentForm } from '../form/interfaces';
 
 export const ContentFormSchema = object<IContentForm>().shape(
   {
@@ -9,8 +9,9 @@ export const ContentFormSchema = object<IContentForm>().shape(
       .required('Media Type is required.')
       .notOneOf([0], 'Media Type is required.'),
     sourceId: number().when('tempSource', (value: number[]) => {
-      if (value[0] === undefined)
+      if (value[0] === undefined) {
         return number().required('Either source or other source is required.');
+      }
       return number();
     }),
     prep: string().test('timeTrackings', 'Prep time is required', (value, context) => {
@@ -23,14 +24,16 @@ export const ContentFormSchema = object<IContentForm>().shape(
           (result, entry) => result + entry.effort,
           0,
         );
-        if (!totalEffort || !parent.timeTrackings.some((entry) => entry.id === 0))
+        if (!totalEffort || !parent.timeTrackings.some((entry) => entry.id === 0)) {
           return context.createError({ message: 'Prep time is required' });
+        }
       }
       return context.resolve(true);
     }),
     tempSource: string().when('sourceId', (value: string[]) => {
-      if (value[0] === undefined)
+      if (value[0] === undefined) {
         return string().required('Either source or other source is required.');
+      }
       return string();
     }),
     publishedOn: date().required('Published On is a required field.'),
@@ -40,16 +43,18 @@ export const ContentFormSchema = object<IContentForm>().shape(
         return number().when('mediaTypeId', (value: number[]) => {
           // Summary is not a required field when content is tagged as News Radio or Events media type
           // TODO: This will break eventually because of hardcoded values.
-          if (value[0] !== 4 && value[0] !== 9)
+          if (value[0] !== 4 && value[0] !== 9) {
             return string().trim().required('Summary is a required field.');
+          }
           return string();
         });
       }
       return string();
     }),
     body: string().when('contentType', (value: string[]) => {
-      if (value[0] !== ContentTypeName.AudioVideo && value[0] !== ContentTypeName.Image)
+      if (value[0] !== ContentTypeName.AudioVideo && value[0] !== ContentTypeName.Image) {
         return string().trim().required('Body is a required field.');
+      }
       return string();
     }),
     // TODO: Headline should not be empty.

@@ -1,4 +1,4 @@
-import moment, { Moment } from 'moment';
+import moment, { type Moment } from 'moment';
 
 export const getIsEditable = (publishedOn: Moment) => {
   const now = moment(Date.now());

@@ -8,8 +8,8 @@ import {
   Col,
   FormikCheckbox,
   FormikText,
-  IReportModel,
-  IReportSectionModel,
+  type IReportModel,
+  type IReportSectionModel,
   ReportSectionTypeName,
   Row,
   Show,
@@ -19,6 +19,7 @@ import {
   ReportContentOptions,
   ReportHeadlineOptions,
   ReportOptions,
+  ReportSectionAI,
   ReportSectionContent,
   ReportSectionData,
   ReportSectionGallery,
@@ -37,8 +38,8 @@ export const ReportFormSections = () => {
   const [{ folders }, { findFolders }] = useFolders();
 
   React.useEffect(() => {
-    if (!filters.length) findFilters({}).catch(() => {});
-    if (!folders.length) findFolders({}).catch(() => {});
+    if (filters.length === 0) findFilters({}).catch(() => {});
+    if (folders.length === 0) findFolders({}).catch(() => {});
     // Only fetch items on initial load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -58,8 +59,8 @@ export const ReportFormSections = () => {
   };
 
   const handleMoveUp = (section: IReportSectionModel, index: number) => {
-    var results = [...values.sections];
-    var above = results[index - 1];
+    const results = [...values.sections];
+    const above = results[index - 1];
     results.splice(index, 1);
     results.splice(index - 1, 0, {
       ...section,
@@ -72,8 +73,8 @@ export const ReportFormSections = () => {
   };
 
   const handleMoveDown = (section: IReportSectionModel, index: number) => {
-    var results = [...values.sections];
-    var below = results[index + 1];
+    const results = [...values.sections];
+    const below = results[index + 1];
     results.splice(index, 1);
     results.splice(index + 1, 0, {
       ...section,
@@ -90,7 +91,7 @@ export const ReportFormSections = () => {
     if (!section) return;
 
     // Remove the content from the removed section in the current instance.
-    const instance = values.instances.length ? { ...values.instances[0] } : undefined;
+    const instance = values.instances.length > 0 ? { ...values.instances[0] } : undefined;
     if (instance) {
       const sectionNames = values.sections
         .filter((s) => s.name !== section.name)
@@ -150,43 +151,65 @@ export const ReportFormSections = () => {
             <FaPlus />
             <Button
               variant={ButtonVariant.secondary}
-              onClick={() => handleAddSection(ReportSectionTypeName.TableOfContents)}
+              onClick={() => {
+                handleAddSection(ReportSectionTypeName.TableOfContents);
+              }}
             >
               Table of Contents
             </Button>
             <Button
               variant={ButtonVariant.secondary}
-              onClick={() => handleAddSection(ReportSectionTypeName.Text)}
+              onClick={() => {
+                handleAddSection(ReportSectionTypeName.Text);
+              }}
             >
               Text
             </Button>
             <Button
               variant={ButtonVariant.secondary}
-              onClick={() => handleAddSection(ReportSectionTypeName.Content)}
+              onClick={() => {
+                handleAddSection(ReportSectionTypeName.AI);
+              }}
+            >
+              AI
+            </Button>
+            <Button
+              variant={ButtonVariant.secondary}
+              onClick={() => {
+                handleAddSection(ReportSectionTypeName.Content);
+              }}
             >
               Media Stories
             </Button>
             <Button
               variant={ButtonVariant.secondary}
-              onClick={() => handleAddSection(ReportSectionTypeName.MediaAnalytics)}
+              onClick={() => {
+                handleAddSection(ReportSectionTypeName.MediaAnalytics);
+              }}
             >
               Media Analytics
             </Button>
             <Button
               variant={ButtonVariant.secondary}
-              onClick={() => handleAddSection(ReportSectionTypeName.Gallery)}
+              onClick={() => {
+                handleAddSection(ReportSectionTypeName.Gallery);
+              }}
             >
               Gallery
             </Button>
             <Button
               variant={ButtonVariant.secondary}
-              onClick={() => handleAddSection(ReportSectionTypeName.Image)}
+              onClick={() => {
+                handleAddSection(ReportSectionTypeName.Image);
+              }}
             >
               Image
             </Button>
             <Button
               variant={ButtonVariant.secondary}
-              onClick={() => handleAddSection(ReportSectionTypeName.Data)}
+              onClick={() => {
+                handleAddSection(ReportSectionTypeName.Data);
+              }}
             >
               Data
             </Button>
@@ -276,6 +299,9 @@ export const ReportFormSections = () => {
                       </Show>
                       <Show visible={section.sectionType === ReportSectionTypeName.Data}>
                         <ReportSectionData index={index} />
+                      </Show>
+                      <Show visible={section.sectionType === ReportSectionTypeName.AI}>
+                        <ReportSectionAI index={index} />
                       </Show>
                     </>
                   )}

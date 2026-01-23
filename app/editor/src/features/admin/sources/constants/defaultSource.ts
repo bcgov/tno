@@ -1,4 +1,4 @@
-import { ISourceForm } from '../interfaces';
+import { type ISourceForm } from '../interfaces';
 
 export const defaultSource: ISourceForm = {
   id: 0,

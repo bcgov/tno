@@ -1,4 +1,4 @@
-import { IAVOverviewSectionModel } from 'tno-core';
+import { type IAVOverviewSectionModel } from 'tno-core';
 
 export const defaultAVOverviewSection = (instanceId: number): IAVOverviewSectionModel => ({
   id: 0,

@@ -10,14 +10,14 @@ import {
   Col,
   Grid,
   IconButton,
-  IGridHeaderColumnProps,
-  IUserModel,
+  type IGridHeaderColumnProps,
+  type IUserModel,
   Page,
   Row,
   SortDirection,
 } from 'tno-core';
 
-import { IUserListFilter } from './interfaces/IUserListFilter';
+import { type IUserListFilter } from './interfaces/IUserListFilter';
 import * as styled from './styled';
 import { UserFilter } from './UserFilter';
 
@@ -68,7 +68,7 @@ const UserList: React.FC = () => {
       if (userFilter.quantity !== quantity) {
         const newFilter = {
           ...userFilter,
-          quantity: quantity,
+          quantity,
         };
         storeFilter(newFilter);
       }
@@ -81,7 +81,7 @@ const UserList: React.FC = () => {
       if (userFilter.page !== page) {
         const newFilter = {
           ...userFilter,
-          page: page,
+          page,
         };
         storeFilter(newFilter);
       }
@@ -98,17 +98,23 @@ const UserList: React.FC = () => {
         <IconButton
           iconType="plus"
           label="Direct User"
-          onClick={() => navigate('/admin/users/0/direct')}
+          onClick={() => {
+            navigate('/admin/users/0/direct');
+          }}
         />
         <IconButton
           iconType="plus"
           label="Indirect User"
-          onClick={() => navigate('/admin/users/0/indirect')}
+          onClick={() => {
+            navigate('/admin/users/0/indirect');
+          }}
         />
         <IconButton
           iconType="plus"
           label="Distribution List"
-          onClick={() => navigate('/admin/users/0/distribution')}
+          onClick={() => {
+            navigate('/admin/users/0/distribution');
+          }}
         />
       </Row>
       <UserFilter />
@@ -146,56 +152,104 @@ const UserList: React.FC = () => {
           return [
             {
               column: (
-                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div
+                  key=""
+                  className="clickable"
+                  onClick={() => {
+                    navigate(`${row.id}`);
+                  }}
+                >
                   <CellEllipsis key="">{row.username}</CellEllipsis>
                 </div>
               ),
             },
             {
               column: (
-                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div
+                  key=""
+                  className="clickable"
+                  onClick={() => {
+                    navigate(`${row.id}`);
+                  }}
+                >
                   <CellEllipsis key="">{row.email}</CellEllipsis>
                 </div>
               ),
             },
             {
               column: (
-                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div
+                  key=""
+                  className="clickable"
+                  onClick={() => {
+                    navigate(`${row.id}`);
+                  }}
+                >
                   <CellEllipsis key="">{row.lastName}</CellEllipsis>
                 </div>
               ),
             },
             {
               column: (
-                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div
+                  key=""
+                  className="clickable"
+                  onClick={() => {
+                    navigate(`${row.id}`);
+                  }}
+                >
                   <CellEllipsis key="">{row.firstName}</CellEllipsis>
                 </div>
               ),
             },
             {
               column: (
-                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div
+                  key=""
+                  className="clickable"
+                  onClick={() => {
+                    navigate(`${row.id}`);
+                  }}
+                >
                   <CellEllipsis key="">{row.roles?.join(', ')}</CellEllipsis>
                 </div>
               ),
             },
             {
               column: (
-                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div
+                  key=""
+                  className="clickable"
+                  onClick={() => {
+                    navigate(`${row.id}`);
+                  }}
+                >
                   <CellDate value={row.lastLoginOn} />
                 </div>
               ),
             },
             {
               column: (
-                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div
+                  key=""
+                  className="clickable"
+                  onClick={() => {
+                    navigate(`${row.id}`);
+                  }}
+                >
                   <CellCheckbox checked={row.isEnabled} />
                 </div>
               ),
             },
             {
               column: (
-                <div key="" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div
+                  key=""
+                  className="clickable"
+                  onClick={() => {
+                    navigate(`${row.id}`);
+                  }}
+                >
                   <CellEllipsis key="">{row.status}</CellEllipsis>
                 </div>
               ),

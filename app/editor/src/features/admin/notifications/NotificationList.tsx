@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from 'store/hooks';
 import { useNotifications } from 'store/hooks/admin';
-import { Col, FlexboxTable, IconButton, INotificationModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, type INotificationModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { NotificationFilter } from './NotificationFilter';
@@ -24,7 +24,9 @@ const NotificationList: React.FC = () => {
         .then((data) => {
           setItems(data);
         })
-        .finally(() => setIsReady(true));
+        .finally(() => {
+          setIsReady(true);
+        });
     } else {
       setItems(notifications);
     }
@@ -40,8 +42,10 @@ const NotificationList: React.FC = () => {
           </Col>
           <IconButton
             iconType="plus"
-            label={`Add new Notification`}
-            onClick={() => navigate(`/admin/Notifications/0`)}
+            label={'Add new Notification'}
+            onClick={() => {
+              navigate('/admin/Notifications/0');
+            }}
           />
         </Row>
         <NotificationFilter
@@ -65,7 +69,9 @@ const NotificationList: React.FC = () => {
           data={items}
           columns={columns}
           showSort={true}
-          onRowClick={(row) => navigate(`${row.original.id}`)}
+          onRowClick={(row) => {
+            navigate(`${row.original.id}`);
+          }}
           isLoading={requests.some((r) => r.url === 'find-Notifications')}
           pagingEnabled={false}
         />

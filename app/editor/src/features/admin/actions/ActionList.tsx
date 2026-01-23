@@ -2,7 +2,7 @@ import { FormPage } from 'components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useActions } from 'store/hooks/admin';
-import { Col, FlexboxTable, IActionModel, IconButton, Row } from 'tno-core';
+import { Col, FlexboxTable, type IActionModel, IconButton, Row } from 'tno-core';
 
 import { ActionFilter } from './ActionFilter';
 import { columns } from './constants';
@@ -15,7 +15,7 @@ const ActionList: React.FC = () => {
   const [items, setItems] = React.useState<IActionModel[]>([]);
 
   React.useEffect(() => {
-    if (!actions.length) {
+    if (actions.length === 0) {
       api.findAllActions().then((data) => {
         setItems(data);
       });
@@ -34,8 +34,10 @@ const ActionList: React.FC = () => {
           </Col>
           <IconButton
             iconType="plus"
-            label={`Add new action`}
-            onClick={() => navigate(`/admin/actions/0`)}
+            label={'Add new action'}
+            onClick={() => {
+              navigate('/admin/actions/0');
+            }}
           />
         </Row>
         <ActionFilter
@@ -59,7 +61,9 @@ const ActionList: React.FC = () => {
           data={items}
           columns={columns}
           showSort={true}
-          onRowClick={(row) => navigate(`${row.original.id}`)}
+          onRowClick={(row) => {
+            navigate(`${row.original.id}`);
+          }}
           pagingEnabled={false}
         />
       </FormPage>

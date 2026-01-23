@@ -7,8 +7,8 @@ import { useAVOverviewInstances, useLookup } from 'store/hooks';
 import {
   Button,
   Col,
-  IAVOverviewInstanceModel,
-  IReportResultModel,
+  type IAVOverviewInstanceModel,
+  type IReportResultModel,
   Loading,
   Modal,
   Row,
@@ -63,7 +63,12 @@ const AVOverviewPreview: React.FC = () => {
       <Row className="page-header">
         <h1>Evening Overview</h1>
         <div className="buttons">
-          <Button disabled={!instanceId} onClick={() => toggle()}>
+          <Button
+            disabled={!instanceId}
+            onClick={() => {
+              toggle();
+            }}
+          >
             Publish <FaPaperPlane className="icon" />
           </Button>
           <Show visible={instance?.isPublished}>

@@ -1,6 +1,11 @@
-import { CellCheckbox, CellEllipsis, IChartTemplateModel, ITableHookColumn } from 'tno-core';
+import {
+  CellCheckbox,
+  CellEllipsis,
+  type IChartTemplateModel,
+  type ITableHookColumn,
+} from 'tno-core';
 
-export const chartTemplateColumns: ITableHookColumn<IChartTemplateModel>[] = [
+export const chartTemplateColumns: Array<ITableHookColumn<IChartTemplateModel>> = [
   {
     label: 'Name',
     accessor: 'name',

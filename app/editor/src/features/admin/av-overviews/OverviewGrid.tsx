@@ -1,10 +1,13 @@
 import { useFormikContext } from 'formik';
+import React from 'react';
 import {
   DragDropContext,
   Draggable,
+  DraggableProvided,
   Droppable,
-  DropResult,
-  ResponderProvided,
+  DroppableProvided,
+  type DropResult,
+  type ResponderProvided,
 } from 'react-beautiful-dnd';
 import { FaGripLines, FaTrash } from 'react-icons/fa';
 import {
@@ -15,7 +18,7 @@ import {
   FormikSelect,
   FormikTextArea,
   FormikTimeInput,
-  IAVOverviewTemplateModel,
+  type IAVOverviewTemplateModel,
   Row,
   Show,
 } from 'tno-core';
@@ -32,13 +35,16 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ index }) => {
 
   const eveningOverviewItemTypeOptions = castEnumToOptions(AVOverviewItemTypeName);
   const items = values.sections[index].items;
+  const DragDropContextAny = DragDropContext as any;
+  const DroppableAny = Droppable as any;
+  const DraggableAny = Draggable as any;
 
   /** function that runs after a user drops an item in the list */
   const handleDrop = (result: DropResult, provided: ResponderProvided) => {
     if (!result.destination) {
       return;
     }
-    var updatedList = [...items];
+    const updatedList = [...items];
     // Remove dragged item
     const [reorderedItem] = updatedList.splice(result.source.index, 1);
     // Add dropped item
@@ -61,12 +67,12 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ index }) => {
 
   return (
     <styled.OverviewGrid>
-      <Show visible={!items.length}>
+      <Show visible={items.length === 0}>
         <div className="no-items">
           There are no items in this section, add a source then click "New story" to begin.
         </div>
       </Show>
-      <Show visible={!!items.length}>
+      <Show visible={!(items.length === 0)}>
         <div className="grid">
           <Row className="header">
             <Col className="placement-header">Placement</Col>
@@ -77,32 +83,32 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ index }) => {
             <Col className="delete-header"></Col>
           </Row>
           <div className="contents">
-            <DragDropContext onDragEnd={handleDrop}>
-              <Droppable droppableId="list-container">
-                {(provided) => (
+            <DragDropContextAny onDragEnd={handleDrop}>
+              <DroppableAny droppableId="list-container">
+                {(provided: DroppableProvided) => (
                   <div
                     className="list-container"
                     {...provided.droppableProps}
                     ref={provided.innerRef}
                   >
                     {items.map((item, itemIndex) => (
-                      <Draggable
+                      <DraggableAny
                         key={itemIndex}
                         draggableId={itemIndex.toString()}
                         index={itemIndex}
                       >
-                        {(provided) => (
+                        {(provided: DraggableProvided) => (
                           <div
                             className="item-container"
                             ref={provided.innerRef}
-                            key={itemIndex + `item.id`}
+                            key={itemIndex + 'item.id'}
                             {...provided.dragHandleProps}
                             {...provided.draggableProps}
                           >
                             <Row className="rows" key={itemIndex} nowrap>
                               <FaGripLines className="grip-lines" />
                               <FormikSelect
-                                key={itemIndex + `select`}
+                                key={itemIndex + 'select'}
                                 name={`sections.${index}.items.${itemIndex}.itemType`}
                                 width={FieldSize.Small}
                                 options={eveningOverviewItemTypeOptions}
@@ -119,26 +125,28 @@ export const OverviewGrid: React.FC<IOverviewGridProps> = ({ index }) => {
                               />
                               <Col flex="1">
                                 <FormikTextArea
-                                  key={itemIndex + `textarea`}
+                                  key={itemIndex + 'textarea'}
                                   name={`sections.${index}.items.${itemIndex}.summary`}
                                   rows={1}
                                 />
                               </Col>
                               <FaTrash
                                 className="clear-item"
-                                key={itemIndex + `trash`}
-                                onClick={() => handleDeleteItem(itemIndex)}
+                                key={itemIndex + 'trash'}
+                                onClick={() => {
+                                  handleDeleteItem(itemIndex);
+                                }}
                               />
                             </Row>
                           </div>
                         )}
-                      </Draggable>
+                      </DraggableAny>
                     ))}
                     {provided.placeholder}
                   </div>
                 )}
-              </Droppable>
-            </DragDropContext>
+              </DroppableAny>
+            </DragDropContextAny>
           </div>
         </div>
       </Show>

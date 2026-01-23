@@ -5,7 +5,7 @@ import {
   FormikSelect,
   FormikText,
   FormikTextArea,
-  IIngestModel,
+  type IIngestModel,
   Row,
   Section,
   useFormikHelpers,

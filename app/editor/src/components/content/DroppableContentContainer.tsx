@@ -2,7 +2,7 @@ import React from 'react';
 import { Droppable } from 'react-beautiful-dnd';
 import { sortObject } from 'tno-core';
 
-import { DraggableContentRow, IContentRowModel } from '.';
+import { DraggableContentRow, type IContentRowModel } from '.';
 import * as styled from './styled';
 
 export interface IDroppableContentContainerProps

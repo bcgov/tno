@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useConnections } from 'store/hooks/admin';
-import { Col, FlexboxTable, IconButton, IConnectionModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, type IConnectionModel, Row } from 'tno-core';
 
 import { ConnectionFilter } from './ConnectionFilter';
 import { columns } from './constants';
@@ -18,7 +18,7 @@ const ConnectionList: React.FC = () => {
   const [items, setItems] = React.useState<IConnectionModel[]>([]);
 
   React.useEffect(() => {
-    if (!connections.length) {
+    if (connections.length === 0) {
       api.findAllConnections().then((data) => {
         setItems(data);
       });
@@ -37,8 +37,10 @@ const ConnectionList: React.FC = () => {
         </Col>
         <IconButton
           iconType="plus"
-          label={`Add new connection`}
-          onClick={() => navigate(`/admin/connections/0`)}
+          label={'Add new connection'}
+          onClick={() => {
+            navigate('/admin/connections/0');
+          }}
         />
       </Row>
       <ConnectionFilter
@@ -63,7 +65,9 @@ const ConnectionList: React.FC = () => {
         data={items}
         columns={columns}
         showSort={true}
-        onRowClick={(row) => navigate(`${row.original.id}`)}
+        onRowClick={(row) => {
+          navigate(`${row.original.id}`);
+        }}
         pagingEnabled={false}
       />
     </styled.ConnectionList>

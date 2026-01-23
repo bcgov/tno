@@ -18,7 +18,7 @@ import {
   FormikTextArea,
   getSourceOptions,
   IconButton,
-  IOptionItem,
+  type IOptionItem,
   Modal,
   OptionItem,
   Row,
@@ -27,7 +27,7 @@ import {
 } from 'tno-core';
 
 import { defaultContributor } from './constants';
-import { IContributorForm } from './interfaces';
+import { type IContributorForm } from './interfaces';
 import * as styled from './styled';
 import { toForm, toModel } from './utils';
 
@@ -42,7 +42,7 @@ const ContributorForm: React.FC = () => {
 
   const [sourceOptions, setSourceOptions] = React.useState<IOptionItem[]>([]);
   const [contributors, setContributor] = React.useState<IContributorForm>(
-    (state as any)?.contributors ?? defaultContributor,
+    state?.contributors ?? defaultContributor,
   );
 
   const contributorsId = Number(id);
@@ -78,7 +78,9 @@ const ContributorForm: React.FC = () => {
         iconType="back"
         label="Back to Columns/Pundits"
         className="back-button"
-        onClick={() => navigate('/admin/contributors')}
+        onClick={() => {
+          navigate('/admin/contributors');
+        }}
       />
       <FormikForm
         initialValues={contributors}
@@ -133,7 +135,7 @@ const ContributorForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.updatedOn ? moment(values.updatedOn).toString() : undefined
+                      values.updatedOn ? moment(values.updatedOn).toString() : undefined
                     }
                     onChange={noop}
                     name="updatedOn"
@@ -151,7 +153,7 @@ const ContributorForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.createdOn ? moment(values.createdOn).toString() : undefined
+                      values.createdOn ? moment(values.createdOn).toString() : undefined
                     }
                     onChange={noop}
                     name="createdOn"

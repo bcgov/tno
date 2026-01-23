@@ -1,9 +1,15 @@
-import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellDate, IContentReferenceModel } from 'tno-core';
+import {
+  type Column,
+  type UseFiltersColumnOptions,
+  type UseSortByColumnOptions,
+} from 'react-table';
+import { CellDate, type IContentReferenceModel } from 'tno-core';
 
-export const contentReferenceColumns: (Column<IContentReferenceModel> &
-  UseSortByColumnOptions<IContentReferenceModel> &
-  UseFiltersColumnOptions<IContentReferenceModel>)[] = [
+export const contentReferenceColumns: Array<
+  Column<IContentReferenceModel> &
+    UseSortByColumnOptions<IContentReferenceModel> &
+    UseFiltersColumnOptions<IContentReferenceModel>
+> = [
   {
     Header: 'UID',
     accessor: 'uid',

@@ -1,7 +1,7 @@
 import moment from 'moment';
-import { IContentModel } from 'tno-core';
+import { type IContentModel } from 'tno-core';
 
-import { IContentForm } from '../interfaces';
+import { type IContentForm } from '../interfaces';
 
 /**
  * Converts the api model into form values.
@@ -26,16 +26,16 @@ export function toForm(model: IContentModel): IContentForm {
     byline: model.byline ?? '',
     sourceId: model.sourceId ?? '',
     otherSource: model.otherSource,
-    tempSource: !!model.sourceId ? '' : model.otherSource,
+    tempSource: model.sourceId ? '' : model.otherSource,
     page: model.page,
     ownerId: model.ownerId ?? '',
     owner: model.owner,
     seriesId: model.seriesId ?? '',
     contributorId: model.contributorId ?? '',
     otherSeries: '',
-    postedOn: !!model.postedOn ? model.postedOn : '',
+    postedOn: model.postedOn ? model.postedOn : '',
     publishedOn: model.publishedOn ?? '',
-    publishedOnTime: !!model.publishedOn ? moment(model.publishedOn).format('HH:mm:ss') : '',
+    publishedOnTime: model.publishedOn ? moment(model.publishedOn).format('HH:mm:ss') : '',
     isHidden: model.isHidden,
     isApproved: model.isApproved,
     isPrivate: model.isPrivate,

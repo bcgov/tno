@@ -1,12 +1,12 @@
-import { ISortBy } from 'features/interfaces';
-import { IWorkOrderFilter, WorkOrderStatusName } from 'tno-core';
+import { type ISortBy } from 'features/interfaces';
+import { type IWorkOrderFilter } from 'tno-core';
 
-import { IWorkOrderListFilter } from '../interfaces/IWorkOrderListFilter';
+import { type IWorkOrderListFilter } from '../interfaces/IWorkOrderListFilter';
 
 export const makeWorkOrderFilter = (filter: IWorkOrderListFilter): IWorkOrderFilter => {
   return {
     ...filter,
-    status: filter.status === '' ? undefined : [filter.status as WorkOrderStatusName],
+    status: filter.status === '' ? undefined : [filter.status!],
     workType: filter.workType === '' ? undefined : filter.workType,
     page: filter.pageIndex + 1,
     quantity: filter.pageSize,
@@ -23,9 +23,9 @@ export const makeWorkOrderFilter = (filter: IWorkOrderListFilter): IWorkOrderFil
 const applySortBy = (sortBy?: ISortBy[]) => {
   if (sortBy === undefined || sortBy.length === 0) return undefined;
 
-  var sort: string[] = [];
+  const sort: string[] = [];
   for (let i = 0; i < sortBy.length; i++) {
-    let column = sortBy[i].id;
+    const column = sortBy[i].id;
     sort.push(`${column}${sortBy[i].desc ? ' desc' : ''}`);
   }
   return sort;

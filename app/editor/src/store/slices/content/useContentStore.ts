@@ -1,7 +1,10 @@
 import { AdvancedSearchKeys } from 'features/content/constants';
-import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
+import {
+  type IContentListAdvancedFilter,
+  type IContentListFilter,
+} from 'features/content/interfaces';
 import React from 'react';
-import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
+import { type ActionDelegate, useAppDispatch, useAppSelector } from 'store';
 import { LogicalOperator } from 'tno-core';
 
 import {
@@ -10,7 +13,7 @@ import {
   storeFilterPaper,
   storeFilterPaperAdvanced,
 } from '.';
-import { IContentState } from './interfaces';
+import { type IContentState } from './interfaces';
 
 export interface IContentProps {
   filter: IContentListFilter;
@@ -27,7 +30,7 @@ export interface IContentStore {
   ) => void;
 }
 
-var filterAdvanced: IContentListAdvancedFilter = {
+let filterAdvanced: IContentListAdvancedFilter = {
   fieldType: AdvancedSearchKeys.Source,
   logicalOperator: '',
   searchTerm: '',
@@ -53,9 +56,9 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
       storeFilterAdvanced: (
         filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
       ) => {
-        if (typeof filter === 'function')
+        if (typeof filter === 'function') {
           dispatch(storeContentFilterAdvanced(filter(filterAdvanced)));
-        else dispatch(storeContentFilterAdvanced(filter));
+        } else dispatch(storeContentFilterAdvanced(filter));
       },
       storeFilterPaper: (filter: IContentListFilter | ActionDelegate<IContentListFilter>) => {
         if (typeof filter === 'function') dispatch(storeFilterPaper(filter(state.filterPaper)));
@@ -64,9 +67,9 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
       storeFilterPaperAdvanced: (
         filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
       ) => {
-        if (typeof filter === 'function')
+        if (typeof filter === 'function') {
           dispatch(storeFilterPaperAdvanced(filter(filterAdvanced)));
-        else dispatch(storeFilterPaperAdvanced(filter));
+        } else dispatch(storeFilterPaperAdvanced(filter));
       },
     }),
     [dispatch, state.filter, state.filterPaper],

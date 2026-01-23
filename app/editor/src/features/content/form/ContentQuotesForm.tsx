@@ -1,7 +1,7 @@
 import { useFormikContext } from 'formik';
-import { Col, FormikCheckbox, FormikText, IQuoteModel, Row } from 'tno-core';
+import { Col, FormikCheckbox, FormikText, type IQuoteModel, Row } from 'tno-core';
 
-import { IContentForm } from './interfaces';
+import { type IContentForm } from './interfaces';
 import * as styled from './styled';
 
 /**
@@ -12,19 +12,19 @@ export const ContentQuotesForm: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
 
   const handleBylineChange = (quote: IQuoteModel, byline: string) => {
-    var results = [...values.quotes];
+    const results = [...values.quotes];
     results.find((q) => q.id === quote.id)!.byline = byline;
     setFieldValue('quotes', results);
   };
 
   const handleStatementChange = (quote: IQuoteModel, statement: string) => {
-    var results = [...values.quotes];
+    const results = [...values.quotes];
     results.find((q) => q.id === quote.id)!.statement = statement;
     setFieldValue('quotes', results);
   };
 
   const handleIsRelevantChange = (quote: IQuoteModel, isRelevant: boolean) => {
-    var results = [...values.quotes];
+    const results = [...values.quotes];
     results.find((q) => q.id === quote.id)!.isRelevant = isRelevant;
     setFieldValue('quotes', results);
   };

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
-import { IDataLocationModel, useApiAdminDataLocations } from 'tno-core';
+import { type IAdminState, useAdminStore } from 'store/slices';
+import { type IDataLocationModel, useApiAdminDataLocations } from 'tno-core';
 
 interface IDataLocationController {
   findAllDataLocations: () => Promise<IDataLocationModel[]>;
@@ -20,15 +20,17 @@ export const useDataLocations = (): [IAdminState, IDataLocationController] => {
   const controller = React.useMemo(
     () => ({
       findAllDataLocations: async () => {
-        const response = await dispatch<IDataLocationModel[]>('find-all-data-locations', () =>
-          api.findAllDataLocations(),
+        const response = await dispatch<IDataLocationModel[]>(
+          'find-all-data-locations',
+          async () => await api.findAllDataLocations(),
         );
         store.storeDataLocations(response.data);
         return response.data;
       },
       getDataLocation: async (id: number) => {
-        const response = await dispatch<IDataLocationModel>('get-data-location', () =>
-          api.getDataLocation(id),
+        const response = await dispatch<IDataLocationModel>(
+          'get-data-location',
+          async () => await api.getDataLocation(id),
         );
         store.storeDataLocations((dataLocations) =>
           dataLocations.map((ds) => {
@@ -39,16 +41,18 @@ export const useDataLocations = (): [IAdminState, IDataLocationController] => {
         return response.data;
       },
       addDataLocation: async (model: IDataLocationModel) => {
-        const response = await dispatch<IDataLocationModel>('add-data-location', () =>
-          api.addDataLocation(model),
+        const response = await dispatch<IDataLocationModel>(
+          'add-data-location',
+          async () => await api.addDataLocation(model),
         );
         store.storeDataLocations((dataLocations) => [...dataLocations, response.data]);
         await lookup.getLookups();
         return response.data;
       },
       updateDataLocation: async (model: IDataLocationModel) => {
-        const response = await dispatch<IDataLocationModel>('update-data-location', () =>
-          api.updateDataLocation(model),
+        const response = await dispatch<IDataLocationModel>(
+          'update-data-location',
+          async () => await api.updateDataLocation(model),
         );
         store.storeDataLocations((dataLocations) =>
           dataLocations.map((ds) => {
@@ -60,8 +64,9 @@ export const useDataLocations = (): [IAdminState, IDataLocationController] => {
         return response.data;
       },
       deleteDataLocation: async (model: IDataLocationModel) => {
-        const response = await dispatch<IDataLocationModel>('delete-data-location', () =>
-          api.deleteDataLocation(model),
+        const response = await dispatch<IDataLocationModel>(
+          'delete-data-location',
+          async () => await api.deleteDataLocation(model),
         );
         store.storeDataLocations((dataLocations) =>
           dataLocations.filter((ds) => ds.id !== response.data.id),

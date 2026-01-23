@@ -1,4 +1,4 @@
-import { INotificationTemplateModel } from 'tno-core';
+import { type INotificationTemplateModel } from 'tno-core';
 
 export const defaultNotificationTemplate: INotificationTemplateModel = {
   id: 0,

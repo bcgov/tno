@@ -9,9 +9,9 @@ import {
   Col,
   FormikText,
   FormikTimeInput,
-  IIngestModel,
-  IOptionItem,
-  IScheduleModel,
+  type IIngestModel,
+  type IOptionItem,
+  type IScheduleModel,
   OptionItem,
   Row,
   Select,
@@ -85,7 +85,7 @@ const RequestClip: React.FC<IRequestClipProps> = () => {
           {({ values, isSubmitting, resetForm }) => (
             <Col alignContent="center">
               <p className="text">Request a new clip to be created.</p>
-              <Show visible={!ingests.length}>
+              <Show visible={ingests.length === 0}>
                 <p className="error">There are no configured clip ingest services.</p>
               </Show>
               <div className="ingest">
@@ -93,7 +93,7 @@ const RequestClip: React.FC<IRequestClipProps> = () => {
                   name="source"
                   label="Source"
                   options={sources}
-                  isDisabled={!sources.length}
+                  isDisabled={sources.length === 0}
                   onChange={(newValue) => {
                     const value = (newValue as IOptionItem)?.value;
                     if (value !== undefined) setSourceId(+value);
@@ -106,7 +106,7 @@ const RequestClip: React.FC<IRequestClipProps> = () => {
                   name="ingest"
                   label="Ingest"
                   options={ingestOptions}
-                  isDisabled={!ingestOptions.length}
+                  isDisabled={ingestOptions.length === 0}
                   value={ingestOptions.find((i) => i.value === ingest?.id) ?? ''}
                   onChange={(newValue) => {
                     const ingest = ingests.find((i) => i.id === (newValue as IOptionItem)?.value);

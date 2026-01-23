@@ -1,5 +1,5 @@
-import { ISortBy } from 'features/interfaces';
-import { WorkOrderStatusName, WorkOrderTypeName } from 'tno-core';
+import { type ISortBy } from 'features/interfaces';
+import { type WorkOrderStatusName, type WorkOrderTypeName } from 'tno-core';
 
 export interface IWorkOrderListFilter {
   status?: WorkOrderStatusName | '';

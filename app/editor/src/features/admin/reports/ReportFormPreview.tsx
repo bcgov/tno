@@ -1,8 +1,8 @@
-import { AxiosError } from 'axios';
+import { type AxiosError } from 'axios';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useReports } from 'store/hooks/admin';
-import { Button, ButtonVariant, Col, IReportModel, Row, Text } from 'tno-core';
+import { Button, ButtonVariant, Col, type IReportModel, Row, Text } from 'tno-core';
 
 import { useReportTemplateContext } from './ReportTemplateContext';
 
@@ -61,12 +61,19 @@ export const ReportFormPreview: React.FC<IReportFormPreviewProps> = () => {
             change it temporarily to a filter.
           </p>
           <Row gap="1rem">
-            <Button variant={ButtonVariant.success} onClick={() => handlePreviewReport(values)}>
+            <Button
+              variant={ButtonVariant.success}
+              onClick={async () => {
+                await handlePreviewReport(values);
+              }}
+            >
               Generate Preview
             </Button>
             <Button
               variant={ButtonVariant.secondary}
-              onClick={() => openPreview()}
+              onClick={() => {
+                openPreview();
+              }}
               disabled={!preview}
             >
               Open in New Window
@@ -80,12 +87,16 @@ export const ReportFormPreview: React.FC<IReportFormPreviewProps> = () => {
               name="to"
               label="Send Test Email To"
               value={sendTo}
-              onChange={(e) => setSendTo(e.target.value)}
+              onChange={(e) => {
+                setSendTo(e.target.value);
+              }}
             >
               <Button
                 variant={ButtonVariant.secondary}
                 disabled={!sendTo}
-                onClick={async () => await handleSend(values, sendTo)}
+                onClick={async () => {
+                  await handleSend(values, sendTo);
+                }}
               >
                 Send
               </Button>

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { IFormPageProps } from '../FormPage';
+import { type IFormPageProps } from '../FormPage';
 
 export const FormPage = styled.div<IFormPageProps>`
   flex: 1 1 100%;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
-import { IPaged, ISourceModel, useApiAdminSources } from 'tno-core';
+import { type IAdminState, useAdminStore } from 'store/slices';
+import { type IPaged, type ISourceModel, useApiAdminSources } from 'tno-core';
 
 interface ISourceController {
   findAllSources: () => Promise<ISourceModel[]>;
@@ -21,20 +21,25 @@ export const useSources = (): [IAdminState, ISourceController] => {
   const controller = React.useMemo(
     () => ({
       findAllSources: async () => {
-        const response = await dispatch<ISourceModel[]>('find-all-sources', () =>
-          api.findAllSources(),
+        const response = await dispatch<ISourceModel[]>(
+          'find-all-sources',
+          async () => await api.findAllSources(),
         );
         store.storeSources(response.data);
         return response.data;
       },
       findSources: async () => {
-        const response = await dispatch<IPaged<ISourceModel>>('find-sources', () =>
-          api.findSources(),
+        const response = await dispatch<IPaged<ISourceModel>>(
+          'find-sources',
+          async () => await api.findSources(),
         );
         return response.data;
       },
       getSource: async (id: number) => {
-        const response = await dispatch<ISourceModel>('get-source', () => api.getSource(id));
+        const response = await dispatch<ISourceModel>(
+          'get-source',
+          async () => await api.getSource(id),
+        );
         store.storeSources((sources) =>
           sources.map((ds) => {
             if (ds.id === response.data.id) return response.data;
@@ -44,14 +49,18 @@ export const useSources = (): [IAdminState, ISourceController] => {
         return response.data;
       },
       addSource: async (model: ISourceModel) => {
-        const response = await dispatch<ISourceModel>('add-source', () => api.addSource(model));
+        const response = await dispatch<ISourceModel>(
+          'add-source',
+          async () => await api.addSource(model),
+        );
         store.storeSources((sources) => [...sources, response.data]);
         await lookup.getLookups();
         return response.data;
       },
       updateSource: async (model: ISourceModel) => {
-        const response = await dispatch<ISourceModel>('update-source', () =>
-          api.updateSource(model),
+        const response = await dispatch<ISourceModel>(
+          'update-source',
+          async () => await api.updateSource(model),
         );
         store.storeSources((sources) =>
           sources.map((ds) => {
@@ -63,8 +72,9 @@ export const useSources = (): [IAdminState, ISourceController] => {
         return response.data;
       },
       deleteSource: async (model: ISourceModel) => {
-        const response = await dispatch<ISourceModel>('delete-source', () =>
-          api.deleteSource(model),
+        const response = await dispatch<ISourceModel>(
+          'delete-source',
+          async () => await api.deleteSource(model),
         );
         store.storeSources((sources) => sources.filter((ds) => ds.id !== response.data.id));
         await lookup.getLookups();

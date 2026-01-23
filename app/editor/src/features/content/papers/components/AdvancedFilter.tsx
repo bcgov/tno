@@ -1,5 +1,8 @@
 import { AdvancedSearchKeys, advancedSearchOptions } from 'features/content/constants';
-import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
+import {
+  type IContentListAdvancedFilter,
+  type IContentListFilter,
+} from 'features/content/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
@@ -13,7 +16,7 @@ import {
   fromQueryString,
   getEnumStringOptions,
   instanceOfIOption,
-  IOptionItem,
+  type IOptionItem,
   OptionItem,
   replaceQueryParams,
   Row,
@@ -98,16 +101,18 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
       const currentFieldType = (filterAdvanced as any)[fieldTypeKey] ?? AdvancedSearchKeys.Source;
       const currentSearchTerm = (filterAdvanced as any)[searchTermKey] ?? '';
 
-      const setFieldType = (value: AdvancedSearchKeys) =>
+      const setFieldType = (value: AdvancedSearchKeys) => {
         updateAdvancedFilter({
           [fieldTypeKey]: value,
           [searchTermKey]: '',
         } as Partial<IContentListAdvancedFilter>);
+      };
 
-      const setSearchTerm = (value: string) =>
+      const setSearchTerm = (value: string) => {
         updateAdvancedFilter({
           [searchTermKey]: value,
         } as Partial<IContentListAdvancedFilter>);
+      };
 
       return (
         <Row
@@ -241,7 +246,7 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
 
   /** initialize advanced search section with query values or new */
   React.useEffect(() => {
-    if (!!window.location.search) {
+    if (window.location.search) {
       storeFilterPaperAdvanced({
         ...filterAdvanced,
         fieldType: search.fieldType ?? AdvancedSearchKeys.Source,

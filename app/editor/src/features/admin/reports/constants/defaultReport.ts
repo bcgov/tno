@@ -1,4 +1,4 @@
-import { IReportModel } from 'tno-core';
+import { type IReportModel } from 'tno-core';
 
 import { defaultReportSchedule } from './defaultReportSchedule';
 import { defaultReportTemplate } from './defaultReportTemplate';

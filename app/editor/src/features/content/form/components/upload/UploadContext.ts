@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { FetchState, IUploadManager, IUploadState } from './interfaces';
+import { FetchState, type IUploadManager, type IUploadState } from './interfaces';
 
 export const UploadContext = React.createContext<IUploadManager>({
   upload: () => {

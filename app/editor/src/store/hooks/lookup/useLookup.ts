@@ -1,31 +1,31 @@
 import React from 'react';
 import { useLookupStore } from 'store/slices';
-import { ILookupState } from 'store/slices/lookup';
+import { type ILookupState } from 'store/slices/lookup';
 import {
   fetchIfNoneMatch,
   getFromLocalStorage,
-  IActionModel,
-  ICacheModel,
-  IContributorModel,
-  IDataLocationModel,
-  IHolidayModel,
-  IIngestTypeModel,
-  ILicenseModel,
-  ILookupModel,
-  IMediaTypeModel,
-  IMetricModel,
-  IMinisterModel,
-  IOrganizationModel,
-  IRoleModel,
-  ISeriesModel,
-  ISettingModel,
-  ISourceActionModel,
-  ISourceModel,
-  ITagModel,
-  ITonePoolModel,
-  ITopicModel,
-  ITopicScoreRuleModel,
-  IUserModel,
+  type IActionModel,
+  type ICacheModel,
+  type IContributorModel,
+  type IDataLocationModel,
+  type IHolidayModel,
+  type IIngestTypeModel,
+  type ILicenseModel,
+  type ILookupModel,
+  type IMediaTypeModel,
+  type IMetricModel,
+  type IMinisterModel,
+  type IOrganizationModel,
+  type IRoleModel,
+  type ISeriesModel,
+  type ISettingModel,
+  type ISourceActionModel,
+  type ISourceModel,
+  type ITagModel,
+  type ITonePoolModel,
+  type ITopicModel,
+  type ITopicScoreRuleModel,
+  type IUserModel,
   saveToLocalStorage,
   StorageKeys,
   useApiEditorActions,
@@ -102,7 +102,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
   const controller = React.useMemo(
     () => ({
       getCache: async () => {
-        const response = await dispatch('cache', () => cache.getCache());
+        const response = await dispatch('cache', async () => await cache.getCache());
         store.storeCache(response.data);
         return response.data;
       },
@@ -110,9 +110,9 @@ export const useLookup = (): [ILookupState, ILookupController] => {
         return await fetchIfNoneMatch<ILookupModel>(
           'lookups',
           dispatch,
-          (etag) => lookups.getLookups(etag),
+          async (etag) => await lookups.getLookups(etag),
           (results) => {
-            if (!!results) {
+            if (results) {
               saveToLocalStorage(StorageKeys.Actions, results.actions, store.storeActions);
               saveToLocalStorage(StorageKeys.Topics, results.topics, store.storeTopics);
               saveToLocalStorage(StorageKeys.Rules, results.rules, store.storeTopicScoreRules);
@@ -221,7 +221,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
         return await fetchIfNoneMatch<IActionModel[]>(
           StorageKeys.Actions,
           dispatch,
-          (etag) => actions.getActions(etag),
+          async (etag) => await actions.getActions(etag),
           (results) => {
             const values = results ?? [];
             store.storeActions(values);
@@ -235,11 +235,11 @@ export const useLookup = (): [ILookupState, ILookupController] => {
         return await fetchIfNoneMatch<ITopicModel[]>(
           StorageKeys.Topics,
           dispatch,
-          (etag) => topics.getTopics(etag),
+          async (etag) => await topics.getTopics(etag),
           (results) => {
             const values = results ?? [];
             store.storeTopics(values);
-            if (!!refresh) saveToLocalStorage(StorageKeys.Topics, values, store.storeTopics);
+            if (refresh) saveToLocalStorage(StorageKeys.Topics, values, store.storeTopics);
             return values;
           },
           true,
@@ -250,7 +250,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
         return await fetchIfNoneMatch<ITopicScoreRuleModel[]>(
           StorageKeys.Rules,
           dispatch,
-          (etag) => rules.getTopicScoreRules(etag),
+          async (etag) => await rules.getTopicScoreRules(etag),
           (results) => {
             const values = results ?? [];
             store.storeTopicScoreRules(values);
@@ -264,7 +264,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
         return await fetchIfNoneMatch<IMediaTypeModel[]>(
           StorageKeys.MediaTypes,
           dispatch,
-          (etag) => mediaTypes.getMediaTypes(etag),
+          async (etag) => await mediaTypes.getMediaTypes(etag),
           (results) => {
             const values = results ?? [];
             store.storeMediaTypes(values);
@@ -278,7 +278,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
         return await fetchIfNoneMatch<ISourceModel[]>(
           StorageKeys.Sources,
           dispatch,
-          (etag) => sources.getSources(etag),
+          async (etag) => await sources.getSources(etag),
           (results) => {
             const values = results ?? [];
             store.storeSources(values);
@@ -292,7 +292,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
         return await fetchIfNoneMatch<ILicenseModel[]>(
           StorageKeys.Licenses,
           dispatch,
-          (etag) => licenses.getLicenses(etag),
+          async (etag) => await licenses.getLicenses(etag),
           (results) => {
             const values = results ?? [];
             store.storeLicenses(values);
@@ -306,7 +306,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
         return await fetchIfNoneMatch<IIngestTypeModel[]>(
           StorageKeys.IngestTypes,
           dispatch,
-          (etag) => ingestTypes.getIngestTypes(etag),
+          async (etag) => await ingestTypes.getIngestTypes(etag),
           (results) => {
             const values = results ?? [];
             store.storeIngestTypes(values);
@@ -320,7 +320,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
         return await fetchIfNoneMatch<IRoleModel[]>(
           StorageKeys.Roles,
           dispatch,
-          (etag) => roles.getRoles(etag),
+          async (etag) => await roles.getRoles(etag),
           (results) => {
             const values = results ?? [];
             store.storeRoles(values);
@@ -334,7 +334,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
         return await fetchIfNoneMatch<ISeriesModel[]>(
           StorageKeys.Series,
           dispatch,
-          (etag) => series.getSeries(etag),
+          async (etag) => await series.getSeries(etag),
           (results) => {
             const values = results ?? [];
             store.storeSeries(values);
@@ -348,7 +348,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
         return await fetchIfNoneMatch<IContributorModel[]>(
           StorageKeys.Contributors,
           dispatch,
-          (etag) => contributors.getContributors(etag),
+          async (etag) => await contributors.getContributors(etag),
           (results) => {
             const values = results ?? [];
             store.storeContributors(values);
@@ -362,7 +362,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
         return await fetchIfNoneMatch<ISourceActionModel[]>(
           StorageKeys.SourceActions,
           dispatch,
-          (etag) => sourceActions.getActions(etag),
+          async (etag) => await sourceActions.getActions(etag),
           (results) => {
             const values = results ?? [];
             store.storeSourceActions(values);
@@ -376,7 +376,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
         return await fetchIfNoneMatch<IMetricModel[]>(
           StorageKeys.Metrics,
           dispatch,
-          (etag) => sourceMetrics.getMetrics(etag),
+          async (etag) => await sourceMetrics.getMetrics(etag),
           (results) => {
             const values = results ?? [];
             store.storeMetrics(values);
@@ -390,7 +390,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
         return await fetchIfNoneMatch<ITagModel[]>(
           StorageKeys.Tags,
           dispatch,
-          (etag) => tags.getTags(etag),
+          async (etag) => await tags.getTags(etag),
           (results) => {
             const values = results ?? [];
             store.storeTags(values);
@@ -404,7 +404,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
         return await fetchIfNoneMatch<ITonePoolModel[]>(
           StorageKeys.TonePools,
           dispatch,
-          (etag) => tonePools.getTonePools(etag),
+          async (etag) => await tonePools.getTonePools(etag),
           (results) => {
             const values = results ?? [];
             store.storeTonePools(values);
@@ -418,7 +418,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
         return await fetchIfNoneMatch<IUserModel[]>(
           StorageKeys.Users,
           dispatch,
-          (etag) => users.getUsers(etag),
+          async (etag) => await users.getUsers(etag),
           (results) => {
             const values = results ?? [];
             store.storeUsers(values);
@@ -432,7 +432,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
         return await fetchIfNoneMatch<IDataLocationModel[]>(
           StorageKeys.DataLocations,
           dispatch,
-          (etag) => dataLocations.getDataLocations(etag),
+          async (etag) => await dataLocations.getDataLocations(etag),
           (results) => {
             const values = results ?? [];
             store.storeDataLocations(values);
@@ -446,7 +446,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
         return await fetchIfNoneMatch<ISettingModel[]>(
           StorageKeys.Settings,
           dispatch,
-          (etag) => settings.getSettings(etag),
+          async (etag) => await settings.getSettings(etag),
           (results) => {
             const values = results ?? [];
             store.storeSettings(values);
@@ -460,7 +460,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
         return await fetchIfNoneMatch<IMinisterModel[]>(
           StorageKeys.Ministers,
           dispatch,
-          (etag) => ministers.getMinisters(etag),
+          async (etag) => await ministers.getMinisters(etag),
           (results) => {
             const values = results ?? [];
             store.storeMinisters(values);

@@ -19,7 +19,7 @@ import {
 } from 'tno-core';
 
 import { defaultSource } from './constants';
-import { ISourceForm } from './interfaces';
+import { type ISourceForm } from './interfaces';
 import * as styled from './styled';
 import { toForm, toModel } from './utils';
 
@@ -32,7 +32,7 @@ const SourceForm: React.FC<ISourceProps> = (props) => {
   const { isShowing, toggle } = useModal();
 
   const sourceId = Number(id);
-  const [source, setSource] = React.useState<ISourceForm>((state as any)?.source ?? defaultSource);
+  const [source, setSource] = React.useState<ISourceForm>(state?.source ?? defaultSource);
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -62,7 +62,9 @@ const SourceForm: React.FC<ISourceProps> = (props) => {
           iconType="back"
           label="Back to Sources"
           className="back-button"
-          onClick={() => navigate('/admin/sources')}
+          onClick={() => {
+            navigate('/admin/sources');
+          }}
         />
         <Col flex="1" className="info">
           <p>Sources provide a way to identify and organize content.</p>

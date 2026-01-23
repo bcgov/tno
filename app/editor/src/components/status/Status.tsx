@@ -10,7 +10,7 @@ export interface IStatusProps {
 
 export const Status: React.FC<IStatusProps> = ({ value, onClick }) => {
   const title = getStatusText(value);
-  if (value === ContentStatusName.Draft)
+  if (value === ContentStatusName.Draft) {
     return (
       <FaRegCircle
         title={title}
@@ -18,9 +18,11 @@ export const Status: React.FC<IStatusProps> = ({ value, onClick }) => {
         onClick={() => onClick?.(ContentStatusName.Publish)}
       />
     );
-  if (value === ContentStatusName.Publish)
+  }
+  if (value === ContentStatusName.Publish) {
     return <FaSpinner title={title} className="status-publish" />;
-  if (value === ContentStatusName.Published)
+  }
+  if (value === ContentStatusName.Published) {
     return (
       <FaCheckCircle
         title={title}
@@ -28,9 +30,11 @@ export const Status: React.FC<IStatusProps> = ({ value, onClick }) => {
         onClick={() => onClick?.(ContentStatusName.Unpublish)}
       />
     );
-  if (value === ContentStatusName.Unpublish)
+  }
+  if (value === ContentStatusName.Unpublish) {
     return <FaSpinner title={title} className="status-unpublish" />;
-  if (value === ContentStatusName.Unpublished)
+  }
+  if (value === ContentStatusName.Unpublished) {
     return (
       <FaBan
         title={title}
@@ -38,5 +42,6 @@ export const Status: React.FC<IStatusProps> = ({ value, onClick }) => {
         onClick={() => onClick?.(ContentStatusName.Publish)}
       />
     );
+  }
   return <FaRegCircleQuestion title={title} />;
 };

@@ -17,7 +17,7 @@ import {
   FormikWysiwyg,
   HubEventsName,
   IconButton,
-  ISystemMessageModel,
+  type ISystemMessageModel,
   MessageTargetName,
   Modal,
   Row,
@@ -45,7 +45,7 @@ const SystemMessageForm: React.FC = () => {
     if (id && +id > 0) {
       findSystemMessage(+id)
         .then((data) => {
-          if (!!data) setSystemMessage(data);
+          if (data) setSystemMessage(data);
         })
         .catch(() => {});
     }
@@ -73,7 +73,9 @@ const SystemMessageForm: React.FC = () => {
         iconType="back"
         label="Back to Messages"
         className="back-button"
-        onClick={() => navigate('/admin/system-messages')}
+        onClick={() => {
+          navigate('/admin/system-messages');
+        }}
       />
       <FormikForm
         initialValues={systemMessage}
@@ -109,7 +111,7 @@ const SystemMessageForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.updatedOn ? moment(values.updatedOn).toString() : undefined
+                      values.updatedOn ? moment(values.updatedOn).toString() : undefined
                     }
                     onChange={noop}
                     name="updatedOn"
@@ -127,7 +129,7 @@ const SystemMessageForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.createdOn ? moment(values.createdOn).toString() : undefined
+                      values.createdOn ? moment(values.createdOn).toString() : undefined
                     }
                     onChange={noop}
                     name="createdOn"

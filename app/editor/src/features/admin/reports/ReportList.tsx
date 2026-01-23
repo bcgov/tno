@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useReports } from 'store/hooks/admin';
 import { useAdminStore } from 'store/slices';
-import { Col, FlexboxTable, IconButton, IReportModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, type IReportModel, Row } from 'tno-core';
 
 import { reportColumns } from './constants';
 import { ListFilter } from './ListFilter';
@@ -54,8 +54,10 @@ export const ReportList: React.FC = () => {
           </Col>
           <IconButton
             iconType="plus"
-            label={`Add new report`}
-            onClick={() => navigate(`/admin/reports/0`)}
+            label={'Add new report'}
+            onClick={() => {
+              navigate('/admin/reports/0');
+            }}
           />
         </Row>
         <ListFilter onFilterChange={(filter) => {}} />
@@ -64,7 +66,9 @@ export const ReportList: React.FC = () => {
           data={items}
           columns={reportColumns}
           showSort={true}
-          onRowClick={(row) => navigate(`${row.original.id}`)}
+          onRowClick={(row) => {
+            navigate(`${row.original.id}`);
+          }}
           pagingEnabled={false}
         />
       </FormPage>

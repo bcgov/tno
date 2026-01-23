@@ -2,7 +2,7 @@ import { FormPage } from 'components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMediaTypes } from 'store/hooks/admin';
-import { Col, FlexboxTable, IconButton, IMediaTypeModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, type IMediaTypeModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { MediaTypeFilter } from './MediaTypeFilter';
@@ -15,7 +15,7 @@ const MediaTypeList: React.FC = () => {
   const [items, setItems] = React.useState<IMediaTypeModel[]>([]);
 
   React.useEffect(() => {
-    if (!mediaTypes.length) {
+    if (mediaTypes.length === 0) {
       api.findAllMediaTypes().then((data) => {
         setItems(data);
       });
@@ -34,8 +34,10 @@ const MediaTypeList: React.FC = () => {
           </Col>
           <IconButton
             iconType="plus"
-            label={`Add new media type`}
-            onClick={() => navigate(`/admin/media-types/0`)}
+            label={'Add new media type'}
+            onClick={() => {
+              navigate('/admin/media-types/0');
+            }}
           />
         </Row>
         <MediaTypeFilter
@@ -59,7 +61,9 @@ const MediaTypeList: React.FC = () => {
           data={items}
           columns={columns}
           showSort={true}
-          onRowClick={(row) => navigate(`${row.original.id}`)}
+          onRowClick={(row) => {
+            navigate(`${row.original.id}`);
+          }}
           pagingEnabled={false}
         />
       </FormPage>

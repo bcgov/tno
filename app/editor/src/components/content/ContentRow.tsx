@@ -4,7 +4,7 @@ import { FaGripVertical } from 'react-icons/fa';
 import { FaX } from 'react-icons/fa6';
 import { Checkbox, Link, Sentiment, Show, Text } from 'tno-core';
 
-import { IContentRowModel } from './interfaces';
+import { type IContentRowModel } from './interfaces';
 import * as styled from './styled';
 
 export interface IContentRowProps {
@@ -98,7 +98,9 @@ export const ContentRow: React.FC<IContentRowProps> = ({
             name={`sortOrder-${row.content.id}`}
             value={sortOrder}
             width="5ch"
-            onClick={(e) => e.currentTarget.select()}
+            onClick={(e) => {
+              e.currentTarget.select();
+            }}
             onChange={(e) => {
               const value = Number(e.target.value);
               const sortOrder = isNaN(value) ? row.sortOrder : value;

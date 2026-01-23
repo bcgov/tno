@@ -9,12 +9,12 @@ import {
   FormikSelect,
   FormikText,
   getSourceOptions,
-  IOptionItem,
+  type IOptionItem,
   Row,
   TimeInput,
 } from 'tno-core';
 
-import { IContentForm } from './interfaces';
+import { type IContentForm } from './interfaces';
 
 interface IImageSectionProps {}
 
@@ -37,12 +37,12 @@ export const ImageSection: React.FunctionComponent<IImageSectionProps> = (props)
         width={FieldSize.Big}
         value={sourceOptions.find((mt) => mt.value === values.sourceId) ?? ''}
         onChange={(newValue: any) => {
-          if (!!newValue) {
+          if (newValue) {
             const source = sources.find((ds) => ds.id === newValue.value);
             setFieldValue('sourceId', newValue.value);
             setFieldValue('otherSource', source?.code ?? '');
-            if (!!source?.licenseId) setFieldValue('licenseId', source.licenseId);
-            if (!!source?.mediaTypeId) setFieldValue('mediaTypeId', source.mediaTypeId);
+            if (source?.licenseId) setFieldValue('licenseId', source.licenseId);
+            if (source?.mediaTypeId) setFieldValue('mediaTypeId', source.mediaTypeId);
           }
         }}
         options={filterEnabledOptions(sourceOptions, values.sourceId)}
@@ -63,10 +63,10 @@ export const ImageSection: React.FunctionComponent<IImageSectionProps> = (props)
         required
         autoComplete="false"
         width={FieldSize.Medium}
-        selectedDate={!!values.publishedOn ? moment(values.publishedOn).toString() : undefined}
-        value={!!values.publishedOn ? moment(values.publishedOn).format('MMM D, yyyy') : ''}
+        selectedDate={values.publishedOn ? moment(values.publishedOn).toString() : undefined}
+        value={values.publishedOn ? moment(values.publishedOn).format('MMM D, yyyy') : ''}
         onChange={(date) => {
-          if (!!values.publishedOnTime) {
+          if (values.publishedOnTime) {
             const hours = values.publishedOnTime?.split(':');
             if (!!hours && !!date) {
               date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
@@ -80,8 +80,8 @@ export const ImageSection: React.FunctionComponent<IImageSectionProps> = (props)
         label="Time"
         disabled={!values.publishedOn}
         width="7em"
-        value={!!values.publishedOn ? values.publishedOnTime : ''}
-        placeholder={!!values.publishedOn ? values.publishedOnTime : 'HH:MM:SS'}
+        value={values.publishedOn ? values.publishedOnTime : ''}
+        placeholder={values.publishedOn ? values.publishedOnTime : 'HH:MM:SS'}
         onChange={(e) => {
           const date = new Date(values.publishedOn);
           const hours = e.target.value?.split(':');

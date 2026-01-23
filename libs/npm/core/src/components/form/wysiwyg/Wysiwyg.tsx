@@ -52,6 +52,8 @@ export interface IWysiwygProps {
   height?: string;
   /** className */
   className?: string;
+  /** placeholder text */
+  placeholder?: string;
   onKeyDown?: (event: React.KeyboardEvent) => void;
   onChange?: (text: string, editor?: any) => void;
   onBlur?: (
@@ -235,6 +237,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
             onBlur={props.onBlur}
             readOnly={props.disabled}
             onKeyDown={props.onKeyDown}
+            placeholder={props.placeholder}
           />
           <textarea
             id={props.id}
@@ -243,6 +246,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
             className="raw-editor"
             onChange={(e) => setNormalState({ ...normalState, text: e.target.value })}
             value={normalState.text}
+            placeholder={props.placeholder}
           />
         </>
       )}
@@ -257,6 +261,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
             setExpand={setExpand}
             expandedState={expandedState}
             setExpandedState={setExpandedState}
+            placeholder={props.placeholder}
           />
         </dialog>
       )}

@@ -1,4 +1,4 @@
-import { ISettingModel } from 'tno-core';
+import { type ISettingModel } from 'tno-core';
 
 export const defaultSetting: ISettingModel = {
   id: 0,

@@ -1,4 +1,4 @@
-import { KnnSearchResponse, SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
+import { type KnnSearchResponse, type SearchTotalHits } from '@elastic/elasticsearch/lib/api/types';
 import { Status } from 'components/status';
 import { NavigateOptions, TabControl, useTab } from 'components/tab-control';
 import moment from 'moment';
@@ -6,7 +6,7 @@ import React, { lazy, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApiHub, useApp, useContent, useLocalStorage, useWorkOrders } from 'store/hooks';
-import { IContentSearchResult } from 'store/slices';
+import { type IContentSearchResult } from 'store/slices';
 import { useCastContentToSearchResult } from 'store/slices/content/hooks';
 import {
   CellEllipsis,
@@ -14,13 +14,13 @@ import {
   Col,
   ContentTypeName,
   Grid,
-  IContentMessageModel,
-  IContentModel,
-  IGridHeaderColumnProps,
-  IPaged,
-  IWorkOrderFilter,
-  IWorkOrderMessageModel,
-  IWorkOrderModel,
+  type IContentMessageModel,
+  type IContentModel,
+  type IGridHeaderColumnProps,
+  type IPaged,
+  type IWorkOrderFilter,
+  type IWorkOrderMessageModel,
+  type IWorkOrderModel,
   LogicalOperator,
   MessageTargetKey,
   Page,
@@ -34,13 +34,13 @@ import {
 
 import { AdvancedSearchKeys } from '../constants';
 import { useElasticsearch } from '../hooks';
-import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
+import { type IContentListAdvancedFilter, type IContentListFilter } from '../interfaces';
 import { ContentToolBar } from './components';
 import { defaultPage } from './constants';
 import * as styled from './styled';
 import { queryToFilter, queryToFilterAdvanced } from './utils';
 
-const ContentForm = lazy(() => import('../form/ContentForm'));
+const ContentForm = lazy(async () => await import('../form/ContentForm'));
 
 /**
  * ContentListView provides a way to list, search and select content for viewing and editing.
@@ -75,7 +75,7 @@ const ContentListView: React.FC = () => {
   const [currentItemId, setCurrentItemId] = useLocalStorage('currentContentItemId', -1);
 
   const [focusedRowIndex, setFocusedRowIndex] = React.useState(id);
-  const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const rowRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   // Stores the current page
   const [currentResultsPage, setCurrentResultsPage] = React.useState(defaultPage);
@@ -89,7 +89,7 @@ const ContentListView: React.FC = () => {
 
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
-    if (!!window.location.search) {
+    if (window.location.search) {
       storeFilter(queryToFilter(filter, window.location.search));
       storeFilterAdvanced(queryToFilterAdvanced(filterAdvanced, window.location.search));
     }
@@ -107,9 +107,9 @@ const ContentListView: React.FC = () => {
           workOrder.workType,
         )
       ) {
-        if (!!workOrder.contentId) {
+        if (workOrder.contentId) {
           getContent(workOrder.contentId ?? 0).then((content) => {
-            if (!!content) {
+            if (content) {
               const newPage = {
                 ...currentResultsPage,
                 items: currentResultsPage.items.map((i) => {
@@ -137,7 +137,7 @@ const ContentListView: React.FC = () => {
       if (message.ownerId === userId) {
         try {
           const result = await getContent(message.id);
-          if (!!result) {
+          if (result) {
             const newPage = {
               ...currentResultsPage,
               items: [...[castContentToSearchResult(result)], ...currentResultsPage.items],
@@ -157,7 +157,7 @@ const ContentListView: React.FC = () => {
       if (currentResultsPage.items.some((c) => c.id === message.id)) {
         try {
           const result = await getContent(message.id);
-          if (!!result) {
+          if (result) {
             const newPage = {
               ...currentResultsPage,
               items: currentResultsPage.items.map((i) => {
@@ -243,9 +243,7 @@ const ContentListView: React.FC = () => {
           : ({
               hits: { hits: [], total: { value: 0 } },
             } as unknown as KnnSearchResponse<IContentModel>);
-        let items = searchResults.hits?.hits?.map((h) =>
-          castContentToSearchResult(h._source as IContentModel),
-        );
+        let items = searchResults.hits?.hits?.map((h) => castContentToSearchResult(h._source!));
 
         if (filter.pendingTranscript) {
           // Apply the transcript work order to the content.
@@ -473,12 +471,14 @@ const ContentListView: React.FC = () => {
                           if (rowIndex) rowRefs.current[rowIndex] = el;
                         }}
                         className="clickable"
-                        onClick={(e) => handleContentClick(row.id, e)}
+                        onClick={(e) => {
+                          handleContentClick(row.id, e);
+                        }}
                       >
                         <CellEllipsis>{row.headline}</CellEllipsis>
                       </div>
                     ),
-                    isFocused: isFocused,
+                    isFocused,
                   },
                   {
                     column: (
@@ -488,12 +488,14 @@ const ContentListView: React.FC = () => {
                         ref={(el) => {
                           if (rowIndex) rowRefs.current[rowIndex] = el;
                         }}
-                        onClick={(e) => handleContentClick(row.id, e)}
+                        onClick={(e) => {
+                          handleContentClick(row.id, e);
+                        }}
                       >
                         <CellEllipsis>{row.otherSource}</CellEllipsis>
                       </div>
                     ),
-                    isFocused: isFocused,
+                    isFocused,
                   },
                   {
                     column: (
@@ -503,18 +505,22 @@ const ContentListView: React.FC = () => {
                         ref={(el) => {
                           if (rowIndex) rowRefs.current[rowIndex] = el;
                         }}
-                        onClick={(e) => handleContentClick(row.id, e)}
+                        onClick={(e) => {
+                          handleContentClick(row.id, e);
+                        }}
                       >
                         <CellEllipsis
                           className="clickable"
                           key=""
-                          onClick={(e) => handleContentClick(row.id, e)}
+                          onClick={(e) => {
+                            handleContentClick(row.id, e);
+                          }}
                         >
                           {row.mediaType}
                         </CellEllipsis>
                       </div>
                     ),
-                    isFocused: isFocused,
+                    isFocused,
                   },
                   {
                     column: (
@@ -524,12 +530,14 @@ const ContentListView: React.FC = () => {
                         ref={(el) => {
                           if (rowIndex) rowRefs.current[rowIndex] = el;
                         }}
-                        onClick={(e) => handleContentClick(row.id, e)}
+                        onClick={(e) => {
+                          handleContentClick(row.id, e);
+                        }}
                       >
                         {pageSection}
                       </div>
                     ),
-                    isFocused: isFocused,
+                    isFocused,
                   },
                   {
                     column: (
@@ -539,12 +547,14 @@ const ContentListView: React.FC = () => {
                         ref={(el) => {
                           if (rowIndex) rowRefs.current[rowIndex] = el;
                         }}
-                        onClick={(e) => handleContentClick(row.id, e)}
+                        onClick={(e) => {
+                          handleContentClick(row.id, e);
+                        }}
                       >
                         {row.owner}
                       </div>
                     ),
-                    isFocused: isFocused,
+                    isFocused,
                   },
                   {
                     column: (
@@ -554,14 +564,16 @@ const ContentListView: React.FC = () => {
                         ref={(el) => {
                           if (rowIndex) rowRefs.current[rowIndex] = el;
                         }}
-                        onClick={(e) => handleContentClick(row.id, e)}
+                        onClick={(e) => {
+                          handleContentClick(row.id, e);
+                        }}
                       >
                         {row.publishedOn
                           ? moment(row.publishedOn).format('MM/DD/YYYY HH:mm:ss')
                           : ''}
                       </div>
                     ),
-                    isFocused: isFocused,
+                    isFocused,
                   },
                   {
                     column: (
@@ -574,11 +586,13 @@ const ContentListView: React.FC = () => {
                       >
                         <Status
                           value={row.status}
-                          onClick={(status) => handleClickUse({ ...row, status: status })}
+                          onClick={(status) => {
+                            handleClickUse({ ...row, status });
+                          }}
                         />
                       </div>
                     ),
-                    isFocused: isFocused,
+                    isFocused,
                   },
                 ];
               }}

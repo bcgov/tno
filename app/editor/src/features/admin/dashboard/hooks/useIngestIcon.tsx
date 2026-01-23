@@ -1,6 +1,6 @@
 import { FaFileCode, FaFilm, FaImage, FaNewspaper, FaRadio } from 'react-icons/fa6';
 import { useIngestTypes } from 'store/hooks/admin';
-import { IIngestModel } from 'tno-core';
+import { type IIngestModel } from 'tno-core';
 
 export const useIngestIcon = () => {
   const [{ ingestTypes }] = useIngestTypes();

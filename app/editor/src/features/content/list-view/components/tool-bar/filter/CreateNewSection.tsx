@@ -37,11 +37,11 @@ export const CreateNewSection: React.FC<ICreateNewSectionProps> = ({
               key={contentType}
               data-tooltip-content="Radio/TV"
               data-tooltip-id="main-tooltip"
-              onClick={(e) =>
+              onClick={(e) => {
                 e.ctrlKey
                   ? navigate(0, '/contents', NavigateOptions.NewTab)
-                  : navigate(0, '/contents')
-              }
+                  : navigate(0, '/contents');
+              }}
               className="action-button"
             />
           );
@@ -51,9 +51,9 @@ export const CreateNewSection: React.FC<ICreateNewSectionProps> = ({
               key={contentType}
               data-tooltip-content="Print content"
               data-tooltip-id="main-tooltip"
-              onClick={(e) =>
-                e.ctrlKey ? navigate(0, '/papers', NavigateOptions.NewTab) : navigate(0, '/papers')
-              }
+              onClick={(e) => {
+                e.ctrlKey ? navigate(0, '/papers', NavigateOptions.NewTab) : navigate(0, '/papers');
+              }}
               className="action-button"
             />
           );
@@ -63,9 +63,9 @@ export const CreateNewSection: React.FC<ICreateNewSectionProps> = ({
               key={contentType}
               data-tooltip-content="Image"
               data-tooltip-id="main-tooltip"
-              onClick={(e) =>
-                e.ctrlKey ? navigate(0, '/images', NavigateOptions.NewTab) : navigate(0, '/images')
-              }
+              onClick={(e) => {
+                e.ctrlKey ? navigate(0, '/images', NavigateOptions.NewTab) : navigate(0, '/images');
+              }}
               className="action-button"
             />
           );
@@ -75,11 +75,11 @@ export const CreateNewSection: React.FC<ICreateNewSectionProps> = ({
               key={contentType}
               data-tooltip-content="Online"
               data-tooltip-id="main-tooltip"
-              onClick={(e) =>
+              onClick={(e) => {
                 e.ctrlKey
                   ? navigate(0, '/stories', NavigateOptions.NewTab)
-                  : navigate(0, '/stories')
-              }
+                  : navigate(0, '/stories');
+              }}
               className="action-button"
             />
           );

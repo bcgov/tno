@@ -1,13 +1,13 @@
 import {
-  IActionModel,
-  IContributorModel,
-  IMediaTypeModel,
-  ISeriesModel,
-  ISourceModel,
+  type IActionModel,
+  type IContributorModel,
+  type IMediaTypeModel,
+  type ISeriesModel,
+  type ISourceModel,
 } from 'tno-core';
 
 import { FilterImportExportModel } from './FilterImportExportModel';
-import { IFilterImportExportModel } from './IFilterImportExportModel';
+import { type IFilterImportExportModel } from './IFilterImportExportModel';
 
 export const exportFilter = (
   name: string,
@@ -19,10 +19,10 @@ export const exportFilter = (
   sources: ISourceModel[],
   mediaTypes: IMediaTypeModel[],
 ): IFilterImportExportModel => {
-  var exportFilter = new FilterImportExportModel();
+  const exportFilter = new FilterImportExportModel();
   exportFilter.name = name;
   exportFilter.description = description;
-  var exportSettings = {};
+  let exportSettings = {};
   exportSettings = { ...exportSettings, size: currentSettings.size ?? 10 };
   if ('search' in currentSettings) {
     exportSettings = { ...exportSettings, search: currentSettings.search };
@@ -70,31 +70,31 @@ export const exportFilter = (
     const actionNames = actions
       .filter((x) => currentSettings.actions.some((y: IActionModel) => y.id === x.id))
       .map((x) => x.name);
-    exportSettings = { ...exportSettings, actionNames: actionNames };
+    exportSettings = { ...exportSettings, actionNames };
   }
   if ('seriesIds' in currentSettings) {
     const seriesNames = series
       .filter((x) => currentSettings.seriesIds.some((y: number) => y === x.id))
       .map((x) => x.name);
-    exportSettings = { ...exportSettings, seriesNames: seriesNames };
+    exportSettings = { ...exportSettings, seriesNames };
   }
   if ('sourceIds' in currentSettings) {
     const sourceCodes = sources
       .filter((x) => currentSettings.sourceIds.some((y: number) => y === x.id))
       .map((x) => x.code);
-    exportSettings = { ...exportSettings, sourceCodes: sourceCodes };
+    exportSettings = { ...exportSettings, sourceCodes };
   }
   if ('mediaTypeIds' in currentSettings) {
     const mediaTypeNames = mediaTypes
       .filter((x) => currentSettings.mediaTypeIds.some((y: number) => y === x.id))
       .map((x) => x.name);
-    exportSettings = { ...exportSettings, mediaTypeNames: mediaTypeNames };
+    exportSettings = { ...exportSettings, mediaTypeNames };
   }
   if ('contributorIds' in currentSettings) {
     const contributorNames = contributors
       .filter((x) => currentSettings.contributorIds.some((y: number) => y === x.id))
       .map((x) => x.name);
-    exportSettings = { ...exportSettings, contributorNames: contributorNames };
+    exportSettings = { ...exportSettings, contributorNames };
   }
   exportFilter.settings = exportSettings;
 

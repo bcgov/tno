@@ -1,5 +1,5 @@
 import { useFormikContext } from 'formik';
-import { Col, FormikText, IConnectionModel, Row } from 'tno-core';
+import { Col, FormikText, type IConnectionModel, Row } from 'tno-core';
 
 export const AzureConfiguration = () => {
   const { values } = useFormikContext<IConnectionModel>();

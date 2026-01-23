@@ -2,7 +2,7 @@ import { FormPage } from 'components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSeries } from 'store/hooks/admin';
-import { Col, FlexboxTable, IconButton, ISeriesModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, type ISeriesModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { SeriesFilter } from './SeriesFilter';
@@ -16,7 +16,7 @@ const SeriesList: React.FC = () => {
   const [items, setItems] = React.useState<ISeriesModel[]>([]);
 
   React.useEffect(() => {
-    if (!series.length) {
+    if (series.length === 0) {
       api.findAllSeries().then((data) => {
         setItems(data);
       });
@@ -35,8 +35,10 @@ const SeriesList: React.FC = () => {
           </Col>
           <IconButton
             iconType="plus"
-            label={`Add new show/program`}
-            onClick={() => navigate(`/admin/programs/0`)}
+            label={'Add new show/program'}
+            onClick={() => {
+              navigate('/admin/programs/0');
+            }}
           />
         </Row>
         <SeriesFilter
@@ -64,7 +66,9 @@ const SeriesList: React.FC = () => {
           data={items}
           columns={columns}
           showSort={true}
-          onRowClick={(row) => navigate(`${row.original.id}`)}
+          onRowClick={(row) => {
+            navigate(`${row.original.id}`);
+          }}
           pagingEnabled={true}
           pageIndex={pageIndex}
           pageSize={15}

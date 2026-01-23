@@ -1,4 +1,4 @@
-import { IContentListFilter } from 'features/content/interfaces';
+import { type IContentListFilter } from 'features/content/interfaces';
 import { convertTo, fromQueryString } from 'tno-core';
 
 /**
@@ -16,7 +16,7 @@ export const queryToFilter = (
     numbers: ['sourceIds', 'mediaTypeIds'],
   });
 
-  if (!!Object.keys(search).length) {
+  if (Object.keys(search).length > 0) {
     return {
       pageIndex: convertTo(search.pageIndex, 'number', filter.pageIndex),
       pageSize: convertTo(search.pageSize, 'number', filter.pageSize),

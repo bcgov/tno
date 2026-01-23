@@ -5,7 +5,7 @@ import { useLocalStorage } from 'store/hooks';
 import { Button, ButtonVariant, Row, Show, Spinner } from 'tno-core';
 
 import { useContentForm } from './hooks';
-import { IContentForm } from './interfaces/IContentForm';
+import { type IContentForm } from './interfaces/IContentForm';
 import { getContentPath } from './utils';
 
 export interface IContentNavigationProps {
@@ -39,7 +39,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
 
   React.useEffect(() => {
     if (currentItems != null) {
-      let index = !!values.id ? currentItems.findIndex((c) => c === +values.id) ?? -1 : -1;
+      const index = values.id ? currentItems.findIndex((c) => c === +values.id) ?? -1 : -1;
       setIndexPosition(index);
       setEnablePrev(index > 0);
       setEnableNext(index < (currentItems.length ?? 0) - 1);
@@ -49,7 +49,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
   const handleNavigate = (offset: number) => {
     if (currentItems != null) {
       const targetId = currentItems[indexPosition + offset];
-      if (!!targetId) {
+      if (targetId) {
         setCurrentItemId(targetId);
         navigate(getContentPath(targetId, values.contentType));
       }
@@ -62,7 +62,9 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
         <Button
           variant={ButtonVariant.secondary}
           tooltip="Previous"
-          onClick={() => handleNavigate(-1)}
+          onClick={() => {
+            handleNavigate(-1);
+          }}
           disabled={!enablePrev}
         >
           <FaChevronLeft />
@@ -70,7 +72,9 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({
         <Button
           variant={ButtonVariant.secondary}
           tooltip="Next"
-          onClick={() => handleNavigate(+1)}
+          onClick={() => {
+            handleNavigate(+1);
+          }}
           disabled={!enableNext}
         >
           <FaChevronRight />

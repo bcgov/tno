@@ -1,6 +1,6 @@
-import { LogicalOperator } from 'tno-core';
+import { type LogicalOperator } from 'tno-core';
 
-import { AdvancedSearchKeys } from '../constants';
+import { type AdvancedSearchKeys } from '../constants';
 
 export interface IContentListAdvancedFilter {
   fieldType: AdvancedSearchKeys;

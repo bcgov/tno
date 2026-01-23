@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, FlexboxTable, ITableHookColumn, Row, Text } from 'tno-core';
+import { Button, FlexboxTable, type ITableHookColumn, Row, Text } from 'tno-core';
 
 export class DemoData {
   id: number;
@@ -19,7 +19,7 @@ export class DemoData {
   }
 }
 
-const columns: ITableHookColumn<DemoData>[] = [
+const columns: Array<ITableHookColumn<DemoData>> = [
   {
     accessor: 'id',
     label: 'Id',
@@ -51,8 +51,8 @@ const columns: ITableHookColumn<DemoData>[] = [
 
 const generate = (count: number) => {
   const items = [];
-  var section = 1;
-  for (var i = 0; i < count; i++) {
+  let section = 1;
+  for (let i = 0; i < count; i++) {
     const value = new DemoData(i, `name-${i}`, `${section}`);
     value.value = i % 2 ? 'even' : 'odd';
     items.push(value);
@@ -76,7 +76,7 @@ export const DemoFlexboxTable = () => {
           label="Name"
           value={item?.name ?? ''}
           onChange={(e) => {
-            if (!!item) setItem({ ...item, name: e.target.value });
+            if (item) setItem({ ...item, name: e.target.value });
           }}
         />
         <Text
@@ -84,7 +84,7 @@ export const DemoFlexboxTable = () => {
           label="Value"
           value={item?.value ?? ''}
           onChange={(e) => {
-            if (!!item) setItem({ ...item, value: e.target.value });
+            if (item) setItem({ ...item, value: e.target.value });
           }}
         />
         <Button

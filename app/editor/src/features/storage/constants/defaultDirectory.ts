@@ -1,4 +1,4 @@
-import { IDirectoryModel } from 'tno-core';
+import { type IDirectoryModel } from 'tno-core';
 
 export const defaultDirectory: IDirectoryModel = {
   path: '',

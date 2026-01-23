@@ -1,7 +1,10 @@
-import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
-import { IPaged } from 'tno-core';
+import {
+  type IContentListAdvancedFilter,
+  type IContentListFilter,
+} from 'features/content/interfaces';
+import { type IPaged } from 'tno-core';
 
-import { IContentSearchResult } from './IContentSearchResult';
+import { type IContentSearchResult } from './IContentSearchResult';
 
 export interface IContentState {
   filter: IContentListFilter;

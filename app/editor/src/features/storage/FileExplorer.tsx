@@ -5,8 +5,8 @@ import {
   Col,
   getDirectoryName,
   GridTable,
-  IDirectoryModel,
-  IItemModel,
+  type IDirectoryModel,
+  type IItemModel,
   Modal,
   Row,
   Show,
@@ -16,7 +16,7 @@ import {
 
 import { fileExplorerColumns } from './constants';
 import { FileExplorerFilter } from './FileExplorerFilter';
-import { IFileItem } from './interfaces';
+import { type IFileItem } from './interfaces';
 import * as styled from './styled';
 
 export interface IFileExplorerProps {
@@ -138,7 +138,7 @@ export const FileExplorer: React.FC<IFileExplorerProps> = ({
         cancelText="No"
         onConfirm={async () => {
           try {
-            if (!!item) {
+            if (item) {
               onPlay?.();
               onDelete?.({ ...item, locationId, path });
             }

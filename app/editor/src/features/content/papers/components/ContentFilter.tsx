@@ -1,4 +1,4 @@
-import { IContentListFilter } from 'features/content/interfaces';
+import { type IContentListFilter } from 'features/content/interfaces';
 import { InputOption } from 'features/content/list-view/components/tool-bar/filter';
 import React from 'react';
 import { FaEye, FaFilter, FaIcons, FaNewspaper, FaWindowRestore } from 'react-icons/fa';
@@ -43,7 +43,7 @@ export const ContentFilter: React.FC<IContentFilter> = ({ onFilterChange, filter
               options={[
                 {
                   label: "ALL TODAY'S CONTENT",
-                  onClick: () =>
+                  onClick: () => {
                     onFilterChange({
                       ...filter,
                       onlyPublished: false,
@@ -51,11 +51,12 @@ export const ContentFilter: React.FC<IContentFilter> = ({ onFilterChange, filter
                       topStory: false,
                       commentary: false,
                       featuredStory: false,
-                    }),
+                    });
+                  },
                 },
                 {
                   label: 'SEE SHORTLIST',
-                  onClick: () =>
+                  onClick: () => {
                     onFilterChange({
                       ...filter,
                       onlyPublished: false,
@@ -63,7 +64,8 @@ export const ContentFilter: React.FC<IContentFilter> = ({ onFilterChange, filter
                       topStory: true,
                       commentary: true,
                       featuredStory: true,
-                    }),
+                    });
+                  },
                 },
                 {
                   label: 'SEE HIDDEN ONLY',
@@ -103,7 +105,7 @@ export const ContentFilter: React.FC<IContentFilter> = ({ onFilterChange, filter
                   onFilterChange({
                     ...filter,
                     pageIndex: 0,
-                    mediaTypeIds: mediaTypeIds,
+                    mediaTypeIds,
                   });
                 }}
               />
@@ -129,7 +131,7 @@ export const ContentFilter: React.FC<IContentFilter> = ({ onFilterChange, filter
                 onFilterChange({
                   ...filter,
                   pageIndex: 0,
-                  sourceIds: sourceIds,
+                  sourceIds,
                 });
               }}
             />

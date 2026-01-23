@@ -1,8 +1,8 @@
 import { naturalSortValue } from 'features/content/list-view/utils/naturalSort';
-import { ISortBy } from 'features/interfaces';
+import { type ISortBy } from 'features/interfaces';
 import { getIn } from 'formik';
 import { useLookup } from 'store/hooks';
-import { IContentModel } from 'tno-core';
+import { type IContentModel } from 'tno-core';
 
 import { defaultSort } from '../constants';
 
@@ -16,7 +16,7 @@ export const useSortContent = () => {
 
   return (sort: ISortBy[] = defaultSort) =>
     (a: IContentModel, b: IContentModel) => {
-      for (var index in sort) {
+      for (const index in sort) {
         const sortBy = sort[index];
         let value1 = '';
         let value2 = '';

@@ -3,7 +3,7 @@ import { FaTrash } from 'react-icons/fa';
 import { Button, ButtonVariant, Col, FormikSelect, FormikText, Row } from 'tno-core';
 
 import { labelOptions } from './constants';
-import { IContentForm } from './interfaces';
+import { type IContentForm } from './interfaces';
 import * as styled from './styled';
 
 /**
@@ -34,7 +34,12 @@ export const ContentLabelsForm: React.FC = () => {
           <FormikText name={`labels.${i}.value`} />
         </Col>
         <Col>
-          <Button variant={ButtonVariant.danger} onClick={() => handleDelete(l.id, l.key, l.value)}>
+          <Button
+            variant={ButtonVariant.danger}
+            onClick={() => {
+              handleDelete(l.id, l.key, l.value);
+            }}
+          >
             <FaTrash />
           </Button>
         </Col>

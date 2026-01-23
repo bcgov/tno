@@ -1,6 +1,6 @@
-import { IWorkOrderModel } from 'tno-core';
+import { type IWorkOrderModel } from 'tno-core';
 
-import { IWorkOrderForm } from '../interfaces';
+import { type IWorkOrderForm } from '../interfaces';
 
 export const toModel = (form: IWorkOrderForm): IWorkOrderModel => {
   return {

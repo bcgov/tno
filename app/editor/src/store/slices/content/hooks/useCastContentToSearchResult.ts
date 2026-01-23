@@ -1,8 +1,8 @@
 import React from 'react';
 import { useSettings } from 'store/hooks';
-import { ContentTypeName, IContentModel } from 'tno-core';
+import { ContentTypeName, type IContentModel } from 'tno-core';
 
-import { IContentSearchResult } from '../interfaces';
+import { type IContentSearchResult } from '../interfaces';
 
 export const useCastContentToSearchResult = () => {
   const { topStoryActionId, commentaryActionId, featuredStoryActionId } = useSettings();

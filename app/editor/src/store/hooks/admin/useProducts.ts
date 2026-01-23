@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
-import { IProductFilter, IProductModel, useApiAdminProducts } from 'tno-core';
+import { type IAdminState, useAdminStore } from 'store/slices';
+import { type IProductFilter, type IProductModel, useApiAdminProducts } from 'tno-core';
 
 interface IProductController {
   findProducts: (filter: IProductFilter) => Promise<IProductModel[]>;
@@ -20,14 +20,18 @@ export const useProducts = (): [IAdminState, IProductController] => {
   const controller = React.useMemo(
     () => ({
       findProducts: async (filter: IProductFilter) => {
-        const response = await dispatch<IProductModel[]>('find-products', () =>
-          api.findProducts(filter),
+        const response = await dispatch<IProductModel[]>(
+          'find-products',
+          async () => await api.findProducts(filter),
         );
         store.storeProducts(response.data);
         return response.data;
       },
       getProduct: async (id: number) => {
-        const response = await dispatch<IProductModel>('get-product', () => api.getProduct(id));
+        const response = await dispatch<IProductModel>(
+          'get-product',
+          async () => await api.getProduct(id),
+        );
         store.storeProducts((mediaTypes) =>
           mediaTypes.map((ds) => {
             if (ds.id === response.data.id) return response.data;
@@ -37,7 +41,10 @@ export const useProducts = (): [IAdminState, IProductController] => {
         return response.data;
       },
       addProduct: async (model: IProductModel) => {
-        const response = await dispatch<IProductModel>('add-product', () => api.addProduct(model));
+        const response = await dispatch<IProductModel>(
+          'add-product',
+          async () => await api.addProduct(model),
+        );
         store.storeProducts((mediaTypes) => {
           return [...mediaTypes, response.data].sort((a, b) =>
             a.name < b.name ? -1 : a.name > b.name ? 1 : 0,
@@ -53,8 +60,9 @@ export const useProducts = (): [IAdminState, IProductController] => {
         model.subscribers = model.subscribers.map((item) => {
           return item;
         });
-        const response = await dispatch<IProductModel>('update-product', () =>
-          api.updateProduct(model),
+        const response = await dispatch<IProductModel>(
+          'update-product',
+          async () => await api.updateProduct(model),
         );
         store.storeProducts((mediaTypes) =>
           mediaTypes.map((ds) => {
@@ -66,8 +74,9 @@ export const useProducts = (): [IAdminState, IProductController] => {
         return response.data;
       },
       deleteProduct: async (model: IProductModel) => {
-        const response = await dispatch<IProductModel>('delete-product', () =>
-          api.deleteProduct(model),
+        const response = await dispatch<IProductModel>(
+          'delete-product',
+          async () => await api.deleteProduct(model),
         );
         store.storeProducts((mediaTypes) => mediaTypes.filter((ds) => ds.id !== response.data.id));
         await lookup.getLookups();

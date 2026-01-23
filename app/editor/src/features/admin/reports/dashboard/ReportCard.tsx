@@ -3,8 +3,8 @@ import { FaCircleChevronDown, FaCircleChevronUp } from 'react-icons/fa6';
 import { useApp } from 'store/hooks';
 import { useReports } from 'store/hooks/admin';
 import {
-  IReportModel,
-  IUserReportModel,
+  type IReportModel,
+  type IUserReportModel,
   Link,
   Loader,
   ReportStatusName,
@@ -29,12 +29,12 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report: initReport }) =
   const [subscribers, setSubscribers] = React.useState<IUserReportModel[]>([]);
   const [report, setReport] = React.useState<IReportModel>(initReport);
 
-  const instance = report.instances.length ? report.instances[0] : undefined;
+  const instance = report.instances.length > 0 ? report.instances[0] : undefined;
   const isLoading = requests.some((r) => r.url === `get-dashboard-report-${report.id}`);
 
   const stringifyResponse = React.useCallback((data: any) => {
     try {
-      return data ? JSON.stringify(data, undefined, `\t`) : '';
+      return data ? JSON.stringify(data, undefined, '\t') : '';
     } catch {
       return '';
     }
@@ -45,18 +45,19 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report: initReport }) =
   }, [report.subscribers]);
 
   React.useEffect(() => {
-    if (expand)
+    if (expand) {
       getDashboardReport(report.id)
         .then((result) => {
           setReport(result);
         })
         .catch(() => {});
+    }
     // Only fetch when expanding report.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expand]);
 
   return (
-    <div className={`report-card`}>
+    <div className={'report-card'}>
       <div>
         <Link to={`/admin/reports/${report.id}`}>{report.name}</Link>
       </div>
@@ -67,7 +68,11 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report: initReport }) =
       <div>{getLastSent(report)}</div>
       <div>{getNextSchedule(report)}</div>
       <div className="buttons">
-        <div onClick={() => setExpand((value) => !value)}>
+        <div
+          onClick={() => {
+            setExpand((value) => !value);
+          }}
+        >
           {expand ? <FaCircleChevronUp /> : <FaCircleChevronDown />}
         </div>
       </div>
@@ -76,9 +81,9 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report: initReport }) =
           <div className="response">
             <div
               className="buttons left"
-              onClick={() =>
-                setExpandResponse((value) => ({ ...value, [report.id]: !value[report.id] }))
-              }
+              onClick={() => {
+                setExpandResponse((value) => ({ ...value, [report.id]: !value[report.id] }));
+              }}
             >
               <h3>CHES Response</h3>
               <div>
@@ -94,8 +99,8 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report: initReport }) =
           <h3>Subscribers</h3>
           <div className="subscribers">
             <Loader visible={isLoading} />
-            {!subscribers.length && (
-              <div className="subscriber">{!subscribers.length && 'No Subscribers'}</div>
+            {subscribers.length === 0 && (
+              <div className="subscriber">{subscribers.length === 0 && 'No Subscribers'}</div>
             )}
             {subscribers.map((subscriber) => {
               return (
@@ -106,24 +111,24 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report: initReport }) =
                       <ReportStatusIcon
                         label="Link"
                         status={subscriber?.linkStatus}
-                        onClick={() =>
+                        onClick={() => {
                           setExpandUserResponse((expand) => ({
                             ...expand,
                             [`${subscriber.userId}Link`]: !expand[`${subscriber.userId}Link`],
-                          }))
-                        }
+                          }));
+                        }}
                       />
                     </Row>
                     <Row>
                       <ReportStatusIcon
                         label="Text"
                         status={subscriber?.textStatus}
-                        onClick={() =>
+                        onClick={() => {
                           setExpandUserResponse((expand) => ({
                             ...expand,
                             [`${subscriber.userId}Text`]: !expand[`${subscriber.userId}Text`],
-                          }))
-                        }
+                          }));
+                        }}
                       />
                     </Row>
                   </div>

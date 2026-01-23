@@ -1,5 +1,5 @@
 import { useFormikContext } from 'formik';
-import { FormikText, IConnectionModel } from 'tno-core';
+import { FormikText, type IConnectionModel } from 'tno-core';
 
 export const LocalVolumeConfiguration = () => {
   const { values } = useFormikContext<IConnectionModel>();

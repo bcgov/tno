@@ -1,10 +1,10 @@
 import moment from 'moment';
-import { formatDashboardDate, IReportModel } from 'tno-core';
+import { formatDashboardDate, type IReportModel } from 'tno-core';
 
 import { calcNextScheduleSend } from './calcNextScheduleSend';
 
 export const getNextSchedule = (report: IReportModel) => {
-  if (!report.events.length) return undefined;
+  if (report.events.length === 0) return undefined;
   if (report.events.every((e) => !e.isEnabled)) return 'Not Scheduled';
   if (report.events.length === 1) {
     const result = calcNextScheduleSend(report, report.events[0]);

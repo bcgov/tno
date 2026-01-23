@@ -2,7 +2,7 @@ import { AxiosError } from 'axios';
 import React from 'react';
 import { FaEraser, FaPlay } from 'react-icons/fa6';
 import { useChartTemplates } from 'store/hooks/admin';
-import { Col, IChartPreviewRequestModel, mergeChartSettings, Row } from 'tno-core';
+import { Col, type IChartPreviewRequestModel, mergeChartSettings, Row } from 'tno-core';
 
 import { useChartTemplateContext } from '../ChartTemplateContext';
 import * as styled from './styled';
@@ -33,7 +33,7 @@ export const ChartTemplatePreview = () => {
           setChartRequestForm((form) => ({ ...form, chartBase64: message }));
         } else if (ex instanceof AxiosError) {
           const response = ex.response;
-          const data = response?.data as any;
+          const data = response?.data;
           setChartRequestForm((form) => ({ ...form, chartBase64: JSON.stringify(data) }));
         }
       }
@@ -52,13 +52,13 @@ export const ChartTemplatePreview = () => {
           <FaPlay
             className="icon-button"
             title="Generate Chart"
-            onClick={() =>
-              handleGenerateBase64({
+            onClick={async () => {
+              await handleGenerateBase64({
                 ...chartRequestForm,
                 filter: filter ? JSON.parse(filter) : JSON.parse('{}'),
                 chartData: chartData ? JSON.parse(chartData) : undefined,
-              })
-            }
+              });
+            }}
           />
           <FaEraser
             className="icon-button"

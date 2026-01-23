@@ -13,7 +13,7 @@ import {
   Button,
   ButtonVariant,
   IconButton,
-  INotificationModel,
+  type INotificationModel,
   Modal,
   Row,
   Show,
@@ -45,7 +45,7 @@ const NotificationForm: React.FC = () => {
   const { toggle, isShowing } = useModal();
 
   const [Notification, setNotification] = React.useState<INotificationModel>(
-    (state as any)?.Notification ?? { ...defaultNotification, ownerId: userInfo?.id },
+    state?.Notification ?? { ...defaultNotification, ownerId: userInfo?.id },
   );
   const [active, setActive] = React.useState('Notification');
 
@@ -93,7 +93,9 @@ const NotificationForm: React.FC = () => {
         iconType="back"
         label="Back to Notifications"
         className="back-button"
-        onClick={() => navigate('/admin/Notifications')}
+        onClick={() => {
+          navigate('/admin/Notifications');
+        }}
       />
       <FormikForm
         initialValues={Notification}

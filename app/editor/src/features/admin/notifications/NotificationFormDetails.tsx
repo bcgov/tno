@@ -13,8 +13,8 @@ import {
   FormikText,
   FormikTextArea,
   getUserOptions,
-  INotificationModel,
-  OptionItem,
+  type INotificationModel,
+  type OptionItem,
   Row,
   Show,
   UserAccountTypeName,
@@ -122,7 +122,7 @@ export const NotificationFormDetails: React.FC = () => {
           <Row justifyContent="center">
             <FormikText width={FieldSize.Small} disabled name="updatedBy" label="Updated By" />
             <FormikDatePicker
-              selectedDate={!!values.updatedOn ? moment(values.updatedOn).toString() : undefined}
+              selectedDate={values.updatedOn ? moment(values.updatedOn).toString() : undefined}
               onChange={noop}
               name="updatedOn"
               label="Updated On"
@@ -133,7 +133,7 @@ export const NotificationFormDetails: React.FC = () => {
           <Row justifyContent="center">
             <FormikText width={FieldSize.Small} disabled name="createdBy" label="Created By" />
             <FormikDatePicker
-              selectedDate={!!values.createdOn ? moment(values.createdOn).toString() : undefined}
+              selectedDate={values.createdOn ? moment(values.createdOn).toString() : undefined}
               onChange={noop}
               name="createdOn"
               label="Created On"

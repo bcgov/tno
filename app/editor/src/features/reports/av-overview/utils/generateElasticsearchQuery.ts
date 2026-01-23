@@ -15,8 +15,8 @@ export const generateElasticsearchQuery = (
   seriesId?: number,
   sourceId?: number,
 ) => {
-  const seriesIds: number[] = seriesId ? [seriesId!] : [];
-  const sourceIds: number[] = sourceId ? [sourceId!] : [];
+  const seriesIds: number[] = seriesId ? [seriesId] : [];
+  const sourceIds: number[] = sourceId ? [sourceId] : [];
 
   let startDateValue = moment.utc(startDate);
   if (startTime) {

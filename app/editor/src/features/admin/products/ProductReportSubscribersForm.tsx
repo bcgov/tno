@@ -6,10 +6,10 @@ import {
   FormikSelect,
   getEnumStringOptions,
   Grid,
-  IProductModel,
-  IUserFilter,
-  IUserProductModel,
-  OptionItem,
+  type IProductModel,
+  type IUserFilter,
+  type IUserProductModel,
+  type OptionItem,
   ProductRequestStatusName,
   ReportDistributionFormatName,
   SortDirection,
@@ -75,14 +75,14 @@ export const ProductReportSubscribersForm: React.FC<IProductReportSubscribersFor
                 isSubscribed: e.currentTarget.checked,
                 status: ProductRequestStatusName.NA,
               };
-              if (values.subscribers.some((u) => u.userId === row.userId))
+              if (values.subscribers.some((u) => u.userId === row.userId)) {
                 setFieldValue(
                   'subscribers',
                   values.subscribers.map((item) =>
                     item.userId === row.userId ? subscription : item,
                   ),
                 );
-              else setFieldValue('subscribers', [subscription, ...values.subscribers]);
+              } else setFieldValue('subscribers', [subscription, ...values.subscribers]);
             }}
           />,
           <FormikSelect

@@ -16,7 +16,7 @@ import {
   FormikText,
   FormikTextArea,
   IconButton,
-  IMediaTypeModel,
+  type IMediaTypeModel,
   ListOptionName,
   Modal,
   OptionItem,
@@ -38,7 +38,7 @@ const MediaTypeForm: React.FC = () => {
 
   const mediaTypeId = Number(id);
   const [mediaType, setMediaType] = React.useState<IMediaTypeModel>(
-    (state as any)?.mediaType ?? defaultMediaType,
+    state?.mediaType ?? defaultMediaType,
   );
   const [settings, setSettings] = React.useState('');
   const listOptions = [
@@ -83,7 +83,9 @@ const MediaTypeForm: React.FC = () => {
         iconType="back"
         label="Back to Media Types"
         className="back-button"
-        onClick={() => navigate('/admin/media-types')}
+        onClick={() => {
+          navigate('/admin/media-types');
+        }}
       />
       <FormikForm
         initialValues={mediaType}
@@ -119,7 +121,7 @@ const MediaTypeForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.updatedOn ? moment(values.updatedOn).toString() : undefined
+                      values.updatedOn ? moment(values.updatedOn).toString() : undefined
                     }
                     onChange={noop}
                     name="updatedOn"
@@ -137,7 +139,7 @@ const MediaTypeForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.createdOn ? moment(values.createdOn).toString() : undefined
+                      values.createdOn ? moment(values.createdOn).toString() : undefined
                     }
                     onChange={noop}
                     name="createdOn"

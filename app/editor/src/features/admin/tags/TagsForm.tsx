@@ -15,7 +15,7 @@ import {
   FormikText,
   FormikTextArea,
   IconButton,
-  ITagModel,
+  type ITagModel,
   LabelPosition,
   Modal,
   Row,
@@ -34,7 +34,7 @@ const TagsForm: React.FC = () => {
   const navigate = useNavigate();
   const { toggle, isShowing } = useModal();
 
-  const [tag, setTag] = React.useState<ITagModel>((state as any)?.tag ?? defaultTag);
+  const [tag, setTag] = React.useState<ITagModel>(state?.tag ?? defaultTag);
 
   const tagId = Number(id);
 
@@ -63,7 +63,9 @@ const TagsForm: React.FC = () => {
         iconType="back"
         label="Back to Tags"
         className="back-button"
-        onClick={() => navigate('/admin/tags')}
+        onClick={() => {
+          navigate('/admin/tags');
+        }}
       />
       <FormikForm
         initialValues={tag}
@@ -100,7 +102,7 @@ const TagsForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.updatedOn ? moment(values.updatedOn).toString() : undefined
+                      values.updatedOn ? moment(values.updatedOn).toString() : undefined
                     }
                     onChange={noop}
                     name="updatedOn"
@@ -118,7 +120,7 @@ const TagsForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.createdOn ? moment(values.createdOn).toString() : undefined
+                      values.createdOn ? moment(values.createdOn).toString() : undefined
                     }
                     onChange={noop}
                     name="createdOn"

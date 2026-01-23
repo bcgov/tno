@@ -1,4 +1,4 @@
-import { ITopicOptionItem } from './ITopicOptionItem';
+import { type ITopicOptionItem } from './ITopicOptionItem';
 
 export interface IGroupedTopicOptions {
   readonly label: string;

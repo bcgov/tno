@@ -1,7 +1,12 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
-import { IIngestTypeFilter, IIngestTypeModel, IPaged, useApiAdminIngestTypes } from 'tno-core';
+import { type IAdminState, useAdminStore } from 'store/slices';
+import {
+  type IIngestTypeFilter,
+  type IIngestTypeModel,
+  type IPaged,
+  useApiAdminIngestTypes,
+} from 'tno-core';
 
 interface IIngestTypeController {
   findAllIngestTypes: () => Promise<IIngestTypeModel[]>;
@@ -21,21 +26,24 @@ export const useIngestTypes = (): [IAdminState, IIngestTypeController] => {
   const controller = React.useMemo(
     () => ({
       findAllIngestTypes: async () => {
-        const response = await dispatch<IIngestTypeModel[]>('find-all-ingest-types', () =>
-          api.findAllIngestTypes(),
+        const response = await dispatch<IIngestTypeModel[]>(
+          'find-all-ingest-types',
+          async () => await api.findAllIngestTypes(),
         );
         store.storeIngestTypes(response.data);
         return response.data;
       },
       findIngestTypes: async (filter: IIngestTypeFilter) => {
-        const response = await dispatch<IPaged<IIngestTypeModel>>('find-ingest-types', () =>
-          api.findIngestTypes(filter),
+        const response = await dispatch<IPaged<IIngestTypeModel>>(
+          'find-ingest-types',
+          async () => await api.findIngestTypes(filter),
         );
         return response.data;
       },
       getIngestType: async (id: number) => {
-        const response = await dispatch<IIngestTypeModel>('get-ingest-type', () =>
-          api.getIngestType(id),
+        const response = await dispatch<IIngestTypeModel>(
+          'get-ingest-type',
+          async () => await api.getIngestType(id),
         );
         store.storeIngestTypes((ingestTypes) =>
           ingestTypes.map((ds) => {
@@ -46,16 +54,18 @@ export const useIngestTypes = (): [IAdminState, IIngestTypeController] => {
         return response.data;
       },
       addIngestType: async (model: IIngestTypeModel) => {
-        const response = await dispatch<IIngestTypeModel>('add-ingest-type', () =>
-          api.addIngestType(model),
+        const response = await dispatch<IIngestTypeModel>(
+          'add-ingest-type',
+          async () => await api.addIngestType(model),
         );
         store.storeIngestTypes((ingestTypes) => [...ingestTypes, response.data]);
         await lookup.getLookups();
         return response.data;
       },
       updateIngestType: async (model: IIngestTypeModel) => {
-        const response = await dispatch<IIngestTypeModel>('update-ingest-type', () =>
-          api.updateIngestType(model),
+        const response = await dispatch<IIngestTypeModel>(
+          'update-ingest-type',
+          async () => await api.updateIngestType(model),
         );
         store.storeIngestTypes((ingestTypes) =>
           ingestTypes.map((ds) => {
@@ -67,8 +77,9 @@ export const useIngestTypes = (): [IAdminState, IIngestTypeController] => {
         return response.data;
       },
       deleteIngestType: async (model: IIngestTypeModel) => {
-        const response = await dispatch<IIngestTypeModel>('delete-ingest-type', () =>
-          api.deleteIngestType(model),
+        const response = await dispatch<IIngestTypeModel>(
+          'delete-ingest-type',
+          async () => await api.deleteIngestType(model),
         );
         store.storeIngestTypes((ingestTypes) =>
           ingestTypes.filter((ds) => ds.id !== response.data.id),

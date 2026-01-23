@@ -8,8 +8,8 @@ import {
   ButtonVariant,
   Checkbox,
   Col,
-  ITransferAccount,
-  IUserModel,
+  type ITransferAccount,
+  type IUserModel,
   OptionItem,
   Row,
   Section,
@@ -68,8 +68,9 @@ export const TransferAccount = () => {
           keyword,
           accountTypes: [UserAccountTypeName.Direct, UserAccountTypeName.Indirect],
         });
-        if (users.items.length === 1 && users.items[0].id !== values.id)
+        if (users.items.length === 1 && users.items[0].id !== values.id) {
           setAccount((account) => ({ ...account, fromAccountId: users.items[0].id }));
+        }
       } catch {}
     },
     [findUsers, setAccount, values.id],
@@ -115,7 +116,9 @@ export const TransferAccount = () => {
                     id="user-search"
                     name="search"
                     value={search}
-                    onChange={(e) => setSearch(e.currentTarget.value)}
+                    onChange={(e) => {
+                      setSearch(e.currentTarget.value);
+                    }}
                     onKeyDown={(e) => {
                       if (e.code === 'Enter') {
                         e.preventDefault();
@@ -127,7 +130,9 @@ export const TransferAccount = () => {
                 <Button
                   variant={ButtonVariant.action}
                   title="Search for users"
-                  onClick={() => handleSearchUsers(search)}
+                  onClick={async () => {
+                    await handleSearchUsers(search);
+                  }}
                 >
                   <FaMagnifyingGlass />
                 </Button>
@@ -148,13 +153,14 @@ export const TransferAccount = () => {
             onChange={(newValue) => {
               const value = (newValue as OptionItem)?.value;
               const user = value ? users.items.find((u) => u.id === +value) : undefined;
-              if (user)
+              if (user) {
                 createTransferAccount(
                   user.id,
                   values.id,
                   account.transferOwnership,
                   account.includeHistory,
                 );
+              }
             }}
           />
         </Col>
@@ -164,25 +170,25 @@ export const TransferAccount = () => {
           name="account"
           label="Transfer ownership"
           checked={account.transferOwnership}
-          onChange={(e) =>
+          onChange={(e) => {
             setAccount((account) => ({
               ...account,
               transferOwnership: e.target.checked,
               includeHistory: e.target.checked,
-            }))
-          }
+            }));
+          }}
         />
         <Show visible={account.transferOwnership}>
           <Checkbox
             name="includeHistory"
             label="Include history"
             checked={account.includeHistory}
-            onChange={(e) =>
+            onChange={(e) => {
               setAccount((account) => ({
                 ...account,
                 includeHistory: e.target.checked,
-              }))
-            }
+              }));
+            }}
           />
         </Show>
       </Row>
@@ -369,7 +375,9 @@ export const TransferAccount = () => {
         <Button
           variant={ButtonVariant.success}
           disabled={!account.isReady || isTransferring}
-          onClick={() => handleTransferAccount(account)}
+          onClick={async () => {
+            await handleTransferAccount(account);
+          }}
         >
           {account.transferOwnership ? 'Transfer' : 'Copy'} Account
         </Button>

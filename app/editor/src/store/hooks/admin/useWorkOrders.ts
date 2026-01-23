@@ -1,8 +1,13 @@
-import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
+import { type IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
-import { IPaged, IWorkOrderFilter, IWorkOrderModel, useApiAdminWorkOrders } from 'tno-core';
+import { type IAdminState, useAdminStore } from 'store/slices';
+import {
+  type IPaged,
+  type IWorkOrderFilter,
+  type IWorkOrderModel,
+  useApiAdminWorkOrders,
+} from 'tno-core';
 
 interface IWorkOrderController {
   findWorkOrders: (filter: IWorkOrderFilter) => Promise<IPaged<IWorkOrderModel>>;
@@ -21,15 +26,17 @@ export const useWorkOrders = (): [IAdminState, IWorkOrderController] => {
   const controller = React.useMemo(
     () => ({
       findWorkOrders: async (filter: IWorkOrderFilter) => {
-        const response = await dispatch<IPaged<IWorkOrderModel>>('find-work-orders', () =>
-          api.findWorkOrders(filter),
+        const response = await dispatch<IPaged<IWorkOrderModel>>(
+          'find-work-orders',
+          async () => await api.findWorkOrders(filter),
         );
         store.storeWorkOrders(response.data);
         return response.data;
       },
       getWorkOrder: async (id: number) => {
-        const response = await dispatch<IWorkOrderModel>('get-work-order', () =>
-          api.getWorkOrder(id),
+        const response = await dispatch<IWorkOrderModel>(
+          'get-work-order',
+          async () => await api.getWorkOrder(id),
         );
         store.storeWorkOrders((workOrders) => ({
           ...workOrders,
@@ -41,8 +48,9 @@ export const useWorkOrders = (): [IAdminState, IWorkOrderController] => {
         return response.data;
       },
       addWorkOrder: async (model: IWorkOrderModel) => {
-        const response = await dispatch<IWorkOrderModel>('add-work-order', () =>
-          api.addWorkOrder(model),
+        const response = await dispatch<IWorkOrderModel>(
+          'add-work-order',
+          async () => await api.addWorkOrder(model),
         );
         store.storeWorkOrders((workOrders) => ({
           ...workOrders,
@@ -51,8 +59,9 @@ export const useWorkOrders = (): [IAdminState, IWorkOrderController] => {
         return response.data;
       },
       updateWorkOrder: async (model: IWorkOrderModel) => {
-        const response = await dispatch<IWorkOrderModel>('update-work-order', () =>
-          api.updateWorkOrder(model),
+        const response = await dispatch<IWorkOrderModel>(
+          'update-work-order',
+          async () => await api.updateWorkOrder(model),
         );
         store.storeWorkOrders((workOrders) => ({
           ...workOrders,
@@ -64,8 +73,9 @@ export const useWorkOrders = (): [IAdminState, IWorkOrderController] => {
         return response.data;
       },
       deleteWorkOrder: async (model: IWorkOrderModel) => {
-        const response = await dispatch<IWorkOrderModel>('delete-work-order', () =>
-          api.deleteWorkOrder(model),
+        const response = await dispatch<IWorkOrderModel>(
+          'delete-work-order',
+          async () => await api.deleteWorkOrder(model),
         );
         store.storeWorkOrders((workOrders) => ({
           ...workOrders,

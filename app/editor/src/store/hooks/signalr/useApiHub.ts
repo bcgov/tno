@@ -1,12 +1,12 @@
 import {
-  HubConnection,
+  type HubConnection,
   HubConnectionBuilder,
   HubConnectionState,
   LogLevel,
 } from '@microsoft/signalr';
 import React from 'react';
 import { useAppStore } from 'store/slices';
-import { MessageTargetKey, Settings, useKeycloakWrapper } from 'tno-core';
+import { type MessageTargetKey, Settings, useKeycloakWrapper } from 'tno-core';
 
 const url = Settings.ApiPath + '/hub';
 let hub: HubConnection | null = null;
@@ -85,10 +85,14 @@ export const useApiHub = (): IHubController => {
     invoke: async (target: string, args: any[]) => {
       if (hub?.state === HubConnectionState.Connected) await hub.invoke(target, ...args);
     },
-    start: () => hub?.start() ?? Promise.resolve(),
+    start: async () => {
+      await (hub?.start() ?? Promise.resolve());
+    },
     on: (target: string, callback: (...args: any[]) => void) => hub?.on(target, callback),
     off: (target: string, callback: (...args: any[]) => void) => hub?.off(target, callback),
-    stop: () => hub?.stop() ?? Promise.resolve(),
+    stop: async () => {
+      await (hub?.stop() ?? Promise.resolve());
+    },
     listen: (target: MessageTargetKey, callback: (...args: any[]) => void) => {
       hub?.on(target, callback);
       return () => {

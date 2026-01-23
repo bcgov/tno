@@ -7,10 +7,10 @@ import {
   CellEllipsis,
   defaultPage,
   Grid,
-  IGridHeaderColumnProps,
-  IWorkOrderFilter,
-  IWorkOrderMessageModel,
-  IWorkOrderModel,
+  type IGridHeaderColumnProps,
+  type IWorkOrderFilter,
+  type IWorkOrderMessageModel,
+  type IWorkOrderModel,
   MessageTargetKey,
   Page,
   SortDirection,
@@ -87,7 +87,7 @@ export const TranscriptionList: React.FC = () => {
       if (filter.page !== page) {
         const newFilter = {
           ...filter,
-          page: page,
+          page,
         };
         storeFilter(newFilter);
       }
@@ -100,7 +100,7 @@ export const TranscriptionList: React.FC = () => {
       if (filter.quantity !== quantity) {
         const newFilter = {
           ...filter,
-          quantity: quantity,
+          quantity,
         };
         storeFilter(newFilter);
       }
@@ -123,7 +123,12 @@ export const TranscriptionList: React.FC = () => {
   return (
     <styled.TranscriptionList>
       <FormPage>
-        <WorkOrderFilter filter={filter} onFilterChange={(filter) => storeFilter(filter)} />
+        <WorkOrderFilter
+          filter={filter}
+          onFilterChange={(filter) => {
+            storeFilter(filter);
+          }}
+        />
         <Grid
           items={page.items}
           pageIndex={page.pageIndex}
@@ -156,7 +161,9 @@ export const TranscriptionList: React.FC = () => {
                   <div
                     key="1"
                     className="clickable"
-                    onClick={() => navigate(row.contentId ?? 0, '/contents')}
+                    onClick={() => {
+                      navigate(row.contentId ?? 0, '/contents');
+                    }}
                   >
                     <CellEllipsis>{row.configuration.headline}</CellEllipsis>
                   </div>
@@ -167,7 +174,9 @@ export const TranscriptionList: React.FC = () => {
                   <div
                     key="2"
                     className="clickable"
-                    onClick={() => navigate(row.contentId ?? 0, '/contents')}
+                    onClick={() => {
+                      navigate(row.contentId ?? 0, '/contents');
+                    }}
                   >
                     <CellEllipsis>{row.content?.otherSource}</CellEllipsis>
                   </div>
@@ -178,7 +187,9 @@ export const TranscriptionList: React.FC = () => {
                   <div
                     key="3"
                     className="clickable"
-                    onClick={() => navigate(row.contentId ?? 0, '/contents')}
+                    onClick={() => {
+                      navigate(row.contentId ?? 0, '/contents');
+                    }}
                   >
                     <CellEllipsis>{row.content?.mediaType}</CellEllipsis>
                   </div>
@@ -189,7 +200,9 @@ export const TranscriptionList: React.FC = () => {
                   <div
                     key="4"
                     className="clickable"
-                    onClick={() => navigate(row.contentId ?? 0, '/contents')}
+                    onClick={() => {
+                      navigate(row.contentId ?? 0, '/contents');
+                    }}
                   >
                     <CellEllipsis>{row.requestor?.username}</CellEllipsis>
                   </div>
@@ -200,7 +213,9 @@ export const TranscriptionList: React.FC = () => {
                   <div
                     key="5"
                     className="clickable"
-                    onClick={() => navigate(row.contentId ?? 0, '/contents')}
+                    onClick={() => {
+                      navigate(row.contentId ?? 0, '/contents');
+                    }}
                   >
                     <CellDate value={row.createdOn} />
                   </div>
@@ -211,7 +226,9 @@ export const TranscriptionList: React.FC = () => {
                   <div
                     key="6"
                     className="clickable"
-                    onClick={() => navigate(row.contentId ?? 0, '/contents')}
+                    onClick={() => {
+                      navigate(row.contentId ?? 0, '/contents');
+                    }}
                   >
                     <CellEllipsis>
                       <WorkOrderStatus row={row} />

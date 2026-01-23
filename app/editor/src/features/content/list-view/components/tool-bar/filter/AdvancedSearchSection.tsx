@@ -1,5 +1,5 @@
 import { AdvancedSearchKeys, advancedSearchOptions } from 'features/content/constants';
-import { IContentListAdvancedFilter } from 'features/content/interfaces';
+import { type IContentListAdvancedFilter } from 'features/content/interfaces';
 import moment from 'moment';
 import React from 'react';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
@@ -13,7 +13,7 @@ import {
   FieldSize,
   filterEnabledOptions,
   getEnumStringOptions,
-  IOptionItem,
+  type IOptionItem,
   OptionItem,
   replaceQueryParams,
   Row,
@@ -84,16 +84,18 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
       const currentFieldType = (filterAdvanced as any)[fieldTypeKey] ?? AdvancedSearchKeys.Source;
       const currentSearchTerm = (filterAdvanced as any)[searchTermKey] ?? '';
 
-      const setFieldType = (value: AdvancedSearchKeys) =>
+      const setFieldType = (value: AdvancedSearchKeys) => {
         updateAdvancedFilter({
           [fieldTypeKey]: value,
           [searchTermKey]: '',
         } as Partial<IContentListAdvancedFilter>);
+      };
 
-      const setSearchTerm = (value: string) =>
+      const setSearchTerm = (value: string) => {
         updateAdvancedFilter({
           [searchTermKey]: value,
         } as Partial<IContentListAdvancedFilter>);
+      };
 
       return (
         <Row
