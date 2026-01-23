@@ -1,4 +1,4 @@
-import { IContentModel, IQuoteModel, IWorkOrderModel } from 'tno-core';
+import { type IContentModel, type IQuoteModel, type IWorkOrderModel } from 'tno-core';
 
 export interface IContentForm
   extends Omit<

@@ -10,7 +10,7 @@ import { defaultFolder } from './constants';
 import { FolderFormCollect } from './FolderFormCollect';
 import { FolderFormContent } from './FolderFormContent';
 import { FolderFormDetails } from './FolderFormDetails';
-import { IFolderForm } from './interfaces';
+import { type IFolderForm } from './interfaces';
 import * as styled from './styled';
 import { toForm, toModel } from './utils';
 
@@ -61,7 +61,9 @@ export const FolderForm: React.FC = () => {
         iconType="back"
         label="Back to folders"
         className="back-button"
-        onClick={() => navigate('/admin/folders')}
+        onClick={() => {
+          navigate('/admin/folders');
+        }}
       />
       <FormikForm
         initialValues={folder}
@@ -99,7 +101,7 @@ export const FolderForm: React.FC = () => {
                 <Row justifyContent="flex-end" flex="1">
                   <Button
                     variant={ButtonVariant.link}
-                    disabled={!values.content.length}
+                    disabled={values.content.length === 0}
                     onClick={() => {
                       if (values.content.some((item) => item.selected)) {
                         setFieldValue(

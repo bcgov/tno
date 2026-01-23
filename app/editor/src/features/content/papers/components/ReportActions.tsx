@@ -2,19 +2,19 @@
 import { AxiosError } from 'axios';
 import { ActionNames } from 'features/content/form/constants/actionsEnum';
 import { getDefaultCommentaryExpiryValue } from 'features/content/form/utils';
-import { IContentListFilter } from 'features/content/interfaces';
+import { type IContentListFilter } from 'features/content/interfaces';
 import * as React from 'react';
 import { toast } from 'react-toastify';
 import { useContent, useLookup, useSettings } from 'store/hooks';
-import { IContentSearchResult } from 'store/slices';
+import { type IContentSearchResult } from 'store/slices';
 import {
   Button,
   ButtonVariant,
   Col,
   ContentListActionName,
   ContentStatusName,
-  IContentModel,
-  IPage,
+  type IContentModel,
+  type IPage,
   Row,
   Show,
 } from 'tno-core';
@@ -57,11 +57,12 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
         setLoading(true);
         const items = await updateContentList({
           action,
-          actionId: actionId,
+          actionId,
           actionValue: value,
-          contentIds: selected.length
-            ? selected.map((s) => s.id)
-            : searchResults?.items.map((c) => c.id) ?? [],
+          contentIds:
+            selected.length > 0
+              ? selected.map((s) => s.id)
+              : searchResults?.items.map((c) => c.id) ?? [],
         });
         if (action === ContentListActionName.Hide && (value === 'false' || !value)) {
           onContentHidden(items);
@@ -147,9 +148,11 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
         <Button
           variant={ButtonVariant.warning}
           disabled={
-            !selected.length || !selected.every((i) => i.status === ContentStatusName.Draft)
+            selected.length === 0 || !selected.every((i) => i.status === ContentStatusName.Draft)
           }
-          onClick={() => handleAction(ContentListActionName.Hide)}
+          onClick={async () => {
+            await handleAction(ContentListActionName.Hide);
+          }}
         >
           Hide
         </Button>
@@ -157,8 +160,10 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
       <Show visible={!!filter.isHidden}>
         <Button
           variant={ButtonVariant.warning}
-          disabled={!selected.length}
-          onClick={() => handleAction(ContentListActionName.Unhide)}
+          disabled={selected.length === 0}
+          onClick={async () => {
+            await handleAction(ContentListActionName.Unhide);
+          }}
         >
           Unhide
         </Button>
@@ -168,55 +173,59 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
       </Col>
       <Button
         variant={ButtonVariant.secondary}
-        disabled={!selected.length}
-        onClick={() =>
-          handleAction(
+        disabled={selected.length === 0}
+        onClick={async () => {
+          await handleAction(
             ContentListActionName.Action,
             topStoryActionId,
             filter.topStory ? 'false' : 'true',
-          )
-        }
+          );
+        }}
       >
-        {filter.topStory ? `Remove from` : `Add to`} Top Story
+        {filter.topStory ? 'Remove from' : 'Add to'} Top Story
       </Button>
       <Button
         variant={ButtonVariant.secondary}
-        disabled={!selected.length}
-        onClick={() =>
-          handleAction(
+        disabled={selected.length === 0}
+        onClick={async () => {
+          await handleAction(
             ContentListActionName.Action,
             featuredStoryActionId,
             filter.featuredStory ? 'false' : 'true',
-          )
-        }
+          );
+        }}
       >
-        {filter.featuredStory ? `Remove from` : `Add to`} Featured Stories
+        {filter.featuredStory ? 'Remove from' : 'Add to'} Featured Stories
       </Button>
       <Button
         variant={ButtonVariant.secondary}
-        disabled={!selected.length}
-        onClick={() =>
-          handleAction(
+        disabled={selected.length === 0}
+        onClick={async () => {
+          await handleAction(
             ContentListActionName.Action,
             commentaryActionId,
-            filter.commentary ? `` : commentary,
-          )
-        }
+            filter.commentary ? '' : commentary,
+          );
+        }}
       >
-        {filter.commentary ? `Remove from` : `Add to`} Commentary
+        {filter.commentary ? 'Remove from' : 'Add to'} Commentary
       </Button>
       <Row flex="1 1 0" justifyContent="flex-end">
         <Button
           variant={ButtonVariant.success}
-          disabled={!selected.length}
-          onClick={() => handleAction(ContentListActionName.Publish)}
+          disabled={selected.length === 0}
+          onClick={async () => {
+            await handleAction(ContentListActionName.Publish);
+          }}
         >
           Publish Selected
         </Button>
         <Show visible={filter.commentary || filter.topStory || filter.featuredStory}>
           <Button
             variant={ButtonVariant.success}
-            onClick={() => handleAction(ContentListActionName.Publish)}
+            onClick={async () => {
+              await handleAction(ContentListActionName.Publish);
+            }}
           >
             Publish All
           </Button>

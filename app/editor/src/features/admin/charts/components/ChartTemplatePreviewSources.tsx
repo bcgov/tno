@@ -27,7 +27,9 @@ export const ChartTemplatePreviewSources = () => {
         <ToggleButton
           on={<FaMinus />}
           off={<FaAngleDown />}
-          onClick={() => setShow(!show)}
+          onClick={() => {
+            setShow(!show);
+          }}
           value={show}
         />
       </Row>
@@ -100,7 +102,9 @@ export const ChartTemplatePreviewSources = () => {
                     <Editor
                       id="txa-filter"
                       value={filter}
-                      onValueChange={(code) => setFilter(code)}
+                      onValueChange={(code) => {
+                        setFilter(code);
+                      }}
                       highlight={(code) => {
                         return highlight(code, languages.json, 'razor');
                       }}

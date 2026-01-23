@@ -1,6 +1,6 @@
 import React from 'react';
 import { toast } from 'react-toastify';
-import { ISettingsState, useSettingsStore } from 'store/slices';
+import { type ISettingsState, useSettingsStore } from 'store/slices';
 import { Settings } from 'tno-core';
 
 import { useLookup } from './useLookup';
@@ -56,8 +56,8 @@ export const useSettings = (validate?: boolean): ISettingsState => {
         topStoryActionId: topStoryActionId ? +topStoryActionId : undefined,
         featuredStoryActionId: featuredStoryActionId ? +featuredStoryActionId : undefined,
         alertActionId: alertActionId ? +alertActionId : undefined,
-        editorUrl: editorUrl ? editorUrl : undefined,
-        subscriberUrl: subscriberUrl ? subscriberUrl : undefined,
+        editorUrl: editorUrl || undefined,
+        subscriberUrl: subscriberUrl || undefined,
         defaultReportTemplateId: defaultReportTemplateId ? +defaultReportTemplateId : undefined,
         frontpageFilterId: frontpageFilterId ? +frontpageFilterId : undefined,
         morningReportId: morningReportId ? +morningReportId : undefined,
@@ -75,52 +75,67 @@ export const useSettings = (validate?: boolean): ISettingsState => {
 
   React.useEffect(() => {
     if (values.loadingState === 1 && validate) {
-      if (!values.commentaryActionId)
+      if (!values.commentaryActionId) {
         toast.error(`Configuration "${Settings.CommentaryAction}" is missing from settings.`);
+      }
 
-      if (!values.topStoryActionId)
+      if (!values.topStoryActionId) {
         toast.error(`Configuration "${Settings.TopStoryAction}" is missing from settings.`);
+      }
 
-      if (!values.featuredStoryActionId)
+      if (!values.featuredStoryActionId) {
         toast.error(`Configuration "${Settings.FeaturedAction}" is missing from settings.`);
+      }
 
-      if (!values.alertActionId)
+      if (!values.alertActionId) {
         toast.error(`Configuration "${Settings.AlertAction}" is missing from settings.`);
+      }
 
-      if (!values.editorUrl)
+      if (!values.editorUrl) {
         toast.error(`Configuration "${Settings.SubscriberUrl}" is missing from settings.`);
+      }
 
-      if (!values.subscriberUrl)
+      if (!values.subscriberUrl) {
         toast.error(`Configuration "${Settings.EditorUrl}" is missing from settings.`);
+      }
 
-      if (!values.defaultReportTemplateId)
+      if (!values.defaultReportTemplateId) {
         toast.error(`Configuration "${Settings.DefaultReportTemplate}" is missing from settings.`);
+      }
 
-      if (!values.excludeBylineIds)
+      if (!values.excludeBylineIds) {
         toast.error(`Configuration "${Settings.ExcludeBylineIds}" is missing from settings.`);
+      }
 
-      if (!values.excludeSourceIds)
+      if (!values.excludeSourceIds) {
         toast.error(`Configuration "${Settings.ExcludeSourceIds}" is missing from settings.`);
+      }
 
-      if (!values.frontpageImageMediaTypeId)
+      if (!values.frontpageImageMediaTypeId) {
         toast.error(
           `Configuration "${Settings.FrontPageImageMediaType}" is missing from settings.`,
         );
+      }
 
-      if (!values.frontpageFilterId)
+      if (!values.frontpageFilterId) {
         toast.error(`Configuration "${Settings.FrontpageFilter}" is missing from settings.`);
+      }
 
-      if (!values.morningReportId)
+      if (!values.morningReportId) {
         toast.error(`Configuration "${Settings.MorningReport}" is missing from settings.`);
+      }
 
-      if (!values.frontPageImagesReportId)
+      if (!values.frontPageImagesReportId) {
         toast.error(`Configuration "${Settings.FrontPageImagesReport}" is missing from settings.`);
+      }
 
-      if (!values.topStoryAlertId)
+      if (!values.topStoryAlertId) {
         toast.error(`Configuration "${Settings.TopStoryAlert}" is missing from settings.`);
+      }
 
-      if (!values.basicAlertTemplateId)
+      if (!values.basicAlertTemplateId) {
         toast.error(`Configuration "${Settings.BasicAlertTemplateId}" is missing from settings.`);
+      }
       storeLoading(2);
     }
   }, [

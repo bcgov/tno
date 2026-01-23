@@ -7,9 +7,9 @@ import {
   ButtonVariant,
   Col,
   getSortableOptions,
-  IChartTemplateModel,
-  IReportTemplateModel,
-  OptionItem,
+  type IChartTemplateModel,
+  type IReportTemplateModel,
+  type OptionItem,
   Row,
   Select,
 } from 'tno-core';
@@ -26,10 +26,13 @@ export const ReportTemplateFormCharts: React.FC = () => {
   const [chart, setChart] = React.useState<IChartTemplateModel>();
 
   React.useEffect(() => {
-    if (!chartTemplates.length)
+    if (chartTemplates.length === 0) {
       findAllChartTemplates()
-        .then((results) => setChartOptions(getSortableOptions(results)))
+        .then((results) => {
+          setChartOptions(getSortableOptions(results));
+        })
         .catch(() => {});
+    }
     // Only fetch items on initial load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -81,7 +84,7 @@ export const ReportTemplateFormCharts: React.FC = () => {
               const charts = [...values.chartTemplates, { ...chart }].map((ct, i) => {
                 return { ...ct, sortOrder: i };
               });
-              setFieldValue(`chartTemplates`, charts);
+              setFieldValue('chartTemplates', charts);
               setChart(undefined);
             }}
             disabled={!chart || values.chartTemplates.some((ct) => ct.id === chart.id)}
@@ -98,9 +101,9 @@ export const ReportTemplateFormCharts: React.FC = () => {
                 <Button
                   variant={ButtonVariant.danger}
                   onClick={() => {
-                    let items = [...values.chartTemplates];
+                    const items = [...values.chartTemplates];
                     items.splice(ctIndex, 1);
-                    setFieldValue(`chartTemplates`, items);
+                    setFieldValue('chartTemplates', items);
                   }}
                 >
                   <FaTrash />

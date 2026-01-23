@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
-import { IReportTemplateModel, useApiAdminReportTemplates } from 'tno-core';
+import { type IAdminState, useAdminStore } from 'store/slices';
+import { type IReportTemplateModel, useApiAdminReportTemplates } from 'tno-core';
 
 interface IReportTemplateController {
   findAllReportTemplates: () => Promise<IReportTemplateModel[]>;
@@ -24,16 +24,18 @@ export const useReportTemplates = (): [
   const controller = React.useMemo(
     () => ({
       findAllReportTemplates: async () => {
-        const response = await dispatch<IReportTemplateModel[]>('find-all-report-templates', () =>
-          api.findAllReportTemplates(),
+        const response = await dispatch<IReportTemplateModel[]>(
+          'find-all-report-templates',
+          async () => await api.findAllReportTemplates(),
         );
         store.storeReportTemplates(response.data);
         setInitialized(true);
         return response.data;
       },
       getReportTemplate: async (id: number) => {
-        const response = await dispatch<IReportTemplateModel>('get-report-template', () =>
-          api.getReportTemplate(id),
+        const response = await dispatch<IReportTemplateModel>(
+          'get-report-template',
+          async () => await api.getReportTemplate(id),
         );
         store.storeReportTemplates((reportTemplates) =>
           reportTemplates.map((ds) => {
@@ -44,16 +46,18 @@ export const useReportTemplates = (): [
         return response.data;
       },
       addReportTemplate: async (model: IReportTemplateModel) => {
-        const response = await dispatch<IReportTemplateModel>('add-report-template', () =>
-          api.addReportTemplate(model),
+        const response = await dispatch<IReportTemplateModel>(
+          'add-report-template',
+          async () => await api.addReportTemplate(model),
         );
         store.storeReportTemplates((reportTemplates) => [...reportTemplates, response.data]);
         await lookup.getLookups();
         return response.data;
       },
       updateReportTemplate: async (model: IReportTemplateModel) => {
-        const response = await dispatch<IReportTemplateModel>('update-report-template', () =>
-          api.updateReportTemplate(model),
+        const response = await dispatch<IReportTemplateModel>(
+          'update-report-template',
+          async () => await api.updateReportTemplate(model),
         );
         store.storeReportTemplates((reportTemplates) =>
           reportTemplates.map((ds) => {
@@ -65,8 +69,9 @@ export const useReportTemplates = (): [
         return response.data;
       },
       deleteReportTemplate: async (model: IReportTemplateModel) => {
-        const response = await dispatch<IReportTemplateModel>('delete-report-template', () =>
-          api.deleteReportTemplate(model),
+        const response = await dispatch<IReportTemplateModel>(
+          'delete-report-template',
+          async () => await api.deleteReportTemplate(model),
         );
         store.storeReportTemplates((reportTemplates) =>
           reportTemplates.filter((ds) => ds.id !== response.data.id),

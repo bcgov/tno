@@ -1,16 +1,16 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Column } from 'react-table';
+import { type Column } from 'react-table';
 
-import { ITimeTrackingForm } from '../components/time-log/interfaces';
-import { IContentForm } from '../interfaces';
+import { type ITimeTrackingForm } from '../components/time-log/interfaces';
+import { type IContentForm } from '../interfaces';
 
 const colWidth = window.innerWidth > 1500 ? 140 : window.innerWidth > 1450 ? 100 : 80;
 /** columns located within file for state manipulation */
 export const timeLogColumns = (
   setFieldValue: Function,
   values: IContentForm,
-): Column<ITimeTrackingForm>[] => [
+): Array<Column<ITimeTrackingForm>> => [
   {
     id: 'effort',
     maxWidth: colWidth,

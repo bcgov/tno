@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { IUnauthenticatedHomeProps } from '..';
+import { type IUnauthenticatedHomeProps } from '..';
 
 export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   background-color: ${(props) => props.backgroundColor};

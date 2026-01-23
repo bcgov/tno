@@ -68,7 +68,7 @@ const mockUseContent = [
     total: 1,
     quantity: 10,
   },
-  { findContent: () => Promise.resolve(mockContent), storeFilter: {} },
+  { findContent: async () => await Promise.resolve(mockContent), storeFilter: {} },
 ];
 
 const mockUseApp = [
@@ -119,7 +119,9 @@ it('displays the date in the correct format', async () => {
       <ContentListView />
     </TestWrapper>,
   );
-  await waitFor(() => expect(getByText('05/12/2022')).toBeInTheDocument());
+  await waitFor(() => {
+    expect(getByText('05/12/2022')).toBeInTheDocument();
+  });
 });
 
 it('displays the Source column', async () => {
@@ -128,7 +130,9 @@ it('displays the Source column', async () => {
       <ContentListView />
     </TestWrapper>,
   );
-  await waitFor(() => expect(getByText('Source')).toBeInTheDocument());
+  await waitFor(() => {
+    expect(getByText('Source')).toBeInTheDocument();
+  });
 });
 
 it('displays the Media Type column', async () => {
@@ -137,7 +141,9 @@ it('displays the Media Type column', async () => {
       <ContentListView />
     </TestWrapper>,
   );
-  await waitFor(() => expect(getByText('Media Type')).toBeInTheDocument());
+  await waitFor(() => {
+    expect(getByText('Media Type')).toBeInTheDocument();
+  });
 });
 
 it('displays the status column', async () => {
@@ -146,7 +152,9 @@ it('displays the status column', async () => {
       <ContentListView />
     </TestWrapper>,
   );
-  await waitFor(() => expect(getByText('Pub Date')).toBeInTheDocument());
+  await waitFor(() => {
+    expect(getByText('Pub Date')).toBeInTheDocument();
+  });
 });
 
 it('displays the Use column', async () => {
@@ -155,5 +163,7 @@ it('displays the Use column', async () => {
       <ContentListView />
     </TestWrapper>,
   );
-  await waitFor(() => expect(getByText('Use')).toBeInTheDocument());
+  await waitFor(() => {
+    expect(getByText('Use')).toBeInTheDocument();
+  });
 });

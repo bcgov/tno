@@ -6,7 +6,7 @@ import { NotificationStatusName } from 'tno-core';
  * @returns A message that represents the status.
  */
 export const getStatus = (status?: NotificationStatusName) => {
-  if (!status) return 'Pending';
+  if (status == null) return 'Pending';
   switch (status) {
     case NotificationStatusName.Failed:
       return 'Failed to Send';

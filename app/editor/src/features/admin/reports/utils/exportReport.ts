@@ -1,8 +1,12 @@
-import { IReportSectionModel, IReportSettingsModel, IReportTemplateModel } from 'tno-core';
+import {
+  type IReportSectionModel,
+  type IReportSettingsModel,
+  type IReportTemplateModel,
+} from 'tno-core';
 
-import { IReportImportExportModel } from './IReportImportExportModel';
-import { IReportSectionImportExportModel } from './IReportSectionImportExportModel';
-import { IReportTemplateImportExportModel } from './IReportTemplateImportExportModel';
+import { type IReportImportExportModel } from './IReportImportExportModel';
+import { type IReportSectionImportExportModel } from './IReportSectionImportExportModel';
+import { type IReportTemplateImportExportModel } from './IReportTemplateImportExportModel';
 
 export const exportReport = (
   name: string,
@@ -13,7 +17,7 @@ export const exportReport = (
   sections: IReportSectionModel[],
   template?: IReportTemplateModel,
 ): IReportImportExportModel => {
-  var exportReport = {} as IReportImportExportModel;
+  const exportReport = {} as IReportImportExportModel;
   exportReport.name = name;
   exportReport.description = description;
   exportReport.isEnabled = isEnabled;
@@ -24,9 +28,9 @@ export const exportReport = (
     exportReport.template.name = template.name;
     exportReport.template.settings = template.settings;
   }
-  exportReport.sections = [] as Array<IReportSectionImportExportModel>;
+  exportReport.sections = [] as IReportSectionImportExportModel[];
   sections.forEach((section) => {
-    var exportSection = {} as IReportSectionImportExportModel;
+    const exportSection = {} as IReportSectionImportExportModel;
     exportSection.sortOrder = section.sortOrder;
     exportSection.isEnabled = section.isEnabled;
     exportSection.settings = section.settings;

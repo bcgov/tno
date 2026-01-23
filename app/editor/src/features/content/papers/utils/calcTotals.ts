@@ -1,8 +1,8 @@
-import { IContentListFilter } from 'features/content/interfaces';
-import { IContentSearchResult } from 'store/slices';
+import { type IContentListFilter } from 'features/content/interfaces';
+import { type IContentSearchResult } from 'store/slices';
 import { ContentStatusName } from 'tno-core';
 
-import { ITotalsInfo } from '../interfaces';
+import { type ITotalsInfo } from '../interfaces';
 
 /**
  * Calculates the new totals based on the search results and filter.

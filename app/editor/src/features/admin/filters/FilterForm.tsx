@@ -9,7 +9,7 @@ import {
   ButtonVariant,
   Col,
   IconButton,
-  IFilterModel,
+  type IFilterModel,
   Modal,
   Row,
   Show,
@@ -84,7 +84,9 @@ export const FilterForm: React.FC<IFilterFormProps> = () => {
                 iconType="back"
                 label="Back to filters"
                 className="back-button"
-                onClick={() => navigate('/admin/filters')}
+                onClick={() => {
+                  navigate('/admin/filters');
+                }}
               />
               <Col flex="1"></Col>
               <Button type="submit" disabled={isSubmitting}>
@@ -93,15 +95,15 @@ export const FilterForm: React.FC<IFilterFormProps> = () => {
               <Show visible={!!values.id}>
                 <Button
                   variant={ButtonVariant.secondary}
-                  onClick={() =>
-                    handleSubmit({
+                  onClick={async () => {
+                    await handleSubmit({
                       ...values,
                       id: 0,
                       name: `${values.name}-${new Date().getTime()}`,
                       ownerId: userInfo?.id,
                       version: 0,
-                    })
-                  }
+                    });
+                  }}
                 >
                   Copy
                 </Button>

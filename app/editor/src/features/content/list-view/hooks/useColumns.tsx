@@ -1,19 +1,22 @@
 import { Status } from 'components/status';
 import { TabControl } from 'components/tab-control';
 import { AdvancedSearchKeys } from 'features/content/constants';
-import { IContentListAdvancedFilter, IContentListFilter } from 'features/content/interfaces';
+import {
+  type IContentListAdvancedFilter,
+  type IContentListFilter,
+} from 'features/content/interfaces';
 import { FaBug, FaCheckCircle, FaClock, FaFeather } from 'react-icons/fa';
 import { FaCirclePause, FaRegCircleRight } from 'react-icons/fa6';
 import { useContent } from 'store/hooks';
-import { IContentSearchResult } from 'store/slices';
+import { type IContentSearchResult } from 'store/slices';
 import {
   CellDate,
   CellEllipsis,
   Checkbox,
   formatIdirUsername,
-  ITableHookColumn,
+  type ITableHookColumn,
   LogicalOperator,
-  Page,
+  type Page,
   Row,
   Show,
   Spinner,
@@ -28,10 +31,12 @@ export interface IColumnProps {
   ) => Promise<Page<IContentSearchResult> | undefined>;
 }
 
-export const useColumns = ({ fetch }: IColumnProps): ITableHookColumn<IContentSearchResult>[] => {
+export const useColumns = ({
+  fetch,
+}: IColumnProps): Array<ITableHookColumn<IContentSearchResult>> => {
   const [{ filter, filterAdvanced }, { storeFilterAdvanced }] = useContent();
 
-  let columns: ITableHookColumn<IContentSearchResult>[] = [
+  const columns: Array<ITableHookColumn<IContentSearchResult>> = [
     {
       accessor: 'headline',
       label: (
@@ -128,24 +133,30 @@ export const useColumns = ({ fetch }: IColumnProps): ITableHookColumn<IContentSe
       hAlign: 'center',
       width: '155px',
       cell: (cell) => {
-        if (cell.original.transcriptStatus === WorkOrderStatusName.InProgress)
+        if (cell.original.transcriptStatus === WorkOrderStatusName.InProgress) {
           return <Spinner size="8px" title="Transcribing" />;
+        }
         if (
           cell.original.transcriptStatus === WorkOrderStatusName.Completed &&
           !cell.original.isApproved
-        )
+        ) {
           return <FaRegCircleRight className="completed" title="Ready to review" />;
+        }
         if (
           cell.original.transcriptStatus === WorkOrderStatusName.Completed &&
           cell.original.isApproved
-        )
+        ) {
           return <FaCheckCircle className="completed" title="Completed" />;
-        if (cell.original.transcriptStatus === WorkOrderStatusName.Submitted)
+        }
+        if (cell.original.transcriptStatus === WorkOrderStatusName.Submitted) {
           return <FaClock className="submitted" title="Submitted" />;
-        if (cell.original.transcriptStatus === WorkOrderStatusName.Failed)
+        }
+        if (cell.original.transcriptStatus === WorkOrderStatusName.Failed) {
           return <FaBug className="failed" title="Failed" />;
-        if (cell.original.transcriptStatus === WorkOrderStatusName.Cancelled)
+        }
+        if (cell.original.transcriptStatus === WorkOrderStatusName.Cancelled) {
           return <FaCirclePause className="cancelled" title="Cancelled" />;
+        }
         return cell.original.transcriptStatus;
       },
     });

@@ -1,4 +1,4 @@
-import { IReportSectionModel, ReportSectionTypeName } from 'tno-core';
+import { type IReportSectionModel, ReportSectionTypeName } from 'tno-core';
 
 export const createReportSection = (
   reportId: number,
@@ -6,7 +6,7 @@ export const createReportSection = (
 ): IReportSectionModel => {
   return {
     id: 0,
-    reportId: reportId,
+    reportId,
     sectionType: type,
     name: crypto.randomUUID(),
     description: '',

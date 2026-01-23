@@ -1,7 +1,7 @@
-import { HubConnectionState } from '@microsoft/signalr';
+import { type HubConnectionState } from '@microsoft/signalr';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
-import { IUserInfoModel } from 'tno-core';
+import { type IUserInfoModel } from 'tno-core';
 
 import {
   addError,
@@ -14,7 +14,7 @@ import {
   storeUserInfo,
   storeUserOptions,
 } from '.';
-import { IAppState, IErrorModel, IUserOptions } from './interfaces';
+import { type IAppState, type IErrorModel, type IUserOptions } from './interfaces';
 
 export interface IAppStore {
   changeHubState: (state: HubConnectionState) => void;
@@ -52,7 +52,7 @@ export const useAppStore = (): [IAppState, IAppStore] => {
         group: string | string[] | undefined = undefined,
         isSilent: boolean = false,
       ) => {
-        var groups = Array.isArray(group) ? group : !!group ? [group] : [];
+        const groups = Array.isArray(group) ? group : group ? [group] : [];
         dispatch(addRequest({ url, group: groups, isSilent }));
       },
       removeRequest: (url: string) => {

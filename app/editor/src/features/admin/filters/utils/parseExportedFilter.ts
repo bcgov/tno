@@ -1,10 +1,10 @@
 import {
-  IActionModel,
-  IContributorModel,
-  IFilterModel,
-  IMediaTypeModel,
-  ISeriesModel,
-  ISourceModel,
+  type IActionModel,
+  type IContributorModel,
+  type IFilterModel,
+  type IMediaTypeModel,
+  type ISeriesModel,
+  type ISourceModel,
 } from 'tno-core';
 
 export const parseExportedFilter = (
@@ -15,7 +15,7 @@ export const parseExportedFilter = (
   sources: ISourceModel[],
   mediaTypes: IMediaTypeModel[],
 ): IFilterModel => {
-  var importedModel = {};
+  let importedModel = {};
   if ('name' in value) {
     importedModel = { ...importedModel, name: value.name };
   }
@@ -25,7 +25,7 @@ export const parseExportedFilter = (
   if ('isEnabled' in value) {
     importedModel = { ...importedModel, isEnabled: value.isEnabled };
   }
-  var importedSettings = {};
+  let importedSettings = {};
   if ('size' in value.settings) {
     importedSettings = { ...importedSettings, size: value.settings.size ?? 10 };
   }
@@ -81,25 +81,25 @@ export const parseExportedFilter = (
     const seriesIds = series
       .filter((x) => value.settings.seriesNames.some((y: string) => y === x.name))
       .map((x) => x.id);
-    importedSettings = { ...importedSettings, seriesIds: seriesIds };
+    importedSettings = { ...importedSettings, seriesIds };
   }
   if ('sourceCodes' in value.settings) {
     const sourceIds = sources
       .filter((x) => value.settings.sourceCodes.some((y: string) => y === x.code))
       .map((x) => x.id);
-    importedSettings = { ...importedSettings, sourceIds: sourceIds };
+    importedSettings = { ...importedSettings, sourceIds };
   }
   if ('mediaTypeNames' in value.settings) {
     const mediaTypeIds = mediaTypes
       .filter((x) => value.settings.mediaTypeNames.some((y: string) => y === x.name))
       .map((x) => x.id);
-    importedSettings = { ...importedSettings, mediaTypeIds: mediaTypeIds };
+    importedSettings = { ...importedSettings, mediaTypeIds };
   }
   if ('contributorNames' in value.settings) {
     const contributorIds = contributors
       .filter((x) => value.settings.contributorNames.some((y: string) => y === x.name))
       .map((x) => x.id);
-    importedSettings = { ...importedSettings, contributorIds: contributorIds };
+    importedSettings = { ...importedSettings, contributorIds };
   }
   importedModel = { ...importedModel, settings: importedSettings };
 

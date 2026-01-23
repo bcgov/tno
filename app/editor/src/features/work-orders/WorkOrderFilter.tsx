@@ -3,7 +3,7 @@ import { useLookup } from 'store/hooks';
 import {
   Checkbox,
   IconButton,
-  IWorkOrderFilter,
+  type IWorkOrderFilter,
   Row,
   Settings,
   Show,
@@ -34,52 +34,52 @@ export const WorkOrderFilter = ({ filter, onFilterChange }: IWorkOrderFilterProp
         name="ready"
         label="Ready for review"
         checked={filter.status?.includes(WorkOrderStatusName.Completed) === true}
-        onChange={(e) =>
+        onChange={(e) => {
           onFilterChange({
             ...filter,
             isApproved: e.target.checked ? false : undefined,
             status: e.target.checked ? [WorkOrderStatusName.Completed] : undefined,
-          })
-        }
+          });
+        }}
       />
       <Checkbox
         name="inProgress"
         label="In progress"
         checked={filter.status?.includes(WorkOrderStatusName.InProgress) === true}
-        onChange={(e) =>
+        onChange={(e) => {
           onFilterChange({
             ...filter,
             isApproved: undefined,
             status: e.target.checked
               ? [WorkOrderStatusName.Submitted, WorkOrderStatusName.InProgress]
               : undefined,
-          })
-        }
+          });
+        }}
       />
       <Checkbox
         name="failed"
         label="Failed"
         checked={filter.status?.includes(WorkOrderStatusName.Failed) === true}
-        onChange={(e) =>
+        onChange={(e) => {
           onFilterChange({
             ...filter,
             isApproved: undefined,
             status: e.target.checked ? [WorkOrderStatusName.Failed] : undefined,
-          })
-        }
+          });
+        }}
       />
-      <Show visible={!!newsRadioMediaTypeFilter.length}>
+      <Show visible={!(newsRadioMediaTypeFilter.length === 0)}>
         <Checkbox
           name="newsRadio"
           label="News Radio"
           checked={!!filter.mediaTypeIds?.length}
-          onChange={(e) =>
+          onChange={(e) => {
             onFilterChange({
               ...filter,
               isApproved: undefined,
               mediaTypeIds: e.target.checked ? newsRadioMediaTypeFilter : undefined,
-            })
-          }
+            });
+          }}
         />
       </Show>
       <Text
@@ -90,8 +90,9 @@ export const WorkOrderFilter = ({ filter, onFilterChange }: IWorkOrderFilterProp
         }}
         onKeyDown={(e) => {
           const value = (e.target as any).value;
-          if (e.code === 'Enter')
+          if (e.code === 'Enter') {
             onFilterChange({ ...filter, keywords: value !== '' ? value : undefined });
+          }
         }}
         value={keywords}
       >

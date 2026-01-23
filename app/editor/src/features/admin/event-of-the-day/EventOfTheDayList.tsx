@@ -10,10 +10,10 @@ import {
   Button,
   ButtonVariant,
   FlexboxTable,
-  IContentTopicModel,
-  IFolderContentModel,
-  IReportModel,
-  ITopicModel,
+  type IContentTopicModel,
+  type IFolderContentModel,
+  type IReportModel,
+  type ITopicModel,
   Modal,
   Row,
   Settings,
@@ -98,13 +98,13 @@ const EventOfTheDayList: React.FC = () => {
 
   const handleSubmit = async (values: IFolderContentModel) => {
     try {
-      var result: IContentTopicModel[] = await updateContentTopics(
+      const result: IContentTopicModel[] = await updateContentTopics(
         values.contentId,
         values.content!.topics,
       );
 
-      let index = items.findIndex((el) => el.contentId === values.contentId);
-      let results = [...items];
+      const index = items.findIndex((el) => el.contentId === values.contentId);
+      const results = [...items];
       results[index].content!.topics = result;
       setItems(results);
     } catch {
@@ -148,9 +148,9 @@ const EventOfTheDayList: React.FC = () => {
 
   const handlePublish = async () => {
     try {
-      await getReport(eventOfTheDayReportId).then(
-        (report?: IReportModel) => report && publishReport(report.id),
-      );
+      await getReport(eventOfTheDayReportId).then(async (report?: IReportModel) => {
+        await (report && publishReport(report.id));
+      });
       toast.success('Event of the Day report has been successfully requested.');
     } catch {}
   };
@@ -164,7 +164,7 @@ const EventOfTheDayList: React.FC = () => {
             <Button
               title="Refresh"
               variant={ButtonVariant.secondary}
-              onClick={() => eventOfTheDayFolderId && fetch(eventOfTheDayFolderId)}
+              onClick={async () => await (eventOfTheDayFolderId && fetch(eventOfTheDayFolderId))}
             >
               <FaArrowsRotate className="icon-refresh" />
             </Button>
@@ -178,7 +178,12 @@ const EventOfTheDayList: React.FC = () => {
             >
               Preview <FaBinoculars className="icon" />
             </Button>
-            <Button onClick={() => toggle()} disabled={isShowing || isSent}>
+            <Button
+              onClick={() => {
+                toggle();
+              }}
+              disabled={isShowing || isSent}
+            >
               Send <FaPaperPlane className="icon" />
             </Button>
           </div>
@@ -192,9 +197,9 @@ const EventOfTheDayList: React.FC = () => {
           columns={useColumns(allTopics, handleSubmit)}
           groupBy={(item) => {
             if (item.original.content?.series?.name) return item.original.content?.series?.name;
-            else if (item.original.content?.source?.name)
+            else if (item.original.content?.source?.name) {
               return item.original.content?.source?.name;
-            else return ' ';
+            } else return ' ';
           }}
           showActive={false}
           showSort={false}
@@ -212,7 +217,12 @@ const EventOfTheDayList: React.FC = () => {
             >
               Preview <FaBinoculars className="icon" />
             </Button>
-            <Button onClick={() => toggle()} disabled={isShowing || isSent}>
+            <Button
+              onClick={() => {
+                toggle();
+              }}
+              disabled={isShowing || isSent}
+            >
               Send <FaPaperPlane className="icon" />
             </Button>
           </div>

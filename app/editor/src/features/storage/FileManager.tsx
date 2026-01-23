@@ -10,7 +10,7 @@ import {
   Error,
   FieldSize,
   getDirectoryName,
-  IDirectoryModel,
+  type IDirectoryModel,
   Row,
   Show,
   Spinner,
@@ -18,7 +18,7 @@ import {
 } from 'tno-core';
 
 import { defaultDirectory } from './constants';
-import { IFileItem, IStream } from './interfaces';
+import { type IFileItem, type IStream } from './interfaces';
 import * as styled from './styled';
 
 export interface IFileManagerProps {
@@ -83,7 +83,7 @@ export const FileManager: React.FC<IFileManagerProps> = ({
   React.useEffect(() => {
     // Extract any filename in the path, we only want the folder.
     storageApi.getDirectory(locationId, directory).then((folder) => {
-      if (!!folder) setFolder(folder);
+      if (folder) setFolder(folder);
     });
   }, [directory, storageApi, locationId]);
 
@@ -102,11 +102,11 @@ export const FileManager: React.FC<IFileManagerProps> = ({
 
   const playFile = (item?: IFileItem) => {
     setItem(item);
-    if (!!item)
+    if (item) {
       storageApi.stream(item.locationId, `${item.path}/${item.name}`).then((result) => {
         const mimeType = item.mimeType ?? 'video/mp4';
         setStream(
-          !!result
+          result
             ? {
                 url: result,
                 type: mimeType,
@@ -114,11 +114,11 @@ export const FileManager: React.FC<IFileManagerProps> = ({
             : undefined,
         );
       });
-    else setStream(undefined);
+    } else setStream(undefined);
   };
 
   const createClip = async () => {
-    if (!!item) {
+    if (item) {
       if (!start || !end) {
         setError('The clip start time and clip end time must both be set.'); // TODO: Validation needs to be extracted into a yup schema.
       } else if (parseInt(start) >= parseInt(end)) {
@@ -148,7 +148,7 @@ export const FileManager: React.FC<IFileManagerProps> = ({
   };
 
   const joinClips = async () => {
-    if (!!item) {
+    if (item) {
       try {
         setActionPath(path);
         await storageApi.join(item.locationId, `${item.path}/${item.name}`, prefix).then((file) => {
@@ -159,7 +159,7 @@ export const FileManager: React.FC<IFileManagerProps> = ({
             storageApi.stream(item.locationId, `${item.path}/${file.name}`).then((result) => {
               const mimeType = item.mimeType ?? 'video/mp4';
               setStream(
-                !!result
+                result
                   ? {
                       url: result,
                       type: mimeType,
@@ -192,7 +192,7 @@ export const FileManager: React.FC<IFileManagerProps> = ({
   };
 
   const getTime = () => {
-    return !!videoRef.current ? Math.floor(videoRef.current?.currentTime).toString() : '';
+    return videoRef.current ? Math.floor(videoRef.current?.currentTime).toString() : '';
   };
 
   const getTimePoint = (time: string) => {
@@ -236,7 +236,7 @@ export const FileManager: React.FC<IFileManagerProps> = ({
         onNavigate={(locationId, path) => {
           setItem(undefined);
           setStream(undefined);
-          if (!!onNavigate) onNavigate(locationId, path);
+          if (onNavigate) onNavigate(locationId, path);
           else navigate(`/storage/locations/${locationId}?path=${path}`);
         }}
         onDelete={deleteFile}
@@ -286,7 +286,7 @@ export const FileManager: React.FC<IFileManagerProps> = ({
                 onChange={(e) => {
                   setPrefix(e.target.value);
                 }}
-                disabled={!!app.requests.length}
+                disabled={!(app.requests.length === 0)}
               />
             </Col>
             <Col>

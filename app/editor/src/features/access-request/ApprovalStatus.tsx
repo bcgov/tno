@@ -2,7 +2,7 @@ import { FormikForm } from 'components/formik';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useApp } from 'store/hooks';
-import { Button, Col, FieldSize, FormikText, FormikTextArea, IUserModel, Row } from 'tno-core';
+import { Button, Col, FieldSize, FormikText, FormikTextArea, type IUserModel, Row } from 'tno-core';
 
 import { toUserModel } from './utils';
 
@@ -13,7 +13,7 @@ export const ApprovalStatus: React.FC = () => {
     try {
       await requestApproval(values);
       await getUserInfo(true);
-      toast.success(`Account request has been updated.`);
+      toast.success('Account request has been updated.');
     } catch {}
   };
 

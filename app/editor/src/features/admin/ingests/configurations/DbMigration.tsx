@@ -12,7 +12,7 @@ import {
   FormikDatePicker,
   FormikRadioGroup,
   FormikText,
-  IIngestModel,
+  type IIngestModel,
   Row,
   Show,
   TimeInput,

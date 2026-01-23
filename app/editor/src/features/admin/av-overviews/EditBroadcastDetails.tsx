@@ -9,7 +9,7 @@ import {
   FormikSelect,
   FormikText,
   FormikTimeInput,
-  IAVOverviewTemplateModel,
+  type IAVOverviewTemplateModel,
   Row,
   Show,
   Text,
@@ -41,7 +41,7 @@ export const EditBroadcastDetails: React.FC<IEditBroadcastDetailsProps> = ({
         ...section,
         name: `${otherSource}${item?.name ? ` - ${item.name}` : ''}`,
         sourceId: undefined,
-        otherSource: otherSource,
+        otherSource,
       });
     }
     // The 'section' causes infinite loop.
@@ -98,7 +98,12 @@ export const EditBroadcastDetails: React.FC<IEditBroadcastDetailsProps> = ({
   return (
     <styled.EditBroadcastDetails>
       <Row className="edit-header">
-        <Button className="edit-button" onClick={() => setEditable(!editable)}>
+        <Button
+          className="edit-button"
+          onClick={() => {
+            setEditable(!editable);
+          }}
+        >
           {editable ? <FaEyeSlash className="minimize" /> : <MdEdit className="icon" />}
         </Button>
         <h3>{section.name ? section.name : 'Update broadcast details'}</h3>
@@ -111,7 +116,9 @@ export const EditBroadcastDetails: React.FC<IEditBroadcastDetailsProps> = ({
             options={sourceOptions}
             width={FieldSize.Big}
             value={sourceOptions.find((x) => x.value === section.sourceId) ?? ''}
-            onChange={(e: any) => changeSource(e?.value)}
+            onChange={(e: any) => {
+              changeSource(e?.value);
+            }}
             clearValue={undefined}
           />
           <Text
@@ -127,7 +134,9 @@ export const EditBroadcastDetails: React.FC<IEditBroadcastDetailsProps> = ({
             label="Show/Program"
             value={seriesOptions.find((x) => x.value === section.seriesId)}
             width={FieldSize.Big}
-            onChange={(e: any) => changeSeries(e?.value)}
+            onChange={(e: any) => {
+              changeSeries(e?.value);
+            }}
             options={seriesOptions}
             clearValue={undefined}
           />

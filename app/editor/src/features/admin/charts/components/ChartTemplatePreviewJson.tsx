@@ -9,7 +9,7 @@ import React from 'react';
 import { FaAngleDown, FaEraser, FaMinus, FaPlay } from 'react-icons/fa6';
 import Editor from 'react-simple-code-editor';
 import { useChartTemplates } from 'store/hooks/admin';
-import { Col, IChartPreviewRequestModel, Row, ToggleButton } from 'tno-core';
+import { Col, type IChartPreviewRequestModel, Row, ToggleButton } from 'tno-core';
 
 import { useChartTemplateContext } from '../ChartTemplateContext';
 import { defaultChartTemplate } from '../constants';
@@ -50,7 +50,7 @@ export const ChartTemplatePreviewJson = () => {
           setChartData(ex.message);
         } else if (ex instanceof AxiosError) {
           const response = ex.response;
-          const data = response?.data as any;
+          const data = response?.data;
           setChartData(JSON.stringify(data));
         }
       }
@@ -67,12 +67,12 @@ export const ChartTemplatePreviewJson = () => {
           <FaPlay
             className="icon-button"
             title="Generate JSON"
-            onClick={() =>
-              handleGenerateJson({
+            onClick={async () => {
+              await handleGenerateJson({
                 ...chartRequestForm,
                 filter: filter ? JSON.parse(filter) : JSON.parse('{}'),
-              })
-            }
+              });
+            }}
           />
           <FaEraser
             className="icon-button"
@@ -85,7 +85,9 @@ export const ChartTemplatePreviewJson = () => {
           <ToggleButton
             on={<FaMinus />}
             off={<FaAngleDown />}
-            onClick={() => setShow(!show)}
+            onClick={() => {
+              setShow(!show);
+            }}
             value={show}
           />
         </Row>
@@ -96,7 +98,9 @@ export const ChartTemplatePreviewJson = () => {
             <Editor
               id="txa-json"
               value={chartData ?? ''}
-              onValueChange={(code) => setChartData(code)}
+              onValueChange={(code) => {
+                setChartData(code);
+              }}
               highlight={(code) => {
                 return highlight(code, languages.json, 'razor');
               }}

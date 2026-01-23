@@ -1,4 +1,4 @@
-import { ILicenseModel } from 'tno-core';
+import { type ILicenseModel } from 'tno-core';
 
 export const defaultLicense: ILicenseModel = {
   id: 0,

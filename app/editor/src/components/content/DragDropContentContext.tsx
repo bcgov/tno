@@ -1,8 +1,8 @@
 import React from 'react';
-import { DragDropContext, DropResult, ResponderProvided } from 'react-beautiful-dnd';
+import { DragDropContext, type DropResult, type ResponderProvided } from 'react-beautiful-dnd';
 import { sortObject } from 'tno-core';
 
-import { DroppableContentContainer, IContentRowModel } from '.';
+import { DroppableContentContainer, type IContentRowModel } from '.';
 
 export interface IDragDropContentContextProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
@@ -54,7 +54,7 @@ export const DragDropContentContext: React.FC<IDragDropContentContextProps> = ({
       if (!result.destination) {
         return;
       }
-      var rows = [...data].sort(defaultSort);
+      const rows = [...data].sort(defaultSort);
       const [reorderedItem] = rows.splice(result.source.index, 1);
       rows.splice(result.destination.index, 0, reorderedItem);
       const reorderedContent = rows.map((item, index) => ({

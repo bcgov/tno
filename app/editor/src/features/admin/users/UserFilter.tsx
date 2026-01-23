@@ -17,7 +17,7 @@ import {
 } from 'tno-core';
 import { Row } from 'tno-core/dist/components/flex';
 
-import { IUserListFilter } from './interfaces/IUserListFilter';
+import { type IUserListFilter } from './interfaces/IUserListFilter';
 import * as styled from './styled';
 
 interface IUserFilterProps {}

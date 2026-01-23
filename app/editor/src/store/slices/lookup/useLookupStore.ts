@@ -1,27 +1,27 @@
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
 import {
-  IActionModel,
-  ICacheModel,
-  IContributorModel,
-  IDataLocationModel,
-  IHolidayModel,
-  IIngestTypeModel,
-  ILicenseModel,
-  IMediaTypeModel,
-  IMetricModel,
-  IMinisterModel,
-  IOrganizationModel,
-  IRoleModel,
-  ISeriesModel,
-  ISettingModel,
-  ISourceActionModel,
-  ISourceModel,
-  ITagModel,
-  ITonePoolModel,
-  ITopicModel,
-  ITopicScoreRuleModel,
-  IUserModel,
+  type IActionModel,
+  type ICacheModel,
+  type IContributorModel,
+  type IDataLocationModel,
+  type IHolidayModel,
+  type IIngestTypeModel,
+  type ILicenseModel,
+  type IMediaTypeModel,
+  type IMetricModel,
+  type IMinisterModel,
+  type IOrganizationModel,
+  type IRoleModel,
+  type ISeriesModel,
+  type ISettingModel,
+  type ISourceActionModel,
+  type ISourceModel,
+  type ITagModel,
+  type ITonePoolModel,
+  type ITopicModel,
+  type ITopicScoreRuleModel,
+  type IUserModel,
 } from 'tno-core';
 
 import {
@@ -49,7 +49,7 @@ import {
   storeUsers,
   updateCache,
 } from '.';
-import { ILookupState } from './interfaces';
+import { type ILookupState } from './interfaces';
 
 export interface ILookupStore {
   storeIsReady: (isReady: boolean) => void;

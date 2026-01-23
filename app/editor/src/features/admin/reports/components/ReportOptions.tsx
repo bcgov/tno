@@ -32,21 +32,21 @@ export const ReportOptions = () => {
         <Col className="frm-in" flex="1">
           <label>Generation options</label>
           <FormikCheckbox
-            name={`settings.content.copyPriorInstance`}
+            name={'settings.content.copyPriorInstance'}
             label="Copy prior report when starting new report"
           />
           <FormikCheckbox
-            name={`settings.content.clearOnStartNewReport`}
+            name={'settings.content.clearOnStartNewReport'}
             label="Empty report when starting next report"
             tooltip="If this is not set an auto report will not generate a new report if an active one already exists."
           />
           <FormikCheckbox
-            name={`settings.content.excludeContentInUnsentReport`}
+            name={'settings.content.excludeContentInUnsentReport'}
             label="Exclude content found in unsent report"
             tooltip="Excluding content in the current unsent report ensures each time the report is generated it will only have new content."
           />
           <label>Send options</label>
-          <FormikCheckbox name={`settings.doNotSendEmail`} label="Do not send email" />
+          <FormikCheckbox name={'settings.doNotSendEmail'} label="Do not send email" />
         </Col>
       </Row>
     </Col>

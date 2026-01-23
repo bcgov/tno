@@ -1,4 +1,4 @@
-import { AxiosError } from 'axios';
+import { type AxiosError } from 'axios';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { toast } from 'react-toastify';
@@ -7,8 +7,8 @@ import {
   Button,
   ButtonVariant,
   Col,
-  INotificationModel,
-  INotificationResultModel,
+  type INotificationModel,
+  type INotificationResultModel,
   Row,
   Text,
 } from 'tno-core';
@@ -26,7 +26,7 @@ export const NotificationFormPreview: React.FC = () => {
 
   const handleSend = async (values: INotificationModel, contentId: number | string, to: string) => {
     try {
-      await sendNotification(values, to, !!contentId ? +contentId : undefined);
+      await sendNotification(values, to, contentId ? +contentId : undefined);
       toast.success('Notification has been successfully requested');
     } catch {}
   };
@@ -84,7 +84,9 @@ export const NotificationFormPreview: React.FC = () => {
                 <Button
                   variant={ButtonVariant.success}
                   disabled={!sendTo.contentId}
-                  onClick={() => handlePreviewReport(values, +sendTo.contentId)}
+                  onClick={async () => {
+                    await handlePreviewReport(values, +sendTo.contentId);
+                  }}
                 >
                   Generate Preview
                 </Button>
@@ -95,12 +97,16 @@ export const NotificationFormPreview: React.FC = () => {
                 name="to"
                 label="Send Test Email To"
                 value={sendTo.email}
-                onChange={(e) => setSendTo({ ...sendTo, email: e.target.value })}
+                onChange={(e) => {
+                  setSendTo({ ...sendTo, email: e.target.value });
+                }}
               >
                 <Button
                   variant={ButtonVariant.secondary}
                   disabled={!sendTo.email}
-                  onClick={async () => await handleSend(values, sendTo.contentId, sendTo.email)}
+                  onClick={async () => {
+                    await handleSend(values, sendTo.contentId, sendTo.email);
+                  }}
                 >
                   Send
                 </Button>

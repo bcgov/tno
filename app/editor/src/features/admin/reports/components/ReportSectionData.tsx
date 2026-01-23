@@ -8,9 +8,9 @@ import {
   FormikSelect,
   FormikText,
   FormikTextArea,
-  IOptionItem,
-  IReportModel,
-  OptionItem,
+  type IOptionItem,
+  type IReportModel,
+  type OptionItem,
   ReportSectionDataTypeOptions,
   Row,
 } from 'tno-core';
@@ -87,8 +87,8 @@ export const ReportSectionData = ({ index }: IReportSectionDataProps) => {
             <Editor
               id="txa-data-template"
               value={values.sections[index].settings.dataTemplate ?? ''}
-              onValueChange={(code) =>
-                setFieldValue(`sections.${index}.settings.dataTemplate`, code)
+              onValueChange={async (code) =>
+                await setFieldValue(`sections.${index}.settings.dataTemplate`, code)
               }
               highlight={(code) => {
                 return highlight(code, languages.cshtml, 'razor');

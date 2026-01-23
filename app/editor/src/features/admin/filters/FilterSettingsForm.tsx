@@ -10,9 +10,9 @@ import {
   FormikSelect,
   FormikText,
   FormikTextArea,
-  IFilterActionSettingsModel,
-  IFilterSettingsModel,
-  OptionItem,
+  type IFilterActionSettingsModel,
+  type IFilterSettingsModel,
+  type OptionItem,
   Row,
   Section,
   SentimentSlider,
@@ -65,7 +65,7 @@ export const FilterSettingsForm: React.FC<IFilterSEttingsFormProps> = ({
 
   const updateSettings = React.useCallback(
     <T extends keyof IFilterSettingsModel>(key: T, value: any) => {
-      var values = { ...settings };
+      let values = { ...settings };
       values[key] = value;
       if (key === 'dateOffset') {
         values = { ...values, startDate: undefined, endDate: undefined };
@@ -90,7 +90,7 @@ export const FilterSettingsForm: React.FC<IFilterSEttingsFormProps> = ({
           width="10ch"
           value={settings.size ?? 100}
           onChange={(e) => {
-            const value = !!e.target.value ? parseInt(e.target.value) : 100;
+            const value = e.target.value ? parseInt(e.target.value) : 100;
             updateSettings('size', value);
           }}
         />
@@ -110,12 +110,16 @@ export const FilterSettingsForm: React.FC<IFilterSEttingsFormProps> = ({
                 {
                   id: 'and',
                   label: 'AND',
-                  onClick: () => updateSettings('defaultOperator', 'and'),
+                  onClick: () => {
+                    updateSettings('defaultOperator', 'and');
+                  },
                 },
                 {
                   id: 'or',
                   label: 'OR',
-                  onClick: () => updateSettings('defaultOperator', 'or'),
+                  onClick: () => {
+                    updateSettings('defaultOperator', 'or');
+                  },
                 },
               ]}
             />
@@ -128,12 +132,16 @@ export const FilterSettingsForm: React.FC<IFilterSEttingsFormProps> = ({
                 {
                   id: 'query-string',
                   label: 'Advanced',
-                  onClick: () => updateSettings('queryType', 'query-string'),
+                  onClick: () => {
+                    updateSettings('queryType', 'query-string');
+                  },
                 },
                 {
                   id: 'simple-query-string',
                   label: 'Simple',
-                  onClick: () => updateSettings('queryType', 'simple-query-string'),
+                  onClick: () => {
+                    updateSettings('queryType', 'simple-query-string');
+                  },
                 },
               ]}
             />
@@ -162,22 +170,30 @@ export const FilterSettingsForm: React.FC<IFilterSEttingsFormProps> = ({
           <FormikCheckbox
             name={`${path}inHeadline`}
             label="Headline"
-            onChange={(e) => updateSettings('inHeadline', e.target.checked)}
+            onChange={(e) => {
+              updateSettings('inHeadline', e.target.checked);
+            }}
           />
           <FormikCheckbox
             name={`${path}inByline`}
             label="Byline"
-            onChange={(e) => updateSettings('inByline', e.target.checked)}
+            onChange={(e) => {
+              updateSettings('inByline', e.target.checked);
+            }}
           />
           <FormikCheckbox
             name={`${path}inStory`}
             label="Story text"
-            onChange={(e) => updateSettings('inStory', e.target.checked)}
+            onChange={(e) => {
+              updateSettings('inStory', e.target.checked);
+            }}
           />
           <FormikCheckbox
             name={`${path}inProgram`}
             label="Program"
-            onChange={(e) => updateSettings('inProgram', e.target.checked)}
+            onChange={(e) => {
+              updateSettings('inProgram', e.target.checked);
+            }}
           />
         </Row>
       </Section>
@@ -221,7 +237,7 @@ export const FilterSettingsForm: React.FC<IFilterSEttingsFormProps> = ({
             width="10ch"
             value={settings.dateOffset ?? ''}
             onChange={(e) => {
-              const value = !!e.target.value ? parseInt(e.target.value) : undefined;
+              const value = e.target.value ? parseInt(e.target.value) : undefined;
               updateSettings('dateOffset', value);
             }}
             disabled={!!settings.startDate || !!settings.endDate}
@@ -412,7 +428,9 @@ export const FilterSettingsForm: React.FC<IFilterSEttingsFormProps> = ({
             <FormikCheckbox
               name={`${path}hasTopic`}
               label="Has at least one Topic set"
-              onChange={(e) => updateSettings('hasTopic', e.target.checked)}
+              onChange={(e) => {
+                updateSettings('hasTopic', e.target.checked);
+              }}
             />
           </div>
         </Col>

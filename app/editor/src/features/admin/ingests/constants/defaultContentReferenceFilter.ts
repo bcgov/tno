@@ -1,4 +1,4 @@
-import { IContentReferenceListFilter } from '../interfaces';
+import { type IContentReferenceListFilter } from '../interfaces';
 
 export const defaultContentReferenceFilter: IContentReferenceListFilter = {
   pageIndex: 0,

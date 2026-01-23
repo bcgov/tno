@@ -31,11 +31,11 @@ export const Layout = styled.div`
 
   & > header {
     background-color: ${(props) => {
-      if (env.dev.includes(window.location.hostname))
+      if (env.dev.includes(window.location.hostname)) {
         return props.theme.css.developmentBackgroundColor;
-      else if (env.test.includes(window.location.hostname))
+      } else if (env.test.includes(window.location.hostname)) {
         return props.theme.css.testBackgroundColor;
-      else return props.theme.css.productionBackgroundColor;
+      } else return props.theme.css.productionBackgroundColor;
     }};
   }
 

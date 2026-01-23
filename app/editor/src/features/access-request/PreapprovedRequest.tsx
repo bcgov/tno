@@ -9,7 +9,7 @@ import {
   Col,
   FieldSize,
   FormikText,
-  IRegisterModel,
+  type IRegisterModel,
   Row,
   UserStatusName,
 } from 'tno-core';
@@ -21,9 +21,9 @@ export const PreapprovedRequest: React.FC = () => {
   const handleRequestCode = async (values: IRegisterModel) => {
     try {
       const result = await app.requestCode({ ...values, code: '' });
-      if (result.status === UserStatusName.Approved)
-        toast.success(`Account request has been submitted.`);
-      else toast.error(result.message);
+      if (result.status === UserStatusName.Approved) {
+        toast.success('Account request has been submitted.');
+      } else toast.error(result.message);
     } catch {}
   };
 
@@ -32,7 +32,7 @@ export const PreapprovedRequest: React.FC = () => {
       const result = await app.requestCode(values);
       if (result.status === UserStatusName.Approved) {
         const userInfo = await app.getUserInfo(true);
-        if (!!userInfo.roles.length) navigate('/');
+        if (userInfo.roles.length > 0) navigate('/');
       } else {
         toast.error(result.message);
       }

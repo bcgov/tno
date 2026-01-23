@@ -1,8 +1,8 @@
 import { HubConnectionState } from '@microsoft/signalr';
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IUserInfoModel } from 'tno-core';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { type IUserInfoModel } from 'tno-core';
 
-import { IAjaxRequest, IAppState, IErrorModel, IUserOptions } from '.';
+import { type IAjaxRequest, type IAppState, type IErrorModel, type IUserOptions } from '.';
 
 const defaultState: IAppState = {
   requests: [],

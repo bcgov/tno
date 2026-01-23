@@ -1,6 +1,6 @@
-import { IDataLocationModel } from 'tno-core';
+import { type IDataLocationModel } from 'tno-core';
 
-import { IDataLocationForm } from '../interfaces';
+import { type IDataLocationForm } from '../interfaces';
 
 export const toModel = (form: IDataLocationForm): IDataLocationModel => {
   return {

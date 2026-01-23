@@ -5,7 +5,9 @@ import React from 'react';
 import {
   DragDropContext,
   Draggable,
+  DraggableProvided,
   Droppable,
+  DroppableProvided,
   DropResult,
   ResponderProvided,
 } from 'react-beautiful-dnd';
@@ -41,6 +43,10 @@ export const ReportEditSortForm = React.forwardRef<HTMLDivElement | null, IRepor
 
     const showFolders = !!profile?.preferences?.showReportFolderSections;
     const instance = values.instances.length ? values.instances[0] : undefined;
+
+    const DragDropContextAny = DragDropContext as any;
+    const DroppableAny = Droppable as any;
+    const DraggableAny = Draggable as any;
 
     const handleRemoveContent = React.useCallback(
       async (index: number) => {
@@ -118,7 +124,7 @@ export const ReportEditSortForm = React.forwardRef<HTMLDivElement | null, IRepor
             label="Show folder sections"
           />
         </div>
-        <DragDropContext onDragEnd={handleDrop}>
+        <DragDropContextAny onDragEnd={handleDrop}>
           {values.sections
             .filter(
               (section) =>
@@ -152,8 +158,12 @@ export const ReportEditSortForm = React.forwardRef<HTMLDivElement | null, IRepor
                 .map((s) => new OptionItem(s.settings.label, s.name));
 
               return (
-                <Droppable key={section.name} droppableId={section.name} isDropDisabled={disabled}>
-                  {(droppableProvided) => (
+                <DroppableAny
+                  key={section.name}
+                  droppableId={section.name}
+                  isDropDisabled={disabled}
+                >
+                  {(droppableProvided: DroppableProvided) => (
                     <div {...droppableProvided.droppableProps} ref={droppableProvided.innerRef}>
                       {sectionContent.map((row, contentInSectionIndex) => {
                         const isActive =
@@ -161,13 +171,13 @@ export const ReportEditSortForm = React.forwardRef<HTMLDivElement | null, IRepor
                           row.contentId === activeRow?.contentId;
 
                         return (
-                          <Draggable
+                          <DraggableAny
                             key={`${row.sectionName}-${row.contentId}-${row.originalIndex}`}
                             draggableId={`${row.sectionName}__${row.contentId}__${row.originalIndex}`}
                             index={contentInSectionIndex}
                             isDragDisabled={disabled}
                           >
-                            {(draggable) => {
+                            {(draggable: DraggableProvided) => {
                               return (
                                 <div
                                   ref={draggable.innerRef}
@@ -193,15 +203,15 @@ export const ReportEditSortForm = React.forwardRef<HTMLDivElement | null, IRepor
                                 </div>
                               );
                             }}
-                          </Draggable>
+                          </DraggableAny>
                         );
                       })}
                     </div>
                   )}
-                </Droppable>
+                </DroppableAny>
               );
             })}
-        </DragDropContext>
+        </DragDropContextAny>
       </styled.ReportEditSortForm>
     );
   },

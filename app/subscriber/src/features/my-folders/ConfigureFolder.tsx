@@ -229,7 +229,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
               }
             }}
           />
-          <div hidden={!currentFolder?.settings.autoPopulate ?? true}>
+          <div hidden={!(currentFolder?.settings.autoPopulate ?? true)}>
             <label>Choose one of your Saved Searches to apply to this folder</label>
             <Row className="choose-filter" nowrap gap="0.5rem">
               <Col flex="1">
@@ -239,7 +239,7 @@ export const ConfigureFolder: React.FC<IConfigureFolderProps> = () => {
                   isClearable={false}
                   className="filter-select"
                   value={filterOptions.find(
-                    (option) => option.value === currentFolder?.filterId ?? '',
+                    (option) => option.value === (currentFolder?.filterId ?? ''),
                   )}
                   onChange={(newValue) => {
                     if (!newValue) {

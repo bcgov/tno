@@ -1,7 +1,7 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IWorkOrderFilter, WorkOrderTypeName } from 'tno-core';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { type IWorkOrderFilter, WorkOrderTypeName } from 'tno-core';
 
-import { IWorkOrderState } from './interfaces';
+import { type IWorkOrderState } from './interfaces';
 
 export const initialWorkOrderState: IWorkOrderState = {
   transcriptFilter: {

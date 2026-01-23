@@ -1,8 +1,8 @@
 import { useFormikContext } from 'formik';
-import { IAVOverviewInstanceModel } from 'tno-core';
+import { type IAVOverviewInstanceModel } from 'tno-core';
 
 import * as styled from './styled';
-import { ISectionSummary } from './utils';
+import { type ISectionSummary } from './utils';
 
 export interface ISummarySuggestionProps {
   show?: boolean;

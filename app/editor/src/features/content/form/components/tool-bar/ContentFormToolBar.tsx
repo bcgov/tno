@@ -4,7 +4,7 @@ import { FaCalendarTimes } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
 import { Row, Show, ToggleGroup, ToolBar, ToolBarSection } from 'tno-core';
 
-import { IContentForm } from '../../../form/interfaces';
+import { type IContentForm } from '../../../form/interfaces';
 import { ActionSection, AlertSection, PublishedSection, StatusSection } from './form';
 
 export interface IContentFormToolBarProps {
@@ -44,7 +44,9 @@ export const ContentFormToolBar = React.forwardRef<HTMLDivElement, IContentFormT
       calcWidth();
 
       // Return a function to disconnect the event listener
-      return () => window.removeEventListener('resize', calcWidth);
+      return () => {
+        window.removeEventListener('resize', calcWidth);
+      };
     }, []);
 
     return (
@@ -60,7 +62,7 @@ export const ContentFormToolBar = React.forwardRef<HTMLDivElement, IContentFormT
                 options={licenses.map((l) => ({
                   id: l.id,
                   label: l.name.toUpperCase().replace(/expire/i, ''),
-                  onClick: () => setFieldValue('licenseId', Number(l.id)),
+                  onClick: async () => await setFieldValue('licenseId', Number(l.id)),
                 }))}
               />
             }

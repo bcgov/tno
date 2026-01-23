@@ -1,10 +1,10 @@
-import { FormikTouched, setIn, setNestedObjectValues, useFormikContext } from 'formik';
+import { type FormikTouched, setIn, setNestedObjectValues, useFormikContext } from 'formik';
 import React from 'react';
 import {
   Button,
   ButtonVariant,
-  IIngestModel,
-  IScheduleModel,
+  type IIngestModel,
+  type IScheduleModel,
   ScheduleTypeName,
   useNamespace,
 } from 'tno-core';
@@ -53,7 +53,7 @@ export const ScheduleAdvanced: React.FC<IScheduleAdvancedProps> = () => {
 
   const handleRemove = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     setFieldValue(
-      `schedules`,
+      'schedules',
       values.schedules.filter((s, i) => i !== index),
     );
     setIndex(undefined);

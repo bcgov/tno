@@ -8,9 +8,9 @@ import {
   ButtonVariant,
   Checkbox,
   IconButton,
-  IDashboardFilter,
-  INotificationInstanceModel,
-  IOptionItem,
+  type IDashboardFilter,
+  type INotificationInstanceModel,
+  type IOptionItem,
   Loader,
   NotificationStatusName,
   OptionItem,
@@ -140,12 +140,12 @@ export const NotificationsDashboard: React.FC = () => {
               label="Show failed only"
               className="failed-filter"
               checked={filter.notificationStatus?.includes(NotificationStatusName.Failed)}
-              onChange={(e) =>
+              onChange={(e) => {
                 setFilter((filter) => ({
                   ...filter,
                   notificationStatus: e.target.checked ? [NotificationStatusName.Failed] : [],
-                }))
-              }
+                }));
+              }}
             />
           </div>
           <div>
@@ -153,11 +153,15 @@ export const NotificationsDashboard: React.FC = () => {
               className="keyword-filter"
               name="keyword"
               value={search ?? ''}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+              }}
             >
               <IconButton
                 iconType="search"
-                onClick={(e) => setFilter((filter) => ({ ...filter, page: 1, keyword: search }))}
+                onClick={(e) => {
+                  setFilter((filter) => ({ ...filter, page: 1, keyword: search }));
+                }}
               />
             </Text>
           </div>
@@ -184,7 +188,9 @@ export const NotificationsDashboard: React.FC = () => {
           <Button
             variant={ButtonVariant.link}
             title="Previous"
-            onClick={() => setFilter((filter) => ({ ...filter, page: filter.page! - 1 }))}
+            onClick={() => {
+              setFilter((filter) => ({ ...filter, page: filter.page! - 1 }));
+            }}
           >
             <FaArrowAltCircleLeft />
           </Button>
@@ -204,7 +210,9 @@ export const NotificationsDashboard: React.FC = () => {
           <Button
             variant={ButtonVariant.link}
             title="Next"
-            onClick={() => setFilter((filter) => ({ ...filter, page: filter.page! + 1 }))}
+            onClick={() => {
+              setFilter((filter) => ({ ...filter, page: filter.page! + 1 }));
+            }}
           >
             <FaArrowAltCircleRight />
           </Button>

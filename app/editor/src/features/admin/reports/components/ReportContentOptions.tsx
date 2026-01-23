@@ -6,8 +6,8 @@ import {
   FormikCheckbox,
   FormikSelect,
   getSortableOptions,
-  IReportModel,
-  OptionItem,
+  type IReportModel,
+  type OptionItem,
   Row,
 } from 'tno-core';
 
@@ -17,12 +17,13 @@ export const ReportContentOptions = () => {
   const [reportOptions, setReportOptions] = React.useState(getSortableOptions(reports));
 
   React.useEffect(() => {
-    if (!reports.length)
+    if (reports.length === 0) {
       findReports({})
         .then((reports) => {
           setReportOptions(getSortableOptions(reports));
         })
         .catch(() => {});
+    }
     // Only run on initialize.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -59,11 +60,12 @@ export const ReportContentOptions = () => {
                 values.settings.content.excludeReports?.some((reportId) => reportId === ro.value),
               )}
               onChange={(newValue) => {
-                if (Array.isArray(newValue))
+                if (Array.isArray(newValue)) {
                   setFieldValue(
                     'settings.content.excludeReports',
                     newValue.map((v: OptionItem) => v.value),
                   );
+                }
               }}
             />
           </Col>

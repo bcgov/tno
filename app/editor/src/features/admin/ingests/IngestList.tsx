@@ -10,7 +10,7 @@ import {
   Col,
   Grid,
   IconButton,
-  IIngestModel,
+  type IIngestModel,
   Row,
 } from 'tno-core';
 
@@ -29,7 +29,7 @@ const IngestList: React.FC<IIngestListProps> = (props) => {
   const [items, setItems] = React.useState<IIngestModel[]>([]);
 
   React.useEffect(() => {
-    if (!ingests.length && !isReady) {
+    if (ingests.length === 0 && !isReady) {
       setIsReady(true);
       findAllIngests()
         .then((data) => {
@@ -65,11 +65,11 @@ const IngestList: React.FC<IIngestListProps> = (props) => {
         switch (column.name) {
           case 'source.code':
             return [...items].sort((a: any, b: any) =>
-              sortData(a['source']['code'], b['source']['code'], direction),
+              sortData(a.source.code, b.source.code, direction),
             );
           case 'ingestType.name':
             return [...items].sort((a: any, b: any) =>
-              sortData(a['ingestType']['name'], b['ingestType']['name'], direction),
+              sortData(a.ingestType.name, b.ingestType.name, direction),
             );
           case 'status':
             return [...items].sort((a: any, b: any) =>
@@ -92,7 +92,7 @@ const IngestList: React.FC<IIngestListProps> = (props) => {
 
   const handleEnabledClicked = (event: any, row: any) => {
     setIngestEnabledStatus(row.id, !row.isEnabled).catch(() => {});
-    toast.success(`Ingest [${row.name}] is now ` + (row.isEnabled ? `disabled` : `enabled`));
+    toast.success(`Ingest [${row.name}] is now ` + (row.isEnabled ? 'disabled' : 'enabled'));
   };
 
   return (
@@ -105,14 +105,18 @@ const IngestList: React.FC<IIngestListProps> = (props) => {
         <IconButton
           iconType="plus"
           label="Add New Ingest"
-          onClick={() => navigate('/admin/ingests/0')}
+          onClick={() => {
+            navigate('/admin/ingests/0');
+          }}
         />
       </Row>
       <IngestFilter />
       <Grid
         items={items}
         showPaging={false}
-        onSortChange={(column, direction) => handleOnSorting(column, direction)}
+        onSortChange={(column, direction) => {
+          handleOnSorting(column, direction);
+        }}
         renderHeader={() => [
           { name: 'name', label: 'Name', size: '23%', sortable: true },
           { name: 'source.code', label: 'Source', size: '10%', sortable: true },
@@ -126,42 +130,78 @@ const IngestList: React.FC<IIngestListProps> = (props) => {
           return [
             {
               column: (
-                <div key="1" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div
+                  key="1"
+                  className="clickable"
+                  onClick={() => {
+                    navigate(`${row.id}`);
+                  }}
+                >
                   <CellEllipsis key="">{row.name}</CellEllipsis>
                 </div>
               ),
             },
             {
               column: (
-                <div key="2" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div
+                  key="2"
+                  className="clickable"
+                  onClick={() => {
+                    navigate(`${row.id}`);
+                  }}
+                >
                   <CellEllipsis key="">{row.source?.code}</CellEllipsis>
                 </div>
               ),
             },
             {
               column: (
-                <div key="3" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div
+                  key="3"
+                  className="clickable"
+                  onClick={() => {
+                    navigate(`${row.id}`);
+                  }}
+                >
                   <CellEllipsis key="">{row.description}</CellEllipsis>
                 </div>
               ),
             },
             {
               column: (
-                <div key="4" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div
+                  key="4"
+                  className="clickable"
+                  onClick={() => {
+                    navigate(`${row.id}`);
+                  }}
+                >
                   <CellEllipsis key="">{row.ingestType?.name}</CellEllipsis>
                 </div>
               ),
             },
             {
               column: (
-                <div key="5" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div
+                  key="5"
+                  className="clickable"
+                  onClick={() => {
+                    navigate(`${row.id}`);
+                  }}
+                >
                   <CellEllipsis key="">{getStatus(row)}</CellEllipsis>
                 </div>
               ),
             },
             {
               column: (
-                <div key="6" className="clickable" onClick={() => navigate(`${row.id}`)}>
+                <div
+                  key="6"
+                  className="clickable"
+                  onClick={() => {
+                    navigate(`${row.id}`);
+                  }}
+                >
                   <CellDate value={row.lastRanOn} />
                 </div>
               ),

@@ -8,9 +8,9 @@ import {
   FormikText,
   FormikTextArea,
   getEnumStringOptions,
-  IOptionItem,
-  IUserModel,
-  IUserUpdateHistoryModel,
+  type IOptionItem,
+  type IUserModel,
+  type IUserUpdateHistoryModel,
   OptionItem,
   Row,
   Section,
@@ -20,7 +20,7 @@ import {
   UserStatusName,
 } from 'tno-core';
 
-import { IUserFormProps } from './UserForm';
+import { type IUserFormProps } from './UserForm';
 
 /**
  * Provides a User Form to manage, create, update and delete a user.
@@ -94,7 +94,9 @@ export const UserFormDirectUser: React.FC<IUserFormProps> = (props) => {
                   name="username"
                   label="Username"
                   required
-                  onChange={(e) => setFieldValue('username', e.currentTarget.value.toUpperCase())}
+                  onChange={async (e) =>
+                    await setFieldValue('username', e.currentTarget.value.toUpperCase())
+                  }
                 />
               </Col>
               <Col

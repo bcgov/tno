@@ -25,8 +25,9 @@ export const ChartTemplatePreviewConfig = () => {
   );
 
   React.useEffect(() => {
-    if (chartRequestForm.settings?.options)
+    if (chartRequestForm.settings?.options) {
       setChartOptions(JSON.stringify(chartRequestForm.settings?.options ?? '{}', null, 2));
+    }
   }, [chartRequestForm.settings?.options]);
 
   React.useEffect(() => {
@@ -49,7 +50,9 @@ export const ChartTemplatePreviewConfig = () => {
           <ToggleButton
             on={<FaMinus />}
             off={<FaAngleDown />}
-            onClick={() => setShow(!show)}
+            onClick={() => {
+              setShow(!show);
+            }}
             value={show}
           />
         </Row>

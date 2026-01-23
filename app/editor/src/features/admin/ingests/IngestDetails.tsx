@@ -13,7 +13,7 @@ import {
   FormikText,
   FormikTextArea,
   getSortableOptions,
-  IIngestModel,
+  type IIngestModel,
   OptionItem,
   Row,
 } from 'tno-core';
@@ -122,8 +122,9 @@ const IngestDetails: React.FC<IIngestDetailsProps> = () => {
           onChange={(newValue: any) => {
             // Use the source.code to set the Kafka topic.
             const source = lookups.sources.find((s) => s.id === newValue.value);
-            if (!!values.configuration.topicFromSource)
+            if (values.configuration.topicFromSource) {
               setFieldValue('topic', (source?.code ?? '').trim().replaceAll(/\s/g, '_'));
+            }
           }}
           required
           isClearable={false}

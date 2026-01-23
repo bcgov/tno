@@ -2,21 +2,29 @@ export const searchInOptions = (callback: (value: string | number | undefined) =
   {
     id: 'all',
     label: 'All',
-    onClick: () => callback('all'),
+    onClick: () => {
+      callback('all');
+    },
   },
   {
     id: 'headline',
     label: 'Headline',
-    onClick: () => callback('headline'),
+    onClick: () => {
+      callback('headline');
+    },
   },
   {
     id: 'byline',
     label: 'Byline',
-    onClick: () => callback('byline'),
+    onClick: () => {
+      callback('byline');
+    },
   },
   {
     id: 'story',
     label: 'Story text',
-    onClick: () => callback('story'),
+    onClick: () => {
+      callback('story');
+    },
   },
 ];

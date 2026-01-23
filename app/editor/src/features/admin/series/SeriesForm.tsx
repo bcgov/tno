@@ -19,7 +19,9 @@ const SeriesForm: React.FC = () => {
             iconType="back"
             label="Back to Show/Programs"
             className="back-button"
-            onClick={() => navigate('/admin/programs')}
+            onClick={() => {
+              navigate('/admin/programs');
+            }}
           />
           <Tabs
             tabs={

@@ -1,10 +1,12 @@
 import React from 'react';
 import Select from 'react-select';
 import { useLookup } from 'store/hooks';
-import { ITopicModel, TopicTypeName } from 'tno-core';
+import { type ITopicModel, TopicTypeName } from 'tno-core';
 
-import { IGroupedTopicOptions } from '../../features/content/form/interfaces';
-import { ITopicOptionItem } from '../../features/content/form/interfaces';
+import {
+  type IGroupedTopicOptions,
+  type ITopicOptionItem,
+} from '../../features/content/form/interfaces';
 import * as styled from './styled';
 
 export interface ITopicProps {
@@ -47,7 +49,7 @@ export const Topic: React.FC<ITopicProps> = ({
   const convertToGroupedOptions = (topics: ITopicModel[]): IGroupedTopicOptions[] => {
     const groupedOptions: IGroupedTopicOptions[] = [];
     const notApplicableTopic = topics.find((el) => el.id === topicIdNotApplicable);
-    if (notApplicableTopic)
+    if (notApplicableTopic) {
       groupedOptions.push({
         label: 'Not Applicable',
         options: [
@@ -59,6 +61,7 @@ export const Topic: React.FC<ITopicProps> = ({
           } as ITopicOptionItem,
         ],
       });
+    }
     const topicNames = Object.keys(TopicTypeName);
     // reverse the sort here because the customer wants the second enum first
     topicNames
@@ -72,11 +75,12 @@ export const Topic: React.FC<ITopicProps> = ({
             // show all enabled Topics or disabled Topic if it's set as current
             (el.isEnabled || (!el.isEnabled && el.id === value)),
         );
-        if (filteredTopics)
+        if (filteredTopics) {
           filteredTopics = filteredTopics.sort((a, b) => {
             // sort by Topic Name
             return a.name.localeCompare(b.name);
           });
+        }
         groupedOptions.push({
           label: key,
           options: filteredTopics.map(
@@ -94,9 +98,9 @@ export const Topic: React.FC<ITopicProps> = ({
   };
 
   const getTopicOption = (targetTopicId: number): any => {
-    for (var groupCounter = 0; groupCounter < groupedOptions.length; groupCounter++) {
+    for (let groupCounter = 0; groupCounter < groupedOptions.length; groupCounter++) {
       for (
-        var optionCounter = 0;
+        let optionCounter = 0;
         optionCounter < groupedOptions[groupCounter].options.length;
         optionCounter++
       ) {
@@ -110,7 +114,7 @@ export const Topic: React.FC<ITopicProps> = ({
   const formatOptionLabel = (data: ITopicOptionItem) => (
     <div
       className={
-        (data.value === topicIdNotApplicable ? `type-not-applicable` : `type-${data.topicType}`) +
+        (data.value === topicIdNotApplicable ? 'type-not-applicable' : `type-${data.topicType}`) +
         // This extra style exists only to flag disabled topics that are disabled.
         // These could show up because of migration from TNO, or through changes to
         // content and topics that are possible
@@ -119,8 +123,8 @@ export const Topic: React.FC<ITopicProps> = ({
     >
       <span
         className={
-          `option-hint ` +
-          (data.value === topicIdNotApplicable ? `type-not-applicable` : `type-${data.topicType}`)
+          'option-hint ' +
+          (data.value === topicIdNotApplicable ? 'type-not-applicable' : `type-${data.topicType}`)
         }
       >
         {data.topicType.charAt(0)}
@@ -140,14 +144,14 @@ export const Topic: React.FC<ITopicProps> = ({
         value={getTopicOption(value ?? topicIdNotApplicable)}
         onChange={(e: any) => {
           let value;
-          if (!!e?.value) {
+          if (e?.value) {
             if (filteredTopics) {
               value = filteredTopics.find((c) => c.id === e.value);
             } else {
               value = topics.find((c) => c.id === e.value);
             }
           }
-          handleTopicChange?.(!!value ? value : undefined);
+          handleTopicChange?.(value || undefined);
         }}
         formatOptionLabel={formatOptionLabel}
         styles={{

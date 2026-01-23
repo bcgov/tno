@@ -1,8 +1,8 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import {
-  AVOverviewTemplateTypeName,
-  IAVOverviewTemplateModel,
+  type AVOverviewTemplateTypeName,
+  type IAVOverviewTemplateModel,
   useApiAdminAVOverviews,
 } from 'tno-core';
 
@@ -23,33 +23,37 @@ export const useAVOverviewTemplates = (): [IAVOverviewController] => {
   const controller = React.useMemo(
     () => ({
       findAllAVOverview: async () => {
-        const response = await dispatch<IAVOverviewTemplateModel[]>('find-av-overviews', () =>
-          api.findAllAVOverview(),
+        const response = await dispatch<IAVOverviewTemplateModel[]>(
+          'find-av-overviews',
+          async () => await api.findAllAVOverview(),
         );
         return response.data;
       },
       getAVOverview: async (templateType: AVOverviewTemplateTypeName) => {
         const response = await dispatch<IAVOverviewTemplateModel | undefined>(
           'get-av-overview',
-          () => api.getAVOverview(templateType),
+          async () => await api.getAVOverview(templateType),
         );
         return response.data;
       },
       addAVOverview: async (model: IAVOverviewTemplateModel) => {
-        const response = await dispatch<IAVOverviewTemplateModel>('add-av-overview', () =>
-          api.addAVOverview(model),
+        const response = await dispatch<IAVOverviewTemplateModel>(
+          'add-av-overview',
+          async () => await api.addAVOverview(model),
         );
         return response.data;
       },
       updateAVOverview: async (model: IAVOverviewTemplateModel) => {
-        const response = await dispatch<IAVOverviewTemplateModel>('update-av-overview', () =>
-          api.updateAVOverview(model),
+        const response = await dispatch<IAVOverviewTemplateModel>(
+          'update-av-overview',
+          async () => await api.updateAVOverview(model),
         );
         return response.data;
       },
       deleteAVOverview: async (model: IAVOverviewTemplateModel) => {
-        const response = await dispatch<IAVOverviewTemplateModel>('delete-av-overview', () =>
-          api.deleteAVOverview(model),
+        const response = await dispatch<IAVOverviewTemplateModel>(
+          'delete-av-overview',
+          async () => await api.deleteAVOverview(model),
         );
         return response.data;
       },

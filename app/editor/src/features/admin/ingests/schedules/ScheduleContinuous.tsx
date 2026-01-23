@@ -8,7 +8,7 @@ import {
   FormikStringEnumCheckbox,
   FormikText,
   FormikTextArea,
-  IIngestModel,
+  type IIngestModel,
   Row,
   ScheduleTypeName,
   ScheduleWeekDayName,
@@ -28,8 +28,8 @@ export const ScheduleContinuous: React.FC<IScheduleContinuousProps> = () => {
   const delayMS = getIn(values, field('delayMS'), '');
 
   React.useEffect(() => {
-    if (values.schedules.length === 0 || values.schedules.length > 1)
-      setFieldValue(`schedules`, [
+    if (values.schedules.length === 0 || values.schedules.length > 1) {
+      setFieldValue('schedules', [
         {
           ...defaultSchedule(),
           startAt: '00:00:00',
@@ -37,6 +37,7 @@ export const ScheduleContinuous: React.FC<IScheduleContinuousProps> = () => {
           delayMS: '',
         },
       ]);
+    }
   }, [setFieldValue, values.schedules.length]);
 
   return (
@@ -56,7 +57,7 @@ export const ScheduleContinuous: React.FC<IScheduleContinuousProps> = () => {
               type="number"
               required
               width={FieldSize.Tiny}
-              value={!!delayMS ? +delayMS / 1000 : ''}
+              value={delayMS ? +delayMS / 1000 : ''}
               min={1}
               onChange={(e) => {
                 const value = Number(e.target.value) * 1000;

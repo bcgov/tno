@@ -15,7 +15,7 @@ import {
   FormikText,
   FormikTextArea,
   IconButton,
-  ILicenseModel,
+  type ILicenseModel,
   LabelPosition,
   Modal,
   Row,
@@ -33,9 +33,7 @@ const LicenseForm: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [license, setLicense] = React.useState<ILicenseModel>(
-    (state as any)?.license ?? defaultLicense,
-  );
+  const [license, setLicense] = React.useState<ILicenseModel>(state?.license ?? defaultLicense);
 
   const licenseId = Number(id);
   const { toggle, isShowing } = useModal();
@@ -65,7 +63,9 @@ const LicenseForm: React.FC = () => {
         iconType="back"
         label="Back to Licences"
         className="back-button"
-        onClick={() => navigate('/admin/licences')}
+        onClick={() => {
+          navigate('/admin/licences');
+        }}
       />
       <FormikForm
         initialValues={license}
@@ -109,7 +109,7 @@ const LicenseForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.updatedOn ? moment(values.updatedOn).toString() : undefined
+                      values.updatedOn ? moment(values.updatedOn).toString() : undefined
                     }
                     onChange={noop}
                     name="updatedOn"
@@ -127,7 +127,7 @@ const LicenseForm: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.createdOn ? moment(values.createdOn).toString() : undefined
+                      values.createdOn ? moment(values.createdOn).toString() : undefined
                     }
                     onChange={noop}
                     name="createdOn"

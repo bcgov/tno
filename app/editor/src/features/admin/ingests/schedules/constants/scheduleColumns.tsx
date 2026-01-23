@@ -1,11 +1,17 @@
-import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellCheckbox, CellEllipsis, IScheduleModel } from 'tno-core';
+import {
+  type Column,
+  type UseFiltersColumnOptions,
+  type UseSortByColumnOptions,
+} from 'react-table';
+import { CellCheckbox, CellEllipsis, type IScheduleModel } from 'tno-core';
 
 import { weekDayNameAbbrev } from '../utils';
 
-export const columns: (Column<IScheduleModel> &
-  UseSortByColumnOptions<IScheduleModel> &
-  UseFiltersColumnOptions<IScheduleModel>)[] = [
+export const columns: Array<
+  Column<IScheduleModel> &
+    UseSortByColumnOptions<IScheduleModel> &
+    UseFiltersColumnOptions<IScheduleModel>
+> = [
   {
     id: 'id',
     Header: 'Name',

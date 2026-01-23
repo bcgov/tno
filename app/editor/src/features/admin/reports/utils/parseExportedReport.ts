@@ -1,14 +1,14 @@
 import {
-  IFilterModel,
-  IFolderModel,
-  IReportModel,
-  IReportTemplateModel,
+  type IFilterModel,
+  type IFolderModel,
+  type IReportModel,
+  type IReportTemplateModel,
   ReportSectionTypeName,
 } from 'tno-core';
 
 import { defaultReport } from '../constants';
 import { createReportSection } from './createReportSection';
-import { IReportImportExportModel } from './IReportImportExportModel';
+import { type IReportImportExportModel } from './IReportImportExportModel';
 
 export const parseExportedReport = (
   value: IReportImportExportModel,
@@ -16,13 +16,13 @@ export const parseExportedReport = (
   filters: IFilterModel[],
   folders: IFolderModel[],
 ): IReportModel => {
-  var importedModel = { ...defaultReport } as IReportModel;
+  const importedModel = { ...defaultReport } as IReportModel;
   importedModel.name = value.name;
   importedModel.description = value.description ?? '';
   importedModel.isEnabled = value.isEnabled;
   importedModel.isPublic = value.isPublic;
   importedModel.settings = value.settings;
-  var template = templates.find((rt) => rt.name === value.template.name);
+  const template = templates.find((rt) => rt.name === value.template.name);
   if (template) {
     importedModel.template = template;
     importedModel.templateId = template.id;
@@ -33,14 +33,14 @@ export const parseExportedReport = (
   if (value.sections?.length) {
     importedModel.sections = [];
     value.sections.forEach((section) => {
-      var parsedSection = createReportSection(0, ReportSectionTypeName.Content);
+      const parsedSection = createReportSection(0, ReportSectionTypeName.Content);
       parsedSection.description = section.description ?? '';
       parsedSection.isEnabled = section.isEnabled;
       parsedSection.sortOrder = section.sortOrder;
       parsedSection.settings = section.settings;
       parsedSection.chartTemplates = section.chartTemplates;
       if (section.filterName) {
-        var filter = filters.find((f) => f.name === section.filterName);
+        const filter = filters.find((f) => f.name === section.filterName);
         if (filter) {
           parsedSection.filter = filter;
           parsedSection.filterId = filter.id;
@@ -49,7 +49,7 @@ export const parseExportedReport = (
         }
       }
       if (section.folderName) {
-        var folder = folders.find((f) => f.name === section.folderName);
+        const folder = folders.find((f) => f.name === section.folderName);
         if (folder) {
           parsedSection.folder = folder;
           parsedSection.folderId = folder.id;

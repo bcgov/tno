@@ -6,7 +6,7 @@ import {
   AVOverviewItemTypeName,
   Button,
   ButtonVariant,
-  IAVOverviewTemplateModel,
+  type IAVOverviewTemplateModel,
   Row,
 } from 'tno-core';
 
@@ -27,7 +27,7 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({ index }) => {
 
   const handleDeleteSection = (index: number) => {
     values.sections.splice(index, 1);
-    setFieldValue(`sections`, values.sections);
+    setFieldValue('sections', values.sections);
   };
 
   const handleAddItem = (index: number) => {
@@ -35,7 +35,7 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({ index }) => {
       ...section.items,
       defaultAVOverviewTemplateSectionItem(
         section.id,
-        !section.items.length ? AVOverviewItemTypeName.Intro : AVOverviewItemTypeName.Story,
+        section.items.length === 0 ? AVOverviewItemTypeName.Intro : AVOverviewItemTypeName.Story,
         section.startTime,
         section.items.length,
       ),
@@ -61,23 +61,31 @@ export const OverviewSection: React.FC<IOverviewSectionProps> = ({ index }) => {
           <Button
             disabled={!section.name}
             variant={ButtonVariant.action}
-            onClick={() => handleAddItem(index)}
+            onClick={() => {
+              handleAddItem(index);
+            }}
           >
             New story <MdAdd className="icon" />
           </Button>
           <Button
             variant={ButtonVariant.danger}
-            onClick={() => handleClearItems(index)}
-            disabled={!section.items.length}
+            onClick={() => {
+              handleClearItems(index);
+            }}
+            disabled={section.items.length === 0}
           >
             Clear all story text <MdClear className="icon" />
           </Button>
         </Row>
         <Button
           variant={ButtonVariant.danger}
-          onClick={() => handleDeleteSection(index)}
-          tooltip={!!section.items.length ? 'Delete all items before deleting section' : undefined}
-          disabled={!!section.items.length}
+          onClick={() => {
+            handleDeleteSection(index);
+          }}
+          tooltip={
+            section.items.length > 0 ? 'Delete all items before deleting section' : undefined
+          }
+          disabled={!(section.items.length === 0)}
         >
           Delete section
           <FaTrash className="delete" />

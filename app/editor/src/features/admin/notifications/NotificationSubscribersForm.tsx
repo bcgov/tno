@@ -1,8 +1,15 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useUsers } from 'store/hooks/admin';
-import { Grid, IUserModel, SortDirection } from 'tno-core';
-import { CellEllipsis, Checkbox, INotificationModel, IUserFilter } from 'tno-core';
+import {
+  CellEllipsis,
+  Checkbox,
+  Grid,
+  type INotificationModel,
+  type IUserFilter,
+  type IUserModel,
+  SortDirection,
+} from 'tno-core';
 
 import { NotificationFilter } from './NotificationFilter';
 
@@ -36,7 +43,7 @@ export const NotificationSubscribersForm = () => {
             page: 1,
             quantity: users.quantity,
             keyword: value,
-            isSubscribedToNotificationId: isSubscribedToNotificationId,
+            isSubscribedToNotificationId,
           });
         }}
       />
@@ -73,12 +80,12 @@ export const NotificationSubscribersForm = () => {
             checked={values.subscribers.some((u) => u.id === row.id && u.isSubscribed)}
             onChange={(e) => {
               const user = { ...row, isSubscribed: e.target.checked };
-              if (values.subscribers.some((u) => u.id === user.id))
+              if (values.subscribers.some((u) => u.id === user.id)) {
                 setFieldValue(
                   'subscribers',
                   values.subscribers.map((item) => (item.id === user.id ? user : item)),
                 );
-              else setFieldValue('subscribers', [user, ...values.subscribers]);
+              } else setFieldValue('subscribers', [user, ...values.subscribers]);
             }}
           />,
           <CellEllipsis key="2">{row.username}</CellEllipsis>,

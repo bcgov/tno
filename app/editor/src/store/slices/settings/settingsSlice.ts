@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
-import { ISettingsState } from './interfaces';
+import { type ISettingsState } from './interfaces';
 
 export const initialSettingsState: ISettingsState = {
   loadingState: 0,

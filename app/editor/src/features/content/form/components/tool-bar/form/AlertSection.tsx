@@ -1,13 +1,13 @@
 import { ContentActions } from 'features/content/form';
-import { IContentForm } from 'features/content/form/interfaces';
+import { type IContentForm } from 'features/content/form/interfaces';
 import React from 'react';
 import { FaPaperPlane } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useApiHub, useContent, useLookup } from 'store/hooks';
 import {
   Col,
-  IContentActionMessageModel,
-  INotificationInstanceModel,
+  type IContentActionMessageModel,
+  type INotificationInstanceModel,
   MessageTargetKey,
   NotificationStatusName,
   Row,
@@ -38,7 +38,7 @@ export const AlertSection = React.forwardRef<HTMLDivElement, IAlertSectionProps>
           getNotificationsFor(values.id)
             .then((notifications) => {
               setNotifications(notifications);
-              toast.info(`Alert has successfully been sent`);
+              toast.info('Alert has successfully been sent');
             })
             .catch(() => {});
         }
@@ -49,15 +49,18 @@ export const AlertSection = React.forwardRef<HTMLDivElement, IAlertSectionProps>
     hub.useHubEffect(MessageTargetKey.ContentActionUpdated, onContentAction);
 
     React.useEffect(() => {
-      if (values.id)
+      if (values.id) {
         getNotificationsFor(values.id)
-          .then((notifications) => setNotifications(notifications))
+          .then((notifications) => {
+            setNotifications(notifications);
+          })
           .catch(() => {});
+      }
     }, [getNotificationsFor, values.id]);
 
     if (!hasAlert) return null;
 
-    var status = notifications.length ? notifications[0].status : 'not sent';
+    let status = notifications.length > 0 ? notifications[0].status : 'not sent';
     if (status === NotificationStatusName.Completed) status = 'Sent';
 
     return (

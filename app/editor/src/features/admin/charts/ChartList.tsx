@@ -2,7 +2,7 @@ import { FormPage } from 'components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChartTemplates } from 'store/hooks/admin';
-import { Col, FlexboxTable, IChartTemplateModel, IconButton, Row } from 'tno-core';
+import { Col, FlexboxTable, type IChartTemplateModel, IconButton, Row } from 'tno-core';
 
 import { chartTemplateColumns } from './constants';
 import { ListFilter } from './ListFilter';
@@ -46,8 +46,10 @@ export const ChartList: React.FC = () => {
           </Col>
           <IconButton
             iconType="plus"
-            label={`Add new template`}
-            onClick={() => navigate(`/admin/chart/templates/0`)}
+            label={'Add new template'}
+            onClick={() => {
+              navigate('/admin/chart/templates/0');
+            }}
           />
         </Row>
         <ListFilter
@@ -71,7 +73,9 @@ export const ChartList: React.FC = () => {
           data={items}
           columns={chartTemplateColumns}
           showSort={true}
-          onRowClick={(row) => navigate(`/admin/chart/templates/${row.original.id}`)}
+          onRowClick={(row) => {
+            navigate(`/admin/chart/templates/${row.original.id}`);
+          }}
           pagingEnabled={false}
         />
       </FormPage>

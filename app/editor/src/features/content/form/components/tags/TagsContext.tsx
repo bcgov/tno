@@ -2,10 +2,16 @@ import { useFormikContext } from 'formik';
 import _ from 'lodash';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useLookup } from 'store/hooks';
-import { IOptionItem } from 'tno-core';
+import { type IOptionItem } from 'tno-core';
 
 import { useTagManagement } from './hooks/useTagManagement';
-import { IContentForm, IContentTag, ITagsContextState, ITagsProviderProps, Tag } from './types';
+import {
+  type IContentForm,
+  type IContentTag,
+  type ITagsContextState,
+  type ITagsProviderProps,
+  type Tag,
+} from './types';
 
 // Create context
 const TagsContext = createContext<ITagsContextState | undefined>(undefined);

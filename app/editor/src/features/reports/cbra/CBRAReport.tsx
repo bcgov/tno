@@ -3,14 +3,14 @@ import {
   Button,
   ButtonVariant,
   FieldSize,
-  IOptionItem,
+  type IOptionItem,
   Select,
   SelectDate,
   useApiReports,
 } from 'tno-core';
 
 import { defaultValues, reportDurations } from './constants';
-import { ICBRAForm } from './interfaces';
+import { type ICBRAForm } from './interfaces';
 import * as styled from './styled';
 import { calcDuration } from './utils';
 
@@ -44,7 +44,9 @@ export const CBRAReport: React.FC<ICBRAReportProps> = ({ className }) => {
             name="start"
             label="Report Duration Start"
             placeholderText="YYYY MM DD"
-            onChange={(date) => setValues({ ...values, start: date })}
+            onChange={(date) => {
+              setValues({ ...values, start: date });
+            }}
             disabled={!isCustomRange}
             selected={values.start}
             width={FieldSize.Small}
@@ -54,7 +56,9 @@ export const CBRAReport: React.FC<ICBRAReportProps> = ({ className }) => {
               name="end"
               label="Report Duration End"
               placeholderText="YYYY MM DD"
-              onChange={(date) => setValues({ ...values, end: date })}
+              onChange={(date) => {
+                setValues({ ...values, end: date });
+              }}
               disabled={!isCustomRange}
               selected={values.end}
               width={FieldSize.Small}
@@ -80,7 +84,9 @@ export const CBRAReport: React.FC<ICBRAReportProps> = ({ className }) => {
           </Button>
           <Button
             variant={ButtonVariant.secondary}
-            onClick={() => setValues({ ...values, ...calcDuration(values.duration) })}
+            onClick={() => {
+              setValues({ ...values, ...calcDuration(values.duration) });
+            }}
           >
             Clear
           </Button>

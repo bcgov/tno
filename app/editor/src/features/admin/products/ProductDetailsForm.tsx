@@ -13,8 +13,8 @@ import {
   FormikText,
   FormikTextArea,
   getEnumStringOptions,
-  IOptionItem,
-  IProductModel,
+  type IOptionItem,
+  type IProductModel,
   OptionItem,
   ProductTypeName,
   Row,
@@ -83,7 +83,7 @@ export const ProductDetailsForm: React.FC = () => {
           required
           options={productTypeOptions}
           value={productTypeOptions.find((o) => o.value === values.productType)}
-          onChange={(e: any) => setFieldValue('productType', e.value)}
+          onChange={async (e: any) => await setFieldValue('productType', e.value)}
           isClearable={false}
         />
         <Show visible={targetProductOptions.length >= 1}>
@@ -124,9 +124,7 @@ export const ProductDetailsForm: React.FC = () => {
               <Row>
                 <FormikText width={FieldSize.Small} disabled name="updatedBy" label="Updated By" />
                 <FormikDatePicker
-                  selectedDate={
-                    !!values.updatedOn ? moment(values.updatedOn).toString() : undefined
-                  }
+                  selectedDate={values.updatedOn ? moment(values.updatedOn).toString() : undefined}
                   onChange={noop}
                   name="updatedOn"
                   label="Updated On"
@@ -137,9 +135,7 @@ export const ProductDetailsForm: React.FC = () => {
               <Row>
                 <FormikText width={FieldSize.Small} disabled name="createdBy" label="Created By" />
                 <FormikDatePicker
-                  selectedDate={
-                    !!values.createdOn ? moment(values.createdOn).toString() : undefined
-                  }
+                  selectedDate={values.createdOn ? moment(values.createdOn).toString() : undefined}
                   onChange={noop}
                   name="createdOn"
                   label="Created On"

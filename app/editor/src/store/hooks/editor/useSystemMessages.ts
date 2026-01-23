@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
-import { ISystemMessageModel, useApiEditorSystemMessages } from 'tno-core';
+import { type IAdminState, useAdminStore } from 'store/slices';
+import { type ISystemMessageModel, useApiEditorSystemMessages } from 'tno-core';
 
 interface ISystemMessageController {
   findSystemMessages: () => Promise<ISystemMessageModel[]>;
@@ -15,8 +15,9 @@ export const useSystemMessages = (): [IAdminState, ISystemMessageController] => 
   const controller = React.useMemo(
     () => ({
       findSystemMessages: async () => {
-        const response = await dispatch<ISystemMessageModel[]>('find-system-messages', () =>
-          api.findSystemMessages(),
+        const response = await dispatch<ISystemMessageModel[]>(
+          'find-system-messages',
+          async () => await api.findSystemMessages(),
         );
         store.storeSystemMessages(response.data);
         return response.data;

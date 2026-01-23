@@ -1,4 +1,4 @@
-import { FetchState } from './FetchState';
+import { type FetchState } from './FetchState';
 
 export interface IUploadState {
   name: string;

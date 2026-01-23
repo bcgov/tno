@@ -13,12 +13,12 @@ import {
   FormikSelect,
   FormikText,
   groupByOptions,
-  IOptionItem,
-  IReportModel,
+  type IOptionItem,
+  type IReportModel,
   legendAlignOptions,
   legendPositionOptions,
   mergeChartSettings,
-  OptionItem,
+  type OptionItem,
   Row,
   Show,
   Text,
@@ -81,7 +81,7 @@ export const ReportSectionMediaAnalyticsChart = ({
             <Button
               variant={ButtonVariant.danger}
               onClick={() => {
-                let items = [...section.chartTemplates];
+                const items = [...section.chartTemplates];
                 items.splice(chartIndex, 1);
                 setFieldValue(`sections.${sectionIndex}.chartTemplates`, items);
               }}
@@ -333,7 +333,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                     setFieldValue(
                       `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                       mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                        scaleSuggestedMin: value ? value : undefined,
+                        scaleSuggestedMin: value || undefined,
                       }),
                     );
                   }}
@@ -349,7 +349,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                     setFieldValue(
                       `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                       mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                        scaleSuggestedMax: value ? value : undefined,
+                        scaleSuggestedMax: value || undefined,
                       }),
                     );
                   }}
@@ -367,7 +367,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                     setFieldValue(
                       `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                       mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                        scaleCalcMax: value ? value : undefined,
+                        scaleCalcMax: value || undefined,
                       }),
                     );
                   }}
@@ -383,7 +383,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                     setFieldValue(
                       `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                       mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                        scaleTicksStepSize: value ? value : undefined,
+                        scaleTicksStepSize: value || undefined,
                       }),
                     );
                   }}
@@ -400,7 +400,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                   setFieldValue(
                     `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                     mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      minBarLength: value ? value : undefined,
+                      minBarLength: value || undefined,
                     }),
                   );
                 }}
@@ -491,7 +491,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                     setFieldValue(
                       `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                       mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                        dataLabelFontSize: value ? value : undefined,
+                        dataLabelFontSize: value || undefined,
                       }),
                     );
                   }}
@@ -630,7 +630,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                   setFieldValue(
                     `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                     mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      legendTitleFontSize: value ? value : undefined,
+                      legendTitleFontSize: value || undefined,
                     }),
                   );
                 }}
@@ -649,7 +649,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                   setFieldValue(
                     `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                     mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      legendLabelFontSize: value ? value : undefined,
+                      legendLabelFontSize: value || undefined,
                     }),
                   );
                 }}
@@ -666,7 +666,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                   setFieldValue(
                     `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                     mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      legendLabelBoxWidth: value ? value : undefined,
+                      legendLabelBoxWidth: value || undefined,
                     }),
                   );
                 }}
@@ -746,7 +746,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                   setFieldValue(
                     `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                     mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      titleFontSize: value ? value : undefined,
+                      titleFontSize: value || undefined,
                     }),
                   );
                 }}
@@ -777,7 +777,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                   setFieldValue(
                     `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                     mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      subtitleFontSize: value ? value : undefined,
+                      subtitleFontSize: value || undefined,
                     }),
                   );
                 }}
@@ -808,7 +808,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                   setFieldValue(
                     `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                     mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      xLegendFontSize: value ? value : undefined,
+                      xLegendFontSize: value || undefined,
                     }),
                   );
                 }}
@@ -824,7 +824,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                   setFieldValue(
                     `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                     mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      xMinRotation: value ? value : undefined,
+                      xMinRotation: value || undefined,
                     }),
                   );
                 }}
@@ -840,7 +840,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                   setFieldValue(
                     `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                     mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      xMaxRotation: value ? value : undefined,
+                      xMaxRotation: value || undefined,
                     }),
                   );
                 }}
@@ -888,7 +888,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                   setFieldValue(
                     `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                     mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      yLegendFontSize: value ? value : undefined,
+                      yLegendFontSize: value || undefined,
                     }),
                   );
                 }}
@@ -904,7 +904,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                   setFieldValue(
                     `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                     mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      yMinRotation: value ? value : undefined,
+                      yMinRotation: value || undefined,
                     }),
                   );
                 }}
@@ -920,7 +920,7 @@ export const ReportSectionMediaAnalyticsChart = ({
                   setFieldValue(
                     `sections.${sectionIndex}.chartTemplates.${chartIndex}.sectionSettings`,
                     mergeChartSettings(chart.settings.options, chart.sectionSettings, {
-                      yMaxRotation: value ? value : undefined,
+                      yMaxRotation: value || undefined,
                     }),
                   );
                 }}

@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useIngestTypes } from 'store/hooks/admin';
 import { useAdminStore } from 'store/slices';
-import { Col, FlexboxTable, IconButton, IIngestTypeModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, type IIngestTypeModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { IngestTypeFilter } from './IngestTypeFilter';
@@ -16,7 +16,7 @@ const IngestTypeList: React.FC = () => {
   const [items, setItems] = React.useState<IIngestTypeModel[]>(ingestTypes);
 
   React.useEffect(() => {
-    if (!ingestTypes.length) {
+    if (ingestTypes.length === 0) {
       findAllIngestTypes().catch(() => {});
     }
     // Only on init
@@ -48,7 +48,9 @@ const IngestTypeList: React.FC = () => {
         <IconButton
           iconType="plus"
           label="Add New Ingest Type"
-          onClick={() => navigate('/admin/ingest/types/0')}
+          onClick={() => {
+            navigate('/admin/ingest/types/0');
+          }}
         />
       </Row>
       <IngestTypeFilter />
@@ -57,7 +59,9 @@ const IngestTypeList: React.FC = () => {
         data={items}
         columns={columns}
         showSort={true}
-        onRowClick={(row) => navigate(`${row.original.id}`)}
+        onRowClick={(row) => {
+          navigate(`${row.original.id}`);
+        }}
         pagingEnabled={false}
       />
     </styled.IngestTypeList>

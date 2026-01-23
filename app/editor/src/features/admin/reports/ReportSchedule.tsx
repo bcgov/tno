@@ -12,7 +12,7 @@ import {
   FormikStringEnumCheckbox,
   FormikText,
   FormikTimeInput,
-  IReportModel,
+  type IReportModel,
   Row,
   ScheduleWeekDayName,
   selectWeekDays,
@@ -57,7 +57,7 @@ export const ReportSchedule: React.FC<IReportScheduleProps> = ({ label, index })
             showTimeSelect
             dateFormat="MM/dd/yyyy HH:mm:ss"
             value={
-              values.events.length && values.events[index].runOn
+              values.events.length > 0 && values.events[index].runOn
                 ? moment(values.events[index].runOn).format('MM/DD/yyyy HH:mm:ss')
                 : undefined
             }
@@ -122,7 +122,7 @@ export const ReportSchedule: React.FC<IReportScheduleProps> = ({ label, index })
             <Button
               variant={ButtonVariant.danger}
               tooltip="Clear last request sent on"
-              onClick={() => setFieldValue(`events.${index}.requestSentOn`, undefined)}
+              onClick={async () => await setFieldValue(`events.${index}.requestSentOn`, undefined)}
             >
               <FaEraser />
             </Button>

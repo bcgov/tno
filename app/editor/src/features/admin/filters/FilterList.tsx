@@ -10,7 +10,7 @@ import {
   Col,
   Grid,
   IconButton,
-  IFilterModel,
+  type IFilterModel,
   Link,
   Row,
   SortDirection,
@@ -79,8 +79,10 @@ export const FilterList: React.FC = () => {
           <Col flex="1 1 0">A filter provides a way to save an Elasticsearch query.</Col>
           <IconButton
             iconType="plus"
-            label={`Add new filter`}
-            onClick={() => navigate(`/admin/filters/0`)}
+            label={'Add new filter'}
+            onClick={() => {
+              navigate('/admin/filters/0');
+            }}
           />
         </Row>
         <ListFilter onFilterChange={(filter) => {}} />

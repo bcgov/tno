@@ -1,6 +1,6 @@
-import { CellCheckbox, CellEllipsis, ILicenseModel, ITableHookColumn } from 'tno-core';
+import { CellCheckbox, CellEllipsis, type ILicenseModel, type ITableHookColumn } from 'tno-core';
 
-export const columns: ITableHookColumn<ILicenseModel>[] = [
+export const columns: Array<ITableHookColumn<ILicenseModel>> = [
   {
     label: 'Name',
     accessor: 'name',

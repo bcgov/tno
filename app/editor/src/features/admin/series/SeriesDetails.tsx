@@ -18,7 +18,7 @@ import {
   FormikTextArea,
   getSortableOptions,
   getSourceOptions,
-  IOptionItem,
+  type IOptionItem,
   Modal,
   OptionItem,
   Row,
@@ -27,7 +27,7 @@ import {
 } from 'tno-core';
 
 import { defaultSeries } from './constants';
-import { ISeriesForm } from './interfaces';
+import { type ISeriesForm } from './interfaces';
 import * as styled from './styled';
 import { toForm, toModel } from './utils';
 
@@ -43,7 +43,7 @@ const SeriesDetails: React.FC = () => {
 
   const [sourceOptions, setSourceOptions] = React.useState<IOptionItem[]>([]);
   const [targetSeries, setTargetSeries] = React.useState<ISeriesForm>(
-    (state as any)?.series ?? defaultSeries,
+    state?.series ?? defaultSeries,
   );
 
   const targetSeriesId = Number(id);
@@ -148,7 +148,7 @@ const SeriesDetails: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.updatedOn ? moment(values.updatedOn).toString() : undefined
+                      values.updatedOn ? moment(values.updatedOn).toString() : undefined
                     }
                     onChange={noop}
                     name="updatedOn"
@@ -166,7 +166,7 @@ const SeriesDetails: React.FC = () => {
                   />
                   <FormikDatePicker
                     selectedDate={
-                      !!values.createdOn ? moment(values.createdOn).toString() : undefined
+                      values.createdOn ? moment(values.createdOn).toString() : undefined
                     }
                     onChange={noop}
                     name="createdOn"

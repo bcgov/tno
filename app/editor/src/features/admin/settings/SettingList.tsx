@@ -2,7 +2,7 @@ import { FormPage } from 'components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSettings } from 'store/hooks/admin';
-import { Col, FlexboxTable, IconButton, ISettingModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, type ISettingModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { SettingFilter } from './SettingFilter';
@@ -15,7 +15,7 @@ const SettingList: React.FC = () => {
   const [items, setItems] = React.useState<ISettingModel[]>([]);
 
   React.useEffect(() => {
-    if (!settings.length) {
+    if (settings.length === 0) {
       api.findAllSettings().then((data) => {
         setItems(data);
       });
@@ -34,8 +34,10 @@ const SettingList: React.FC = () => {
           </Col>
           <IconButton
             iconType="plus"
-            label={`Add new setting`}
-            onClick={() => navigate(`/admin/settings/0`)}
+            label={'Add new setting'}
+            onClick={() => {
+              navigate('/admin/settings/0');
+            }}
           />
         </Row>
         <SettingFilter
@@ -59,7 +61,9 @@ const SettingList: React.FC = () => {
           data={items}
           columns={columns}
           showSort={true}
-          onRowClick={(row) => navigate(`${row.original.id}`)}
+          onRowClick={(row) => {
+            navigate(`${row.original.id}`);
+          }}
           pagingEnabled={false}
         />
       </FormPage>

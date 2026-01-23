@@ -1,4 +1,4 @@
-import { IContentForm } from 'features/content/form/interfaces';
+import { type IContentForm } from 'features/content/form/interfaces';
 import React from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';

@@ -1,4 +1,4 @@
-import { IContentReferenceModel, IPage } from 'tno-core';
+import { type IContentReferenceModel, type IPage } from 'tno-core';
 
 export const defaultContentReferencePage: IPage<IContentReferenceModel> = {
   pageIndex: 0,

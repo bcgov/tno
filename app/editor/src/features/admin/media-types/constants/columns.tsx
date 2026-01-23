@@ -1,6 +1,6 @@
-import { CellCheckbox, CellEllipsis, IMediaTypeModel, ITableHookColumn } from 'tno-core';
+import { CellCheckbox, CellEllipsis, type IMediaTypeModel, type ITableHookColumn } from 'tno-core';
 
-export const columns: ITableHookColumn<IMediaTypeModel>[] = [
+export const columns: Array<ITableHookColumn<IMediaTypeModel>> = [
   {
     label: 'Name',
     accessor: 'name',

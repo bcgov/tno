@@ -15,9 +15,15 @@ export const InputOption: React.FC<any> = ({
   ...rest
 }) => {
   const [isActive, setIsActive] = React.useState(false);
-  const onMouseDown = () => setIsActive(true);
-  const onMouseUp = () => setIsActive(false);
-  const onMouseLeave = () => setIsActive(false);
+  const onMouseDown = () => {
+    setIsActive(true);
+  };
+  const onMouseUp = () => {
+    setIsActive(false);
+  };
+  const onMouseLeave = () => {
+    setIsActive(false);
+  };
 
   // unique use case for this component - avoid styled components to comply with react-select
   let bg = 'transparent';

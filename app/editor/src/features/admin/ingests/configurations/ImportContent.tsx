@@ -1,5 +1,5 @@
 import { useFormikContext } from 'formik';
-import { FormikCheckbox, IIngestModel } from 'tno-core';
+import { FormikCheckbox, type IIngestModel } from 'tno-core';
 
 export const ImportContent: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IIngestModel>();

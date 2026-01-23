@@ -1,12 +1,12 @@
-import { AxiosResponse } from 'axios';
+import { type AxiosResponse } from 'axios';
 import React from 'react';
-import { ActionDelegate } from 'store';
-import { IWorkOrderState, useWorkOrderStore } from 'store/slices';
+import { type ActionDelegate } from 'store';
+import { type IWorkOrderState, useWorkOrderStore } from 'store/slices';
 import {
-  IContentModel,
-  IPaged,
-  IWorkOrderFilter,
-  IWorkOrderModel,
+  type IContentModel,
+  type IPaged,
+  type IWorkOrderFilter,
+  type IWorkOrderModel,
   useApiEditorWorkOrders,
 } from 'tno-core';
 
@@ -33,29 +33,32 @@ export const useWorkOrders = (): [IWorkOrderState, IWorkOrderController] => {
       findWorkOrders: async (filter: IWorkOrderFilter) => {
         const response = await dispatch<IPaged<IWorkOrderModel>>(
           'find-work-orders',
-          () => api.findWorkOrders(filter),
+          async () => await api.findWorkOrders(filter),
           undefined,
           true,
         );
         return response;
       },
       updateWorkOrder: async (workOrder: IWorkOrderModel) => {
-        return await dispatch('update-work-order', () => api.updateWorkOrder(workOrder));
+        return await dispatch(
+          'update-work-order',
+          async () => await api.updateWorkOrder(workOrder),
+        );
       },
       transcribe: async (content: IContentModel) => {
-        return await dispatch('transcribe-content', () => api.transcribe(content));
+        return await dispatch('transcribe-content', async () => await api.transcribe(content));
       },
       autoClip: async (content: IContentModel) => {
-        return await dispatch('auto-clip-content', () => api.autoClip(content));
+        return await dispatch('auto-clip-content', async () => await api.autoClip(content));
       },
       nlp: async (content: IContentModel) => {
-        return await dispatch('nlp-content', () => api.nlp(content));
+        return await dispatch('nlp-content', async () => await api.nlp(content));
       },
       requestFile: async (locationId: number, path: string) => {
-        return await dispatch('request-file', () => api.requestFile(locationId, path));
+        return await dispatch('request-file', async () => await api.requestFile(locationId, path));
       },
       ffmpeg: async (content: IContentModel) => {
-        return await dispatch('ffmpeg-content', () => api.ffmpeg(content));
+        return await dispatch('ffmpeg-content', async () => await api.ffmpeg(content));
       },
     }),
     [api, dispatch],

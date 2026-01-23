@@ -1,4 +1,4 @@
-import { FormikProps, FormikTouched, setNestedObjectValues } from 'formik';
+import { type FormikProps, type FormikTouched, setNestedObjectValues } from 'formik';
 
 /**
  * When a button is not of type submit, this function can be used to force validate formik errors

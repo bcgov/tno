@@ -1,6 +1,6 @@
-import { WorkflowStatusName } from 'tno-core';
+import { type WorkflowStatusName } from 'tno-core';
 
-import { ISortBy } from '.';
+import { type ISortBy } from '.';
 
 export interface IContentReferenceListFilter {
   pageIndex: number;

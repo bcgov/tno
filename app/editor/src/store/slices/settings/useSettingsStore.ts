@@ -2,7 +2,7 @@ import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
 
 import { storeSettingsLoading, storeSettingsValues } from '.';
-import { ISettingsState } from './interfaces';
+import { type ISettingsState } from './interfaces';
 
 export interface ISettingsStore {
   storeLoading: (value: number) => void;

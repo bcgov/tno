@@ -1,6 +1,6 @@
-import { ISeriesModel } from 'tno-core';
+import { type ISeriesModel } from 'tno-core';
 
-import { ISeriesForm } from '../interfaces';
+import { type ISeriesForm } from '../interfaces';
 
 export const toForm = (model: ISeriesModel): ISeriesForm => {
   return {

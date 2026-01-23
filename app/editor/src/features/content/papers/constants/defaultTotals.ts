@@ -1,4 +1,4 @@
-import { ITotalsInfo } from '../interfaces';
+import { type ITotalsInfo } from '../interfaces';
 
 export const defaultTotals: ITotalsInfo = {
   topStories: 0,

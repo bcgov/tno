@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSystemMessages } from 'store/hooks';
-import { ISystemMessageModel, Show } from 'tno-core';
+import { type ISystemMessageModel, Show } from 'tno-core';
 
 export const InfoText: React.FC = () => {
   const [, { findSystemMessages }] = useSystemMessages();
@@ -9,7 +9,7 @@ export const InfoText: React.FC = () => {
   React.useEffect(() => {
     findSystemMessages().then((data) => {
       const message = data.find((m) => m.isEnabled);
-      if (!!message) setSystemMessage(message);
+      if (message) setSystemMessage(message);
     });
     // only want to run on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps

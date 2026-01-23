@@ -1,7 +1,7 @@
-import { IReportSettingsModel } from 'tno-core';
+import { type IReportSettingsModel } from 'tno-core';
 
-import { IReportSectionImportExportModel } from './IReportSectionImportExportModel';
-import { IReportTemplateImportExportModel } from './IReportTemplateImportExportModel';
+import { type IReportSectionImportExportModel } from './IReportSectionImportExportModel';
+import { type IReportTemplateImportExportModel } from './IReportTemplateImportExportModel';
 
 export interface IReportImportExportModel {
   name: string;

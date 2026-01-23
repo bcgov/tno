@@ -1,5 +1,5 @@
 import React from 'react';
-import { IDirectoryModel, IItemModel, useApiEditorStorage } from 'tno-core';
+import { type IDirectoryModel, type IItemModel, useApiEditorStorage } from 'tno-core';
 
 import { useAjaxWrapper } from '..';
 
@@ -34,15 +34,19 @@ export const useStorage = (): IStorageController => {
   const controller = React.useMemo(
     () => ({
       directoryExists: async (locationId?: number, path?: string) => {
-        const response = await dispatch<string>('storage-folder-exists', () =>
-          api.directoryExists(locationId, path),
+        const response = await dispatch<string>(
+          'storage-folder-exists',
+          async () => await api.directoryExists(locationId, path),
         );
 
         return response.status === 200;
       },
       getDirectory: async (locationId: number, path?: string) => {
         return (
-          await dispatch<IDirectoryModel>('get-storage', () => api.getDirectory(locationId, path))
+          await dispatch<IDirectoryModel>(
+            'get-storage',
+            async () => await api.getDirectory(locationId, path),
+          )
         ).data;
       },
       upload: async (
@@ -53,27 +57,40 @@ export const useStorage = (): IStorageController => {
         onUploadProgress?: (progressEvent: any) => void,
       ) => {
         return (
-          await dispatch<IItemModel>('storage-upload', () =>
-            api.upload(locationId, path, file, overwrite, onUploadProgress),
+          await dispatch<IItemModel>(
+            'storage-upload',
+            async () => await api.upload(locationId, path, file, overwrite, onUploadProgress),
           )
         ).data;
       },
       download: async (locationId: number, path: string) => {
         return (
-          await dispatch<IItemModel>('storage-download', () => api.download(locationId, path))
+          await dispatch<IItemModel>(
+            'storage-download',
+            async () => await api.download(locationId, path),
+          )
         ).data;
       },
       stream: async (locationId: number, path: string) => {
-        return (await dispatch<string>('storage-stream', () => api.stream(locationId, path))).data;
+        return (
+          await dispatch<string>('storage-stream', async () => await api.stream(locationId, path))
+        ).data;
       },
       move: async (locationId: number, path: string, destination: string) => {
         return (
-          await dispatch<IItemModel>('storage-move', () => api.move(locationId, path, destination))
+          await dispatch<IItemModel>(
+            'storage-move',
+            async () => await api.move(locationId, path, destination),
+          )
         ).data;
       },
       delete: async (locationId: number, path: string) => {
-        return (await dispatch<IItemModel>('storage-delete', () => api.delete(locationId, path)))
-          .data;
+        return (
+          await dispatch<IItemModel>(
+            'storage-delete',
+            async () => await api.delete(locationId, path),
+          )
+        ).data;
       },
       clip: async (
         locationId: number,
@@ -83,14 +100,18 @@ export const useStorage = (): IStorageController => {
         outputName: string,
       ) => {
         return (
-          await dispatch<IItemModel>('storage-clip', () =>
-            api.clip(locationId, path, start, end, outputName),
+          await dispatch<IItemModel>(
+            'storage-clip',
+            async () => await api.clip(locationId, path, start, end, outputName),
           )
         ).data;
       },
       join: async (locationId: number, path: string, prefix: string) => {
         return (
-          await dispatch<IItemModel>('storage-join', () => api.join(locationId, path, prefix))
+          await dispatch<IItemModel>(
+            'storage-join',
+            async () => await api.join(locationId, path, prefix),
+          )
         ).data;
       },
     }),

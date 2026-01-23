@@ -11,7 +11,7 @@ import {
   FormikText,
   FormikTextArea,
   getEnumStringOptions,
-  IUserModel,
+  type IUserModel,
   OptionItem,
   Row,
   Section,
@@ -64,7 +64,7 @@ export const UserFormDistribution: React.FC = () => {
           (u) => u.accountType !== UserAccountTypeName.Distribution,
         );
         setUsers(users);
-        setSelectedUser(users.length ? users[0].id : 0);
+        setSelectedUser(users.length > 0 ? users[0].id : 0);
       } catch {}
     },
     [findUsers],
@@ -100,7 +100,9 @@ export const UserFormDistribution: React.FC = () => {
               name="username"
               label="Name"
               required
-              onChange={(e) => setFieldValue('username', e.currentTarget.value.toUpperCase())}
+              onChange={async (e) =>
+                await setFieldValue('username', e.currentTarget.value.toUpperCase())
+              }
             />
             <FormikTextArea name="note" label="Note" />
           </Col>
@@ -110,7 +112,9 @@ export const UserFormDistribution: React.FC = () => {
                 name="findUser"
                 label="Find User"
                 value={keyword}
-                onChange={(e) => setKeyword(e.currentTarget.value)}
+                onChange={(e) => {
+                  setKeyword(e.currentTarget.value);
+                }}
                 onKeyDown={(e) => {
                   if (e.code === 'Enter') {
                     e.preventDefault();
@@ -118,7 +122,12 @@ export const UserFormDistribution: React.FC = () => {
                   }
                 }}
               />
-              <Button title="Search" onClick={() => handleFindUsers(keyword)}>
+              <Button
+                title="Search"
+                onClick={async () => {
+                  await handleFindUsers(keyword);
+                }}
+              >
                 <FaSearch />
               </Button>
             </Row>
@@ -128,7 +137,7 @@ export const UserFormDistribution: React.FC = () => {
               value={userOptions.find((o) => o.value === selectedUser) ?? ''}
               onChange={(e) => {
                 const option = e as OptionItem;
-                if (option && option.value) setSelectedUser(+option.value);
+                if (option?.value) setSelectedUser(+option.value);
                 else setSelectedUser(0);
               }}
             >

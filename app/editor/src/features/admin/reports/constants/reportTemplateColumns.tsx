@@ -1,6 +1,11 @@
-import { CellCheckbox, CellEllipsis, IReportTemplateModel, ITableHookColumn } from 'tno-core';
+import {
+  CellCheckbox,
+  CellEllipsis,
+  type IReportTemplateModel,
+  type ITableHookColumn,
+} from 'tno-core';
 
-export const reportTemplateColumns: ITableHookColumn<IReportTemplateModel>[] = [
+export const reportTemplateColumns: Array<ITableHookColumn<IReportTemplateModel>> = [
   {
     label: 'Name',
     accessor: 'name',

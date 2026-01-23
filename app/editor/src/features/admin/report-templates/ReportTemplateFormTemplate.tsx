@@ -16,8 +16,8 @@ import {
   Col,
   FormikSelect,
   getEnumStringOptions,
-  IOptionItem,
-  IReportTemplateModel,
+  type IOptionItem,
+  type IReportTemplateModel,
   ReportTypeName,
   Row,
   Settings,
@@ -114,7 +114,7 @@ export const ReportTemplateFormTemplate: React.FC = () => {
             id="txa-subject-template"
             required
             value={values.subject}
-            onValueChange={(code) => setFieldValue('subject', code)}
+            onValueChange={async (code) => await setFieldValue('subject', code)}
             highlight={(code) => {
               return highlight(code, languages.cshtml, 'razor');
             }}
@@ -130,7 +130,7 @@ export const ReportTemplateFormTemplate: React.FC = () => {
             id="txa-body-template"
             required
             value={values.body}
-            onValueChange={(code) => setFieldValue('body', code)}
+            onValueChange={async (code) => await setFieldValue('body', code)}
             highlight={(code) => {
               return highlight(code, languages.cshtml, 'razor');
             }}

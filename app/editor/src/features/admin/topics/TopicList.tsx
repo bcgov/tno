@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useTopics } from 'store/hooks/admin';
-import { FlexboxTable, ITopicModel } from 'tno-core';
+import { FlexboxTable, type ITopicModel } from 'tno-core';
 
 import { defaultTopic } from './constants';
 import { useColumns } from './hooks';
@@ -26,7 +26,7 @@ const TopicList: React.FC = () => {
   const [topicFilter, setTopicFilter] = React.useState('');
 
   React.useEffect(() => {
-    if (!filteredTopics.length && !loading && !topicFilter) {
+    if (filteredTopics.length === 0 && !loading && !topicFilter) {
       setLoading(true);
       findAllTopics()
         .then((data) => {

@@ -9,7 +9,7 @@ import {
   FormikText,
   FormikTextArea,
   getEnumStringOptions,
-  IUserModel,
+  type IUserModel,
   OptionItem,
   Row,
   Section,
@@ -50,7 +50,9 @@ export const UserFormSystemAccount: React.FC = () => {
           name="username"
           label="Username"
           required
-          onChange={(e) => setFieldValue('username', e.currentTarget.value.toUpperCase())}
+          onChange={async (e) =>
+            await setFieldValue('username', e.currentTarget.value.toUpperCase())
+          }
         />
         <FormikText name="email" label="Email" type="email" required />
         <Row>

@@ -1,6 +1,11 @@
-import { CellCheckbox, CellEllipsis, INotificationModel, ITableHookColumn } from 'tno-core';
+import {
+  CellCheckbox,
+  CellEllipsis,
+  type INotificationModel,
+  type ITableHookColumn,
+} from 'tno-core';
 
-export const columns: ITableHookColumn<INotificationModel>[] = [
+export const columns: Array<ITableHookColumn<INotificationModel>> = [
   {
     label: 'Name',
     accessor: 'name',

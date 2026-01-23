@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { IHolidayModel } from 'tno-core';
+import { type IHolidayModel } from 'tno-core';
 
 /**
  * Determines if the specified 'date' is a stat holiday.

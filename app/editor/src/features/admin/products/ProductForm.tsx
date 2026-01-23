@@ -13,7 +13,7 @@ import {
   Button,
   ButtonVariant,
   IconButton,
-  IProductModel,
+  type IProductModel,
   Modal,
   Row,
   Show,
@@ -41,7 +41,7 @@ const ProductForm: React.FC = () => {
   const { toggle, isShowing } = useModal();
 
   const [Product, setProduct] = React.useState<IProductModel>(
-    (state as any)?.Product ?? { ...defaultProduct, ownerId: userInfo?.id },
+    state?.Product ?? { ...defaultProduct, ownerId: userInfo?.id },
   );
   const [active, setActive] = React.useState('Product');
 
@@ -76,7 +76,9 @@ const ProductForm: React.FC = () => {
         iconType="back"
         label="Back to Products"
         className="back-button"
-        onClick={() => navigate('/admin/products')}
+        onClick={() => {
+          navigate('/admin/products');
+        }}
       />
       <FormikForm
         initialValues={Product}

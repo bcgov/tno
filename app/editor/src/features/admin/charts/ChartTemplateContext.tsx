@@ -1,9 +1,9 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { IChartTemplateModel } from 'tno-core';
+import { type IChartTemplateModel } from 'tno-core';
 
 import { defaultChartRequestForm, defaultChartTemplate } from './constants';
-import { IChartRequestForm } from './interfaces';
+import { type IChartRequestForm } from './interfaces';
 
 /*******************************************************************
  * All related chart template context code is in a single file because it will never be used separately.

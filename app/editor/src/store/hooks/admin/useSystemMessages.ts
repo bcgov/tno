@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
-import { IAdminState, useAdminStore } from 'store/slices';
-import { ISystemMessageModel, useApiAdminSystemMessages } from 'tno-core';
+import { type IAdminState, useAdminStore } from 'store/slices';
+import { type ISystemMessageModel, useApiAdminSystemMessages } from 'tno-core';
 
 interface IAlertController {
   findSystemMessages: () => Promise<ISystemMessageModel[]>;
@@ -20,15 +20,17 @@ export const useSystemMessages = (): [IAdminState, IAlertController] => {
   const controller = React.useMemo(
     () => ({
       findSystemMessages: async () => {
-        const response = await dispatch<ISystemMessageModel[]>('find-system-messages', () =>
-          api.findSystemMessages(),
+        const response = await dispatch<ISystemMessageModel[]>(
+          'find-system-messages',
+          async () => await api.findSystemMessages(),
         );
         store.storeSystemMessages(response.data);
         return response.data;
       },
       findSystemMessage: async (id: number) => {
-        const response = await dispatch<ISystemMessageModel>('find-system-message', () =>
-          api.findSystemMessage(id),
+        const response = await dispatch<ISystemMessageModel>(
+          'find-system-message',
+          async () => await api.findSystemMessage(id),
         );
         store.storeSystemMessages((messages) => {
           const found = messages.some((m) => m.id === id);
@@ -38,16 +40,18 @@ export const useSystemMessages = (): [IAdminState, IAlertController] => {
         return response.data;
       },
       addSystemMessage: async (model: ISystemMessageModel) => {
-        const response = await dispatch<ISystemMessageModel>('add-system-message', () =>
-          api.addSystemMessage(model),
+        const response = await dispatch<ISystemMessageModel>(
+          'add-system-message',
+          async () => await api.addSystemMessage(model),
         );
         store.storeSystemMessages((systemMessages) => [...systemMessages, response.data]);
         await lookup.getLookups();
         return response.data;
       },
       updateSystemMessage: async (model: ISystemMessageModel) => {
-        const response = await dispatch<ISystemMessageModel>('update-system-message', () =>
-          api.updateSystemMessage(model),
+        const response = await dispatch<ISystemMessageModel>(
+          'update-system-message',
+          async () => await api.updateSystemMessage(model),
         );
         store.storeSystemMessages((systemMessages) =>
           systemMessages.map((ds) => {
@@ -59,8 +63,9 @@ export const useSystemMessages = (): [IAdminState, IAlertController] => {
         return response.data;
       },
       deleteSystemMessage: async (model: ISystemMessageModel) => {
-        const response = await dispatch<ISystemMessageModel>('delete-system-message', () =>
-          api.deleteSystemMessage(model),
+        const response = await dispatch<ISystemMessageModel>(
+          'delete-system-message',
+          async () => await api.deleteSystemMessage(model),
         );
         store.storeTags((tags) => tags.filter((ds) => ds.id !== response.data.id));
         await lookup.getLookups();

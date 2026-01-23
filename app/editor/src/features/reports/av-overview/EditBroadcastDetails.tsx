@@ -9,7 +9,7 @@ import {
   FormikSelect,
   FormikText,
   FormikTimeInput,
-  IAVOverviewInstanceModel,
+  type IAVOverviewInstanceModel,
   Row,
   Show,
   Text,
@@ -43,7 +43,7 @@ export const EditBroadcastDetails: React.FC<IEditBroadcastDetailsProps> = ({
         ...section,
         name: `${otherSource}${item?.name ? ` - ${item.name}` : ''}`,
         sourceId: undefined,
-        otherSource: otherSource,
+        otherSource,
       });
     }
     // The 'section' causes infinite loop.
@@ -100,13 +100,18 @@ export const EditBroadcastDetails: React.FC<IEditBroadcastDetailsProps> = ({
   return (
     <styled.EditBroadcastDetails>
       <Row className="edit-header">
-        <Button className="edit-button" onClick={() => setOpen(!open)}>
+        <Button
+          className="edit-button"
+          onClick={() => {
+            setOpen(!open);
+          }}
+        >
           {open ? <FaEyeSlash className="minimize" /> : <MdEdit className="icon" />}
         </Button>
         <h3>
           {section.name
             ? section.name +
-              (!!getIn(values, `sections.${index}.anchors`)
+              (getIn(values, `sections.${index}.anchors`)
                 ? ' - ' + getIn(values, `sections.${index}.anchors`)
                 : '')
             : 'Update broadcast details'}
@@ -120,7 +125,9 @@ export const EditBroadcastDetails: React.FC<IEditBroadcastDetailsProps> = ({
             options={sourceOptions}
             width={FieldSize.Big}
             value={sourceOptions.find((x) => x.value === section.sourceId) ?? ''}
-            onChange={(e: any) => changeSource(e?.value)}
+            onChange={(e: any) => {
+              changeSource(e?.value);
+            }}
             clearValue={undefined}
             isDisabled={!editable}
           />
@@ -138,7 +145,9 @@ export const EditBroadcastDetails: React.FC<IEditBroadcastDetailsProps> = ({
             label="Show/Program"
             value={seriesOptions.find((x) => x.value === section.seriesId)}
             width={FieldSize.Big}
-            onChange={(e: any) => changeSeries(e?.value)}
+            onChange={(e: any) => {
+              changeSeries(e?.value);
+            }}
             options={seriesOptions}
             clearValue={undefined}
             isDisabled={!editable}

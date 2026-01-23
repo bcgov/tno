@@ -2,7 +2,7 @@ import { FormPage } from 'components/formpage';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useReportTemplates } from 'store/hooks/admin';
-import { Col, FlexboxTable, IconButton, IReportTemplateModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, type IReportTemplateModel, Row } from 'tno-core';
 
 import { reportTemplateColumns } from './constants';
 import { ListFilter } from './ListFilter';
@@ -34,8 +34,10 @@ export const ReportTemplateList: React.FC = () => {
           </Col>
           <IconButton
             iconType="plus"
-            label={`Add new template`}
-            onClick={() => navigate(`/admin/report/templates/0`)}
+            label={'Add new template'}
+            onClick={() => {
+              navigate('/admin/report/templates/0');
+            }}
           />
         </Row>
         <ListFilter
@@ -59,7 +61,9 @@ export const ReportTemplateList: React.FC = () => {
           data={items}
           columns={reportTemplateColumns}
           showSort={true}
-          onRowClick={(row) => navigate(`/admin/report/templates/${row.original.id}`)}
+          onRowClick={(row) => {
+            navigate(`/admin/report/templates/${row.original.id}`);
+          }}
           pagingEnabled={false}
         />
       </FormPage>

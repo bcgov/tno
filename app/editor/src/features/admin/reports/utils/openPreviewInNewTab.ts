@@ -1,4 +1,4 @@
-import { IReportResultModel } from 'tno-core';
+import { type IReportResultModel } from 'tno-core';
 
 export const openPreviewInNewTab = (previewContent: IReportResultModel) => {
   const previewHTML = `

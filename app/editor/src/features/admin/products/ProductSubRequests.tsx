@@ -1,6 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { Col, IProductModel, ProductRequestStatusName, Row, Show } from 'tno-core';
+import { Col, type IProductModel, ProductRequestStatusName, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
 import { UserApproveDeny } from './UserApproveDeny';
@@ -18,8 +18,8 @@ export const ProductSubRequests: React.FC = () => {
           <UserApproveDeny
             key={`user-request-subscription-${user.userId}`}
             user={user}
-            onChange={(approve) =>
-              setFieldValue(`subscribers.${index}`, {
+            onChange={async (approve) =>
+              await setFieldValue(`subscribers.${index}`, {
                 ...user,
                 status: ProductRequestStatusName.NA,
                 isSubscribed: approve,
@@ -43,8 +43,8 @@ export const ProductSubRequests: React.FC = () => {
             <Col flex="1">
               <UserApproveDeny
                 user={user}
-                onChange={(approve) =>
-                  setFieldValue(`subscribers.${index}`, {
+                onChange={async (approve) =>
+                  await setFieldValue(`subscribers.${index}`, {
                     ...user,
                     status: ProductRequestStatusName.NA,
                     isSubscribed: !approve,

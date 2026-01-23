@@ -1,7 +1,7 @@
 import moment from 'moment';
-import { IContentModel, ITimeTrackingModel } from 'tno-core';
+import { type IContentModel, type ITimeTrackingModel } from 'tno-core';
 
-import { IContentForm } from '../interfaces';
+import { type IContentForm } from '../interfaces';
 
 /**
  * Convert the form to a model so that it can be sent to the api.
@@ -19,11 +19,11 @@ export function toModel(values: IContentForm): IContentModel {
     contentType: values.contentType,
     mediaTypeId: values.mediaTypeId,
     licenseId: values.licenseId,
-    ownerId: !!values.ownerId ? values.ownerId : undefined,
-    seriesId: !!values.seriesId ? values.seriesId : undefined,
-    contributorId: !!values.contributorId ? values.contributorId : undefined,
+    ownerId: values.ownerId ? values.ownerId : undefined,
+    seriesId: values.seriesId ? values.seriesId : undefined,
+    contributorId: values.contributorId ? values.contributorId : undefined,
     otherSeries: values.otherSeries,
-    sourceId: !!values.sourceId ? values.sourceId : undefined,
+    sourceId: values.sourceId ? values.sourceId : undefined,
     otherSource: values.otherSource,
     headline: values.headline,
     byline: values.byline,

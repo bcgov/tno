@@ -11,7 +11,7 @@ import { toast } from 'react-toastify';
 import { useApp } from 'store/hooks';
 import { useFilters, useFolders, useReportTemplates } from 'store/hooks/admin';
 import { useAdminStore } from 'store/slices';
-import { Button, ButtonVariant, Col, IReportModel, Row, Show } from 'tno-core';
+import { Button, ButtonVariant, Col, type IReportModel, Row, Show } from 'tno-core';
 
 import { exportReport, parseExportedReport } from './utils';
 
@@ -33,7 +33,7 @@ export const ReportFormImportExport: React.FC = () => {
       try {
         const rawExportedReport = JSON.parse(data);
 
-        var importedReport = parseExportedReport(
+        const importedReport = parseExportedReport(
           rawExportedReport,
           reportTemplates,
           filters,
@@ -55,9 +55,9 @@ export const ReportFormImportExport: React.FC = () => {
   );
 
   React.useEffect(() => {
-    if (!reportTemplates.length) findAllReportTemplates();
-    if (!filters.length) findFilters({});
-    if (!folders.length) findFolders({});
+    if (reportTemplates.length === 0) findAllReportTemplates();
+    if (filters.length === 0) findFilters({});
+    if (folders.length === 0) findFolders({});
     // Only fetch items on initial load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -84,7 +84,7 @@ export const ReportFormImportExport: React.FC = () => {
             <Button
               variant={ButtonVariant.secondary}
               onClick={() => {
-                var exportedReport = exportReport(
+                const exportedReport = exportReport(
                   values.name,
                   values.description,
                   values.isEnabled,

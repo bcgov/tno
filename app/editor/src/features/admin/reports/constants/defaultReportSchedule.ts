@@ -1,6 +1,6 @@
 import {
-  IReportModel,
-  IReportScheduleModel,
+  type IReportModel,
+  type IReportScheduleModel,
   ScheduleMonthName,
   ScheduleWeekDayName,
 } from 'tno-core';
@@ -26,8 +26,8 @@ export const defaultReportSchedule = (
 });
 
 export const generateScheduleName = (label: string, report?: IReportModel) => {
-  let maxNameLength = 100;
-  let nameSuffix = `-${report?.ownerId ?? 0}-${label}`;
-  let namePrefix = `${report?.name ?? 'Report'}`.substring(0, maxNameLength - nameSuffix.length);
+  const maxNameLength = 100;
+  const nameSuffix = `-${report?.ownerId ?? 0}-${label}`;
+  const namePrefix = `${report?.name ?? 'Report'}`.substring(0, maxNameLength - nameSuffix.length);
   return `${namePrefix}${nameSuffix}`;
 };
