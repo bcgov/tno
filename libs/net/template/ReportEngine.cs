@@ -1,8 +1,11 @@
 
+using System.Globalization;
+using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Xml;
+using CsvHelper.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Core.Exceptions;
@@ -640,9 +643,36 @@ public class ReportEngine : IReportEngine
                      {
                          if (response.Content.Headers.ContentType?.MediaType?.Contains("text/csv") == true)
                          {
-                             var data = await response.Content.ReadAsStreamAsync();
-                             using var reader = new StreamReader(data);
-                             using var csv = new CsvHelper.CsvReader(reader, System.Globalization.CultureInfo.InvariantCulture);
+                             var contentType = response.Content.Headers.ContentType?.ToString() ?? "unknown";
+                             var contentEncoding = response.Content.Headers.ContentEncoding.FirstOrDefault() ?? "none";
+                             var contentLength = response.Content.Headers.ContentLength ?? -1;
+                             this.Logger.LogInformation("CSV response - Type: {Type}, Encoding: {Encoding}, Length: {Length}",
+                                 contentType, contentEncoding, contentLength);
+
+                             var readStream = await response.Content.ReadAsStreamAsync();
+
+                             // If server sent gzip but didn't tell HttpClient to decompress → handle manually
+                             if (response.Content.Headers.ContentEncoding.Contains("gzip"))
+                             {
+                                 this.Logger.LogInformation("Detected gzip encoding - decompressing");
+                                 readStream = new GZipStream(readStream, CompressionMode.Decompress, leaveOpen: true);
+                             }
+
+                             using var reader = new StreamReader(readStream, detectEncodingFromByteOrderMarks: true);
+
+                             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                             {
+                                 // These fields have commas/JSON → ensure proper parsing
+                                 ShouldQuote = (args) => true, // or customize per field
+                                 BadDataFound = args =>
+                                 {
+                                     this.Logger.LogWarning("Bad CSV row: {Raw}", args.RawRecord);
+                                     // or set to null to skip silently: args = null;
+                                 },
+                                 // If dates are DD/MM/YY inconsistent → add custom converter later
+                             };
+
+                             using var csv = new CsvHelper.CsvReader(reader, config);
                              var records = csv.GetRecords<dynamic>().ToList();
                              var dataEngineModel = new ReportEngineDataModel<dynamic>(records);
                              if (!String.IsNullOrWhiteSpace(settings.DataTemplate))
@@ -665,11 +695,14 @@ public class ReportEngine : IReportEngine
                          {
                              var data = await response.Content.ReadAsStringAsync();
                              sectionData.Data = data;
+                             this.Logger.LogWarning("Non-CSV content type received: {Type}", response.Content.Headers.ContentType?.MediaType);
                          }
                      }
                      catch (Exception ex)
                      {
-                         this.Logger.LogError(ex, "Failed to parse CSV data from {url}", url);
+                         this.Logger.LogError(ex, "Failed to parse CSV from {Url}. Headers: {Headers}",
+                            url,
+                            string.Join(", ", response?.Content?.Headers?.Select(h => $"{h.Key}:{string.Join(",", h.Value)}") ?? []));
                          sectionData.Data = ex.GetAllMessages();
                      }
                  }
