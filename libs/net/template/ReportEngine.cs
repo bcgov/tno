@@ -1,6 +1,7 @@
 
 using System.Globalization;
 using System.IO.Compression;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -532,8 +533,10 @@ public class ReportEngine : IReportEngine
 
                             await File.WriteAllBytesAsync(fullPath, imageBytes);
 
+                            var urlPathToImage = WebUtility.UrlEncode(pathToImage);
+
                             // Update the section to include the new image.
-                            sectionData.Settings.UrlCache = this.TemplateOptions.SubscriberAppUrl?.Append($"api/subscriber/contents/download?path={pathToImage}").AbsoluteUri;
+                            sectionData.Settings.UrlCache = this.TemplateOptions.SubscriberAppUrl?.Append($"api/subscriber/contents/download?path={urlPathToImage}").AbsoluteUri;
                         }
                     }
                     else
