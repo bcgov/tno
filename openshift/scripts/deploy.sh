@@ -48,7 +48,7 @@ podsExtractQuotes=$(getPods extract-quotes-service deployment $env)
 podsFolderCollection=$(getPods folder-collection-service deployment $env)
 podsContent=$(getPods content-service deployment $env)
 podsIndexing=$(getPods indexing-service deployment $env)
-if [ "$env" != "dev "]; then
+if [[ "$env" != "dev " ]]; then
   podsIndexingCloud=$(getPods indexing-service-cloud deployment $env)
 fi
 podsEventHandler=$(getPods event-handler-service deployment $env)
@@ -139,7 +139,7 @@ scale extract-quotes-service $podsExtractQuotes deployment $env
 scale folder-collection-service $podsFolderCollection deployment $env
 scale content-service $podsContent deployment $env
 scale indexing-service $podsIndexing deployment $env
-if [ "$env" != "dev" ]; then
+if [[ "$env" != "dev" ]]; then
   scale indexing-service-cloud $podsIndexingCloud deployment $env
 fi
 scale event-handler-service $podsEventHandler deployment $env

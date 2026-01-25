@@ -202,7 +202,7 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public IActionResult AnonymousDownloadFile(string path)
     {
-        var ext = Path.GetExtension(path).Substring(1);
+        var ext = Path.GetExtension(path).TrimStart('.');
         if (!_storageOptions.AllowAnonymousDownloadFileTypes.Any(value => String.Equals(value, ext, StringComparison.OrdinalIgnoreCase))) throw new InvalidOperationException("Unable to download file.");
 
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
