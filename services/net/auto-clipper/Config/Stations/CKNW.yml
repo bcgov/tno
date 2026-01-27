@@ -18,8 +18,8 @@ text:
     "(?i)up next": Promo
     "(?i)coming up": Promo
   llm_segmentation: true
-  llm_model: gpt-5.1-chat
-  llm_temperature: 1 # Set to 0.0 for deterministic JSON and stable indices.
+  llm_model: gpt-5-chat
+  llm_temperature: 0.0 # Set to 0.0 for deterministic JSON and stable indices.
   system_prompt: |
     You are a Broadcast Structure Parser. Your ONLY job is to detect segment transitions.
     Output MUST be a single, raw JSON object. 

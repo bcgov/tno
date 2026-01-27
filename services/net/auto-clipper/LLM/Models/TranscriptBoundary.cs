@@ -5,7 +5,8 @@ namespace TNO.Services.AutoClipper.LLM.Models;
 public class TranscriptBoundary
 {
     [JsonPropertyName("index")]
-    public int Index { get; set; }
+    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
+    public double Index { get; set; }
 
     [JsonPropertyName("title")]
     public string Title { get; set; } = "";
