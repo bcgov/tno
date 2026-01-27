@@ -8,5 +8,6 @@ public class LLMMessage
     public string? Role { get; set; }
 
     [JsonPropertyName("content")]
+    [JsonConverter(typeof(LlmMessageContentConverter))]
     public string? Content { get; set; }
 }
