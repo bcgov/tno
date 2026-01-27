@@ -299,10 +299,10 @@ Transcript:
                 if (boundaries == null || boundaries.Boundaries == null) continue;
                 foreach (var boundary in boundaries.Boundaries)
                 {
-                    var rawIndex = boundary.Index;
-                    if (rawIndex <= 0)
+                    var normalizedIndex = NormalizeBoundaryIndex(boundary.Index);
+                    if (normalizedIndex <= 0)
                         continue;
-                    var zeroIndex = Math.Clamp(rawIndex - 1, 0, transcript.Count - 1);
+                    var zeroIndex = Math.Clamp(normalizedIndex - 1, 0, transcript.Count - 1);
                     var title = string.IsNullOrWhiteSpace(boundary.Title) ? "Clip" : boundary.Title;
                     var summary = string.IsNullOrWhiteSpace(boundary.Summary) ? string.Empty : boundary.Summary;
                     var category = string.IsNullOrWhiteSpace(boundary.Category) ? null : boundary.Category;
@@ -319,6 +319,14 @@ Transcript:
             _logger.LogError(ex, "Unable to parse LLM segmentation response. Raw body: {body}", body);
             return [];
         }
+    }
+
+    private static int NormalizeBoundaryIndex(double value)
+    {
+        if (double.IsNaN(value) || double.IsInfinity(value)) return 0;
+        if (value <= 0) return 0;
+        var floored = (int)Math.Floor(value);
+        return Math.Max(1, floored);
     }
 
     private IReadOnlyList<ClipDefinition> CreateClipDefinitions(IReadOnlyList<TimestampedTranscript> transcript, List<BoundaryCandidate> candidates, double threshold, IReadOnlyList<HeuristicHit> heuristicHits)
@@ -457,7 +465,6 @@ Transcript:
         return result;
     }
 }
-
 
 
 
