@@ -325,8 +325,8 @@ Transcript:
     {
         if (double.IsNaN(value) || double.IsInfinity(value)) return 0;
         if (value <= 0) return 0;
-        var floored = (int)Math.Floor(value);
-        return Math.Max(1, floored);
+        var ceiled = (int)Math.Ceiling(value);
+        return Math.Max(1, ceiled);
     }
 
     private IReadOnlyList<ClipDefinition> CreateClipDefinitions(IReadOnlyList<TimestampedTranscript> transcript, List<BoundaryCandidate> candidates, double threshold, IReadOnlyList<HeuristicHit> heuristicHits)
@@ -465,7 +465,6 @@ Transcript:
         return result;
     }
 }
-
 
 
 
