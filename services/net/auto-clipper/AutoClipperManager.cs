@@ -582,9 +582,11 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         var autoTags = _tags?.Where(t => this.Options.ApplyTags.Contains(t.Code));
         var tags = autoTags != null ? sourceContent.Tags.AppendRange(autoTags.Select(at => new ContentTagModel(at.Id, at.Code, at.Name))) : sourceContent.Tags;
 
-        // Calculate clip time = parent content publish time + clip start offset
-        var clipTime = sourceContent.PublishedOn?.Add(definition.Start);
-        var timePrefix = clipTime?.ToString("HH:mm");
+        // Calculate clip time = parent content publish time + clip start offset (UTC for storage)
+        var clipTimeUtc = sourceContent.PublishedOn?.Add(definition.Start);
+        // For display in headline, convert to local timezone
+        var clipTimeLocal = clipTimeUtc?.ToTimeZone(this.Options.TimeZone);
+        var timePrefix = clipTimeLocal?.ToString("HH:mm");
         var clipTitle = FormatClipTitle(definition.Title);
         var categoryLabel = FormatClipCategory(definition.Category);
         var headlineCore = string.IsNullOrEmpty(timePrefix) ? clipTitle : $"{timePrefix} - {clipTitle}";
@@ -610,7 +612,7 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
             Summary = $"[AutoClipper:{definition.Category}]\n{clipSummary}",
             Body = transcriptBody,
             SourceUrl = sourceContent.SourceUrl,
-            PublishedOn = clipTime ?? sourceContent.PublishedOn,
+            PublishedOn = clipTimeUtc ?? sourceContent.PublishedOn,
             PostedOn = DateTime.UtcNow,
             Tags = tags,
             Topics = sourceContent.Topics,
