@@ -1,0 +1,46 @@
+# CHAN station configuration using Azure Video Indexer
+name: CHAN
+sample_rate: 16000
+
+transcription:
+  provider: azure_video_indexer
+  language: en-US
+  include_speaker_labels: true
+  # Person Model (optional) - add later when you have one:
+  # person_models:
+  #   news: "your-model-id-here"
+  # person_model_key: news
+
+text:
+  chunk_size_s: 3.0
+  chunk_overlap_ratio: 0.5
+  heuristic_boundary_weight: 0.35
+  llm_segmentation: true
+  llm_model: gpt-5-chat
+  llm_temperature: 0.0
+  max_stories: 15
+  llm_prompt: |
+    Identify every point in the transcript where the topic or segment type changes.
+    Note: Speaker labels (e.g., "speaker1:", "Tom:") indicate who is speaking.
+    
+    # OUTPUT FORMAT (Raw JSON ONLY)
+    {
+      "boundaries": [
+        {
+          "index": [Sentence Number],
+          "category": "News | Traffic | Weather | Ad | Promo",
+          "title": "[Short Slug]",
+          "summary": "[Journalistic Summary Sentence]",
+          "score": 0.95
+        }
+      ]
+    }
+
+    Transcript:
+    {{transcript}}
+
+heuristics:
+  pattern_entries:
+    - pattern: "(?i)coming up"
+      weight: 0.65
+      category: Promo
