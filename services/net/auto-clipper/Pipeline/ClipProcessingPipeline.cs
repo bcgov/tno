@@ -11,6 +11,7 @@ public class ClipProcessingPipeline
 {
     private readonly IAudioNormalizer _audioNormalizer;
     private readonly IAzureSpeechTranscriptionService _speechTranscriber;
+    private readonly IAzureVideoIndexerClient? _videoIndexerClient;
     private readonly IClipSegmentationService _clipSegmentation;
     private readonly AutoClipperOptions _options;
     private readonly ILogger<ClipProcessingPipeline> _logger;
@@ -20,10 +21,12 @@ public class ClipProcessingPipeline
         IAzureSpeechTranscriptionService speechTranscriber,
         IClipSegmentationService clipSegmentation,
         IOptions<AutoClipperOptions> options,
-        ILogger<ClipProcessingPipeline> logger)
+        ILogger<ClipProcessingPipeline> logger,
+        IAzureVideoIndexerClient? videoIndexerClient = null)
     {
         _audioNormalizer = audioNormalizer;
         _speechTranscriber = speechTranscriber;
+        _videoIndexerClient = videoIndexerClient;
         _clipSegmentation = clipSegmentation;
         _options = options.Value;
         _logger = logger;
@@ -31,25 +34,71 @@ public class ClipProcessingPipeline
 
     public async Task<ClipProcessingResult> ExecuteAsync(ClipProcessingContext context, CancellationToken cancellationToken)
     {
-        var normalizedPath = await _audioNormalizer.NormalizeAsync(context.SourcePath, context.TargetSampleRate, cancellationToken);
         var language = !string.IsNullOrWhiteSpace(context.Request.Language)
             ? context.Request.Language!
             : !string.IsNullOrWhiteSpace(context.StationProfile.Transcription.Language)
                 ? context.StationProfile.Transcription.Language
                 : _options.DefaultTranscriptLanguage;
-        var transcriptionRequest = new SpeechTranscriptionRequest
-        {
-            Language = language,
-            EnableSpeakerDiarization = context.StationProfile.Transcription.Diarization,
-            SpeakerCount = context.StationProfile.Transcription.MaxSpeakers,
-            DiarizationMode = context.StationProfile.Transcription.DiarizationMode
-        };
 
-        var segments = await _speechTranscriber.TranscribeAsync(normalizedPath, transcriptionRequest, cancellationToken);
+        var provider = context.StationProfile.Transcription.Provider ?? "azure_speech";
+        IReadOnlyList<TimestampedTranscript> segments;
+        string workingPath;
+
+        if (string.Equals(provider, "azure_video_indexer", StringComparison.OrdinalIgnoreCase))
+        {
+            // Use Azure Video Indexer - upload original file directly (no normalization needed)
+            if (_videoIndexerClient == null)
+                throw new InvalidOperationException("Video Indexer client is not configured but provider is set to azure_video_indexer");
+
+            workingPath = context.SourcePath;
+            var personModelId = ResolvePersonModelId(context.StationProfile.Transcription);
+
+            _logger.LogInformation("Using Video Indexer provider (PersonModel: {PersonModel})", personModelId ?? "none");
+
+            var viRequest = new VideoIndexerRequest
+            {
+                Language = language,
+                PersonModelId = personModelId,
+                IncludeSpeakerLabels = context.StationProfile.Transcription.IncludeSpeakerLabels
+            };
+
+            segments = await _videoIndexerClient.TranscribeAsync(context.SourcePath, viRequest, cancellationToken);
+        }
+        else
+        {
+            // Use Azure Speech (default) - requires audio normalization
+            _logger.LogInformation("Using Azure Speech provider");
+
+            workingPath = await _audioNormalizer.NormalizeAsync(context.SourcePath, context.TargetSampleRate, cancellationToken);
+            var transcriptionRequest = new SpeechTranscriptionRequest
+            {
+                Language = language,
+                EnableSpeakerDiarization = context.StationProfile.Transcription.Diarization,
+                SpeakerCount = context.StationProfile.Transcription.MaxSpeakers,
+                DiarizationMode = context.StationProfile.Transcription.DiarizationMode
+            };
+
+            segments = await _speechTranscriber.TranscribeAsync(workingPath, transcriptionRequest, cancellationToken);
+        }
+
         var segmentationSettings = BuildSegmentationSettings(context.StationProfile);
         var clipDefinitions = await _clipSegmentation.GenerateClipsAsync(segments, segmentationSettings, cancellationToken);
 
-        return new ClipProcessingResult(normalizedPath, language, segments, clipDefinitions, segmentationSettings);
+        return new ClipProcessingResult(workingPath, language, segments, clipDefinitions, segmentationSettings);
+    }
+
+    /// <summary>
+    /// Resolves the Person Model ID from station profile configuration.
+    /// </summary>
+    private static string? ResolvePersonModelId(StationTranscriptionProfile transcription)
+    {
+        if (string.IsNullOrWhiteSpace(transcription.PersonModelKey))
+            return null;
+
+        if (transcription.PersonModels.TryGetValue(transcription.PersonModelKey, out var modelId))
+            return modelId;
+
+        return null;
     }
 
     private static ClipSegmentationSettings BuildSegmentationSettings(StationProfile profile)
