@@ -94,6 +94,33 @@ public class AutoClipperOptions : ServiceOptions
     public int AzureSpeechStorageSasExpiryMinutes { get; set; } = 180;
     #endregion
 
+    #region Azure Video Indexer configuration
+    /// <summary>
+    /// get/set - Azure Video Indexer account ID.
+    /// </summary>
+    public string AzureVideoIndexerAccountId { get; set; } = string.Empty;
+
+    /// <summary>
+    /// get/set - Azure Video Indexer location (e.g., "trial", "eastus").
+    /// </summary>
+    public string AzureVideoIndexerLocation { get; set; } = "trial";
+
+    /// <summary>
+    /// get/set - Azure Video Indexer API key (Ocp-Apim-Subscription-Key).
+    /// </summary>
+    public string AzureVideoIndexerApiKey { get; set; } = string.Empty;
+
+    /// <summary>
+    /// get/set - Timeout in minutes for Video Indexer processing.
+    /// </summary>
+    public int AzureVideoIndexerTimeoutMinutes { get; set; } = 60;
+
+    /// <summary>
+    /// get/set - Polling interval in seconds for Video Indexer status checks.
+    /// </summary>
+    public int AzureVideoIndexerPollingIntervalSeconds { get; set; } = 30;
+    #endregion
+
     #region Azure AI configuration
     /// <summary>
     /// get/set - The URL to the LLM
