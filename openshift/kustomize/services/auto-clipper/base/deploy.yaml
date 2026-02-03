@@ -160,6 +160,26 @@ spec:
                   name: azure-openai
                   key: AZURE_OPENAI_KEY
 
+            # Azure Video Indexer Configuration (optional - for speaker identification)
+            - name: Service__AzureVideoIndexerAccountId
+              valueFrom:
+                secretKeyRef:
+                  name: azure-video-indexer
+                  key: AZURE_VIDEO_INDEXER_ACCOUNT_ID
+                  optional: true
+            - name: Service__AzureVideoIndexerApiKey
+              valueFrom:
+                secretKeyRef:
+                  name: azure-video-indexer
+                  key: AZURE_VIDEO_INDEXER_API_KEY
+                  optional: true
+            - name: Service__AzureVideoIndexerLocation
+              valueFrom:
+                secretKeyRef:
+                  name: azure-video-indexer
+                  key: AZURE_VIDEO_INDEXER_LOCATION
+                  optional: true
+
             # Service Configuration
             - name: Service__MaxFailLimit
               valueFrom:
