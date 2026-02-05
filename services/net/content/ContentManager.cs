@@ -418,7 +418,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     private async Task<API.Areas.Services.Models.Ingest.SourceModel?> GetSourceAsync(string code)
     {
         return (await GetLocalCacheListAsync<IEnumerable<API.Areas.Services.Models.Ingest.SourceModel>>(SourceCodeListCacheKey))?
-                .Where(x => x.Code.ToUpperInvariant() == code.ToUpperInvariant()).FirstOrDefault();
+                .Where(x => x.Code.Equals(code, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
     }
 
     /// <summary>
@@ -563,8 +563,8 @@ public class ContentManager : ServiceManager<ContentOptions>
             content.OwnerId = model.RequestedById ?? source?.OwnerId;
             content.Headline = model.Title;
             content.Page = model.Page[0..Math.Min(model.Page.Length, 10)]; // TODO: Temporary workaround to deal FileMonitor Service.
-            content.Summary = String.IsNullOrWhiteSpace(summary) ? "" : summary;
-            content.Body = !String.IsNullOrWhiteSpace(body) ? body : model.ContentType == ContentType.AudioVideo ? "" : summary;
+            content.Summary = System.Net.WebUtility.HtmlDecode(String.IsNullOrWhiteSpace(summary) ? "" : summary);
+            content.Body = System.Net.WebUtility.HtmlDecode(!String.IsNullOrWhiteSpace(body) ? body : model.ContentType == ContentType.AudioVideo ? "" : summary);
             content.IsApproved = model.ContentType == ContentType.AudioVideo && model.PublishedOn.HasValue && model.Status == ContentStatus.Publish && !String.IsNullOrWhiteSpace(model.Body);
             content.SourceUrl = model.Link.Length > 1000 ? model.Link[..1000] : model.Link;
             content.PublishedOn = model.PublishedOn;
