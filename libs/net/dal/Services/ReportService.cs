@@ -165,6 +165,11 @@ public class ReportService : BaseService<Report, int>, IReportService
             .AsNoTracking()
             .Include(r => r.Owner)
             .Include(r => r.Events).ThenInclude(e => e.Schedule)
+            .Where(r => this.Context.ReportInstances
+                .Where(ri => ri.ReportId == r.Id)
+                .OrderByDescending(ri => ri.Id)
+                .Select(ri => ri.Status)
+                .FirstOrDefault() != ReportStatus.Pending)
             .AsQueryable();
 
         if (filter.IsEnabled.HasValue)
@@ -206,6 +211,7 @@ public class ReportService : BaseService<Report, int>, IReportService
         var instances = (
             from ri in this.Context.ReportInstances
             where reportIds.Contains(ri.ReportId)
+                && ri.Status != ReportStatus.Pending
             group ri by ri.ReportId into rig
             select rig.OrderByDescending(ri => ri.Id).Take(2))
             .AsNoTracking()
