@@ -55,5 +55,5 @@ public interface INotificationService : IBaseService<Notification, int>
     /// <param name="status"></param>
     /// <param name="cutOff"></param>
     /// <returns></returns>
-    IEnumerable<API.Areas.Services.Models.Notification.ChesNotificationMessagesModel> GetChesMessageIds(NotificationStatus status, DateTime cutOff);
+    IEnumerable<API.Areas.Services.Models.Notification.SmtpNotificationMessagesModel> GetSmtpMessages(NotificationStatus status, DateTime cutOff);
 }

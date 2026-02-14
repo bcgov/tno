@@ -151,12 +151,12 @@ public class ReportController : ControllerBase
     /// <returns></returns>
     [HttpGet("sent/{status}")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IEnumerable<Models.Report.ChesReportMessagesModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IEnumerable<Models.Report.SmtpReportMessagesModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult GetChesMessages(Entities.ReportStatus status, [FromQuery] DateTime cutOff)
+    public IActionResult GetSmtpMessages(Entities.ReportStatus status, [FromQuery] DateTime cutOff)
     {
-        var messages = _service.GetChesMessageIds(status, cutOff);
+        var messages = _service.GetSmtpMessageIds(status, cutOff);
         return new JsonResult(messages);
     }
     #endregion

@@ -1,16 +1,13 @@
-using System.Collections.Concurrent;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks.Dataflow;
 using Confluent.Kafka;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MMI.SmtpEmail;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Areas.Services.Models.Minister;
-using TNO.Ches;
-using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Kafka;
 using TNO.Kafka.Models;
@@ -70,8 +67,8 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
     /// <param name="user"></param>
     /// <param name="reportEngine"></param>
     /// <param name="coreNLPService"></param>
-    /// <param name="chesService"></param>
-    /// <param name="chesOptions"></param>
+    /// <param name="emailService"></param>
+    /// <param name="smtpOptions"></param>
     /// <param name="serializationOptions"></param>
     /// <param name="extractQuotesOptions"></param>
     /// <param name="logger"></param>
@@ -79,12 +76,12 @@ public partial class ExtractQuotesManager : ServiceManager<ExtractQuotesOptions>
         IKafkaListener<string, IndexRequestModel> listener,
         IApiService api,
         ICoreNLPService coreNLPService,
-        IChesService chesService,
-        IOptions<ChesOptions> chesOptions,
+        IEmailService emailService,
+        IOptions<SmtpOptions> smtpOptions,
         IOptions<ExtractQuotesOptions> extractQuotesOptions,
         IMemoryCache memoryCache,
         ILogger<ExtractQuotesManager> logger)
-        : base(api, chesService, chesOptions, extractQuotesOptions, logger)
+        : base(api, emailService, smtpOptions, extractQuotesOptions, logger)
     {
         Listener = listener;
         Listener.IsLongRunningJob = true;

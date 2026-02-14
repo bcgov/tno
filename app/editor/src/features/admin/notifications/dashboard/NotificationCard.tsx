@@ -50,7 +50,7 @@ export const NotificationCard: React.FC<INotificationCardProps> = ({ instance })
                 }));
               }}
             >
-              <h3>CHES Response</h3>
+              <h3>SMTP Response</h3>
               <div>
                 {expandResponse[instance.id] ? <FaCircleChevronUp /> : <FaCircleChevronDown />}
               </div>

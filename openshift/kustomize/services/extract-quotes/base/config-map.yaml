@@ -17,8 +17,8 @@ data:
   KAFKA_CLIENT_ID: ExtractQuotes
   MAX_FAIL_LIMIT: "5"
   TOPICS: index
-  CHES_EMAIL_ENABLED: "true"
-  CHES_EMAIL_AUTHORIZED: "true"
+  SMTP_EMAIL_ENABLED: "true"
+  SMTP_EMAIL_AUTHORIZED: "true"
   CORENLP_URL: http://corenlp:9000
   EXTRACT_QUOTES_ON_INDEX: "false"
   EXTRACT_QUOTES_ON_PUBLISH: "true"

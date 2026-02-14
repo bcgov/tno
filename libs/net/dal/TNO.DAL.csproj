@@ -19,7 +19,7 @@
     <ProjectReference Include="..\elastic\TNO.Elastic.csproj" />
     <ProjectReference Include="..\entities\TNO.Entities.csproj" />
     <ProjectReference Include="..\models\TNO.Models.csproj" />
-    <ProjectReference Include="..\ches\TNO.Ches.csproj" />
+    <ProjectReference Include="..\smtp\MMI.SmtpEmail.csproj" />
   </ItemGroup>
 
   <ItemGroup>

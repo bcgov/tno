@@ -3,8 +3,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.Ches;
-using TNO.Ches.Configuration;
+using MMI.SmtpEmail;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Extensions;
@@ -16,8 +15,8 @@ namespace TNO.DAL.Services;
 public class ProductService : BaseService<Product, int>, IProductService
 {
     #region Variables
-    private readonly IChesService _chesService;
-    private readonly ChesOptions _chesOptions;
+    private readonly IEmailService _emailService;
+    private readonly SmtpOptions _smtpOptions;
     #endregion
 
     #region Constructors
@@ -26,20 +25,20 @@ public class ProductService : BaseService<Product, int>, IProductService
     /// </summary>
     /// <param name="dbContext"></param>
     /// <param name="principal"></param>
-    /// <param name="chesService"></param>
-    /// <param name="chesOptions"></param>
+    /// <param name="emailService"></param>
+    /// <param name="smtpOptions"></param>
     /// <param name="serviceProvider"></param>
     /// <param name="logger"></param>
     public ProductService(
         TNOContext dbContext,
         ClaimsPrincipal principal,
-        IChesService chesService,
-        IOptions<ChesOptions> chesOptions,
+        IEmailService emailService,
+        IOptions<SmtpOptions> smtpOptions,
         IServiceProvider serviceProvider,
         ILogger<ProductService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
-        _chesService = chesService;
-        _chesOptions = chesOptions.Value;
+        _emailService = emailService;
+        _smtpOptions = smtpOptions.Value;
     }
     #endregion
 
@@ -610,9 +609,9 @@ public class ProductService : BaseService<Product, int>, IProductService
             if (productSubscriptionManagerEmail != null)
             {
                 var emailAddresses = productSubscriptionManagerEmail.Value.Split(new char[] { ';', ',' }, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-                var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, emailAddresses, subject, message.ToString());
-                var response = await _chesService.SendEmailAsync(email);
-                this.Logger.LogInformation("Product subscription request email to [${email}] queued: ${transactionId}", productSubscriptionManagerEmail.Value, response.TransactionId);
+                var email = _emailService.CreateMailMessage(subject, message.ToString(), emailAddresses, null, null, null, true);
+                await _emailService.SendAsync(email);
+                this.Logger.LogInformation("Product subscription request email to [${email}]", productSubscriptionManagerEmail.Value);
             }
             else
             {

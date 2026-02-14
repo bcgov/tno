@@ -13,6 +13,9 @@ public class AVOverviewInstanceConfiguration : AuditColumnsConfiguration<AVOverv
         builder.Property(m => m.TemplateType).IsRequired();
         builder.Property(m => m.PublishedOn).IsRequired();
         builder.Property(m => m.IsPublished).IsRequired();
+        builder.Property(m => m.Status).IsRequired();
+        builder.Property(m => m.Subject).IsRequired().HasColumnType("text");
+        builder.Property(m => m.Body).IsRequired().HasColumnType("text");
         builder.Property(m => m.Response).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
 
         builder.HasOne(m => m.Template).WithMany(m => m.Instances).HasForeignKey(m => m.TemplateType).OnDelete(DeleteBehavior.Cascade);

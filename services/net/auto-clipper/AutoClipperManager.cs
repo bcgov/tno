@@ -4,9 +4,8 @@ using System.Text.RegularExpressions;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MMI.SmtpEmail;
 using TNO.API.Areas.Services.Models.Content;
-using TNO.Ches;
-using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Core.Storage;
@@ -64,12 +63,12 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         ClipProcessingPipeline processingPipeline,
         IStationConfigurationService stationConfigurationService,
         IApiService api,
-        IChesService chesService,
-        IOptions<ChesOptions> chesOptions,
+        IEmailService emailService,
+        IOptions<SmtpOptions> smtpOptions,
         IOptions<AutoClipperOptions> options,
         ILogger<AutoClipperManager> logger,
         IS3StorageService s3StorageService)
-        : base(api, chesService, chesOptions, options, logger)
+        : base(api, emailService, smtpOptions, options, logger)
     {
         this.Listener = listener;
         this.Listener.IsLongRunningJob = true;
@@ -350,7 +349,7 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
     /// <param name="isSyncedToS3"></param>
     /// <param name="downloadedFile"></param>
     /// <returns></returns>
-    private static async Task CleanUpFilesAsync(IEnumerable<string> generatedClipFiles, bool isSyncedToS3, string downloadedFile)
+    private static void CleanUpFiles(IEnumerable<string> generatedClipFiles, bool isSyncedToS3, string downloadedFile)
     {
         CleanupLocalFiles(generatedClipFiles);
         CleanupTemporaryFiles(isSyncedToS3, downloadedFile);
@@ -407,7 +406,7 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
                 this.Logger.LogWarning("Work order has been cancelled.  Content ID: {id}", requestContentId);
             else
                 this.Logger.LogWarning("Request ignored because it does not have a work order.  Content ID: {id}", requestContentId);
-            await CleanUpFilesAsync(generatedClipFiles, isSyncedToS3, downloadedFile);
+            CleanUpFiles(generatedClipFiles, isSyncedToS3, downloadedFile);
             return;
         }
 
@@ -430,7 +429,7 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         {
             var exception = new EmptyTranscriptException(requestContentId);
             await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed, exception);
-            await CleanUpFilesAsync(generatedClipFiles, isSyncedToS3, downloadedFile);
+            CleanUpFiles(generatedClipFiles, isSyncedToS3, downloadedFile);
             return;
         }
 
@@ -439,7 +438,7 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         if (workOrder?.Status == WorkOrderStatus.Cancelled)
         {
             this.Logger.LogWarning("Work order has been cancelled during processing.  Content ID: {id}", requestContentId);
-            await CleanUpFilesAsync(generatedClipFiles, isSyncedToS3, downloadedFile);
+            CleanUpFiles(generatedClipFiles, isSyncedToS3, downloadedFile);
             return;
         }
 
@@ -449,7 +448,7 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         {
             var exception = new ContentNotFoundException(requestContentId);
             await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed, exception);
-            await CleanUpFilesAsync(generatedClipFiles, isSyncedToS3, downloadedFile);
+            CleanUpFiles(generatedClipFiles, isSyncedToS3, downloadedFile);
             return;
         }
 
@@ -506,7 +505,7 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
         }
 
         await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
-        await CleanUpFilesAsync(generatedClipFiles, isSyncedToS3, downloadedFile);
+        CleanUpFiles(generatedClipFiles, isSyncedToS3, downloadedFile);
     }
 
     private static ClipDefinition? NormalizeClipDefinition(ClipDefinition definition, IReadOnlyList<TimestampedTranscript> segments)

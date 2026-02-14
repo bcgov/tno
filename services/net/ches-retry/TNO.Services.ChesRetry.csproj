@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
@@ -13,6 +12,17 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\libs\net\services\TNO.Services.csproj" />
+    <ProjectReference Include="..\..\..\libs\net\smtp\MMI.SmtpEmail.csproj" />
+    <ProjectReference Include="..\..\..\libs\net\ches\TNO.Ches.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Force latest to remove warnings -->
+    <PackageReference Include="System.Formats.Asn1" Version="10.0.3" />
+
+    <!-- Force removal of old ASP.NET Core 2.2 packages -->
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Core" Version="2.3.6" ExcludeAssets="All" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.3.0" ExcludeAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,5 +30,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
 </Project>

@@ -1,9 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MMI.SmtpEmail;
 using TNO.API.Areas.Services.Models.Ingest;
-using TNO.Ches;
-using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Services.Config;
 
@@ -36,20 +35,20 @@ public abstract class IngestManager<TActionManager, TOption> : ServiceManager<TO
     /// Creates a new instance of a IngestManager object, initializes with specified parameters.
     /// </summary>
     /// <param name="api">Service to communicate with the api.</param>
-    /// <param name="chesService"></param>
-    /// <param name="chesOptions"></param>
+    /// <param name="emailService"></param>
+    /// <param name="smtpOptions"></param>
     /// <param name="factory">Ingest manager factory.</param>
     /// <param name="options">Configuration options.</param>
     /// <param name="logger">Logging client.</param>
     public IngestManager(
         IServiceProvider serviceProvider,
         IApiService api,
-        IChesService chesService,
-        IOptions<ChesOptions> chesOptions,
+        IEmailService emailService,
+        IOptions<SmtpOptions> smtpOptions,
         IngestManagerFactory<TActionManager, TOption> factory,
         IOptions<TOption> options,
         ILogger<IngestManager<TActionManager, TOption>> logger)
-        : base(api, chesService, chesOptions, options, logger)
+        : base(api, emailService, smtpOptions, options, logger)
     {
         _factory = factory;
         _serviceScope = serviceProvider.CreateScope();

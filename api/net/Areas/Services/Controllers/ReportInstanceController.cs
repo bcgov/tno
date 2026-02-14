@@ -169,8 +169,25 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult GetUserReportInstancesAsync(long id)
     {
-        var content = _reportInstanceService.GetUserReportInstances(id);
-        return new JsonResult(content.Select(c => new UserReportInstanceModel(c)));
+        var result = _reportInstanceService.GetUserReportInstances(id);
+        return new JsonResult(result.Select(c => new UserReportInstanceModel(c)));
+    }
+
+    /// <summary>
+    /// Get the user report instance for the specified instance 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/users/{userId}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(UserReportInstanceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult GetUserReportInstancesAsync(long id, int userId)
+    {
+        var result = _reportInstanceService.GetUserReportInstance(id, userId) ?? throw new NoContentException();
+        return new JsonResult(new UserReportInstanceModel(result));
     }
 
     /// <summary>

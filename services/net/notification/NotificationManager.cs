@@ -1,11 +1,11 @@
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.Ches;
-using TNO.Ches.Configuration;
-using TNO.Ches.Models;
+using MMI.SmtpEmail;
+using MMI.SmtpEmail.Models;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
@@ -63,8 +63,8 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <param name="api"></param>
     /// <param name="user"></param>
     /// <param name="notificationEngine"></param>
-    /// <param name="chesService"></param>
-    /// <param name="chesOptions"></param>
+    /// <param name="emailService"></param>
+    /// <param name="smtpOptions"></param>
     /// <param name="serializationOptions"></param>
     /// <param name="notificationOptions"></param>
     /// <param name="reportingOptions"></param>
@@ -75,14 +75,14 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         IApiService api,
         ClaimsPrincipal user,
         INotificationEngine notificationEngine,
-        IChesService chesService,
-        IOptions<ChesOptions> chesOptions,
+        IEmailService emailService,
+        IOptions<SmtpOptions> smtpOptions,
         IOptions<JsonSerializerOptions> serializationOptions,
         IOptions<NotificationOptions> notificationOptions,
         IOptions<TemplateOptions> reportingOptions,
         INotificationValidator notificationValidator,
         ILogger<NotificationManager> logger)
-        : base(api, chesService, chesOptions, notificationOptions, logger)
+        : base(api, emailService, smtpOptions, notificationOptions, logger)
     {
         _user = user;
         this.NotificationEngine = notificationEngine;
@@ -429,7 +429,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         API.Areas.Services.Models.Notification.NotificationModel notification,
         API.Areas.Services.Models.Content.ContentModel content)
     {
-        await HandleChesEmailOverrideAsync(request);
+        await HandleEmailOverrideAsync(request);
 
         var subscribers = await GetNotificationSubscribersAsync(notification, content);
 
@@ -437,10 +437,10 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         var subject = string.Empty;
         if (!String.IsNullOrWhiteSpace(request.To))
         {
-            var contexts = new List<EmailContextModel>();
+            var contexts = new List<MailMergeModel>();
             // When a notification request has specified 'To' it means only send it to the emails in that property.
             var requestTo = request.To.Split(",").Select(v => v.Trim());
-            contexts.Add(new EmailContextModel(requestTo, new Dictionary<string, object>(), DateTime.Now));
+            contexts.Add(new MailMergeModel(requestTo, new Dictionary<string, object>()));
             // There are no subscribers, or a notification has been sent for this content to all the subscribers.
             if (!contexts.Any())
             {
@@ -461,7 +461,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         {
             foreach (var subscriber in subscribers)
             {
-                var contexts = new List<EmailContextModel>();
+                var contexts = new List<MailMergeModel>();
                 contexts.AddRange(this.NotificationValidator.GetSubscriberEmails(new List<API.Areas.Services.Models.Notification.UserModel>() { subscriber }));
 
                 // There are no subscribers, or a notification has been sent for this content to all the subscribers.
@@ -477,76 +477,52 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         }
     }
 
-    private async void SendOutNotificationEmailsAsync(IEnumerable<EmailContextModel> contexts, string subject, string body,
+    private async void SendOutNotificationEmailsAsync(IEnumerable<MailMergeModel> contexts, string subject, string body,
         IEnumerable<API.Areas.Services.Models.Notification.UserModel> subscriber,
         NotificationRequestModel request,
         API.Areas.Services.Models.Notification.NotificationModel notification,
         API.Areas.Services.Models.Content.ContentModel content)
     {
-        var merge = new EmailMergeModel(this.ChesOptions.From, contexts, subject, body)
-        {
-            // TODO: Extract values from notification settings.
-            Encoding = EmailEncodings.Utf8,
-            BodyType = EmailBodyTypes.Html,
-            Priority = EmailPriorities.Normal,
-        };
         // Add the subscribers to the notification validator so that they don't receive more than one email for a specific content item.
         this.NotificationValidator.AddUsers(subscriber);
         var allEmails = String.Join(", ", contexts.Select(c => String.Join(", ", c.To)));
 
-        try
-        {
-            var response = await this.Ches.SendEmailAsync(merge);
-            this.Logger.LogInformation($"Notification sent to CHES. Notification: {notification.Id}, Content ID: {content.Id}, Subscriber: {subscriber.FirstOrDefault()?.DisplayName}, Emails: {allEmails}");
+        var (success, response) = await this.EmailService.TrySendAsync(contexts, subject, body, null, true);
 
-            if (!request.IsPreview)
-            {
-                // Save the notification instance.
-                var instance = new NotificationInstance(notification.Id, content.Id)
-                {
-                    Status = NotificationStatus.Accepted,
-                    SentOn = DateTime.UtcNow,
-                    OwnerId = request.RequestorId ?? notification.OwnerId,
-                    Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions)),
-                    Subject = subject,
-                    Body = body,
-                };
-                await this.Api.AddNotificationInstanceAsync(new API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel(instance, _serializationOptions));
-            }
-        }
-        catch (ChesException ex)
+        if (success)
         {
-            this.Logger.LogError(ex, "Failed to send email.  Notification: {notificationId}, Content ID: {contentId}, Emails: {emails}", notification.Id, content.Id, allEmails);
-            if (!request.IsPreview)
+            this.Logger.LogInformation("Notification sent. Notification: {notificationId}, Content ID: {contentId}, Subscriber: {subscriberDisplayName}, Emails: {allEmails}", notification.Id, content.Id, subscriber.FirstOrDefault()?.DisplayName, allEmails);
+        }
+
+        if (!request.IsPreview)
+        {
+            var instance = new NotificationInstance(notification.Id, content.Id)
             {
-                var instance = new NotificationInstance(notification.Id, content.Id)
-                {
-                    Status = NotificationStatus.Failed,
-                    OwnerId = request.RequestorId ?? notification.OwnerId,
-                    Response = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions)),
-                    Subject = subject,
-                    Body = body,
-                };
-                await this.Api.AddNotificationInstanceAsync(new API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel(instance, _serializationOptions));
-            }
+                Status = success ? NotificationStatus.Completed : NotificationStatus.Failed,
+                OwnerId = request.RequestorId ?? notification.OwnerId,
+                Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions)),
+                Subject = subject,
+                Body = body,
+            };
+            await this.Api.AddNotificationInstanceAsync(new API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel(instance));
         }
     }
 
     /// <summary>
-    /// If CHES has been configured to send emails to the user we need to provide an appropriate user.
+    /// If SMTP has been configured to send emails to the user we need to provide an appropriate user.
     /// </summary>
     /// <param name="request"></param>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task HandleChesEmailOverrideAsync(NotificationRequestModel request)
+    private async Task HandleEmailOverrideAsync(NotificationRequestModel request)
     {
         // The requestor becomes the current user.
-        var email = this.ChesOptions.OverrideTo ?? "";
+        var email = this.SmtpOptions.OverrideTo ?? "";
         if (request.RequestorId.HasValue)
         {
             var user = await this.Api.GetUserAsync(request.RequestorId.Value);
             if (user != null) email = user.GetEmail();
         }
-        var identity = _user.Identity as ClaimsIdentity ?? throw new ConfigurationException("CHES requires an active ClaimsPrincipal");
+        var identity = _user.Identity as ClaimsIdentity ?? throw new ConfigurationException("SMTP override requires an active ClaimsPrincipal");
         identity.RemoveClaim(_user.FindFirst(ClaimTypes.Email));
         identity.AddClaim(new Claim(ClaimTypes.Email, email));
     }

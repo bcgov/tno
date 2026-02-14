@@ -26,6 +26,23 @@ public class AVOverviewInstanceModel
     /// </summary>
     public AVOverviewSettingsModel Settings { get; set; } = new();
 
+    /// <summary>
+    /// get/set - The report status.
+    /// </summary>
+    public Entities.ReportStatus Status { get; set; }
+
+    /// <summary>
+    /// get/set - The compiled subject of the report.
+    /// Used to recreate the report.
+    /// </summary>
+    public string Subject { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The compiled body of the report.
+    /// Used to recreate the report.
+    /// </summary>
+    public string Body { get; set; } = "";
+
     // <summary>
     // get/set - The response.
     // </summary>
@@ -47,6 +64,9 @@ public class AVOverviewInstanceModel
         this.TemplateType = entity.TemplateType;
         this.PublishedOn = entity.PublishedOn;
         this.Sections = entity.Sections.Select(s => new AVOverviewSectionModel(s)).OrderBy(s => s.SortOrder).ToArray();
+        this.Status = entity.Status;
+        this.Subject = entity.Subject;
+        this.Body = entity.Body;
         this.Response = entity.Response;
     }
 
@@ -59,6 +79,9 @@ public class AVOverviewInstanceModel
         this.TemplateType = model.TemplateType;
         this.PublishedOn = model.PublishedOn;
         this.Sections = model.Sections.Select(s => new AVOverviewSectionModel(s)).OrderBy(s => s.SortOrder).ToArray();
+        this.Status = model.Status;
+        this.Subject = model.Subject;
+        this.Body = model.Body;
         this.Response = model.Response;
     }
 
@@ -71,6 +94,9 @@ public class AVOverviewInstanceModel
         this.TemplateType = model.TemplateType;
         this.PublishedOn = model.PublishedOn;
         this.Sections = model.Sections.Select(s => new AVOverviewSectionModel(s)).OrderBy(s => s.SortOrder).ToArray();
+        this.Status = model.Status;
+        this.Subject = model.Subject;
+        this.Body = model.Body;
         this.Response = model.Response;
     }
     #endregion

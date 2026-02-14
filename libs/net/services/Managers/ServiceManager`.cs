@@ -1,8 +1,7 @@
+using System.Net.Mail;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.Ches;
-using TNO.Ches.Configuration;
-using TNO.Core.Exceptions;
+using MMI.SmtpEmail;
 using TNO.Services.Config;
 
 namespace TNO.Services.Managers;
@@ -53,12 +52,12 @@ public abstract class ServiceManager<TOption> : IServiceManager
     /// <summary>
     /// get - CHES service.
     /// </summary>
-    protected IChesService Ches { get; }
+    protected IEmailService EmailService { get; }
 
     /// <summary>
-    /// get - CHES options.
+    /// get - Smtp options for sending emails.
     /// </summary>
-    protected ChesOptions ChesOptions { get; }
+    protected SmtpOptions SmtpOptions { get; }
     #endregion
 
     #region Constructors
@@ -66,22 +65,22 @@ public abstract class ServiceManager<TOption> : IServiceManager
     /// Creates a new instance of a ServiceManager object, initializes with specified parameters.
     /// </summary>
     /// <param name="api">Service to communicate with the api.</param>
-    /// <param name="chesService"></param>
-    /// <param name="chesOptions"></param>
+    /// <param name="emailService"></param>
+    /// <param name="smtpOptions"></param>
     /// <param name="options">Configuration options.</param>
     /// <param name="logger">Logging client.</param>
     public ServiceManager(
         IApiService api,
-        IChesService chesService,
-        IOptions<ChesOptions> chesOptions,
+        IEmailService emailService,
+        IOptions<SmtpOptions> smtpOptions,
         IOptions<TOption> options,
         ILogger<ServiceManager<TOption>> logger)
     {
         this.Api = api;
         // All requests will be identified by the service type name.
         this.Api.OpenClient.Client.DefaultRequestHeaders.Add("User-Agent", GetType().FullName);
-        this.Ches = chesService;
-        this.ChesOptions = chesOptions.Value;
+        this.EmailService = emailService;
+        this.SmtpOptions = smtpOptions.Value;
         this.Options = options.Value;
         this.Logger = logger;
         this.State = new ServiceState(this.Options);
@@ -117,17 +116,17 @@ public abstract class ServiceManager<TOption> : IServiceManager
                 }
                 if (emailToList.Any())
                 {
-                    var email = new TNO.Ches.Models.EmailModel(this.ChesOptions.From, emailToList, subject, message);
-                    await this.Ches.SendEmailAsync(email);
+                    var email = this.EmailService.CreateMailMessage(subject, message, emailToList, null, null, null, true);
+                    await this.EmailService.SendAsync(email);
                 }
                 else
                 {
                     this.Logger.LogDebug("No email addresses configured to receive errors");
                 }
             }
-            catch (ChesException ex)
+            catch (SmtpException ex)
             {
-                this.Logger.LogError(ex, "Ches exception while sending email. {response}", ex.Data.Contains("body") ? ex.Data["body"] : ex.Message);
+                this.Logger.LogError(ex, "Smtp exception while sending email. {response}", ex.Data.Contains("body") ? ex.Data["body"] : ex.Message);
             }
             catch (Exception ex)
             {

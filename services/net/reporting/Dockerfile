@@ -1,5 +1,5 @@
 
-FROM mcr.microsoft.com/dotnet/sdk:9.0 as build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 
 ENV DOTNET_CLI_HOME=/tmp
 ENV PATH="$PATH:/tmp/.dotnet/tools"
@@ -19,7 +19,7 @@ WORKDIR /src/services/net/reporting
 RUN dotnet restore
 RUN dotnet publish "TNO.Services.Reporting.csproj" -c "$BUILD_CONFIGURATION" -o /build
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 as deploy
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS deploy
 
 WORKDIR /app
 COPY --from=build /build .
@@ -31,4 +31,4 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 # Run container by default as user with id 1001 (default)
 USER 1001
 
-ENTRYPOINT dotnet TNO.Services.Reporting.dll
+ENTRYPOINT ["dotnet", "TNO.Services.Reporting.dll"]

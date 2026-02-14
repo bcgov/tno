@@ -1,8 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MMI.SmtpEmail;
 using TNO.API.Areas.Services.Models.Ingest;
-using TNO.Ches;
-using TNO.Ches.Configuration;
 using TNO.Models.Extensions;
 using TNO.Services.Actions.Managers;
 using TNO.Services.FileMonitor.Config;
@@ -20,20 +19,18 @@ public class FileMonitorIngestActionManager : IngestActionManager<FileMonitorOpt
     /// </summary>
     /// <param name="ingest"></param>
     /// <param name="api"></param>
-    /// <param name="ches"></param>
-    /// <param name="chesOptions"></param>
+    /// <param name="emailService"></param>
     /// <param name="action"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public FileMonitorIngestActionManager(
         IngestModel ingest,
         IApiService api,
-        IChesService ches,
-        IOptions<ChesOptions> chesOptions,
+        IEmailService emailService,
         IIngestAction<FileMonitorOptions> action,
         IOptions<FileMonitorOptions> options,
         ILogger<IServiceActionManager> logger)
-        : base(ingest, api, ches, chesOptions, action, options, logger)
+        : base(ingest, api, emailService, action, options, logger)
     {
     }
     #endregion

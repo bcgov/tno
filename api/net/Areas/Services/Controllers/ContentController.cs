@@ -511,7 +511,7 @@ public class ContentController : ControllerBase
     public IActionResult GetNotificationsFor(long id)
     {
         var notifications = _contentService.GetNotificationsFor(id);
-        return new JsonResult(notifications.Select(n => new NotificationInstanceModel(n, _serializerOptions)));
+        return new JsonResult(notifications.Select(n => new NotificationInstanceModel(n)));
     }
 
     /// <summary>

@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.Ches;
-using TNO.Ches.Configuration;
+using MMI.SmtpEmail;
 using TNO.Core.Extensions;
 using TNO.Services.Config;
 
@@ -15,8 +14,7 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
 {
     #region Variables
     private readonly IServiceAction<TOptions> _action;
-    private readonly IChesService _ches;
-    private readonly ChesOptions _chesOptions;
+    private readonly IEmailService _emailService;
     #endregion
 
     #region Properties
@@ -40,20 +38,17 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     /// <summary>
     /// Creates a new instance of a ServiceActionManager object, initializes with specified parameters.
     /// </summary>
-    /// <param name="ches"></param>
-    /// <param name="chesOptions"></param>
+    /// <param name="emailService"></param>
     /// <param name="action"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public ServiceActionManager(
-        IChesService ches,
-        IOptions<ChesOptions> chesOptions,
+        IEmailService emailService,
         IServiceAction<TOptions> action,
         IOptions<TOptions> options,
         ILogger<IServiceActionManager> logger)
     {
-        _ches = ches;
-        _chesOptions = chesOptions.Value;
+        _emailService = emailService;
         _action = action;
         this.Options = options.Value;
         this.Logger = logger;
@@ -181,8 +176,8 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
             try
             {
                 var emailToList = this.Options.EmailTo?.Split(',').Where(v => !String.IsNullOrWhiteSpace(v)).Select(v => v.Trim()).ToArray() ?? Array.Empty<string>();
-                var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, emailToList, subject, message);
-                await _ches.SendEmailAsync(email);
+                var email = _emailService.CreateMailMessage(subject, message, emailToList, null, null, null, true);
+                await _emailService.SendAsync(email);
             }
             catch (Exception ex)
             {

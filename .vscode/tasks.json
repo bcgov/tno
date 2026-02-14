@@ -645,38 +645,38 @@
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "build-ches-retry",
+      "label": "build-smtp-retry",
       "command": "dotnet",
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/services/net/ches-retry/TNO.Services.ChesRetry.csproj",
+        "${workspaceFolder}/services/net/smtp-retry/MMI.Services.SMTPRetry.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "publish-ches-retry",
+      "label": "publish-smtp-retry",
       "command": "dotnet",
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/services/net/ches-retry/TNO.Services.ChesRetry.csproj",
+        "${workspaceFolder}/services/net/smtp-retry/MMI.Services.SMTPRetry.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "watch-ches-retry",
+      "label": "watch-smtp-retry",
       "command": "dotnet",
       "type": "process",
       "args": [
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/services/net/ches-retry/TNO.Services.ChesRetry.csproj"
+        "${workspaceFolder}/services/net/smtp-retry/MMI.Services.SMTPRetry.csproj"
       ],
       "problemMatcher": "$msCompile"
     },

@@ -1,0 +1,18 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: smtp
+  namespace: default
+  annotations:
+    description: SMTP configuration settings
+    created-by: jeremy.foster
+  labels:
+    name: smtp
+    part-of: tno
+    version: 1.0.0
+    component: smtp
+    managed-by: kustomize
+data:
+  SMTP_HOST: apps.smtp.gov.bc.ca
+  SMTP_PORT: 25
+  SMTP_FROM: Media Monitoring Insights <mmi@gov.bc.ca>

@@ -2,8 +2,8 @@ using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MMI.SmtpEmail;
 using TNO.Ches;
-using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Entities;
 using TNO.Services.ChesRetry.Config;
@@ -22,6 +22,10 @@ public class ChesRetryManager : ServiceManager<ChesRetryOptions>
     #endregion
 
     #region Properties
+    /// <summary>
+    /// get - The CHES service used to make requests to CHES.
+    /// </summary>
+    protected IChesService Ches { get; }
     #endregion
 
     #region Constructors
@@ -32,8 +36,9 @@ public class ChesRetryManager : ServiceManager<ChesRetryOptions>
     /// <param name="api"></param>
     /// <param name="user"></param>
     /// <param name="notificationEngine"></param>
+    /// <param name="emailService"></param>
+    /// <param name="smtpOptions"></param>
     /// <param name="chesService"></param>
-    /// <param name="chesOptions"></param>
     /// <param name="serializationOptions"></param>
     /// <param name="notificationOptions"></param>
     /// <param name="reportingOptions"></param>
@@ -42,13 +47,15 @@ public class ChesRetryManager : ServiceManager<ChesRetryOptions>
     public ChesRetryManager(
         IApiService api,
         ClaimsPrincipal user,
+        IEmailService emailService,
+        IOptions<SmtpOptions> smtpOptions,
         IChesService chesService,
-        IOptions<ChesOptions> chesOptions,
         IOptions<JsonSerializerOptions> serializationOptions,
         IOptions<ChesRetryOptions> notificationOptions,
         ILogger<ChesRetryManager> logger)
-        : base(api, chesService, chesOptions, notificationOptions, logger)
+        : base(api, emailService, smtpOptions, notificationOptions, logger)
     {
+        this.Ches = chesService;
         _user = user;
         _serializationOptions = serializationOptions.Value;
     }
