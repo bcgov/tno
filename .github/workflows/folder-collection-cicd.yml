@@ -1,0 +1,120 @@
+name: Folder Collection CI/CD
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [dev, master]
+    paths:
+      - services/net/folder-collection/**
+      - libs/net/**
+      - openshift/kustomize/services/folder-collection/**
+  push:
+    branches: [dev, master]
+    paths:
+      - services/net/folder-collection/**
+      - libs/net/**
+      - openshift/kustomize/services/folder-collection/**
+
+concurrency:
+  group: folder-collection-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+
+env:
+  CSPROJ_PATH: services/net/folder-collection/TNO.Services.FolderCollection.csproj
+  IMAGE_NAME: folder-collection-service
+  OPENSHIFT_SERVER: https://api.silver.devops.gov.bc.ca:6443
+  OPENSHIFT_NAMESPACE: 9b301c-dev
+  KUSTOMIZE_PATH: openshift/kustomize/services/folder-collection/overlays/dev
+
+jobs:
+  ci:
+    name: CI — Validate (.NET 9)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 9.x
+
+      - name: Restore
+        run: dotnet restore "${{ env.CSPROJ_PATH }}"
+
+      - name: Check vulnerable packages
+        run: dotnet list "${{ env.CSPROJ_PATH }}" package --vulnerable --include-transitive
+
+      - name: Lint
+        run: dotnet format "${{ env.CSPROJ_PATH }}" --verify-no-changes --verbosity diagnostic
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+          queries: security-and-quality
+
+      - name: Build
+        run: dotnet build "${{ env.CSPROJ_PATH }}" --configuration Release --no-restore
+
+      # - name: Test
+      #   run: dotnet test "${{ env.CSPROJ_PATH }}" --no-restore --verbosity normal
+      #   Test project not created yet. Uncomment once tests are added.
+
+      - name: Analyze (CodeQL)
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: folder-collection
+
+  cd:
+    name: CD — Build & Deploy to OpenShift
+    runs-on: ubuntu-latest
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev' && github.repository == 'bcgov/tno'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: |
+          docker build \
+            -f services/net/folder-collection/Dockerfile \
+            -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            .
+
+      - name: Login to OpenShift Image Registry
+        run: |
+          docker login \
+            image-registry.apps.silver.devops.gov.bc.ca \
+            -u serviceaccount \
+            -p ${{ secrets.OPENSHIFT_TOKEN }}
+
+      - name: Push Image to OpenShift Registry
+        run: |
+          docker tag \
+            ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker push \
+            image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Install oc CLI
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: latest
+
+      - name: Login to OpenShift
+        run: |
+          oc login \
+            --token=${{ secrets.OPENSHIFT_TOKEN }} \
+            --server=${{ env.OPENSHIFT_SERVER }}
+
+      - name: Deploy via Kustomize
+        run: oc apply -k ${{ env.KUSTOMIZE_PATH }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Verify Deployment
+        run: |
+          oc rollout status deployment/folder-collection-service \
+            -n ${{ env.OPENSHIFT_NAMESPACE }} \
+            --timeout=120s
