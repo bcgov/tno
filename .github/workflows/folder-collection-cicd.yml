@@ -9,7 +9,7 @@ on:
       - libs/net/**
       - openshift/kustomize/services/folder-collection/**
   push:
-    branches: [dev, master]
+    branches: [dev, master, folder-collection]
     paths:
       - services/net/folder-collection/**
       - libs/net/**
