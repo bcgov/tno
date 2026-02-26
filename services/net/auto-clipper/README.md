@@ -29,11 +29,29 @@ and segments the transcript into clips using a boundary-aware LLM workflow boost
 
 ### Azure Video Indexer (optional, for speaker identification)
 
-- Service\_\_AzureVideoIndexerAccountId - Your Video Indexer account ID
-- Service\_\_AzureVideoIndexerLocation - Account location (e.g., `trial`, `eastus`)
-- Service\_\_AzureVideoIndexerApiKey - API subscription key
-- Service\_\_AzureVideoIndexerTimeoutMinutes (default: 60) - Max wait time for processing
-- Service\_\_AzureVideoIndexerPollingIntervalSeconds (default: 30) - Status check interval
+Supports two authentication modes: **API Key** (Trial/Dev) and **ARM Authentication** (Production).
+
+#### 1. API Key Authentication (Trial / Simple)
+Required for local development or trial accounts.
+
+- `Service__AzureVideoIndexerAccountId` - Your Video Indexer account ID
+- `Service__AzureVideoIndexerLocation` - Account location (e.g., `trial`, )
+- `Service__AzureVideoIndexerApiKey` - API subscription key (Primary/Secondary key)
+
+#### 2. ARM Authentication (Production / Recommended)
+Uses a Service Principal to authenticate. If these values are present, the service automatically switches to ARM mode and ignores the API Key.
+
+- `Service__AzureVideoIndexerArmTenantId` - Azure AD Tenant ID
+- `Service__AzureVideoIndexerArmClientId` - Service Principal Client ID (App ID)
+- `Service__AzureVideoIndexerArmClientSecret` - Service Principal Secret
+- `Service__AzureVideoIndexerSubscriptionId` - Azure Subscription ID
+- `Service__AzureVideoIndexerResourceGroup` - Resource Group Name
+- `Service__AzureVideoIndexerAccountName` - Video Indexer Account Name (Resource Name)
+- `Service__AzureVideoIndexerLocation` - Must be the actual region (e.g., `canadacentral`), NOT `trial`.
+
+#### General Settings
+- `Service__AzureVideoIndexerTimeoutMinutes` (default: 60) - Max wait time for processing
+- `Service__AzureVideoIndexerPollingIntervalSeconds` (default: 30) - Status check interval
 
 ### LLM & General
 
