@@ -101,12 +101,13 @@ public class AutoClipperOptions : ServiceOptions
     public string AzureVideoIndexerAccountId { get; set; } = string.Empty;
 
     /// <summary>
-    /// get/set - Azure Video Indexer location (e.g., "trial", "eastus").
+    /// get/set - Azure Video Indexer location (e.g., "trial", "canadacentral").
     /// </summary>
     public string AzureVideoIndexerLocation { get; set; } = "trial";
 
     /// <summary>
     /// get/set - Azure Video Indexer API key (Ocp-Apim-Subscription-Key).
+    /// Used for classic API Key authentication (trial/local testing).
     /// </summary>
     public string AzureVideoIndexerApiKey { get; set; } = string.Empty;
 
@@ -119,6 +120,47 @@ public class AutoClipperOptions : ServiceOptions
     /// get/set - Polling interval in seconds for Video Indexer status checks.
     /// </summary>
     public int AzureVideoIndexerPollingIntervalSeconds { get; set; } = 30;
+    #endregion
+
+    #region Azure Video Indexer ARM Authentication
+    /// <summary>
+    /// get/set - Azure AD Tenant ID for ARM authentication.
+    /// </summary>
+    public string AzureVideoIndexerArmTenantId { get; set; } = string.Empty;
+
+    /// <summary>
+    /// get/set - Azure AD Client ID (Application ID) for ARM authentication.
+    /// </summary>
+    public string AzureVideoIndexerArmClientId { get; set; } = string.Empty;
+
+    /// <summary>
+    /// get/set - Azure AD Client Secret for ARM authentication.
+    /// </summary>
+    public string AzureVideoIndexerArmClientSecret { get; set; } = string.Empty;
+
+    /// <summary>
+    /// get/set - Azure Subscription ID for ARM authentication.
+    /// </summary>
+    public string AzureVideoIndexerSubscriptionId { get; set; } = string.Empty;
+
+    /// <summary>
+    /// get/set - Azure Resource Group name for ARM authentication.
+    /// </summary>
+    public string AzureVideoIndexerResourceGroup { get; set; } = string.Empty;
+
+    /// <summary>
+    /// get/set - Azure Video Indexer account name for ARM authentication.
+    /// </summary>
+    public string AzureVideoIndexerAccountName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Returns true if ARM authentication is fully configured.
+    /// When true, ARM auth will be used; otherwise falls back to API Key.
+    /// </summary>
+    public bool UseArmAuthentication =>
+        !string.IsNullOrWhiteSpace(AzureVideoIndexerArmTenantId) &&
+        !string.IsNullOrWhiteSpace(AzureVideoIndexerArmClientId) &&
+        !string.IsNullOrWhiteSpace(AzureVideoIndexerArmClientSecret);
     #endregion
 
     #region Azure AI configuration

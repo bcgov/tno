@@ -1,5 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
+using Azure.Core;
+using Azure.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Services.AutoClipper.Config;
@@ -9,6 +11,7 @@ namespace TNO.Services.AutoClipper.Azure;
 /// <summary>
 /// Client for Azure Video Indexer API.
 /// Handles video upload, processing, and transcript extraction with speaker identification.
+/// Supports both ARM Authentication (Service Principal) and classic API Key authentication.
 /// </summary>
 public class AzureVideoIndexerClient : IAzureVideoIndexerClient
 {
@@ -17,6 +20,7 @@ public class AzureVideoIndexerClient : IAzureVideoIndexerClient
     private readonly HttpClient _httpClient;
     private readonly AutoClipperOptions _options;
     private readonly ILogger<AzureVideoIndexerClient> _logger;
+    private readonly bool _useArmAuth;
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
@@ -32,10 +36,33 @@ public class AzureVideoIndexerClient : IAzureVideoIndexerClient
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
+        // Determine authentication mode
+        _useArmAuth = _options.UseArmAuthentication;
+
+        // Validate required configuration based on auth mode
         if (string.IsNullOrWhiteSpace(_options.AzureVideoIndexerAccountId))
             throw new ArgumentException("AzureVideoIndexerAccountId is required");
-        if (string.IsNullOrWhiteSpace(_options.AzureVideoIndexerApiKey))
-            throw new ArgumentException("AzureVideoIndexerApiKey is required");
+
+        if (_useArmAuth)
+        {
+            // ARM auth validation
+            if (string.IsNullOrWhiteSpace(_options.AzureVideoIndexerSubscriptionId))
+                throw new ArgumentException("AzureVideoIndexerSubscriptionId is required for ARM authentication");
+            if (string.IsNullOrWhiteSpace(_options.AzureVideoIndexerResourceGroup))
+                throw new ArgumentException("AzureVideoIndexerResourceGroup is required for ARM authentication");
+            if (string.IsNullOrWhiteSpace(_options.AzureVideoIndexerAccountName))
+                throw new ArgumentException("AzureVideoIndexerAccountName is required for ARM authentication");
+
+            _logger.LogInformation("Video Indexer client initialized with ARM Authentication (Service Principal)");
+        }
+        else
+        {
+            // API Key auth validation
+            if (string.IsNullOrWhiteSpace(_options.AzureVideoIndexerApiKey))
+                throw new ArgumentException("AzureVideoIndexerApiKey is required when ARM authentication is not configured");
+
+            _logger.LogInformation("Video Indexer client initialized with classic API Key authentication");
+        }
     }
 
     /// <inheritdoc />
@@ -47,7 +74,8 @@ public class AzureVideoIndexerClient : IAzureVideoIndexerClient
         if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
             throw new FileNotFoundException("Media file not found", filePath);
 
-        _logger.LogInformation("Starting Video Indexer transcription for {File}", filePath);
+        _logger.LogInformation("Starting Video Indexer transcription for {File} (Auth: {AuthMode})",
+            filePath, _useArmAuth ? "ARM" : "API Key");
 
         // Step 1: Get access token
         var accessToken = await GetAccessTokenAsync(cancellationToken);
@@ -77,6 +105,57 @@ public class AzureVideoIndexerClient : IAzureVideoIndexerClient
     }
 
     private async Task<string> GetAccessTokenAsync(CancellationToken cancellationToken)
+    {
+        if (_useArmAuth)
+        {
+            return await GetAccessTokenViaArmAsync(cancellationToken);
+        }
+        else
+        {
+            return await GetAccessTokenViaApiKeyAsync(cancellationToken);
+        }
+    }
+
+    private async Task<string> GetAccessTokenViaArmAsync(CancellationToken cancellationToken)
+    {
+        // 1. Authenticate using Service Principal to get ARM token
+        var credential = new ClientSecretCredential(
+            _options.AzureVideoIndexerArmTenantId,
+            _options.AzureVideoIndexerArmClientId,
+            _options.AzureVideoIndexerArmClientSecret);
+
+        var requestContext = new TokenRequestContext(new[] { "https://management.azure.com/.default" });
+        var armAccessToken = await credential.GetTokenAsync(requestContext, cancellationToken);
+
+        // 2. Call the Video Indexer "Generate Access Token" endpoint via Azure Management API
+        var managementUrl = $"https://management.azure.com/subscriptions/{_options.AzureVideoIndexerSubscriptionId}/resourceGroups/{_options.AzureVideoIndexerResourceGroup}/providers/Microsoft.VideoIndexer/accounts/{_options.AzureVideoIndexerAccountName}/generateAccessToken?api-version=2024-01-01";
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, managementUrl);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", armAccessToken.Token);
+
+        var jsonContent = new
+        {
+            permissionType = "Contributor",
+            scope = "Account"
+        };
+
+        request.Content = new StringContent(JsonSerializer.Serialize(jsonContent), System.Text.Encoding.UTF8, "application/json");
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogError("Failed to generate VI Access Token via ARM. Status: {Status}, Body: {Body}", response.StatusCode, body);
+            throw new InvalidOperationException($"Failed to get access token: {response.StatusCode} - {body}");
+        }
+
+        using var doc = JsonDocument.Parse(body);
+        return doc.RootElement.GetProperty("accessToken").GetString()
+            ?? throw new InvalidOperationException("AccessToken not found in response");
+    }
+
+    private async Task<string> GetAccessTokenViaApiKeyAsync(CancellationToken cancellationToken)
     {
         var url = $"{ApiBaseUrl}/Auth/{_options.AzureVideoIndexerLocation}/Accounts/{_options.AzureVideoIndexerAccountId}/AccessToken?allowEdit=true";
 
