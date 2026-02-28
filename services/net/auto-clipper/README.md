@@ -34,20 +34,33 @@ Supports two authentication modes: **API Key** (Trial/Dev) and **ARM Authenticat
 #### 1. API Key Authentication (Trial / Simple)
 Required for local development or trial accounts.
 
-- `Service__AzureVideoIndexerAccountId` - Your Video Indexer account ID
-- `Service__AzureVideoIndexerLocation` - Account location (e.g., `trial`, )
-- `Service__AzureVideoIndexerApiKey` - API subscription key (Primary/Secondary key)
+- `Service__AzureVideoIndexerAccountId` - Video Indexer Account ID
+- `Service__AzureVideoIndexerLocation` - Account location (for trial: `trial`)
+- `Service__AzureVideoIndexerApiKey` - API subscription key (required in this mode)
 
 #### 2. ARM Authentication (Production / Recommended)
-Uses a Service Principal to authenticate. If these values are present, the service automatically switches to ARM mode and ignores the API Key.
+Uses a Service Principal. ARM mode is enabled automatically when all three values are present:
 
-- `Service__AzureVideoIndexerArmTenantId` - Azure AD Tenant ID
-- `Service__AzureVideoIndexerArmClientId` - Service Principal Client ID (App ID)
-- `Service__AzureVideoIndexerArmClientSecret` - Service Principal Secret
+- `Service__AzureVideoIndexerArmTenantId`
+- `Service__AzureVideoIndexerArmClientId`
+- `Service__AzureVideoIndexerArmClientSecret`
+
+Additional required values for ARM mode:
+
 - `Service__AzureVideoIndexerSubscriptionId` - Azure Subscription ID
 - `Service__AzureVideoIndexerResourceGroup` - Resource Group Name
-- `Service__AzureVideoIndexerAccountName` - Video Indexer Account Name (Resource Name)
-- `Service__AzureVideoIndexerLocation` - Must be the actual region (e.g., `canadacentral`), NOT `trial`.
+- `Service__AzureVideoIndexerAccountName` - Video Indexer resource name in Azure
+- `Service__AzureVideoIndexerAccountId` - Video Indexer Account ID used by upload/index APIs
+- `Service__AzureVideoIndexerLocation` - Actual region (for example `canadacentral`), not `trial`
+
+API key behavior in ARM mode:
+
+- `Service__AzureVideoIndexerApiKey` is ignored when ARM mode is enabled.
+- You can leave it empty in ARM mode.
+
+Important consistency note:
+
+- `AccountName`, `AccountId`, and `Location` must refer to the same Video Indexer account.
 
 #### General Settings
 - `Service__AzureVideoIndexerTimeoutMinutes` (default: 60) - Max wait time for processing
