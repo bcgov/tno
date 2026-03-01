@@ -397,7 +397,8 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
                 string.Join(",", content.TonePools.Select((tp) => tp.Value)),
                 filter.Settings.Sentiment.Min(), filter.Settings.Sentiment.Max());
             return false;
-        };
+        }
+        ;
 
         if (filter.Settings.Actions?.Any() == true && !filter.Settings.Actions.Any(fa => content.Actions.Any(a => a.Id == fa.Id && a.Value == fa.Value)))
         {

@@ -295,7 +295,10 @@ Transcript:
             {
                 if (content == null) continue;
 
-                var boundaries = JsonSerializer.Deserialize<TranscriptBoundaries>(content!);
+                // LLM sometimes returns JSON wrapped in markdown code fences (```json ... ```),
+                // even when instructed to return raw JSON. Strip the fences before parsing.
+                var strippedContent = StripCodeFence(content!);
+                var boundaries = JsonSerializer.Deserialize<TranscriptBoundaries>(strippedContent);
                 if (boundaries == null || boundaries.Boundaries == null) continue;
                 foreach (var boundary in boundaries.Boundaries)
                 {

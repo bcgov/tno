@@ -16,6 +16,9 @@ secretGenerator:
   - name: azure-openai
     type: stringData
     env: openai.env
+  - name: azure-video-indexer
+    type: stringData
+    env: video-indexer.env
 
 patches:
   - target:
