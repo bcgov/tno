@@ -66,6 +66,20 @@ Important consistency note:
 - `Service__AzureVideoIndexerTimeoutMinutes` (default: 60) - Max wait time for processing
 - `Service__AzureVideoIndexerPollingIntervalSeconds` (default: 30) - Status check interval
 
+#### OpenShift Secret Keys (`azure-video-indexer`)
+If you deploy via `openshift/kustomize/services/auto-clipper`, configure these keys in the
+`azure-video-indexer` secret (typically from `video-indexer.env` in each overlay):
+
+- `AZURE_VIDEO_INDEXER_ACCOUNT_ID`
+- `AZURE_VIDEO_INDEXER_LOCATION`
+- `AZURE_VIDEO_INDEXER_API_KEY` (required only for API Key mode; ignored in ARM mode)
+- `AZURE_VIDEO_INDEXER_ARM_TENANT_ID`
+- `AZURE_VIDEO_INDEXER_ARM_CLIENT_ID`
+- `AZURE_VIDEO_INDEXER_ARM_CLIENT_SECRET`
+- `AZURE_VIDEO_INDEXER_SUBSCRIPTION_ID`
+- `AZURE_VIDEO_INDEXER_RESOURCE_GROUP`
+- `AZURE_VIDEO_INDEXER_ACCOUNT_NAME`
+
 ### LLM & General
 
 - Service\_\_LlmApiUrl, Service\_\_LlmApiKey, Service\_\_LlmDeployment, Service\_\_LlmApiVersion

@@ -179,6 +179,42 @@ spec:
                   name: azure-video-indexer
                   key: AZURE_VIDEO_INDEXER_LOCATION
                   optional: true
+            - name: Service__AzureVideoIndexerArmTenantId
+              valueFrom:
+                secretKeyRef:
+                  name: azure-video-indexer
+                  key: AZURE_VIDEO_INDEXER_ARM_TENANT_ID
+                  optional: true
+            - name: Service__AzureVideoIndexerArmClientId
+              valueFrom:
+                secretKeyRef:
+                  name: azure-video-indexer
+                  key: AZURE_VIDEO_INDEXER_ARM_CLIENT_ID
+                  optional: true
+            - name: Service__AzureVideoIndexerArmClientSecret
+              valueFrom:
+                secretKeyRef:
+                  name: azure-video-indexer
+                  key: AZURE_VIDEO_INDEXER_ARM_CLIENT_SECRET
+                  optional: true
+            - name: Service__AzureVideoIndexerSubscriptionId
+              valueFrom:
+                secretKeyRef:
+                  name: azure-video-indexer
+                  key: AZURE_VIDEO_INDEXER_SUBSCRIPTION_ID
+                  optional: true
+            - name: Service__AzureVideoIndexerResourceGroup
+              valueFrom:
+                secretKeyRef:
+                  name: azure-video-indexer
+                  key: AZURE_VIDEO_INDEXER_RESOURCE_GROUP
+                  optional: true
+            - name: Service__AzureVideoIndexerAccountName
+              valueFrom:
+                secretKeyRef:
+                  name: azure-video-indexer
+                  key: AZURE_VIDEO_INDEXER_ACCOUNT_NAME
+                  optional: true
 
             # Service Configuration
             - name: Service__MaxFailLimit
