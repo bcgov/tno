@@ -1,11 +1,10 @@
-using System;
-
-namespace TNO.Services.AutoClipper.Azure;
+namespace AutoClipperHarness;
 
 /// <summary>
 /// Represents a transcript segment with optional speaker identification.
+/// This is the harness-local version; will be merged into TimestampedTranscript in phase 2.
 /// </summary>
-public record TimestampedTranscript(
+public record TranscriptSegment(
     TimeSpan Start,
     TimeSpan End,
     string Text,
