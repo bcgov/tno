@@ -17,28 +17,30 @@ test.describe('@smoke Featued content Publishing', () => {
 
     test(`Editor publishes an item and Subscriber can see it under Featued column`, async ({ page }) => {
        const appPage = new AppPage(page);
-      //  await appPage.login(users.editor.username, users.editor.password);
+       await appPage.login(users.editor.username, users.editor.password);
       
-      // const editorHomePage = new EditorHomePage(page);
-      // await editorHomePage.verifyEditorHomePageLoaded();
-      // const newTab = await editorHomePage.clickOnHeadlinesTitleByRowNumber(1);
+      const editorHomePage = new EditorHomePage(page);
+      await editorHomePage.verifyEditorHomePageLoaded();
+      const newTab = await editorHomePage.clickOnHeadlinesTitleByRowNumber(1);
 
-      // const headlineDetailsPage = new HeadlinesDetailsPage(newTab);
-      // await headlineDetailsPage.verifyHeadlinesDetailsPageLoaded();
-      // const editorHeadlineTitle = await headlineDetailsPage.getHeadlinesTextFieldValue();
+      const headlineDetailsPage = new HeadlinesDetailsPage(newTab);
+      await headlineDetailsPage.verifyHeadlinesDetailsPageLoaded();
+      const editorHeadlineTitle = await headlineDetailsPage.getHeadlinesTextFieldValue();
 
-      // await headlineDetailsPage.enterByline(CONSTANTS.HEADLINES.BYLINE);
-      // await headlineDetailsPage.clickOnSentimentButtonByText(CONSTANTS.HEADLINES.SENTIMENTS_2);
-      // await headlineDetailsPage.publishHeadlines();
-      // expect(await headlineDetailsPage.verifyToastNotificationVisible(editorHeadlineTitle)).toBeTruthy();
+      await headlineDetailsPage.enterByline(CONSTANTS.HEADLINES.BYLINE);
+      await headlineDetailsPage.clickOnSentimentButtonByText(CONSTANTS.HEADLINES.SENTIMENTS_2);
+      await headlineDetailsPage.publishHeadlines();
+      expect(await headlineDetailsPage.verifyToastNotificationVisible(editorHeadlineTitle)).toBeTruthy();
 
-      // await newTab.close();
-      // await page.bringToFront();
-      // await appPage.logOut();
+      await newTab.close();
+      await page.bringToFront();
+      await appPage.logOut();
 
       await appPage.navigateToSubscriberURL();
-      await appPage.loginAsSubscriber((users.subscriber.username, users.subscriber.password));
+      await appPage.loginAsSubscriber(users.subscriber.username, users.subscriber.password);
       const subscriberSearchResultPage = new SubscriberSearchResultPage(page);
+      await subscriberSearchResultPage.clickOnSearchButton();
+
       await subscriberSearchResultPage.verifySearchResultPageLoaded();
       expect(subscriberSearchResultPage.isPublishedHeadlinesPresent(editorHeadlineTitle)).toBeTruthy();
 

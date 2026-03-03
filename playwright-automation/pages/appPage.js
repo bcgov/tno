@@ -56,10 +56,9 @@ class AppPage extends BasePage {
     logger.info(`Sign in as Subscriber user...`);
 
     await this.click(this.subscriberIdir);
-    
-    logger.info(`Enter username as ${user}`);
+    await this.hardWait(2000);
+
     await this.type(this.usernameInput, user);
-     logger.info(`Enter password as ${password}`);
     await this.type(this.passwordInput, password);
     await this.click(this.loginButton);
 

@@ -1,4 +1,4 @@
-class ReqresRoutes {
+class RequestBase {
   constructor(apiClient) {
     this.client = apiClient;
   }
@@ -29,4 +29,4 @@ class ReqresRoutes {
   }
 }
 
-module.exports = ReqresRoutes;
+module.exports = RequestBase;

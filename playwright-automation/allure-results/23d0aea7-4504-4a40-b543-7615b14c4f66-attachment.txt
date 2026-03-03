@@ -1,8 +1,0 @@
-{"level":"info","message":"Starting Test: Editor publishes an item and Subscriber can see it under Featued column"}
-{"level":"info","message":"Navigating to URL https://test.mmi.gov.bc.ca/"}
-{"level":"info","message":"Successfully navigated to URL https://test.mmi.gov.bc.ca/"}
-{"level":"info","message":"Sign in as Subscriber user..."}
-{"level":"info","message":"Enter username as dj@0601GOTUAARU!"}
-{"level":"info","message":"Enter password as undefined"}
-{"level":"error","message":"Test Failed: Editor publishes an item and Subscriber can see it under Featued column"}
-{"level":"info","message":"Finished Test: Editor publishes an item and Subscriber can see it under Featued column"}

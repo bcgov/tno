@@ -8,6 +8,7 @@ class SubscriberSearchResultPage extends BasePage {
     super(page);
 
     this.headlines = page.locator('.grouped-content .headline');
+    this.searchButtonOnTop = page.locator('(//div[text()="Search"]/parent::button)[2]');
   }
 
   /**
@@ -15,9 +16,15 @@ class SubscriberSearchResultPage extends BasePage {
    */
   async verifySearchResultPageLoaded() {
     logger.info('Waiting for Headlines details page to be loaded..');
-    await this.headlines.waitFor({ state: 'visible', timeout: CONSTANTS.TIMEOUTS.LONG });
-    await this.headlines.waitFor({ state: 'attached', timeout: CONSTANTS.TIMEOUTS.LONG });
+    await this.headlines.first().waitFor({ state: 'visible', timeout: CONSTANTS.TIMEOUTS.LONG });
+    await this.headlines.first().waitFor({ state: 'attached', timeout: CONSTANTS.TIMEOUTS.LONG });
     logger.info('Headlines details page loaded successfully!!');
+  }
+
+  async clickOnSearchButton() {
+    await this.click(this.searchButtonOnTop);
+    logger.info('Clicked on seach button on the top');
+    await this.verifySearchResultPageLoaded();
   }
 
   /**
