@@ -77,10 +77,10 @@ jobs:
 
       - name: Login to OpenShift Image Registry
         run: |
-          docker login \
+          echo "${{ secrets.OPENSHIFT_TOKEN }}" | docker login \
             image-registry.apps.silver.devops.gov.bc.ca \
             -u serviceaccount \
-            -p ${{ secrets.OPENSHIFT_TOKEN }}
+            --password-stdin
 
       - name: Push Image to OpenShift Registry
         run: |
@@ -149,10 +149,10 @@ jobs:
 
       - name: Login to OpenShift Image Registry
         run: |
-          docker login \
+          echo "${{ secrets.OPENSHIFT_TOKEN }}" | docker login \
             image-registry.apps.silver.devops.gov.bc.ca \
             -u serviceaccount \
-            -p ${{ secrets.OPENSHIFT_TOKEN }}
+            --password-stdin
 
       - name: Push Image to OpenShift Registry
         run: |
