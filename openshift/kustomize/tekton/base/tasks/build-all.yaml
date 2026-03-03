@@ -170,12 +170,13 @@ spec:
           [dockerfile]="/services/net/scheduler/Dockerfile"
         )
 
-        declare -A COMPONENT11=(
-          [id]="folder-collection"
-          [image]="folder-collection-service"
-          [context]=""
-          [dockerfile]="/services/net/folder-collection/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — folder-collection-cicd.yml
+        # declare -A COMPONENT11=(
+        #   [id]="folder-collection"
+        #   [image]="folder-collection-service"
+        #   [context]=""
+        #   [dockerfile]="/services/net/folder-collection/Dockerfile"
+        # )
 
         declare -A COMPONENT12=(
           [id]="ffmpeg"
