@@ -5,6 +5,7 @@ const HeadlinesDetailsPage = require('../../../pages/headlinesDetailsPage')
 const DataLoader = require('../../../utils/dataLoader');
 const CONSTANTS = require('../../../utils/constants');
 const SubscriberSearchResultPage = require('../../../pages/subscriberSearchResultPage');
+const env = require('../../../config/env.config');
 
 const users = DataLoader.loadJSON('test-data/loginData.json');
 
@@ -17,7 +18,7 @@ test.describe('@smoke Featued content Publishing', () => {
 
     test(`Editor publishes an item and Subscriber can see it under Featued column`, async ({ page }) => {
        const appPage = new AppPage(page);
-       await appPage.login(users.editor.username, users.editor.password);
+       await appPage.login(env.username, env.password);
       
       const editorHomePage = new EditorHomePage(page);
       await editorHomePage.verifyEditorHomePageLoaded();
@@ -37,7 +38,7 @@ test.describe('@smoke Featued content Publishing', () => {
       await appPage.logOut();
 
       await appPage.navigateToSubscriberURL();
-      await appPage.loginAsSubscriber(users.subscriber.username, users.subscriber.password);
+      await appPage.loginAsSubscriber(env.sub_username, env.sub_password);
       const subscriberSearchResultPage = new SubscriberSearchResultPage(page);
       await subscriberSearchResultPage.clickOnSearchButton();
 
