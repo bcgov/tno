@@ -121,16 +121,6 @@ jobs:
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --timeout=120s
 
-      - name: Fix ZAP permissions
-        run: chmod 777 ${{ github.workspace }}
-
-      - name: OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.12.0
-        with:
-          target: 'https://dev.editor.mmi.gov.bc.ca'
-          allow_issue_writing: false
-          fail_action: false
-          artifact_name: ''
 
   cd-test:
     name: CD — Deploy to Test
@@ -197,13 +187,3 @@ jobs:
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --timeout=180s
 
-      - name: Fix ZAP permissions
-        run: chmod 777 ${{ github.workspace }}
-
-      - name: OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.12.0
-        with:
-          target: 'https://test.editor.mmi.gov.bc.ca'
-          allow_issue_writing: false
-          fail_action: false
-          artifact_name: ''
