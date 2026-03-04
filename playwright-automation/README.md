@@ -40,7 +40,14 @@ CI=false
 ```
 ## Update password
 
-Update your user credentials in `loginData.json` file under test-data folder. We have to add automation user details once available.
+Update your user credentials in `.env` file at root level. Please add belwo variables for user credentials (both Editor and Subscriber)
+
+```
+APP_USERNAME=<editor_username>
+APP_PASSWORD=<editor_password>
+SUB_USERNAME=<subscriber_username>
+SUB_PASSWORD=<subscriber_password>
+```
 
 ## Run Test case
 1. UI test for single file    :  npm run test -- tests/ui/login.spec.js
