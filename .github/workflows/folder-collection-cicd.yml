@@ -130,6 +130,7 @@ jobs:
           target: 'https://dev.editor.mmi.gov.bc.ca'
           allow_issue_writing: false
           fail_action: false
+          artifact_name: ''
 
   cd-test:
     name: CD — Deploy to Test
@@ -205,3 +206,4 @@ jobs:
           target: 'https://test.editor.mmi.gov.bc.ca'
           allow_issue_writing: false
           fail_action: false
+          artifact_name: ''
