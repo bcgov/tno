@@ -23,6 +23,7 @@ concurrency:
 
 permissions:
   contents: read
+  actions: write
 
 env:
   CSPROJ_PATH: services/net/folder-collection/TNO.Services.FolderCollection.csproj
@@ -120,6 +121,9 @@ jobs:
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --timeout=120s
 
+      - name: Fix ZAP permissions
+        run: chmod 777 ${{ github.workspace }}
+
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.12.0
         with:
@@ -191,6 +195,9 @@ jobs:
           oc rollout status deployment/folder-collection-service \
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --timeout=180s
+
+      - name: Fix ZAP permissions
+        run: chmod 777 ${{ github.workspace }}
 
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.12.0
