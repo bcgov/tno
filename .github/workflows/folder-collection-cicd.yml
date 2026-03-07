@@ -119,6 +119,20 @@ jobs:
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --timeout=120s
 
+      - name: Deployment Report
+        if: always()
+        run: |
+          echo "=== Pod Status ==="
+          oc get pods -l component=folder-collection-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+          echo "=== Health Check ==="
+          POD=$(oc get pod -l component=folder-collection-service \
+            -n ${{ env.OPENSHIFT_NAMESPACE }} \
+            -o jsonpath='{.items[0].metadata.name}')
+          oc exec $POD -n ${{ env.OPENSHIFT_NAMESPACE }} -- \
+            curl -sf http://localhost:8080/health
+          echo "=== Recent Logs ==="
+          oc logs deployment/folder-collection-service -n ${{ env.OPENSHIFT_NAMESPACE }} --tail=20
+
 
   cd-test:
     name: CD — Deploy to Test
@@ -185,4 +199,3 @@ jobs:
           oc rollout status deployment/folder-collection-service \
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --timeout=180s
-
