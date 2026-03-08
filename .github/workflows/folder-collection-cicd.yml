@@ -122,17 +122,17 @@ jobs:
       - name: Deployment Report
         if: always()
         run: |
-          echo "Pod Status"
+          echo "==Pod Status=="
           oc get pods -l component=folder-collection-service -n ${{ env.OPENSHIFT_NAMESPACE }}
-          echo "Health Check"
+          echo "==Health Check=="
           POD=$(oc get pod -l component=folder-collection-service \
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --sort-by=.metadata.creationTimestamp \
             -o jsonpath='{.items[-1].metadata.name}')
           oc exec $POD -n ${{ env.OPENSHIFT_NAMESPACE }} -- \
             curl -sf http://localhost:8080/health
-          echo "Recent Logs"
-          oc logs deployment/folder-collection-service -n ${{ env.OPENSHIFT_NAMESPACE }} --tail=20
+          echo "==Recent Logs=="
+          oc logs $POD -n ${{ env.OPENSHIFT_NAMESPACE }} --tail=20
 
 
   cd-test:
