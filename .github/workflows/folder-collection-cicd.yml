@@ -132,7 +132,7 @@ jobs:
           oc exec $POD -n ${{ env.OPENSHIFT_NAMESPACE }} -- \
             curl -sf http://localhost:8080/health
           echo "==Recent Logs=="
-          sleep 30
+          sleep 60
           oc logs $POD -n ${{ env.OPENSHIFT_NAMESPACE }} --tail=20 || true
 
 
