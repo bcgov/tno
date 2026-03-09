@@ -17,9 +17,8 @@ class HeadlinesDetailsPage extends BasePage {
    * Method to check Headlines details page is loaded.
    */
   async verifyHeadlinesDetailsPageLoaded() {
-    logger.info('Waiting for Headlines details page to be loaded..');
-    await this.byLineInput.waitFor({ state: 'visible', timeout: CONSTANTS.TIMEOUTS.LONG });
-    await this.byLineInput.waitFor({ state: 'attached', timeout: CONSTANTS.TIMEOUTS.LONG });
+    await this.hardWait(5000);
+    await expect(this.byLineInput).toBeVisible({timeout: CONSTANTS.TIMEOUTS.LONG });
     logger.info('Headlines details page loaded successfully!!');
   }
 
@@ -70,6 +69,14 @@ class HeadlinesDetailsPage extends BasePage {
     await expect(this.toastNotification.first()).toHaveText(`"${headlinesTitle}" has successfully been saved.`)
     return await this.isElementVisible(this.toastNotification.first());
   }
+
+  /**
+   * Method to close the tab.
+   */
+  async closePage() {
+    await this.page.close();
+     logger.info(`Closed the new tab`);
+  }
 }
 
-module.exports = HeadlinesDetailsPage;
+module.exports = { HeadlinesDetailsPage };
