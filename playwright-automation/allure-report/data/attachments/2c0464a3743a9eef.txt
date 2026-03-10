@@ -1,0 +1,4 @@
+{"level":"info","message":"Starting Test: Login as priya.saini@gov.bc.ca"}
+{"level":"info","message":"Clicking on IDIR button to login.."}
+{"level":"error","message":"Test Failed: Login as priya.saini@gov.bc.ca"}
+{"level":"info","message":"Finished Test: Login as priya.saini@gov.bc.ca"}

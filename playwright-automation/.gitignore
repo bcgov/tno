@@ -6,3 +6,11 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+/playwright/.local-browsers/
+/playwright/screenshots/
+playwright/videos/
+playwright/traces/
+playwright/test-results/
+playwright/report/
+
+

@@ -1,0 +1,6 @@
+{"level":"info","message":"Starting Test: Login as priya.saini@gov.bc.ca"}
+{"level":"info","message":"Clicking on IDIR button to login.."}
+{"level":"info","message":"Login MMI Editor Portal using Microsoft SSO!!"}
+{"level":"info","message":"Clicked on Content Configuration button!!"}
+{"level":"info","message":"Clicked on Ministers link!!"}
+{"level":"info","message":"Finished Test: Login as priya.saini@gov.bc.ca"}

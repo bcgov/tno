@@ -1,0 +1,213 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - generic [ref=e6]:
+    - generic [ref=e7] [cursor=pointer]:
+      - img [ref=e8]
+      - text: Featured Stories
+    - generic [ref=e10] [cursor=pointer]:
+      - img [ref=e11]
+      - text: Top Stories
+    - generic [ref=e13] [cursor=pointer]:
+      - img [ref=e14]
+      - text: Today's Commentary
+    - generic [ref=e16] [cursor=pointer]:
+      - img [ref=e17]
+      - text: Today's Front Pages
+    - generic [ref=e19] [cursor=pointer]:
+      - img [ref=e20]
+      - text: Press Gallery
+    - generic [ref=e22] [cursor=pointer]:
+      - img [ref=e23]
+      - text: AM Analysis
+    - generic [ref=e25] [cursor=pointer]:
+      - img [ref=e26]
+      - text: Evening Overview
+    - generic [ref=e28] [cursor=pointer]:
+      - img [ref=e29]
+      - text: Filter by media type
+    - generic [ref=e31] [cursor=pointer]:
+      - img [ref=e32]
+      - text: MMI Products
+    - generic [ref=e34]:
+      - generic [ref=e35]:
+        - img [ref=e36]
+        - text: MY CONTENT
+      - generic [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+        - text: My Minister
+        - img [ref=e42]
+      - generic [ref=e44] [cursor=pointer]:
+        - img [ref=e45]
+        - text: My Saved Searches
+      - generic [ref=e47] [cursor=pointer]:
+        - img [ref=e48]
+        - text: My Folders
+      - generic [ref=e50] [cursor=pointer]:
+        - img [ref=e51]
+        - text: My Reports
+    - generic [ref=e53]:
+      - generic [ref=e54]:
+        - img [ref=e55]
+        - text: USER RESOURCES
+      - generic [ref=e57] [cursor=pointer]:
+        - img [ref=e58]
+        - text: Help
+      - generic [ref=e60] [cursor=pointer]:
+        - img [ref=e61]
+        - text: Settings
+    - img [ref=e63]
+    - img [ref=e66]
+  - generic [ref=e68]:
+    - generic "MMI Home page" [ref=e70] [cursor=pointer]:
+      - img "MMinsights logo" [ref=e71]
+    - generic [ref=e73]:
+      - generic [ref=e74]: "Search for:"
+      - generic [ref=e75]:
+        - img [ref=e76]
+        - textbox [ref=e80]
+      - button "Search" [ref=e81] [cursor=pointer]:
+        - generic [ref=e82]:
+          - text: Search
+          - img [ref=e83]
+      - link "Go Advanced" [ref=e85] [cursor=pointer]:
+        - /url: /search/advanced/
+    - generic [ref=e86]:
+      - generic [ref=e88]:
+        - img [ref=e89]
+        - generic [ref=e91]: Saini, Priya GCPE:EX
+      - generic [ref=e92]:
+        - img [ref=e93]
+        - text: Logout
+  - main [ref=e95]:
+    - generic [ref=e97]:
+      - generic [ref=e98]:
+        - generic [ref=e99]:
+          - img [ref=e101]
+          - text: Featured Stories
+          - generic [ref=e103]:
+            - button "PAPERS" [ref=e104] [cursor=pointer]:
+              - generic [ref=e105]: PAPERS
+            - button "RADIO/TV" [ref=e106] [cursor=pointer]:
+              - generic [ref=e107]: RADIO/TV
+            - button "ONLINE" [ref=e108] [cursor=pointer]:
+              - generic [ref=e109]: ONLINE
+            - button "CP NEWS" [ref=e110] [cursor=pointer]:
+              - generic [ref=e111]: CP NEWS
+            - button "EVENTS" [ref=e112] [cursor=pointer]:
+              - generic [ref=e113]: EVENTS
+            - button "ALL" [ref=e114] [cursor=pointer]:
+              - generic [ref=e115]: ALL
+          - img [ref=e117] [cursor=pointer]
+        - generic [ref=e120]:
+          - generic [ref=e122]:
+            - generic [ref=e125]:
+              - checkbox "SELECT ALL" [ref=e128] [cursor=pointer]
+              - generic [ref=e129]: SELECT ALL
+            - generic [ref=e132]:
+              - generic [ref=e134]:
+                - img [ref=e135]
+                - generic [ref=e137]: RESET
+              - generic [ref=e140]:
+                - img [ref=e141]
+                - generic [ref=e143]: Share
+              - generic [ref=e145]:
+                - img [ref=e146]
+                - generic [ref=e148]: ADD TO FOLDER
+              - generic [ref=e150]:
+                - img [ref=e151]
+                - generic [ref=e153]: ADD TO REPORT
+          - generic [ref=e154]:
+            - img [ref=e155] [cursor=pointer]
+            - generic [ref=e157]:
+              - img [ref=e158] [cursor=pointer]
+              - textbox [disabled] [ref=e162]: 07-Mar-2026
+            - img [ref=e163] [cursor=pointer]
+          - generic [ref=e166]:
+            - heading "Penticton Herald" [level=2] [ref=e167]
+            - generic [ref=e168]:
+              - generic [ref=e169]:
+                - generic [ref=e170]:
+                  - checkbox [ref=e173] [cursor=pointer]
+                  - img [ref=e174]
+                  - link "Test Online Story Headline - 797" [ref=e176] [cursor=pointer]:
+                    - /url: /view/4313937
+                  - generic [ref=e177]:
+                    - generic [ref=e178]: March 07 - 2026 |
+                    - generic [ref=e179]: 08:13|
+                    - generic [ref=e180]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e185]: "This is a test paragraph for the online story created by automation script. Random number: 797"
+              - generic [ref=e186]:
+                - generic [ref=e187]:
+                  - checkbox [ref=e190] [cursor=pointer]
+                  - img [ref=e191]
+                  - link "Test Online Story Headline - 227" [ref=e193] [cursor=pointer]:
+                    - /url: /view/4313932
+                  - generic [ref=e194]:
+                    - generic [ref=e195]: March 07 - 2026 |
+                    - generic [ref=e196]: 08:10|
+                    - generic [ref=e197]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e202]: "This is a test paragraph for the online story created by automation script. Random number: 227"
+              - generic [ref=e203]:
+                - generic [ref=e204]:
+                  - checkbox [ref=e207] [cursor=pointer]
+                  - img [ref=e208]
+                  - link "Test Online Story Headline - 990" [ref=e210] [cursor=pointer]:
+                    - /url: /view/4313931
+                  - generic [ref=e211]:
+                    - generic [ref=e212]: March 07 - 2026 |
+                    - generic [ref=e213]: 08:08|
+                    - generic [ref=e214]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e219]: "This is a test paragraph for the online story created by automation script. Random number: 990"
+              - generic [ref=e220]:
+                - generic [ref=e221]:
+                  - checkbox [ref=e224] [cursor=pointer]
+                  - img [ref=e225]
+                  - link "Test Online Story Headline - 295" [ref=e227] [cursor=pointer]:
+                    - /url: /view/4313929
+                  - generic [ref=e228]:
+                    - generic [ref=e229]: March 07 - 2026 |
+                    - generic [ref=e230]: 08:05|
+                    - generic [ref=e231]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e236]: "This is a test paragraph for the online story created by automation script. Random number: 295"
+      - generic [ref=e237]:
+        - generic [ref=e239]:
+          - generic [ref=e241]:
+            - text: Commentary
+            - generic "Refresh" [ref=e242] [cursor=pointer]:
+              - img [ref=e243]
+          - generic [ref=e246]:
+            - button "Test Online Story Headline - 797" [ref=e247]:
+              - generic [ref=e249]:
+                - img [ref=e250]
+                - link "Test Online Story Headline - 797" [ref=e252] [cursor=pointer]:
+                  - /url: /view/4313937
+                  - generic [ref=e253]: Test Online Story Headline - 797
+            - button "Test Online Story Headline - 227" [ref=e257]:
+              - generic [ref=e259]:
+                - img [ref=e260]
+                - link "Test Online Story Headline - 227" [ref=e262] [cursor=pointer]:
+                  - /url: /view/4313932
+                  - generic [ref=e263]: Test Online Story Headline - 227
+            - button "Test Online Story Headline - 990" [ref=e267]:
+              - generic [ref=e269]:
+                - img [ref=e270]
+                - link "Test Online Story Headline - 990" [ref=e272] [cursor=pointer]:
+                  - /url: /view/4313931
+                  - generic [ref=e273]: Test Online Story Headline - 990
+            - button "Test Online Story Headline - 295" [ref=e277]:
+              - generic [ref=e279]:
+                - img [ref=e280]
+                - link "Test Online Story Headline - 295" [ref=e282] [cursor=pointer]:
+                  - /url: /view/4313929
+                  - generic [ref=e283]: Test Online Story Headline - 295
+        - generic [ref=e288]:
+          - generic [ref=e289]: Top Domains
+          - iframe [ref=e290]:
+            - img [ref=f1e5]
+```

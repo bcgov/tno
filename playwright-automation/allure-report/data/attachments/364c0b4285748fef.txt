@@ -1,0 +1,12 @@
+{"level":"info","message":"Starting Test: Login as priya.saini@gov.bc.ca"}
+{"level":"info","message":"Clicking on IDIR button to login.."}
+{"level":"info","message":"Login MMI Editor Portal using Microsoft SSO!!"}
+{"level":"info","message":"Clicked on Content Configuration button!!"}
+{"level":"info","message":"Clicked on Ministers link!!"}
+{"level":"info","message":"Clicked on Add New Minister button!!"}
+Minister Name entered: Test Minister Name - 4135
+{"level":"info","message":"Entered minister details: Name=Test Minister Name - 4135, Description=Test Minister Description - 4135, Position=Test Minister Position - 4135, Sort Order=1"}
+{"level":"info","message":"Clicked on Back to Ministers button!!"}
+{"level":"info","message":"Searched for minister with name: Test Minister Name - 4135"}
+{"level":"error","message":"Test Failed: Login as priya.saini@gov.bc.ca"}
+{"level":"info","message":"Finished Test: Login as priya.saini@gov.bc.ca"}

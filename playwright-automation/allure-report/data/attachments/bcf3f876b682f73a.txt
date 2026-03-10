@@ -1,0 +1,14 @@
+{"level":"info","message":"Starting Test: Login as priya.saini@gov.bc.ca"}
+{"level":"info","message":"Clicking on IDIR button to login.."}
+{"level":"info","message":"Login MMI Editor Portal using Microsoft SSO!!"}
+{"level":"info","message":"Navigated to Online Story Creation page!!"}
+{"level":"info","message":"Selected Featured Stories filter!!"}
+{"level":"info","message":"Selected Top Stories filter!!"}
+{"level":"info","message":"Selected Commentary filter!!"}
+{"level":"info","message":"Entered headline: Test Online Story Headline - 139"}
+{"level":"info","message":"Selected TNO option!!"}
+{"level":"info","message":"Entered paragraph: This is a test paragraph for the online story created by automation script. Random number: 139"}
+{"level":"info","message":"Clicked on Publish button!!"}
+Published story with headline: Test Online Story Headline - 139
+{"level":"info","message":"Toast message: \"Test Online Story Headline - 139\" has successfully been saved."}
+{"level":"info","message":"Finished Test: Login as priya.saini@gov.bc.ca"}

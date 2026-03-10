@@ -1,0 +1,6 @@
+{"level":"info","message":"Starting Test: Login as undefined"}
+Username: undefined, Password: undefined
+{"level":"info","message":"Clicking on IDIR button to login.."}
+Username: undefined, Password: undefined
+{"level":"error","message":"Test Failed: Login as undefined"}
+{"level":"info","message":"Finished Test: Login as undefined"}

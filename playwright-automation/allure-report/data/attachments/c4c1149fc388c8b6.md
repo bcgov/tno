@@ -1,0 +1,72 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - link "BC Gov logo" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "BC Gov logo" [ref=e7]
+      - link "MMI logo" [ref=e9] [cursor=pointer]:
+        - /url: /
+        - img "MMI logo" [ref=e10]
+      - button "Sign Out" [ref=e13] [cursor=pointer]:
+        - generic [ref=e14]: Sign Out
+    - navigation [ref=e16]:
+      - generic [ref=e17]:
+        - link "Home" [ref=e18] [cursor=pointer]:
+          - /url: /contents
+          - generic [ref=e19]:
+            - img [ref=e20]
+            - text: Home
+        - generic [ref=e23]:
+          - button "Content" [ref=e25] [cursor=pointer]
+          - button "Report Building" [ref=e27] [cursor=pointer]
+          - button "Notifications Building" [ref=e29] [cursor=pointer]
+          - button "Content Configuration" [ref=e31] [cursor=pointer]
+          - button "Data Import" [ref=e33] [cursor=pointer]
+          - button "System Settings" [ref=e35] [cursor=pointer]
+    - main [ref=e37]:
+      - generic [ref=e38]:
+        - button "back Back to Ministers" [ref=e39] [cursor=pointer]:
+          - generic [ref=e40]:
+            - img "back" [ref=e41]
+            - text: Back to Ministers
+        - generic [ref=e45]:
+          - generic [ref=e46]:
+            - generic [ref=e48]:
+              - generic [ref=e49]: Name
+              - textbox "Name" [ref=e51]: Test Minister Name - 9762
+            - generic [ref=e53]:
+              - generic [ref=e54]: Description
+              - textbox "Description" [ref=e55]: Test Minister Description - 9762
+            - generic [ref=e57]:
+              - generic [ref=e58]: Position
+              - textbox "Position" [ref=e59]: Test Minister Position - 9762
+            - generic [ref=e61]:
+              - generic [ref=e62]: Sort Order
+              - spinbutton "Sort Order" [ref=e64]: "1"
+            - generic [ref=e66]:
+              - generic [ref=e67] [cursor=pointer]: Is Enabled
+              - checkbox "Is Enabled" [checked] [ref=e68] [cursor=pointer]
+            - generic [ref=e69]:
+              - generic [ref=e72]: Updated By
+              - generic [ref=e74]: Updated On
+              - textbox [disabled] [ref=e77]: 03/07/2026
+            - generic [ref=e78]:
+              - generic [ref=e81]: Created By
+              - generic [ref=e83]: Created On
+              - textbox [disabled] [ref=e86]: 03/07/2026
+          - generic [ref=e87]:
+            - button "Save" [ref=e88] [cursor=pointer]:
+              - generic [ref=e89]: Save
+            - button "Delete" [ref=e90] [cursor=pointer]:
+              - generic [ref=e91]: Delete
+  - generic [ref=e93]:
+    - alert [ref=e94]:
+      - img [ref=e96]
+      - generic [ref=e98]: Test Minister Name - 9762 has successfully been saved.
+    - button "close" [ref=e99] [cursor=pointer]:
+      - img [ref=e100]
+    - progressbar "notification timer" [ref=e104]
+```

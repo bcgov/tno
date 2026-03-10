@@ -1,0 +1,355 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - link "BC Gov logo" [ref=e6] [cursor=pointer]:
+      - /url: /
+      - img "BC Gov logo" [ref=e7]
+    - link "MMI logo" [ref=e9] [cursor=pointer]:
+      - /url: /
+      - img "MMI logo" [ref=e10]
+    - button "Sign Out" [ref=e13] [cursor=pointer]:
+      - generic [ref=e14]: Sign Out
+  - navigation [ref=e16]:
+    - generic [ref=e17]:
+      - link "Home" [ref=e18] [cursor=pointer]:
+        - /url: /contents
+        - generic [ref=e19]:
+          - img [ref=e20]
+          - text: Home
+      - generic [ref=e23]:
+        - button "Content" [ref=e25] [cursor=pointer]
+        - button "Report Building" [ref=e27] [cursor=pointer]
+        - button "Notifications Building" [ref=e29] [cursor=pointer]
+        - button "Content Configuration" [ref=e31] [cursor=pointer]
+        - button "Data Import" [ref=e33] [cursor=pointer]
+        - button "System Settings" [ref=e35] [cursor=pointer]
+  - main [ref=e37]:
+    - generic [ref=e38]:
+      - generic [ref=e39]:
+        - generic [ref=e40]: Ministers provide a way to configuration data storage locations and authentication settings. Ingest service configuration requires both a source and destination minister to be configured.
+        - button "plus Add new minister" [ref=e41] [cursor=pointer]:
+          - generic [ref=e42]:
+            - img "plus" [ref=e43]
+            - text: Add new minister
+      - generic [ref=e44]:
+        - textbox "Search by keyword" [ref=e47]
+        - button "reset" [ref=e48] [cursor=pointer]:
+          - img "reset" [ref=e50]
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - generic [ref=e55]: Name
+            - img [ref=e57]
+          - generic [ref=e59]:
+            - generic [ref=e60]: Position
+            - img [ref=e62]
+          - generic [ref=e64]:
+            - generic [ref=e65]: Order
+            - img [ref=e67]
+          - generic [ref=e69]:
+            - generic [ref=e70]: Enabled
+            - img [ref=e72]
+        - generic [ref=e74]:
+          - generic [ref=e75] [cursor=pointer]:
+            - generic [ref=e77]: Bill Gates
+            - generic [ref=e79]: Forest minister
+            - generic [ref=e80]: "1"
+            - img [ref=e82]
+          - generic [ref=e84] [cursor=pointer]:
+            - generic [ref=e86]: Gill Webb
+            - generic [ref=e88]: Home Minister
+            - generic [ref=e89]: "1"
+            - img [ref=e91]
+          - generic [ref=e93] [cursor=pointer]:
+            - generic [ref=e95]: Nikki Minaj
+            - generic [ref=e97]: Recreation Minister
+            - generic [ref=e98]: "1"
+            - img [ref=e100]
+          - generic [ref=e102] [cursor=pointer]:
+            - generic [ref=e104]: Priya Saini
+            - generic [ref=e106]: Housing and Finance
+            - generic [ref=e107]: "1"
+            - img [ref=e109]
+          - generic [ref=e111] [cursor=pointer]:
+            - generic [ref=e113]: Test Minister Name - 3824
+            - generic [ref=e115]: Test Minister Position - 3824
+            - generic [ref=e116]: "1"
+            - img [ref=e118]
+          - generic [ref=e120] [cursor=pointer]:
+            - generic [ref=e122]: Test Minister Name - 4135
+            - generic [ref=e124]: Test Minister Position - 4135
+            - generic [ref=e125]: "1"
+            - img [ref=e127]
+          - generic [ref=e129] [cursor=pointer]:
+            - generic [ref=e131]: Test Minister Name - 4442
+            - generic [ref=e133]: Test Minister Position - 4442
+            - generic [ref=e134]: "1"
+            - img [ref=e136]
+          - generic [ref=e138] [cursor=pointer]:
+            - generic [ref=e140]: Test Minister Name - 4622
+            - generic [ref=e142]: Test Minister Position - 4622
+            - generic [ref=e143]: "1"
+            - img [ref=e145]
+          - generic [ref=e147] [cursor=pointer]:
+            - generic [ref=e149]: Test Minister Name - 5161
+            - generic [ref=e151]: Test Minister Position - 5161
+            - generic [ref=e152]: "1"
+            - img [ref=e154]
+          - generic [ref=e156] [cursor=pointer]:
+            - generic [ref=e158]: Test Minister Name - 5586
+            - generic [ref=e160]: Test Minister Position - 5586
+            - generic [ref=e161]: "1"
+            - img [ref=e163]
+          - generic [ref=e165] [cursor=pointer]:
+            - generic [ref=e167]: Test Minister Name - 7129
+            - generic [ref=e169]: Test Minister Position - 7129
+            - generic [ref=e170]: "1"
+            - img [ref=e172]
+          - generic [ref=e174] [cursor=pointer]:
+            - generic [ref=e176]: Test Minister Name - 9850
+            - generic [ref=e178]: Test Minister Position - 9850
+            - generic [ref=e179]: "1"
+            - img [ref=e181]
+          - generic [ref=e183] [cursor=pointer]:
+            - generic [ref=e185]: David Eby
+            - generic [ref=e187]: Premier of British Columbia
+            - generic [ref=e188]: "10"
+            - img [ref=e190]
+          - generic [ref=e192] [cursor=pointer]:
+            - generic [ref=e194]: Pam Alexis
+            - generic [ref=e196]: Agriculture and Food
+            - generic [ref=e197]: "20"
+            - img [ref=e199]
+          - generic [ref=e201] [cursor=pointer]:
+            - generic [ref=e203]: Niki Sharma
+            - generic [ref=e205]: Attorney General
+            - generic [ref=e206]: "30"
+            - img [ref=e208]
+          - generic [ref=e210] [cursor=pointer]:
+            - generic [ref=e212]: Grace Lore
+            - generic [ref=e214]: Children and Family Development
+            - generic [ref=e215]: "40"
+            - img [ref=e217]
+          - generic [ref=e219] [cursor=pointer]:
+            - generic [ref=e221]: George Chow
+            - generic [ref=e223]: Citizens' Services
+            - generic [ref=e224]: "50"
+            - img [ref=e226]
+          - generic [ref=e228] [cursor=pointer]:
+            - generic [ref=e230]: Rachna Singh
+            - generic [ref=e232]: Education and Child Care
+            - generic [ref=e233]: "60"
+            - img [ref=e235]
+          - generic [ref=e237] [cursor=pointer]:
+            - generic [ref=e239]: Mitzi Dean
+            - generic [ref=e241]: Minister of State for Child Care
+            - generic [ref=e242]: "65"
+            - img [ref=e244]
+          - generic [ref=e246] [cursor=pointer]:
+            - generic [ref=e248]: Bowinn Ma
+            - generic [ref=e250]: Emergency Managment and Climate Readiness
+            - generic [ref=e251]: "70"
+            - img [ref=e253]
+          - generic [ref=e255] [cursor=pointer]:
+            - generic [ref=e257]: Josie Osborne
+            - generic [ref=e259]: Energy, Mines and Low Carbon Innovation
+            - generic [ref=e260]: "80"
+            - img [ref=e262]
+          - generic [ref=e264] [cursor=pointer]:
+            - generic [ref=e266]: George Heyman
+            - generic [ref=e268]: Environment and Climate Change Strategy
+            - generic [ref=e269]: "90"
+            - img [ref=e271]
+          - generic [ref=e273] [cursor=pointer]:
+            - generic [ref=e275]: Katrine Conroy
+            - generic [ref=e277]: Finance
+            - generic [ref=e278]: "100"
+            - img [ref=e280]
+          - generic [ref=e282] [cursor=pointer]:
+            - generic [ref=e284]: Bruce Ralston
+            - generic [ref=e286]: Forests
+            - generic [ref=e287]: "110"
+            - img [ref=e289]
+          - generic [ref=e291] [cursor=pointer]:
+            - generic [ref=e293]: Andrew Mercier
+            - generic [ref=e295]: Minister of State for State for Sustainable Forestry Innovation
+            - generic [ref=e296]: "112"
+            - img [ref=e298]
+          - generic [ref=e300] [cursor=pointer]:
+            - generic [ref=e302]: Adrian Dix
+            - generic [ref=e304]: Health and Minister Responsible for Francophone Affairs
+            - generic [ref=e305]: "120"
+            - img [ref=e307]
+          - generic [ref=e309] [cursor=pointer]:
+            - generic [ref=e311]: Ravi Kahlon
+            - generic [ref=e313]: Housing and Government House Leader
+            - generic [ref=e314]: "130"
+            - img [ref=e316]
+          - generic [ref=e318] [cursor=pointer]:
+            - generic [ref=e320]: Murray Rankin
+            - generic [ref=e322]: Indigenous Relations and Reconciliation
+            - generic [ref=e323]: "140"
+            - img [ref=e325]
+          - generic [ref=e327] [cursor=pointer]:
+            - generic [ref=e329]: Brenda Bailey
+            - generic [ref=e331]: Jobs, Economic Development and Innovation
+            - generic [ref=e332]: "150"
+            - img [ref=e334]
+          - generic [ref=e336] [cursor=pointer]:
+            - generic [ref=e338]: Jagrup Brar
+            - generic [ref=e340]: Minister of State for Trade
+            - generic [ref=e341]: "155"
+            - img [ref=e343]
+          - generic [ref=e345] [cursor=pointer]:
+            - generic [ref=e347]: Harry Bains
+            - generic [ref=e349]: Labour
+            - generic [ref=e350]: "160"
+            - img [ref=e352]
+          - generic [ref=e354] [cursor=pointer]:
+            - generic [ref=e356]: Jennifer Whiteside
+            - generic [ref=e358]: Mental Health and Addictions
+            - generic [ref=e359]: "170"
+            - img [ref=e361]
+          - generic [ref=e363] [cursor=pointer]:
+            - generic [ref=e365]: Anne Kang
+            - generic [ref=e367]: Municipal Affairs
+            - generic [ref=e368]: "180"
+            - img [ref=e370]
+          - generic [ref=e372] [cursor=pointer]:
+            - generic [ref=e374]: Lisa Beare
+            - generic [ref=e376]: Post Secondary Education and Future Skills
+            - generic [ref=e377]: "190"
+            - img [ref=e379]
+          - generic [ref=e381] [cursor=pointer]:
+            - generic [ref=e383]: Mike Farnworth
+            - generic [ref=e385]: Public Safety and Solicitor General (ICBC), and Deputy Premier
+            - generic [ref=e386]: "200"
+            - img [ref=e388]
+          - generic [ref=e390] [cursor=pointer]:
+            - generic [ref=e392]: Sheila Malcolmson
+            - generic [ref=e394]: Social Development and Poverty Reduction
+            - generic [ref=e395]: "210"
+            - img [ref=e397]
+          - generic [ref=e399] [cursor=pointer]:
+            - generic [ref=e401]: Lana Popham
+            - generic [ref=e403]: Tourism, Arts, Culture and Sport
+            - generic [ref=e404]: "220"
+            - img [ref=e406]
+          - generic [ref=e408] [cursor=pointer]:
+            - generic [ref=e410]: Rob Fleming
+            - generic [ref=e412]: Transportation and Infrastructure (BC Transit and Translink)
+            - generic [ref=e413]: "230"
+            - img [ref=e415]
+          - generic [ref=e417] [cursor=pointer]:
+            - generic [ref=e419]: Dan Coulter
+            - generic [ref=e421]: Minister of State for Infrastructure and Transit
+            - generic [ref=e422]: "235"
+            - img [ref=e424]
+          - generic [ref=e426] [cursor=pointer]:
+            - generic [ref=e428]: Nathan Cullen
+            - generic [ref=e430]: Water, Land and Resource Stewardship (Fisheries)
+            - generic [ref=e431]: "240"
+            - img [ref=e433]
+          - generic [ref=e435] [cursor=pointer]:
+            - generic [ref=e437]: Susie Chant
+            - generic [ref=e439]: Parliamentary Secretary for Accessibility
+            - generic [ref=e440]: "300"
+            - img [ref=e442]
+          - generic [ref=e444] [cursor=pointer]:
+            - generic [ref=e446]: Mable Elmore
+            - generic [ref=e448]: Parliamentary Secretary
+            - generic [ref=e449]: "310"
+            - img [ref=e451]
+          - generic [ref=e453] [cursor=pointer]:
+            - generic [ref=e455]: Bob D'Eith
+            - generic [ref=e457]: Parliamentary Secretary for Arts and Film
+            - generic [ref=e458]: "320"
+            - img [ref=e460]
+          - generic [ref=e462] [cursor=pointer]:
+            - generic [ref=e464]: Megan Dykeman
+            - generic [ref=e466]: Parliamentary Secretary for Community Development and Non-profits
+            - generic [ref=e467]: "330"
+            - img [ref=e469]
+          - generic [ref=e471] [cursor=pointer]:
+            - generic [ref=e473]: Jennifer Rice
+            - generic [ref=e475]: Parliamentary Secretary for Rural Health
+            - generic [ref=e476]: "340"
+            - img [ref=e478]
+          - generic [ref=e480] [cursor=pointer]:
+            - generic [ref=e482]: Aman Singh
+            - generic [ref=e484]: Parliamentary Secretary for Environment
+            - generic [ref=e485]: "350"
+            - img [ref=e487]
+          - generic [ref=e489] [cursor=pointer]:
+            - generic [ref=e491]: Kelly Greene
+            - generic [ref=e493]: Parliamentary Secretary for Fisheries and Aquaculture
+            - generic [ref=e494]: "360"
+            - img [ref=e496]
+          - generic [ref=e498] [cursor=pointer]:
+            - generic [ref=e500]: Doug Routley
+            - generic [ref=e502]: Parliamentary Secretary for Forests
+            - generic [ref=e503]: "370"
+            - img [ref=e505]
+          - generic [ref=e507] [cursor=pointer]:
+            - generic [ref=e509]: Kelli Paddon
+            - generic [ref=e511]: Parliamentary Secretary for Gender Equity
+            - generic [ref=e512]: "380"
+            - img [ref=e514]
+          - generic [ref=e516] [cursor=pointer]:
+            - generic [ref=e518]: Janet Routledge
+            - generic [ref=e520]: Parliamentary Secretary for Labour
+            - generic [ref=e521]: "390"
+            - img [ref=e523]
+          - generic [ref=e525] [cursor=pointer]:
+            - generic [ref=e527]: Roly Russell
+            - generic [ref=e529]: Parliamentary Secretary for Rural Development
+            - generic [ref=e530]: "400"
+            - img [ref=e532]
+          - generic [ref=e534] [cursor=pointer]:
+            - generic [ref=e536]: Harwinder Sandhu
+            - generic [ref=e538]: Parliamentary Secretary for Seniors' Services and Long-Term Care
+            - generic [ref=e539]: "410"
+            - img [ref=e541]
+          - generic [ref=e543] [cursor=pointer]:
+            - generic [ref=e545]: Adam Walker
+            - generic [ref=e547]: Parliamentary Secretary for Sustainable Economy
+            - generic [ref=e548]: "420"
+            - img [ref=e550]
+          - generic [ref=e552] [cursor=pointer]:
+            - generic [ref=e554]: Brittny Anderson
+            - generic [ref=e556]: Parliamentary Secretary for Tourism and Premier's Special Advisor on Youth
+            - generic [ref=e557]: "430"
+            - img [ref=e559]
+          - generic [ref=e561] [cursor=pointer]:
+            - generic [ref=e563]: Fin Donnelly
+            - generic [ref=e565]: Parliamentary Secretary for Watershed Restoration
+            - generic [ref=e566]: "440"
+            - img [ref=e568]
+          - generic [ref=e570] [cursor=pointer]:
+            - generic [ref=e572]: Kevin Falcon, BC United Party
+            - generic [ref=e574]: Leader, Opposition Party
+            - generic [ref=e575]: "700"
+            - img [ref=e577]
+          - generic [ref=e579] [cursor=pointer]:
+            - generic [ref=e581]: Sonia Furstenau
+            - generic [ref=e583]: Leader, Green Party
+            - generic [ref=e584]: "1000"
+            - img [ref=e586]
+          - generic [ref=e588] [cursor=pointer]:
+            - generic [ref=e590]: John Horgan
+            - generic [ref=e592]: Former Premier of British Columbia
+            - generic [ref=e593]: "1200"
+            - img [ref=e595]
+          - generic [ref=e597] [cursor=pointer]:
+            - generic [ref=e599]: Selina Robinson
+            - generic [ref=e601]: former minister of post secondary education
+            - generic [ref=e602]: "1500"
+            - img [ref=e604]
+          - generic [ref=e606] [cursor=pointer]:
+            - generic [ref=e608]: Test Minister Name - 6015
+            - generic [ref=e610]: Test Minister Position - 6015
+            - generic [ref=e611]: "1"
+            - img [ref=e613]
+```

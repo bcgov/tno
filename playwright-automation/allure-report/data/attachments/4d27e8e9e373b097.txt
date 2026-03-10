@@ -1,0 +1,4 @@
+{"level":"info","message":"Starting Test: Editor publishes an item and Subscriber can see it under Featued column"}
+{"level":"info","message":"Clicking on IDIR button to login.."}
+{"level":"error","message":"Test Failed: Editor publishes an item and Subscriber can see it under Featued column"}
+{"level":"info","message":"Finished Test: Editor publishes an item and Subscriber can see it under Featued column"}

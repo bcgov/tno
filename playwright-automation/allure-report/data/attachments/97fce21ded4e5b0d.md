@@ -1,0 +1,237 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - link "BC Gov logo" [ref=e6] [cursor=pointer]:
+      - /url: /
+      - img "BC Gov logo" [ref=e7]
+    - link "MMI logo" [ref=e9] [cursor=pointer]:
+      - /url: /
+      - img "MMI logo" [ref=e10]
+    - button "Sign Out" [ref=e13] [cursor=pointer]:
+      - generic [ref=e14]: Sign Out
+  - navigation [ref=e16]:
+    - generic [ref=e17]:
+      - link "Home" [ref=e18] [cursor=pointer]:
+        - /url: /contents
+        - generic [ref=e19]:
+          - img [ref=e20]
+          - text: Home
+      - generic [ref=e23]:
+        - button "Content" [ref=e25] [cursor=pointer]
+        - button "Report Building" [ref=e27] [cursor=pointer]
+        - button "Notifications Building" [ref=e29] [cursor=pointer]
+        - button "Content Configuration" [ref=e31] [cursor=pointer]
+        - button "Data Import" [ref=e33] [cursor=pointer]
+        - button "System Settings" [ref=e35] [cursor=pointer]
+  - main [ref=e37]:
+    - generic [ref=e44]:
+      - generic [ref=e45]:
+        - generic [ref=e49]:
+          - generic [ref=e50]: Details
+          - generic [ref=e51]:
+            - text: Draft
+            - img "Draft" [ref=e52]
+        - generic [ref=e55]:
+          - generic [ref=e57]:
+            - generic [ref=e59]:
+              - checkbox "Alert" [checked] [ref=e60] [cursor=pointer]
+              - generic [ref=e61] [cursor=pointer]: Alert
+            - generic [ref=e62]: not sent
+          - generic [ref=e63]:
+            - img [ref=e64]
+            - text: EMAIL ALERT
+        - generic [ref=e66]:
+          - generic [ref=e68]:
+            - generic [ref=e70]:
+              - checkbox "Featured Stories" [checked] [ref=e71] [cursor=pointer]
+              - generic [ref=e73] [cursor=pointer]: Featured Stories
+            - generic [ref=e75]:
+              - checkbox "Top Stories" [checked] [ref=e76] [cursor=pointer]
+              - generic [ref=e78] [cursor=pointer]: Top Stories
+            - generic [ref=e80]:
+              - checkbox "Commentary" [checked] [ref=e81] [cursor=pointer]
+              - generic [ref=e83] [cursor=pointer]: Commentary
+            - generic [ref=e84]:
+              - img [ref=e85]
+              - textbox [ref=e90]: "3"
+          - generic [ref=e91]:
+            - img [ref=e92]
+            - text: HIGHLIGHT STORY
+        - generic [ref=e94]:
+          - generic [ref=e96]:
+            - button "FIVE YEARS" [ref=e97] [cursor=pointer]:
+              - generic [ref=e99]: FIVE YEARS
+            - button "NEVER" [ref=e100] [cursor=pointer]:
+              - generic [ref=e102]: NEVER
+            - button "ONE YEAR" [ref=e103] [cursor=pointer]:
+              - generic [ref=e105]: ONE YEAR
+            - button "REGULAR" [ref=e106] [cursor=pointer]:
+              - generic [ref=e108]: REGULAR
+            - button "SPECIAL" [ref=e109] [cursor=pointer]:
+              - generic [ref=e111]: SPECIAL
+            - button "TEN YEARS" [ref=e112] [cursor=pointer]:
+              - generic [ref=e114]: TEN YEARS
+            - button "WEEKLY" [ref=e115] [cursor=pointer]:
+              - generic [ref=e117]: WEEKLY
+          - generic [ref=e118]:
+            - img [ref=e119]
+            - text: LICENCE EXPIRY
+      - generic [ref=e122]:
+        - generic [ref=e123]:
+          - generic [ref=e126]:
+            - generic [ref=e127]: Headline *
+            - textbox "Headline *" [active] [ref=e128]: Test Online Story Headline - 537
+          - generic [ref=e130]:
+            - generic [ref=e131]:
+              - generic [ref=e132]: Source *
+              - generic [ref=e135]:
+                - log [ref=e137]
+                - generic [ref=e138]:
+                  - generic [ref=e139]:
+                    - generic [ref=e140]: Select...
+                    - combobox [ref=e142]
+                  - img [ref=e146]
+                - textbox
+              - textbox [ref=e148]
+            - generic [ref=e149]:
+              - generic [ref=e150]: Media Type *
+              - generic [ref=e153]:
+                - log [ref=e155]
+                - generic [ref=e156]:
+                  - generic [ref=e157]:
+                    - generic [ref=e158]: Select...
+                    - combobox [ref=e160]
+                  - img [ref=e164]
+                - textbox
+              - textbox [ref=e166]
+            - generic [ref=e168]:
+              - generic [ref=e169]: Other Source
+              - textbox "Other Source" [ref=e171]
+        - generic [ref=e172]:
+          - generic [ref=e173]:
+            - generic [ref=e175]:
+              - generic [ref=e176]: Byline
+              - textbox "Byline" [ref=e178]
+            - generic [ref=e180]:
+              - checkbox "Title Case" [checked] [ref=e181] [cursor=pointer]
+              - generic [ref=e182] [cursor=pointer]: Title Case
+          - generic [ref=e183]:
+            - generic [ref=e184]: Columnist/Pundit
+            - generic [ref=e187]:
+              - log [ref=e189]
+              - generic [ref=e190]:
+                - generic [ref=e191]:
+                  - generic [ref=e192]: Select...
+                  - combobox [ref=e194]
+                - img [ref=e198]
+            - textbox [ref=e200]
+          - generic [ref=e203]:
+            - generic [ref=e204]:
+              - text: Source URL
+              - img [ref=e205]
+            - generic [ref=e207]:
+              - textbox "Source URL" [ref=e208]
+              - img [ref=e209]
+              - img [ref=e211]
+        - generic [ref=e215]:
+          - generic [ref=e216]: Published On *
+          - textbox [ref=e219]: Mar 5, 2026
+          - generic [ref=e220]:
+            - generic [ref=e221]: Time
+            - textbox "10:12:40" [ref=e222]
+      - generic [ref=e225]:
+        - generic [ref=e227]:
+          - generic [ref=e228] [cursor=pointer]: Story
+          - generic [ref=e229] [cursor=pointer]: Quotes (0)
+        - generic [ref=e232]:
+          - generic [ref=e233]: Story
+          - generic [ref=e234]:
+            - generic [ref=e235]:
+              - generic "Format Type" [ref=e236]:
+                - button "Normal" [ref=e237] [cursor=pointer]:
+                  - text: Normal
+                  - img [ref=e238]
+                - text: Heading 1 Heading 2 Heading 3 Normal
+              - button "Bold Text" [ref=e241] [cursor=pointer]:
+                - img [ref=e242]
+              - button "Italic Text" [ref=e245] [cursor=pointer]:
+                - img [ref=e246]
+              - button "Underline Text" [ref=e248] [cursor=pointer]:
+                - img [ref=e249]
+              - button "Strikethrough Text" [ref=e252] [cursor=pointer]:
+                - img [ref=e253]
+            - generic [ref=e257]:
+              - generic "Alignment" [ref=e258]:
+                - button [ref=e259] [cursor=pointer]:
+                  - img [ref=e260]
+              - generic "Text colour" [ref=e261]:
+                - button [ref=e262] [cursor=pointer]:
+                  - img [ref=e263]
+            - generic [ref=e265]:
+              - button "Numbered List" [ref=e266] [cursor=pointer]:
+                - img [ref=e267]
+              - button "Bulleted list" [ref=e271] [cursor=pointer]:
+                - img [ref=e272]
+              - button "Outdent" [ref=e273] [cursor=pointer]:
+                - img [ref=e274]
+              - button "Indent" [ref=e276] [cursor=pointer]:
+                - img [ref=e277]
+            - generic [ref=e279]:
+              - button "Show code" [ref=e280] [cursor=pointer]:
+                - img [ref=e281]
+              - button "Remove formatting" [ref=e283] [cursor=pointer]:
+                - img [ref=e284]
+              - button "Format raw html" [ref=e286] [cursor=pointer]:
+                - img [ref=e287]
+              - button "Link" [ref=e289] [cursor=pointer]:
+                - img [ref=e290]
+              - button "Insert image" [ref=e294] [cursor=pointer]:
+                - img [ref=e295]
+            - button "Popout editor" [ref=e300] [cursor=pointer]:
+              - img [ref=e301]
+          - generic [ref=e304]:
+            - paragraph [ref=e306]
+            - text: "Visit URL: EditRemove"
+      - generic [ref=e307]:
+        - generic [ref=e309]:
+          - generic [ref=e311]: Tags
+          - generic [ref=e312]:
+            - generic [ref=e313]:
+              - generic [ref=e316]:
+                - log [ref=e318]
+                - generic [ref=e319]:
+                  - generic [ref=e320]:
+                    - generic [ref=e321]: Select...
+                    - combobox [ref=e323]
+                  - img [ref=e327]
+              - textbox [ref=e329]
+            - button [ref=e330] [cursor=pointer]:
+              - img [ref=e332]
+        - generic [ref=e334]:
+          - generic [ref=e335]: Sentiment
+          - generic [ref=e336]:
+            - generic [ref=e337]:
+              - img "-5" [ref=e338]
+              - button "-5" [ref=e339] [cursor=pointer]
+            - button "-4" [ref=e342] [cursor=pointer]
+            - button "-3" [ref=e345] [cursor=pointer]
+            - button "-2" [ref=e348] [cursor=pointer]
+            - button "-1" [ref=e351] [cursor=pointer]
+            - generic [ref=e352]:
+              - img "0" [ref=e353]
+              - button "0" [ref=e354] [cursor=pointer]
+            - button "1" [ref=e357] [cursor=pointer]
+            - button "2" [ref=e360] [cursor=pointer]
+            - button "3" [ref=e363] [cursor=pointer]
+            - button "4" [ref=e366] [cursor=pointer]
+            - generic [ref=e367]:
+              - img "5" [ref=e368]
+              - button "5" [ref=e369] [cursor=pointer]
+        - generic [ref=e371]:
+          - button "Publish" [ref=e372] [cursor=pointer]:
+            - generic [ref=e373]: Publish
+          - button "Save without publishing" [ref=e374] [cursor=pointer]:
+            - generic [ref=e375]: Save without publishing
+```

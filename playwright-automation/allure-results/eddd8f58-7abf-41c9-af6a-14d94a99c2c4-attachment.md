@@ -1,0 +1,717 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - generic [ref=e6]:
+    - generic [ref=e7] [cursor=pointer]:
+      - img [ref=e8]
+      - text: Featured Stories
+    - generic [ref=e10] [cursor=pointer]:
+      - img [ref=e11]
+      - text: Top Stories
+    - generic [ref=e13] [cursor=pointer]:
+      - img [ref=e14]
+      - text: Today's Commentary
+    - generic [ref=e16] [cursor=pointer]:
+      - img [ref=e17]
+      - text: Today's Front Pages
+    - generic [ref=e19] [cursor=pointer]:
+      - img [ref=e20]
+      - text: Press Gallery
+    - generic [ref=e22] [cursor=pointer]:
+      - img [ref=e23]
+      - text: AM Analysis
+    - generic [ref=e25] [cursor=pointer]:
+      - img [ref=e26]
+      - text: Evening Overview
+    - generic [ref=e28] [cursor=pointer]:
+      - img [ref=e29]
+      - text: Filter by media type
+    - generic [ref=e31] [cursor=pointer]:
+      - img [ref=e32]
+      - text: MMI Products
+    - generic [ref=e34]:
+      - generic [ref=e35]:
+        - img [ref=e36]
+        - text: MY CONTENT
+      - generic [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+        - text: My Minister
+        - img [ref=e42]
+      - generic [ref=e44] [cursor=pointer]:
+        - img [ref=e45]
+        - text: My Saved Searches
+      - generic [ref=e47] [cursor=pointer]:
+        - img [ref=e48]
+        - text: My Folders
+      - generic [ref=e50] [cursor=pointer]:
+        - img [ref=e51]
+        - text: My Reports
+    - generic [ref=e53]:
+      - generic [ref=e54]:
+        - img [ref=e55]
+        - text: USER RESOURCES
+      - generic [ref=e57] [cursor=pointer]:
+        - img [ref=e58]
+        - text: Help
+      - generic [ref=e60] [cursor=pointer]:
+        - img [ref=e61]
+        - text: Settings
+    - img [ref=e63]
+    - img [ref=e66]
+  - generic [ref=e68]:
+    - generic "MMI Home page" [ref=e70] [cursor=pointer]:
+      - img "MMinsights logo" [ref=e71]
+    - generic [ref=e73]:
+      - generic [ref=e74]: "Search for:"
+      - generic [ref=e75]:
+        - img [ref=e76]
+        - textbox [ref=e80]
+      - button "Search" [ref=e81] [cursor=pointer]:
+        - generic [ref=e82]:
+          - text: Search
+          - img [ref=e83]
+      - link "Go Advanced" [ref=e85] [cursor=pointer]:
+        - /url: /search/advanced/
+    - generic [ref=e86]:
+      - generic [ref=e88]:
+        - img [ref=e89]
+        - generic [ref=e91]: Saini, Priya GCPE:EX
+      - generic [ref=e92]:
+        - img [ref=e93]
+        - text: Logout
+  - main [ref=e95]:
+    - generic [ref=e97]:
+      - generic [ref=e98]:
+        - generic [ref=e99]:
+          - img [ref=e101]
+          - text: Featured Stories
+          - generic [ref=e103]:
+            - button "PAPERS" [ref=e104] [cursor=pointer]:
+              - generic [ref=e105]: PAPERS
+            - button "RADIO/TV" [ref=e106] [cursor=pointer]:
+              - generic [ref=e107]: RADIO/TV
+            - button "ONLINE" [ref=e108] [cursor=pointer]:
+              - generic [ref=e109]: ONLINE
+            - button "CP NEWS" [ref=e110] [cursor=pointer]:
+              - generic [ref=e111]: CP NEWS
+            - button "EVENTS" [ref=e112] [cursor=pointer]:
+              - generic [ref=e113]: EVENTS
+            - button "ALL" [ref=e114] [cursor=pointer]:
+              - generic [ref=e115]: ALL
+          - img [ref=e117] [cursor=pointer]
+        - generic [ref=e120]:
+          - generic [ref=e122]:
+            - generic [ref=e125]:
+              - checkbox "SELECT ALL" [ref=e128] [cursor=pointer]
+              - generic [ref=e129]: SELECT ALL
+            - generic [ref=e132]:
+              - generic [ref=e134]:
+                - img [ref=e135]
+                - generic [ref=e137]: RESET
+              - generic [ref=e140]:
+                - img [ref=e141]
+                - generic [ref=e143]: Share
+              - generic [ref=e145]:
+                - img [ref=e146]
+                - generic [ref=e148]: ADD TO FOLDER
+              - generic [ref=e150]:
+                - img [ref=e151]
+                - generic [ref=e153]: ADD TO REPORT
+          - generic [ref=e154]:
+            - img [ref=e155] [cursor=pointer]
+            - generic [ref=e157]:
+              - img [ref=e158] [cursor=pointer]
+              - textbox [disabled] [ref=e162]: 06-Mar-2026
+            - img [ref=e163] [cursor=pointer]
+          - generic [ref=e166]:
+            - heading "Penticton Herald" [level=2] [ref=e167]
+            - generic [ref=e168]:
+              - generic [ref=e169]:
+                - generic [ref=e170]:
+                  - checkbox [ref=e173] [cursor=pointer]
+                  - img [ref=e174]
+                  - link "Test Online Story Headline - 514" [ref=e176] [cursor=pointer]:
+                    - /url: /view/4312752
+                  - generic [ref=e177]:
+                    - generic [ref=e178]: March 06 - 2026 |
+                    - generic [ref=e179]: 22:46|
+                    - generic [ref=e180]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e185]: "This is a test paragraph for the online story created by automation script. Random number: 514"
+              - generic [ref=e186]:
+                - generic [ref=e187]:
+                  - checkbox [ref=e190] [cursor=pointer]
+                  - img [ref=e191]
+                  - link "Test Online Story Headline - 17" [ref=e193] [cursor=pointer]:
+                    - /url: /view/4312750
+                  - generic [ref=e194]:
+                    - generic [ref=e195]: March 06 - 2026 |
+                    - generic [ref=e196]: 22:41|
+                    - generic [ref=e197]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e202]: "This is a test paragraph for the online story created by automation script. Random number: 17"
+              - generic [ref=e203]:
+                - generic [ref=e204]:
+                  - checkbox [ref=e207] [cursor=pointer]
+                  - img [ref=e208]
+                  - link "Test Online Story Headline - 592" [ref=e210] [cursor=pointer]:
+                    - /url: /view/4312747
+                  - generic [ref=e211]:
+                    - generic [ref=e212]: March 06 - 2026 |
+                    - generic [ref=e213]: 22:38|
+                    - generic [ref=e214]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e219]: "This is a test paragraph for the online story created by automation script. Random number: 592"
+              - generic [ref=e220]:
+                - generic [ref=e221]:
+                  - checkbox [ref=e224] [cursor=pointer]
+                  - img [ref=e225]
+                  - link "Test Online Story Headline - 926" [ref=e227] [cursor=pointer]:
+                    - /url: /view/4312746
+                  - generic [ref=e228]:
+                    - generic [ref=e229]: March 06 - 2026 |
+                    - generic [ref=e230]: 22:33|
+                    - generic [ref=e231]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e236]: "This is a test paragraph for the online story created by automation script. Random number: 926"
+              - generic [ref=e237]:
+                - generic [ref=e238]:
+                  - checkbox [ref=e241] [cursor=pointer]
+                  - img [ref=e242]
+                  - link "Test Online Story Headline - 986" [ref=e244] [cursor=pointer]:
+                    - /url: /view/4312736
+                  - generic [ref=e245]:
+                    - generic [ref=e246]: March 06 - 2026 |
+                    - generic [ref=e247]: 22:31|
+                    - generic [ref=e248]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e253]: "This is a test paragraph for the online story created by automation script. Random number: 986"
+              - generic [ref=e254]:
+                - generic [ref=e255]:
+                  - checkbox [ref=e258] [cursor=pointer]
+                  - img [ref=e259]
+                  - link "Test Online Story Headline - 268" [ref=e261] [cursor=pointer]:
+                    - /url: /view/4312733
+                  - generic [ref=e262]:
+                    - generic [ref=e263]: March 06 - 2026 |
+                    - generic [ref=e264]: 22:29|
+                    - generic [ref=e265]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e270]: "This is a test paragraph for the online story created by automation script. Random number: 268"
+              - generic [ref=e271]:
+                - generic [ref=e272]:
+                  - checkbox [ref=e275] [cursor=pointer]
+                  - img [ref=e276]
+                  - link "Test Online Story Headline - 138" [ref=e278] [cursor=pointer]:
+                    - /url: /view/4312732
+                  - generic [ref=e279]:
+                    - generic [ref=e280]: March 06 - 2026 |
+                    - generic [ref=e281]: 22:27|
+                    - generic [ref=e282]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e287]: "This is a test paragraph for the online story created by automation script. Random number: 138"
+              - generic [ref=e288]:
+                - generic [ref=e289]:
+                  - checkbox [ref=e292] [cursor=pointer]
+                  - img [ref=e293]
+                  - link "Test Online Story Headline - 600" [ref=e295] [cursor=pointer]:
+                    - /url: /view/4312731
+                  - generic [ref=e296]:
+                    - generic [ref=e297]: March 06 - 2026 |
+                    - generic [ref=e298]: 22:25|
+                    - generic [ref=e299]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e304]: "This is a test paragraph for the online story created by automation script. Random number: 600"
+              - generic [ref=e305]:
+                - generic [ref=e306]:
+                  - checkbox [ref=e309] [cursor=pointer]
+                  - img [ref=e310]
+                  - link "Test Online Story Headline - 363" [ref=e312] [cursor=pointer]:
+                    - /url: /view/4312726
+                  - generic [ref=e313]:
+                    - generic [ref=e314]: March 06 - 2026 |
+                    - generic [ref=e315]: 22:23|
+                    - generic [ref=e316]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e321]: "This is a test paragraph for the online story created by automation script. Random number: 363"
+              - generic [ref=e322]:
+                - generic [ref=e323]:
+                  - checkbox [ref=e326] [cursor=pointer]
+                  - img [ref=e327]
+                  - link "Test Online Story Headline - 185" [ref=e329] [cursor=pointer]:
+                    - /url: /view/4312725
+                  - generic [ref=e330]:
+                    - generic [ref=e331]: March 06 - 2026 |
+                    - generic [ref=e332]: 22:21|
+                    - generic [ref=e333]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e338]: "This is a test paragraph for the online story created by automation script. Random number: 185"
+              - generic [ref=e339]:
+                - generic [ref=e340]:
+                  - checkbox [ref=e343] [cursor=pointer]
+                  - img [ref=e344]
+                  - link "Test Online Story Headline - 49" [ref=e346] [cursor=pointer]:
+                    - /url: /view/4312721
+                  - generic [ref=e347]:
+                    - generic [ref=e348]: March 06 - 2026 |
+                    - generic [ref=e349]: 22:20|
+                    - generic [ref=e350]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e355]: "This is a test paragraph for the online story created by automation script. Random number: 49"
+              - generic [ref=e356]:
+                - generic [ref=e357]:
+                  - checkbox [ref=e360] [cursor=pointer]
+                  - img [ref=e361]
+                  - link "Test Online Story Headline - 120" [ref=e363] [cursor=pointer]:
+                    - /url: /view/4312718
+                  - generic [ref=e364]:
+                    - generic [ref=e365]: March 06 - 2026 |
+                    - generic [ref=e366]: 22:17|
+                    - generic [ref=e367]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e372]: "This is a test paragraph for the online story created by automation script. Random number: 120"
+              - generic [ref=e373]:
+                - generic [ref=e374]:
+                  - checkbox [ref=e377] [cursor=pointer]
+                  - img [ref=e378]
+                  - link "Test Online Story Headline - 106" [ref=e380] [cursor=pointer]:
+                    - /url: /view/4312692
+                  - generic [ref=e381]:
+                    - generic [ref=e382]: March 06 - 2026 |
+                    - generic [ref=e383]: 22:00|
+                    - generic [ref=e384]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e389]: "This is a test paragraph for the online story created by automation script. Random number: 106"
+              - generic [ref=e390]:
+                - generic [ref=e391]:
+                  - checkbox [ref=e394] [cursor=pointer]
+                  - img [ref=e395]
+                  - link "Test Online Story Headline - 278" [ref=e397] [cursor=pointer]:
+                    - /url: /view/4312691
+                  - generic [ref=e398]:
+                    - generic [ref=e399]: March 06 - 2026 |
+                    - generic [ref=e400]: 21:58|
+                    - generic [ref=e401]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e406]: "This is a test paragraph for the online story created by automation script. Random number: 278"
+              - generic [ref=e407]:
+                - generic [ref=e408]:
+                  - checkbox [ref=e411] [cursor=pointer]
+                  - img [ref=e412]
+                  - link "Test Online Story Headline - 819" [ref=e414] [cursor=pointer]:
+                    - /url: /view/4312686
+                  - generic [ref=e415]:
+                    - generic [ref=e416]: March 06 - 2026 |
+                    - generic [ref=e417]: 21:53|
+                    - generic [ref=e418]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e423]: "This is a test paragraph for the online story created by automation script. Random number: 819"
+              - generic [ref=e424]:
+                - generic [ref=e425]:
+                  - checkbox [ref=e428] [cursor=pointer]
+                  - img [ref=e429]
+                  - link "Test Online Story Headline - 139" [ref=e431] [cursor=pointer]:
+                    - /url: /view/4312682
+                  - generic [ref=e432]:
+                    - generic [ref=e433]: March 06 - 2026 |
+                    - generic [ref=e434]: 21:50|
+                    - generic [ref=e435]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e440]: "This is a test paragraph for the online story created by automation script. Random number: 139"
+              - generic [ref=e441]:
+                - generic [ref=e442]:
+                  - checkbox [ref=e445] [cursor=pointer]
+                  - img [ref=e446]
+                  - link "Test Online Story Headline - 273" [ref=e448] [cursor=pointer]:
+                    - /url: /view/4312681
+                  - generic [ref=e449]:
+                    - generic [ref=e450]: March 06 - 2026 |
+                    - generic [ref=e451]: 21:49|
+                    - generic [ref=e452]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e457]: "This is a test paragraph for the online story created by automation script. Random number: 273"
+              - generic [ref=e458]:
+                - generic [ref=e459]:
+                  - checkbox [ref=e462] [cursor=pointer]
+                  - img [ref=e463]
+                  - link "Test Online Story Headline - 924" [ref=e465] [cursor=pointer]:
+                    - /url: /view/4312677
+                  - generic [ref=e466]:
+                    - generic [ref=e467]: March 06 - 2026 |
+                    - generic [ref=e468]: 21:47|
+                    - generic [ref=e469]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e474]: "This is a test paragraph for the online story created by automation script. Random number: 924"
+              - generic [ref=e475]:
+                - generic [ref=e476]:
+                  - checkbox [ref=e479] [cursor=pointer]
+                  - img [ref=e480]
+                  - link "Test Online Story Headline - 770" [ref=e482] [cursor=pointer]:
+                    - /url: /view/4312675
+                  - generic [ref=e483]:
+                    - generic [ref=e484]: March 06 - 2026 |
+                    - generic [ref=e485]: 21:44|
+                    - generic [ref=e486]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e491]: "This is a test paragraph for the online story created by automation script. Random number: 770"
+              - generic [ref=e492]:
+                - generic [ref=e493]:
+                  - checkbox [ref=e496] [cursor=pointer]
+                  - img [ref=e497]
+                  - link "Test Online Story Headline - 633" [ref=e499] [cursor=pointer]:
+                    - /url: /view/4312671
+                  - generic [ref=e500]:
+                    - generic [ref=e501]: March 06 - 2026 |
+                    - generic [ref=e502]: 21:41|
+                    - generic [ref=e503]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e508]: "This is a test paragraph for the online story created by automation script. Random number: 633"
+              - generic [ref=e509]:
+                - generic [ref=e510]:
+                  - checkbox [ref=e513] [cursor=pointer]
+                  - img [ref=e514]
+                  - link "Test Online Story Headline - 596" [ref=e516] [cursor=pointer]:
+                    - /url: /view/4312669
+                  - generic [ref=e517]:
+                    - generic [ref=e518]: March 06 - 2026 |
+                    - generic [ref=e519]: 21:35|
+                    - generic [ref=e520]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e525]: "This is a test paragraph for the online story created by automation script. Random number: 596"
+              - generic [ref=e526]:
+                - generic [ref=e527]:
+                  - checkbox [ref=e530] [cursor=pointer]
+                  - img [ref=e531]
+                  - link "Test Online Story Headline - 836" [ref=e533] [cursor=pointer]:
+                    - /url: /view/4312668
+                  - generic [ref=e534]:
+                    - generic [ref=e535]: March 06 - 2026 |
+                    - generic [ref=e536]: 21:32|
+                    - generic [ref=e537]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e542]: "This is a test paragraph for the online story created by automation script. Random number: 836"
+              - generic [ref=e543]:
+                - generic [ref=e544]:
+                  - checkbox [ref=e547] [cursor=pointer]
+                  - img [ref=e548]
+                  - link "Test Online Story Headline - 548" [ref=e550] [cursor=pointer]:
+                    - /url: /view/4311979
+                  - generic [ref=e551]:
+                    - generic [ref=e552]: March 06 - 2026 |
+                    - generic [ref=e553]: 14:15|
+                    - generic [ref=e554]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e559]: "This is a test paragraph for the online story created by automation script. Random number: 548"
+              - generic [ref=e560]:
+                - generic [ref=e561]:
+                  - checkbox [ref=e564] [cursor=pointer]
+                  - img [ref=e565]
+                  - link "Test Online Story Headline - 401" [ref=e567] [cursor=pointer]:
+                    - /url: /view/4311970
+                  - generic [ref=e568]:
+                    - generic [ref=e569]: March 06 - 2026 |
+                    - generic [ref=e570]: 14:13|
+                    - generic [ref=e571]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e576]: "This is a test paragraph for the online story created by automation script. Random number: 401"
+              - generic [ref=e577]:
+                - generic [ref=e578]:
+                  - checkbox [ref=e581] [cursor=pointer]
+                  - img [ref=e582]
+                  - link "Test Online Story Headline - 52" [ref=e584] [cursor=pointer]:
+                    - /url: /view/4311658
+                  - generic [ref=e585]:
+                    - generic [ref=e586]: March 06 - 2026 |
+                    - generic [ref=e587]: 12:15|
+                    - generic [ref=e588]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e593]: "This is a test paragraph for the online story created by automation script. Random number: 52"
+              - generic [ref=e594]:
+                - generic [ref=e595]:
+                  - checkbox [ref=e598] [cursor=pointer]
+                  - img [ref=e599]
+                  - link "Test Online Story Headline - 703" [ref=e601] [cursor=pointer]:
+                    - /url: /view/4311639
+                  - generic [ref=e602]:
+                    - generic [ref=e603]: March 06 - 2026 |
+                    - generic [ref=e604]: 12:08|
+                    - generic [ref=e605]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e610]: "This is a test paragraph for the online story created by automation script. Random number: 703"
+              - generic [ref=e611]:
+                - generic [ref=e612]:
+                  - checkbox [ref=e615] [cursor=pointer]
+                  - img [ref=e616]
+                  - link "Test Online Story Headline - 447" [ref=e618] [cursor=pointer]:
+                    - /url: /view/4311403
+                  - generic [ref=e619]:
+                    - generic [ref=e620]: March 06 - 2026 |
+                    - generic [ref=e621]: 10:14|
+                    - generic [ref=e622]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e627]: "This is a test paragraph for the online story created by automation script. Random number: 447"
+              - generic [ref=e628]:
+                - generic [ref=e629]:
+                  - checkbox [ref=e632] [cursor=pointer]
+                  - img [ref=e633]
+                  - link "Test Online Story Headline - 492" [ref=e635] [cursor=pointer]:
+                    - /url: /view/4311402
+                  - generic [ref=e636]:
+                    - generic [ref=e637]: March 06 - 2026 |
+                    - generic [ref=e638]: 10:13|
+                    - generic [ref=e639]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e644]: "This is a test paragraph for the online story created by automation script. Random number: 492"
+              - generic [ref=e645]:
+                - generic [ref=e646]:
+                  - checkbox [ref=e649] [cursor=pointer]
+                  - img [ref=e650]
+                  - link "Test Online Story Headline - 646" [ref=e652] [cursor=pointer]:
+                    - /url: /view/4311376
+                  - generic [ref=e653]:
+                    - generic [ref=e654]: March 06 - 2026 |
+                    - generic [ref=e655]: 10:04|
+                    - generic [ref=e656]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e661]: "This is a test paragraph for the online story created by automation script. Random number: 646"
+              - generic [ref=e662]:
+                - generic [ref=e663]:
+                  - checkbox [ref=e666] [cursor=pointer]
+                  - img [ref=e667]
+                  - link "Test Online Story Headline - 411" [ref=e669] [cursor=pointer]:
+                    - /url: /view/4311371
+                  - generic [ref=e670]:
+                    - generic [ref=e671]: March 06 - 2026 |
+                    - generic [ref=e672]: 09:59|
+                    - generic [ref=e673]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e678]: "This is a test paragraph for the online story created by automation script. Random number: 411"
+              - generic [ref=e679]:
+                - generic [ref=e680]:
+                  - checkbox [ref=e683] [cursor=pointer]
+                  - img [ref=e684]
+                  - link "Test Online Story Headline - 818" [ref=e686] [cursor=pointer]:
+                    - /url: /view/4311369
+                  - generic [ref=e687]:
+                    - generic [ref=e688]: March 06 - 2026 |
+                    - generic [ref=e689]: 09:58|
+                    - generic [ref=e690]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e695]: "This is a test paragraph for the online story created by automation script. Random number: 818"
+              - generic [ref=e696]:
+                - generic [ref=e697]:
+                  - checkbox [ref=e700] [cursor=pointer]
+                  - img [ref=e701]
+                  - link "Test Online Story Headline - 585" [ref=e703] [cursor=pointer]:
+                    - /url: /view/4311361
+                  - generic [ref=e704]:
+                    - generic [ref=e705]: March 06 - 2026 |
+                    - generic [ref=e706]: 09:56|
+                    - generic [ref=e707]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e712]: "This is a test paragraph for the online story created by automation script. Random number: 585"
+              - generic [ref=e713]:
+                - generic [ref=e714]:
+                  - checkbox [ref=e717] [cursor=pointer]
+                  - img [ref=e718]
+                  - link "Test Online Story Headline - 809" [ref=e720] [cursor=pointer]:
+                    - /url: /view/4311360
+                  - generic [ref=e721]:
+                    - generic [ref=e722]: March 06 - 2026 |
+                    - generic [ref=e723]: 09:54|
+                    - generic [ref=e724]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e729]: "This is a test paragraph for the online story created by automation script. Random number: 809"
+              - generic [ref=e730]:
+                - generic [ref=e731]:
+                  - checkbox [ref=e734] [cursor=pointer]
+                  - img [ref=e735]
+                  - link "Test Online Story Headline - 250" [ref=e737] [cursor=pointer]:
+                    - /url: /view/4311353
+                  - generic [ref=e738]:
+                    - generic [ref=e739]: March 06 - 2026 |
+                    - generic [ref=e740]: 09:51|
+                    - generic [ref=e741]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e746]: "This is a test paragraph for the online story created by automation script. Random number: 250"
+              - generic [ref=e747]:
+                - generic [ref=e748]:
+                  - checkbox [ref=e751] [cursor=pointer]
+                  - img [ref=e752]
+                  - link "Test Online Story Headline - 748" [ref=e754] [cursor=pointer]:
+                    - /url: /view/4311344
+                  - generic [ref=e755]:
+                    - generic [ref=e756]: March 06 - 2026 |
+                    - generic [ref=e757]: 09:50|
+                    - generic [ref=e758]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e763]: "This is a test paragraph for the online story created by automation script. Random number: 748"
+              - generic [ref=e764]:
+                - generic [ref=e765]:
+                  - checkbox [ref=e768] [cursor=pointer]
+                  - img [ref=e769]
+                  - link "Test Online Story Headline - 922" [ref=e771] [cursor=pointer]:
+                    - /url: /view/4311343
+                  - generic [ref=e772]:
+                    - generic [ref=e773]: March 06 - 2026 |
+                    - generic [ref=e774]: 09:48|
+                    - generic [ref=e775]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e780]: "This is a test paragraph for the online story created by automation script. Random number: 922"
+              - generic [ref=e781]:
+                - generic [ref=e782]:
+                  - checkbox [ref=e785] [cursor=pointer]
+                  - img [ref=e786]
+                  - link "Test Online Story Headline - 382" [ref=e788] [cursor=pointer]:
+                    - /url: /view/4311334
+                  - generic [ref=e789]:
+                    - generic [ref=e790]: March 06 - 2026 |
+                    - generic [ref=e791]: 09:46|
+                    - generic [ref=e792]: Penticton Herald
+                - text: "| |"
+                - generic [ref=e797]: "This is a test paragraph for the online story created by automation script. Random number: 382"
+      - generic [ref=e798]:
+        - generic [ref=e800]:
+          - generic [ref=e802]:
+            - text: Commentary
+            - generic "Refresh" [ref=e803] [cursor=pointer]:
+              - img [ref=e804]
+          - generic [ref=e807]:
+            - button "Test Online Story Headline - 514" [ref=e808]:
+              - generic [ref=e810]:
+                - img [ref=e811]
+                - link "Test Online Story Headline - 514" [ref=e813] [cursor=pointer]:
+                  - /url: /view/4312752
+                  - generic [ref=e814]: Test Online Story Headline - 514
+            - button "Test Online Story Headline - 17" [ref=e818]:
+              - generic [ref=e820]:
+                - img [ref=e821]
+                - link "Test Online Story Headline - 17" [ref=e823] [cursor=pointer]:
+                  - /url: /view/4312750
+                  - generic [ref=e824]: Test Online Story Headline - 17
+            - button "Test Online Story Headline - 592" [ref=e828]:
+              - generic [ref=e830]:
+                - img [ref=e831]
+                - link "Test Online Story Headline - 592" [ref=e833] [cursor=pointer]:
+                  - /url: /view/4312747
+                  - generic [ref=e834]: Test Online Story Headline - 592
+            - button "Test Online Story Headline - 926" [ref=e838]:
+              - generic [ref=e840]:
+                - img [ref=e841]
+                - link "Test Online Story Headline - 926" [ref=e843] [cursor=pointer]:
+                  - /url: /view/4312746
+                  - generic [ref=e844]: Test Online Story Headline - 926
+            - button "Test Online Story Headline - 986" [ref=e848]:
+              - generic [ref=e850]:
+                - img [ref=e851]
+                - link "Test Online Story Headline - 986" [ref=e853] [cursor=pointer]:
+                  - /url: /view/4312736
+                  - generic [ref=e854]: Test Online Story Headline - 986
+            - button "Test Online Story Headline - 268" [ref=e858]:
+              - generic [ref=e860]:
+                - img [ref=e861]
+                - link "Test Online Story Headline - 268" [ref=e863] [cursor=pointer]:
+                  - /url: /view/4312733
+                  - generic [ref=e864]: Test Online Story Headline - 268
+            - button "Test Online Story Headline - 138" [ref=e868]:
+              - generic [ref=e870]:
+                - img [ref=e871]
+                - link "Test Online Story Headline - 138" [ref=e873] [cursor=pointer]:
+                  - /url: /view/4312732
+                  - generic [ref=e874]: Test Online Story Headline - 138
+            - button "Test Online Story Headline - 600" [ref=e878]:
+              - generic [ref=e880]:
+                - img [ref=e881]
+                - link "Test Online Story Headline - 600" [ref=e883] [cursor=pointer]:
+                  - /url: /view/4312731
+                  - generic [ref=e884]: Test Online Story Headline - 600
+            - button "Test Online Story Headline - 363" [ref=e888]:
+              - generic [ref=e890]:
+                - img [ref=e891]
+                - link "Test Online Story Headline - 363" [ref=e893] [cursor=pointer]:
+                  - /url: /view/4312726
+                  - generic [ref=e894]: Test Online Story Headline - 363
+            - button "Test Online Story Headline - 185" [ref=e898]:
+              - generic [ref=e900]:
+                - img [ref=e901]
+                - link "Test Online Story Headline - 185" [ref=e903] [cursor=pointer]:
+                  - /url: /view/4312725
+                  - generic [ref=e904]: Test Online Story Headline - 185
+            - button "Test Online Story Headline - 49" [ref=e908]:
+              - generic [ref=e910]:
+                - img [ref=e911]
+                - link "Test Online Story Headline - 49" [ref=e913] [cursor=pointer]:
+                  - /url: /view/4312721
+                  - generic [ref=e914]: Test Online Story Headline - 49
+            - button "Test Online Story Headline - 120" [ref=e918]:
+              - generic [ref=e920]:
+                - img [ref=e921]
+                - link "Test Online Story Headline - 120" [ref=e923] [cursor=pointer]:
+                  - /url: /view/4312718
+                  - generic [ref=e924]: Test Online Story Headline - 120
+            - button "Test Online Story Headline - 106" [ref=e928]:
+              - generic [ref=e930]:
+                - img [ref=e931]
+                - link "Test Online Story Headline - 106" [ref=e933] [cursor=pointer]:
+                  - /url: /view/4312692
+                  - generic [ref=e934]: Test Online Story Headline - 106
+            - button "Test Online Story Headline - 278" [ref=e938]:
+              - generic [ref=e940]:
+                - img [ref=e941]
+                - link "Test Online Story Headline - 278" [ref=e943] [cursor=pointer]:
+                  - /url: /view/4312691
+                  - generic [ref=e944]: Test Online Story Headline - 278
+            - button "Test Online Story Headline - 819" [ref=e948]:
+              - generic [ref=e950]:
+                - img [ref=e951]
+                - link "Test Online Story Headline - 819" [ref=e953] [cursor=pointer]:
+                  - /url: /view/4312686
+                  - generic [ref=e954]: Test Online Story Headline - 819
+            - button "Test Online Story Headline - 139" [ref=e958]:
+              - generic [ref=e960]:
+                - img [ref=e961]
+                - link "Test Online Story Headline - 139" [ref=e963] [cursor=pointer]:
+                  - /url: /view/4312682
+                  - generic [ref=e964]: Test Online Story Headline - 139
+            - button "Test Online Story Headline - 273" [ref=e968]:
+              - generic [ref=e970]:
+                - img [ref=e971]
+                - link "Test Online Story Headline - 273" [ref=e973] [cursor=pointer]:
+                  - /url: /view/4312681
+                  - generic [ref=e974]: Test Online Story Headline - 273
+            - button "Test Online Story Headline - 924" [ref=e978]:
+              - generic [ref=e980]:
+                - img [ref=e981]
+                - link "Test Online Story Headline - 924" [ref=e983] [cursor=pointer]:
+                  - /url: /view/4312677
+                  - generic [ref=e984]: Test Online Story Headline - 924
+            - button "Test Online Story Headline - 770" [ref=e988]:
+              - generic [ref=e990]:
+                - img [ref=e991]
+                - link "Test Online Story Headline - 770" [ref=e993] [cursor=pointer]:
+                  - /url: /view/4312675
+                  - generic [ref=e994]: Test Online Story Headline - 770
+            - button "Test Online Story Headline - 633" [ref=e998]:
+              - generic [ref=e1000]:
+                - img [ref=e1001]
+                - link "Test Online Story Headline - 633" [ref=e1003] [cursor=pointer]:
+                  - /url: /view/4312671
+                  - generic [ref=e1004]: Test Online Story Headline - 633
+            - button "Test Online Story Headline - 596" [ref=e1008]:
+              - generic [ref=e1010]:
+                - img [ref=e1011]
+                - link "Test Online Story Headline - 596" [ref=e1013] [cursor=pointer]:
+                  - /url: /view/4312669
+                  - generic [ref=e1014]: Test Online Story Headline - 596
+            - button "Test Online Story Headline - 836" [ref=e1018]:
+              - generic [ref=e1020]:
+                - img [ref=e1021]
+                - link "Test Online Story Headline - 836" [ref=e1023] [cursor=pointer]:
+                  - /url: /view/4312668
+                  - generic [ref=e1024]: Test Online Story Headline - 836
+        - generic [ref=e1029]:
+          - generic [ref=e1030]: Top Domains
+          - iframe [ref=e1031]:
+            
+```

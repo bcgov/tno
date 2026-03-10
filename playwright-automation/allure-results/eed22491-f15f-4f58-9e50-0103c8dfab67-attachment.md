@@ -1,0 +1,53 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e6]: SiteMinder Test Environment
+    - banner [ref=e7]:
+      - generic [ref=e8]:
+        - link "B.C. government" [ref=e9] [cursor=pointer]:
+          - /url: http://www.gov.bc.ca
+        - generic [ref=e11]: Log in to sfstest7.gov.bc.ca
+    - generic [ref=e14]:
+      - generic [ref=e16]:
+        - generic [ref=e17]: Log in with
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - generic [ref=e21]: IDIR Username
+            - textbox [ref=e22]
+          - generic [ref=e23]:
+            - generic [ref=e24]: Password
+            - textbox "Password" [ref=e25]
+          - generic [ref=e27]:
+            - generic [ref=e28]: 
+            - text: The username or password you entered is incorrect
+          - button "Continue" [ref=e30] [cursor=pointer]
+      - generic [ref=e33]:
+        - paragraph [ref=e34]:
+          - text: IDIR users who have registered for MFA may reset their password via
+          - link "Self Service Password Reset" [ref=e35] [cursor=pointer]:
+            - /url: https://aka.ms/sspr
+          - text: .
+        - generic [ref=e36]: "If you are not MFA registered, or require additional assistance, please contact your IDIR security administrator or the OCIO IT Service Desk at:"
+        - generic [ref=e37]: "Phone: 250-387-7000"
+        - generic [ref=e38]:
+          - text: "Email:"
+          - link "77000@gov.bc.ca" [ref=e39] [cursor=pointer]:
+            - /url: mailto:77000@gov.bc.ca
+  - contentinfo [ref=e40]:
+    - paragraph [ref=e44]: Access to or unauthorized use of data on this computer system by any person other than the authorized employee(s) or owner(s) of an account is strictly prohibited and may result in legal action against such person.
+    - list [ref=e49]:
+      - listitem [ref=e50]:
+        - link "Disclaimer" [ref=e51] [cursor=pointer]:
+          - /url: http://www.gov.bc.ca/com/disclaimer.html
+      - listitem [ref=e52]:
+        - link "Privacy" [ref=e53] [cursor=pointer]:
+          - /url: http://www.gov.bc.ca/com/privacy.html
+      - listitem [ref=e54]:
+        - link "Accessibility" [ref=e55] [cursor=pointer]:
+          - /url: https://www2.gov.bc.ca/gov/content/home/accessible-government
+      - listitem [ref=e56]:
+        - link "Copyright" [ref=e57] [cursor=pointer]:
+          - /url: http://www.gov.bc.ca/com/copyright.html
+```

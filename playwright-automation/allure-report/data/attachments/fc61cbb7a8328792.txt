@@ -1,0 +1,5 @@
+{"level":"info","message":"Starting Test: Login as priya.saini@gov.bc.ca"}
+Username: priya.saini@gov.bc.ca, Password: 46Hefopt7kgr&w
+{"level":"error","message":"Test Failed: Login as priya.saini@gov.bc.ca"}
+{"level":"info","message":"Finished Test: Login as priya.saini@gov.bc.ca"}
+{"level":"info","message":"Clicking on IDIR button to login.."}

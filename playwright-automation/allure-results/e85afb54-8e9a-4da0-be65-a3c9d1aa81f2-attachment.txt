@@ -1,0 +1,14 @@
+{"level":"info","message":"Starting Test: Login as priya.saini@gov.bc.ca"}
+{"level":"info","message":"Clicking on IDIR button to login.."}
+{"level":"info","message":"Login MMI Editor Portal using Microsoft SSO!!"}
+{"level":"info","message":"Clicked on Content Configuration button!!"}
+{"level":"info","message":"Clicked on Ministers link!!"}
+{"level":"info","message":"Clicked on Add New Minister button!!"}
+Minister Name entered: Test Minister Name - 8474
+{"level":"info","message":"Entered minister details: Name=Test Minister Name - 8474, Description=Test Minister Description - 8474, Position=Test Minister Position - 8474, Sort Order=1"}
+{"level":"info","message":"Clicked on Back to Ministers button!!"}
+{"level":"info","message":"Searched for minister with name: Test Minister Name - 8474"}
+{"level":"info","message":"Searched Minister Name: Sign OutHomeContentReport BuildingNotifications BuildingContent ConfigurationMedia SourcesShows & ProgramsTagsMedia TypesColumnist & PunditsMinistersActionsData ImportSystem SettingsMinisters provide a way to configuration data storage locations and authentication settings. Ingest service configuration requires both a source and destination minister to be configured.Add new ministerNamePositionOrderEnabledTest Minister Name - 8474Test Minister Position - 84741"}
+Searched Minister Name: Sign OutHomeContentReport BuildingNotifications BuildingContent ConfigurationMedia SourcesShows & ProgramsTagsMedia TypesColumnist & PunditsMinistersActionsData ImportSystem SettingsMinisters provide a way to configuration data storage locations and authentication settings. Ingest service configuration requires both a source and destination minister to be configured.Add new ministerNamePositionOrderEnabledTest Minister Name - 8474Test Minister Position - 84741
+Expected Minister Name: Test Minister Name - 8474
+{"level":"info","message":"Finished Test: Login as priya.saini@gov.bc.ca"}

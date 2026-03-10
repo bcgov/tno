@@ -1,0 +1,59 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - link "BC Gov logo" [ref=e6] [cursor=pointer]:
+      - /url: /
+      - img "BC Gov logo" [ref=e7]
+    - link "MMI logo" [ref=e9] [cursor=pointer]:
+      - /url: /
+      - img "MMI logo" [ref=e10]
+    - button "Sign Out" [ref=e13] [cursor=pointer]:
+      - generic [ref=e14]: Sign Out
+  - navigation [ref=e16]:
+    - generic [ref=e17]:
+      - link "Home" [ref=e18] [cursor=pointer]:
+        - /url: /contents
+        - generic [ref=e19]:
+          - img [ref=e20]
+          - text: Home
+      - generic [ref=e23]:
+        - button "Content" [ref=e25] [cursor=pointer]
+        - button "Report Building" [ref=e27] [cursor=pointer]
+        - button "Notifications Building" [ref=e29] [cursor=pointer]
+        - button "Content Configuration" [ref=e31] [cursor=pointer]
+        - button "Data Import" [ref=e33] [cursor=pointer]
+        - button "System Settings" [ref=e35] [cursor=pointer]
+  - main [ref=e37]:
+    - generic [ref=e38]:
+      - generic [ref=e39]:
+        - generic [ref=e40]: Ministers provide a way to configuration data storage locations and authentication settings. Ingest service configuration requires both a source and destination minister to be configured.
+        - button "plus Add new minister" [ref=e41] [cursor=pointer]:
+          - generic [ref=e42]:
+            - img "plus" [ref=e43]
+            - text: Add new minister
+      - generic [ref=e44]:
+        - textbox "Search by keyword" [active] [ref=e47]: Test Minister Name - 3289
+        - button "reset" [ref=e48] [cursor=pointer]:
+          - img "reset" [ref=e50]
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - generic [ref=e55]: Name
+            - img [ref=e57]
+          - generic [ref=e59]:
+            - generic [ref=e60]: Position
+            - img [ref=e62]
+          - generic [ref=e64]:
+            - generic [ref=e65]: Order
+            - img [ref=e67]
+          - generic [ref=e69]:
+            - generic [ref=e70]: Enabled
+            - img [ref=e72]
+        - generic [ref=e75] [cursor=pointer]:
+          - generic [ref=e77]: Test Minister Name - 3289
+          - generic [ref=e79]: Test Minister Position - 3289
+          - generic [ref=e80]: "1"
+          - img [ref=e82]
+```

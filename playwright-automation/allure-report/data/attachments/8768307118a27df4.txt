@@ -1,0 +1,15 @@
+{"level":"info","message":"Starting Test: Login as priya.saini@gov.bc.ca"}
+{"level":"info","message":"Clicking on IDIR button to login.."}
+{"level":"info","message":"Login MMI Editor Portal using Microsoft SSO!!"}
+{"level":"info","message":"Clicked on Content Configuration button!!"}
+{"level":"info","message":"Clicked on Ministers link!!"}
+{"level":"info","message":"Clicked on Add New Minister button!!"}
+Minister Name entered: Test Minister Name - 6258
+{"level":"info","message":"Entered minister details: Name=Test Minister Name - 6258, Description=Test Minister Description - 6258, Position=Test Minister Position - 6258, Sort Order=1"}
+{"level":"info","message":"Clicked on Back to Ministers button!!"}
+{"level":"info","message":"Searched for minister with name: Test Minister Name - 6258"}
+{"level":"info","message":"Searched Minister Name: Sign OutHomeContentReport BuildingNotifications BuildingContent ConfigurationMedia SourcesShows & ProgramsTagsMedia TypesColumnist & PunditsMinistersActionsData ImportSystem SettingsBack to MinistersName DescriptionTest Minister Description - 6258PositionTest Minister Position - 6258Sort Order Is EnabledUpdated By Updated OnCreated By Created OnSaveDeleteTest Minister Name - 6258 has successfully been saved."}
+Searched Minister Name: Sign OutHomeContentReport BuildingNotifications BuildingContent ConfigurationMedia SourcesShows & ProgramsTagsMedia TypesColumnist & PunditsMinistersActionsData ImportSystem SettingsBack to MinistersName DescriptionTest Minister Description - 6258PositionTest Minister Position - 6258Sort Order Is EnabledUpdated By Updated OnCreated By Created OnSaveDeleteTest Minister Name - 6258 has successfully been saved.
+Expected Minister Name: Test Minister Name - 6258
+{"level":"error","message":"Test Failed: Login as priya.saini@gov.bc.ca"}
+{"level":"info","message":"Finished Test: Login as priya.saini@gov.bc.ca"}
