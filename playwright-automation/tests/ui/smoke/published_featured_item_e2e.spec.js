@@ -1,31 +1,30 @@
 const { test, expect } = require('../../../fixtures/ui-fixture');
-const AppPage = require('../../../pages/appPage');
-const EditorHomePage = require('../../../pages/editorHomePage')
-const HeadlinesDetailsPage = require('../../../pages/headlinesDetailsPage')
 const DataLoader = require('../../../utils/dataLoader');
 const CONSTANTS = require('../../../utils/constants');
-const SubscriberSearchResultPage = require('../../../pages/subscriberSearchResultPage');
-const env = require('../../../config/env.config');
 
-const users = DataLoader.loadJSON('test-data/loginData.json');
+const testData = DataLoader.loadJSON(`test-data/${process.env.ENV_NAME}/loginData.json`);
+const testApp = process.env.APP_NAME;
+const editorUrl = testData[testApp]['editor']['url'];
+
+let page, appPage, editorHomePage, headlineDetailsPage, subscriberSearchResultPage;
 
 
-test.beforeEach(async ({ page }) => {
-  await page.goto('/');
+test.beforeEach(async ({ masterFixture }) => {
+    page = masterFixture.page;  
+    appPage = masterFixture.appPage;
+    editorHomePage = masterFixture.editorHomePage;
+    headlineDetailsPage = masterFixture.headlineDetailsPage;
+    subscriberSearchResultPage = masterFixture.subscriberSearchResultPage;
+    await appPage.navigateToUrl(editorUrl);
+    await appPage.hardWait(5000);
 });
 
 test.describe('@smoke Featued content Publishing', () => {
 
-    test(`Editor publishes an item and Subscriber can see it under Featued column`, async ({ page }) => {
-       const appPage = new AppPage(page);
-       await appPage.login(env.username, env.password);
-      
-      const editorHomePage = new EditorHomePage(page);
-      await editorHomePage.verifyEditorHomePageLoaded();
-      const newTab = await editorHomePage.clickOnHeadlinesTitleByRowNumber(1);
+    test(`Editor publishes an item and Subscriber can see it under Featued column`, async ({ }) => {
+      const parentPage = page;
+      headlineDetailsPage = await editorHomePage.clickOnHeadlinesTitleByRowNumber(1);
 
-      const headlineDetailsPage = new HeadlinesDetailsPage(newTab);
-      await headlineDetailsPage.verifyHeadlinesDetailsPageLoaded();
       const editorHeadlineTitle = await headlineDetailsPage.getHeadlinesTextFieldValue();
 
       await headlineDetailsPage.enterByline(CONSTANTS.HEADLINES.BYLINE);
@@ -33,17 +32,18 @@ test.describe('@smoke Featued content Publishing', () => {
       await headlineDetailsPage.publishHeadlines();
       expect(await headlineDetailsPage.verifyToastNotificationVisible(editorHeadlineTitle)).toBeTruthy();
 
-      await newTab.close();
-      await page.bringToFront();
+      await headlineDetailsPage.closePage();
+      await parentPage.bringToFront();
       await appPage.logOut();
 
       await appPage.navigateToSubscriberURL();
-      await appPage.loginAsSubscriber(env.sub_username, env.sub_password);
-      const subscriberSearchResultPage = new SubscriberSearchResultPage(page);
+      await appPage.loginAsSubscriber(process.env.sub_username, process.env.sub_password);
+      
       await subscriberSearchResultPage.clickOnSearchButton();
 
       await subscriberSearchResultPage.verifySearchResultPageLoaded();
       expect(subscriberSearchResultPage.isPublishedHeadlinesPresent(editorHeadlineTitle)).toBeTruthy();
+      await appPage.logOutFromSubscriber();
 
     });
 

@@ -1,7 +1,6 @@
 const BasePage = require('./base/BasePage');
 const CONSTANTS = require('../utils/constants');
 const logger = require('../utils/logger');
-const TabManager = require('../utils/tab-Manager');
 
 class SubscriberSearchResultPage extends BasePage {
   constructor(page) {
@@ -39,4 +38,4 @@ class SubscriberSearchResultPage extends BasePage {
 
 }
 
-module.exports = SubscriberSearchResultPage;
+module.exports = { SubscriberSearchResultPage };

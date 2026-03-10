@@ -61,6 +61,33 @@ class BasePage {
   async hardWait(milliseconds) {
     await this.page.waitForTimeout(milliseconds);
   }
+
+  async clickElementByText(locator, expectedText) {
+    const count = await locator.count();
+    if(count === 0){
+      return false;
+    }
+
+    for(let i=0; i < count; i++){
+      const element = await locator.nth(i);
+      const text = (await element.innerText()).trim();
+
+      if( text === expectedText) {
+        await this.click(element);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  async isElementClickable(locator) {
+    try {
+      await locator.click({trail : true});
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
 }
 
 module.exports = BasePage;

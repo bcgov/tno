@@ -9,29 +9,28 @@ const fs = require('fs');
 
 module.exports = defineConfig({
   testDir: './tests',
+  globalSetup: './utils/global-setup.js',
   timeout: 60000,
   retries: 0,
-  workers: process.env.CI ? 4 : 1,
+  workers: process.env.CI ? 4 : 2,
 
-  reporter: [
-    ['list'],
-    ['allure-playwright']
-  ],
+  reporter: [['list'], ['html', { outputFolder: 'playwright-report' }], ['allure-playwright']],
 
   use: {
-    baseURL: process.env.BASE_URL,
-    trace: 'retain-on-failure',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    actionTimeout: 30000,
+    trace: 'off',
+    screenshot: 'on',
+    storageState: '/tmp/login.json',
     headless: false,
+    viewport: null,
     launchOptions: {
-       args:['--start-maximized']
+      args: ['--start-maximized'],
     },
-    viewport: null
   },
 
   projects: [
     { name: 'chromium', use: { browserName: 'chromium' } },
     // { name: 'firefox', use: { browserName: 'firefox' } }
-  ]
+  ],
+  outputDir: '/tmp/test-result',
 });

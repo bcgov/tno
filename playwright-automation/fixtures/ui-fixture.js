@@ -1,36 +1,21 @@
-const { test: base, expect } = require('@playwright/test');
-const ENV = require('../config/env.config');
-const logger = require('../utils/logger');
+const base = require('@playwright/test');
+import { MasterFixture } from './master-fixture';
 
-const test = base.extend({
-  page: async ({ page }, use, testInfo) => {
-    logger.info(`Starting Test: ${testInfo.title}`);
 
-    await page.goto(ENV.baseURL);
+// Extend base test by providing pages as required
+// This extended  "test" can be used in multiple test files, and each of them will get the fixtures.
+exports.test = base.test.extend({
+  masterFixture: [
+    async ({ browser }, use) => {
+      const page = await browser.newPage();
+      await use(new MasterFixture(page));
+    },
+    { scope: 'worker' },
+  ],
 
-    await use(page);
-
-    logger.info(`Finished Test: ${testInfo.title}`);
+  // Add `browserName` to the fixture
+  browserName: async ({ browserName }, use) => {
+    await use(browserName);
   },
 });
-
-/**
- * Global afterEach for all UI tests.
- */
-test.afterEach(async ({ page }, testInfo) => {
-  // If test failed
-  if (testInfo.status !== testInfo.expectedStatus) {
-    logger.error(`Test Failed: ${testInfo.title}`);
-
-    // Attach screenshot directly to eport
-    await testInfo.attach('Failure Screenshot', {
-      body: await page.screenshot(),
-      contentType: 'img/png',
-    });
-  }
-});
-
-module.exports = {
-  test,
-  expect,
-};
+export { expect } from '@playwright/test';

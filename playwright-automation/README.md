@@ -3,11 +3,13 @@
 ##  Overview
 This framework is built using Playwright with JavaScript following OOP and POM design.
 
-## 📂 Folder Structure
+## Folder Structure
 - api  → Connecting to API client and common api methods
+- fixtures -> Master, UI and API fixtures
 - pages → Page Object Model classes
+- test-data -> App test data files
 - tests → Test cases
-- fixtures → Custom fixtures
+- tmp -> To store browser session state
 - utils → Reusable utilities
 
 ## Setup Instructions
@@ -22,25 +24,32 @@ This framework is built using Playwright with JavaScript following OOP and POM d
 
 ## Environment Configuration
 
-After completing the project setup, you ust create a `.env` file in the root directory of the project
+After completing the project setup, you ust create a `.env.test` file in the root directory of the project
 
-### Step 1: Create .env File
+### Step 1: Create `.env.test` File
 
-Create a file named : .env at the root level of the project.
+Create a file named : `.env.test` at the root level of the project.
 
 ### Step 2: Add the following environment variables
 
 ```
-ENV=qa
-BASE_URL=https://test.editor.mmi.gov.bc.ca/
-API_BASE_URL=<base url>
+ENV=test
+QA_URL=https://test.editor.mmi.gov.bc.ca/
+API_QA_URL=https://test.editor.mmi.gov.bc.ca/
+APP_USERNAME=<uName>
+APP_PASSWORD=<password>
+SUB_USERNAME=<uNmae>
+SUB_PASSWORD=<password>
 HEADLESS=true
 TIMEOUT=60000
 CI=false
+MAIL_USER=<sender_Email_Id>
+MAIL_PASSWORD=<sender_password_not_plain_text>
+MAIL_TO=<receipient_Email_Id>
 ```
 ## Update password
 
-Update your user credentials in `.env` file at root level. Please add belwo variables for user credentials (both Editor and Subscriber)
+Update your user credentials in `.env.test` file at root level. Please add belwo variables for user credentials (both Editor and Subscriber)
 
 ```
 APP_USERNAME=<editor_username>
