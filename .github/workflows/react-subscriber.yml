@@ -78,7 +78,7 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build \
-            -f app/subscriber/Dockerfile \
+            -f app/subscriber/Dockerfile.nginx \
             -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
             --build-arg REACT_APP_VERSION=${{ github.sha }} \
             ./app/subscriber
@@ -144,7 +144,7 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build \
-            -f app/subscriber/Dockerfile \
+            -f app/subscriber/Dockerfile.nginx \
             -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
             --build-arg REACT_APP_VERSION=${{ github.sha }} \
             ./app/subscriber

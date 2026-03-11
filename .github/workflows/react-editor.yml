@@ -78,7 +78,7 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build \
-            -f app/editor/Dockerfile \
+            -f app/editor/Dockerfile.nginx \
             -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
             --build-arg REACT_APP_VERSION=${{ github.sha }} \
             ./app/editor
@@ -144,7 +144,7 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build \
-            -f app/editor/Dockerfile \
+            -f app/editor/Dockerfile.nginx \
             -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
             --build-arg REACT_APP_VERSION=${{ github.sha }} \
             ./app/editor
