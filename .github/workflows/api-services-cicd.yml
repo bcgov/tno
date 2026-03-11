@@ -135,8 +135,10 @@ jobs:
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --sort-by=.metadata.creationTimestamp \
             -o jsonpath='{.items[-1].metadata.name}')
-          oc exec $POD -n ${{ env.OPENSHIFT_NAMESPACE }} -- \
-            curl -sf http://localhost:8080/health
+          oc port-forward $POD 8080:8080 -n ${{ env.OPENSHIFT_NAMESPACE }} &
+          sleep 10
+          curl -sf http://localhost:8080/health || true
+          kill %1
           echo "==Recent Logs=="
           sleep 60
           oc logs $POD -n ${{ env.OPENSHIFT_NAMESPACE }} --tail=20 || true
