@@ -11,6 +11,8 @@ const CONSTANTS = {
 
   HEADLINES: {
     BYLINE: 'test_byline_value',
+    SOURCE_TORONTO_STAR: 'Toronto Star',
+    TAG_ADV: 'ADV',
     SENTIMENTS_1: '1',
     SENTIMENTS_2: '2',
     SENTIMENTS_3: '3'
@@ -39,6 +41,10 @@ const CONSTANTS = {
 
   SUBSCRIBER_NAV_BAR_OPTIONS: {
     MY_REPORTS: 'My Reports'
+  },
+
+  CONTENTS: {
+    RADIO_TV : 'Radio/TV'
   }
   
 };
