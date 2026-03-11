@@ -2,22 +2,11 @@ const CONSTANTS = {
   TIMEOUTS: {
     SHORT: 3000,
     MEDIUM: 7000,
-    LONG: 15000
-  },
-
-  USERS: {
-    STANDARD: 'standard_user',
-    ADMIN: 'admin_user'
+    LONG: 30000
   },
 
   URL: {
     SUBSCRIBER_URL: 'https://test.mmi.gov.bc.ca/',
-  },
-
-  FILES: {
-    SAMPLE_PDF: 'sample.pdf',
-    SAMPLE_MP4: 'video.mp4',
-    SAMPLE_PNG: 'image.png'
   },
 
   HEADLINES: {
@@ -25,6 +14,31 @@ const CONSTANTS = {
     SENTIMENTS_1: '1',
     SENTIMENTS_2: '2',
     SENTIMENTS_3: '3'
+  },
+
+  NAVIGATIONMENU: {
+    REPORT_BUILDING: 'Report Building',
+
+  },
+
+  REPORTBUILDING_SUBMENU: {
+    REPORTS: 'Reports',
+  },
+
+  REPORT_SUBNAVIGATION_TABS: {
+    REPORT: 'Report',
+    TEMPLATE: 'Template',
+    SECTIONS: 'Sections',
+    PREVIEW: 'Preview'
+  },
+
+  REPORT_SECTION_BUTTON: {
+    TABLE_OF_CONTENTS: 'Table of Contents',
+    TEXT: 'Text'
+  },
+
+  SUBSCRIBER_NAV_BAR_OPTIONS: {
+    MY_REPORTS: 'My Reports'
   }
   
 };

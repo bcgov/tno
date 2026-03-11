@@ -171,7 +171,7 @@ spec:
         build_service 'extract-quotes'
         build_service 'filecopy'
         build_service 'filemonitor'
-        build_service 'folder-collection'
+        # build_service 'folder-collection' # Moved to GitHub Actions CI/CD — folder-collection-cicd.yml
         build_service 'image'
         build_service 'indexing'
         build_service 'nlp'

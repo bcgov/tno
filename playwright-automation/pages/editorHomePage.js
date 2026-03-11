@@ -2,6 +2,7 @@ const BasePage = require('./base/BasePage');
 const CONSTANTS = require('../utils/constants');
 const logger = require('../utils/logger');
 const TabManager = require('../utils/tab-Manager');
+const { HeadlinesDetailsPage } = require('./headlinesDetailsPage');
 
 class EditorHomePage extends BasePage {
   constructor(page) {
@@ -40,10 +41,6 @@ class EditorHomePage extends BasePage {
       state: 'visible',
       timeout: CONSTANTS.TIMEOUTS.LONG,
     });
-    await this.firstHeadlineFromHeadlinesGrid.waitFor({
-      state: 'attached',
-      timeout: CONSTANTS.TIMEOUTS.LONG,
-    });
     logger.info('Editor Home page loaded successfully!!');
   }
 
@@ -70,8 +67,8 @@ class EditorHomePage extends BasePage {
     await newPage.waitForLoadState('domcontentloaded');
     logger.info(`Clicked on headline title for row ${rowNumber} and navigated to new tab`);
     await this.hardWait(2000);
-    return newPage;
+    return new HeadlinesDetailsPage(newPage);
   }
 }
 
-module.exports = EditorHomePage;
+module.exports = { EditorHomePage };
