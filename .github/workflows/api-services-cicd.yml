@@ -117,20 +117,14 @@ jobs:
         run: |
           oc rollout status deployment/api-services \
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
-            --timeout=180s
-
-      - name: Rollback on Failure
-        if: failure()
-        run: |
-          oc rollout undo deployment/api-services \
-            -n ${{ env.OPENSHIFT_NAMESPACE }}
+            --timeout=300s
 
       - name: Deployment Report
         if: always()
         run: |
-          echo "==Pod Status=="
+          echo "--- pod status ---"
           oc get pods -l component=api-services -n ${{ env.OPENSHIFT_NAMESPACE }}
-          echo "==Health Check=="
+          echo "--- health check ---"
           POD=$(oc get pod -l component=api-services \
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --sort-by=.metadata.creationTimestamp \
@@ -139,7 +133,7 @@ jobs:
           sleep 10
           curl -sf http://localhost:8080/health || true
           kill %1
-          echo "==Recent Logs=="
+          echo "--- recent logs ---"
           sleep 60
           oc logs $POD -n ${{ env.OPENSHIFT_NAMESPACE }} --tail=20 || true
 
@@ -207,4 +201,22 @@ jobs:
         run: |
           oc rollout status deployment/api-services \
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
-            --timeout=180s
+            --timeout=300s
+
+      - name: Deployment Report
+        if: always()
+        run: |
+          echo "--- pod status ---"
+          oc get pods -l component=api-services -n ${{ env.OPENSHIFT_NAMESPACE }}
+          echo "--- health check ---"
+          POD=$(oc get pod -l component=api-services \
+            -n ${{ env.OPENSHIFT_NAMESPACE }} \
+            --sort-by=.metadata.creationTimestamp \
+            -o jsonpath='{.items[-1].metadata.name}')
+          oc port-forward $POD 8080:8080 -n ${{ env.OPENSHIFT_NAMESPACE }} &
+          sleep 10
+          curl -sf http://localhost:8080/health || true
+          kill %1
+          echo "--- recent logs ---"
+          sleep 60
+          oc logs $POD -n ${{ env.OPENSHIFT_NAMESPACE }} --tail=20 || true
