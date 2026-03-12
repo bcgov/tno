@@ -34,6 +34,11 @@ class EditorHomePage extends BasePage {
     this.radioTVContent = page.locator(
       `//div[contains(@class,"create-new")]/*[@data-tooltip-content="Radio/TV"]`,
     );
+    this.imageContent = page.locator(
+      `//div[contains(@class,"create-new")]/*[@data-tooltip-content="Image"]`,
+    );
+    this.mediaType = page.locator(`input[name="select-mediaTypeIds"]`);
+    this.dailyMediaTypeOption = page.locator(`input[id="Daily Print"]`);
   }
 
   /**
@@ -78,12 +83,18 @@ class EditorHomePage extends BasePage {
    */
   async clickOnContent(contentTitle) {
     logger.info(`Clicking on Content title : ${contentTitle}`);
-    let [newPage] = "";
+    let [newPage] = '';
     switch (contentTitle) {
       case 'Radio/TV':
         [newPage] = await Promise.all([
           this.page.context().waitForEvent('page'),
           this.click(this.radioTVContent),
+        ]);
+        break;
+      case 'Image':
+        [newPage] = await Promise.all([
+          this.page.context().waitForEvent('page'),
+          this.click(this.imageContent),
         ]);
         break;
 
@@ -94,6 +105,17 @@ class EditorHomePage extends BasePage {
     logger.info(`Clicked on Content title ${contentTitle} and navigated to new tab`);
     await this.hardWait(2000);
     return new HeadlinesDetailsPage(newPage);
+  }
+
+  /**
+   * Select Media Type filter option daily
+   * @param {string} type 
+   */
+  async selectMediaTypeFilterDailyPrint(mType) {
+    await this.type(this.mediaType, mType);
+    await this.click(this.dailyMediaTypeOption);
+    logger.info(`Selected Media type Filter : ${mType}`);
+    await this.hardWait(3000);
   }
 }
 

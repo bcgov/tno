@@ -12,6 +12,7 @@ const CONSTANTS = {
   HEADLINES: {
     BYLINE: 'test_byline_value',
     SOURCE_TORONTO_STAR: 'Toronto Star',
+    DAILY_PRINT: 'Daily Print',
     TAG_ADV: 'ADV',
     SENTIMENTS_1: '1',
     SENTIMENTS_2: '2',
@@ -20,11 +21,16 @@ const CONSTANTS = {
 
   NAVIGATIONMENU: {
     REPORT_BUILDING: 'Report Building',
+    CONTENT: 'Content'
 
   },
 
   REPORTBUILDING_SUBMENU: {
     REPORTS: 'Reports',
+  },
+
+  CONTENT_SUBMENU: {
+    ALL_CONTENT: 'All Content',
   },
 
   REPORT_SUBNAVIGATION_TABS: {
@@ -44,7 +50,8 @@ const CONSTANTS = {
   },
 
   CONTENTS: {
-    RADIO_TV : 'Radio/TV'
+    RADIO_TV : 'Radio/TV',
+    IMAGE: 'Image'
   }
   
 };

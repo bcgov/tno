@@ -16,6 +16,7 @@ class AppPage extends BasePage {
     this.subscriberIdir = page.locator('button.idir-logo');
     this.menuNavigationLink = page.locator('div.nav-item .dropdown-toggle');
     this.subMenuNavigationLink = page.locator('.show a.dropdown-item');
+    this.allContentSubNavLink = page.locator(`.dropdown-menu a[href="/contents"]`);
   }
 
   /**
@@ -125,6 +126,12 @@ class AppPage extends BasePage {
         break;
       case CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS:
         await this.clickElementByText(this.subMenuNavigationLink, menuName);
+        break;
+      case CONSTANTS.NAVIGATIONMENU.CONTENT:
+        await this.clickElementByText(this.menuNavigationLink, menuName);
+        break;
+      case CONSTANTS.CONTENT_SUBMENU.ALL_CONTENT:
+        await this.clickElementByText(this.allContentSubNavLink, menuName);
         break;
       default:
         logger.info(`Invalid menu or sub menu option: ${menuName}`);
