@@ -15,11 +15,14 @@ class HeadlinesDetailsPage extends BasePage {
     this.browseUpload = page.locator('.upload-box .body');
     this.summaryTextField = page.locator('.ql-editor');
     this.sourceDropDownField = page.locator('#sel-sourceId input[name="sourceId"]');
-    this.tagDropdown = page.locator('input#react-select-7-input');
+    this.tagDropdown = page.locator('input[name="select-tags"]');
     this.saveWithoutPublishButton = page.locator(`//button/div[text()='Save without publishing']`);
     this.prepTime = page.locator(`//input[@name="prep"]`);
     this.deleteButton = page.locator(`//button/div[text()='Delete']`);
     this.nextButton = page.locator(`.submit-buttons button[data-tooltip-content="Next"]`);
+    this.mediaOutletDropDownField = page.locator('.frm-select input[name="sourceId"]');
+    this.mediaTypeDropDownField = page.locator('input[name="mediaTypeId"]');
+    this.unPublishButton = page.locator('//button/div[text()="Unpublish"]');
   }
 
   /**
@@ -166,7 +169,41 @@ class HeadlinesDetailsPage extends BasePage {
     return await this.isElementVisible(this.nextButton);
   }
 
+  /**
+   * Select Media Outlet 
+   * @param {string} outletOption 
+   */
+  async selectMediaOutlet(outletOption) {
+    await this.type(this.mediaOutletDropDownField, outletOption);
+    await this.page.keyboard.press('Tab');
+    logger.info(`Selected Media outlet option : ${outletOption}`);
+  }
 
+  /**
+   * Select Media Type 
+   * @param {string} type 
+   */
+  async selectMediaType(mType) {
+    await this.type(this.mediaTypeDropDownField, mType);
+    await this.page.keyboard.press('Tab');
+    logger.info(`Selected Media type : ${mType}`);
+  }
+
+  /**
+   * Method to click on UnPublish button.
+   */
+  async unPublishHeadlines() {
+    await this.click(this.unPublishButton);
+    logger.info(`Clicked on UnPublish button`);
+  }
+
+  /**
+   * Verify visibility of UnPublish button
+   */
+  async isUnpublishButtonVisible() {
+    logger.info(`Un Publish button visibilty status ${await this.isElementVisible(this.unPublishButton)}`);
+    return await this.isElementVisible(this.unPublishButton);
+  }
 }
 
 module.exports = { HeadlinesDetailsPage };
