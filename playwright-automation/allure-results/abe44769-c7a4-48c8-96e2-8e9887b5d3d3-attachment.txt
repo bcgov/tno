@@ -1,0 +1,3 @@
+{"level":"info","message":"Navigating to URL : https://test.editor.mmi.gov.bc.ca/"}
+{"level":"info","message":"Clicking on Microsoft button to login.."}
+{"level":"info","message":"Login MMI Editor Portal using Microsoft SSO!!"}

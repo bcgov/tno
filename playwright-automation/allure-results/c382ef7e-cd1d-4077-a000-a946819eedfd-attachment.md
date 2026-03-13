@@ -1,0 +1,2731 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - link "BC Gov logo" [ref=e6] [cursor=pointer]:
+      - /url: /
+      - img "BC Gov logo" [ref=e7]
+    - link "MMI logo" [ref=e9] [cursor=pointer]:
+      - /url: /
+      - img "MMI logo" [ref=e10]
+    - button "Sign Out" [ref=e13] [cursor=pointer]:
+      - generic [ref=e14]: Sign Out
+  - navigation [ref=e16]:
+    - generic [ref=e17]:
+      - link "Home" [ref=e18] [cursor=pointer]:
+        - /url: /contents
+        - generic [ref=e19]:
+          - img [ref=e20]
+          - text: Home
+      - generic [ref=e23]:
+        - button "Content" [ref=e25] [cursor=pointer]
+        - button "Report Building" [ref=e27] [cursor=pointer]
+        - button "Notifications Building" [ref=e29] [cursor=pointer]
+        - button "Content Configuration" [ref=e31] [cursor=pointer]
+        - button "Data Import" [ref=e33] [cursor=pointer]
+        - button "System Settings" [ref=e35] [cursor=pointer]
+  - main [ref=e37]:
+    - generic [ref=e39]:
+      - generic [ref=e40]:
+        - generic [ref=e41]:
+          - generic [ref=e43]:
+            - img [ref=e44] [cursor=pointer]
+            - img [ref=e46] [cursor=pointer]
+            - img [ref=e48] [cursor=pointer]
+            - img [ref=e50] [cursor=pointer]
+          - generic [ref=e52]:
+            - img [ref=e53]
+            - text: CREATE SNIPPET
+        - generic [ref=e56]:
+          - generic [ref=e58]:
+            - generic [ref=e59]:
+              - generic [ref=e60]:
+                - img [ref=e61]
+                - generic [ref=e63]:
+                  - button "TODAY" [ref=e64] [cursor=pointer]:
+                    - generic [ref=e66]: TODAY
+                  - button "24 HRS" [ref=e67] [cursor=pointer]:
+                    - generic [ref=e69]: 24 HRS
+                  - button "48 HRS" [ref=e70] [cursor=pointer]:
+                    - generic [ref=e72]: 48 HRS
+                  - button "ALL" [ref=e73] [cursor=pointer]:
+                    - generic [ref=e75]: ALL
+              - generic [ref=e76]:
+                - img [ref=e77]
+                - generic [ref=e79]:
+                  - button "ALL CONTENT" [ref=e80] [cursor=pointer]:
+                    - generic [ref=e82]: ALL CONTENT
+                  - button "MY CONTENT" [ref=e83] [cursor=pointer]:
+                    - generic [ref=e85]: MY CONTENT
+                  - button "OTHER" [ref=e86] [cursor=pointer]:
+                    - generic [ref=e88]:
+                      - text: OTHER
+                      - img [ref=e89]
+            - generic [ref=e91]:
+              - generic [ref=e92]:
+                - img [ref=e93]
+                - textbox "mm/dd/yyyy" [ref=e97]
+                - generic [ref=e98]: to
+                - textbox "mm/dd/yyyy" [ref=e101]
+                - button [ref=e102] [cursor=pointer]:
+                  - img [ref=e104]
+              - generic [ref=e106]:
+                - img [ref=e107]
+                - generic [ref=e109]:
+                  - generic [ref=e112]:
+                    - log [ref=e114]
+                    - generic [ref=e115]:
+                      - generic [ref=e116]:
+                        - generic [ref=e117]: Media Type
+                        - combobox [ref=e119]
+                      - img [ref=e123]
+                  - textbox [ref=e125]
+          - generic [ref=e126]:
+            - img [ref=e127]
+            - text: FILTER CONTENT
+        - generic [ref=e129]:
+          - generic [ref=e131]:
+            - generic [ref=e132]:
+              - generic [ref=e134]:
+                - checkbox "Print Content" [ref=e135] [cursor=pointer]
+                - generic [ref=e136] [cursor=pointer]: Print Content
+              - generic [ref=e138]:
+                - checkbox "Has Topic" [ref=e139] [cursor=pointer]
+                - generic [ref=e140] [cursor=pointer]: Has Topic
+              - generic [ref=e142]:
+                - checkbox "Pending Transcript" [ref=e143] [cursor=pointer]
+                - generic [ref=e144] [cursor=pointer]: Pending Transcript
+            - generic [ref=e145]:
+              - generic [ref=e147]:
+                - checkbox "Commentary" [ref=e148] [cursor=pointer]
+                - generic [ref=e149] [cursor=pointer]: Commentary
+              - generic [ref=e151]:
+                - checkbox "Top Story" [ref=e152] [cursor=pointer]
+                - generic [ref=e153] [cursor=pointer]: Top Story
+              - generic [ref=e155]:
+                - checkbox "Published" [ref=e156] [cursor=pointer]
+                - generic [ref=e157] [cursor=pointer]: Published
+          - generic [ref=e158]:
+            - img [ref=e159]
+            - text: SHOW ONLY
+        - generic [ref=e161]:
+          - generic [ref=e163]:
+            - generic [ref=e164]:
+              - generic [ref=e165]:
+                - generic [ref=e166]:
+                  - generic [ref=e169]:
+                    - log [ref=e171]
+                    - generic [ref=e172]:
+                      - generic [ref=e173]:
+                        - generic [ref=e174]: Source
+                        - combobox [ref=e176]
+                      - img [ref=e180]
+                  - textbox [ref=e182]: sourceIds
+                - generic [ref=e183]:
+                  - generic [ref=e186]:
+                    - log [ref=e188]
+                    - generic [ref=e189]:
+                      - generic [ref=e190]:
+                        - generic [ref=e191]: Select...
+                        - combobox [ref=e193]
+                      - img [ref=e197]
+                  - textbox [ref=e199]
+              - generic [ref=e200]:
+                - generic [ref=e201]:
+                  - generic [ref=e204]:
+                    - log [ref=e206]
+                    - generic [ref=e207]:
+                      - generic [ref=e208]:
+                        - generic [ref=e209]: Source
+                        - combobox [ref=e211]
+                      - img [ref=e215]
+                  - textbox [ref=e217]: sourceIds
+                - generic [ref=e218]:
+                  - generic [ref=e221]:
+                    - log [ref=e223]
+                    - generic [ref=e224]:
+                      - generic [ref=e225]:
+                        - generic [ref=e226]: Select...
+                        - combobox [ref=e228]
+                      - img [ref=e232]
+                  - textbox [ref=e234]
+            - img [ref=e235] [cursor=pointer]
+          - generic [ref=e237]:
+            - img [ref=e238]
+            - text: ADVANCED SEARCH
+      - generic [ref=e242]:
+        - generic [ref=e243]:
+          - generic [ref=e244]:
+            - generic [ref=e246]:
+              - img "Open in new tab" [ref=e247]
+              - text: Headline
+            - generic [ref=e249]:
+              - text: Source
+              - img "sort" [ref=e250]
+            - generic [ref=e252]:
+              - text: Media Type
+              - img "sort" [ref=e253]
+            - generic [ref=e255]:
+              - generic [ref=e256]:
+                - text: Page:Section
+                - checkbox [ref=e259] [cursor=pointer]
+              - img "sort" [ref=e260]
+            - generic [ref=e262]:
+              - text: User
+              - img "sort" [ref=e263]
+            - generic [ref=e265]:
+              - text: Pub Date
+              - img "sort" [ref=e266]
+            - generic [ref=e268]:
+              - text: Use
+              - img "sort" [ref=e269]
+          - generic [ref=e271]:
+            - generic [ref=e274] [cursor=pointer]: Iran's supreme leader issues first statement since his appointment
+            - generic [ref=e277] [cursor=pointer]: CPNEWS
+            - generic [ref=e280] [cursor=pointer]: CP Wire
+            - generic [ref=e284] [cursor=pointer]: 03/12/2026 07:19:36
+            - img "Draft" [ref=e287] [cursor=pointer]
+            - generic [ref=e291] [cursor=pointer]: AP Trending SummaryBrief at 9:17 a.m. EDT
+            - generic [ref=e294] [cursor=pointer]: CPNEWS
+            - generic [ref=e297] [cursor=pointer]: CP Wire
+            - generic [ref=e301] [cursor=pointer]: 03/12/2026 07:18:09
+            - img "Draft" [ref=e304] [cursor=pointer]
+            - generic [ref=e308] [cursor=pointer]: AP News Summary at 9:17 a.m. EDT
+            - generic [ref=e311] [cursor=pointer]: CPNEWS
+            - generic [ref=e314] [cursor=pointer]: CP Wire
+            - generic [ref=e318] [cursor=pointer]: 03/12/2026 07:18:08
+            - img "Draft" [ref=e321] [cursor=pointer]
+            - generic [ref=e325] [cursor=pointer]: Iran’s Supreme Leader Ayatollah Mojtaba Khamenei issues first statement as war with US and Israel rages
+            - generic [ref=e328] [cursor=pointer]: CPNEWS
+            - generic [ref=e331] [cursor=pointer]: CP Wire
+            - generic [ref=e335] [cursor=pointer]: 03/12/2026 07:18:07
+            - img "Draft" [ref=e338] [cursor=pointer]
+            - generic [ref=e342] [cursor=pointer]: Iran’s Supreme Leader Ayatollah Mojtaba Khamenei issues first statement as war with US and Israel rages
+            - generic [ref=e345] [cursor=pointer]: CPNEWS
+            - generic [ref=e348] [cursor=pointer]: CP Wire
+            - generic [ref=e352] [cursor=pointer]: 03/12/2026 07:18:06
+            - img "Draft" [ref=e355] [cursor=pointer]
+            - generic [ref=e359] [cursor=pointer]: National Audio 09:15 AM ET
+            - generic [ref=e362] [cursor=pointer]: CPNEWS
+            - generic [ref=e365] [cursor=pointer]: CP Wire
+            - generic [ref=e369] [cursor=pointer]: 03/12/2026 07:15:33
+            - img "Draft" [ref=e372] [cursor=pointer]
+            - generic [ref=e376] [cursor=pointer]: Ohio State names provost as new president after predecessor's abrupt resignation
+            - generic [ref=e379] [cursor=pointer]: CPNEWS
+            - generic [ref=e382] [cursor=pointer]: CP Wire
+            - generic [ref=e386] [cursor=pointer]: 03/12/2026 07:15:12
+            - img "Draft" [ref=e389] [cursor=pointer]
+            - generic [ref=e393] [cursor=pointer]: ABC044 TX Terror Plot/Bombs and Guns - UPDATE 1
+            - generic [ref=e396] [cursor=pointer]: CPNEWS
+            - generic [ref=e399] [cursor=pointer]: CP Wire
+            - generic [ref=e403] [cursor=pointer]: 03/12/2026 07:12:10
+            - img "Draft" [ref=e406] [cursor=pointer]
+            - generic [ref=e410] [cursor=pointer]: ABC043 TX Terror Plot/Suspect Called 911 - UPDATE 1
+            - generic [ref=e413] [cursor=pointer]: CPNEWS
+            - generic [ref=e416] [cursor=pointer]: CP Wire
+            - generic [ref=e420] [cursor=pointer]: 03/12/2026 07:12:06
+            - img "Draft" [ref=e423] [cursor=pointer]
+            - generic [ref=e427] [cursor=pointer]: Cartier Cuts 7.1 g/t Au over 8.0 m at Portal (Cadillac); New Shallow High-Grade Gold Zone Discovered
+            - generic [ref=e430] [cursor=pointer]: CPNEWS
+            - generic [ref=e433] [cursor=pointer]: CP Wire
+            - generic [ref=e437] [cursor=pointer]: 03/12/2026 07:07:39
+            - img "Draft" [ref=e440] [cursor=pointer]
+            - generic [ref=e444] [cursor=pointer]: NevGold Mobilizes Drill To Test Historical Leach Pads To Advance The Near-Term Antimony Production Scenario at Limo Butte
+            - generic [ref=e447] [cursor=pointer]: CPNEWS
+            - generic [ref=e450] [cursor=pointer]: CP Wire
+            - generic [ref=e454] [cursor=pointer]: 03/12/2026 07:07:37
+            - img "Draft" [ref=e457] [cursor=pointer]
+            - generic [ref=e461] [cursor=pointer]: "reAlpha (NASDAQ: AIRE) Reports Fourth Quarter and Full Year 2025 Results; Record Full-Year Revenue of $4.5 Million, Up 376% Year Over Year"
+            - generic [ref=e464] [cursor=pointer]: CPNEWS
+            - generic [ref=e467] [cursor=pointer]: CP Wire
+            - generic [ref=e471] [cursor=pointer]: 03/12/2026 07:07:34
+            - img "Draft" [ref=e474] [cursor=pointer]
+            - generic [ref=e478] [cursor=pointer]: AP News Summary at 9:05 a.m. EDT
+            - generic [ref=e481] [cursor=pointer]: CPNEWS
+            - generic [ref=e484] [cursor=pointer]: CP Wire
+            - generic [ref=e488] [cursor=pointer]: 03/12/2026 07:06:09
+            - img "Draft" [ref=e491] [cursor=pointer]
+            - generic [ref=e495] [cursor=pointer]: National Audio 09:05 AM ET
+            - generic [ref=e498] [cursor=pointer]: CPNEWS
+            - generic [ref=e501] [cursor=pointer]: CP Wire
+            - generic [ref=e505] [cursor=pointer]: 03/12/2026 07:05:33
+            - img "Draft" [ref=e508] [cursor=pointer]
+            - generic [ref=e512] [cursor=pointer]: AP Business SummaryBrief at 9:03 a.m. EDT
+            - generic [ref=e515] [cursor=pointer]: CPNEWS
+            - generic [ref=e518] [cursor=pointer]: CP Wire
+            - generic [ref=e522] [cursor=pointer]: 03/12/2026 07:04:49
+            - img "Draft" [ref=e525] [cursor=pointer]
+            - generic [ref=e529] [cursor=pointer]: Drivers wonder if they should go electric as the war spikes gas prices
+            - generic [ref=e532] [cursor=pointer]: CPNEWS
+            - generic [ref=e535] [cursor=pointer]: CP Wire
+            - generic [ref=e539] [cursor=pointer]: 03/12/2026 07:04:46
+            - img "Draft" [ref=e542] [cursor=pointer]
+            - generic [ref=e546] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e549] [cursor=pointer]: CPNEWS
+            - generic [ref=e552] [cursor=pointer]: CP Wire
+            - generic [ref=e556] [cursor=pointer]: 03/12/2026 07:04:41
+            - img "Draft" [ref=e559] [cursor=pointer]
+            - generic [ref=e563] [cursor=pointer]: Ohio State names provost as new president amid probe of former leader
+            - generic [ref=e566] [cursor=pointer]: CPNEWS
+            - generic [ref=e569] [cursor=pointer]: CP Wire
+            - generic [ref=e573] [cursor=pointer]: 03/12/2026 07:04:39
+            - img "Draft" [ref=e576] [cursor=pointer]
+            - generic [ref=e580] [cursor=pointer]: Pope appoints trusted fellow Augustinian to run Vatican's charity office
+            - generic [ref=e583] [cursor=pointer]: CPNEWS
+            - generic [ref=e586] [cursor=pointer]: CP Wire
+            - generic [ref=e590] [cursor=pointer]: 03/12/2026 07:03:12
+            - img "Draft" [ref=e593] [cursor=pointer]
+            - generic [ref=e597] [cursor=pointer]: Pope appoints trusted fellow Augustinian to run Vatican's charity office
+            - generic [ref=e600] [cursor=pointer]: CPNEWS
+            - generic [ref=e603] [cursor=pointer]: CP Wire
+            - generic [ref=e607] [cursor=pointer]: 03/12/2026 07:03:08
+            - img "Draft" [ref=e610] [cursor=pointer]
+            - generic [ref=e614] [cursor=pointer]: AP Sports SummaryBrief at 9:01 a.m. EDT
+            - generic [ref=e617] [cursor=pointer]: CPNEWS
+            - generic [ref=e620] [cursor=pointer]: CP Wire
+            - generic [ref=e624] [cursor=pointer]: 03/12/2026 07:03:05
+            - img "Draft" [ref=e627] [cursor=pointer]
+            - generic [ref=e631] [cursor=pointer]: PWHL to reach national US TV audience with Scripps Sports to broadcast neutral site game in Detroit
+            - generic [ref=e634] [cursor=pointer]: CPNEWS
+            - generic [ref=e637] [cursor=pointer]: CP Wire
+            - generic [ref=e641] [cursor=pointer]: 03/12/2026 07:01:45
+            - img "Draft" [ref=e644] [cursor=pointer]
+            - generic [ref=e648] [cursor=pointer]: AP Sports SummaryBrief at 9:00 a.m. EDT
+            - generic [ref=e651] [cursor=pointer]: CPNEWS
+            - generic [ref=e654] [cursor=pointer]: CP Wire
+            - generic [ref=e658] [cursor=pointer]: 03/12/2026 07:01:34
+            - img "Draft" [ref=e661] [cursor=pointer]
+            - generic [ref=e665] [cursor=pointer]: "Mario Canseco: Older voters remain the biggest barrier to electoral reform"
+            - generic [ref=e668] [cursor=pointer]: BIV
+            - generic [ref=e671] [cursor=pointer]: Online
+            - generic [ref=e675] [cursor=pointer]: 03/12/2026 07:00:00
+            - img "Draft" [ref=e678] [cursor=pointer]
+            - generic [ref=e682] [cursor=pointer]: AP Business SummaryBrief at 8:56 a.m. EDT
+            - generic [ref=e685] [cursor=pointer]: CPNEWS
+            - generic [ref=e688] [cursor=pointer]: CP Wire
+            - generic [ref=e692] [cursor=pointer]: 03/12/2026 06:57:03
+            - img "Draft" [ref=e695] [cursor=pointer]
+            - generic [ref=e699] [cursor=pointer]: StatCan reports merchandise trade deficit $3.6B in January
+            - generic [ref=e702] [cursor=pointer]: CPNEWS
+            - generic [ref=e705] [cursor=pointer]: CP Wire
+            - generic [ref=e709] [cursor=pointer]: 03/12/2026 06:55:49
+            - img "Draft" [ref=e712] [cursor=pointer]
+            - generic [ref=e716] [cursor=pointer]: National Audio 08:55 AM ET
+            - generic [ref=e719] [cursor=pointer]: CPNEWS
+            - generic [ref=e722] [cursor=pointer]: CP Wire
+            - generic [ref=e726] [cursor=pointer]: 03/12/2026 06:55:33
+            - img "Draft" [ref=e729] [cursor=pointer]
+            - generic [ref=e733] [cursor=pointer]: ABC042 Iran/New Leader Whereabouts - UPDATE 1
+            - generic [ref=e736] [cursor=pointer]: CPNEWS
+            - generic [ref=e739] [cursor=pointer]: CP Wire
+            - generic [ref=e743] [cursor=pointer]: 03/12/2026 06:55:14
+            - img "Draft" [ref=e746] [cursor=pointer]
+            - generic [ref=e750] [cursor=pointer]: ABC041 Iran/Hezbollah - Escalating - UPDATE 1
+            - generic [ref=e753] [cursor=pointer]: CPNEWS
+            - generic [ref=e756] [cursor=pointer]: CP Wire
+            - generic [ref=e760] [cursor=pointer]: 03/12/2026 06:55:10
+            - img "Draft" [ref=e763] [cursor=pointer]
+            - generic [ref=e767] [cursor=pointer]: ABC040 Iran/School Strike - US Military - UPDATE 1
+            - generic [ref=e770] [cursor=pointer]: CPNEWS
+            - generic [ref=e773] [cursor=pointer]: CP Wire
+            - generic [ref=e777] [cursor=pointer]: 03/12/2026 06:55:06
+            - img "Draft" [ref=e780] [cursor=pointer]
+            - generic [ref=e784] [cursor=pointer]: Hungary to declassify security report as Orbán claims Ukraine is illegally funding his opponent
+            - generic [ref=e787] [cursor=pointer]: CPNEWS
+            - generic [ref=e790] [cursor=pointer]: CP Wire
+            - generic [ref=e794] [cursor=pointer]: 03/12/2026 06:54:10
+            - img "Draft" [ref=e797] [cursor=pointer]
+            - generic [ref=e801] [cursor=pointer]: Kraken Robotics Announces Closing of $402.5 Million Public Offering of Subscription Receipts
+            - generic [ref=e804] [cursor=pointer]: CPNEWS
+            - generic [ref=e807] [cursor=pointer]: CP Wire
+            - generic [ref=e811] [cursor=pointer]: 03/12/2026 06:52:38
+            - img "Draft" [ref=e814] [cursor=pointer]
+            - generic [ref=e818] [cursor=pointer]: LaFleur Minerals Inc. (CSE:LFLR) (OTCQB:LFLRF) (FSE:3WK0) Taking Key Steps to Advance Position in Prolific Gold Belt
+            - generic [ref=e821] [cursor=pointer]: CPNEWS
+            - generic [ref=e824] [cursor=pointer]: CP Wire
+            - generic [ref=e828] [cursor=pointer]: 03/12/2026 06:52:36
+            - img "Draft" [ref=e831] [cursor=pointer]
+            - generic [ref=e835] [cursor=pointer]: ZenaTech’s ZenaDrone Announces the Filing of a Patent for its Maritime Defense System Combining ZenaDrone 2000 Interceptor Drone and IQ Glider Autonomous Marine Station
+            - generic [ref=e838] [cursor=pointer]: CPNEWS
+            - generic [ref=e841] [cursor=pointer]: CP Wire
+            - generic [ref=e845] [cursor=pointer]: 03/12/2026 06:52:34
+            - img "Draft" [ref=e848] [cursor=pointer]
+            - generic [ref=e852] [cursor=pointer]: AP Business SummaryBrief at 8:50 a.m. EDT
+            - generic [ref=e855] [cursor=pointer]: CPNEWS
+            - generic [ref=e858] [cursor=pointer]: CP Wire
+            - generic [ref=e862] [cursor=pointer]: 03/12/2026 06:51:04
+            - img "Draft" [ref=e865] [cursor=pointer]
+            - generic [ref=e869] [cursor=pointer]: Leviathan Metals Announces Sale of Timor Gold Project
+            - generic [ref=e872] [cursor=pointer]: CPNEWS
+            - generic [ref=e875] [cursor=pointer]: CP Wire
+            - generic [ref=e879] [cursor=pointer]: 03/12/2026 06:50:06
+            - img "Draft" [ref=e882] [cursor=pointer]
+            - generic [ref=e886] [cursor=pointer]: Beeline Holdings Announces Strategic Partnership with TYTL to Tokenize Home Equity — Targeting a $39 Trillion Addressable Market
+            - generic [ref=e889] [cursor=pointer]: CPNEWS
+            - generic [ref=e892] [cursor=pointer]: CP Wire
+            - generic [ref=e896] [cursor=pointer]: 03/12/2026 06:50:04
+            - img "Draft" [ref=e899] [cursor=pointer]
+            - generic [ref=e903] [cursor=pointer]: Photo highlights from the Milan Cortina Winter Paralympics
+            - generic [ref=e906] [cursor=pointer]: CPNEWS
+            - generic [ref=e909] [cursor=pointer]: CP Wire
+            - generic [ref=e913] [cursor=pointer]: 03/12/2026 06:49:52
+            - img "Draft" [ref=e916] [cursor=pointer]
+            - generic [ref=e920] [cursor=pointer]: AP Business SummaryBrief at 8:46 a.m. EDT
+            - generic [ref=e923] [cursor=pointer]: CPNEWS
+            - generic [ref=e926] [cursor=pointer]: CP Wire
+            - generic [ref=e930] [cursor=pointer]: 03/12/2026 06:46:36
+            - img "Draft" [ref=e933] [cursor=pointer]
+            - generic [ref=e937] [cursor=pointer]: AP Trending SummaryBrief at 8:46 a.m. EDT
+            - generic [ref=e940] [cursor=pointer]: CPNEWS
+            - generic [ref=e943] [cursor=pointer]: CP Wire
+            - generic [ref=e947] [cursor=pointer]: 03/12/2026 06:46:35
+            - img "Draft" [ref=e950] [cursor=pointer]
+            - generic [ref=e954] [cursor=pointer]: National Audio 08:45 AM ET
+            - generic [ref=e957] [cursor=pointer]: CPNEWS
+            - generic [ref=e960] [cursor=pointer]: CP Wire
+            - generic [ref=e964] [cursor=pointer]: 03/12/2026 06:45:33
+            - img "Draft" [ref=e967] [cursor=pointer]
+            - generic [ref=e971] [cursor=pointer]: Photo highlights from the Milan Cortina Winter Paralympics
+            - generic [ref=e974] [cursor=pointer]: CPNEWS
+            - generic [ref=e977] [cursor=pointer]: CP Wire
+            - generic [ref=e981] [cursor=pointer]: 03/12/2026 06:45:19
+            - img "Draft" [ref=e984] [cursor=pointer]
+            - generic [ref=e988] [cursor=pointer]: ABC039 Trump/Strategic Petroleum Release - UPDATE 1
+            - generic [ref=e991] [cursor=pointer]: CPNEWS
+            - generic [ref=e994] [cursor=pointer]: CP Wire
+            - generic [ref=e998] [cursor=pointer]: 03/12/2026 06:44:13
+            - img "Draft" [ref=e1001] [cursor=pointer]
+            - generic [ref=e1005] [cursor=pointer]: ABC038 Iran/Iran Strikes - UPDATE 1
+            - generic [ref=e1008] [cursor=pointer]: CPNEWS
+            - generic [ref=e1011] [cursor=pointer]: CP Wire
+            - generic [ref=e1015] [cursor=pointer]: 03/12/2026 06:44:10
+            - img "Draft" [ref=e1018] [cursor=pointer]
+            - generic [ref=e1022] [cursor=pointer]: ABC037 Iran/Oil - Price Skyrocketing - UPDATE 1
+            - generic [ref=e1025] [cursor=pointer]: CPNEWS
+            - generic [ref=e1028] [cursor=pointer]: CP Wire
+            - generic [ref=e1032] [cursor=pointer]: 03/12/2026 06:44:06
+            - img "Draft" [ref=e1035] [cursor=pointer]
+            - generic [ref=e1039] [cursor=pointer]: AP News Summary at 8:41 a.m. EDT
+            - generic [ref=e1042] [cursor=pointer]: CPNEWS
+            - generic [ref=e1045] [cursor=pointer]: CP Wire
+            - generic [ref=e1049] [cursor=pointer]: 03/12/2026 06:42:06
+            - img "Draft" [ref=e1052] [cursor=pointer]
+            - generic [ref=e1056] [cursor=pointer]: Wellington Dupont Public Affairs adds Sarah Hamilton, David Timm joins Sussex Strategy Group, Bondy & Associates brings on Kara McLean
+            - generic [ref=e1059] [cursor=pointer]: IPOLY
+            - generic [ref=e1062] [cursor=pointer]: Online
+            - generic [ref=e1066] [cursor=pointer]: 03/12/2026 06:41:53
+            - img "Draft" [ref=e1069] [cursor=pointer]
+            - generic [ref=e1073] [cursor=pointer]: update9a
+            - generic [ref=e1076] [cursor=pointer]: CPNEWS
+            - generic [ref=e1079] [cursor=pointer]: CP Wire
+            - generic [ref=e1083] [cursor=pointer]: 03/12/2026 06:41:06
+            - img "Draft" [ref=e1086] [cursor=pointer]
+            - generic [ref=e1090] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e1093] [cursor=pointer]: CPNEWS
+            - generic [ref=e1096] [cursor=pointer]: CP Wire
+            - generic [ref=e1100] [cursor=pointer]: 03/12/2026 06:40:36
+            - img "Draft" [ref=e1103] [cursor=pointer]
+            - generic [ref=e1107] [cursor=pointer]: apa442416 EU--Russia-Trial-Intro and sentencing wrap
+            - generic [ref=e1110] [cursor=pointer]: CPNEWS
+            - generic [ref=e1113] [cursor=pointer]: CP Wire
+            - generic [ref=e1117] [cursor=pointer]: 03/12/2026 06:40:06
+            - img "Draft" [ref=e1120] [cursor=pointer]
+            - generic [ref=e1124] [cursor=pointer]: AP News Summary at 8:33 a.m. EDT
+            - generic [ref=e1127] [cursor=pointer]: CPNEWS
+            - generic [ref=e1130] [cursor=pointer]: CP Wire
+            - generic [ref=e1134] [cursor=pointer]: 03/12/2026 06:37:34
+            - img "Draft" [ref=e1137] [cursor=pointer]
+            - generic [ref=e1141] [cursor=pointer]: Celebrity chef René Redzepi resigns from iconic Danish restaurant Noma after abuse allegations
+            - generic [ref=e1144] [cursor=pointer]: CPNEWS
+            - generic [ref=e1147] [cursor=pointer]: CP Wire
+            - generic [ref=e1151] [cursor=pointer]: 03/12/2026 06:36:12
+            - img "Draft" [ref=e1154] [cursor=pointer]
+            - generic [ref=e1158] [cursor=pointer]: Ryan Fox withdraws from The Players Championship with an illness
+            - generic [ref=e1161] [cursor=pointer]: CPNEWS
+            - generic [ref=e1164] [cursor=pointer]: CP Wire
+            - generic [ref=e1168] [cursor=pointer]: 03/12/2026 06:36:09
+            - img "Draft" [ref=e1171] [cursor=pointer]
+            - generic [ref=e1175] [cursor=pointer]: Shell plc files Form 20-F with SEC
+            - generic [ref=e1178] [cursor=pointer]: CPNEWS
+            - generic [ref=e1181] [cursor=pointer]: CP Wire
+            - generic [ref=e1185] [cursor=pointer]: 03/12/2026 06:35:03
+            - img "Draft" [ref=e1188] [cursor=pointer]
+            - generic [ref=e1192] [cursor=pointer]: Alaska Daybook
+            - generic [ref=e1195] [cursor=pointer]: CPNEWS
+            - generic [ref=e1198] [cursor=pointer]: CP Wire
+            - generic [ref=e1202] [cursor=pointer]: 03/12/2026 06:33:17
+            - img "Draft" [ref=e1205] [cursor=pointer]
+            - generic [ref=e1209] [cursor=pointer]: AP Trending SummaryBrief at 8:32 a.m. EDT
+            - generic [ref=e1212] [cursor=pointer]: CPNEWS
+            - generic [ref=e1215] [cursor=pointer]: CP Wire
+            - generic [ref=e1219] [cursor=pointer]: 03/12/2026 06:33:15
+            - img "Draft" [ref=e1222] [cursor=pointer]
+            - generic [ref=e1226] [cursor=pointer]: AP Trending SummaryBrief at 8:32 a.m. EDT
+            - generic [ref=e1229] [cursor=pointer]: CPNEWS
+            - generic [ref=e1232] [cursor=pointer]: CP Wire
+            - generic [ref=e1236] [cursor=pointer]: 03/12/2026 06:33:14
+            - img "Draft" [ref=e1239] [cursor=pointer]
+            - generic [ref=e1243] [cursor=pointer]: France debuting flanker Temo Matiu in Six Nations decider against England
+            - generic [ref=e1246] [cursor=pointer]: CPNEWS
+            - generic [ref=e1249] [cursor=pointer]: CP Wire
+            - generic [ref=e1253] [cursor=pointer]: 03/12/2026 06:33:12
+            - img "Draft" [ref=e1256] [cursor=pointer]
+            - generic [ref=e1260] [cursor=pointer]: update9a
+            - generic [ref=e1263] [cursor=pointer]: CPNEWS
+            - generic [ref=e1266] [cursor=pointer]: CP Wire
+            - generic [ref=e1270] [cursor=pointer]: 03/12/2026 06:33:06
+            - img "Draft" [ref=e1273] [cursor=pointer]
+            - generic [ref=e1277] [cursor=pointer]: Google overhauls its Maps app, adding in more AI features to help people get around
+            - generic [ref=e1280] [cursor=pointer]: CPNEWS
+            - generic [ref=e1283] [cursor=pointer]: CP Wire
+            - generic [ref=e1287] [cursor=pointer]: 03/12/2026 06:31:35
+            - img "Draft" [ref=e1290] [cursor=pointer]
+            - generic [ref=e1294] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e1297] [cursor=pointer]: CPNEWS
+            - generic [ref=e1300] [cursor=pointer]: CP Wire
+            - generic [ref=e1304] [cursor=pointer]: 03/12/2026 06:30:06
+            - img "Draft" [ref=e1307] [cursor=pointer]
+            - generic [ref=e1311] [cursor=pointer]: Outdated intel likely led US to carry out deadly strike on Iranian elementary school, AP sources say
+            - generic [ref=e1314] [cursor=pointer]: CPNEWS
+            - generic [ref=e1317] [cursor=pointer]: CP Wire
+            - generic [ref=e1321] [cursor=pointer]: 03/12/2026 06:28:36
+            - img "Draft" [ref=e1324] [cursor=pointer]
+            - generic [ref=e1328] [cursor=pointer]: National Audio 08:25 AM ET
+            - generic [ref=e1331] [cursor=pointer]: CPNEWS
+            - generic [ref=e1334] [cursor=pointer]: CP Wire
+            - generic [ref=e1338] [cursor=pointer]: 03/12/2026 06:25:33
+            - img "Draft" [ref=e1341] [cursor=pointer]
+            - generic [ref=e1345] [cursor=pointer]: Slavery exhibit is changing at the African American history museum as a loan agreement ends
+            - generic [ref=e1348] [cursor=pointer]: CPNEWS
+            - generic [ref=e1351] [cursor=pointer]: CP Wire
+            - generic [ref=e1355] [cursor=pointer]: 03/12/2026 06:22:45
+            - img "Draft" [ref=e1358] [cursor=pointer]
+            - generic [ref=e1362] [cursor=pointer]: AP News Summary at 8:21 a.m. EDT
+            - generic [ref=e1365] [cursor=pointer]: CPNEWS
+            - generic [ref=e1368] [cursor=pointer]: CP Wire
+            - generic [ref=e1372] [cursor=pointer]: 03/12/2026 06:22:42
+            - img "Draft" [ref=e1375] [cursor=pointer]
+            - generic [ref=e1379] [cursor=pointer]: Zelenskyy says Ukraine awaits White House sign-off on US drone production deal
+            - generic [ref=e1382] [cursor=pointer]: CPNEWS
+            - generic [ref=e1385] [cursor=pointer]: CP Wire
+            - generic [ref=e1389] [cursor=pointer]: 03/12/2026 06:22:40
+            - img "Draft" [ref=e1392] [cursor=pointer]
+            - generic [ref=e1396] [cursor=pointer]: AP Business SummaryBrief at 8:17 a.m. EDT
+            - generic [ref=e1399] [cursor=pointer]: CPNEWS
+            - generic [ref=e1402] [cursor=pointer]: CP Wire
+            - generic [ref=e1406] [cursor=pointer]: 03/12/2026 06:21:30
+            - img "Draft" [ref=e1409] [cursor=pointer]
+            - generic [ref=e1413] [cursor=pointer]: Is Atlanta still the ‘Hollywood of the South’? A film boomtown faces a test
+            - generic [ref=e1416] [cursor=pointer]: CPNEWS
+            - generic [ref=e1419] [cursor=pointer]: CP Wire
+            - generic [ref=e1423] [cursor=pointer]: 03/12/2026 06:21:29
+            - img "Draft" [ref=e1426] [cursor=pointer]
+            - generic [ref=e1430] [cursor=pointer]: "--CORRECTION Atlantic Update--"
+            - generic [ref=e1433] [cursor=pointer]: CPNEWS
+            - generic [ref=e1436] [cursor=pointer]: CP Wire
+            - generic [ref=e1440] [cursor=pointer]: 03/12/2026 06:20:30
+            - img "Draft" [ref=e1443] [cursor=pointer]
+            - generic [ref=e1447] [cursor=pointer]: "--Fifth NewsWatch--"
+            - generic [ref=e1450] [cursor=pointer]: CPNEWS
+            - generic [ref=e1453] [cursor=pointer]: CP Wire
+            - generic [ref=e1457] [cursor=pointer]: 03/12/2026 06:20:22
+            - img "Draft" [ref=e1460] [cursor=pointer]
+            - generic [ref=e1464] [cursor=pointer]: NowVertical Launches NowUnlock AI Proposition to Help Enterprises Unlock ROI from Artificial Intelligence
+            - generic [ref=e1467] [cursor=pointer]: CPNEWS
+            - generic [ref=e1470] [cursor=pointer]: CP Wire
+            - generic [ref=e1474] [cursor=pointer]: 03/12/2026 06:20:07
+            - img "Draft" [ref=e1477] [cursor=pointer]
+            - generic [ref=e1481] [cursor=pointer]: Aduro Signs Offtake LOI for Hydrochemolytic™ Oil with Pilot-to-FOAK Validation Program
+            - generic [ref=e1484] [cursor=pointer]: CPNEWS
+            - generic [ref=e1487] [cursor=pointer]: CP Wire
+            - generic [ref=e1491] [cursor=pointer]: 03/12/2026 06:20:05
+            - img "Draft" [ref=e1494] [cursor=pointer]
+            - generic [ref=e1498] [cursor=pointer]: Amarjeet Sohi joins New West Public Affairs
+            - generic [ref=e1501] [cursor=pointer]: CPNEWS
+            - generic [ref=e1504] [cursor=pointer]: CP Wire
+            - generic [ref=e1508] [cursor=pointer]: 03/12/2026 06:20:03
+            - img "Draft" [ref=e1511] [cursor=pointer]
+            - generic [ref=e1515] [cursor=pointer]: CP Atlantic morning advisory for March 12, 2026
+            - generic [ref=e1518] [cursor=pointer]: CPNEWS
+            - generic [ref=e1521] [cursor=pointer]: CP Wire
+            - generic [ref=e1525] [cursor=pointer]: 03/12/2026 06:18:56
+            - img "Draft" [ref=e1528] [cursor=pointer]
+            - generic [ref=e1532] [cursor=pointer]: "Clarification: Iran-School Strike story"
+            - generic [ref=e1535] [cursor=pointer]: CPNEWS
+            - generic [ref=e1538] [cursor=pointer]: CP Wire
+            - generic [ref=e1542] [cursor=pointer]: 03/12/2026 06:16:37
+            - img "Draft" [ref=e1545] [cursor=pointer]
+            - generic [ref=e1549] [cursor=pointer]: National Audio 08:15 AM ET
+            - generic [ref=e1552] [cursor=pointer]: CPNEWS
+            - generic [ref=e1555] [cursor=pointer]: CP Wire
+            - generic [ref=e1559] [cursor=pointer]: 03/12/2026 06:15:33
+            - img "Draft" [ref=e1562] [cursor=pointer]
+            - generic [ref=e1566] [cursor=pointer]: Photo highlights from the Milan Cortina Winter Paralympics
+            - generic [ref=e1569] [cursor=pointer]: CPNEWS
+            - generic [ref=e1572] [cursor=pointer]: CP Wire
+            - generic [ref=e1576] [cursor=pointer]: 03/12/2026 06:15:21
+            - img "Draft" [ref=e1579] [cursor=pointer]
+            - generic [ref=e1583] [cursor=pointer]: ABC036 FL/Nile Monitor Lizard Threat - UPDATE 1
+            - generic [ref=e1586] [cursor=pointer]: CPNEWS
+            - generic [ref=e1589] [cursor=pointer]: CP Wire
+            - generic [ref=e1593] [cursor=pointer]: 03/12/2026 06:15:06
+            - img "Draft" [ref=e1596] [cursor=pointer]
+            - generic [ref=e1600] [cursor=pointer]: apa442414 US--Smithsonian-Slave Ship-Dwyer Intro WRAP
+            - generic [ref=e1603] [cursor=pointer]: CPNEWS
+            - generic [ref=e1606] [cursor=pointer]: CP Wire
+            - generic [ref=e1610] [cursor=pointer]: 03/12/2026 06:14:06
+            - img "Draft" [ref=e1613] [cursor=pointer]
+            - generic [ref=e1617] [cursor=pointer]: Sweden extends coach Graham Potter's contract ahead of World Cup qualifying playoffs
+            - generic [ref=e1620] [cursor=pointer]: CPNEWS
+            - generic [ref=e1623] [cursor=pointer]: CP Wire
+            - generic [ref=e1627] [cursor=pointer]: 03/12/2026 06:12:09
+            - img "Draft" [ref=e1630] [cursor=pointer]
+            - generic [ref=e1634] [cursor=pointer]: What's climate change doing to avalanches and how we predict them?
+            - generic [ref=e1637] [cursor=pointer]: CBCO
+            - generic [ref=e1640] [cursor=pointer]: Online
+            - generic [ref=e1644] [cursor=pointer]: 03/12/2026 06:11:57
+            - img "Draft" [ref=e1647] [cursor=pointer]
+            - generic [ref=e1651] [cursor=pointer]: AP Business SummaryBrief at 8:09 a.m. EDT
+            - generic [ref=e1654] [cursor=pointer]: CPNEWS
+            - generic [ref=e1657] [cursor=pointer]: CP Wire
+            - generic [ref=e1661] [cursor=pointer]: 03/12/2026 06:10:40
+            - img "Draft" [ref=e1664] [cursor=pointer]
+            - generic [ref=e1668] [cursor=pointer]: AP News Summary at 8:09 a.m. EDT
+            - generic [ref=e1671] [cursor=pointer]: CPNEWS
+            - generic [ref=e1674] [cursor=pointer]: CP Wire
+            - generic [ref=e1678] [cursor=pointer]: 03/12/2026 06:10:38
+            - img "Draft" [ref=e1681] [cursor=pointer]
+            - generic [ref=e1685] [cursor=pointer]: Drivers wonder if they should go electric as the war spikes gas prices
+            - generic [ref=e1688] [cursor=pointer]: CPNEWS
+            - generic [ref=e1691] [cursor=pointer]: CP Wire
+            - generic [ref=e1695] [cursor=pointer]: 03/12/2026 06:10:37
+            - img "Draft" [ref=e1698] [cursor=pointer]
+            - generic [ref=e1702] [cursor=pointer]: AP News Summary at 8:05 a.m. EDT
+            - generic [ref=e1705] [cursor=pointer]: CPNEWS
+            - generic [ref=e1708] [cursor=pointer]: CP Wire
+            - generic [ref=e1712] [cursor=pointer]: 03/12/2026 06:06:07
+            - img "Draft" [ref=e1715] [cursor=pointer]
+            - generic [ref=e1719] [cursor=pointer]: AP Business SummaryBrief at 8:03 a.m. EDT
+            - generic [ref=e1722] [cursor=pointer]: CPNEWS
+            - generic [ref=e1725] [cursor=pointer]: CP Wire
+            - generic [ref=e1729] [cursor=pointer]: 03/12/2026 06:04:53
+            - img "Draft" [ref=e1732] [cursor=pointer]
+            - generic [ref=e1736] [cursor=pointer]: Iran's unrelenting attacks on Mideast shipping and energy infrastructure send oil prices up again
+            - generic [ref=e1739] [cursor=pointer]: CPNEWS
+            - generic [ref=e1742] [cursor=pointer]: CP Wire
+            - generic [ref=e1746] [cursor=pointer]: 03/12/2026 06:04:50
+            - img "Draft" [ref=e1749] [cursor=pointer]
+            - generic [ref=e1753] [cursor=pointer]: US markets retreat, oil prices jump another 5% as Iran attacks on shipping worsen supply concerns
+            - generic [ref=e1756] [cursor=pointer]: CPNEWS
+            - generic [ref=e1759] [cursor=pointer]: CP Wire
+            - generic [ref=e1763] [cursor=pointer]: 03/12/2026 06:04:44
+            - img "Draft" [ref=e1766] [cursor=pointer]
+            - generic [ref=e1770] [cursor=pointer]: apa442412 ML--Iran-US-Intro and Iran US wrap
+            - generic [ref=e1773] [cursor=pointer]: CPNEWS
+            - generic [ref=e1776] [cursor=pointer]: CP Wire
+            - generic [ref=e1780] [cursor=pointer]: 03/12/2026 06:03:06
+            - img "Draft" [ref=e1783] [cursor=pointer]
+            - generic [ref=e1787] [cursor=pointer]: Ontario fast-tracks gold mine despite Grassy Narrows’ concerns — and a pending lawsuit
+            - generic [ref=e1790] [cursor=pointer]: NAR
+            - generic [ref=e1793] [cursor=pointer]: Online
+            - generic [ref=e1797] [cursor=pointer]: 03/12/2026 06:00:00
+            - img "Draft" [ref=e1800] [cursor=pointer]
+            - generic [ref=e1804] [cursor=pointer]: Vancouver's 2SLGBTQ+ community mourns death of prominent activist Sister Diversity Rains
+            - generic [ref=e1807] [cursor=pointer]: CBCO
+            - generic [ref=e1810] [cursor=pointer]: Online
+            - generic [ref=e1814] [cursor=pointer]: 03/12/2026 06:00:00
+            - img "Draft" [ref=e1817] [cursor=pointer]
+            - generic [ref=e1821] [cursor=pointer]: Russian court convicts 19 people over deadly 2024 Moscow concert hall attack
+            - generic [ref=e1824] [cursor=pointer]: CPNEWS
+            - generic [ref=e1827] [cursor=pointer]: CP Wire
+            - generic [ref=e1831] [cursor=pointer]: 03/12/2026 05:58:50
+            - img "Draft" [ref=e1834] [cursor=pointer]
+            - generic [ref=e1838] [cursor=pointer]: Photos of displaced civilians in Lebanon, where schools and stadiums turn into shelters during war
+            - generic [ref=e1841] [cursor=pointer]: CPNEWS
+            - generic [ref=e1844] [cursor=pointer]: CP Wire
+            - generic [ref=e1848] [cursor=pointer]: 03/12/2026 05:58:48
+            - img "Draft" [ref=e1851] [cursor=pointer]
+            - generic [ref=e1855] [cursor=pointer]: National Audio 07:55 AM ET
+            - generic [ref=e1858] [cursor=pointer]: CPNEWS
+            - generic [ref=e1861] [cursor=pointer]: CP Wire
+            - generic [ref=e1865] [cursor=pointer]: 03/12/2026 05:55:33
+            - img "Draft" [ref=e1868] [cursor=pointer]
+            - generic [ref=e1872] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e1875] [cursor=pointer]: CPNEWS
+            - generic [ref=e1878] [cursor=pointer]: CP Wire
+            - generic [ref=e1882] [cursor=pointer]: 03/12/2026 05:52:38
+            - img "Draft" [ref=e1885] [cursor=pointer]
+            - generic [ref=e1889] [cursor=pointer]: Sweden extends coach Graham Potter's contract ahead of World Cup qualifying playoffs
+            - generic [ref=e1892] [cursor=pointer]: CPNEWS
+            - generic [ref=e1895] [cursor=pointer]: CP Wire
+            - generic [ref=e1899] [cursor=pointer]: 03/12/2026 05:52:36
+            - img "Draft" [ref=e1902] [cursor=pointer]
+            - generic [ref=e1906] [cursor=pointer]: AP News Summary at 7:48 a.m. EDT
+            - generic [ref=e1909] [cursor=pointer]: CPNEWS
+            - generic [ref=e1912] [cursor=pointer]: CP Wire
+            - generic [ref=e1916] [cursor=pointer]: 03/12/2026 05:49:34
+            - img "Draft" [ref=e1919] [cursor=pointer]
+            - generic [ref=e1923] [cursor=pointer]: apa442411 US--Smithsonian-Slave Ship-SOT3 Hernandez
+            - generic [ref=e1926] [cursor=pointer]: CPNEWS
+            - generic [ref=e1929] [cursor=pointer]: CP Wire
+            - generic [ref=e1933] [cursor=pointer]: 03/12/2026 05:49:13
+            - img "Draft" [ref=e1936] [cursor=pointer]
+            - generic [ref=e1940] [cursor=pointer]: apa442410 US--Smithsonian-Slave Ship-SOT2 Hernandez
+            - generic [ref=e1943] [cursor=pointer]: CPNEWS
+            - generic [ref=e1946] [cursor=pointer]: CP Wire
+            - generic [ref=e1950] [cursor=pointer]: 03/12/2026 05:49:10
+            - img "Draft" [ref=e1953] [cursor=pointer]
+            - generic [ref=e1957] [cursor=pointer]: apa442409 US--Smithsonian-Slave Ship-SOT1 Acting Dir.
+            - generic [ref=e1960] [cursor=pointer]: CPNEWS
+            - generic [ref=e1963] [cursor=pointer]: CP Wire
+            - generic [ref=e1967] [cursor=pointer]: 03/12/2026 05:49:06
+            - img "Draft" [ref=e1970] [cursor=pointer]
+            - generic [ref=e1974] [cursor=pointer]: Celebrity chef René Redzepi resigns from iconic Danish restaurant Noma after abuse allegations
+            - generic [ref=e1977] [cursor=pointer]: CPNEWS
+            - generic [ref=e1980] [cursor=pointer]: CP Wire
+            - generic [ref=e1984] [cursor=pointer]: 03/12/2026 05:48:21
+            - img "Draft" [ref=e1987] [cursor=pointer]
+            - generic [ref=e1991] [cursor=pointer]: Helus Pharma Strengthens Executive Team with Appointment of Jill Conwell as Chief People Officer
+            - generic [ref=e1994] [cursor=pointer]: CPNEWS
+            - generic [ref=e1997] [cursor=pointer]: CP Wire
+            - generic [ref=e2001] [cursor=pointer]: 03/12/2026 05:47:43
+            - img "Draft" [ref=e2004] [cursor=pointer]
+            - generic [ref=e2008] [cursor=pointer]: North American Niobium Adds to Québec Niobium and Rare Earths Holdings
+            - generic [ref=e2011] [cursor=pointer]: CPNEWS
+            - generic [ref=e2014] [cursor=pointer]: CP Wire
+            - generic [ref=e2018] [cursor=pointer]: 03/12/2026 05:47:41
+            - img "Draft" [ref=e2021] [cursor=pointer]
+            - generic [ref=e2025] [cursor=pointer]: Notice of Knight Therapeutics' Fourth Quarter and Year End 2025 Results Conference Call
+            - generic [ref=e2028] [cursor=pointer]: CPNEWS
+            - generic [ref=e2031] [cursor=pointer]: CP Wire
+            - generic [ref=e2035] [cursor=pointer]: 03/12/2026 05:47:38
+            - img "Draft" [ref=e2038] [cursor=pointer]
+            - generic [ref=e2042] [cursor=pointer]: EarthDaily Achieves CEOS Analysis Ready Data (CEOS-ARD) Compliance
+            - generic [ref=e2045] [cursor=pointer]: CPNEWS
+            - generic [ref=e2048] [cursor=pointer]: CP Wire
+            - generic [ref=e2052] [cursor=pointer]: 03/12/2026 05:47:36
+            - img "Draft" [ref=e2055] [cursor=pointer]
+            - generic [ref=e2059] [cursor=pointer]: New Loacker Survey Reveals Goodness Plays a Big Role in Canadians’ Happiness
+            - generic [ref=e2062] [cursor=pointer]: CPNEWS
+            - generic [ref=e2065] [cursor=pointer]: CP Wire
+            - generic [ref=e2069] [cursor=pointer]: 03/12/2026 05:47:33
+            - img "Draft" [ref=e2072] [cursor=pointer]
+            - generic [ref=e2076] [cursor=pointer]: National Audio 07:45 AM ET
+            - generic [ref=e2079] [cursor=pointer]: CPNEWS
+            - generic [ref=e2082] [cursor=pointer]: CP Wire
+            - generic [ref=e2086] [cursor=pointer]: 03/12/2026 05:45:33
+            - img "Draft" [ref=e2089] [cursor=pointer]
+            - generic [ref=e2093] [cursor=pointer]: More than 200,000 households in Quebec without power following ice storm
+            - generic [ref=e2096] [cursor=pointer]: CPNEWS
+            - generic [ref=e2099] [cursor=pointer]: CP Wire
+            - generic [ref=e2103] [cursor=pointer]: 03/12/2026 05:45:28
+            - img "Draft" [ref=e2106] [cursor=pointer]
+            - generic [ref=e2110] [cursor=pointer]: update8a
+            - generic [ref=e2113] [cursor=pointer]: CPNEWS
+            - generic [ref=e2116] [cursor=pointer]: CP Wire
+            - generic [ref=e2120] [cursor=pointer]: 03/12/2026 05:44:06
+            - img "Draft" [ref=e2123] [cursor=pointer]
+            - generic [ref=e2127] [cursor=pointer]: Russia sentences 19 people for deadly concert hall attack that killed 149 people
+            - generic [ref=e2130] [cursor=pointer]: CBCO
+            - generic [ref=e2133] [cursor=pointer]: Online
+            - generic [ref=e2137] [cursor=pointer]: 03/12/2026 05:37:48
+            - img "Draft" [ref=e2140] [cursor=pointer]
+            - generic [ref=e2144] [cursor=pointer]: ABC035 FIFA/World Cup Tickets - Reseller Scams - UPDATE 1
+            - generic [ref=e2147] [cursor=pointer]: CPNEWS
+            - generic [ref=e2150] [cursor=pointer]: CP Wire
+            - generic [ref=e2154] [cursor=pointer]: 03/12/2026 05:37:09
+            - img "Draft" [ref=e2157] [cursor=pointer]
+            - generic [ref=e2161] [cursor=pointer]: ABC034 FIFA/World Cup Tickets - FTC Warns of Fraud - UPDATE 1
+            - generic [ref=e2164] [cursor=pointer]: CPNEWS
+            - generic [ref=e2167] [cursor=pointer]: CP Wire
+            - generic [ref=e2171] [cursor=pointer]: 03/12/2026 05:37:06
+            - img "Draft" [ref=e2174] [cursor=pointer]
+            - generic [ref=e2178] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e2181] [cursor=pointer]: CPNEWS
+            - generic [ref=e2184] [cursor=pointer]: CP Wire
+            - generic [ref=e2188] [cursor=pointer]: 03/12/2026 05:34:36
+            - img "Draft" [ref=e2191] [cursor=pointer]
+            - generic [ref=e2195] [cursor=pointer]: AP Business SummaryBrief at 7:32 a.m. EDT
+            - generic [ref=e2198] [cursor=pointer]: CPNEWS
+            - generic [ref=e2201] [cursor=pointer]: CP Wire
+            - generic [ref=e2205] [cursor=pointer]: 03/12/2026 05:33:10
+            - img "Draft" [ref=e2208] [cursor=pointer]
+            - generic [ref=e2212] [cursor=pointer]: AP News Summary at 7:32 a.m. EDT
+            - generic [ref=e2215] [cursor=pointer]: CPNEWS
+            - generic [ref=e2218] [cursor=pointer]: CP Wire
+            - generic [ref=e2222] [cursor=pointer]: 03/12/2026 05:33:09
+            - img "Draft" [ref=e2225] [cursor=pointer]
+            - generic [ref=e2229] [cursor=pointer]: In rural America, a teacher pipeline from abroad starts to dry up
+            - generic [ref=e2232] [cursor=pointer]: CPNEWS
+            - generic [ref=e2235] [cursor=pointer]: CP Wire
+            - generic [ref=e2239] [cursor=pointer]: 03/12/2026 05:33:08
+            - img "Draft" [ref=e2242] [cursor=pointer]
+            - generic [ref=e2246] [cursor=pointer]: Washington Daybook
+            - generic [ref=e2249] [cursor=pointer]: CPNEWS
+            - generic [ref=e2252] [cursor=pointer]: CP Wire
+            - generic [ref=e2256] [cursor=pointer]: 03/12/2026 05:33:05
+            - img "Draft" [ref=e2259] [cursor=pointer]
+            - generic [ref=e2263] [cursor=pointer]: CECO Environmental Provides Update on FY26 Orders and Thermon Transaction
+            - generic [ref=e2266] [cursor=pointer]: CPNEWS
+            - generic [ref=e2269] [cursor=pointer]: CP Wire
+            - generic [ref=e2273] [cursor=pointer]: 03/12/2026 05:32:34
+            - img "Draft" [ref=e2276] [cursor=pointer]
+            - generic [ref=e2280] [cursor=pointer]: AP Business SummaryBrief at 7:31 a.m. EDT
+            - generic [ref=e2283] [cursor=pointer]: CPNEWS
+            - generic [ref=e2286] [cursor=pointer]: CP Wire
+            - generic [ref=e2290] [cursor=pointer]: 03/12/2026 05:31:41
+            - img "Draft" [ref=e2293] [cursor=pointer]
+            - generic [ref=e2297] [cursor=pointer]: Ships identify themselves as Chinese around Strait of Hormuz during Iran war to avoid attacks
+            - generic [ref=e2300] [cursor=pointer]: CPNEWS
+            - generic [ref=e2303] [cursor=pointer]: CP Wire
+            - generic [ref=e2307] [cursor=pointer]: 03/12/2026 05:31:40
+            - img "Draft" [ref=e2310] [cursor=pointer]
+            - generic [ref=e2314] [cursor=pointer]: Aya Gold & Silver Announces Commencement of Boumadine Feasibility Study and Accelerates Project Development
+            - generic [ref=e2317] [cursor=pointer]: CPNEWS
+            - generic [ref=e2320] [cursor=pointer]: CP Wire
+            - generic [ref=e2324] [cursor=pointer]: 03/12/2026 05:30:27
+            - img "Draft" [ref=e2327] [cursor=pointer]
+            - generic [ref=e2331] [cursor=pointer]: Village Farms Delivers Record Full Year 2025 Profitability with Continued Strong Performance in Q4
+            - generic [ref=e2334] [cursor=pointer]: CPNEWS
+            - generic [ref=e2337] [cursor=pointer]: CP Wire
+            - generic [ref=e2341] [cursor=pointer]: 03/12/2026 05:30:25
+            - img "Draft" [ref=e2344] [cursor=pointer]
+            - generic [ref=e2348] [cursor=pointer]: Argo Achieves 4.2x Global Benchmark Average for On-Demand Transit Efficiency
+            - generic [ref=e2351] [cursor=pointer]: CPNEWS
+            - generic [ref=e2354] [cursor=pointer]: CP Wire
+            - generic [ref=e2358] [cursor=pointer]: 03/12/2026 05:30:21
+            - img "Draft" [ref=e2361] [cursor=pointer]
+            - generic [ref=e2365] [cursor=pointer]: GURU Organic Energy Reports Record Q1 Revenue of $8.8 Million and Third Consecutive EBITDA-Positive Quarter
+            - generic [ref=e2368] [cursor=pointer]: CPNEWS
+            - generic [ref=e2371] [cursor=pointer]: CP Wire
+            - generic [ref=e2375] [cursor=pointer]: 03/12/2026 05:30:17
+            - img "Draft" [ref=e2378] [cursor=pointer]
+            - generic [ref=e2382] [cursor=pointer]: First Quantum Minerals Announces Sale of Çayeli Mine
+            - generic [ref=e2385] [cursor=pointer]: CPNEWS
+            - generic [ref=e2388] [cursor=pointer]: CP Wire
+            - generic [ref=e2392] [cursor=pointer]: 03/12/2026 05:30:15
+            - img "Draft" [ref=e2395] [cursor=pointer]
+            - generic [ref=e2399] [cursor=pointer]: Copper Quest Completes the Auxer Gold Property Acquisition To Expand US Operations
+            - generic [ref=e2402] [cursor=pointer]: CPNEWS
+            - generic [ref=e2405] [cursor=pointer]: CP Wire
+            - generic [ref=e2409] [cursor=pointer]: 03/12/2026 05:30:13
+            - img "Draft" [ref=e2412] [cursor=pointer]
+            - generic [ref=e2416] [cursor=pointer]: Tilray Medical, CC Pharma, and 14U Pharma Announce Strategic Alliance with “gesund leben” Cooperation and Alliance Healthcare Deutschland to Accelerate Market Expansion and Strengthen Pharmacy Access Across Germany
+            - generic [ref=e2419] [cursor=pointer]: CPNEWS
+            - generic [ref=e2422] [cursor=pointer]: CP Wire
+            - generic [ref=e2426] [cursor=pointer]: 03/12/2026 05:30:11
+            - img "Draft" [ref=e2429] [cursor=pointer]
+            - generic [ref=e2433] [cursor=pointer]: OTC Markets Group Welcomes Tinka Resources Limited to OTCQX
+            - generic [ref=e2436] [cursor=pointer]: CPNEWS
+            - generic [ref=e2439] [cursor=pointer]: CP Wire
+            - generic [ref=e2443] [cursor=pointer]: 03/12/2026 05:30:09
+            - img "Draft" [ref=e2446] [cursor=pointer]
+            - generic [ref=e2450] [cursor=pointer]: DCIP Geophysical Survey Completed on VR’s Bonita Porphyry Copper-Gold Project in Nevada
+            - generic [ref=e2453] [cursor=pointer]: CPNEWS
+            - generic [ref=e2456] [cursor=pointer]: CP Wire
+            - generic [ref=e2460] [cursor=pointer]: 03/12/2026 05:30:07
+            - img "Draft" [ref=e2463] [cursor=pointer]
+            - generic [ref=e2467] [cursor=pointer]: Before You Toast the Shamrock, Plan a Sober Ride Home
+            - generic [ref=e2470] [cursor=pointer]: CPNEWS
+            - generic [ref=e2473] [cursor=pointer]: CP Wire
+            - generic [ref=e2477] [cursor=pointer]: 03/12/2026 05:30:03
+            - img "Draft" [ref=e2480] [cursor=pointer]
+            - generic [ref=e2484] [cursor=pointer]: National Audio 07:25 AM ET
+            - generic [ref=e2487] [cursor=pointer]: CPNEWS
+            - generic [ref=e2490] [cursor=pointer]: CP Wire
+            - generic [ref=e2494] [cursor=pointer]: 03/12/2026 05:25:33
+            - img "Draft" [ref=e2497] [cursor=pointer]
+            - generic [ref=e2501] [cursor=pointer]: Madrid comes down from Valverde's Champions League hat trick to return to La Liga slog
+            - generic [ref=e2504] [cursor=pointer]: CPNEWS
+            - generic [ref=e2507] [cursor=pointer]: CP Wire
+            - generic [ref=e2511] [cursor=pointer]: 03/12/2026 05:22:45
+            - img "Draft" [ref=e2514] [cursor=pointer]
+            - generic [ref=e2518] [cursor=pointer]: ABC033 McDonalds Prices/Price Point Value - UPDATE 1
+            - generic [ref=e2521] [cursor=pointer]: CPNEWS
+            - generic [ref=e2524] [cursor=pointer]: CP Wire
+            - generic [ref=e2528] [cursor=pointer]: 03/12/2026 05:21:14
+            - img "Draft" [ref=e2531] [cursor=pointer]
+            - generic [ref=e2535] [cursor=pointer]: ABC032 McDonalds Prices/Not Alone - UPDATE 1
+            - generic [ref=e2538] [cursor=pointer]: CPNEWS
+            - generic [ref=e2541] [cursor=pointer]: CP Wire
+            - generic [ref=e2545] [cursor=pointer]: 03/12/2026 05:21:10
+            - img "Draft" [ref=e2548] [cursor=pointer]
+            - generic [ref=e2552] [cursor=pointer]: ABC031 McDonalds Prices/Value Items - UPDATE 1
+            - generic [ref=e2555] [cursor=pointer]: CPNEWS
+            - generic [ref=e2558] [cursor=pointer]: CP Wire
+            - generic [ref=e2562] [cursor=pointer]: 03/12/2026 05:21:06
+            - img "Draft" [ref=e2565] [cursor=pointer]
+            - generic [ref=e2569] [cursor=pointer]: "--Fourth NewsWatch--"
+            - generic [ref=e2572] [cursor=pointer]: CPNEWS
+            - generic [ref=e2575] [cursor=pointer]: CP Wire
+            - generic [ref=e2579] [cursor=pointer]: 03/12/2026 05:20:13
+            - img "Draft" [ref=e2582] [cursor=pointer]
+            - generic [ref=e2586] [cursor=pointer]: AP News Summary at 7:18 a.m. EDT
+            - generic [ref=e2589] [cursor=pointer]: CPNEWS
+            - generic [ref=e2592] [cursor=pointer]: CP Wire
+            - generic [ref=e2596] [cursor=pointer]: 03/12/2026 05:19:45
+            - img "Draft" [ref=e2599] [cursor=pointer]
+            - generic [ref=e2603] [cursor=pointer]: At least 50 people killed and 125 others reported missing after landslides sweep Ethiopia
+            - generic [ref=e2606] [cursor=pointer]: CPNEWS
+            - generic [ref=e2609] [cursor=pointer]: CP Wire
+            - generic [ref=e2613] [cursor=pointer]: 03/12/2026 05:19:43
+            - img "Draft" [ref=e2616] [cursor=pointer]
+            - generic [ref=e2620] [cursor=pointer]: China adopts an ethnic unity law that critics say will cement assimilation
+            - generic [ref=e2623] [cursor=pointer]: CPNEWS
+            - generic [ref=e2626] [cursor=pointer]: CP Wire
+            - generic [ref=e2630] [cursor=pointer]: 03/12/2026 05:18:07
+            - img "Draft" [ref=e2633] [cursor=pointer]
+            - generic [ref=e2637] [cursor=pointer]: National Audio 07:15 AM ET
+            - generic [ref=e2640] [cursor=pointer]: CPNEWS
+            - generic [ref=e2643] [cursor=pointer]: CP Wire
+            - generic [ref=e2647] [cursor=pointer]: 03/12/2026 05:15:33
+            - img "Draft" [ref=e2650] [cursor=pointer]
+            - generic [ref=e2654] [cursor=pointer]: SNDL Reports Fourth Quarter and Full Year 2025 Financial and Operational Results
+            - generic [ref=e2657] [cursor=pointer]: CPNEWS
+            - generic [ref=e2660] [cursor=pointer]: CP Wire
+            - generic [ref=e2664] [cursor=pointer]: 03/12/2026 05:15:04
+            - img "Draft" [ref=e2667] [cursor=pointer]
+            - generic [ref=e2671] [cursor=pointer]: Lens has transformed from surprise package to genuine title threat to PSG in Ligue 1
+            - generic [ref=e2674] [cursor=pointer]: CPNEWS
+            - generic [ref=e2677] [cursor=pointer]: CP Wire
+            - generic [ref=e2681] [cursor=pointer]: 03/12/2026 05:13:35
+            - img "Draft" [ref=e2684] [cursor=pointer]
+            - generic [ref=e2688] [cursor=pointer]: Sobeys parent company Empire reports $385M Q3 loss, sales up from year ago
+            - generic [ref=e2691] [cursor=pointer]: CPNEWS
+            - generic [ref=e2694] [cursor=pointer]: CP Wire
+            - generic [ref=e2698] [cursor=pointer]: 03/12/2026 05:11:16
+            - img "Draft" [ref=e2701] [cursor=pointer]
+            - generic [ref=e2705] [cursor=pointer]: AP Business SummaryBrief at 7:07 a.m. EDT
+            - generic [ref=e2708] [cursor=pointer]: CPNEWS
+            - generic [ref=e2711] [cursor=pointer]: CP Wire
+            - generic [ref=e2715] [cursor=pointer]: 03/12/2026 05:07:55
+            - img "Draft" [ref=e2718] [cursor=pointer]
+            - generic [ref=e2722] [cursor=pointer]: AP News Summary at 7:07 a.m. EDT
+            - generic [ref=e2725] [cursor=pointer]: CPNEWS
+            - generic [ref=e2728] [cursor=pointer]: CP Wire
+            - generic [ref=e2732] [cursor=pointer]: 03/12/2026 05:07:53
+            - img "Draft" [ref=e2735] [cursor=pointer]
+            - generic [ref=e2739] [cursor=pointer]: Iran's unrelenting attacks on Mideast shipping and energy infrastructure send oil prices up again
+            - generic [ref=e2742] [cursor=pointer]: CPNEWS
+            - generic [ref=e2745] [cursor=pointer]: CP Wire
+            - generic [ref=e2749] [cursor=pointer]: 03/12/2026 05:07:52
+            - img "Draft" [ref=e2752] [cursor=pointer]
+            - generic [ref=e2756] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e2759] [cursor=pointer]: CPNEWS
+            - generic [ref=e2762] [cursor=pointer]: CP Wire
+            - generic [ref=e2766] [cursor=pointer]: 03/12/2026 05:07:39
+            - img "Draft" [ref=e2769] [cursor=pointer]
+            - generic [ref=e2773] [cursor=pointer]: apa442406 AS--China-Congress-Ethnic-Unity-Wu Intro Explainer
+            - generic [ref=e2776] [cursor=pointer]: CPNEWS
+            - generic [ref=e2779] [cursor=pointer]: CP Wire
+            - generic [ref=e2783] [cursor=pointer]: 03/12/2026 05:07:06
+            - img "Draft" [ref=e2786] [cursor=pointer]
+            - generic [ref=e2790] [cursor=pointer]: ABC030 NYC Protest Arrests/ Planning - UPDATE 1
+            - generic [ref=e2793] [cursor=pointer]: CPNEWS
+            - generic [ref=e2796] [cursor=pointer]: CP Wire
+            - generic [ref=e2800] [cursor=pointer]: 03/12/2026 05:05:10
+            - img "Draft" [ref=e2803] [cursor=pointer]
+            - generic [ref=e2807] [cursor=pointer]: ABC029 NYC Protest Arrests/Other Targets - UPDATE 1
+            - generic [ref=e2810] [cursor=pointer]: CPNEWS
+            - generic [ref=e2813] [cursor=pointer]: CP Wire
+            - generic [ref=e2817] [cursor=pointer]: 03/12/2026 05:05:06
+            - img "Draft" [ref=e2820] [cursor=pointer]
+            - generic [ref=e2824] [cursor=pointer]: Slavery exhibit is changing at the African American history museum as a loan agreement ends
+            - generic [ref=e2827] [cursor=pointer]: CPNEWS
+            - generic [ref=e2830] [cursor=pointer]: CP Wire
+            - generic [ref=e2834] [cursor=pointer]: 03/12/2026 05:04:41
+            - img "Draft" [ref=e2837] [cursor=pointer]
+            - generic [ref=e2841] [cursor=pointer]: ABC028 DHS Shutdown/TSA Agents - UPDATE 1
+            - generic [ref=e2844] [cursor=pointer]: CPNEWS
+            - generic [ref=e2847] [cursor=pointer]: CP Wire
+            - generic [ref=e2851] [cursor=pointer]: 03/12/2026 05:03:13
+            - img "Draft" [ref=e2854] [cursor=pointer]
+            - generic [ref=e2858] [cursor=pointer]: ABC027 DHS Shutdown/Spring Break - UPDATE 1
+            - generic [ref=e2861] [cursor=pointer]: CPNEWS
+            - generic [ref=e2864] [cursor=pointer]: CP Wire
+            - generic [ref=e2868] [cursor=pointer]: 03/12/2026 05:03:10
+            - img "Draft" [ref=e2871] [cursor=pointer]
+            - generic [ref=e2875] [cursor=pointer]: apa442405 AF--Senegal-Homosexuality-Dwyer Intro VCR
+            - generic [ref=e2878] [cursor=pointer]: CPNEWS
+            - generic [ref=e2881] [cursor=pointer]: CP Wire
+            - generic [ref=e2885] [cursor=pointer]: 03/12/2026 05:03:06
+            - img "Draft" [ref=e2888] [cursor=pointer]
+            - generic [ref=e2892] [cursor=pointer]: Milan Cortina leaders defend actions after Ukraine's pressure allegations at Paralympics
+            - generic [ref=e2895] [cursor=pointer]: CPNEWS
+            - generic [ref=e2898] [cursor=pointer]: CP Wire
+            - generic [ref=e2902] [cursor=pointer]: 03/12/2026 05:03:06
+            - img "Draft" [ref=e2905] [cursor=pointer]
+            - generic [ref=e2909] [cursor=pointer]: ABC026 Iran/CA Drone Issues - UPDATE 1
+            - generic [ref=e2912] [cursor=pointer]: CPNEWS
+            - generic [ref=e2915] [cursor=pointer]: CP Wire
+            - generic [ref=e2919] [cursor=pointer]: 03/12/2026 05:03:06
+            - img "Draft" [ref=e2922] [cursor=pointer]
+            - generic [ref=e2926] [cursor=pointer]: AP News Summary at 7:01 a.m. EDT
+            - generic [ref=e2929] [cursor=pointer]: CPNEWS
+            - generic [ref=e2932] [cursor=pointer]: CP Wire
+            - generic [ref=e2936] [cursor=pointer]: 03/12/2026 05:01:34
+            - img "Draft" [ref=e2939] [cursor=pointer]
+            - generic [ref=e2943] [cursor=pointer]: AP Business SummaryBrief at 6:59 a.m. EDT
+            - generic [ref=e2946] [cursor=pointer]: CPNEWS
+            - generic [ref=e2949] [cursor=pointer]: CP Wire
+            - generic [ref=e2953] [cursor=pointer]: 03/12/2026 05:00:12
+            - img "Draft" [ref=e2956] [cursor=pointer]
+            - generic [ref=e2960] [cursor=pointer]: AP News Summary at 6:59 a.m. EDT
+            - generic [ref=e2963] [cursor=pointer]: CPNEWS
+            - generic [ref=e2966] [cursor=pointer]: CP Wire
+            - generic [ref=e2970] [cursor=pointer]: 03/12/2026 05:00:10
+            - img "Draft" [ref=e2973] [cursor=pointer]
+            - generic [ref=e2977] [cursor=pointer]: "Wood Mackenzie: Middle East conflict drives European power price volatility as gas disruption removes 1.5 Mt LNG weekly from global markets"
+            - generic [ref=e2980] [cursor=pointer]: CPNEWS
+            - generic [ref=e2983] [cursor=pointer]: CP Wire
+            - generic [ref=e2987] [cursor=pointer]: 03/12/2026 05:00:09
+            - img "Draft" [ref=e2990] [cursor=pointer]
+            - generic [ref=e2994] [cursor=pointer]: Iran's unrelenting attacks on Mideast shipping and energy infrastructure send oil prices soaring
+            - generic [ref=e2997] [cursor=pointer]: CPNEWS
+            - generic [ref=e3000] [cursor=pointer]: CP Wire
+            - generic [ref=e3004] [cursor=pointer]: 03/12/2026 05:00:09
+            - img "Draft" [ref=e3007] [cursor=pointer]
+            - generic [ref=e3011] [cursor=pointer]: "In The Rings: World Curling chief likes the idea of embedded technology in the sport"
+            - generic [ref=e3014] [cursor=pointer]: CPNEWS
+            - generic [ref=e3017] [cursor=pointer]: CP Wire
+            - generic [ref=e3021] [cursor=pointer]: 03/12/2026 05:00:08
+            - img "Draft" [ref=e3024] [cursor=pointer]
+            - generic [ref=e3028] [cursor=pointer]: G Mining Ventures Reports Year-End 2025 Mineral Reserves and Resources; Gold Reserves Increase 221% to 6.52 Moz
+            - generic [ref=e3031] [cursor=pointer]: CPNEWS
+            - generic [ref=e3034] [cursor=pointer]: CP Wire
+            - generic [ref=e3038] [cursor=pointer]: 03/12/2026 05:00:07
+            - img "Draft" [ref=e3041] [cursor=pointer]
+            - generic [ref=e3045] [cursor=pointer]: A.I.S. Resources Appoints VP Exploration, engages AI Metals
+            - generic [ref=e3048] [cursor=pointer]: CPNEWS
+            - generic [ref=e3051] [cursor=pointer]: CP Wire
+            - generic [ref=e3055] [cursor=pointer]: 03/12/2026 05:00:05
+            - img "Draft" [ref=e3058] [cursor=pointer]
+            - generic [ref=e3062] [cursor=pointer]: Lahontan Announces Private Placement
+            - generic [ref=e3065] [cursor=pointer]: CPNEWS
+            - generic [ref=e3068] [cursor=pointer]: CP Wire
+            - generic [ref=e3072] [cursor=pointer]: 03/12/2026 05:00:03
+            - img "Draft" [ref=e3075] [cursor=pointer]
+            - generic [ref=e3079] [cursor=pointer]: Cranbrook may limit campaign signs ahead of 2026 municipal election
+            - generic [ref=e3082] [cursor=pointer]: CBCO
+            - generic [ref=e3085] [cursor=pointer]: Online
+            - generic [ref=e3089] [cursor=pointer]: 03/12/2026 05:00:00
+            - img "Draft" [ref=e3092] [cursor=pointer]
+            - generic [ref=e3096] [cursor=pointer]: Kamloops council approves $40 million 'line of credit' (Kamloops)
+            - generic [ref=e3099] [cursor=pointer]: CASTANET
+            - generic [ref=e3102] [cursor=pointer]: Online
+            - generic [ref=e3106] [cursor=pointer]: 03/12/2026 05:00:00
+            - img "Draft" [ref=e3109] [cursor=pointer]
+            - generic [ref=e3113] [cursor=pointer]: Former SD73 treasurer received almost $400K after firing tied to $2M accounting flub (Kamloops)
+            - generic [ref=e3116] [cursor=pointer]: CASTANET
+            - generic [ref=e3119] [cursor=pointer]: Online
+            - generic [ref=e3123] [cursor=pointer]: 03/12/2026 05:00:00
+            - img "Draft" [ref=e3126] [cursor=pointer]
+            - generic [ref=e3130] [cursor=pointer]: West Kelowna mayor touts past accomplishments, future plans during final state of the city address (West Kelowna)
+            - generic [ref=e3133] [cursor=pointer]: CASTANET
+            - generic [ref=e3136] [cursor=pointer]: Online
+            - generic [ref=e3140] [cursor=pointer]: 03/12/2026 05:00:00
+            - img "Draft" [ref=e3143] [cursor=pointer]
+            - generic [ref=e3147] [cursor=pointer]: "'Elite-level hockey going on': Canadian Sport School Hockey League Championships showcase top young players in Penticton (Penticton)"
+            - generic [ref=e3150] [cursor=pointer]: CASTANET
+            - generic [ref=e3153] [cursor=pointer]: Online
+            - generic [ref=e3157] [cursor=pointer]: 03/12/2026 05:00:00
+            - img "Draft" [ref=e3160] [cursor=pointer]
+            - generic [ref=e3164] [cursor=pointer]: Snowpack near Vernon only 55 per cent of normal (Vernon)
+            - generic [ref=e3167] [cursor=pointer]: CASTANET
+            - generic [ref=e3170] [cursor=pointer]: Online
+            - generic [ref=e3174] [cursor=pointer]: 03/12/2026 05:00:00
+            - img "Draft" [ref=e3177] [cursor=pointer]
+            - generic [ref=e3181] [cursor=pointer]: Kelowna city councillor says renters, squatters cleared out of her Rutland problem house (Kelowna)
+            - generic [ref=e3184] [cursor=pointer]: CASTANET
+            - generic [ref=e3187] [cursor=pointer]: Online
+            - generic [ref=e3191] [cursor=pointer]: 03/12/2026 05:00:00
+            - img "Draft" [ref=e3194] [cursor=pointer]
+            - generic [ref=e3198] [cursor=pointer]: Comedian Ben Bankas takes career leap in Kelowna after being cancelled by other Canadian cities (Kelowna)
+            - generic [ref=e3201] [cursor=pointer]: CASTANET
+            - generic [ref=e3204] [cursor=pointer]: Online
+            - generic [ref=e3208] [cursor=pointer]: 03/12/2026 05:00:00
+            - img "Draft" [ref=e3211] [cursor=pointer]
+            - generic [ref=e3215] [cursor=pointer]: Vernon woman loses partner while dealing with stage four cancer (Vernon)
+            - generic [ref=e3218] [cursor=pointer]: CASTANET
+            - generic [ref=e3221] [cursor=pointer]: Online
+            - generic [ref=e3225] [cursor=pointer]: 03/12/2026 05:00:00
+            - img "Draft" [ref=e3228] [cursor=pointer]
+            - generic [ref=e3232] [cursor=pointer]: Avoiding burnout when co-ordinating volunteers (Volunteer Matters)
+            - generic [ref=e3235] [cursor=pointer]: CASTANET
+            - generic [ref=e3238] [cursor=pointer]: Online
+            - generic [ref=e3242] [cursor=pointer]: 03/12/2026 05:00:00
+            - img "Draft" [ref=e3245] [cursor=pointer]
+            - generic [ref=e3249] [cursor=pointer]: Kelowna strata ordered to pay $11,700 over unusable parking stall (Kelowna)
+            - generic [ref=e3252] [cursor=pointer]: CASTANET
+            - generic [ref=e3255] [cursor=pointer]: Online
+            - generic [ref=e3259] [cursor=pointer]: 03/12/2026 05:00:00
+            - img "Draft" [ref=e3262] [cursor=pointer]
+            - generic [ref=e3266] [cursor=pointer]: Upgrades to Salmon Arm's wastewater treatment centre to address 'fugitive odours,' city says (Salmon Arm)
+            - generic [ref=e3269] [cursor=pointer]: CASTANET
+            - generic [ref=e3272] [cursor=pointer]: Online
+            - generic [ref=e3276] [cursor=pointer]: 03/12/2026 05:00:00
+            - img "Draft" [ref=e3279] [cursor=pointer]
+            - generic [ref=e3283] [cursor=pointer]: Osoyoos pet lovers can submit their furry friend for Blue Barn's 2027 calendar (Oliver/Osoyoos)
+            - generic [ref=e3286] [cursor=pointer]: CASTANET
+            - generic [ref=e3289] [cursor=pointer]: Online
+            - generic [ref=e3293] [cursor=pointer]: 03/12/2026 05:00:00
+            - img "Draft" [ref=e3296] [cursor=pointer]
+            - generic [ref=e3300] [cursor=pointer]: Penticton resident suing Superstore after sustaining injuries from bathroom door (Penticton)
+            - generic [ref=e3303] [cursor=pointer]: CASTANET
+            - generic [ref=e3306] [cursor=pointer]: Online
+            - generic [ref=e3310] [cursor=pointer]: 03/12/2026 05:00:00
+            - img "Draft" [ref=e3313] [cursor=pointer]
+            - generic [ref=e3317] [cursor=pointer]: Kamloops MPs bill altering intimate partner violence law takes next step following amendments (Kamloops)
+            - generic [ref=e3320] [cursor=pointer]: CASTANET
+            - generic [ref=e3323] [cursor=pointer]: Online
+            - generic [ref=e3327] [cursor=pointer]: 03/12/2026 05:00:00
+            - img "Draft" [ref=e3330] [cursor=pointer]
+            - generic [ref=e3334] [cursor=pointer]: AP Business SummaryBrief at 6:58 a.m. EDT
+            - generic [ref=e3337] [cursor=pointer]: CPNEWS
+            - generic [ref=e3340] [cursor=pointer]: CP Wire
+            - generic [ref=e3344] [cursor=pointer]: 03/12/2026 04:58:43
+            - img "Draft" [ref=e3347] [cursor=pointer]
+            - generic [ref=e3351] [cursor=pointer]: AP News Summary at 6:57 a.m. EDT
+            - generic [ref=e3354] [cursor=pointer]: CPNEWS
+            - generic [ref=e3357] [cursor=pointer]: CP Wire
+            - generic [ref=e3361] [cursor=pointer]: 03/12/2026 04:58:41
+            - img "Draft" [ref=e3364] [cursor=pointer]
+            - generic [ref=e3368] [cursor=pointer]: UN refugee agency says up to 3.2 million people in Iran have been displaced by the war
+            - generic [ref=e3371] [cursor=pointer]: CPNEWS
+            - generic [ref=e3374] [cursor=pointer]: CP Wire
+            - generic [ref=e3378] [cursor=pointer]: 03/12/2026 04:58:40
+            - img "Draft" [ref=e3381] [cursor=pointer]
+            - generic [ref=e3385] [cursor=pointer]: At least 50 people killed and 125 others reported missing after landslides sweep Ethiopia
+            - generic [ref=e3388] [cursor=pointer]: CPNEWS
+            - generic [ref=e3391] [cursor=pointer]: CP Wire
+            - generic [ref=e3395] [cursor=pointer]: 03/12/2026 04:58:35
+            - img "Draft" [ref=e3398] [cursor=pointer]
+            - generic [ref=e3402] [cursor=pointer]: Newcore Gold Increases Drill Program to 60,000 Metres at the Enchi Gold Project, Ghana
+            - generic [ref=e3405] [cursor=pointer]: CPNEWS
+            - generic [ref=e3408] [cursor=pointer]: CP Wire
+            - generic [ref=e3412] [cursor=pointer]: 03/12/2026 04:57:33
+            - img "Draft" [ref=e3415] [cursor=pointer]
+            - generic [ref=e3419] [cursor=pointer]: AP Business SummaryBrief at 6:54 a.m. EDT
+            - generic [ref=e3422] [cursor=pointer]: CPNEWS
+            - generic [ref=e3425] [cursor=pointer]: CP Wire
+            - generic [ref=e3429] [cursor=pointer]: 03/12/2026 04:55:40
+            - img "Draft" [ref=e3432] [cursor=pointer]
+            - generic [ref=e3436] [cursor=pointer]: "One Tech Tip: How do you use an f-stop?"
+            - generic [ref=e3439] [cursor=pointer]: CPNEWS
+            - generic [ref=e3442] [cursor=pointer]: CP Wire
+            - generic [ref=e3446] [cursor=pointer]: 03/12/2026 04:55:38
+            - img "Draft" [ref=e3449] [cursor=pointer]
+            - generic [ref=e3453] [cursor=pointer]: UN refugee agency says up to 3.2 million people in Iran have been displaced by the war
+            - generic [ref=e3456] [cursor=pointer]: CPNEWS
+            - generic [ref=e3459] [cursor=pointer]: CP Wire
+            - generic [ref=e3463] [cursor=pointer]: 03/12/2026 04:55:37
+            - img "Draft" [ref=e3466] [cursor=pointer]
+            - generic [ref=e3470] [cursor=pointer]: UN refugee agency says up to 3.2 million people in Iran have been displaced by the war
+            - generic [ref=e3473] [cursor=pointer]: CPNEWS
+            - generic [ref=e3476] [cursor=pointer]: CP Wire
+            - generic [ref=e3480] [cursor=pointer]: 03/12/2026 04:55:35
+            - img "Draft" [ref=e3483] [cursor=pointer]
+            - generic [ref=e3487] [cursor=pointer]: National Audio 06:55 AM ET
+            - generic [ref=e3490] [cursor=pointer]: CPNEWS
+            - generic [ref=e3493] [cursor=pointer]: CP Wire
+            - generic [ref=e3497] [cursor=pointer]: 03/12/2026 04:55:33
+            - img "Draft" [ref=e3500] [cursor=pointer]
+            - generic [ref=e3504] [cursor=pointer]: Photos from Iran, Israel and Lebanon in the 2nd week of the Iran war
+            - generic [ref=e3507] [cursor=pointer]: CPNEWS
+            - generic [ref=e3510] [cursor=pointer]: CP Wire
+            - generic [ref=e3514] [cursor=pointer]: 03/12/2026 04:51:31
+            - img "Draft" [ref=e3517] [cursor=pointer]
+            - generic [ref=e3521] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e3524] [cursor=pointer]: CPNEWS
+            - generic [ref=e3527] [cursor=pointer]: CP Wire
+            - generic [ref=e3531] [cursor=pointer]: 03/12/2026 04:49:36
+            - img "Draft" [ref=e3534] [cursor=pointer]
+            - generic [ref=e3538] [cursor=pointer]: Oil spill in St. Clair River 'contained,' according to Suncor in Sarnia, Ont.
+            - generic [ref=e3541] [cursor=pointer]: CBCO
+            - generic [ref=e3544] [cursor=pointer]: Online
+            - generic [ref=e3548] [cursor=pointer]: 03/12/2026 04:47:48
+            - img "Draft" [ref=e3551] [cursor=pointer]
+            - generic [ref=e3555] [cursor=pointer]: newscast7a
+            - generic [ref=e3558] [cursor=pointer]: CPNEWS
+            - generic [ref=e3561] [cursor=pointer]: CP Wire
+            - generic [ref=e3565] [cursor=pointer]: 03/12/2026 04:47:06
+            - img "Draft" [ref=e3568] [cursor=pointer]
+            - generic [ref=e3572] [cursor=pointer]: At least 50 people killed and 125 others reported missing after landslides sweep Ethiopia
+            - generic [ref=e3575] [cursor=pointer]: CPNEWS
+            - generic [ref=e3578] [cursor=pointer]: CP Wire
+            - generic [ref=e3582] [cursor=pointer]: 03/12/2026 04:43:37
+            - img "Draft" [ref=e3585] [cursor=pointer]
+            - generic [ref=e3589] [cursor=pointer]: AP Business SummaryBrief at 6:42 a.m. EDT
+            - generic [ref=e3592] [cursor=pointer]: CPNEWS
+            - generic [ref=e3595] [cursor=pointer]: CP Wire
+            - generic [ref=e3599] [cursor=pointer]: 03/12/2026 04:43:36
+            - img "Draft" [ref=e3602] [cursor=pointer]
+            - generic [ref=e3606] [cursor=pointer]: AP News Summary at 6:42 a.m. EDT
+            - generic [ref=e3609] [cursor=pointer]: CPNEWS
+            - generic [ref=e3612] [cursor=pointer]: CP Wire
+            - generic [ref=e3616] [cursor=pointer]: 03/12/2026 04:43:35
+            - img "Draft" [ref=e3619] [cursor=pointer]
+            - generic [ref=e3623] [cursor=pointer]: update7a
+            - generic [ref=e3626] [cursor=pointer]: CPNEWS
+            - generic [ref=e3629] [cursor=pointer]: CP Wire
+            - generic [ref=e3633] [cursor=pointer]: 03/12/2026 04:43:06
+            - img "Draft" [ref=e3636] [cursor=pointer]
+            - generic [ref=e3640] [cursor=pointer]: Summit Royalties Announces Agreement to Acquire Royalty on Newmont's Saddle North Deposit
+            - generic [ref=e3643] [cursor=pointer]: CPNEWS
+            - generic [ref=e3646] [cursor=pointer]: CP Wire
+            - generic [ref=e3650] [cursor=pointer]: 03/12/2026 04:42:34
+            - img "Draft" [ref=e3653] [cursor=pointer]
+            - generic [ref=e3657] [cursor=pointer]: AP Business SummaryBrief at 6:41 a.m. EDT
+            - generic [ref=e3660] [cursor=pointer]: CPNEWS
+            - generic [ref=e3663] [cursor=pointer]: CP Wire
+            - generic [ref=e3667] [cursor=pointer]: 03/12/2026 04:42:10
+            - img "Draft" [ref=e3670] [cursor=pointer]
+            - generic [ref=e3674] [cursor=pointer]: AP News Summary at 6:41 a.m. EDT
+            - generic [ref=e3677] [cursor=pointer]: CPNEWS
+            - generic [ref=e3680] [cursor=pointer]: CP Wire
+            - generic [ref=e3684] [cursor=pointer]: 03/12/2026 04:42:08
+            - img "Draft" [ref=e3687] [cursor=pointer]
+            - generic [ref=e3691] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e3694] [cursor=pointer]: CPNEWS
+            - generic [ref=e3697] [cursor=pointer]: CP Wire
+            - generic [ref=e3701] [cursor=pointer]: 03/12/2026 04:42:07
+            - img "Draft" [ref=e3704] [cursor=pointer]
+            - generic [ref=e3708] [cursor=pointer]: AP News Summary at 6:38 a.m. EDT
+            - generic [ref=e3711] [cursor=pointer]: CPNEWS
+            - generic [ref=e3714] [cursor=pointer]: CP Wire
+            - generic [ref=e3718] [cursor=pointer]: 03/12/2026 04:39:05
+            - img "Draft" [ref=e3721] [cursor=pointer]
+            - generic [ref=e3725] [cursor=pointer]: 50 people killed in deadly Ethiopia landslides and more than 100 reported missing, official says
+            - generic [ref=e3728] [cursor=pointer]: CPNEWS
+            - generic [ref=e3731] [cursor=pointer]: CP Wire
+            - generic [ref=e3735] [cursor=pointer]: 03/12/2026 04:37:34
+            - img "Draft" [ref=e3738] [cursor=pointer]
+            - generic [ref=e3742] [cursor=pointer]: Zelenskyy says Ukraine awaits White House sign-off on US drone production deal
+            - generic [ref=e3745] [cursor=pointer]: CPNEWS
+            - generic [ref=e3748] [cursor=pointer]: CP Wire
+            - generic [ref=e3752] [cursor=pointer]: 03/12/2026 04:34:58
+            - img "Draft" [ref=e3755] [cursor=pointer]
+            - generic [ref=e3759] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e3762] [cursor=pointer]: CPNEWS
+            - generic [ref=e3765] [cursor=pointer]: CP Wire
+            - generic [ref=e3769] [cursor=pointer]: 03/12/2026 04:33:09
+            - img "Draft" [ref=e3772] [cursor=pointer]
+            - generic [ref=e3776] [cursor=pointer]: Celebrity chef René Redzepi resigns from iconic Danish restaurant Noma after abuse allegations
+            - generic [ref=e3779] [cursor=pointer]: CPNEWS
+            - generic [ref=e3782] [cursor=pointer]: CP Wire
+            - generic [ref=e3786] [cursor=pointer]: 03/12/2026 04:32:19
+            - img "Draft" [ref=e3789] [cursor=pointer]
+            - generic [ref=e3793] [cursor=pointer]: Photos from the meeting of China’s National People’s Congress
+            - generic [ref=e3796] [cursor=pointer]: CPNEWS
+            - generic [ref=e3799] [cursor=pointer]: CP Wire
+            - generic [ref=e3803] [cursor=pointer]: 03/12/2026 04:32:05
+            - img "Draft" [ref=e3806] [cursor=pointer]
+            - generic [ref=e3810] [cursor=pointer]: "--Third NewsWatch--"
+            - generic [ref=e3813] [cursor=pointer]: CPNEWS
+            - generic [ref=e3816] [cursor=pointer]: CP Wire
+            - generic [ref=e3820] [cursor=pointer]: 03/12/2026 04:29:24
+            - img "Draft" [ref=e3823] [cursor=pointer]
+            - generic [ref=e3827] [cursor=pointer]: "Q4 and Full Year 2025 Operational and Financial Results: Q4 Net Income of $38.1M ($0.70 per Share) vs. Net Loss of $8.2M ($0.16 per Share) in Q4 2024; Advancing Key Developments to Double Production by 2030"
+            - generic [ref=e3830] [cursor=pointer]: CPNEWS
+            - generic [ref=e3833] [cursor=pointer]: CP Wire
+            - generic [ref=e3837] [cursor=pointer]: 03/12/2026 04:27:37
+            - img "Draft" [ref=e3840] [cursor=pointer]
+            - generic [ref=e3844] [cursor=pointer]: myAbode Invests in Sutton Group, Uniting 12,000 Agents on Canada's Most Advanced Real Estate Platform
+            - generic [ref=e3847] [cursor=pointer]: CPNEWS
+            - generic [ref=e3850] [cursor=pointer]: CP Wire
+            - generic [ref=e3854] [cursor=pointer]: 03/12/2026 04:27:33
+            - img "Draft" [ref=e3857] [cursor=pointer]
+            - generic [ref=e3861] [cursor=pointer]: China adopts an ethnic unity law that critics say will cement assimilation
+            - generic [ref=e3864] [cursor=pointer]: CPNEWS
+            - generic [ref=e3867] [cursor=pointer]: CP Wire
+            - generic [ref=e3871] [cursor=pointer]: 03/12/2026 04:27:13
+            - img "Draft" [ref=e3874] [cursor=pointer]
+            - generic [ref=e3878] [cursor=pointer]: AP News Summary at 6:26 a.m. EDT
+            - generic [ref=e3881] [cursor=pointer]: CPNEWS
+            - generic [ref=e3884] [cursor=pointer]: CP Wire
+            - generic [ref=e3888] [cursor=pointer]: 03/12/2026 04:27:10
+            - img "Draft" [ref=e3891] [cursor=pointer]
+            - generic [ref=e3895] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e3898] [cursor=pointer]: CPNEWS
+            - generic [ref=e3901] [cursor=pointer]: CP Wire
+            - generic [ref=e3905] [cursor=pointer]: 03/12/2026 04:27:08
+            - img "Draft" [ref=e3908] [cursor=pointer]
+            - generic [ref=e3912] [cursor=pointer]: Slavery exhibit is changing at the African American history museum as a loan agreement ends
+            - generic [ref=e3915] [cursor=pointer]: CPNEWS
+            - generic [ref=e3918] [cursor=pointer]: CP Wire
+            - generic [ref=e3922] [cursor=pointer]: 03/12/2026 04:19:36
+            - img "Draft" [ref=e3925] [cursor=pointer]
+            - generic [ref=e3929] [cursor=pointer]: Russian court convicts 19 people over deadly 2024 Moscow concert hall attack
+            - generic [ref=e3932] [cursor=pointer]: CPNEWS
+            - generic [ref=e3935] [cursor=pointer]: CP Wire
+            - generic [ref=e3939] [cursor=pointer]: 03/12/2026 04:18:19
+            - img "Draft" [ref=e3942] [cursor=pointer]
+            - generic [ref=e3946] [cursor=pointer]: Hundreds of thousands without power, school closures continue in Quebec following freezing rain, snow
+            - generic [ref=e3949] [cursor=pointer]: CBCO
+            - generic [ref=e3952] [cursor=pointer]: Online
+            - generic [ref=e3956] [cursor=pointer]: 03/12/2026 04:17:43
+            - img "Draft" [ref=e3959] [cursor=pointer]
+            - generic [ref=e3963] [cursor=pointer]: Power outages, school closures continue in Quebec following freezing rain, snow in much of the province
+            - generic [ref=e3966] [cursor=pointer]: CBCO
+            - generic [ref=e3969] [cursor=pointer]: Online
+            - generic [ref=e3973] [cursor=pointer]: 03/12/2026 04:17:43
+            - img "Draft" [ref=e3976] [cursor=pointer]
+            - generic [ref=e3980] [cursor=pointer]: Slavery exhibit is changing at the Smithsonian museum as a loan agreement ends
+            - generic [ref=e3983] [cursor=pointer]: CPNEWS
+            - generic [ref=e3986] [cursor=pointer]: CP Wire
+            - generic [ref=e3990] [cursor=pointer]: 03/12/2026 04:16:58
+            - img "Draft" [ref=e3993] [cursor=pointer]
+            - generic [ref=e3997] [cursor=pointer]: National Audio 06:15 AM ET
+            - generic [ref=e4000] [cursor=pointer]: CPNEWS
+            - generic [ref=e4003] [cursor=pointer]: CP Wire
+            - generic [ref=e4007] [cursor=pointer]: 03/12/2026 04:15:33
+            - img "Draft" [ref=e4010] [cursor=pointer]
+            - generic [ref=e4014] [cursor=pointer]: ABC025 Iran/Lebanon - Crisis Level - UPDATE 1
+            - generic [ref=e4017] [cursor=pointer]: CPNEWS
+            - generic [ref=e4020] [cursor=pointer]: CP Wire
+            - generic [ref=e4024] [cursor=pointer]: 03/12/2026 04:12:06
+            - img "Draft" [ref=e4027] [cursor=pointer]
+            - generic [ref=e4031] [cursor=pointer]: Bayern faces a tough Leverkusen test in Bundesliga after a 6-1 win and injury concerns
+            - generic [ref=e4034] [cursor=pointer]: CPNEWS
+            - generic [ref=e4037] [cursor=pointer]: CP Wire
+            - generic [ref=e4041] [cursor=pointer]: 03/12/2026 04:09:05
+            - img "Draft" [ref=e4044] [cursor=pointer]
+            - generic [ref=e4048] [cursor=pointer]: AP Business SummaryBrief at 6:05 a.m. EDT
+            - generic [ref=e4051] [cursor=pointer]: CPNEWS
+            - generic [ref=e4054] [cursor=pointer]: CP Wire
+            - generic [ref=e4058] [cursor=pointer]: 03/12/2026 04:06:07
+            - img "Draft" [ref=e4061] [cursor=pointer]
+            - generic [ref=e4065] [cursor=pointer]: Drivers wonder if they should go electric as the war spikes gas prices
+            - generic [ref=e4068] [cursor=pointer]: CPNEWS
+            - generic [ref=e4071] [cursor=pointer]: CP Wire
+            - generic [ref=e4075] [cursor=pointer]: 03/12/2026 04:06:06
+            - img "Draft" [ref=e4078] [cursor=pointer]
+            - generic [ref=e4082] [cursor=pointer]: National Audio 06:05 AM ET
+            - generic [ref=e4085] [cursor=pointer]: CPNEWS
+            - generic [ref=e4088] [cursor=pointer]: CP Wire
+            - generic [ref=e4092] [cursor=pointer]: 03/12/2026 04:05:33
+            - img "Draft" [ref=e4095] [cursor=pointer]
+            - generic [ref=e4099] [cursor=pointer]: AP News in Brief at 6:04 a.m. EDT
+            - generic [ref=e4102] [cursor=pointer]: CPNEWS
+            - generic [ref=e4105] [cursor=pointer]: CP Wire
+            - generic [ref=e4109] [cursor=pointer]: 03/12/2026 04:04:35
+            - img "Draft" [ref=e4112] [cursor=pointer]
+            - generic [ref=e4116] [cursor=pointer]: AP News Summary at 6:02 a.m. EDT
+            - generic [ref=e4119] [cursor=pointer]: CPNEWS
+            - generic [ref=e4122] [cursor=pointer]: CP Wire
+            - generic [ref=e4126] [cursor=pointer]: 03/12/2026 04:03:10
+            - img "Draft" [ref=e4129] [cursor=pointer]
+            - generic [ref=e4133] [cursor=pointer]: Senegal is the latest African country to toughen punishment for homosexual acts
+            - generic [ref=e4136] [cursor=pointer]: CPNEWS
+            - generic [ref=e4139] [cursor=pointer]: CP Wire
+            - generic [ref=e4143] [cursor=pointer]: 03/12/2026 04:03:08
+            - img "Draft" [ref=e4146] [cursor=pointer]
+            - generic [ref=e4150] [cursor=pointer]: AP News Digest 6 a.m.
+            - generic [ref=e4153] [cursor=pointer]: CPNEWS
+            - generic [ref=e4156] [cursor=pointer]: CP Wire
+            - generic [ref=e4160] [cursor=pointer]: 03/12/2026 04:03:05
+            - img "Draft" [ref=e4163] [cursor=pointer]
+            - generic [ref=e4167] [cursor=pointer]: Government to ask MPs to reject Senate pitch to limit privacy exemption for political parties as PM heads to Yellowknife
+            - generic [ref=e4170] [cursor=pointer]: IPOLY
+            - generic [ref=e4173] [cursor=pointer]: Online
+            - generic [ref=e4177] [cursor=pointer]: 03/12/2026 04:02:39
+            - img "Draft" [ref=e4180] [cursor=pointer]
+            - generic [ref=e4184] [cursor=pointer]: "Bracket Watch: Indiana's chances dip after being ousted by Northwestern in the Big Ten Tournament"
+            - generic [ref=e4187] [cursor=pointer]: CPNEWS
+            - generic [ref=e4190] [cursor=pointer]: CP Wire
+            - generic [ref=e4194] [cursor=pointer]: 03/12/2026 04:00:19
+            - img "Draft" [ref=e4197] [cursor=pointer]
+            - generic [ref=e4201] [cursor=pointer]: "--B-C Update--"
+            - generic [ref=e4204] [cursor=pointer]: CPNEWS
+            - generic [ref=e4207] [cursor=pointer]: CP Wire
+            - generic [ref=e4211] [cursor=pointer]: 03/12/2026 04:00:02
+            - img "Draft" [ref=e4214] [cursor=pointer]
+            - generic [ref=e4218] [cursor=pointer]: AP Business SummaryBrief at 5:57 a.m. EDT
+            - generic [ref=e4221] [cursor=pointer]: CPNEWS
+            - generic [ref=e4224] [cursor=pointer]: CP Wire
+            - generic [ref=e4228] [cursor=pointer]: 03/12/2026 03:58:37
+            - img "Draft" [ref=e4231] [cursor=pointer]
+            - generic [ref=e4235] [cursor=pointer]: AP News Summary at 5:57 a.m. EDT
+            - generic [ref=e4238] [cursor=pointer]: CPNEWS
+            - generic [ref=e4241] [cursor=pointer]: CP Wire
+            - generic [ref=e4245] [cursor=pointer]: 03/12/2026 03:58:35
+            - img "Draft" [ref=e4248] [cursor=pointer]
+            - generic [ref=e4252] [cursor=pointer]: ABC024 Severe WX/IN - 2 Killed Identified - UPDATE 1
+            - generic [ref=e4255] [cursor=pointer]: CPNEWS
+            - generic [ref=e4258] [cursor=pointer]: CP Wire
+            - generic [ref=e4262] [cursor=pointer]: 03/12/2026 03:58:10
+            - img "Draft" [ref=e4265] [cursor=pointer]
+            - generic [ref=e4269] [cursor=pointer]: ABC023 Severe WX/IL - Homes Shredded - UPDATE 1
+            - generic [ref=e4272] [cursor=pointer]: CPNEWS
+            - generic [ref=e4275] [cursor=pointer]: CP Wire
+            - generic [ref=e4279] [cursor=pointer]: 03/12/2026 03:58:06
+            - img "Draft" [ref=e4282] [cursor=pointer]
+            - generic [ref=e4286] [cursor=pointer]: How shipping companies are navigating danger in the Strait of Hormuz
+            - generic [ref=e4289] [cursor=pointer]: CBCO
+            - generic [ref=e4292] [cursor=pointer]: Online
+            - generic [ref=e4296] [cursor=pointer]: 03/12/2026 03:57:50
+            - img "Draft" [ref=e4299] [cursor=pointer]
+            - generic [ref=e4303] [cursor=pointer]: Iran's unrelenting attacks on Mideast shipping and energy infrastructure send oil prices soaring
+            - generic [ref=e4306] [cursor=pointer]: CPNEWS
+            - generic [ref=e4309] [cursor=pointer]: CP Wire
+            - generic [ref=e4313] [cursor=pointer]: 03/12/2026 03:57:13
+            - img "Draft" [ref=e4316] [cursor=pointer]
+            - generic [ref=e4320] [cursor=pointer]: AP News Summary at 5:55 a.m. EDT
+            - generic [ref=e4323] [cursor=pointer]: CPNEWS
+            - generic [ref=e4326] [cursor=pointer]: CP Wire
+            - generic [ref=e4330] [cursor=pointer]: 03/12/2026 03:55:37
+            - img "Draft" [ref=e4333] [cursor=pointer]
+            - generic [ref=e4337] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e4340] [cursor=pointer]: CPNEWS
+            - generic [ref=e4343] [cursor=pointer]: CP Wire
+            - generic [ref=e4347] [cursor=pointer]: 03/12/2026 03:55:36
+            - img "Draft" [ref=e4350] [cursor=pointer]
+            - generic [ref=e4354] [cursor=pointer]: National Audio 05:55 AM ET
+            - generic [ref=e4357] [cursor=pointer]: CPNEWS
+            - generic [ref=e4360] [cursor=pointer]: CP Wire
+            - generic [ref=e4364] [cursor=pointer]: 03/12/2026 03:55:33
+            - img "Draft" [ref=e4367] [cursor=pointer]
+            - generic [ref=e4371] [cursor=pointer]: newscast6a
+            - generic [ref=e4374] [cursor=pointer]: CPNEWS
+            - generic [ref=e4377] [cursor=pointer]: CP Wire
+            - generic [ref=e4381] [cursor=pointer]: 03/12/2026 03:51:06
+            - img "Draft" [ref=e4384] [cursor=pointer]
+            - generic [ref=e4388] [cursor=pointer]: AP News Summary at 5:49 a.m. EDT
+            - generic [ref=e4391] [cursor=pointer]: CPNEWS
+            - generic [ref=e4394] [cursor=pointer]: CP Wire
+            - generic [ref=e4398] [cursor=pointer]: 03/12/2026 03:49:47
+            - img "Draft" [ref=e4401] [cursor=pointer]
+            - generic [ref=e4405] [cursor=pointer]: Senegal lawmakers approve new bill toughening punishment for homosexual acts
+            - generic [ref=e4408] [cursor=pointer]: CPNEWS
+            - generic [ref=e4411] [cursor=pointer]: CP Wire
+            - generic [ref=e4415] [cursor=pointer]: 03/12/2026 03:49:46
+            - img "Draft" [ref=e4418] [cursor=pointer]
+            - generic [ref=e4422] [cursor=pointer]: Aston Villa has captain McGinn back to face Lille in Europa League last 16
+            - generic [ref=e4425] [cursor=pointer]: CPNEWS
+            - generic [ref=e4428] [cursor=pointer]: CP Wire
+            - generic [ref=e4432] [cursor=pointer]: 03/12/2026 03:49:43
+            - img "Draft" [ref=e4435] [cursor=pointer]
+            - generic [ref=e4439] [cursor=pointer]: Amid war, Israeli Para athlete proudly displays her nation's flag at Milan Cortina Paralympic Games
+            - generic [ref=e4442] [cursor=pointer]: CPNEWS
+            - generic [ref=e4445] [cursor=pointer]: CP Wire
+            - generic [ref=e4449] [cursor=pointer]: 03/12/2026 03:46:35
+            - img "Draft" [ref=e4452] [cursor=pointer]
+            - generic [ref=e4456] [cursor=pointer]: Russian court convicts 19 people over deadly 2024 Moscow concert hall attack
+            - generic [ref=e4459] [cursor=pointer]: CPNEWS
+            - generic [ref=e4462] [cursor=pointer]: CP Wire
+            - generic [ref=e4466] [cursor=pointer]: 03/12/2026 03:45:16
+            - img "Draft" [ref=e4469] [cursor=pointer]
+            - generic [ref=e4473] [cursor=pointer]: AP News Summary at 5:41 a.m. EDT
+            - generic [ref=e4476] [cursor=pointer]: CPNEWS
+            - generic [ref=e4479] [cursor=pointer]: CP Wire
+            - generic [ref=e4483] [cursor=pointer]: 03/12/2026 03:42:11
+            - img "Draft" [ref=e4486] [cursor=pointer]
+            - generic [ref=e4490] [cursor=pointer]: AP Business SummaryBrief at 5:41 a.m. EDT
+            - generic [ref=e4493] [cursor=pointer]: CPNEWS
+            - generic [ref=e4496] [cursor=pointer]: CP Wire
+            - generic [ref=e4500] [cursor=pointer]: 03/12/2026 03:42:10
+            - img "Draft" [ref=e4503] [cursor=pointer]
+            - generic [ref=e4507] [cursor=pointer]: Iran's parliament speaker warns against any invasion of Iran's islands
+            - generic [ref=e4510] [cursor=pointer]: CPNEWS
+            - generic [ref=e4513] [cursor=pointer]: CP Wire
+            - generic [ref=e4517] [cursor=pointer]: 03/12/2026 03:42:08
+            - img "Draft" [ref=e4520] [cursor=pointer]
+            - generic [ref=e4524] [cursor=pointer]: Iran's parliament speaker warns against any invasion of Iran's islands
+            - generic [ref=e4527] [cursor=pointer]: CPNEWS
+            - generic [ref=e4530] [cursor=pointer]: CP Wire
+            - generic [ref=e4534] [cursor=pointer]: 03/12/2026 03:42:06
+            - img "Draft" [ref=e4537] [cursor=pointer]
+            - generic [ref=e4541] [cursor=pointer]: Dorsett Mongkok Welcomes Families to Hong Kong This Easter with Spacious Family Quad Rooms and Kid-Friendly Amenities
+            - generic [ref=e4544] [cursor=pointer]: CPNEWS
+            - generic [ref=e4547] [cursor=pointer]: CP Wire
+            - generic [ref=e4551] [cursor=pointer]: 03/12/2026 03:40:03
+            - img "Draft" [ref=e4554] [cursor=pointer]
+            - generic [ref=e4558] [cursor=pointer]: Iran parliament speaker says any invasion of Iran's islands will 'make the Persian Gulf run with the blood of invaders'
+            - generic [ref=e4561] [cursor=pointer]: CPNEWS
+            - generic [ref=e4564] [cursor=pointer]: CP Wire
+            - generic [ref=e4568] [cursor=pointer]: 03/12/2026 03:39:05
+            - img "Draft" [ref=e4571] [cursor=pointer]
+            - generic [ref=e4575] [cursor=pointer]: Iran parliament speaker says any invasion of Iran's islands will 'make the Persian Gulf run with the blood of invaders'
+            - generic [ref=e4578] [cursor=pointer]: CPNEWS
+            - generic [ref=e4581] [cursor=pointer]: CP Wire
+            - generic [ref=e4585] [cursor=pointer]: 03/12/2026 03:39:04
+            - img "Draft" [ref=e4588] [cursor=pointer]
+            - generic [ref=e4592] [cursor=pointer]: AP Business SummaryBrief at 5:35 a.m. EDT
+            - generic [ref=e4595] [cursor=pointer]: CPNEWS
+            - generic [ref=e4598] [cursor=pointer]: CP Wire
+            - generic [ref=e4602] [cursor=pointer]: 03/12/2026 03:36:16
+            - img "Draft" [ref=e4605] [cursor=pointer]
+            - generic [ref=e4609] [cursor=pointer]: AP News Summary at 5:35 a.m. EDT
+            - generic [ref=e4612] [cursor=pointer]: CPNEWS
+            - generic [ref=e4615] [cursor=pointer]: CP Wire
+            - generic [ref=e4619] [cursor=pointer]: 03/12/2026 03:36:13
+            - img "Draft" [ref=e4622] [cursor=pointer]
+            - generic [ref=e4626] [cursor=pointer]: Tottenham's Premier League position is damning and so are the numbers
+            - generic [ref=e4629] [cursor=pointer]: CPNEWS
+            - generic [ref=e4632] [cursor=pointer]: CP Wire
+            - generic [ref=e4636] [cursor=pointer]: 03/12/2026 03:36:12
+            - img "Draft" [ref=e4639] [cursor=pointer]
+            - generic [ref=e4643] [cursor=pointer]: National Audio 05:35 AM ET
+            - generic [ref=e4646] [cursor=pointer]: CPNEWS
+            - generic [ref=e4649] [cursor=pointer]: CP Wire
+            - generic [ref=e4653] [cursor=pointer]: 03/12/2026 03:35:33
+            - img "Draft" [ref=e4656] [cursor=pointer]
+            - generic [ref=e4660] [cursor=pointer]: AP News Summary at 5:27 a.m. EDT
+            - generic [ref=e4663] [cursor=pointer]: CPNEWS
+            - generic [ref=e4666] [cursor=pointer]: CP Wire
+            - generic [ref=e4670] [cursor=pointer]: 03/12/2026 03:28:42
+            - img "Draft" [ref=e4673] [cursor=pointer]
+            - generic [ref=e4677] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e4680] [cursor=pointer]: CPNEWS
+            - generic [ref=e4683] [cursor=pointer]: CP Wire
+            - generic [ref=e4687] [cursor=pointer]: 03/12/2026 03:28:39
+            - img "Draft" [ref=e4690] [cursor=pointer]
+            - generic [ref=e4694] [cursor=pointer]: Senegal lawmakers approve new bill toughening punishment for homosexual acts
+            - generic [ref=e4697] [cursor=pointer]: CPNEWS
+            - generic [ref=e4700] [cursor=pointer]: CP Wire
+            - generic [ref=e4704] [cursor=pointer]: 03/12/2026 03:28:37
+            - img "Draft" [ref=e4707] [cursor=pointer]
+            - generic [ref=e4711] [cursor=pointer]: ABC022 Iran/Oil - United Response - UPDATE 1
+            - generic [ref=e4714] [cursor=pointer]: CPNEWS
+            - generic [ref=e4717] [cursor=pointer]: CP Wire
+            - generic [ref=e4721] [cursor=pointer]: 03/12/2026 03:26:22
+            - img "Draft" [ref=e4724] [cursor=pointer]
+            - generic [ref=e4728] [cursor=pointer]: ABC021 Iran/Cluster Munitions - UPDATE 1
+            - generic [ref=e4731] [cursor=pointer]: CPNEWS
+            - generic [ref=e4734] [cursor=pointer]: CP Wire
+            - generic [ref=e4738] [cursor=pointer]: 03/12/2026 03:26:18
+            - img "Draft" [ref=e4741] [cursor=pointer]
+            - generic [ref=e4745] [cursor=pointer]: ABC020 Iran/Hormuz - Underwater Missiles - UPDATE 1
+            - generic [ref=e4748] [cursor=pointer]: CPNEWS
+            - generic [ref=e4751] [cursor=pointer]: CP Wire
+            - generic [ref=e4755] [cursor=pointer]: 03/12/2026 03:26:14
+            - img "Draft" [ref=e4758] [cursor=pointer]
+            - generic [ref=e4762] [cursor=pointer]: ABC019 Iran/Oil - Reserve Release - UPDATE 1
+            - generic [ref=e4765] [cursor=pointer]: CPNEWS
+            - generic [ref=e4768] [cursor=pointer]: CP Wire
+            - generic [ref=e4772] [cursor=pointer]: 03/12/2026 03:26:10
+            - img "Draft" [ref=e4775] [cursor=pointer]
+            - generic [ref=e4779] [cursor=pointer]: ABC018 Iran/Hormuz - Iran Claims - UPDATE 1
+            - generic [ref=e4782] [cursor=pointer]: CPNEWS
+            - generic [ref=e4785] [cursor=pointer]: CP Wire
+            - generic [ref=e4789] [cursor=pointer]: 03/12/2026 03:26:06
+            - img "Draft" [ref=e4792] [cursor=pointer]
+            - generic [ref=e4796] [cursor=pointer]: National Audio 05:25 AM ET
+            - generic [ref=e4799] [cursor=pointer]: CPNEWS
+            - generic [ref=e4802] [cursor=pointer]: CP Wire
+            - generic [ref=e4806] [cursor=pointer]: 03/12/2026 03:25:33
+            - img "Draft" [ref=e4809] [cursor=pointer]
+            - generic [ref=e4813] [cursor=pointer]: BYDFi Perpetual Futures Data Now Live on TradingView
+            - generic [ref=e4816] [cursor=pointer]: CPNEWS
+            - generic [ref=e4819] [cursor=pointer]: CP Wire
+            - generic [ref=e4823] [cursor=pointer]: 03/12/2026 03:25:03
+            - img "Draft" [ref=e4826] [cursor=pointer]
+            - generic [ref=e4830] [cursor=pointer]: "--Second NewsWatch--"
+            - generic [ref=e4833] [cursor=pointer]: CPNEWS
+            - generic [ref=e4836] [cursor=pointer]: CP Wire
+            - generic [ref=e4840] [cursor=pointer]: 03/12/2026 03:21:08
+            - img "Draft" [ref=e4843] [cursor=pointer]
+            - generic [ref=e4847] [cursor=pointer]: AP News Summary at 5:20 a.m. EDT
+            - generic [ref=e4850] [cursor=pointer]: CPNEWS
+            - generic [ref=e4853] [cursor=pointer]: CP Wire
+            - generic [ref=e4857] [cursor=pointer]: 03/12/2026 03:21:08
+            - img "Draft" [ref=e4860] [cursor=pointer]
+            - generic [ref=e4864] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e4867] [cursor=pointer]: CPNEWS
+            - generic [ref=e4870] [cursor=pointer]: CP Wire
+            - generic [ref=e4874] [cursor=pointer]: 03/12/2026 03:21:06
+            - img "Draft" [ref=e4877] [cursor=pointer]
+            - generic [ref=e4881] [cursor=pointer]: "--Sportsbreak--"
+            - generic [ref=e4884] [cursor=pointer]: CPNEWS
+            - generic [ref=e4887] [cursor=pointer]: CP Wire
+            - generic [ref=e4891] [cursor=pointer]: 03/12/2026 03:20:02
+            - img "Draft" [ref=e4894] [cursor=pointer]
+            - generic [ref=e4898] [cursor=pointer]: Damage to historical sites in Iran raises alarm about war's impact on protected places
+            - generic [ref=e4901] [cursor=pointer]: CPNEWS
+            - generic [ref=e4904] [cursor=pointer]: CP Wire
+            - generic [ref=e4908] [cursor=pointer]: 03/12/2026 03:19:50
+            - img "Draft" [ref=e4911] [cursor=pointer]
+            - generic [ref=e4915] [cursor=pointer]: ABC017 Iran/School Strike - Next To IRGC Compound - UPDATE 1
+            - generic [ref=e4918] [cursor=pointer]: CPNEWS
+            - generic [ref=e4921] [cursor=pointer]: CP Wire
+            - generic [ref=e4925] [cursor=pointer]: 03/12/2026 03:18:14
+            - img "Draft" [ref=e4928] [cursor=pointer]
+            - generic [ref=e4932] [cursor=pointer]: ABC016 Iran/School Strike - Possible US Mistake - UPDATE 1
+            - generic [ref=e4935] [cursor=pointer]: CPNEWS
+            - generic [ref=e4938] [cursor=pointer]: CP Wire
+            - generic [ref=e4942] [cursor=pointer]: 03/12/2026 03:18:10
+            - img "Draft" [ref=e4945] [cursor=pointer]
+            - generic [ref=e4949] [cursor=pointer]: ABC015 Iran/School Strike - Tomahawk - UPDATE 1
+            - generic [ref=e4952] [cursor=pointer]: CPNEWS
+            - generic [ref=e4955] [cursor=pointer]: CP Wire
+            - generic [ref=e4959] [cursor=pointer]: 03/12/2026 03:18:06
+            - img "Draft" [ref=e4962] [cursor=pointer]
+            - generic [ref=e4966] [cursor=pointer]: National Audio 05:15 AM ET
+            - generic [ref=e4969] [cursor=pointer]: CPNEWS
+            - generic [ref=e4972] [cursor=pointer]: CP Wire
+            - generic [ref=e4976] [cursor=pointer]: 03/12/2026 03:15:35
+            - img "Draft" [ref=e4979] [cursor=pointer]
+            - generic [ref=e4983] [cursor=pointer]: SportsCall Audio 05:15 AM ET
+            - generic [ref=e4986] [cursor=pointer]: CPNEWS
+            - generic [ref=e4989] [cursor=pointer]: CP Wire
+            - generic [ref=e4993] [cursor=pointer]: 03/12/2026 03:15:33
+            - img "Draft" [ref=e4996] [cursor=pointer]
+            - generic [ref=e5000] [cursor=pointer]: AP News Summary at 5:14 a.m. EDT
+            - generic [ref=e5003] [cursor=pointer]: CPNEWS
+            - generic [ref=e5006] [cursor=pointer]: CP Wire
+            - generic [ref=e5010] [cursor=pointer]: 03/12/2026 03:15:10
+            - img "Draft" [ref=e5013] [cursor=pointer]
+            - generic [ref=e5017] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e5020] [cursor=pointer]: CPNEWS
+            - generic [ref=e5023] [cursor=pointer]: CP Wire
+            - generic [ref=e5027] [cursor=pointer]: 03/12/2026 03:13:39
+            - img "Draft" [ref=e5030] [cursor=pointer]
+            - generic [ref=e5034] [cursor=pointer]: apa442399 SOC--WCup-Iran-Minister-intro + voicer
+            - generic [ref=e5037] [cursor=pointer]: CPNEWS
+            - generic [ref=e5040] [cursor=pointer]: CP Wire
+            - generic [ref=e5044] [cursor=pointer]: 03/12/2026 03:11:14
+            - img "Draft" [ref=e5047] [cursor=pointer]
+            - generic [ref=e5051] [cursor=pointer]: apa442398 BKL--WNBA-CBA-intro + voicer
+            - generic [ref=e5054] [cursor=pointer]: CPNEWS
+            - generic [ref=e5057] [cursor=pointer]: CP Wire
+            - generic [ref=e5061] [cursor=pointer]: 03/12/2026 03:11:10
+            - img "Draft" [ref=e5064] [cursor=pointer]
+            - generic [ref=e5068] [cursor=pointer]: apa442396 US--Trump-Tariffs-intro+wrap
+            - generic [ref=e5071] [cursor=pointer]: CPNEWS
+            - generic [ref=e5074] [cursor=pointer]: CP Wire
+            - generic [ref=e5078] [cursor=pointer]: 03/12/2026 03:11:06
+            - img "Draft" [ref=e5081] [cursor=pointer]
+            - generic [ref=e5085] [cursor=pointer]: SummaryBrief-Entertainment
+            - generic [ref=e5088] [cursor=pointer]: CPNEWS
+            - generic [ref=e5091] [cursor=pointer]: CP Wire
+            - generic [ref=e5095] [cursor=pointer]: 03/12/2026 03:10:27
+            - img "Draft" [ref=e5098] [cursor=pointer]
+            - generic [ref=e5102] [cursor=pointer]: apa442394 US--Iran-School Strike-intro+wrap
+            - generic [ref=e5105] [cursor=pointer]: CPNEWS
+            - generic [ref=e5108] [cursor=pointer]: CP Wire
+            - generic [ref=e5112] [cursor=pointer]: 03/12/2026 03:10:10
+            - img "Draft" [ref=e5115] [cursor=pointer]
+            - generic [ref=e5119] [cursor=pointer]: apa442393 EU--Iran-US-Oil-intro vcr 2
+            - generic [ref=e5122] [cursor=pointer]: CPNEWS
+            - generic [ref=e5125] [cursor=pointer]: CP Wire
+            - generic [ref=e5129] [cursor=pointer]: 03/12/2026 03:10:06
+            - img "Draft" [ref=e5132] [cursor=pointer]
+            - generic [ref=e5136] [cursor=pointer]: AP News Summary at 5:01 a.m. EDT
+            - generic [ref=e5139] [cursor=pointer]: CPNEWS
+            - generic [ref=e5142] [cursor=pointer]: CP Wire
+            - generic [ref=e5146] [cursor=pointer]: 03/12/2026 03:01:37
+            - img "Draft" [ref=e5149] [cursor=pointer]
+            - generic [ref=e5153] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e5156] [cursor=pointer]: CPNEWS
+            - generic [ref=e5159] [cursor=pointer]: CP Wire
+            - generic [ref=e5163] [cursor=pointer]: 03/12/2026 03:01:36
+            - img "Draft" [ref=e5166] [cursor=pointer]
+            - generic [ref=e5170] [cursor=pointer]: Montreal Canadiens goaltender Jacob Fowler quickly finds his form after call-up
+            - generic [ref=e5173] [cursor=pointer]: CPNEWS
+            - generic [ref=e5176] [cursor=pointer]: CP Wire
+            - generic [ref=e5180] [cursor=pointer]: 03/12/2026 03:00:06
+            - img "Draft" [ref=e5183] [cursor=pointer]
+            - generic [ref=e5187] [cursor=pointer]: "--Prairie Update--"
+            - generic [ref=e5190] [cursor=pointer]: CPNEWS
+            - generic [ref=e5193] [cursor=pointer]: CP Wire
+            - generic [ref=e5197] [cursor=pointer]: 03/12/2026 03:00:02
+            - img "Draft" [ref=e5200] [cursor=pointer]
+            - generic [ref=e5204] [cursor=pointer]: "'We're still a mess': N.S. man who lost 3 loved ones in crash speaks out over driver's sentence"
+            - generic [ref=e5207] [cursor=pointer]: CBCO
+            - generic [ref=e5210] [cursor=pointer]: Online
+            - generic [ref=e5214] [cursor=pointer]: 03/12/2026 03:00:00
+            - img "Draft" [ref=e5217] [cursor=pointer]
+            - generic [ref=e5221] [cursor=pointer]: AP News Summary at 4:53 a.m. EDT
+            - generic [ref=e5224] [cursor=pointer]: CPNEWS
+            - generic [ref=e5227] [cursor=pointer]: CP Wire
+            - generic [ref=e5231] [cursor=pointer]: 03/12/2026 02:58:34
+            - img "Draft" [ref=e5234] [cursor=pointer]
+            - generic [ref=e5238] [cursor=pointer]: AP Business SummaryBrief at 4:53 a.m. EDT
+            - generic [ref=e5241] [cursor=pointer]: CPNEWS
+            - generic [ref=e5244] [cursor=pointer]: CP Wire
+            - generic [ref=e5248] [cursor=pointer]: 03/12/2026 02:57:05
+            - img "Draft" [ref=e5251] [cursor=pointer]
+            - generic [ref=e5255] [cursor=pointer]: National Audio 04:55 AM ET
+            - generic [ref=e5258] [cursor=pointer]: CPNEWS
+            - generic [ref=e5261] [cursor=pointer]: CP Wire
+            - generic [ref=e5265] [cursor=pointer]: 03/12/2026 02:55:33
+            - img "Draft" [ref=e5268] [cursor=pointer]
+            - generic [ref=e5272] [cursor=pointer]: Iran's unrelenting attacks on Mideast shipping and energy infrastructure send oil prices soaring
+            - generic [ref=e5275] [cursor=pointer]: CPNEWS
+            - generic [ref=e5278] [cursor=pointer]: CP Wire
+            - generic [ref=e5282] [cursor=pointer]: 03/12/2026 02:54:13
+            - img "Draft" [ref=e5285] [cursor=pointer]
+            - generic [ref=e5289] [cursor=pointer]: AP News Summary at 4:52 a.m. EDT
+            - generic [ref=e5292] [cursor=pointer]: CPNEWS
+            - generic [ref=e5295] [cursor=pointer]: CP Wire
+            - generic [ref=e5299] [cursor=pointer]: 03/12/2026 02:52:37
+            - img "Draft" [ref=e5302] [cursor=pointer]
+            - generic [ref=e5306] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e5309] [cursor=pointer]: CPNEWS
+            - generic [ref=e5312] [cursor=pointer]: CP Wire
+            - generic [ref=e5316] [cursor=pointer]: 03/12/2026 02:52:36
+            - img "Draft" [ref=e5319] [cursor=pointer]
+            - generic [ref=e5323] [cursor=pointer]: NAT008 - (Synagogues-Security)
+            - generic [ref=e5326] [cursor=pointer]: CPNEWS
+            - generic [ref=e5329] [cursor=pointer]: CP Wire
+            - generic [ref=e5333] [cursor=pointer]: 03/12/2026 02:52:09
+            - img "Draft" [ref=e5336] [cursor=pointer]
+            - generic [ref=e5340] [cursor=pointer]: NAT007 - (Sask-Guns)
+            - generic [ref=e5343] [cursor=pointer]: CPNEWS
+            - generic [ref=e5346] [cursor=pointer]: CP Wire
+            - generic [ref=e5350] [cursor=pointer]: 03/12/2026 02:52:06
+            - img "Draft" [ref=e5353] [cursor=pointer]
+            - generic [ref=e5357] [cursor=pointer]: newscast5a
+            - generic [ref=e5360] [cursor=pointer]: CPNEWS
+            - generic [ref=e5363] [cursor=pointer]: CP Wire
+            - generic [ref=e5367] [cursor=pointer]: 03/12/2026 02:51:06
+            - img "Draft" [ref=e5370] [cursor=pointer]
+            - generic [ref=e5374] [cursor=pointer]: AP News Summary at 4:45 a.m. EDT
+            - generic [ref=e5377] [cursor=pointer]: CPNEWS
+            - generic [ref=e5380] [cursor=pointer]: CP Wire
+            - generic [ref=e5384] [cursor=pointer]: 03/12/2026 02:46:33
+            - img "Draft" [ref=e5387] [cursor=pointer]
+            - generic [ref=e5391] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e5394] [cursor=pointer]: CPNEWS
+            - generic [ref=e5397] [cursor=pointer]: CP Wire
+            - generic [ref=e5401] [cursor=pointer]: 03/12/2026 02:45:17
+            - img "Draft" [ref=e5404] [cursor=pointer]
+            - generic [ref=e5408] [cursor=pointer]: Prep-Business-Report
+            - generic [ref=e5411] [cursor=pointer]: CPNEWS
+            - generic [ref=e5414] [cursor=pointer]: CP Wire
+            - generic [ref=e5418] [cursor=pointer]: 03/12/2026 02:45:01
+            - img "Draft" [ref=e5421] [cursor=pointer]
+            - generic [ref=e5425] [cursor=pointer]: North Texas meets Florida Atlantic in AAC Tournament
+            - generic [ref=e5428] [cursor=pointer]: CPNEWS
+            - generic [ref=e5431] [cursor=pointer]: CP Wire
+            - generic [ref=e5435] [cursor=pointer]: 03/12/2026 02:45:01
+            - img "Draft" [ref=e5438] [cursor=pointer]
+            - generic [ref=e5442] [cursor=pointer]: Duke squares off against Florida State in ACC Tournament
+            - generic [ref=e5445] [cursor=pointer]: CPNEWS
+            - generic [ref=e5448] [cursor=pointer]: CP Wire
+            - generic [ref=e5452] [cursor=pointer]: 03/12/2026 02:44:59
+            - img "Draft" [ref=e5455] [cursor=pointer]
+            - generic [ref=e5459] [cursor=pointer]: Texas Tech plays in Big 12 Tournament against the Iowa State
+            - generic [ref=e5462] [cursor=pointer]: CPNEWS
+            - generic [ref=e5465] [cursor=pointer]: CP Wire
+            - generic [ref=e5469] [cursor=pointer]: 03/12/2026 02:44:58
+            - img "Draft" [ref=e5472] [cursor=pointer]
+            - generic [ref=e5476] [cursor=pointer]: Missouri Tigers take on the Kentucky Wildcats in SEC Tournament
+            - generic [ref=e5479] [cursor=pointer]: CPNEWS
+            - generic [ref=e5482] [cursor=pointer]: CP Wire
+            - generic [ref=e5486] [cursor=pointer]: 03/12/2026 02:44:57
+            - img "Draft" [ref=e5489] [cursor=pointer]
+            - generic [ref=e5493] [cursor=pointer]: Grand Canyon squares off against Nevada in MWC Tournament
+            - generic [ref=e5496] [cursor=pointer]: CPNEWS
+            - generic [ref=e5499] [cursor=pointer]: CP Wire
+            - generic [ref=e5503] [cursor=pointer]: 03/12/2026 02:44:56
+            - img "Draft" [ref=e5506] [cursor=pointer]
+            - generic [ref=e5510] [cursor=pointer]: Ohio State Buckeyes and Iowa Hawkeyes square off in Big Ten Tournament
+            - generic [ref=e5513] [cursor=pointer]: CPNEWS
+            - generic [ref=e5516] [cursor=pointer]: CP Wire
+            - generic [ref=e5520] [cursor=pointer]: 03/12/2026 02:44:54
+            - img "Draft" [ref=e5523] [cursor=pointer]
+            - generic [ref=e5527] [cursor=pointer]: UCLA Bruins and Rutgers Scarlet Knights play in Big Ten Tournament
+            - generic [ref=e5530] [cursor=pointer]: CPNEWS
+            - generic [ref=e5533] [cursor=pointer]: CP Wire
+            - generic [ref=e5537] [cursor=pointer]: 03/12/2026 02:44:53
+            - img "Draft" [ref=e5540] [cursor=pointer]
+            - generic [ref=e5544] [cursor=pointer]: San Diego State Aztecs play in MWC Tournament against the Colorado State Rams
+            - generic [ref=e5547] [cursor=pointer]: CPNEWS
+            - generic [ref=e5550] [cursor=pointer]: CP Wire
+            - generic [ref=e5554] [cursor=pointer]: 03/12/2026 02:44:52
+            - img "Draft" [ref=e5557] [cursor=pointer]
+            - generic [ref=e5561] [cursor=pointer]: Virginia Cavaliers play in ACC Tournament against the NC State Wolfpack
+            - generic [ref=e5564] [cursor=pointer]: CPNEWS
+            - generic [ref=e5567] [cursor=pointer]: CP Wire
+            - generic [ref=e5571] [cursor=pointer]: 03/12/2026 02:44:51
+            - img "Draft" [ref=e5574] [cursor=pointer]
+            - generic [ref=e5578] [cursor=pointer]: Akron Zips square off against the Buffalo Bulls in MAC Tournament
+            - generic [ref=e5581] [cursor=pointer]: CPNEWS
+            - generic [ref=e5584] [cursor=pointer]: CP Wire
+            - generic [ref=e5588] [cursor=pointer]: 03/12/2026 02:44:50
+            - img "Draft" [ref=e5591] [cursor=pointer]
+            - generic [ref=e5595] [cursor=pointer]: St. John's plays in Big East Tournament against the Providence
+            - generic [ref=e5598] [cursor=pointer]: CPNEWS
+            - generic [ref=e5601] [cursor=pointer]: CP Wire
+            - generic [ref=e5605] [cursor=pointer]: 03/12/2026 02:44:48
+            - img "Draft" [ref=e5608] [cursor=pointer]
+            - generic [ref=e5612] [cursor=pointer]: Miami (OH) plays in MAC Tournament against the UMass
+            - generic [ref=e5615] [cursor=pointer]: CPNEWS
+            - generic [ref=e5618] [cursor=pointer]: CP Wire
+            - generic [ref=e5622] [cursor=pointer]: 03/12/2026 02:44:47
+            - img "Draft" [ref=e5625] [cursor=pointer]
+            - generic [ref=e5629] [cursor=pointer]: North Carolina Central plays in MEAC Tournament against the Maryland-Eastern Shore
+            - generic [ref=e5632] [cursor=pointer]: CPNEWS
+            - generic [ref=e5635] [cursor=pointer]: CP Wire
+            - generic [ref=e5639] [cursor=pointer]: 03/12/2026 02:44:46
+            - img "Draft" [ref=e5642] [cursor=pointer]
+            - generic [ref=e5646] [cursor=pointer]: North Carolina meets Clemson in ACC Tournament
+            - generic [ref=e5649] [cursor=pointer]: CPNEWS
+            - generic [ref=e5652] [cursor=pointer]: CP Wire
+            - generic [ref=e5656] [cursor=pointer]: 03/12/2026 02:44:45
+            - img "Draft" [ref=e5659] [cursor=pointer]
+            - generic [ref=e5663] [cursor=pointer]: New Mexico Lobos square off against the San Jose State Spartans in MWC Tournament
+            - generic [ref=e5666] [cursor=pointer]: CPNEWS
+            - generic [ref=e5669] [cursor=pointer]: CP Wire
+            - generic [ref=e5673] [cursor=pointer]: 03/12/2026 02:44:43
+            - img "Draft" [ref=e5676] [cursor=pointer]
+            - generic [ref=e5680] [cursor=pointer]: Utah State Aggies play in MWC Tournament against the UNLV Rebels
+            - generic [ref=e5683] [cursor=pointer]: CPNEWS
+            - generic [ref=e5686] [cursor=pointer]: CP Wire
+            - generic [ref=e5690] [cursor=pointer]: 03/12/2026 02:44:42
+            - img "Draft" [ref=e5693] [cursor=pointer]
+            - generic [ref=e5697] [cursor=pointer]: Tennessee plays Auburn in SEC Tournament
+            - generic [ref=e5700] [cursor=pointer]: CPNEWS
+            - generic [ref=e5703] [cursor=pointer]: CP Wire
+            - generic [ref=e5707] [cursor=pointer]: 03/12/2026 02:44:41
+            - img "Draft" [ref=e5710] [cursor=pointer]
+            - generic [ref=e5714] [cursor=pointer]: Seton Hall plays in Big East Tournament against the Creighton
+            - generic [ref=e5717] [cursor=pointer]: CPNEWS
+            - generic [ref=e5720] [cursor=pointer]: CP Wire
+            - generic [ref=e5724] [cursor=pointer]: 03/12/2026 02:44:40
+            - img "Draft" [ref=e5727] [cursor=pointer]
+            - generic [ref=e5731] [cursor=pointer]: Wisconsin takes on Washington in Big Ten Tournament
+            - generic [ref=e5734] [cursor=pointer]: CPNEWS
+            - generic [ref=e5737] [cursor=pointer]: CP Wire
+            - generic [ref=e5741] [cursor=pointer]: 03/12/2026 02:44:38
+            - img "Draft" [ref=e5744] [cursor=pointer]
+            - generic [ref=e5748] [cursor=pointer]: Norfolk State Spartans and South Carolina State Bulldogs play in MEAC Tournament
+            - generic [ref=e5751] [cursor=pointer]: CPNEWS
+            - generic [ref=e5754] [cursor=pointer]: CP Wire
+            - generic [ref=e5758] [cursor=pointer]: 03/12/2026 02:44:37
+            - img "Draft" [ref=e5761] [cursor=pointer]
+            - generic [ref=e5765] [cursor=pointer]: Texas Southern faces Alabama A&M in SWAC Tournament
+            - generic [ref=e5768] [cursor=pointer]: CPNEWS
+            - generic [ref=e5771] [cursor=pointer]: CP Wire
+            - generic [ref=e5775] [cursor=pointer]: 03/12/2026 02:44:36
+            - img "Draft" [ref=e5778] [cursor=pointer]
+            - generic [ref=e5782] [cursor=pointer]: UT Arlington plays in WAC Tournament against the Southern Utah
+            - generic [ref=e5785] [cursor=pointer]: CPNEWS
+            - generic [ref=e5788] [cursor=pointer]: CP Wire
+            - generic [ref=e5792] [cursor=pointer]: 03/12/2026 02:44:35
+            - img "Draft" [ref=e5795] [cursor=pointer]
+            - generic [ref=e5799] [cursor=pointer]: Louisiana Tech Bulldogs and Middle Tennessee Blue Raiders meet in CUSA Tournament
+            - generic [ref=e5802] [cursor=pointer]: CPNEWS
+            - generic [ref=e5805] [cursor=pointer]: CP Wire
+            - generic [ref=e5809] [cursor=pointer]: 03/12/2026 02:44:34
+            - img "Draft" [ref=e5812] [cursor=pointer]
+            - generic [ref=e5816] [cursor=pointer]: Miami Hurricanes take on the Louisville Cardinals in ACC Tournament
+            - generic [ref=e5819] [cursor=pointer]: CPNEWS
+            - generic [ref=e5822] [cursor=pointer]: CP Wire
+            - generic [ref=e5826] [cursor=pointer]: 03/12/2026 02:44:32
+            - img "Draft" [ref=e5829] [cursor=pointer]
+            - generic [ref=e5833] [cursor=pointer]: Western Kentucky Hilltoppers play in CUSA Tournament against the Kennesaw State Owls
+            - generic [ref=e5836] [cursor=pointer]: CPNEWS
+            - generic [ref=e5839] [cursor=pointer]: CP Wire
+            - generic [ref=e5843] [cursor=pointer]: 03/12/2026 02:44:31
+            - img "Draft" [ref=e5846] [cursor=pointer]
+            - generic [ref=e5850] [cursor=pointer]: Purdue Boilermakers play the Northwestern Wildcats in Big Ten Tournament
+            - generic [ref=e5853] [cursor=pointer]: CPNEWS
+            - generic [ref=e5856] [cursor=pointer]: CP Wire
+            - generic [ref=e5860] [cursor=pointer]: 03/12/2026 02:44:30
+            - img "Draft" [ref=e5863] [cursor=pointer]
+            - generic [ref=e5867] [cursor=pointer]: Toledo plays Bowling Green in MAC Tournament
+            - generic [ref=e5870] [cursor=pointer]: CPNEWS
+            - generic [ref=e5873] [cursor=pointer]: CP Wire
+            - generic [ref=e5877] [cursor=pointer]: 03/12/2026 02:44:29
+            - img "Draft" [ref=e5880] [cursor=pointer]
+            - generic [ref=e5884] [cursor=pointer]: Kansas takes on TCU in Big 12 Tournament
+            - generic [ref=e5887] [cursor=pointer]: CPNEWS
+            - generic [ref=e5890] [cursor=pointer]: CP Wire
+            - generic [ref=e5894] [cursor=pointer]: 03/12/2026 02:44:27
+            - img "Draft" [ref=e5897] [cursor=pointer]
+            - generic [ref=e5901] [cursor=pointer]: George Mason Patriots take on the Saint Bonaventure Bonnies in A-10 Tournament
+            - generic [ref=e5904] [cursor=pointer]: CPNEWS
+            - generic [ref=e5907] [cursor=pointer]: CP Wire
+            - generic [ref=e5911] [cursor=pointer]: 03/12/2026 02:44:26
+            - img "Draft" [ref=e5914] [cursor=pointer]
+            - generic [ref=e5918] [cursor=pointer]: Arizona plays UCF in Big 12 Tournament
+            - generic [ref=e5921] [cursor=pointer]: CPNEWS
+            - generic [ref=e5924] [cursor=pointer]: CP Wire
+            - generic [ref=e5928] [cursor=pointer]: 03/12/2026 02:44:25
+            - img "Draft" [ref=e5931] [cursor=pointer]
+            - generic [ref=e5935] [cursor=pointer]: UConn takes on Xavier in Big East Tournament
+            - generic [ref=e5938] [cursor=pointer]: CPNEWS
+            - generic [ref=e5941] [cursor=pointer]: CP Wire
+            - generic [ref=e5945] [cursor=pointer]: 03/12/2026 02:44:23
+            - img "Draft" [ref=e5948] [cursor=pointer]
+            - generic [ref=e5952] [cursor=pointer]: CSU Fullerton Titans play in Big West Tournament against the UC Davis Aggies
+            - generic [ref=e5955] [cursor=pointer]: CPNEWS
+            - generic [ref=e5958] [cursor=pointer]: CP Wire
+            - generic [ref=e5962] [cursor=pointer]: 03/12/2026 02:44:22
+            - img "Draft" [ref=e5965] [cursor=pointer]
+            - generic [ref=e5969] [cursor=pointer]: Utah Tech meets Abilene Christian in WAC Tournament
+            - generic [ref=e5972] [cursor=pointer]: CPNEWS
+            - generic [ref=e5975] [cursor=pointer]: CP Wire
+            - generic [ref=e5979] [cursor=pointer]: 03/12/2026 02:44:21
+            - img "Draft" [ref=e5982] [cursor=pointer]
+            - generic [ref=e5986] [cursor=pointer]: Fordham Rams and George Washington Revolutionaries square off in A-10 Tournament
+            - generic [ref=e5989] [cursor=pointer]: CPNEWS
+            - generic [ref=e5992] [cursor=pointer]: CP Wire
+            - generic [ref=e5996] [cursor=pointer]: 03/12/2026 02:44:20
+            - img "Draft" [ref=e5999] [cursor=pointer]
+            - generic [ref=e6003] [cursor=pointer]: Villanova takes on Georgetown in Big East Tournament
+            - generic [ref=e6006] [cursor=pointer]: CPNEWS
+            - generic [ref=e6009] [cursor=pointer]: CP Wire
+            - generic [ref=e6013] [cursor=pointer]: 03/12/2026 02:44:19
+            - img "Draft" [ref=e6016] [cursor=pointer]
+            - generic [ref=e6020] [cursor=pointer]: Texas A&M meets Oklahoma in SEC Tournament
+            - generic [ref=e6023] [cursor=pointer]: CPNEWS
+            - generic [ref=e6026] [cursor=pointer]: CP Wire
+            - generic [ref=e6030] [cursor=pointer]: 03/12/2026 02:44:17
+            - img "Draft" [ref=e6033] [cursor=pointer]
+            - generic [ref=e6037] [cursor=pointer]: Houston Cougars and BYU Cougars play in Big 12 Tournament
+            - generic [ref=e6040] [cursor=pointer]: CPNEWS
+            - generic [ref=e6043] [cursor=pointer]: CP Wire
+            - generic [ref=e6047] [cursor=pointer]: 03/12/2026 02:44:16
+            - img "Draft" [ref=e6050] [cursor=pointer]
+            - generic [ref=e6054] [cursor=pointer]: Davidson Wildcats play in A-10 Tournament against the Loyola Chicago Ramblers
+            - generic [ref=e6057] [cursor=pointer]: CPNEWS
+            - generic [ref=e6060] [cursor=pointer]: CP Wire
+            - generic [ref=e6064] [cursor=pointer]: 03/12/2026 02:44:15
+            - img "Draft" [ref=e6067] [cursor=pointer]
+            - generic [ref=e6071] [cursor=pointer]: Kent State takes on Ohio in MAC Tournament
+            - generic [ref=e6074] [cursor=pointer]: CPNEWS
+            - generic [ref=e6077] [cursor=pointer]: CP Wire
+            - generic [ref=e6081] [cursor=pointer]: 03/12/2026 02:44:14
+            - img "Draft" [ref=e6084] [cursor=pointer]
+            - generic [ref=e6088] [cursor=pointer]: Georgia Bulldogs and Ole Miss Rebels meet in SEC Tournament
+            - generic [ref=e6091] [cursor=pointer]: CPNEWS
+            - generic [ref=e6094] [cursor=pointer]: CP Wire
+            - generic [ref=e6098] [cursor=pointer]: 03/12/2026 02:44:12
+            - img "Draft" [ref=e6101] [cursor=pointer]
+            - generic [ref=e6105] [cursor=pointer]: Duquesne takes on Rhode Island in A-10 Tournament
+            - generic [ref=e6108] [cursor=pointer]: CPNEWS
+            - generic [ref=e6111] [cursor=pointer]: CP Wire
+            - generic [ref=e6115] [cursor=pointer]: 03/12/2026 02:44:11
+            - img "Draft" [ref=e6118] [cursor=pointer]
+            - generic [ref=e6122] [cursor=pointer]: Charlotte takes on Tulane in AAC Tournament
+            - generic [ref=e6125] [cursor=pointer]: CPNEWS
+            - generic [ref=e6128] [cursor=pointer]: CP Wire
+            - generic [ref=e6132] [cursor=pointer]: 03/12/2026 02:44:10
+            - img "Draft" [ref=e6135] [cursor=pointer]
+            - generic [ref=e6139] [cursor=pointer]: CSU Northridge plays UCSD in Big West Tournament
+            - generic [ref=e6142] [cursor=pointer]: CPNEWS
+            - generic [ref=e6145] [cursor=pointer]: CP Wire
+            - generic [ref=e6149] [cursor=pointer]: 03/12/2026 02:44:09
+            - img "Draft" [ref=e6152] [cursor=pointer]
+            - generic [ref=e6156] [cursor=pointer]: Southern Jaguars face the Arkansas-Pine Bluff Golden Lions in SWAC Tournament
+            - generic [ref=e6159] [cursor=pointer]: CPNEWS
+            - generic [ref=e6162] [cursor=pointer]: CP Wire
+            - generic [ref=e6166] [cursor=pointer]: 03/12/2026 02:44:07
+            - img "Draft" [ref=e6169] [cursor=pointer]
+            - generic [ref=e6173] [cursor=pointer]: Monmouth takes on UNC Wilmington in CAA Tournament
+            - generic [ref=e6176] [cursor=pointer]: CPNEWS
+            - generic [ref=e6179] [cursor=pointer]: CP Wire
+            - generic [ref=e6183] [cursor=pointer]: 03/12/2026 02:44:06
+            - img "Draft" [ref=e6186] [cursor=pointer]
+            - generic [ref=e6190] [cursor=pointer]: Columbia Lions and Harvard Crimson meet in Ivy League Tournament
+            - generic [ref=e6193] [cursor=pointer]: CPNEWS
+            - generic [ref=e6196] [cursor=pointer]: CP Wire
+            - generic [ref=e6200] [cursor=pointer]: 03/12/2026 02:44:05
+            - img "Draft" [ref=e6203] [cursor=pointer]
+            - generic [ref=e6207] [cursor=pointer]: South Florida squares off against UTSA in AAC Tournament
+            - generic [ref=e6210] [cursor=pointer]: CPNEWS
+            - generic [ref=e6213] [cursor=pointer]: CP Wire
+            - generic [ref=e6217] [cursor=pointer]: 03/12/2026 02:44:04
+            - img "Draft" [ref=e6220] [cursor=pointer]
+            - generic [ref=e6224] [cursor=pointer]: Hawaii Rainbow Wahine and CSU Fullerton Titans meet in Big West Tournament
+            - generic [ref=e6227] [cursor=pointer]: CPNEWS
+            - generic [ref=e6230] [cursor=pointer]: CP Wire
+            - generic [ref=e6234] [cursor=pointer]: 03/12/2026 02:44:03
+            - img "Draft" [ref=e6237] [cursor=pointer]
+            - generic [ref=e6241] [cursor=pointer]: McNeese takes on SFA in Southland Championship game
+            - generic [ref=e6244] [cursor=pointer]: CPNEWS
+            - generic [ref=e6247] [cursor=pointer]: CP Wire
+            - generic [ref=e6251] [cursor=pointer]: 03/12/2026 02:44:01
+            - img "Draft" [ref=e6254] [cursor=pointer]
+            - generic [ref=e6258] [cursor=pointer]: Southern Utah takes on UT Arlington in WAC Tournament
+            - generic [ref=e6261] [cursor=pointer]: CPNEWS
+            - generic [ref=e6264] [cursor=pointer]: CP Wire
+            - generic [ref=e6268] [cursor=pointer]: 03/12/2026 02:44:00
+            - img "Draft" [ref=e6271] [cursor=pointer]
+            - generic [ref=e6275] [cursor=pointer]: Ball State plays Toledo in MAC Tournament
+            - generic [ref=e6278] [cursor=pointer]: CPNEWS
+            - generic [ref=e6281] [cursor=pointer]: CP Wire
+            - generic [ref=e6285] [cursor=pointer]: 03/12/2026 02:43:59
+            - img "Draft" [ref=e6288] [cursor=pointer]
+            - generic [ref=e6292] [cursor=pointer]: Miami (OH) RedHawks play in MAC Tournament against the Ohio Bobcats
+            - generic [ref=e6295] [cursor=pointer]: CPNEWS
+            - generic [ref=e6298] [cursor=pointer]: CP Wire
+            - generic [ref=e6302] [cursor=pointer]: 03/12/2026 02:43:58
+            - img "Draft" [ref=e6305] [cursor=pointer]
+            - generic [ref=e6309] [cursor=pointer]: Northern Iowa Panthers take on the Bradley Braves in MVC Tournament
+            - generic [ref=e6312] [cursor=pointer]: CPNEWS
+            - generic [ref=e6315] [cursor=pointer]: CP Wire
+            - generic [ref=e6319] [cursor=pointer]: 03/12/2026 02:43:56
+            - img "Draft" [ref=e6322] [cursor=pointer]
+            - generic [ref=e6326] [cursor=pointer]: Vermont Catamounts face the Maine Black Bears in America East Championship
+            - generic [ref=e6329] [cursor=pointer]: CPNEWS
+            - generic [ref=e6332] [cursor=pointer]: CP Wire
+            - generic [ref=e6336] [cursor=pointer]: 03/12/2026 02:43:55
+            - img "Draft" [ref=e6339] [cursor=pointer]
+            - generic [ref=e6343] [cursor=pointer]: Tulsa meets North Texas in AAC Tournament
+            - generic [ref=e6346] [cursor=pointer]: CPNEWS
+            - generic [ref=e6349] [cursor=pointer]: CP Wire
+            - generic [ref=e6353] [cursor=pointer]: 03/12/2026 02:43:54
+            - img "Draft" [ref=e6356] [cursor=pointer]
+            - generic [ref=e6360] [cursor=pointer]: Princeton Tigers face the Brown Bears in Ivy League Tournament
+            - generic [ref=e6363] [cursor=pointer]: CPNEWS
+            - generic [ref=e6366] [cursor=pointer]: CP Wire
+            - generic [ref=e6370] [cursor=pointer]: 03/12/2026 02:43:53
+            - img "Draft" [ref=e6373] [cursor=pointer]
+            - generic [ref=e6377] [cursor=pointer]: UC Davis meets UC Riverside in Big West Tournament
+            - generic [ref=e6380] [cursor=pointer]: CPNEWS
+            - generic [ref=e6383] [cursor=pointer]: CP Wire
+            - generic [ref=e6387] [cursor=pointer]: 03/12/2026 02:43:51
+            - img "Draft" [ref=e6390] [cursor=pointer]
+            - generic [ref=e6394] [cursor=pointer]: AP News Summary at 4:36 a.m. EDT
+            - generic [ref=e6397] [cursor=pointer]: CPNEWS
+            - generic [ref=e6400] [cursor=pointer]: CP Wire
+            - generic [ref=e6404] [cursor=pointer]: 03/12/2026 02:37:43
+            - img "Draft" [ref=e6407] [cursor=pointer]
+            - generic [ref=e6411] [cursor=pointer]: AP Business SummaryBrief at 4:36 a.m. EDT
+            - generic [ref=e6414] [cursor=pointer]: CPNEWS
+            - generic [ref=e6417] [cursor=pointer]: CP Wire
+            - generic [ref=e6421] [cursor=pointer]: 03/12/2026 02:37:41
+            - img "Draft" [ref=e6424] [cursor=pointer]
+            - generic [ref=e6428] [cursor=pointer]: Brent crude oil briefly tops $100 a barrel as Iran attacks on shipping worsen supply concerns
+            - generic [ref=e6431] [cursor=pointer]: CPNEWS
+            - generic [ref=e6434] [cursor=pointer]: CP Wire
+            - generic [ref=e6438] [cursor=pointer]: 03/12/2026 02:37:38
+            - img "Draft" [ref=e6441] [cursor=pointer]
+            - generic [ref=e6445] [cursor=pointer]: Iran's unrelenting attacks on Mideast shipping and energy infrastructure send oil prices soaring
+            - generic [ref=e6448] [cursor=pointer]: CPNEWS
+            - generic [ref=e6451] [cursor=pointer]: CP Wire
+            - generic [ref=e6455] [cursor=pointer]: 03/12/2026 02:34:38
+            - img "Draft" [ref=e6458] [cursor=pointer]
+            - generic [ref=e6462] [cursor=pointer]: Senegal lawmakers approve new bill toughening punishment for homosexual acts
+            - generic [ref=e6465] [cursor=pointer]: CPNEWS
+            - generic [ref=e6468] [cursor=pointer]: CP Wire
+            - generic [ref=e6472] [cursor=pointer]: 03/12/2026 02:33:17
+            - img "Draft" [ref=e6475] [cursor=pointer]
+            - generic [ref=e6479] [cursor=pointer]: Bayern faces a tough Leverkusen test in Bundesliga after a 6-1 win and injury concerns
+            - generic [ref=e6482] [cursor=pointer]: CPNEWS
+            - generic [ref=e6485] [cursor=pointer]: CP Wire
+            - generic [ref=e6489] [cursor=pointer]: 03/12/2026 02:33:15
+            - img "Draft" [ref=e6492] [cursor=pointer]
+            - generic [ref=e6496] [cursor=pointer]: BDC boosts Defence Platform up to $6B after providing $92M in financing since late December, names StrongNorth Fund leader
+            - generic [ref=e6499] [cursor=pointer]: CPNEWS
+            - generic [ref=e6502] [cursor=pointer]: CP Wire
+            - generic [ref=e6506] [cursor=pointer]: 03/12/2026 02:22:33
+            - img "Draft" [ref=e6509] [cursor=pointer]
+            - generic [ref=e6513] [cursor=pointer]: AP Business SummaryBrief at 4:16 a.m. EDT
+            - generic [ref=e6516] [cursor=pointer]: CPNEWS
+            - generic [ref=e6519] [cursor=pointer]: CP Wire
+            - generic [ref=e6523] [cursor=pointer]: 03/12/2026 02:19:39
+            - img "Draft" [ref=e6526] [cursor=pointer]
+            - generic [ref=e6530] [cursor=pointer]: South Korean lawmakers pass law to manage Seoul's pledge of $350 billion in US investments
+            - generic [ref=e6533] [cursor=pointer]: CPNEWS
+            - generic [ref=e6536] [cursor=pointer]: CP Wire
+            - generic [ref=e6540] [cursor=pointer]: 03/12/2026 02:19:38
+            - img "Draft" [ref=e6543] [cursor=pointer]
+            - generic [ref=e6547] [cursor=pointer]: AP News Summary at 4:16 a.m. EDT
+            - generic [ref=e6550] [cursor=pointer]: CPNEWS
+            - generic [ref=e6553] [cursor=pointer]: CP Wire
+            - generic [ref=e6557] [cursor=pointer]: 03/12/2026 02:18:08
+            - img "Draft" [ref=e6560] [cursor=pointer]
+            - generic [ref=e6564] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e6567] [cursor=pointer]: CPNEWS
+            - generic [ref=e6570] [cursor=pointer]: CP Wire
+            - generic [ref=e6574] [cursor=pointer]: 03/12/2026 02:18:06
+            - img "Draft" [ref=e6577] [cursor=pointer]
+            - generic [ref=e6581] [cursor=pointer]: National Audio 04:15 AM ET
+            - generic [ref=e6584] [cursor=pointer]: CPNEWS
+            - generic [ref=e6587] [cursor=pointer]: CP Wire
+            - generic [ref=e6591] [cursor=pointer]: 03/12/2026 02:15:33
+            - img "Draft" [ref=e6594] [cursor=pointer]
+            - generic [ref=e6598] [cursor=pointer]: "Today in History: March 12, Gandhi begins ‘Salt March’"
+            - generic [ref=e6601] [cursor=pointer]: CPNEWS
+            - generic [ref=e6604] [cursor=pointer]: CP Wire
+            - generic [ref=e6608] [cursor=pointer]: 03/12/2026 02:15:04
+            - img "Draft" [ref=e6611] [cursor=pointer]
+            - generic [ref=e6615] [cursor=pointer]: "In the news: Carney travelling north, BDC and defence partnerships, NSF fees capped"
+            - generic [ref=e6618] [cursor=pointer]: CPNEWS
+            - generic [ref=e6621] [cursor=pointer]: CP Wire
+            - generic [ref=e6625] [cursor=pointer]: 03/12/2026 02:15:03
+            - img "Draft" [ref=e6628] [cursor=pointer]
+            - generic [ref=e6632] [cursor=pointer]: Islanders host the Kings after overtime win
+            - generic [ref=e6635] [cursor=pointer]: CPNEWS
+            - generic [ref=e6638] [cursor=pointer]: CP Wire
+            - generic [ref=e6642] [cursor=pointer]: 03/12/2026 02:12:07
+            - img "Draft" [ref=e6645] [cursor=pointer]
+            - generic [ref=e6649] [cursor=pointer]: Sabres play the Capitals after Quinn's hat trick
+            - generic [ref=e6652] [cursor=pointer]: CPNEWS
+            - generic [ref=e6655] [cursor=pointer]: CP Wire
+            - generic [ref=e6659] [cursor=pointer]: 03/12/2026 02:12:06
+            - img "Draft" [ref=e6662] [cursor=pointer]
+            - generic [ref=e6666] [cursor=pointer]: Philadelphia takes road win streak into matchup with Minnesota
+            - generic [ref=e6669] [cursor=pointer]: CPNEWS
+            - generic [ref=e6672] [cursor=pointer]: CP Wire
+            - generic [ref=e6676] [cursor=pointer]: 03/12/2026 02:12:04
+            - img "Draft" [ref=e6679] [cursor=pointer]
+            - generic [ref=e6683] [cursor=pointer]: NAT006 - (Alta-Dominican-Assault)
+            - generic [ref=e6686] [cursor=pointer]: CPNEWS
+            - generic [ref=e6689] [cursor=pointer]: CP Wire
+            - generic [ref=e6693] [cursor=pointer]: 03/12/2026 02:09:06
+            - img "Draft" [ref=e6696] [cursor=pointer]
+            - generic [ref=e6700] [cursor=pointer]: NAT005 - (Alta-Dominican-Assault)
+            - generic [ref=e6703] [cursor=pointer]: CPNEWS
+            - generic [ref=e6706] [cursor=pointer]: CP Wire
+            - generic [ref=e6710] [cursor=pointer]: 03/12/2026 02:08:10
+            - img "Draft" [ref=e6713] [cursor=pointer]
+            - generic [ref=e6717] [cursor=pointer]: NAT004 - (Alta-Separatism-Business)
+            - generic [ref=e6720] [cursor=pointer]: CPNEWS
+            - generic [ref=e6723] [cursor=pointer]: CP Wire
+            - generic [ref=e6727] [cursor=pointer]: 03/12/2026 02:08:06
+            - img "Draft" [ref=e6730] [cursor=pointer]
+            - generic [ref=e6734] [cursor=pointer]: NAT003 - (NSF-Bank-Fees-Cap)
+            - generic [ref=e6737] [cursor=pointer]: CPNEWS
+            - generic [ref=e6740] [cursor=pointer]: CP Wire
+            - generic [ref=e6744] [cursor=pointer]: 03/12/2026 02:07:06
+            - img "Draft" [ref=e6747] [cursor=pointer]
+            - generic [ref=e6751] [cursor=pointer]: NAT002 - (Business-Minute)
+            - generic [ref=e6754] [cursor=pointer]: CPNEWS
+            - generic [ref=e6757] [cursor=pointer]: CP Wire
+            - generic [ref=e6761] [cursor=pointer]: 03/12/2026 02:06:10
+            - img "Draft" [ref=e6764] [cursor=pointer]
+            - generic [ref=e6768] [cursor=pointer]: NAT001 - (Carney-Travels)
+            - generic [ref=e6771] [cursor=pointer]: CPNEWS
+            - generic [ref=e6774] [cursor=pointer]: CP Wire
+            - generic [ref=e6778] [cursor=pointer]: 03/12/2026 02:06:06
+            - img "Draft" [ref=e6781] [cursor=pointer]
+            - generic [ref=e6785] [cursor=pointer]: New federal rules limiting non-sufficient funds fees to $10 kick in Thursday
+            - generic [ref=e6788] [cursor=pointer]: CPNEWS
+            - generic [ref=e6791] [cursor=pointer]: CP Wire
+            - generic [ref=e6795] [cursor=pointer]: 03/12/2026 02:00:19
+            - img "Draft" [ref=e6798] [cursor=pointer]
+            - generic [ref=e6802] [cursor=pointer]: BR-Carney-Travels
+            - generic [ref=e6805] [cursor=pointer]: CPNEWS
+            - generic [ref=e6808] [cursor=pointer]: CP Wire
+            - generic [ref=e6812] [cursor=pointer]: 03/12/2026 02:00:17
+            - img "Draft" [ref=e6815] [cursor=pointer]
+            - generic [ref=e6819] [cursor=pointer]: Carney travelling to Yellowknife, Norway for defence-focused northern trip
+            - generic [ref=e6822] [cursor=pointer]: CPNEWS
+            - generic [ref=e6825] [cursor=pointer]: CP Wire
+            - generic [ref=e6829] [cursor=pointer]: 03/12/2026 02:00:15
+            - img "Draft" [ref=e6832] [cursor=pointer]
+            - generic [ref=e6836] [cursor=pointer]: BR-Alta-Dominican-Assault
+            - generic [ref=e6839] [cursor=pointer]: CPNEWS
+            - generic [ref=e6842] [cursor=pointer]: CP Wire
+            - generic [ref=e6846] [cursor=pointer]: 03/12/2026 02:00:13
+            - img "Draft" [ref=e6849] [cursor=pointer]
+            - generic [ref=e6853] [cursor=pointer]: Business Development Bank boosts funds available to defence-sector entrepreneurs
+            - generic [ref=e6856] [cursor=pointer]: CPNEWS
+            - generic [ref=e6859] [cursor=pointer]: CP Wire
+            - generic [ref=e6863] [cursor=pointer]: 03/12/2026 02:00:12
+            - img "Draft" [ref=e6866] [cursor=pointer]
+            - generic [ref=e6870] [cursor=pointer]: BR-Alta-Separatism-Business
+            - generic [ref=e6873] [cursor=pointer]: CPNEWS
+            - generic [ref=e6876] [cursor=pointer]: CP Wire
+            - generic [ref=e6880] [cursor=pointer]: 03/12/2026 02:00:10
+            - img "Draft" [ref=e6883] [cursor=pointer]
+            - generic [ref=e6887] [cursor=pointer]: Edmonton man attacked in Dominican reflects on recovery, hating egg salad
+            - generic [ref=e6890] [cursor=pointer]: CPNEWS
+            - generic [ref=e6893] [cursor=pointer]: CP Wire
+            - generic [ref=e6897] [cursor=pointer]: 03/12/2026 02:00:08
+            - img "Draft" [ref=e6900] [cursor=pointer]
+            - generic [ref=e6904] [cursor=pointer]: Alberta's chambers of commerce say separation talk not helping attract business
+            - generic [ref=e6907] [cursor=pointer]: CPNEWS
+            - generic [ref=e6910] [cursor=pointer]: CP Wire
+            - generic [ref=e6914] [cursor=pointer]: 03/12/2026 02:00:04
+            - img "Draft" [ref=e6917] [cursor=pointer]
+            - generic [ref=e6921] [cursor=pointer]: BR-NSF-Bank-Fees-Cap
+            - generic [ref=e6924] [cursor=pointer]: CPNEWS
+            - generic [ref=e6927] [cursor=pointer]: CP Wire
+            - generic [ref=e6931] [cursor=pointer]: 03/12/2026 02:00:03
+            - img "Draft" [ref=e6934] [cursor=pointer]
+            - generic [ref=e6938] [cursor=pointer]: What's climate change doing to avalanches and how we predict them?
+            - generic [ref=e6941] [cursor=pointer]: CBCO
+            - generic [ref=e6944] [cursor=pointer]: Online
+            - generic [ref=e6948] [cursor=pointer]: 03/12/2026 02:00:00
+            - img "Draft" [ref=e6951] [cursor=pointer]
+            - generic [ref=e6955] [cursor=pointer]: How are Hamilton children getting bear spray? Amid more crimes, police are taking action
+            - generic [ref=e6958] [cursor=pointer]: CBCO
+            - generic [ref=e6961] [cursor=pointer]: Online
+            - generic [ref=e6965] [cursor=pointer]: 03/12/2026 02:00:00
+            - img "Draft" [ref=e6968] [cursor=pointer]
+            - generic [ref=e6972] [cursor=pointer]: The Oscars are getting an award for best casting. About time, casting directors say
+            - generic [ref=e6975] [cursor=pointer]: CBCO
+            - generic [ref=e6978] [cursor=pointer]: Online
+            - generic [ref=e6982] [cursor=pointer]: 03/12/2026 02:00:00
+            - img "Draft" [ref=e6985] [cursor=pointer]
+            - generic [ref=e6989] [cursor=pointer]: War has gripped the Middle East, but the turmoil is giving Russia an opportunity
+            - generic [ref=e6992] [cursor=pointer]: CBCO
+            - generic [ref=e6995] [cursor=pointer]: Online
+            - generic [ref=e6999] [cursor=pointer]: 03/12/2026 02:00:00
+            - img "Draft" [ref=e7002] [cursor=pointer]
+            - generic [ref=e7006] [cursor=pointer]: In Miami, Cuban exiles hope to rebuild country as they await Trump's move on regime change
+            - generic [ref=e7009] [cursor=pointer]: CBCO
+            - generic [ref=e7012] [cursor=pointer]: Online
+            - generic [ref=e7016] [cursor=pointer]: 03/12/2026 02:00:00
+            - img "Draft" [ref=e7019] [cursor=pointer]
+            - generic [ref=e7023] [cursor=pointer]: How shipping companies are navigating danger in the Strait of Hormuz
+            - generic [ref=e7026] [cursor=pointer]: CBCO
+            - generic [ref=e7029] [cursor=pointer]: Online
+            - generic [ref=e7033] [cursor=pointer]: 03/12/2026 02:00:00
+            - img "Draft" [ref=e7036] [cursor=pointer]
+            - generic [ref=e7040] [cursor=pointer]: Rapper K'naan to testify in his own defence in sexual assault trial in Quebec City
+            - generic [ref=e7043] [cursor=pointer]: CBCO
+            - generic [ref=e7046] [cursor=pointer]: Online
+            - generic [ref=e7050] [cursor=pointer]: 03/12/2026 02:00:00
+            - img "Draft" [ref=e7053] [cursor=pointer]
+            - generic [ref=e7057] [cursor=pointer]: National Audio 03:55 AM ET
+            - generic [ref=e7060] [cursor=pointer]: CPNEWS
+            - generic [ref=e7063] [cursor=pointer]: CP Wire
+            - generic [ref=e7067] [cursor=pointer]: 03/12/2026 01:55:33
+            - img "Draft" [ref=e7070] [cursor=pointer]
+            - generic [ref=e7074] [cursor=pointer]: Shell Publishes Annual Report and Accounts
+            - generic [ref=e7077] [cursor=pointer]: CPNEWS
+            - generic [ref=e7080] [cursor=pointer]: CP Wire
+            - generic [ref=e7084] [cursor=pointer]: 03/12/2026 01:50:03
+            - img "Draft" [ref=e7087] [cursor=pointer]
+            - generic [ref=e7091] [cursor=pointer]: newscast4a
+            - generic [ref=e7094] [cursor=pointer]: CPNEWS
+            - generic [ref=e7097] [cursor=pointer]: CP Wire
+            - generic [ref=e7101] [cursor=pointer]: 03/12/2026 01:49:06
+            - img "Draft" [ref=e7104] [cursor=pointer]
+            - generic [ref=e7108] [cursor=pointer]: National Audio 03:45 AM ET
+            - generic [ref=e7111] [cursor=pointer]: CPNEWS
+            - generic [ref=e7114] [cursor=pointer]: CP Wire
+            - generic [ref=e7118] [cursor=pointer]: 03/12/2026 01:45:33
+            - img "Draft" [ref=e7121] [cursor=pointer]
+            - generic [ref=e7125] [cursor=pointer]: AP Business SummaryBrief at 3:41 a.m. EDT
+            - generic [ref=e7128] [cursor=pointer]: CPNEWS
+            - generic [ref=e7131] [cursor=pointer]: CP Wire
+            - generic [ref=e7135] [cursor=pointer]: 03/12/2026 01:45:07
+            - img "Draft" [ref=e7138] [cursor=pointer]
+            - generic [ref=e7142] [cursor=pointer]: AP News Summary at 3:41 a.m. EDT
+            - generic [ref=e7145] [cursor=pointer]: CPNEWS
+            - generic [ref=e7148] [cursor=pointer]: CP Wire
+            - generic [ref=e7152] [cursor=pointer]: 03/12/2026 01:45:06
+            - img "Draft" [ref=e7155] [cursor=pointer]
+            - generic [ref=e7159] [cursor=pointer]: Iran's unrelenting attacks on Mideast shipping and energy infrastructure send oil prices soaring
+            - generic [ref=e7162] [cursor=pointer]: CPNEWS
+            - generic [ref=e7165] [cursor=pointer]: CP Wire
+            - generic [ref=e7169] [cursor=pointer]: 03/12/2026 01:42:08
+            - img "Draft" [ref=e7172] [cursor=pointer]
+            - generic [ref=e7176] [cursor=pointer]: AP News Summary at 3:38 a.m. EDT
+            - generic [ref=e7179] [cursor=pointer]: CPNEWS
+            - generic [ref=e7182] [cursor=pointer]: CP Wire
+            - generic [ref=e7186] [cursor=pointer]: 03/12/2026 01:39:07
+            - img "Draft" [ref=e7189] [cursor=pointer]
+            - generic [ref=e7193] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e7196] [cursor=pointer]: CPNEWS
+            - generic [ref=e7199] [cursor=pointer]: CP Wire
+            - generic [ref=e7203] [cursor=pointer]: 03/12/2026 01:39:06
+            - img "Draft" [ref=e7206] [cursor=pointer]
+            - generic [ref=e7210] [cursor=pointer]: China adopts an ethnic unity law that critics say will cement assimilation
+            - generic [ref=e7213] [cursor=pointer]: CPNEWS
+            - generic [ref=e7216] [cursor=pointer]: CP Wire
+            - generic [ref=e7220] [cursor=pointer]: 03/12/2026 01:37:36
+            - img "Draft" [ref=e7223] [cursor=pointer]
+            - generic [ref=e7227] [cursor=pointer]: apa442387 US Stowaway Fox-intro wrap
+            - generic [ref=e7230] [cursor=pointer]: CPNEWS
+            - generic [ref=e7233] [cursor=pointer]: CP Wire
+            - generic [ref=e7237] [cursor=pointer]: 03/12/2026 01:37:10
+            - img "Draft" [ref=e7240] [cursor=pointer]
+            - generic [ref=e7244] [cursor=pointer]: apa442385 US Stowaway Fox-Lovett 2
+            - generic [ref=e7247] [cursor=pointer]: CPNEWS
+            - generic [ref=e7250] [cursor=pointer]: CP Wire
+            - generic [ref=e7254] [cursor=pointer]: 03/12/2026 01:37:06
+            - img "Draft" [ref=e7257] [cursor=pointer]
+            - generic [ref=e7261] [cursor=pointer]: apa442384 US Stowaway Fox-Lovett 1
+            - generic [ref=e7264] [cursor=pointer]: CPNEWS
+            - generic [ref=e7267] [cursor=pointer]: CP Wire
+            - generic [ref=e7271] [cursor=pointer]: 03/12/2026 01:36:10
+            - img "Draft" [ref=e7274] [cursor=pointer]
+            - generic [ref=e7278] [cursor=pointer]: apa442383 US--Epstein-Congress-intro wrap Epstein's accountant
+            - generic [ref=e7281] [cursor=pointer]: CPNEWS
+            - generic [ref=e7284] [cursor=pointer]: CP Wire
+            - generic [ref=e7288] [cursor=pointer]: 03/12/2026 01:36:06
+            - img "Draft" [ref=e7291] [cursor=pointer]
+            - generic [ref=e7295] [cursor=pointer]: Global Power Solutions Appoints Pete Medved as President & Chief Executive Officer to Lead Innovation
+            - generic [ref=e7298] [cursor=pointer]: CPNEWS
+            - generic [ref=e7301] [cursor=pointer]: CP Wire
+            - generic [ref=e7305] [cursor=pointer]: 03/12/2026 01:35:03
+            - img "Draft" [ref=e7308] [cursor=pointer]
+            - generic [ref=e7312] [cursor=pointer]: AP Sports SummaryBrief at 3:30 a.m. EDT
+            - generic [ref=e7315] [cursor=pointer]: CPNEWS
+            - generic [ref=e7318] [cursor=pointer]: CP Wire
+            - generic [ref=e7322] [cursor=pointer]: 03/12/2026 01:34:40
+            - img "Draft" [ref=e7325] [cursor=pointer]
+            - generic [ref=e7329] [cursor=pointer]: Verstappen sees 'a jungle' in F1 but still hopes for 'simple solutions'
+            - generic [ref=e7332] [cursor=pointer]: CPNEWS
+            - generic [ref=e7335] [cursor=pointer]: CP Wire
+            - generic [ref=e7339] [cursor=pointer]: 03/12/2026 01:34:39
+            - img "Draft" [ref=e7342] [cursor=pointer]
+            - generic [ref=e7346] [cursor=pointer]: AP News Summary at 3:30 a.m. EDT
+            - generic [ref=e7349] [cursor=pointer]: CPNEWS
+            - generic [ref=e7352] [cursor=pointer]: CP Wire
+            - generic [ref=e7356] [cursor=pointer]: 03/12/2026 01:31:37
+            - img "Draft" [ref=e7359] [cursor=pointer]
+            - generic [ref=e7363] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e7366] [cursor=pointer]: CPNEWS
+            - generic [ref=e7369] [cursor=pointer]: CP Wire
+            - generic [ref=e7373] [cursor=pointer]: 03/12/2026 01:31:36
+            - img "Draft" [ref=e7376] [cursor=pointer]
+            - generic [ref=e7380] [cursor=pointer]: AP Business SummaryBrief at 3:22 a.m. EDT
+            - generic [ref=e7383] [cursor=pointer]: CPNEWS
+            - generic [ref=e7386] [cursor=pointer]: CP Wire
+            - generic [ref=e7390] [cursor=pointer]: 03/12/2026 01:27:03
+            - img "Draft" [ref=e7393] [cursor=pointer]
+            - generic [ref=e7397] [cursor=pointer]: China positions itself as force for global stability at its annual Congress
+            - generic [ref=e7400] [cursor=pointer]: CPNEWS
+            - generic [ref=e7403] [cursor=pointer]: CP Wire
+            - generic [ref=e7407] [cursor=pointer]: 03/12/2026 01:25:44
+            - img "Draft" [ref=e7410] [cursor=pointer]
+            - generic [ref=e7414] [cursor=pointer]: National Audio 03:25 AM ET
+            - generic [ref=e7417] [cursor=pointer]: CPNEWS
+            - generic [ref=e7420] [cursor=pointer]: CP Wire
+            - generic [ref=e7424] [cursor=pointer]: 03/12/2026 01:25:33
+            - img "Draft" [ref=e7427] [cursor=pointer]
+            - generic [ref=e7431] [cursor=pointer]: "ABC014 Tech Trends: Renewed Interest In EVs - UPDATE 3"
+            - generic [ref=e7434] [cursor=pointer]: CPNEWS
+            - generic [ref=e7437] [cursor=pointer]: CP Wire
+            - generic [ref=e7441] [cursor=pointer]: 03/12/2026 01:24:06
+            - img "Draft" [ref=e7444] [cursor=pointer]
+            - generic [ref=e7448] [cursor=pointer]: AP Business SummaryBrief at 3:19 a.m. EDT
+            - generic [ref=e7451] [cursor=pointer]: CPNEWS
+            - generic [ref=e7454] [cursor=pointer]: CP Wire
+            - generic [ref=e7458] [cursor=pointer]: 03/12/2026 01:24:04
+            - img "Draft" [ref=e7461] [cursor=pointer]
+            - generic [ref=e7465] [cursor=pointer]: As war spikes gas prices, drivers wonder how long it will last – and if they should go electric
+            - generic [ref=e7468] [cursor=pointer]: CPNEWS
+            - generic [ref=e7471] [cursor=pointer]: CP Wire
+            - generic [ref=e7475] [cursor=pointer]: 03/12/2026 01:22:51
+            - img "Draft" [ref=e7478] [cursor=pointer]
+            - generic [ref=e7482] [cursor=pointer]: AP News Summary at 3:19 a.m. EDT
+            - generic [ref=e7485] [cursor=pointer]: CPNEWS
+            - generic [ref=e7488] [cursor=pointer]: CP Wire
+            - generic [ref=e7492] [cursor=pointer]: 03/12/2026 01:21:18
+            - img "Draft" [ref=e7495] [cursor=pointer]
+            - generic [ref=e7499] [cursor=pointer]: AP Business SummaryBrief at 3:19 a.m. EDT
+            - generic [ref=e7502] [cursor=pointer]: CPNEWS
+            - generic [ref=e7505] [cursor=pointer]: CP Wire
+            - generic [ref=e7509] [cursor=pointer]: 03/12/2026 01:21:17
+            - img "Draft" [ref=e7512] [cursor=pointer]
+            - generic [ref=e7516] [cursor=pointer]: Brent crude oil briefly tops $100 a barrel as Iran attacks on shipping worsen supply concerns
+            - generic [ref=e7519] [cursor=pointer]: CPNEWS
+            - generic [ref=e7522] [cursor=pointer]: CP Wire
+            - generic [ref=e7526] [cursor=pointer]: 03/12/2026 01:21:16
+            - img "Draft" [ref=e7529] [cursor=pointer]
+            - generic [ref=e7533] [cursor=pointer]: "--First NewsWatch--"
+            - generic [ref=e7536] [cursor=pointer]: CPNEWS
+            - generic [ref=e7539] [cursor=pointer]: CP Wire
+            - generic [ref=e7543] [cursor=pointer]: 03/12/2026 01:20:02
+            - img "Draft" [ref=e7546] [cursor=pointer]
+            - generic [ref=e7550] [cursor=pointer]: ABC013 Allergy Season/Warmer Climate Making Seasons More Intense - UPDATE 1
+            - generic [ref=e7553] [cursor=pointer]: CPNEWS
+            - generic [ref=e7556] [cursor=pointer]: CP Wire
+            - generic [ref=e7560] [cursor=pointer]: 03/12/2026 01:18:32
+            - img "Draft" [ref=e7563] [cursor=pointer]
+            - generic [ref=e7567] [cursor=pointer]: ABC012 Allergy Season/Extending As The Climate Warms - UPDATE 1
+            - generic [ref=e7570] [cursor=pointer]: CPNEWS
+            - generic [ref=e7573] [cursor=pointer]: CP Wire
+            - generic [ref=e7577] [cursor=pointer]: 03/12/2026 01:18:29
+            - img "Draft" [ref=e7580] [cursor=pointer]
+            - generic [ref=e7584] [cursor=pointer]: ABC011 GA Teacher Prank Death/Teen Driver Apologizes - UPDATE 1
+            - generic [ref=e7587] [cursor=pointer]: CPNEWS
+            - generic [ref=e7590] [cursor=pointer]: CP Wire
+            - generic [ref=e7594] [cursor=pointer]: 03/12/2026 01:18:25
+            - img "Draft" [ref=e7597] [cursor=pointer]
+            - generic [ref=e7601] [cursor=pointer]: ABC010 GA Teacher Prank Death/What Investigators Are Saying - UPDATE 1
+            - generic [ref=e7604] [cursor=pointer]: CPNEWS
+            - generic [ref=e7607] [cursor=pointer]: CP Wire
+            - generic [ref=e7611] [cursor=pointer]: 03/12/2026 01:18:21
+            - img "Draft" [ref=e7614] [cursor=pointer]
+            - generic [ref=e7618] [cursor=pointer]: ABC009 Bondi/Brother/Democrats Question Legal Victories - UPDATE 1
+            - generic [ref=e7621] [cursor=pointer]: CPNEWS
+            - generic [ref=e7624] [cursor=pointer]: CP Wire
+            - generic [ref=e7628] [cursor=pointer]: 03/12/2026 01:18:17
+            - img "Draft" [ref=e7631] [cursor=pointer]
+            - generic [ref=e7635] [cursor=pointer]: ABC008 Bondi/Brother/DOJ IG Request - UPDATE 1
+            - generic [ref=e7638] [cursor=pointer]: CPNEWS
+            - generic [ref=e7641] [cursor=pointer]: CP Wire
+            - generic [ref=e7645] [cursor=pointer]: 03/12/2026 01:18:13
+            - img "Draft" [ref=e7648] [cursor=pointer]
+            - generic [ref=e7652] [cursor=pointer]: ABC007 Vote 2026/KY House - Concerned About Nuke - UPDATE 1
+            - generic [ref=e7655] [cursor=pointer]: CPNEWS
+            - generic [ref=e7658] [cursor=pointer]: CP Wire
+            - generic [ref=e7662] [cursor=pointer]: 03/12/2026 01:18:09
+            - img "Draft" [ref=e7665] [cursor=pointer]
+            - generic [ref=e7669] [cursor=pointer]: ABC006 Vote 2026/KY House/Massie - Constituents Asking About Iran - UPDATE 1
+            - generic [ref=e7672] [cursor=pointer]: CPNEWS
+            - generic [ref=e7675] [cursor=pointer]: CP Wire
+            - generic [ref=e7679] [cursor=pointer]: 03/12/2026 01:18:06
+            - img "Draft" [ref=e7682] [cursor=pointer]
+            - generic [ref=e7686] [cursor=pointer]: Taiga Launches Next-Generation Electric Snowmobiles, Signaling Mass Market Electrification Beyond the Road
+            - generic [ref=e7689] [cursor=pointer]: CPNEWS
+            - generic [ref=e7692] [cursor=pointer]: CP Wire
+            - generic [ref=e7696] [cursor=pointer]: 03/12/2026 01:17:36
+            - img "Draft" [ref=e7699] [cursor=pointer]
+            - generic [ref=e7703] [cursor=pointer]: Falcon Oil & Gas Ltd. - Falcon Announces Shareholder Approval of Transaction with Tamboran
+            - generic [ref=e7706] [cursor=pointer]: CPNEWS
+            - generic [ref=e7709] [cursor=pointer]: CP Wire
+            - generic [ref=e7713] [cursor=pointer]: 03/12/2026 01:17:34
+            - img "Draft" [ref=e7716] [cursor=pointer]
+            - generic [ref=e7720] [cursor=pointer]: ABC005 Vote 2026/KY House/Massie - Gas Prices And Casualties - UPDATE 1
+            - generic [ref=e7723] [cursor=pointer]: CPNEWS
+            - generic [ref=e7726] [cursor=pointer]: CP Wire
+            - generic [ref=e7730] [cursor=pointer]: 03/12/2026 01:17:21
+            - img "Draft" [ref=e7733] [cursor=pointer]
+            - generic [ref=e7737] [cursor=pointer]: ABC004 Iran/Reasons Shifting - UPDATE 1
+            - generic [ref=e7740] [cursor=pointer]: CPNEWS
+            - generic [ref=e7743] [cursor=pointer]: CP Wire
+            - generic [ref=e7747] [cursor=pointer]: 03/12/2026 01:17:17
+            - img "Draft" [ref=e7750] [cursor=pointer]
+            - generic [ref=e7754] [cursor=pointer]: ABC003 Iran/Violated Constitution - UPDATE 1
+            - generic [ref=e7757] [cursor=pointer]: CPNEWS
+            - generic [ref=e7760] [cursor=pointer]: CP Wire
+            - generic [ref=e7764] [cursor=pointer]: 03/12/2026 01:17:13
+            - img "Draft" [ref=e7767] [cursor=pointer]
+            - generic [ref=e7771] [cursor=pointer]: ABC002 Iran/New Questions About Location Of The New Supreme Leader - UPDATE 2
+            - generic [ref=e7774] [cursor=pointer]: CPNEWS
+            - generic [ref=e7777] [cursor=pointer]: CP Wire
+            - generic [ref=e7781] [cursor=pointer]: 03/12/2026 01:17:09
+            - img "Draft" [ref=e7784] [cursor=pointer]
+            - generic [ref=e7788] [cursor=pointer]: ABC001 Iran/Trump Claims Victory As Conflict Expands - UPDATE 2
+            - generic [ref=e7791] [cursor=pointer]: CPNEWS
+            - generic [ref=e7794] [cursor=pointer]: CP Wire
+            - generic [ref=e7798] [cursor=pointer]: 03/12/2026 01:17:06
+            - img "Draft" [ref=e7801] [cursor=pointer]
+            - generic [ref=e7805] [cursor=pointer]: AP Business SummaryBrief at 3:16 a.m. EDT
+            - generic [ref=e7808] [cursor=pointer]: CPNEWS
+            - generic [ref=e7811] [cursor=pointer]: CP Wire
+            - generic [ref=e7815] [cursor=pointer]: 03/12/2026 01:16:38
+            - img "Draft" [ref=e7818] [cursor=pointer]
+            - generic [ref=e7822] [cursor=pointer]: AP News Summary at 3:16 a.m. EDT
+            - generic [ref=e7825] [cursor=pointer]: CPNEWS
+            - generic [ref=e7828] [cursor=pointer]: CP Wire
+            - generic [ref=e7832] [cursor=pointer]: 03/12/2026 01:16:37
+            - img "Draft" [ref=e7835] [cursor=pointer]
+            - generic [ref=e7839] [cursor=pointer]: AP Business SummaryBrief at 3:14 a.m. EDT
+            - generic [ref=e7842] [cursor=pointer]: CPNEWS
+            - generic [ref=e7845] [cursor=pointer]: CP Wire
+            - generic [ref=e7849] [cursor=pointer]: 03/12/2026 01:15:18
+            - img "Draft" [ref=e7852] [cursor=pointer]
+            - generic [ref=e7856] [cursor=pointer]: AP News Summary at 3:13 a.m. EDT
+            - generic [ref=e7859] [cursor=pointer]: CPNEWS
+            - generic [ref=e7862] [cursor=pointer]: CP Wire
+            - generic [ref=e7866] [cursor=pointer]: 03/12/2026 01:15:17
+            - img "Draft" [ref=e7869] [cursor=pointer]
+            - generic [ref=e7873] [cursor=pointer]: AP News Summary at 3:10 a.m. EDT
+            - generic [ref=e7876] [cursor=pointer]: CPNEWS
+            - generic [ref=e7879] [cursor=pointer]: CP Wire
+            - generic [ref=e7883] [cursor=pointer]: 03/12/2026 01:12:05
+            - img "Draft" [ref=e7886] [cursor=pointer]
+            - generic [ref=e7890] [cursor=pointer]: AP Business SummaryBrief at 3:09 a.m. EDT
+            - generic [ref=e7893] [cursor=pointer]: CPNEWS
+            - generic [ref=e7896] [cursor=pointer]: CP Wire
+            - generic [ref=e7900] [cursor=pointer]: 03/12/2026 01:10:40
+            - img "Draft" [ref=e7903] [cursor=pointer]
+            - generic [ref=e7907] [cursor=pointer]: AP Business SummaryBrief at 3:08 a.m. EDT
+            - generic [ref=e7910] [cursor=pointer]: CPNEWS
+            - generic [ref=e7913] [cursor=pointer]: CP Wire
+            - generic [ref=e7917] [cursor=pointer]: 03/12/2026 01:09:15
+            - img "Draft" [ref=e7920] [cursor=pointer]
+            - generic [ref=e7924] [cursor=pointer]: AP News Summary at 3:08 a.m. EDT
+            - generic [ref=e7927] [cursor=pointer]: CPNEWS
+            - generic [ref=e7930] [cursor=pointer]: CP Wire
+            - generic [ref=e7934] [cursor=pointer]: 03/12/2026 01:09:14
+            - img "Draft" [ref=e7937] [cursor=pointer]
+            - generic [ref=e7941] [cursor=pointer]: Iran's unrelenting attacks on Mideast shipping and energy infrastructure send oil prices soaring
+            - generic [ref=e7944] [cursor=pointer]: CPNEWS
+            - generic [ref=e7947] [cursor=pointer]: CP Wire
+            - generic [ref=e7951] [cursor=pointer]: 03/12/2026 01:09:13
+            - img "Draft" [ref=e7954] [cursor=pointer]
+            - generic [ref=e7958] [cursor=pointer]: AP News Summary at 3:08 a.m. EDT
+            - generic [ref=e7961] [cursor=pointer]: CPNEWS
+            - generic [ref=e7964] [cursor=pointer]: CP Wire
+            - generic [ref=e7968] [cursor=pointer]: 03/12/2026 01:09:08
+            - img "Draft" [ref=e7971] [cursor=pointer]
+            - generic [ref=e7975] [cursor=pointer]: "The Latest: Key oil price spikes over $100 as Iranian attacks hit shipping"
+            - generic [ref=e7978] [cursor=pointer]: CPNEWS
+            - generic [ref=e7981] [cursor=pointer]: CP Wire
+            - generic [ref=e7985] [cursor=pointer]: 03/12/2026 01:04:36
+            - img "Draft" [ref=e7988] [cursor=pointer]
+            - generic [ref=e7992] [cursor=pointer]: Ipsen appoints Michelle C. Werner as EVP, President of North America
+            - generic [ref=e7995] [cursor=pointer]: CPNEWS
+            - generic [ref=e7998] [cursor=pointer]: CP Wire
+            - generic [ref=e8002] [cursor=pointer]: 03/12/2026 01:02:33
+            - img "Draft" [ref=e8005] [cursor=pointer]
+            - generic [ref=e8009] [cursor=pointer]: The Canadian Press News Agenda for Thursday, March 12, 2026
+            - generic [ref=e8012] [cursor=pointer]: CPNEWS
+            - generic [ref=e8015] [cursor=pointer]: CP Wire
+            - generic [ref=e8019] [cursor=pointer]: 03/12/2026 01:00:04
+            - img "Draft" [ref=e8022] [cursor=pointer]
+            - generic [ref=e8026] [cursor=pointer]: Ontario-Update
+            - generic [ref=e8029] [cursor=pointer]: CPNEWS
+            - generic [ref=e8032] [cursor=pointer]: CP Wire
+            - generic [ref=e8036] [cursor=pointer]: 03/12/2026 01:00:02
+            - img "Draft" [ref=e8039] [cursor=pointer]
+            - generic [ref=e8043] [cursor=pointer]: Man with a plan; Can PGA Tour CEO Brian Rolapp pull off grand plan for future of golf?
+            - generic [ref=e8046] [cursor=pointer]: TS
+            - generic [ref=e8049] [cursor=pointer]: Daily Print
+            - generic [ref=e8051] [cursor=pointer]: S10:Sports
+            - generic [ref=e8054] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8057] [cursor=pointer]
+            - generic [ref=e8061] [cursor=pointer]: Extra security long overdue; Jewish people in Toronto under near-constant attack
+            - generic [ref=e8064] [cursor=pointer]: TS
+            - generic [ref=e8067] [cursor=pointer]: Daily Print
+            - generic [ref=e8069] [cursor=pointer]: A11:News
+            - generic [ref=e8072] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8075] [cursor=pointer]
+            - generic [ref=e8079] [cursor=pointer]: Dump truck driver charged in crash; Crime Scene
+            - generic [ref=e8082] [cursor=pointer]: TS
+            - generic [ref=e8085] [cursor=pointer]: Daily Print
+            - generic [ref=e8087] [cursor=pointer]: A16:News
+            - generic [ref=e8090] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8093] [cursor=pointer]
+            - generic [ref=e8097] [cursor=pointer]: Canada advances to World Baseball Classic quarterfinals, faces United States
+            - generic [ref=e8100] [cursor=pointer]: RNEWS
+            - generic [ref=e8103] [cursor=pointer]: Weekly Print
+            - generic [ref=e8107] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8110] [cursor=pointer]
+            - generic [ref=e8114] [cursor=pointer]: Murphy, Murray lead Pelicans to 122-111 win over Raptors in Ingram's return to New Orleans
+            - generic [ref=e8117] [cursor=pointer]: RNEWS
+            - generic [ref=e8120] [cursor=pointer]: Weekly Print
+            - generic [ref=e8124] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8127] [cursor=pointer]
+            - generic [ref=e8131] [cursor=pointer]: Demidov scores game-winner, Canadiens beat Senators 3-2
+            - generic [ref=e8134] [cursor=pointer]: RNEWS
+            - generic [ref=e8137] [cursor=pointer]: Weekly Print
+            - generic [ref=e8141] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8144] [cursor=pointer]
+            - generic [ref=e8148] [cursor=pointer]: Brent crude oil tops $100 a barrel as Iran attacks on shipping worsen supply concerns
+            - generic [ref=e8151] [cursor=pointer]: RNEWS
+            - generic [ref=e8154] [cursor=pointer]: Weekly Print
+            - generic [ref=e8158] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8161] [cursor=pointer]
+            - generic [ref=e8165] [cursor=pointer]: Canada wins pair of Para ski bronzes
+            - generic [ref=e8168] [cursor=pointer]: EJ
+            - generic [ref=e8171] [cursor=pointer]: Daily Print
+            - generic [ref=e8173] [cursor=pointer]: NP9:Sports
+            - generic [ref=e8176] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8179] [cursor=pointer]
+            - generic [ref=e8183] [cursor=pointer]: "Two teen Girls struck by Suv: Police"
+            - generic [ref=e8186] [cursor=pointer]: EJ
+            - generic [ref=e8189] [cursor=pointer]: Daily Print
+            - generic [ref=e8191] [cursor=pointer]: A3:City
+            - generic [ref=e8194] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8197] [cursor=pointer]
+            - generic [ref=e8201] [cursor=pointer]: Edmonton man wins $2 million in Western 6/49 lottery draw
+            - generic [ref=e8204] [cursor=pointer]: EJ
+            - generic [ref=e8207] [cursor=pointer]: Daily Print
+            - generic [ref=e8209] [cursor=pointer]: A2:City Region
+            - generic [ref=e8212] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8215] [cursor=pointer]
+            - generic [ref=e8219] [cursor=pointer]: Uplifting experience
+            - generic [ref=e8222] [cursor=pointer]: EJ
+            - generic [ref=e8225] [cursor=pointer]: Daily Print
+            - generic [ref=e8227] [cursor=pointer]: A1 / Front:News
+            - generic [ref=e8230] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8233] [cursor=pointer]
+            - generic [ref=e8237] [cursor=pointer]: Caption only
+            - generic [ref=e8240] [cursor=pointer]: EJ
+            - generic [ref=e8243] [cursor=pointer]: Daily Print
+            - generic [ref=e8245] [cursor=pointer]: A6:Opinion
+            - generic [ref=e8248] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8251] [cursor=pointer]
+            - generic [ref=e8255] [cursor=pointer]: B.C. hospital visit quick and efficient
+            - generic [ref=e8258] [cursor=pointer]: EJ
+            - generic [ref=e8261] [cursor=pointer]: Daily Print
+            - generic [ref=e8263] [cursor=pointer]: A6:Opinion
+            - generic [ref=e8266] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8269] [cursor=pointer]
+            - generic [ref=e8273] [cursor=pointer]: Province lacks fiscal discipline; Reasonable conservatives need to push back, Ashleigh Hislop writes
+            - generic [ref=e8276] [cursor=pointer]: EJ
+            - generic [ref=e8279] [cursor=pointer]: Daily Print
+            - generic [ref=e8281] [cursor=pointer]: A6:Opinion
+            - generic [ref=e8284] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8287] [cursor=pointer]
+            - generic [ref=e8291] [cursor=pointer]: Migration claims require proof
+            - generic [ref=e8294] [cursor=pointer]: EJ
+            - generic [ref=e8297] [cursor=pointer]: Daily Print
+            - generic [ref=e8299] [cursor=pointer]: A6:Opinion
+            - generic [ref=e8302] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8305] [cursor=pointer]
+            - generic [ref=e8309] [cursor=pointer]: Rock and roles; The National frontman discusses the mask we al1 put on to get through the day
+            - generic [ref=e8312] [cursor=pointer]: EJ
+            - generic [ref=e8315] [cursor=pointer]: Daily Print
+            - generic [ref=e8317] [cursor=pointer]: A7:Spotlight
+            - generic [ref=e8320] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8323] [cursor=pointer]
+            - generic [ref=e8327] [cursor=pointer]: Patch Work
+            - generic [ref=e8330] [cursor=pointer]: EJ
+            - generic [ref=e8333] [cursor=pointer]: Daily Print
+            - generic [ref=e8335] [cursor=pointer]: A2:City Region
+            - generic [ref=e8338] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8341] [cursor=pointer]
+            - generic [ref=e8345] [cursor=pointer]: Prowler who targeted women to serve nearly seven years
+            - generic [ref=e8348] [cursor=pointer]: EJ
+            - generic [ref=e8351] [cursor=pointer]: Daily Print
+            - generic [ref=e8353] [cursor=pointer]: A5:City
+            - generic [ref=e8356] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8359] [cursor=pointer]
+            - generic [ref=e8363] [cursor=pointer]: "Temporary residents' kids to cost education system $600M: minister; Students from refugee families up 80% in five years, Nicolaides says"
+            - generic [ref=e8366] [cursor=pointer]: EJ
+            - generic [ref=e8369] [cursor=pointer]: Daily Print
+            - generic [ref=e8371] [cursor=pointer]: A1 / Front:News
+            - generic [ref=e8374] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8377] [cursor=pointer]
+            - generic [ref=e8381] [cursor=pointer]: An open invitation to experience Arts District Day; Downtown event celebrates the city's creative side
+            - generic [ref=e8384] [cursor=pointer]: EJ
+            - generic [ref=e8387] [cursor=pointer]: Daily Print
+            - generic [ref=e8389] [cursor=pointer]: A9:Arts & Life
+            - generic [ref=e8392] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8395] [cursor=pointer]
+            - generic [ref=e8399] [cursor=pointer]: Local woman mourns loss of Iran's people, culture, history
+            - generic [ref=e8402] [cursor=pointer]: EJ
+            - generic [ref=e8405] [cursor=pointer]: Daily Print
+            - generic [ref=e8407] [cursor=pointer]: A2:City Region
+            - generic [ref=e8410] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8413] [cursor=pointer]
+            - generic [ref=e8417] [cursor=pointer]: Photo encourages abuse of artwork
+            - generic [ref=e8420] [cursor=pointer]: EJ
+            - generic [ref=e8423] [cursor=pointer]: Daily Print
+            - generic [ref=e8425] [cursor=pointer]: A6:Opinion
+            - generic [ref=e8428] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8431] [cursor=pointer]
+            - generic [ref=e8435] [cursor=pointer]: The Big Number
+            - generic [ref=e8438] [cursor=pointer]: EJ
+            - generic [ref=e8441] [cursor=pointer]: Daily Print
+            - generic [ref=e8443] [cursor=pointer]: NP11:Sports
+            - generic [ref=e8446] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8449] [cursor=pointer]
+            - generic [ref=e8453] [cursor=pointer]: Sextortion cases targeting Edmonton youth on the rise
+            - generic [ref=e8456] [cursor=pointer]: EJ
+            - generic [ref=e8459] [cursor=pointer]: Daily Print
+            - generic [ref=e8461] [cursor=pointer]: A4:City
+            - generic [ref=e8464] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8467] [cursor=pointer]
+            - generic [ref=e8471] [cursor=pointer]: Davies injured as Bayern all but in; Soccer
+            - generic [ref=e8474] [cursor=pointer]: EJ
+            - generic [ref=e8477] [cursor=pointer]: Daily Print
+            - generic [ref=e8479] [cursor=pointer]: NP11:Sports
+            - generic [ref=e8482] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8485] [cursor=pointer]
+            - generic [ref=e8489] [cursor=pointer]: They liked to rock; Aquarius signed some of Canada's biggest music acts
+            - generic [ref=e8492] [cursor=pointer]: EJ
+            - generic [ref=e8495] [cursor=pointer]: Daily Print
+            - generic [ref=e8497] [cursor=pointer]: A8:Arts & Life
+            - generic [ref=e8500] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8503] [cursor=pointer]
+            - generic [ref=e8507] [cursor=pointer]: "Wanted Canadian Sailboat owner may be at Sea: FBI; United States"
+            - generic [ref=e8510] [cursor=pointer]: EJ
+            - generic [ref=e8513] [cursor=pointer]: Daily Print
+            - generic [ref=e8515] [cursor=pointer]: NP4:Canada
+            - generic [ref=e8518] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8521] [cursor=pointer]
+            - generic [ref=e8525] [cursor=pointer]: Muslim groups press Ottawa over concerns with anti-hate legislation; 'Fundamental flaws' remain despite changes
+            - generic [ref=e8528] [cursor=pointer]: EJ
+            - generic [ref=e8531] [cursor=pointer]: Daily Print
+            - generic [ref=e8533] [cursor=pointer]: NP2:Canada
+            - generic [ref=e8536] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8539] [cursor=pointer]
+            - generic [ref=e8543] [cursor=pointer]: Nenshi neglected basics in Calgary
+            - generic [ref=e8546] [cursor=pointer]: EJ
+            - generic [ref=e8549] [cursor=pointer]: Daily Print
+            - generic [ref=e8551] [cursor=pointer]: A6:Opinion
+            - generic [ref=e8554] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8557] [cursor=pointer]
+            - generic [ref=e8561] [cursor=pointer]: The Province - Page 1 Frontpage
+            - generic [ref=e8564] [cursor=pointer]: PROVINCE
+            - generic [ref=e8567] [cursor=pointer]: Front Page Images
+            - generic [ref=e8571] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Published" [ref=e8574] [cursor=pointer]
+            - generic [ref=e8578] [cursor=pointer]: Dry conditions in province's south spark wildfire concerns
+            - generic [ref=e8581] [cursor=pointer]: EJ
+            - generic [ref=e8584] [cursor=pointer]: Daily Print
+            - generic [ref=e8586] [cursor=pointer]: A3:City
+            - generic [ref=e8589] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8592] [cursor=pointer]
+            - generic [ref=e8596] [cursor=pointer]: Canadian Coast Guard captain loses appeal over fring; Axed for ignoring distress call
+            - generic [ref=e8599] [cursor=pointer]: EJ
+            - generic [ref=e8602] [cursor=pointer]: Daily Print
+            - generic [ref=e8604] [cursor=pointer]: NP5:News
+            - generic [ref=e8607] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8610] [cursor=pointer]
+            - generic [ref=e8614] [cursor=pointer]: Canada should offer to save World Cup
+            - generic [ref=e8617] [cursor=pointer]: EJ
+            - generic [ref=e8620] [cursor=pointer]: Daily Print
+            - generic [ref=e8622] [cursor=pointer]: A6:Opinion
+            - generic [ref=e8625] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8628] [cursor=pointer]
+            - generic [ref=e8632] [cursor=pointer]: Restore funding to genealogy group
+            - generic [ref=e8635] [cursor=pointer]: EJ
+            - generic [ref=e8638] [cursor=pointer]: Daily Print
+            - generic [ref=e8640] [cursor=pointer]: A6:Opinion
+            - generic [ref=e8643] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8646] [cursor=pointer]
+            - generic [ref=e8650] [cursor=pointer]: Trans Mountain looks to speed up plans to boost Pipeline Capacity; Canada's reputation as a stable provider of energy is spreading around the world
+            - generic [ref=e8653] [cursor=pointer]: EJ
+            - generic [ref=e8656] [cursor=pointer]: Daily Print
+            - generic [ref=e8658] [cursor=pointer]: A3:City
+            - generic [ref=e8661] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8664] [cursor=pointer]
+            - generic [ref=e8668] [cursor=pointer]: Trump-Infantino 'bromance' tested by war in Iran
+            - generic [ref=e8671] [cursor=pointer]: EJ
+            - generic [ref=e8674] [cursor=pointer]: Daily Print
+            - generic [ref=e8676] [cursor=pointer]: NP9:Sports
+            - generic [ref=e8679] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8682] [cursor=pointer]
+            - generic [ref=e8686] [cursor=pointer]: Why food prices still sting, and what's in store next; Rise should slow by year-end, but remain elevated
+            - generic [ref=e8689] [cursor=pointer]: POST
+            - generic [ref=e8692] [cursor=pointer]: Daily Print
+            - generic [ref=e8694] [cursor=pointer]: A2:News
+            - generic [ref=e8697] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8700] [cursor=pointer]
+            - generic [ref=e8704] [cursor=pointer]: 82 Canadians crack Forbes billionaires list; High Net Worth Notable Canucks have interests in media, software, real estate
+            - generic [ref=e8707] [cursor=pointer]: POST
+            - generic [ref=e8710] [cursor=pointer]: Daily Print
+            - generic [ref=e8712] [cursor=pointer]: FP8:Financial Post
+            - generic [ref=e8715] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8718] [cursor=pointer]
+            - generic [ref=e8722] [cursor=pointer]: Hard-hitting Nova Scotia fighter makes successful return after long layoff
+            - generic [ref=e8725] [cursor=pointer]: POST
+            - generic [ref=e8728] [cursor=pointer]: Daily Print
+            - generic [ref=e8730] [cursor=pointer]: A13:Sports
+            - generic [ref=e8733] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8736] [cursor=pointer]
+            - generic [ref=e8740] [cursor=pointer]: Man who killed girlfriend gets break on parole partly due to his race
+            - generic [ref=e8743] [cursor=pointer]: POST
+            - generic [ref=e8746] [cursor=pointer]: Daily Print
+            - generic [ref=e8748] [cursor=pointer]: A1 / Front:National Post
+            - generic [ref=e8751] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8754] [cursor=pointer]
+            - generic [ref=e8758] [cursor=pointer]: Makeup artist mowat made blunt look bad; And the Hollywood star loved every minute of it
+            - generic [ref=e8761] [cursor=pointer]: POST
+            - generic [ref=e8764] [cursor=pointer]: Daily Print
+            - generic [ref=e8766] [cursor=pointer]: FP12:Arts & Life
+            - generic [ref=e8769] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8772] [cursor=pointer]
+            - generic [ref=e8776] [cursor=pointer]: Subban's story with Canadiens featured in Black Aces book; Author excited to watch player while growing up
+            - generic [ref=e8779] [cursor=pointer]: POST
+            - generic [ref=e8782] [cursor=pointer]: Daily Print
+            - generic [ref=e8784] [cursor=pointer]: A14:Sports
+            - generic [ref=e8787] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8790] [cursor=pointer]
+            - generic [ref=e8794] [cursor=pointer]: What's next for Roots; Retail Iconic Canadian Brand Weighs Selling Company Amid Strategic Review
+            - generic [ref=e8797] [cursor=pointer]: POST
+            - generic [ref=e8800] [cursor=pointer]: Daily Print
+            - generic [ref=e8802] [cursor=pointer]: FP3:Financial Post
+            - generic [ref=e8805] [cursor=pointer]: 03/12/2026 01:00:00
+            - img "Draft" [ref=e8808] [cursor=pointer]
+        - generic [ref=e8810]:
+          - generic [ref=e8811]: Page 1 of 2
+          - generic [ref=e8812]: ( 955 items)
+          - img "first" [ref=e8814]
+          - img "previous" [ref=e8817]
+          - generic [ref=e8819]: "1"
+          - img "next" [ref=e8821]
+          - img "last" [ref=e8824]
+          - spinbutton [ref=e8829]: "500"
+```
