@@ -85,25 +85,27 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT2=(
-          [id]="editor"
-          [name]="editor"
-          [type]="dc"
-          [replicas]="1"
-          [action]="maintenance"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — react-editor.yml
+        # declare -A COMPONENT2=(
+        #   [id]="editor"
+        #   [name]="editor"
+        #   [type]="dc"
+        #   [replicas]="1"
+        #   [action]="maintenance"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
-        declare -A COMPONENT3=(
-          [id]="subscriber"
-          [name]="subscriber"
-          [type]="dc"
-          [replicas]="1"
-          [action]="maintenance"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — react-subscriber.yml
+        # declare -A COMPONENT3=(
+        #   [id]="subscriber"
+        #   [name]="subscriber"
+        #   [type]="dc"
+        #   [replicas]="1"
+        #   [action]="maintenance"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
         # Processing Services
 

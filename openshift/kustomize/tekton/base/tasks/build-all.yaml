@@ -215,19 +215,21 @@ spec:
           [dockerfile]="/Dockerfile.open"
         )
 
-        declare -A COMPONENT17=(
-          [id]="editor"
-          [image]="editor"
-          [context]="/app/editor"
-          [dockerfile]="/Dockerfile.open"
-        )
+        # Moved to GitHub Actions CI/CD — react-editor.yml
+        # declare -A COMPONENT17=(
+        #   [id]="editor"
+        #   [image]="editor"
+        #   [context]="/app/editor"
+        #   [dockerfile]="/Dockerfile.open"
+        # )
 
-        declare -A COMPONENT18=(
-          [id]="subscriber"
-          [image]="subscriber"
-          [context]="/app/subscriber"
-          [dockerfile]="/Dockerfile.open"
-        )
+        # Moved to GitHub Actions CI/CD — react-subscriber.yml
+        # declare -A COMPONENT18=(
+        #   [id]="subscriber"
+        #   [image]="subscriber"
+        #   [context]="/app/subscriber"
+        #   [dockerfile]="/Dockerfile.open"
+        # )
 
         declare -A COMPONENT19=(
           [id]="db"
