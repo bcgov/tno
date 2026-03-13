@@ -17,6 +17,18 @@ class AppPage extends BasePage {
     this.menuNavigationLink = page.locator('div.nav-item .dropdown-toggle');
     this.subMenuNavigationLink = page.locator('.show a.dropdown-item');
     this.allContentSubNavLink = page.locator(`.dropdown-menu a[href="/contents"]`);
+
+    this.microsoftButton = page.getByRole('button', { name: 'Microsoft' });
+
+this.loginEmailInput = page.getByRole('textbox', { name: 'Enter your email or phone' });
+
+this.nextButton = page.getByRole('button', { name: 'Next' });
+
+this.passwordInputField = page.locator('input[type="password"]');
+
+this.signInButton = page.getByRole('button', { name: 'Sign in' });
+
+this.noButton = page.getByRole('button', { name: 'No' });
   }
 
   /**
@@ -41,24 +53,8 @@ class AppPage extends BasePage {
 
 
   
-  /**
-   * Login to Editor portal.
-   * @param { String } username
-   * @param { String } password
-   */
-  async loginMMI(username, password) {
-    logger.info(`Clicking on IDIR button to login..`);
 
-    await this.click(this.microsoftButton);
-    await this.type(this.loginEmailInput, username);
-    await this.click(this.nextButton);
-    await this.page.waitForTimeout(2000);
-    await this.type(this.passwordInputField, password);
-    await this.click(this.signInButton);
-    await this.click(this.noButton);    
-    logger.info(`Clicked on Login!!`);
-  }
-
+  
 
 
 
