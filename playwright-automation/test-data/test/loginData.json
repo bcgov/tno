@@ -1,0 +1,10 @@
+{
+  "qa": {
+    "editor": {
+      "url": "https://test.editor.mmi.gov.bc.ca/contents"
+    },
+    "subscriber": {
+      "url": "https://test.mmi.gov.bc.ca/"
+    }
+  }
+}
