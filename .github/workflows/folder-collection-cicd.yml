@@ -122,16 +122,16 @@ jobs:
       - name: Deployment Report
         if: always()
         run: |
-          echo "==Pod Status=="
+          echo "--- pod status ---"
           oc get pods -l component=folder-collection-service -n ${{ env.OPENSHIFT_NAMESPACE }}
-          echo "==Health Check=="
+          echo "--- health check ---"
           POD=$(oc get pod -l component=folder-collection-service \
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --sort-by=.metadata.creationTimestamp \
             -o jsonpath='{.items[-1].metadata.name}')
           oc exec $POD -n ${{ env.OPENSHIFT_NAMESPACE }} -- \
             curl -sf http://localhost:8080/health
-          echo "==Recent Logs=="
+          echo "--- recent logs ---"
           sleep 60
           oc logs $POD -n ${{ env.OPENSHIFT_NAMESPACE }} --tail=20 || true
 
@@ -140,8 +140,7 @@ jobs:
     name: CD — Deploy to Test
     runs-on: ubuntu-latest
     needs: ci
-    # if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/folder-collection') && github.repository == 'bcgov/tno'
-    if: false
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/master' && github.repository == 'bcgov/tno'
     environment: test
     env:
       IMAGE_TAG: test
@@ -201,3 +200,19 @@ jobs:
           oc rollout status deployment/folder-collection-service \
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --timeout=180s
+
+      - name: Deployment Report
+        if: always()
+        run: |
+          echo "--- pod status ---"
+          oc get pods -l component=folder-collection-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+          echo "--- health check ---"
+          POD=$(oc get pod -l component=folder-collection-service \
+            -n ${{ env.OPENSHIFT_NAMESPACE }} \
+            --sort-by=.metadata.creationTimestamp \
+            -o jsonpath='{.items[-1].metadata.name}')
+          oc exec $POD -n ${{ env.OPENSHIFT_NAMESPACE }} -- \
+            curl -sf http://localhost:8080/health
+          echo "--- recent logs ---"
+          sleep 60
+          oc logs $POD -n ${{ env.OPENSHIFT_NAMESPACE }} --tail=20 || true
