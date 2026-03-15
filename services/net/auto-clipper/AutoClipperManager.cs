@@ -635,23 +635,32 @@ public class AutoClipperManager : ServiceManager<AutoClipperOptions>
 
     /// <summary>
     /// Format the transcript to include newlines.
+    /// When speaker information is available (from Video Indexer), includes speaker prefix.
+    /// Azure Speech transcripts have no speaker info and will output plain text.
     /// </summary>
-    /// <param name="transcript"></param>
-    /// <returns></returns>
+    /// <param name="segments">Transcript segments with optional speaker information.</param>
+    /// <returns>Formatted transcript string.</returns>
     private static string BuildTranscriptDocument(IReadOnlyList<TimestampedTranscript> segments)
     {
         if (segments == null || segments.Count == 0) return string.Empty;
 
         var sb = new StringBuilder();
-        var index = 1;
         foreach (var segment in segments)
         {
             if (string.IsNullOrWhiteSpace(segment.Text)) continue;
-            // sb.AppendLine(index.ToString(CultureInfo.InvariantCulture));
-            // sb.AppendLine($"{FormatTimestamp(segment.Start)} --> {FormatTimestamp(segment.End)}");
+
+            // Add speaker prefix if available (Video Indexer provides this)
+            if (!string.IsNullOrWhiteSpace(segment.SpeakerName))
+            {
+                sb.Append($"{segment.SpeakerName}: ");
+            }
+            else if (segment.SpeakerId.HasValue)
+            {
+                sb.Append($"speaker{segment.SpeakerId}: ");
+            }
+
             sb.AppendLine(segment.Text.Trim());
             sb.AppendLine();
-            index++;
         }
 
         return sb.ToString().Trim();

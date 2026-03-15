@@ -11,12 +11,35 @@ public class StationProfile
 
 public class StationTranscriptionProfile
 {
+    /// <summary>
+    /// Transcription provider: "azure_speech" or "azure_video_indexer"
+    /// </summary>
     public string Provider { get; set; } = "azure_speech";
+
+    public string Language { get; set; } = "en-US";
+    public int SampleRate { get; set; } = 16000;
+
+    // Azure Speech specific settings
     public bool Diarization { get; set; }
     public int? MaxSpeakers { get; set; }
     public string? DiarizationMode { get; set; } = "online";
-    public string Language { get; set; } = "en-US";
-    public int SampleRate { get; set; } = 16000;
+
+    // Azure Video Indexer specific settings
+    /// <summary>
+    /// Dictionary of Person Model names to IDs for speaker identification.
+    /// Example: { "news": "model-id-1", "sports": "model-id-2" }
+    /// </summary>
+    public Dictionary<string, string> PersonModels { get; set; } = new();
+
+    /// <summary>
+    /// Key to select which Person Model to use from PersonModels dictionary.
+    /// </summary>
+    public string? PersonModelKey { get; set; }
+
+    /// <summary>
+    /// Whether to include speaker labels (speaker1:, speaker2:, or named) in transcript.
+    /// </summary>
+    public bool IncludeSpeakerLabels { get; set; }
 }
 
 public class StationTextProfile

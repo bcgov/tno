@@ -392,12 +392,14 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
             var max = filter.Settings.Sentiment.Max();
             // TODO: Need to handle custom tone pools.
             if (!content.TonePools.Any(tp => tp.Value >= min && tp.Value <= max))
+            {
                 this.Logger.LogDebug("Content ID: {contentId}, Filter ID: {filterId}.  Content.Tone is {actual}, but the folder filter is limited to {targetMin}-{targetMax}.",
-                content.Id, filter.Id,
-                string.Join(",", content.TonePools.Select((tp) => tp.Value)),
-                filter.Settings.Sentiment.Min(), filter.Settings.Sentiment.Max());
-            return false;
-        };
+                    content.Id, filter.Id,
+                    string.Join(",", content.TonePools.Select((tp) => tp.Value)),
+                    filter.Settings.Sentiment.Min(), filter.Settings.Sentiment.Max());
+                return false;
+            }
+        }
 
         if (filter.Settings.Actions?.Any() == true && !filter.Settings.Actions.Any(fa => content.Actions.Any(a => a.Id == fa.Id && a.Value == fa.Value)))
         {

@@ -57,6 +57,14 @@ public class AutoClipperService : KafkaConsumerService
         services.AddSingleton<IAzureSpeechTranscriptionService, AzureSpeechTranscriptionService>();
         services.AddHttpClient<IClipSegmentationService, ClipSegmentationService>();
 
+        // Register Video Indexer client if configured
+        var videoIndexerAccountId = this.Configuration.GetSection("Service")["AzureVideoIndexerAccountId"];
+        var videoIndexerApiKey = this.Configuration.GetSection("Service")["AzureVideoIndexerApiKey"];
+        if (!string.IsNullOrWhiteSpace(videoIndexerAccountId) && !string.IsNullOrWhiteSpace(videoIndexerApiKey))
+        {
+            services.AddHttpClient<IAzureVideoIndexerClient, AzureVideoIndexerClient>();
+        }
+
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<AutoClipperOptions>()
         //     .Bind(this.Configuration.GetSection("Service"))

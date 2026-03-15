@@ -1,0 +1,541 @@
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  annotations:
+    created-by: "jeremy.foster, alessia.yanchen"
+    description: Defines how to deploy image-service
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","metadata":{"annotations":{"created-by":"jeremy.foster, alessia.yanchen","description":"Defines how to deploy image-service"},"labels":{"component":"image-service","managed-by":"kustomize","name":"image-service","part-of":"tno","version":"1.0.0"},"name":"image-service","namespace":"9b301c-prod"},"spec":{"replicas":1,"selector":{"component":"image-service","name":"image-service","part-of":"tno"},"strategy":{"rollingParams":{"intervalSeconds":1,"maxSurge":"25%","maxUnavailable":"25%","timeoutSeconds":600,"updatePeriodSeconds":1},"type":"Rolling"},"template":{"metadata":{"labels":{"component":"image-service","name":"image-service","part-of":"tno"},"name":"image-service"},"spec":{"containers":[{"env":[{"name":"ASPNETCORE_ENVIRONMENT","value":"Production"},{"name":"ASPNETCORE_URLS","value":"http://+:8080"},{"name":"Logging__LogLevel__TNO","value":"Information"},{"name":"Service__ApiUrl","valueFrom":{"configMapKeyRef":{"key":"API_HOST_URL","name":"services"}}},{"name":"Service__DataLocation","valueFrom":{"configMapKeyRef":{"key":"DATA_LOCATION","name":"services"}}},{"name":"Service__EmailTo","valueFrom":{"configMapKeyRef":{"key":"EMAIL_FAILURE_TO","name":"services"}}},{"name":"Auth__Keycloak__Authority","valueFrom":{"configMapKeyRef":{"key":"KEYCLOAK_AUTHORITY","name":"services"}}},{"name":"Auth__Keycloak__Audience","valueFrom":{"configMapKeyRef":{"key":"KEYCLOAK_AUDIENCE","name":"services"}}},{"name":"Auth__Keycloak__Secret","valueFrom":{"secretKeyRef":{"key":"KEYCLOAK_CLIENT_SECRET","name":"keycloak"}}},{"name":"Service__VolumePath","valueFrom":{"configMapKeyRef":{"key":"VOLUME_PATH","name":"image-service"}}},{"name":"Service__MaxFailLimit","valueFrom":{"configMapKeyRef":{"key":"MAX_FAIL_LIMIT","name":"image-service"}}},{"name":"Service__Topics","valueFrom":{"configMapKeyRef":{"key":"TOPICS","name":"image-service"}}},{"name":"Service__PrivateKeysPath","valueFrom":{"configMapKeyRef":{"key":"KEY_PATH","name":"image-service"}}},{"name":"Service__PrivateKeyFileName","valueFrom":{"secretKeyRef":{"key":"id_rsa","name":"ssh-key"}}},{"name":"CHES__From","valueFrom":{"configMapKeyRef":{"key":"CHES_FROM","name":"ches"}}},{"name":"CHES__EmailEnabled","valueFrom":{"configMapKeyRef":{"key":"CHES_EMAIL_ENABLED","name":"image-service"}}},{"name":"CHES__EmailAuthorized","valueFrom":{"configMapKeyRef":{"key":"CHES_EMAIL_AUTHORIZED","name":"image-service"}}},{"name":"CHES__AuthUrl","valueFrom":{"configMapKeyRef":{"key":"CHES_AUTH_URL","name":"ches"}}},{"name":"CHES__HostUri","valueFrom":{"configMapKeyRef":{"key":"CHES_HOST_URI","name":"ches"}}},{"name":"CHES__Username","valueFrom":{"secretKeyRef":{"key":"USERNAME","name":"ches"}}},{"name":"CHES__Password","valueFrom":{"secretKeyRef":{"key":"PASSWORD","name":"ches"}}}],"image":"","imagePullPolicy":"Always","livenessProbe":{"failureThreshold":3,"httpGet":{"path":"/health","port":8080,"scheme":"HTTP"},"initialDelaySeconds":30,"periodSeconds":20,"successThreshold":1,"timeoutSeconds":30},"name":"image-service","ports":[{"containerPort":8080,"protocol":"TCP"}],"readinessProbe":{"failureThreshold":3,"httpGet":{"path":"/health","port":8080,"scheme":"HTTP"},"initialDelaySeconds":30,"periodSeconds":20,"successThreshold":1,"timeoutSeconds":30},"resources":{"limits":{"cpu":"35m","memory":"120Mi"},"requests":{"cpu":"15m","memory":"75Mi"}},"volumeMounts":[{"mountPath":"/data","name":"ingest-storage"},{"mountPath":"/keys","name":"ssh-key","readOnly":true}]}],"dnsPolicy":"ClusterFirst","restartPolicy":"Always","securityContext":{},"terminationGracePeriodSeconds":30,"volumes":[{"name":"ingest-storage","persistentVolumeClaim":{"claimName":"ingest-storage"}},{"name":"ssh-key","secret":{"defaultMode":420,"optional":false,"secretName":"ssh-key"}}]}},"test":false,"triggers":[{"type":"ConfigChange"},{"imageChangeParams":{"automatic":true,"containerNames":["image-service"],"from":{"kind":"ImageStreamTag","name":"image-service:prod","namespace":"9b301c-tools"}},"type":"ImageChange"}]}}
+  resourceVersion: "17216247941"
+  name: image-service
+  uid: 8bec0e8e-ed86-4f96-81b7-3d8a79e09acd
+  creationTimestamp: "2024-04-30T15:22:53Z"
+  generation: 445
+  managedFields:
+    - manager: kubectl-create
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2024-04-30T15:22:53Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:metadata":
+          "f:annotations":
+            .: {}
+            "f:created-by": {}
+            "f:description": {}
+            "f:kubectl.kubernetes.io/last-applied-configuration": {}
+          "f:labels":
+            .: {}
+            "f:component": {}
+            "f:managed-by": {}
+            "f:name": {}
+            "f:part-of": {}
+            "f:version": {}
+        "f:spec":
+          "f:replicas": {}
+          "f:selector":
+            .: {}
+            "f:component": {}
+            "f:name": {}
+            "f:part-of": {}
+          "f:strategy":
+            "f:activeDeadlineSeconds": {}
+            "f:rollingParams":
+              .: {}
+              "f:intervalSeconds": {}
+              "f:maxSurge": {}
+              "f:maxUnavailable": {}
+              "f:timeoutSeconds": {}
+              "f:updatePeriodSeconds": {}
+            "f:type": {}
+          "f:template":
+            .: {}
+            "f:metadata":
+              .: {}
+              "f:creationTimestamp": {}
+              "f:labels":
+                .: {}
+                "f:component": {}
+                "f:name": {}
+                "f:part-of": {}
+              "f:name": {}
+            "f:spec":
+              .: {}
+              "f:containers":
+                .: {}
+                'k:{"name":"image-service"}':
+                  "f:volumeMounts":
+                    .: {}
+                    'k:{"mountPath":"/data"}':
+                      .: {}
+                      "f:mountPath": {}
+                      "f:name": {}
+                    'k:{"mountPath":"/keys"}':
+                      .: {}
+                      "f:mountPath": {}
+                      "f:name": {}
+                      "f:readOnly": {}
+                  "f:terminationMessagePolicy": {}
+                  .: {}
+                  "f:resources":
+                    .: {}
+                    "f:limits":
+                      .: {}
+                      "f:cpu": {}
+                      "f:memory": {}
+                    "f:requests":
+                      .: {}
+                      "f:cpu": {}
+                      "f:memory": {}
+                  "f:livenessProbe":
+                    .: {}
+                    "f:failureThreshold": {}
+                    "f:httpGet":
+                      .: {}
+                      "f:path": {}
+                      "f:port": {}
+                      "f:scheme": {}
+                    "f:initialDelaySeconds": {}
+                    "f:periodSeconds": {}
+                    "f:successThreshold": {}
+                    "f:timeoutSeconds": {}
+                  "f:env":
+                    'k:{"name":"Service__MaxFailLimit"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__From"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Auth__Keycloak__Audience"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__HostUri"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__AuthUrl"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__VolumePath"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__DataLocation"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__EmailTo"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__PrivateKeyFileName"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"Service__Topics"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Service__PrivateKeysPath"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__Username"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"Auth__Keycloak__Secret"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    .: {}
+                    'k:{"name":"CHES__Password"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:secretKeyRef": {}
+                    'k:{"name":"CHES__EmailAuthorized"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"ASPNETCORE_ENVIRONMENT"}':
+                      .: {}
+                      "f:name": {}
+                      "f:value": {}
+                    'k:{"name":"ASPNETCORE_URLS"}':
+                      .: {}
+                      "f:name": {}
+                      "f:value": {}
+                    'k:{"name":"Logging__LogLevel__TNO"}':
+                      .: {}
+                      "f:name": {}
+                      "f:value": {}
+                    'k:{"name":"Service__ApiUrl"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"CHES__EmailEnabled"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                    'k:{"name":"Auth__Keycloak__Authority"}':
+                      .: {}
+                      "f:name": {}
+                      "f:valueFrom":
+                        .: {}
+                        "f:configMapKeyRef": {}
+                  "f:readinessProbe":
+                    .: {}
+                    "f:failureThreshold": {}
+                    "f:httpGet":
+                      .: {}
+                      "f:path": {}
+                      "f:port": {}
+                      "f:scheme": {}
+                    "f:initialDelaySeconds": {}
+                    "f:periodSeconds": {}
+                    "f:successThreshold": {}
+                    "f:timeoutSeconds": {}
+                  "f:terminationMessagePath": {}
+                  "f:imagePullPolicy": {}
+                  "f:ports":
+                    .: {}
+                    'k:{"containerPort":8080,"protocol":"TCP"}':
+                      .: {}
+                      "f:containerPort": {}
+                      "f:protocol": {}
+                  "f:name": {}
+              "f:dnsPolicy": {}
+              "f:restartPolicy": {}
+              "f:schedulerName": {}
+              "f:securityContext": {}
+              "f:terminationGracePeriodSeconds": {}
+              "f:volumes":
+                .: {}
+                'k:{"name":"ingest-storage"}':
+                  .: {}
+                  "f:name": {}
+                  "f:persistentVolumeClaim":
+                    .: {}
+                    "f:claimName": {}
+                'k:{"name":"ssh-key"}':
+                  .: {}
+                  "f:name": {}
+                  "f:secret":
+                    .: {}
+                    "f:defaultMode": {}
+                    "f:optional": {}
+                    "f:secretName": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-11-26T06:03:10Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:spec":
+          "f:template":
+            "f:spec":
+              "f:containers":
+                'k:{"name":"image-service"}':
+                  "f:image": {}
+          "f:triggers": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-11-26T19:50:04Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:status":
+          "f:updatedReplicas": {}
+          "f:readyReplicas": {}
+          "f:conditions":
+            .: {}
+            'k:{"type":"Available"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:status": {}
+              "f:type": {}
+            'k:{"type":"Progressing"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:reason": {}
+              "f:status": {}
+              "f:type": {}
+          "f:details":
+            .: {}
+            "f:causes": {}
+            "f:message": {}
+          "f:replicas": {}
+          "f:availableReplicas": {}
+          "f:observedGeneration": {}
+          "f:unavailableReplicas": {}
+          "f:latestVersion": {}
+      subresource: status
+  namespace: 9b301c-prod
+  labels:
+    component: image-service
+    managed-by: kustomize
+    name: image-service
+    part-of: tno
+    version: 1.0.0
+spec:
+  strategy:
+    type: Rolling
+    rollingParams:
+      updatePeriodSeconds: 1
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      maxUnavailable: 25%
+      maxSurge: 25%
+    resources: {}
+    activeDeadlineSeconds: 21600
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - image-service
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: "image-service:prod"
+        lastTriggeredImage: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/image-service@sha256:5eaaebf25a7cc705638bedc91cc56da613dd9a499ea822f0baa724badfccb0a8"
+  replicas: 1
+  revisionHistoryLimit: 10
+  test: false
+  selector:
+    component: image-service
+    name: image-service
+    part-of: tno
+  template:
+    metadata:
+      name: image-service
+      creationTimestamp: null
+      labels:
+        component: image-service
+        name: image-service
+        part-of: tno
+    spec:
+      volumes:
+        - name: ingest-storage
+          persistentVolumeClaim:
+            claimName: ingest-storage
+        - name: ssh-key
+          secret:
+            secretName: ssh-key
+            defaultMode: 420
+            optional: false
+      containers:
+        - resources:
+            limits:
+              cpu: 35m
+              memory: 120Mi
+            requests:
+              cpu: 15m
+              memory: 75Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          name: image-service
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: "http://+:8080"
+            - name: Logging__LogLevel__TNO
+              value: Information
+            - name: Service__ApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: API_HOST_URL
+            - name: Service__DataLocation
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: DATA_LOCATION
+            - name: Service__EmailTo
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: EMAIL_FAILURE_TO
+            - name: Auth__Keycloak__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUTHORITY
+            - name: Auth__Keycloak__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUDIENCE
+            - name: Auth__Keycloak__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_CLIENT_SECRET
+            - name: Service__VolumePath
+              valueFrom:
+                configMapKeyRef:
+                  name: image-service
+                  key: VOLUME_PATH
+            - name: Service__MaxFailLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: image-service
+                  key: MAX_FAIL_LIMIT
+            - name: Service__Topics
+              valueFrom:
+                configMapKeyRef:
+                  name: image-service
+                  key: TOPICS
+            - name: Service__PrivateKeysPath
+              valueFrom:
+                configMapKeyRef:
+                  name: image-service
+                  key: KEY_PATH
+            - name: Service__PrivateKeyFileName
+              valueFrom:
+                secretKeyRef:
+                  name: ssh-key
+                  key: id_rsa
+            - name: CHES__From
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_FROM
+            - name: CHES__EmailEnabled
+              valueFrom:
+                configMapKeyRef:
+                  name: image-service
+                  key: CHES_EMAIL_ENABLED
+            - name: CHES__EmailAuthorized
+              valueFrom:
+                configMapKeyRef:
+                  name: image-service
+                  key: CHES_EMAIL_AUTHORIZED
+            - name: CHES__AuthUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_AUTH_URL
+            - name: CHES__HostUri
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_HOST_URI
+            - name: CHES__Username
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: USERNAME
+            - name: CHES__Password
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: PASSWORD
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: ingest-storage
+              mountPath: /data
+            - name: ssh-key
+              readOnly: true
+              mountPath: /keys
+          terminationMessagePolicy: File
+          image: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/image-service@sha256:5eaaebf25a7cc705638bedc91cc56da613dd9a499ea822f0baa724badfccb0a8"
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+status:
+  observedGeneration: 445
+  details:
+    message: image change
+    causes:
+      - type: ImageChange
+        imageTrigger:
+          from:
+            kind: DockerImage
+            name: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/image-service@sha256:5eaaebf25a7cc705638bedc91cc56da613dd9a499ea822f0baa724badfccb0a8"
+  availableReplicas: 1
+  unavailableReplicas: 0
+  latestVersion: 102
+  updatedReplicas: 1
+  conditions:
+    - type: Progressing
+      status: "True"
+      lastUpdateTime: "2025-11-26T06:03:15Z"
+      lastTransitionTime: "2025-11-26T06:03:15Z"
+      reason: NewReplicationControllerAvailable
+      message: replication controller "image-service-102" successfully rolled out
+    - type: Available
+      status: "True"
+      lastUpdateTime: "2025-11-26T19:50:04Z"
+      lastTransitionTime: "2025-11-26T19:50:04Z"
+      message: Deployment config has minimum availability.
+  replicas: 1
+  readyReplicas: 1

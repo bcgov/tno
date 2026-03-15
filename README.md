@@ -10,6 +10,10 @@
 [![Stars](https://img.shields.io/github/stars/bcgov/tno.svg)](https://github.com/bcgov/tno/stargazers)
 [![Wachters](https://img.shields.io/github/watchers/bcgov/tno.svg)](https://github.com/bcgov/tno/watchers)
 
+**dev:** [![React Editor](https://github.com/bcgov/tno/actions/workflows/react-editor.yml/badge.svg?branch=dev)](https://github.com/bcgov/tno/actions/workflows/react-editor.yml) [![React Subscriber](https://github.com/bcgov/tno/actions/workflows/react-subscriber.yml/badge.svg?branch=dev)](https://github.com/bcgov/tno/actions/workflows/react-subscriber.yml)
+
+**master:** [![React Editor](https://github.com/bcgov/tno/actions/workflows/react-editor.yml/badge.svg?branch=master)](https://github.com/bcgov/tno/actions/workflows/react-editor.yml) [![React Subscriber](https://github.com/bcgov/tno/actions/workflows/react-subscriber.yml/badge.svg?branch=master)](https://github.com/bcgov/tno/actions/workflows/react-subscriber.yml)
+
 GCPE’s primary role is to inform the public about government programs, services, policies, and priorities through traditional communication practices and, increasingly, through direct engagement and online services.
 
 One of GCPE’s featured services to clients is Today’s News Online Media Monitoring. Through this application, GCPE tracks breaking news stories in British Columbia, Canada, and around the world that impact our province.

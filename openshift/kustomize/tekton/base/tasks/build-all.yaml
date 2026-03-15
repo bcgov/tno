@@ -170,12 +170,13 @@ spec:
           [dockerfile]="/services/net/scheduler/Dockerfile"
         )
 
-        declare -A COMPONENT11=(
-          [id]="folder-collection"
-          [image]="folder-collection-service"
-          [context]=""
-          [dockerfile]="/services/net/folder-collection/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — folder-collection-cicd.yml
+        # declare -A COMPONENT11=(
+        #   [id]="folder-collection"
+        #   [image]="folder-collection-service"
+        #   [context]=""
+        #   [dockerfile]="/services/net/folder-collection/Dockerfile"
+        # )
 
         declare -A COMPONENT12=(
           [id]="ffmpeg"
@@ -214,19 +215,21 @@ spec:
           [dockerfile]="/Dockerfile.open"
         )
 
-        declare -A COMPONENT17=(
-          [id]="editor"
-          [image]="editor"
-          [context]="/app/editor"
-          [dockerfile]="/Dockerfile.open"
-        )
+        # Moved to GitHub Actions CI/CD — react-editor.yml
+        # declare -A COMPONENT17=(
+        #   [id]="editor"
+        #   [image]="editor"
+        #   [context]="/app/editor"
+        #   [dockerfile]="/Dockerfile.open"
+        # )
 
-        declare -A COMPONENT18=(
-          [id]="subscriber"
-          [image]="subscriber"
-          [context]="/app/subscriber"
-          [dockerfile]="/Dockerfile.open"
-        )
+        # Moved to GitHub Actions CI/CD — react-subscriber.yml
+        # declare -A COMPONENT18=(
+        #   [id]="subscriber"
+        #   [image]="subscriber"
+        #   [context]="/app/subscriber"
+        #   [dockerfile]="/Dockerfile.open"
+        # )
 
         declare -A COMPONENT19=(
           [id]="db"

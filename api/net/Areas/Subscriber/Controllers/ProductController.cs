@@ -32,7 +32,7 @@ public class ProductController : ControllerBase
     private readonly IProductService _productService;
     private readonly IReportService _reportService;
     private readonly IImpersonationHelper _impersonate;
-    
+
     private const ReportDistributionFormat DefaultFormat = ReportDistributionFormat.LinkOnly;
     private const EmailSentTo DefaultSendTo = EmailSentTo.To;
     #endregion

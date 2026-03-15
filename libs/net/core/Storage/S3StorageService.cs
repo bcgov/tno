@@ -138,6 +138,11 @@ public class S3StorageService : IS3StorageService
                 return null;
             }
         }
+        catch (AmazonS3Exception s3Ex) when (s3Ex.ErrorCode == "NoSuchKey")
+        {
+            _logger.LogWarning("File not found in S3: {S3Key}", s3Key);
+            return null;
+        }
         catch (Exception ex)
         {
             _logger.LogError($"Downloading file from S3: {s3Key} throws exception: {ex}");

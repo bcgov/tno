@@ -99,13 +99,15 @@ spec:
           echo 'BUILD_DB=true' >> build.env
         fi
 
-        if grep -s app/editor <<< $DIFF; then
-          echo 'BUILD_EDITOR=true' >> build.env
-        fi
+        # Moved to GitHub Actions CI/CD — react-editor.yml
+        # if grep -s app/editor <<< $DIFF; then
+        #   echo 'BUILD_EDITOR=true' >> build.env
+        # fi
 
-        if grep -s app/subscriber <<< $DIFF; then
-          echo 'BUILD_SUBSCRIBER=true' >> build.env
-        fi
+        # Moved to GitHub Actions CI/CD — react-subscriber.yml
+        # if grep -s app/subscriber <<< $DIFF; then
+        #   echo 'BUILD_SUBSCRIBER=true' >> build.env
+        # fi
 
         if grep -s api/net <<< $DIFF; then
           echo 'BUILD_API=true' >> build.env
@@ -169,7 +171,7 @@ spec:
         build_service 'extract-quotes'
         build_service 'filecopy'
         build_service 'filemonitor'
-        build_service 'folder-collection'
+        # build_service 'folder-collection' # Moved to GitHub Actions CI/CD — folder-collection-cicd.yml
         build_service 'image'
         build_service 'indexing'
         build_service 'nlp'

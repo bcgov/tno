@@ -1,8 +1,10 @@
 using System.Text;
 using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using AutoClipperHarness;
 using TNO.Services.AutoClipper.Audio;
 using TNO.Services.AutoClipper.Azure;
 using TNO.Services.AutoClipper.Config;
@@ -30,7 +32,13 @@ if (!File.Exists(envFile))
 }
 
 var outputDir = args.Length > 2 ? args[2] : Path.Combine(Path.GetDirectoryName(Path.GetFullPath(input)) ?? ".", "auto-clipper-harness-output");
+Console.WriteLine($"[HARNESS] Output directory: {outputDir}");
 Directory.CreateDirectory(outputDir);
+if (!Directory.Exists(outputDir))
+{
+    Console.WriteLine($"[HARNESS] ERROR: Failed to create output directory: {outputDir}");
+    return;
+}
 
 using var loggerFactory = LoggerFactory.Create(builder => builder.AddSimpleConsole(o => o.TimestampFormat = "HH:mm:ss "));
 var stationCode = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_STATION") ?? "CKNW";
@@ -46,8 +54,6 @@ var language = args.Length > 1
 var sampleRate = int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_SAMPLE_RATE"), out var sr)
     ? sr
     : (stationProfile.Transcription.SampleRate > 0 ? stationProfile.Transcription.SampleRate : 16000);
-var audioNormalizer = new AudioNormalizer(loggerFactory.CreateLogger<AudioNormalizer>());
-var workingFile = await audioNormalizer.NormalizeAsync(input, sampleRate);
 var llmBaseUrl = RequireEnv("AUTOCLIP_HARNESS_LLM_URL").Trim();
 var llmDeployment = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_LLM_DEPLOYMENT");
 var llmVersion = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_LLM_VERSION") ?? "2024-07-18";
@@ -57,45 +63,107 @@ var defaultModel = string.IsNullOrWhiteSpace(llmModel)
     ? (!string.IsNullOrWhiteSpace(llmDeployment) ? llmDeployment : "gpt-4o-mini")
     : llmModel;
 
-
-
-var options = Options.Create(new AutoClipperOptions
+// Create LLM options (shared by both providers)
+var llmOptions = Options.Create(new AutoClipperOptions
 {
-    AzureSpeechKey = RequireEnv("AUTOCLIP_HARNESS_SPEECH_KEY"),
-    AzureSpeechRegion = RequireEnv("AUTOCLIP_HARNESS_SPEECH_REGION"),
-    AzureSpeechBatchEndpoint = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_BATCH_ENDPOINT") ?? string.Empty,
-    AzureSpeechBatchApiVersion = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_BATCH_VERSION") ?? "v3.2",
-    AzureSpeechBatchPollingIntervalSeconds = int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_BATCH_POLL_SECONDS"), out var batchPollSeconds) ? batchPollSeconds : 10,
-    AzureSpeechBatchTimeoutMinutes = int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_BATCH_TIMEOUT_MINUTES"), out var batchTimeoutMinutes) ? batchTimeoutMinutes : 45,
-    AzureSpeechStorageConnectionString = RequireEnv("AUTOCLIP_HARNESS_STORAGE_CONNECTION_STRING"),
-    AzureSpeechStorageContainer = RequireEnv("AUTOCLIP_HARNESS_STORAGE_CONTAINER"),
-    AzureSpeechStorageSasExpiryMinutes = int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_STORAGE_SAS_MINUTES"), out var sasMinutes) ? sasMinutes : 180,    LlmApiUrl = llmEndpoint,
-
+    LlmApiUrl = llmEndpoint,
     LlmApiKey = RequireEnv("AUTOCLIP_HARNESS_LLM_KEY"),
-
     LlmDefaultModel = defaultModel,
     LlmPrompt = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_PROMPT")
         ?? (string.IsNullOrWhiteSpace(stationProfile.Text.LlmPrompt) ? string.Empty : stationProfile.Text.LlmPrompt),
-    MaxStoriesFromClip = int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_MAX_STORIES"), out var maxStories) ? maxStories : 5,
+    MaxStoriesFromClip = int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_MAX_STORIES"), out var maxStoriesLlm) ? maxStoriesLlm : 5,
     VolumePath = Path.GetDirectoryName(Path.GetFullPath(input)) ?? ".",
     DefaultTranscriptLanguage = stationProfile.Transcription.Language ?? "en-US"
 });
-var speechLogger = loggerFactory.CreateLogger<AzureSpeechTranscriptionService>();
 var llmLogger = loggerFactory.CreateLogger<ClipSegmentationService>();
-var speechService = new AzureSpeechTranscriptionService(new HttpClient(), options, speechLogger);
-var llmService = new ClipSegmentationService(new HttpClient(), options, llmLogger);
-var transcriptionRequest = new SpeechTranscriptionRequest
-{
-    Language = language,
-    EnableSpeakerDiarization = stationProfile.Transcription.Diarization,
-    SpeakerCount = stationProfile.Transcription.MaxSpeakers,
-    DiarizationMode = stationProfile.Transcription.DiarizationMode
-};
+var llmService = new ClipSegmentationService(new HttpClient(), llmOptions, llmLogger);
 
-Console.WriteLine($"[HARNESS] Transcribing {workingFile} ...");
-var segments = await speechService.TranscribeAsync(workingFile, transcriptionRequest, CancellationToken.None);
+// Determine provider and output options (early detection to avoid unnecessary initialization)
+var provider = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_PROVIDER") ?? "azure_speech";
+var includeSpeakerLabels = bool.TryParse(
+    Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_INCLUDE_SPEAKER_LABELS"),
+    out var isl) && isl;
+
+// Transcribe using selected provider
+IReadOnlyList<TranscriptSegment> transcriptSegments;
+IReadOnlyList<TimestampedTranscript> segments;
+
+if (string.Equals(provider, "azure_video_indexer", StringComparison.OrdinalIgnoreCase))
+{
+    // Use Azure Video Indexer - no audio normalization needed, upload original file directly
+    var personModelId = ResolvePersonModelId();
+    Console.WriteLine($"[HARNESS] Using Video Indexer (PersonModel: {personModelId ?? "none"})");
+    Console.WriteLine($"[HARNESS] Uploading original file: {input}");
+
+    var viClient = new VideoIndexerClient(
+        new HttpClient(),
+        RequireEnv("AUTOCLIP_HARNESS_VI_ACCOUNT_ID"),
+        Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_VI_LOCATION") ?? "trial",
+        RequireEnv("AUTOCLIP_HARNESS_VI_API_KEY"),
+        int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_VI_TIMEOUT_MINUTES"), out var viTimeout) ? viTimeout : 60,
+        int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_VI_POLL_SECONDS"), out var viPoll) ? viPoll : 30,
+        loggerFactory.CreateLogger<VideoIndexerClient>());
+
+    var viRequest = new VideoIndexerRequest
+    {
+        Language = language,
+        PersonModelId = personModelId,
+        IncludeSpeakerLabels = includeSpeakerLabels
+    };
+
+    var rawJsonPath = Path.Combine(outputDir, "video_indexer_raw_response.json");
+    transcriptSegments = await viClient.TranscribeAsync(input, viRequest, CancellationToken.None, rawJsonPath);
+    Console.WriteLine($"[HARNESS] Raw Video Indexer response -> {rawJsonPath}");
+
+    // Convert to TimestampedTranscript for downstream compatibility
+    segments = transcriptSegments.Select(s => new TimestampedTranscript(s.Start, s.End, s.Text)).ToList();
+}
+else
+{
+    // Use Azure Speech (default) - requires audio normalization
+    var audioNormalizer = new AudioNormalizer(loggerFactory.CreateLogger<AudioNormalizer>());
+    var workingFile = await audioNormalizer.NormalizeAsync(input, sampleRate);
+
+    var options = Options.Create(new AutoClipperOptions
+    {
+        AzureSpeechKey = RequireEnv("AUTOCLIP_HARNESS_SPEECH_KEY"),
+        AzureSpeechRegion = RequireEnv("AUTOCLIP_HARNESS_SPEECH_REGION"),
+        AzureSpeechBatchEndpoint = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_BATCH_ENDPOINT") ?? string.Empty,
+        AzureSpeechBatchApiVersion = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_BATCH_VERSION") ?? "v3.2",
+        AzureSpeechBatchPollingIntervalSeconds = int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_BATCH_POLL_SECONDS"), out var batchPollSeconds) ? batchPollSeconds : 10,
+        AzureSpeechBatchTimeoutMinutes = int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_BATCH_TIMEOUT_MINUTES"), out var batchTimeoutMinutes) ? batchTimeoutMinutes : 45,
+        AzureSpeechStorageConnectionString = RequireEnv("AUTOCLIP_HARNESS_STORAGE_CONNECTION_STRING"),
+        AzureSpeechStorageContainer = RequireEnv("AUTOCLIP_HARNESS_STORAGE_CONTAINER"),
+        AzureSpeechStorageSasExpiryMinutes = int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_STORAGE_SAS_MINUTES"), out var sasMinutes) ? sasMinutes : 180,
+        LlmApiUrl = llmEndpoint,
+        LlmApiKey = RequireEnv("AUTOCLIP_HARNESS_LLM_KEY"),
+        LlmDefaultModel = defaultModel,
+        LlmPrompt = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_PROMPT")
+            ?? (string.IsNullOrWhiteSpace(stationProfile.Text.LlmPrompt) ? string.Empty : stationProfile.Text.LlmPrompt),
+        MaxStoriesFromClip = int.TryParse(Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_MAX_STORIES"), out var maxStories) ? maxStories : 5,
+        VolumePath = Path.GetDirectoryName(Path.GetFullPath(input)) ?? ".",
+        DefaultTranscriptLanguage = stationProfile.Transcription.Language ?? "en-US"
+    });
+
+    var speechLogger = loggerFactory.CreateLogger<AzureSpeechTranscriptionService>();
+    var speechService = new AzureSpeechTranscriptionService(new HttpClient(), options, speechLogger);
+    var transcriptionRequest = new SpeechTranscriptionRequest
+    {
+        Language = language,
+        EnableSpeakerDiarization = stationProfile.Transcription.Diarization,
+        SpeakerCount = stationProfile.Transcription.MaxSpeakers,
+        DiarizationMode = stationProfile.Transcription.DiarizationMode
+    };
+
+    Console.WriteLine($"[HARNESS] Transcribing with Azure Speech: {workingFile} ...");
+    segments = await speechService.TranscribeAsync(workingFile, transcriptionRequest, CancellationToken.None);
+
+    // Convert to TranscriptSegment for speaker label support
+    transcriptSegments = segments.Select(s => new TranscriptSegment(s.Start, s.End, s.Text)).ToList();
+}
+
 Console.WriteLine($"[HARNESS] Received {segments.Count} transcript segments");
-var fullTranscriptBody = BuildTranscriptDocument(segments);
+var fullTranscriptBody = BuildTranscriptDocumentWithSpeakers(transcriptSegments, includeSpeakerLabels);
 var fullTranscriptPath = Path.Combine(outputDir, "transcript_full.txt");
 await File.WriteAllTextAsync(fullTranscriptPath, fullTranscriptBody ?? string.Empty);
 Console.WriteLine($"[HARNESS] Full transcript -> {fullTranscriptPath}");
@@ -118,8 +186,8 @@ foreach (var definition in clipDefinitions)
         continue;
     }
 
-    var transcriptSlice = ExtractTranscriptRange(segments, normalized.Start, normalized.End);
-    var transcriptBody = BuildTranscriptDocument(transcriptSlice);
+    var transcriptSlice = ExtractTranscriptSegmentRange(transcriptSegments, normalized.Start, normalized.End);
+    var transcriptBody = BuildTranscriptDocumentWithSpeakers(transcriptSlice, includeSpeakerLabels);
     if (string.IsNullOrWhiteSpace(transcriptBody))
     {
         Console.WriteLine($"[HARNESS] Empty transcript for clip {definition.Title}");
@@ -377,6 +445,60 @@ static ClipDefinition? NormalizeClipDefinition(ClipDefinition definition, IReadO
 
 static IReadOnlyList<TimestampedTranscript> ExtractTranscriptRange(IReadOnlyList<TimestampedTranscript> segments, TimeSpan start, TimeSpan end)
     => segments.Where(s => s.End > start && s.Start < end).ToArray();
+
+static IReadOnlyList<TranscriptSegment> ExtractTranscriptSegmentRange(IReadOnlyList<TranscriptSegment> segments, TimeSpan start, TimeSpan end)
+    => segments.Where(s => s.End > start && s.Start < end).ToArray();
+
+static string? ResolvePersonModelId()
+{
+    var personModelsJson = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_VI_PERSON_MODELS");
+    var personModelKey = Environment.GetEnvironmentVariable("AUTOCLIP_HARNESS_VI_PERSON_MODEL_KEY");
+
+    if (string.IsNullOrWhiteSpace(personModelsJson) || string.IsNullOrWhiteSpace(personModelKey))
+        return null;
+
+    try
+    {
+        var personModels = JsonSerializer.Deserialize<Dictionary<string, string>>(personModelsJson);
+        if (personModels != null && personModels.TryGetValue(personModelKey, out var modelId))
+        {
+            return modelId;
+        }
+    }
+    catch (JsonException)
+    {
+        Console.WriteLine($"[HARNESS] Warning: Failed to parse AUTOCLIP_HARNESS_VI_PERSON_MODELS as JSON");
+    }
+
+    return null;
+}
+
+static string BuildTranscriptDocumentWithSpeakers(IReadOnlyList<TranscriptSegment> segments, bool includeSpeakerLabels)
+{
+    if (segments == null || segments.Count == 0) return string.Empty;
+    var sb = new StringBuilder();
+    var idx = 1;
+    foreach (var segment in segments)
+    {
+        if (string.IsNullOrWhiteSpace(segment.Text)) continue;
+
+        sb.AppendLine(idx.ToString());
+        sb.AppendLine($"{FormatTimestamp(segment.Start)} --> {FormatTimestamp(segment.End)}");
+
+        if (includeSpeakerLabels && (segment.SpeakerName != null || segment.SpeakerId != null))
+        {
+            var label = segment.SpeakerName ?? $"speaker{segment.SpeakerId}";
+            sb.AppendLine($"{label}: {segment.Text.Trim()}");
+        }
+        else
+        {
+            sb.AppendLine(segment.Text.Trim());
+        }
+        sb.AppendLine();
+        idx++;
+    }
+    return sb.ToString().Trim();
+}
 
 
 

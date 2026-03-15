@@ -1,0 +1,145 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: fileupload-service
+  namespace: default
+  annotations:
+    description: CronJob service to upload files to S3
+  labels:
+    name: fileupload-service
+    part-of: tno
+    version: 1.0.0
+    component: fileupload-service
+    managed-by: kustomize
+    created-by: Jacob.Wang
+spec:
+  # ttlSecondsAfterFinished: 100
+  schedule: "0 3 * * *" # Every day at 3 AM UTC
+  # schedule: "*/5 * * * *" # For testing: Every 5 minutes
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            name: fileupload-service
+            part-of: tno
+            component: fileupload-service
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: fileupload-service
+              image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/fileupload-service:latest
+              imagePullPolicy: Always
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                limits:
+                  cpu: 200m
+                  memory: 256Mi
+              env:
+                # .NET Configuration
+                - name: ASPNETCORE_ENVIRONMENT
+                  value: Production
+                - name: ASPNETCORE_URLS
+                  value: http://+:8080
+
+                - name: Logging__LogLevel__TNO
+                  value: Information
+
+                # Common Service Configuration
+                - name: Service__ApiUrl
+                  value: http://api:8080
+
+                # Authentication Configuration
+                - name: Auth__Keycloak__Authority
+                  valueFrom:
+                    configMapKeyRef:
+                      name: services
+                      key: KEYCLOAK_AUTHORITY
+                - name: Auth__Keycloak__Audience
+                  valueFrom:
+                    configMapKeyRef:
+                      name: services
+                      key: KEYCLOAK_AUDIENCE
+                - name: Auth__Keycloak__Secret
+                  valueFrom:
+                    secretKeyRef:
+                      name: keycloak
+                      key: KEYCLOAK_CLIENT_SECRET
+
+                # FileUpload Service Configuration
+                - name: Service__MaxFailLimit
+                  valueFrom:
+                    configMapKeyRef:
+                      name: fileupload-service
+                      key: MAX_FAIL_LIMIT
+                - name: Service__Limit
+                  valueFrom:
+                    configMapKeyRef:
+                      name: fileupload-service
+                      key: LIMIT
+                - name: Service__DaysBeforeStart
+                  valueFrom:
+                    configMapKeyRef:
+                      name: fileupload-service
+                      key: DAYS_BEFORE_START
+                - name: Service__DaysBeforeEnd
+                  valueFrom:
+                    configMapKeyRef:
+                      name: fileupload-service
+                      key: DAYS_BEFORE_END
+                - name: Service__Force
+                  valueFrom:
+                    configMapKeyRef:
+                      name: fileupload-service
+                      key: FORCE
+                - name: Service__SendEmailOnFailure
+                  valueFrom:
+                    configMapKeyRef:
+                      name: fileupload-service
+                      key: SEND_EMAIL_ON_FAILURE
+                - name: Service__AutoRestartAfterCriticalFailure
+                  valueFrom:
+                    configMapKeyRef:
+                      name: fileupload-service
+                      key: AUTO_RESTART_AFTER_CRITICAL_FAILURE
+
+                # CHES Configuration
+                - name: CHES__From
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ches
+                      key: CHES_FROM
+                - name: CHES__EmailEnabled
+                  valueFrom:
+                    configMapKeyRef:
+                      name: fileupload-service
+                      key: CHES_EMAIL_ENABLED
+                - name: CHES__EmailAuthorized
+                  valueFrom:
+                    configMapKeyRef:
+                      name: fileupload-service
+                      key: CHES_EMAIL_AUTHORIZED
+
+                - name: CHES__AuthUrl
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ches
+                      key: CHES_AUTH_URL
+                - name: CHES__HostUri
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ches
+                      key: CHES_HOST_URI
+                - name: CHES__Username
+                  valueFrom:
+                    secretKeyRef:
+                      name: ches
+                      key: USERNAME
+                - name: CHES__Password
+                  valueFrom:
+                    secretKeyRef:
+                      name: ches
+                      key: PASSWORD
+

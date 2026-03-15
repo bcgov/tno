@@ -1,0 +1,247 @@
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  annotations:
+    description: Defines how to deploy Kowl
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","metadata":{"annotations":{"description":"Defines how to deploy Kowl"},"labels":{"component":"kowl","created-by":"jeremy.foster","managed-by":"kustomize","name":"kowl","part-of":"tno","version":"1.0.0"},"name":"kowl","namespace":"9b301c-prod"},"spec":{"replicas":1,"selector":{"component":"kowl","name":"kowl","part-of":"tno"},"strategy":{"rollingParams":{"intervalSeconds":1,"maxSurge":"25%","maxUnavailable":"25%","timeoutSeconds":600,"updatePeriodSeconds":1},"type":"Rolling"},"template":{"metadata":{"labels":{"component":"kowl","name":"kowl","part-of":"tno"},"name":"kowl"},"spec":{"containers":[{"env":[{"name":"KAFKA_BROKERS","value":"kafka-broker-0.kafka-headless:29092,kafka-broker-1.kafka-headless:29092,kafka-broker-2.kafka-headless:29092"}],"image":"image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/kafka:v1.5.0","imagePullPolicy":"Always","name":"kowl","ports":[{"containerPort":8080,"protocol":"TCP"}],"resources":{"limits":{"cpu":"50m","memory":"100Mi"},"requests":{"cpu":"15m","memory":"50Mi"}},"volumeMounts":[{"mountPath":"/etc/kowl","name":"kowl-config"}]}],"dnsPolicy":"ClusterFirst","restartPolicy":"Always","securityContext":{},"terminationGracePeriodSeconds":30,"volumes":[{"configMap":{"items":[{"key":"config.yaml","path":"config.yaml"}],"name":"kowl"},"name":"kowl-config"}]}},"triggers":[{"type":"ConfigChange"}]}}
+  resourceVersion: "16878912700"
+  name: kowl
+  uid: dd597f9a-da42-4af9-b385-e5a5eae6cb15
+  creationTimestamp: "2024-04-29T18:03:43Z"
+  generation: 1
+  managedFields:
+    - manager: kubectl-create
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2024-04-29T18:03:43Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:metadata":
+          "f:annotations":
+            .: {}
+            "f:description": {}
+            "f:kubectl.kubernetes.io/last-applied-configuration": {}
+          "f:labels":
+            .: {}
+            "f:component": {}
+            "f:created-by": {}
+            "f:managed-by": {}
+            "f:name": {}
+            "f:part-of": {}
+            "f:version": {}
+        "f:spec":
+          "f:replicas": {}
+          "f:selector":
+            .: {}
+            "f:component": {}
+            "f:name": {}
+            "f:part-of": {}
+          "f:strategy":
+            "f:activeDeadlineSeconds": {}
+            "f:rollingParams":
+              .: {}
+              "f:intervalSeconds": {}
+              "f:maxSurge": {}
+              "f:maxUnavailable": {}
+              "f:timeoutSeconds": {}
+              "f:updatePeriodSeconds": {}
+            "f:type": {}
+          "f:template":
+            .: {}
+            "f:metadata":
+              .: {}
+              "f:creationTimestamp": {}
+              "f:labels":
+                .: {}
+                "f:component": {}
+                "f:name": {}
+                "f:part-of": {}
+              "f:name": {}
+            "f:spec":
+              .: {}
+              "f:containers":
+                .: {}
+                'k:{"name":"kowl"}':
+                  "f:image": {}
+                  "f:volumeMounts":
+                    .: {}
+                    'k:{"mountPath":"/etc/kowl"}':
+                      .: {}
+                      "f:mountPath": {}
+                      "f:name": {}
+                  "f:terminationMessagePolicy": {}
+                  .: {}
+                  "f:resources":
+                    .: {}
+                    "f:limits":
+                      .: {}
+                      "f:cpu": {}
+                      "f:memory": {}
+                    "f:requests":
+                      .: {}
+                      "f:cpu": {}
+                      "f:memory": {}
+                  "f:env":
+                    .: {}
+                    'k:{"name":"KAFKA_BROKERS"}':
+                      .: {}
+                      "f:name": {}
+                      "f:value": {}
+                  "f:terminationMessagePath": {}
+                  "f:imagePullPolicy": {}
+                  "f:ports":
+                    .: {}
+                    'k:{"containerPort":8080,"protocol":"TCP"}':
+                      .: {}
+                      "f:containerPort": {}
+                      "f:protocol": {}
+                  "f:name": {}
+              "f:dnsPolicy": {}
+              "f:restartPolicy": {}
+              "f:schedulerName": {}
+              "f:securityContext": {}
+              "f:terminationGracePeriodSeconds": {}
+              "f:volumes":
+                .: {}
+                'k:{"name":"kowl-config"}':
+                  .: {}
+                  "f:configMap":
+                    .: {}
+                    "f:defaultMode": {}
+                    "f:items": {}
+                    "f:name": {}
+                  "f:name": {}
+          "f:triggers": {}
+    - manager: openshift-controller-manager
+      operation: Update
+      apiVersion: apps.openshift.io/v1
+      time: "2025-10-31T21:07:19Z"
+      fieldsType: FieldsV1
+      fieldsV1:
+        "f:status":
+          "f:updatedReplicas": {}
+          "f:readyReplicas": {}
+          "f:conditions":
+            .: {}
+            'k:{"type":"Available"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:status": {}
+              "f:type": {}
+            'k:{"type":"Progressing"}':
+              .: {}
+              "f:lastTransitionTime": {}
+              "f:lastUpdateTime": {}
+              "f:message": {}
+              "f:reason": {}
+              "f:status": {}
+              "f:type": {}
+          "f:details":
+            .: {}
+            "f:causes": {}
+            "f:message": {}
+          "f:replicas": {}
+          "f:availableReplicas": {}
+          "f:observedGeneration": {}
+          "f:unavailableReplicas": {}
+          "f:latestVersion": {}
+      subresource: status
+  namespace: 9b301c-prod
+  labels:
+    component: kowl
+    created-by: jeremy.foster
+    managed-by: kustomize
+    name: kowl
+    part-of: tno
+    version: 1.0.0
+spec:
+  strategy:
+    type: Rolling
+    rollingParams:
+      updatePeriodSeconds: 1
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      maxUnavailable: 25%
+      maxSurge: 25%
+    resources: {}
+    activeDeadlineSeconds: 21600
+  triggers:
+    - type: ConfigChange
+  replicas: 1
+  revisionHistoryLimit: 10
+  test: false
+  selector:
+    component: kowl
+    name: kowl
+    part-of: tno
+  template:
+    metadata:
+      name: kowl
+      creationTimestamp: null
+      labels:
+        component: kowl
+        name: kowl
+        part-of: tno
+    spec:
+      volumes:
+        - name: kowl-config
+          configMap:
+            name: kowl
+            items:
+              - key: config.yaml
+                path: config.yaml
+            defaultMode: 420
+      containers:
+        - resources:
+            limits:
+              cpu: 50m
+              memory: 100Mi
+            requests:
+              cpu: 15m
+              memory: 50Mi
+          terminationMessagePath: /dev/termination-log
+          name: kowl
+          env:
+            - name: KAFKA_BROKERS
+              value: "kafka-broker-0.kafka-headless:29092,kafka-broker-1.kafka-headless:29092,kafka-broker-2.kafka-headless:29092"
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: kowl-config
+              mountPath: /etc/kowl
+          terminationMessagePolicy: File
+          image: "image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/kafka:v1.5.0"
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+status:
+  observedGeneration: 1
+  details:
+    message: config change
+    causes:
+      - type: ConfigChange
+  availableReplicas: 1
+  unavailableReplicas: 0
+  latestVersion: 1
+  updatedReplicas: 1
+  conditions:
+    - type: Progressing
+      status: "True"
+      lastUpdateTime: "2024-04-29T18:03:53Z"
+      lastTransitionTime: "2024-04-29T18:03:53Z"
+      reason: NewReplicationControllerAvailable
+      message: replication controller "kowl-1" successfully rolled out
+    - type: Available
+      status: "True"
+      lastUpdateTime: "2025-10-31T21:07:19Z"
+      lastTransitionTime: "2025-10-31T21:07:19Z"
+      message: Deployment config has minimum availability.
+  replicas: 1
+  readyReplicas: 1

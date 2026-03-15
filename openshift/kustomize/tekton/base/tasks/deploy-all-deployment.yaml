@@ -86,25 +86,27 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT2=(
-          [id]="editor"
-          [name]="editor"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="maintenance"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — react-editor.yml
+        # declare -A COMPONENT2=(
+        #   [id]="editor"
+        #   [name]="editor"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="maintenance"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
-        declare -A COMPONENT3=(
-          [id]="subscriber"
-          [name]="subscriber"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="maintenance"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — react-subscriber.yml
+        # declare -A COMPONENT3=(
+        #   [id]="subscriber"
+        #   [name]="subscriber"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="maintenance"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
         # Processing Services
 
@@ -198,15 +200,16 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT13=(
-          [id]="folder-collection"
-          [name]="folder-collection-service"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — folder-collection-cicd.yml
+        # declare -A COMPONENT13=(
+        #   [id]="folder-collection"
+        #   [name]="folder-collection-service"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
         declare -A COMPONENT14=(
           [id]="ffmpeg"
