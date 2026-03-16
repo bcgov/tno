@@ -1,8 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MMI.SmtpEmail;
 using TNO.API.Areas.Services.Models.Ingest;
-using TNO.Ches;
-using TNO.Ches.Configuration;
 using TNO.Services.Actions.Managers;
 using TNO.Services.Image.Config;
 
@@ -30,12 +29,11 @@ public class ImageIngestActionManager : IngestActionManager<ImageOptions>
     public ImageIngestActionManager(
         IngestModel dataSource,
         IApiService api,
-        IChesService ches,
-        IOptions<ChesOptions> chesOptions,
+        IEmailService emailService,
         IIngestAction<ImageOptions> action,
         IOptions<ImageOptions> options,
         ILogger<IServiceActionManager> logger)
-        : base(dataSource, api, ches, chesOptions, action, options, logger)
+        : base(dataSource, api, emailService, action, options, logger)
     {
     }
     #endregion

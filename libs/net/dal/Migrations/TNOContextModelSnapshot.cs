@@ -34,6 +34,11 @@ namespace TNO.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("body");
+
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -59,6 +64,15 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("response")
                         .HasDefaultValueSql("'{}'::jsonb");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("subject");
 
                     b.Property<int>("TemplateType")
                         .HasColumnType("integer")
@@ -3832,6 +3846,11 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_on")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("LinkOnlyBody")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("link_body");
 
                     b.Property<int?>("OwnerId")
                         .HasColumnType("integer")

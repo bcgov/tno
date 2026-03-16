@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.Ches.Models;
+using MMI.SmtpEmail.Models;
 using TNO.Core.Extensions;
 using TNO.Elastic;
 using TNO.Entities;
@@ -309,24 +309,15 @@ public class NotificationValidator : INotificationValidator
     /// </summary>
     /// <param name="users"></param>
     /// <returns></returns>
-    public IEnumerable<EmailContextModel> GetSubscriberEmails(IEnumerable<API.Areas.Services.Models.Notification.UserModel> users)
+    public IEnumerable<MailMergeModel> GetSubscriberEmails(IEnumerable<API.Areas.Services.Models.Notification.UserModel> users)
     {
-        var now = DateTime.Now;
-        var emails = new List<EmailContextModel>();
-        if (this.Notification == null) return Array.Empty<EmailContextModel>();
+        var emails = new List<MailMergeModel>();
+        if (this.Notification == null) return [];
 
         // Remove any subscribers who have already received a notification for the current process execution.
         return users.Where(u => !this.SentToUsers.Contains(u.Id)).Select(user =>
         {
-            var context = new Dictionary<string, object>() {
-                { "id", user.Id },
-                { "firstName", user.FirstName ?? "" },
-                { "lastName", user.LastName ?? "" },
-            };
-            return new EmailContextModel(new[] { user.GetEmail() }, context, now)
-            {
-                Tag = $"{this.Notification.Name}",
-            };
+            return new MailMergeModel([user.GetEmail()]).PopulateContextFromUser(user);
         });
     }
 

@@ -1,8 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MMI.SmtpEmail;
 using TNO.API.Areas.Services.Models.Ingest;
-using TNO.Ches;
-using TNO.Ches.Configuration;
 using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Models.Extensions;
@@ -39,20 +38,18 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// </summary>
     /// <param name="ingest"></param>
     /// <param name="api"></param>
-    /// <param name="ches"></param>
-    /// <param name="chesOptions"></param>
+    /// <param name="emailService"></param>
     /// <param name="action"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public IngestActionManager(
         IngestModel ingest,
         IApiService api,
-        IChesService ches,
-        IOptions<ChesOptions> chesOptions,
+        IEmailService emailService,
         IIngestAction<TOptions> action,
         IOptions<TOptions> options,
         ILogger<IServiceActionManager> logger)
-        : base(ches, chesOptions, action, options, logger)
+        : base(emailService, action, options, logger)
     {
         this.Ingest = ingest;
         this.Api = api;

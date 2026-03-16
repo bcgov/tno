@@ -61,7 +61,7 @@ public class NotificationInstanceController : ControllerBase
     {
         var result = _service.FindById(id);
         if (result == null) return NoContent();
-        return new JsonResult(new NotificationInstanceModel(result, _serializerOptions));
+        return new JsonResult(new NotificationInstanceModel(result));
     }
 
     /// <summary>
@@ -76,8 +76,8 @@ public class NotificationInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "NotificationInstance" })]
     public IActionResult Add([FromBody] NotificationInstanceModel model)
     {
-        var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
-        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new NotificationInstanceModel(result, _serializerOptions));
+        var result = _service.AddAndSave((Entities.NotificationInstance)model);
+        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new NotificationInstanceModel(result));
     }
 
     /// <summary>
@@ -97,7 +97,7 @@ public class NotificationInstanceController : ControllerBase
         instance.Status = status;
         _service.UpdateAndSave(instance);
 
-        return new JsonResult(new NotificationInstanceModel(instance, _serializerOptions));
+        return new JsonResult(new NotificationInstanceModel(instance));
     }
     #endregion
 }

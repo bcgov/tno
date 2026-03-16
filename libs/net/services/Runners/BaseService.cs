@@ -11,9 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MMI.SmtpEmail;
 using Serilog;
-using Serilog.Formatting.Compact;
-using TNO.Ches;
 using TNO.Core.Http;
 using TNO.Core.Http.Configuration;
 using TNO.Services.Config;
@@ -137,7 +136,7 @@ public abstract class BaseService
                 builder.AddSerilog(dispose: true);
             })
             .AddTransient<JwtSecurityTokenHandler>()
-            .AddChesSingletonService(this.Configuration.GetSection("CHES"))
+            .AddSmtpEmail(this.Configuration.GetSection("Smtp"))
             .AddSingleton(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Email, "") })))
             .Configure<AuthClientOptions>(this.Configuration.GetSection("Auth:Keycloak"))
             .Configure<OpenIdConnectOptions>(this.Configuration.GetSection("Auth:OIDC"))

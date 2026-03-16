@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using TNO.Ches;
 using TNO.Services.ChesRetry.Config;
 using TNO.Services.Runners;
 
@@ -36,6 +37,7 @@ public class ChesRetryService : BaseService
         base.ConfigureServices(services);
         services
             .Configure<ChesRetryOptions>(this.Configuration.GetSection("Service"))
+            .AddChesSingletonService(this.Configuration.GetSection("CHES"))
             .AddSingleton<IServiceManager, ChesRetryManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.

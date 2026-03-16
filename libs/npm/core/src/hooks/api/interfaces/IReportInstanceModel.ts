@@ -11,6 +11,7 @@ export interface IReportInstanceModel extends IAuditColumnsModel {
   status: ReportStatusName;
   subject: string;
   body: string;
+  linkOnlyBody: string;
   response: any;
   content: IReportInstanceContentModel[];
 }

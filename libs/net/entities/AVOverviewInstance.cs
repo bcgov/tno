@@ -41,6 +41,26 @@ public class AVOverviewInstance : AuditColumns
     public bool IsPublished { get; set; }
 
     /// <summary>
+    /// get/set - The compiled subject of the report.
+    /// Used to recreate the report.
+    /// </summary>
+    [Column("subject")]
+    public string Subject { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The compiled body of the report.
+    /// Used to recreate the report.
+    /// </summary>
+    [Column("body")]
+    public string Body { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The status of this report.
+    /// </summary>
+    [Column("status")]
+    public ReportStatus Status { get; set; }
+
+    /// <summary>
     /// get/set - The response.
     /// </summary>
     [Column("response")]

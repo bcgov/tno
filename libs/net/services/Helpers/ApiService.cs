@@ -773,10 +773,21 @@ public class ApiService : IApiService
     /// <param name="status"></param>
     /// <param name="cutOff"></param>
     /// <returns></returns>
-    public async Task<IEnumerable<API.Areas.Services.Models.Notification.ChesNotificationMessagesModel>?> GetChesMessagesAsync(Entities.NotificationStatus status, DateTime cutOff)
+    public async Task<IEnumerable<API.Areas.Services.Models.Notification.SmtpNotificationMessagesModel>?> GetSmtpMessagesAsync(Entities.NotificationStatus status, DateTime cutOff)
     {
         var url = this.Options.ApiUrl.Append($"services/notifications/sent/{status}?cutOff={cutOff.ToUniversalTime():o}");
-        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.Notification.ChesNotificationMessagesModel>>(url));
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.Notification.SmtpNotificationMessagesModel>>(url));
+    }
+
+    /// <summary>
+    /// Get the specified notification instance.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel?> GetNotificationInstanceAsync(long instanceId)
+    {
+        var url = this.Options.ApiUrl.Append($"services/notification/instances/{instanceId}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel>(url));
     }
 
     /// <summary>
@@ -891,6 +902,18 @@ public class ApiService : IApiService
     /// <summary>
     /// Get user report instance for the specified 'id'.
     /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel?> GetUserReportInstanceAsync(long instanceId, int userId)
+    {
+        var url = this.Options.ApiUrl.Append($"services/report/instances/{instanceId}/users/{userId}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>(url));
+    }
+
+    /// <summary>
+    /// Get user report instance for the specified 'id'.
+    /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
     public async Task<IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>> GetUserReportInstancesAsync(long id)
@@ -923,15 +946,15 @@ public class ApiService : IApiService
     }
 
     /// <summary>
-    /// Get the CHES message Ids for the reports in the specified 'status' and that were sent on or after the 'cutOff' date and time.
+    /// Get the SMTP message Ids for the reports in the specified 'status' and that were sent on or after the 'cutOff' date and time.
     /// </summary>
     /// <param name="status"></param>
     /// <param name="cutOff"></param>
     /// <returns></returns>
-    public async Task<IEnumerable<API.Areas.Services.Models.Report.ChesReportMessagesModel>?> GetChesMessagesAsync(Entities.ReportStatus status, DateTime cutOff)
+    public async Task<IEnumerable<API.Areas.Services.Models.Report.SmtpReportMessagesModel>?> GetSmtpMessagesAsync(Entities.ReportStatus status, DateTime cutOff)
     {
         var url = this.Options.ApiUrl.Append($"services/reports/sent/{status}?cutOff={cutOff.ToUniversalTime():o}");
-        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.Report.ChesReportMessagesModel>>(url));
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Services.Models.Report.SmtpReportMessagesModel>>(url));
     }
 
     /// <summary>
@@ -1073,6 +1096,18 @@ public class ApiService : IApiService
     {
         var url = this.Options.ApiUrl.Append($"services/reports/av/overviews/{model.Id}");
         return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?>(url, JsonContent.Create(model)));
+    }
+
+    /// <summary>
+    /// Get user report instance for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel?> GetUserAVOverviewInstanceAsync(long id, int userId)
+    {
+        var url = this.Options.ApiUrl.Append($"services/reports/av/overviews/{id}/users/{userId}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel?>(url));
     }
 
     /// <summary>

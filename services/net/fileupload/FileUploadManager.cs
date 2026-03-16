@@ -1,30 +1,32 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.Ches;
-using TNO.Ches.Configuration;
-using TNO.Core.Exceptions;
-using TNO.Services.Managers;
-using TNO.API.Areas.Services.Models.Content;
-using System.Net.Http.Json;
+using MMI.SmtpEmail;
 using TNO.Services.FileUpload.Config;
+using TNO.Services.Managers;
+
 namespace TNO.Services.FileUpload;
-using System.Net.Http;
-using System.Net.Http.Json;
-using Microsoft.AspNetCore.Mvc;
-using TNO.Core.Http;
+
 public class FileUploadManager : ServiceManager<FileUploadOptions>
 {
     #region Variables
     #endregion
 
     #region Constructors
+    /// <summary>
+    /// Creates a new instance of a FileUploadManager object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="api"></param>
+    /// <param name="emailService"></param>
+    /// <param name="smtpOptions"></param>
+    /// <param name="options"></param>
+    /// <param name="logger"></param>
     public FileUploadManager(
         IApiService api,
-        IChesService chesService,
-        IOptions<ChesOptions> chesOptions,
+        IEmailService emailService,
+        IOptions<SmtpOptions> smtpOptions,
         IOptions<FileUploadOptions> options,
         ILogger<FileUploadManager> logger)
-        : base(api, chesService, chesOptions, options, logger)
+        : base(api, emailService, smtpOptions, options, logger)
     {
     }
     #endregion

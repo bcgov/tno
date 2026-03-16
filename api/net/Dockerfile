@@ -18,7 +18,7 @@ COPY api/net/ .
 COPY libs/net/ /src/libs/net/
 
 RUN dotnet restore
-RUN dotnet publish "TNO.API.csproj" -c "$BUILD_CONFIGURATION" -o /app/publish
+RUN dotnet publish "TNO.API.csproj" -c "$BUILD_CONFIGURATION" -r linux-x64 --self-contained false -o /app/publish /p:PublishTrimmed=false
 
 # Runtime image
 FROM base AS final

@@ -131,46 +131,25 @@ spec:
                   name: content-historic-service
                   key: ALLOW_UPDATE
 
-            # CHES Configuration
-            - name: CHES__From
+            # SMTP Configuration
+            - name: Smtp__From
               valueFrom:
                 configMapKeyRef:
-                  name: ches
-                  key: CHES_FROM
-            - name: CHES__EmailEnabled
-              valueFrom:
-                configMapKeyRef:
-                  name: content-historic-service
-                  key: CHES_EMAIL_ENABLED
-            - name: CHES__EmailAuthorized
+                  name: smtp
+                  key: SMTP_FROM
+            - name: Smtp__EmailEnabled
               valueFrom:
                 configMapKeyRef:
                   name: content-historic-service
-                  key: CHES_EMAIL_AUTHORIZED
-
-            - name: CHES__AuthUrl
+                  key: SMTP_EMAIL_ENABLED
+            - name: Smtp__EmailAuthorized
               valueFrom:
                 configMapKeyRef:
-                  name: ches
-                  key: CHES_AUTH_URL
-            - name: CHES__HostUri
-              valueFrom:
-                configMapKeyRef:
-                  name: ches
-                  key: CHES_HOST_URI
-            - name: CHES__Username
-              valueFrom:
-                secretKeyRef:
-                  name: ches
-                  key: USERNAME
-            - name: CHES__Password
-              valueFrom:
-                secretKeyRef:
-                  name: ches
-                  key: PASSWORD
+                  name: content-historic-service
+                  key: SMTP_EMAIL_AUTHORIZED
           livenessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -180,7 +159,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30

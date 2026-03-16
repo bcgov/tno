@@ -294,18 +294,18 @@
       // Use IntelliSense to find out which attributes exist for C# debugging
       // Use hover for the description of the existing attributes
       // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
-      "name": "Run Ches Retry Service",
+      "name": "Run SMTP Retry Service",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "build-ches-retry",
+      "preLaunchTask": "build-smtp-retry",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/services/net/ches-retry/bin/Debug/net9.0/TNO.Services.ChesRetry.dll",
+      "program": "${workspaceFolder}/services/net/smtp-retry/bin/Debug/net9.0/MMI.Services.SMTPRetry.dll",
       "args": [],
-      "cwd": "${workspaceFolder}/services/net/ches-retry",
+      "cwd": "${workspaceFolder}/services/net/smtp-retry",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
       "console": "internalConsole",
       "stopAtEntry": false,
-      "envFile": "${workspaceFolder}/services/net/ches-retry/.env"
+      "envFile": "${workspaceFolder}/services/net/smtp-retry/.env"
     },
     {
       // Use IntelliSense to find out which attributes exist for C# debugging

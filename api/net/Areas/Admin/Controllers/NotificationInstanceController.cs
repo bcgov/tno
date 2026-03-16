@@ -80,7 +80,7 @@ public class NotificationInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "NotificationInstance" })]
     public IActionResult Add([FromBody] NotificationInstanceModel model)
     {
-        var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
+        var result = _service.AddAndSave((Entities.NotificationInstance)model);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new NotificationInstanceModel(result, _serializerOptions));
     }
 
@@ -96,7 +96,7 @@ public class NotificationInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "NotificationInstance" })]
     public async Task<IActionResult> UpdateAsync([FromBody] NotificationInstanceModel model)
     {
-        var notificationInstance = model.ToEntity(_serializerOptions);
+        var notificationInstance = (Entities.NotificationInstance)model;
         // TODO: This shouldn't occur, but if it does we want to know.
         if (notificationInstance.Notification != null)
             await _watch.AlertNotificationSubscriptionChangedAsync(notificationInstance.Notification, this.User, "API Admin Notification Instance Controller Update endpoint.");
@@ -116,7 +116,7 @@ public class NotificationInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "NotificationInstance" })]
     public IActionResult Delete([FromBody] NotificationInstanceModel model)
     {
-        _service.DeleteAndSave(model.ToEntity(_serializerOptions));
+        _service.DeleteAndSave((Entities.NotificationInstance)model);
         return new JsonResult(model);
     }
     #endregion

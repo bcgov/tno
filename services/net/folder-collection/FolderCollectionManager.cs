@@ -3,8 +3,7 @@ using System.Text.Json.Nodes;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.Ches;
-using TNO.Ches.Configuration;
+using MMI.SmtpEmail;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Elastic;
@@ -58,8 +57,8 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
     /// <param name="kafkaAdmin"></param>
     /// <param name="consumer"></param>
     /// <param name="api"></param>
-    /// <param name="chesService"></param>
-    /// <param name="chesOptions"></param>
+    /// <param name="emailService"></param>
+    /// <param name="smtpOptions"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public FolderCollectionManager(
@@ -68,11 +67,11 @@ public class FolderCollectionManager : ServiceManager<FolderCollectionOptions>
         IKafkaAdmin kafkaAdmin,
         IKafkaListener<string, IndexRequestModel> consumer,
         IApiService api,
-        IChesService chesService,
-        IOptions<ChesOptions> chesOptions,
+        IEmailService emailService,
+        IOptions<SmtpOptions> smtpOptions,
         IOptions<FolderCollectionOptions> options,
         ILogger<FolderCollectionManager> logger)
-        : base(api, chesService, chesOptions, options, logger)
+        : base(api, emailService, smtpOptions, options, logger)
     {
         this.Client = elasticClient;
         this.ElasticOptions = elasticOptions.Value;

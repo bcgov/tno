@@ -4,9 +4,8 @@ using Elastic.Transport;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MMI.SmtpEmail;
 using TNO.API.Areas.Services.Models.Content;
-using TNO.Ches;
-using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Elastic;
 using TNO.Entities;
@@ -63,9 +62,9 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <param name="kafkaAdmin"></param>
     /// <param name="listener"></param>
     /// <param name="api"></param>
-    /// <param name="chesService"></param>
+    /// <param name="emailService"></param>
+    /// <param name="smtpOptions"></param>
     /// <param name="elasticOptions"></param>
-    /// <param name="chesOptions"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     /// <param name="memoryCache"></param>
@@ -73,13 +72,13 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         IKafkaAdmin kafkaAdmin,
         IKafkaListener<string, IndexRequestModel> listener,
         IApiService api,
-        IChesService chesService,
+        IEmailService emailService,
+        IOptions<SmtpOptions> smtpOptions,
         IOptions<ElasticOptions> elasticOptions,
-        IOptions<ChesOptions> chesOptions,
         IOptions<IndexingOptions> options,
         ILogger<IndexingManager> logger,
         IMemoryCache memoryCache)
-        : base(api, chesService, chesOptions, options, logger)
+        : base(api, emailService, smtpOptions, options, logger)
     {
         this.ElasticOptions = elasticOptions.Value;
         this.KafkaAdmin = kafkaAdmin;

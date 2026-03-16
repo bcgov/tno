@@ -1,8 +1,9 @@
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using TNO.Ches;
+using MMI.SmtpEmail;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Services;
@@ -21,8 +22,7 @@ public class WatchSubscriptionChange
     private readonly IReportService _reportService;
     private readonly IProductService _productService;
     private readonly INotificationService _notificationService;
-    private readonly IChesService _chesService;
-    private readonly Ches.Configuration.ChesOptions _chesOptions;
+    private readonly IEmailService _emailService;
 
     /// <summary>
     /// SubscriptionChange enum, identifies the type of change.
@@ -132,8 +132,7 @@ public class WatchSubscriptionChange
     /// <param name="reportService"></param>
     /// <param name="productService"></param>
     /// <param name="notificationService"></param>
-    /// <param name="chesService"></param>
-    /// <param name="chesOptions"></param>
+    /// <param name="emailService"></param>
     /// <param name="watchOptions"></param>
     /// <param name="logger"></param>
     public WatchSubscriptionChange(
@@ -141,8 +140,7 @@ public class WatchSubscriptionChange
         IReportService reportService,
         IProductService productService,
         INotificationService notificationService,
-        IChesService chesService,
-        IOptions<Ches.Configuration.ChesOptions> chesOptions,
+        IEmailService emailService,
         IOptions<WatchOptions> watchOptions,
         ILogger<WatchSubscriptionChange> logger)
     {
@@ -150,8 +148,7 @@ public class WatchSubscriptionChange
         _reportService = reportService;
         _productService = productService;
         _notificationService = notificationService;
-        _chesService = chesService;
-        _chesOptions = chesOptions.Value;
+        _emailService = emailService;
         this.Options = watchOptions.Value;
         _logger = logger;
     }
@@ -165,7 +162,7 @@ public class WatchSubscriptionChange
     /// <param name="changeSource">The source of the change, generally the user who made the change.</param>
     /// <param name="traceInformation">The location or other details to help trace the source of the change.</param>
     /// <returns></returns>
-    public Ches.Models.EmailModel GenerateEmail(SubscriptionChange[] changes, string changeSource, string traceInformation)
+    public MailMessage GenerateEmail(SubscriptionChange[] changes, string changeSource, string traceInformation)
     {
         var body = new StringBuilder($"""
         <div>This is an alert to identify changes to user subscriptions.</div>
@@ -234,7 +231,7 @@ public class WatchSubscriptionChange
         }
 
         var to = this.Options.SendTo.Split(',');
-        return new Ches.Models.EmailModel(_chesOptions.From, to, "MMI - User Subscription Change Alert", body.ToString());
+        return _emailService.CreateMailMessage("MMI - User Subscription Change Alert", body.ToString(), to, null, null, null, isHtml: true);
     }
 
     #region Users
@@ -285,7 +282,7 @@ public class WatchSubscriptionChange
         if (changes.Length > 0)
         {
             var email = GenerateEmail(changes, changeSource, traceInformation);
-            await _chesService.SendEmailAsync(email);
+            await _emailService.SendAsync(email);
         }
     }
     #endregion
@@ -335,7 +332,7 @@ public class WatchSubscriptionChange
         if (changes.Length > 0)
         {
             var email = GenerateEmail(changes, changeSource, traceInformation);
-            await _chesService.SendEmailAsync(email);
+            await _emailService.SendAsync(email);
         }
     }
     #endregion
@@ -385,7 +382,7 @@ public class WatchSubscriptionChange
         if (changes.Length > 0)
         {
             var email = GenerateEmail(changes, changeSource, traceInformation);
-            await _chesService.SendEmailAsync(email);
+            await _emailService.SendAsync(email);
         }
     }
     #endregion
@@ -435,7 +432,7 @@ public class WatchSubscriptionChange
         if (changes.Length > 0)
         {
             var email = GenerateEmail(changes, changeSource, traceInformation);
-            await _chesService.SendEmailAsync(email);
+            await _emailService.SendAsync(email);
         }
     }
     #endregion

@@ -188,12 +188,12 @@ public interface IReportService : IBaseService<Report, int>
     Dictionary<int, long[]> GetAllContentInMyReports(int userId);
 
     /// <summary>
-    /// get all CHES message Ids for reports at the specified 'status' and that were sent on or after 'cutOff' date and time.
+    /// get all SMTP message Ids for reports at the specified 'status' and that were sent on or after 'cutOff' date and time.
     /// </summary>
     /// <param name="status"></param>
     /// <param name="cutOff"></param>
     /// <returns></returns>
-    IEnumerable<API.Areas.Services.Models.Report.ChesReportMessagesModel> GetChesMessageIds(ReportStatus status, DateTime cutOff);
+    IEnumerable<API.Areas.Services.Models.Report.SmtpReportMessagesModel> GetSmtpMessageIds(ReportStatus status, DateTime cutOff);
 
     /// <summary>
     /// Add the user report.

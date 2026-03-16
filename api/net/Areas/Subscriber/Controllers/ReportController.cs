@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Mime;
 using System.Text;
@@ -7,14 +5,13 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using MMI.SmtpEmail;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Subscriber.Models.Report;
 using TNO.API.Config;
 using TNO.API.Helpers;
 using TNO.API.Models;
 using TNO.API.Models.SignalR;
-using TNO.Ches;
-using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Services;
@@ -54,8 +51,8 @@ public class ReportController : ControllerBase
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly ILogger<ReportController> _logger;
     private readonly ISettingService _settingService;
-    private readonly ChesOptions _chesOptions;
-    private readonly IChesService _ches;
+    private readonly IEmailService _emailService;
+    private readonly SmtpOptions _smtpOptions;
     #endregion
 
     #region Constructors
@@ -74,8 +71,8 @@ public class ReportController : ControllerBase
     /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
     /// <param name="settingService"></param>
-    /// <param name="chesOptions"></param>
-    /// <param name="ches"></param>
+    /// <param name="smtpOptions"></param>
+    /// <param name="emailService"></param>
 
     public ReportController(
         IReportService reportService,
@@ -90,8 +87,8 @@ public class ReportController : ControllerBase
         IOptions<JsonSerializerOptions> serializerOptions,
         ILogger<ReportController> logger,
         ISettingService settingService,
-        IOptions<ChesOptions> chesOptions,
-        IChesService ches
+        IOptions<SmtpOptions> smtpOptions,
+        IEmailService emailService
         )
     {
         _reportService = reportService;
@@ -106,8 +103,8 @@ public class ReportController : ControllerBase
         _serializerOptions = serializerOptions.Value;
         _logger = logger;
         _settingService = settingService;
-        _chesOptions = chesOptions.Value;
-        _ches = ches;
+        _smtpOptions = smtpOptions.Value;
+        _emailService = emailService;
 
     }
     #endregion
@@ -614,10 +611,11 @@ public class ReportController : ControllerBase
             {
 
                 var emailAddresses = productSubscriptionManagerEmail.Value.Split(new char[] { ';', ',' }, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-                var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, emailAddresses, subject, message.ToString());
-                var emailRequest = await _ches.SendEmailAsync(email);
 
-                _logger.LogInformation("report subscription request email to [{email}] queued: {txtId}", productSubscriptionManagerEmail.Value, emailRequest.TransactionId);
+                var email = _emailService.CreateMailMessage(subject, message.ToString(), emailAddresses, null, null, null, true);
+                await _emailService.SendAsync(email);
+
+                _logger.LogInformation("report subscription request email to [{email}]", productSubscriptionManagerEmail.Value);
 
             }
             else
@@ -678,10 +676,11 @@ public class ReportController : ControllerBase
             if (productSubscriptionManagerEmail != null)
             {
                 var emailAddresses = productSubscriptionManagerEmail.Value.Split(new char[] { ';', ',' }, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-                var email = new TNO.Ches.Models.EmailModel(_chesOptions.From, emailAddresses, subject, message.ToString());
-                var emailRequest = await _ches.SendEmailAsync(email);
 
-                _logger.LogInformation("Report unsubscription request email to [{email}] queued: {txtId}", productSubscriptionManagerEmail.Value, emailRequest.TransactionId);
+                var email = _emailService.CreateMailMessage(subject, message.ToString(), emailAddresses, null, null, null, true);
+                await _emailService.SendAsync(email);
+
+                _logger.LogInformation("Report unsubscription request email to [{email}]", productSubscriptionManagerEmail.Value);
             }
             else
             {

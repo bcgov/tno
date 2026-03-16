@@ -4,12 +4,11 @@ using Confluent.Kafka;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MMI.SmtpEmail;
 using Renci.SshNet;
 using Renci.SshNet.Common;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Areas.Services.Models.DataLocation;
-using TNO.Ches;
-using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
@@ -71,8 +70,8 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <param name="kafkaAdmin"></param>
     /// <param name="kafkaListener"></param>
     /// <param name="api"></param>
-    /// <param name="chesService"></param>
-    /// <param name="chesOptions"></param>
+    /// <param name="emailService"></param>
+    /// <param name="smtpOptions"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     /// <param name="memoryCache"></param>
@@ -80,12 +79,12 @@ public class ContentManager : ServiceManager<ContentOptions>
         IKafkaAdmin kafkaAdmin,
         IKafkaListener<string, SourceContent> kafkaListener,
         IApiService api,
-        IChesService chesService,
-        IOptions<ChesOptions> chesOptions,
+        IEmailService emailService,
+        IOptions<SmtpOptions> smtpOptions,
         IOptions<ContentOptions> options,
         ILogger<ContentManager> logger,
         IMemoryCache memoryCache)
-        : base(api, chesService, chesOptions, options, logger)
+        : base(api, emailService, smtpOptions, options, logger)
     {
         this.KafkaAdmin = kafkaAdmin;
         this.Listener = kafkaListener;

@@ -1,8 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MMI.SmtpEmail;
 using TNO.API.Areas.Services.Models.Ingest;
-using TNO.Ches;
-using TNO.Ches.Configuration;
 using TNO.Models.Extensions;
 using TNO.Services.Actions.Managers;
 using TNO.Services.Syndication.Config;
@@ -20,20 +19,18 @@ public class SyndicationIngestActionManager : IngestActionManager<SyndicationOpt
     /// </summary>
     /// <param name="ingest"></param>
     /// <param name="api"></param>
-    /// <param name="ches"></param>
-    /// <param name="chesOptions"></param>
+    /// <param name="emailService"></param>
     /// <param name="action"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public SyndicationIngestActionManager(
         IngestModel ingest,
         IApiService api,
-        IChesService ches,
-        IOptions<ChesOptions> chesOptions,
+        IEmailService emailService,
         IIngestAction<SyndicationOptions> action,
         IOptions<SyndicationOptions> options,
         ILogger<IServiceActionManager> logger)
-        : base(ingest, api, ches, chesOptions, action, options, logger)
+        : base(ingest, api, emailService, action, options, logger)
     {
     }
     #endregion

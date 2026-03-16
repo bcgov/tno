@@ -36,9 +36,9 @@ public class NotificationInstanceModel : AuditColumnsModel
     public int? OwnerId { get; set; }
 
     /// <summary>
-    /// get/set - CHES response containing keys to find the status of a notification.
+    /// get/set - SMTP response for each email sent for this notification instance.
     /// </summary>
-    public Dictionary<string, object> Response { get; set; } = new Dictionary<string, object>();
+    public JsonDocument Response { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
     /// get - The compiled subject of the notification.
@@ -78,7 +78,7 @@ public class NotificationInstanceModel : AuditColumnsModel
         this.NotificationId = entity.NotificationId;
         this.ContentId = entity.ContentId;
         this.OwnerId = entity.OwnerId;
-        this.Response = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Response, options) ?? new Dictionary<string, object>();
+        this.Response = entity.Response;
         this.Subject = entity.Subject;
         this.Body = entity.Body;
         this.Status = entity.Status;
@@ -89,17 +89,6 @@ public class NotificationInstanceModel : AuditColumnsModel
 
     #region Methods
     /// <summary>
-    /// Creates a new instance of a NotificationInstance object.
-    /// </summary>
-    /// <returns></returns>
-    public Entities.NotificationInstance ToEntity(JsonSerializerOptions options)
-    {
-        var entity = (Entities.NotificationInstance)this;
-        entity.Response = JsonDocument.Parse(JsonSerializer.Serialize(this.Response, options));
-        return entity;
-    }
-
-    /// <summary>
     /// Explicit conversion to entity.
     /// </summary>
     /// <param name="model"></param>
@@ -108,7 +97,7 @@ public class NotificationInstanceModel : AuditColumnsModel
         var entity = new Entities.NotificationInstance(model.NotificationId, model.ContentId, model.OwnerId)
         {
             Id = model.Id,
-            Response = JsonDocument.Parse(JsonSerializer.Serialize(model.Response)),
+            Response = model.Response,
             Subject = model.Subject,
             Body = model.Body,
             Version = model.Version ?? 0

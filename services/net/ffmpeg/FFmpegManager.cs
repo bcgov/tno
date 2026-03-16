@@ -2,9 +2,8 @@ using Confluent.Kafka;
 using FTTLib;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MMI.SmtpEmail;
 using TNO.API.Areas.Services.Models.Content;
-using TNO.Ches;
-using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
@@ -41,16 +40,18 @@ public class FFmpegManager : ServiceManager<FFmpegOptions>
     /// </summary>
     /// <param name="listener"></param>
     /// <param name="api"></param>
+    /// <param name="emailService"></param>
+    /// <param name="smtpOptions"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public FFmpegManager(
         IKafkaListener<string, IndexRequestModel> listener,
         IApiService api,
-        IChesService chesService,
-        IOptions<ChesOptions> chesOptions,
+        IEmailService emailService,
+        IOptions<SmtpOptions> smtpOptions,
         IOptions<FFmpegOptions> options,
         ILogger<FFmpegManager> logger)
-            : base(api, chesService, chesOptions, options, logger)
+            : base(api, emailService, smtpOptions, options, logger)
     {
         this.Listener = listener;
         this.Listener.IsLongRunningJob = true;

@@ -2,8 +2,7 @@ using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.Ches;
-using TNO.Ches.Configuration;
+using MMI.SmtpEmail;
 using TNO.Core.Exceptions;
 using TNO.Kafka;
 using TNO.Kafka.Models;
@@ -38,20 +37,20 @@ public class EventHandlerManager : ServiceManager<EventHandlerOptions>
     /// </summary>
     /// <param name="listener"></param>
     /// <param name="api"></param>
-    /// <param name="chesService"></param>
-    /// <param name="chesOptions"></param>
+    /// <param name="emailService"></param>
+    /// <param name="smtpOptions"></param>
     /// <param name="eventHandlerOptions"></param>
     /// <param name="serializationOptions"></param>
     /// <param name="logger"></param>
     public EventHandlerManager(
         IKafkaListener<string, EventScheduleRequestModel> listener,
         IApiService api,
-        IChesService chesService,
-        IOptions<ChesOptions> chesOptions,
+        IEmailService emailService,
+        IOptions<SmtpOptions> smtpOptions,
         IOptions<EventHandlerOptions> eventHandlerOptions,
         IOptions<JsonSerializerOptions> serializationOptions,
         ILogger<EventHandlerManager> logger)
-        : base(api, chesService, chesOptions, eventHandlerOptions, logger)
+        : base(api, emailService, smtpOptions, eventHandlerOptions, logger)
     {
         _serializationOptions = serializationOptions.Value;
         this.Listener = listener;
