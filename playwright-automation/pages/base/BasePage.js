@@ -1,3 +1,5 @@
+const { expect } = require("allure-playwright");
+
 class BasePage {
   constructor(page) {
     this.page = page;
@@ -87,6 +89,20 @@ class BasePage {
     } catch (error) {
       return false;
     }
+  }
+
+  async refreshPage() {
+    await this.page.reload({ waitUntil : 'load' });
+  }
+
+  async isElementEnabled(locator) {
+    await locator.waitFor({state:'attached'});
+    return await locator.isEnabled();
+  }
+
+  async getElementText(locator) {
+    await locator.waitFor( { state: 'attached' } );
+    return await locator.innerText();
   }
 }
 
