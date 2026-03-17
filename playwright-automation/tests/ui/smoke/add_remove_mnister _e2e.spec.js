@@ -24,7 +24,6 @@ test.describe('Scenario 4: Add and Remove Minister ', () => {
     await ministerPage.clickOnMinisterCheckbox('Adrian Dix :');
     await ministerPage.clickOnMinisterSaveButton();
     await ministerPage.clickOnMyMinisterLink();
-    await page.pause();
 
   });
 });
