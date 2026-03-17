@@ -3,9 +3,9 @@ const DataLoader = require('../../../utils/dataLoader');
 const testData = DataLoader.loadJSON(`test-data/${process.env.ENV_NAME}/loginData.json`);
 const testApp = process.env.APP_NAME;
 const mmiMSUrl = testData[testApp]['microsoftMMI']['url'];
+        let ministertName = 'Adrian Dix :';
 
 let page, appPage, editorOnlineStoryPage, subscriberNavBarPage, ministerPage;
-
 test.beforeEach(async ({ masterFixture }) => {
   appPage = masterFixture.appPage;
   page = masterFixture.page;
@@ -16,16 +16,18 @@ test.beforeEach(async ({ masterFixture }) => {
 });
 
 test.describe('Scenario 4: Add and Remove Minister ', () => {
+
   test(`Adding a minister`, async ({}) => {
+
     await expect(page).toHaveURL(mmiMSUrl + 'contents');
     await page.goto(`${process.env.MMI_URL}/landing/home`);
     await ministerPage.clickOnSettings();
     await ministerPage.clickOnMyMinister();
-    await ministerPage.clickOnMinisterCheckbox('Adrian Dix :');
+    await ministerPage.clickOnMinisterCheckbox(ministertName);
     await ministerPage.clickOnMinisterSaveButton();
     await ministerPage.clickMyMinisterLink()
-    await expect(page.getByText('Adrian Dix (0)')).toBeVisible();
-
+    const expectedText = ministertName.replace(':', '(0)');
+    await expect(page.getByText(expectedText)).toBeVisible();
 
   });
 
@@ -34,11 +36,11 @@ test.describe('Scenario 4: Add and Remove Minister ', () => {
     await page.goto(`${process.env.MMI_URL}/landing/home`);
     await ministerPage.clickOnSettings();
     await ministerPage.clickOnMyMinister();
-    await ministerPage.unClickOnMinisterCheckbox('Adrian Dix :');
+    await ministerPage.unClickOnMinisterCheckbox(ministertName);
     await ministerPage.clickOnMinisterSaveButton();
     await ministerPage.clickMyMinisterLink()
-    await expect(page.getByText('Adrian Dix (0)')).not.toBeVisible();
-
+    const expectedText = ministertName.replace(':', '(0)');
+    await expect(page.getByText(expectedText)).not.toBeVisible();
 
   });
 });
