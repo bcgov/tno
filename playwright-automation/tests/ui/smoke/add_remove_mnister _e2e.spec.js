@@ -16,14 +16,29 @@ test.beforeEach(async ({ masterFixture }) => {
 });
 
 test.describe('Scenario 4: Add and Remove Minister ', () => {
-  test(`Adding and removing a minister`, async ({}) => {
+  test(`Adding a minister`, async ({}) => {
     await expect(page).toHaveURL(mmiMSUrl + 'contents');
     await page.goto(`${process.env.MMI_URL}/landing/home`);
     await ministerPage.clickOnSettings();
     await ministerPage.clickOnMyMinister();
     await ministerPage.clickOnMinisterCheckbox('Adrian Dix :');
     await ministerPage.clickOnMinisterSaveButton();
-    await ministerPage.clickOnMyMinisterLink();
+    await ministerPage.clickMyMinisterLink()
+    await expect(page.getByText('Adrian Dix (0)')).toBeVisible();
+
+
+  });
+
+  test(`removing a minister`, async ({}) => {
+    await expect(page).toHaveURL(mmiMSUrl + 'contents');
+    await page.goto(`${process.env.MMI_URL}/landing/home`);
+    await ministerPage.clickOnSettings();
+    await ministerPage.clickOnMyMinister();
+    await ministerPage.unClickOnMinisterCheckbox('Adrian Dix :');
+    await ministerPage.clickOnMinisterSaveButton();
+    await ministerPage.clickMyMinisterLink()
+    await expect(page.getByText('Adrian Dix (0)')).not.toBeVisible();
+
 
   });
 });

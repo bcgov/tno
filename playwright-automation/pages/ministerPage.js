@@ -8,7 +8,7 @@ class MinisterPage extends BasePage {
     this.settings = page.getByText('Settings');
     this.myMinisterLink = page.getByRole('heading', { name: 'My Minister' }).locator('span');
     this.saveButton = page.getByRole('button', { name: 'Save' }).nth(1);
-    this.clickMyMinisterLink = page.getByText('My Minister').first()
+    this.clickMyMinisterMenu = page.getByText('My Minister').first()
   }
 
   async clickOnSettings() {
@@ -27,9 +27,31 @@ class MinisterPage extends BasePage {
 
   async clickOnMinisterCheckbox(ministerName) {
     const ministerCheckbox = this.geMinisterCheckboxByName(ministerName);
-    await this.click(ministerCheckbox, { force: true });
-    logger.info(`Clicked on ${ministerName} checkbox!!`);
+    const isSelected = await ministerCheckbox.isChecked();
+    if (isSelected) {
+      logger.info(`${ministerName} checkbox is already selected!!`);
+      return;
+    }else {
+      await this.click(ministerCheckbox, { force: true });
+      logger.info(`Clicked on ${ministerName} checkbox!!`);
+    }
   }
+
+
+async unClickOnMinisterCheckbox(ministerName) {
+    const ministerCheckbox = this.geMinisterCheckboxByName(ministerName);
+    const isSelected = await ministerCheckbox.isChecked();
+    if (isSelected) {
+              await this.click(ministerCheckbox, { force: true });
+      logger.info(`unselected on ${ministerName} checkbox!!`);
+
+    }else {
+    logger.info(`${ministerName} checkbox is already unselected!!`);
+      return;
+
+    }
+  }
+
 
   async clickOnMinisterSaveButton() {
     await this.click(this.saveButton);
@@ -37,7 +59,7 @@ class MinisterPage extends BasePage {
   }
 
   async clickMyMinisterLink() {
-    await this.click(this.clickMyMinisterLink);
+    await this.click(this.clickMyMinisterMenu);
     logger.info(`Clicked on My Minister link!!`);
   }
 }

@@ -1,8 +1,0 @@
-{"level":"info","message":"Navigating to URL : https://test.editor.mmi.gov.bc.ca/"}
-{"level":"info","message":"Clicking on Microsoft button to login.."}
-locator.waitFor: Test ended.
-Call log:
-  - waiting for locator('//a/img[@class="app-logo"]') to be visible
-
-    at AppPage.navigateToMMIUrl (C:\Users\Ipriya\bcgovmmi\tno\playwright-automation\pages\appPage.js:181:33)
-    at C:\Users\Ipriya\bcgovmmi\tno\playwright-automation\tests\ui\smoke\create_online_story_e2e.spec.js:13:3
