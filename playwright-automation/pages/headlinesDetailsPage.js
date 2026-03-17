@@ -3,6 +3,7 @@ const CONSTANTS = require('../utils/constants');
 const logger = require('../utils/logger');
 const { getFilePath } = require('../utils/fileUpload.util');
 const { expect } = require('@playwright/test');
+const { ReportPage } = require('./reportPage');
 
 class HeadlinesDetailsPage extends BasePage {
   constructor(page) {
@@ -23,6 +24,8 @@ class HeadlinesDetailsPage extends BasePage {
     this.mediaOutletDropDownField = page.locator('.frm-select input[name="sourceId"]');
     this.mediaTypeDropDownField = page.locator('input[name="mediaTypeId"]');
     this.unPublishButton = page.locator('//button/div[text()="Unpublish"]');
+    this.delete = page.locator('//button/div[text()="Delete"]');
+    this.deleteConfirmationButton = page.locator('//button/div[text()="Yes, Delete It"]');
   }
 
   /**
@@ -193,6 +196,7 @@ class HeadlinesDetailsPage extends BasePage {
    * Method to click on UnPublish button.
    */
   async unPublishHeadlines() {
+    await this.hardWait(1000);
     await this.click(this.unPublishButton);
     logger.info(`Clicked on UnPublish button`);
   }
@@ -203,6 +207,47 @@ class HeadlinesDetailsPage extends BasePage {
   async isUnpublishButtonVisible() {
     logger.info(`Un Publish button visibilty status ${await this.isElementVisible(this.unPublishButton)}`);
     return await this.isElementVisible(this.unPublishButton);
+  }
+
+   /**
+   * Method to click on Delete button.
+   */
+  async clickOnDeleteButton() {
+    await this.click(this.delete.first());
+    await this.hardWait(2000);
+    logger.info('Clicked on Delete button.');
+  }
+
+  /**
+   * Method to delete the given report from the grid.
+   */
+  async deleteUnpublishedHeadline() {
+    logger.info(`Deleting the Unpublished headline`);
+    await this.hardWait(1000);
+    await this.clickOnDeleteButton();
+    await this.click(this.deleteConfirmationButton);
+  }
+
+  /**
+   * Method to check Delete Totast Notification's visibility
+   * @param {String} reportTitle
+   */
+  async verifyDeleteSucessToastNotification(reportTitle) {
+    logger.info(`Verifying visibility of Delete Success Toast Notification Message.`);
+    await this.hardWait(2000);
+    await expect(this.toastNotification.first()).toHaveText(
+      `${reportTitle} has successfully been deleted.`,
+    );
+  }
+
+  /**
+   * Method to verify Publish button state
+   * @returns true if enable else false
+   */
+  async isPublisheButtonClickable() {
+    const isClickable = await this.isElementClickable(this.publishButton);
+    logger.info(`Is Publish button clicable - ${isClickable}`);
+    return isClickable;
   }
 }
 

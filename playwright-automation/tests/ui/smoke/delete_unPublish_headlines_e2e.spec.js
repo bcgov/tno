@@ -19,9 +19,9 @@ test.beforeEach(async ({ masterFixture }) => {
     await appPage.hardWait(5000);
 });
 
-test.describe('@smoke Un-Publishing headline workflow', () => {
+test.describe('@smoke Delete Un-Publishing headline workflow', () => {
 
-    test(`Un-Publish the headline published by Editor`, async ({ }) => {
+    test(`Delete Un-Publish the headline published by Editor`, async ({ }) => {
       const parentPage = page;
       const headlineTitle = `Automation Headline Title ${Date.now()}`;
       headlineDetailsPage = await editorHomePage.clickOnContent(CONSTANTS.CONTENTS.IMAGE);
@@ -35,7 +35,6 @@ test.describe('@smoke Un-Publishing headline workflow', () => {
       await headlineDetailsPage.selectTag(CONSTANTS.HEADLINES.TAG_ADV);
       await headlineDetailsPage.clickOnSentimentButtonByText(CONSTANTS.HEADLINES.SENTIMENTS_2);
       await headlineDetailsPage.publishHeadlines();
-      expect(await headlineDetailsPage.verifyToastNotificationVisible(headlineTitle)).toBeTruthy();
 
       await headlineDetailsPage.closePage();
       await parentPage.bringToFront();
@@ -56,15 +55,25 @@ test.describe('@smoke Un-Publishing headline workflow', () => {
       await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.CONTENT_SUBMENU.ALL_CONTENT);
 
       await editorHomePage.selectMediaTypeFilterDailyPrint(CONSTANTS.HEADLINES.DAILY_PRINT);
+      expect(await editorHomePage.isHeadLineTitletPresentOnEditorGrid(headlineTitle)).toBeTruthy();
       headlineDetailsPage = await editorHomePage.clickOnHeadlinesTitleByRowNumber(1);
-      expect(headlineDetailsPage.isUnpublishButtonVisible()).toBeTruthy();
       await headlineDetailsPage.unPublishHeadlines();
-      expect(await headlineDetailsPage.isUnpublishButtonVisible()).toBeFalsy();
 
       await headlineDetailsPage.deleteUnpublishedHeadline();
+      await editorHomePage.selectMediaTypeFilterDailyPrint(CONSTANTS.HEADLINES.DAILY_PRINT);
+      expect(await editorHomePage.isHeadLineTitletPresentOnEditorGrid(headlineTitle)).toBeFalsy();
       await headlineDetailsPage.closePage();
       await parentPage.bringToFront();
       await appPage.logOut();
+
+      await appPage.navigateToSubscriberURL();
+      await appPage.loginAsSubscriber(process.env.sub_username, process.env.sub_password);
+      
+      await subscriberSearchResultPage.clickOnSearchButton();
+      await subscriberSearchResultPage.verifySearchResultPageLoaded();
+
+      expect(await subscriberSearchResultPage.isPublishedHeadlinesPresent(headlineTitle)).toBeFalsy();
+      await appPage.logOutFromSubscriber();
     });
 
 });

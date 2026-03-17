@@ -8,7 +8,7 @@ const testApp = process.env.APP_NAME;
 const editorUrl = testData[testApp]['editor']['url'];
 const recipientEmail = reportData[testApp]['report']['recipient_email'];
 
-let page, appPage, editorHomePage, reportPage, subscriberNavBarPage, subscriberMyReportPage;
+let page, appPage, editorHomePage, reportPage, subscriberNavBarPage, subscriberMyReportPage, addProductPage;
 
 test.beforeEach(async ({ masterFixture }) => {
   page = masterFixture.page;
@@ -18,11 +18,13 @@ test.beforeEach(async ({ masterFixture }) => {
   subscriberNavBarPage = masterFixture.subscriberNavBarPage;
   subscriberNavBarPage = masterFixture.subscriberNavBarPage;
   subscriberMyReportPage = masterFixture.subscriberMyReportPage;
+  addProductPage = masterFixture.addProductPage;
   await appPage.navigateToUrl(editorUrl);
-  await appPage.hardWait(5000);
+  await appPage.hardWait(2000);
 });
 
-test.describe('@smoke Report Sharing workflow', () => {
+test.describe('@smoke Report building end to end workflow', () => {
+
   test(`Subscriber should able to see the reports creted and send by editor under My Reports section`, async ({}) => {
     await editorHomePage.verifyEditorHomePageLoaded();
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
@@ -86,4 +88,36 @@ test.describe('@smoke Report Sharing workflow', () => {
     await reportPage.searchAndDeleteReport(reportName);
 
   });
+
+  test(`Verify edior can add new product from Report building MMI Products`, async ({}) => {
+    await editorHomePage.verifyEditorHomePageLoaded();
+    await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
+    await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.MMI_PRODUCTS);
+
+    await editorHomePage.addNewProduct();
+    expect(await addProductPage.verifyBackToProductsVisibility()).toBe(true)
+
+    const productName = `ProductTitle_${Date.now()}`;
+    await addProductPage.enterProductDetails(productName, 'Evening Overview', 'Weekday');
+    await addProductPage.save();
+    expect(await reportPage.verifySucessToastNotification(productName)).toBeTruthy();
+
+    await addProductPage.clickOnProductSubTab(CONSTANTS.NAVIGATION_TABS.SUBSCRIBERS);
+    await addProductPage.selectSubscriber('dJani');
+    await addProductPage.save();
+
+    await addProductPage.clickOnProductSubTab(CONSTANTS.NAVIGATION_TABS.REQUESTS);
+    await addProductPage.save();
+
+    await addProductPage.backToProductGrid();
+    expect(await addProductPage.isAddedProductVisibleOnGrid(productName)).toBe(true);
+
+    await addProductPage.selectProduct(productName);
+    await addProductPage.deleteProduct();
+
+     expect(await addProductPage.isAddedProductVisibleOnGrid(productName)).toBe(false);
+     await appPage.logOut();
+  });
+
+
 });
