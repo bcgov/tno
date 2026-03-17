@@ -100,7 +100,7 @@ test.describe('@smoke Report building end to end workflow', () => {
     const productName = `ProductTitle_${Date.now()}`;
     await addProductPage.enterProductDetails(productName, 'Evening Overview', 'Weekday');
     await addProductPage.save();
-    expect(reportPage.verifySucessToastNotification(productName)).toBeTruthy();
+    expect(await reportPage.verifySucessToastNotification(productName)).toBeTruthy();
 
     await addProductPage.clickOnProductSubTab(CONSTANTS.NAVIGATION_TABS.SUBSCRIBERS);
     await addProductPage.selectSubscriber('dJani');

@@ -51,7 +51,6 @@ class EditorHomePage extends BasePage {
     this.failedStatusInTranscriptQueueGrid = page.locator(
       `//*[name()="svg"]//*[name()="title" and contains(.,"Failed")]`,
     );
-    this.newsRadioStatusInTranscriptQueueGrid = page.locator(``);
 
     this.totalHeadlinesInGrid = page.locator(`.grid-pager div:nth-child(2)`);
 
@@ -289,7 +288,7 @@ class EditorHomePage extends BasePage {
   async previewMorningReport() {
     const [newPage] = await Promise.all([
       this.page.context().waitForEvent('page'),
-      await this.click(this.morningReport),
+      this.click(this.morningReport),
     ]);
 
     await newPage.waitForLoadState('domcontentloaded');

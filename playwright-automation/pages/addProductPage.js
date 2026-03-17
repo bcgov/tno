@@ -96,7 +96,7 @@ class AddProductPage extends BasePage {
    */
   async isAddedProductVisibleOnGrid(productName) {
     logger.info(`Is Added product Visible : ${await this.isTextPresentInCollection(this.productLink, productName)}`);
-    return this.isTextPresentInCollection(this.productLink, productName);
+    return await this.isTextPresentInCollection(this.productLink, productName);
   }
 
   /**
