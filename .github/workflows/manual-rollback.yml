@@ -39,6 +39,7 @@ jobs:
       IMAGE_NAME: ${{ inputs.service }}
       IMAGE_TAG: ${{ inputs.environment }}
       OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
+      DISPLAY_NAME: ${{ inputs.service == 'editor' && 'React Editor' || 'React Subscriber' }}
     steps:
       - name: Validate SHA format
         run: |
@@ -91,13 +92,14 @@ jobs:
       - name: Rollback Summary
         if: always()
         run: |
-          echo "## ⏪ Rollback Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## ⏪ Rollback Summary — ${{ env.DISPLAY_NAME }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Detail | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| **Service** | ${{ inputs.service }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Service** | ${{ env.DISPLAY_NAME }} |" >> $GITHUB_STEP_SUMMARY
           echo "| **Environment** | ${{ inputs.environment }} |" >> $GITHUB_STEP_SUMMARY
           echo "| **Namespace** | ${{ env.OPENSHIFT_NAMESPACE }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Image Tag** | ${{ env.IMAGE_TAG }} |" >> $GITHUB_STEP_SUMMARY
           echo "| **Rolled back to SHA** | \`${{ inputs.image_sha }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Triggered by** | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
           echo "| **Workflow Run** | [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) |" >> $GITHUB_STEP_SUMMARY
