@@ -26,6 +26,7 @@ test.describe('@smoke Publish print Content', () => {
       console.log("Editor URL:",editorUrl );
       await page.goto(editorUrl);
      });
+<<<<<<< HEAD
 
      test(`Editor Print Content verifies it in portal`, async ({page }) => {
       const parentPage = page;
@@ -34,11 +35,20 @@ test.describe('@smoke Publish print Content', () => {
       headlineDetailsPage = await editorHomePage.clickOnContent(CONSTANTS.CONTENTS.PRINT_CONTENT);
 
      await headlineDetailsPage.enterHeadLineTitle(headlineTitle);
+=======
+     test(`Editor Print Content verifies it in portal`, async ({page }) => {
+      const parentPage = page;
+      await headlineDetailsPage.enterHeadLineTitle(headlineTitle);
+>>>>>>> 7f2419046 (initial commit)
 
       await headlineDetailsPage.enterByline(CONSTANTS.HEADLINES.BYLINE);
       await headlineDetailsPage.selectSource(CONSTANTS.HEADLINES.SOURCE_TORONTO_STAR);
       await headlineDetailsPage.enterSummary('Automation_Test_Summary');
+<<<<<<< HEAD
 
+=======
+      
+>>>>>>> 7f2419046 (initial commit)
       await headlineDetailsPage.selectTag(CONSTANTS.HEADLINES.TAG_ADV);
       await headlineDetailsPage.clickOnSentimentButtonByText(CONSTANTS.HEADLINES.SENTIMENTS_2);
       await headlineDetailsPage.enterPrepTime('5');
@@ -61,10 +71,16 @@ test.describe('@smoke Publish print Content', () => {
       await subscriberSearchResultPage.clickOnSearchButton();
       await subscriberSearchResultPage.verifySearchResultPageLoaded();
 
+<<<<<<< HEAD
       expect(await subscriberSearchResultPage.isPublishedHeadlinesPresent(headlineTitle)).toBeTruthy();
       await appPage.logOutFromSubscriber();
 
 
+=======
+      expect(subscriberSearchResultPage.isPublishedHeadlinesPresent(headlineTitle)).toBeTruthy();
+      await appPage.logOutFromSubscriber();
+
+>>>>>>> 7f2419046 (initial commit)
     });
 
 });  

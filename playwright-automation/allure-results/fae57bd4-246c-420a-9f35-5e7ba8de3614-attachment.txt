@@ -1,0 +1,12 @@
+{"level":"info","message":"Navigating to URL : https://test.editor.mmi.gov.bc.ca/contents"}
+{"level":"info","message":"Clicking on IDIR button to login.."}
+{"level":"info","message":"Clicked on Login!!"}
+{"level":"info","message":"Clicking on Content title : Radio/TV"}
+{"level":"info","message":"Clicked on Content title Radio/TV and navigated to new tab"}
+{"level":"info","message":"Added headline title : Automation Headline Title 1773638357980"}
+{"level":"info","message":"Entered byline text test_byline_value"}
+{"level":"info","message":"Selected source option : Toronto Star"}
+{"level":"info","message":"Added Summary details : Automation_Test_Summary"}
+{"level":"info","message":"Uploaded News_Clip.mp4 file successfully."}
+{"level":"info","message":"Selected source option : ADV"}
+{"level":"info","message":"Clicked on Sentiment button 2"}

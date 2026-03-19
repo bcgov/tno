@@ -1,4 +1,8 @@
 import { chromium } from "@playwright/test";
+<<<<<<< HEAD
+=======
+//const { chromium } = require('@playwright/test');
+>>>>>>> 7f2419046 (initial commit)
 require('dotenv').config();
 
 //global set up function to set up base url as per target environment passed on CLI
@@ -68,7 +72,11 @@ async function globalSetup() {
   const continueButton = page.locator('input[name="btnSubmit"]');
 
   // Only perform IDIR login operation if presented with login page else skip login process
+<<<<<<< HEAD
   
+=======
+ // if (!(await homePageLogo.isVisible())) 
+>>>>>>> 7f2419046 (initial commit)
     
    const logoVisible = await page.isVisible().catch(() => false) ;
    if (! logoVisible) {
