@@ -1,0 +1,47 @@
+# Page snapshot
+
+```yaml
+- main [ref=e5]:
+  - generic [ref=e6]:
+    - img "BC Gov logo" [ref=e8]
+    - generic [ref=e10]:
+      - paragraph [ref=e11]: "Media Monitoring Insights is a service that allows people to see all of BC’s news at a glance. Some of its key features include:"
+      - list [ref=e12]:
+        - listitem [ref=e13]: Aggregation of all newspapers, radio shows, and online articles.
+        - listitem [ref=e14]: BC’s top stories as they break.
+        - listitem [ref=e15]: Articles related to major stories.
+      - generic [ref=e16]:
+        - heading "Holiday Coverage" [level=2] [ref=e17]
+        - generic [ref=e18]:
+          - heading "Media Monitoring Insights Production Schedule During the Christmas Holidays" [level=2] [ref=e19]:
+            - strong [ref=e20]:
+              - emphasis [ref=e21]: Media Monitoring Insights
+              - text: Production Schedule During the Christmas Holidays
+          - heading "Friday 19th" [level=2] [ref=e22]:
+            - strong [ref=e23]: Friday 19th
+          - paragraph [ref=e24]: All reports produced as usual. Full complement of both print & broadcast monitoring.
+          - heading "Saturday 20th to Wednesday 24th" [level=2] [ref=e25]:
+            - strong [ref=e26]: Saturday 20th to Wednesday 24th
+          - paragraph [ref=e27]: All reports produced as usual. Reduced print monitoring with all sources available to direct account holders online. Only Global BC & CKNW early morning & evening newscasts will be monitored.
+          - heading "Thursday 25th" [level=2] [ref=e28]:
+            - strong [ref=e29]: Thursday 25th
+          - paragraph [ref=e30]: No GCPE or MMI Morning Report. All print sources will be available online. No broadcast monitoring will be conducted.
+          - heading "Friday 26th to Sunday 4th" [level=2] [ref=e31]:
+            - strong [ref=e32]: Friday 26th to Sunday 4th
+          - paragraph [ref=e33]: All reports produced as usual. Reduced print monitoring with all sources available to direct account holders online. Only Global BC & CKNW early morning & evening newscasts will be monitored.
+          - heading "Monday 5th" [level=2] [ref=e34]:
+            - strong [ref=e35]: Monday 5th
+          - paragraph [ref=e36]: All reports produced as usual. Full complement of both print & broadcast monitoring.
+    - generic [ref=e38]:
+      - generic [ref=e39]:
+        - paragraph [ref=e40]: Welcome to Media Monitoring Insights
+        - generic [ref=e41]:
+          - paragraph [ref=e42]: Sign In
+          - button "IDIR" [ref=e43] [cursor=pointer]:
+            - generic [ref=e44]: IDIR
+          - button "Microsoft" [ref=e45] [cursor=pointer]:
+            - generic [ref=e46]: Microsoft
+          - button "Other" [ref=e47] [cursor=pointer]:
+            - generic [ref=e48]: Other
+      - paragraph [ref=e49]: "COPYRIGHT: This account grants you access to copyrighted material for your own use. It does not grant you permission to fix, copy, reproduce or archive any of the material contained within. You cannot redistribute this information to anyone without violating your copyright agreement."
+```

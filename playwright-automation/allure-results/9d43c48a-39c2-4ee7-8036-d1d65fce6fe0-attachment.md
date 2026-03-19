@@ -1,0 +1,79 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - link "BC Gov logo" [ref=e6] [cursor=pointer]:
+      - /url: /
+      - img "BC Gov logo" [ref=e7]
+    - link "MMI logo" [ref=e9] [cursor=pointer]:
+      - /url: /
+      - img "MMI logo" [ref=e10]
+    - button "Sign Out" [ref=e13] [cursor=pointer]:
+      - generic [ref=e14]: Sign Out
+  - navigation [ref=e16]:
+    - generic [ref=e17]:
+      - link "Home" [ref=e18] [cursor=pointer]:
+        - /url: /contents
+        - generic [ref=e19]:
+          - img [ref=e20]
+          - text: Home
+      - generic [ref=e23]:
+        - button "Content" [ref=e25] [cursor=pointer]
+        - button "Report Building" [ref=e27] [cursor=pointer]
+        - button "Notifications Building" [ref=e29] [cursor=pointer]
+        - button "Content Configuration" [ref=e31] [cursor=pointer]
+        - button "Data Import" [ref=e33] [cursor=pointer]
+        - button "System Settings" [ref=e35] [cursor=pointer]
+  - main [ref=e37]:
+    - generic [ref=e38]:
+      - button "back Back to Notifications" [ref=e39] [cursor=pointer]:
+        - generic [ref=e40]:
+          - img "back" [ref=e41]
+          - text: Back to Notifications
+      - generic [ref=e45]:
+        - generic [ref=e47]:
+          - generic [ref=e48] [cursor=pointer]: Notification
+          - generic [ref=e49] [cursor=pointer]: Template
+          - generic [ref=e50] [cursor=pointer]: Filter
+          - generic [ref=e51] [cursor=pointer]: Test Filter
+          - generic [ref=e52] [cursor=pointer]: Preview
+          - generic [ref=e53] [cursor=pointer]: Subscribers
+        - generic [ref=e55]:
+          - generic [ref=e56]:
+            - generic [ref=e58]:
+              - generic [ref=e59]: Name
+              - textbox "Name" [ref=e61]
+            - generic [ref=e63]:
+              - generic [ref=e64]: Description
+              - textbox "Description" [ref=e65]
+            - generic [ref=e67]:
+              - generic [ref=e68]:
+                - generic [ref=e70]:
+                  - checkbox "Is Enabled" [ref=e71] [cursor=pointer]
+                  - generic [ref=e72] [cursor=pointer]: Is Enabled
+                - generic [ref=e74]:
+                  - checkbox "Is Public" [ref=e75] [cursor=pointer]
+                  - generic [ref=e76] [cursor=pointer]: Is Public
+                - generic [ref=e78]:
+                  - checkbox "Run notification when content is indexed" [ref=e79] [cursor=pointer]
+                  - generic [ref=e80] [cursor=pointer]: Run notification when content is indexed
+              - generic [ref=e81]:
+                - generic [ref=e82]:
+                  - generic [ref=e83]: Owner
+                  - generic [ref=e86]:
+                    - log [ref=e88]
+                    - generic [ref=e89]:
+                      - generic [ref=e90]:
+                        - generic [ref=e91]: Sharma, Garima GCPE:EX [GARSHARM]
+                        - combobox [ref=e93]
+                      - generic [ref=e94]:
+                        - img [ref=e96] [cursor=pointer]
+                        - img [ref=e100]
+                  - textbox [ref=e102]: "457"
+                - generic [ref=e104]:
+                  - generic [ref=e105]: Sort Order
+                  - spinbutton "Sort Order" [ref=e107]: "0"
+          - button "Save" [ref=e109] [cursor=pointer]:
+            - generic [ref=e110]: Save
+```

@@ -1,0 +1,1491 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - link "BC Gov logo" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "BC Gov logo" [ref=e7]
+      - link "MMI logo" [ref=e9] [cursor=pointer]:
+        - /url: /
+        - img "MMI logo" [ref=e10]
+      - button "Sign Out" [ref=e13] [cursor=pointer]:
+        - generic [ref=e14]: Sign Out
+    - navigation [ref=e16]:
+      - generic [ref=e17]:
+        - link "Home" [ref=e18] [cursor=pointer]:
+          - /url: /contents
+          - generic [ref=e19]:
+            - img [ref=e20]
+            - text: Home
+        - generic [ref=e23]:
+          - button "Content" [ref=e25] [cursor=pointer]
+          - button "Report Building" [ref=e27] [cursor=pointer]
+          - button "Notifications Building" [ref=e29] [cursor=pointer]
+          - button "Content Configuration" [ref=e31] [cursor=pointer]
+          - button "Data Import" [ref=e33] [cursor=pointer]
+          - button "System Settings" [ref=e35] [cursor=pointer]
+    - main [ref=e37]:
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - generic [ref=e41]:
+            - generic [ref=e43]:
+              - img [ref=e44] [cursor=pointer]
+              - img [active] [ref=e46] [cursor=pointer]
+              - img [ref=e48] [cursor=pointer]
+              - img [ref=e50] [cursor=pointer]
+            - generic [ref=e52]:
+              - img [ref=e53]
+              - text: CREATE SNIPPET
+          - generic [ref=e56]:
+            - generic [ref=e58]:
+              - generic [ref=e59]:
+                - generic [ref=e60]:
+                  - img [ref=e61]
+                  - generic [ref=e63]:
+                    - button "TODAY" [ref=e64] [cursor=pointer]:
+                      - generic [ref=e66]: TODAY
+                    - button "24 HRS" [ref=e67] [cursor=pointer]:
+                      - generic [ref=e69]: 24 HRS
+                    - button "48 HRS" [ref=e70] [cursor=pointer]:
+                      - generic [ref=e72]: 48 HRS
+                    - button "ALL" [ref=e73] [cursor=pointer]:
+                      - generic [ref=e75]: ALL
+                - generic [ref=e76]:
+                  - img [ref=e77]
+                  - generic [ref=e79]:
+                    - button "ALL CONTENT" [ref=e80] [cursor=pointer]:
+                      - generic [ref=e82]: ALL CONTENT
+                    - button "MY CONTENT" [ref=e83] [cursor=pointer]:
+                      - generic [ref=e85]: MY CONTENT
+                    - button "OTHER" [ref=e86] [cursor=pointer]:
+                      - generic [ref=e88]:
+                        - text: OTHER
+                        - img [ref=e89]
+              - generic [ref=e91]:
+                - generic [ref=e92]:
+                  - img [ref=e93]
+                  - textbox "mm/dd/yyyy" [ref=e97]
+                  - generic [ref=e98]: to
+                  - textbox "mm/dd/yyyy" [ref=e101]
+                  - button [ref=e102] [cursor=pointer]:
+                    - img [ref=e104]
+                - generic [ref=e106]:
+                  - img [ref=e107]
+                  - generic [ref=e109]:
+                    - generic [ref=e112]:
+                      - log [ref=e114]
+                      - generic [ref=e115]:
+                        - generic [ref=e116]:
+                          - generic [ref=e117]: Media Type
+                          - combobox [ref=e119]
+                        - img [ref=e123]
+                    - textbox [ref=e125]
+            - generic [ref=e126]:
+              - img [ref=e127]
+              - text: FILTER CONTENT
+          - generic [ref=e129]:
+            - generic [ref=e132]:
+              - generic [ref=e135]:
+                - log [ref=e137]
+                - generic [ref=e138]:
+                  - generic [ref=e139]:
+                    - generic [ref=e140]: Show Only
+                    - combobox [ref=e142]
+                  - img [ref=e146]
+              - textbox [ref=e148]
+            - generic [ref=e149]:
+              - img [ref=e150]
+              - text: SHOW ONLY
+          - generic [ref=e152]:
+            - generic [ref=e154]:
+              - generic [ref=e155]:
+                - generic [ref=e156]:
+                  - generic [ref=e157]:
+                    - generic [ref=e160]:
+                      - log [ref=e162]
+                      - generic [ref=e163]:
+                        - generic [ref=e164]:
+                          - generic [ref=e165]: Source
+                          - combobox [ref=e167]
+                        - img [ref=e171]
+                    - textbox [ref=e173]: sourceIds
+                  - generic [ref=e174]:
+                    - generic [ref=e177]:
+                      - log [ref=e179]
+                      - generic [ref=e180]:
+                        - generic [ref=e181]:
+                          - generic [ref=e182]: Select...
+                          - combobox [ref=e184]
+                        - img [ref=e188]
+                    - textbox [ref=e190]
+                - generic [ref=e191]:
+                  - generic [ref=e192]:
+                    - generic [ref=e195]:
+                      - log [ref=e197]
+                      - generic [ref=e198]:
+                        - generic [ref=e199]:
+                          - generic [ref=e200]: Source
+                          - combobox [ref=e202]
+                        - img [ref=e206]
+                    - textbox [ref=e208]: sourceIds
+                  - generic [ref=e209]:
+                    - generic [ref=e212]:
+                      - log [ref=e214]
+                      - generic [ref=e215]:
+                        - generic [ref=e216]:
+                          - generic [ref=e217]: Select...
+                          - combobox [ref=e219]
+                        - img [ref=e223]
+                    - textbox [ref=e225]
+              - img [ref=e226] [cursor=pointer]
+            - generic [ref=e228]:
+              - img [ref=e229]
+              - text: ADVANCED SEARCH
+        - generic [ref=e233]:
+          - generic [ref=e234]:
+            - generic [ref=e235]:
+              - generic [ref=e237]:
+                - img "Open in new tab" [ref=e238]
+                - text: Headline
+              - generic [ref=e240]:
+                - text: Source
+                - img "sort" [ref=e241]
+              - generic [ref=e243]:
+                - text: Media Type
+                - img "sort" [ref=e244]
+              - generic [ref=e246]:
+                - generic [ref=e247]:
+                  - text: Page:Section
+                  - checkbox [ref=e250] [cursor=pointer]
+                - img "sort" [ref=e251]
+              - generic [ref=e253]:
+                - text: User
+                - img "sort" [ref=e254]
+              - generic [ref=e256]:
+                - text: Pub Date
+                - img "sort" [ref=e257]
+              - generic [ref=e259]:
+                - text: Use
+                - img "sort" [ref=e260]
+            - generic [ref=e262]:
+              - generic [ref=e265] [cursor=pointer]: Marco Odermatt secures World super-G title as unfavorable weather cancels both races this weekend
+              - generic [ref=e268] [cursor=pointer]: CPNEWS
+              - generic [ref=e271] [cursor=pointer]: CP Wire
+              - generic [ref=e275] [cursor=pointer]: 03/15/2026 04:16:41
+              - img "Draft" [ref=e278] [cursor=pointer]
+              - generic [ref=e282] [cursor=pointer]: Israeli soldiers fire on family car in occupied West Bank, killing 4
+              - generic [ref=e285] [cursor=pointer]: CPNEWS
+              - generic [ref=e288] [cursor=pointer]: CP Wire
+              - generic [ref=e292] [cursor=pointer]: 03/15/2026 04:16:35
+              - img "Draft" [ref=e295] [cursor=pointer]
+              - generic [ref=e299] [cursor=pointer]: National Audio 04:15 AM ET
+              - generic [ref=e302] [cursor=pointer]: CPNEWS
+              - generic [ref=e305] [cursor=pointer]: CP Wire
+              - generic [ref=e309] [cursor=pointer]: 03/15/2026 04:15:34
+              - img "Draft" [ref=e312] [cursor=pointer]
+              - generic [ref=e316] [cursor=pointer]: AP Business SummaryBrief at 4:13 a.m. EDT
+              - generic [ref=e319] [cursor=pointer]: CPNEWS
+              - generic [ref=e322] [cursor=pointer]: CP Wire
+              - generic [ref=e326] [cursor=pointer]: 03/15/2026 04:14:01
+              - img "Draft" [ref=e329] [cursor=pointer]
+              - generic [ref=e333] [cursor=pointer]: AP News Summary at 4:13 a.m. EDT
+              - generic [ref=e336] [cursor=pointer]: CPNEWS
+              - generic [ref=e339] [cursor=pointer]: CP Wire
+              - generic [ref=e343] [cursor=pointer]: 03/15/2026 04:14:00
+              - img "Draft" [ref=e346] [cursor=pointer]
+              - generic [ref=e350] [cursor=pointer]: Gulf states intercept new missiles and drones as Iran threatens to widen war
+              - generic [ref=e353] [cursor=pointer]: CPNEWS
+              - generic [ref=e356] [cursor=pointer]: CP Wire
+              - generic [ref=e360] [cursor=pointer]: 03/15/2026 04:13:58
+              - img "Draft" [ref=e363] [cursor=pointer]
+              - generic [ref=e367] [cursor=pointer]: Japan routs Philippines 7-0 to reach Women's Asian Cup semis and clinch a World Cup spot
+              - generic [ref=e370] [cursor=pointer]: CPNEWS
+              - generic [ref=e373] [cursor=pointer]: CP Wire
+              - generic [ref=e377] [cursor=pointer]: 03/15/2026 04:13:54
+              - img "Draft" [ref=e380] [cursor=pointer]
+              - generic [ref=e384] [cursor=pointer]: Mammoth head into matchup against the Stars on losing streak
+              - generic [ref=e387] [cursor=pointer]: CPNEWS
+              - generic [ref=e390] [cursor=pointer]: CP Wire
+              - generic [ref=e394] [cursor=pointer]: 03/15/2026 04:12:14
+              - img "Draft" [ref=e397] [cursor=pointer]
+              - generic [ref=e401] [cursor=pointer]: Rangers bring winning streak into home matchup against the Kings
+              - generic [ref=e404] [cursor=pointer]: CPNEWS
+              - generic [ref=e407] [cursor=pointer]: CP Wire
+              - generic [ref=e411] [cursor=pointer]: 03/15/2026 04:12:13
+              - img "Draft" [ref=e414] [cursor=pointer]
+              - generic [ref=e418] [cursor=pointer]: Maple Leafs take road losing streak into matchup with the Wild
+              - generic [ref=e421] [cursor=pointer]: CPNEWS
+              - generic [ref=e424] [cursor=pointer]: CP Wire
+              - generic [ref=e428] [cursor=pointer]: 03/15/2026 04:12:12
+              - img "Draft" [ref=e431] [cursor=pointer]
+              - generic [ref=e435] [cursor=pointer]: Bruins visit the Devils after shootout win
+              - generic [ref=e438] [cursor=pointer]: CPNEWS
+              - generic [ref=e441] [cursor=pointer]: CP Wire
+              - generic [ref=e445] [cursor=pointer]: 03/15/2026 04:12:10
+              - img "Draft" [ref=e448] [cursor=pointer]
+              - generic [ref=e452] [cursor=pointer]: Red Wings take losing streak into home matchup with the Flames
+              - generic [ref=e455] [cursor=pointer]: CPNEWS
+              - generic [ref=e458] [cursor=pointer]: CP Wire
+              - generic [ref=e462] [cursor=pointer]: 03/15/2026 04:12:09
+              - img "Draft" [ref=e465] [cursor=pointer]
+              - generic [ref=e469] [cursor=pointer]: Panthers take win streak into matchup with the Kraken
+              - generic [ref=e472] [cursor=pointer]: CPNEWS
+              - generic [ref=e475] [cursor=pointer]: CP Wire
+              - generic [ref=e479] [cursor=pointer]: 03/15/2026 04:12:07
+              - img "Draft" [ref=e482] [cursor=pointer]
+              - generic [ref=e486] [cursor=pointer]: Colorado and Pittsburgh face off for non-conference matchup
+              - generic [ref=e489] [cursor=pointer]: CPNEWS
+              - generic [ref=e492] [cursor=pointer]: CP Wire
+              - generic [ref=e496] [cursor=pointer]: 03/15/2026 04:12:06
+              - img "Draft" [ref=e499] [cursor=pointer]
+              - generic [ref=e503] [cursor=pointer]: NAT008 - (ENT-FILM-Oscars-Canada) (FOR PRODUCTION)
+              - generic [ref=e506] [cursor=pointer]: CPNEWS
+              - generic [ref=e509] [cursor=pointer]: CP Wire
+              - generic [ref=e513] [cursor=pointer]: 03/15/2026 04:11:06
+              - img "Draft" [ref=e516] [cursor=pointer]
+              - generic [ref=e520] [cursor=pointer]: "Today in History: March 15, Julius Caesar assassinated on ‘ides of March’"
+              - generic [ref=e523] [cursor=pointer]: CPNEWS
+              - generic [ref=e526] [cursor=pointer]: CP Wire
+              - generic [ref=e530] [cursor=pointer]: 03/15/2026 04:10:34
+              - img "Draft" [ref=e533] [cursor=pointer]
+              - generic [ref=e537] [cursor=pointer]: Another 3 members of Iran's women's soccer team decide against staying in Australia as refugees
+              - generic [ref=e540] [cursor=pointer]: CPNEWS
+              - generic [ref=e543] [cursor=pointer]: CP Wire
+              - generic [ref=e547] [cursor=pointer]: 03/15/2026 04:07:46
+              - img "Draft" [ref=e550] [cursor=pointer]
+              - generic [ref=e554] [cursor=pointer]: Hospital officials say an Israeli strike killed 4 in Gaza, including a child and his pregnant mother
+              - generic [ref=e557] [cursor=pointer]: CPNEWS
+              - generic [ref=e560] [cursor=pointer]: CP Wire
+              - generic [ref=e564] [cursor=pointer]: 03/15/2026 04:03:11
+              - img "Draft" [ref=e567] [cursor=pointer]
+              - generic [ref=e571] [cursor=pointer]: A bus carrying Indian pilgrims plunges off a mountain road in Nepal, killing 7
+              - generic [ref=e574] [cursor=pointer]: CPNEWS
+              - generic [ref=e577] [cursor=pointer]: CP Wire
+              - generic [ref=e581] [cursor=pointer]: 03/15/2026 04:03:05
+              - img "Draft" [ref=e584] [cursor=pointer]
+              - generic [ref=e588] [cursor=pointer]: North Korean leader Kim observes test of rocket launch systems with his daughter
+              - generic [ref=e591] [cursor=pointer]: CPNEWS
+              - generic [ref=e594] [cursor=pointer]: CP Wire
+              - generic [ref=e598] [cursor=pointer]: 03/15/2026 04:01:36
+              - img "Draft" [ref=e601] [cursor=pointer]
+              - generic [ref=e605] [cursor=pointer]: Carney to conclude Norway trip with Nordic 5 meeting before heading to London
+              - generic [ref=e608] [cursor=pointer]: CPNEWS
+              - generic [ref=e611] [cursor=pointer]: CP Wire
+              - generic [ref=e615] [cursor=pointer]: 03/15/2026 04:00:08
+              - img "Draft" [ref=e618] [cursor=pointer]
+              - generic [ref=e622] [cursor=pointer]: Montreal filmmakers, 'KPop Demon Hunters' director among Canadians up for Oscars
+              - generic [ref=e625] [cursor=pointer]: CPNEWS
+              - generic [ref=e628] [cursor=pointer]: CP Wire
+              - generic [ref=e632] [cursor=pointer]: 03/15/2026 04:00:06
+              - img "Draft" [ref=e635] [cursor=pointer]
+              - generic [ref=e639] [cursor=pointer]: Withdrawn charges in Stronach sex assault trial raise questions about prosecution
+              - generic [ref=e642] [cursor=pointer]: CBCO
+              - generic [ref=e645] [cursor=pointer]: Online
+              - generic [ref=e649] [cursor=pointer]: 03/15/2026 04:00:00
+              - img "Draft" [ref=e652] [cursor=pointer]
+              - generic [ref=e656] [cursor=pointer]: The negative people in your life are making you get older faster. Here’s how to handle them
+              - generic [ref=e659] [cursor=pointer]: CBCO
+              - generic [ref=e662] [cursor=pointer]: Online
+              - generic [ref=e666] [cursor=pointer]: 03/15/2026 04:00:00
+              - img "Draft" [ref=e669] [cursor=pointer]
+              - generic [ref=e673] [cursor=pointer]: "Shadow fleets of sanctions-skirting ships facing global crackdown: analysis"
+              - generic [ref=e676] [cursor=pointer]: CBCO
+              - generic [ref=e679] [cursor=pointer]: Online
+              - generic [ref=e683] [cursor=pointer]: 03/15/2026 04:00:00
+              - img "Draft" [ref=e686] [cursor=pointer]
+              - generic [ref=e690] [cursor=pointer]: Has Trump pushed Canada and the U.K. into each other's arms?
+              - generic [ref=e693] [cursor=pointer]: CBCO
+              - generic [ref=e696] [cursor=pointer]: Online
+              - generic [ref=e700] [cursor=pointer]: 03/15/2026 04:00:00
+              - img "Draft" [ref=e703] [cursor=pointer]
+              - generic [ref=e707] [cursor=pointer]: Canada named this castle-like courthouse a national historic site. Now a tower is set to rise beside it
+              - generic [ref=e710] [cursor=pointer]: CBCO
+              - generic [ref=e713] [cursor=pointer]: Online
+              - generic [ref=e717] [cursor=pointer]: 03/15/2026 04:00:00
+              - img "Draft" [ref=e720] [cursor=pointer]
+              - generic [ref=e724] [cursor=pointer]: I just wanted to be ‘one of the guys’ on my hockey team, but it wasn’t always easy
+              - generic [ref=e727] [cursor=pointer]: CBCO
+              - generic [ref=e730] [cursor=pointer]: Online
+              - generic [ref=e734] [cursor=pointer]: 03/15/2026 04:00:00
+              - img "Draft" [ref=e737] [cursor=pointer]
+              - generic [ref=e741] [cursor=pointer]: Lotto 649 winning numbers for Saturday, March 14, 2026
+              - generic [ref=e744] [cursor=pointer]: CPNEWS
+              - generic [ref=e747] [cursor=pointer]: CP Wire
+              - generic [ref=e751] [cursor=pointer]: 03/15/2026 03:57:00
+              - img "Draft" [ref=e754] [cursor=pointer]
+              - generic [ref=e758] [cursor=pointer]: National Audio 03:55 AM ET
+              - generic [ref=e761] [cursor=pointer]: CPNEWS
+              - generic [ref=e764] [cursor=pointer]: CP Wire
+              - generic [ref=e768] [cursor=pointer]: 03/15/2026 03:55:34
+              - img "Draft" [ref=e771] [cursor=pointer]
+              - generic [ref=e775] [cursor=pointer]: newscast4a
+              - generic [ref=e778] [cursor=pointer]: CPNEWS
+              - generic [ref=e781] [cursor=pointer]: CP Wire
+              - generic [ref=e785] [cursor=pointer]: 03/15/2026 03:49:06
+              - img "Draft" [ref=e788] [cursor=pointer]
+              - generic [ref=e792] [cursor=pointer]: National Audio 03:45 AM ET
+              - generic [ref=e795] [cursor=pointer]: CPNEWS
+              - generic [ref=e798] [cursor=pointer]: CP Wire
+              - generic [ref=e802] [cursor=pointer]: 03/15/2026 03:45:34
+              - img "Draft" [ref=e805] [cursor=pointer]
+              - generic [ref=e809] [cursor=pointer]: ABC007 VA ROTC Shooting/NC/Family Proud - UPDATE 1
+              - generic [ref=e812] [cursor=pointer]: CPNEWS
+              - generic [ref=e815] [cursor=pointer]: CP Wire
+              - generic [ref=e819] [cursor=pointer]: 03/15/2026 03:43:10
+              - img "Draft" [ref=e822] [cursor=pointer]
+              - generic [ref=e826] [cursor=pointer]: ABC006 VA ROTC Shooting/NC/Life Mission - UPDATE 1
+              - generic [ref=e829] [cursor=pointer]: CPNEWS
+              - generic [ref=e832] [cursor=pointer]: CP Wire
+              - generic [ref=e836] [cursor=pointer]: 03/15/2026 03:43:06
+              - img "Draft" [ref=e839] [cursor=pointer]
+              - generic [ref=e843] [cursor=pointer]: French voters head to polls in early municipal test before 2027 presidential election
+              - generic [ref=e846] [cursor=pointer]: CPNEWS
+              - generic [ref=e849] [cursor=pointer]: CP Wire
+              - generic [ref=e853] [cursor=pointer]: 03/15/2026 03:33:15
+              - img "Draft" [ref=e856] [cursor=pointer]
+              - generic [ref=e860] [cursor=pointer]: AP Sports SummaryBrief at 3:26 a.m. EDT
+              - generic [ref=e863] [cursor=pointer]: CPNEWS
+              - generic [ref=e866] [cursor=pointer]: CP Wire
+              - generic [ref=e870] [cursor=pointer]: 03/15/2026 03:30:04
+              - img "Draft" [ref=e873] [cursor=pointer]
+              - generic [ref=e877] [cursor=pointer]: McLaren's Lando Norris and Oscar Piastri unable to start F1's Chinese Grand Prix
+              - generic [ref=e880] [cursor=pointer]: CPNEWS
+              - generic [ref=e883] [cursor=pointer]: CP Wire
+              - generic [ref=e887] [cursor=pointer]: 03/15/2026 03:28:44
+              - img "Draft" [ref=e890] [cursor=pointer]
+              - generic [ref=e894] [cursor=pointer]: SportsCall Audio 03:25 AM ET
+              - generic [ref=e897] [cursor=pointer]: CPNEWS
+              - generic [ref=e900] [cursor=pointer]: CP Wire
+              - generic [ref=e904] [cursor=pointer]: 03/15/2026 03:25:35
+              - img "Draft" [ref=e907] [cursor=pointer]
+              - generic [ref=e911] [cursor=pointer]: National Audio 03:25 AM ET
+              - generic [ref=e914] [cursor=pointer]: CPNEWS
+              - generic [ref=e917] [cursor=pointer]: CP Wire
+              - generic [ref=e921] [cursor=pointer]: 03/15/2026 03:25:34
+              - img "Draft" [ref=e924] [cursor=pointer]
+              - generic [ref=e928] [cursor=pointer]: The Republic of Congo votes in election that could extend incumbent president's 42-year rule
+              - generic [ref=e931] [cursor=pointer]: CPNEWS
+              - generic [ref=e934] [cursor=pointer]: CP Wire
+              - generic [ref=e938] [cursor=pointer]: 03/15/2026 03:24:05
+              - img "Draft" [ref=e941] [cursor=pointer]
+              - generic [ref=e945] [cursor=pointer]: Japan routs Philippines 7-0 to reach Women's Asian Cup semis and clinch a World Cup spot
+              - generic [ref=e948] [cursor=pointer]: CPNEWS
+              - generic [ref=e951] [cursor=pointer]: CP Wire
+              - generic [ref=e955] [cursor=pointer]: 03/15/2026 03:22:42
+              - img "Draft" [ref=e958] [cursor=pointer]
+              - generic [ref=e962] [cursor=pointer]: Kazakhs vote in referendum on new constitution that could keep the president in power
+              - generic [ref=e965] [cursor=pointer]: CPNEWS
+              - generic [ref=e968] [cursor=pointer]: CP Wire
+              - generic [ref=e972] [cursor=pointer]: 03/15/2026 03:21:09
+              - img "Draft" [ref=e975] [cursor=pointer]
+              - generic [ref=e979] [cursor=pointer]: NAT009 - (SPORTS-HKN-Kraken-Canucks)
+              - generic [ref=e982] [cursor=pointer]: CPNEWS
+              - generic [ref=e985] [cursor=pointer]: CP Wire
+              - generic [ref=e989] [cursor=pointer]: 03/15/2026 03:20:06
+              - img "Draft" [ref=e992] [cursor=pointer]
+              - generic [ref=e996] [cursor=pointer]: "--First NewsWatch--"
+              - generic [ref=e999] [cursor=pointer]: CPNEWS
+              - generic [ref=e1002] [cursor=pointer]: CP Wire
+              - generic [ref=e1006] [cursor=pointer]: 03/15/2026 03:20:04
+              - img "Draft" [ref=e1009] [cursor=pointer]
+              - generic [ref=e1013] [cursor=pointer]: NAT008 - (SPORTS-HKN-Kraken-Canucks)
+              - generic [ref=e1016] [cursor=pointer]: CPNEWS
+              - generic [ref=e1019] [cursor=pointer]: CP Wire
+              - generic [ref=e1023] [cursor=pointer]: 03/15/2026 03:19:06
+              - img "Draft" [ref=e1026] [cursor=pointer]
+              - generic [ref=e1030] [cursor=pointer]: NAT007 - (ENT-Oscars-Rehearsals) (FOR PRODUCTION)
+              - generic [ref=e1033] [cursor=pointer]: CPNEWS
+              - generic [ref=e1036] [cursor=pointer]: CP Wire
+              - generic [ref=e1040] [cursor=pointer]: 03/15/2026 03:19:06
+              - img "Draft" [ref=e1043] [cursor=pointer]
+              - generic [ref=e1047] [cursor=pointer]: NAT006 - (ENT-Oscars) (FOR PRODUCTION)
+              - generic [ref=e1050] [cursor=pointer]: CPNEWS
+              - generic [ref=e1053] [cursor=pointer]: CP Wire
+              - generic [ref=e1057] [cursor=pointer]: 03/15/2026 03:16:06
+              - img "Draft" [ref=e1060] [cursor=pointer]
+              - generic [ref=e1064] [cursor=pointer]: National Audio 03:15 AM ET
+              - generic [ref=e1067] [cursor=pointer]: CPNEWS
+              - generic [ref=e1070] [cursor=pointer]: CP Wire
+              - generic [ref=e1074] [cursor=pointer]: 03/15/2026 03:15:35
+              - img "Draft" [ref=e1077] [cursor=pointer]
+              - generic [ref=e1081] [cursor=pointer]: SportsCall Audio 03:15 AM ET
+              - generic [ref=e1084] [cursor=pointer]: CPNEWS
+              - generic [ref=e1087] [cursor=pointer]: CP Wire
+              - generic [ref=e1091] [cursor=pointer]: 03/15/2026 03:15:34
+              - img "Draft" [ref=e1094] [cursor=pointer]
+              - generic [ref=e1098] [cursor=pointer]: NAT005 - (Ont-Fatal-Collision)
+              - generic [ref=e1101] [cursor=pointer]: CPNEWS
+              - generic [ref=e1104] [cursor=pointer]: CP Wire
+              - generic [ref=e1108] [cursor=pointer]: 03/15/2026 03:15:14
+              - img "Draft" [ref=e1111] [cursor=pointer]
+              - generic [ref=e1115] [cursor=pointer]: NAT004 - (Don-Cherry-Conservatives)
+              - generic [ref=e1118] [cursor=pointer]: CPNEWS
+              - generic [ref=e1121] [cursor=pointer]: CP Wire
+              - generic [ref=e1125] [cursor=pointer]: 03/15/2026 03:15:10
+              - img "Draft" [ref=e1128] [cursor=pointer]
+              - generic [ref=e1132] [cursor=pointer]: NAT003 - (Disappearance-Murder-BC)
+              - generic [ref=e1135] [cursor=pointer]: CPNEWS
+              - generic [ref=e1138] [cursor=pointer]: CP Wire
+              - generic [ref=e1142] [cursor=pointer]: 03/15/2026 03:15:06
+              - img "Draft" [ref=e1145] [cursor=pointer]
+              - generic [ref=e1149] [cursor=pointer]: NAT002 - (Disapperance-Murder-BC)
+              - generic [ref=e1152] [cursor=pointer]: CPNEWS
+              - generic [ref=e1155] [cursor=pointer]: CP Wire
+              - generic [ref=e1159] [cursor=pointer]: 03/15/2026 03:14:06
+              - img "Draft" [ref=e1162] [cursor=pointer]
+              - generic [ref=e1166] [cursor=pointer]: NAT001 - (SPORTS-SOC-MLS-Red-Bulls-Toronto)
+              - generic [ref=e1169] [cursor=pointer]: CPNEWS
+              - generic [ref=e1172] [cursor=pointer]: CP Wire
+              - generic [ref=e1176] [cursor=pointer]: 03/15/2026 03:13:06
+              - img "Draft" [ref=e1179] [cursor=pointer]
+              - generic [ref=e1183] [cursor=pointer]: AP Business SummaryBrief at 3:06 a.m. EDT
+              - generic [ref=e1186] [cursor=pointer]: CPNEWS
+              - generic [ref=e1189] [cursor=pointer]: CP Wire
+              - generic [ref=e1193] [cursor=pointer]: 03/15/2026 03:10:35
+              - img "Draft" [ref=e1196] [cursor=pointer]
+              - generic [ref=e1200] [cursor=pointer]: AP News Summary at 3:06 a.m. EDT
+              - generic [ref=e1203] [cursor=pointer]: CPNEWS
+              - generic [ref=e1206] [cursor=pointer]: CP Wire
+              - generic [ref=e1210] [cursor=pointer]: 03/15/2026 03:10:34
+              - img "Draft" [ref=e1213] [cursor=pointer]
+              - generic [ref=e1217] [cursor=pointer]: Trump urges US allies to send warships to Strait of Hormuz as Iran vows to retaliate
+              - generic [ref=e1220] [cursor=pointer]: CPNEWS
+              - generic [ref=e1223] [cursor=pointer]: CP Wire
+              - generic [ref=e1227] [cursor=pointer]: 03/15/2026 03:07:42
+              - img "Draft" [ref=e1230] [cursor=pointer]
+              - generic [ref=e1234] [cursor=pointer]: National Audio 03:05 AM ET
+              - generic [ref=e1237] [cursor=pointer]: CPNEWS
+              - generic [ref=e1240] [cursor=pointer]: CP Wire
+              - generic [ref=e1244] [cursor=pointer]: 03/15/2026 03:05:34
+              - img "Draft" [ref=e1247] [cursor=pointer]
+              - generic [ref=e1251] [cursor=pointer]: ABC005 Iran/Decades Long War Fears - UPDATE 1
+              - generic [ref=e1254] [cursor=pointer]: CPNEWS
+              - generic [ref=e1257] [cursor=pointer]: CP Wire
+              - generic [ref=e1261] [cursor=pointer]: 03/15/2026 03:05:21
+              - img "Draft" [ref=e1264] [cursor=pointer]
+              - generic [ref=e1268] [cursor=pointer]: ABC004 Iran/MA Protest/Fear Collapse - UPDATE 1
+              - generic [ref=e1271] [cursor=pointer]: CPNEWS
+              - generic [ref=e1274] [cursor=pointer]: CP Wire
+              - generic [ref=e1278] [cursor=pointer]: 03/15/2026 03:05:17
+              - img "Draft" [ref=e1281] [cursor=pointer]
+              - generic [ref=e1285] [cursor=pointer]: ABC003 Iran/Conflict Escalating - UPDATE 1
+              - generic [ref=e1288] [cursor=pointer]: CPNEWS
+              - generic [ref=e1291] [cursor=pointer]: CP Wire
+              - generic [ref=e1295] [cursor=pointer]: 03/15/2026 03:05:14
+              - img "Draft" [ref=e1298] [cursor=pointer]
+              - generic [ref=e1302] [cursor=pointer]: ABC002 Iran/Can Mine The Strait Of Hormuz Within Hours - UPDATE 2
+              - generic [ref=e1305] [cursor=pointer]: CPNEWS
+              - generic [ref=e1308] [cursor=pointer]: CP Wire
+              - generic [ref=e1312] [cursor=pointer]: 03/15/2026 03:05:10
+              - img "Draft" [ref=e1315] [cursor=pointer]
+              - generic [ref=e1319] [cursor=pointer]: ABC001 Iran/Mine Sweepers Sent A Message - UPDATE 2
+              - generic [ref=e1322] [cursor=pointer]: CPNEWS
+              - generic [ref=e1325] [cursor=pointer]: CP Wire
+              - generic [ref=e1329] [cursor=pointer]: 03/15/2026 03:05:06
+              - img "Draft" [ref=e1332] [cursor=pointer]
+              - generic [ref=e1336] [cursor=pointer]: Windsor Plywood Kamloops part of community, delivers quality materials, guidance (StandOUT)
+              - generic [ref=e1339] [cursor=pointer]: CASTANET
+              - generic [ref=e1342] [cursor=pointer]: Online
+              - generic [ref=e1346] [cursor=pointer]: 03/15/2026 03:01:00
+              - img "Draft" [ref=e1349] [cursor=pointer]
+              - generic [ref=e1353] [cursor=pointer]: Ontario-Update
+              - generic [ref=e1356] [cursor=pointer]: CPNEWS
+              - generic [ref=e1359] [cursor=pointer]: CP Wire
+              - generic [ref=e1363] [cursor=pointer]: 03/15/2026 03:00:05
+              - img "Draft" [ref=e1366] [cursor=pointer]
+              - generic [ref=e1370] [cursor=pointer]: Last word in Astrology
+              - generic [ref=e1373] [cursor=pointer]: TS
+              - generic [ref=e1376] [cursor=pointer]: Daily Print
+              - generic [ref=e1378] [cursor=pointer]: A24:Fun games
+              - generic [ref=e1381] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1384] [cursor=pointer]
+              - generic [ref=e1388] [cursor=pointer]: Sunshine Girl Desiree
+              - generic [ref=e1391] [cursor=pointer]: TS
+              - generic [ref=e1394] [cursor=pointer]: Daily Print
+              - generic [ref=e1396] [cursor=pointer]: A30:Showbiz
+              - generic [ref=e1399] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1402] [cursor=pointer]
+              - generic [ref=e1406] [cursor=pointer]: Woman found dead in home
+              - generic [ref=e1409] [cursor=pointer]: TS
+              - generic [ref=e1412] [cursor=pointer]: Daily Print
+              - generic [ref=e1414] [cursor=pointer]: A2:News
+              - generic [ref=e1417] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1420] [cursor=pointer]
+              - generic [ref=e1424] [cursor=pointer]: High side of belief; Einarson talks about the big shot that brought her to these worlds
+              - generic [ref=e1427] [cursor=pointer]: TS
+              - generic [ref=e1430] [cursor=pointer]: Daily Print
+              - generic [ref=e1432] [cursor=pointer]: S5:Sports
+              - generic [ref=e1435] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1438] [cursor=pointer]
+              - generic [ref=e1442] [cursor=pointer]: Canada jay better choice for national bird than messy, miserable Canada goose
+              - generic [ref=e1445] [cursor=pointer]: TS
+              - generic [ref=e1448] [cursor=pointer]: Daily Print
+              - generic [ref=e1450] [cursor=pointer]: A15:Comment
+              - generic [ref=e1453] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1456] [cursor=pointer]
+              - generic [ref=e1460] [cursor=pointer]: Parents' hobby a red flag of misaligned priorities
+              - generic [ref=e1463] [cursor=pointer]: TS
+              - generic [ref=e1466] [cursor=pointer]: Daily Print
+              - generic [ref=e1468] [cursor=pointer]: A20:Life
+              - generic [ref=e1471] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1474] [cursor=pointer]
+              - generic [ref=e1478] [cursor=pointer]: Enabling hatred; Al-Quds shows how Canada tolerates intolerance
+              - generic [ref=e1481] [cursor=pointer]: TS
+              - generic [ref=e1484] [cursor=pointer]: Daily Print
+              - generic [ref=e1486] [cursor=pointer]: A7:News
+              - generic [ref=e1489] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1492] [cursor=pointer]
+              - generic [ref=e1496] [cursor=pointer]: U.S. needs fixing at home to defend itself abroad
+              - generic [ref=e1499] [cursor=pointer]: TS
+              - generic [ref=e1502] [cursor=pointer]: Daily Print
+              - generic [ref=e1504] [cursor=pointer]: A15:Comment
+              - generic [ref=e1507] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1510] [cursor=pointer]
+              - generic [ref=e1514] [cursor=pointer]: Pressure-valve putt; Corey Conners stays in the hunt on his final shot as Ludvig Aberg takes a 3-stroke lead into final round of Players Championship
+              - generic [ref=e1517] [cursor=pointer]: TS
+              - generic [ref=e1520] [cursor=pointer]: Daily Print
+              - generic [ref=e1522] [cursor=pointer]: S4:Sports
+              - generic [ref=e1525] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1528] [cursor=pointer]
+              - generic [ref=e1532] [cursor=pointer]: Cops put cap on voyeurism case; Man hid cameras in Whitby eatery's washroom?
+              - generic [ref=e1535] [cursor=pointer]: TS
+              - generic [ref=e1538] [cursor=pointer]: Daily Print
+              - generic [ref=e1540] [cursor=pointer]: A2:News
+              - generic [ref=e1543] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1546] [cursor=pointer]
+              - generic [ref=e1550] [cursor=pointer]: Crime Hunter; For a few short, bloody decades, Irish gangs ruled the streets of New York, Chicago and Montreal - before prosecution and economic prosperity put an end to the mayhem Brad Hunter's weekly look at society's dark underbelly
+              - generic [ref=e1553] [cursor=pointer]: TS
+              - generic [ref=e1556] [cursor=pointer]: Daily Print
+              - generic [ref=e1558] [cursor=pointer]: A10:News
+              - generic [ref=e1561] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1564] [cursor=pointer]
+              - generic [ref=e1568] [cursor=pointer]: Heads in the Cloud; Revolution in data storage celebrates 20th anniversary
+              - generic [ref=e1571] [cursor=pointer]: TS
+              - generic [ref=e1574] [cursor=pointer]: Daily Print
+              - generic [ref=e1576] [cursor=pointer]: A16:News
+              - generic [ref=e1579] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1582] [cursor=pointer]
+              - generic [ref=e1586] [cursor=pointer]: Genetics marks the spot; DNA helps solve mysterious '70s killings
+              - generic [ref=e1589] [cursor=pointer]: TS
+              - generic [ref=e1592] [cursor=pointer]: Daily Print
+              - generic [ref=e1594] [cursor=pointer]: A3:News
+              - generic [ref=e1597] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1600] [cursor=pointer]
+              - generic [ref=e1604] [cursor=pointer]: Can Raps swing it?; An upset of Pistons tonight could reinforce a fresh shift of momentum
+              - generic [ref=e1607] [cursor=pointer]: TS
+              - generic [ref=e1610] [cursor=pointer]: Daily Print
+              - generic [ref=e1612] [cursor=pointer]: S3:Sports
+              - generic [ref=e1615] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1618] [cursor=pointer]
+              - generic [ref=e1622] [cursor=pointer]: Very Poor Judgment; Court dismisses Ford's attempt to shut down Al-Quds event
+              - generic [ref=e1625] [cursor=pointer]: TS
+              - generic [ref=e1628] [cursor=pointer]: Daily Print
+              - generic [ref=e1630] [cursor=pointer]: A6:News
+              - generic [ref=e1633] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1636] [cursor=pointer]
+              - generic [ref=e1640] [cursor=pointer]: Can't Stop Hate Fest
+              - generic [ref=e1643] [cursor=pointer]: TS
+              - generic [ref=e1646] [cursor=pointer]: Daily Print
+              - generic [ref=e1648] [cursor=pointer]: A1 / Front:News
+              - generic [ref=e1651] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1654] [cursor=pointer]
+              - generic [ref=e1658] [cursor=pointer]: Enemies stir hatred; Insidious antisemitism spreading
+              - generic [ref=e1661] [cursor=pointer]: TS
+              - generic [ref=e1664] [cursor=pointer]: Daily Print
+              - generic [ref=e1666] [cursor=pointer]: A8:News
+              - generic [ref=e1669] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1672] [cursor=pointer]
+              - generic [ref=e1676] [cursor=pointer]: Always read the fine print; Lack of legal clarity can cloud any business deal
+              - generic [ref=e1679] [cursor=pointer]: TS
+              - generic [ref=e1682] [cursor=pointer]: Daily Print
+              - generic [ref=e1684] [cursor=pointer]: A12:News
+              - generic [ref=e1687] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1690] [cursor=pointer]
+              - generic [ref=e1694] [cursor=pointer]: Incredibly Emotional; Kurt Russell on reuniting with Pfeiffer for new series The Madison
+              - generic [ref=e1697] [cursor=pointer]: TS
+              - generic [ref=e1700] [cursor=pointer]: Daily Print
+              - generic [ref=e1702] [cursor=pointer]: A28:Showbiz
+              - generic [ref=e1705] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1708] [cursor=pointer]
+              - generic [ref=e1712] [cursor=pointer]: Celebrini has two goals, assist as San Jose Sharks top Montreal Canadiens 4-2
+              - generic [ref=e1715] [cursor=pointer]: RNEWS
+              - generic [ref=e1718] [cursor=pointer]: Weekly Print
+              - generic [ref=e1722] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1725] [cursor=pointer]
+              - generic [ref=e1729] [cursor=pointer]: G League's Raptors 905 open new practice facility to be shared with public
+              - generic [ref=e1732] [cursor=pointer]: RNEWS
+              - generic [ref=e1735] [cursor=pointer]: Weekly Print
+              - generic [ref=e1739] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1742] [cursor=pointer]
+              - generic [ref=e1746] [cursor=pointer]: "Letters: Thanks to everyone who rallied around sequoia tree in Richmond"
+              - generic [ref=e1749] [cursor=pointer]: RNEWS
+              - generic [ref=e1752] [cursor=pointer]: Weekly Print
+              - generic [ref=e1756] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1759] [cursor=pointer]
+              - generic [ref=e1763] [cursor=pointer]: Sharks forward Igor Chernyshov exits against Canadiens after scary fall
+              - generic [ref=e1766] [cursor=pointer]: RNEWS
+              - generic [ref=e1769] [cursor=pointer]: Weekly Print
+              - generic [ref=e1773] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1776] [cursor=pointer]
+              - generic [ref=e1780] [cursor=pointer]: Ludvig Aberg builds a 3-shot lead in The Players Championship
+              - generic [ref=e1783] [cursor=pointer]: RNEWS
+              - generic [ref=e1786] [cursor=pointer]: Weekly Print
+              - generic [ref=e1790] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1793] [cursor=pointer]
+              - generic [ref=e1797] [cursor=pointer]: Minor hockey needs more ice time; If Canucks owners want to leave a legacy, they should add rinks, not make Britannia a practice facility
+              - generic [ref=e1800] [cursor=pointer]: PROVINCE
+              - generic [ref=e1803] [cursor=pointer]: Daily Print
+              - generic [ref=e1805] [cursor=pointer]: A54:Sports
+              - generic [ref=e1808] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1811] [cursor=pointer]
+              - generic [ref=e1815] [cursor=pointer]: Team Italy headed to WBC Semis
+              - generic [ref=e1818] [cursor=pointer]: PROVINCE
+              - generic [ref=e1821] [cursor=pointer]: Daily Print
+              - generic [ref=e1823] [cursor=pointer]: A53:Sports
+              - generic [ref=e1826] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1829] [cursor=pointer]
+              - generic [ref=e1833] [cursor=pointer]: It's about time; Why Kevin Gausman is obvious choice for first opening-day start as a Jay
+              - generic [ref=e1836] [cursor=pointer]: PROVINCE
+              - generic [ref=e1839] [cursor=pointer]: Daily Print
+              - generic [ref=e1841] [cursor=pointer]: A53:Sports
+              - generic [ref=e1844] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1847] [cursor=pointer]
+              - generic [ref=e1851] [cursor=pointer]: "Some Lapu Lapu Day survivors oppose 2026 festival: 'It's too fresh for us'"
+              - generic [ref=e1854] [cursor=pointer]: PROVINCE
+              - generic [ref=e1857] [cursor=pointer]: Daily Print
+              - generic [ref=e1859] [cursor=pointer]: A3:News
+              - generic [ref=e1862] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1865] [cursor=pointer]
+              - generic [ref=e1869] [cursor=pointer]: Chemical seller launches suit challenging legality of forfeiture law
+              - generic [ref=e1872] [cursor=pointer]: PROVINCE
+              - generic [ref=e1875] [cursor=pointer]: Daily Print
+              - generic [ref=e1877] [cursor=pointer]: A10:News
+              - generic [ref=e1880] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1883] [cursor=pointer]
+              - generic [ref=e1887] [cursor=pointer]: Three most wanted; Police warn that all three subjects are considered violent
+              - generic [ref=e1890] [cursor=pointer]: PROVINCE
+              - generic [ref=e1893] [cursor=pointer]: Daily Print
+              - generic [ref=e1895] [cursor=pointer]: A9:News
+              - generic [ref=e1898] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1901] [cursor=pointer]
+              - generic [ref=e1905] [cursor=pointer]: Say goodbye to one-tone colour and bring on the rich shades; Get The Look Shifts to warmth and radiance are perfect for that spring refresh
+              - generic [ref=e1908] [cursor=pointer]: PROVINCE
+              - generic [ref=e1911] [cursor=pointer]: Daily Print
+              - generic [ref=e1913] [cursor=pointer]: A22:Live It!
+              - generic [ref=e1916] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1919] [cursor=pointer]
+              - generic [ref=e1923] [cursor=pointer]: What's On
+              - generic [ref=e1926] [cursor=pointer]: PROVINCE
+              - generic [ref=e1929] [cursor=pointer]: Daily Print
+              - generic [ref=e1931] [cursor=pointer]: A47:Sports
+              - generic [ref=e1934] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1937] [cursor=pointer]
+              - generic [ref=e1941] [cursor=pointer]: A Birowatching Wonderland; Haven for rare and colourful birds welcoming visitors after Colombia's historic peace deal
+              - generic [ref=e1944] [cursor=pointer]: PROVINCE
+              - generic [ref=e1947] [cursor=pointer]: Daily Print
+              - generic [ref=e1949] [cursor=pointer]: A30:Travel
+              - generic [ref=e1952] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1955] [cursor=pointer]
+              - generic [ref=e1959] [cursor=pointer]: N.S. First Nation tells government and RCMP to stay out of cannabis and tobacco sales
+              - generic [ref=e1962] [cursor=pointer]: TC
+              - generic [ref=e1965] [cursor=pointer]: Daily Print
+              - generic [ref=e1967] [cursor=pointer]: 2:VICTORIA TIMES-COLONIST
+              - generic [ref=e1970] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1973] [cursor=pointer]
+              - generic [ref=e1977] [cursor=pointer]: Alberta teachers fail to get injunction on back-to-work law that ended strike
+              - generic [ref=e1980] [cursor=pointer]: TC
+              - generic [ref=e1983] [cursor=pointer]: Daily Print
+              - generic [ref=e1985] [cursor=pointer]: 11:CANADA / WORLD
+              - generic [ref=e1988] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e1991] [cursor=pointer]
+              - generic [ref=e1995] [cursor=pointer]: Beacon Hill Children's Farm opens for the season
+              - generic [ref=e1998] [cursor=pointer]: TC
+              - generic [ref=e2001] [cursor=pointer]: Daily Print
+              - generic [ref=e2003] [cursor=pointer]: 4:THE ISLAND / B.C.
+              - generic [ref=e2006] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2009] [cursor=pointer]
+              - generic [ref=e2013] [cursor=pointer]: Arsenal's Dowman becomes youngest ever Premier League scorer at age 16
+              - generic [ref=e2016] [cursor=pointer]: TC
+              - generic [ref=e2019] [cursor=pointer]: Daily Print
+              - generic [ref=e2021] [cursor=pointer]: 24:SCOREBOARD
+              - generic [ref=e2024] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2027] [cursor=pointer]
+              - generic [ref=e2031] [cursor=pointer]: Police lawyers question use-of-force expert at Myles Gray public hearing
+              - generic [ref=e2034] [cursor=pointer]: TC
+              - generic [ref=e2037] [cursor=pointer]: Daily Print
+              - generic [ref=e2039] [cursor=pointer]: 5:VICTORIA TIMES-COLONIST
+              - generic [ref=e2042] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2045] [cursor=pointer]
+              - generic [ref=e2049] [cursor=pointer]: Smoky lentil sloppy joes pack in the plant-based protein
+              - generic [ref=e2052] [cursor=pointer]: TC
+              - generic [ref=e2055] [cursor=pointer]: Daily Print
+              - generic [ref=e2057] [cursor=pointer]: 13:LIFE
+              - generic [ref=e2060] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2063] [cursor=pointer]
+              - generic [ref=e2067] [cursor=pointer]: Accused in B.C. cop killing has 'nuanced' understanding of trial, Crown tells hearing
+              - generic [ref=e2070] [cursor=pointer]: TC
+              - generic [ref=e2073] [cursor=pointer]: Daily Print
+              - generic [ref=e2075] [cursor=pointer]: 2:VICTORIA TIMES-COLONIST
+              - generic [ref=e2078] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2081] [cursor=pointer]
+              - generic [ref=e2085] [cursor=pointer]: Could the Chicago Bears leave Illinois? Indiana makes play for historic franchise
+              - generic [ref=e2088] [cursor=pointer]: TC
+              - generic [ref=e2091] [cursor=pointer]: Daily Print
+              - generic [ref=e2093] [cursor=pointer]: 23:SPORTS
+              - generic [ref=e2096] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2099] [cursor=pointer]
+              - generic [ref=e2103] [cursor=pointer]: Charges dropped against teen in death of teacher in prank
+              - generic [ref=e2106] [cursor=pointer]: TC
+              - generic [ref=e2109] [cursor=pointer]: Daily Print
+              - generic [ref=e2111] [cursor=pointer]: 10:CANADA / WORLD
+              - generic [ref=e2114] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2117] [cursor=pointer]
+              - generic [ref=e2121] [cursor=pointer]: "Tua will compete for starting job: Falcons GM"
+              - generic [ref=e2124] [cursor=pointer]: TC
+              - generic [ref=e2127] [cursor=pointer]: Daily Print
+              - generic [ref=e2129] [cursor=pointer]: 23:SPORTS
+              - generic [ref=e2132] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2135] [cursor=pointer]
+              - generic [ref=e2139] [cursor=pointer]: Weatheradio going off the air, moves to online and apps
+              - generic [ref=e2142] [cursor=pointer]: TC
+              - generic [ref=e2145] [cursor=pointer]: Daily Print
+              - generic [ref=e2147] [cursor=pointer]: 28:WEATHER
+              - generic [ref=e2150] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2153] [cursor=pointer]
+              - generic [ref=e2157] [cursor=pointer]: Mental-health care in B.C. isn't working for those who need it most
+              - generic [ref=e2160] [cursor=pointer]: TC
+              - generic [ref=e2163] [cursor=pointer]: Daily Print
+              - generic [ref=e2165] [cursor=pointer]: 37:ISLANDER
+              - generic [ref=e2168] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2171] [cursor=pointer]
+              - generic [ref=e2175] [cursor=pointer]: St. Patrick's Day red-haired race forced off UVic campus
+              - generic [ref=e2178] [cursor=pointer]: TC
+              - generic [ref=e2181] [cursor=pointer]: Daily Print
+              - generic [ref=e2183] [cursor=pointer]: 3:THE CAPITAL AND VANCOUVER ISLAND
+              - generic [ref=e2186] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2189] [cursor=pointer]
+              - generic [ref=e2193] [cursor=pointer]: Deported foreign student linked to Surrey extortion shooting, immigration documents show
+              - generic [ref=e2196] [cursor=pointer]: TC
+              - generic [ref=e2199] [cursor=pointer]: Daily Print
+              - generic [ref=e2201] [cursor=pointer]: 8:BRITISH COLUMBIA
+              - generic [ref=e2204] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2207] [cursor=pointer]
+              - generic [ref=e2211] [cursor=pointer]: Rules for extra-crispy kale chips
+              - generic [ref=e2214] [cursor=pointer]: TC
+              - generic [ref=e2217] [cursor=pointer]: Daily Print
+              - generic [ref=e2219] [cursor=pointer]: 13:LIFE
+              - generic [ref=e2222] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2225] [cursor=pointer]
+              - generic [ref=e2229] [cursor=pointer]: Agency moves to weaken U.S. pollution limits on chemical used for sterilizing medical tools
+              - generic [ref=e2232] [cursor=pointer]: TC
+              - generic [ref=e2235] [cursor=pointer]: Daily Print
+              - generic [ref=e2237] [cursor=pointer]: 27:BUSINESS
+              - generic [ref=e2240] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2243] [cursor=pointer]
+              - generic [ref=e2247] [cursor=pointer]: Island's low snowpack creates potential for drought
+              - generic [ref=e2250] [cursor=pointer]: TC
+              - generic [ref=e2253] [cursor=pointer]: Daily Print
+              - generic [ref=e2255] [cursor=pointer]: 1:FRONTPAGE
+              - generic [ref=e2258] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2261] [cursor=pointer]
+              - generic [ref=e2265] [cursor=pointer]: Grief, fatherhood impact Dresden Files' Twelve Months
+              - generic [ref=e2268] [cursor=pointer]: TC
+              - generic [ref=e2271] [cursor=pointer]: Daily Print
+              - generic [ref=e2273] [cursor=pointer]: 19:ARTS
+              - generic [ref=e2276] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2279] [cursor=pointer]
+              - generic [ref=e2283] [cursor=pointer]: Nearly $1M spend by Kwantlen Polytechnic student association sparks ministry investigation
+              - generic [ref=e2286] [cursor=pointer]: TC
+              - generic [ref=e2289] [cursor=pointer]: Daily Print
+              - generic [ref=e2291] [cursor=pointer]: 8:BRITISH COLUMBIA
+              - generic [ref=e2294] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2297] [cursor=pointer]
+              - generic [ref=e2301] [cursor=pointer]: Canada's wheelchair curling team wins gold over China at Paralympics
+              - generic [ref=e2304] [cursor=pointer]: TC
+              - generic [ref=e2307] [cursor=pointer]: Daily Print
+              - generic [ref=e2309] [cursor=pointer]: 21:SPORTS
+              - generic [ref=e2312] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2315] [cursor=pointer]
+              - generic [ref=e2319] [cursor=pointer]: B.C. aims to improve Haida Gwaii internet access with undersea cable costing up to $24 million
+              - generic [ref=e2322] [cursor=pointer]: TC
+              - generic [ref=e2325] [cursor=pointer]: Daily Print
+              - generic [ref=e2327] [cursor=pointer]: 8:BRITISH COLUMBIA
+              - generic [ref=e2330] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2333] [cursor=pointer]
+              - generic [ref=e2337] [cursor=pointer]: Antonelli on pole for F1's Chinese Grand Prix after teammate Russell wins sprint
+              - generic [ref=e2340] [cursor=pointer]: TC
+              - generic [ref=e2343] [cursor=pointer]: Daily Print
+              - generic [ref=e2345] [cursor=pointer]: 23:SPORTS
+              - generic [ref=e2348] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2351] [cursor=pointer]
+              - generic [ref=e2355] [cursor=pointer]: Ontario town wants to rename Prince Andrew Island
+              - generic [ref=e2358] [cursor=pointer]: TC
+              - generic [ref=e2361] [cursor=pointer]: Daily Print
+              - generic [ref=e2363] [cursor=pointer]: 10:CANADA / WORLD
+              - generic [ref=e2366] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2369] [cursor=pointer]
+              - generic [ref=e2373] [cursor=pointer]: Skeleton crew
+              - generic [ref=e2376] [cursor=pointer]: TC
+              - generic [ref=e2379] [cursor=pointer]: Daily Print
+              - generic [ref=e2381] [cursor=pointer]: 33,34,35,3:ISLANDER
+              - generic [ref=e2384] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2387] [cursor=pointer]
+              - generic [ref=e2391] [cursor=pointer]: "Q&A: Will we take another trip to Sullivan's Crossing?"
+              - generic [ref=e2394] [cursor=pointer]: TC
+              - generic [ref=e2397] [cursor=pointer]: Daily Print
+              - generic [ref=e2399] [cursor=pointer]: 20:TELEVISION
+              - generic [ref=e2402] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2405] [cursor=pointer]
+              - generic [ref=e2409] [cursor=pointer]: Alberta orders third-party review of Calgary's water rationing woes
+              - generic [ref=e2412] [cursor=pointer]: TC
+              - generic [ref=e2415] [cursor=pointer]: Daily Print
+              - generic [ref=e2417] [cursor=pointer]: 28:WEATHER
+              - generic [ref=e2420] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2423] [cursor=pointer]
+              - generic [ref=e2427] [cursor=pointer]: Trump considers waiving cargo-shipping rules in Jones Act during Iran war
+              - generic [ref=e2430] [cursor=pointer]: TC
+              - generic [ref=e2433] [cursor=pointer]: Daily Print
+              - generic [ref=e2435] [cursor=pointer]: 7:VICTORIA TIMES-COLONIST
+              - generic [ref=e2438] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2441] [cursor=pointer]
+              - generic [ref=e2445] [cursor=pointer]: Honda Civic named Canada's car of year
+              - generic [ref=e2448] [cursor=pointer]: PROVINCE
+              - generic [ref=e2451] [cursor=pointer]: Daily Print
+              - generic [ref=e2453] [cursor=pointer]: A38:Driving
+              - generic [ref=e2456] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2459] [cursor=pointer]
+              - generic [ref=e2463] [cursor=pointer]: Big Number
+              - generic [ref=e2466] [cursor=pointer]: PROVINCE
+              - generic [ref=e2469] [cursor=pointer]: Daily Print
+              - generic [ref=e2471] [cursor=pointer]: A50:Sports
+              - generic [ref=e2474] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2477] [cursor=pointer]
+              - generic [ref=e2481] [cursor=pointer]: Charges laid in professor's death; Critic of Iranian regime missing from Burnaby home for more than a month before body found in Mission
+              - generic [ref=e2484] [cursor=pointer]: PROVINCE
+              - generic [ref=e2487] [cursor=pointer]: Daily Print
+              - generic [ref=e2489] [cursor=pointer]: A3:News
+              - generic [ref=e2492] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2495] [cursor=pointer]
+              - generic [ref=e2499] [cursor=pointer]: 2026 Grecale Modena V6 latest 'Maserati experience'
+              - generic [ref=e2502] [cursor=pointer]: PROVINCE
+              - generic [ref=e2505] [cursor=pointer]: Daily Print
+              - generic [ref=e2507] [cursor=pointer]: A38:Driving
+              - generic [ref=e2510] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2513] [cursor=pointer]
+              - generic [ref=e2517] [cursor=pointer]: What to know about FIFA Fan Fest; World Cup 2026
+              - generic [ref=e2520] [cursor=pointer]: PROVINCE
+              - generic [ref=e2523] [cursor=pointer]: Daily Print
+              - generic [ref=e2525] [cursor=pointer]: A14:News
+              - generic [ref=e2528] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2531] [cursor=pointer]
+              - generic [ref=e2535] [cursor=pointer]: Plenty of Ice, Please
+              - generic [ref=e2538] [cursor=pointer]: PROVINCE
+              - generic [ref=e2541] [cursor=pointer]: Daily Print
+              - generic [ref=e2543] [cursor=pointer]: A56:Sports
+              - generic [ref=e2546] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2549] [cursor=pointer]
+              - generic [ref=e2553] [cursor=pointer]: A problem 150 years in the making; Absence of agreements has left B.C. with patchwork of unresolved Indigenous land claims
+              - generic [ref=e2556] [cursor=pointer]: PROVINCE
+              - generic [ref=e2559] [cursor=pointer]: Daily Print
+              - generic [ref=e2561] [cursor=pointer]: A17:News
+              - generic [ref=e2564] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2567] [cursor=pointer]
+              - generic [ref=e2571] [cursor=pointer]: Last word in Astrology
+              - generic [ref=e2574] [cursor=pointer]: PROVINCE
+              - generic [ref=e2577] [cursor=pointer]: Daily Print
+              - generic [ref=e2579] [cursor=pointer]: A35:Comics & Horoscope
+              - generic [ref=e2582] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2585] [cursor=pointer]
+              - generic [ref=e2589] [cursor=pointer]: Crime of the week sexual assault
+              - generic [ref=e2592] [cursor=pointer]: PROVINCE
+              - generic [ref=e2595] [cursor=pointer]: Daily Print
+              - generic [ref=e2597] [cursor=pointer]: A9:News
+              - generic [ref=e2600] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2603] [cursor=pointer]
+              - generic [ref=e2607] [cursor=pointer]: Victoria's 'Bluejay' soars into his new dual career; American Classic TV series, debut album fire up Friese
+              - generic [ref=e2610] [cursor=pointer]: PROVINCE
+              - generic [ref=e2613] [cursor=pointer]: Daily Print
+              - generic [ref=e2615] [cursor=pointer]: A25:Entertainment
+              - generic [ref=e2618] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2621] [cursor=pointer]
+              - generic [ref=e2625] [cursor=pointer]: Putting the sin in Sinners; Makeup artist had his hands full scaring people in Oscar-nominated film
+              - generic [ref=e2628] [cursor=pointer]: PROVINCE
+              - generic [ref=e2631] [cursor=pointer]: Daily Print
+              - generic [ref=e2633] [cursor=pointer]: A29:Entertainment
+              - generic [ref=e2636] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2639] [cursor=pointer]
+              - generic [ref=e2643] [cursor=pointer]: Old hands back on the beat; Vancouver police contract retired officers to help deal with shortage of recruits
+              - generic [ref=e2646] [cursor=pointer]: PROVINCE
+              - generic [ref=e2649] [cursor=pointer]: Daily Print
+              - generic [ref=e2651] [cursor=pointer]: A12:News
+              - generic [ref=e2654] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2657] [cursor=pointer]
+              - generic [ref=e2661] [cursor=pointer]: Pressure-valve putt; Corey Conners stays in the hunt on his final shot as Ludvig Aberg takes a 3-stroke lead into final round of Players Championship
+              - generic [ref=e2664] [cursor=pointer]: PROVINCE
+              - generic [ref=e2667] [cursor=pointer]: Daily Print
+              - generic [ref=e2669] [cursor=pointer]: A52:Sports
+              - generic [ref=e2672] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2675] [cursor=pointer]
+              - generic [ref=e2679] [cursor=pointer]: B.C. Sikhs join national group in calling for transparency in India-Canada trade talks
+              - generic [ref=e2682] [cursor=pointer]: PROVINCE
+              - generic [ref=e2685] [cursor=pointer]: Daily Print
+              - generic [ref=e2687] [cursor=pointer]: A8:News
+              - generic [ref=e2690] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2693] [cursor=pointer]
+              - generic [ref=e2697] [cursor=pointer]: Police watch as wheels fly off dump truck on Barnet Highway
+              - generic [ref=e2700] [cursor=pointer]: PROVINCE
+              - generic [ref=e2703] [cursor=pointer]: Daily Print
+              - generic [ref=e2705] [cursor=pointer]: A13:News
+              - generic [ref=e2708] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2711] [cursor=pointer]
+              - generic [ref=e2715] [cursor=pointer]: Deported student tied to shooting; Surrey police say bullets fired at home as part of extortion scheme
+              - generic [ref=e2718] [cursor=pointer]: PROVINCE
+              - generic [ref=e2721] [cursor=pointer]: Daily Print
+              - generic [ref=e2723] [cursor=pointer]: A4:News
+              - generic [ref=e2726] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2729] [cursor=pointer]
+              - generic [ref=e2733] [cursor=pointer]: Local animation studio set for Oscar rush; Vancouver's Industrial Light and Magic created visual effects on three of top- nominated films
+              - generic [ref=e2736] [cursor=pointer]: PROVINCE
+              - generic [ref=e2739] [cursor=pointer]: Daily Print
+              - generic [ref=e2741] [cursor=pointer]: A27:Entertainment
+              - generic [ref=e2744] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2747] [cursor=pointer]
+              - generic [ref=e2751] [cursor=pointer]: Tower a potential 'kickstart' for waterfront; West Cordova building proposed for one of Vancouver's 'most complicated' sites
+              - generic [ref=e2754] [cursor=pointer]: PROVINCE
+              - generic [ref=e2757] [cursor=pointer]: Daily Print
+              - generic [ref=e2759] [cursor=pointer]: A6:News
+              - generic [ref=e2762] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2765] [cursor=pointer]
+              - generic [ref=e2769] [cursor=pointer]: Popular YouTube kids' show hits the road; Caitie's Super Simple Songs Surprise Party kicks off Western Canada tour in New Westminster
+              - generic [ref=e2772] [cursor=pointer]: PROVINCE
+              - generic [ref=e2775] [cursor=pointer]: Daily Print
+              - generic [ref=e2777] [cursor=pointer]: A28:Entertainment
+              - generic [ref=e2780] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2783] [cursor=pointer]
+              - generic [ref=e2787] [cursor=pointer]: Makeover
+              - generic [ref=e2790] [cursor=pointer]: PROVINCE
+              - generic [ref=e2793] [cursor=pointer]: Daily Print
+              - generic [ref=e2795] [cursor=pointer]: A22:Live It!
+              - generic [ref=e2798] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2801] [cursor=pointer]
+              - generic [ref=e2805] [cursor=pointer]: Our five favourite spring skirts of 2026
+              - generic [ref=e2808] [cursor=pointer]: PROVINCE
+              - generic [ref=e2811] [cursor=pointer]: Daily Print
+              - generic [ref=e2813] [cursor=pointer]: A21:Live It!
+              - generic [ref=e2816] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2819] [cursor=pointer]
+              - generic [ref=e2823] [cursor=pointer]: Can Raps swing it?; An upset of Pistons tonight could reinforce a fresh shift of momentum
+              - generic [ref=e2826] [cursor=pointer]: PROVINCE
+              - generic [ref=e2829] [cursor=pointer]: Daily Print
+              - generic [ref=e2831] [cursor=pointer]: A49:Sports
+              - generic [ref=e2834] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2837] [cursor=pointer]
+              - generic [ref=e2841] [cursor=pointer]: Canucks at Britannia rink could be win-win; A much-needed practice facility for the team, and new recreational spaces for the community
+              - generic [ref=e2844] [cursor=pointer]: PROVINCE
+              - generic [ref=e2847] [cursor=pointer]: Daily Print
+              - generic [ref=e2849] [cursor=pointer]: A55:Sports
+              - generic [ref=e2852] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2855] [cursor=pointer]
+              - generic [ref=e2859] [cursor=pointer]: Made-in-Canada product supports skin at every stage of life
+              - generic [ref=e2862] [cursor=pointer]: PROVINCE
+              - generic [ref=e2865] [cursor=pointer]: Daily Print
+              - generic [ref=e2867] [cursor=pointer]: A23:Live It!
+              - generic [ref=e2870] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2873] [cursor=pointer]
+              - generic [ref=e2877] [cursor=pointer]: A game changer for women; Sunday Op-ed Sports a proven pathway to empowerment, Julie Savard-Shaw and Silvia Gonzalez-Zamora write
+              - generic [ref=e2880] [cursor=pointer]: PROVINCE
+              - generic [ref=e2883] [cursor=pointer]: Daily Print
+              - generic [ref=e2885] [cursor=pointer]: A16:Opinion
+              - generic [ref=e2888] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2891] [cursor=pointer]
+              - generic [ref=e2895] [cursor=pointer]: McClure felt quick character connection; New Westminster-based actor feels a kinship with Kaia, her alter ego on Virgin River
+              - generic [ref=e2898] [cursor=pointer]: PROVINCE
+              - generic [ref=e2901] [cursor=pointer]: Daily Print
+              - generic [ref=e2903] [cursor=pointer]: A26:Entertainment
+              - generic [ref=e2906] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2909] [cursor=pointer]
+              - generic [ref=e2913] [cursor=pointer]: A heron takes fligh
+              - generic [ref=e2916] [cursor=pointer]: TC
+              - generic [ref=e2919] [cursor=pointer]: Daily Print
+              - generic [ref=e2921] [cursor=pointer]: 28:WEATHER
+              - generic [ref=e2924] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2927] [cursor=pointer]
+              - generic [ref=e2931] [cursor=pointer]: "INVITING OP-EDS: A WORD ABOUT COMMENT SUBMISSIONS"
+              - generic [ref=e2934] [cursor=pointer]: TC
+              - generic [ref=e2937] [cursor=pointer]: Daily Print
+              - generic [ref=e2939] [cursor=pointer]: 37:ISLANDER
+              - generic [ref=e2942] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2945] [cursor=pointer]
+              - generic [ref=e2949] [cursor=pointer]: Austrian skier Scheib locks up World Cup GS title
+              - generic [ref=e2952] [cursor=pointer]: TC
+              - generic [ref=e2955] [cursor=pointer]: Daily Print
+              - generic [ref=e2957] [cursor=pointer]: 23:SPORTS
+              - generic [ref=e2960] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2963] [cursor=pointer]
+              - generic [ref=e2967] [cursor=pointer]: Sabalenka reaches Indian Wells final for 3rd time in 4 years, will face Rybakina
+              - generic [ref=e2970] [cursor=pointer]: TC
+              - generic [ref=e2973] [cursor=pointer]: Daily Print
+              - generic [ref=e2975] [cursor=pointer]: 24:SCOREBOARD
+              - generic [ref=e2978] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2981] [cursor=pointer]
+              - generic [ref=e2985] [cursor=pointer]: U.S. lawmakers rush to set rounding rules for when there are no pennies
+              - generic [ref=e2988] [cursor=pointer]: TC
+              - generic [ref=e2991] [cursor=pointer]: Daily Print
+              - generic [ref=e2993] [cursor=pointer]: 27:BUSINESS
+              - generic [ref=e2996] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e2999] [cursor=pointer]
+              - generic [ref=e3003] [cursor=pointer]: "5 people a day dying from toxic drugs in B.C.: coroner"
+              - generic [ref=e3006] [cursor=pointer]: TC
+              - generic [ref=e3009] [cursor=pointer]: Daily Print
+              - generic [ref=e3011] [cursor=pointer]: 4:THE ISLAND / B.C.
+              - generic [ref=e3014] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3017] [cursor=pointer]
+              - generic [ref=e3021] [cursor=pointer]: Harbour porpoises are chubby beacons of hope in Salish Sea
+              - generic [ref=e3024] [cursor=pointer]: TC
+              - generic [ref=e3027] [cursor=pointer]: Daily Print
+              - generic [ref=e3029] [cursor=pointer]: 37:ISLANDER
+              - generic [ref=e3032] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3035] [cursor=pointer]
+              - generic [ref=e3039] [cursor=pointer]: Campbell River medallist Turner says he leaves Milan-Cortina a better athlete
+              - generic [ref=e3042] [cursor=pointer]: TC
+              - generic [ref=e3045] [cursor=pointer]: Daily Print
+              - generic [ref=e3047] [cursor=pointer]: 21:SPORTS
+              - generic [ref=e3050] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3053] [cursor=pointer]
+              - generic [ref=e3057] [cursor=pointer]: Matthews will miss rest of NHL season due to knee injury
+              - generic [ref=e3060] [cursor=pointer]: TC
+              - generic [ref=e3063] [cursor=pointer]: Daily Print
+              - generic [ref=e3065] [cursor=pointer]: 21:SPORTS
+              - generic [ref=e3068] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3071] [cursor=pointer]
+              - generic [ref=e3075] [cursor=pointer]: Manhunt for suspect in fatal shooting leads to delay in opening gates at Players Championship
+              - generic [ref=e3078] [cursor=pointer]: TC
+              - generic [ref=e3081] [cursor=pointer]: Daily Print
+              - generic [ref=e3083] [cursor=pointer]: 22:SPORTS
+              - generic [ref=e3086] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3089] [cursor=pointer]
+              - generic [ref=e3093] [cursor=pointer]: WNBA, union meet for 5th day trying to get deal to avoid season disruptions
+              - generic [ref=e3096] [cursor=pointer]: TC
+              - generic [ref=e3099] [cursor=pointer]: Daily Print
+              - generic [ref=e3101] [cursor=pointer]: 22:SPORTS
+              - generic [ref=e3104] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3107] [cursor=pointer]
+              - generic [ref=e3111] [cursor=pointer]: Making filled pasta or dumplings
+              - generic [ref=e3114] [cursor=pointer]: TC
+              - generic [ref=e3117] [cursor=pointer]: Daily Print
+              - generic [ref=e3119] [cursor=pointer]: 13:LIFE
+              - generic [ref=e3122] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3125] [cursor=pointer]
+              - generic [ref=e3129] [cursor=pointer]: Two charged with murder after body of missing man found in Mission
+              - generic [ref=e3132] [cursor=pointer]: TC
+              - generic [ref=e3135] [cursor=pointer]: Daily Print
+              - generic [ref=e3137] [cursor=pointer]: 2:VICTORIA TIMES-COLONIST
+              - generic [ref=e3140] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3143] [cursor=pointer]
+              - generic [ref=e3147] [cursor=pointer]: Citizen Joe; Ex-T.O. councillor denies 'layer cake' of conflicts
+              - generic [ref=e3150] [cursor=pointer]: TS
+              - generic [ref=e3153] [cursor=pointer]: Daily Print
+              - generic [ref=e3155] [cursor=pointer]: A4:News
+              - generic [ref=e3158] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3161] [cursor=pointer]
+              - generic [ref=e3165] [cursor=pointer]: Leo's Battle; One Battle After Another's DiCaprio wants to make movies that matter
+              - generic [ref=e3168] [cursor=pointer]: TS
+              - generic [ref=e3171] [cursor=pointer]: Daily Print
+              - generic [ref=e3173] [cursor=pointer]: A27:Showbiz
+              - generic [ref=e3176] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3179] [cursor=pointer]
+              - generic [ref=e3183] [cursor=pointer]: "Rules need to be changed: Advocate"
+              - generic [ref=e3186] [cursor=pointer]: TS
+              - generic [ref=e3189] [cursor=pointer]: Daily Print
+              - generic [ref=e3191] [cursor=pointer]: A4:News
+              - generic [ref=e3194] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3197] [cursor=pointer]
+              - generic [ref=e3201] [cursor=pointer]: Team Italý headed t0 WBC semis
+              - generic [ref=e3204] [cursor=pointer]: TS
+              - generic [ref=e3207] [cursor=pointer]: Daily Print
+              - generic [ref=e3209] [cursor=pointer]: S2:Sports
+              - generic [ref=e3212] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3215] [cursor=pointer]
+              - generic [ref=e3219] [cursor=pointer]: Gneasy Listening; T.O. filmmaker channels urban legends into unshakable horror with Undertone
+              - generic [ref=e3222] [cursor=pointer]: TS
+              - generic [ref=e3225] [cursor=pointer]: Daily Print
+              - generic [ref=e3227] [cursor=pointer]: A28:Showbiz
+              - generic [ref=e3230] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3233] [cursor=pointer]
+              - generic [ref=e3237] [cursor=pointer]: The must sees
+              - generic [ref=e3240] [cursor=pointer]: TS
+              - generic [ref=e3243] [cursor=pointer]: Daily Print
+              - generic [ref=e3245] [cursor=pointer]: A31:Showbiz
+              - generic [ref=e3248] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3251] [cursor=pointer]
+              - generic [ref=e3255] [cursor=pointer]: Pezzetta riding high after scrappy Maple Leafs debut
+              - generic [ref=e3258] [cursor=pointer]: TS
+              - generic [ref=e3261] [cursor=pointer]: Daily Print
+              - generic [ref=e3263] [cursor=pointer]: S1 / Front:Sports
+              - generic [ref=e3266] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3269] [cursor=pointer]
+              - generic [ref=e3273] [cursor=pointer]: Simmons Says; Playing in the Toronto media glare not as tough as many believe. Just win Silver lining to Matthews' season-ending injury Let's simply enjoy Bam's big night Welcome, if unlikely, drama for Canada at WBC Steve simmons gives you his weekly take on the word of sports
+              - generic [ref=e3276] [cursor=pointer]: TS
+              - generic [ref=e3279] [cursor=pointer]: Daily Print
+              - generic [ref=e3281] [cursor=pointer]: S6:Sports
+              - generic [ref=e3284] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3287] [cursor=pointer]
+              - generic [ref=e3291] [cursor=pointer]: Caption Only
+              - generic [ref=e3294] [cursor=pointer]: TS
+              - generic [ref=e3297] [cursor=pointer]: Daily Print
+              - generic [ref=e3299] [cursor=pointer]: A14:Comment
+              - generic [ref=e3302] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3305] [cursor=pointer]
+              - generic [ref=e3309] [cursor=pointer]: Wild and Wolly; Leafs goalie stays sharp in shootout loss
+              - generic [ref=e3312] [cursor=pointer]: TS
+              - generic [ref=e3315] [cursor=pointer]: Daily Print
+              - generic [ref=e3317] [cursor=pointer]: S1 / Front:Sports
+              - generic [ref=e3320] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3323] [cursor=pointer]
+              - generic [ref=e3327] [cursor=pointer]: Self-defence law absurd, outdated
+              - generic [ref=e3330] [cursor=pointer]: TS
+              - generic [ref=e3333] [cursor=pointer]: Daily Print
+              - generic [ref=e3335] [cursor=pointer]: A14:Comment
+              - generic [ref=e3338] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3341] [cursor=pointer]
+              - generic [ref=e3345] [cursor=pointer]: Life Decisions; Letters to the Editor
+              - generic [ref=e3348] [cursor=pointer]: TS
+              - generic [ref=e3351] [cursor=pointer]: Daily Print
+              - generic [ref=e3353] [cursor=pointer]: A14:Comment
+              - generic [ref=e3356] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3359] [cursor=pointer]
+              - generic [ref=e3363] [cursor=pointer]: Deserting Disease
+              - generic [ref=e3366] [cursor=pointer]: TS
+              - generic [ref=e3369] [cursor=pointer]: Daily Print
+              - generic [ref=e3371] [cursor=pointer]: A14:Comment
+              - generic [ref=e3374] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3377] [cursor=pointer]
+              - generic [ref=e3381] [cursor=pointer]: Hard Time
+              - generic [ref=e3384] [cursor=pointer]: TS
+              - generic [ref=e3387] [cursor=pointer]: Daily Print
+              - generic [ref=e3389] [cursor=pointer]: A14:Comment
+              - generic [ref=e3392] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3395] [cursor=pointer]
+              - generic [ref=e3399] [cursor=pointer]: Teen wanted in East York assault
+              - generic [ref=e3402] [cursor=pointer]: TS
+              - generic [ref=e3405] [cursor=pointer]: Daily Print
+              - generic [ref=e3407] [cursor=pointer]: A2:News
+              - generic [ref=e3410] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3413] [cursor=pointer]
+              - generic [ref=e3417] [cursor=pointer]: Its about time; Why Kevin Gausman is obvious choice for first opening-day start as a Jay
+              - generic [ref=e3420] [cursor=pointer]: TS
+              - generic [ref=e3423] [cursor=pointer]: Daily Print
+              - generic [ref=e3425] [cursor=pointer]: S2:Sports
+              - generic [ref=e3428] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3431] [cursor=pointer]
+              - generic [ref=e3435] [cursor=pointer]: Six Georgian rugby players sanctioned under anti-doping rules in urine sample substitution case
+              - generic [ref=e3438] [cursor=pointer]: TC
+              - generic [ref=e3441] [cursor=pointer]: Daily Print
+              - generic [ref=e3443] [cursor=pointer]: 23:SPORTS
+              - generic [ref=e3446] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3449] [cursor=pointer]
+              - generic [ref=e3453] [cursor=pointer]: "'One elbow up, one down': Carney's first year as PM"
+              - generic [ref=e3456] [cursor=pointer]: TC
+              - generic [ref=e3459] [cursor=pointer]: Daily Print
+              - generic [ref=e3461] [cursor=pointer]: 25:CANADA
+              - generic [ref=e3464] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3467] [cursor=pointer]
+              - generic [ref=e3471] [cursor=pointer]: Quebec Tories sour on Grapes as caucus supports Don Cherry for Order of Canada
+              - generic [ref=e3474] [cursor=pointer]: TC
+              - generic [ref=e3477] [cursor=pointer]: Daily Print
+              - generic [ref=e3479] [cursor=pointer]: 10:CANADA / WORLD
+              - generic [ref=e3482] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3485] [cursor=pointer]
+              - generic [ref=e3489] [cursor=pointer]: Vancouver Rise sell Canadian forward Ward to NWSL's Seattle Reign
+              - generic [ref=e3492] [cursor=pointer]: TC
+              - generic [ref=e3495] [cursor=pointer]: Daily Print
+              - generic [ref=e3497] [cursor=pointer]: 22:SPORTS
+              - generic [ref=e3500] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3503] [cursor=pointer]
+              - generic [ref=e3507] [cursor=pointer]: Scherzer's strong showing not enough as Blue Jays fall to Skubal, Tigers
+              - generic [ref=e3510] [cursor=pointer]: TC
+              - generic [ref=e3513] [cursor=pointer]: Daily Print
+              - generic [ref=e3515] [cursor=pointer]: 24:SCOREBOARD
+              - generic [ref=e3518] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3521] [cursor=pointer]
+              - generic [ref=e3525] [cursor=pointer]: What's next after no-snow winter in Victoria, Nanaimo?
+              - generic [ref=e3528] [cursor=pointer]: TC
+              - generic [ref=e3531] [cursor=pointer]: Daily Print
+              - generic [ref=e3533] [cursor=pointer]: 3:THE CAPITAL AND VANCOUVER ISLAND
+              - generic [ref=e3536] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3539] [cursor=pointer]
+              - generic [ref=e3543] [cursor=pointer]: Turf war at Layritz Park
+              - generic [ref=e3546] [cursor=pointer]: TC
+              - generic [ref=e3549] [cursor=pointer]: Daily Print
+              - generic [ref=e3551] [cursor=pointer]: 21:SPORTS
+              - generic [ref=e3554] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3557] [cursor=pointer]
+              - generic [ref=e3561] [cursor=pointer]: Iran threatens ports as U.S. calls on allies to secure Strait of Hormuz for shipping oil
+              - generic [ref=e3564] [cursor=pointer]: TC
+              - generic [ref=e3567] [cursor=pointer]: Daily Print
+              - generic [ref=e3569] [cursor=pointer]: 6:WORLD
+              - generic [ref=e3572] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3575] [cursor=pointer]
+              - generic [ref=e3579] [cursor=pointer]: Kinew says it's time to survey Manitobans on changing clocks
+              - generic [ref=e3582] [cursor=pointer]: TC
+              - generic [ref=e3585] [cursor=pointer]: Daily Print
+              - generic [ref=e3587] [cursor=pointer]: 9:CANADA
+              - generic [ref=e3590] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3593] [cursor=pointer]
+              - generic [ref=e3597] [cursor=pointer]: "VOLUNTEERING: Support Soweto Junior School, Volunteer Victoria"
+              - generic [ref=e3600] [cursor=pointer]: TC
+              - generic [ref=e3603] [cursor=pointer]: Daily Print
+              - generic [ref=e3605] [cursor=pointer]: 14:LIFE
+              - generic [ref=e3608] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3611] [cursor=pointer]
+              - generic [ref=e3615] [cursor=pointer]: As fuel prices rise, summer flights likely to get more expensive
+              - generic [ref=e3618] [cursor=pointer]: TC
+              - generic [ref=e3621] [cursor=pointer]: Daily Print
+              - generic [ref=e3623] [cursor=pointer]: 6:WORLD
+              - generic [ref=e3626] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3629] [cursor=pointer]
+              - generic [ref=e3633] [cursor=pointer]: Court rejects challenge to town's livability tax
+              - generic [ref=e3636] [cursor=pointer]: TC
+              - generic [ref=e3639] [cursor=pointer]: Daily Print
+              - generic [ref=e3641] [cursor=pointer]: 11:CANADA / WORLD
+              - generic [ref=e3644] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3647] [cursor=pointer]
+              - generic [ref=e3651] [cursor=pointer]: Victoria's new double-decker buses arrive, two already in service
+              - generic [ref=e3654] [cursor=pointer]: TC
+              - generic [ref=e3657] [cursor=pointer]: Daily Print
+              - generic [ref=e3659] [cursor=pointer]: 3:THE CAPITAL AND VANCOUVER ISLAND
+              - generic [ref=e3662] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3665] [cursor=pointer]
+              - generic [ref=e3669] [cursor=pointer]: Loss of provincial funding raises questions about Garth Homer housing project
+              - generic [ref=e3672] [cursor=pointer]: TC
+              - generic [ref=e3675] [cursor=pointer]: Daily Print
+              - generic [ref=e3677] [cursor=pointer]: 1:FRONTPAGE
+              - generic [ref=e3680] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3683] [cursor=pointer]
+              - generic [ref=e3687] [cursor=pointer]: "Good to the bone: The Island fossil find that inspired a flood of citizen scientists"
+              - generic [ref=e3690] [cursor=pointer]: TC
+              - generic [ref=e3693] [cursor=pointer]: Daily Print
+              - generic [ref=e3695] [cursor=pointer]: 1:FRONTPAGE
+              - generic [ref=e3698] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3701] [cursor=pointer]
+              - generic [ref=e3705] [cursor=pointer]: Pardon lobbyist in U.S. faces extortion charge
+              - generic [ref=e3708] [cursor=pointer]: TC
+              - generic [ref=e3711] [cursor=pointer]: Daily Print
+              - generic [ref=e3713] [cursor=pointer]: 11:CANADA / WORLD
+              - generic [ref=e3716] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3719] [cursor=pointer]
+              - generic [ref=e3723] [cursor=pointer]: Our Community
+              - generic [ref=e3726] [cursor=pointer]: TC
+              - generic [ref=e3729] [cursor=pointer]: Daily Print
+              - generic [ref=e3731] [cursor=pointer]: 38:ISLANDER
+              - generic [ref=e3734] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3737] [cursor=pointer]
+              - generic [ref=e3741] [cursor=pointer]: Canada contributes oil to stabilize energy markets, PM comments
+              - generic [ref=e3744] [cursor=pointer]: TC
+              - generic [ref=e3747] [cursor=pointer]: Daily Print
+              - generic [ref=e3749] [cursor=pointer]: 26:BUSINESS
+              - generic [ref=e3752] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3755] [cursor=pointer]
+              - generic [ref=e3759] [cursor=pointer]: Gabriola vet clinic set to close after unsuccessful hunt for someone to take over
+              - generic [ref=e3762] [cursor=pointer]: TC
+              - generic [ref=e3765] [cursor=pointer]: Daily Print
+              - generic [ref=e3767] [cursor=pointer]: 1:FRONTPAGE
+              - generic [ref=e3770] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3773] [cursor=pointer]
+              - generic [ref=e3777] [cursor=pointer]: Ford planning five lower-priced vehicles; New rides set to hit dealerships by the end of the decade
+              - generic [ref=e3780] [cursor=pointer]: PROVINCE
+              - generic [ref=e3783] [cursor=pointer]: Daily Print
+              - generic [ref=e3785] [cursor=pointer]: A37:Driving
+              - generic [ref=e3788] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3791] [cursor=pointer]
+              - generic [ref=e3795] [cursor=pointer]: This Just In
+              - generic [ref=e3798] [cursor=pointer]: PROVINCE
+              - generic [ref=e3801] [cursor=pointer]: Daily Print
+              - generic [ref=e3803] [cursor=pointer]: A22:Live It!
+              - generic [ref=e3806] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3809] [cursor=pointer]
+              - generic [ref=e3813] [cursor=pointer]: "Recipe: Crispy, golden broccoli rabe fritters; Sneak some veggies into your family's dinner"
+              - generic [ref=e3816] [cursor=pointer]: PROVINCE
+              - generic [ref=e3819] [cursor=pointer]: Daily Print
+              - generic [ref=e3821] [cursor=pointer]: A23:Live It!
+              - generic [ref=e3824] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3827] [cursor=pointer]
+              - generic [ref=e3831] [cursor=pointer]: Excited Einarson opens 'louder' world championship with 7-5 win over Sweden
+              - generic [ref=e3834] [cursor=pointer]: RNEWS
+              - generic [ref=e3837] [cursor=pointer]: Weekly Print
+              - generic [ref=e3841] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3844] [cursor=pointer]
+              - generic [ref=e3848] [cursor=pointer]: Steveston Highway closed between No. 3 and No. 4 after pedestrian struck
+              - generic [ref=e3851] [cursor=pointer]: RNEWS
+              - generic [ref=e3854] [cursor=pointer]: Weekly Print
+              - generic [ref=e3858] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3861] [cursor=pointer]
+              - generic [ref=e3865] [cursor=pointer]: "'Sinners' and 'One Battle After Another' poised for an all- Warner Bros. showdown at Academy Awards"
+              - generic [ref=e3868] [cursor=pointer]: RNEWS
+              - generic [ref=e3871] [cursor=pointer]: Weekly Print
+              - generic [ref=e3875] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3878] [cursor=pointer]
+              - generic [ref=e3882] [cursor=pointer]: Sharks superstar Macklin Celebrini burns Canadiens for second time in under two weeks
+              - generic [ref=e3885] [cursor=pointer]: RNEWS
+              - generic [ref=e3888] [cursor=pointer]: Weekly Print
+              - generic [ref=e3892] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3895] [cursor=pointer]
+              - generic [ref=e3899] [cursor=pointer]: Excited Einarson opens 'louder' world championship with wins over Sweden, U.S.
+              - generic [ref=e3902] [cursor=pointer]: RNEWS
+              - generic [ref=e3905] [cursor=pointer]: Weekly Print
+              - generic [ref=e3909] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3912] [cursor=pointer]
+              - generic [ref=e3916] [cursor=pointer]: Counterespionage thriller is first Chinese movie to get backing of intelligence agency
+              - generic [ref=e3919] [cursor=pointer]: RNEWS
+              - generic [ref=e3922] [cursor=pointer]: Weekly Print
+              - generic [ref=e3926] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3929] [cursor=pointer]
+              - generic [ref=e3933] [cursor=pointer]: Scores and schedule for Saturday, March 14, 2026
+              - generic [ref=e3936] [cursor=pointer]: RNEWS
+              - generic [ref=e3939] [cursor=pointer]: Weekly Print
+              - generic [ref=e3943] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3946] [cursor=pointer]
+              - generic [ref=e3950] [cursor=pointer]: Bobby McMann posts three-point night, Seattle Kraken thump Vancouver Canucks 5-2
+              - generic [ref=e3953] [cursor=pointer]: RNEWS
+              - generic [ref=e3956] [cursor=pointer]: Weekly Print
+              - generic [ref=e3960] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3963] [cursor=pointer]
+              - generic [ref=e3967] [cursor=pointer]: "NHL roundup: Bruins beat Capitals 3-2 after nine-round shootout"
+              - generic [ref=e3970] [cursor=pointer]: RNEWS
+              - generic [ref=e3973] [cursor=pointer]: Weekly Print
+              - generic [ref=e3977] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3980] [cursor=pointer]
+              - generic [ref=e3984] [cursor=pointer]: Activists Gloria Steinem and Leymah Gbowee channel bond as 'sister-friends' into a book
+              - generic [ref=e3987] [cursor=pointer]: TC
+              - generic [ref=e3990] [cursor=pointer]: Daily Print
+              - generic [ref=e3992] [cursor=pointer]: 19:ARTS
+              - generic [ref=e3995] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e3998] [cursor=pointer]
+              - generic [ref=e4002] [cursor=pointer]: Climate change is coming for your pocketbook
+              - generic [ref=e4005] [cursor=pointer]: TC
+              - generic [ref=e4008] [cursor=pointer]: Daily Print
+              - generic [ref=e4010] [cursor=pointer]: 40:ISLANDER
+              - generic [ref=e4013] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e4016] [cursor=pointer]
+              - generic [ref=e4020] [cursor=pointer]: Holmstrom scores twice as Islanders hold on to beat Flames 3-2
+              - generic [ref=e4023] [cursor=pointer]: RNEWS
+              - generic [ref=e4026] [cursor=pointer]: Weekly Print
+              - generic [ref=e4030] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e4033] [cursor=pointer]
+              - generic [ref=e4037] [cursor=pointer]: McGuire, Ojeda score as Orlando City beats Montreal 2-1 in interim coach Mark Perelman's debut
+              - generic [ref=e4040] [cursor=pointer]: RNEWS
+              - generic [ref=e4043] [cursor=pointer]: Weekly Print
+              - generic [ref=e4047] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e4050] [cursor=pointer]
+              - generic [ref=e4054] [cursor=pointer]: Royals in pursuit of final playoff berth in conference
+              - generic [ref=e4057] [cursor=pointer]: TC
+              - generic [ref=e4060] [cursor=pointer]: Daily Print
+              - generic [ref=e4062] [cursor=pointer]: 21:SPORTS
+              - generic [ref=e4065] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e4068] [cursor=pointer]
+              - generic [ref=e4072] [cursor=pointer]: Court tosses Ontario's bid to block Al-Quds Day rally
+              - generic [ref=e4075] [cursor=pointer]: TC
+              - generic [ref=e4078] [cursor=pointer]: Daily Print
+              - generic [ref=e4080] [cursor=pointer]: 7:VICTORIA TIMES-COLONIST
+              - generic [ref=e4083] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e4086] [cursor=pointer]
+              - generic [ref=e4090] [cursor=pointer]: Jack Quinn scores in regulation and shootout as Sabres edge Maple Leafs 3-2
+              - generic [ref=e4093] [cursor=pointer]: RNEWS
+              - generic [ref=e4096] [cursor=pointer]: Weekly Print
+              - generic [ref=e4100] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e4103] [cursor=pointer]
+              - generic [ref=e4107] [cursor=pointer]: Raccoons like puzzles, Vancouver researchers find
+              - generic [ref=e4110] [cursor=pointer]: TC
+              - generic [ref=e4113] [cursor=pointer]: Daily Print
+              - generic [ref=e4115] [cursor=pointer]: 14:LIFE
+              - generic [ref=e4118] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e4121] [cursor=pointer]
+              - generic [ref=e4125] [cursor=pointer]: Medvedev hands Alcaraz his first loss of the year, heads to Indian Wells final against Sinner
+              - generic [ref=e4128] [cursor=pointer]: RNEWS
+              - generic [ref=e4131] [cursor=pointer]: Weekly Print
+              - generic [ref=e4135] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e4138] [cursor=pointer]
+              - generic [ref=e4142] [cursor=pointer]: National Post - Page 1 Frontpage
+              - generic [ref=e4145] [cursor=pointer]: POST
+              - generic [ref=e4148] [cursor=pointer]: Front Page Images
+              - generic [ref=e4152] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Published" [ref=e4155] [cursor=pointer]
+              - generic [ref=e4159] [cursor=pointer]: The Province - Page 1 Frontpage
+              - generic [ref=e4162] [cursor=pointer]: PROVINCE
+              - generic [ref=e4165] [cursor=pointer]: Front Page Images
+              - generic [ref=e4169] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Published" [ref=e4172] [cursor=pointer]
+              - generic [ref=e4176] [cursor=pointer]: Times Colonist Victoria - Page 1 Frontpage
+              - generic [ref=e4179] [cursor=pointer]: TC
+              - generic [ref=e4182] [cursor=pointer]: Front Page Images
+              - generic [ref=e4186] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Published" [ref=e4189] [cursor=pointer]
+              - generic [ref=e4193] [cursor=pointer]: Vancouver Sun - Page 1 Frontpage
+              - generic [ref=e4196] [cursor=pointer]: Sun
+              - generic [ref=e4199] [cursor=pointer]: Front Page Images
+              - generic [ref=e4203] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Published" [ref=e4206] [cursor=pointer]
+              - generic [ref=e4210] [cursor=pointer]: UVic awarded $15M in federal funding for research equipment
+              - generic [ref=e4213] [cursor=pointer]: TC
+              - generic [ref=e4216] [cursor=pointer]: Daily Print
+              - generic [ref=e4218] [cursor=pointer]: 4:THE ISLAND / B.C.
+              - generic [ref=e4221] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e4224] [cursor=pointer]
+              - generic [ref=e4228] [cursor=pointer]: U.S. beats Canada for spot in World Baseball Classic semifinals
+              - generic [ref=e4231] [cursor=pointer]: TC
+              - generic [ref=e4234] [cursor=pointer]: Daily Print
+              - generic [ref=e4236] [cursor=pointer]: 22:SPORTS
+              - generic [ref=e4239] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e4242] [cursor=pointer]
+              - generic [ref=e4246] [cursor=pointer]: "Raptors finally win: Barnes, Barrett help find footing over Suns"
+              - generic [ref=e4249] [cursor=pointer]: TC
+              - generic [ref=e4252] [cursor=pointer]: Daily Print
+              - generic [ref=e4254] [cursor=pointer]: 22:SPORTS
+              - generic [ref=e4257] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e4260] [cursor=pointer]
+              - generic [ref=e4264] [cursor=pointer]: The Province inside
+              - generic [ref=e4267] [cursor=pointer]: PROVINCE
+              - generic [ref=e4270] [cursor=pointer]: Daily Print
+              - generic [ref=e4272] [cursor=pointer]: A2:News
+              - generic [ref=e4274] [cursor=pointer]: DJANI
+              - generic [ref=e4276] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Unpublished" [ref=e4279] [cursor=pointer]
+              - generic [ref=e4283] [cursor=pointer]: For Some, The Beat Goes On
+              - generic [ref=e4286] [cursor=pointer]: PROVINCE
+              - generic [ref=e4289] [cursor=pointer]: Daily Print
+              - generic [ref=e4291] [cursor=pointer]: A1 / Front:News
+              - generic [ref=e4293] [cursor=pointer]: DJANI
+              - generic [ref=e4295] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Unpublished" [ref=e4298] [cursor=pointer]
+              - generic [ref=e4302] [cursor=pointer]: Ten years into 'emergency,' no end in sight to drug deaths
+              - generic [ref=e4305] [cursor=pointer]: PROVINCE
+              - generic [ref=e4308] [cursor=pointer]: Daily Print
+              - generic [ref=e4310] [cursor=pointer]: A4:News
+              - generic [ref=e4312] [cursor=pointer]: DJANI
+              - generic [ref=e4314] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e4317] [cursor=pointer]
+              - generic [ref=e4321] [cursor=pointer]: Stars pack the Polo Lounge for Chanel and Charles Finch's 17th pre-Oscar dinner
+              - generic [ref=e4324] [cursor=pointer]: RNEWS
+              - generic [ref=e4327] [cursor=pointer]: Weekly Print
+              - generic [ref=e4331] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Draft" [ref=e4334] [cursor=pointer]
+              - generic [ref=e4338] [cursor=pointer]: Vancouver man found dead on catamaran off Belize may have fallen from mast
+              - generic [ref=e4341] [cursor=pointer]: PROVINCE
+              - generic [ref=e4344] [cursor=pointer]: Daily Print
+              - generic [ref=e4346] [cursor=pointer]: A4:News
+              - generic [ref=e4348] [cursor=pointer]: DJANI
+              - generic [ref=e4350] [cursor=pointer]: 03/15/2026 03:00:00
+              - img "Published" [ref=e4353] [cursor=pointer]
+          - generic [ref=e4355]:
+            - generic [ref=e4356]: Page 1 of 1
+            - generic [ref=e4357]: ( 232 items)
+            - img "first" [ref=e4359]
+            - img "previous" [ref=e4362]
+            - generic [ref=e4364]: "1"
+            - img "next" [ref=e4366]
+            - img "last" [ref=e4369]
+            - spinbutton [ref=e4374]: "500"
+  - tooltip "Print content": Print content
+```

@@ -19,12 +19,12 @@ const CONSTANTS = {
   },
 
   NAVIGATIONMENU: {
-    REPORT_BUILDING: 'Report Building',
+    REPORT_BUILDING: 'Report Building'
 
   },
 
   REPORTBUILDING_SUBMENU: {
-    REPORTS: 'Reports',
+    REPORTS: 'Reports'
   },
 
   REPORT_SUBNAVIGATION_TABS: {
@@ -45,8 +45,8 @@ const CONSTANTS = {
 
   CONTENTS: {
     RADIO_TV : 'Radio/TV'
-  }
-  
+  },
+ 
 };
 
 module.exports = CONSTANTS;
