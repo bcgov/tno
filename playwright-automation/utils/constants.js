@@ -86,8 +86,8 @@ const CONSTANTS = {
     PRODUCT: 'Product',
     SUBSCRIBERS: 'Subscribers',
     REQUESTS: 'Requests'
-  }
-  
+  },
+ 
 };
 
 module.exports = CONSTANTS;

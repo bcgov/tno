@@ -1,0 +1,181 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - link "BC Gov logo" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "BC Gov logo" [ref=e7]
+      - link "MMI logo" [ref=e9] [cursor=pointer]:
+        - /url: /
+        - img "MMI logo" [ref=e10]
+      - button "Sign Out" [ref=e13] [cursor=pointer]:
+        - generic [ref=e14]: Sign Out
+    - navigation [ref=e16]:
+      - generic [ref=e17]:
+        - link "Home" [ref=e18] [cursor=pointer]:
+          - /url: /contents
+          - generic [ref=e19]:
+            - img [ref=e20]
+            - text: Home
+        - generic [ref=e23]:
+          - button "Content" [ref=e25] [cursor=pointer]
+          - button "Report Building" [ref=e27] [cursor=pointer]
+          - button "Notifications Building" [ref=e29] [cursor=pointer]
+          - button "Content Configuration" [ref=e31] [cursor=pointer]
+          - button "Data Import" [ref=e33] [cursor=pointer]
+          - button "System Settings" [ref=e35] [cursor=pointer]
+    - main [ref=e37]:
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - generic [ref=e41]:
+            - generic [ref=e43]:
+              - img [ref=e44] [cursor=pointer]
+              - img [active] [ref=e46] [cursor=pointer]
+              - img [ref=e48] [cursor=pointer]
+              - img [ref=e50] [cursor=pointer]
+            - generic [ref=e52]:
+              - img [ref=e53]
+              - text: CREATE SNIPPET
+          - generic [ref=e56]:
+            - generic [ref=e58]:
+              - generic [ref=e59]:
+                - generic [ref=e60]:
+                  - img [ref=e61]
+                  - generic [ref=e63]:
+                    - button "TODAY" [ref=e64] [cursor=pointer]:
+                      - generic [ref=e66]: TODAY
+                    - button "24 HRS" [ref=e67] [cursor=pointer]:
+                      - generic [ref=e69]: 24 HRS
+                    - button "48 HRS" [ref=e70] [cursor=pointer]:
+                      - generic [ref=e72]: 48 HRS
+                    - button "ALL" [ref=e73] [cursor=pointer]:
+                      - generic [ref=e75]: ALL
+                - generic [ref=e76]:
+                  - img [ref=e77]
+                  - generic [ref=e79]:
+                    - button "ALL CONTENT" [ref=e80] [cursor=pointer]:
+                      - generic [ref=e82]: ALL CONTENT
+                    - button "MY CONTENT" [ref=e83] [cursor=pointer]:
+                      - generic [ref=e85]: MY CONTENT
+                    - button "OTHER" [ref=e86] [cursor=pointer]:
+                      - generic [ref=e88]:
+                        - text: OTHER
+                        - img [ref=e89]
+              - generic [ref=e91]:
+                - generic [ref=e92]:
+                  - img [ref=e93]
+                  - textbox "mm/dd/yyyy" [ref=e97]
+                  - generic [ref=e98]: to
+                  - textbox "mm/dd/yyyy" [ref=e101]
+                  - button [ref=e102] [cursor=pointer]:
+                    - img [ref=e104]
+                - generic [ref=e106]:
+                  - img [ref=e107]
+                  - generic [ref=e109]:
+                    - generic [ref=e112]:
+                      - log [ref=e114]
+                      - generic [ref=e115]:
+                        - generic [ref=e116]:
+                          - generic [ref=e117]: Media Type
+                          - combobox [ref=e119]
+                        - img [ref=e123]
+                    - textbox [ref=e125]
+            - generic [ref=e126]:
+              - img [ref=e127]
+              - text: FILTER CONTENT
+          - generic [ref=e129]:
+            - generic [ref=e132]:
+              - generic [ref=e135]:
+                - log [ref=e137]
+                - generic [ref=e138]:
+                  - generic [ref=e139]:
+                    - generic [ref=e140]: Show Only
+                    - combobox [ref=e142]
+                  - img [ref=e146]
+              - textbox [ref=e148]
+            - generic [ref=e149]:
+              - img [ref=e150]
+              - text: SHOW ONLY
+          - generic [ref=e152]:
+            - generic [ref=e154]:
+              - generic [ref=e155]:
+                - generic [ref=e156]:
+                  - generic [ref=e157]:
+                    - generic [ref=e160]:
+                      - log [ref=e162]
+                      - generic [ref=e163]:
+                        - generic [ref=e164]:
+                          - generic [ref=e165]: Source
+                          - combobox [ref=e167]
+                        - img [ref=e171]
+                    - textbox [ref=e173]: sourceIds
+                  - generic [ref=e174]:
+                    - generic [ref=e177]:
+                      - log [ref=e179]
+                      - generic [ref=e180]:
+                        - generic [ref=e181]:
+                          - generic [ref=e182]: Select...
+                          - combobox [ref=e184]
+                        - img [ref=e188]
+                    - textbox [ref=e190]
+                - generic [ref=e191]:
+                  - generic [ref=e192]:
+                    - generic [ref=e195]:
+                      - log [ref=e197]
+                      - generic [ref=e198]:
+                        - generic [ref=e199]:
+                          - generic [ref=e200]: Source
+                          - combobox [ref=e202]
+                        - img [ref=e206]
+                    - textbox [ref=e208]: sourceIds
+                  - generic [ref=e209]:
+                    - generic [ref=e212]:
+                      - log [ref=e214]
+                      - generic [ref=e215]:
+                        - generic [ref=e216]:
+                          - generic [ref=e217]: Select...
+                          - combobox [ref=e219]
+                        - img [ref=e223]
+                    - textbox [ref=e225]
+              - img [ref=e226] [cursor=pointer]
+            - generic [ref=e228]:
+              - img [ref=e229]
+              - text: ADVANCED SEARCH
+        - generic [ref=e233]:
+          - generic [ref=e235]:
+            - generic [ref=e237]:
+              - img "Open in new tab" [ref=e238]
+              - text: Headline
+            - generic [ref=e240]:
+              - text: Source
+              - img "sort" [ref=e241]
+            - generic [ref=e243]:
+              - text: Media Type
+              - img "sort" [ref=e244]
+            - generic [ref=e246]:
+              - generic [ref=e247]:
+                - text: Page:Section
+                - checkbox [ref=e250] [cursor=pointer]
+              - img "sort" [ref=e251]
+            - generic [ref=e253]:
+              - text: User
+              - img "sort" [ref=e254]
+            - generic [ref=e256]:
+              - text: Pub Date
+              - img "sort" [ref=e257]
+            - generic [ref=e259]:
+              - text: Use
+              - img "sort" [ref=e260]
+          - generic [ref=e263]:
+            - generic [ref=e264]: Page 1 of *
+            - generic [ref=e265]: ( 0 items)
+            - img "first" [ref=e267]
+            - img "previous" [ref=e270]
+            - generic [ref=e272]: "1"
+            - img "next" [ref=e274]
+            - img "last" [ref=e277]
+            - spinbutton [ref=e282]: "500"
+  - tooltip "Print content": Print content
+```

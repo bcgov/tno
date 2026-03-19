@@ -1,0 +1,23 @@
+{"level":"info","message":"Navigating to URL : https://test.editor.mmi.gov.bc.ca/contents"}
+{"level":"info","message":"Clicking on IDIR button to login.."}
+{"level":"info","message":"Clicked on Login!!"}
+{"level":"info","message":"Clicking on Content title : Radio/TV"}
+{"level":"info","message":"Clicked on Content title Radio/TV and navigated to new tab"}
+{"level":"info","message":"Added headline title : Automation Headline Title 1773715405290"}
+{"level":"info","message":"Entered byline text test_byline_value"}
+{"level":"info","message":"Selected source option : Toronto Star"}
+{"level":"info","message":"Added Summary details : Automation_Test_Summary"}
+{"level":"info","message":"Uploaded News_Clip.mp4 file successfully."}
+{"level":"info","message":"Selected source option : ADV"}
+{"level":"info","message":"Clicked on Sentiment button 2"}
+{"level":"info","message":"Entered prep time values : 5"}
+{"level":"info","message":"Clicked on Print COntent."}
+{"level":"info","message":"Verifying visibility of Toast Notification Message"}
+{"level":"info","message":"Visibility of Delete button : true"}
+{"level":"info","message":"Visibility of Next preview button : true"}
+{"level":"info","message":"Clicked on Publish button"}
+{"level":"info","message":"Verifying visibility of Toast Notification Message"}
+{"level":"info","message":"Closed the new tab"}
+{"level":"info","message":"Clicking on SignOut button.."}
+{"level":"info","message":"Successfully logged out!!"}
+{"level":"info","message":"Navigating to URL https://test.mmi.gov.bc.ca/"}

@@ -9,6 +9,7 @@ class HeadlinesDetailsPage extends BasePage {
   constructor(page) {
     super(page);
 
+    this.headlinesTextBox2 = page.getByRole('textbox', { name: 'Headline *' });
     this.headlinesTextBox = page.locator('textarea#txa-headline');
     this.byLineInput = page.locator('input#txt-byline');
     this.publishButton = page.locator('//button[@type="submit"]');
@@ -26,6 +27,7 @@ class HeadlinesDetailsPage extends BasePage {
     this.unPublishButton = page.locator('//button/div[text()="Unpublish"]');
     this.delete = page.locator('//button/div[text()="Delete"]');
     this.deleteConfirmationButton = page.locator('//button/div[text()="Yes, Delete It"]');
+    this.printcontent = page.locator('//*[@data-tooltip-content="Print content"]');
   }
 
   /**
@@ -117,7 +119,10 @@ class HeadlinesDetailsPage extends BasePage {
     await this.type(this.headlinesTextBox, headlineTitle);
     logger.info(`Added headline title : ${headlineTitle}`);
   }
-
+ async inputHeadLineTitle(headlineTitle){
+    await this.type(this.headlinesTextBox2, headlineTitle);
+    logger.info(`Added headline title : ${headlineTitle}`);
+  }
   /**
    * Select source 
    * @param {string} sourceOption 
@@ -144,9 +149,15 @@ class HeadlinesDetailsPage extends BasePage {
   async saveHeadlinesWithoutPublish() {
     await this.click(this.saveWithoutPublishButton);
     await this.hardWait(2000);
-    logger.info(`Clicked on Save without Publish button.`);
+    logger.info(`Clicked on Print COntent.`);
   }
-
+/** Method to click on Print COntent */
+ async clickonPrintcontent() {
+    await this.click(this.printcontent);
+    await this.hardWait(2000);
+    logger.info(`Clicked on Print Content.`);
+  }
+  
   /**
    * Enter prep time 
    * @param {string} sourceOption 

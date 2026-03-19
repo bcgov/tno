@@ -22,7 +22,6 @@ class BasePage {
     await locator.waitFor({ state: 'visible' });
     await locator.fill(value);
   }
-
   async getText(locator) {
     return await locator.textContent();
   }
