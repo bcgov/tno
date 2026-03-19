@@ -36,14 +36,10 @@ test.describe('@smoke Adding a new minister', () => {
     await page.waitForTimeout(10000);
     await editorOnlineStoryPage.clickBackToMinisters();
     await page.waitForTimeout(2000);
-
     await editorOnlineStoryPage.searchMinisterByName(ministerName);
-
     const searchedMinisterName = await editorOnlineStoryPage.getSearchedMinisterName(ministerName);
-
     console.log(`Searched Minister Name: ${searchedMinisterName}`);
     console.log(`Expected Minister Name: ${ministerName}`);
-
     await expect(searchedMinisterName).toContain(ministerName);
   });
 });
