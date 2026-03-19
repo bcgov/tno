@@ -46,20 +46,5 @@ class SettingsPage extends BasePage {
     logger.info('Cleared search input text!!');
   }
 
-async clickOnDeleteFolder(folderName) {
-    const row = this.page.locator('div.grid-column')
-        .filter({ has: this.page.getByText(folderName, { exact: true }) });
-
-    await expect(row).toHaveCount(1);
-    await row.hover(); 
-
-    const deleteIconPath = row.locator('div[class*="action"] svg path');
-
-    const deleteSvg = deleteIconPath.locator('.sc-eyvHYj kJjhiH action');        // SVG
-    const clickable = deleteSvg.locator('..');             // container div/button
-    await clickable.click();
-
-    console.log(`Clicked Delete for folder: ${folderName}`);
-}
 }
 module.exports = { SettingsPage };

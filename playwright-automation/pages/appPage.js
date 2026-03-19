@@ -17,6 +17,7 @@ class AppPage extends BasePage {
     this.menuNavigationLink = page.locator('div.nav-item .dropdown-toggle');
     this.subMenuNavigationLink = page.locator('.show a.dropdown-item');
     this.allContentSubNavLink = page.locator(`.dropdown-menu a[href="/contents"]`);
+<<<<<<< HEAD
 
     this.microsoftButton = page.getByRole('button', { name: 'Microsoft' });
 
@@ -29,6 +30,10 @@ this.passwordInputField = page.locator('input[type="password"]');
 this.signInButton = page.getByRole('button', { name: 'Sign in' });
 
 this.noButton = page.getByRole('button', { name: 'No' });
+=======
+    this.papersSubNavLink = page.locator('.dropdown-menu a[href="/papers"]');
+     this.transcriptQueueSubNavLink = page.locator('.dropdown-menu a[href="/transcriptions"]');
+>>>>>>> dev
   }
 
   /**
@@ -198,11 +203,20 @@ this.noButton = page.getByRole('button', { name: 'No' });
       case CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS:
         await this.clickElementByText(this.subMenuNavigationLink, menuName);
         break;
+      case CONSTANTS.REPORTBUILDING_SUBMENU.MMI_PRODUCTS:
+        await this.clickElementByText(this.subMenuNavigationLink, menuName);
+        break;
       case CONSTANTS.NAVIGATIONMENU.CONTENT:
         await this.clickElementByText(this.menuNavigationLink, menuName);
         break;
       case CONSTANTS.CONTENT_SUBMENU.ALL_CONTENT:
         await this.clickElementByText(this.allContentSubNavLink, menuName);
+        break;
+      case CONSTANTS.CONTENT_SUBMENU.PAPERS:
+        await this.clickElementByText(this.papersSubNavLink, menuName);
+        break;
+      case CONSTANTS.CONTENT_SUBMENU.TRANSCRIPT_QUEUE:
+        await this.clickElementByText(this.transcriptQueueSubNavLink, menuName);
         break;
       default:
         logger.info(`Invalid menu or sub menu option: ${menuName}`);

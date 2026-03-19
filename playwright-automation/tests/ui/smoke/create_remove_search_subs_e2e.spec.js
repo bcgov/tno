@@ -7,6 +7,7 @@ const folderName = 'CreateFolderPlaywrightTest';
 const searchText = 'Playwright Test Search Text';
 
 let page, appPage, settingsPage, ministerPage;
+
 test.beforeEach(async ({ masterFixture }) => {
   appPage = masterFixture.appPage;
   page = masterFixture.page;
