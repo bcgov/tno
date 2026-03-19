@@ -14,7 +14,7 @@ test.beforeEach(async ({ masterFixture }) => {
   await appPage.hardWait(5000);
 });
 
-test.describe('Scenario 2: Adding a new minister', () => {
+test.describe('@smoke Adding a new minister', () => {
   test(`Adding a new minister`, async ({  }) => {
     await expect(page).toHaveURL(mmiMSUrl+'contents');
     await editorOnlineStoryPage.navigateToContentConfiguration();

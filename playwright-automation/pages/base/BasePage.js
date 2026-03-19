@@ -12,6 +12,10 @@ class BasePage {
     await locator.click();
   }
 
+  async clear(locator) {
+    return locator.clear();
+  }
+
   async type(locator, value) {
     await locator.waitFor({ state: 'visible' });
     await locator.fill(value);

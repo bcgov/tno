@@ -15,7 +15,7 @@ test.beforeEach(async ({ masterFixture }) => {
   await appPage.hardWait(5000);
 });
 
-test.describe('Scenario 4: Add and Remove Minister ', () => {
+test.describe('@smoke Add and Remove Minister ', () => {
 
   test(`Adding a minister`, async ({}) => {
 

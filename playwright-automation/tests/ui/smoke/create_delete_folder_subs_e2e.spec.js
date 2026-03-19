@@ -15,7 +15,7 @@ test.beforeEach(async ({ masterFixture }) => {
   await appPage.hardWait(5000);
 });
 
-test.describe('Scenario 3:Create/Delete Folder ', () => {
+test.describe('@smokeCreate/Delete Folder ', () => {
   test(`Creating and deleting a folder`, async ({}) => {
     await expect(page).toHaveURL(mmiMSUrl + 'contents');
     await page.goto(`${process.env.MMI_URL}/landing/home`);

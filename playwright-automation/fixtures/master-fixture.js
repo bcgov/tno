@@ -8,6 +8,7 @@ import { SubscriberMyReportPage } from "../pages/subscriberMyReportPage";
 import { SubscriberNavBarPage } from "../pages/subscriberNavBarPage";
 import { EditorOnlineStoryPage } from "../pages/editorOnlineStoryPage";
 import { MinisterPage } from "../pages/ministerPage";
+import { SettingsPage } from "../pages/settingsPage";
 
 
 export class MasterFixture {
@@ -23,6 +24,7 @@ export class MasterFixture {
         this.subscriberNavBarPage = new SubscriberNavBarPage(this.page);
         this.editorOnlineStoryPage = new EditorOnlineStoryPage(this.page);
         this.ministerPage = new MinisterPage(this.page);
+        this.settingsPage = new SettingsPage(this.page);    
 
     }
 }
