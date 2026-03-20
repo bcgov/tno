@@ -1,10 +1,10 @@
 {
   "editor": {
-    "username": "<userName>",
+    "username": "<username>",
     "password": "<password>"
   },
   "subscriber": {
-    "username": "<userName>",
+    "username": "<username>",
     "password": "<password>"
   }
 }

@@ -128,6 +128,7 @@ class EditorHomePage extends BasePage {
         break;
 
       default:
+       
         break;
     }
     await newPage.waitForLoadState('domcontentloaded');

@@ -1,0 +1,45 @@
+{"level":"info","message":"Navigating to URL : https://test.editor.mmi.gov.bc.ca/contents"}
+{"level":"info","message":"Clicking on IDIR button to login.."}
+{"level":"info","message":"Clicked on Login!!"}
+{"level":"info","message":"Editor Home page loaded successfully!!"}
+{"level":"info","message":"Clicking on Menu navigation dropdown option Report Building"}
+{"level":"info","message":"Clicking on Menu navigation dropdown option Reports"}
+{"level":"info","message":"Report page loaded successfully!!"}
+{"level":"info","message":"Clicked on Add new report button"}
+{"level":"info","message":"Checking visibility of Back to Report button"}
+{"level":"info","message":"Verifying visibility of Subtab - Report"}
+{"level":"info","message":"Entered Report Name is : ReportTitle_1773353244846"}
+{"level":"info","message":"Entered Report Name is : Report Description 1773353244846"}
+{"level":"info","message":"Clicked on Apply Ownership to Filter button"}
+{"level":"info","message":"Clicked on Save button."}
+{"level":"info","message":"Verifying visibility of Success Toast Notification Message"}
+{"level":"info","message":"Verifying visibility of Subtab - Template"}
+{"level":"info","message":"Verifying visibility of Subtab - Sections"}
+{"level":"info","message":"Verifying visibility of Subtab - Preview"}
+{"level":"info","message":"Clicked on SubTab button Template"}
+{"level":"info","message":"Clicked on Enable Edit Template checkbox."}
+{"level":"info","message":"Clicked on Use Default Template button."}
+{"level":"info","message":"Clicked on Save button."}
+{"level":"info","message":"Clicked on SubTab button Sections"}
+{"level":"info","message":"Clicked on SubTab button Table of Contents"}
+{"level":"info","message":"Clicked on SubTab button Text"}
+{"level":"info","message":"Clicked on Save button."}
+{"level":"info","message":"Clicked on SubTab button Preview"}
+{"level":"info","message":"Entered email text deval.jani@gov.bc.ca"}
+{"level":"info","message":"Clicking on SignOut button.."}
+{"level":"info","message":"Successfully logged out!!"}
+{"level":"info","message":"Navigating to URL https://test.mmi.gov.bc.ca/"}
+{"level":"info","message":"Successfully navigated to URL https://test.mmi.gov.bc.ca/"}
+{"level":"info","message":"Sign in as Subscriber user..."}
+{"level":"info","message":"Clicked on Subscriber Login!!"}
+{"level":"info","message":"Clicked on My Content section option: My Reports"}
+{"level":"info","message":"Verifying published reportTitle in My Reports grid.."}
+{"level":"info","message":"Clicking on SignOut button.."}
+{"level":"info","message":"Successfully logged out from Subscriber portal!!"}
+{"level":"info","message":"Clicking on IDIR button to login.."}
+{"level":"info","message":"Clicked on Login!!"}
+{"level":"info","message":"Editor Home page loaded successfully!!"}
+{"level":"info","message":"Clicking on Menu navigation dropdown option Report Building"}
+{"level":"info","message":"Clicking on Menu navigation dropdown option Reports"}
+{"level":"info","message":"Searching for Report : ReportTitle_1773353244846"}
+{"level":"info","message":"Clicked on Delete button."}

@@ -31,13 +31,13 @@ const CONSTANTS = {
   },
 
   NAVIGATIONMENU: {
-    REPORT_BUILDING: 'Report Building',
+    REPORT_BUILDING: 'Report Building'
     CONTENT: 'Content'
 
   },
 
   REPORTBUILDING_SUBMENU: {
-    REPORTS: 'Reports',
+    REPORTS: 'Reports'
     MMI_PRODUCTS: 'MMI Products'
   },
 
@@ -86,8 +86,8 @@ const CONSTANTS = {
     PRODUCT: 'Product',
     SUBSCRIBERS: 'Subscribers',
     REQUESTS: 'Requests'
-  }
-  
+  },
+ 
 };
 
 module.exports = CONSTANTS;

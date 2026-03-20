@@ -6,6 +6,8 @@ import { SubscriberSearchResultPage } from "../pages/subscriberSearchResultPage"
 import { ReportPage } from "../pages/reportPage";
 import { SubscriberMyReportPage } from "../pages/subscriberMyReportPage";
 import { SubscriberNavBarPage } from "../pages/subscriberNavBarPage";
+import { NotificationalertPage } from "../pages/notificationalertPage";
+import { AddMediaPage } from "../pages/addMediaPage";
 import { PreviewPage } from "../pages/previewPage";
 import { AddProductPage } from "../pages/addProductPage";
 
@@ -20,6 +22,9 @@ export class MasterFixture {
         this.reportPage = new ReportPage(this.page);
         this.subscriberMyReportPage = new SubscriberMyReportPage(this.page);
         this.subscriberNavBarPage = new SubscriberNavBarPage(this.page);
+        this.notificationalertPage = new NotificationalertPage(this.page);
+        this.addMediaPage = new AddMediaPage(this.page);
+    
         this.previewPage = new PreviewPage(this.page);
         this.addProductPage = new AddProductPage(this.page);
 
