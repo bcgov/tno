@@ -19,23 +19,21 @@ test.beforeEach(async ({ masterFixture }) => {
     await appPage.hardWait(5000);
 });
 
-test.describe('@smoke Radio/TV headline publishing workflow', () => {
+test.describe('@smoke Image headline publishing workflow', () => {
 
-    test(`Editor publishes Radio/TV headline and Subscriber verifies it in portal`, async ({ }) => {
+    test(`Editor publishes Image headline and Subscriber verifies it in portal`, async ({ }) => {
       const parentPage = page;
       const headlineTitle = `Automation Headline Title ${Date.now()}`;
-      headlineDetailsPage = await editorHomePage.clickOnContent(CONSTANTS.CONTENTS.RADIO_TV);
+      headlineDetailsPage = await editorHomePage.clickOnContent(CONSTANTS.CONTENTS.IMAGE);
 
       await headlineDetailsPage.enterHeadLineTitle(headlineTitle);
 
-      await headlineDetailsPage.enterByline(CONSTANTS.HEADLINES.BYLINE);
-      await headlineDetailsPage.selectSource(CONSTANTS.HEADLINES.SOURCE_TORONTO_STAR);
+      await headlineDetailsPage.selectMediaOutlet(CONSTANTS.HEADLINES.SOURCE_TORONTO_STAR);
       await headlineDetailsPage.enterSummary('Automation_Test_Summary');
-      await headlineDetailsPage.uploadRadioTVContentFile('News_Clip.mp4');
+      await headlineDetailsPage.uploadRadioTVContentFile('News_Article.png');
 
       await headlineDetailsPage.selectTag(CONSTANTS.HEADLINES.TAG_ADV);
       await headlineDetailsPage.clickOnSentimentButtonByText(CONSTANTS.HEADLINES.SENTIMENTS_2);
-      await headlineDetailsPage.enterPrepTime('5');
       await headlineDetailsPage.saveHeadlinesWithoutPublish();
       
       expect(await headlineDetailsPage.verifyToastNotificationVisible(headlineTitle)).toBeTruthy();
@@ -74,24 +72,4 @@ test.describe('@smoke Radio/TV headline publishing workflow', () => {
 
     });
 
-    test(`Verify that the Publish button should be disabled if no video file is uploaded`, async ({ }) => {
-      const parentPage = page;
-      const headlineTitle = `Automation Headline Title ${Date.now()}`;
-      headlineDetailsPage = await editorHomePage.clickOnContent(CONSTANTS.CONTENTS.RADIO_TV);
-
-      await headlineDetailsPage.enterHeadLineTitle(headlineTitle);
-
-      await headlineDetailsPage.enterByline(CONSTANTS.HEADLINES.BYLINE);
-      await headlineDetailsPage.selectSource(CONSTANTS.HEADLINES.SOURCE_TORONTO_STAR);
-      await headlineDetailsPage.enterSummary('Automation_Test_Summary');
-
-      await headlineDetailsPage.selectTag(CONSTANTS.HEADLINES.TAG_ADV);
-      await headlineDetailsPage.clickOnSentimentButtonByText(CONSTANTS.HEADLINES.SENTIMENTS_2);
-      await headlineDetailsPage.enterPrepTime('5');
-
-      expect(await headlineDetailsPage.isPublisheButtonClickable()).toBe(false);
-      await headlineDetailsPage.closePage();
-      await parentPage.bringToFront();
-      await appPage.logOut();
-    });
 });

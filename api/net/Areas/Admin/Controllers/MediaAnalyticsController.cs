@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
-using TNO.API.Areas.Admin.Models.MediaAnalytics; 
+using TNO.API.Areas.Admin.Models.MediaAnalytics;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.DAL.Services;
@@ -49,8 +49,8 @@ public class MediaAnalyticsController : ControllerBase
     #endregion
 
     #region Endpoints
-   
-     /// <summary>
+
+    /// <summary>
     /// Find a page of user for the specified query filter.
     /// </summary>
     /// <returns></returns>
