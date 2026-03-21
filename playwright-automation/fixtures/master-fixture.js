@@ -1,20 +1,14 @@
 import { AppPage } from "../pages/appPage";
 import { EditorHomePage } from "../pages/editorHomePage";
 import { HeadlinesDetailsPage } from "../pages/headlinesDetailsPage";
-
 import { SubscriberSearchResultPage } from "../pages/subscriberSearchResultPage";
 import { ReportPage } from "../pages/reportPage";
 import { SubscriberMyReportPage } from "../pages/subscriberMyReportPage";
 import { SubscriberNavBarPage } from "../pages/subscriberNavBarPage";
-<<<<<<< HEAD
 import { EditorOnlineStoryPage } from "../pages/editorOnlineStoryPage";
 import { MinisterPage } from "../pages/ministerPage";
 import { SettingsPage } from "../pages/settingsPage";
 
-=======
-import { PreviewPage } from "../pages/previewPage";
-import { AddProductPage } from "../pages/addProductPage";
->>>>>>> dev
 
 export class MasterFixture {
 
@@ -27,14 +21,9 @@ export class MasterFixture {
         this.reportPage = new ReportPage(this.page);
         this.subscriberMyReportPage = new SubscriberMyReportPage(this.page);
         this.subscriberNavBarPage = new SubscriberNavBarPage(this.page);
-<<<<<<< HEAD
         this.editorOnlineStoryPage = new EditorOnlineStoryPage(this.page);
         this.ministerPage = new MinisterPage(this.page);
         this.settingsPage = new SettingsPage(this.page);    
-=======
-        this.previewPage = new PreviewPage(this.page);
-        this.addProductPage = new AddProductPage(this.page);
->>>>>>> dev
 
     }
 }

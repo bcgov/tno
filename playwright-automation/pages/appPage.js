@@ -17,23 +17,18 @@ class AppPage extends BasePage {
     this.menuNavigationLink = page.locator('div.nav-item .dropdown-toggle');
     this.subMenuNavigationLink = page.locator('.show a.dropdown-item');
     this.allContentSubNavLink = page.locator(`.dropdown-menu a[href="/contents"]`);
-<<<<<<< HEAD
 
     this.microsoftButton = page.getByRole('button', { name: 'Microsoft' });
 
-this.loginEmailInput = page.getByRole('textbox', { name: 'Enter your email or phone' });
+    this.loginEmailInput = page.getByRole('textbox', { name: 'Enter your email or phone' });
 
-this.nextButton = page.getByRole('button', { name: 'Next' });
+    this.nextButton = page.getByRole('button', { name: 'Next' });
 
-this.passwordInputField = page.locator('input[type="password"]');
+    this.passwordInputField = page.locator('input[type="password"]');
 
-this.signInButton = page.getByRole('button', { name: 'Sign in' });
+    this.signInButton = page.getByRole('button', { name: 'Sign in' });
 
-this.noButton = page.getByRole('button', { name: 'No' });
-=======
-    this.papersSubNavLink = page.locator('.dropdown-menu a[href="/papers"]');
-     this.transcriptQueueSubNavLink = page.locator('.dropdown-menu a[href="/transcriptions"]');
->>>>>>> dev
+    this.noButton = page.getByRole('button', { name: 'No' });
   }
 
   /**
@@ -52,23 +47,9 @@ this.noButton = page.getByRole('button', { name: 'No' });
     logger.info(`Clicked on Login!!`);
   }
 
-
-
-
-
-
-  
-
-  
-
-
-
-
-
-
   /**
    * Method to navigate to given URL
-   * @param {string} url 
+   * @param {string} url
    */
   async navigateToUrl(url) {
     logger.info(`Navigating to URL : ${url}`);
@@ -145,14 +126,12 @@ this.noButton = page.getByRole('button', { name: 'No' });
     logger.info(`Successfully logged out from Subscriber portal!!`);
   }
 
-
-
   /**
    * Login to MMI Editor Portal using Microsoft SSO.
    * @param { String } username
    * @param { String } password
    */
-  async mmiMicrooftLogin(username, password) {
+  async mmiMicrosoftLogin(username, password) {
     logger.info(`Clicking on Microsoft button to login..`);
     await this.microsoftButton.click();
     await this.loginEmailInput.type(username);
@@ -162,15 +141,11 @@ this.noButton = page.getByRole('button', { name: 'No' });
     await this.signInButton.click();
     await this.noButton.click();
     logger.info(`Login MMI Editor Portal using Microsoft SSO!!`);
-
   }
-
-
-
 
   /**
    * Method to navigate to given URL
-   * @param {string} url 
+   * @param {string} url
    */
   async navigateToMMIUrl(url) {
     logger.info(`Navigating to URL : ${url}`);
@@ -178,17 +153,13 @@ this.noButton = page.getByRole('button', { name: 'No' });
     await this.hardWait(2000);
     if (!(await this.homePageLogo.isVisible())) {
       try {
-        this.mmiMicrooftLogin(process.env.app_username_MMI, process.env.app_password_MMI);
+        this.mmiMicrosoftLogin(process.env.app_username_MMI, process.env.app_password_MMI);
         await this.homePageLogo.waitFor({ state: 'visible' });
       } catch (error) {
         console.log(error);
       }
     }
   }
-
-
-
-
 
   /**
    * Method to click on given Navigation and Sub Navigation menu

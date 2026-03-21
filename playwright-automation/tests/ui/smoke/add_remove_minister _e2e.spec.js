@@ -6,6 +6,7 @@ const mmiMSUrl = testData[testApp]['microsoftMMI']['url'];
         let ministertName = 'Adrian Dix :';
 
 let page, appPage, editorOnlineStoryPage, subscriberNavBarPage, ministerPage;
+
 test.beforeEach(async ({ masterFixture }) => {
   appPage = masterFixture.appPage;
   page = masterFixture.page;
