@@ -6,5 +6,9 @@
   "subscriber": {
     "username": "<userName>",
     "password": "<password>"
+  },
+  "microsoftMMI": {
+    "username": "<userName>",
+    "password": "<password>"
   }
 }

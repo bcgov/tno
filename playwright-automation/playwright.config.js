@@ -17,6 +17,10 @@ module.exports = defineConfig({
   reporter: [['list'], ['html', { outputFolder: 'playwright-report' }], ['allure-playwright']],
 
   use: {
+    ignoreHTTPSErrors: true,
+    launchOptions: {
+      args: ['--start-maximized'],
+    },
     actionTimeout: 30000,
     trace: 'off',
     screenshot: 'on',
