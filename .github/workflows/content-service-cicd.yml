@@ -36,4 +36,5 @@ jobs:
       rollout_timeout: '180s'
       continue_on_error_verify: false
       health_check_method: exec_curl
-    secrets: inherit
+    secrets:
+      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}

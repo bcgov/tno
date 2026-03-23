@@ -36,4 +36,5 @@ jobs:
       rollout_timeout: '600s'
       continue_on_error_verify: true
       health_check_method: port_forward
-    secrets: inherit
+    secrets:
+      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
