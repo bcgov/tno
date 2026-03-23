@@ -5,6 +5,9 @@
     },
     "subscriber": {
       "url": "https://test.mmi.gov.bc.ca/"
+    },
+    "microsoftMMI": {
+      "url": "https://test.editor.mmi.gov.bc.ca/"
     }
   }
 }
