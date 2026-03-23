@@ -59,10 +59,10 @@ jobs:
               "repos/${{ github.repository }}/actions/workflows/${wf_file}/runs?status=completed&created=>=${{ steps.dates.outputs.start }}&per_page=100" \
               --jq '.workflow_runs')
 
-            # --- Dev deployments (branches: dev, react-editor-subscriber) ---
-            DEV_TOTAL=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "dev" or .head_branch == "react-editor-subscriber" or .head_branch == "folder-collection")] | length')
-            DEV_SUCCESS=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "dev" or .head_branch == "react-editor-subscriber" or .head_branch == "folder-collection") | select(.conclusion == "success")] | length')
-            DEV_FAILURE=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "dev" or .head_branch == "react-editor-subscriber" or .head_branch == "folder-collection") | select(.conclusion == "failure")] | length')
+            # --- Dev deployments (branch: dev) ---
+            DEV_TOTAL=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "dev")] | length')
+            DEV_SUCCESS=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "dev") | select(.conclusion == "success")] | length')
+            DEV_FAILURE=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "dev") | select(.conclusion == "failure")] | length')
 
             # --- Test deployments (branch: master) ---
             TEST_TOTAL=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "master")] | length')
