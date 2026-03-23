@@ -44,6 +44,8 @@ jobs:
           declare -A WORKFLOWS=(
             ["react-editor"]="react-editor.yml"
             ["react-subscriber"]="react-subscriber.yml"
+            ["folder-collection"]="folder-collection-cicd.yml"
+            ["api-services"]="api-services-cicd.yml"
           )
 
           REPORT_FILE=$(mktemp)
@@ -58,9 +60,9 @@ jobs:
               --jq '.workflow_runs')
 
             # --- Dev deployments (branches: dev, react-editor-subscriber) ---
-            DEV_TOTAL=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "dev" or .head_branch == "react-editor-subscriber")] | length')
-            DEV_SUCCESS=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "dev" or .head_branch == "react-editor-subscriber") | select(.conclusion == "success")] | length')
-            DEV_FAILURE=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "dev" or .head_branch == "react-editor-subscriber") | select(.conclusion == "failure")] | length')
+            DEV_TOTAL=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "dev" or .head_branch == "react-editor-subscriber" or .head_branch == "folder-collection")] | length')
+            DEV_SUCCESS=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "dev" or .head_branch == "react-editor-subscriber" or .head_branch == "folder-collection") | select(.conclusion == "success")] | length')
+            DEV_FAILURE=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "dev" or .head_branch == "react-editor-subscriber" or .head_branch == "folder-collection") | select(.conclusion == "failure")] | length')
 
             # --- Test deployments (branch: master) ---
             TEST_TOTAL=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "master")] | length')
