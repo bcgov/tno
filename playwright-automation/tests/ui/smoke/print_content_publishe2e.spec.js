@@ -26,14 +26,19 @@ test.describe('@smoke Publish print Content', () => {
       console.log("Editor URL:",editorUrl );
       await page.goto(editorUrl);
      });
+
      test(`Editor Print Content verifies it in portal`, async ({page }) => {
       const parentPage = page;
-      await headlineDetailsPage.enterHeadLineTitle(headlineTitle);
+      const headlineTitle = `Automation Headline Title ${Date.now()}`;
+
+      headlineDetailsPage = await editorHomePage.clickOnContent(CONSTANTS.CONTENTS.PRINT_CONTENT);
+
+     await headlineDetailsPage.enterHeadLineTitle(headlineTitle);
 
       await headlineDetailsPage.enterByline(CONSTANTS.HEADLINES.BYLINE);
       await headlineDetailsPage.selectSource(CONSTANTS.HEADLINES.SOURCE_TORONTO_STAR);
       await headlineDetailsPage.enterSummary('Automation_Test_Summary');
-      
+
       await headlineDetailsPage.selectTag(CONSTANTS.HEADLINES.TAG_ADV);
       await headlineDetailsPage.clickOnSentimentButtonByText(CONSTANTS.HEADLINES.SENTIMENTS_2);
       await headlineDetailsPage.enterPrepTime('5');
@@ -56,8 +61,9 @@ test.describe('@smoke Publish print Content', () => {
       await subscriberSearchResultPage.clickOnSearchButton();
       await subscriberSearchResultPage.verifySearchResultPageLoaded();
 
-      expect(subscriberSearchResultPage.isPublishedHeadlinesPresent(headlineTitle)).toBeTruthy();
+      expect(await subscriberSearchResultPage.isPublishedHeadlinesPresent(headlineTitle)).toBeTruthy();
       await appPage.logOutFromSubscriber();
+
 
     });
 

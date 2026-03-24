@@ -68,6 +68,13 @@ class EditorHomePage extends BasePage {
     this.dailyMediaTypeOption = page.locator(`input[id="Daily Print"]`);
     this.headlineTitleUnderHeadlineColumn = page.locator(`.content-list .ellipsis`);
     this.pageRecordsUpdateTextBox = page.locator(`input[name="quantity"]`);
+  
+// PrintContent
+
+  this.printcontent = page.locator(
+      `//div[contains(@class,"create-new")]/*[@data-tooltip-content="Print content"]`,
+ 
+    );
   }
 
   /**
@@ -124,6 +131,12 @@ class EditorHomePage extends BasePage {
         [newPage] = await Promise.all([
           this.page.context().waitForEvent('page'),
           this.click(this.imageContent),
+        ]);
+        break;
+      case 'Print content':
+        [newPage] = await Promise.all([
+          this.page.context().waitForEvent('page'),
+          this.click(this.printcontent),
         ]);
         break;
 

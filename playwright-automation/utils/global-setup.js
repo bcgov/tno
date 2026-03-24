@@ -69,7 +69,7 @@ async function globalSetup() {
   const continueButton = page.locator('input[name="btnSubmit"]');
 
   // Only perform IDIR login operation if presented with login page else skip login process
- // if (!(await homePageLogo.isVisible())) 
+  
     
    const logoVisible = await page.isVisible().catch(() => false) ;
    if (! logoVisible) {

@@ -49,7 +49,7 @@ this.punditdropdown = page.locator('.rs__input-container')
 this.lstOption = (value) => 
   page.getByText(value, { exact : true })
 this.selectpunditvalue = page.getByText('Test Automation Pundit');
-this.backToTagButton = page.getByRole('button', { name: 'back Back to Columns/Pundits' })
+this.backTopunditButton = page.getByRole('button', { name: 'back Back to Columns/Pundits' })
 this.searchByCodeInput = page.getByRole('textbox', { name: 'Search by keyword' })
 
 // Ingest Type -Data Import module 
@@ -192,7 +192,7 @@ async clickAddNewPundit() {
 }
 
 async clickBackToColumn_pundit() {
-  await this.backToTagButton.click({ force: true });
+  await this.backTopunditButton.click({ force: true });
   logger.info(`Clicked on Back to Column/Pundit button!!`);
 }
 
