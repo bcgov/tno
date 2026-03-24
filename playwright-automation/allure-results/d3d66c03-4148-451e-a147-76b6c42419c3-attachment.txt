@@ -1,8 +1,0 @@
-{"level":"info","message":"Navigating to URL : https://test.editor.mmi.gov.bc.ca/contents"}
-{"level":"info","message":"Clicking on IDIR button to login.."}
-{"level":"info","message":"Clicked on Login!!"}
-{"level":"info","message":"Clicked on Notification button!!"}
-{"level":"info","message":"Clicked on Notification in menue"}
-{"level":"info","message":"Clicked on Add Notification"}
-Notification Name entered: Test Minister Name : 1773761789537
-{"level":"info","message":"Enter Notification details : Name=Test Minister Name : 1773761789537, Description=Test Minister Description : 1773761789537, Sort Order=4"}
