@@ -1,8 +1,0 @@
-{"level":"info","message":"Navigating to URL : https://test.editor.mmi.gov.bc.ca/contents"}
-{"level":"info","message":"Clicking on IDIR button to login.."}
-{"level":"info","message":"Clicked on Login!!"}
-{"level":"info","message":"Clicked on Notification button!!"}
-{"level":"info","message":"Clicked on Notification in menue"}
-{"level":"info","message":"Clicked on Add Notification"}
-Notification Name entered: Auto Notification : 1773762148624
-{"level":"info","message":"Enter Notification details : Name=Auto Notification : 1773762148624, Description=Auto Notification Description : 1773762148624, Sort Order=4"}
