@@ -1,5 +1,4 @@
 import { chromium } from "@playwright/test";
-//const { chromium } = require('@playwright/test');
 require('dotenv').config();
 
 //global set up function to set up base url as per target environment passed on CLI
@@ -78,7 +77,7 @@ async function globalSetup() {
       await IdirUserName.fill(process.env.app_username);
       await IdirPassword.fill(process.env.app_password);
       await continueButton.click();
-      await homePageLogo.waitFor({ state: 'visible' });
+     // await homePage.homePageLogo.waitFor({ state: 'visible' });
     } catch (error) {
       console.log(error);
     }
