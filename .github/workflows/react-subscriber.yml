@@ -9,7 +9,7 @@ on:
       - openshift/kustomize/app/subscriber/**
       - .github/workflows/react-subscriber.yml
   push:
-    branches: [dev, master, react-editor-subscriber]
+    branches: [dev, master]
     paths:
       - app/subscriber/**
       - openshift/kustomize/app/subscriber/**
