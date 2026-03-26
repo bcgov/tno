@@ -26,8 +26,6 @@ test.describe('@smoke Publish print Content', () => {
       console.log("Editor URL:",editorUrl );
       await page.goto(editorUrl);
      });
-<<<<<<< HEAD
-<<<<<<< HEAD
 
      test(`Editor Print Content verifies it in portal`, async ({page }) => {
       const parentPage = page;
@@ -36,34 +34,11 @@ test.describe('@smoke Publish print Content', () => {
       headlineDetailsPage = await editorHomePage.clickOnContent(CONSTANTS.CONTENTS.PRINT_CONTENT);
 
      await headlineDetailsPage.enterHeadLineTitle(headlineTitle);
-=======
-     test(`Editor Print Content verifies it in portal`, async ({page }) => {
-      const parentPage = page;
-      await headlineDetailsPage.enterHeadLineTitle(headlineTitle);
->>>>>>> 7f2419046 (initial commit)
-=======
-
-     test(`Editor Print Content verifies it in portal`, async ({page }) => {
-      const parentPage = page;
-      const headlineTitle = `Automation Headline Title ${Date.now()}`;
-
-      headlineDetailsPage = await editorHomePage.clickOnContent(CONSTANTS.CONTENTS.PRINT_CONTENT);
-
-     await headlineDetailsPage.enterHeadLineTitle(headlineTitle);
->>>>>>> cbfc95d09 (fixed missing code)
 
       await headlineDetailsPage.enterByline(CONSTANTS.HEADLINES.BYLINE);
       await headlineDetailsPage.selectSource(CONSTANTS.HEADLINES.SOURCE_TORONTO_STAR);
       await headlineDetailsPage.enterSummary('Automation_Test_Summary');
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
-      
->>>>>>> 7f2419046 (initial commit)
-=======
-
->>>>>>> cbfc95d09 (fixed missing code)
       await headlineDetailsPage.selectTag(CONSTANTS.HEADLINES.TAG_ADV);
       await headlineDetailsPage.clickOnSentimentButtonByText(CONSTANTS.HEADLINES.SENTIMENTS_2);
       await headlineDetailsPage.enterPrepTime('5');
@@ -86,23 +61,10 @@ test.describe('@smoke Publish print Content', () => {
       await subscriberSearchResultPage.clickOnSearchButton();
       await subscriberSearchResultPage.verifySearchResultPageLoaded();
 
-<<<<<<< HEAD
-<<<<<<< HEAD
       expect(await subscriberSearchResultPage.isPublishedHeadlinesPresent(headlineTitle)).toBeTruthy();
       await appPage.logOutFromSubscriber();
 
 
-=======
-      expect(subscriberSearchResultPage.isPublishedHeadlinesPresent(headlineTitle)).toBeTruthy();
-      await appPage.logOutFromSubscriber();
-
->>>>>>> 7f2419046 (initial commit)
-=======
-      expect(await subscriberSearchResultPage.isPublishedHeadlinesPresent(headlineTitle)).toBeTruthy();
-      await appPage.logOutFromSubscriber();
-
-
->>>>>>> cbfc95d09 (fixed missing code)
     });
 
 });  

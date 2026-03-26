@@ -49,15 +49,9 @@ this.punditdropdown = page.locator('.rs__input-container')
 this.lstOption = (value) => 
   page.getByText(value, { exact : true })
 this.selectpunditvalue = page.getByText('Test Automation Pundit');
-<<<<<<< HEAD
-<<<<<<< HEAD
-this.backTopunditButton = page.getByRole('button', { name: 'back Back to Columns/Pundits' })
-=======
-this.backToTagButton = page.getByRole('button', { name: 'back Back to Columns/Pundits' })
->>>>>>> 7f2419046 (initial commit)
-=======
-this.backTopunditButton = page.getByRole('button', { name: 'back Back to Columns/Pundits' })
->>>>>>> cbfc95d09 (fixed missing code)
+
+this.backToPunditButton = page.getByRole('button', { name: 'back Back to Columns/Pundits' })
+
 this.searchByCodeInput = page.getByRole('textbox', { name: 'Search by keyword' })
 
 // Ingest Type -Data Import module 
@@ -162,7 +156,7 @@ async enterTagDetails(code, tname, tdescription, tsortorder) {
 }
 
 async clickBackToTAG() {
-  await this.backToTagButton.click({ force: true });
+  await this.backToTagButton.click();
   logger.info(`Clicked on Back to Tags button!!`);
 }
 
@@ -200,15 +194,8 @@ async clickAddNewPundit() {
 }
 
 async clickBackToColumn_pundit() {
-<<<<<<< HEAD
-<<<<<<< HEAD
-  await this.backTopunditButton.click({ force: true });
-=======
-  await this.backToTagButton.click({ force: true });
->>>>>>> 7f2419046 (initial commit)
-=======
-  await this.backTopunditButton.click({ force: true });
->>>>>>> cbfc95d09 (fixed missing code)
+
+  await this.backToPunditButton.click();
   logger.info(`Clicked on Back to Column/Pundit button!!`);
 }
 
@@ -241,7 +228,7 @@ async clickAddNewIngestType() {
 }
 
 async clickBackToIngestType() {
-  await this.backToIngestButton.click({ force: true });
+  await this.backToIngestButton.click();
   logger.info(`Clicked on Back to Ingest button!!`);
 }
 
@@ -258,4 +245,6 @@ logger.info("Click on Selected Ingest Value");
 
 }
 }
-module.exports = { AddMediaPage };
+
+module.exports = { AddMediaPage }
+

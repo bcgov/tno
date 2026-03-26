@@ -42,25 +42,9 @@ async enterDetails(name, description, sortOrder) {
   await this.sortorder.fill(sortOrder.toString());
   await this.saveNotificationbtn.click();
   logger.info(`Enter Notification details : Name=${name}, Description=${description}, Sort Order=${sortOrder}`);
-<<<<<<< HEAD
-<<<<<<< HEAD
-}
-
-
-=======
-
-
-/**Notification E2E flow */
-
-  this.searchTextBox = page.locator('input[name="search"]');
 
 }
 
->>>>>>> 7f2419046 (initial commit)
-=======
 }
 
-
->>>>>>> cbfc95d09 (fixed missing code)
-}    
 module.exports = { NotificationalertPage };
