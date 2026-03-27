@@ -6,33 +6,48 @@ const testData = DataLoader.loadJSON(`test-data/${process.env.ENV_NAME}/loginDat
 const testApp = process.env.APP_NAME;
 const editorUrl = testData[testApp]['editor']['url'];
 
-let page, appPage, editorHomePage, headlineDetailsPage, subscriberSearchResultPage;
+console.log("Editor URL:",editorUrl );
+
+let page, appPage, editorHomePage, headlineDetailsPage, printContentPage, subscriberSearchResultPage;
 
 test.beforeEach(async ({ masterFixture }) => {
     page = masterFixture.page;  
     appPage = masterFixture.appPage;
     editorHomePage = masterFixture.editorHomePage;
-    headlineDetailsPage = masterFixture.headlineDetailsPage;
+    headlineDetailsPage = masterFixture.headlinesDetailsPage;
     subscriberSearchResultPage = masterFixture.subscriberSearchResultPage;
+    printContentPage = masterFixture.printContentPage;
     await appPage.navigateToUrl(editorUrl);
     await appPage.hardWait(5000);
 });
 
-test.describe('@smoke Un-Publishing headline workflow', () => {
+test.describe('@smoke Publish print Content', () => {
+     test(`Login as ${process.env.app_username}`, async ({page}) => {
+      console.log("Editor URL:",editorUrl );
+      await page.goto(editorUrl);
+     });
 
-    test(`Un-Publish the headline published by Editor`, async ({ }) => {
+     test(`Editor Print Content verifies it in portal`, async ({page }) => {
       const parentPage = page;
       const headlineTitle = `Automation Headline Title ${Date.now()}`;
-      headlineDetailsPage = await editorHomePage.clickOnContent(CONSTANTS.CONTENTS.IMAGE);
 
-      await headlineDetailsPage.enterHeadLineTitle(headlineTitle);
+      headlineDetailsPage = await editorHomePage.clickOnContent(CONSTANTS.CONTENTS.PRINT_CONTENT);
 
-      await headlineDetailsPage.selectMediaOutlet(CONSTANTS.HEADLINES.SOURCE_TORONTO_STAR);
+     await headlineDetailsPage.enterHeadLineTitle(headlineTitle);
+
+      await headlineDetailsPage.enterByline(CONSTANTS.HEADLINES.BYLINE);
+      await headlineDetailsPage.selectSource(CONSTANTS.HEADLINES.SOURCE_TORONTO_STAR);
       await headlineDetailsPage.enterSummary('Automation_Test_Summary');
-      await headlineDetailsPage.uploadRadioTVContentFile('News_Article.png');
 
       await headlineDetailsPage.selectTag(CONSTANTS.HEADLINES.TAG_ADV);
       await headlineDetailsPage.clickOnSentimentButtonByText(CONSTANTS.HEADLINES.SENTIMENTS_2);
+      await headlineDetailsPage.enterPrepTime('5');
+      await headlineDetailsPage.saveHeadlinesWithoutPublish();
+      
+      expect(await headlineDetailsPage.verifyToastNotificationVisible(headlineTitle)).toBeTruthy();
+      expect(await headlineDetailsPage.isDeleteButtonVisible()).toBeTruthy();
+      expect(await headlineDetailsPage.isNextPreviewButtonVisible()).toBeTruthy();
+
       await headlineDetailsPage.publishHeadlines();
       expect(await headlineDetailsPage.verifyToastNotificationVisible(headlineTitle)).toBeTruthy();
 
@@ -49,21 +64,7 @@ test.describe('@smoke Un-Publishing headline workflow', () => {
       expect(await subscriberSearchResultPage.isPublishedHeadlinesPresent(headlineTitle)).toBeTruthy();
       await appPage.logOutFromSubscriber();
 
-      await appPage.navigateToUrl(editorUrl);
-      await editorHomePage.verifyEditorHomePageLoaded();
-      await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.CONTENT);
-      await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.CONTENT_SUBMENU.ALL_CONTENT);
 
-      await editorHomePage.selectMediaTypeFilterDailyPrint(CONSTANTS.HEADLINES.DAILY_PRINT);
-      headlineDetailsPage = await editorHomePage.clickOnHeadlinesTitleByRowNumber(1);
-      expect(headlineDetailsPage.isUnpublishButtonVisible()).toBeTruthy();
-      await headlineDetailsPage.unPublishHeadlines();
-      expect(await headlineDetailsPage.isUnpublishButtonVisible()).toBeFalsy();
-
-      await headlineDetailsPage.deleteUnpublishedHeadline();
-      await headlineDetailsPage.closePage();
-      await parentPage.bringToFront();
-      await appPage.logOut();
     });
 
-});
+});  

@@ -65,7 +65,8 @@ const CONSTANTS = {
 
   CONTENTS: {
     RADIO_TV : 'Radio/TV',
-    IMAGE: 'Image'
+    IMAGE: 'Image',
+    PRINT_CONTENT: 'Print content'
   },
 
   BUTTONS: {
@@ -86,8 +87,8 @@ const CONSTANTS = {
     PRODUCT: 'Product',
     SUBSCRIBERS: 'Subscribers',
     REQUESTS: 'Requests'
-  }
-  
+  },
+ 
 };
 
 module.exports = CONSTANTS;

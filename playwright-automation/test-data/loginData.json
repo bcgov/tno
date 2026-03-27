@@ -1,9 +1,13 @@
 {
   "editor": {
-    "username": "<userName>",
+    "username": "<username>",
     "password": "<password>"
   },
   "subscriber": {
+    "username": "<username>",
+    "password": "<password>"
+  },
+  "microsoftMMI": {
     "username": "<userName>",
     "password": "<password>"
   },
