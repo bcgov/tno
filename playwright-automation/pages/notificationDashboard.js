@@ -39,6 +39,14 @@ async failedNotificationCheckbox(){
 
 }
 
+
+async uncheckNotificationCheckbox(){
+      if(await this.showFailedCheckbox.isChecked()) {
+    await this.click(this.showFailedCheckbox);
+    logger.info('Toggled Is Enabled checkbox!!');
+      }
+
+}
 async clickNotificationSearchButton(){
   await this.click(this.searchButton)
 }
