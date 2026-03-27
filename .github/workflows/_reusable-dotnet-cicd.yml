@@ -142,6 +142,7 @@ jobs:
 
       - name: Deployment Report
         if: always()
+        continue-on-error: true
         env:
           HEALTH_CHECK_METHOD: ${{ inputs.health_check_method }}
         run: |
@@ -155,7 +156,7 @@ jobs:
           if [ "$HEALTH_CHECK_METHOD" = "port_forward" ]; then
             oc port-forward $POD 8080:8080 -n ${{ env.OPENSHIFT_NAMESPACE }} &
             sleep 10
-            curl -sf http://localhost:8080/health || true
+            curl -sf http://localhost:8080/health
             kill %1
           else
             oc exec $POD -n ${{ env.OPENSHIFT_NAMESPACE }} -- \
@@ -163,7 +164,7 @@ jobs:
           fi
           echo "--- recent logs ---"
           sleep 60
-          oc logs $POD -n ${{ env.OPENSHIFT_NAMESPACE }} --tail=20 || true
+          oc logs $POD -n ${{ env.OPENSHIFT_NAMESPACE }} --tail=20
 
   cd-test:
     name: CD — Deploy to Test
@@ -232,6 +233,7 @@ jobs:
 
       - name: Deployment Report
         if: always()
+        continue-on-error: true
         env:
           HEALTH_CHECK_METHOD: ${{ inputs.health_check_method }}
         run: |
@@ -245,7 +247,7 @@ jobs:
           if [ "$HEALTH_CHECK_METHOD" = "port_forward" ]; then
             oc port-forward $POD 8080:8080 -n ${{ env.OPENSHIFT_NAMESPACE }} &
             sleep 10
-            curl -sf http://localhost:8080/health || true
+            curl -sf http://localhost:8080/health
             kill %1
           else
             oc exec $POD -n ${{ env.OPENSHIFT_NAMESPACE }} -- \
@@ -253,4 +255,4 @@ jobs:
           fi
           echo "--- recent logs ---"
           sleep 60
-          oc logs $POD -n ${{ env.OPENSHIFT_NAMESPACE }} --tail=20 || true
+          oc logs $POD -n ${{ env.OPENSHIFT_NAMESPACE }} --tail=20
