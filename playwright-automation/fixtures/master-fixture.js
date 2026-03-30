@@ -11,6 +11,7 @@ import { SettingsPage } from "../pages/settingsPage";
 
 import { NotificationalertPage } from "../pages/notificationalertPage";
 import { AddMediaPage } from "../pages/addMediaPage";
+import { AddFolderPage } from "../pages/addFolderPage";
 
 export class MasterFixture {
 
@@ -28,6 +29,7 @@ export class MasterFixture {
         this.settingsPage = new SettingsPage(this.page);    
         this.notificationalertPage = new NotificationalertPage(this.page);
         this.addMediaPage = new AddMediaPage(this.page);
+        this.addFoldersPage = new AddFolderPage(this.page);
     
 
     }
