@@ -18,10 +18,6 @@ class EditorHomePage extends BasePage {
     this.inProgressCheckbox = page.locator('#inProgress-true');
     this.failedCheckbox = page.locator('#failed-true');
     this.newsRadioCheckbox = page.locator('#newsRadio-true');
-    this.showOnlyPrintContentCheckbox = page.locator(`#isPrintContent-true`);
-    this.showOnlyCommentaryCheckbox = page.locator(`#commentary-true`);
-    this.showOnlyTopStoryCheckbox = page.locator(`#topStory-true`);
-    this.showOnlyPublishedCheckbox = page.locator(`#onlyPublished-true`);
 
     // Class Locator
     this.productCards = page.locator('.product-card');
@@ -31,7 +27,6 @@ class EditorHomePage extends BasePage {
 
     // Role Locator
     this.addNewProductButton = page.getByRole('button', { name: 'Add new product' });
-    this.addNewFolderButton = page.getByRole('button', {  name : 'Add new folder'});
 
     // Placeholder
     this.searchInput = page.getByPlaceholder('Search products');
@@ -46,7 +41,6 @@ class EditorHomePage extends BasePage {
     this.sendTopStories = page.locator(`(//*[contains(@class,"button-preview")])[4]`);
     this.sendConfirmationButton = page.locator('//button/div[text()="Yes, Send"]');
     this.cancelSendConfirmation = page.locator(`//button/div[text()="Cancel"]`);
-    this.filterContentSeeHiddenOnly = page.locator(`//button//div[text()='SEE HIDDEN ONLY']`);
 
     this.readyForReviewStatusInTranscriptQueueGrid = page.locator(
       `//*[name()="svg"]//*[name()="title" and contains(.,"Ready to review")]`,
@@ -70,38 +64,17 @@ class EditorHomePage extends BasePage {
     this.imageContent = page.locator(
       `//div[contains(@class,"create-new")]/*[@data-tooltip-content="Image"]`,
     );
-    this.printContent = page.locator(
-      `//div[contains(@class,"create-new")]/*[@data-tooltip-content="Print content"]`,
-    );
     this.mediaType = page.locator(`input[name="select-mediaTypeIds"]`);
     this.dailyMediaTypeOption = page.locator(`input[id="Daily Print"]`);
     this.headlineTitleUnderHeadlineColumn = page.locator(`.content-list .ellipsis`);
     this.pageRecordsUpdateTextBox = page.locator(`input[name="quantity"]`);
+  
+// PrintContent
 
-    this.printcontent = page.locator(
+  this.printcontent = page.locator(
       `//div[contains(@class,"create-new")]/*[@data-tooltip-content="Print content"]`,
+ 
     );
-    this.mediaTypeColumnValue = page.locator(
-      `(//div[@class='clickable'])/div[contains(@class,'clickable')]`,
-    );
-    this.mediaTypeColumnValue = page.locator(
-      `(//div[@class='clickable'])/div[contains(@class,'clickable')]`,
-    );
-    this.mediaTypeColumnValue = page.locator(
-      `(//div[@class='clickable'])/div[contains(@class,'clickable')]`,
-    );
-    this.mediaTypeColumnValue = page.locator(
-      `(//div[@class='clickable'])/div[contains(@class,'clickable')]`,
-    );
-    this.mediaTypeColumnValue = page.locator(
-      `(//div[@class='clickable'])/div[contains(@class,'clickable')]`,
-    );
-
-    this.startDateFilter = page.locator(`input[name="startDate"]`);
-    this.endDateFilter = page.locator(`input[name="endDate"]`);
-
-    this.advanceSearchType = page.locator(`input[id="react-select-3-input"]`);
-    this.advanceSearchTypeValue = page.locator(`input[name="searchTerm"]`);
   }
 
   /**
@@ -160,14 +133,15 @@ class EditorHomePage extends BasePage {
           this.click(this.imageContent),
         ]);
         break;
-      case 'Print Content':
+      case 'Print content':
         [newPage] = await Promise.all([
           this.page.context().waitForEvent('page'),
-          this.click(this.printContent),
+          this.click(this.printcontent),
         ]);
         break;
 
       default:
+       
         break;
     }
     await newPage.waitForLoadState('domcontentloaded');
@@ -470,9 +444,10 @@ class EditorHomePage extends BasePage {
 
     logger.info(`Total Records for status ${statuFilterName} on grid is: ${statusCount}`);
 
-    if (statuFilterName === CONSTANTS.HEADLINES.IN_PROGRESS) {
+    if(statuFilterName === CONSTANTS.HEADLINES.IN_PROGRESS){
       expect(statusCount).toBeLessThanOrEqual(totalHeadlinesCount);
-    } else if (statusCount !== totalHeadlinesCount) {
+    }
+    else if (statusCount !== totalHeadlinesCount) {
       throw new Error(
         `Status Validation failed. Expected ${totalHeadlinesCount} records with status ${statuFilterName} but found ${statusCount}.`,
       );
@@ -480,343 +455,11 @@ class EditorHomePage extends BasePage {
   }
 
   /**
-   * Method to click on add new Product button.
+   * Method to click on add new method.
    */
   async addNewProduct() {
     await this.click(this.addNewProductButton);
     logger.info(`Clicked on Add new Product button`);
-  }
-
-  /**
-   * Method to click on add new folder button.
-   */
-  async addNewFolder() {
-    await this.click(this.addNewFolderButton);
-    logger.info(`Clicked on Add new Folder button`);
-  }
-
-  /**
-   * Method to select date content filter option
-   * @param {string} dateToSelect
-   */
-  async clickOnDateFilterContent(dateToSelect) {
-    const dateContentFilter = `//button//div[text() = '${dateToSelect}']`;
-    const dateContentFilterLocator = this.page.locator(dateContentFilter);
-
-    await this.click(dateContentFilterLocator);
-  }
-
-  /**
-   * Method to check the visibility of Content filters
-   * @param {string} filterName
-   * @returns
-   */
-  async isGivenContentSearchFilterPresent(filterName) {
-    const dateContentFilter = `//button//div[text() = '${filterName}']`;
-    const dateContentFilterLocator = this.page.locator(dateContentFilter);
-
-    return await this.isElementVisible(dateContentFilterLocator);
-  }
-
-  /**
-   * Method to get the total records on the grid
-   * @returns Total record
-   */
-  async getTotalHeadlineCount() {
-    const totalRecordText = await this.getElementText(this.totalHeadlinesInGrid);
-    const totalHeadlinesCount = parseInt(totalRecordText.replace(/[()]/g, '').trim());
-
-    logger.info(`Total Records on grid: ${totalHeadlinesCount}`);
-    return totalHeadlinesCount;
-  }
-
-  /**
-   * Method to select record on the grid
-   * @param {Number} recordCount
-   */
-  async selectRecordsOnGrid(recordCount) {
-    await this.type(this.pageRecordsUpdateTextBox, recordCount.toString());
-    await this.page.keyboard.press('Enter');
-    await this.page.waitForLoadState('networkidle');
-    await this.hardWait(1500);
-
-    logger.info(`Selected record on the grid : ${recordCount}`);
-  }
-
-  /**
-   * Method to get the published dates from the grid
-   * @param {string} totalRows
-   * @returns Published dates
-   */
-  async getPublishedDateFromGrid(totalRows) {
-    logger.info(`Fetching published dates for total rows: ${totalRows}`);
-
-    const dates = [];
-
-    for (let i = 0; i < totalRows; i++) {
-      const index = 6 + i * 7;
-
-      const pDateLocator = `(//div[@class='clickable'])[${index}]`;
-      const rawText = await (await this.page.locator(pDateLocator).innerText()).trim();
-      dates.push(rawText.trim());
-    }
-
-    return dates;
-  }
-
-  /**
-   * Method to validate the published dates are withing the renage
-   * @param {string} filterType
-   * @param {string} totalRows
-   */
-  async validatePublishedDates(filterType, totalRows) {
-    logger.info(`Validating Published date for Filter : ${filterType}`);
-
-    const dateStrings = await this.getPublishedDateFromGrid(totalRows);
-    const now = new Date();
-
-    logger.info(`Current System Time : ${now}`);
-    if (dateStrings.length === 0) {
-      throw new Error('No records found in grid!');
-    }
-
-    for (let i = 0; i < dateStrings.length; i++) {
-      const rawText = await dateStrings[i];
-      const parsedDate = await this.parseUIDate(rawText);
-      let isValid = false;
-
-      switch (filterType.toUpperCase()) {
-        case CONSTANTS.BUTTONS.TODAY:
-          isValid = this.isSameDay(parsedDate, now);
-          break;
-        case CONSTANTS.BUTTONS.TWENTY_FOUR_HOURS:
-          isValid = this.isWithinLastHours(parsedDate, now, 24);
-          break;
-        case CONSTANTS.BUTTONS.FOURTY_EIGHT_HOURS:
-          isValid = this.isWithinLastHours(parsedDate, now, 48);
-          break;
-
-        default:
-          throw new Error(`Invalid Filter type : ${filterType}`);
-      }
-
-      if (!isValid) {
-        throw new Error(
-          `Validation failed at Row ${i + 1}. Ui : ${rawText} and Parsed ${parsedDate} for filter : ${filterType}`,
-        );
-      }
-    }
-    logger.info(`All dates are valid for filter : ${filterType}`);
-  }
-
-  /**
-   * Method to parse the date
-   * @param {string} dateString
-   * @returns
-   */
-  async parseUIDate(dateString) {
-    if (!dateString) {
-      logger.info(`Empty date String received`);
-      return null;
-    }
-
-    const cleaned = dateString.trim();
-    const parsed = new Date(cleaned);
-    if (isNaN(parsed.getTime())) {
-      logger.info(`Invalid Date after pasrsing : ${dateString}`);
-      return null;
-    }
-    return parsed;
-  }
-
-  /**
-   * Method to compare two dates
-   * @param {Date} date1
-   * @param {Date date2
-   */
-  async isSameDay(date1, date2) {
-    if (!(date1 instanceof Date)) {
-      logger.info(`${date1} is not a Date object`);
-      return false;
-    }
-
-    return (
-      date1.getFullYear() === date2.getFullYear() &&
-      date1.getMonth() === date2.getMonth() &&
-      date1.getDate() === date2.getDate()
-    );
-  }
-
-  /**
-   * Method to compare date based on hours
-   * @param {Date} date
-   * @param {*} now
-   * @param {*} hours
-   * @returns
-   */
-  async isWithinLastHours(date, now, hours) {
-    if (!(date instanceof Date)) {
-      logger.info(`${date} is not a Date object`);
-      return false;
-    }
-
-    const diffMs = now - date;
-    const diffHours = diffMs / (1000 * 60 * 60);
-
-    // logger.info(`Difference in Hours : ${diffHours}`);
-
-    return diffHours >= 0 && diffHours <= hours;
-  }
-
-  /**
-   * Method to get the Media Type from the grid
-   * @param {string} totalRows
-   * @returns Media Types
-   */
-  async getMediaTypeFromGrid(mType) {
-    logger.info(`Fetching published dates for total rows: ${mType}`);
-
-    const size = await this.mediaTypeColumnValue.count();
-    logger.info(`Total record with Daily cout is : ${size}`);
-    return size;
-  }
-
-  /**
-   * Method to click on given Show Only filter on Home page
-   * @param {string} filterName
-   */
-  async selectShowOnlyFilterChecbox(filterName) {
-    switch (filterName) {
-      case CONSTANTS.HEADLINES.TOP_STORY:
-        await this.click(this.showOnlyTopStoryCheckbox);
-        logger.info(`Successfully clicked on ${CONSTANTS.HEADLINES.TOP_STORY}`);
-        break;
-      case CONSTANTS.HEADLINES.COMMENTARY:
-        await this.click(this.showOnlyCommentaryCheckbox);
-        logger.info(`Successfully clicked on ${CONSTANTS.HEADLINES.COMMENTARY}`);
-        break;
-      case CONSTANTS.HEADLINES.PRINT_CONTENT:
-        await this.click(this.showOnlyPrintContentCheckbox);
-        logger.info(`Successfully clicked on ${CONSTANTS.HEADLINES.PRINT_CONTENT}`);
-        break;
-      case CONSTANTS.HEADLINES.PUBLISHED:
-        await this.click(this.showOnlyPublishedCheckbox);
-        logger.info(`Successfully clicked on ${CONSTANTS.HEADLINES.PUBLISHED}`);
-        break;
-      default:
-        logger.info(`Invalid Filter Name}`);
-        break;
-    }
-
-    await this.hardWait(2000);
-  }
-
-  /**
-   * Method to check if headline is present in the searched result
-   * @param {string} headlineTitle
-   * @returns {boolean} true if present else false
-   */
-  async isPublishedHeadlinesPresent(headlineTitle) {
-    logger.info('Verifying published headlines in search results..');
-    const firstRowHeadlineTitle = await (
-      await this.getElementText(this.firstHeadlineFromHeadlinesGrid)
-    ).trim();
-    logger.info(`Headline Title is: ${firstRowHeadlineTitle}`);
-    const isPresent = firstRowHeadlineTitle === headlineTitle;
-    logger.info(`Is Headline present: ${isPresent}`);
-    return isPresent;
-  }
-
-  /**
-   * Method to check the given date is within the range
-   * @param {*} publishedDates
-   * @param {*} startDate
-   * @param {*} endDate
-   * @returns
-   */
-  async validateDatesInRange(publishedDates, startDate, endDate) {
-    logger.info(`Validating Date Range`);
-
-    const start = this.parseUIDate(startDate);
-    const end = this.parseUIDate(endDate);
-
-    for (let i = 0; i < publishedDates.length; i++) {
-      const rawText = publishedDates[i];
-
-      const current = this.parseUIDate(rawText);
-
-      const isInRange = current >= start && current <= end;
-      if (!isInRange) {
-        logger.info(`Out of range at row ${i + 1}`);
-        return false;
-      }
-    }
-
-    logger.info(`All dates are within range`);
-    return true;
-  }
-
-  /**
-   * Method to select start date and end date filter
-   * @param {Number} recordCount
-   */
-  async selectStartDateAndEndDateFilter(startDate, endDate) {
-    await this.type(this.startDateFilter, startDate);
-    await this.page.keyboard.press('Enter');
-    await this.hardWait(1500);
-    await this.type(this.endDateFilter, endDate);
-    await this.page.keyboard.press('Enter');
-    await this.hardWait(1500);
-
-    logger.info(`Selected ${startDate} and ${endDate}`);
-  }
-
-  /**
-   * Method to check the visibility of Start Date filter
-   * @returns
-   */
-  async isStartDateFilterPresent() {
-    logger.info(
-      `Is start date filter present : ${await this.isElementVisible(this.startDateFilter)}`,
-    );
-
-    return await this.isElementVisible(this.startDateFilter);
-  }
-
-  /**
-   * Method to check the visibility of End Date filter
-   * @returns
-   */
-  async isEndDateFilterPresent() {
-    logger.info(
-      `Is End date filter present : ${await this.isElementVisible(this.endDateFilter)}`,
-    );
-
-    return await this.isElementVisible(this.endDateFilter);
-  }
-
-  /**
-   * Method to select advance search type and value filter
-   * @param {Number} recordCount
-   */
-  async selectAdvanceSearchTypeAndValueFilter(advanceSearchTypeLable, value) {
-    await this.type(this.advanceSearchType, advanceSearchTypeLable);
-    await this.page.keyboard.press('Enter');
-    await this.hardWait(1500);
-    await this.type(this.advanceSearchTypeValue, value);
-    await this.page.keyboard.press('Enter');
-    await this.hardWait(1500);
-
-    logger.info(`Selected ${advanceSearchTypeLable} and ${value}`);
-  }
-
-  /**
-   * Select See hidden only 
-   */
-  async selectSeeHiddenOnlyFilterContent() {
-    await this.click(this.filterContentSeeHiddenOnly);
-    logger.info(`Selected See Hidden only filter content button`);
-    await this.hardWait(1500);
   }
 }
 

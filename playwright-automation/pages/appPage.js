@@ -17,8 +17,6 @@ class AppPage extends BasePage {
     this.menuNavigationLink = page.locator('div.nav-item .dropdown-toggle');
     this.subMenuNavigationLink = page.locator('.show a.dropdown-item');
     this.allContentSubNavLink = page.locator(`.dropdown-menu a[href="/contents"]`);
-    this.homeMenu = page.locator(`.navbar-brand[href="/contents"]`);
-    this.papersSubNavLink = page.locator(`.dropdown-menu a[href="/papers"]`);
 
     this.microsoftButton = page.getByRole('button', { name: 'Microsoft' });
 
@@ -170,9 +168,6 @@ class AppPage extends BasePage {
   async clickOnMenuAndSubNavigationMenuLink(menuName) {
     logger.info(`Clicking on Menu navigation dropdown option ${menuName}`);
     switch (menuName) {
-      case CONSTANTS.NAVIGATIONMENU.HOME:
-        await this.clickElementByText(this.homeMenu, menuName);
-        break;
       case CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING:
         await this.clickElementByText(this.menuNavigationLink, menuName);
         break;
@@ -194,15 +189,10 @@ class AppPage extends BasePage {
       case CONSTANTS.CONTENT_SUBMENU.TRANSCRIPT_QUEUE:
         await this.clickElementByText(this.transcriptQueueSubNavLink, menuName);
         break;
-      case CONSTANTS.REPORTBUILDING_SUBMENU.FOLDERS:
-        await this.clickElementByText(this.subMenuNavigationLink, menuName);
-        break;
       default:
         logger.info(`Invalid menu or sub menu option: ${menuName}`);
         break;
     }
-
-    await this.hardWait(1500);
   }
 }
 

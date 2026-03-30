@@ -8,7 +8,6 @@ class SubscriberSearchResultPage extends BasePage {
 
     this.headlines = page.locator('.grouped-content .headline');
     this.searchButtonOnTop = page.locator('(//div[text()="Search"]/parent::button)[2]');
-    this.pageErrorMessage = page.locator(`//h1[text()="Something went wrong."]`);
   }
 
   /**
@@ -35,15 +34,6 @@ class SubscriberSearchResultPage extends BasePage {
   async isPublishedHeadlinesPresent(headlineTitle) {
     logger.info('Verifying published headlines in search results..');
     return this.isTextPresentInCollection(this.headlines, headlineTitle);
-  }
-
-  /**
-   * Method to check if error message is present in the searched result
-   * @returns {boolean} true if present else false
-   */
-  async isPageErrorMessagePresent() {
-    logger.info('Verifying Error Message..');
-    return this.isElementVisible(this.pageErrorMessage);
   }
 
 }

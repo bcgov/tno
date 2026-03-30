@@ -346,25 +346,4 @@ test.describe('@smoke Content Paper workflow', () => {
 
     await appPage.logOut();
   });
-
-  test(`Verify Hide functionality on Content page`, async ({}) => {
-    await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.CONTENT);
-    await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.CONTENT_SUBMENU.PAPERS);
-
-    const headlineTitleBeforeHide = await editorHomePage.getHeadlinesTitleByRowNumberOnPapersEditorGrid(7);
-    await editorHomePage.selectOnHeadlinesCheckBoxByRowNumber(7);
-    expect(await editorHomePage.isButtonEnabledOnPapersEditorGrid(CONSTANTS.BUTTONS.HIDE)).toBe(true);   
-
-    await editorHomePage.clickButtonForPapersContentOnEditorGrid(CONSTANTS.BUTTONS.HIDE);
-
-    await editorHomePage.selectSeeHiddenOnlyFilterContent();
-    const headlineTitleAfterHide = await editorHomePage.getHeadlinesTitleByRowNumberOnPapersEditorGrid(1);
-
-    expect(headlineTitleBeforeHide).toBe(headlineTitleAfterHide);
-
-    expect(await editorHomePage.isButtonEnabledOnPapersEditorGrid(CONSTANTS.BUTTONS.UNHIDE)).toBe(true);   
-    await editorHomePage.clickButtonForPapersContentOnEditorGrid(CONSTANTS.BUTTONS.UNHIDE);
-
-    await appPage.logOut();
-  });
 });

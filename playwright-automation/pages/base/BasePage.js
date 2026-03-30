@@ -107,11 +107,6 @@ class BasePage {
     await locator.waitFor( { state: 'attached' } );
     return await locator.innerText();
   }
-
-  async isCheckboxSelected(locator) {
-    await locator.waitFor( { state: 'attached' });
-    return await locator.isChecked();
-  }
 }
 
 module.exports = BasePage;

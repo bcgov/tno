@@ -28,8 +28,6 @@ class HeadlinesDetailsPage extends BasePage {
     this.delete = page.locator('//button/div[text()="Delete"]');
     this.deleteConfirmationButton = page.locator('//button/div[text()="Yes, Delete It"]');
     this.printcontent = page.locator('//*[@data-tooltip-content="Print content"]');
-    this.topStoriesCheckbox = page.locator(`//input[@id="actions.3.value-true"]`);
-    this.commentaryCheckbox = page.locator(`//input[@id="actions.4.placeholder-true"]`);
   }
 
   /**
@@ -261,26 +259,6 @@ class HeadlinesDetailsPage extends BasePage {
     const isClickable = await this.isElementClickable(this.publishButton);
     logger.info(`Is Publish button clicable - ${isClickable}`);
     return isClickable;
-  }
-
-  /**
-   * Method to click on top stories or Commentary checkboxes
-   * @param {string} filterName
-   */
-  async selectTopStoriesOrCommentaryChecbox(filterName) {
-    switch (filterName) {
-      case CONSTANTS.HEADLINES.TOP_STORIES:
-        await this.click(this.topStoriesCheckbox);
-        logger.info(`Successfully clicked on ${CONSTANTS.HEADLINES.TOP_STORIES}`);
-        break;
-      case CONSTANTS.HEADLINES.COMMENTARY:
-        await this.click(this.commentaryCheckbox);
-        logger.info(`Successfully clicked on ${CONSTANTS.HEADLINES.COMMENTARY}`);
-        break;
-      default:
-        logger.info(`Invalid Filter Name}`);
-        break;
-    }
   }
 }
 
