@@ -1,4 +1,3 @@
-const { describe } = require('node:test');
 const { test, expect } = require('../../../fixtures/ui-fixture');
 const DataLoader = require('../../../utils/dataLoader');
 const testData = DataLoader.loadJSON(`test-data/${process.env.ENV_NAME}/loginData.json`);
