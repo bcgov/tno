@@ -1,3 +1,4 @@
+const { describe } = require('node:test');
 const { test, expect } = require('../../../fixtures/ui-fixture');
 const DataLoader = require('../../../utils/dataLoader');
 const testData = DataLoader.loadJSON(`test-data/${process.env.ENV_NAME}/loginData.json`);
@@ -28,13 +29,8 @@ const startDate = lastYear.toLocaleDateString("en-US");
     await notificationpage.enterNotificationDates(startDate,endDate)
     await notificationpage.uncheckNotificationCheckbox()
     await notificationpage.clickNotificationSearchButton()
-    await page.pause()
-    const rows = page.locator('[class="notification-card"]')
-    if(await rows.count()>0){
-      await expect("Row count"+rows.count())
-       }else{
-      expect("no records found")
-    }
+   const count = await page.locator('[class="notification-card"]').count();
+console.log(`Rows count: ${count}`);
     
   });
 });
