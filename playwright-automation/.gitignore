@@ -9,3 +9,4 @@ node_modules/
 .env.test
 allure-results/
 allure-report/
+playwright.config.js

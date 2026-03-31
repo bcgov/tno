@@ -8,7 +8,6 @@ const editorUrl = testData[testApp]['editor']['url'];
 
 let page, appPage, editorHomePage, headlineDetailsPage, subscriberSearchResultPage;
 
-
 test.beforeEach(async ({ masterFixture }) => {
     page = masterFixture.page;  
     appPage = masterFixture.appPage;
@@ -47,7 +46,7 @@ test.describe('@smoke Un-Publishing headline workflow', () => {
       await subscriberSearchResultPage.clickOnSearchButton();
       await subscriberSearchResultPage.verifySearchResultPageLoaded();
 
-      expect(subscriberSearchResultPage.isPublishedHeadlinesPresent(headlineTitle)).toBeTruthy();
+      expect(await subscriberSearchResultPage.isPublishedHeadlinesPresent(headlineTitle)).toBeTruthy();
       await appPage.logOutFromSubscriber();
 
       await appPage.navigateToUrl(editorUrl);
@@ -61,6 +60,7 @@ test.describe('@smoke Un-Publishing headline workflow', () => {
       await headlineDetailsPage.unPublishHeadlines();
       expect(await headlineDetailsPage.isUnpublishButtonVisible()).toBeFalsy();
 
+      await headlineDetailsPage.deleteUnpublishedHeadline();
       await headlineDetailsPage.closePage();
       await parentPage.bringToFront();
       await appPage.logOut();

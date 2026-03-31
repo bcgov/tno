@@ -1,0 +1,138 @@
+name: Manual Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        description: "Service to roll back"
+        required: true
+        type: choice
+        options:
+          - editor
+          - subscriber
+          - folder-collection
+          - api
+          - charts-api
+          - auto-clipper
+          - ches-retry
+          - content
+          - contentmigration
+          - event-handler
+          - extract-quotes
+          - ffmpeg
+          - filemonitor
+          - image
+          - indexing
+          - nlp
+          - notification
+          - reporting
+          - scheduler
+          - syndication
+          - transcription
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options:
+          - dev
+          - test
+      image_sha:
+        description: "Git SHA of a previously deployed image (must already exist in the OCP registry)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  OPENSHIFT_SERVER: https://api.silver.devops.gov.bc.ca:6443
+  OPENSHIFT_TOOLS_NAMESPACE: 9b301c-tools
+
+jobs:
+  rollback:
+    name: Rollback ${{ inputs.service }} → ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+    env:
+      IMAGE_TAG: ${{ inputs.environment }}
+      OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
+    steps:
+      - name: Validate SHA format
+        run: |
+          if [[ ! "${{ inputs.image_sha }}" =~ ^[0-9a-f]{7,40}$ ]]; then
+            echo "::error::Invalid SHA format. Must be a 7–40 character hex string."
+            exit 1
+          fi
+
+      - name: Set service names
+        id: svc
+        run: |
+          case "${{ inputs.service }}" in
+            editor)             IMAGE="editor";                      DEPLOY="editor";                      DISPLAY="React Editor" ;;
+            subscriber)         IMAGE="subscriber";                  DEPLOY="subscriber";                  DISPLAY="React Subscriber" ;;
+            folder-collection)  IMAGE="folder-collection-service";   DEPLOY="folder-collection-service";   DISPLAY="Folder Collection" ;;
+            api)                IMAGE="api";                         DEPLOY="api-services";                DISPLAY="API (.NET)" ;;
+            charts-api)         IMAGE="charts-api";                  DEPLOY="charts-api";                  DISPLAY="Charts API" ;;
+            *)                  IMAGE="${{ inputs.service }}-service"; DEPLOY="${{ inputs.service }}-service"; DISPLAY="${{ inputs.service }}" ;;
+          esac
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+          echo "deploy=$DEPLOY" >> $GITHUB_OUTPUT
+          echo "display=$DISPLAY" >> $GITHUB_OUTPUT
+
+      - name: Install oc CLI
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: latest
+
+      - name: Login to OpenShift
+        run: |
+          oc login \
+            --token=${{ secrets.OPENSHIFT_TOKEN }} \
+            --server=${{ env.OPENSHIFT_SERVER }}
+
+      - name: Verify source image exists
+        run: |
+          echo "Checking that ${{ steps.svc.outputs.image }}:${{ inputs.image_sha }} exists in ${{ env.OPENSHIFT_TOOLS_NAMESPACE }}..."
+          oc get istag "${{ steps.svc.outputs.image }}:${{ inputs.image_sha }}" \
+            -n ${{ env.OPENSHIFT_TOOLS_NAMESPACE }} \
+            -o jsonpath='{.tag.name}' || {
+              echo "::error::Image tag ${{ steps.svc.outputs.image }}:${{ inputs.image_sha }} not found in ${{ env.OPENSHIFT_TOOLS_NAMESPACE }}."
+              exit 1
+            }
+          echo "✅ Source image found."
+
+      - name: Re-tag image to environment tag
+        run: |
+          echo "Tagging ${{ steps.svc.outputs.image }}:${{ inputs.image_sha }} → ${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}"
+          oc tag \
+            "${{ steps.svc.outputs.image }}:${{ inputs.image_sha }}" \
+            "${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}" \
+            -n ${{ env.OPENSHIFT_TOOLS_NAMESPACE }}
+
+      - name: Rollout Restart
+        run: |
+          oc rollout restart deployment/${{ steps.svc.outputs.deploy }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Verify Rollout
+        run: |
+          oc rollout status deployment/${{ steps.svc.outputs.deploy }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }} \
+            --timeout=180s
+
+      - name: Rollback Summary
+        if: always()
+        run: |
+          echo "## ⏪ Rollback Summary — ${{ steps.svc.outputs.display }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Detail | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Service** | ${{ steps.svc.outputs.display }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Environment** | ${{ inputs.environment }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Namespace** | ${{ env.OPENSHIFT_NAMESPACE }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Image** | ${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Rolled back to SHA** | \`${{ inputs.image_sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Triggered by** | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Workflow Run** | [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Timestamp (UTC)** | $(date -u '+%Y-%m-%d %H:%M:%S') |" >> $GITHUB_STEP_SUMMARY

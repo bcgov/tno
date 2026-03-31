@@ -17,6 +17,20 @@ class AppPage extends BasePage {
     this.menuNavigationLink = page.locator('div.nav-item .dropdown-toggle');
     this.subMenuNavigationLink = page.locator('.show a.dropdown-item');
     this.allContentSubNavLink = page.locator(`.dropdown-menu a[href="/contents"]`);
+    this.homeMenu = page.locator(`.navbar-brand[href="/contents"]`);
+    this.papersSubNavLink = page.locator(`.dropdown-menu a[href="/papers"]`);
+
+    this.microsoftButton = page.getByRole('button', { name: 'Microsoft' });
+
+    this.loginEmailInput = page.getByRole('textbox', { name: 'Enter your email or phone' });
+
+    this.nextButton = page.getByRole('button', { name: 'Next' });
+
+    this.passwordInputField = page.locator('input[type="password"]');
+
+    this.signInButton = page.getByRole('button', { name: 'Sign in' });
+
+    this.noButton = page.getByRole('button', { name: 'No' });
   }
 
   /**
@@ -37,7 +51,7 @@ class AppPage extends BasePage {
 
   /**
    * Method to navigate to given URL
-   * @param {string} url 
+   * @param {string} url
    */
   async navigateToUrl(url) {
     logger.info(`Navigating to URL : ${url}`);
@@ -115,16 +129,57 @@ class AppPage extends BasePage {
   }
 
   /**
+   * Login to MMI Editor Portal using Microsoft SSO.
+   * @param { String } username
+   * @param { String } password
+   */
+  async mmiMicrosoftLogin(username, password) {
+    logger.info(`Clicking on Microsoft button to login..`);
+    await this.microsoftButton.click();
+    await this.loginEmailInput.type(username);
+    await this.nextButton.click();
+    await this.page.waitForTimeout(2000);
+    await this.passwordInputField.type(password);
+    await this.signInButton.click();
+    await this.noButton.click();
+    logger.info(`Login MMI Editor Portal using Microsoft SSO!!`);
+  }
+
+  /**
+   * Method to navigate to given URL
+   * @param {string} url
+   */
+  async navigateToMMIUrl(url) {
+    logger.info(`Navigating to URL : ${url}`);
+    await this.page.goto(url);
+    await this.hardWait(2000);
+    if (!(await this.homePageLogo.isVisible())) {
+      try {
+        this.mmiMicrosoftLogin(process.env.app_username_MMI, process.env.app_password_MMI);
+        await this.homePageLogo.waitFor({ state: 'visible' });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  /**
    * Method to click on given Navigation and Sub Navigation menu
    * @param {string} menuName
    */
   async clickOnMenuAndSubNavigationMenuLink(menuName) {
     logger.info(`Clicking on Menu navigation dropdown option ${menuName}`);
     switch (menuName) {
+      case CONSTANTS.NAVIGATIONMENU.HOME:
+        await this.clickElementByText(this.homeMenu, menuName);
+        break;
       case CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING:
         await this.clickElementByText(this.menuNavigationLink, menuName);
         break;
       case CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS:
+        await this.clickElementByText(this.subMenuNavigationLink, menuName);
+        break;
+      case CONSTANTS.REPORTBUILDING_SUBMENU.MMI_PRODUCTS:
         await this.clickElementByText(this.subMenuNavigationLink, menuName);
         break;
       case CONSTANTS.NAVIGATIONMENU.CONTENT:
@@ -133,10 +188,21 @@ class AppPage extends BasePage {
       case CONSTANTS.CONTENT_SUBMENU.ALL_CONTENT:
         await this.clickElementByText(this.allContentSubNavLink, menuName);
         break;
+      case CONSTANTS.CONTENT_SUBMENU.PAPERS:
+        await this.clickElementByText(this.papersSubNavLink, menuName);
+        break;
+      case CONSTANTS.CONTENT_SUBMENU.TRANSCRIPT_QUEUE:
+        await this.clickElementByText(this.transcriptQueueSubNavLink, menuName);
+        break;
+      case CONSTANTS.REPORTBUILDING_SUBMENU.FOLDERS:
+        await this.clickElementByText(this.subMenuNavigationLink, menuName);
+        break;
       default:
         logger.info(`Invalid menu or sub menu option: ${menuName}`);
         break;
     }
+
+    await this.hardWait(1500);
   }
 }
 

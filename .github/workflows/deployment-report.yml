@@ -1,0 +1,106 @@
+name: Deployment Frequency Report
+
+on:
+  schedule:
+    # Every Monday at 08:00 UTC
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "Number of days to look back"
+        required: false
+        default: "30"
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  report:
+    name: Generate Deployment Report
+    runs-on: ubuntu-latest
+    env:
+      DAYS: ${{ inputs.days || '30' }}
+    steps:
+      - name: Calculate date range
+        id: dates
+        run: |
+          END_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+          START_DATE=$(date -u -d "${{ env.DAYS }} days ago" '+%Y-%m-%dT%H:%M:%SZ')
+          echo "start=$START_DATE" >> $GITHUB_OUTPUT
+          echo "end=$END_DATE" >> $GITHUB_OUTPUT
+          echo "start_display=$(date -u -d "${{ env.DAYS }} days ago" '+%Y-%m-%d')" >> $GITHUB_OUTPUT
+          echo "end_display=$(date -u '+%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Collect workflow run data
+        id: collect
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # -------------------------------------------------------
+          # Query GitHub API for workflow runs of each CD workflow
+          # -------------------------------------------------------
+          declare -A WORKFLOWS=(
+            ["react-editor"]="react-editor.yml"
+            ["react-subscriber"]="react-subscriber.yml"
+            ["folder-collection"]="folder-collection-cicd.yml"
+            ["api-services"]="api-services-cicd.yml"
+          )
+
+          REPORT_FILE=$(mktemp)
+          echo "report_file=$REPORT_FILE" >> $GITHUB_OUTPUT
+
+          for svc in "${!WORKFLOWS[@]}"; do
+            wf_file="${WORKFLOWS[$svc]}"
+
+            # Fetch completed runs within the date window (push + workflow_dispatch only — these are deploys)
+            RUNS_JSON=$(gh api \
+              "repos/${{ github.repository }}/actions/workflows/${wf_file}/runs?status=completed&created=>=${{ steps.dates.outputs.start }}&per_page=100" \
+              --jq '.workflow_runs')
+
+            # --- Dev deployments (branch: dev) ---
+            DEV_TOTAL=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "dev")] | length')
+            DEV_SUCCESS=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "dev") | select(.conclusion == "success")] | length')
+            DEV_FAILURE=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "dev") | select(.conclusion == "failure")] | length')
+
+            # --- Test deployments (branch: master) ---
+            TEST_TOTAL=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "master")] | length')
+            TEST_SUCCESS=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "master") | select(.conclusion == "success")] | length')
+            TEST_FAILURE=$(echo "$RUNS_JSON" | jq '[.[] | select(.event == "push" or .event == "workflow_dispatch") | select(.head_branch == "master") | select(.conclusion == "failure")] | length')
+
+            # Calculate success rates
+            if [ "$DEV_TOTAL" -gt 0 ]; then
+              DEV_RATE=$(awk "BEGIN {printf \"%.1f\", ($DEV_SUCCESS/$DEV_TOTAL)*100}")%
+            else
+              DEV_RATE="N/A"
+            fi
+
+            if [ "$TEST_TOTAL" -gt 0 ]; then
+              TEST_RATE=$(awk "BEGIN {printf \"%.1f\", ($TEST_SUCCESS/$TEST_TOTAL)*100}")%
+            else
+              TEST_RATE="N/A"
+            fi
+
+            echo "${svc}|dev|${DEV_TOTAL}|${DEV_SUCCESS}|${DEV_FAILURE}|${DEV_RATE}" >> "$REPORT_FILE"
+            echo "${svc}|test|${TEST_TOTAL}|${TEST_SUCCESS}|${TEST_FAILURE}|${TEST_RATE}" >> "$REPORT_FILE"
+          done
+
+      - name: Render report
+        run: |
+          REPORT_FILE="${{ steps.collect.outputs.report_file }}"
+
+          echo "## 📊 Deployment Frequency & Success Rate Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Period**: ${{ steps.dates.outputs.start_display }} — ${{ steps.dates.outputs.end_display }} (${{ env.DAYS }} days)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | Environment | Total Deploys | ✅ Success | ❌ Failure | Success Rate |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|-------------|:------------:|:----------:|:----------:|:------------:|" >> $GITHUB_STEP_SUMMARY
+
+          while IFS='|' read -r service env total success failure rate; do
+            echo "| ${service} | ${env} | ${total} | ${success} | ${failure} | ${rate} |" >> $GITHUB_STEP_SUMMARY
+          done < "$REPORT_FILE"
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*Generated by [Workflow #${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) at $(date -u '+%Y-%m-%d %H:%M:%S') UTC*" >> $GITHUB_STEP_SUMMARY

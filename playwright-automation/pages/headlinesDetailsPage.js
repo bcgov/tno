@@ -3,11 +3,13 @@ const CONSTANTS = require('../utils/constants');
 const logger = require('../utils/logger');
 const { getFilePath } = require('../utils/fileUpload.util');
 const { expect } = require('@playwright/test');
+const { ReportPage } = require('./reportPage');
 
 class HeadlinesDetailsPage extends BasePage {
   constructor(page) {
     super(page);
 
+    this.headlinesTextBox2 = page.getByRole('textbox', { name: 'Headline *' });
     this.headlinesTextBox = page.locator('textarea#txa-headline');
     this.byLineInput = page.locator('input#txt-byline');
     this.publishButton = page.locator('//button[@type="submit"]');
@@ -23,6 +25,11 @@ class HeadlinesDetailsPage extends BasePage {
     this.mediaOutletDropDownField = page.locator('.frm-select input[name="sourceId"]');
     this.mediaTypeDropDownField = page.locator('input[name="mediaTypeId"]');
     this.unPublishButton = page.locator('//button/div[text()="Unpublish"]');
+    this.delete = page.locator('//button/div[text()="Delete"]');
+    this.deleteConfirmationButton = page.locator('//button/div[text()="Yes, Delete It"]');
+    this.printcontent = page.locator('//*[@data-tooltip-content="Print content"]');
+    this.topStoriesCheckbox = page.locator(`//input[@id="actions.3.value-true"]`);
+    this.commentaryCheckbox = page.locator(`//input[@id="actions.4.placeholder-true"]`);
   }
 
   /**
@@ -114,7 +121,10 @@ class HeadlinesDetailsPage extends BasePage {
     await this.type(this.headlinesTextBox, headlineTitle);
     logger.info(`Added headline title : ${headlineTitle}`);
   }
-
+ async inputHeadLineTitle(headlineTitle){
+    await this.type(this.headlinesTextBox2, headlineTitle);
+    logger.info(`Added headline title : ${headlineTitle}`);
+  }
   /**
    * Select source 
    * @param {string} sourceOption 
@@ -141,9 +151,15 @@ class HeadlinesDetailsPage extends BasePage {
   async saveHeadlinesWithoutPublish() {
     await this.click(this.saveWithoutPublishButton);
     await this.hardWait(2000);
-    logger.info(`Clicked on Save without Publish button.`);
+    logger.info(`Clicked on Print COntent.`);
   }
-
+/** Method to click on Print COntent */
+ async clickonPrintcontent() {
+    await this.click(this.printcontent);
+    await this.hardWait(2000);
+    logger.info(`Clicked on Print Content.`);
+  }
+  
   /**
    * Enter prep time 
    * @param {string} sourceOption 
@@ -193,6 +209,7 @@ class HeadlinesDetailsPage extends BasePage {
    * Method to click on UnPublish button.
    */
   async unPublishHeadlines() {
+    await this.hardWait(1000);
     await this.click(this.unPublishButton);
     logger.info(`Clicked on UnPublish button`);
   }
@@ -203,6 +220,67 @@ class HeadlinesDetailsPage extends BasePage {
   async isUnpublishButtonVisible() {
     logger.info(`Un Publish button visibilty status ${await this.isElementVisible(this.unPublishButton)}`);
     return await this.isElementVisible(this.unPublishButton);
+  }
+
+   /**
+   * Method to click on Delete button.
+   */
+  async clickOnDeleteButton() {
+    await this.click(this.delete.first());
+    await this.hardWait(2000);
+    logger.info('Clicked on Delete button.');
+  }
+
+  /**
+   * Method to delete the given report from the grid.
+   */
+  async deleteUnpublishedHeadline() {
+    logger.info(`Deleting the Unpublished headline`);
+    await this.hardWait(1000);
+    await this.clickOnDeleteButton();
+    await this.click(this.deleteConfirmationButton);
+  }
+
+  /**
+   * Method to check Delete Totast Notification's visibility
+   * @param {String} reportTitle
+   */
+  async verifyDeleteSucessToastNotification(reportTitle) {
+    logger.info(`Verifying visibility of Delete Success Toast Notification Message.`);
+    await this.hardWait(2000);
+    await expect(this.toastNotification.first()).toHaveText(
+      `${reportTitle} has successfully been deleted.`,
+    );
+  }
+
+  /**
+   * Method to verify Publish button state
+   * @returns true if enable else false
+   */
+  async isPublisheButtonClickable() {
+    const isClickable = await this.isElementClickable(this.publishButton);
+    logger.info(`Is Publish button clicable - ${isClickable}`);
+    return isClickable;
+  }
+
+  /**
+   * Method to click on top stories or Commentary checkboxes
+   * @param {string} filterName
+   */
+  async selectTopStoriesOrCommentaryChecbox(filterName) {
+    switch (filterName) {
+      case CONSTANTS.HEADLINES.TOP_STORIES:
+        await this.click(this.topStoriesCheckbox);
+        logger.info(`Successfully clicked on ${CONSTANTS.HEADLINES.TOP_STORIES}`);
+        break;
+      case CONSTANTS.HEADLINES.COMMENTARY:
+        await this.click(this.commentaryCheckbox);
+        logger.info(`Successfully clicked on ${CONSTANTS.HEADLINES.COMMENTARY}`);
+        break;
+      default:
+        logger.info(`Invalid Filter Name}`);
+        break;
+    }
   }
 }
 

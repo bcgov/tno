@@ -1,0 +1,40 @@
+name: Content Service CI/CD
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [dev, master]
+    paths:
+      - services/net/content/**
+      - libs/net/**
+      - openshift/kustomize/services/content/**
+      - .github/workflows/content-service-cicd.yml
+  push:
+    branches: [dev, master, content-service]
+    paths:
+      - services/net/content/**
+      - libs/net/**
+      - openshift/kustomize/services/content/**
+      - .github/workflows/content-service-cicd.yml
+
+concurrency:
+  group: content-service-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pipeline:
+    uses: ./.github/workflows/_reusable-dotnet-cicd.yml
+    with:
+      image_name: content-service
+      csproj_path: services/net/content/TNO.Services.Content.csproj
+      dockerfile: services/net/content/Dockerfile
+      component: content-service
+      deployment_name: content-service
+      kustomize_dev_path: openshift/kustomize/services/content/overlays/dev
+      kustomize_test_path: openshift/kustomize/services/content/overlays/test
+      dev_branch: content-service
+      rollout_timeout: '180s'
+      continue_on_error_verify: false
+      health_check_method: exec_curl
+    secrets:
+      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
