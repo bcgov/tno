@@ -8,6 +8,9 @@ import { SubscriberNavBarPage } from "../pages/subscriberNavBarPage";
 import { EditorOnlineStoryPage } from "../pages/editorOnlineStoryPage";
 import { MinisterPage } from "../pages/ministerPage";
 import { SettingsPage } from "../pages/settingsPage";
+import { SourcePage } from "../pages/sourcePage";
+import { ShowProgramPage } from "../pages/showProgramPage";
+import { NotificationDashboardPage } from "../pages/notificationDashboard";
 
 import { NotificationalertPage } from "../pages/notificationalertPage";
 import { AddMediaPage } from "../pages/addMediaPage";
@@ -31,6 +34,9 @@ export class MasterFixture {
         this.addMediaPage = new AddMediaPage(this.page);
         this.addFoldersPage = new AddFolderPage(this.page);
     
+        this.sourcePage = new SourcePage(this.page);
+        this.showProgramPage = new ShowProgramPage(this.page);
+        this.notificationpage= new NotificationDashboardPage(this.page)
 
     }
 }
