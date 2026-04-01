@@ -351,8 +351,8 @@ test.describe('@smoke Content Paper workflow', () => {
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.CONTENT);
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.CONTENT_SUBMENU.PAPERS);
 
-    const headlineTitleBeforeHide = await editorHomePage.getHeadlinesTitleByRowNumberOnPapersEditorGrid(7);
-    await editorHomePage.selectOnHeadlinesCheckBoxByRowNumber(7);
+    const headlineTitleBeforeHide = await editorHomePage.getHeadlinesTitleByRowNumberOnPapersEditorGrid(10);
+    await editorHomePage.selectOnHeadlinesCheckBoxByRowNumber(10);
     expect(await editorHomePage.isButtonEnabledOnPapersEditorGrid(CONSTANTS.BUTTONS.HIDE)).toBe(true);   
 
     await editorHomePage.clickButtonForPapersContentOnEditorGrid(CONSTANTS.BUTTONS.HIDE);

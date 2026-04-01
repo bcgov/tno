@@ -16,6 +16,7 @@ class ReportPage extends BasePage {
     );
     this.save = page.locator('.form-actions button[type="submit"]');
     this.toastNotification = page.locator('.Toastify .Toastify__toast-body div:nth-child(2)');
+    this.toastNotificationCloseButton = page.locator(`button[aria-label="close"]`);
     this.useDefaultTemplateButton = page.locator('//button/div[text()="Use Default Template"]');
     this.enableEditCheckbox = page.locator('input#enableEdit-true');
     this.sendTestEmailToField = page.locator('//input[@name="to"]');
@@ -24,7 +25,7 @@ class ReportPage extends BasePage {
     this.searchTextBox = page.locator('input[name="search"]');
     this.deleteConfirmationButton = page.locator('//button/div[text()="Yes, Remove It"]');
     this.isPublicCheckbox = page.locator(`#isPublic-true`);
-    this.isSortedEnableCheckbox = page.locator(`isEnabled-true`);
+    this.isSortedEnableCheckbox = page.locator(`#isEnabled-true`);
     this.nameFieldValidationMessage = page.locator(`.error p`)
     this.sortOrderInputTextField = page.locator(`input#txt-sortOrder`);
     this.validationErrorToastMessage = page.locator(`.Toastify .Toastify__toast-body div:nth-child(2)`);
@@ -100,6 +101,11 @@ class ReportPage extends BasePage {
       `${reportTitle} has successfully been saved.`,
     );
     return await this.isElementVisible(this.toastNotification.first());
+  }
+
+  async clickOnToastNotificationCloseButton(){
+    await this.click(this.toastNotificationCloseButton);
+    logger.info(`Closed toast notification`);
   }
 
   /**

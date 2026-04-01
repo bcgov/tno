@@ -75,7 +75,7 @@ const CONSTANTS = {
   CONTENTS: {
     RADIO_TV : 'Radio/TV',
     IMAGE: 'Image',
-    PRINT_CONTENT: 'Print content'
+    PRINT_CONTENT: 'Print Content'
   },
 
   BUTTONS: {

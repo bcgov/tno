@@ -78,9 +78,6 @@ class EditorHomePage extends BasePage {
     this.headlineTitleUnderHeadlineColumn = page.locator(`.content-list .ellipsis`);
     this.pageRecordsUpdateTextBox = page.locator(`input[name="quantity"]`);
 
-    this.printcontent = page.locator(
-      `//div[contains(@class,"create-new")]/*[@data-tooltip-content="Print content"]`,
-    );
     this.mediaTypeColumnValue = page.locator(
       `(//div[@class='clickable'])/div[contains(@class,'clickable')]`,
     );
@@ -391,7 +388,7 @@ class EditorHomePage extends BasePage {
    * @param { string } headline title
    */
   async clickOnHeadlinesByGivenTitle(headlineTitle) {
-    const headlinesTitleRow = `//*[@class='clickable']/div[text()='${headlineTitle}']`;
+    const headlinesTitleRow = `//*[@class='clickable']/div[text()="${headlineTitle}"]`;
     const headlinesRowTitleLocator = this.page.locator(headlinesTitleRow);
     const [newPage] = await Promise.all([
       this.page.context().waitForEvent('page'),
