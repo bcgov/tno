@@ -110,7 +110,9 @@ export const useApp = (): [IAppState, IAppController] => {
         // } catch {
         //   // Ignore location error
         // }
-        const response = await dispatch('get-user-info', () => api.getUserInfo(location));
+        const response = await dispatch<IUserInfoModel>('get-user-info', () =>
+          api.getUserInfo(location),
+        );
         userInfo = response.data;
         storeUserInfo(userInfo);
         storeMyProfile({ ...profile, ...(userInfo as ISubscriberUserModel) });

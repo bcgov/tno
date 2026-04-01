@@ -6,6 +6,7 @@ export * from './useApiSubscriberContents';
 export * from './useApiSubscriberContributors';
 export * from './useApiSubscriberFilters';
 export * from './useApiSubscriberFolders';
+export * from './useApiSubscriberLLMs';
 export * from './useApiSubscriberMinisters';
 export * from './useApiSubscriberProducts';
 export * from './useApiSubscriberReportInstances';

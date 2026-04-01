@@ -11,6 +11,7 @@ import {
   type IHolidayModel,
   type IIngestTypeModel,
   type ILicenseModel,
+  type ILLMModel,
   type ILookupModel,
   type IMediaTypeModel,
   type IMetricModel,
@@ -48,6 +49,7 @@ import {
   useApiEditorTopics,
   useApiEditorTopicScoreRules,
   useApiEditorUsers,
+  useApiSubscriberLLMs,
 } from 'tno-core';
 
 import { useAjaxWrapper } from '..';
@@ -72,6 +74,7 @@ export interface ILookupController {
   getDataLocations: (refresh?: boolean) => Promise<IDataLocationModel[]>;
   getSettings: (refresh?: boolean) => Promise<ISettingModel[]>;
   getMinisters: (refresh?: boolean) => Promise<IMinisterModel[]>;
+  getLLMs: (refresh?: boolean) => Promise<ILLMModel[]>;
   init: (refresh?: boolean) => Promise<void>;
 }
 
@@ -98,11 +101,12 @@ export const useLookup = (): [ILookupState, ILookupController] => {
   const dataLocations = useApiEditorDataLocations();
   const settings = useApiEditorSettings();
   const ministers = useApiEditorMinisters();
+  const llms = useApiSubscriberLLMs();
 
   const controller = React.useMemo(
     () => ({
       getCache: async () => {
-        const response = await dispatch('cache', async () => await cache.getCache());
+        const response = await dispatch<ICacheModel[]>('cache', async () => await cache.getCache());
         store.storeCache(response.data);
         return response.data;
       },
@@ -470,6 +474,20 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           'lookup',
         );
       },
+      getLLMs: async () => {
+        return await fetchIfNoneMatch<ILLMModel[]>(
+          'llms',
+          dispatch,
+          (etag) => llms.getLLMs(etag),
+          (results) => {
+            const values: ILLMModel[] = results ?? [];
+            store.storeLLMs(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
       init: async () => {
         // TODO: Handle failures
         await controller.getLookups();
@@ -499,6 +517,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       dataLocations,
       settings,
       ministers,
+      llms,
     ],
   );
 

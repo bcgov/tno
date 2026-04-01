@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
-using TNO.API.Areas.Editor.Models.Source;
+using TNO.API.Areas.Subscriber.Models.Source;
 using TNO.API.Filters;
 using TNO.API.Models;
 using TNO.DAL.Services;

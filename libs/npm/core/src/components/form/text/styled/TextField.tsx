@@ -1,8 +1,13 @@
 import styled from 'styled-components';
 
-import { ITextProps, TextVariant } from '..';
+import { TextVariant } from '..';
 
-export const TextField = styled.input<ITextProps>`
+type TextFieldProps = {
+  variant?: TextVariant;
+  width?: string;
+};
+
+export const TextField = styled.input<TextFieldProps>`
   padding: 0.375rem 0.75rem;
   box-sizing: border-box;
   text-decoration: ${(props) => (props.variant === TextVariant.link ? 'underline' : 'none')};

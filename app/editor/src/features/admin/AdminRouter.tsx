@@ -38,6 +38,8 @@ const IngestTypeForm = lazy(async () => await import('features/admin/ingest-type
 const IngestTypeList = lazy(async () => await import('features/admin/ingest-types/IngestTypeList'));
 const LicenseForm = lazy(async () => await import('features/admin/licenses/LicenseForm'));
 const LicenseList = lazy(async () => await import('features/admin/licenses/LicenseList'));
+const LLMForm = lazy(async () => await import('features/admin/llms/LLMForm'));
+const LLMList = lazy(async () => await import('features/admin/llms/LLMList'));
 const MediaTypeForm = lazy(async () => await import('features/admin/media-types/MediaTypeForm'));
 const MediaTypeList = lazy(async () => await import('features/admin/media-types/MediaTypeList'));
 const MinisterForm = lazy(async () => await import('features/admin/ministers/MinisterForm'));
@@ -132,6 +134,9 @@ export const AdminRouter: React.FC = () => {
 
         <Route path="licences" element={<LicenseList />} />
         <Route path="licences/:id" element={<LicenseForm />} />
+
+        <Route path="llms" element={<LLMList />} />
+        <Route path="llms/:id" element={<LLMForm />} />
 
         <Route path="sources" element={<SourceList />} />
         <Route path="sources/:id" element={<SourceForm />}>

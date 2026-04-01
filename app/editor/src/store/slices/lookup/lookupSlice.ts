@@ -7,6 +7,7 @@ import {
   type IHolidayModel,
   type IIngestTypeModel,
   type ILicenseModel,
+  type ILLMModel,
   type IMediaTypeModel,
   type IMetricModel,
   type IMinisterModel,
@@ -46,6 +47,7 @@ export const initialLookupState: ILookupState = {
   dataLocations: [],
   settings: [],
   holidays: [],
+  llms: [],
   ministers: [],
   organizations: [],
 };
@@ -125,6 +127,9 @@ export const lookupSlice = createSlice({
     storeHolidays(state: ILookupState, action: PayloadAction<IHolidayModel[]>) {
       state.holidays = action.payload;
     },
+    storeLLMs(state: ILookupState, action: PayloadAction<ILLMModel[]>) {
+      state.llms = action.payload;
+    },
     storeMinisters(state: ILookupState, action: PayloadAction<IMinisterModel[]>) {
       state.ministers = action.payload;
     },
@@ -156,6 +161,7 @@ export const {
   storeDataLocations,
   storeSettings,
   storeHolidays,
+  storeLLMs,
   storeMinisters,
   storeOrganizations,
 } = lookupSlice.actions;

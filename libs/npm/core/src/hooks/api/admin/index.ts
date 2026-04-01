@@ -11,6 +11,7 @@ export * from './useApiAdminHub';
 export * from './useApiAdminIngests';
 export * from './useApiAdminIngestTypes';
 export * from './useApiAdminLicenses';
+export * from './useApiAdminLLMs';
 export * from './useApiAdminMediaTypes';
 export * from './useApiAdminMinisters';
 export * from './useApiAdminNotifications';

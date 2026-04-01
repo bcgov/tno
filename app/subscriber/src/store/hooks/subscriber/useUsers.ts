@@ -28,11 +28,11 @@ export const useUsers = (): IUserController => {
     () => ({
       getUser: async () => {
         const response = await dispatch('get-user', () => getUser());
-        return response.data;
+        return response.data as ISubscriberUserModel;
       },
       findUsers: async (filter: IUserFilter) => {
         const response = await dispatch('find-users', () => findUsers(filter));
-        return response.data;
+        return response.data as IPaged<IUserModel>;
       },
       updateUser: async (model: ISubscriberUserModel, impersonate?: boolean) => {
         const response = await dispatch<ISubscriberUserModel>('update-user', () =>
@@ -40,13 +40,13 @@ export const useUsers = (): IUserController => {
         );
         impersonate ? storeImpersonate(response.data) : storeMyProfile(response.data);
         if (userInfo) storeUserInfo({ ...userInfo, preferences: response.data.preferences });
-        return response.data;
+        return response.data as ISubscriberUserModel;
       },
       getDistributionListById: async (id: number) => {
         const response = await dispatch<IUserModel[]>('get-distribution-list', () =>
           getDistributionListById(id),
         );
-        return response.data;
+        return response.data as IUserModel[];
       },
     }),
     [

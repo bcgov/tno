@@ -420,6 +420,22 @@ public interface IApiService
     Task<API.Areas.Services.Models.Report.ReportInstanceModel?> GetCurrentReportInstanceAsync(int reportId, int? ownerId);
 
     /// <summary>
+    /// Get the previous instance for the specified report 'reportId'.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="qty"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.Report.ReportInstanceModel?> GetPreviousReportInstancesAsync(int reportId, int? ownerId = null, int? qty = null);
+
+    /// <summary>
+    /// Get the LLM for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.LLM.LLMModel?> GetLLMAsync(int id);
+
+    /// <summary>
     /// Make a request to the API to fetch the report instance with the specified 'id'.
     /// </summary>
     /// <param name="id"></param>

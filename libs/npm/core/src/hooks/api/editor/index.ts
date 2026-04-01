@@ -9,6 +9,7 @@ export * from './useApiEditorIngests';
 export * from './useApiEditorIngestSchedules';
 export * from './useApiEditorIngestTypes';
 export * from './useApiEditorLicenses';
+export * from './useApiEditorLLMs';
 export * from './useApiEditorLookups';
 export * from './useApiEditorMediaTypes';
 export * from './useApiEditorMetrics';

@@ -183,7 +183,7 @@ public class ChartTemplateController : ControllerBase
             content = _folderService.GetContentInFolder(model.FolderId.Value).Select(c => new TemplateEngine.Models.ContentModel(c.Content!));
 
         // If this chart pulls data from a linked report add this content.
-        var sections = model.LinkedReportId.HasValue ? _reportHelper.GetLinkedReportContent(model.LinkedReportId.Value, null).Result : new();
+        var sections = model.LinkedReportId.HasValue ? _reportHelper.GetLinkedReportContentAsync(model.LinkedReportId.Value, null).Result : new();
 
         var chartTemplate = new TemplateEngine.Models.Reports.ChartEngineContentModel("test", chart, sections, content);
         var preview = await _reportHelper.GenerateJsonAsync(new TemplateEngine.Models.Charts.ChartRequestModel(chartTemplate, model.ChartData), true);
@@ -225,7 +225,7 @@ public class ChartTemplateController : ControllerBase
             content = content.AppendRange(await _reportHelper.FindContentAsync(model.Filter, model.Index));
 
         // If this chart pulls data from a linked report add this content.
-        var sections = model.LinkedReportId.HasValue ? _reportHelper.GetLinkedReportContent(model.LinkedReportId.Value, null).Result : new();
+        var sections = model.LinkedReportId.HasValue ? _reportHelper.GetLinkedReportContentAsync(model.LinkedReportId.Value, null).Result : new();
 
         var chartTemplate = new TemplateEngine.Models.Reports.ChartEngineContentModel("test", chart, sections, content);
         var base64Image = await _reportHelper.GenerateBase64ImageAsync(new TemplateEngine.Models.Charts.ChartRequestModel(chartTemplate, model.ChartData), true);

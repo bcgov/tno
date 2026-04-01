@@ -8,6 +8,7 @@ import {
   type IHolidayModel,
   type IIngestTypeModel,
   type ILicenseModel,
+  type ILLMModel,
   type IMediaTypeModel,
   type IMetricModel,
   type IMinisterModel,
@@ -33,6 +34,7 @@ import {
   storeIngestTypes,
   storeIsReady,
   storeLicenses,
+  storeLLMs,
   storeMediaTypes,
   storeMetrics,
   storeMinisters,
@@ -74,6 +76,7 @@ export interface ILookupStore {
   storeSettings: (settings: ISettingModel[]) => void;
   storeHolidays: (users: IHolidayModel[]) => void;
   storeMinisters: (ministers: IMinisterModel[]) => void;
+  storeLLMs: (llms: ILLMModel[]) => void;
   storeOrganizations: (organizations: IOrganizationModel[]) => void;
 }
 
@@ -145,6 +148,9 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       },
       storeHolidays: (holidays: IHolidayModel[]) => {
         dispatch(storeHolidays(holidays));
+      },
+      storeLLMs: (llms: ILLMModel[]) => {
+        dispatch(storeLLMs(llms));
       },
       storeMinisters: (ministers: IMinisterModel[]) => {
         dispatch(storeMinisters(ministers));
