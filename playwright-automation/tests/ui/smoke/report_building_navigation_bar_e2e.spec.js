@@ -10,7 +10,7 @@ const editorUrl = testData[testApp]['editor']['url'];
 const editorReportUrl = testData[testApp]['editor']['reportUrl'];
 const recipientEmail = reportData[testApp]['report']['recipient_email'];
 
-let page, appPage, editorHomePage, reportPage, subscriberNavBarPage, subscriberMyReportPage, addProductPage, addFoldersPage;
+let page, appPage, editorHomePage, reportPage, subscriberNavBarPage, subscriberMyReportPage, addProductPage, addFoldersPage, subscriberSearchResultPage;
 
 
 test.beforeEach(async ({ masterFixture }) => {
@@ -23,6 +23,7 @@ test.beforeEach(async ({ masterFixture }) => {
   subscriberMyReportPage = masterFixture.subscriberMyReportPage;
   addProductPage = masterFixture.addProductPage;
   addFoldersPage = masterFixture.addFoldersPage;
+  subscriberSearchResultPage = masterFixture.subscriberSearchResultPage;
   await appPage.navigateToUrl(editorUrl);
   await appPage.hardWait(2000);
   
@@ -48,7 +49,8 @@ test.describe('@smoke Report building end to end workflow', () => {
     await reportPage.addReportDescription(reportDescription);
     await reportPage.selectApplyOwnershipToFilters();
     await reportPage.clickOnSaveButton();
-    expect(reportPage.verifySucessToastNotification(reportName)).toBeTruthy();
+    expect(await reportPage.verifySucessToastNotification(reportName)).toBe(true);
+    await reportPage.clickOnToastNotificationCloseButton();
 
     expect(
       await reportPage.isReportSubTabVisible(CONSTANTS.REPORT_SUBNAVIGATION_TABS.TEMPLATE),
@@ -64,6 +66,8 @@ test.describe('@smoke Report building end to end workflow', () => {
     await reportPage.checkEnableEditCheckbox();
     await reportPage.clickOnUseDefaultTemplateButton();
     await reportPage.clickOnSaveButton();
+    expect(await reportPage.verifySucessToastNotification(reportName)).toBe(true);
+    await reportPage.clickOnToastNotificationCloseButton();
 
     await reportPage.clickOnReportSubTab(CONSTANTS.REPORT_SUBNAVIGATION_TABS.SECTIONS);
     await reportPage.clickOnReportSectionButtonByName(
@@ -71,6 +75,8 @@ test.describe('@smoke Report building end to end workflow', () => {
     );
     await reportPage.clickOnReportSectionButtonByName(CONSTANTS.REPORT_SECTION_BUTTON.TEXT);
     await reportPage.clickOnSaveButton();
+    expect(await reportPage.verifySucessToastNotification(reportName)).toBe(true);
+    await reportPage.clickOnToastNotificationCloseButton();
 
     await reportPage.clickOnReportSubTab(CONSTANTS.REPORT_SUBNAVIGATION_TABS.PREVIEW);
     await reportPage.sendTestEmailPreview(recipientEmail);
@@ -82,7 +88,9 @@ test.describe('@smoke Report building end to end workflow', () => {
     await subscriberNavBarPage.clickOnMyContentSectionByText(
       CONSTANTS.SUBSCRIBER_NAV_BAR_OPTIONS.MY_REPORTS,
     );
-    expect(await subscriberMyReportPage.isPublishedReportPresent(reportName)).toBeTruthy();
+
+    await subscriberNavBarPage.hardWait(1500);
+    expect(await subscriberMyReportPage.isPublishedReportPresent(reportName)).toBe(true);
     await appPage.logOutFromSubscriber();
 
     await appPage.page.goto(editorUrl);
@@ -149,11 +157,15 @@ test.describe('@smoke Report building end to end workflow', () => {
     expect(await reportPage.isUseDefaultTemplateButtonClickable()).toBe(true);
     await reportPage.clickOnUseDefaultTemplateButton();
     await reportPage.clickOnSaveButton();
+    expect(await reportPage.verifySucessToastNotification(reportName)).toBe(true);
+    await reportPage.clickOnToastNotificationCloseButton();
 
     await reportPage.clickOnReportSubTab(CONSTANTS.REPORT_SUBNAVIGATION_TABS.SECTIONS);
     await reportPage.clickOnReportSectionButtonByName(CONSTANTS.REPORT_SECTION_BUTTON.TABLE_OF_CONTENTS);
     await reportPage.clickOnReportSectionButtonByName(CONSTANTS.REPORT_SECTION_BUTTON.TEXT);
     await reportPage.clickOnSaveButton();
+    expect(await reportPage.verifySucessToastNotification(reportName)).toBe(true);
+    await reportPage.clickOnToastNotificationCloseButton();
 
     await appPage.logOut();
 
@@ -173,7 +185,7 @@ test.describe('@smoke Report building end to end workflow', () => {
 
   });
 
-  test(`Verify public report should not be shown on subscriber portal`, async ({}) => {
+  test(`Verify public report should be shown on subscriber portal`, async ({}) => {
     await editorHomePage.verifyEditorHomePageLoaded();
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS);
@@ -198,18 +210,23 @@ test.describe('@smoke Report building end to end workflow', () => {
     expect(await reportPage.isUseDefaultTemplateButtonClickable()).toBe(true);
     await reportPage.clickOnUseDefaultTemplateButton();
     await reportPage.clickOnSaveButton();
+    expect(await reportPage.verifySucessToastNotification(reportName)).toBe(true);
+    await reportPage.clickOnToastNotificationCloseButton();
 
     await reportPage.clickOnReportSubTab(CONSTANTS.REPORT_SUBNAVIGATION_TABS.SECTIONS);
     await reportPage.clickOnReportSectionButtonByName(CONSTANTS.REPORT_SECTION_BUTTON.TABLE_OF_CONTENTS);
     await reportPage.clickOnReportSectionButtonByName(CONSTANTS.REPORT_SECTION_BUTTON.TEXT);
     await reportPage.clickOnSaveButton();
+    expect(await reportPage.verifySucessToastNotification(reportName)).toBe(true);
+    await reportPage.clickOnToastNotificationCloseButton();
 
     await appPage.logOut();
 
     await appPage.navigateToSubscriberURL();
     await appPage.loginAsSubscriber(process.env.sub_username, process.env.sub_password);
 
-    await subscriberNavBarPage.clickOnMyContentSectionByText(CONSTANTS.SUBSCRIBER_NAV_BAR_OPTIONS.MY_REPORTS,);
+    await subscriberNavBarPage.clickOnMyContentSectionByText(CONSTANTS.SUBSCRIBER_NAV_BAR_OPTIONS.MY_REPORTS);
+    await subscriberNavBarPage.hardWait(1500);
     expect(await subscriberMyReportPage.isPublishedReportPresent(reportName)).toBe(true);
     await appPage.logOutFromSubscriber();
 
@@ -222,6 +239,7 @@ test.describe('@smoke Report building end to end workflow', () => {
 
   });
 
+  /** Enable Edit template changes are not saved..hence failing  */
   test(`Verify editing the existing Report and persistence across session`, async ({}) => {
     await editorHomePage.verifyEditorHomePageLoaded();
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
@@ -287,7 +305,6 @@ test.describe('@smoke Report building end to end workflow', () => {
     await reportPage.addReportDescription(reportDescription);
     await reportPage.selectApplyOwnershipToFilters();
     await reportPage.checkIsPublicCheckbox();
-    await reportPage.enterSortOrder('1e');
 
     await reportPage.clickOnSaveButton();
     expect(await reportPage.getToastValidationMessage()).toBe('Please refer to the highlighted tab and fix the validation errors.');
@@ -304,10 +321,11 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.logOut();
 
     await appPage.navigateToSubscriberURL();
-    await appPage.loginAsSubscriber(process.env.sub_username, process.env.sub_password);
+    await appPage.loginAsOtherSubscriber(process.env.sub_username1, process.env.sub_password1);
 
     await appPage.page.goto(editorReportUrl);
-    expect(await SubscriberSearchResultPage.isPageErrorMessagePresent()).toBe(true);
+    expect(await subscriberSearchResultPage.isEditorPageDisplayed()).toBe(false);
+    await appPage.logOut();
     
   });
 

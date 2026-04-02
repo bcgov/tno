@@ -19,6 +19,11 @@ class AppPage extends BasePage {
     this.allContentSubNavLink = page.locator(`.dropdown-menu a[href="/contents"]`);
     this.homeMenu = page.locator(`.navbar-brand[href="/contents"]`);
     this.papersSubNavLink = page.locator(`.dropdown-menu a[href="/papers"]`);
+    this.transcriptQueueSubNavLink = page.locator(`.dropdown-menu a[href="/transcriptions"]`);
+
+    this.subscriberOther = page.locator('//button[text()="Other"]');
+    this.usernameInputOther = page.locator('input#username');
+    this.loginButtonOther = page.locator('input[id="kc-login"]');
 
     this.microsoftButton = page.getByRole('button', { name: 'Microsoft' });
 
@@ -98,6 +103,24 @@ class AppPage extends BasePage {
     await this.type(this.usernameInput, user);
     await this.type(this.passwordInput, password);
     await this.click(this.loginButton);
+
+    await this.page.waitForLoadState('domcontentloaded');
+    logger.info(`Clicked on Subscriber Login!!`);
+  }
+   /**
+   * Login to Subscriber portal.
+   * @param { String } user
+   * @param { String } password
+   */
+  async loginAsOtherSubscriber(user, password) {
+    logger.info(`Sign in as Other Subscriber user...`);
+
+    await this.click(this.subscriberOther);
+    await this.hardWait(2000);
+
+    await this.type(this.usernameInputOther, user);
+    await this.type(this.passwordInput, password);
+    await this.click(this.loginButtonOther);
 
     await this.page.waitForLoadState('domcontentloaded');
     logger.info(`Clicked on Subscriber Login!!`);

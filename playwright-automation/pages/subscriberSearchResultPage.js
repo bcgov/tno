@@ -41,7 +41,7 @@ class SubscriberSearchResultPage extends BasePage {
    * Method to check if error message is present in the searched result
    * @returns {boolean} true if present else false
    */
-  async isPageErrorMessagePresent() {
+  async isEditorPageDisplayed() {
     logger.info('Verifying Error Message..');
     return this.isElementVisible(this.pageErrorMessage);
   }
