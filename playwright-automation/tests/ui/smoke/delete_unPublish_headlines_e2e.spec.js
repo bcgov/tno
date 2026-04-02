@@ -1,6 +1,7 @@
 const { test, expect } = require('../../../fixtures/ui-fixture');
 const DataLoader = require('../../../utils/dataLoader');
 const CONSTANTS = require('../../../utils/constants');
+const { describe } = require('node:test');
 
 const testData = DataLoader.loadJSON(`test-data/${process.env.ENV_NAME}/loginData.json`);
 const testApp = process.env.APP_NAME;
@@ -74,6 +75,7 @@ test.describe('@smoke Delete Un-Publishing headline workflow', () => {
 
       expect(await subscriberSearchResultPage.isPublishedHeadlinesPresent(headlineTitle)).toBeFalsy();
       await appPage.logOutFromSubscriber();
+      
     });
 
 });

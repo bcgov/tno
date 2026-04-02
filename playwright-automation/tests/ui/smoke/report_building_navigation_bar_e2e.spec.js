@@ -12,6 +12,7 @@ const recipientEmail = reportData[testApp]['report']['recipient_email'];
 
 let page, appPage, editorHomePage, reportPage, subscriberNavBarPage, subscriberMyReportPage, addProductPage, addFoldersPage;
 
+
 test.beforeEach(async ({ masterFixture }) => {
   page = masterFixture.page;
   appPage = masterFixture.appPage;
@@ -24,6 +25,7 @@ test.beforeEach(async ({ masterFixture }) => {
   addFoldersPage = masterFixture.addFoldersPage;
   await appPage.navigateToUrl(editorUrl);
   await appPage.hardWait(2000);
+  
 });
 
 test.describe('@smoke Report building end to end workflow', () => {
