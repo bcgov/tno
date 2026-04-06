@@ -46,6 +46,24 @@ jobs:
             ["react-subscriber"]="react-subscriber.yml"
             ["folder-collection"]="folder-collection-cicd.yml"
             ["api-services"]="api-services-cicd.yml"
+            ["content-service"]="content-service-cicd.yml"
+            # --- Uncomment as each service gets its own workflow file ---
+            # ["auto-clipper"]="auto-clipper-cicd.yml"
+            # ["ches-retry"]="ches-retry-cicd.yml"
+            # ["contentmigration"]="contentmigration-cicd.yml"
+            # ["event-handler"]="event-handler-cicd.yml"
+            # ["extract-quotes"]="extract-quotes-cicd.yml"
+            # ["ffmpeg"]="ffmpeg-cicd.yml"
+            # ["filemonitor"]="filemonitor-cicd.yml"
+            # ["image"]="image-cicd.yml"
+            # ["indexing"]="indexing-cicd.yml"
+            # ["nlp"]="nlp-cicd.yml"
+            # ["notification"]="notification-cicd.yml"
+            # ["reporting"]="reporting-cicd.yml"
+            # ["scheduler"]="scheduler-cicd.yml"
+            # ["syndication"]="syndication-cicd.yml"
+            # ["transcription"]="transcription-cicd.yml"
+            # ["charts-api"]="charts-api-cicd.yml"
           )
 
           REPORT_FILE=$(mktemp)
@@ -86,9 +104,34 @@ jobs:
             echo "${svc}|test|${TEST_TOTAL}|${TEST_SUCCESS}|${TEST_FAILURE}|${TEST_RATE}" >> "$REPORT_FILE"
           done
 
+      - name: Collect manual rollback data
+        id: rollbacks
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ROLLBACK_FILE=$(mktemp)
+          echo "rollback_file=$ROLLBACK_FILE" >> $GITHUB_OUTPUT
+
+          # Fetch completed manual-rollback runs within the date window
+          RUNS_JSON=$(gh api \
+            "repos/${{ github.repository }}/actions/workflows/manual-rollback.yml/runs?status=completed&created=>=${{ steps.dates.outputs.start }}&per_page=100" \
+            --jq '.workflow_runs' 2>/dev/null || echo '[]')
+
+          ROLLBACK_COUNT=$(echo "$RUNS_JSON" | jq 'length')
+          echo "count=$ROLLBACK_COUNT" >> $GITHUB_OUTPUT
+
+          if [ "$ROLLBACK_COUNT" -gt 0 ]; then
+            echo "$RUNS_JSON" | jq -r '.[] | [.display_title, .conclusion, .actor.login, .created_at] | @tsv' | \
+            while IFS=$'\t' read -r title conclusion actor created; do
+              echo "${title}|${conclusion}|${actor}|${created}" >> "$ROLLBACK_FILE"
+            done
+          fi
+
       - name: Render report
         run: |
           REPORT_FILE="${{ steps.collect.outputs.report_file }}"
+          ROLLBACK_FILE="${{ steps.rollbacks.outputs.rollback_file }}"
+          ROLLBACK_COUNT="${{ steps.rollbacks.outputs.count }}"
 
           echo "## 📊 Deployment Frequency & Success Rate Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -100,6 +143,34 @@ jobs:
           while IFS='|' read -r service env total success failure rate; do
             echo "| ${service} | ${env} | ${total} | ${success} | ${failure} | ${rate} |" >> $GITHUB_STEP_SUMMARY
           done < "$REPORT_FILE"
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # --- Manual Rollback Activity ---
+          echo "## ⏪ Manual Rollback Activity" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$ROLLBACK_COUNT" -gt 0 ]; then
+            echo "**${ROLLBACK_COUNT} rollback(s)** triggered during this period." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Rollback | Status | Triggered By | Date (UTC) |" >> $GITHUB_STEP_SUMMARY
+            echo "|----------|:------:|:------------:|:----------:|" >> $GITHUB_STEP_SUMMARY
+
+            while IFS='|' read -r title conclusion actor created; do
+              if [ "$conclusion" = "success" ]; then
+                STATUS="✅ Success"
+              elif [ "$conclusion" = "failure" ]; then
+                STATUS="❌ Failure"
+              else
+                STATUS="⚠️ ${conclusion}"
+              fi
+              # Format the timestamp to date only
+              DISPLAY_DATE=$(echo "$created" | cut -dT -f1)
+              echo "| ${title} | ${STATUS} | ${actor} | ${DISPLAY_DATE} |" >> $GITHUB_STEP_SUMMARY
+            done < "$ROLLBACK_FILE"
+          else
+            echo "No manual rollbacks were triggered during this period. ✅" >> $GITHUB_STEP_SUMMARY
+          fi
 
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
