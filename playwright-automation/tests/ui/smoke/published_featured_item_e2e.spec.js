@@ -8,7 +8,6 @@ const editorUrl = testData[testApp]['editor']['url'];
 
 let page, appPage, editorHomePage, headlineDetailsPage, subscriberSearchResultPage;
 
-
 test.beforeEach(async ({ masterFixture }) => {
     page = masterFixture.page;  
     appPage = masterFixture.appPage;
@@ -23,7 +22,7 @@ test.describe('@smoke Featued content Publishing', () => {
 
     test(`Editor publishes an item and Subscriber can see it under Featued column`, async ({ }) => {
       const parentPage = page;
-      headlineDetailsPage = await editorHomePage.clickOnHeadlinesTitleByRowNumber(1);
+      headlineDetailsPage = await editorHomePage.clickOnHeadlinesTitleByRowNumber(6);
 
       const editorHeadlineTitle = await headlineDetailsPage.getHeadlinesTextFieldValue();
 
@@ -42,7 +41,7 @@ test.describe('@smoke Featued content Publishing', () => {
       await subscriberSearchResultPage.clickOnSearchButton();
 
       await subscriberSearchResultPage.verifySearchResultPageLoaded();
-      expect(subscriberSearchResultPage.isPublishedHeadlinesPresent(editorHeadlineTitle)).toBeTruthy();
+      expect(await subscriberSearchResultPage.isPublishedHeadlinesPresent(editorHeadlineTitle)).toBeTruthy();
       await appPage.logOutFromSubscriber();
 
     });

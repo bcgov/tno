@@ -1,3 +1,5 @@
+const { expect } = require("allure-playwright");
+
 class BasePage {
   constructor(page) {
     this.page = page;
@@ -12,11 +14,14 @@ class BasePage {
     await locator.click();
   }
 
+  async clear(locator) {
+    return locator.clear();
+  }
+
   async type(locator, value) {
     await locator.waitFor({ state: 'visible' });
     await locator.fill(value);
   }
-
   async getText(locator) {
     return await locator.textContent();
   }
@@ -87,6 +92,25 @@ class BasePage {
     } catch (error) {
       return false;
     }
+  }
+
+  async refreshPage() {
+    await this.page.reload({ waitUntil : 'load' });
+  }
+
+  async isElementEnabled(locator) {
+    await locator.waitFor({state:'attached'});
+    return await locator.isEnabled();
+  }
+
+  async getElementText(locator) {
+    await locator.waitFor( { state: 'attached' } );
+    return await locator.innerText();
+  }
+
+  async isCheckboxSelected(locator) {
+    await locator.waitFor( { state: 'attached' });
+    return await locator.isChecked();
   }
 }
 

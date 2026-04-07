@@ -29,7 +29,6 @@ test.describe('@smoke Image headline publishing workflow', () => {
       await headlineDetailsPage.enterHeadLineTitle(headlineTitle);
 
       await headlineDetailsPage.selectMediaOutlet(CONSTANTS.HEADLINES.SOURCE_TORONTO_STAR);
-    //   await headlineDetailsPage.selectMediaType(CONSTANTS.HEADLINES.WEEKLY_PRINT);
       await headlineDetailsPage.enterSummary('Automation_Test_Summary');
       await headlineDetailsPage.uploadRadioTVContentFile('News_Article.png');
 
@@ -54,8 +53,22 @@ test.describe('@smoke Image headline publishing workflow', () => {
       await subscriberSearchResultPage.clickOnSearchButton();
       await subscriberSearchResultPage.verifySearchResultPageLoaded();
 
-      expect(subscriberSearchResultPage.isPublishedHeadlinesPresent(headlineTitle)).toBeTruthy();
+      expect(await subscriberSearchResultPage.isPublishedHeadlinesPresent(headlineTitle)).toBeTruthy();
       await appPage.logOutFromSubscriber();
+
+      await appPage.navigateToUrl(editorUrl);
+      await editorHomePage.verifyEditorHomePageLoaded();
+      await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.CONTENT);
+      await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.CONTENT_SUBMENU.ALL_CONTENT);
+
+      await editorHomePage.selectMediaTypeFilterDailyPrint(CONSTANTS.HEADLINES.DAILY_PRINT);
+      headlineDetailsPage = await editorHomePage.clickOnHeadlinesTitleByRowNumber(1);
+      await headlineDetailsPage.unPublishHeadlines();
+
+      await headlineDetailsPage.deleteUnpublishedHeadline();
+      await headlineDetailsPage.closePage();
+      await parentPage.bringToFront();
+      await appPage.logOut();
 
     });
 
