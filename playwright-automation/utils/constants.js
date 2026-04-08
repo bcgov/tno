@@ -101,7 +101,10 @@ const CONSTANTS = {
     SUBSCRIBERS: 'Subscribers',
     REQUESTS: 'Requests',
     COLLECTION: 'Collection',
-    CONTENT: 'Content'
+    CONTENT: 'Content',
+    QUERY: 'Query',
+    PREVIEW: 'Preview',
+    IMPORT_EXPORT: 'ImportImport/Export'
   },
  
 };

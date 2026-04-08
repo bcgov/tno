@@ -16,6 +16,7 @@ import { NotificationalertPage } from "../pages/notificationalertPage";
 import { AddMediaPage } from "../pages/addMediaPage";
 import { AddFolderPage } from "../pages/addFolderPage";
 import { AddProductPage } from "../pages/addProductPage";
+import { AddFilterPage } from "../pages/addFilterPage";
 
 export class MasterFixture {
 
@@ -39,6 +40,7 @@ export class MasterFixture {
         this.showProgramPage = new ShowProgramPage(this.page);
         this.notificationpage= new NotificationDashboardPage(this.page)
         this.addProductPage = new AddProductPage(this.page);
+        this.addFilterPage = new AddFilterPage(this.page);
 
     }
 }
