@@ -10,7 +10,7 @@ const editorUrl = testData[testApp]['editor']['url'];
 const editorReportUrl = testData[testApp]['editor']['reportUrl'];
 const recipientEmail = reportData[testApp]['report']['recipient_email'];
 
-let page, appPage, editorHomePage, reportPage, subscriberNavBarPage, subscriberMyReportPage, addProductPage, addFoldersPage, subscriberSearchResultPage;
+let page, appPage, editorHomePage, reportPage, subscriberNavBarPage, subscriberMyReportPage, addProductPage, addFoldersPage, subscriberSearchResultPage, addFilterPage;
 
 
 test.beforeEach(async ({ masterFixture }) => {
@@ -24,6 +24,7 @@ test.beforeEach(async ({ masterFixture }) => {
   addProductPage = masterFixture.addProductPage;
   addFoldersPage = masterFixture.addFoldersPage;
   subscriberSearchResultPage = masterFixture.subscriberSearchResultPage;
+  addFilterPage = masterFixture.addFilterPage;
   await appPage.navigateToUrl(editorUrl);
   await appPage.hardWait(2000);
   
@@ -375,6 +376,57 @@ test.describe('@smoke Report building end to end workflow', () => {
     await reportPage.enterSortOrder('2');
     await addFoldersPage.save();
     expect(await addFoldersPage.isSuccessToastNotificationDisplayed()).toBe(false);
+    
+    await appPage.logOut();
+
+  });
+
+  test(`Verify edior can add new Filter from Report building Folders menu`, async ({}) => {
+    await editorHomePage.verifyEditorHomePageLoaded();
+    await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
+    await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.FILTERS);
+
+    await addFilterPage.addNewFilter();
+    expect(await addFilterPage.verifyBackToFilterVisibility()).toBe(true)
+
+    const filterName = `FilterTitle_${Date.now()}`;
+    await addFilterPage.enterFilterDetails(filterName, 'Test Automation Description');
+    await addFilterPage.save();
+    expect(await reportPage.verifySucessToastNotification(filterName)).toBe(true);
+
+    await addFilterPage.clickOnFilterSubTab(CONSTANTS.NAVIGATION_TABS.QUERY);
+    await addFilterPage.enterQueryKeyword(CONSTANTS.HEADLINES.SOURCE_TORONTO_STAR);
+    await addFilterPage.save();
+
+    await addFilterPage.clickOnFilterSubTab(CONSTANTS.NAVIGATION_TABS.PREVIEW);
+    await addFilterPage.save();
+
+    await addFilterPage.backToFilterGrid();
+    expect(await addFilterPage.isAddedFilterVisibleOnGrid(filterName)).toBe(true);
+
+    await addFilterPage.selectFilter(filterName);
+    await addFilterPage.deleteFilter();
+
+     expect(await addFilterPage.isAddedFilterVisibleOnGrid(filterName)).toBe(false);
+     await appPage.logOut();
+  });
+
+  test(`Verify Add new Filter field validation`, async ({}) => {
+    await editorHomePage.verifyEditorHomePageLoaded();
+    await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
+    await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.FILTERS);
+
+    await addFilterPage.addNewFilter();
+
+    const filterrDescription = `Filter Description ${Date.now()}`;
+    await addFilterPage.addFilterDescription(filterrDescription);
+
+    await addFilterPage.save();
+    expect(await addFilterPage.isSuccessToastNotificationDisplayed()).toBe(false);
+
+    await reportPage.enterSortOrder('2');
+    await addFilterPage.save();
+    expect(await addFilterPage.isSuccessToastNotificationDisplayed()).toBe(false);
     
     await appPage.logOut();
 
