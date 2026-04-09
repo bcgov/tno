@@ -10,7 +10,7 @@ const editorUrl = testData[testApp]['editor']['url'];
 const editorReportUrl = testData[testApp]['editor']['reportUrl'];
 const recipientEmail = reportData[testApp]['report']['recipient_email'];
 
-let page, appPage, editorHomePage, reportPage, subscriberNavBarPage, subscriberMyReportPage, addProductPage, addFoldersPage, subscriberSearchResultPage, addFilterPage;
+let page, appPage, editorHomePage, reportPage, subscriberNavBarPage, subscriberMyReportPage, addProductPage, addFoldersPage, subscriberSearchResultPage, addFilterPage, editTopicsPage;
 
 
 test.beforeEach(async ({ masterFixture }) => {
@@ -25,6 +25,7 @@ test.beforeEach(async ({ masterFixture }) => {
   addFoldersPage = masterFixture.addFoldersPage;
   subscriberSearchResultPage = masterFixture.subscriberSearchResultPage;
   addFilterPage = masterFixture.addFilterPage;
+  editTopicsPage = masterFixture.editTopicsPage;
   await appPage.navigateToUrl(editorUrl);
   await appPage.hardWait(2000);
   
@@ -430,6 +431,26 @@ test.describe('@smoke Report building end to end workflow', () => {
     
     await appPage.logOut();
 
+  });
+
+  test(`Verify end to end flow for Edit topic functionality `, async ({}) => {
+    await editorHomePage.verifyEditorHomePageLoaded();
+    await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
+    await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.EDIT_TOPICS);
+    expect(await editTopicsPage.isEditPoicPageLoaded()).toBe(true);
+
+    const topicName = `Auto_Topic_Name ${Date.now()}`;
+    await editTopicsPage.createNewTopic(topicName);
+    expect(await addFilterPage.isSuccessToastNotificationDisplayed()).toBe(true);
+    
+    await editTopicsPage.searchTopic(topicName);
+    expect(await editTopicsPage.isTopicPresentOnGrid(topicName)).toBe(true);
+
+    await editTopicsPage.deleteTopic();
+    expect(await addFilterPage.isSuccessToastNotificationDisplayed()).toBe(true);
+    expect(await editTopicsPage.isTopicPresentOnGrid()).toBe(false);
+
+    await appPage.logOut();    
   });
 
 

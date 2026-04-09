@@ -47,7 +47,8 @@ const CONSTANTS = {
     REPORTS: 'Reports',
     MMI_PRODUCTS: 'MMI Products',
     FOLDERS: 'Folders',
-    FILTERS: 'Filters'
+    FILTERS: 'Filters',
+    EDIT_TOPICS: 'Edit Topics'
   },
 
   CONTENT_SUBMENU: {
