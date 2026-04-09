@@ -17,6 +17,7 @@ import { AddMediaPage } from "../pages/addMediaPage";
 import { AddFolderPage } from "../pages/addFolderPage";
 import { AddProductPage } from "../pages/addProductPage";
 import { AddFilterPage } from "../pages/addFilterPage";
+import { EditTopicsPage } from "../pages/editTopicsPage";
 
 export class MasterFixture {
 
@@ -41,6 +42,7 @@ export class MasterFixture {
         this.notificationpage= new NotificationDashboardPage(this.page)
         this.addProductPage = new AddProductPage(this.page);
         this.addFilterPage = new AddFilterPage(this.page);
+        this.editTopicsPage = new EditTopicsPage(this.page);
 
     }
 }
