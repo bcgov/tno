@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
@@ -135,6 +134,27 @@ public class NotificationService : BaseService<Notification, int>, INotification
         }
 
         return query.FirstOrDefault(u => u.Id == id);
+    }
+
+    /// <summary>
+    /// Find the notification for the specified 'name'.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="include"></param>
+    /// <returns></returns>
+    public Notification? FindByName(string name, Func<IQueryable<Notification>, IQueryable<Notification>>? include = null, bool asNoTracking = true)
+    {
+        IQueryable<Notification> query = this.Context.Notifications;
+
+        if (asNoTracking)
+            query = query.AsNoTracking();
+
+        if (include != null)
+        {
+            query = include(query);
+        }
+
+        return query.FirstOrDefault(u => u.Name == name);
     }
 
     /// <summary>

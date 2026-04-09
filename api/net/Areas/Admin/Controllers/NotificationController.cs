@@ -115,6 +115,7 @@ public class NotificationController : ControllerBase
 
     /// <summary>
     /// Add notification.
+    /// Return 400 Bad Request if a notification with the same name already exists.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -125,6 +126,10 @@ public class NotificationController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Notification" })]
     public IActionResult Add([FromBody] NotificationModel model)
     {
+        // Don't allow duplicate names.
+        var existing = _notificationService.FindByName(model.Name);
+        if (existing != null) throw new BadRequestException($"A notification with the name [{model.Name}] already exists.");
+
         var result = _notificationService.AddAndSave(model.ToEntity(_serializerOptions, true));
         result = _notificationService.FindById(result.Id) ?? throw new NoContentException();
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new NotificationModel(result, _serializerOptions));
