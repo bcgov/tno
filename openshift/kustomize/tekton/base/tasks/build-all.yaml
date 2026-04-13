@@ -121,12 +121,13 @@ spec:
           [dockerfile]="/services/net/content/Dockerfile"
         )
 
-        declare -A COMPONENT4=(
-          [id]="indexing"
-          [image]="indexing-service"
-          [context]=""
-          [dockerfile]="/services/net/indexing/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — indexing-service-cicd.yml
+        # declare -A COMPONENT4=(
+        #   [id]="indexing"
+        #   [image]="indexing-service"
+        #   [context]=""
+        #   [dockerfile]="/services/net/indexing/Dockerfile"
+        # )
 
         declare -A COMPONENT5=(
           [id]="transcription"

@@ -1,0 +1,40 @@
+name: Indexing Service CI/CD
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [dev, master]
+    paths:
+      - services/net/indexing/**
+      - libs/net/**
+      - openshift/kustomize/services/indexing/**
+      - .github/workflows/indexing-service-cicd.yml
+  push:
+    branches: [dev, master, indexing-service]
+    paths:
+      - services/net/indexing/**
+      - libs/net/**
+      - openshift/kustomize/services/indexing/**
+      - .github/workflows/indexing-service-cicd.yml
+
+concurrency:
+  group: indexing-service-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pipeline:
+    uses: ./.github/workflows/_reusable-dotnet-cicd.yml
+    with:
+      image_name: indexing-service
+      csproj_path: services/net/indexing/TNO.Services.Indexing.csproj
+      dockerfile: services/net/indexing/Dockerfile
+      component: indexing-service
+      deployment_name: indexing-service
+      kustomize_dev_path: openshift/kustomize/services/indexing/dev
+      kustomize_test_path: openshift/kustomize/services/indexing/test
+      dev_branch: indexing-service
+      rollout_timeout: '180s'
+      continue_on_error_verify: true
+      health_check_method: exec_curl
+    secrets:
+      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
