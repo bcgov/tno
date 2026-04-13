@@ -93,7 +93,7 @@ async searchShowProgramByName(name) {
     logger.info(`Clicked on show/program record: ${programName}`);
   }
   async deleteShowProgram() {
-    await this.click(this.deleteButton);y
+    await this.click(this.deleteButton);
     logger.info(`Clicked on Delete button for show/program`);
     await this.hardWait(3000);
     await expect(this.confirmDeleteButton).toBeVisible();

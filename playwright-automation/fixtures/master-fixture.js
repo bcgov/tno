@@ -11,6 +11,7 @@ import { SettingsPage } from "../pages/settingsPage";
 import { SourcePage } from "../pages/sourcePage";
 import { ShowProgramPage } from "../pages/showProgramPage";
 import { NotificationDashboardPage } from "../pages/notificationDashboard";
+import { ReportSubscriberSidePage } from "../pages/reportSubscriberSidePage";
 
 
 export class MasterFixture {
@@ -30,6 +31,7 @@ export class MasterFixture {
         this.sourcePage = new SourcePage(this.page);
         this.showProgramPage = new ShowProgramPage(this.page);
         this.notificationpage= new NotificationDashboardPage(this.page)
+        this.reportSubscriberSidePage = new ReportSubscriberSidePage(this.page);
 
     }
 }
