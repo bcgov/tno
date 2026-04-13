@@ -84,28 +84,10 @@ jobs:
             --build-arg REACT_APP_VERSION=${{ github.sha }} \
             ./app/editor
 
-      - name: Cache Trivy DB
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/trivy
-          key: trivy-db-${{ github.run_id }}
-          restore-keys: trivy-db-
-
-      - name: Scan Image for Vulnerabilities
-        uses: aquasecurity/trivy-action@master
+      - name: Trivy Container Scan
+        uses: ./.github/actions/trivy-scan
         with:
           image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
-          ignore-unfixed: true
-          exit-code: '0'
-
-      - name: Upload Trivy Results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: 'trivy-results.sarif'
 
       - name: Login to OpenShift Image Registry
         run: |
@@ -192,28 +174,10 @@ jobs:
             --build-arg REACT_APP_VERSION=${{ github.sha }} \
             ./app/editor
 
-      - name: Cache Trivy DB
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/trivy
-          key: trivy-db-${{ github.run_id }}
-          restore-keys: trivy-db-
-
-      - name: Scan Image for Vulnerabilities
-        uses: aquasecurity/trivy-action@master
+      - name: Trivy Container Scan
+        uses: ./.github/actions/trivy-scan
         with:
           image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
-          ignore-unfixed: true
-          exit-code: '0'
-
-      - name: Upload Trivy Results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: 'trivy-results.sarif'
 
       - name: Login to OpenShift Image Registry
         run: |

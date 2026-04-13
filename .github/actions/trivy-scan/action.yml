@@ -1,0 +1,45 @@
+name: 'Trivy Container Scan'
+description: 'Scans a Docker image for vulnerabilities using Trivy and uploads results to GitHub Security'
+
+inputs:
+  image-ref:
+    description: 'Docker image reference to scan (e.g. my-image:sha)'
+    required: true
+  severity:
+    description: 'Comma-separated list of severities to check'
+    required: false
+    default: 'CRITICAL,HIGH'
+  exit-code:
+    description: 'Exit code when vulnerabilities are found (0 = warn, 1 = fail)'
+    required: false
+    default: '0'
+  ignore-unfixed:
+    description: 'Whether to ignore unfixed vulnerabilities'
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Cache Trivy DB
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/trivy
+        key: trivy-db-${{ github.run_id }}
+        restore-keys: trivy-db-
+
+    - name: Scan Image for Vulnerabilities
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ inputs.image-ref }}
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: ${{ inputs.severity }}
+        ignore-unfixed: ${{ inputs.ignore-unfixed }}
+        exit-code: ${{ inputs.exit-code }}
+
+    - name: Upload Trivy Results to GitHub Security
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
