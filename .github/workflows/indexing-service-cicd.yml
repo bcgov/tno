@@ -30,8 +30,8 @@ jobs:
       dockerfile: services/net/indexing/Dockerfile
       component: indexing-service
       deployment_name: indexing-service
-      kustomize_dev_path: openshift/kustomize/services/indexing/dev
-      kustomize_test_path: openshift/kustomize/services/indexing/test
+      kustomize_dev_path: openshift/kustomize/services/indexing/overlays/dev
+      kustomize_test_path: openshift/kustomize/services/indexing/overlays/test
       dev_branch: indexing-service
       rollout_timeout: '180s'
       continue_on_error_verify: true
