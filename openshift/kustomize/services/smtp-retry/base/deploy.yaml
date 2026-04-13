@@ -1,0 +1,148 @@
+---
+# How the app will be deployed to the pod.
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: smtp-retry-service
+  namespace: default
+  annotations:
+    description: Defines how to deploy smtp-retry-service
+    created-by: jeremy.foster
+    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "smtp-retry-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"smtp-retry-service\")].image"}]'
+  labels:
+    name: smtp-retry-service
+    part-of: tno
+    version: 1.0.0
+    component: smtp-retry-service
+    managed-by: kustomize
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: smtp-retry-service
+      part-of: tno
+      component: smtp-retry-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      name: smtp-retry-service
+      labels:
+        name: smtp-retry-service
+        part-of: tno
+        component: smtp-retry-service
+    spec:
+      containers:
+        - name: smtp-retry-service
+          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/smtp-retry-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 20m
+              memory: 50Mi
+            limits:
+              cpu: 100m
+              memory: 100Mi
+          env:
+            # .NET Configuration
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+
+            - name: Logging__LogLevel__TNO
+              value: Information
+
+            # Common Service Configuration
+            - name: Service__ApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: API_HOST_URL
+            - name: Service__EmailTo
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: EMAIL_FAILURE_TO
+            - name: Service__RetryTimeLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: smtp-retry-service
+                  key: RETRY_TIME_LIMIT
+            - name: Service__RetryTimeScope
+              valueFrom:
+                configMapKeyRef:
+                  name: smtp-retry-service
+                  key: RETRY_TIME_SCOPE
+
+            # Authentication Configuration
+            - name: Auth__Keycloak__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUTHORITY
+            - name: Auth__Keycloak__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUDIENCE
+            - name: Auth__Keycloak__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_CLIENT_SECRET
+
+            # Service Configuration
+            - name: Service__MaxFailLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: smtp-retry-service
+                  key: MAX_FAIL_LIMIT
+
+            # SMTP Configuration
+            - name: Smtp__From
+              valueFrom:
+                configMapKeyRef:
+                  name: smtp
+                  key: SMTP_FROM
+            - name: Smtp__EmailEnabled
+              valueFrom:
+                configMapKeyRef:
+                  name: smtp-retry-service
+                  key: SMTP_EMAIL_ENABLED
+            - name: Smtp__EmailAuthorized
+              valueFrom:
+                configMapKeyRef:
+                  name: smtp-retry-service
+                  key: SMTP_EMAIL_AUTHORIZED
+
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30

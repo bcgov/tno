@@ -1,9 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.Services.Managers;
+using MMI.SmtpEmail;
 using TNO.Services.FileMonitor.Config;
-using TNO.Ches;
-using TNO.Ches.Configuration;
+using TNO.Services.Managers;
 
 namespace TNO.Services.FileMonitor;
 
@@ -18,20 +17,20 @@ public class FileMonitorManager : IngestManager<FileMonitorIngestActionManager, 
     /// </summary>
     /// <param name="serviceProvider"></param>
     /// <param name="api"></param>
-    /// <param name="chesService"></param>
-    /// <param name="chesOptions"></param>
+    /// <param name="emailService"></param>
+    /// <param name="smtpOptions"></param>
     /// <param name="factory"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public FileMonitorManager(
         IServiceProvider serviceProvider,
         IApiService api,
-        IChesService chesService,
-        IOptions<ChesOptions> chesOptions,
+        IEmailService emailService,
+        IOptions<SmtpOptions> smtpOptions,
         IngestManagerFactory<FileMonitorIngestActionManager, FileMonitorOptions> factory,
         IOptions<FileMonitorOptions> options,
         ILogger<FileMonitorManager> logger)
-        : base(serviceProvider, api, chesService, chesOptions, factory, options, logger)
+        : base(serviceProvider, api, emailService, smtpOptions, factory, options, logger)
     {
     }
     #endregion

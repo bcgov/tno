@@ -85,7 +85,7 @@ export const ReportCard: React.FC<IReportCardProps> = ({ report: initReport }) =
                 setExpandResponse((value) => ({ ...value, [report.id]: !value[report.id] }));
               }}
             >
-              <h3>CHES Response</h3>
+              <h3>SMTP Response</h3>
               <div>
                 {expandResponse[report.id] ? <FaCircleChevronUp /> : <FaCircleChevronDown />}
               </div>

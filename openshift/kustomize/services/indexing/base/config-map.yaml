@@ -22,6 +22,6 @@ data:
   CONTENT_INDEX: unpublished_content
   PUBLISHED_INDEX: content
   NOTIFICATION_TOPIC: notify
-  CHES_EMAIL_ENABLED: "true"
-  CHES_EMAIL_AUTHORIZED: "true"
+  SMTP_EMAIL_ENABLED: "true"
+  SMTP_EMAIL_AUTHORIZED: "true"
   INDEX_ONLY: "false"

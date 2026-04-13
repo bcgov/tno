@@ -13,6 +13,7 @@ WORKDIR /src
 
 COPY ../../../libs/net/packages /root/.nuget/packages
 COPY services/net/nlp services/net/nlp
+RUN mv services/net/nlp/Docker.NuGet.Config services/net/nlp/NuGet.Config
 COPY libs/net libs/net
 
 RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u "$1"; shift; done } && \

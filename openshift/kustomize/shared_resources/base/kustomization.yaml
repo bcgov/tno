@@ -5,7 +5,7 @@ kind: Kustomization
 resources:
   - keycloak-config-map.yaml
   - services-config-map.yaml
-  - ches-config-map.yaml
+  - smtp-config-map.yaml
   - reporting-shared-config-map.yaml
   - reporting-azure-ai-config-map.yaml
   - pvc.yaml

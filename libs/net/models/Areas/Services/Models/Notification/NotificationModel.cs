@@ -91,7 +91,7 @@ public class NotificationModel : BaseTypeWithAuditColumnsModel<int>
         this.Query = entity.Query;
 
         this.Subscribers = entity.SubscribersManyToMany.Select(m => new UserNotificationModel(m));
-        this.Instances = entity.Instances.Select(i => new NotificationInstanceModel(i, options));
+        this.Instances = entity.Instances.Select(i => new NotificationInstanceModel(i));
     }
     #endregion
 

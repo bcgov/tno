@@ -67,6 +67,13 @@ public class ReportInstance : AuditColumns
     public string Body { get; set; } = "";
 
     /// <summary>
+    /// get/set - The compiled body of the report.
+    /// Used to recreate the report.
+    /// </summary>
+    [Column("link_body")]
+    public string LinkOnlyBody { get; set; } = "";
+
+    /// <summary>
     /// get/set - The status of this report.
     /// </summary>
     [Column("status")]

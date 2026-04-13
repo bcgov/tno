@@ -449,24 +449,22 @@ public class NotificationService : BaseService<Notification, int>, INotification
     /// <param name="status"></param>
     /// <param name="cutOff"></param>
     /// <returns></returns>
-    public IEnumerable<API.Areas.Services.Models.Notification.ChesNotificationMessagesModel> GetChesMessageIds(NotificationStatus status, DateTime cutOff)
+    public IEnumerable<API.Areas.Services.Models.Notification.SmtpNotificationMessagesModel> GetSmtpMessages(NotificationStatus status, DateTime cutOff)
     {
         var notifications = this.Context.NotificationInstances.Where(r => r.Status == status && r.SentOn >= cutOff)
             .Select(r => new { r.NotificationId, InstanceId = r.Id, r.SentOn, r.Response }).ToArray();
 
-        var messages = new List<API.Areas.Services.Models.Notification.ChesNotificationMessagesModel>();
+        var messages = new List<API.Areas.Services.Models.Notification.SmtpNotificationMessagesModel>();
 
         foreach (var notification in notifications)
         {
-            var response = JsonSerializer.Deserialize<Ches.Models.EmailResponseModel>(notification.Response.ToJson(), _serializerOptions);
-            var messageIds = response?.Messages.Select(m => m.MessageId).ToArray() ?? [];
-            messages.Add(new API.Areas.Services.Models.Notification.ChesNotificationMessagesModel()
+            messages.Add(new API.Areas.Services.Models.Notification.SmtpNotificationMessagesModel()
             {
                 NotificationId = notification.NotificationId,
                 InstanceId = notification.InstanceId,
                 SentOn = notification.SentOn,
                 Status = status,
-                MessageIds = messageIds,
+                Responses = notification.Response,
             });
         }
 

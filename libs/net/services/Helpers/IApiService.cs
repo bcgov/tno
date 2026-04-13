@@ -378,12 +378,19 @@ public interface IApiService
     Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>?> FindContentForNotificationIdAsync(int id, int? requestorId);
 
     /// <summary>
-    /// Get the CHES message Ids for the notifications in the specified 'status' and that were sent on or after the 'cutOff' date and time.
+    /// Get the SMTP message Ids for the notifications in the specified 'status' and that were sent on or after the 'cutOff' date and time.
     /// </summary>
     /// <param name="status"></param>
     /// <param name="cutOff"></param>
     /// <returns></returns>
-    Task<IEnumerable<API.Areas.Services.Models.Notification.ChesNotificationMessagesModel>?> GetChesMessagesAsync(Entities.NotificationStatus status, DateTime cutOff);
+    Task<IEnumerable<API.Areas.Services.Models.Notification.SmtpNotificationMessagesModel>?> GetSmtpMessagesAsync(Entities.NotificationStatus status, DateTime cutOff);
+
+    /// <summary>
+    /// Get the specified notification instance.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel?> GetNotificationInstanceAsync(long instanceId);
 
     /// <summary>
     /// Update the status of the specified notification instance.
@@ -459,6 +466,14 @@ public interface IApiService
     /// Get user report instance for the specified 'id'.
     /// </summary>
     /// <param name="instanceId"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel?> GetUserReportInstanceAsync(long instanceId, int userId);
+
+    /// <summary>
+    /// Get user report instance for the specified 'id'.
+    /// </summary>
+    /// <param name="instanceId"></param>
     /// <returns></returns>
     Task<IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>> GetUserReportInstancesAsync(long instanceId);
 
@@ -477,12 +492,12 @@ public interface IApiService
     Task<IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel>> AddOrUpdateUserReportInstancesAsync(IEnumerable<API.Areas.Services.Models.ReportInstance.UserReportInstanceModel> instances);
 
     /// <summary>
-    /// Get the CHES message Ids for the reports in the specified 'status' and that were sent on or after the 'cutOff' date and time.
+    /// Get the SMTP message Ids for the reports in the specified 'status' and that were sent on or after the 'cutOff' date and time.
     /// </summary>
     /// <param name="status"></param>
     /// <param name="cutOff"></param>
     /// <returns></returns>
-    Task<IEnumerable<API.Areas.Services.Models.Report.ChesReportMessagesModel>?> GetChesMessagesAsync(Entities.ReportStatus status, DateTime cutOff);
+    Task<IEnumerable<API.Areas.Services.Models.Report.SmtpReportMessagesModel>?> GetSmtpMessagesAsync(Entities.ReportStatus status, DateTime cutOff);
 
     /// <summary>
     /// Update the status of the specified report instance.
@@ -550,6 +565,13 @@ public interface IApiService
     /// <returns></returns>
     Task<API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel?> UpdateAVOverviewInstanceAsync(API.Areas.Services.Models.AVOverview.AVOverviewInstanceModel model);
 
+    /// <summary>
+    /// Get user report instance for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.AVOverview.UserAVOverviewInstanceModel?> GetUserAVOverviewInstanceAsync(long id, int userId);
 
     /// <summary>
     /// Get user report instance for the specified 'id'.

@@ -19,5 +19,5 @@ data:
   EVENT_TYPES: |
     - Notification
     - Report
-  CHES_EMAIL_ENABLED: "true"
-  CHES_EMAIL_AUTHORIZED: "true"
+  SMTP_EMAIL_ENABLED: "true"
+  SMTP_EMAIL_AUTHORIZED: "true"

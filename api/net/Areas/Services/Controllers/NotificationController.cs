@@ -123,12 +123,12 @@ public class NotificationController : ControllerBase
     /// <returns></returns>
     [HttpGet("sent/{status}")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IEnumerable<ChesNotificationMessagesModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IEnumerable<SmtpNotificationMessagesModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Notification" })]
-    public IActionResult GetChesMessages(Entities.NotificationStatus status, [FromQuery] DateTime cutOff)
+    public IActionResult GetSmtpMessages(Entities.NotificationStatus status, [FromQuery] DateTime cutOff)
     {
-        var messages = _service.GetChesMessageIds(status, cutOff);
+        var messages = _service.GetSmtpMessages(status, cutOff);
         return new JsonResult(messages);
     }
     #endregion

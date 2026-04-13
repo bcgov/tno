@@ -95,6 +95,23 @@ public class AVOverviewController : ControllerBase
     /// Get all user report instances for the specified instance 'id'.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/users/{userId}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(UserAVOverviewInstanceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Evening Overview" })]
+    public IActionResult GetUserAVOverviewInstanceAsync(long id, int userId)
+    {
+        var result = _overviewInstanceService.GetUserAVOverviewInstance(id, userId) ?? throw new NoContentException();
+        return new JsonResult(new UserAVOverviewInstanceModel(result));
+    }
+
+    /// <summary>
+    /// Get all user report instances for the specified instance 'id'.
+    /// </summary>
+    /// <param name="id"></param>
     /// <returns></returns>
     [HttpGet("{id}/responses")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -103,8 +120,8 @@ public class AVOverviewController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Evening Overview" })]
     public IActionResult GetUserAVOverviewInstancesAsync(long id)
     {
-        var content = _overviewInstanceService.GetUserAVOverviewInstances(id);
-        return new JsonResult(content.Select(c => new UserAVOverviewInstanceModel(c)));
+        var result = _overviewInstanceService.GetUserAVOverviewInstances(id);
+        return new JsonResult(result.Select(c => new UserAVOverviewInstanceModel(c)));
     }
 
     /// <summary>

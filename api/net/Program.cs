@@ -15,6 +15,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MMI.SmtpEmail;
 using Prometheus;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using TNO.API.BackgroundWorkItem;
@@ -23,7 +24,6 @@ using TNO.API.Helpers;
 using TNO.API.Keycloak;
 using TNO.API.Middleware;
 using TNO.API.SignalR;
-using TNO.Ches;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
 using TNO.Core.Storage;
@@ -204,7 +204,6 @@ builder.Services
     .AddScoped<IWorkOrderHelper, WorkOrderHelper>()
     .AddScoped<ITopicScoreHelper, TopicScoreHelper>()
     .AddScoped<IImpersonationHelper, ImpersonationHelper>()
-    .AddChesService(config.GetSection("CHES"))
     .Configure<S3Options>(config.GetSection("S3"))
     .AddSingleton<IS3StorageService, S3StorageService>()
     .AddTNOServices(config, env)
@@ -215,7 +214,8 @@ builder.Services
     .AddTransient<IHttpRequestClient, HttpRequestClient>()
     .AddScoped<IKeycloakHelper, KeycloakHelper>()
     .AddScoped<IOpenIdConnectRequestClient, OpenIdConnectRequestClient>()
-    .AddKeycloakService(config.GetSection("Keycloak:ServiceAccount"));
+    .AddKeycloakService(config.GetSection("Keycloak:ServiceAccount"))
+    .AddSmtpEmail(config.GetSection("Smtp"));
 
 builder.Services.AddApiVersioning(options =>
 {

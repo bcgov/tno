@@ -200,51 +200,30 @@ spec:
                 configMapKeyRef:
                   name: reporting-service
                   key: TOPICS
-            - name: Service__DefaultFrom
-              valueFrom:
-                configMapKeyRef:
-                  name: ches
-                  key: CHES_FROM
             - name: Service__UseMailMerge
               value: "false"
 
-            # CHES Configuration
-            - name: CHES__EmailEnabled
+            # SMTP Configuration
+            - name: Smtp__From
+              valueFrom:
+                configMapKeyRef:
+                  name: smtp
+                  key: SMTP_FROM
+            - name: Smtp__EmailEnabled
               valueFrom:
                 configMapKeyRef:
                   name: reporting-service
-                  key: CHES_EMAIL_ENABLED
-            - name: CHES__EmailAuthorized
+                  key: SMTP_EMAIL_ENABLED
+            - name: Smtp__EmailAuthorized
               valueFrom:
                 configMapKeyRef:
                   name: reporting-service
-                  key: CHES_EMAIL_AUTHORIZED
-            - name: CHES__AlwaysBcc
+                  key: SMTP_EMAIL_AUTHORIZED
+            - name: Smtp__AlwaysBcc
               valueFrom:
                 configMapKeyRef:
                   name: reporting-service
                   key: ALWAYS_BCC
-
-            - name: CHES__AuthUrl
-              valueFrom:
-                configMapKeyRef:
-                  name: ches
-                  key: CHES_AUTH_URL
-            - name: CHES__HostUri
-              valueFrom:
-                configMapKeyRef:
-                  name: ches
-                  key: CHES_HOST_URI
-            - name: CHES__Username
-              valueFrom:
-                secretKeyRef:
-                  name: ches
-                  key: USERNAME
-            - name: CHES__Password
-              valueFrom:
-                secretKeyRef:
-                  name: ches
-                  key: PASSWORD
 
             - name: Charts__Url
               valueFrom:

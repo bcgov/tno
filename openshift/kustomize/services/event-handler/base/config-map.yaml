@@ -17,5 +17,5 @@ data:
   KAFKA_CLIENT_ID: Event-Scheduler
   MAX_FAIL_LIMIT: "5"
   TOPICS: event-schedule
-  CHES_EMAIL_ENABLED: "true"
-  CHES_EMAIL_AUTHORIZED: "true"
+  SMTP_EMAIL_ENABLED: "true"
+  SMTP_EMAIL_AUTHORIZED: "true"

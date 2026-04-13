@@ -40,9 +40,9 @@ public class NotificationInstanceModel
     public NotificationStatus Status { get; set; }
 
     /// <summary>
-    /// get/set - CHES response containing keys to find the status of a notification.
+    /// get/set - SMTP response for each email sent for this notification instance.
     /// </summary>
-    public Dictionary<string, object> Response { get; set; } = new Dictionary<string, object>();
+    public JsonDocument Response { get; set; } = JsonDocument.Parse("{}");
     #endregion
 
     #region Constructors
@@ -55,8 +55,7 @@ public class NotificationInstanceModel
     /// Creates a new instance of an NotificationInstanceModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    /// <param name="options"></param>
-    public NotificationInstanceModel(Entities.NotificationInstance entity, JsonSerializerOptions options)
+    public NotificationInstanceModel(Entities.NotificationInstance entity)
     {
         this.Id = entity.Id;
         this.NotificationId = entity.NotificationId;
@@ -64,7 +63,7 @@ public class NotificationInstanceModel
         this.OwnerId = entity.OwnerId;
         this.SentOn = entity.SentOn;
         this.Status = entity.Status;
-        this.Response = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Response, options) ?? new Dictionary<string, object>();
+        this.Response = entity.Response;
     }
     #endregion
 }

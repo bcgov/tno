@@ -58,6 +58,12 @@ public class ReportInstanceModel : AuditColumnsModel
     public string Body { get; set; } = "";
 
     /// <summary>
+    /// get/set - The compiled body of the report.
+    /// Used to recreate the report.
+    /// </summary>
+    public string LinkOnlyBody { get; set; } = "";
+
+    /// <summary>
     /// get/set - CHES response containing keys to find the status of a report.
     /// </summary>
     public JsonDocument Response { get; set; } = JsonDocument.Parse("{}");
@@ -85,6 +91,7 @@ public class ReportInstanceModel : AuditColumnsModel
         this.Response = entity.Response;
         this.Subject = entity.Subject;
         this.Body = entity.Body;
+        this.LinkOnlyBody = entity.LinkOnlyBody;
     }
     #endregion
 }

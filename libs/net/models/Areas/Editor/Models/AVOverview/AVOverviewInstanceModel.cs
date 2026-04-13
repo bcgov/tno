@@ -31,6 +31,23 @@ public class AVOverviewInstanceModel : AuditColumnsModel
     /// </summary>
     public IEnumerable<AVOverviewSectionModel> Sections { get; set; } = Array.Empty<AVOverviewSectionModel>();
 
+    /// <summary>
+    /// get/set - The report status.
+    /// </summary>
+    public Entities.ReportStatus Status { get; set; }
+
+    /// <summary>
+    /// get/set - The compiled subject of the report.
+    /// Used to recreate the report.
+    /// </summary>
+    public string Subject { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The compiled body of the report.
+    /// Used to recreate the report.
+    /// </summary>
+    public string Body { get; set; } = "";
+
     // <summary>
     // get/set - The response.
     // </summary>
@@ -54,6 +71,9 @@ public class AVOverviewInstanceModel : AuditColumnsModel
         this.PublishedOn = entity.PublishedOn;
         this.IsPublished = entity.IsPublished;
         this.Sections = entity.Sections.OrderBy(s => s.SortOrder).Select(s => new AVOverviewSectionModel(s));
+        this.Status = entity.Status;
+        this.Subject = entity.Subject;
+        this.Body = entity.Body;
         this.Response = entity.Response;
     }
 
@@ -82,6 +102,9 @@ public class AVOverviewInstanceModel : AuditColumnsModel
         {
             Id = model.Id,
             IsPublished = model.IsPublished,
+            Status = model.Status,
+            Subject = model.Subject,
+            Body = model.Body,
             Response = model.Response,
             Version = model.Version ?? 0
         };

@@ -1,9 +1,8 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MMI.SmtpEmail;
 using TNO.API.Areas.Services.Models.EventSchedule;
-using TNO.Ches;
-using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
@@ -24,17 +23,17 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
     /// Creates a new instance of a SchedulerManager object, initializes with specified parameters.
     /// </summary>
     /// <param name="api"></param>
-    /// <param name="chesService"></param>
-    /// <param name="chesOptions"></param>
+    /// <param name="emailService"></param>
+    /// <param name="smtpOptions"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public SchedulerManager(
         IApiService api,
-        IChesService chesService,
-        IOptions<ChesOptions> chesOptions,
+        IEmailService emailService,
+        IOptions<SmtpOptions> smtpOptions,
         IOptions<SchedulerOptions> options,
         ILogger<SchedulerManager> logger)
-        : base(api, chesService, chesOptions, options, logger)
+        : base(api, emailService, smtpOptions, options, logger)
     {
     }
     #endregion

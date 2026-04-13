@@ -25,7 +25,7 @@
     <PackageReference Include="SSH.NET" Version="2024.2.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ches\TNO.Ches.csproj" />
+    <ProjectReference Include="..\smtp\MMI.SmtpEmail.csproj" />
     <ProjectReference Include="..\core\TNO.Core.csproj" />
     <ProjectReference Include="..\elastic\TNO.Elastic.csproj" />
     <ProjectReference Include="..\kafka\TNO.Kafka.csproj" />

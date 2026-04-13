@@ -19,5 +19,5 @@ data:
   MAX_FAIL_LIMIT: "5"
   TOPICS: index
   VOLUME_PATH: /data
-  CHES_EMAIL_ENABLED: "true"
-  CHES_EMAIL_AUTHORIZED: "true"
+  SMTP_EMAIL_ENABLED: "true"
+  SMTP_EMAIL_AUTHORIZED: "true"

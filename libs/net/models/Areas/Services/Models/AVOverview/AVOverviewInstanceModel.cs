@@ -36,6 +36,23 @@ public class AVOverviewInstanceModel : AuditColumnsModel
     /// </summary>
     public IEnumerable<AVOverviewSectionModel> Sections { get; set; } = Array.Empty<AVOverviewSectionModel>();
 
+    /// <summary>
+    /// get/set - The report status.
+    /// </summary>
+    public Entities.ReportStatus Status { get; set; }
+
+    /// <summary>
+    /// get/set - The compiled subject of the report.
+    /// Used to recreate the report.
+    /// </summary>
+    public string Subject { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The compiled body of the report.
+    /// Used to recreate the report.
+    /// </summary>
+    public string Body { get; set; } = "";
+
     // <summary>
     // get/set - The response.
     // </summary>
@@ -67,6 +84,9 @@ public class AVOverviewInstanceModel : AuditColumnsModel
         this.PublishedOn = instance.PublishedOn;
         this.IsPublished = instance.IsPublished;
         this.Sections = instance.Sections.OrderBy(s => s.SortOrder).Select(s => new AVOverviewSectionModel(s));
+        this.Status = instance.Status;
+        this.Subject = instance.Subject;
+        this.Body = instance.Body;
         this.Response = instance.Response;
         this.Subscribers = template.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s.User!, s.IsSubscribed)).ToArray();
     }
@@ -84,6 +104,9 @@ public class AVOverviewInstanceModel : AuditColumnsModel
         {
             Id = model.Id,
             IsPublished = model.IsPublished,
+            Status = model.Status,
+            Subject = model.Subject,
+            Body = model.Body,
             Response = model.Response,
             Version = model.Version ?? 0
         };

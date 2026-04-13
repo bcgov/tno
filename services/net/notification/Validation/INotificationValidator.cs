@@ -1,4 +1,4 @@
-using TNO.Ches.Models;
+using MMI.SmtpEmail.Models;
 
 namespace TNO.Services.Notification.Validation;
 
@@ -66,6 +66,6 @@ public interface INotificationValidator
     /// </summary>
     /// <param name="users"></param>
     /// <returns></returns>
-    IEnumerable<EmailContextModel> GetSubscriberEmails(IEnumerable<API.Areas.Services.Models.Notification.UserModel> users);
+    IEnumerable<MailMergeModel> GetSubscriberEmails(IEnumerable<API.Areas.Services.Models.Notification.UserModel> users);
     #endregion
 }

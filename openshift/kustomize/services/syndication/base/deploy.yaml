@@ -109,46 +109,26 @@ spec:
                   name: syndication-service
                   key: SEND_EMAIL_ON_FAILURE
 
-            # CHES Configuration
-            - name: CHES__From
+            # SMTP Configuration
+            - name: Smtp__From
               valueFrom:
                 configMapKeyRef:
-                  name: ches
-                  key: CHES_FROM
-            - name: CHES__EmailEnabled
-              valueFrom:
-                configMapKeyRef:
-                  name: syndication-service
-                  key: CHES_EMAIL_ENABLED
-            - name: CHES__EmailAuthorized
+                  name: smtp
+                  key: SMTP_FROM
+            - name: Smtp__EmailEnabled
               valueFrom:
                 configMapKeyRef:
                   name: syndication-service
-                  key: CHES_EMAIL_AUTHORIZED
+                  key: SMTP_EMAIL_ENABLED
+            - name: Smtp__EmailAuthorized
+              valueFrom:
+                configMapKeyRef:
+                  name: syndication-service
+                  key: SMTP_EMAIL_AUTHORIZED
 
-            - name: CHES__AuthUrl
-              valueFrom:
-                configMapKeyRef:
-                  name: ches
-                  key: CHES_AUTH_URL
-            - name: CHES__HostUri
-              valueFrom:
-                configMapKeyRef:
-                  name: ches
-                  key: CHES_HOST_URI
-            - name: CHES__Username
-              valueFrom:
-                secretKeyRef:
-                  name: ches
-                  key: USERNAME
-            - name: CHES__Password
-              valueFrom:
-                secretKeyRef:
-                  name: ches
-                  key: PASSWORD
           livenessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -158,7 +138,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
