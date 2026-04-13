@@ -21,6 +21,14 @@ public interface INotificationService : IBaseService<Notification, int>
     Notification? FindById(int id, Func<IQueryable<Notification>, IQueryable<Notification>>? include, bool asNoTracking = true);
 
     /// <summary>
+    /// Find the notification for the specified 'name'.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="include"></param>
+    /// <returns></returns>
+    Notification? FindByName(string name, Func<IQueryable<Notification>, IQueryable<Notification>>? include = null, bool asNoTracking = true);
+
+    /// <summary>
     /// Unsubscribe the specified 'userId' from all reports.
     /// </summary>
     /// <param name="userId"></param>

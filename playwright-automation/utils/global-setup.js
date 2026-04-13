@@ -1,5 +1,5 @@
 import { chromium } from "@playwright/test";
-require('dotenv').config();
+
 
 //global set up function to set up base url as per target environment passed on CLI
 async function globalSetup() {
@@ -15,7 +15,7 @@ async function globalSetup() {
   // Load enviroment variables in env file
   const dotenv = require("dotenv");
   dotenv.config({
-    path: `.env.${env_name}`,
+    path: `./utils/env/.env.${env_name}`,
     override: true,
   });
   // LOGIN_URL value can be passed via npx command. for e.g LOGIN_URL='https://test.editor.mmi.gov.bc.ca/'. Else value is null/undefined. 
@@ -42,8 +42,8 @@ async function globalSetup() {
   console.log('process.env.LOGIN_URL: ' + process.env.LOGIN_URL);
 
   const browser = await chromium.launch();
-  const context = await browser.newContext({viewport: null});
-  const page = await context.newPage();
+  const context = browser.newContext({viewport: null});
+  const page = (await context).newPage();
 
   //  Capture Network traffic
   // await (await page).on('request', request => console.log('>>>>', request.method(), request.url()));
@@ -59,25 +59,21 @@ async function globalSetup() {
   //   console.log(`Headers: ${JSON.stringify(response.headers())}`);
   // });
 
-  await page.goto(process.env.LOGIN_URL, { timeout: 10000 });
-  //await page.waitForLoadState ('documentloaded');
-  const idir = page.locator('//button[./div[normalize-space()="IDIR"]]');
-  const IdirUserName = page.locator('input#user');
-  const IdirPassword = page.locator('input#password');
-  //const continueButton = page.locator("//a/img[@class='app-logo']");
-  const continueButton = page.locator('input[name="btnSubmit"]');
+  await (await page).goto(process.env.LOGIN_URL, { timeout: 100000 });
+  const idir = (await page).locator('//button[./div[normalize-space()="IDIR"]]');
+  const IdirUserName = (await page).locator('input#user');
+  const IdirPassword = (await page).locator('input#password');
+  const continueButton = (await page).locator('[type="submit"]');
+  const homePageLogo = (await page).locator("//a/img[@class='app-logo']");
 
   // Only perform IDIR login operation if presented with login page else skip login process
-  
-    
-   const logoVisible = await page.isVisible().catch(() => false) ;
-   if (! logoVisible) {
+  if (!(await homePageLogo.isVisible())) {
     try {
       await idir.click();
       await IdirUserName.fill(process.env.app_username);
       await IdirPassword.fill(process.env.app_password);
       await continueButton.click();
-     // await homePage.homePageLogo.waitFor({ state: 'visible' });
+      await homePageLogo.waitFor({ state: 'visible' });
     } catch (error) {
       console.log(error);
     }

@@ -46,10 +46,30 @@ jobs:
             ["react-subscriber"]="react-subscriber.yml"
             ["folder-collection"]="folder-collection-cicd.yml"
             ["api-services"]="api-services-cicd.yml"
+            ["content-service"]="content-service-cicd.yml"
+            # --- Uncomment as each service gets its own workflow file ---
+            # ["auto-clipper"]="auto-clipper-cicd.yml"
+            # ["ches-retry"]="ches-retry-cicd.yml"
+            # ["contentmigration"]="contentmigration-cicd.yml"
+            # ["event-handler"]="event-handler-cicd.yml"
+            # ["extract-quotes"]="extract-quotes-cicd.yml"
+            # ["ffmpeg"]="ffmpeg-cicd.yml"
+            # ["filemonitor"]="filemonitor-cicd.yml"
+            # ["image"]="image-cicd.yml"
+            # ["indexing"]="indexing-cicd.yml"
+            # ["nlp"]="nlp-cicd.yml"
+            # ["notification"]="notification-cicd.yml"
+            # ["reporting"]="reporting-cicd.yml"
+            # ["scheduler"]="scheduler-cicd.yml"
+            # ["syndication"]="syndication-cicd.yml"
+            # ["transcription"]="transcription-cicd.yml"
+            # ["charts-api"]="charts-api-cicd.yml"
           )
 
           REPORT_FILE=$(mktemp)
+          DURATION_FILE=$(mktemp)
           echo "report_file=$REPORT_FILE" >> $GITHUB_OUTPUT
+          echo "duration_file=$DURATION_FILE" >> $GITHUB_OUTPUT
 
           for svc in "${!WORKFLOWS[@]}"; do
             wf_file="${WORKFLOWS[$svc]}"
@@ -84,11 +104,93 @@ jobs:
 
             echo "${svc}|dev|${DEV_TOTAL}|${DEV_SUCCESS}|${DEV_FAILURE}|${DEV_RATE}" >> "$REPORT_FILE"
             echo "${svc}|test|${TEST_TOTAL}|${TEST_SUCCESS}|${TEST_FAILURE}|${TEST_RATE}" >> "$REPORT_FILE"
+
+            # -------------------------------------------------------
+            # Deployment Duration — compute avg / min / max (seconds)
+            # Uses run_started_at → updated_at for successful runs
+            # -------------------------------------------------------
+            for branch_env in "dev:dev" "master:test"; do
+              BRANCH="${branch_env%%:*}"
+              ENV_NAME="${branch_env##*:}"
+
+              # Extract durations in seconds for successful deployments
+              DURATIONS=$(echo "$RUNS_JSON" | jq -r \
+                "[.[] | select(.event == \"push\" or .event == \"workflow_dispatch\") | select(.head_branch == \"$BRANCH\") | select(.conclusion == \"success\") | { started: .run_started_at, ended: .updated_at }] | .[] | \"\(.started) \(.ended)\"")
+
+              if [ -z "$DURATIONS" ]; then
+                echo "${svc}|${ENV_NAME}|0|N/A|N/A|N/A" >> "$DURATION_FILE"
+              else
+                # Convert to seconds and compute stats
+                SECS_LIST=""
+                while IFS=' ' read -r started ended; do
+                  S=$(date -u -d "$started" +%s)
+                  E=$(date -u -d "$ended" +%s)
+                  DUR=$(( E - S ))
+                  if [ "$DUR" -lt 0 ]; then DUR=0; fi
+                  SECS_LIST="${SECS_LIST}${DUR}\n"
+                done <<< "$DURATIONS"
+
+                # Compute avg, min, max using awk
+                STATS=$(printf "%b" "$SECS_LIST" | awk 'NF {
+                  sum += $1; n++;
+                  if (n == 1 || $1 < min) min = $1;
+                  if (n == 1 || $1 > max) max = $1;
+                } END {
+                  if (n > 0) printf "%d %d %d %d", n, sum/n, min, max;
+                  else printf "0 0 0 0";
+                }')
+
+                COUNT=$(echo "$STATS" | awk '{print $1}')
+                AVG_S=$(echo "$STATS" | awk '{print $2}')
+                MIN_S=$(echo "$STATS" | awk '{print $3}')
+                MAX_S=$(echo "$STATS" | awk '{print $4}')
+
+                # Format seconds as Xm Ys
+                fmt_duration() {
+                  local s=$1
+                  local m=$(( s / 60 ))
+                  local rem=$(( s % 60 ))
+                  echo "${m}m ${rem}s"
+                }
+
+                AVG_FMT=$(fmt_duration "$AVG_S")
+                MIN_FMT=$(fmt_duration "$MIN_S")
+                MAX_FMT=$(fmt_duration "$MAX_S")
+
+                echo "${svc}|${ENV_NAME}|${COUNT}|${AVG_FMT}|${MIN_FMT}|${MAX_FMT}" >> "$DURATION_FILE"
+              fi
+            done
           done
+
+      - name: Collect manual rollback data
+        id: rollbacks
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ROLLBACK_FILE=$(mktemp)
+          echo "rollback_file=$ROLLBACK_FILE" >> $GITHUB_OUTPUT
+
+          # Fetch completed manual-rollback runs within the date window
+          RUNS_JSON=$(gh api \
+            "repos/${{ github.repository }}/actions/workflows/manual-rollback.yml/runs?status=completed&created=>=${{ steps.dates.outputs.start }}&per_page=100" \
+            --jq '.workflow_runs' 2>/dev/null || echo '[]')
+
+          ROLLBACK_COUNT=$(echo "$RUNS_JSON" | jq 'length')
+          echo "count=$ROLLBACK_COUNT" >> $GITHUB_OUTPUT
+
+          if [ "$ROLLBACK_COUNT" -gt 0 ]; then
+            echo "$RUNS_JSON" | jq -r '.[] | [.display_title, .conclusion, .actor.login, .created_at] | @tsv' | \
+            while IFS=$'\t' read -r title conclusion actor created; do
+              echo "${title}|${conclusion}|${actor}|${created}" >> "$ROLLBACK_FILE"
+            done
+          fi
 
       - name: Render report
         run: |
           REPORT_FILE="${{ steps.collect.outputs.report_file }}"
+          DURATION_FILE="${{ steps.collect.outputs.duration_file }}"
+          ROLLBACK_FILE="${{ steps.rollbacks.outputs.rollback_file }}"
+          ROLLBACK_COUNT="${{ steps.rollbacks.outputs.count }}"
 
           echo "## 📊 Deployment Frequency & Success Rate Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -100,6 +202,48 @@ jobs:
           while IFS='|' read -r service env total success failure rate; do
             echo "| ${service} | ${env} | ${total} | ${success} | ${failure} | ${rate} |" >> $GITHUB_STEP_SUMMARY
           done < "$REPORT_FILE"
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # --- Deployment Duration ---
+          echo "## ⏱️ Deployment Duration (Lead Time)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Duration measured from workflow start to completion (successful runs only)." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | Environment | Runs | Avg Duration | Min | Max |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|-------------|:----:|:------------:|:---:|:---:|" >> $GITHUB_STEP_SUMMARY
+
+          while IFS='|' read -r service env count avg min max; do
+            echo "| ${service} | ${env} | ${count} | ${avg} | ${min} | ${max} |" >> $GITHUB_STEP_SUMMARY
+          done < "$DURATION_FILE"
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # --- Manual Rollback Activity ---
+          echo "## ⏪ Manual Rollback Activity" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$ROLLBACK_COUNT" -gt 0 ]; then
+            echo "**${ROLLBACK_COUNT} rollback(s)** triggered during this period." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Rollback | Status | Triggered By | Date (UTC) |" >> $GITHUB_STEP_SUMMARY
+            echo "|----------|:------:|:------------:|:----------:|" >> $GITHUB_STEP_SUMMARY
+
+            while IFS='|' read -r title conclusion actor created; do
+              if [ "$conclusion" = "success" ]; then
+                STATUS="✅ Success"
+              elif [ "$conclusion" = "failure" ]; then
+                STATUS="❌ Failure"
+              else
+                STATUS="⚠️ ${conclusion}"
+              fi
+              # Format the timestamp to date only
+              DISPLAY_DATE=$(echo "$created" | cut -dT -f1)
+              echo "| ${title} | ${STATUS} | ${actor} | ${DISPLAY_DATE} |" >> $GITHUB_STEP_SUMMARY
+            done < "$ROLLBACK_FILE"
+          else
+            echo "No manual rollbacks were triggered during this period. ✅" >> $GITHUB_STEP_SUMMARY
+          fi
 
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY

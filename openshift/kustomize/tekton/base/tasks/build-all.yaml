@@ -185,12 +185,13 @@ spec:
           [dockerfile]="/services/net/ffmpeg/Dockerfile"
         )
 
-        declare -A COMPONENT13=(
-          [id]="event-handler"
-          [image]="event-handler-service"
-          [context]=""
-          [dockerfile]="/services/net/event-handler/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — event-handler-cicd.yml
+        # declare -A COMPONENT13=(
+        #   [id]="event-handler"
+        #   [image]="event-handler-service"
+        #   [context]=""
+        #   [dockerfile]="/services/net/event-handler/Dockerfile"
+        # )
 
         declare -A COMPONENT14=(
           [id]="ches-retry"
