@@ -13,6 +13,7 @@ const recipientEmail = reportData[testApp]['report']['recipient_email'];
 let page, appPage, editorHomePage, reportPage, subscriberNavBarPage, subscriberMyReportPage, addProductPage, addFoldersPage, subscriberSearchResultPage, addFilterPage, editTopicsPage;
 
 
+
 test.beforeEach(async ({ masterFixture }) => {
   page = masterFixture.page;
   appPage = masterFixture.appPage;

@@ -18,8 +18,40 @@ class SettingsPage extends BasePage {
     this.myAccountLink = page.getByText('My Account')
     this.emailToggleButton = page.locator('[class="sc-dhKdPU cXQtTG button-toggle"]').nth(0);
     this.reportsentimentToggleButton = page.locator('[class="sc-dhKdPU cXQtTG button-toggle"]').nth(1);
+<<<<<<< HEAD
+    this.myColleaguesLink = page.getByText('My Colleagues')
+    this.addColleagueEmailInput = page.locator('input[name="email"]')
+    this.addColleagueButton = page.getByRole('button', { name: 'Add' })
+this.removeColleagueButton = page.locator('[class="sc-eyvHYj kJjhiH action"]').nth(0);
+this.confirmRemoveColleagueButton = page.getByText('Yes, Remove It')
+
   }
 
+  async clickOnRemoveColleagueButton() {
+    await this.click(this.removeColleagueButton);
+    await this.click(this.confirmRemoveColleagueButton);
+    logger.info('Clicked on Remove Colleague button!!');
+  } 
+
+async clickOnMyColleaguesLink() {
+    await this.click(this.myColleaguesLink);
+    logger.info('Clicked on My Colleagues link!!');
+  }
+async clickOnAddColleagueButton() {
+    await this.click(this.addColleagueButton);
+    logger.info('Clicked on Add Colleague button!!');
+  }
+
+  async enterColleagueEmail(email) {
+    await this.type(this.addColleagueEmailInput, email);
+    logger.info(`Entered colleague email as ${email}!!`);
+  } 
+
+
+=======
+  }
+
+>>>>>>> dev
 async toggleReportSentimentOn() {
     const isChecked = await this.reportsentimentToggleButton.getAttribute('value');
     console.log('isChecked value:', isChecked); // Debug log to check the value
