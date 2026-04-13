@@ -21,6 +21,10 @@ concurrency:
   group: folder-collection-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   pipeline:
     uses: ./.github/workflows/_reusable-dotnet-cicd.yml

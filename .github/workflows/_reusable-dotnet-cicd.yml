@@ -46,6 +46,7 @@ on:
 
 permissions:
   contents: read
+  security-events: write
 
 env:
   OPENSHIFT_SERVER: https://api.silver.devops.gov.bc.ca:6443
@@ -93,6 +94,11 @@ jobs:
             -f ${{ inputs.dockerfile }} \
             -t ${{ inputs.image_name }}:${{ github.sha }} \
             .
+
+      - name: Trivy Container Scan
+        uses: ./.github/actions/trivy-scan
+        with:
+          image-ref: '${{ inputs.image_name }}:${{ github.sha }}'
 
       - name: Login to OpenShift Image Registry
         run: |
@@ -184,6 +190,11 @@ jobs:
             -f ${{ inputs.dockerfile }} \
             -t ${{ inputs.image_name }}:${{ github.sha }} \
             .
+
+      - name: Trivy Container Scan
+        uses: ./.github/actions/trivy-scan
+        with:
+          image-ref: '${{ inputs.image_name }}:${{ github.sha }}'
 
       - name: Login to OpenShift Image Registry
         run: |
