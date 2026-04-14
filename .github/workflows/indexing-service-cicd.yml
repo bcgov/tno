@@ -38,3 +38,7 @@ jobs:
       health_check_method: exec_curl
     secrets:
       OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+      CHES_CLIENT_ID: ${{ secrets.CHES_CLIENT_ID }}
+      CHES_CLIENT_SECRET: ${{ secrets.CHES_CLIENT_SECRET }}
+      CHES_SENDER_EMAIL: ${{ secrets.CHES_SENDER_EMAIL }}
+      CHES_NOTIFY_EMAIL: ${{ secrets.CHES_NOTIFY_EMAIL }}

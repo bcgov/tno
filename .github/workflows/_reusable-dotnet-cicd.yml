@@ -43,6 +43,14 @@ on:
     secrets:
       OPENSHIFT_TOKEN:
         required: true
+      CHES_CLIENT_ID:
+        required: false
+      CHES_CLIENT_SECRET:
+        required: false
+      CHES_SENDER_EMAIL:
+        required: false
+      CHES_NOTIFY_EMAIL:
+        required: false
 
 permissions:
   contents: read
@@ -166,6 +174,35 @@ jobs:
           sleep 60
           oc logs $POD -n ${{ env.OPENSHIFT_NAMESPACE }} --tail=20
 
+      - name: Notify Deployment Result
+        if: always()
+        continue-on-error: true
+        run: |
+          TOKEN=$(curl -s -X POST \
+            "https://loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "grant_type=client_credentials" \
+            -d "client_id=${{ secrets.CHES_CLIENT_ID }}" \
+            -d "client_secret=${{ secrets.CHES_CLIENT_SECRET }}" \
+            | jq -r '.access_token')
+
+          if [ "${{ job.status }}" = "success" ]; then
+            SUBJECT="Deployment Successful - ${{ inputs.image_name }} to ${{ env.OPENSHIFT_NAMESPACE }}"
+          else
+            SUBJECT="Deployment FAILED - ${{ inputs.image_name }} to ${{ env.OPENSHIFT_NAMESPACE }}"
+          fi
+
+          curl -s -X POST "https://ches.api.gov.bc.ca/api/v1/email" \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"from\": \"${{ secrets.CHES_SENDER_EMAIL }}\",
+              \"to\": [\"${{ secrets.CHES_NOTIFY_EMAIL }}\"],
+              \"subject\": \"$SUBJECT\",
+              \"bodyType\": \"text\",
+              \"body\": \"SHA: ${{ github.sha }}\nRun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+            }"
+
   cd-test:
     name: CD — Deploy to Test
     runs-on: ubuntu-latest
@@ -256,3 +293,32 @@ jobs:
           echo "--- recent logs ---"
           sleep 60
           oc logs $POD -n ${{ env.OPENSHIFT_NAMESPACE }} --tail=20
+
+      - name: Notify Deployment Result
+        if: always()
+        continue-on-error: true
+        run: |
+          TOKEN=$(curl -s -X POST \
+            "https://loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "grant_type=client_credentials" \
+            -d "client_id=${{ secrets.CHES_CLIENT_ID }}" \
+            -d "client_secret=${{ secrets.CHES_CLIENT_SECRET }}" \
+            | jq -r '.access_token')
+
+          if [ "${{ job.status }}" = "success" ]; then
+            SUBJECT="Deployment Successful - ${{ inputs.image_name }} to ${{ env.OPENSHIFT_NAMESPACE }}"
+          else
+            SUBJECT="Deployment FAILED - ${{ inputs.image_name }} to ${{ env.OPENSHIFT_NAMESPACE }}"
+          fi
+
+          curl -s -X POST "https://ches.api.gov.bc.ca/api/v1/email" \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"from\": \"${{ secrets.CHES_SENDER_EMAIL }}\",
+              \"to\": [\"${{ secrets.CHES_NOTIFY_EMAIL }}\"],
+              \"subject\": \"$SUBJECT\",
+              \"bodyType\": \"text\",
+              \"body\": \"SHA: ${{ github.sha }}\nRun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+            }"
