@@ -33,7 +33,7 @@ jobs:
       kustomize_dev_path: openshift/kustomize/services/indexing/overlays/dev
       kustomize_test_path: openshift/kustomize/services/indexing/overlays/test
       dev_branch: indexing-service
-      rollout_timeout: '180s'
+      rollout_timeout: '220s'
       continue_on_error_verify: true
       health_check_method: exec_curl
     secrets:
