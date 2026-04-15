@@ -179,7 +179,7 @@ jobs:
         continue-on-error: true
         run: |
           TOKEN=$(curl -s -X POST \
-            "https://loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token" \
+            "https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token" \
             -H "Content-Type: application/x-www-form-urlencoded" \
             -d "grant_type=client_credentials" \
             -d "client_id=${{ secrets.CHES_CLIENT_ID }}" \
@@ -192,7 +192,7 @@ jobs:
             SUBJECT="Deployment FAILED - ${{ inputs.image_name }} to ${{ env.OPENSHIFT_NAMESPACE }}"
           fi
 
-          curl -s -X POST "https://ches.api.gov.bc.ca/api/v1/email" \
+          curl -s -X POST "https://ches-dev.api.gov.bc.ca/api/v1/email" \
             -H "Authorization: Bearer $TOKEN" \
             -H "Content-Type: application/json" \
             -d "{
@@ -299,7 +299,7 @@ jobs:
         continue-on-error: true
         run: |
           TOKEN=$(curl -s -X POST \
-            "https://loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token" \
+            "https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token" \
             -H "Content-Type: application/x-www-form-urlencoded" \
             -d "grant_type=client_credentials" \
             -d "client_id=${{ secrets.CHES_CLIENT_ID }}" \
@@ -312,7 +312,7 @@ jobs:
             SUBJECT="Deployment FAILED - ${{ inputs.image_name }} to ${{ env.OPENSHIFT_NAMESPACE }}"
           fi
 
-          curl -s -X POST "https://ches.api.gov.bc.ca/api/v1/email" \
+          curl -s -X POST "https://ches-dev.api.gov.bc.ca/api/v1/email" \
             -H "Authorization: Bearer $TOKEN" \
             -H "Content-Type: application/json" \
             -d "{
