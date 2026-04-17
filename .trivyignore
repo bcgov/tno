@@ -1,0 +1,125 @@
+# =============================================================================
+# TNO Trivy Ignore File
+# =============================================================================
+# This file suppresses known CVEs from Trivy container image scans.
+# All entries here are BASE IMAGE vulnerabilities that will be resolved by
+# upgrading the base images (tracked as a separate task).
+#
+# DO NOT add application-level CVEs here — those must be fixed in code.
+#
+# Planned base image upgrades:
+#   - node:18-bullseye (Debian 11 EOL) → node:18-bookworm (Debian 12)
+#   - nginxinc/nginx-unprivileged:1.24 → nginx-unprivileged:1.26-alpine
+#   - mcr.microsoft.com/dotnet/aspnet:9.0 — rebuild to pick up latest patch
+#
+# Last reviewed: 2026-04-17
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Debian 11 (Bullseye) — node:18-bullseye base image (editor, subscriber)
+# These will all be eliminated by upgrading to node:18-bookworm
+# -----------------------------------------------------------------------------
+
+# -- libxml2 (2.9.10) --------------------------------------------------------
+CVE-2016-3709   # libxml2: XSS in xmlserialize.c
+CVE-2022-2309   # libxml2: NULL deref in lxml
+CVE-2022-49043  # libxml2: use-after-free
+CVE-2023-39615  # libxml2: crafted XML leading to DoS
+CVE-2023-45322  # libxml2: use-after-free via crafted XML
+CVE-2024-25062  # libxml2: use-after-free in XMLReader
+CVE-2024-34459  # libxml2: buffer over-read
+CVE-2024-56171  # libxml2: use-after-free
+CVE-2025-24928  # libxml2: stack buffer overflow
+CVE-2025-27113  # libxml2: NULL deref
+CVE-2025-32414  # libxml2: out-of-bounds read
+CVE-2025-32415  # libxml2: crafted XML DoS
+CVE-2025-49794  # libxml2: vulnerability
+CVE-2025-49796  # libxml2: vulnerability
+CVE-2025-6021   # libxml2: vulnerability
+CVE-2025-6170   # libxml2: vulnerability
+CVE-2025-9714   # libxml2: vulnerability
+
+# -- libxslt1.1 (1.1.34) -----------------------------------------------------
+CVE-2023-40403  # libxslt: disclosure of heap memory
+CVE-2024-55549  # libxslt: use-after-free
+CVE-2025-24855  # libxslt: use-after-free
+CVE-2025-7424   # libxslt: vulnerability
+
+# -- OpenSSL 1.1.1 (libssl1.1) -----------------------------------------------
+CVE-2023-5678   # OpenSSL: excessive time in DH key generation
+CVE-2024-0727   # OpenSSL: NULL deref processing PKCS12 data
+CVE-2024-2511   # OpenSSL: TLSv1.3 session cache unbounded growth
+CVE-2024-4741   # OpenSSL: use-after-free in SSL_free_buffers
+CVE-2024-5535   # OpenSSL: SSL_select_next_proto buffer overread
+CVE-2024-9143   # OpenSSL: low-severity issue
+CVE-2024-13176  # OpenSSL: timing side-channel in ECDSA
+CVE-2025-9230   # OpenSSL: vulnerability
+CVE-2025-68160  # OpenSSL: vulnerability
+CVE-2025-69418  # OpenSSL: vulnerability
+CVE-2025-69419  # OpenSSL: vulnerability
+CVE-2025-69420  # OpenSSL: vulnerability
+CVE-2025-69421  # OpenSSL: vulnerability
+CVE-2026-22795  # OpenSSL: vulnerability
+CVE-2026-22796  # OpenSSL: vulnerability
+
+# -- libtiff5 (4.2.0) --------------------------------------------------------
+CVE-2023-2908   # libtiff: NULL deref in tif_dir.c
+CVE-2023-25433  # libtiff: buffer overflow in tiff2pdf.c
+CVE-2023-26965  # libtiff: use-after-free in tiffcrop
+CVE-2023-26966  # libtiff: buffer overflow in uv_encode
+CVE-2023-3316   # libtiff: NULL deref via crafted image
+CVE-2023-3618   # libtiff: segfault via crafted image
+CVE-2023-52356  # libtiff: segfault in TIFFReadRGBATileExt
+CVE-2024-7006   # libtiff: NULL deref in tif_dirinfo.c
+CVE-2024-13978  # libtiff: vulnerability
+CVE-2025-9900   # libtiff: vulnerability
+
+# -- libssh2-1 (1.9.0) -------------------------------------------------------
+CVE-2020-22218  # libssh2: use-after-free in _libssh2_packet_add
+
+# -- e2fsprogs / libss2 / logsave (1.46.2) -----------------------------------
+CVE-2022-1304   # e2fsprogs: out-of-bounds read/write via crafted fs
+
+# -- libsepol1 (3.1) ---------------------------------------------------------
+CVE-2021-36084  # libsepol: use-after-free in __cil_verify_classperms
+CVE-2021-36085  # libsepol: use-after-free in __cil_verify_classperms
+CVE-2021-36086  # libsepol: use-after-free in cil_reset_classpermission
+CVE-2021-36087  # libsepol: heap-based buffer overflow in ebitmap_match_any
+
+# -- shadow-utils / login / passwd (4.8.1) -----------------------------------
+CVE-2023-29383  # shadow-utils: possible local DOS via chfn
+CVE-2023-4641   # shadow-utils: password leak via /etc/shadow.bak
+
+# -- systemd / libudev1 (247.3) ----------------------------------------------
+CVE-2023-7008   # systemd-resolved: DNSSEC unsigned NSEC transition
+CVE-2023-50387  # systemd: KeyTrap DNSSEC CPU exhaustion
+CVE-2023-50868  # systemd: NSEC3 iteration count CPU exhaustion
+CVE-2025-4598   # systemd: vulnerability
+
+# -- perl-base (5.32.1) ------------------------------------------------------
+CVE-2020-16156  # CPAN.pm: signature verification bypass
+CVE-2023-31484  # perl: HTTP::Tiny does not verify TLS certificates
+
+# -- libtasn1-6 (4.16.0) -----------------------------------------------------
+CVE-2024-12133  # libtasn1: inefficient algorithm in DER decoding
+
+# -- tzdata (2024a) -----------------------------------------------------------
+DLA-3972-1      # tzdata: Debian LTS advisory
+DLA-4016-1      # ucf: Debian LTS advisory
+DLA-4085-1      # tzdata: Debian LTS advisory
+DLA-4105-1      # tzdata: Debian LTS advisory
+DLA-4403-1      # tzdata: Debian LTS advisory
+
+# -----------------------------------------------------------------------------
+# Debian 12 (Bookworm) — mcr.microsoft.com/dotnet/aspnet:9.0 (event-handler)
+# OpenSSL 3.0.x vulnerabilities — will be resolved by rebuilding images
+# to pick up the latest patched aspnet:9.0 base image
+# -----------------------------------------------------------------------------
+
+# -- OpenSSL 3.0.18 (libssl3) ------------------------------------------------
+CVE-2026-28387  # OpenSSL 3.0: vulnerability
+CVE-2026-28388  # OpenSSL 3.0: vulnerability
+CVE-2026-28389  # OpenSSL 3.0: vulnerability
+CVE-2026-28390  # OpenSSL 3.0: vulnerability
+CVE-2026-31789  # OpenSSL 3.0: vulnerability
+CVE-2026-31790  # OpenSSL 3.0: vulnerability

@@ -17,6 +17,10 @@ inputs:
     description: 'Whether to ignore unfixed vulnerabilities'
     required: false
     default: 'true'
+  trivyignores:
+    description: 'Path to .trivyignore file'
+    required: false
+    default: '.trivyignore'
 
 runs:
   using: 'composite'
@@ -37,9 +41,11 @@ runs:
         severity: ${{ inputs.severity }}
         ignore-unfixed: ${{ inputs.ignore-unfixed }}
         exit-code: ${{ inputs.exit-code }}
+        trivyignores: ${{ inputs.trivyignores }}
 
     - name: Upload Trivy Results to GitHub Security
       uses: github/codeql-action/upload-sarif@v3
       if: always()
       with:
         sarif_file: 'trivy-results.sarif'
+
