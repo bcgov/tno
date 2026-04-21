@@ -6,7 +6,6 @@ metadata:
   name: corenlp
   namespace: default
   annotations:
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "corenlp:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"corenlp\")].image"}]'
     description: Defines how to deploy corenlp
   labels:
     name: corenlp
@@ -35,9 +34,11 @@ spec:
         part-of: tno
         component: corenlp
     spec:
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: corenlp
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/corenlp:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/corenlp:v4.5.6
           imagePullPolicy: Always
           ports:
             - containerPort: 9000

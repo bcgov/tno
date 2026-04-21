@@ -50,8 +50,10 @@ spec:
       dockerfilePath: services/net/contentmigration/Dockerfile
   output:
     to:
-      kind: ImageStreamTag
-      name: contentmigration-service:dev
+      kind: DockerImage
+      name: bcgov-c4awhwfpcremdbga.azurecr.io/contentmigration-service:latest
+    pushSecret:
+      name: acr-secret
   resources:
     requests:
       cpu: 20m

@@ -19,7 +19,7 @@ patches:
         value: 1
       - op: replace
         path: /spec/template/spec/containers/0/image
-        value: image-registry.openshift-image-registry.svc:5000/9b301c-tools/content-service:test
+        value: bcgov-c4awhwfpcremdbga.azurecr.io/content-service:test
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
         value: 25m
@@ -32,6 +32,3 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 250Mi
-      - op: replace
-        path: /metadata/annotations/image.openshift.io~1triggers
-        value: '[{"from": {"kind": "ImageStreamTag", "name": "content-service:test", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"content-service\")].image"}]'

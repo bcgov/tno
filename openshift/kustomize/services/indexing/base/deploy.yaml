@@ -8,7 +8,6 @@ metadata:
   annotations:
     description: Defines how to deploy indexing-service
     created-by: jeremy.foster
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "indexing-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"indexing-service\")].image"}]'
   labels:
     name: indexing-service
     part-of: tno
@@ -35,9 +34,11 @@ spec:
         part-of: tno
         component: indexing-service
     spec:
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: indexing-service
-          image: ''
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/indexing-service:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -213,7 +214,7 @@ spec:
                   key: PASSWORD
           livenessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -223,7 +224,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30

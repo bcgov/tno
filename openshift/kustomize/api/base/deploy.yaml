@@ -6,7 +6,6 @@ metadata:
   name: api
   namespace: default
   annotations:
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "api:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"api\")].image"}]'
     description: Defines how to deploy api
   labels:
     name: api
@@ -44,9 +43,11 @@ spec:
         - name: ingest-storage
           persistentVolumeClaim:
             claimName: ingest-storage
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: api
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/api:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/api:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -60,6 +61,9 @@ spec:
             requests:
               cpu: 100m
               memory: 350Mi
+            limits:
+              cpu: 200m
+              memory: 1Gi
           env:
             - name: ASPNETCORE_URLS
               value: http://+:8080

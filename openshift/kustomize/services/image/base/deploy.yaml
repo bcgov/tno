@@ -8,7 +8,6 @@ metadata:
   annotations:
     description: Defines how to deploy image-service
     created-by: jeremy.foster, alessia.yanchen
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "image-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"image-service\")].image"}]'
   labels:
     name: image-service
     part-of: tno
@@ -44,9 +43,11 @@ spec:
             secretName: ssh-key # name of the Secret
             optional: false
             defaultMode: 420
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: image-service
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/image-service:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/image-service:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -173,7 +174,7 @@ spec:
                   key: PASSWORD
           livenessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -183,7 +184,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30

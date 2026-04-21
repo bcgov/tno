@@ -149,7 +149,7 @@ spec:
         - maintenance-on-subscriber
       taskRef:
         kind: Task
-        name: deploy-all-deployment
+        name: deploy-all
       workspaces:
         - name: conditions
           workspace: conditions

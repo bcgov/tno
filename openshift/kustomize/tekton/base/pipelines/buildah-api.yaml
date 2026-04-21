@@ -28,15 +28,14 @@ spec:
 
     - name: IMAGE_TAG
       description: >-
-        The tag given to the built images.
-        Use this to create versioned images.
+        The tag given to the built images. Use this to create versioned images.
       type: string
       default: latest
 
     - name: PROJECT_SHORTNAME
       description: >-
-        The project namespace shortname.
-        The part before the "-" (i.e. 9b301c-dev = 9b301c).
+        The project namespace shortname. The part before the "-" (i.e.
+        9b301c-dev = 9b301c).
       type: string
       default: 9b301c
 
@@ -124,3 +123,21 @@ spec:
           value: $(params.DEPLOY_TO)
         - name: OBJECT
           value: sts
+
+    - name: deploy-api-service
+      runAfter:
+        - build-api
+      taskRef:
+        name: oc-deploy-with-tag
+        kind: Task
+      params:
+        - name: PROJECT_SHORTNAME
+          value: $(params.PROJECT_SHORTNAME)
+        - name: IMAGE
+          value: api-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: ENV
+          value: $(params.DEPLOY_TO)
+        - name: OBJECT
+          value: deployment

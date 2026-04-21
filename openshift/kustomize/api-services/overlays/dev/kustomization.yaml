@@ -12,11 +12,11 @@ patches:
       name: api-services
     patch: |-
       - op: replace
-        path: /spec/template/spec/containers/0/image
-        value: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/api:dev
-      - op: replace
         path: /spec/replicas
         value: 2
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: bcgov-c4awhwfpcremdbga.azurecr.io/api:dev
       - op: add
         path: /spec/template/spec/containers/0/resources/limits
         value:
