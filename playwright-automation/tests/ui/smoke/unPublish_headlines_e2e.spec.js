@@ -8,7 +8,6 @@ const editorUrl = testData[testApp]['editor']['url'];
 
 let page, appPage, editorHomePage, headlineDetailsPage, subscriberSearchResultPage;
 
-
 test.beforeEach(async ({ masterFixture }) => {
     page = masterFixture.page;  
     appPage = masterFixture.appPage;

@@ -16,6 +16,7 @@ class ReportPage extends BasePage {
     );
     this.save = page.locator('.form-actions button[type="submit"]');
     this.toastNotification = page.locator('.Toastify .Toastify__toast-body div:nth-child(2)');
+    this.toastNotificationCloseButton = page.locator(`button[aria-label="close"]`);
     this.useDefaultTemplateButton = page.locator('//button/div[text()="Use Default Template"]');
     this.enableEditCheckbox = page.locator('input#enableEdit-true');
     this.sendTestEmailToField = page.locator('//input[@name="to"]');
@@ -23,6 +24,11 @@ class ReportPage extends BasePage {
     this.delete = page.locator('//button/div[text()="Delete"]');
     this.searchTextBox = page.locator('input[name="search"]');
     this.deleteConfirmationButton = page.locator('//button/div[text()="Yes, Remove It"]');
+    this.isPublicCheckbox = page.locator(`#isPublic-true`);
+    this.isSortedEnableCheckbox = page.locator(`#isEnabled-true`);
+    this.nameFieldValidationMessage = page.locator(`.error p`)
+    this.sortOrderInputTextField = page.locator(`input#txt-sortOrder`);
+    this.validationErrorToastMessage = page.locator(`.Toastify .Toastify__toast-body div:nth-child(2)`);
   }
 
   /**
@@ -97,6 +103,11 @@ class ReportPage extends BasePage {
     return await this.isElementVisible(this.toastNotification.first());
   }
 
+  async clickOnToastNotificationCloseButton(){
+    await this.click(this.toastNotificationCloseButton);
+    logger.info(`Closed toast notification`);
+  }
+
   /**
    * Method to check the visibility of Reports sub tab
    * @param {string} tabName
@@ -125,10 +136,9 @@ class ReportPage extends BasePage {
    * @returns true if enable else false
    */
   async isUseDefaultTemplateButtonClickable() {
-    logger.info(
-      `Is Use Default Template button clickable - ${await this.isElementClickable(this.useDefaultTemplateButton)}`,
-    );
-    return await this.isElementClickable(this.useDefaultTemplateButton);
+    const isClickable = await this.isElementClickable(this.useDefaultTemplateButton);
+    logger.info(`Is Publish button clicable - ${isClickable}`);
+    return isClickable;
   }
 
   /**
@@ -210,6 +220,91 @@ class ReportPage extends BasePage {
       `${reportTitle} has successfully been deleted.`,
     );
   }
+
+  /**
+   * Method to check visibility of Add New Report button
+   * @returns treu if visible else false
+   */
+  async isAddNewReportButtonVisible() {
+    logger.info('Checking visibility of Add New Report button');
+    return await this.isElementVisible(this.addNewReport);
+  }
+
+  /**
+   * Method to select is Public check box on report page
+   */
+  async checkIsPublicCheckbox() {
+    await this.click(this.isPublicCheckbox);
+    logger.info('Clicked on Is Public checkbox.');
+  }
+
+  /**
+   * Method to select given report from the grid.
+   */
+  async searchAndSelectReport(reportName) {
+    logger.info(`Searching for Report : ${reportName}`);
+    await this.type(this.searchTextBox, reportName);
+    await this.click(
+      this.page.locator(`//div[text()='${reportName}']`),
+    );
+    await this.hardWait(1000);
+  }
+
+  /**
+   * Method to select is Sorted enable check box on report page
+   */
+  async checkIsSortOrderIsEnabledCheckbox() {
+    await this.click(this.isSortedEnableCheckbox);
+    logger.info('Clicked on Is Sort Order Enabled checkbox.');
+  }
+
+  /**
+   * Method to check sort order is enabled check box selected
+   * @returns true if selected else false
+   */
+  async isSortOrderEnabledCheckboxSelected() {
+    const isSelected = await this.isCheckboxSelected(this.isSortedEnableCheckbox);
+    logger.info(`Is Sort Order Enable checkbox selected - ${isSelected}`);
+    return isSelected;
+  }
+
+  /**
+   * Method to get entered Report Description
+   */
+  async getReportDescription() {
+    const reportDescriptionText = await this.getInputValue(this.reportDescription);
+    logger.info(`Entered Report description is : ${reportDescriptionText}`);
+    return reportDescriptionText;
+  }
+
+  /**
+   * Method to get the Report Name field validation message
+   * @returns Validation message for Report Name field
+   */
+  async getNameFieldValidationMessageLable() {
+    logger.info(`Validation message for Report Name is : ${await this.getElementText(this.nameFieldValidationMessage)}`);
+    return await this.getElementText(this.nameFieldValidationMessage);
+  }
+
+  /**
+   * Method to get th Toast validation message
+   * @returns Validation message for Report Name field
+   */
+  async getToastValidationMessage() {
+    logger.info(`Validation message On Notification toast is : ${await this.getElementText(this.validationErrorToastMessage)}`);
+    return await this.getElementText(this.validationErrorToastMessage);
+  }
+
+  /**
+   * Method to enter sort order value
+   * @param {string} sortOrder 
+   */
+  async enterSortOrder(sortOrder){
+    await this.type(this.sortOrderInputTextField, sortOrder);
+    logger.info(`Enter sort order : ${sortOrder}`);
+  }
+
+
 }
 
 module.exports = { ReportPage };

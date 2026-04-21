@@ -1,7 +1,8 @@
 {
   "qa": {
     "editor": {
-      "url": "https://test.editor.mmi.gov.bc.ca/contents"
+      "url": "https://test.editor.mmi.gov.bc.ca/contents",
+      "reportUrl": "https://test.editor.mmi.gov.bc.ca/admin/reports/199"
     },
     "subscriber": {
       "url": "https://test.mmi.gov.bc.ca/"
