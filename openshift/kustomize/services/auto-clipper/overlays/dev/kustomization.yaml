@@ -29,6 +29,9 @@ patches:
         path: /spec/replicas
         value: 2
       - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: bcgov-c4awhwfpcremdbga.azurecr.io/auto-clipper-service:dev
+      - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
         value: 20m
       - op: replace
@@ -40,6 +43,3 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 300Mi
-      - op: replace
-        path: /spec/template/spec/containers/0/image
-        value: image-registry.openshift-image-registry.svc:5000/9b301c-tools/auto-clipper-service:dev

@@ -8,7 +8,6 @@ metadata:
   annotations:
     description: Defines how to deploy content-historic-service
     created-by: jeremy.foster
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "content-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"content-historic-service\")].image"}]'
   labels:
     name: content-historic-service
     part-of: tno
@@ -39,9 +38,11 @@ spec:
         - name: ingest-storage
           persistentVolumeClaim:
             claimName: ingest-storage
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: content-historic-service
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/content-historic-service:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/content-historic-service:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -170,7 +171,7 @@ spec:
                   key: PASSWORD
           livenessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -180,7 +181,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30

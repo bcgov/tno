@@ -15,11 +15,11 @@ patches:
       name: nlp-service
     patch: |-
       - op: replace
-        path: /spec/template/spec/containers/0/image
-        value: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/nlp-service:dev
-      - op: replace
         path: /spec/replicas
         value: 1
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: bcgov-c4awhwfpcremdbga.azurecr.io/nlp-service:dev
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
         value: 50m

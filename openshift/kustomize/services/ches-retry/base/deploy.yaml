@@ -8,7 +8,6 @@ metadata:
   annotations:
     description: Defines how to deploy ches-retry-service
     created-by: jeremy.foster
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "ches-retry-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"ches-retry-service\")].image"}]'
   labels:
     name: ches-retry-service
     part-of: tno
@@ -35,9 +34,11 @@ spec:
         part-of: tno
         component: ches-retry-service
     spec:
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: ches-retry-service
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/ches-retry-service:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/ches-retry-service:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -145,7 +146,7 @@ spec:
 
           livenessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -155,7 +156,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30

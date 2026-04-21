@@ -40,10 +40,12 @@ var builder = WebApplication.CreateBuilder(args);
 using var factory = LoggerFactory.Create(builder => builder.AddConsole());
 var logger = factory.CreateLogger<Program>();
 
+// appsettings.json and appsettings.{environment}.json are already added by
+// WebApplication.CreateBuilder. Adding them again here would place them after
+// the default EnvironmentVariables provider, causing appsettings to win over
+// environment variable overrides. Only add sources not included by default.
 builder
     .Configuration
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
     .AddJsonFile("connectionstrings.json", optional: true, reloadOnChange: true)
     .AddJsonFile($"connectionstrings.{environment}.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables()

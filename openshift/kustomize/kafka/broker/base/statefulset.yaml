@@ -61,9 +61,11 @@ spec:
                     values:
                       - kafka-broker-cluster
               topologyKey: "kubernetes.io/hostname"
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: kafka-broker
-          image: image-registry.openshift-image-registry.svc:5000/9b301c-tools/cp-kafka:7.6.1
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/cp-kafka:7.6.1
           imagePullPolicy: Always
           volumeMounts:
             - name: kafka-broker-data

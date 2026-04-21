@@ -6,18 +6,6 @@ metadata:
   namespace: default
   annotations:
     description: Deploy API
-    image.openshift.io/triggers: |-
-      [
-        {
-          "from": {
-            "kind": "ImageStreamTag",
-            "namespace": " 9b301c-tools",
-            "name": "api:dev"
-          },
-          "fieldPath": "spec.template.spec.containers[?(@.name==\"api\")].image",
-          "paused": false
-        },
-      ]
   labels:
     name: api
     part-of: tno
@@ -73,9 +61,11 @@ spec:
         - name: ingest-storage
           persistentVolumeClaim:
             claimName: ingest-storage
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: api
-          image: image-registry.openshift-image-registry.svc:5000/9b301c-tools/api:dev
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/api:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

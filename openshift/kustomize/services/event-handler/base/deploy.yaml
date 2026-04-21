@@ -8,7 +8,6 @@ metadata:
   annotations:
     description: Defines how to deploy event-handler-service
     created-by: jeremy.foster
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "event-handler-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"event-handler-service\")].image"}]'
   labels:
     name: event-handler-service
     part-of: tno
@@ -35,9 +34,11 @@ spec:
         part-of: tno
         component: event-handler-service
     spec:
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: event-handler-service
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/event-handler-service:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/event-handler-service:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -162,7 +163,7 @@ spec:
 
           livenessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -172,7 +173,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30

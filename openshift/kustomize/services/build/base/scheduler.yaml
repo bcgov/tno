@@ -48,8 +48,10 @@ spec:
       dockerfilePath: services/net/scheduler/Dockerfile
   output:
     to:
-      kind: ImageStreamTag
-      name: scheduler-service:latest
+      kind: DockerImage
+      name: bcgov-c4awhwfpcremdbga.azurecr.io/scheduler-service:latest
+    pushSecret:
+      name: acr-secret
   resources:
     requests:
       cpu: 20m

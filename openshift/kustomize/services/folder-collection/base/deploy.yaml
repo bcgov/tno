@@ -8,7 +8,6 @@ metadata:
   annotations:
     description: Defines how to deploy folder-collection-service
     created-by: jeremy.foster
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "folder-collection-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"folder-collection-service\")].image"}]'
   labels:
     name: folder-collection-service
     part-of: tno
@@ -35,9 +34,11 @@ spec:
         part-of: tno
         component: folder-collection-service
     spec:
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: folder-collection-service
-          image: ''
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/folder-collection-service:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -198,7 +199,7 @@ spec:
                   key: PASSWORD
           livenessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -208,7 +209,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30

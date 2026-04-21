@@ -8,7 +8,6 @@ metadata:
   annotations:
     description: Defines how to deploy scheduler-service
     created-by: jeremy.foster
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "scheduler-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"scheduler-service\")].image"}]'
   labels:
     name: scheduler-service
     part-of: tno
@@ -35,9 +34,11 @@ spec:
         part-of: tno
         component: scheduler-service
     spec:
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: scheduler-service
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/scheduler-service:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/scheduler-service:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -172,7 +173,7 @@ spec:
                   key: PASSWORD
           livenessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -182,7 +183,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30

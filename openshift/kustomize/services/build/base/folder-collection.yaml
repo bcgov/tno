@@ -48,8 +48,10 @@ spec:
       dockerfilePath: services/net/folder-collection/Dockerfile
   output:
     to:
-      kind: ImageStreamTag
-      name: folder-collection-service:latest
+      kind: DockerImage
+      name: bcgov-c4awhwfpcremdbga.azurecr.io/folder-collection-service:latest
+    pushSecret:
+      name: acr-secret
   resources:
     requests:
       cpu: 20m

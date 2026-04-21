@@ -8,7 +8,6 @@ metadata:
   annotations:
     description: Defines how to deploy ffmpeg-service
     created-by: jeremy.foster
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "ffmpeg-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"ffmpeg-service\")].image"}]'
   labels:
     name: ffmpeg-service
     part-of: tno
@@ -39,9 +38,11 @@ spec:
         - name: api-storage
           persistentVolumeClaim:
             claimName: api-storage
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: ffmpeg-service
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/ffmpeg-service:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/ffmpeg-service:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -173,7 +174,7 @@ spec:
                   key: PASSWORD
           livenessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -183,7 +184,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30

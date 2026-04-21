@@ -5,7 +5,6 @@ metadata:
   name: nginx-editor
   namespace: default
   annotations:
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "nginx-editor:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"nginx-editor\")].image"}]'
     description: Defines how to deploy nginx
   labels:
     name: nginx-editor
@@ -34,9 +33,11 @@ spec:
         part-of: tno
         component: nginx-editor
     spec:
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: nginx-editor
-          image: ""
+          image: "bcgov-c4awhwfpcremdbga.azurecr.io/nginx-editor:dev"
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -108,9 +109,11 @@ spec:
         part-of: tno
         component: nginx-subscriber
     spec:
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: nginx-subscriber
-          image: ""
+          image: "bcgov-c4awhwfpcremdbga.azurecr.io/nginx-subscriber:dev"
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

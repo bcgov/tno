@@ -7,7 +7,6 @@ metadata:
   namespace: default
   annotations:
     description: Defines how to deploy charts-api
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "charts-api:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"charts-api\")].image"}]'
   labels:
     name: charts-api
     part-of: tno
@@ -35,9 +34,11 @@ spec:
         part-of: tno
         component: charts-api
     spec:
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: charts-api
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/charts-api:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/charts-api:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -51,10 +52,10 @@ spec:
               memory: 75Mi
           env:
             - name: PORT
-              value: '8080'
+              value: "8080"
           livenessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -64,7 +65,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 10

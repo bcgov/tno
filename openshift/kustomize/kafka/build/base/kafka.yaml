@@ -46,8 +46,10 @@ spec:
       dockerfilePath: Dockerfile.rhel
   output:
     to:
-      kind: ImageStreamTag
-      name: cp-kafka:latest
+      kind: DockerImage
+      name: bcgov-c4awhwfpcremdbga.azurecr.io/cp-kafka:latest
+    pushSecret:
+      name: acr-secret
   resources:
     limits:
       cpu: 2000m
