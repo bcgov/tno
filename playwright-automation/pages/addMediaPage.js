@@ -65,6 +65,16 @@ this.listOption2 = (value) =>
 this.selectIngestvalue = page.getByText('Test Automation IT');
 this.backToIngestButton = page.getByRole('button', { name: 'back Back to Ingest Types' });
 
+
+//  Actions Page locators 
+this.actionsLink = page.getByRole('link', { name: 'Actions' })
+this.addnewactions = page.getByRole('button', { name: 'plus Add new action' })
+this.contentTypeDropdown = page.locator('.rs__input-container').first()
+this.listOption3 = (value) => 
+  page.getByText(value, { exact : true })
+
+this.backToActionsButton = page.getByRole('button', { name: 'back Back to actions' })
+this.selectActionTRvalue = page.getByText('Automation Action Name');
   }
  
 
@@ -244,6 +254,32 @@ await this.selectIngestvalue.click();
 logger.info("Click on Selected Ingest Value");
 
 }
+
+/**    Mehtods for Actions Page  */
+async navigateToActions() {
+  await this.actionsLink.click();
+  logger.info(`Clicked on Actions in Menue`);
+}
+async clickAddNewActions() {
+  await this.addnewactions.click();
+  logger.info(`Clicked on Media in Menue`);
+}
+async contentdropdown(value) {
+  await this.contentTypeDropdown.click();
+  await this.listOption3(value).click();
+  await this.saveButton.click();
+
+  console.log("Listoption :", value);
+}
+async clickBackToActions() {
+  await this.backToActionsButton.click();
+  logger.info(`Clicked on Back to Tags button!!`);
+}
+async clickOnSelectedValue(){
+await this.selectActionTRvalue.click();
+logger.info("Click on Selected Value");
+}
+
 }
 
 module.exports = { AddMediaPage }

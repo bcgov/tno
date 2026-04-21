@@ -15,29 +15,24 @@ test.beforeEach(async ({ masterFixture }) => {
     await appPage.hardWait(5000);
      console.log("Actions",dataImport );
 });
-test.describe('@smoke Ingest TYpe', () => {
+test.describe('@smoke Data Connections', () => {
      test(`Login as ${process.env.app_username}`, async ({page}) => {
      
     await page.goto(editorUrl);
     await dataImport.navigateToDataImport();
-    await dataImport.navigateToIngest();
-    await dataImport.clickAddNewIngest();
+    await dataImport.navigateToDataCnctn();
     
-    const IngestName = `Automation Test data`;
-    const IngestDescription = `Automation DEscription Data for testing `;
-    const randomNmb = Math.floor(Math.random() * 100)+1;
-    const IngestSortOrder = `${randomNmb}`;
-
-    await dataImport.enterIngestDetails(
-      IngestName,
-      IngestDescription,
-      randomNmb
-    );
-
-    await dataImport.dropdownOption('PrintContent');  
+    const keyword = `Automation Test Data Connections`;
     
-    await dataImport.backbtnIngest();
-     const ingestName = `Automation Test data`;
+    await dataImport.searchboxValue(keyword);
+     console.log(" Fetch Value:", keyword);
+     await dataImport.clickonrow();
+      console.log("Click on Row");
+
+
+    await dataImport.clickDelete();
+    await dataImport.removeBtn(); 
+
     await appPage.logOut();
   });
 });

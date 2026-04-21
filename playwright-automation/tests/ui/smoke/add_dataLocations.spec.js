@@ -15,29 +15,26 @@ test.beforeEach(async ({ masterFixture }) => {
     await appPage.hardWait(5000);
      console.log("Actions",dataImport );
 });
-test.describe('@smoke Ingest TYpe', () => {
+test.describe('@smoke Media Licenses', () => {
      test(`Login as ${process.env.app_username}`, async ({page}) => {
      
     await page.goto(editorUrl);
     await dataImport.navigateToDataImport();
-    await dataImport.navigateToIngest();
-    await dataImport.clickAddNewIngest();
+    await dataImport.navigatetoDataLoctn();
+    await dataImport.clickAddNewDataLoctn();
     
-    const IngestName = `Automation Test data`;
-    const IngestDescription = `Automation DEscription Data for testing `;
-    const randomNmb = Math.floor(Math.random() * 100)+1;
-    const IngestSortOrder = `${randomNmb}`;
+    const DataLName = `Automation Test Data Locations`;
+    const DataLDescription = `Automation DEscription Data for testing `;
+    const DatarandomNmb = Math.floor(Math.random() * 100)+1;
+    const DataSortOrder = `${DatarandomNmb}`;
 
     await dataImport.enterIngestDetails(
-      IngestName,
-      IngestDescription,
-      randomNmb
+      DataLName,
+      DataLDescription,
+      DataSortOrder 
     );
-
-    await dataImport.dropdownOption('PrintContent');  
     
-    await dataImport.backbtnIngest();
-     const ingestName = `Automation Test data`;
+    await dataImport.dropdownValue('Local Volume - Clips');
     await appPage.logOut();
   });
 });

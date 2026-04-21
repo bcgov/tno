@@ -10,34 +10,27 @@ let page, appPage, dataImport;
 test.beforeEach(async ({ masterFixture }) => {
   appPage = masterFixture.appPage;
   page = masterFixture.page;
-  dataImport = masterFixture.dataImport;
+   dataImport = masterFixture.dataImport;
   await appPage.navigateToUrl(editorUrl);
     await appPage.hardWait(5000);
-     console.log("Actions",dataImport );
+     console.log("Media Page",dataImport );
 });
-test.describe('@smoke Ingest TYpe', () => {
+test.describe('@smoke Search and Media TYPE', () => {
      test(`Login as ${process.env.app_username}`, async ({page}) => {
      
     await page.goto(editorUrl);
-    await dataImport.navigateToDataImport();
+   await dataImport.navigateToDataImport();
     await dataImport.navigateToIngest();
-    await dataImport.clickAddNewIngest();
-    
-    const IngestName = `Automation Test data`;
-    const IngestDescription = `Automation DEscription Data for testing `;
-    const randomNmb = Math.floor(Math.random() * 100)+1;
-    const IngestSortOrder = `${randomNmb}`;
+    await page.waitForTimeout(5000);
 
-    await dataImport.enterIngestDetails(
-      IngestName,
-      IngestDescription,
-      randomNmb
-    );
-
-    await dataImport.dropdownOption('PrintContent');  
     
-    await dataImport.backbtnIngest();
-     const ingestName = `Automation Test data`;
-    await appPage.logOut();
+   const ingestName = `Automation Test data`;
+    await dataImport.searchKeyword(ingestName);
+     console.log(" Fetch Value:", ingestName);
+     
+      await dataImport.clickonRow();
+      await dataImport.clickDelete();
+      await dataImport.removeBtn();
+      await appPage.logOut();
   });
 });

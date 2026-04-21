@@ -15,29 +15,20 @@ test.beforeEach(async ({ masterFixture }) => {
     await appPage.hardWait(5000);
      console.log("Actions",dataImport );
 });
-test.describe('@smoke Ingest TYpe', () => {
+test.describe('@smoke Media Licenses', () => {
      test(`Login as ${process.env.app_username}`, async ({page}) => {
      
     await page.goto(editorUrl);
     await dataImport.navigateToDataImport();
-    await dataImport.navigateToIngest();
-    await dataImport.clickAddNewIngest();
-    
-    const IngestName = `Automation Test data`;
-    const IngestDescription = `Automation DEscription Data for testing `;
-    const randomNmb = Math.floor(Math.random() * 100)+1;
-    const IngestSortOrder = `${randomNmb}`;
+    await dataImport.navigatetoMediaL();
 
-    await dataImport.enterIngestDetails(
-      IngestName,
-      IngestDescription,
-      randomNmb
-    );
+    const LicenseName = `Automation Test Media Licenses`;
 
-    await dataImport.dropdownOption('PrintContent');  
-    
-    await dataImport.backbtnIngest();
-     const ingestName = `Automation Test data`;
-    await appPage.logOut();
+    await dataImport.searchbox(LicenseName);
+     console.log(" Fetch Value:", LicenseName);
+     
+      await dataImport.clickDelete();
+      await dataImport.removeBtn(); 
+       await appPage.logOut();
   });
 });

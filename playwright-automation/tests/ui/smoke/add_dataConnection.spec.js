@@ -15,29 +15,28 @@ test.beforeEach(async ({ masterFixture }) => {
     await appPage.hardWait(5000);
      console.log("Actions",dataImport );
 });
-test.describe('@smoke Ingest TYpe', () => {
+test.describe('@smoke Data Connections', () => {
      test(`Login as ${process.env.app_username}`, async ({page}) => {
      
     await page.goto(editorUrl);
     await dataImport.navigateToDataImport();
-    await dataImport.navigateToIngest();
-    await dataImport.clickAddNewIngest();
+    await dataImport.navigateToDataCnctn();
+    await dataImport.clickAddNewDataCntn();
     
-    const IngestName = `Automation Test data`;
-    const IngestDescription = `Automation DEscription Data for testing `;
-    const randomNmb = Math.floor(Math.random() * 100)+1;
-    const IngestSortOrder = `${randomNmb}`;
+    const DataLName = `Automation Test Data Connections`;
+    const DataLDescription = `Automation Description Data for testing `;
+    const DatarandomNmb = Math.floor(Math.random() * 100)+1;
+    const DataSortOrder = `${DatarandomNmb}`;
+    
 
     await dataImport.enterIngestDetails(
-      IngestName,
-      IngestDescription,
-      randomNmb
+      DataLName,
+      DataLDescription,
+      DataSortOrder 
     );
-
-    await dataImport.dropdownOption('PrintContent');  
-    
-    await dataImport.backbtnIngest();
-     const ingestName = `Automation Test data`;
+    const Path = `FTP Path input fields`;
+    await dataImport.dropdownfield('NAS');
+    await dataImport.backbtndataC();
     await appPage.logOut();
   });
 });
