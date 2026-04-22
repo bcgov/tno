@@ -18,7 +18,6 @@ class SettingsPage extends BasePage {
     this.myAccountLink = page.getByText('My Account')
     this.emailToggleButton = page.locator('[class="sc-dhKdPU cXQtTG button-toggle"]').nth(0);
     this.reportsentimentToggleButton = page.locator('[class="sc-dhKdPU cXQtTG button-toggle"]').nth(1);
-<<<<<<< HEAD
     this.myColleaguesLink = page.getByText('My Colleagues')
     this.addColleagueEmailInput = page.locator('input[name="email"]')
     this.addColleagueButton = page.getByRole('button', { name: 'Add' })
@@ -47,11 +46,6 @@ async clickOnAddColleagueButton() {
     logger.info(`Entered colleague email as ${email}!!`);
   } 
 
-
-=======
-  }
-
->>>>>>> dev
 async toggleReportSentimentOn() {
     const isChecked = await this.reportsentimentToggleButton.getAttribute('value');
     console.log('isChecked value:', isChecked); // Debug log to check the value
