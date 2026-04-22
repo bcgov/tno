@@ -41,13 +41,10 @@ export class MasterFixture {
         this.sourcePage = new SourcePage(this.page);
         this.showProgramPage = new ShowProgramPage(this.page);
         this.notificationpage= new NotificationDashboardPage(this.page)
-<<<<<<< HEAD
         this.reportSubscriberSidePage = new ReportSubscriberSidePage(this.page);
-=======
         this.addProductPage = new AddProductPage(this.page);
         this.addFilterPage = new AddFilterPage(this.page);
         this.editTopicsPage = new EditTopicsPage(this.page);
->>>>>>> dev
 
     }
 }
