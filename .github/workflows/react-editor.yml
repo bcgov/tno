@@ -7,12 +7,16 @@ on:
     paths:
       - app/editor/**
       - openshift/kustomize/app/editor/**
+      - network/reverse-proxy/editor/**
+      - openshift/kustomize/nginx-reverse-proxy/**
       - .github/workflows/react-editor.yml
   push:
     branches: [dev, master]
     paths:
       - app/editor/**
       - openshift/kustomize/app/editor/**
+      - network/reverse-proxy/editor/**
+      - openshift/kustomize/nginx-reverse-proxy/**
       - .github/workflows/react-editor.yml
 
 concurrency:
@@ -26,6 +30,7 @@ permissions:
 env:
   WORKING_DIRECTORY: ./app/editor
   IMAGE_NAME: editor
+  NGINX_IMAGE_NAME: nginx-editor
   OPENSHIFT_SERVER: https://api.silver.devops.gov.bc.ca:6443
   OPENSHIFT_TOOLS_NAMESPACE: 9b301c-tools
 
@@ -109,6 +114,27 @@ jobs:
           docker push \
             image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
+      # --- Nginx Reverse Proxy ---
+      - name: Build Nginx Reverse Proxy Image
+        run: |
+          docker build \
+            -f network/reverse-proxy/editor/Dockerfile \
+            -t ${{ env.NGINX_IMAGE_NAME }}:${{ github.sha }} \
+            ./network/reverse-proxy/editor
+
+      - name: Trivy Scan — Nginx Reverse Proxy
+        uses: ./.github/actions/trivy-scan
+        with:
+          image-ref: '${{ env.NGINX_IMAGE_NAME }}:${{ github.sha }}'
+
+      - name: Push Nginx Reverse Proxy Image
+        run: |
+          docker tag \
+            ${{ env.NGINX_IMAGE_NAME }}:${{ github.sha }} \
+            image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.NGINX_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          docker push \
+            image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.NGINX_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+
       - name: Install oc CLI
         uses: redhat-actions/openshift-tools-installer@v1
         with:
@@ -120,17 +146,25 @@ jobs:
             --token=${{ secrets.OPENSHIFT_TOKEN }} \
             --server=${{ env.OPENSHIFT_SERVER }}
 
-      - name: Deploy via Kustomize
+      - name: Deploy App via Kustomize
         run: oc apply -k ${{ env.KUSTOMIZE_PATH }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Deploy Nginx Reverse Proxy via Kustomize
+        run: oc apply -k openshift/kustomize/nginx-reverse-proxy/overlays/dev -n ${{ env.OPENSHIFT_NAMESPACE }}
 
       - name: Rollout Restart
         run: |
           oc rollout restart deployment/editor \
             -n ${{ env.OPENSHIFT_NAMESPACE }}
+          oc rollout restart deployment/${{ env.NGINX_IMAGE_NAME }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }}
 
       - name: Verify Deployment
         run: |
           oc rollout status deployment/editor \
+            -n ${{ env.OPENSHIFT_NAMESPACE }} \
+            --timeout=180s
+          oc rollout status deployment/${{ env.NGINX_IMAGE_NAME }} \
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --timeout=180s
 
@@ -141,7 +175,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Detail | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| **Service** | React Editor |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Service** | React Editor + Nginx Reverse Proxy |" >> $GITHUB_STEP_SUMMARY
           echo "| **Environment** | dev |" >> $GITHUB_STEP_SUMMARY
           echo "| **Namespace** | ${{ env.OPENSHIFT_NAMESPACE }} |" >> $GITHUB_STEP_SUMMARY
           echo "| **Image Tag** | ${{ env.IMAGE_TAG }} |" >> $GITHUB_STEP_SUMMARY
@@ -199,6 +233,27 @@ jobs:
           docker push \
             image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
+      # --- Nginx Reverse Proxy ---
+      - name: Build Nginx Reverse Proxy Image
+        run: |
+          docker build \
+            -f network/reverse-proxy/editor/Dockerfile \
+            -t ${{ env.NGINX_IMAGE_NAME }}:${{ github.sha }} \
+            ./network/reverse-proxy/editor
+
+      - name: Trivy Scan — Nginx Reverse Proxy
+        uses: ./.github/actions/trivy-scan
+        with:
+          image-ref: '${{ env.NGINX_IMAGE_NAME }}:${{ github.sha }}'
+
+      - name: Push Nginx Reverse Proxy Image
+        run: |
+          docker tag \
+            ${{ env.NGINX_IMAGE_NAME }}:${{ github.sha }} \
+            image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.NGINX_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          docker push \
+            image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.NGINX_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+
       - name: Install oc CLI
         uses: redhat-actions/openshift-tools-installer@v1
         with:
@@ -210,17 +265,25 @@ jobs:
             --token=${{ secrets.OPENSHIFT_TOKEN }} \
             --server=${{ env.OPENSHIFT_SERVER }}
 
-      - name: Deploy via Kustomize
+      - name: Deploy App via Kustomize
         run: oc apply -k ${{ env.KUSTOMIZE_PATH }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Deploy Nginx Reverse Proxy via Kustomize
+        run: oc apply -k openshift/kustomize/nginx-reverse-proxy/overlays/test -n ${{ env.OPENSHIFT_NAMESPACE }}
 
       - name: Rollout Restart
         run: |
           oc rollout restart deployment/editor \
             -n ${{ env.OPENSHIFT_NAMESPACE }}
+          oc rollout restart deployment/${{ env.NGINX_IMAGE_NAME }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }}
 
       - name: Verify Deployment
         run: |
           oc rollout status deployment/editor \
+            -n ${{ env.OPENSHIFT_NAMESPACE }} \
+            --timeout=180s
+          oc rollout status deployment/${{ env.NGINX_IMAGE_NAME }} \
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --timeout=180s
 
@@ -231,7 +294,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Detail | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| **Service** | React Editor |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Service** | React Editor + Nginx Reverse Proxy |" >> $GITHUB_STEP_SUMMARY
           echo "| **Environment** | test |" >> $GITHUB_STEP_SUMMARY
           echo "| **Namespace** | ${{ env.OPENSHIFT_NAMESPACE }} |" >> $GITHUB_STEP_SUMMARY
           echo "| **Image Tag** | ${{ env.IMAGE_TAG }} |" >> $GITHUB_STEP_SUMMARY
