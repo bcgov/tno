@@ -47,7 +47,8 @@ const CONSTANTS = {
     REPORTS: 'Reports',
     MMI_PRODUCTS: 'MMI Products',
     FOLDERS: 'Folders',
-    FILTERS: 'Filters'
+    FILTERS: 'Filters',
+    EDIT_TOPICS: 'Edit Topics'
   },
 
   CONTENT_SUBMENU: {
@@ -94,6 +95,7 @@ const CONSTANTS = {
     TODAY: 'TODAY',
     TWENTY_FOUR_HOURS: '24 HRS',
     FOURTY_EIGHT_HOURS: '48 HRS',
+    MY_CONTENT: 'MY CONTENT'
   },
 
   NAVIGATION_TABS: {
@@ -101,7 +103,10 @@ const CONSTANTS = {
     SUBSCRIBERS: 'Subscribers',
     REQUESTS: 'Requests',
     COLLECTION: 'Collection',
-    CONTENT: 'Content'
+    CONTENT: 'Content',
+    QUERY: 'Query',
+    PREVIEW: 'Preview',
+    IMPORT_EXPORT: 'ImportImport/Export'
   },
  
 };

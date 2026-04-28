@@ -1,0 +1,44 @@
+name: FFmpeg Service CI/CD
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [dev, master]
+    paths:
+      - services/net/ffmpeg/**
+      - libs/net/**
+      - openshift/kustomize/services/ffmpeg/**
+      - .github/workflows/ffmpeg-service-cicd.yml
+  push:
+    branches: [dev, master, ffmpeg-service]
+    paths:
+      - services/net/ffmpeg/**
+      - libs/net/**
+      - openshift/kustomize/services/ffmpeg/**
+      - .github/workflows/ffmpeg-service-cicd.yml
+
+concurrency:
+  group: ffmpeg-service-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pipeline:
+    uses: ./.github/workflows/_reusable-dotnet-cicd.yml
+    with:
+      image_name: ffmpeg-service
+      csproj_path: services/net/ffmpeg/TNO.Services.FFmpeg.csproj
+      dockerfile: services/net/ffmpeg/Dockerfile
+      component: ffmpeg-service
+      deployment_name: ffmpeg-service
+      kustomize_dev_path: openshift/kustomize/services/ffmpeg/overlays/dev
+      kustomize_test_path: openshift/kustomize/services/ffmpeg/overlays/test
+      dev_branch: ffmpeg-service
+      rollout_timeout: '180s'
+      continue_on_error_verify: true
+      health_check_method: exec_curl
+    secrets:
+      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+      CHES_CLIENT_ID: ${{ secrets.CHES_CLIENT_ID }}
+      CHES_CLIENT_SECRET: ${{ secrets.CHES_CLIENT_SECRET }}
+      CHES_SENDER_EMAIL: ${{ secrets.CHES_SENDER_EMAIL }}
+      CHES_NOTIFY_EMAIL: ${{ secrets.CHES_NOTIFY_EMAIL }}

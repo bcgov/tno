@@ -1,0 +1,40 @@
+name: Event Handler CI/CD
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [dev, master]
+    paths:
+      - services/net/event-handler/**
+      - libs/net/**
+      - openshift/kustomize/services/event-handler/**
+      - .github/workflows/event-handler-cicd.yml
+  push:
+    branches: [dev, master, event-handler]
+    paths:
+      - services/net/event-handler/**
+      - libs/net/**
+      - openshift/kustomize/services/event-handler/**
+      - .github/workflows/event-handler-cicd.yml
+
+concurrency:
+  group: event-handler-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pipeline:
+    uses: ./.github/workflows/_reusable-dotnet-cicd.yml
+    with:
+      image_name: event-handler-service
+      csproj_path: services/net/event-handler/TNO.Services.EventHandler.csproj
+      dockerfile: services/net/event-handler/Dockerfile
+      component: event-handler-service
+      deployment_name: event-handler-service
+      kustomize_dev_path: openshift/kustomize/services/event-handler/overlays/dev
+      kustomize_test_path: openshift/kustomize/services/event-handler/overlays/test
+      dev_branch: event-handler
+      rollout_timeout: '180s'
+      continue_on_error_verify: true
+      health_check_method: exec_curl
+    secrets:
+      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}

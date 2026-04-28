@@ -19,9 +19,10 @@ test.describe('@smoke Add and Remove Show Program', () => {
     await expect(page).toHaveURL(mmiMSUrl + 'contents');
         await page.goto(`${mmiMSUrl}admin/programs`);
         await showProgramPage.clickOnAddShowProgramButton();
-        await showProgramPage.enterName('Test Show Program');
+       const randomNum = Math.floor(Math.random() * 1000);
+        await showProgramPage.enterName('Test Show Program ' + randomNum);
         await showProgramPage.selectSource('TNO 1.0 (TNO)')
-        await showProgramPage.enterDescription('This is a test show program created by automation script.');
+        await showProgramPage.enterDescription('This is a test show program created by automation script.'+ randomNum);
         await showProgramPage.selectMediaType('News Radio');
         await page.waitForTimeout(2000);
         await showProgramPage.enterProgramSortOrder(1);
@@ -29,15 +30,15 @@ test.describe('@smoke Add and Remove Show Program', () => {
         expect(await showProgramPage.enabledCheckbox.isChecked()).toBeTruthy();
         await showProgramPage.toggleAutomaticallyTranscribeCheckbox();
         expect(await showProgramPage.automaticallyTranscribeCheckbox.isChecked()).toBeTruthy();
-        await showProgramPage.clickOnSaveButton();  
-        expect(page.getByText('Test Show Program has successfully been saved.')).toBeVisible();
-        await page.waitForTimeout(10000);
+        await showProgramPage.clickOnSaveButton();
+        expect(page.getByText('Test Show Program ' + randomNum + ' has successfully been saved.')).toBeVisible();
+          await page.waitForTimeout(10000);
         await showProgramPage.clickOnBackToShowProgramButton();
         await page.waitForTimeout(2000);
-        await showProgramPage.searchShowProgramByName('Test Show Program');
-        await showProgramPage.clickProgramRecord('Test Show Program');
+        await showProgramPage.searchShowProgramByName('Test Show Program ' + randomNum);
+        await showProgramPage.clickProgramRecord('Test Show Program ' + randomNum);
         await showProgramPage.deleteShowProgram();
-        await showProgramPage.searchShowProgramByName('Test Show Program');
-        await expect(page.locator('.rows')).not.toContainText('Test Show Program');
+        await showProgramPage.searchShowProgramByName('Test Show Program ' + randomNum);
+        await expect(page.locator('.rows')).not.toContainText('Test Show Program '+ randomNum);
   })
 })

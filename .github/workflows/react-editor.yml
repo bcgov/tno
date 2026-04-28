@@ -21,6 +21,7 @@ concurrency:
 
 permissions:
   contents: read
+  security-events: write
 
 env:
   WORKING_DIRECTORY: ./app/editor
@@ -82,6 +83,11 @@ jobs:
             -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
             --build-arg REACT_APP_VERSION=${{ github.sha }} \
             ./app/editor
+
+      - name: Trivy Container Scan
+        uses: ./.github/actions/trivy-scan
+        with:
+          image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
 
       - name: Login to OpenShift Image Registry
         run: |
@@ -167,6 +173,11 @@ jobs:
             -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
             --build-arg REACT_APP_VERSION=${{ github.sha }} \
             ./app/editor
+
+      - name: Trivy Container Scan
+        uses: ./.github/actions/trivy-scan
+        with:
+          image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
 
       - name: Login to OpenShift Image Registry
         run: |
