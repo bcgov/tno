@@ -89,6 +89,25 @@ jobs:
         with:
           image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
 
+      - name: Install oc CLI
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: latest
+
+      - name: Login to OpenShift
+        run: |
+          oc login \
+            --token=${{ secrets.OPENSHIFT_TOKEN }} \
+            --server=${{ env.OPENSHIFT_SERVER }}
+
+      - name: Backup current image tag
+        run: |
+          echo "Backing up ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} → ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup"
+          oc tag \
+            "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}" \
+            "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup" \
+            -n ${{ env.OPENSHIFT_TOOLS_NAMESPACE }} 2>/dev/null || true
+
       - name: Login to OpenShift Image Registry
         run: |
           echo "${{ secrets.OPENSHIFT_TOKEN }}" | docker login \
@@ -103,22 +122,6 @@ jobs:
             image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           docker push \
             image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          docker tag \
-            ${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          docker push \
-            image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-
-      - name: Install oc CLI
-        uses: redhat-actions/openshift-tools-installer@v1
-        with:
-          oc: latest
-
-      - name: Login to OpenShift
-        run: |
-          oc login \
-            --token=${{ secrets.OPENSHIFT_TOKEN }} \
-            --server=${{ env.OPENSHIFT_SERVER }}
 
       - name: Deploy via Kustomize
         run: oc apply -k ${{ env.KUSTOMIZE_PATH }} -n ${{ env.OPENSHIFT_NAMESPACE }}
@@ -179,6 +182,25 @@ jobs:
         with:
           image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
 
+      - name: Install oc CLI
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: latest
+
+      - name: Login to OpenShift
+        run: |
+          oc login \
+            --token=${{ secrets.OPENSHIFT_TOKEN }} \
+            --server=${{ env.OPENSHIFT_SERVER }}
+
+      - name: Backup current image tag
+        run: |
+          echo "Backing up ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} → ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup"
+          oc tag \
+            "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}" \
+            "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup" \
+            -n ${{ env.OPENSHIFT_TOOLS_NAMESPACE }} 2>/dev/null || true
+
       - name: Login to OpenShift Image Registry
         run: |
           echo "${{ secrets.OPENSHIFT_TOKEN }}" | docker login \
@@ -193,22 +215,6 @@ jobs:
             image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           docker push \
             image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          docker tag \
-            ${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          docker push \
-            image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-
-      - name: Install oc CLI
-        uses: redhat-actions/openshift-tools-installer@v1
-        with:
-          oc: latest
-
-      - name: Login to OpenShift
-        run: |
-          oc login \
-            --token=${{ secrets.OPENSHIFT_TOKEN }} \
-            --server=${{ env.OPENSHIFT_SERVER }}
 
       - name: Deploy via Kustomize
         run: oc apply -k ${{ env.KUSTOMIZE_PATH }} -n ${{ env.OPENSHIFT_NAMESPACE }}
