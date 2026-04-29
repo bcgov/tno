@@ -23,9 +23,9 @@ test.describe('@smoke Add Media TYPE', () => {
     await addMediaPage.navigateToMiMedia();
     await addMediaPage.clickAddNewMedia();
     
-    const MediaName = `Automation Test Name`;
+    const randomNumber = Math.floor(Math.random() * 10000)+1;
+    const MediaName = `Automation Test Name ${randomNumber}`;
     const MediaDescription = `Automation Test Description`;
-    const randomNumber = Math.floor(Math.random() * 100)+1;
     const MediaSortOrder = `${randomNumber}`;
 
     await addMediaPage.enterMediaDetails(
