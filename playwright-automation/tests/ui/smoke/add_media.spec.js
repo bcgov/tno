@@ -36,7 +36,6 @@ test.describe('@smoke Add Media TYPE', () => {
 
     await addMediaPage.selectListTypeOption('Program/Show');   
 
-      await addMediaPage.validateSuccessMessage();
     //Validate data is saved
     await expect(await addMediaPage.validateSuccessMessage()).toBe(true);
     await addMediaPage.backbtnMedia();
