@@ -41,8 +41,8 @@ this.searchbyrole = page.locator('#sel-role > .rs__control > .rs__value-containe
 this.entervalue = page.locator('#react-select-23-input');
 this.selectoption2 = page.getByRole('option', { name: 'Completed' });
 this.manageuserbtn = page.getByRole('link', { name: 'Manage Users' });
-this.toastmessage = page.getByText(`Automation Test System has successfully been saved.`);
-this.deletemessage = page.getByText(`Automation Test System has successfully been deleted.`)
+this.toastmessage = page.getByText('has successfully been saved.');
+this.deletemessage = page.getByText('has successfully been deleted.')
 this.searchbtn = page.getByRole('button', { name: 'search' });
 }
 async navigateToSystemSettings() {
@@ -72,7 +72,7 @@ async enterSystemConfigDetails(name, description, value, sortOrder) {
   logger.info(`Entered Sort Order: ${sortOrder}`);
   await this.savebtn.click();
   logger.info('Clicked on Save button');
-  await expect(this.alertlert).toHaveText('Automation Test System Configuration has successfully been saved.');
+  await expect(this.alertlert).toContainText('has successfully been saved.');
   logger.info('Verified success alert for saving system configuration');
 }
   async navigateBackToSettings() {

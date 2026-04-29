@@ -23,9 +23,9 @@ test.describe('@smoke System Configurations', () => {
     await systemSettings.navigatetoSystemConfig();
     await systemSettings.clickAddNewSystemConfig();
     
-    const SCName = `Automation Test System Configuration`;
+    const SCrandomNmb = Math.floor(Math.random() * 10000)+1;
+    const SCName = `Automation Test System ${SCrandomNmb}`;
     const SCDescription = `Automation Description Data for testing `;
-    const SCrandomNmb = Math.floor(Math.random() * 100)+1;
     const SCSortOrder = `${SCrandomNmb}`;
     const SCValue = `Automation test Value for System configuration`;
 
