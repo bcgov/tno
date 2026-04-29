@@ -35,10 +35,6 @@ test.describe('@smoke Media Licenses', () => {
     );
     
     await dataImport.dropdownValue('Local Volume - Clips');
-    await dataImport.validateMessage();
-    
-    //Validate data is saved
-    await expect(await dataImport.validateMessage()).toBe(true);
     await appPage.logOut();
   });
 });

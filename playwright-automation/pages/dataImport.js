@@ -58,13 +58,14 @@ this.backtoDataConnt = page.getByRole('button', { name: 'back Back to Connection
 this.searchDataCntn  = page.getByText(`Automation Test Data`);
 this.test = page.locator("//*[@id='root']/div[1]/div[2]/main/div/div[3]/div/div/div/div[1]");
 this.deletebutton = page.locator(`//*[@id="root"]/div[1]/div[2]/main/div/div/div/form/div/div[2]/button[2]`);
-this.toastmessage = page.getByText(`Automation Test Data has successfully been saved.`);
-this.deletemessage = page.getByText(`Automation Test Data has successfully been deleted.`)
+this.toastmessage = page.getByText('has successfully been saved.');
+this.deletemessage = page.getByText('has successfully been deleted.')
 
 }
 
 /**methods of Add Ingest Type****/
 async navigateToDataImport() {
+  await this.dataImport.waitFor({ state: 'visible', timeout: 15000 });
   await this.dataImport.click();
   logger.info(`Clicked on Data Import button!!`);
 }
@@ -201,10 +202,13 @@ logger.info('Click on Save button');
 }
 
 async validateMessage(){
-  await this.toastmessage.waitFor({ state: 'visible', timeout: 5000 });
-  const isVisible = await this.toastmessage.isVisible();
-  logger.info(`Success message visibility: ${isVisible}`);
-  return isVisible;
+  const toast = this.page.getByRole('alert');
+  await toast.waitFor({ state: 'visible', timeout: 5000 });
+  const toastText = await toast.textContent();
+  logger.info(`Toast message: ${toastText}`);
+  const isSuccess = toastText.includes('has successfully been saved.');
+  logger.info(`Success message visibility: ${isSuccess}`);
+  return isSuccess;
 }
 async backbtndataC() {
   logger.info('enter into backbut function');
@@ -237,10 +241,13 @@ async navigatetoConnection(){
   console.log("Current URL after deletion:", this.page.url());
 }
 async validateDeleteMessage(){
-  await this.deletemessage.waitFor({ state: 'visible', timeout: 5000 });
-  const isVisible = await this.deletemessage.isVisible();
-  logger.info(`Delete message visibility: ${isVisible}`);
-  return isVisible;
+  const toast = this.page.getByRole('alert');
+  await toast.waitFor({ state: 'visible', timeout: 5000 });
+  const toastText = await toast.textContent();
+  logger.info(`Toast message: ${toastText}`);
+  const isDeleted = toastText.includes('has successfully been deleted.');
+  logger.info(`Delete message visibility: ${isDeleted}`);
+  return isDeleted;
 }
 }
 

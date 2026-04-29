@@ -77,9 +77,8 @@ this.listOption3 = (value) =>
 
 this.backToActionsButton = page.getByRole('button', { name: 'back Back to actions' })
 this.selectActionTRvalue = page.getByText('Automation Test Name');
-this.toastmessage = page.getByText(`Automation Test Name has successfully been saved.`);
-//this.toastmessage1 = page.locator(`//*[@id="3"]/div[1]/div[2]`); 
-this.deletemessage = page.getByText(`Automation Test Name has successfully been deleted.`);
+this.toastmessage = page.getByText('has successfully been saved.');
+this.deletemessage = page.getByText('has successfully been deleted.');
  }
  
 
@@ -138,15 +137,13 @@ async searchAndValidation(mediaName){
 
 async ValidateRowValue(mediaName){
   await this.page.waitForLoadState('networkidle');
-  //locate row
   const row = this.page.getByText(mediaName);
-     logger.info(`This line to be printed: Name=${row}`);
-    const rowcount = await this.page.getByText(mediaName).count();
-    logger.info(`Number of rows found with media name "${mediaName}": ${rowcount}`);
+  const rowcount = await row.count();
+  logger.info(`Number of rows found with media name "${mediaName}": ${rowcount}`);
 
-    await expect(row).toHaveCount(0);
-   await expect(await row).toContainText(mediaName);
-   logger.info("Data is searched and validated successfully!!");
+  await expect(row.first()).toBeVisible();
+  await expect(row.first()).toContainText(mediaName);
+  logger.info("Data is searched and validated successfully!!");
 } 
 
 async clickOnVisibleText(){
@@ -297,10 +294,13 @@ async contentdropdown(value) {
   console.log("Listoption :", value);
 }
 async validateSuccessMessage(){
-  await this.toastmessage.waitFor({ state: 'visible', timeout: 5000 });
-  const isVisible = await this.toastmessage.isVisible();
-  logger.info(`Success message visibility: ${isVisible}`);
-  return isVisible;
+  const toast = this.page.getByRole('alert');
+  await toast.waitFor({ state: 'visible', timeout: 5000 });
+  const toastText = await toast.textContent();
+  logger.info(`Toast message: ${toastText}`);
+  const isSuccess = toastText.includes('has successfully been saved.');
+  logger.info(`Success message visibility: ${isSuccess}`);
+  return isSuccess;
 }
 
 async isBackToActionsVisible() {

@@ -35,10 +35,8 @@ test.describe('@smoke System Configurations', () => {
       SCValue,
       SCSortOrder  
     );
-    await systemSettings.validatetoastmsg();
-        
-        //Validate data is saved
-        await expect(await systemSettings.validatetoastmsg()).toBe(true);
+    //Validate data is saved
+    await expect(await systemSettings.validatetoastmsg()).toBe(true);
     await appPage.logOut();
   });
 });

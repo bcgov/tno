@@ -21,7 +21,7 @@ this.savebtn = page.getByRole('button', { name: 'Save' });
 this.alertlert = page.getByRole('alert');
 this.backBtn = page.getByRole('button', { name: 'back Back to settings' });
 this.searchfiled = page.getByRole('textbox', { name: 'Search by keyword' });
-this.fieldValue = page.getByText('Automation Test System');
+this.fieldValue = page.getByText('Automation Test System').first();
 this.btndelete = page.getByRole('button', { name: 'Delete' });
 this.btnremove = page.locator('button').filter({ hasText: 'Yes, Remove It' });
  
@@ -29,7 +29,7 @@ this.btnremove = page.locator('button').filter({ hasText: 'Yes, Remove It' });
 this.workorderbtn = page.getByRole('link', { name: 'Work Orders' });
 this.searchfield = page.locator('.rs__input-container').first();
 this.searchfieldValue = page.locator('#react-select-2-input');
-this.selectoption = page.getByRole('option', { name: 'Transcription' });
+this.selectoption = page.locator('.rs__option').filter({ hasText: 'Transcription' });
 this.searchbtn = page.getByRole('button', { name: 'search' });
 this.tablerow = page.getByText('Transcription').nth(2);
 this.savebtn = page.getByRole('button', { name: 'Save' });
@@ -109,8 +109,11 @@ async searchWorkOrder(keyword) {
   logger.info('Clicked on Search Button');
 }
 async enterSearchKeyword(keyword) {
+  await this.searchfield.click();
+  logger.info('Clicked on Search by Type dropdown');
   await this.page.keyboard.type(keyword);
   logger.info(`Entered search keyword: ${keyword}`);
+  await this.selectoption.waitFor({ state: 'visible', timeout: 5000 });
   await this.selectoption.click();
   logger.info(`Selected option: ${keyword}`);
   await this.searchbtn.click();
@@ -163,10 +166,13 @@ async enterstatuskeyword(value) {
   logger.info(`This line to be printed: Name=${rowValue2}`);
 }
 async validatetoastmsg() {
-  await this.toastmessage.waitFor({ state: 'visible', timeout: 5000 });
-  const isVisible = await this.toastmessage.isVisible();
-  logger.info(`Success message visibility: ${isVisible}`);
-  return isVisible;
+  const toast = this.page.getByRole('alert');
+  await toast.waitFor({ state: 'visible', timeout: 5000 });
+  const toastText = await toast.textContent();
+  logger.info(`Toast message: ${toastText}`);
+  const isSuccess = toastText.includes('has successfully been saved.');
+  logger.info(`Success message visibility: ${isSuccess}`);
+  return isSuccess;
 }
  async verifyAllStatusCompleted() {
    logger.info('Enter verifyAllStatusCompleted method');
@@ -209,10 +215,13 @@ async NavigatetoSettings(){
   console.log("Current URL after deletion:", this.page.url());
 }
 async validateDeleteToastMessage(){
-  await this.deletemessage.waitFor({ state: 'visible', timeout: 5000 });
-  const isVisible = await this.deletemessage.isVisible();
-  logger.info(`Delete message visibility: ${isVisible}`);
-  return isVisible;
+  const toast = this.page.getByRole('alert');
+  await toast.waitFor({ state: 'visible', timeout: 5000 });
+  const toastText = await toast.textContent();
+  logger.info(`Toast message: ${toastText}`);
+  const isDeleted = toastText.includes('has successfully been deleted.');
+  logger.info(`Delete message visibility: ${isDeleted}`);
+  return isDeleted;
 }
 // Manage orders
 async tableStatusCol() {

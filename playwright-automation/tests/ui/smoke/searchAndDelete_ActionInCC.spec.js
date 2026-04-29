@@ -22,14 +22,14 @@ test.describe('@smoke Add New Actions', () => {
     await addMediaPage.navigateToCC();
     await addMediaPage.navigateToActions();
  
- const mediaName = `Automation Action Name`;
+ const mediaName = `Automation Test Name`;
     
     await addMediaPage.searchAndValidation(mediaName);
      console.log(" Fetch Value:", mediaName);
      await addMediaPage.ValidateRowValue(mediaName);
      console.log(`Row value validation for ${mediaName} is successful.`);
-    await addMediaPage.clickOnVisibleText();
-    await addMediaPage.clickOnDelete();
+    await addMediaPage.clickOnSelectedValue();
+    await addMediaPage.clickonDeletebtn();
    
     console.log(`Deletion of ${mediaName} is successful.`);
     await addMediaPage.removeData();

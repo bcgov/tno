@@ -35,7 +35,6 @@ test.describe('@smoke Add New Actions', () => {
     );
 
     await addMediaPage.contentdropdown('Print Content');  
-    await addMediaPage.validateSuccessMessage();
 
     //Validate data is saved
     await expect(await addMediaPage.validateSuccessMessage()).toBe(true);
