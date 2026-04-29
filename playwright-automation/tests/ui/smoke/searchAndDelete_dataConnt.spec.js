@@ -16,23 +16,27 @@ test.beforeEach(async ({ masterFixture }) => {
      console.log("Actions",dataImport );
 });
 test.describe('@smoke Data Connections', () => {
-     test(`Login as ${process.env.app_username}`, async ({page}) => {
+     test(`Verify Search and Delete for Data Connections`, async ({page}) => {
      
     await page.goto(editorUrl);
     await dataImport.navigateToDataImport();
     await dataImport.navigateToDataCnctn();
     
-    const keyword = `Automation Test Data Connections`;
+    const keyword = `Automation Test Data`;
     
     await dataImport.searchboxValue(keyword);
      console.log(" Fetch Value:", keyword);
-     await dataImport.clickonrow();
+     await dataImport.clickonrowValue();
       console.log("Click on Row");
-
-
     await dataImport.clickDelete();
+     console.log(`Deletion of ${keyword} is successful.`);
     await dataImport.removeBtn(); 
-
+    
+    await dataImport.navigatetoLocation();
+     console.log("Navigate to Data Locations");
+     await dataImport.validateDeleteMessage();
+      console.log(`Deletion of ${keyword} is successful.`);
+    
     await appPage.logOut();
   });
 });

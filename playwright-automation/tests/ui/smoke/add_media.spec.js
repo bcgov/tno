@@ -16,15 +16,15 @@ test.beforeEach(async ({ masterFixture }) => {
      console.log("Media Page",addMediaPage );
 });
 test.describe('@smoke Add Media TYPE', () => {
-     test(`Login as ${process.env.app_username}`, async ({page}) => {
+     test(`Verify adding new media type`, async ({page}) => {
      
     await page.goto(editorUrl);
     await addMediaPage.navigateToCC();
     await addMediaPage.navigateToMiMedia();
     await addMediaPage.clickAddNewMedia();
     
-    const MediaName = `Automation Media type Name`;
-    const MediaDescription = `Automation Media type Description`;
+    const MediaName = `Automation Test Name`;
+    const MediaDescription = `Automation Test Description`;
     const randomNumber = Math.floor(Math.random() * 100)+1;
     const MediaSortOrder = `${randomNumber}`;
 
@@ -35,6 +35,11 @@ test.describe('@smoke Add Media TYPE', () => {
     );
 
     await addMediaPage.selectListTypeOption('Program/Show');   
+
+      await addMediaPage.validateSuccessMessage();
+    //Validate data is saved
+    await expect(await addMediaPage.validateSuccessMessage()).toBe(true);
+    await addMediaPage.backbtnMedia();
     await appPage.logOut();
   });
 });

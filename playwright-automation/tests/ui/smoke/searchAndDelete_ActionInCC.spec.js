@@ -1,4 +1,4 @@
-const { test, expect } = require('../../../fixtures/ui-fixture');
+ const { test, expect } = require('../../../fixtures/ui-fixture');
 const DataLoader = require('../../../utils/dataLoader');
 const testData = DataLoader.loadJSON(`test-data/${process.env.ENV_NAME}/loginData.json`);
 const testApp = process.env.APP_NAME;
@@ -16,31 +16,25 @@ test.beforeEach(async ({ masterFixture }) => {
      console.log("Actions",addMediaPage  );
 });
 test.describe('@smoke Add New Actions', () => {
-     test(`Verify user can Add new action successfully `, async ({page}) => {
+     test(`Verify Search and Delete action successfully `, async ({page}) => {
      
     await page.goto(editorUrl);
     await addMediaPage.navigateToCC();
     await addMediaPage.navigateToActions();
-  await addMediaPage.clickAddNewActions();
+ 
+ const mediaName = `Automation Action Name`;
     
-    const MediaName = `Automation Action Name`;
-    const MediaDescription = `Description for Action Name`;
-    const randomNumber = Math.floor(Math.random() * 100)+1;
-    const MediaSortOrder = `${randomNumber}`;
+    await addMediaPage.searchAndValidation(mediaName);
+     console.log(" Fetch Value:", mediaName);
+     await addMediaPage.ValidateRowValue(mediaName);
+     console.log(`Row value validation for ${mediaName} is successful.`);
+    await addMediaPage.clickOnVisibleText();
+    await addMediaPage.clickOnDelete();
+   
+    console.log(`Deletion of ${mediaName} is successful.`);
+    await addMediaPage.removeData();
 
-    await addMediaPage.enterMediaDetails(
-      MediaName,
-      MediaDescription,
-      MediaSortOrder
-    );
-
-    await addMediaPage.contentdropdown('Print Content');  
-    await addMediaPage.validateSuccessMessage();
-
-    //Validate data is saved
-    await expect(await addMediaPage.validateSuccessMessage()).toBe(true);
-    
-    await addMediaPage.clickBackToActions(); 
+    await addMediaPage.validateDeleteMessage();
     await appPage.logOut();
-  });
+});
 });

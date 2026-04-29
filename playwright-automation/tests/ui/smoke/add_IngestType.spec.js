@@ -16,15 +16,15 @@ test.beforeEach(async ({ masterFixture }) => {
      console.log("Actions",dataImport );
 });
 test.describe('@smoke Ingest TYpe', () => {
-     test(`Login as ${process.env.app_username}`, async ({page}) => {
+     test(`Verify adding new ingest type`, async ({page}) => {
      
     await page.goto(editorUrl);
     await dataImport.navigateToDataImport();
     await dataImport.navigateToIngest();
     await dataImport.clickAddNewIngest();
     
-    const IngestName = `Automation Test data`;
-    const IngestDescription = `Automation DEscription Data for testing `;
+    const IngestName = `Automation Test Data`;
+    const IngestDescription = `Automation Description Data for testing `;
     const randomNmb = Math.floor(Math.random() * 100)+1;
     const IngestSortOrder = `${randomNmb}`;
 
@@ -36,8 +36,11 @@ test.describe('@smoke Ingest TYpe', () => {
 
     await dataImport.dropdownOption('PrintContent');  
     
+      await dataImport.validateMessage();
+    //Validate data is saved
+    await expect(await dataImport.validateMessage()).toBe(true);
     await dataImport.backbtnIngest();
-     const ingestName = `Automation Test data`;
+    
     await appPage.logOut();
   });
 });

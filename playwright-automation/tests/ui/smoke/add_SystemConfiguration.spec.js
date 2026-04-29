@@ -16,7 +16,7 @@ test.beforeEach(async ({ masterFixture }) => {
      console.log("Actions",systemSettings );
 });
 test.describe('@smoke System Configurations', () => {
-     test(`Login as ${process.env.app_username}`, async ({page}) => {
+     test(`Add New System Configuration`, async ({page}) => {
      
     await page.goto(editorUrl);
     await systemSettings.navigateToSystemSettings();
@@ -35,7 +35,10 @@ test.describe('@smoke System Configurations', () => {
       SCValue,
       SCSortOrder  
     );
-    
+    await systemSettings.validatetoastmsg();
+        
+        //Validate data is saved
+        await expect(await systemSettings.validatetoastmsg()).toBe(true);
     await appPage.logOut();
   });
 });

@@ -23,7 +23,7 @@ test.describe('@smoke Media Licenses', () => {
     await dataImport.navigatetoDataLoctn();
     await dataImport.clickAddNewDataLoctn();
     
-    const DataLName = `Automation Test Data Locations`;
+    const DataLName = `Automation Test Data`;
     const DataLDescription = `Automation DEscription Data for testing `;
     const DatarandomNmb = Math.floor(Math.random() * 100)+1;
     const DataSortOrder = `${DatarandomNmb}`;
@@ -35,6 +35,10 @@ test.describe('@smoke Media Licenses', () => {
     );
     
     await dataImport.dropdownValue('Local Volume - Clips');
+    await dataImport.validateMessage();
+    
+    //Validate data is saved
+    await expect(await dataImport.validateMessage()).toBe(true);
     await appPage.logOut();
   });
 });

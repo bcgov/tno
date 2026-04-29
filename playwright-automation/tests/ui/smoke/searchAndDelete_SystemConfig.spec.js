@@ -16,7 +16,7 @@ test.beforeEach(async ({ masterFixture }) => {
      console.log("Actions",systemSettings );
 });
 test.describe('@smoke System Configurations', () => {
-     test(`Login as ${process.env.app_username}`, async ({page}) => {
+     test(`Search and Delete System Configuration`, async ({page}) => {
      
     await page.goto(editorUrl);
     await systemSettings.navigateToSystemSettings();
@@ -27,7 +27,14 @@ test.describe('@smoke System Configurations', () => {
     await systemSettings.searchSystemConfig(KeyValue);
     console.log(" Fetch Value:", KeyValue);
     await systemSettings.deleteSystemConfig();
+      console.log(`Deletion of ${KeyValue} is successful.`);
     await systemSettings.confirmDelete();
+    await systemSettings.NavigatetoSettings();
+      console.log("Navigate to System Settings");
+
+    //Validate the delete message
+     await systemSettings.validateDeleteToastMessage();
+      console.log(`Deletion of ${KeyValue} is successful.`);
     await appPage.logOut();
   });
 });

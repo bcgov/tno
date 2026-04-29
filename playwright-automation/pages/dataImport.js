@@ -35,7 +35,7 @@ this.medialink = page.getByRole('link', { name: 'Media Licenses' })
 this.addNewMedia = page.getByRole('button' , { name: 'plus Add new licence' })
 this.mediaTTLInput = page.getByRole('spinbutton', { name: 'Time to Live (days)' })
 this.backtoMedia = page.getByRole('button', { name: 'back Back to Licences' })
-this.selectRowValue = page.getByText('Automation Test Media Licenses');
+this.selectRowValue = page.getByText('Automation Test Data');
   
 //LOcators Of Data Location 
 this.dataLoctnlink = page.getByRole('link', { name: 'Data Locations' })
@@ -44,7 +44,7 @@ this.DataTypeDropdown = page.locator('.rs__input-container');
 this.listitm = (dvalue) => 
 page.getByText(dvalue, { exact : true })
 this.backtoDataLctn = page.getByRole('button', { name: 'back Back to DataLocations' })
-this.rowValueSelected = page.getByText('Automation Test Data Locations');
+this.rowValueSelected = page.getByText('Automation Test Data');
 
 // Locators of data Connections
 this.dataConnctnlink = page.getByRole('link', { name: 'Data Connections' })
@@ -55,9 +55,12 @@ this.dropDownPath = page.locator(`//*[@id="txt-configuration.path"]`)
 this.nasPathInput = page.getByRole('textbox', { name: 'Path' });
 this.pathfield = page.getByLabel('Path');
 this.backtoDataConnt = page.getByRole('button', { name: 'back Back to Connections'})
-this.searchDataCntn  = page.getByText('Automation Test Data Connections');
+this.searchDataCntn  = page.getByText(`Automation Test Data`);
 this.test = page.locator("//*[@id='root']/div[1]/div[2]/main/div/div[3]/div/div/div/div[1]");
 this.deletebutton = page.locator(`//*[@id="root"]/div[1]/div[2]/main/div/div/div/form/div/div[2]/button[2]`);
+this.toastmessage = page.getByText(`Automation Test Data has successfully been saved.`);
+this.deletemessage = page.getByText(`Automation Test Data has successfully been deleted.`)
+
 }
 
 /**methods of Add Ingest Type****/
@@ -92,21 +95,6 @@ async backbtnIngest() {
  await this.backToIngestPage.click();
   logger.info(`Clicked on Back to Ingest Type button!!`);
 }
-async searchKeyword(ingestName){
-//search
-  await this.searchKeywordIngest.click();
-  await this.searchKeywordIngest.fill(ingestName);
-  await this.searchKeywordIngest.press('Enter');
-
-  await this.page.waitForLoadState('networkidle');
-  //locate row
-   const row = this.page.getByText(ingestName);
-   logger.info(`This line to be printed: Name=${row}`);
-}
-async clickonRow(){
-await this.selectRow.click();
-logger.info("Click on Selected Value");
-}
 async clickDelete(){
 await this.dltbtn.click();
 logger.info("Delete the Record");
@@ -115,7 +103,11 @@ async removeBtn(){
 await this.remove.click();
 logger.info("Remove data and confirm");
 }
-/*** Methods of Media type */  
+async navigatetotypes(){
+  await expect(this.page).toHaveURL(`https://test.editor.mmi.gov.bc.ca/admin/ingest/types`);
+  console.log("Current URL after deletion:", this.page.url());
+}
+/*** Methods of Media License */  
 async navigatetoMediaL(){
   await this.medialink.click();
   logger.info("Click on Media Licenses in Drop down");
@@ -140,19 +132,18 @@ async enterMediaLicensetDetails(name, description, sortOrder, ttl) {
   logger.info('Navigate back to Media licenses')
 
 }
-async searchbox(mediaName){
-//search
-  await this.searchKeywordIngest.click();
-  await this.searchKeywordIngest.fill(mediaName);
-  await this.searchKeywordIngest.press('Enter');
+async backbtnMediaL() {
+  await this.backtoMedia.click();
+  logger.info(`Clicked on Back to Media License button!!`);
+}
 
-  await this.page.waitForLoadState('networkidle');
-  //locate row
-   const row = this.page.getByText(mediaName);
-   logger.info(`This line to be printed: Name=${row}`);
-
-   await this.selectRowValue.click();
-   logger.info("Click on Selected Value");
+async navigatetoMediaLicense(){
+  await expect(this.page).toHaveURL(`https://test.editor.mmi.gov.bc.ca/admin/licences`);
+  console.log("Current URL after deletion:", this.page.url());
+}
+async clickRow(){
+  await this.selectRowValue.click();
+  logger.info("Click on selected row")
 }
 /** Methods of Data locations  */
 async navigatetoDataLoctn(){
@@ -174,19 +165,12 @@ async dropdownValue(dvalue) {
   await this.backtoDataLctn.click()
   logger.info('Navigate back to Data Location Page')
 }
-async Search(dataName){
-  await this.searchKeywordIngest.click();
-  await this.searchKeywordIngest.fill(dataName);
-  await this.searchKeywordIngest.press('Enter');
 
-  await this.page.waitForLoadState('networkidle');
-  //locate row
-   const row = this.page.getByText(dataName);
-   logger.info(`This line to be printed: Name=${row}`);
-
-   await this.rowValueSelected.click();
-   logger.info("Click on Selected Value");
+async navigatetoLocation(){ 
+  await expect(this.page).toHaveURL(`https://test.editor.mmi.gov.bc.ca/admin/data/locations`);
+  console.log("Current URL after deletion:", this.page.url());
 }
+
 /** Methods For Data Connections */
 async navigateToDataCnctn() {
   await this.dataConnctnlink.click();
@@ -215,32 +199,48 @@ logger.info('Enter path for NAS');
 await this.saveButton.click();
 logger.info('Click on Save button');
 }
+
+async validateMessage(){
+  await this.toastmessage.waitFor({ state: 'visible', timeout: 5000 });
+  const isVisible = await this.toastmessage.isVisible();
+  logger.info(`Success message visibility: ${isVisible}`);
+  return isVisible;
+}
 async backbtndataC() {
   logger.info('enter into backbut function');
   await this.backtoDataConnt.click();
 //await this.page.locator(`//*[@id="root"]/div[1]/div[2]/main/div/button`).click();
   logger.info(`Clicked on Back to Ingest Type button!!`);
 }
-async searchboxValue(data){
+async searchboxValue(keyword){
 //search
   await this.searchKeywordIngest.click();
-  await this.searchKeywordIngest.fill(data);
+  await this.searchKeywordIngest.fill(keyword);
   await this.searchKeywordIngest.press('Enter');
 
   await this.page.waitForLoadState('networkidle');
   //locate row
-   const rownew = this.page.getByText(data);
+   const rownew = this.page.getByText(keyword);
    logger.info(`This line to be printed: Name=${rownew}`);
 }
-
-async clickonrow(){
+async clickonrowValue(){
 this.searchDataCntn = this.page.locator('//*[@id="root"]/div[1]/div[2]/main/div/div[3]/div/div/div/div[1]').first();
-//this.searchDataCntn = this.page.getByText('Automation Test Data Connections');
+
 await this.searchDataCntn.waitFor({ state: 'visible' });
 const text = await this.searchDataCntn.textContent();
  logger.info(`Row Vaue : ${text}`);
  await this.searchDataCntn.click();
  logger.info(`Click on selected row`)
+}
+async navigatetoConnection(){
+  await expect(this.page).toHaveURL(`https://test.editor.mmi.gov.bc.ca/admin/connections`);
+  console.log("Current URL after deletion:", this.page.url());
+}
+async validateDeleteMessage(){
+  await this.deletemessage.waitFor({ state: 'visible', timeout: 5000 });
+  const isVisible = await this.deletemessage.isVisible();
+  logger.info(`Delete message visibility: ${isVisible}`);
+  return isVisible;
 }
 }
 

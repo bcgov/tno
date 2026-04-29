@@ -16,18 +16,21 @@ test.beforeEach(async ({ masterFixture }) => {
      console.log("Actions",systemSettings );
 });
 test.describe('@smoke System Configurations', () => {
-     test(`Verify Search by Type for Work Orders`, async ({page}) => {
+     test(`Verify Search by Role for Manage Users`, async ({page}) => {
      
     await page.goto(editorUrl);
     await systemSettings.navigateToSystemSettings();
-    await systemSettings.navigatetoWorkOrder();
+    await systemSettings.navigatetoManageUser();
     
-    const KeyType = `Transcription`;
-    await systemSettings.searchWorkOrder(KeyType);
-    console.log(" Fetch Value:", KeyType);
-    await systemSettings.enterSearchKeyword(KeyType);
-    await systemSettings.SaveWorkOrder();
-    await systemSettings.backtoWorkorder();
+    const role = `editor`;
+    await systemSettings.searchManageUserbyRole(role);
+    console.log(" Fetch Value:", role);
+
+    await systemSettings.searchWorkOrder();
+    console.log("Clicked on Search button");
+    // Verify that all the role values in the search results are "Editor"
+    await systemSettings.tableRoleCol();
+    console.log("All role values are Editor");
     await appPage.logOut();
   });
 });

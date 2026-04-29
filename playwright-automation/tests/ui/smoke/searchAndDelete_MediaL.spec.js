@@ -16,19 +16,27 @@ test.beforeEach(async ({ masterFixture }) => {
      console.log("Actions",dataImport );
 });
 test.describe('@smoke Media Licenses', () => {
-     test(`Login as ${process.env.app_username}`, async ({page}) => {
+     test(`Search and Delete Media License`, async ({page}) => {
      
     await page.goto(editorUrl);
     await dataImport.navigateToDataImport();
     await dataImport.navigatetoMediaL();
 
-    const LicenseName = `Automation Test Media Licenses`;
+    const LicenseName = `Automation Test data`;
 
-    await dataImport.searchbox(LicenseName);
+    await dataImport.searchboxValue(LicenseName);
      console.log(" Fetch Value:", LicenseName);
-     
+     await dataImport.clickRow();
+      console.log(`Row value validation for ${LicenseName} is successful.`);
       await dataImport.clickDelete();
-      await dataImport.removeBtn(); 
+    console.log(`Deletion of ${LicenseName} is successful.`);
+    await dataImport.removeBtn(); 
+      await dataImport.navigatetoMediaLicense();
+      console.log("Navigate to Data Locations");
+
+     //Validate the delete message
+     await dataImport.validateDeleteMessage();
+      console.log(`Deletion of ${LicenseName} is successful.`)
        await appPage.logOut();
   });
 });

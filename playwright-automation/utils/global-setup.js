@@ -17,6 +17,7 @@ async function globalSetup() {
   const dotenv = require("dotenv");
   dotenv.config({
     path: `.env.${env_name}`,
+    //path: `./utils/env/.env.${env_name}`,
     override: true,
   });
   // LOGIN_URL value can be passed via npx command. for e.g LOGIN_URL='https://test.editor.mmi.gov.bc.ca/'. Else value is null/undefined. 
@@ -60,7 +61,7 @@ async function globalSetup() {
   //   console.log(`Headers: ${JSON.stringify(response.headers())}`);
   // });
 
-  await page.goto(process.env.LOGIN_URL, { timeout: 10000 });
+ await page.goto(process.env.LOGIN_URL, { timeout: 10000 });
   //await page.waitForLoadState ('documentloaded');
   const idir = page.locator('//button[./div[normalize-space()="IDIR"]]');
   const IdirUserName = page.locator('input#user');

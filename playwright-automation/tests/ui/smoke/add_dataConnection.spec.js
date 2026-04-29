@@ -16,14 +16,14 @@ test.beforeEach(async ({ masterFixture }) => {
      console.log("Actions",dataImport );
 });
 test.describe('@smoke Data Connections', () => {
-     test(`Login as ${process.env.app_username}`, async ({page}) => {
+     test(`Verify adding new data connection`, async ({page}) => {
      
     await page.goto(editorUrl);
     await dataImport.navigateToDataImport();
     await dataImport.navigateToDataCnctn();
     await dataImport.clickAddNewDataCntn();
     
-    const DataLName = `Automation Test Data Connections`;
+    const DataLName = `Automation Test Data`;
     const DataLDescription = `Automation Description Data for testing `;
     const DatarandomNmb = Math.floor(Math.random() * 100)+1;
     const DataSortOrder = `${DatarandomNmb}`;
@@ -36,6 +36,13 @@ test.describe('@smoke Data Connections', () => {
     );
     const Path = `FTP Path input fields`;
     await dataImport.dropdownfield('NAS');
+
+    await dataImport.validateMessage();
+    
+    //Validate data is saved
+    await expect(await dataImport.validateMessage()).toBe(true);
+        
+    
     await dataImport.backbtndataC();
     await appPage.logOut();
   });

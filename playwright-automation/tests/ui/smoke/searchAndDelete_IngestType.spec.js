@@ -16,21 +16,28 @@ test.beforeEach(async ({ masterFixture }) => {
      console.log("Media Page",dataImport );
 });
 test.describe('@smoke Search and Media TYPE', () => {
-     test(`Login as ${process.env.app_username}`, async ({page}) => {
+     test(`Search and Delete Ingest Type`, async ({page}) => {
      
     await page.goto(editorUrl);
-   await dataImport.navigateToDataImport();
+    await dataImport.navigateToDataImport();
     await dataImport.navigateToIngest();
     await page.waitForTimeout(5000);
 
-    
-   const ingestName = `Automation Test data`;
-    await dataImport.searchKeyword(ingestName);
+    const ingestName = `Automation Test data`;
+    await dataImport.searchboxValue(ingestName);
      console.log(" Fetch Value:", ingestName);
-     
-      await dataImport.clickonRow();
+     await dataImport.clickonrowValue();
+      console.log(`Row value validation for ${ingestName} is successful.`);
       await dataImport.clickDelete();
-      await dataImport.removeBtn();
+    console.log(`Deletion of ${ingestName} is successful.`);
+    await dataImport.removeBtn(); 
+     await dataImport.navigatetotypes();
+     console.log("Navigate to Data Locations");
+
+     //Validate the delete message
+     await dataImport.validateDeleteMessage();
+      console.log(`Deletion of ${ingestName} is successful.`)
       await appPage.logOut();
   });
 });
+

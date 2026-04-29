@@ -16,22 +16,26 @@ test.beforeEach(async ({ masterFixture }) => {
      console.log("Media Page",addMediaPage );
 });
 test.describe('@smoke Search and Media TYPE', () => {
-     test(`Login as ${process.env.app_username}`, async ({page}) => {
+     test(`Search and Delete Media Type`, async ({page}) => {
      
     await page.goto(editorUrl);
     await addMediaPage.navigateToCC();
     await addMediaPage.navigateToMiMedia(); 
     await page.waitForTimeout(5000);
 
-    //const uniqueID = Date.now();
-    const mediaName = `Automation Media type Name`;
-    //const mediadescription = `Automation Media type Name - ${uniqueID}`;
-     await addMediaPage.searchAndValidation(mediaName);
+    const mediaName = `Automation Test Name`;
+    await addMediaPage.searchAndValidation(mediaName);
      console.log(" Fetch Value:", mediaName);
      
-      await addMediaPage.clickOnVisibleText();
-      await addMediaPage.clickOnDelete();
-      await addMediaPage.removeData();
+    await addMediaPage.clickOnVisibleText();
+      console.log(`Row value validation for ${mediaName} is successful.`);
+    await addMediaPage.clickonDeletebtn();
+   console.log(`Deletion of ${mediaName} is successful.`);
+    await addMediaPage.removeData();
+    await addMediaPage.NavigatetoMediatype();
+    //Validate the delete message
+    await addMediaPage.validateDeleteMessage();
+
       await appPage.logOut();
   });
 });

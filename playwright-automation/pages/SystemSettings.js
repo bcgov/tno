@@ -35,10 +35,15 @@ this.tablerow = page.getByText('Transcription').nth(2);
 this.savebtn = page.getByRole('button', { name: 'Save' });
 this.alertvalue = page.getByText('Work order has successfully');
 this.backbutn = page.getByRole('button', { name: 'back Back to WorkOrders' });
-
+this.backuser = page.getByRole('button', { name: 'back Back to Users' });
 this.searchbystatus = page.locator('#sel-status > .rs__control > .rs__value-container > .rs__input-container');
+this.searchbyrole = page.locator('#sel-role > .rs__control > .rs__value-container > .rs__input-container');
 this.entervalue = page.locator('#react-select-23-input');
 this.selectoption2 = page.getByRole('option', { name: 'Completed' });
+this.manageuserbtn = page.getByRole('link', { name: 'Manage Users' });
+this.toastmessage = page.getByText(`Automation Test System has successfully been saved.`);
+this.deletemessage = page.getByText(`Automation Test System has successfully been deleted.`)
+this.searchbtn = page.getByRole('button', { name: 'search' });
 }
 async navigateToSystemSettings() {
   await this.systembtn.click();
@@ -47,6 +52,10 @@ async navigateToSystemSettings() {
 async navigatetoSystemConfig() {
   await this.systemConfigbtn.click();
   logger.info('Clicked on System Configuration button');
+}
+async navigatetoManageUser() {
+  await this.manageuserbtn.click();
+  logger.info('Clicked on Manage Users button');
 }
 async clickAddNewSystemConfig() {
   await this.addnewsettings.click();
@@ -96,8 +105,8 @@ async navigatetoWorkOrder() {
   logger.info('Clicked on Work Orders button');
 }
 async searchWorkOrder(keyword) {
-  await this.searchfield.click();
-  logger.info('Clicked on Search field');
+  await this.searchbtn.click();
+  logger.info('Clicked on Search Button');
 }
 async enterSearchKeyword(keyword) {
   await this.page.keyboard.type(keyword);
@@ -117,13 +126,27 @@ async SaveWorkOrder() {
   await expect(this.alertvalue).toHaveText('Work order has successfully been saved.');
   logger.info('Verified success alert for saving work order');
 }
+async searchWorkUserbystatus(keyword) {
+  await this.searchbystatus.click();
+  logger.info('Clicked on Search by Status field');
+  await this.searchbtn.click();
+  logger.info('Clicked on Search button');
+}
 async backtoWorkorder() {
   await this.backbutn.click();
   logger.info('Clicked on Back to WorkOrders button');  
 }
+async backtoTop() {
+  await this.backuser.click();
+  logger.info('Clicked on Back to Users button');  
+}
 async searchWorkOrderbystatus(keyword) {
   await this.searchbystatus.click();
   logger.info('Clicked on Search by Status field');
+}
+async searchManageUserbyRole(keyword) {
+  await this.searchbyrole.click();
+  logger.info('Clicked on Search by Role field'); 
 }
 async enterstatuskeyword(value) {
   await this.page.keyboard.type(value);
@@ -138,6 +161,12 @@ async enterstatuskeyword(value) {
   const rowValue2 = this.tablerow;
   await this.tablerow.click();
   logger.info(`This line to be printed: Name=${rowValue2}`);
+}
+async validatetoastmsg() {
+  await this.toastmessage.waitFor({ state: 'visible', timeout: 5000 });
+  const isVisible = await this.toastmessage.isVisible();
+  logger.info(`Success message visibility: ${isVisible}`);
+  return isVisible;
 }
  async verifyAllStatusCompleted() {
    logger.info('Enter verifyAllStatusCompleted method');
@@ -175,6 +204,33 @@ if (visibletext === currentPage) {
 }
 }
 
-
+async NavigatetoSettings(){
+  await expect(this.page).toHaveURL(`https://test.editor.mmi.gov.bc.ca/admin/settings`);
+  console.log("Current URL after deletion:", this.page.url());
+}
+async validateDeleteToastMessage(){
+  await this.deletemessage.waitFor({ state: 'visible', timeout: 5000 });
+  const isVisible = await this.deletemessage.isVisible();
+  logger.info(`Delete message visibility: ${isVisible}`);
+  return isVisible;
+}
+// Manage orders
+async tableStatusCol() {
+ 
+  const statusElements = await this.page.locator('//div[@role="row"]//div[last()]').allTextContents();
+  logger.info(`Status Text: ${statusElements}`);
+  for (const status of statusElements) {
+    console.log("Status Value:", status);
+    expect(status.trim()).toBe('Approved');
+  }
+}
+async tableRoleCol() {
+  const roleElements = await this.page.locator('//div[@role="row"]//div[5]').allTextContents();
+  logger.info(`Role Text: ${roleElements}`);
+  for (const role of roleElements) {
+    console.log("Role Value:", role);
+    expect(role.trim()).toBe('Editor');
+  }
+}
 }
 module.exports = { SystemSettings }

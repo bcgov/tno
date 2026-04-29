@@ -16,7 +16,7 @@ test.beforeEach(async ({ masterFixture }) => {
      console.log("Actions",systemSettings );
 });
 test.describe('@smoke System Configurations', () => {
-     test(`Login as ${process.env.app_username}`, async ({page}) => {
+     test(`Verify Search and Page Options for Work Orders`, async ({page}) => {
      
     await page.goto(editorUrl);
     await systemSettings.navigateToSystemSettings();
