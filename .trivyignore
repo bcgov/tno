@@ -12,7 +12,7 @@
 #   - nginxinc/nginx-unprivileged:1.24 → nginx-unprivileged:1.26-alpine
 #   - mcr.microsoft.com/dotnet/aspnet:9.0 — rebuild to pick up latest patch
 #
-# Last reviewed: 2026-04-17
+# Last reviewed: 2026-04-28
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -109,6 +109,82 @@ DLA-4016-1      # ucf: Debian LTS advisory
 DLA-4085-1      # tzdata: Debian LTS advisory
 DLA-4105-1      # tzdata: Debian LTS advisory
 DLA-4403-1      # tzdata: Debian LTS advisory
+DLA-4213-1      # curl: Debian LTS regression update
+DLA-4432-1      # curl: Debian LTS security update
+DLA-4485-1      # ca-certificates: Debian LTS CA update
+
+# -- krb5 / libgssapi-krb5-2 (1.18.3) ----------------------------------------
+CVE-2024-37370  # krb5: GSS message token handling
+CVE-2024-37371  # krb5: GSS message token handling
+CVE-2025-24528  # krb5: overflow when calculating ulog block size
+CVE-2025-3576   # krb5: RC4-HMAC-MD5 checksum vulnerability enabling message spoofing
+
+# -- glibc / libc6 (2.31) ----------------------------------------------------
+CVE-2024-2961   # glibc: out of bounds write in iconv may lead to remote code execution
+CVE-2024-33599  # glibc: stack-based buffer overflow in netgroup cache
+CVE-2024-33600  # glibc: null pointer dereferences after failed netgroup cache insertion
+CVE-2024-33601  # glibc: netgroup cache may terminate daemon on memory allocation failure
+CVE-2024-33602  # glibc: netgroup cache assumes NSS callback uses in-buffer strings
+CVE-2025-0395   # glibc: buffer overflow in the GNU C Library's assert()
+CVE-2025-4802   # glibc: static setuid binary dlopen may incorrectly search LD_LIBRARY_PATH
+
+# -- curl / libcurl4 (7.74.0) ------------------------------------------------
+CVE-2024-2398   # curl: HTTP/2 push headers memory-leak
+CVE-2024-7264   # curl: libcurl ASN.1 date parser overread
+CVE-2024-8096   # curl: OCSP stapling bypass with GnuTLS
+
+# -- gnutls28 / libgnutls30 (3.7.1) ------------------------------------------
+CVE-2024-0553   # gnutls: incomplete fix for CVE-2023-5981
+CVE-2024-0567   # gnutls: rejects certificate chain with distributed trust
+CVE-2024-12243  # gnutls: inefficient DER decoding in libtasn1 leading to remote DoS
+CVE-2024-28834  # gnutls: vulnerable to Minerva side-channel information leak
+CVE-2024-28835  # gnutls: potential crash during chain building/verification
+CVE-2025-14831  # gnutls: DoS via excessive resource consumption during cert verification
+CVE-2025-32988  # gnutls: vulnerability in otherName SAN export
+CVE-2025-32990  # gnutls: vulnerability in certtool template parsing
+CVE-2025-6395   # gnutls: NULL pointer dereference in _gnutls_figure_common_ciphersuite()
+CVE-2025-9820   # gnutls: stack-based buffer overflow in gnutls_pkcs11_token_init()
+
+# -- libexpat1 (2.2.10) ------------------------------------------------------
+CVE-2023-52425  # expat: parsing large tokens can trigger a denial of service
+CVE-2024-45490  # libexpat: negative length parsing vulnerability
+CVE-2024-45491  # libexpat: integer overflow or wraparound
+CVE-2024-45492  # libexpat: integer overflow
+CVE-2024-50602  # libexpat: DoS via XML_ResumeParser
+
+# -- libpng1.6 (1.6.37) ------------------------------------------------------
+CVE-2025-64505  # libpng: heap buffer overflow via malformed palette index
+CVE-2025-64506  # libpng: heap buffer over-read
+CVE-2025-64720  # libpng: buffer overflow
+CVE-2025-65018  # libpng: heap buffer overflow
+CVE-2025-66293  # libpng: out-of-bounds read in png_image_read_composite
+CVE-2026-22695  # libpng: DoS and info disclosure via heap buffer overflow
+CVE-2026-22801  # libpng: info disclosure and DoS via integer truncation
+CVE-2026-25646  # libpng: heap buffer overflow in png_set_quantize
+CVE-2026-33416  # libpng: arbitrary code execution due to use-after-free
+CVE-2026-33636  # libpng: info disclosure and DoS via out-of-bounds read
+
+# -- libgd2 / LibGD (2.3.0) --------------------------------------------------
+CVE-2021-38115  # LibGD: out-of-bounds read in read_header_tga
+CVE-2021-40145  # LibGD: gdImageGd2Ptr vulnerability
+CVE-2021-40812  # LibGD: out-of-bounds read
+
+# -- freetype2 (2.10.4) ------------------------------------------------------
+CVE-2025-27363  # freetype: OOB write when parsing font subglyph structures
+
+# -- icu / libicu67 (67.1) ----------------------------------------------------
+CVE-2025-5222   # icu: stack buffer overflow in SRBRoot::addTag function
+
+# -- GnuPG / gnupg2 (2.2.27) -------------------------------------------------
+CVE-2025-68973  # GnuPG: info disclosure and potential arbitrary code execution
+
+# -- nghttp2 / libnghttp2-14 (1.43.0) ----------------------------------------
+CVE-2024-28182  # nghttp2: CONTINUATION frames DoS
+
+# -- linux-pam / libpam-modules (1.4.0) --------------------------------------
+CVE-2024-22365  # pam: allowing unprivileged user to block another user namespace
+CVE-2025-6020   # linux-pam: directory traversal
+
 
 # -----------------------------------------------------------------------------
 # Debian 12 (Bookworm) — mcr.microsoft.com/dotnet/aspnet:9.0 (event-handler)
