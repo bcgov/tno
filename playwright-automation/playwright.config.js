@@ -21,6 +21,18 @@ module.exports = defineConfig({
     launchOptions: {
       args: ['--start-maximized'],
     },
+    use: { 
+      headless: false,
+      viewport: null,
+      launchOptions: {
+        slowMo: 1000,
+        args: ['--start-maximized'],
+      },
+      video: 'on',
+      trace: 'on',
+      screenshot: 'on',
+      storageState: '/tmp/login.json',
+    },
     actionTimeout: 30000,
     trace: 'off',
     screenshot: 'on',

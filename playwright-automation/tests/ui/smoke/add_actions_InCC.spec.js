@@ -13,19 +13,19 @@ test.beforeEach(async ({ masterFixture }) => {
   addMediaPage = masterFixture.addMediaPage;
   await appPage.navigateToUrl(editorUrl);
     await appPage.hardWait(5000);
-     console.log("Media Page",addMediaPage );
+     console.log("Actions",addMediaPage  );
 });
-test.describe('@smoke Add Media TYPE', () => {
-     test(`Verify adding new media type`, async ({page}) => {
+test.describe('@smoke Add New Actions', () => {
+     test(`Verify user can Add new action successfully `, async ({page}) => {
      
     await page.goto(editorUrl);
     await addMediaPage.navigateToCC();
-    await addMediaPage.navigateToMiMedia();
-    await addMediaPage.clickAddNewMedia();
+    await addMediaPage.navigateToActions();
+  await addMediaPage.clickAddNewActions();
     
-    const randomNumber = Math.floor(Math.random() * 10000)+1;
-    const MediaName = `Automation Test Name ${randomNumber}`;
-    const MediaDescription = `Automation Test Description`;
+    const MediaName = `Automation Test Name`;
+    const MediaDescription = `Description for Action Name`;
+    const randomNumber = Math.floor(Math.random() * 100)+1;
     const MediaSortOrder = `${randomNumber}`;
 
     await addMediaPage.enterMediaDetails(
@@ -34,11 +34,12 @@ test.describe('@smoke Add Media TYPE', () => {
       MediaSortOrder
     );
 
-    await addMediaPage.selectListTypeOption('Program/Show');   
+    await addMediaPage.contentdropdown('Print Content');  
 
     //Validate data is saved
     await expect(await addMediaPage.validateSuccessMessage()).toBe(true);
-    await addMediaPage.backbtnMedia();
+    
+    await addMediaPage.clickBackToActions(); 
     await appPage.logOut();
   });
 });

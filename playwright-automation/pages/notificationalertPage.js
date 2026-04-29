@@ -42,8 +42,9 @@ async enterDetails(name, description, sortOrder) {
   await this.sortorder.fill(sortOrder.toString());
   await this.saveNotificationbtn.click();
   logger.info(`Enter Notification details : Name=${name}, Description=${description}, Sort Order=${sortOrder}`);
+
 }
 
+}
 
-}    
 module.exports = { NotificationalertPage };

@@ -22,11 +22,13 @@ this.listOption = (value) =>
   page.getByText(value, { exact : true })
 this.mediaSortOrderInput = page.getByRole('spinbutton', { name: 'Sort Order' })
 this.saveButton = page.getByRole('button', { name: 'Save' })
-
+this.backToMediaButton = page.getByRole('button', { name: 'back Back to Media Types' })
 this.searchInput = page.getByRole('textbox', { name: 'Search by keyword' });
 
-this.selectTRvalue = page.getByText('Automation Media type Name');
+this.selectTRvalue = page.getByText('Automation Test Name');
+this.trValue = page.locator('//*[@id="root"]/div[1]/div[2]/main/div/div/div[2]/div/div/input');
 this.deletebtn = page.getByRole('button', { name: 'Delete' });
+this.deleteButton = page.locator(`//*[@id="root"]/div[1]/div[2]/main/div/div/div/form/div/div[2]/button[2]`);
 this.removebtn = page.locator('button').filter({ hasText: 'Yes, Remove It' });
 console.log(page.getByRole('button', { name: 'Delete' }).count());
 
@@ -49,7 +51,9 @@ this.punditdropdown = page.locator('.rs__input-container')
 this.lstOption = (value) => 
   page.getByText(value, { exact : true })
 this.selectpunditvalue = page.getByText('Test Automation Pundit');
-this.backTopunditButton = page.getByRole('button', { name: 'back Back to Columns/Pundits' })
+
+this.backToPunditButton = page.getByRole('button', { name: 'back Back to Columns/Pundits' })
+
 this.searchByCodeInput = page.getByRole('textbox', { name: 'Search by keyword' })
 
 // Ingest Type -Data Import module 
@@ -63,7 +67,19 @@ this.listOption2 = (value) =>
 this.selectIngestvalue = page.getByText('Test Automation IT');
 this.backToIngestButton = page.getByRole('button', { name: 'back Back to Ingest Types' });
 
-  }
+
+//  Actions Page locators 
+this.actionsLink = page.getByRole('link', { name: 'Actions' })
+this.addnewactions = page.getByRole('button', { name: 'plus Add new action' })
+this.contentTypeDropdown = page.locator('.rs__input-container').first()
+this.listOption3 = (value) => 
+  page.getByText(value, { exact : true })
+
+this.backToActionsButton = page.getByRole('button', { name: 'back Back to actions' })
+this.selectActionTRvalue = page.getByText('Automation Test Name');
+this.toastmessage = page.getByText('has successfully been saved.');
+this.deletemessage = page.getByText('has successfully been deleted.');
+ }
  
 
 /**methods of Add Media Scenario****/
@@ -92,13 +108,22 @@ async enterMediaDetails(name, description, sortOrder) {
   logger.info(`Enter Media Tag: Name=${name}, Description=${description}, Sort Order=${sortOrder}`);
 
 }
-
+async backbtnMedia() {
+  await this.backToMediaButton.click();
+  logger.info(`Clicked on Back to Media button!!`);
+}
 async selectListTypeOption(value) {
   await this.mediaTypeDropdown.click();
   await this.listOption(value).click();
   await this.saveButton.click();
 
   console.log("Listoption :", value);
+}
+
+async clickonDeletebtn(){
+  await this.page.waitForLoadState('networkidle');
+  await this.deleteButton.click();
+  logger.info("Delete the Record");
 }
 
 /**************Search and Delete Media Method**********/
@@ -108,15 +133,21 @@ async searchAndValidation(mediaName){
   await this.searchInput.click();
   await this.searchInput.fill(mediaName);
   await this.searchInput.press('Enter');
-
-  await this.page.waitForLoadState('networkidle');
-  //locate row
-   const row = this.page.getByText(mediaName);
-   logger.info(`This line to be printed: Name=${row}`);
 }
 
+async ValidateRowValue(mediaName){
+  await this.page.waitForLoadState('networkidle');
+  const row = this.page.getByText(mediaName);
+  const rowcount = await row.count();
+  logger.info(`Number of rows found with media name "${mediaName}": ${rowcount}`);
+
+  await expect(row.first()).toBeVisible();
+  await expect(row.first()).toContainText(mediaName);
+  logger.info("Data is searched and validated successfully!!");
+} 
+
 async clickOnVisibleText(){
-await this.selectTRvalue.click();
+await this.trValue.click();
 logger.info("Click on Selected Value");
 }
 
@@ -129,7 +160,10 @@ async removeData(){
 await this.removebtn.click();
 logger.info("Remove data and confirm");
 }
-
+async NavigatetoMediatype(){
+await expect(this.page).toHaveURL(`https://test.editor.mmi.gov.bc.ca/admin/media-types`);
+  console.log("Current URL after deletion:", this.page.url());
+}
 /*************Tags Page methods************/
 
 async navigateToTAGS() {
@@ -154,7 +188,7 @@ async enterTagDetails(code, tname, tdescription, tsortorder) {
 }
 
 async clickBackToTAG() {
-  await this.backToTagButton.click({ force: true });
+  await this.backToTagButton.click();
   logger.info(`Clicked on Back to Tags button!!`);
 }
 
@@ -192,7 +226,8 @@ async clickAddNewPundit() {
 }
 
 async clickBackToColumn_pundit() {
-  await this.backTopunditButton.click({ force: true });
+
+  await this.backToPunditButton.click();
   logger.info(`Clicked on Back to Column/Pundit button!!`);
 }
 
@@ -225,7 +260,7 @@ async clickAddNewIngestType() {
 }
 
 async clickBackToIngestType() {
-  await this.backToIngestButton.click({ force: true });
+  await this.backToIngestButton.click();
   logger.info(`Clicked on Back to Ingest button!!`);
 }
 
@@ -241,5 +276,56 @@ await this.selectIngestvalue.click();
 logger.info("Click on Selected Ingest Value");
 
 }
+
+/**    Mehtods for Actions Page  */
+async navigateToActions() {
+  await this.actionsLink.click();
+  logger.info(`Clicked on Actions in Menue`);
 }
-module.exports = { AddMediaPage };
+async clickAddNewActions() {
+  await this.addnewactions.click();
+  logger.info(`Clicked on Media in Menue`);
+}
+async contentdropdown(value) {
+  await this.contentTypeDropdown.click();
+  await this.listOption3(value).click();
+  await this.saveButton.click();
+
+  console.log("Listoption :", value);
+}
+async validateSuccessMessage(){
+  const toast = this.page.getByRole('alert');
+  await toast.waitFor({ state: 'visible', timeout: 5000 });
+  const toastText = await toast.textContent();
+  logger.info(`Toast message: ${toastText}`);
+  const isSuccess = toastText.includes('has successfully been saved.');
+  logger.info(`Success message visibility: ${isSuccess}`);
+  return isSuccess;
+}
+
+async isBackToActionsVisible() {
+  return await this.backToActionsButton.isVisible();
+}
+async clickBackToActions() {
+  await this.backToActionsButton.click();
+  logger.info(`Clicked on Back to Tags button!!`);
+}
+async clickOnSelectedValue(){
+await this.selectActionTRvalue.click();
+logger.info("Click on Selected Value");
+}
+
+async NavigatetoActions(){
+  await expect(this.page).toHaveURL(`https://test.editor.mmi.gov.bc.ca/admin/actions`);
+  console.log("Current URL after deletion:", this.page.url());
+}
+async validateDeleteMessage(){
+  await this.deletemessage.waitFor({ state: 'visible', timeout: 5000 });
+  const isVisible = await this.deletemessage.isVisible();
+  logger.info(`Delete message visibility: ${isVisible}`);
+  return isVisible;
+}
+}
+
+module.exports = { AddMediaPage }
+

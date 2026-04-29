@@ -22,13 +22,11 @@ test.beforeEach(async ({ masterFixture }) => {
 });
 
 test.describe('@smoke Publish print Content', () => {
-
      test(`Login as ${process.env.app_username}`, async ({page}) => {
       console.log("Editor URL:",editorUrl );
       await page.goto(editorUrl);
       await appPage.logOut();
      });
-
      test(`Editor Print Content verifies it in portal`, async ({page }) => {
       const parentPage = page;
       const headlineTitle = `Automation Headline Title ${Date.now()}`;
