@@ -18,14 +18,11 @@ class SettingsPage extends BasePage {
     this.myAccountLink = page.getByText('My Account')
     this.emailToggleButton = page.locator('[class="sc-dhKdPU cXQtTG button-toggle"]').nth(0);
     this.reportsentimentToggleButton = page.locator('[class="sc-dhKdPU cXQtTG button-toggle"]').nth(1);
-  }
-
     this.myColleaguesLink = page.getByText('My Colleagues')
     this.addColleagueEmailInput = page.locator('input[name="email"]')
     this.addColleagueButton = page.getByRole('button', { name: 'Add' })
-this.removeColleagueButton = page.locator('[class="sc-eyvHYj kJjhiH action"]').nth(0);
-this.confirmRemoveColleagueButton = page.getByText('Yes, Remove It')
-
+    this.removeColleagueButton = page.locator('[class="sc-eyvHYj kJjhiH action"]').nth(0);
+    this.confirmRemoveColleagueButton = page.getByText('Yes, Remove It')
   }
 
   async clickOnRemoveColleagueButton() {
