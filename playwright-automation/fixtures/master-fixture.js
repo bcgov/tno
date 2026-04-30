@@ -14,7 +14,9 @@ import { NotificationDashboardPage } from "../pages/notificationDashboard";
 import { ReportSubscriberSidePage } from "../pages/reportSubscriberSidePage";
 
 import { NotificationalertPage } from "../pages/notificationalertPage";
-import { AddMediaPage } from "../pages/addMediaPage";  
+import { AddMediaPage } from "../pages/addMediaPage";    
+import { DataImport } from "../pages/dataImport";
+import { SystemSettings } from "../pages/systemSettings";
 import { DataImport } from "../pages/dataImport";
 import { SystemSettings } from "../pages/systemSettings";
 import { AddFolderPage } from "../pages/addFolderPage";
@@ -45,13 +47,13 @@ export class MasterFixture {
         this.sourcePage = new SourcePage(this.page);
         this.showProgramPage = new ShowProgramPage(this.page);
         this.notificationpage= new NotificationDashboardPage(this.page)
-
+<<<<<<< HEAD
         this.reportSubscriberSidePage = new ReportSubscriberSidePage(this.page);
-
+=======
         this.addProductPage = new AddProductPage(this.page);
         this.addFilterPage = new AddFilterPage(this.page);
         this.editTopicsPage = new EditTopicsPage(this.page);
-
+>>>>>>> dev
 
     }
 }

@@ -32,8 +32,12 @@ test.describe('@smoke Data Connections', () => {
      console.log(`Deletion of ${keyword} is successful.`);
     await dataImport.removeBtn(); 
     
+
     await dataImport.navigatetoLocation();
      console.log("Navigate to Data Locations");
+    await dataImport.navigatetoConnection();
+     console.log("Navigate to Data Connections");
+
      await dataImport.validateDeleteMessage();
       console.log(`Deletion of ${keyword} is successful.`);
     

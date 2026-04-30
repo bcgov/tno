@@ -36,7 +36,6 @@ test.describe('@smoke Ingest TYpe', () => {
 
     await dataImport.dropdownOption('PrintContent');  
     
-      await dataImport.validateMessage();
     //Validate data is saved
     await expect(await dataImport.validateMessage()).toBe(true);
     await dataImport.backbtnIngest();

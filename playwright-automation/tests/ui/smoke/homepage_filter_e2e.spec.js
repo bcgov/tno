@@ -292,4 +292,42 @@ test.describe('@smoke Verify filtering of headlines using Published date content
 
     });
 
+    test(`Verify filter by ownership type - My content`, async ({ }) => {
+      const parentPage = page;
+      const headlineTitle = `Automation Print Content Headline Title ${Date.now()}`;
+      headlineDetailsPage = await editorHomePage.clickOnContent(CONSTANTS.HEADLINES.PRINT_CONTENT);
+
+      await headlineDetailsPage.enterHeadLineTitle(headlineTitle);
+
+      await headlineDetailsPage.enterByline(CONSTANTS.HEADLINES.BYLINE);
+      await headlineDetailsPage.selectSource(CONSTANTS.HEADLINES.SOURCE_TORONTO_STAR);
+      await headlineDetailsPage.enterSummary('Automation_Test_Summary');
+
+      await headlineDetailsPage.selectTag(CONSTANTS.HEADLINES.TAG_ADV);
+      await headlineDetailsPage.clickOnSentimentButtonByText(CONSTANTS.HEADLINES.SENTIMENTS_2);
+      await headlineDetailsPage.enterPrepTime('5');
+
+      await headlineDetailsPage.publishHeadlines();
+      expect(await headlineDetailsPage.verifyToastNotificationVisible(headlineTitle)).toBe(true);
+
+      await headlineDetailsPage.closePage();
+      await parentPage.bringToFront();
+      await appPage.logOut();
+
+      await appPage.navigateToUrl(editorUrl);
+      await editorHomePage.verifyEditorHomePageLoaded();
+      
+      await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.HOME)
+      await editorHomePage.clickOnDateFilterContent(CONSTANTS.BUTTONS.MY_CONTENT);
+      expect(await editorHomePage.isPublishedHeadlinesPresent(headlineTitle)).toBe(true);
+      headlineDetailsPage = await editorHomePage.clickOnHeadlinesTitleByRowNumber(1);
+      await headlineDetailsPage.unPublishHeadlines();
+
+      await headlineDetailsPage.deleteUnpublishedHeadline();
+      await headlineDetailsPage.closePage();
+      await parentPage.bringToFront();
+      await appPage.logOut();                         
+
+    });
+
 });

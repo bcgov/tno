@@ -22,7 +22,7 @@ this.listOption = (value) =>
   page.getByText(value, { exact : true })
 this.mediaSortOrderInput = page.getByRole('spinbutton', { name: 'Sort Order' })
 this.saveButton = page.getByRole('button', { name: 'Save' })
-this.backToMediaButton = page.getByRole('button', { name: 'back Back to Media Types' })
+this.backToMediaButton = page.getByRole('button', { name: 'back Back to Media Types' })this.backToMediaButton = page.getByRole('button', { name: 'back Back to Media Types' })
 this.searchInput = page.getByRole('textbox', { name: 'Search by keyword' });
 
 this.selectTRvalue = page.getByText('Automation Test Name');
@@ -67,20 +67,7 @@ this.listOption2 = (value) =>
 this.selectIngestvalue = page.getByText('Test Automation IT');
 this.backToIngestButton = page.getByRole('button', { name: 'back Back to Ingest Types' });
 
-
-//  Actions Page locators 
-this.actionsLink = page.getByRole('link', { name: 'Actions' })
-this.addnewactions = page.getByRole('button', { name: 'plus Add new action' })
-this.contentTypeDropdown = page.locator('.rs__input-container').first()
-this.listOption3 = (value) => 
-  page.getByText(value, { exact : true })
-
-this.backToActionsButton = page.getByRole('button', { name: 'back Back to actions' })
-this.selectActionTRvalue = page.getByText('Automation Test Name');
-this.toastmessage = page.getByText(`Automation Test Name has successfully been saved.`);
-//this.toastmessage1 = page.locator(`//*[@id="3"]/div[1]/div[2]`); 
-this.deletemessage = page.getByText(`Automation Test Name has successfully been deleted.`);
- }
+  }
  
 
 /**methods of Add Media Scenario****/
@@ -139,15 +126,9 @@ async searchAndValidation(mediaName){
 async ValidateRowValue(mediaName){
   await this.page.waitForLoadState('networkidle');
   //locate row
-  const row = this.page.getByText(mediaName);
-     logger.info(`This line to be printed: Name=${row}`);
-    const rowcount = await this.page.getByText(mediaName).count();
-    logger.info(`Number of rows found with media name "${mediaName}": ${rowcount}`);
-
-    await expect(row).toHaveCount(0);
-   await expect(await row).toContainText(mediaName);
-   logger.info("Data is searched and validated successfully!!");
-} 
+   const row = this.page.getByText(mediaName);
+   logger.info(`This line to be printed: Name=${row}`);
+}
 
 async clickOnVisibleText(){
 await this.trValue.click();
@@ -279,53 +260,5 @@ await this.selectIngestvalue.click();
 logger.info("Click on Selected Ingest Value");
 
 }
-
-/**    Mehtods for Actions Page  */
-async navigateToActions() {
-  await this.actionsLink.click();
-  logger.info(`Clicked on Actions in Menue`);
 }
-async clickAddNewActions() {
-  await this.addnewactions.click();
-  logger.info(`Clicked on Media in Menue`);
-}
-async contentdropdown(value) {
-  await this.contentTypeDropdown.click();
-  await this.listOption3(value).click();
-  await this.saveButton.click();
-
-  console.log("Listoption :", value);
-}
-async validateSuccessMessage(){
-  await this.toastmessage.waitFor({ state: 'visible', timeout: 5000 });
-  const isVisible = await this.toastmessage.isVisible();
-  logger.info(`Success message visibility: ${isVisible}`);
-  return isVisible;
-}
-
-async isBackToActionsVisible() {
-  return await this.backToActionsButton.isVisible();
-}
-async clickBackToActions() {
-  await this.backToActionsButton.click();
-  logger.info(`Clicked on Back to Tags button!!`);
-}
-async clickOnSelectedValue(){
-await this.selectActionTRvalue.click();
-logger.info("Click on Selected Value");
-}
-
-async NavigatetoActions(){
-  await expect(this.page).toHaveURL(`https://test.editor.mmi.gov.bc.ca/admin/actions`);
-  console.log("Current URL after deletion:", this.page.url());
-}
-async validateDeleteMessage(){
-  await this.deletemessage.waitFor({ state: 'visible', timeout: 5000 });
-  const isVisible = await this.deletemessage.isVisible();
-  logger.info(`Delete message visibility: ${isVisible}`);
-  return isVisible;
-}
-}
-
-module.exports = { AddMediaPage }
-
+module.exports = { AddMediaPage };

@@ -23,8 +23,8 @@ test.describe('@smoke Add Media TYPE', () => {
     await addMediaPage.navigateToMiMedia();
     await addMediaPage.clickAddNewMedia();
     
-    const MediaName = `Automation Test Name`;
-    const MediaDescription = `Automation Test Description`;
+    const MediaName = `Automation Media type Name`;
+    const MediaDescription = `Automation Media type Description`;
     const randomNumber = Math.floor(Math.random() * 100)+1;
     const MediaSortOrder = `${randomNumber}`;
 
@@ -40,6 +40,8 @@ test.describe('@smoke Add Media TYPE', () => {
     //Validate data is saved
     await expect(await addMediaPage.validateSuccessMessage()).toBe(true);
     await addMediaPage.backbtnMedia();
+
+  
     await appPage.logOut();
   });
 });

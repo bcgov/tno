@@ -23,7 +23,7 @@ test.describe('@smoke Add New Actions', () => {
     await addMediaPage.navigateToActions();
   await addMediaPage.clickAddNewActions();
     
-    const MediaName = `Automation Action Name`;
+    const MediaName = `Automation Test Name`;
     const MediaDescription = `Description for Action Name`;
     const randomNumber = Math.floor(Math.random() * 100)+1;
     const MediaSortOrder = `${randomNumber}`;
@@ -35,7 +35,6 @@ test.describe('@smoke Add New Actions', () => {
     );
 
     await addMediaPage.contentdropdown('Print Content');  
-    await addMediaPage.validateSuccessMessage();
 
     //Validate data is saved
     await expect(await addMediaPage.validateSuccessMessage()).toBe(true);
