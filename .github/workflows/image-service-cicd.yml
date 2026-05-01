@@ -1,0 +1,44 @@
+name: Image Service CI/CD
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [dev, master]
+    paths:
+      - services/net/image/**
+      - libs/net/**
+      - openshift/kustomize/services/image/**
+      - .github/workflows/image-service-cicd.yml
+  push:
+    branches: [dev, master, image-service]
+    paths:
+      - services/net/image/**
+      - libs/net/**
+      - openshift/kustomize/services/image/**
+      - .github/workflows/image-service-cicd.yml
+
+concurrency:
+  group: image-service-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  pipeline:
+    uses: ./.github/workflows/_reusable-dotnet-cicd.yml
+    with:
+      image_name: image-service
+      csproj_path: services/net/image/TNO.Services.Image.csproj
+      dockerfile: services/net/image/Dockerfile
+      component: image-service
+      deployment_name: image-service
+      kustomize_dev_path: openshift/kustomize/services/image/overlays/dev
+      kustomize_test_path: openshift/kustomize/services/image/overlays/test
+      dev_branch: image-service
+      rollout_timeout: '180s'
+      continue_on_error_verify: true
+      health_check_method: exec_curl
+    secrets:
+      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
