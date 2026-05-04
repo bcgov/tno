@@ -172,14 +172,14 @@ spec:
         build_service 'filecopy'
         build_service 'filemonitor'
         # build_service 'folder-collection' # Moved to GitHub Actions CI/CD — folder-collection-cicd.yml
-        build_service 'image'
+        # build_service 'image' # Moved to GitHub Actions CI/CD — image-service-cicd.yml
         build_service 'indexing'
         build_service 'nlp'
         build_service 'notification'
         build_service 'scheduler'
         build_service 'syndication'
         build_service 'transcription'
-        build_service 'auto-clipper'
+        # build_service 'auto-clipper' # Moved to GitHub Actions CI/CD — auto-clipper-cicd.yml
 
         echo "Build the following component."
         cat build.env | xargs echo
