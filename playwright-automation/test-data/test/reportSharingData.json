@@ -1,7 +1,9 @@
 {
   "qa": {
     "report": {
+
       "recipient_email": "email"
+      
     }
   }
 }

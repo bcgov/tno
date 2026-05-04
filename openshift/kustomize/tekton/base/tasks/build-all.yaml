@@ -105,12 +105,13 @@ spec:
           [dockerfile]="/services/net/filemonitor/Dockerfile"
         )
 
-        declare -A COMPONENT2=(
-          [id]="image"
-          [image]="image-service"
-          [context]=""
-          [dockerfile]="/services/net/image/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — image-service-cicd.yml
+        # declare -A COMPONENT2=(
+        #   [id]="image"
+        #   [image]="image-service"
+        #   [context]=""
+        #   [dockerfile]="/services/net/image/Dockerfile"
+        # )
 
         # Processing Services
 
@@ -248,12 +249,13 @@ spec:
           [dockerfile]="/tools/elastic/migration/Dockerfile"
         )
 
-        declare -A COMPONENT21=(
-          [id]="auto-clipper"
-          [image]="auto-clipper-service"
-          [context]=""
-          [dockerfile]="/services/net/auto-clipper/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — auto-clipper-cicd.yml
+        # declare -A COMPONENT21=(
+        #   [id]="auto-clipper"
+        #   [image]="auto-clipper-service"
+        #   [context]=""
+        #   [dockerfile]="/services/net/auto-clipper/Dockerfile"
+        # )
 
         declare -n component;
 
