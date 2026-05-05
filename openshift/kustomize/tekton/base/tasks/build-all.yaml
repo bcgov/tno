@@ -130,12 +130,13 @@ spec:
         #   [dockerfile]="/services/net/indexing/Dockerfile"
         # )
 
-        declare -A COMPONENT5=(
-          [id]="transcription"
-          [image]="transcription-service"
-          [context]=""
-          [dockerfile]="/services/net/transcription/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — transcription-service-cicd.yml
+        # declare -A COMPONENT5=(
+        #   [id]="transcription"
+        #   [image]="transcription-service"
+        #   [context]=""
+        #   [dockerfile]="/services/net/transcription/Dockerfile"
+        # )
 
         declare -A COMPONENT6=(
           [id]="nlp"
