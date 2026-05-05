@@ -16,8 +16,7 @@ async function globalSetup() {
   // Load enviroment variables in env file
   const dotenv = require("dotenv");
   dotenv.config({
-    path: `.env.${env_name}`,
-    //path: `./utils/env/.env.${env_name}`,
+    path: `./utils/env/.env.${env_name}`,
     override: true,
   });
   // LOGIN_URL value can be passed via npx command. for e.g LOGIN_URL='https://test.editor.mmi.gov.bc.ca/'. Else value is null/undefined. 

@@ -10,4 +10,3 @@ node_modules/
 allure-results/
 allure-report/
 playwright.config.js
-utils/global-setup.js
