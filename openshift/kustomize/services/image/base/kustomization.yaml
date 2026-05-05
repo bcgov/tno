@@ -9,9 +9,3 @@ resources:
 
 generatorOptions:
   disableNameSuffixHash: true
-
-secretGenerator:
-  - name: ssh-key
-    type: stringData
-    files:
-      - id_rsa=secret.env
