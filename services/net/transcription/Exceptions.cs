@@ -36,7 +36,4 @@ namespace TNO.Services.Transcription.Exceptions
             ContentId = contentId;
         }
     }
-
-
-
 }
