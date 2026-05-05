@@ -44,6 +44,7 @@ const CONSTANTS = {
   },
 
   REPORTBUILDING_SUBMENU: {
+    DASHBOARD: 'Dashboard',
     REPORTS: 'Reports',
     MMI_PRODUCTS: 'MMI Products',
     FOLDERS: 'Folders',
@@ -108,6 +109,17 @@ const CONSTANTS = {
     PREVIEW: 'Preview',
     IMPORT_EXPORT: 'ImportImport/Export'
   },
+
+  COLUMN_NAME: {
+    SOURCE: 'Source',
+    MEDIA_TYPE: 'Media Type',
+    PUB_DATE: 'Pub Date',
+    NAME: 'Name',
+    HASREQUESTS: 'Has Requests',
+    DESCRIPTION: 'Description',
+    TYPE: 'Type',
+    OWNER: 'Owner'
+  }
  
 };
 

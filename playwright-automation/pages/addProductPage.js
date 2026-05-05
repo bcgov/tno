@@ -20,6 +20,10 @@ class AddProductPage extends BasePage {
 
     this.productLink = page.locator(`.link`);
 
+    this.userName = page.locator(`.user-name`);
+    this.approveButton = page.locator(`//button//div[text()='Approve']`);
+    this.rejectButton = page.locator(`//button//div[text()='Reject']`);
+
   }
 
   /**
@@ -119,6 +123,46 @@ class AddProductPage extends BasePage {
     await this.click(this.deleteButton);
     await this.click(this.deleteConfirmation);
     logger.info(`Successfully Deleted the newly added product.`);
+  }
+
+  /**
+   * Method to check visibility of user name.
+   */
+  async verifyUserNameVisibility() {
+    logger.info(`Visibility of user name  is ${await this.isElementVisible(this.userName)}`);
+    return await this.isElementVisible(this.userName);
+  }
+
+   /**
+   * Method to check visibility of Approve button.
+   */
+  async verifyApproveButtonVisibility() {
+    logger.info(`Visibility of Approve button is ${await this.isElementVisible(this.approveButton)}`);
+    return await this.isElementVisible(this.approveButton);
+  }
+
+  /**
+   * Method to check visibility of Reject button.
+   */
+  async verifyRejectButtonVisibility() {
+    logger.info(`Visibility of Reject button is ${await this.isElementVisible(this.rejectButton)}`);
+    return await this.isElementVisible(this.rejectButton);
+  }
+
+  /**
+   * Method to approve subscription
+   */
+  async approveSubscription() {
+    await this.click(this.approveButton);
+    logger.info(`Successfully Approved subscription.`);
+  }
+
+  /**
+   * Method to reject subscription
+   */
+  async rejectSubscription() {
+    await this.click(this.rejectButton);
+    logger.info(`Successfully Reject subscription.`);
   }
 
 }

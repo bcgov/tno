@@ -23,6 +23,16 @@ class SubscriberNavBarPage extends BasePage {
     logger.info(`Clicked on My Content section option: ${navBarOptionName}`);
     this.hardWait(1000);
   }
+
+  /**
+   * Method to click on givenSection from nav bar
+   * @param {string} section name
+   */
+  async clickOnLeftNavOptionByText(navBarOptionName) {
+    await this.click(this.page.locator(`//*[text()='${navBarOptionName}']`));
+    logger.info(`Clicked on section option: ${navBarOptionName}`);
+    this.hardWait(6000);
+  }
   
 
   async clickOnMyFolder() {
