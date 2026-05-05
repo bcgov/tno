@@ -21,6 +21,9 @@ import { AddFolderPage } from "../pages/addFolderPage";
 import { AddProductPage } from "../pages/addProductPage";
 import { AddFilterPage } from "../pages/addFilterPage";
 import { EditTopicsPage } from "../pages/editTopicsPage";
+import { GridPage } from "../pages/gridPage";
+import { ReportDashboardPage } from "../pages/reportDashboardPage";
+import { SubscriberMMIProductPage } from "../pages/subscriberMMIProductPage";
 
 export class MasterFixture {
 
@@ -56,6 +59,9 @@ export class MasterFixture {
         this.addProductPage = new AddProductPage(this.page);
         this.addFilterPage = new AddFilterPage(this.page);
         this.editTopicsPage = new EditTopicsPage(this.page);
+        this.gridPage = new GridPage(this.page);
+        this.reportDashboardPage = new ReportDashboardPage(this.page);
+        this.subscriberMMIProductPage = new SubscriberMMIProductPage(this.page);
 
     }
 }

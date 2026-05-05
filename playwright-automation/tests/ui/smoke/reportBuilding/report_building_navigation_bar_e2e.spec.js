@@ -1,7 +1,7 @@
-const { test, expect } = require('../../../fixtures/ui-fixture');
-const DataLoader = require('../../../utils/dataLoader');
-const CONSTANTS = require('../../../utils/constants');
-const { SubscriberSearchResultPage } = require('../../../pages/subscriberSearchResultPage');
+const { test, expect } = require('../../../../fixtures/ui-fixture');
+const DataLoader = require('../../../../utils/dataLoader');
+const CONSTANTS = require('../../../../utils/constants');
+const { SubscriberSearchResultPage } = require('../../../../pages/subscriberSearchResultPage');
 
 const testData = DataLoader.loadJSON(`test-data/${process.env.ENV_NAME}/loginData.json`);
 const reportData = DataLoader.loadJSON(`test-data/${process.env.ENV_NAME}/reportSharingData.json`);
