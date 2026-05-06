@@ -9,11 +9,6 @@ resources:
 generatorOptions:
   disableNameSuffixHash: true
 
-secretGenerator:
-  - name: azure-cognitive-services
-    type: stringData
-    env: azure.env
-
 patches:
   - target:
       kind: Deployment
