@@ -158,12 +158,13 @@ spec:
           [dockerfile]="/services/net/reporting/Dockerfile"
         )
 
-        declare -A COMPONENT9=(
-          [id]="notification"
-          [image]="notification-service"
-          [context]=""
-          [dockerfile]="/services/net/notification/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — notification-service-cicd.yml
+        # declare -A COMPONENT9=(
+        #   [id]="notification"
+        #   [image]="notification-service"
+        #   [context]=""
+        #   [dockerfile]="/services/net/notification/Dockerfile"
+        # )
 
         declare -A COMPONENT10=(
           [id]="scheduler"

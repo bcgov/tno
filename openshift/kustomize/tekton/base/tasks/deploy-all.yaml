@@ -180,15 +180,16 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT11=(
-          [id]="notification"
-          [name]="notification-service"
-          [type]="dc"
-          [replicas]="1"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — notification-service-cicd.yml
+        # declare -A COMPONENT11=(
+        #   [id]="notification"
+        #   [name]="notification-service"
+        #   [type]="dc"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
         declare -A COMPONENT12=(
           [id]="scheduler"
