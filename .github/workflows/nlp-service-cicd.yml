@@ -1,0 +1,44 @@
+name: NLP Service CI/CD
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [dev, master]
+    paths:
+      - services/net/nlp/**
+      - libs/net/**
+      - openshift/kustomize/services/nlp/**
+      - .github/workflows/nlp-service-cicd.yml
+  push:
+    branches: [dev, master, nlp-service]
+    paths:
+      - services/net/nlp/**
+      - libs/net/**
+      - openshift/kustomize/services/nlp/**
+      - .github/workflows/nlp-service-cicd.yml
+
+concurrency:
+  group: nlp-service-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  pipeline:
+    uses: ./.github/workflows/_reusable-dotnet-cicd.yml
+    with:
+      image_name: nlp-service
+      csproj_path: services/net/nlp/TNO.Services.NLP.csproj
+      dockerfile: services/net/nlp/Dockerfile
+      component: nlp-service
+      deployment_name: nlp-service
+      kustomize_dev_path: openshift/kustomize/services/nlp/overlays/dev
+      kustomize_test_path: openshift/kustomize/services/nlp/overlays/test
+      dev_branch: nlp-service
+      rollout_timeout: '180s'
+      continue_on_error_verify: true
+      health_check_method: exec_curl
+    secrets:
+      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}

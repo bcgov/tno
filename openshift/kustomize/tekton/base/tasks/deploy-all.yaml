@@ -150,25 +150,27 @@ spec:
           [env]="dev test prod"
         )
 
-        declare -A COMPONENT8=(
-          [id]="nlp"
-          [name]="nlp-service"
-          [type]="dc"
-          [replicas]="1"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — nlp-service-cicd.yml
+        # declare -A COMPONENT8=(
+        #   [id]="nlp"
+        #   [name]="nlp-service"
+        #   [type]="dc"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
-        declare -A COMPONENT9=(
-          [id]="extract-quotes"
-          [name]="extract-quotes-service"
-          [type]="dc"
-          [replicas]="1"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — extract-quotes-service-cicd.yml
+        # declare -A COMPONENT9=(
+        #   [id]="extract-quotes"
+        #   [name]="extract-quotes-service"
+        #   [type]="dc"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
         declare -A COMPONENT10=(
           [id]="reporting"
