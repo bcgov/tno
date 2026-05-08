@@ -73,7 +73,7 @@ jobs:
           dotnet-version: 9.x
 
       - name: Restore
-        run: dotnet restore "${{ inputs.csproj_path }}"
+        run: dotnet restore "${{ inputs.csproj_path }}" --configfile NuGet.Config
 
       - name: Check vulnerable packages
         run: dotnet list "${{ inputs.csproj_path }}" package --vulnerable --include-transitive
