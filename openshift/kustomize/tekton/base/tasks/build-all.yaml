@@ -138,19 +138,21 @@ spec:
         #   [dockerfile]="/services/net/transcription/Dockerfile"
         # )
 
-        declare -A COMPONENT6=(
-          [id]="nlp"
-          [image]="nlp-service"
-          [context]=""
-          [dockerfile]="/services/net/nlp/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — nlp-service-cicd.yml
+        # declare -A COMPONENT6=(
+        #   [id]="nlp"
+        #   [image]="nlp-service"
+        #   [context]=""
+        #   [dockerfile]="/services/net/nlp/Dockerfile"
+        # )
 
-        declare -A COMPONENT7=(
-          [id]="extract-quotes"
-          [image]="extract-quotes-service"
-          [context]=""
-          [dockerfile]="/services/net/extract-quotes/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — extract-quotes-service-cicd.yml
+        # declare -A COMPONENT7=(
+        #   [id]="extract-quotes"
+        #   [image]="extract-quotes-service"
+        #   [context]=""
+        #   [dockerfile]="/services/net/extract-quotes/Dockerfile"
+        # )
 
         declare -A COMPONENT8=(
           [id]="reporting"
