@@ -10,29 +10,29 @@ test.beforeEach(async ({ masterFixture }) => {
   appPage = masterFixture.appPage;
   page = masterFixture.page;
   notificationpage = masterFixture.notificationpage;
-  await appPage.navigateToMMIUrl(mmiMSUrl);
+  await appPage.navigateToUrl(mmiMSUrl);
   await appPage.hardWait(5000);
 });
 
 test.describe('@smoke Validate Failed Notifications in Notification Dashboard', () => {
   test(`Validate failed Notifications `, async ({}) => {
     await expect(page).toHaveURL(mmiMSUrl + 'contents');
-    await page.goto(`${mmiMSUrl}admin/notifications/dashboard`);
-    await notificationpage.selectNotification("Top Stories")
+    await page.goto(mmiMSUrl + `admin/notifications/dashboard`);
+    await notificationpage.selectNotification('Top Stories');
     const today = new Date();
-const endDate = today.toLocaleDateString("en-US");
+    const endDate = today.toLocaleDateString('en-US');
 
-const lastYear = new Date();
-lastYear.setFullYear(today.getFullYear() - 1);
-const startDate = lastYear.toLocaleDateString("en-US");
-    await notificationpage.enterNotificationDates(startDate,endDate)
-    await notificationpage.failedNotificationCheckbox()
-    await notificationpage.clickNotificationSearchButton()
-    const rows = page.locator('[class="notification-card"]')
-    if(await rows.count()>0){
-      await expect("Row count"+rows.count())
-       }else{
-      expect("no records found")
+    const lastYear = new Date();
+    lastYear.setFullYear(today.getFullYear() - 1);
+    const startDate = lastYear.toLocaleDateString('en-US');
+    await notificationpage.enterNotificationDates(startDate, endDate);
+    await notificationpage.failedNotificationCheckbox();
+    await notificationpage.clickNotificationSearchButton();
+    const rows = page.locator('[class="notification-card"]');
+    if ((await rows.count()) > 0) {
+      await expect('Row count' + rows.count());
+    } else {
+      expect('no records found');
     }
   });
-})
+});

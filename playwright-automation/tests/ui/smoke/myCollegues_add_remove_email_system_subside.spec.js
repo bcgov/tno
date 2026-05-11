@@ -10,13 +10,13 @@ test.beforeEach(async ({ masterFixture }) => {
   appPage = masterFixture.appPage;
   page = masterFixture.page;
   settingsPage = masterFixture.settingsPage;
-  await appPage.navigateToMMIUrl(mmiMSUrl);
+  await appPage.navigateToUrl(mmiMSUrl);
   await appPage.hardWait(5000);
 });
 
 test.describe('@smoke My Collegues add remove email_system_subside', () => {
   test(`Add remove email system subside`, async ({}) => {
-    await page.goto(`${process.env.MMI_URL}/landing/home`);
+    await appPage.navigateToSubscriberURL();
     await settingsPage.clickOnSettingsLink();
     await settingsPage.clickOnMyColleaguesLink();
     await settingsPage.enterColleagueEmail('priya.saini@gov.bc.ca');

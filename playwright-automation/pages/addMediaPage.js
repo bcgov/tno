@@ -10,7 +10,7 @@ class AddMediaPage extends BasePage {
     super(page);
     this.page = page;
 
-this.contentConfigurationButton = page.getByRole('button', { name: 'Content Configuration' })
+this.contentConfigurationButton = page.locator(`(//a[contains(@class,'nav-link')])[4]`);
 this.mediasLink = page.getByRole('link', { name: 'Media Types' })
 this.addNewmediaButton = page.getByRole('button', { name: 'plus Add new media type' })
 this.mediaNameInput = page.getByRole('textbox', { name: 'Name' })
@@ -148,6 +148,7 @@ async ValidateRowValue(mediaName){
 
 async clickOnVisibleText(){
 await this.trValue.click();
+await this.page.locator(`//*[contains(@class,'ellipsis') and text() = 'Automation Test Name']`).click();
 logger.info("Click on Selected Value");
 }
 

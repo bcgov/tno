@@ -10,14 +10,14 @@ test.beforeEach(async ({ masterFixture }) => {
   appPage = masterFixture.appPage;
   page = masterFixture.page;
   settingsPage = masterFixture.settingsPage;
-  await appPage.navigateToMMIUrl(mmiMSUrl);
+  await appPage.navigateToUrl(mmiMSUrl);
   await appPage.hardWait(5000);
 
 });
 
 test.describe('@smoke Validation MyAccount Subscriber side toggle notifaction OFF', () => {
   test(`Validation MyAccount Subscriber side toggle notifaction OFF`, async ({}) => {
-    await page.goto(`${process.env.MMI_URL}/landing/home`);
+    await appPage.navigateToSubscriberURL();
     await settingsPage.clickOnSettingsLink();
     await settingsPage.clickOnMyAccountLink();
     await settingsPage.toggleEmailNotificationOFF();

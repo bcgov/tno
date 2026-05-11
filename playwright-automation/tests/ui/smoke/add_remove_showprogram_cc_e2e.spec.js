@@ -3,6 +3,7 @@ const DataLoader = require('../../../utils/dataLoader');
 const testData = DataLoader.loadJSON(`test-data/${process.env.ENV_NAME}/loginData.json`);
 const testApp = process.env.APP_NAME;
 const mmiMSUrl = testData[testApp]['microsoftMMI']['url'];
+const editorUrl = testData[testApp]['editor']['url'];
 
 let page, appPage, showProgramPage;
 
@@ -10,14 +11,14 @@ test.beforeEach(async ({ masterFixture }) => {
   appPage = masterFixture.appPage;
   page = masterFixture.page;
   showProgramPage = masterFixture.showProgramPage;
-  await appPage.navigateToMMIUrl(mmiMSUrl);
+  await appPage.navigateToUrl(editorUrl);
   await appPage.hardWait(5000);
 });
 
 test.describe('@smoke Add and Remove Show Program', () => {
   test(`Add and Remove Show Program `, async ({  }) => {
     await expect(page).toHaveURL(mmiMSUrl + 'contents');
-        await page.goto(`${mmiMSUrl}admin/programs`);
+        await page.goto(mmiMSUrl + 'admin/programs');
         await showProgramPage.clickOnAddShowProgramButton();
        const randomNum = Math.floor(Math.random() * 1000);
         await showProgramPage.enterName('Test Show Program ' + randomNum);

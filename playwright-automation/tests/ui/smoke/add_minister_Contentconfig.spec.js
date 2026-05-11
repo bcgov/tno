@@ -3,6 +3,7 @@ const DataLoader = require('../../../utils/dataLoader');
 const testData = DataLoader.loadJSON(`test-data/${process.env.ENV_NAME}/loginData.json`);
 const testApp = process.env.APP_NAME;
 const mmiMSUrl = testData[testApp]['microsoftMMI']['url'];
+const editorUrl = testData[testApp]['editor']['url'];
 
 let page, appPage, editorOnlineStoryPage;
 
@@ -10,13 +11,13 @@ test.beforeEach(async ({ masterFixture }) => {
   appPage = masterFixture.appPage;
   page = masterFixture.page;
   editorOnlineStoryPage = masterFixture.editorOnlineStoryPage;
-  await appPage.navigateToMMIUrl(mmiMSUrl);
+  await appPage.navigateToUrl(mmiMSUrl);
   await appPage.hardWait(5000);
 });
 
 test.describe('@smoke Adding a new minister', () => {
-  test(`Adding a new minister`, async ({  }) => {
-    await expect(page).toHaveURL(mmiMSUrl+'contents');
+  test(`Adding a new minister`, async ({}) => {
+    await expect(page).toHaveURL(mmiMSUrl + 'contents');
     await editorOnlineStoryPage.navigateToContentConfiguration();
     await editorOnlineStoryPage.navigateToMinisters();
     await editorOnlineStoryPage.clickAddNewMinister();
@@ -30,7 +31,7 @@ test.describe('@smoke Adding a new minister', () => {
       ministerName,
       ministerDescription,
       ministerPosition,
-      ministerSortOrder
+      ministerSortOrder,
     );
 
     await page.waitForTimeout(10000);

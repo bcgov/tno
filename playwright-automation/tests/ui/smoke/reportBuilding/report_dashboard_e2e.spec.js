@@ -36,9 +36,9 @@ test.describe('@smoke Report dashborad end to end workflow', () => {
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.DASHBOARD);
 
-    expect(await reportDashboardPage.getReportDashBoardTitle()).toBe('Report Dashboard');
+    expect(await reportDashboardPage.getReportDashBoardTitle()).toBe('REPORT DASHBOARD');
     expect(await reportDashboardPage.isFailedStatusVisible()).toBe(true);
-    expect(await reportDashboardPage.getTotalRecordsOnGrid()).toHaveCount(1);
+    expect(await reportDashboardPage.getTotalRecordsOnGrid()).toBe(1);
 
     await reportDashboardPage.selectOrDeselectShowFailedOnlyCheckbox();
     expect(await reportDashboardPage.getTotalRecordsOnGrid()).toBeGreaterThan(1);
