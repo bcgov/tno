@@ -13,14 +13,14 @@ test.beforeEach(async ({ masterFixture }) => {
   page = masterFixture.page;
   settingsPage = masterFixture.settingsPage;
   ministerPage = masterFixture.ministerPage;
-  await appPage.navigateToMMIUrl(mmiMSUrl);
+  await appPage.navigateToUrl(mmiMSUrl);
   await appPage.hardWait(5000);
 });
 
 test.describe('@smoke Create Search Folder', () => {
   test(`Creating a search and verifying saved search `, async ({}) => {
     await expect(page).toHaveURL(mmiMSUrl + 'contents');
-    await page.goto(`${process.env.MMI_URL}/landing/home`);
+    await appPage.navigateToSubscriberURL();
     await ministerPage.clickOnSettings();
     await settingsPage.clickOnAdvancedSearchLink();
     await settingsPage.enterAdvancedSearchText(searchText);
