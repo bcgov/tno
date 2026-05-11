@@ -39,7 +39,8 @@ const CONSTANTS = {
   NAVIGATIONMENU: {
     REPORT_BUILDING: 'Report Building',
     CONTENT: 'Content',
-    HOME: 'Home'
+    HOME: 'Home',
+    CONTENT_CONFIGURATION:'Content Configuration'
 
   },
 
@@ -49,7 +50,8 @@ const CONSTANTS = {
     MMI_PRODUCTS: 'MMI Products',
     FOLDERS: 'Folders',
     FILTERS: 'Filters',
-    EDIT_TOPICS: 'Edit Topics'
+    EDIT_TOPICS: 'Edit Topics',
+    MEDIA_TYPE:'Media Types'
   },
 
   CONTENT_SUBMENU: {

@@ -30,6 +30,7 @@ class HeadlinesDetailsPage extends BasePage {
     this.printcontent = page.locator('//*[@data-tooltip-content="Print content"]');
     this.topStoriesCheckbox = page.locator(`//input[@id="actions.3.value-true"]`);
     this.commentaryCheckbox = page.locator(`//input[@id="actions.4.placeholder-true"]`);
+    this.commentaryCheckboxForPrintContent = page.locator(`//input[@id="actions.6.placeholder-true"]`);
   }
 
   /**
@@ -274,7 +275,11 @@ class HeadlinesDetailsPage extends BasePage {
         logger.info(`Successfully clicked on ${CONSTANTS.HEADLINES.TOP_STORIES}`);
         break;
       case CONSTANTS.HEADLINES.COMMENTARY:
-        await this.click(this.commentaryCheckbox);
+        if(await this.isElementVisible(await this.commentaryCheckbox)){
+          await this.click(await this.commentaryCheckbox);
+        } else {
+           await this.click(await this.commentaryCheckboxForPrintContent);
+        }
         logger.info(`Successfully clicked on ${CONSTANTS.HEADLINES.COMMENTARY}`);
         break;
       default:

@@ -10,13 +10,13 @@ test.beforeEach(async ({ masterFixture }) => {
   appPage = masterFixture.appPage;
   page = masterFixture.page;
   reportSubscriberSidePage = masterFixture.reportSubscriberSidePage;
-  await appPage.navigateToMMIUrl(mmiMSUrl);
+  await appPage.navigateToUrl(mmiMSUrl);
   await appPage.hardWait(5000);
 });
 
 test.describe('@smoke Create and Delete My Report Subscriber Side', () => {
   test(`Create and Delete My Report`, async ({}) => {
-    await page.goto(`${process.env.MMI_URL}/landing/home`);
+     await appPage.navigateToSubscriberURL();
     await reportSubscriberSidePage.clickOnMyreportsLink();
     expect(await reportSubscriberSidePage.newReportButton).toBeVisible();
     await reportSubscriberSidePage.clickOnNewReportButton();

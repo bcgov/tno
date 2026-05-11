@@ -226,6 +226,17 @@ class AppPage extends BasePage {
       case CONSTANTS.REPORTBUILDING_SUBMENU.EDIT_TOPICS:
         await this.clickElementByText(this.subMenuNavigationLink, menuName);
         break;
+      case CONSTANTS.REPORTBUILDING_SUBMENU.DASHBOARD:
+        await this.clickElementByText(this.subMenuNavigationLink, menuName);
+        break;
+      case CONSTANTS.NAVIGATIONMENU.CONTENT_CONFIGURATION:
+        await this.click(this.page.locator(`(//a[contains(@class,'nav-link')])[4]`));
+        logger.info(`Clicked on ${menuName}`);
+        break;
+      case CONSTANTS.REPORTBUILDING_SUBMENU.MEDIA_TYPE:
+        await this.clickElementByText(this.subMenuNavigationLink, menuName);
+        logger.info(`Clicked on ${menuName}`);
+        break;
       default:
         logger.info(`Invalid menu or sub menu option: ${menuName}`);
         break;

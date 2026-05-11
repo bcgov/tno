@@ -4,11 +4,8 @@ const CONSTANTS = require('../../../../utils/constants');
 const { SubscriberSearchResultPage } = require('../../../../pages/subscriberSearchResultPage');
 
 const testData = DataLoader.loadJSON(`test-data/${process.env.ENV_NAME}/loginData.json`);
-const reportData = DataLoader.loadJSON(`test-data/${process.env.ENV_NAME}/reportSharingData.json`);
 const testApp = process.env.APP_NAME;
 const editorUrl = testData[testApp]['editor']['url'];
-const editorReportUrl = testData[testApp]['editor']['reportUrl'];
-const recipientEmail = reportData[testApp]['report']['recipient_email'];
 
 let page, appPage, editorHomePage, reportPage, subscriberNavBarPage, subscriberMyReportPage, addProductPage, 
 addFoldersPage, subscriberSearchResultPage, addFilterPage, editTopicsPage, subscriberMMIProductPage;
@@ -83,6 +80,8 @@ test.describe('@smoke MMI Product Subscription request functionality', () => {
     await subscriberNavBarPage.clickOnLeftNavOptionByText(CONSTANTS.REPORTBUILDING_SUBMENU.MMI_PRODUCTS);
     expect(await subscriberMMIProductPage.getCancelSubscribedText(productName)).toBe('UNSUBSCRIBE');
     await subscriberMMIProductPage.clickUnSubscribeButtonForGivenProduct(productName);
+    hardWait(2000);
+    expect(await subscriberMMIProductPage.getCancelSubscribedText(productName)).toBe('CANCEL PENDING REQUEST');
     await appPage.logOutFromSubscriber();
 
     await appPage.navigateToUrl(editorUrl);

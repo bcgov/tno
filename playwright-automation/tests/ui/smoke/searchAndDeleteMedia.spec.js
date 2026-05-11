@@ -12,30 +12,32 @@ test.beforeEach(async ({ masterFixture }) => {
   page = masterFixture.page;
   addMediaPage = masterFixture.addMediaPage;
   await appPage.navigateToUrl(editorUrl);
-    await appPage.hardWait(5000);
-     console.log("Media Page",addMediaPage );
+  await appPage.hardWait(5000);
+  // console.log('Media Page', addMediaPage);
 });
+
 test.describe('@smoke Search and Media TYPE', () => {
-     test(`Search and Delete Media Type`, async ({page}) => {
-     
-    await page.goto(editorUrl);
+  test(`Search and Delete Media Type`, async ({ }) => {
+    // await page.goto(editorUrl);
     await addMediaPage.navigateToCC();
-    await addMediaPage.navigateToMiMedia(); 
+    await addMediaPage.navigateToMiMedia();
+    // await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.CONTENT_CONFIGURATION);
+    // await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.MEDIA_TYPE);
     await page.waitForTimeout(5000);
 
     const mediaName = `Automation Test Name`;
     await addMediaPage.searchAndValidation(mediaName);
-     console.log(" Fetch Value:", mediaName);
-     
+    console.log(' Fetch Value:', mediaName);
+
     await addMediaPage.clickOnVisibleText();
-      console.log(`Row value validation for ${mediaName} is successful.`);
+    console.log(`Row value validation for ${mediaName} is successful.`);
     await addMediaPage.clickonDeletebtn();
-   console.log(`Deletion of ${mediaName} is successful.`);
+    console.log(`Deletion of ${mediaName} is successful.`);
     await addMediaPage.removeData();
     await addMediaPage.NavigatetoMediatype();
     //Validate the delete message
     await addMediaPage.validateDeleteMessage();
 
-      await appPage.logOut();
+    await appPage.logOut();
   });
 });

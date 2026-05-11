@@ -11,26 +11,25 @@ test.beforeEach(async ({ masterFixture }) => {
   appPage = masterFixture.appPage;
   page = masterFixture.page;
   notificationpage = masterFixture.notificationpage;
-  await appPage.navigateToMMIUrl(mmiMSUrl);
+  await appPage.navigateToUrl(mmiMSUrl);
   await appPage.hardWait(5000);
 });
 
 test.describe('@smoke Verify Passed Notifications in Notification Dashboard', () => {
   test(`Verify Passed Notifications `, async ({}) => {
     await expect(page).toHaveURL(mmiMSUrl + 'contents');
-    await page.goto(`${mmiMSUrl}admin/notifications/dashboard`);
-    await notificationpage.selectNotification("Top Stories")
+    await page.goto(mmiMSUrl + `admin/notifications/dashboard`);
+    await notificationpage.selectNotification('Top Stories');
     const today = new Date();
-const endDate = today.toLocaleDateString("en-US");
+    const endDate = today.toLocaleDateString('en-US');
 
-const lastYear = new Date();
-lastYear.setFullYear(today.getFullYear() - 1);
-const startDate = lastYear.toLocaleDateString("en-US");
-    await notificationpage.enterNotificationDates(startDate,endDate)
-    await notificationpage.uncheckNotificationCheckbox()
-    await notificationpage.clickNotificationSearchButton()
-   const count = await page.locator('[class="notification-card"]').count();
-console.log(`Rows count: ${count}`);
-    
+    const lastYear = new Date();
+    lastYear.setFullYear(today.getFullYear() - 1);
+    const startDate = lastYear.toLocaleDateString('en-US');
+    await notificationpage.enterNotificationDates(startDate, endDate);
+    await notificationpage.uncheckNotificationCheckbox();
+    await notificationpage.clickNotificationSearchButton();
+    const count = await page.locator('[class="notification-card"]').count();
+    console.log(`Rows count: ${count}`);
   });
 });

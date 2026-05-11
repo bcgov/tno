@@ -11,14 +11,14 @@ test.beforeEach(async ({ masterFixture }) => {
   page = masterFixture.page;
   editorOnlineStoryPage = masterFixture.editorOnlineStoryPage;
   subscriberNavBarPage = masterFixture.subscriberNavBarPage;
-  await appPage.navigateToMMIUrl(mmiMSUrl);
+  await appPage.navigateToUrl(mmiMSUrl);
   await appPage.hardWait(5000);
 });
 
 test.describe('@smokeCreate/Delete Folder ', () => {
   test(`Creating and deleting a folder`, async ({}) => {
     await expect(page).toHaveURL(mmiMSUrl + 'contents');
-    await page.goto(`${process.env.MMI_URL}/landing/home`);
+    await appPage.navigateToSubscriberURL();
     await subscriberNavBarPage.clickOnMyFolder();
     const randomNum = Math.floor(Math.random() * 10000);
     const folderName = `Test Folder - ${randomNum}`;
