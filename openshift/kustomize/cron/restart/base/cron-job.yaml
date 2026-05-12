@@ -37,7 +37,7 @@ spec:
                 - /bin/sh
                 - "-c"
                 - >-
-                  oc rollout latest dc/api-services &&
-                  oc rollout status dc/api-services &&
-                  oc rollout latest dc/reporting-service &&
-                  oc rollout status dc/reporting-service
+                  oc rollout restart deployment/api-services &&
+                  oc rollout status deployment/api-services &&
+                  oc rollout restart deployment/reporting-service &&
+                  oc rollout status deployment/reporting-service
