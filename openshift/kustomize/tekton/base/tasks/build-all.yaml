@@ -169,12 +169,13 @@ spec:
         #   [dockerfile]="/services/net/notification/Dockerfile"
         # )
 
-        declare -A COMPONENT10=(
-          [id]="scheduler"
-          [image]="scheduler-service"
-          [context]=""
-          [dockerfile]="/services/net/scheduler/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — scheduler-service-cicd.yml
+        # declare -A COMPONENT10=(
+        #   [id]="scheduler"
+        #   [image]="scheduler-service"
+        #   [context]=""
+        #   [dockerfile]="/services/net/scheduler/Dockerfile"
+        # )
 
         # Moved to GitHub Actions CI/CD — folder-collection-cicd.yml
         # declare -A COMPONENT11=(

@@ -1,0 +1,48 @@
+name: Scheduler Service CI/CD
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [dev, master]
+    paths:
+      - services/net/scheduler/**
+      - libs/net/**
+      - openshift/kustomize/services/scheduler/**
+      - .github/workflows/scheduler-service-cicd.yml
+  push:
+    branches: [dev, master, scheduler-service]
+    paths:
+      - services/net/scheduler/**
+      - libs/net/**
+      - openshift/kustomize/services/scheduler/**
+      - .github/workflows/scheduler-service-cicd.yml
+
+concurrency:
+  group: scheduler-service-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  pipeline:
+    uses: ./.github/workflows/_reusable-dotnet-cicd.yml
+    with:
+      image_name: scheduler-service
+      csproj_path: services/net/scheduler/TNO.Services.Scheduler.csproj
+      dockerfile: services/net/scheduler/Dockerfile
+      component: scheduler-service
+      deployment_name: scheduler-service
+      kustomize_dev_path: openshift/kustomize/services/scheduler/overlays/dev
+      kustomize_test_path: openshift/kustomize/services/scheduler/overlays/test
+      dev_branch: scheduler-service
+      rollout_timeout: '180s'
+      continue_on_error_verify: true
+      health_check_method: exec_curl
+    secrets:
+      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+      CHES_CLIENT_ID: ${{ secrets.CHES_CLIENT_ID }}
+      CHES_CLIENT_SECRET: ${{ secrets.CHES_CLIENT_SECRET }}
+      CHES_SENDER_EMAIL: ${{ secrets.CHES_SENDER_EMAIL }}
+      CHES_NOTIFY_EMAIL: ${{ secrets.CHES_NOTIFY_EMAIL }}
