@@ -98,12 +98,13 @@ spec:
           [dockerfile]="/services/net/syndication/Dockerfile"
         )
 
-        declare -A COMPONENT1=(
-          [id]="filemonitor"
-          [image]="filemonitor-service"
-          [context]=""
-          [dockerfile]="/services/net/filemonitor/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — filemonitor-service-cicd.yml
+        # declare -A COMPONENT1=(
+        #   [id]="filemonitor"
+        #   [image]="filemonitor-service"
+        #   [context]=""
+        #   [dockerfile]="/services/net/filemonitor/Dockerfile"
+        # )
 
         # Moved to GitHub Actions CI/CD — image-service-cicd.yml
         # declare -A COMPONENT2=(
@@ -201,12 +202,13 @@ spec:
         #   [dockerfile]="/services/net/event-handler/Dockerfile"
         # )
 
-        declare -A COMPONENT14=(
-          [id]="ches-retry"
-          [image]="ches-retry-service"
-          [context]=""
-          [dockerfile]="/services/net/ches-retry/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — ches-retry-service-cicd.yml
+        # declare -A COMPONENT14=(
+        #   [id]="ches-retry"
+        #   [image]="ches-retry-service"
+        #   [context]=""
+        #   [dockerfile]="/services/net/ches-retry/Dockerfile"
+        # )
 
         # Applications
 

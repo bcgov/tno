@@ -162,7 +162,7 @@ spec:
         fi
 
         build_service 'capture'
-        build_service 'ches-retry'
+        # build_service 'ches-retry' # Moved to GitHub Actions CI/CD — ches-retry-service-cicd.yml
         build_service 'clip'
         build_service 'content'
         build_service 'contentmigration'
@@ -170,7 +170,7 @@ spec:
         build_service 'event-handler'
         # build_service 'extract-quotes' # Moved to GitHub Actions CI/CD — extract-quotes-service-cicd.yml
         build_service 'filecopy'
-        build_service 'filemonitor'
+        # build_service 'filemonitor' # Moved to GitHub Actions CI/CD — filemonitor-service-cicd.yml
         # build_service 'folder-collection' # Moved to GitHub Actions CI/CD — folder-collection-cicd.yml
         # build_service 'image' # Moved to GitHub Actions CI/CD — image-service-cicd.yml
         build_service 'indexing'
