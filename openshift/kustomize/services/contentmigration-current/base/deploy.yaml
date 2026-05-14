@@ -8,7 +8,6 @@ metadata:
   annotations:
     description: Defines how to deploy contentmigration-service
     created-by: kyle.morris
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "contentmigration-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"contentmigration-service\")].image"}]'
   labels:
     name: contentmigration-service
     part-of: tno
@@ -39,9 +38,11 @@ spec:
         - name: ingest-storage
           persistentVolumeClaim:
             claimName: ingest-storage
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: contentmigration-service
-          image: ""
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/contentmigration-service:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

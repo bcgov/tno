@@ -48,8 +48,10 @@ spec:
       dockerfilePath: services/net/syndication/Dockerfile
   output:
     to:
-      kind: ImageStreamTag
-      name: syndication-service:latest
+      kind: DockerImage
+      name: bcgov-c4awhwfpcremdbga.azurecr.io/syndication-service:latest
+    pushSecret:
+      name: acr-secret
   resources:
     requests:
       cpu: 20m

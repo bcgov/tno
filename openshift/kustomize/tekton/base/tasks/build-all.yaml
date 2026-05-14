@@ -25,7 +25,7 @@ spec:
 
     - name: IMAGE_REGISTRY
       description: The Root url of the image registry.
-      default: image-registry.openshift-image-registry.svc:5000/9b301c-tools
+      default: bcgov-c4awhwfpcremdbga.azurecr.io
     - name: IMAGE_TAG
       description: The tag given to the built image.
       type: string
@@ -46,7 +46,7 @@ spec:
       mountPath: /var/lib/containers/storage/vfs/dir
   steps:
     - name: build
-      image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/buildah:latest
+      image: bcgov-c4awhwfpcremdbga.azurecr.io/buildah:latest
       securityContext:
         capabilities:
           add:
@@ -178,12 +178,12 @@ spec:
         # )
 
         # Moved to GitHub Actions CI/CD — folder-collection-cicd.yml
-        # declare -A COMPONENT11=(
-        #   [id]="folder-collection"
-        #   [image]="folder-collection-service"
-        #   [context]=""
-        #   [dockerfile]="/services/net/folder-collection/Dockerfile"
-        # )
+        declare -A COMPONENT11=(
+          [id]="folder-collection"
+          [image]="folder-collection-service"
+          [context]=""
+          [dockerfile]="/services/net/folder-collection/Dockerfile"
+        )
 
         # Moved to GitHub Actions CI/CD — ffmpeg-service-cicd.yml
         # declare -A COMPONENT12=(
@@ -221,24 +221,24 @@ spec:
           [id]="charts-api"
           [image]="charts-api"
           [context]="/api/node"
-          [dockerfile]="/Dockerfile.open"
+          [dockerfile]="/Dockerfile"
         )
 
         # Moved to GitHub Actions CI/CD — react-editor.yml
-        # declare -A COMPONENT17=(
-        #   [id]="editor"
-        #   [image]="editor"
-        #   [context]="/app/editor"
-        #   [dockerfile]="/Dockerfile.open"
-        # )
+        declare -A COMPONENT17=(
+          [id]="editor"
+          [image]="editor"
+          [context]="/app/editor"
+          [dockerfile]="/Dockerfile.open"
+        )
 
         # Moved to GitHub Actions CI/CD — react-subscriber.yml
-        # declare -A COMPONENT18=(
-        #   [id]="subscriber"
-        #   [image]="subscriber"
-        #   [context]="/app/subscriber"
-        #   [dockerfile]="/Dockerfile.open"
-        # )
+        declare -A COMPONENT18=(
+          [id]="subscriber"
+          [image]="subscriber"
+          [context]="/app/subscriber"
+          [dockerfile]="/Dockerfile.open"
+        )
 
         declare -A COMPONENT19=(
           [id]="db"

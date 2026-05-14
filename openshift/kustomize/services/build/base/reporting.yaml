@@ -48,8 +48,10 @@ spec:
       dockerfilePath: services/net/reporting/Dockerfile
   output:
     to:
-      kind: ImageStreamTag
-      name: reporting-service:latest
+      kind: DockerImage
+      name: bcgov-c4awhwfpcremdbga.azurecr.io/reporting-service:latest
+    pushSecret:
+      name: acr-secret
   resources:
     requests:
       cpu: 20m

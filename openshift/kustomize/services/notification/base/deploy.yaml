@@ -8,7 +8,6 @@ metadata:
   annotations:
     description: Defines how to deploy notification-service
     created-by: jeremy.foster
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "notification-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"notification-service\")].image"}]'
   labels:
     name: notification-service
     part-of: tno
@@ -39,9 +38,11 @@ spec:
         - name: api-storage
           persistentVolumeClaim:
             claimName: api-storage
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: notification-service
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/notification-service:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/notification-service:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -140,7 +141,7 @@ spec:
                   name: notification-service
                   key: TOPICS
             - name: Service__UploadPath
-              value: '/mnt/data'
+              value: "/mnt/data"
             - name: Service__IgnoreContentPublishedBeforeOffset
               valueFrom:
                 configMapKeyRef:
@@ -245,7 +246,7 @@ spec:
                   key: PASSWORD
           livenessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -255,7 +256,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30

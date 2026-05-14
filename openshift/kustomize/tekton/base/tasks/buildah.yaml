@@ -26,7 +26,7 @@ spec:
 
     - name: IMAGE_REGISTRY
       description: The Root url of the image registry.
-      default: image-registry.openshift-image-registry.svc:5000/9b301c-tools
+      default: bcgov-c4awhwfpcremdbga.azurecr.io
     - name: IMAGE
       description: Reference of the image buildah will produce.
     - name: IMAGE_TAG
@@ -43,7 +43,7 @@ spec:
       mountPath: /var/lib/containers/storage/vfs/dir
   steps:
     - name: build
-      image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/buildah:latest
+      image: bcgov-c4awhwfpcremdbga.azurecr.io/buildah:latest
       securityContext:
         capabilities:
           add:

@@ -48,8 +48,10 @@ spec:
       dockerfilePath: Dockerfile
   output:
     to:
-      kind: ImageStreamTag
-      name: nginx-editor:latest
+      kind: DockerImage
+      name: bcgov-c4awhwfpcremdbga.azurecr.io/nginx-editor:latest
+    pushSecret:
+      name: acr-secret
   resources:
     requests:
       cpu: 20m
@@ -57,8 +59,6 @@ spec:
     limits:
       cpu: 100m
       memory: 1Gi
----
-
 ---
 # The final build image.
 kind: ImageStream
@@ -109,8 +109,10 @@ spec:
       dockerfilePath: Dockerfile
   output:
     to:
-      kind: ImageStreamTag
-      name: nginx-subscriber:latest
+      kind: DockerImage
+      name: bcgov-c4awhwfpcremdbga.azurecr.io/nginx-subscriber:latest
+    pushSecret:
+      name: acr-secret
   resources:
     requests:
       cpu: 20m

@@ -8,7 +8,6 @@ metadata:
   annotations:
     description: Defines how to deploy transcription-service
     created-by: jeremy.foster
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "transcription-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"transcription-service\")].image"}]'
   labels:
     name: transcription-service
     part-of: tno
@@ -39,9 +38,11 @@ spec:
         - name: api-storage
           persistentVolumeClaim:
             claimName: api-storage
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: transcription-service
-          image: image-registry.openshift-image-registry.svc:5000/9b301c-tools/transcription-service:prod
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/transcription-service:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
