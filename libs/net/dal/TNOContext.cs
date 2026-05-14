@@ -123,6 +123,7 @@ public class TNOContext : DbContext
     public DbSet<UserAVOverviewInstance> UserAVOverviewInstances => Set<UserAVOverviewInstance>();
 
     public DbSet<EventSchedule> EventSchedules => Set<EventSchedule>();
+    public DbSet<LLM> LLM => Set<LLM>();
     #endregion
 
     #region Notifications

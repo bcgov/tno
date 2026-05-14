@@ -13,6 +13,7 @@ import {
   type IIngestModel,
   type IIngestTypeModel,
   type ILicenseModel,
+  type ILLMModel,
   type IMediaTypeModel,
   type IMinisterModel,
   type INotificationModel,
@@ -54,6 +55,8 @@ import {
   storeAdminIngestTypes,
   storeAdminLicenseFilter,
   storeAdminLicenses,
+  storeAdminLLMFilter,
+  storeAdminLLMs,
   storeAdminMediaTypeFilter,
   storeAdminMediaTypes,
   storeAdminMinisterFilter,
@@ -113,6 +116,8 @@ export interface IAdminStore {
   storeIngestTypes: (ingestTypes: IIngestTypeModel[] | ActionDelegate<IIngestTypeModel[]>) => void;
   storeLicenseFilter: (filter: string | ActionDelegate<string>) => void;
   storeLicenses: (licenses: ILicenseModel[] | ActionDelegate<ILicenseModel[]>) => void;
+  storeLLMFilter: (filter: string | ActionDelegate<string>) => void;
+  storeLLMs: (llms: ILLMModel[] | ActionDelegate<ILLMModel[]>) => void;
   storeMediaTypeFilter: (filter: string | ActionDelegate<string>) => void;
   storeMediaTypes: (mediaTypes: IMediaTypeModel[] | ActionDelegate<IMediaTypeModel[]>) => void;
   storeMinisterFilter: (filter: string | ActionDelegate<string>) => void;
@@ -267,6 +272,16 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
         if (typeof licenses === 'function') {
           dispatch(storeAdminLicenses(licenses(state.licenses)));
         } else dispatch(storeAdminLicenses(licenses));
+      },
+      storeLLMFilter: (filter: string | ActionDelegate<string>) => {
+        if (typeof filter === 'function') {
+          dispatch(storeAdminLLMFilter(filter(state.llmFilter)));
+        } else dispatch(storeAdminLLMFilter(filter));
+      },
+      storeLLMs: (llms: ILLMModel[] | ActionDelegate<ILLMModel[]>) => {
+        if (typeof llms === 'function') {
+          dispatch(storeAdminLLMs(llms(state.llms)));
+        } else dispatch(storeAdminLLMs(llms));
       },
       storeMinisterFilter: (filter: string | ActionDelegate<string>) => {
         if (typeof filter === 'function') {
@@ -456,6 +471,8 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       state.ingestTypes,
       state.licenseFilter,
       state.licenses,
+      state.llmFilter,
+      state.llms,
       state.ministerFilter,
       state.ministers,
       state.notificationFilter,

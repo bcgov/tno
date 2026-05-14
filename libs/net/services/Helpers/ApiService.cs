@@ -835,11 +835,40 @@ public class ApiService : IApiService
     /// Get the current instance for the specified report 'reportId'.
     /// </summary>
     /// <param name="reportId"></param>
+    /// <param name="ownerId"></param>
     /// <returns></returns>
     public async Task<API.Areas.Services.Models.Report.ReportInstanceModel?> GetCurrentReportInstanceAsync(int reportId, int? ownerId)
     {
         var url = this.Options.ApiUrl.Append($"services/reports/{reportId}/instance{(ownerId.HasValue ? $"?ownerId={ownerId}" : "")}");
         return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.Report.ReportInstanceModel?>(url));
+    }
+
+    /// <summary>
+    /// Get the previous instance for the specified report 'reportId'.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="qty"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.Report.ReportInstanceModel?> GetPreviousReportInstancesAsync(int reportId, int? ownerId = null, int? qty = null)
+    {
+        var queryParams = new List<string>();
+        if (ownerId.HasValue) queryParams.Add($"ownerId={ownerId}");
+        if (qty.HasValue) queryParams.Add($"qty={qty}");
+        var query = queryParams.Count > 0 ? $"?{string.Join("&", queryParams)}" : "";
+        var url = this.Options.ApiUrl.Append($"services/reports/{reportId}/previous-instance{query}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.Report.ReportInstanceModel?>(url));
+    }
+
+    /// <summary>
+    /// Get the LLM for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.LLM.LLMModel?> GetLLMAsync(int id)
+    {
+        var url = this.Options.ApiUrl.Append($"services/llms/{id}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Services.Models.LLM.LLMModel?>(url));
     }
 
     /// <summary>

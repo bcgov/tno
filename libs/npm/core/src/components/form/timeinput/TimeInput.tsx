@@ -1,5 +1,7 @@
-import { InputHTMLAttributes } from 'react';
-import MaskedInput from 'react-text-mask';
+import React, { InputHTMLAttributes } from 'react';
+import MaskedInputBase, { MaskedInputProps } from 'react-text-mask';
+
+const MaskedInput = MaskedInputBase as unknown as React.ComponentClass<MaskedInputProps>;
 
 import { Error } from '../../form';
 import { Show } from '../../show';

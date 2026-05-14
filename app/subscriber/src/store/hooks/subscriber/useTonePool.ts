@@ -5,8 +5,8 @@ import { ITonePoolModel, useApiSubscriberTonePools } from 'tno-core';
 import { useAjaxWrapper } from '../useAjaxWrapper';
 
 interface ITonePoolController {
-  addMyTonePool: (model: ITonePoolModel) => Promise<ITonePoolModel>;
-  getMyTonePool: (userId: number) => Promise<ITonePoolModel>;
+  addMyTonePool: (model: ITonePoolModel) => Promise<ITonePoolModel | undefined>;
+  getMyTonePool: (userId: number) => Promise<ITonePoolModel | undefined>;
 }
 
 export const useTonePool = (): [IProfileState, ITonePoolController] => {
@@ -21,15 +21,15 @@ export const useTonePool = (): [IProfileState, ITonePoolController] => {
           api.addMyTonePool(model),
         );
         if (response.status === 201) {
-          storeMyTonePool(response.data);
+          storeMyTonePool(response.data as ITonePoolModel | undefined);
         }
 
-        return response.data;
+        return response.data as ITonePoolModel | undefined;
       },
       getMyTonePool: async (userId: number) => {
         const response = await dispatch('get-my-tonePool', () => api.getMyTonePool(userId));
-        storeMyTonePool(response.data);
-        return response.data;
+        storeMyTonePool(response.data as ITonePoolModel | undefined);
+        return response.data as ITonePoolModel | undefined;
       },
     }),
     [api, dispatch, storeMyTonePool],

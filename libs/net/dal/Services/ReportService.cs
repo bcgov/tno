@@ -958,7 +958,7 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// Find the previous report instance that was sent.
     /// </summary>
     /// <param name="id"></param>
-    /// <param name="instanceId"></param>
+    /// <param name="instanceId">The report instance id will be used to find the one before this value.</param>
     /// <param name="ownerId"></param>
     /// <param name="includeContent"></param>
     /// <param name="qty">Number of prior instances.</param>

@@ -11,6 +11,7 @@ import {
   EmailSendToName,
   getEnumStringOptions,
   Grid,
+  IUserModel,
   Modal,
   ReportDistributionFormatName,
   ReportStatusName,
@@ -48,7 +49,7 @@ export const ReportEditSubscribersForm = () => {
   const sendToOptions = getEnumStringOptions(EmailSendToName, { splitOnCapital: false });
   const [selectedSubscribers, setSelectedSubscribers] = React.useState<number[]>([]);
   const [, { RequestToSubscribe, RequestToUnsubscribe }] = useReports();
-  const fetchUsersByEmail = async (email: string) => {
+  const fetchUsersByEmail = async (email: string): Promise<IUserModel[]> => {
     try {
       const response = await findUsers({ email });
       return response.data.items;

@@ -18,6 +18,8 @@ auth/keycloak/config/*.log
 *.class
 /services/net/image/keys
 /services/net/image/data
+CLAUDE.md
+.claude/
 
 **/[Bb]in/
 **/[Oo]bj/

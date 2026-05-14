@@ -12,6 +12,7 @@ import {
   type IIngestModel,
   type IIngestTypeModel,
   type ILicenseModel,
+  type ILLMModel,
   type IMediaTypeModel,
   type IMinisterModel,
   type INotificationModel,
@@ -55,6 +56,8 @@ export const initialAdminState: IAdminState = {
   ingestTypes: [],
   licenseFilter: '',
   licenses: [],
+  llmFilter: '',
+  llms: [],
   mediaTypeFilter: '',
   mediaTypes: [],
   ministerFilter: '',
@@ -158,6 +161,12 @@ export const adminSlice = createSlice({
     },
     storeLicenses(state: IAdminState, action: PayloadAction<ILicenseModel[]>) {
       state.licenses = action.payload;
+    },
+    storeLLMFilter(state: IAdminState, action: PayloadAction<string>) {
+      state.llmFilter = action.payload;
+    },
+    storeLLMs(state: IAdminState, action: PayloadAction<ILLMModel[]>) {
+      state.llms = action.payload;
     },
     storeMediaTypeFilter(state: IAdminState, action: PayloadAction<string>) {
       state.mediaTypeFilter = action.payload;
@@ -275,6 +284,8 @@ export const {
   storeIngestTypes: storeAdminIngestTypes,
   storeLicenseFilter: storeAdminLicenseFilter,
   storeLicenses: storeAdminLicenses,
+  storeLLMFilter: storeAdminLLMFilter,
+  storeLLMs: storeAdminLLMs,
   storeMediaTypeFilter: storeAdminMediaTypeFilter,
   storeMediaTypes: storeAdminMediaTypes,
   storeMinisterFilter: storeAdminMinisterFilter,

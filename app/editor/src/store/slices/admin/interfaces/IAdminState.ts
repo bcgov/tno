@@ -11,6 +11,7 @@ import {
   type IIngestModel,
   type IIngestTypeModel,
   type ILicenseModel,
+  type ILLMModel,
   type IMediaTypeModel,
   type IMinisterModel,
   type INotificationModel,
@@ -52,6 +53,8 @@ export interface IAdminState {
   ingestTypes: IIngestTypeModel[];
   licenseFilter: string;
   licenses: ILicenseModel[];
+  llmFilter: string;
+  llms: ILLMModel[];
   mediaTypeFilter: string;
   mediaTypes: IMediaTypeModel[];
   ministerFilter: string;

@@ -67,42 +67,49 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         if (!!store) {
           switch (store) {
             case 'frontPage':
-              actions.storeFrontPageContent(response.data);
+              actions.storeFrontPageContent(response.data as KnnSearchResponse<IContentModel>);
               break;
             case 'home':
-              actions.storeHomeContent(response.data);
+              actions.storeHomeContent(response.data as KnnSearchResponse<IContentModel>);
               break;
             case 'mediaType':
-              actions.storeMediaTypeContent(response.data);
+              actions.storeMediaTypeContent(response.data as KnnSearchResponse<IContentModel>);
               break;
             case 'myMinister':
-              actions.storeMyMinisterContent(response.data);
+              actions.storeMyMinisterContent(response.data as KnnSearchResponse<IContentModel>);
               break;
             case 'search':
-              actions.storeSearchContent(response.data);
+              actions.storeSearchContent(response.data as KnnSearchResponse<IContentModel>);
               break;
             case 'todaysCommentary':
-              actions.storeTodaysCommentaryContent(response.data);
+              actions.storeTodaysCommentaryContent(
+                response.data as KnnSearchResponse<IContentModel>,
+              );
               break;
             case 'topStories':
-              actions.storeTopStoriesContent(response.data);
+              actions.storeTopStoriesContent(response.data as KnnSearchResponse<IContentModel>);
               break;
           }
         }
-        return response.data;
+        return response.data as KnnSearchResponse<IContentModel>;
       },
       validateElasticsearchQuery: async (
         filter: MsearchMultisearchBody,
         includeUnpublishedContent: boolean,
         fieldNames: string,
       ) => {
-        const response = await dispatch('validate-elasticsearch-query', () =>
-          api.validateElasticsearchQuery(filter, includeUnpublishedContent, fieldNames),
+        const response = await dispatch<IndicesValidateQueryResponse>(
+          'validate-elasticsearch-query',
+          () => api.validateElasticsearchQuery(filter, includeUnpublishedContent, fieldNames),
         );
         return response.data;
       },
       getContent: async (id: number) => {
-        const response = await dispatch('get-content', () => api.getContent(id), 'content');
+        const response = await dispatch<IContentModel>(
+          'get-content',
+          () => api.getContent(id),
+          'content',
+        );
         return response.status === 204 ? undefined : response.data;
       },
       download: async (id: number, fileName: string) => {
@@ -110,10 +117,16 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
           .data;
       },
       stream: async (path: string) => {
-        return (await dispatch('stream-content', () => api.stream(path), 'content')).data;
+        return (await dispatch<string>('stream-content', () => api.stream(path), 'content')).data;
       },
       streamSilent: async (path: string) => {
-        return await dispatch('stream-content', () => api.stream(path), 'content', true, true);
+        return await dispatch<string>(
+          'stream-content',
+          () => api.stream(path),
+          'content',
+          true,
+          true,
+        );
       },
       storeSearchFilter: actions.storeSearchFilter,
       storeHomeFilter: actions.storeHomeFilter,
@@ -128,11 +141,15 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       storeMyMinisterFilter: actions.storeMyMinisterFilter,
       storeSearchResultsFilter: actions.storeSearchResultsFilter,
       addContent: async (content: IContentModel) => {
-        const response = await dispatch('add-content', () => api.addContent(content), 'content');
+        const response = await dispatch<IContentModel>(
+          'add-content',
+          () => api.addContent(content),
+          'content',
+        );
         return response.data;
       },
       updateContent: async (content: IContentModel) => {
-        const response = await dispatch(
+        const response = await dispatch<IContentModel>(
           'update-content',
           () => api.updateContent(content),
           'content',
@@ -140,7 +157,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         return response.data;
       },
       updateContentSilent: async (content: IContentModel) => {
-        const response = await dispatch(
+        const response = await dispatch<IContentModel>(
           'update-content',
           () => api.updateContent(content),
           'content',
@@ -150,7 +167,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         return response.data;
       },
       deleteContent: async (content: IContentModel) => {
-        const response = await dispatch(
+        const response = await dispatch<IContentModel>(
           'delete-content',
           () => api.deleteContent(content),
           'content',

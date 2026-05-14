@@ -19,6 +19,7 @@ public class ReportSectionSettingsModel
     public bool RemoveDuplicateTitles3Days { get; set; }
     public bool OverrideExcludeHistorical { get; set; }
     public bool? InTableOfContents { get; set; }
+    public int? IncludePreviousReports { get; set; }
     public bool HideEmpty { get; set; }
     public string GroupBy { get; set; } = "";
     public string SortBy { get; set; } = "";
@@ -29,7 +30,7 @@ public class ReportSectionSettingsModel
     public string? DataType { get; set; }
     public string? DataProperty { get; set; }
     public string? DataTemplate { get; set; }
-    public string? DeploymentName { get; set; }
+    public int? LLMId { get; set; }
     public string? SystemPrompt { get; set; }
     public string? UserPrompt { get; set; }
     public int? ChoiceIndex { get; set; }
@@ -54,6 +55,7 @@ public class ReportSectionSettingsModel
         this.RemoveDuplicateTitles3Days = settings.GetDictionaryJsonValue("removeDuplicateTitles3Days", false, options)!;
         this.OverrideExcludeHistorical = settings.GetDictionaryJsonValue("overrideExcludeHistorical", false, options)!;
         this.InTableOfContents = settings.GetDictionaryJsonValue<bool?>("inTableOfContents", null, options)!;
+        this.IncludePreviousReports = settings.GetDictionaryJsonValue<int?>("includePreviousReports", null, options)!;
         this.HideEmpty = settings.GetDictionaryJsonValue("hideEmpty", false, options)!;
         this.GroupBy = settings.GetDictionaryJsonValue("groupBy", "", options)!;
         this.SortBy = settings.GetDictionaryJsonValue("sortBy", "", options)!;
@@ -64,7 +66,7 @@ public class ReportSectionSettingsModel
         this.DataType = settings.GetDictionaryJsonValue<string?>("dataType", null, options)!;
         this.DataProperty = settings.GetDictionaryJsonValue<string?>("dataProperty", null, options)!;
         this.DataTemplate = settings.GetDictionaryJsonValue<string?>("dataTemplate", null, options)!;
-        this.DeploymentName = settings.GetDictionaryJsonValue<string?>("deploymentName", null, options)!;
+        this.LLMId = settings.GetDictionaryJsonValue<int?>("llmId", null, options)!;
         this.SystemPrompt = settings.GetDictionaryJsonValue<string?>("systemPrompt", null, options)!;
         this.UserPrompt = settings.GetDictionaryJsonValue<string?>("userPrompt", null, options)!;
         this.ChoiceIndex = settings.GetDictionaryJsonValue<int?>("choiceIndex", null, options)!;
@@ -86,6 +88,7 @@ public class ReportSectionSettingsModel
         this.RemoveDuplicateTitles3Days = settings.GetElementValue("removeDuplicateTitles3Days", false, options)!;
         this.OverrideExcludeHistorical = settings.GetElementValue("overrideExcludeHistorical", false, options)!;
         this.InTableOfContents = settings.GetElementValue<bool?>("inTableOfContents", null, options)!;
+        this.IncludePreviousReports = settings.GetElementValue<int?>("includePreviousReports", null, options)!;
         this.HideEmpty = settings.GetElementValue("hideEmpty", false, options)!;
         this.GroupBy = settings.GetElementValue("groupBy", "", options)!;
         this.SortBy = settings.GetElementValue("sortBy", "", options)!;
@@ -96,7 +99,7 @@ public class ReportSectionSettingsModel
         this.DataType = settings.GetElementValue<string?>("dataType", null, options)!;
         this.DataProperty = settings.GetElementValue<string?>("dataProperty", null, options)!;
         this.DataTemplate = settings.GetElementValue<string?>("dataTemplate", null, options)!;
-        this.DeploymentName = settings.GetElementValue<string?>("deploymentName", null, options)!;
+        this.LLMId = settings.GetElementValue<int?>("llmId", null, options)!;
         this.SystemPrompt = settings.GetElementValue<string?>("systemPrompt", null, options)!;
         this.UserPrompt = settings.GetElementValue<string?>("userPrompt", null, options)!;
         this.ChoiceIndex = settings.GetElementValue<int?>("choiceIndex", null, options)!;

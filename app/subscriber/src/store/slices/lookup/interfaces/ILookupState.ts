@@ -7,6 +7,7 @@ import {
   IHolidayModel,
   IIngestTypeModel,
   ILicenseModel,
+  ILLMModel,
   IMediaTypeModel,
   IMetricModel,
   IRoleModel,
@@ -27,6 +28,7 @@ export interface ILookupState {
   cache: ICacheModel[];
   actions: IActionModel[];
   topics: ITopicModel[];
+  llms: ILLMModel[];
   ministers: IMinisterModel[];
   mediaTypes: IMediaTypeModel[];
   licenses: ILicenseModel[];

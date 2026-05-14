@@ -134,7 +134,7 @@ if test -f "./libs/net/dal/.env"; then
     echo "./libs/net/dal.env exists"
 else
 echo \
-"ConnectionStrings__TNO=Host=host.docker.internal:$portDatabase;Database=$dbName;Include Error Detail=true;Log Parameters=true;
+"ConnectionStrings__TNO=Host=database:5432;Database=$dbName;Include Error Detail=true;Log Parameters=true;
 DB_POSTGRES_USERNAME=$dbUser
 DB_POSTGRES_PASSWORD=$password" >> ./libs/net/dal/.env
     echo "./libs/net/dal/.env created"
@@ -196,7 +196,7 @@ echo \
 ASPNETCORE_URLS=http://+:8080
 TZ=America/Los_Angeles
 
-ConnectionStrings__TNO=Host=host.docker.internal:$portDatabase;Database=$dbName;Include Error Detail=true;Log Parameters=true;
+ConnectionStrings__TNO=Host=database:5432;Database=$dbName;Include Error Detail=true;Log Parameters=true;
 
 DB_POSTGRES_USERNAME=$dbUser
 DB_POSTGRES_PASSWORD=$password
@@ -217,7 +217,7 @@ AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=$azureVideoAnalyzerKey
 AZURE_VIDEO_ANALYZER_ACCOUNT_ID=$azureVideoAccountId
 AZURE_VIDEO_ANALYZER_LOCATION=$azureVideoLocation
 
-KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBrokerAdvertisedExternal
+KAFKA_BOOTSTRAP_SERVERS=broker:29092
 
 Azure__AI__ProjectEndpoint=https://mmi-ai-foundry-east-us-2.openai.azure.com/openai/v1/chat/completions
 Azure__AI__ApiKey={API KEY}
@@ -256,10 +256,10 @@ Azure__AI__DefaultUserPrompt=\"Create an executive summary of the report data.  
 ################################################
 # Local Keycloak
 ################################################
-keycloak__Authority=http://host.docker.internal:$portKeycloak/realms/mmi
+keycloak__Authority=http://keycloak:8080/realms/mmi
 Keycloak__Audience=mmi-app,mmi-service-account
 Keycloak__Issuer=mmi-app,mmi-service-account
-Keycloak__ServiceAccount__Authority=http://host.docker.internal:$portKeycloak
+Keycloak__ServiceAccount__Authority=http://keycloak:8080
 Keycloak__ServiceAccount__RealmPath=/realms/
 Keycloak__ServiceAccount__AdminPath=/admin/realms/
 Keycloak__ServiceAccount__Secret={GET KEYCLOAK mmi-service-account CLIENT SECRET}
@@ -297,7 +297,7 @@ echo \
 CHOKIDAR_USEPOLLING=true
 WDS_SOCKET_PORT=$portNginxEditor
 #API_URL=http://api:80/
-#REACT_APP_KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth" >> ./app/editor/.env
+#REACT_APP_KEYCLOAK_AUTH_SERVER_URL=http://keycloak:8080/auth" >> ./app/editor/.env
     echo "./app/editor/.env created"
 fi
 
@@ -310,7 +310,7 @@ echo \
 CHOKIDAR_USEPOLLING=true
 WDS_SOCKET_PORT=$portNginxSubscriber
 #API_URL=http://api:80/
-#REACT_APP_KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth" >> ./app/subscriber/.env
+#REACT_APP_KEYCLOAK_AUTH_SERVER_URL=http://keycloak:8080/auth" >> ./app/subscriber/.env
     echo "./app/subscriber/.env created"
 fi
 
@@ -326,13 +326,13 @@ echo \
 "CLUSTER_ID='MkU3OEVBNTcwNTJENDM2Qk'
 KAFKA_NODE_ID=1
 KAFKA_LISTENER_SECURITY_PROTOCOL_MAP='CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,HOST:PLAINTEXT,EXTERNAL:PLAINTEXT'
-KAFKA_ADVERTISED_LISTENERS='INTERNAL://broker:29092,HOST://localhost:9092,EXTERNAL://host.docker.internal:40102'
+KAFKA_ADVERTISED_LISTENERS='INTERNAL://broker:29092,HOST://localhost:9092,EXTERNAL://localhost:40102'
 KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
 KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
 KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
 KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
 KAFKA_JMX_PORT=9101
-KAFKA_JMX_HOSTNAME=host.docker.internal
+KAFKA_JMX_HOSTNAME=broker
 KAFKA_PROCESS_ROLES='broker,controller'
 KAFKA_CONTROLLER_QUORUM_VOTERS='1@broker:29093'
 KAFKA_LISTENERS='INTERNAL://broker:29092,CONTROLLER://broker:29093,HOST://0.0.0.0:9092,EXTERNAL://0.0.0.0:29094'
@@ -378,12 +378,12 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
+Auth__Keycloak__Authority=http://keycloak:8080
 Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
-Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__ApiUrl=http://api:8080/api
 Service__DataLocation=Openshift
 
 CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
@@ -393,7 +393,7 @@ CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__EmailAuthorized=true
 # CHES__OverrideTo=
 
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/syndication/.env
+Kafka__BootstrapServers=broker:29092" >> ./services/net/syndication/.env
     echo "./services/net/syndication/.env created"
 fi
 
@@ -405,12 +405,12 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
+Auth__Keycloak__Authority=http://keycloak:8080
 Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
-Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__ApiUrl=http://api:8080/api
 # Service__VolumePath=../data
 
 CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
@@ -420,7 +420,7 @@ CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__EmailAuthorized=true
 # CHES__OverrideTo=
 
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/image/.env
+Kafka__BootstrapServers=broker:29092" >> ./services/net/image/.env
     echo "./services/net/image/.env created"
 fi
 
@@ -432,12 +432,12 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
+Auth__Keycloak__Authority=http://keycloak:8080
 Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
-Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__ApiUrl=http://api:8080/api
 # Service__VolumePath=../data
 
 CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
@@ -447,7 +447,7 @@ CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__EmailAuthorized=true
 # CHES__OverrideTo=
 
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/filemonitor/.env
+Kafka__BootstrapServers=broker:29092" >> ./services/net/filemonitor/.env
     echo "./services/net/filemonitor/.env created"
 fi
 
@@ -459,16 +459,16 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
+Auth__Keycloak__Authority=http://keycloak:8080
 Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
-Kafka__Admin__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
-Kafka__Producer__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
-Kafka__Consumer__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
+Kafka__Admin__BootstrapServers=broker:29092
+Kafka__Producer__BootstrapServers=broker:29092
+Kafka__Consumer__BootstrapServers=broker:29092
 
-Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__ApiUrl=http://api:8080/api
 Service__TranscriptionTopic=transcription
 
 CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
@@ -488,12 +488,12 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
+Auth__Keycloak__Authority=http://keycloak:8080
 Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
-Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__ApiUrl=http://api:8080/api
 Service__DataLocation=Openshift
 Service__SupportedImportMigrationTypes=Historic,Any,Recent,Current
 
@@ -514,12 +514,12 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
+Auth__Keycloak__Authority=http://keycloak:8080
 Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
-Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__ApiUrl=http://api:8080/api
 Service__AzureCognitiveServicesKey={ENTER A VALID AZURE KEY}
 
 CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
@@ -529,7 +529,7 @@ CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__EmailAuthorized=true
 # CHES__OverrideTo=
 
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/transcription/.env
+Kafka__BootstrapServers=broker:29092" >> ./services/net/transcription/.env
     echo "./services/net/transcription/.env created"
 fi
 
@@ -541,12 +541,12 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
+Auth__Keycloak__Authority=http://keycloak:8080
 Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
-Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__ApiUrl=http://api:8080/api
 
 CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
 CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
@@ -555,7 +555,7 @@ CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__EmailAuthorized=true
 # CHES__OverrideTo=
 
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
+Kafka__BootstrapServers=broker:29092
 
 # Configure Azure Speech Service
 Service__AzureSpeechKey={ENTER A VALID AZURE KEY}
@@ -580,13 +580,13 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
+Auth__Keycloak__Authority=http://keycloak:8080
 Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
-Service__ApiUrl=http://host.docker.internal:$portApi/api
-Elastic__Url=http://host.docker.internal:$portElastic
+Service__ApiUrl=http://api:8080/api
+Elastic__Url=http://elastic:9200
 Elastic__Username=$elasticUser
 Elastic__Password=$password
 Elastic__ApiKey=
@@ -598,7 +598,7 @@ CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__EmailAuthorized=true
 # CHES__OverrideTo=
 
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/indexing/.env
+Kafka__BootstrapServers=broker:29092" >> ./services/net/indexing/.env
     echo "./services/net/indexing/.env created"
 fi
 
@@ -610,12 +610,12 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
+Auth__Keycloak__Authority=http://keycloak:8080
 Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
-Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__ApiUrl=http://api:8080/api
 
 CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
 CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
@@ -624,7 +624,7 @@ CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__EmailAuthorized=true
 # CHES__OverrideTo=
 
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/nlp/.env
+Kafka__BootstrapServers=broker:29092" >> ./services/net/nlp/.env
     echo "./services/net/nlp/.env created"
 fi
 
@@ -636,15 +636,15 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
+Auth__Keycloak__Authority=http://keycloak:8080
 Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
-Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__ApiUrl=http://api:8080/api
 # Service__UploadPath=../data
 
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
+Kafka__BootstrapServers=broker:29092
 
 CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
 CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
@@ -652,7 +652,7 @@ CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
 CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}
 
-# Elastic__Url=host.docker.internal:$portElastic
+# Elastic__Url=http://elastic:9200
 Elastic__Username=$elasticUser
 Elastic__Password=$password" >> ./services/net/notification/.env
     echo "./services/net/notification/.env created"
@@ -666,16 +666,16 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
+Auth__Keycloak__Authority=http://keycloak:8080
 Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
-Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__ApiUrl=http://api:8080/api
 Charts__Url=http://charts:8080
 # Charts__Url=http://localhost:$portChartsApi
 
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
+Kafka__BootstrapServers=broker:29092
 
 CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
 CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
@@ -687,9 +687,49 @@ Azure__AI__ProjectEndpoint=https://mmi-ai-foundry-east-us-2.openai.azure.com/ope
 Azure__AI__ApiKey={API KEY}
 Azure__AI__DefaultModelDeploymentName=gpt-5.1-chat
 Azure__AI__DefaultAgentName=
-Azure__AI__DefaultSystemPrompt=\"You are a report writer.  Review the report data and generate summaries and analysis.  The report data is JSON, each section groups related content and contains an array of story records. The `content.text` property contains the story information.  The output generated must be in simple HTML that works within Outlook email client.  Place all the output in a <div>\{output\}</div>.\"
-Azure__AI__DefaultUserPrompt=\"Create an executive summary of the report data.  Do not start the response with a heading.  The summary should be the first paragraph.  If the output includes a breakdown of related stories, use the heading \"Topics\".  Do not state your intention, simply summarize the data.\"" >> ./services/net/reporting/.env
-    echo "./services/net/reporting/.env created"
+Azure__AI__DefaultSystemPrompt=\"
+  You are a media monitoring analyst producing a daily/weekly media environment summary for senior government decision-makers. Your audience includes Deputy Ministers, Assistant Deputy Ministers, and Minister’s Office staff. They use your output for situational awareness and to anticipate issues that may require a communications response. Your role is to report, not to editorialize. You are a sensor, not a commentator.
+
+  Data Structure:
+  - The report data is split into sections.  Each section has a heading starting with #### [Section Name].  Each section contains stories in a JSON array.  The `content.text` property contains the story information.  The `content.headline` property is the story headline.
+
+  Follow these rules:
+  - The output generated must be in simple HTML that works within Outlook email client.
+  - Place all the output in a parent `div` HTML element.
+
+  TONE AND REGISTER:
+  - Write in a neutral, analytical register. Do not adopt the framing of any party, outlet, or stakeholder.
+  - Do not use intensifiers (mounting, escalating, alarming, significant, major, key) unless directly quoting a named source.
+  - Do not characterize public mood or sentiment unless citing specific evidence (polling, rally attendance, editorial board positions).
+  - Do not write narrative leads. The opening paragraph should list the topic clusters covered, not tell a story.
+
+  SPECIFICITY:
+  - Quantify wherever possible: counts, percentages, dollar figures, dates, community names.
+  - Where a specific number is not available, use square brackets to flag the gap: [number], [community], [date]. Do not substitute an adjective for a missing data point.
+  - Attribute all positions to named actors or organizations. Do not write “critics say” without identifying at least one critic.
+
+  STRUCTURE:
+  - Group coverage into topic clusters.
+  - Within each cluster, lead with the new development this cycle. Background and context follow, not the reverse.
+  - Use active voice with named subjects: “The Premier confirmed” not “it was confirmed.”
+  - Note when coverage threads intersect (e.g., affordability and housing appearing in the same stories).
+
+  WHAT NOT TO DO:
+  - Do not write as though you are a journalist composing a news story. You are producing an analytical briefing.
+  - Do not tell the reader how important, concerning, or significant a story is. Present the facts and let the reader assess significance.
+  - Do not use passive constructions that hide the actor: “concerns were raised” should become “[Organization] raised concerns about [specific issue].”
+  - Do not pad with filler language. If a topic cluster can be summarized in two sentences, use two sentences.\"
+Azure__AI__DefaultUserPrompt=\"
+  Create a concise summary within each section.
+
+  Follow these rules:
+  - Do not start the response with a heading.
+  - Do not state your intention, only summarize the data. For example, do not say “this summary covers”.
+  - Do not use the section headers in the data, instead group based on related topics.
+  - Each section will begin with the topic cluster name, then have bullets for each story summary.
+  - Use \`h3\` HTML tag for topic cluster headings. Only use the topic cluster headings from the report data, do not create other headings.
+  - Do not use the story headline in the output.
+  - Use \`li\` HTML tag in a \`ul\` HTML tag for each summary statement."
 fi
 
 ## Scheduler Service
@@ -700,14 +740,14 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
+Auth__Keycloak__Authority=http://keycloak:8080
 Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
-Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__ApiUrl=http://api:8080/api
 
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
+Kafka__BootstrapServers=broker:29092
 
 CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
 CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
@@ -729,14 +769,14 @@ ASPNETCORE_URLS=http://+:8081
 ###########################################
 # Local
 ###########################################
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
+Auth__Keycloak__Authority=http://keycloak:8080
 Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
-Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__ApiUrl=http://api:8080/api
 
-# Elastic__Url=host.docker.internal:$portElastic
+# Elastic__Url=http://elastic:9200
 Elastic__Username=$elasticUser
 Elastic__Password=$password" >> ./services/net/folder-collection/.env
     echo "./services/net/folder-collection/.env created"
@@ -754,12 +794,12 @@ ASPNETCORE_URLS=http://+:8081
 ###########################################
 # Local
 ###########################################
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
+Auth__Keycloak__Authority=http://keycloak:8080
 Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
-Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__ApiUrl=http://api:8080/api
 # Service__VolumePath=../data" >> ./services/net/ffmpeg/.env
     echo "./services/net/ffmpeg/.env created"
 fi
@@ -772,14 +812,14 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
+Auth__Keycloak__Authority=http://keycloak:8080
 Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
-Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__ApiUrl=http://api:8080/api
 
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
+Kafka__BootstrapServers=broker:29092
 
 CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
 CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
@@ -797,17 +837,17 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
+Auth__Keycloak__Authority=http://keycloak:8080
 Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
-Service__ApiUrl=http://host.docker.internal:$portApi/api
-Service__CoreNLPApiUrl=http://host.docker.internal:$portCoreNlp
+Service__ApiUrl=http://api:8080/api
+Service__CoreNLPApiUrl=http://corenlp:9000
 Service__ExtractQuotesOnIndex=false
 Service__ExtractQuotesOnPublish=true
 
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
+Kafka__BootstrapServers=broker:29092
 
 CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
 CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
@@ -842,12 +882,12 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak
+Auth__Keycloak__Authority=http://keycloak:8080
 Auth__Keycloak__Audience=mmi-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
-Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__ApiUrl=http://api:8080/api
 
 CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
 CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
@@ -870,12 +910,12 @@ else
 echo \
 "ASPNETCORE_ENVIRONMENT=Development
 
-ConnectionStrings__TNO=Host=host.docker.internal:$portDatabase;Database=$dbName;Include Error Detail=true;Log Parameters=true;
+ConnectionStrings__TNO=Host=database:5432;Database=$dbName;Include Error Detail=true;Log Parameters=true;
 
 DB_POSTGRES_USERNAME=$dbUser
 DB_POSTGRES_PASSWORD=$password
 
-Elastic__Url=http://host.docker.internal:$portElastic
+Elastic__Url=http://elastic:9200
 Elastic__Username=$elasticUser
 Elastic__Password=$password
 # Elastic__MigrationVersion=1.0.1" >> ./tools/elastic/migration/.env

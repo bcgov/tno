@@ -6,6 +6,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { FaClipboard, FaCogs, FaSearch } from 'react-icons/fa';
 import {
+  FaBrain,
   FaClipboardList,
   FaCloudArrowDown,
   FaEnvelope,
@@ -73,6 +74,9 @@ export const Menu: React.FC = () => {
                   </MenuDropdownItem>
                   <MenuDropdownItem claim={Claim.administrator} to="/admin/folders">
                     <FaFolder /> Folders
+                  </MenuDropdownItem>
+                  <MenuDropdownItem claim={Claim.administrator} to="/admin/llms">
+                    <FaBrain /> AI LLM Configuration
                   </MenuDropdownItem>
                   {isAdmin && <NavDropdown.Divider />}
                   <MenuDropdownItem to="/reports/event-of-the-day">

@@ -63,7 +63,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
           'find-contents-with-elasticsearch',
           async () => await api.findContentWithElasticsearch(filter, includeUnpublishedContent),
         );
-        return response.data;
+        return response.data as KnnSearchResponse<IContentModel>;
       },
       getContent: async (id: number) => {
         const response = await dispatch(
@@ -71,7 +71,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
           async () => await api.getContent(id),
           'content',
         );
-        return response.status === 204 ? undefined : response.data;
+        return response.status === 204 ? undefined : (response.data as IContentModel | undefined);
       },
       addContent: async (content: IContentModel) => {
         const response = await dispatch(
@@ -79,7 +79,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
           async () => await api.addContent(content),
           'content',
         );
-        return response.data;
+        return response.data as IContentModel;
       },
       updateContent: async (content: IContentModel) => {
         const response = await dispatch(
@@ -87,7 +87,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
           async () => await api.updateContent(content),
           'content',
         );
-        return response.data;
+        return response.data as IContentModel;
       },
       updateContentList: async (content: IContentListModel) => {
         const response = await dispatch(
@@ -95,7 +95,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
           async () => await api.updateContentList(content),
           'content',
         );
-        return response.data;
+        return response.data as IContentModel[];
       },
       updateContentTopics: async (id: number, topics?: IContentTopicModel[]) => {
         const response = await dispatch(
@@ -103,7 +103,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
           async () => await api.updateContentTopics(id, topics ?? []),
           'content',
         );
-        return response.data;
+        return response.data as IContentTopicModel[];
       },
       deleteContent: async (content: IContentModel) => {
         const response = await dispatch(
@@ -111,7 +111,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
           async () => await api.deleteContent(content),
           'content',
         );
-        return response.data;
+        return response.data as IContentModel;
       },
       publishContent: async (content: IContentModel) => {
         return (
@@ -120,7 +120,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
             async () => await api.publishContent(content),
             'content',
           )
-        ).data;
+        ).data as IContentModel;
       },
       unpublishContent: async (content: IContentModel) => {
         return (
@@ -129,12 +129,12 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
             async () => await api.unpublishContent(content),
             'content',
           )
-        ).data;
+        ).data as IContentModel;
       },
       upload: async (content: IContentModel, file: File) => {
         return (
           await dispatch('upload-content', async () => await api.upload(content, file), 'content')
-        ).data;
+        ).data as IContentModel;
       },
       download: async (id: number, fileName: string) => {
         return (
@@ -152,11 +152,11 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
             async () => await api.attach(contentId, locationId, path),
             'content',
           )
-        ).data;
+        ).data as IContentModel;
       },
       stream: async (path: string) => {
         return (await dispatch('stream-content', async () => await api.stream(path), 'content'))
-          .data;
+          .data as string;
       },
       getNotificationsFor: async (id: number) => {
         return (
@@ -165,7 +165,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
             async () => await api.getNotificationsFor(id),
             'content',
           )
-        ).data;
+        ).data as INotificationInstanceModel[];
       },
       storeFilter: actions.storeFilter,
       storeFilterAdvanced: actions.storeFilterAdvanced,

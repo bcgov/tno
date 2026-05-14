@@ -124,6 +124,28 @@ public class ReportController : ControllerBase
     }
 
     /// <summary>
+    /// Get the previous instance for the specified report 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="qty"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/previous-instance")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult GetPreviousInstance(int id, int? ownerId, int qty = 1)
+    {
+        var instance = _service.GetPreviousReportInstances(id, null, ownerId, true, qty)?.FirstOrDefault();
+        if (instance == null) return NoContent();
+        var report = _service.FindById(id);
+        instance.Report = report;
+        return new JsonResult(new ReportInstanceModel(instance, _serializerOptions));
+    }
+
+    /// <summary>
     /// Clears all content from folders within this report.
     /// </summary>
     /// <param name="id"></param>

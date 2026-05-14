@@ -2,7 +2,6 @@ using System.Net;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using TNO.API.Filters;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.DAL.Services;
