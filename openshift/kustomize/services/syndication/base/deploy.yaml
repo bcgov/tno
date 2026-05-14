@@ -6,7 +6,6 @@ metadata:
   name: syndication-service
   namespace: default
   annotations:
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "syndication-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"syndication-service\")].image"}]'
     description: Defines how to deploy syndication-service
     created-by: jeremy.foster
   labels:
@@ -39,9 +38,11 @@ spec:
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: syndication-service
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/syndication-service:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/syndication-service:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -148,7 +149,7 @@ spec:
                   key: PASSWORD
           livenessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -158,7 +159,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: '/health'
+              path: "/health"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30

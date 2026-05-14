@@ -7,7 +7,6 @@ metadata:
   namespace: default
   annotations:
     description: Defines how to deploy subscriber
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "subscriber:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"subscriber\")].image"}]'
   labels:
     name: subscriber-app
     part-of: tno
@@ -45,9 +44,11 @@ spec:
         - name: subscriber-public-storage
           persistentVolumeClaim:
             claimName: subscriber-public-storage
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: subscriber
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/subscriber:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/subscriber:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -67,7 +68,7 @@ spec:
               mountPath: /usr/share/nginx/html/public/videos
           livenessProbe:
             httpGet:
-              path: '/nginx-status'
+              path: "/nginx-status"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -77,7 +78,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: '/nginx-status'
+              path: "/nginx-status"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 10

@@ -28,15 +28,14 @@ spec:
 
     - name: IMAGE_TAG
       description: >-
-        The tag given to the built images.
-        Use this to create versioned images.
+        The tag given to the built images. Use this to create versioned images.
       type: string
       default: latest
 
     - name: PROJECT_SHORTNAME
       description: >-
-        The project namespace shortname.
-        The part before the "-" (i.e. 9b301c-dev = 9b301c).
+        The project namespace shortname. The part before the "-" (i.e.
+        9b301c-dev = 9b301c).
       type: string
       default: 9b301c
 
@@ -94,9 +93,9 @@ spec:
         - git
       params:
         - name: CONTEXT
-          value: $(params.CONTEXT)
+          value: $(params.CONTEXT)/api/node
         - name: DOCKERFILE
-          value: $(params.CONTEXT)/api/node/Dockerfile.open
+          value: Dockerfile
         - name: IMAGE
           value: charts-api
         - name: IMAGE_TAG
@@ -123,4 +122,4 @@ spec:
         - name: ENV
           value: $(params.DEPLOY_TO)
         - name: OBJECT
-          value: sts
+          value: deployment

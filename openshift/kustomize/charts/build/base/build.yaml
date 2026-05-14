@@ -45,11 +45,13 @@ spec:
     type: Docker
     dockerStrategy:
       imageOptimizationPolicy: SkipLayers
-      dockerfilePath: Dockerfile
+      dockerfilePath: Dockerfile.open
   output:
     to:
-      kind: ImageStreamTag
-      name: charts-api:latest
+      kind: DockerImage
+      name: bcgov-c4awhwfpcremdbga.azurecr.io/charts-api:latest
+    pushSecret:
+      name: acr-secret
   resources:
     requests:
       cpu: 250m

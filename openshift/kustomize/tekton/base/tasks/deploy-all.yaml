@@ -7,10 +7,12 @@ metadata:
     tekton.dev/pipelines.minVersion: 0.12.1
     tekton.dev/tags: cli
     description: >-
-      This task will tag a specific image with the environment name.
-      This will deploy the image if there is a DeployConfig trigger listening for the environment tag.
+      This task will tag a specific image with the environment name. This will
+      deploy the image if there is a Deployment trigger listening for the
+      environment tag. This version works with Kubernetes Deployments (not
+      DeploymentConfigs).
   labels:
-    name: oc-all
+    name: oc-deploy-all
     part-of: tno
     version: 1.0.0
     component: task
@@ -40,11 +42,106 @@ spec:
     - name: WAIT
       description: Whether to wait for each service pod to scale back up [yes|no].
       default: "no"
+
+    - name: ACR_REGISTRY
+      description: The Azure Container Registry URL (leave empty to skip ACR tagging).
+      type: string
+      default: "bcgov-c4awhwfpcremdbga.azurecr.io"
   workspaces:
     - name: conditions
       mountPath: /data
+    - name: dockerconfig
+      mountPath: /auth
+      optional: true
 
   steps:
+    - name: tag-acr
+      image: bcgov-c4awhwfpcremdbga.azurecr.io/buildah:latest
+      securityContext:
+        capabilities:
+          add:
+            - SETFCAP
+        runAsUser: 0
+      env:
+        - name: IMAGE_REGISTRY_USER
+          valueFrom:
+            secretKeyRef:
+              name: pipelines
+              key: username
+        - name: IMAGE_REGISTRY_PASS
+          valueFrom:
+            secretKeyRef:
+              name: pipelines
+              key: password
+      workingDir: $(workspaces.conditions.path)
+      script: |
+        #!/usr/bin/env bash
+        set -e
+
+        if [ -z "$(params.ACR_REGISTRY)" ]; then
+          echo "ACR_REGISTRY not set, skipping ACR tagging"
+          exit 0
+        fi
+
+        if test -f $(workspaces.conditions.path)/build.env; then
+          export $(grep -v '^#' $(workspaces.conditions.path)/build.env | xargs)
+        else
+          echo 'Workspace conditions build.env not found'
+          exit 1;
+        fi
+
+        CREDS=""
+        if [ ! -z "$IMAGE_REGISTRY_USER" ]; then
+          echo "Setting up buildah login credentials for $(params.ACR_REGISTRY)"
+          CREDS="--creds $IMAGE_REGISTRY_USER:$IMAGE_REGISTRY_PASS"
+        fi
+
+        declare -A COMPONENT0=([id]="api" [name]="api" [build]="yes" [env]="dev test prod")
+        declare -A COMPONENT1=([id]="charts-api" [name]="charts-api" [build]="yes" [env]="dev test prod")
+        declare -A COMPONENT4=([id]="content" [name]="content-service" [build]="yes" [env]="dev test prod")
+        declare -A COMPONENT5=([id]="indexing" [name]="indexing-service" [build]="yes" [env]="dev test prod")
+        declare -A COMPONENT7=([id]="transcription" [name]="transcription-service" [build]="yes" [env]="dev test prod")
+        declare -A COMPONENT8=([id]="nlp" [name]="nlp-service" [build]="yes" [env]="dev test prod")
+        declare -A COMPONENT9=([id]="extract-quotes" [name]="extract-quotes-service" [build]="yes" [env]="dev test prod")
+        declare -A COMPONENT10=([id]="reporting" [name]="reporting-service" [build]="yes" [env]="dev test prod")
+        declare -A COMPONENT11=([id]="notification" [name]="notification-service" [build]="yes" [env]="dev test prod")
+        declare -A COMPONENT12=([id]="scheduler" [name]="scheduler-service" [build]="yes" [env]="dev test prod")
+        declare -A COMPONENT14=([id]="ffmpeg" [name]="ffmpeg-service" [build]="yes" [env]="dev test prod")
+        declare -A COMPONENT15=([id]="event-handler" [name]="event-handler-service" [build]="yes" [env]="dev test prod")
+        declare -A COMPONENT16=([id]="ches-retry" [name]="ches-retry-service" [build]="yes" [env]="dev test prod")
+        declare -A COMPONENT17=([id]="syndication" [name]="syndication-service" [build]="yes" [env]="dev test prod")
+        declare -A COMPONENT18=([id]="filemonitor" [name]="filemonitor-service" [build]="yes" [env]="dev test prod")
+        declare -A COMPONENT19=([id]="image" [name]="image-service" [build]="yes" [env]="dev test prod")
+        declare -A COMPONENT20=([id]="auto-clipper" [name]="auto-clipper-service" [build]="yes" [env]="dev test prod")
+        declare -A COMPONENT21=([id]="folder-collection" [name]="folder-collection-service" [build]="yes" [env]="dev test prod")
+        declare -A COMPONENT22=([id]="editor" [name]="editor" [build]="yes" [env]="dev test prod")
+        declare -A COMPONENT23=([id]="subscriber" [name]="subscriber" [build]="yes" [env]="dev test prod")
+
+        declare -n component;
+
+        for component in ${!COMPONENT@}; do
+          TVAR="BUILD_${component[id]}"
+          COMPONENT=${TVAR//\-/_}
+          COMPONENT=${COMPONENT^^}
+
+          IFS=' ' read -r -a env_array <<< "${component[env]}"
+
+          if [ "${!COMPONENT}" = true ] || [ "$(params.DEPLOY)" = "all" ] || [ "$(params.DEPLOY)" = "${component[id]}" ]; then
+            for env in "${env_array[@]}"; do
+              if [[ "$env" =~ "$(params.ENV)" ]] && [[ "${component[build]}" = "yes" ]]; then
+                echo "Tagging $(params.ACR_REGISTRY)/${component[name]}:$(params.IMAGE_TAG) → :$(params.ENV)"
+                IMAGE_ID=$(buildah --storage-driver=vfs pull $CREDS \
+                  docker://$(params.ACR_REGISTRY)/${component[name]}:$(params.IMAGE_TAG))
+                buildah --storage-driver=vfs tag $IMAGE_ID \
+                  $(params.ACR_REGISTRY)/${component[name]}:$(params.ENV)
+                buildah --storage-driver=vfs push $CREDS \
+                  $(params.ACR_REGISTRY)/${component[name]}:$(params.ENV)
+                buildah --storage-driver=vfs rmi --force $IMAGE_ID
+              fi
+            done
+          fi
+        done
+
     - name: deploy
       image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
       resources: {}
@@ -78,7 +175,7 @@ spec:
         declare -A COMPONENT1=(
           [id]="charts-api"
           [name]="charts-api"
-          [type]="dc"
+          [type]="deployment"
           [replicas]="1"
           [action]="maintenance"
           [build]="yes"
@@ -86,33 +183,33 @@ spec:
         )
 
         # Moved to GitHub Actions CI/CD — react-editor.yml
-        # declare -A COMPONENT2=(
-        #   [id]="editor"
-        #   [name]="editor"
-        #   [type]="dc"
-        #   [replicas]="1"
-        #   [action]="maintenance"
-        #   [build]="yes"
-        #   [env]="dev test prod"
-        # )
+        declare -A COMPONENT2=(
+          [id]="editor"
+          [name]="editor"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="maintenance"
+          [build]="yes"
+          [env]="dev test prod"
+        )
 
         # Moved to GitHub Actions CI/CD — react-subscriber.yml
-        # declare -A COMPONENT3=(
-        #   [id]="subscriber"
-        #   [name]="subscriber"
-        #   [type]="dc"
-        #   [replicas]="1"
-        #   [action]="maintenance"
-        #   [build]="yes"
-        #   [env]="dev test prod"
-        # )
+        declare -A COMPONENT3=(
+          [id]="subscriber"
+          [name]="subscriber"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="maintenance"
+          [build]="yes"
+          [env]="dev test prod"
+        )
 
         # Processing Services
 
         declare -A COMPONENT4=(
           [id]="content"
           [name]="content-service"
-          [type]="dc"
+          [type]="deployment"
           [replicas]="1"
           [action]="stop"
           [build]="yes"
@@ -120,128 +217,112 @@ spec:
         )
 
         # Moved to GitHub Actions CI/CD — indexing-service-cicd.yml
-        # declare -A COMPONENT5=(
-        #   [id]="indexing"
-        #   [name]="indexing-service"
-        #   [type]="dc"
-        #   [replicas]="1"
-        #   [action]="stop"
-        #   [build]="yes"
-        #   [env]="dev test prod"
-        # )
-
-        declare -A COMPONENT6=(
-          [id]="indexing-cloud"
-          [name]="indexing-service-cloud"
-          [type]="dc"
-          [replicas]="1"
-          [action]="stop"
-          [build]="no"
-          [env]="test prod"
-        )
-
-        # Moved to GitHub Actions CI/CD — transcription-service-cicd.yml
-        # declare -A COMPONENT7=(
-        #   [id]="transcription"
-        #   [name]="transcription-service"
-        #   [type]="dc"
-        #   [replicas]="1"
-        #   [action]="stop"
-        #   [build]="yes"
-        #   [env]="dev test prod"
-        # )
-
-        # Moved to GitHub Actions CI/CD — nlp-service-cicd.yml
-        # declare -A COMPONENT8=(
-        #   [id]="nlp"
-        #   [name]="nlp-service"
-        #   [type]="dc"
-        #   [replicas]="1"
-        #   [action]="stop"
-        #   [build]="yes"
-        #   [env]="dev test prod"
-        # )
-
-        # Moved to GitHub Actions CI/CD — extract-quotes-service-cicd.yml
-        # declare -A COMPONENT9=(
-        #   [id]="extract-quotes"
-        #   [name]="extract-quotes-service"
-        #   [type]="dc"
-        #   [replicas]="1"
-        #   [action]="stop"
-        #   [build]="yes"
-        #   [env]="dev test prod"
-        # )
-
-        declare -A COMPONENT10=(
-          [id]="reporting"
-          [name]="reporting-service"
-          [type]="dc"
+        declare -A COMPONENT5=(
+          [id]="indexing"
+          [name]="indexing-service"
+          [type]="deployment"
           [replicas]="1"
           [action]="stop"
           [build]="yes"
           [env]="dev test prod"
         )
 
-        # Moved to GitHub Actions CI/CD — notification-service-cicd.yml
-        # declare -A COMPONENT11=(
-        #   [id]="notification"
-        #   [name]="notification-service"
-        #   [type]="dc"
-        #   [replicas]="1"
-        #   [action]="stop"
-        #   [build]="yes"
-        #   [env]="dev test prod"
-        # )
+        declare -A COMPONENT6=(
+          [id]="indexing-cloud"
+          [name]="indexing-service-cloud"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="no"
+          [env]="test prod"
+        )
 
-        # Moved to GitHub Actions CI/CD — scheduler-service-cicd.yml
-        # declare -A COMPONENT12=(
-        #   [id]="scheduler"
-        #   [name]="scheduler-service"
-        #   [type]="dc"
-        #   [replicas]="1"
-        #   [action]="stop"
-        #   [build]="yes"
-        #   [env]="dev test prod"
-        # )
+        declare -A COMPONENT7=(
+          [id]="transcription"
+          [name]="transcription-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT8=(
+          [id]="nlp"
+          [name]="nlp-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT9=(
+          [id]="extract-quotes"
+          [name]="extract-quotes-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT10=(
+          [id]="reporting"
+          [name]="reporting-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT11=(
+          [id]="notification"
+          [name]="notification-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT12=(
+          [id]="scheduler"
+          [name]="scheduler-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
 
         # Moved to GitHub Actions CI/CD — folder-collection-cicd.yml
-        # declare -A COMPONENT13=(
-        #   [id]="folder-collection"
-        #   [name]="folder-collection-service"
-        #   [type]="dc"
-        #   [replicas]="1"
-        #   [action]="stop"
-        #   [build]="yes"
-        #   [env]="dev test prod"
-        # )
-
-        # Moved to GitHub Actions CI/CD — ffmpeg-service-cicd.yml
-        # declare -A COMPONENT14=(
-        #   [id]="ffmpeg"
-        #   [name]="ffmpeg-service"
-        #   [type]="dc"
-        #   [replicas]="1"
-        #   [action]="stop"
-        #   [build]="yes"
-        #   [env]="dev test prod"
-        # )
+        declare -A COMPONENT13=(
+          [id]="ffmpeg"
+          [name]="ffmpeg-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
 
         # Moved to GitHub Actions CI/CD — event-handler-cicd.yml
-        # declare -A COMPONENT15=(
-        #   [id]="event-handler"
-        #   [name]="event-handler-service"
-        #   [type]="dc"
-        #   [replicas]="1"
-        #   [action]="stop"
-        #   [build]="yes"
-        #   [env]="dev test prod"
-        # )
+        declare -A COMPONENT15=(
+          [id]="event-handler"
+          [name]="event-handler-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
 
         declare -A COMPONENT16=(
           [id]="ches-retry"
           [name]="ches-retry-service"
-          [type]="dc"
+          [type]="deployment"
           [replicas]="1"
           [action]="stop"
           [build]="yes"
@@ -253,7 +334,7 @@ spec:
         declare -A COMPONENT17=(
           [id]="syndication"
           [name]="syndication-service"
-          [type]="dc"
+          [type]="deployment"
           [replicas]="1"
           [action]="stop"
           [build]="yes"
@@ -263,23 +344,32 @@ spec:
         declare -A COMPONENT18=(
           [id]="filemonitor"
           [name]="filemonitor-service"
-          [type]="dc"
+          [type]="deployment"
           [replicas]="1"
           [action]="stop"
           [build]="yes"
           [env]="dev test prod"
         )
 
-        # Moved to GitHub Actions CI/CD — image-service-cicd.yml
-        # declare -A COMPONENT19=(
-        #   [id]="image"
-        #   [name]="image-service"
-        #   [type]="dc"
-        #   [replicas]="1"
-        #   [action]="stop"
-        #   [build]="yes"
-        #   [env]="dev test prod"
-        # )
+        declare -A COMPONENT19=(
+          [id]="image"
+          [name]="image-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
+
+        declare -A COMPONENT20=(
+          [id]="auto-clipper"
+          [name]="auto-clipper-service"
+          [type]="deployment"
+          [replicas]="1"
+          [action]="stop"
+          [build]="yes"
+          [env]="dev test prod"
+        )
 
         declare -n component;
 
@@ -317,15 +407,12 @@ spec:
           if [ "${!COMPONENT}" = true ] || [ "$(params.DEPLOY)" = "all" ] || [ "$(params.DEPLOY)" = "${component[id]}" ]; then
             for env in "${env_array[@]}"; do
               if [[ "$env" =~ "$(params.ENV)" ]]; then
-                if [[ "${component[build]}" = "yes" ]]; then
+                if [[ "${component[build]}" = "yes" && -z "$(params.ACR_REGISTRY)" ]]; then
                   echo "Tagging image to trigger deployment to ${component[name]}:$(params.ENV)"
                   oc tag ${component[name]}:$(params.IMAGE_TAG) ${component[name]}:$(params.ENV)
                 fi
 
-                if [ "${component[type]}" = "sts" ]; then
-                  oc rollout restart ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
-                fi
-
+                oc rollout restart ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
                 echo "Waiting for deployment to roll out"
                 oc rollout status --watch --timeout=$(params.TIMEOUT) ${component[type]}/${component[name]} -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
               else

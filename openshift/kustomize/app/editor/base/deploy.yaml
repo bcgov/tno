@@ -7,7 +7,6 @@ metadata:
   namespace: default
   annotations:
     description: Defines how to deploy editor
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "editor:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"editor\")].image"}]'
   labels:
     name: editor-app
     part-of: tno
@@ -42,9 +41,11 @@ spec:
             items:
               - key: keycloak.json
                 path: keycloak.json
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: editor
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/editor:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/editor:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -62,7 +63,7 @@ spec:
               subPath: keycloak.json
           livenessProbe:
             httpGet:
-              path: '/nginx-status'
+              path: "/nginx-status"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 30
@@ -72,7 +73,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: '/nginx-status'
+              path: "/nginx-status"
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 10

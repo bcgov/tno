@@ -8,7 +8,6 @@ metadata:
   annotations:
     description: Defines how to deploy auto-clipper-service
     created-by: jeremy.foster
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "auto-clipper-service:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"auto-clipper-service\")].image"}]'
   labels:
     name: auto-clipper-service
     part-of: tno
@@ -39,9 +38,11 @@ spec:
         - name: api-storage
           persistentVolumeClaim:
             claimName: api-storage
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: auto-clipper-service
-          image: image-registry.openshift-image-registry.svc:5000/9b301c-tools/auto-clipper-service:prod
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/auto-clipper-service:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

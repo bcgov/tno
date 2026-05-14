@@ -6,7 +6,6 @@ metadata:
   namespace: default
   annotations:
     description: Defines how to deploy nginx
-    image.openshift.io/triggers: '[{"from": {"kind": "ImageStreamTag", "name": "nginx:dev", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"nginx\")].image"}]'
   labels:
     name: nginx
     part-of: tno
@@ -34,9 +33,11 @@ spec:
         part-of: tno
         component: nginx
     spec:
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: nginx
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/nginx:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/nginx:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

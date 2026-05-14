@@ -18,6 +18,9 @@ patches:
         path: /spec/replicas
         value: 1
       - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: bcgov-c4awhwfpcremdbga.azurecr.io/image-service:prod
+      - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
         value: 15m
       - op: replace

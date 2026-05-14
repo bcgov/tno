@@ -19,6 +19,9 @@ patches:
         path: /spec/replicas
         value: 2
       - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: bcgov-c4awhwfpcremdbga.azurecr.io/api:test
+      - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
         value: 100m
       - op: replace
@@ -29,9 +32,6 @@ patches:
         value:
           cpu: 500m
           memory: 1536Mi
-      - op: replace
-        path: /metadata/annotations/image.openshift.io~1triggers
-        value: '[{"from": {"kind": "ImageStreamTag", "name": "api-services:test", "namespace": "9b301c-tools"}, "fieldPath": "spec.template.spec.containers[?(@.name==\"api-services\")].image"}]'
       - op: replace
         path: /spec/template/spec/containers/0/env/15/valueFrom/secretKeyRef/name
         value: mooncrest
