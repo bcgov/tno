@@ -28,17 +28,20 @@ scale ffmpeg-service 0 deployment $env
 scale transcription-service 0 deployment $env
 scale extract-quotes-service 0 deployment $env
 
-# Kafka Consumers - Stateless (7 services)
+# Kafka Consumers
 scale folder-collection-service 0 deployment $env
 scale content-service 0 deployment $env
 scale indexing-service 0 deployment $env
+if [[ "$env" != "dev" ]]; then
+  scale indexing-service-cloud 0 deployment $env
+fi
 scale event-handler-service 0 deployment $env
 scale notification-service 0 deployment $env
 scale reporting-service 0 deployment $env
 scale ches-retry-service 0 deployment $env
 scale auto-clipper-service 0 deployment $env
 
-# Kafka Consumers - Single-Instance (4 services)
+# Kafka Producers - Single-Instance
 scale scheduler-service 0 deployment $env
 scale filemonitor-service 0 deployment $env
 scale syndication-service 0 deployment $env
@@ -47,12 +50,4 @@ scale image-service 0 deployment $env
 scale api-services 0 deployment $env
 scale api 0 statefulset $env
 
-# Supporting Services (4 services - oracle not in dev)
-# scale oracle 0 deployment $env  # Not deployed in dev
 # scale kowl 0 deployment $env
-
-# Services not currently deployed (commented out for future use)
-# scale filecopy-service 0 deployment $env
-# scale capture-service 0 deployment $env
-# scale clip-service 0 deployment $env
-# scale indexing-service-cloud 0 deployment $env
