@@ -26,14 +26,26 @@
     "Unpublish"
   ],
   "java.configuration.updateBuildConfiguration": "interactive",
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": false,
+  "editor.bracketPairColorization.enabled": false,
+  "editor.semanticHighlighting.enabled": false,
+  "editor.suggestSelection": "first",
   "editor.codeActionsOnSave": {
-    "source.organizeImports": "never",
-    "source.fixAll.eslint": "explicit"
+    "source.fixAll.eslint": "explicit" 
   },
-  "omnisharp.enableRoslynAnalyzers": true,
+  "editor.quickSuggestionsDelay": 500,
+  "eslint.enable": true,
+  "editor.tabSize": 2,
+  "editor.mouseWheelZoom": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.guides.bracketPairs": true,
+  "editor.minimap.enabled": false,
+  "editor.detectIndentation": false,
+  "editor.accessibilitySupport": "off",
+  "typescript.disableAutomaticTypeAcquisition": true,
   "omnisharp.enableMsBuildLoadProjectsOnDemand": true,
   "dotnet.server.useOmnisharp": true,
-  "omnisharp.analyzeOpenDocumentsOnly": true,
   "files.exclude": {
     "**/.git": true,
     "**/.svn": true,
@@ -45,5 +57,4 @@
   },
   "dotnet.defaultSolution": "./TNO.sln",
   "dotnet.formatting.organizeImportsOnFormat": true,
-  "dotrush.roslyn.projectOrSolutionFiles": []
 }

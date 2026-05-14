@@ -26,16 +26,18 @@ export const useWorkOrders = (): [any, IWorkOrderController] => {
         const response = await dispatch<IPaged<IWorkOrderModel>>('find-work-orders', () =>
           api.findWorkOrders(filter),
         );
-        return response.data;
+        return response.data as IPaged<IWorkOrderModel>;
       },
       transcribe: async (content: IContentModel) => {
-        return await dispatch('transcribe-content', () => api.transcribe(content));
+        return (await dispatch('transcribe-content', () =>
+          api.transcribe(content),
+        )) as AxiosResponse<IWorkOrderModel>;
       },
       transcribeAnonymous: async (contentId: number, uid: number) => {
         const response = await dispatch<any>('transcribe-content-anonymous', () =>
           api.transcribeAnonymous(contentId, uid),
         );
-        return response.data;
+        return response.data as any;
       },
     }),
     [api, dispatch],

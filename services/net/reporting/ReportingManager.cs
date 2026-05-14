@@ -398,15 +398,47 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     private async Task<Dictionary<string, ReportSectionModel>> GetLinkedReportAsync(int reportId, int? ownerId)
     {
         var instance = await this.Api.GetCurrentReportInstanceAsync(reportId, ownerId);
-        if (instance == null) return new();
+        if (instance == null) return [];
 
         var sections = instance.Report?.Sections.ToDictionary(section => section.Name, section =>
         {
             var content = instance.Content.Where(c => c.SectionName == section.Name && c.Content != null).Select(c => new ContentModel(c.Content!, c.SortOrder, c.SectionName, section.Settings.Label));
             return new ReportSectionModel(section, content);
-        }) ?? new();
+        }) ?? [];
 
         return sections;
+    }
+
+    /// <summary>
+    /// Get the content from the previous instance of the specified 'reportId' and 'ownerId'.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="instanceId"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="qty"></param>
+    /// <returns></returns>
+    public async Task<Dictionary<string, ReportSectionModel>> GetPreviousReportsAsync(int reportId, int? instanceId, int? ownerId = null, int qty = 1)
+    {
+        var instance = await this.Api.GetPreviousReportInstancesAsync(reportId, ownerId, qty);
+        if (instance == null) return [];
+
+        var sections = instance.Report?.Sections.ToDictionary(section => section.Name, section =>
+        {
+            var content = instance.Content.Where(c => c.SectionName == section.Name && c.Content != null).Select(c => new ContentModel(c.Content!, c.SortOrder, c.SectionName, section.Settings.Label));
+            return new ReportSectionModel(section, content);
+        }) ?? [];
+
+        return sections;
+    }
+
+    /// <summary>
+    /// Get the LLM for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.LLM.LLMModel?> GetLLMAsync(int id)
+    {
+        return await this.Api.GetLLMAsync(id);
     }
 
     /// <summary>
@@ -746,8 +778,26 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             var retry = IsRetry(request, instance);
             var subject = resend || retry ? instance!.Subject : await this.ReportEngine.GenerateReportSubjectAsync(report, instance, sectionContent, false, false);
             // We regenerate the link only email because we don't save it.  This could be an issue if the template needed content information in it.
-            var linkOnlyFormatBody = await this.ReportEngine.GenerateReportBodyAsync(report, instance, sectionContent, GetLinkedReportAsync, this.Options.ImageVolumePath, true, false);
-            var fullTextFormatBody = resend || retry ? instance!.Body : await this.ReportEngine.GenerateReportBodyAsync(report, instance, sectionContent, GetLinkedReportAsync, this.Options.ImageVolumePath, false, false);
+            var linkOnlyFormatBody = await this.ReportEngine.GenerateReportBodyAsync(
+                report,
+                instance,
+                sectionContent,
+                GetLinkedReportAsync,
+                GetPreviousReportsAsync,
+                GetLLMAsync,
+                this.Options.ImageVolumePath,
+                true,
+                false);
+            var fullTextFormatBody = resend || retry ? instance!.Body : await this.ReportEngine.GenerateReportBodyAsync(
+                report,
+                instance,
+                sectionContent,
+                GetLinkedReportAsync,
+                GetPreviousReportsAsync,
+                GetLLMAsync,
+                this.Options.ImageVolumePath,
+                false,
+                false);
 
             return (subject, linkOnlyFormatBody, fullTextFormatBody);
         }

@@ -58,6 +58,8 @@ public interface IReportEngine
     /// <param name="reportInstance"></param>
     /// <param name="sectionContent"></param>
     /// <param name="getLinkedReport"></param>
+    /// <param name="getPreviousReport"></param>
+    /// <param name="getLLMAsync"></param>
     /// <param name="uploadPath"></param>
     /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
@@ -67,6 +69,8 @@ public interface IReportEngine
         API.Areas.Services.Models.ReportInstance.ReportInstanceModel? reportInstance,
         Dictionary<string, ReportSectionModel> sectionContent,
         Func<int, int?, Task<Dictionary<string, ReportSectionModel>>> getLinkedReport,
+        Func<int, int?, int?, int, Task<Dictionary<string, ReportSectionModel>>> getPreviousReport,
+        Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync,
         string? uploadPath = null,
         bool viewOnWebOnly = false,
         bool isPreview = false);

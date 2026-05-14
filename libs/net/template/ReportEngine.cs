@@ -306,7 +306,7 @@ public class ReportEngine : IReportEngine
     /// Generate the output of the report with the Razor engine.
     /// </summary>
     /// <param name="report"></param>
-    /// <param name="reportInstanceId"></param>
+    /// <param name="reportInstance"></param>
     /// <param name="sectionContent"></param>
     /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
@@ -376,9 +376,11 @@ public class ReportEngine : IReportEngine
     /// Generate the output of the report with the Razor engine.
     /// </summary>
     /// <param name="report"></param>
-    /// <param name="reportInstanceId"></param>
+    /// <param name="reportInstance"></param>
     /// <param name="sectionContent"></param>
-    /// <param name="getLinkedReport"></param>
+    /// <param name="getReportAsync"></param>
+    /// <param name="getPreviousReportsAsync"></param>
+    /// <param name="getLLMAsync"></param>
     /// <param name="pathToFiles"></param>
     /// <param name="viewOnWebOnly"></param>
     /// <param name="isPreview"></param>
@@ -388,7 +390,9 @@ public class ReportEngine : IReportEngine
         API.Areas.Services.Models.Report.ReportModel report,
         API.Areas.Services.Models.ReportInstance.ReportInstanceModel? reportInstance,
         Dictionary<string, ReportSectionModel> sectionContent,
-        Func<int, int?, Task<Dictionary<string, ReportSectionModel>>> getLinkedReportAsync,
+        Func<int, int?, Task<Dictionary<string, ReportSectionModel>>> getReportAsync,
+        Func<int, int?, int?, int, Task<Dictionary<string, ReportSectionModel>>> getPreviousReportsAsync,
+        Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync,
         string? pathToFiles = null,
         bool viewOnWebOnly = false,
         bool isPreview = false)
@@ -407,7 +411,7 @@ public class ReportEngine : IReportEngine
             await GenerateReportImageSectionsAsync(report, sectionContent, pathToFiles);
 
             // Perform AI processes on the report.
-            await GenerateReportAISectionsAsync(report, sectionContent);
+            await GenerateReportAISectionsAsync(report, sectionContent, getPreviousReportsAsync, getLLMAsync);
 
             // For each section that is JSON from 3rd party, fetch the JSON and save it.
             await GenerateReportDataSectionsAsync(report, sectionContent);
@@ -458,7 +462,7 @@ public class ReportEngine : IReportEngine
                 if (section.LinkedReportId.HasValue)
                 {
                     // Make request for linked report content if the current instance doesn't have any content for this section.
-                    linkedReport = await getLinkedReportAsync(section.LinkedReportId.Value, null);
+                    linkedReport = await getReportAsync(section.LinkedReportId.Value, report.OwnerId);
                 }
 
                 await section.ChartTemplates.ForEachAsync(async chart =>
@@ -722,92 +726,132 @@ public class ReportEngine : IReportEngine
     }
 
     /// <summary>
+    /// Generate a dictionary contain the report minimized content items within each section.
+    /// This is used by the AI summary.
+    /// </summary>
+    /// <param name="sectionContent"></param>
+    /// <returns></returns>
+    private static Dictionary<string, object> GenerateAIReportContentData(Dictionary<string, ReportSectionModel> sectionContent)
+    {
+        var contentList = new Dictionary<string, object>();
+        foreach (var section in sectionContent.Where(sc => sc.Value.Content.Any()))
+        {
+            var sectionContentJson = section.Value.Content.Select(c => new
+            {
+                headline = c.Headline,
+                text = !String.IsNullOrWhiteSpace(c.Body) ? c.Body : c.Summary,
+                byline = c.Byline,
+                source = c.Source?.Name ?? c.OtherSource,
+                publishedOn = c.PublishedOn,
+                mediaType = c.MediaType?.Name,
+                series = c.Series?.Name ?? c.OtherSeries,
+                sentiment = c.TonePools.FirstOrDefault()?.Value,
+                tags = c.Tags.Select(t => t.Code).ToArray(),
+                actions = c.Actions.Select(a => a.Name),
+            });
+            contentList.Add(section.Value.Settings.Label, sectionContentJson);
+        }
+        return contentList;
+    }
+
+    /// <summary>
     /// Generate the AI sections of the report.
     /// </summary>
     /// <param name="report"></param>
     /// <param name="sectionContent"></param>
+    /// <param name="getPreviousReportsAsync"></param>
+    /// <param name="getLLMAsync"></param>
     /// <param name=""></param>
     /// <returns></returns>
     private async Task GenerateReportAISectionsAsync(
         API.Areas.Services.Models.Report.ReportModel report,
-        Dictionary<string, ReportSectionModel> sectionContent)
+        Dictionary<string, ReportSectionModel> sectionContent,
+        Func<int, int?, int?, int, Task<Dictionary<string, ReportSectionModel>>> getPreviousReportsAsync,
+        Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync)
     {
         var includesAI = report.Sections.Any(s => s.SectionType == Entities.ReportSectionType.AI && s.IsEnabled);
         if (includesAI)
         {
-            var projectEndpoint = this.AzureOptions.AI?.ProjectEndpoint;
-            var apiKey = this.AzureOptions.AI?.ApiKey;
-            var defaultAgentName = this.AzureOptions.AI?.DefaultAgentName;
 
-            if (projectEndpoint == null)
+            var serializer = new JsonSerializerOptions(JsonSerializerDefaults.Web)
             {
-                this.Logger.LogError("Azure AI configuration 'Azure.AI.ProjectEndpoint' is required.");
-            }
-            else if (String.IsNullOrWhiteSpace(apiKey))
+                WriteIndented = false,
+                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            };
+            var reportContentSection = new StringBuilder();
+
+            var includesPreviousReports = report.Sections.Where(s => s.SectionType == Entities.ReportSectionType.AI && s.Settings.IncludePreviousReports.HasValue && s.Settings.IncludePreviousReports > 0).Max(s => s.Settings.IncludePreviousReports) ?? 0;
+            if (includesPreviousReports > 0)
             {
-                this.Logger.LogError("Azure AI configuration 'Azure.AI.ApiKey' is required.");
-            }
-            else
-            {
-                var allContent = new StringBuilder("## Data\n### Sections");
-                var serializer = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+                // Generate a system prompt that includes the previous report content.
+                var previousReportContent = await getPreviousReportsAsync(report.Id, null, report.OwnerId, includesPreviousReports);
+                if (previousReportContent != null && previousReportContent.Count > 0)
                 {
-                    WriteIndented = true,
-                    Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-                };
-                foreach (var section in sectionContent.Where(sc => sc.Value.Content.Any()))
+                    reportContentSection.AppendLine("## Previous Report Data");
+                    var previousReportData = GenerateAIReportContentData(previousReportContent);
+                    reportContentSection.AppendLine($"```json\n{JsonSerializer.Serialize(previousReportData, serializer)}\n```");
+                }
+            }
+
+            // Generate a system prompt that includes the current report content.
+            reportContentSection.AppendLine("## Current Report Data");
+            var currentReportData = GenerateAIReportContentData(sectionContent);
+            reportContentSection.AppendLine($"```json\n{JsonSerializer.Serialize(currentReportData, serializer)}\n```");
+
+            // Generate AI results.
+            await report.Sections
+                .Where(section => section.SectionType == Entities.ReportSectionType.AI && section.IsEnabled)
+                .ForEachAsync(async section =>
+            {
+                var sectionData = sectionContent[section.Name];
+
+                var llm = sectionData.Settings.LLMId.HasValue ? await getLLMAsync(sectionData.Settings.LLMId.Value) : null;
+                var projectEndpoint = llm?.ProjectEndpoint ?? this.AzureOptions.AI?.ProjectEndpoint;
+                var apiKey = llm?.ApiKey ?? this.AzureOptions.AI?.ApiKey;
+
+                if (projectEndpoint == null)
                 {
-                    allContent.AppendLine($"#### {section.Value.Settings.Label}");
-                    var sectionContentJson = section.Value.Content.Select(c => new
-                    {
-                        headline = c.Headline,
-                        text = !String.IsNullOrWhiteSpace(c.Body) ? c.Body : c.Summary,
-                        byline = c.Byline,
-                        source = c.Source?.Name ?? c.OtherSource,
-                        publishedOn = c.PublishedOn,
-                        mediaType = c.MediaType?.Name,
-                        series = c.Series?.Name ?? c.OtherSeries,
-                        sentiment = c.TonePools.FirstOrDefault()?.Value,
-                        tags = c.Tags.Select(t => t.Code).ToArray(),
-                        actions = c.Actions.Select(a => a.Name),
-                    }).ToArray();
-                    allContent.AppendLine($"```json\n{JsonSerializer.Serialize(sectionContentJson, serializer)}\n```");
+                    this.Logger.LogError("Azure AI configuration 'Azure.AI.ProjectEndpoint' is required.");
+                    sectionData.Data = "OpenAI API project endpoint is required.";
+                    return;
+                }
+                else if (String.IsNullOrWhiteSpace(apiKey))
+                {
+                    this.Logger.LogError("Azure AI configuration 'Azure.AI.ApiKey' is required.");
+                    sectionData.Data = "OpenAI API key is required.";
+                    return;
                 }
 
-                // Generate AI results.
-                await report.Sections
-                    .Where(section => section.SectionType == Entities.ReportSectionType.AI && section.IsEnabled)
-                    .ForEachAsync(async section =>
-                {
-                    var sectionData = sectionContent[section.Name];
-                    var settings = section.Settings;
-                    var deploymentModelName = !String.IsNullOrWhiteSpace(settings.DeploymentName) ? settings.DeploymentName : this.AzureOptions.AI?.DefaultModelDeploymentName;
-                    var systemPrompt = !String.IsNullOrWhiteSpace(settings.SystemPrompt) ? settings.SystemPrompt : this.AzureOptions.AI?.DefaultSystemPrompt;
-                    var userPrompt = new StringBuilder(!String.IsNullOrWhiteSpace(settings.UserPrompt) ? settings.UserPrompt : this.AzureOptions.AI?.DefaultUserPrompt);
-                    var choiceIndex = settings.ChoiceIndex;
-                    var temperature = settings.Temperature;
-                    var resultCount = settings.ChoiceQty;
+                var settings = section.Settings;
+                var deploymentName = !String.IsNullOrWhiteSpace(llm?.DeploymentName) ? llm.DeploymentName : this.AzureOptions.AI?.DefaultModelDeploymentName;
+                var agentName = !String.IsNullOrWhiteSpace(llm?.AgentName) ? llm.AgentName : this.AzureOptions.AI?.DefaultAgentName;
+                var systemPrompt = !String.IsNullOrWhiteSpace(settings.SystemPrompt) ? settings.SystemPrompt : this.AzureOptions.AI?.DefaultSystemPrompt;
+                var userPrompt = new StringBuilder(!String.IsNullOrWhiteSpace(settings.UserPrompt) ? settings.UserPrompt : this.AzureOptions.AI?.DefaultUserPrompt);
+                var choiceIndex = settings.ChoiceIndex;
+                var temperature = settings.Temperature;
+                var resultCount = settings.ChoiceQty;
 
-                    if (String.IsNullOrWhiteSpace(deploymentModelName))
+                if (String.IsNullOrWhiteSpace(deploymentName))
+                {
+                    this.Logger.LogError("Azure AI deployment model name is required for report: {ReportId} and section: {SectionId}", report.Id, section.Settings.Label);
+                    sectionData.Data = $"Azure AI deployment model name is required";
+                }
+                else if (String.IsNullOrWhiteSpace(userPrompt.ToString()))
+                {
+                    this.Logger.LogError("Azure AI user prompt is required for report: {ReportId} and section: {SectionId}", report.Id, section.Settings.Label);
+                    sectionData.Data = $"Azure AI user prompt is required";
+                }
+                else
+                {
+                    this.Logger.LogDebug("Starting AI summary for section {Section}", section.Settings.Label);
+                    var requestBody = new
                     {
-                        this.Logger.LogError("Azure AI deployment model name is required for report: {ReportId} and section: {SectionId}", report.Id, section.Settings.Label);
-                        sectionData.Data = $"Azure AI deployment model name is required";
-                    }
-                    else if (String.IsNullOrWhiteSpace(userPrompt.ToString()))
-                    {
-                        this.Logger.LogError("Azure AI user prompt is required for report: {ReportId} and section: {SectionId}", report.Id, section.Settings.Label);
-                        sectionData.Data = $"Azure AI user prompt is required";
-                    }
-                    else
-                    {
-                        this.Logger.LogDebug("Starting AI summary for section {Section}", section.Settings.Label);
-                        var requestBody = new
+                        model = deploymentName,
+                        temperature = temperature,
+                        n = resultCount,
+                        messages = new object[]
                         {
-                            model = deploymentModelName,
-                            temperature = temperature,
-                            n = resultCount,
-                            messages = new object[]
-                            {
                                 new
                                 {
                                     role = "system",
@@ -818,56 +862,55 @@ public class ReportEngine : IReportEngine
                                     role = "user",
                                     content = new object[]
                                     {
+                                        new { type = "text", text = reportContentSection.ToString() },
                                         new { type = "text", text = userPrompt.ToString() },
-                                        new { type = "text", text = allContent.ToString() },
                                     }
                                 }
-                            }
-                        };
-                        var jsonBody = JsonSerializer.Serialize(requestBody, serializer);
-                        var requestMessage = new HttpRequestMessage(HttpMethod.Post, projectEndpoint);
-                        requestMessage.Headers.Add("api-key", apiKey);
-                        requestMessage.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
-
-                        this.Logger.LogDebug("HTTP request made: {method}:{uri}", requestMessage.Method, requestMessage.RequestUri);
-                        var response = await this.HttpClient.Client.SendAsync(requestMessage);
-
-                        if (response.IsSuccessStatusCode)
-                        {
-                            var responseJson = await response.Content.ReadAsStringAsync();
-                            var responseData = JsonSerializer.Deserialize<TNO.Models.Azure.ChatCompletionResponse>(responseJson);
-                            if (responseData != null)
-                            {
-                                if (choiceIndex.HasValue && choiceIndex.Value == -1)
-                                {
-                                    // Return all choices.
-                                    var choices = new StringBuilder();
-                                    for (var i = 0; i < responseData.Choices.Count; i++)
-                                    {
-                                        choices.AppendLine($"## Choice {i + 1}");
-                                        choices.AppendLine(responseData.Choices[i].Message.Content);
-                                    }
-                                }
-                                else
-                                {
-                                    var choice = responseData.Choices.Count > choiceIndex ? responseData.Choices[choiceIndex ?? 0] : responseData.Choices.FirstOrDefault();
-                                    if (choice != null)
-                                    {
-                                        sectionData.Data = choice.Message.Content;
-                                    }
-                                }
-                            }
                         }
-                        else
+                    };
+                    var jsonBody = JsonSerializer.Serialize(requestBody, serializer);
+                    var requestMessage = new HttpRequestMessage(HttpMethod.Post, projectEndpoint);
+                    requestMessage.Headers.Add("api-key", apiKey);
+                    requestMessage.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+
+                    this.Logger.LogDebug("HTTP request made: {method}:{uri}", requestMessage.Method, requestMessage.RequestUri);
+                    var response = await this.HttpClient.Client.SendAsync(requestMessage);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var responseJson = await response.Content.ReadAsStringAsync();
+                        var responseData = JsonSerializer.Deserialize<TNO.Models.Azure.ChatCompletionResponse>(responseJson);
+                        if (responseData != null)
                         {
-                            var responseJson = await response.Content.ReadAsStringAsync();
-                            var ex = new HttpClientRequestException(response);
-                            this.Logger.LogError(ex, "Failed to generate AI response for report: {ReportId} and section: {SectionId}.", report.Id, section.Settings.Label);
-                            sectionData.Data = $"{ex.GetAllMessages()}\n{responseJson}";
+                            if (choiceIndex.HasValue && choiceIndex.Value == -1)
+                            {
+                                // Return all choices.
+                                var choices = new StringBuilder();
+                                for (var i = 0; i < responseData.Choices.Count; i++)
+                                {
+                                    choices.AppendLine($"## Choice {i + 1}");
+                                    choices.AppendLine(responseData.Choices[i].Message.Content);
+                                }
+                            }
+                            else
+                            {
+                                var choice = responseData.Choices.Count > choiceIndex ? responseData.Choices[choiceIndex ?? 0] : responseData.Choices.FirstOrDefault();
+                                if (choice != null)
+                                {
+                                    sectionData.Data = choice.Message.Content;
+                                }
+                            }
                         }
                     }
-                });
-            }
+                    else
+                    {
+                        var responseJson = await response.Content.ReadAsStringAsync();
+                        var ex = new HttpClientRequestException(response);
+                        this.Logger.LogError(ex, "Failed to generate AI response for report: {ReportId} and section: {SectionId}.", report.Id, section.Settings.Label);
+                        // sectionData.Data = $"{ex.GetAllMessages()}\n{responseJson}";
+                    }
+                }
+            });
         }
     }
 

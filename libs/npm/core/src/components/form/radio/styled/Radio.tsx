@@ -1,8 +1,13 @@
 import styled from 'styled-components';
 
-import { IRadioProps, RadioVariant } from '..';
+import { RadioVariant } from '..';
 
-export const Radio = styled.input<IRadioProps>`
+type RadioStyledProps = {
+  variant?: RadioVariant;
+  error?: string;
+};
+
+export const Radio = styled.input<RadioStyledProps>`
   label {
     cursor: hover;
     background-color: ${(props) => !!props.error && 'red'}

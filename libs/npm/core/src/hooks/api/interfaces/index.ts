@@ -54,6 +54,8 @@ export * from './IIngestTypeFilter';
 export * from './IIngestTypeModel';
 export * from './IItemModel';
 export * from './ILicenseModel';
+export * from './ILLMFilter';
+export * from './ILLMModel';
 export * from './ILookupModel';
 export * from './ILookupModel';
 export * from './IMediaTypeModel';

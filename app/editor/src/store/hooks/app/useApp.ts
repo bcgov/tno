@@ -110,9 +110,9 @@ export const useApp = (): [IAppState, IAppController] => {
         try {
           if (userInfo.id !== 0 && !refresh) return userInfo;
           const response = await dispatch('get-user-info', async () => await api.getUserInfo());
-          userInfo = response.data;
+          userInfo = response.data as IUserInfoModel;
           store.storeUserInfo(userInfo);
-          if ((!keycloak.hasClaim() || refresh) && !(response.data.roles.length === 0)) {
+          if ((!keycloak.hasClaim() || refresh) && !(userInfo.roles.length === 0)) {
             await keycloak.instance.updateToken(86400);
           }
           return userInfo;

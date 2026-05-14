@@ -37,28 +37,43 @@ export const useWorkOrders = (): [IWorkOrderState, IWorkOrderController] => {
           undefined,
           true,
         );
-        return response;
+        return response as AxiosResponse<IPaged<IWorkOrderModel>, any>;
       },
       updateWorkOrder: async (workOrder: IWorkOrderModel) => {
-        return await dispatch(
+        return await dispatch<IWorkOrderModel>(
           'update-work-order',
           async () => await api.updateWorkOrder(workOrder),
         );
       },
       transcribe: async (content: IContentModel) => {
-        return await dispatch('transcribe-content', async () => await api.transcribe(content));
+        return (await dispatch(
+          'transcribe-content',
+          async () => await api.transcribe(content),
+        )) as AxiosResponse<IWorkOrderModel, any>;
       },
       autoClip: async (content: IContentModel) => {
-        return await dispatch('auto-clip-content', async () => await api.autoClip(content));
+        return (await dispatch(
+          'auto-clip-content',
+          async () => await api.autoClip(content),
+        )) as AxiosResponse<IWorkOrderModel, any>;
       },
       nlp: async (content: IContentModel) => {
-        return await dispatch('nlp-content', async () => await api.nlp(content));
+        return (await dispatch('nlp-content', async () => await api.nlp(content))) as AxiosResponse<
+          IWorkOrderModel,
+          any
+        >;
       },
       requestFile: async (locationId: number, path: string) => {
-        return await dispatch('request-file', async () => await api.requestFile(locationId, path));
+        return (await dispatch(
+          'request-file',
+          async () => await api.requestFile(locationId, path),
+        )) as AxiosResponse<any>;
       },
       ffmpeg: async (content: IContentModel) => {
-        return await dispatch('ffmpeg-content', async () => await api.ffmpeg(content));
+        return (await dispatch(
+          'ffmpeg-content',
+          async () => await api.ffmpeg(content),
+        )) as AxiosResponse<IWorkOrderModel, any>;
       },
     }),
     [api, dispatch],

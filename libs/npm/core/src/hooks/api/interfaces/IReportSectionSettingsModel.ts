@@ -11,6 +11,7 @@ export interface IReportSectionSettingsModel {
   removeDuplicateTitles3Days: boolean;
   overrideExcludeHistorical: boolean;
   inTableOfContents?: boolean;
+  includePreviousReport?: boolean;
   hideEmpty: boolean;
   groupBy: string;
   sortBy: string;
@@ -23,7 +24,7 @@ export interface IReportSectionSettingsModel {
   dataType?: string;
   dataProperty?: string;
   dataTemplate?: string;
-  deploymentName?: string;
+  llmId?: number;
   systemPrompt?: string;
   userPrompt?: string;
   choiceIndex?: number;

@@ -3,11 +3,13 @@ import { ILookupState, useLookupStore } from 'store/slices';
 import {
   getFromLocalStorage,
   IActionModel,
+  ICacheModel,
   IContributorModel,
   IDataLocationModel,
   IHolidayModel,
   IIngestTypeModel,
   ILicenseModel,
+  ILLMModel,
   ILookupModel,
   IMediaTypeModel,
   IMetricModel,
@@ -25,6 +27,7 @@ import {
   IUserModel,
   StorageKeys,
   useApiSubscriberCache,
+  useApiSubscriberLLMs,
   useApiSubscriberMinisters,
 } from 'tno-core';
 
@@ -36,6 +39,7 @@ import { fetchIfNoneMatch, saveToLocalStorage } from './utils';
 export interface ILookupController {
   getLookups: () => Promise<ILookupModel>;
   getMinisters: (refresh?: boolean) => Promise<IMinisterModel[]>;
+  getLLMs: (refresh?: boolean) => Promise<ILLMModel[]>;
   init: (refresh?: boolean) => Promise<void>;
 }
 
@@ -45,12 +49,13 @@ export const useLookup = (): [ILookupState, ILookupController] => {
   const cache = useApiSubscriberCache();
   const lookups = useApiLookups();
   const ministers = useApiSubscriberMinisters();
+  const llms = useApiSubscriberLLMs();
 
   const controller = React.useMemo(
     () => ({
       getCache: async () => {
         const response = await dispatch('cache', () => cache.getCache());
-        store.storeCache(response.data);
+        store.storeCache(response.data as ICacheModel[]);
         return response.data;
       },
       getLookups: async () => {
@@ -158,13 +163,27 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           'lookup',
         );
       },
+      getLLMs: async () => {
+        return await fetchIfNoneMatch<ILLMModel[]>(
+          'llms',
+          dispatch,
+          (etag) => llms.getLLMs(etag),
+          (results) => {
+            const values: ILLMModel[] = results ?? [];
+            store.storeLLMs(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
       init: async () => {
         // TODO: Handle failures
         await controller.getLookups();
         store.storeIsReady(true);
       },
     }),
-    [cache, dispatch, lookups, ministers, store],
+    [cache, dispatch, lookups, llms, ministers, store],
   );
 
   return [state, controller];

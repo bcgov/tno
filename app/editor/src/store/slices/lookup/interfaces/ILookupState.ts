@@ -6,6 +6,7 @@ import {
   type IHolidayModel,
   type IIngestTypeModel,
   type ILicenseModel,
+  type ILLMModel,
   type IMediaTypeModel,
   type IMetricModel,
   type IMinisterModel,
@@ -43,6 +44,7 @@ export interface ILookupState {
   dataLocations: IDataLocationModel[];
   settings: ISettingModel[];
   holidays: IHolidayModel[];
+  llms: ILLMModel[];
   ministers: IMinisterModel[];
   organizations: IOrganizationModel[];
 }

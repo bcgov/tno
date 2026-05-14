@@ -24,6 +24,7 @@ public class ReportHelper : IReportHelper
     #region Variables
     private readonly IReportEngine _reportEngine;
     private readonly IReportService _reportService;
+    private readonly ILLMService _llmService;
     private readonly IAVOverviewTemplateService _overviewTemplateService;
     private readonly IContentService _contentService;
     private readonly ElasticOptions _elasticOptions;
@@ -40,6 +41,7 @@ public class ReportHelper : IReportHelper
     /// </summary>
     /// <param name="reportEngine"></param>
     /// <param name="reportService"></param>
+    /// <param name="llmService"></param>
     /// <param name="overviewTemplateService"></param>
     /// <param name="contentService"></param>
     /// <param name="elasticOptions"></param>
@@ -48,6 +50,7 @@ public class ReportHelper : IReportHelper
     public ReportHelper(
         IReportEngine reportEngine,
         IReportService reportService,
+        ILLMService llmService,
         IAVOverviewTemplateService overviewTemplateService,
         IContentService contentService,
         IOptions<ElasticOptions> elasticOptions,
@@ -56,6 +59,7 @@ public class ReportHelper : IReportHelper
     {
         _reportEngine = reportEngine;
         _reportService = reportService;
+        _llmService = llmService;
         _overviewTemplateService = overviewTemplateService;
         _contentService = contentService;
         _elasticOptions = elasticOptions.Value;
@@ -85,7 +89,7 @@ public class ReportHelper : IReportHelper
     /// <param name="reportId"></param>
     /// <param name="ownerId"></param>
     /// <returns></returns>
-    public Task<Dictionary<string, ReportSectionModel>> GetLinkedReportContent(int reportId, int? ownerId = null)
+    public Task<Dictionary<string, ReportSectionModel>> GetLinkedReportContentAsync(int reportId, int? ownerId = null)
     {
         var report = _reportService.FindById(reportId) ?? throw new NoContentException($"Report does not exist: ${reportId}");
         var instance = _reportService.GetCurrentReportInstance(reportId, ownerId, true);
@@ -96,6 +100,39 @@ public class ReportHelper : IReportHelper
             return section;
         });
         return Task.FromResult(sections);
+    }
+
+    /// <summary>
+    /// Get the content from the previous instance of the specified 'reportId' and 'ownerId'.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="instanceId"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="qty"></param>
+    /// <returns></returns>
+    public Task<Dictionary<string, ReportSectionModel>> GetPreviousReportsAsync(int reportId, int? instanceId, int? ownerId = null, int qty = 1)
+    {
+        var report = _reportService.FindById(reportId) ?? throw new NoContentException($"Report does not exist: ${reportId}");
+        var instance = _reportService.GetPreviousReportInstances(reportId, instanceId, ownerId, true, qty)?.FirstOrDefault();
+        var sections = report.Sections.ToDictionary(s => s.Name, s =>
+        {
+            var content = instance?.ContentManyToMany.Where(c => c.Content != null && c.SectionName == s.Name).ToArray() ?? Array.Empty<Entities.ReportInstanceContent>();
+            var section = new ReportSectionModel(s, content, _serializerOptions);
+            return section;
+        });
+        return Task.FromResult(sections);
+    }
+
+    /// <summary>
+    /// Get the content from the previous instance of the specified 'id' and 'ownerId'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public Task<Areas.Services.Models.LLM.LLMModel?> GetLLMAsync(int id)
+    {
+        var llm = _llmService.FindById(id);
+        var model = llm != null ? new Areas.Services.Models.LLM.LLMModel(llm) : null;
+        return Task.FromResult(model);
     }
 
     /// <summary>
@@ -231,7 +268,16 @@ public class ReportHelper : IReportHelper
         bool isPreview = false)
     {
         var subject = await _reportEngine.GenerateReportSubjectAsync(report, reportInstance, sections, viewOnWebOnly, isPreview);
-        var body = await _reportEngine.GenerateReportBodyAsync(report, reportInstance, sections, GetLinkedReportContent, _storageOptions.GetUploadPath(), viewOnWebOnly, isPreview);
+        var body = await _reportEngine.GenerateReportBodyAsync(
+            report,
+            reportInstance,
+            sections,
+            GetLinkedReportContentAsync,
+            GetPreviousReportsAsync,
+            GetLLMAsync,
+            _storageOptions.GetUploadPath(),
+            viewOnWebOnly,
+            isPreview);
 
         return new ReportResultModel() { ReportId = report.Id, InstanceId = reportInstance?.Id, Subject = subject, Body = body };
     }

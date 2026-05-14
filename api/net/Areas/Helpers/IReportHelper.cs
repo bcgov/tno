@@ -28,7 +28,24 @@ public interface IReportHelper
     /// <param name="reportId"></param>
     /// <param name="ownerId"></param>
     /// <returns></returns>
-    Task<Dictionary<string, ReportSectionModel>> GetLinkedReportContent(int reportId, int? ownerId = null);
+    Task<Dictionary<string, ReportSectionModel>> GetLinkedReportContentAsync(int reportId, int? ownerId = null);
+
+    /// <summary>
+    /// Get the content from the previous instance of the specified 'reportId' and 'ownerId'.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="instanceId"></param>
+    /// <param name="ownerId"></param>
+    /// <param name="qty"></param>
+    /// <returns></returns>
+    Task<Dictionary<string, ReportSectionModel>> GetPreviousReportsAsync(int reportId, int? instanceId, int? ownerId = null, int qty = 1);
+
+    /// <summary>
+    /// Get the content from the previous instance of the specified 'id' and 'ownerId'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<Areas.Services.Models.LLM.LLMModel?> GetLLMAsync(int id);
 
     /// <summary>
     /// Makes a request to Elasticsearch if required to fetch content.
