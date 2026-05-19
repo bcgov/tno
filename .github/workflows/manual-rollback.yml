@@ -71,9 +71,9 @@ jobs:
 
       - name: Login to ACR
         run: |
-          docker login ${{ env.ACR_URL }} \
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_URL }} \
             -u ${{ secrets.ACR_USERNAME }} \
-            -p ${{ secrets.ACR_PASSWORD }}
+            --password-stdin
 
       - name: Verify backup image exists
         run: |
