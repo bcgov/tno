@@ -42,7 +42,7 @@ permissions:
 
 env:
   OPENSHIFT_SERVER: https://api.silver.devops.gov.bc.ca:6443
-  OPENSHIFT_TOOLS_NAMESPACE: 9b301c-tools
+  ACR_URL: bcgov-c4awhwfpcremdbga.azurecr.io
 
 jobs:
   rollback:
@@ -69,6 +69,49 @@ jobs:
           echo "deploy=$DEPLOY" >> $GITHUB_OUTPUT
           echo "display=$DISPLAY" >> $GITHUB_OUTPUT
 
+      - name: Login to ACR
+        run: |
+          docker login ${{ env.ACR_URL }} \
+            -u ${{ secrets.ACR_USERNAME }} \
+            -p ${{ secrets.ACR_PASSWORD }}
+
+      - name: Verify backup image exists
+        run: |
+          echo "Checking that ${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}-backup exists in ACR..."
+          docker pull ${{ env.ACR_URL }}/${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}-backup || {
+            echo "::error::No backup image found for ${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}-backup in ACR."
+            exit 1
+          }
+          echo "✅ Backup image found."
+
+      - name: Swap current and backup tags
+        run: |
+          echo "Swapping ${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }} ↔ ${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}-backup"
+
+          # Pull current image
+          docker pull ${{ env.ACR_URL }}/${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}
+
+          # Save current as backup (overwrite old backup)
+          docker tag \
+            ${{ env.ACR_URL }}/${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }} \
+            ${{ env.ACR_URL }}/${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}-rollback-tmp
+
+          # Restore backup as current
+          docker tag \
+            ${{ env.ACR_URL }}/${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}-backup \
+            ${{ env.ACR_URL }}/${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}
+          docker push \
+            ${{ env.ACR_URL }}/${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}
+
+          # Move old current to backup (enables "undo rollback")
+          docker tag \
+            ${{ env.ACR_URL }}/${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}-rollback-tmp \
+            ${{ env.ACR_URL }}/${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}-backup
+          docker push \
+            ${{ env.ACR_URL }}/${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}-backup
+
+          echo "✅ Tags swapped successfully in ACR."
+
       - name: Install oc CLI
         uses: redhat-actions/openshift-tools-installer@v1
         with:
@@ -79,46 +122,6 @@ jobs:
           oc login \
             --token=${{ secrets.OPENSHIFT_TOKEN }} \
             --server=${{ env.OPENSHIFT_SERVER }}
-
-      - name: Verify backup image exists
-        run: |
-          echo "Checking that ${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}-backup exists in ${{ env.OPENSHIFT_TOOLS_NAMESPACE }}..."
-          oc get istag "${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}-backup" \
-            -n ${{ env.OPENSHIFT_TOOLS_NAMESPACE }} \
-            -o jsonpath='{.tag.name}' || {
-              echo "::error::No backup image found for ${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}-backup in ${{ env.OPENSHIFT_TOOLS_NAMESPACE }}."
-              exit 1
-            }
-          echo "✅ Backup image found."
-
-      - name: Swap current and backup tags
-        run: |
-          echo "Swapping ${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }} ↔ ${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}-backup"
-
-          # Save current as temporary
-          oc tag \
-            "${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}" \
-            "${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}-rollback-tmp" \
-            -n ${{ env.OPENSHIFT_TOOLS_NAMESPACE }}
-
-          # Restore backup as current
-          oc tag \
-            "${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}-backup" \
-            "${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}" \
-            -n ${{ env.OPENSHIFT_TOOLS_NAMESPACE }}
-
-          # Move old current to backup (enables "undo rollback")
-          oc tag \
-            "${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}-rollback-tmp" \
-            "${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}-backup" \
-            -n ${{ env.OPENSHIFT_TOOLS_NAMESPACE }}
-
-          # Cleanup temp tag
-          oc tag -d \
-            "${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }}-rollback-tmp" \
-            -n ${{ env.OPENSHIFT_TOOLS_NAMESPACE }} || true
-
-          echo "✅ Tags swapped successfully."
 
       - name: Rollout Restart
         run: |
@@ -142,7 +145,7 @@ jobs:
           echo "| **Environment** | ${{ inputs.environment }} |" >> $GITHUB_STEP_SUMMARY
           echo "| **Namespace** | ${{ env.OPENSHIFT_NAMESPACE }} |" >> $GITHUB_STEP_SUMMARY
           echo "| **Image** | ${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Action** | Swapped \`${{ env.IMAGE_TAG }}\` ↔ \`${{ env.IMAGE_TAG }}-backup\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Action** | Swapped \`${{ env.IMAGE_TAG }}\` ↔ \`${{ env.IMAGE_TAG }}-backup\` in ACR |" >> $GITHUB_STEP_SUMMARY
           echo "| **Triggered by** | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
           echo "| **Workflow Run** | [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) |" >> $GITHUB_STEP_SUMMARY
           echo "| **Timestamp (UTC)** | $(date -u '+%Y-%m-%d %H:%M:%S') |" >> $GITHUB_STEP_SUMMARY
