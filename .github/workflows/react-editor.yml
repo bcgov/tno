@@ -28,6 +28,7 @@ env:
   IMAGE_NAME: editor
   OPENSHIFT_SERVER: https://api.silver.devops.gov.bc.ca:6443
   OPENSHIFT_TOOLS_NAMESPACE: 9b301c-tools
+  ACR_URL: bcgov-c4awhwfpcremdbga.azurecr.io
 
 jobs:
   ci:
@@ -100,28 +101,30 @@ jobs:
             --token=${{ secrets.OPENSHIFT_TOKEN }} \
             --server=${{ env.OPENSHIFT_SERVER }}
 
-      - name: Backup current image tag
+      - name: Login to ACR
         run: |
-          echo "Backing up ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} → ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup"
-          oc tag \
-            "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}" \
-            "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup" \
-            -n ${{ env.OPENSHIFT_TOOLS_NAMESPACE }} 2>/dev/null || true
-
-      - name: Login to OpenShift Image Registry
-        run: |
-          echo "${{ secrets.OPENSHIFT_TOKEN }}" | docker login \
-            image-registry.apps.silver.devops.gov.bc.ca \
-            -u serviceaccount \
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_URL }} \
+            -u ${{ secrets.ACR_USERNAME }} \
             --password-stdin
 
-      - name: Push Image to OpenShift Registry
+      - name: Backup current image tag
+        continue-on-error: true
+        run: |
+          echo "Backing up ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} → ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup"
+          docker pull ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} && \
+          docker tag \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup && \
+          docker push \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup
+
+      - name: Push Image to ACR
         run: |
           docker tag \
             ${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           docker push \
-            image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
       - name: Deploy via Kustomize
         run: oc apply -k ${{ env.KUSTOMIZE_PATH }} -n ${{ env.OPENSHIFT_NAMESPACE }}
@@ -193,28 +196,30 @@ jobs:
             --token=${{ secrets.OPENSHIFT_TOKEN }} \
             --server=${{ env.OPENSHIFT_SERVER }}
 
-      - name: Backup current image tag
+      - name: Login to ACR
         run: |
-          echo "Backing up ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} → ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup"
-          oc tag \
-            "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}" \
-            "${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup" \
-            -n ${{ env.OPENSHIFT_TOOLS_NAMESPACE }} 2>/dev/null || true
-
-      - name: Login to OpenShift Image Registry
-        run: |
-          echo "${{ secrets.OPENSHIFT_TOKEN }}" | docker login \
-            image-registry.apps.silver.devops.gov.bc.ca \
-            -u serviceaccount \
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_URL }} \
+            -u ${{ secrets.ACR_USERNAME }} \
             --password-stdin
 
-      - name: Push Image to OpenShift Registry
+      - name: Backup current image tag
+        continue-on-error: true
+        run: |
+          echo "Backing up ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} → ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup"
+          docker pull ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} && \
+          docker tag \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup && \
+          docker push \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}-backup
+
+      - name: Push Image to ACR
         run: |
           docker tag \
             ${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           docker push \
-            image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
       - name: Deploy via Kustomize
         run: oc apply -k ${{ env.KUSTOMIZE_PATH }} -n ${{ env.OPENSHIFT_NAMESPACE }}
