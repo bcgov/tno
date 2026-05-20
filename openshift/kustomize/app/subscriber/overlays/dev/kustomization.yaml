@@ -43,7 +43,7 @@ patches:
     patch: |-
       - op: replace
         path: /spec/template/spec/containers/0/image
-        value: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/subscriber:dev
+        value: bcgov-c4awhwfpcremdbga.azurecr.io/subscriber:dev
       - op: replace
         path: /spec/replicas
         value: 1
