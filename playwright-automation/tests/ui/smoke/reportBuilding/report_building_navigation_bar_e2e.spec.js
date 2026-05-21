@@ -10,9 +10,17 @@ const editorUrl = testData[testApp]['editor']['url'];
 const editorReportUrl = testData[testApp]['editor']['reportUrl'];
 const recipientEmail = reportData[testApp]['report']['recipient_email'];
 
-let page, appPage, editorHomePage, reportPage, subscriberNavBarPage, subscriberMyReportPage, addProductPage, addFoldersPage, subscriberSearchResultPage, addFilterPage, editTopicsPage;
-
-
+let page,
+  appPage,
+  editorHomePage,
+  reportPage,
+  subscriberNavBarPage,
+  subscriberMyReportPage,
+  addProductPage,
+  addFoldersPage,
+  subscriberSearchResultPage,
+  addFilterPage,
+  editTopicsPage;
 
 test.beforeEach(async ({ masterFixture }) => {
   page = masterFixture.page;
@@ -29,11 +37,9 @@ test.beforeEach(async ({ masterFixture }) => {
   editTopicsPage = masterFixture.editTopicsPage;
   await appPage.navigateToUrl(editorUrl);
   await appPage.hardWait(2000);
-  
 });
 
 test.describe('@smoke Report building end to end workflow', () => {
-
   test(`Subscriber should able to see the reports created and send by editor under My Reports section`, async ({}) => {
     await editorHomePage.verifyEditorHomePageLoaded();
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
@@ -41,11 +47,11 @@ test.describe('@smoke Report building end to end workflow', () => {
 
     await reportPage.verifyReportPageLoaded();
     await reportPage.clickOnAddNewReportButton();
-    expect( await reportPage.isBackToReportButtonVisible()).toBeTruthy();
+    expect(await reportPage.isBackToReportButtonVisible()).toBeTruthy();
     expect(
       await reportPage.isReportSubTabVisible(CONSTANTS.REPORT_SUBNAVIGATION_TABS.REPORT),
     ).toBeTruthy();
-    
+
     const reportName = `ReportTitle_${Date.now()}`;
     const reportDescription = `Report Description ${Date.now()}`;
     await reportPage.addReportName(reportName);
@@ -102,16 +108,17 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS);
     await reportPage.searchAndDeleteReport(reportName);
-
   });
 
   test(`Verify edior can add new product from Report building MMI Products`, async ({}) => {
     await editorHomePage.verifyEditorHomePageLoaded();
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
-    await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.MMI_PRODUCTS);
+    await appPage.clickOnMenuAndSubNavigationMenuLink(
+      CONSTANTS.REPORTBUILDING_SUBMENU.MMI_PRODUCTS,
+    );
 
     await editorHomePage.addNewProduct();
-    expect(await addProductPage.verifyBackToProductsVisibility()).toBe(true)
+    expect(await addProductPage.verifyBackToProductsVisibility()).toBe(true);
 
     const productName = `ProductTitle_${Date.now()}`;
     await addProductPage.enterProductDetails(productName, 'Evening Overview', 'Weekday');
@@ -131,8 +138,8 @@ test.describe('@smoke Report building end to end workflow', () => {
     await addProductPage.selectProduct(productName);
     await addProductPage.deleteProduct();
 
-     expect(await addProductPage.isAddedProductVisibleOnGrid(productName)).toBe(false);
-     await appPage.logOut();
+    expect(await addProductPage.isAddedProductVisibleOnGrid(productName)).toBe(false);
+    await appPage.logOut();
   });
 
   test(`Verify private report should not be shown on subscriber portal`, async ({}) => {
@@ -143,7 +150,7 @@ test.describe('@smoke Report building end to end workflow', () => {
     await reportPage.verifyReportPageLoaded();
     expect(await reportPage.isAddNewReportButtonVisible()).toBe(true);
     await reportPage.clickOnAddNewReportButton();
-    
+
     const reportName = `ReportTitle_${Date.now()}`;
     const reportDescription = `Report Description ${Date.now()}`;
     await reportPage.addReportName(reportName);
@@ -164,7 +171,9 @@ test.describe('@smoke Report building end to end workflow', () => {
     await reportPage.clickOnToastNotificationCloseButton();
 
     await reportPage.clickOnReportSubTab(CONSTANTS.REPORT_SUBNAVIGATION_TABS.SECTIONS);
-    await reportPage.clickOnReportSectionButtonByName(CONSTANTS.REPORT_SECTION_BUTTON.TABLE_OF_CONTENTS);
+    await reportPage.clickOnReportSectionButtonByName(
+      CONSTANTS.REPORT_SECTION_BUTTON.TABLE_OF_CONTENTS,
+    );
     await reportPage.clickOnReportSectionButtonByName(CONSTANTS.REPORT_SECTION_BUTTON.TEXT);
     await reportPage.clickOnSaveButton();
     expect(await reportPage.verifySucessToastNotification(reportName)).toBe(true);
@@ -175,7 +184,9 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.navigateToSubscriberURL();
     await appPage.loginAsSubscriber(process.env.sub_username, process.env.sub_password);
 
-    await subscriberNavBarPage.clickOnMyContentSectionByText(CONSTANTS.SUBSCRIBER_NAV_BAR_OPTIONS.MY_REPORTS,);
+    await subscriberNavBarPage.clickOnMyContentSectionByText(
+      CONSTANTS.SUBSCRIBER_NAV_BAR_OPTIONS.MY_REPORTS,
+    );
     expect(await subscriberMyReportPage.isPublishedReportPresent(reportName)).toBe(false);
     await appPage.logOutFromSubscriber();
 
@@ -185,7 +196,6 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS);
     await reportPage.searchAndDeleteReport(reportName);
-
   });
 
   test(`Verify public report should be shown on subscriber portal`, async ({}) => {
@@ -195,7 +205,7 @@ test.describe('@smoke Report building end to end workflow', () => {
 
     await reportPage.verifyReportPageLoaded();
     await reportPage.clickOnAddNewReportButton();
-    
+
     const reportName = `ReportTitle_${Date.now()}`;
     const reportDescription = `Report Description ${Date.now()}`;
     await reportPage.addReportName(reportName);
@@ -217,7 +227,9 @@ test.describe('@smoke Report building end to end workflow', () => {
     await reportPage.clickOnToastNotificationCloseButton();
 
     await reportPage.clickOnReportSubTab(CONSTANTS.REPORT_SUBNAVIGATION_TABS.SECTIONS);
-    await reportPage.clickOnReportSectionButtonByName(CONSTANTS.REPORT_SECTION_BUTTON.TABLE_OF_CONTENTS);
+    await reportPage.clickOnReportSectionButtonByName(
+      CONSTANTS.REPORT_SECTION_BUTTON.TABLE_OF_CONTENTS,
+    );
     await reportPage.clickOnReportSectionButtonByName(CONSTANTS.REPORT_SECTION_BUTTON.TEXT);
     await reportPage.clickOnSaveButton();
     expect(await reportPage.verifySucessToastNotification(reportName)).toBe(true);
@@ -228,7 +240,9 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.navigateToSubscriberURL();
     await appPage.loginAsSubscriber(process.env.sub_username, process.env.sub_password);
 
-    await subscriberNavBarPage.clickOnMyContentSectionByText(CONSTANTS.SUBSCRIBER_NAV_BAR_OPTIONS.MY_REPORTS);
+    await subscriberNavBarPage.clickOnMyContentSectionByText(
+      CONSTANTS.SUBSCRIBER_NAV_BAR_OPTIONS.MY_REPORTS,
+    );
     await subscriberNavBarPage.hardWait(1500);
     expect(await subscriberMyReportPage.isPublishedReportPresent(reportName)).toBe(true);
     await appPage.logOutFromSubscriber();
@@ -239,7 +253,6 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS);
     await reportPage.searchAndDeleteReport(reportName);
-
   });
 
   /** Enable Edit template changes are not saved..hence failing  */
@@ -250,7 +263,7 @@ test.describe('@smoke Report building end to end workflow', () => {
 
     await reportPage.verifyReportPageLoaded();
     await reportPage.clickOnAddNewReportButton();
-    
+
     const reportName = `ReportTitle_${Date.now()}`;
     let reportDescription = `Report Description ${Date.now()}`;
     await reportPage.addReportName(reportName);
@@ -279,7 +292,7 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.login(process.env.app_username, process.env.app_password);
     await editorHomePage.verifyEditorHomePageLoaded();
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
-    await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS);  
+    await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS);
     await reportPage.searchAndSelectReport(reportName);
 
     expect(await reportPage.getReportDescription()).toBe(reportDescription);
@@ -293,7 +306,6 @@ test.describe('@smoke Report building end to end workflow', () => {
     await reportPage.searchAndDeleteReport(reportName);
 
     await appPage.logOut();
-
   });
 
   test(`Verify Add new Report field validation`, async ({}) => {
@@ -310,14 +322,17 @@ test.describe('@smoke Report building end to end workflow', () => {
     await reportPage.checkIsPublicCheckbox();
 
     await reportPage.clickOnSaveButton();
-    expect(await reportPage.getToastValidationMessage()).toBe('Please refer to the highlighted tab and fix the validation errors.');
+    expect(await reportPage.getToastValidationMessage()).toBe(
+      'Please refer to the highlighted tab and fix the validation errors.',
+    );
 
     await reportPage.enterSortOrder('1');
     await reportPage.clickOnSaveButton();
-    expect(await reportPage.getNameFieldValidationMessageLable()).toBe('Report should have a name.');
-    
-    await appPage.logOut();
+    expect(await reportPage.getNameFieldValidationMessageLable()).toBe(
+      'Report should have a name.',
+    );
 
+    await appPage.logOut();
   });
 
   test(`Validate Report page access using Subscriber login`, async ({}) => {
@@ -329,7 +344,6 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.page.goto(editorReportUrl);
     expect(await subscriberSearchResultPage.isEditorPageDisplayed()).toBe(false);
     await appPage.logOut();
-    
   });
 
   test(`Verify edior can add new Folder from Report building Folders menu`, async ({}) => {
@@ -338,7 +352,7 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.FOLDERS);
 
     await editorHomePage.addNewFolder();
-    expect(await addFoldersPage.verifyBackToFolderssVisibility()).toBe(true)
+    expect(await addFoldersPage.verifyBackToFolderssVisibility()).toBe(true);
 
     const folderName = `FoldersTitle_${Date.now()}`;
     await addFoldersPage.enterFoldersDetails(folderName, 'Test Automation Description');
@@ -346,7 +360,7 @@ test.describe('@smoke Report building end to end workflow', () => {
     expect(await reportPage.verifySucessToastNotification(folderName)).toBe(true);
 
     await addFoldersPage.clickOnFoldersSubTab(CONSTANTS.NAVIGATION_TABS.COLLECTION);
-    await addFoldersPage.selectFilter(CONSTANTS.HEADLINES.TOP_STORIES)
+    await addFoldersPage.selectFilter(CONSTANTS.HEADLINES.TOP_STORIES);
     await addFoldersPage.save();
 
     await addFoldersPage.clickOnFoldersSubTab(CONSTANTS.NAVIGATION_TABS.CONTENT);
@@ -358,8 +372,8 @@ test.describe('@smoke Report building end to end workflow', () => {
     await addFoldersPage.selectFolder(folderName);
     await addFoldersPage.deleteProduct();
 
-     expect(await addFoldersPage.isAddedFolderVisibleOnGrid(folderName)).toBe(false);
-     await appPage.logOut();
+    expect(await addFoldersPage.isAddedFolderVisibleOnGrid(folderName)).toBe(false);
+    await appPage.logOut();
   });
 
   test(`Verify Add new Folder field validation`, async ({}) => {
@@ -367,7 +381,7 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.FOLDERS);
 
-     await editorHomePage.addNewFolder();
+    await editorHomePage.addNewFolder();
 
     const folderDescription = `Folder Description ${Date.now()}`;
     await addFoldersPage.addFolderDescription(folderDescription);
@@ -378,9 +392,8 @@ test.describe('@smoke Report building end to end workflow', () => {
     await reportPage.enterSortOrder('2');
     await addFoldersPage.save();
     expect(await addFoldersPage.isSuccessToastNotificationDisplayed()).toBe(false);
-    
-    await appPage.logOut();
 
+    await appPage.logOut();
   });
 
   test(`Verify edior can add new Filter from Report building Folders menu`, async ({}) => {
@@ -389,7 +402,7 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.FILTERS);
 
     await addFilterPage.addNewFilter();
-    expect(await addFilterPage.verifyBackToFilterVisibility()).toBe(true)
+    expect(await addFilterPage.verifyBackToFilterVisibility()).toBe(true);
 
     const filterName = `FilterTitle_${Date.now()}`;
     await addFilterPage.enterFilterDetails(filterName, 'Test Automation Description');
@@ -409,8 +422,8 @@ test.describe('@smoke Report building end to end workflow', () => {
     await addFilterPage.selectFilter(filterName);
     await addFilterPage.deleteFilter();
 
-     expect(await addFilterPage.isAddedFilterVisibleOnGrid(filterName)).toBe(false);
-     await appPage.logOut();
+    expect(await addFilterPage.isAddedFilterVisibleOnGrid(filterName)).toBe(false);
+    await appPage.logOut();
   });
 
   test(`Verify Add new Filter field validation`, async ({}) => {
@@ -429,9 +442,8 @@ test.describe('@smoke Report building end to end workflow', () => {
     await reportPage.enterSortOrder('2');
     await addFilterPage.save();
     expect(await addFilterPage.isSuccessToastNotificationDisplayed()).toBe(false);
-    
-    await appPage.logOut();
 
+    await appPage.logOut();
   });
 
   test(`Verify end to end flow for Edit topic functionality `, async ({}) => {
@@ -443,7 +455,7 @@ test.describe('@smoke Report building end to end workflow', () => {
     const topicName = `Auto_Topic_Name ${Date.now()}`;
     await editTopicsPage.createNewTopic(topicName);
     expect(await addFilterPage.isSuccessToastNotificationDisplayed()).toBe(true);
-    
+
     await editTopicsPage.searchTopic(topicName);
     expect(await editTopicsPage.isTopicPresentOnGrid(topicName)).toBe(true);
 
@@ -451,8 +463,6 @@ test.describe('@smoke Report building end to end workflow', () => {
     expect(await addFilterPage.isSuccessToastNotificationDisplayed()).toBe(true);
     expect(await editTopicsPage.isTopicPresentOnGrid()).toBe(false);
 
-    await appPage.logOut();    
+    await appPage.logOut();
   });
-
-
 });
