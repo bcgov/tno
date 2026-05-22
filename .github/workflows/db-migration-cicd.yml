@@ -49,6 +49,7 @@ jobs:
     if: >-
       (github.event_name == 'push' && github.ref == 'refs/heads/dev' && github.repository == 'bcgov/tno') ||
       (github.event_name == 'workflow_dispatch' && inputs.environment == 'dev')
+    environment: dev
     uses: ./.github/workflows/_reusable-db-migration-cd.yml
     with:
       image_tag: dev
@@ -63,6 +64,7 @@ jobs:
     if: >-
       (github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'bcgov/tno') ||
       (github.event_name == 'workflow_dispatch' && inputs.environment == 'test')
+    environment: test
     uses: ./.github/workflows/_reusable-db-migration-cd.yml
     with:
       image_tag: test
