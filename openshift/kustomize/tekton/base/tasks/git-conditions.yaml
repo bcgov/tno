@@ -95,9 +95,10 @@ spec:
           fi
         }
 
-        if grep -s libs/net/dal <<< $DIFF; then
-          echo 'BUILD_DB=true' >> build.env
-        fi
+        # Moved to GitHub Actions CI/CD — db-migration-cicd.yml
+        # if grep -s libs/net/dal <<< $DIFF; then
+        #   echo 'BUILD_DB=true' >> build.env
+        # fi
 
         # Moved to GitHub Actions CI/CD — react-editor.yml
         # if grep -s app/editor <<< $DIFF; then

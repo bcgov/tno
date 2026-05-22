@@ -242,12 +242,13 @@ spec:
           [dockerfile]="/Dockerfile.open"
         )
 
-        declare -A COMPONENT19=(
-          [id]="db"
-          [image]="db-migration"
-          [context]="/libs/net"
-          [dockerfile]="/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — db-migration-cicd.yml
+        # declare -A COMPONENT19=(
+        #   [id]="db"
+        #   [image]="db-migration"
+        #   [context]="/libs/net"
+        #   [dockerfile]="/Dockerfile"
+        # )
 
         declare -A COMPONENT20=(
           [id]="elastic"
