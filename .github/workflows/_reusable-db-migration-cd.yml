@@ -18,10 +18,15 @@ on:
     secrets:
       OPENSHIFT_TOKEN:
         required: true
+      ACR_USERNAME:
+        required: true
+      ACR_PASSWORD:
+        required: true
 
 env:
   OPENSHIFT_SERVER: https://api.silver.devops.gov.bc.ca:6443
   OPENSHIFT_TOOLS_NAMESPACE: 9b301c-tools
+  ACR_URL: bcgov-c4awhwfpcremdbga.azurecr.io
   IMAGE_NAME: db-migration
   DOCKER_CONTEXT: libs/net
   DOCKERFILE: libs/net/Dockerfile
@@ -57,28 +62,30 @@ jobs:
             --token=${{ secrets.OPENSHIFT_TOKEN }} \
             --server=${{ env.OPENSHIFT_SERVER }}
 
-      - name: Backup current image tag
+      - name: Login to ACR
         run: |
-          echo "Backing up ${{ env.IMAGE_NAME }}:${{ inputs.image_tag }} → ${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}-backup"
-          oc tag \
-            "${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}" \
-            "${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}-backup" \
-            -n ${{ env.OPENSHIFT_TOOLS_NAMESPACE }} 2>/dev/null || true
-
-      - name: Login to OpenShift Image Registry
-        run: |
-          echo "${{ secrets.OPENSHIFT_TOKEN }}" | docker login \
-            image-registry.apps.silver.devops.gov.bc.ca \
-            -u serviceaccount \
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_URL }} \
+            -u ${{ secrets.ACR_USERNAME }} \
             --password-stdin
 
-      - name: Push Image to OpenShift Registry
+      - name: Backup current image tag
+        continue-on-error: true
+        run: |
+          echo "Backing up ${{ env.IMAGE_NAME }}:${{ inputs.image_tag }} → ${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}-backup"
+          docker pull ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }} && \
+          docker tag \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }} \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}-backup && \
+          docker push \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}-backup
+
+      - name: Push Image to ACR
         run: |
           docker tag \
             ${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}
           docker push \
-            image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}
 
       - name: Run Database Migration
         run: |
@@ -90,7 +97,7 @@ jobs:
 
           oc run ${{ env.IMAGE_NAME }} \
             -n ${{ inputs.openshift_namespace }} \
-            --image=image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }} \
+            --image=${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }} \
             --image-pull-policy=Always \
             --attach \
             --rm \
@@ -101,10 +108,13 @@ jobs:
             --overrides='{
               "apiVersion":"v1",
               "spec":{
+                "imagePullSecrets":[
+                  {"name":"acr-secret"}
+                ],
                 "containers":[
                   {
                     "name":"${{ env.IMAGE_NAME }}",
-                    "image":"image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}",
+                    "image":"${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}",
                     "env":[
                       {
                         "name":"ConnectionStrings__TNO",
