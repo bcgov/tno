@@ -3,6 +3,9 @@ name: Reusable DB Migration CD
 on:
   workflow_call:
     inputs:
+      environment:
+        required: true
+        type: string
       image_tag:
         required: true
         type: string
@@ -27,6 +30,7 @@ jobs:
   migrate:
     name: Run Migration
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v4
 

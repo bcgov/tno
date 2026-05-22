@@ -49,9 +49,9 @@ jobs:
     if: >-
       (github.event_name == 'push' && github.ref == 'refs/heads/dev' && github.repository == 'bcgov/tno') ||
       (github.event_name == 'workflow_dispatch' && inputs.environment == 'dev')
-    environment: dev
     uses: ./.github/workflows/_reusable-db-migration-cd.yml
     with:
+      environment: dev
       image_tag: dev
       openshift_namespace: 9b301c-dev
       db_secret_name: montford
@@ -64,9 +64,9 @@ jobs:
     if: >-
       (github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'bcgov/tno') ||
       (github.event_name == 'workflow_dispatch' && inputs.environment == 'test')
-    environment: test
     uses: ./.github/workflows/_reusable-db-migration-cd.yml
     with:
+      environment: test
       image_tag: test
       openshift_namespace: 9b301c-test
       db_secret_name: mooncrest
