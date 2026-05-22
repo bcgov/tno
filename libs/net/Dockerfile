@@ -15,7 +15,10 @@ RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u 
 RUN dotnet restore
 RUN dotnet build /src/dal/TNO.DAL.csproj --no-restore -c Release
 
-RUN dotnet ef migrations bundle \
+RUN ConnectionStrings__TNO="Host=placeholder;Database=placeholder" \
+    DB_POSTGRES_USERNAME=placeholder \
+    DB_POSTGRES_PASSWORD=placeholder \
+    dotnet ef migrations bundle \
     --project /src/dal/TNO.DAL.csproj \
     --configuration Release \
     --no-build \
