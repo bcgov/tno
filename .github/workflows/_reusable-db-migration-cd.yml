@@ -111,6 +111,7 @@ jobs:
                   {
                     "name":"${{ env.IMAGE_NAME }}",
                     "image":"${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}",
+                    "imagePullPolicy":"Always",
                     "env":[
                       {
                         "name":"ConnectionStrings__TNO",
