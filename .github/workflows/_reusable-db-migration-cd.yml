@@ -98,11 +98,8 @@ jobs:
             -n ${{ inputs.openshift_namespace }} \
             --image=${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }} \
             --image-pull-policy=Always \
-            --attach \
-            --rm \
             --labels='role=migration,part-of=tno,component=database' \
             --restart=Never \
-            --timeout=10m \
             --override-type='merge' \
             --overrides='{
               "apiVersion":"v1",
@@ -157,6 +154,23 @@ jobs:
                 ]
               }
             }'
+
+          echo "Waiting for migration pod to complete (timeout 10m)..."
+          oc wait pod/${{ env.IMAGE_NAME }} \
+            -n ${{ inputs.openshift_namespace }} \
+            --for=jsonpath='{.status.phase}'=Succeeded \
+            --timeout=10m
+
+          echo "--- migration logs ---"
+          oc logs ${{ env.IMAGE_NAME }} -n ${{ inputs.openshift_namespace }}
+
+      - name: Cleanup Migration Pod
+        if: always()
+        continue-on-error: true
+        run: |
+          oc delete pod ${{ env.IMAGE_NAME }} \
+            -n ${{ inputs.openshift_namespace }} \
+            --ignore-not-found=true
 
       - name: Migration Report
         if: always()
