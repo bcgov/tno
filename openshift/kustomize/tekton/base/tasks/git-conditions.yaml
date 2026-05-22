@@ -141,25 +141,26 @@ spec:
           echo 'BUILD_ELASTIC_MIGRATION=true' >> build.env
         fi
 
-        if grep -s libs/net/ches <<< $DIFF; then
-          echo 'BUILD_REPORTING=true' >> build.env
-        elif grep -s libs/net/core <<< $DIFF; then
-          echo 'BUILD_REPORTING=true' >> build.env
-        elif grep -s libs/net/elastic <<< $DIFF; then
-          echo 'BUILD_REPORTING=true' >> build.env
-        elif grep -s libs/net/entities <<< $DIFF; then
-          echo 'BUILD_REPORTING=true' >> build.env
-        elif grep -s libs/net/kafka <<< $DIFF; then
-          echo 'BUILD_REPORTING=true' >> build.env
-        elif grep -s libs/net/models <<< $DIFF; then
-          echo 'BUILD_REPORTING=true' >> build.env
-        elif grep -s libs/net/services <<< $DIFF; then
-          echo 'BUILD_REPORTING=true' >> build.env
-        elif grep -s libs/net/template <<< $DIFF; then
-          echo 'BUILD_REPORTING=true' >> build.env
-        elif grep -s services/net/reporting <<< $DIFF; then
-          echo 'BUILD_REPORTING=true' >> build.env
-        fi
+        # Moved to GitHub Actions CI/CD — reporting-service-cicd.yml
+        # if grep -s libs/net/ches <<< $DIFF; then
+        #   echo 'BUILD_REPORTING=true' >> build.env
+        # elif grep -s libs/net/core <<< $DIFF; then
+        #   echo 'BUILD_REPORTING=true' >> build.env
+        # elif grep -s libs/net/elastic <<< $DIFF; then
+        #   echo 'BUILD_REPORTING=true' >> build.env
+        # elif grep -s libs/net/entities <<< $DIFF; then
+        #   echo 'BUILD_REPORTING=true' >> build.env
+        # elif grep -s libs/net/kafka <<< $DIFF; then
+        #   echo 'BUILD_REPORTING=true' >> build.env
+        # elif grep -s libs/net/models <<< $DIFF; then
+        #   echo 'BUILD_REPORTING=true' >> build.env
+        # elif grep -s libs/net/services <<< $DIFF; then
+        #   echo 'BUILD_REPORTING=true' >> build.env
+        # elif grep -s libs/net/template <<< $DIFF; then
+        #   echo 'BUILD_REPORTING=true' >> build.env
+        # elif grep -s services/net/reporting <<< $DIFF; then
+        #   echo 'BUILD_REPORTING=true' >> build.env
+        # fi
 
         build_service 'capture'
         # build_service 'ches-retry' # Moved to GitHub Actions CI/CD — ches-retry-service-cicd.yml

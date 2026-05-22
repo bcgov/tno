@@ -155,12 +155,13 @@ spec:
         #   [dockerfile]="/services/net/extract-quotes/Dockerfile"
         # )
 
-        declare -A COMPONENT8=(
-          [id]="reporting"
-          [image]="reporting-service"
-          [context]=""
-          [dockerfile]="/services/net/reporting/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — reporting-service-cicd.yml
+        # declare -A COMPONENT8=(
+        #   [id]="reporting"
+        #   [image]="reporting-service"
+        #   [context]=""
+        #   [dockerfile]="/services/net/reporting/Dockerfile"
+        # )
 
         # Moved to GitHub Actions CI/CD — notification-service-cicd.yml
         # declare -A COMPONENT9=(
