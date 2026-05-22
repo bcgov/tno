@@ -1,0 +1,155 @@
+name: Reusable DB Migration CD
+
+on:
+  workflow_call:
+    inputs:
+      image_tag:
+        required: true
+        type: string
+      openshift_namespace:
+        required: true
+        type: string
+      db_secret_name:
+        required: true
+        type: string
+    secrets:
+      OPENSHIFT_TOKEN:
+        required: true
+
+env:
+  OPENSHIFT_SERVER: https://api.silver.devops.gov.bc.ca:6443
+  OPENSHIFT_TOOLS_NAMESPACE: 9b301c-tools
+  IMAGE_NAME: db-migration
+  DOCKER_CONTEXT: libs/net
+  DOCKERFILE: libs/net/Dockerfile
+
+jobs:
+  migrate:
+    name: Run Migration
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: |
+          docker build \
+            -f ${{ env.DOCKERFILE }} \
+            -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            ${{ env.DOCKER_CONTEXT }}
+
+      - name: Trivy Container Scan
+        uses: ./.github/actions/trivy-scan
+        with:
+          image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
+
+      - name: Install oc CLI
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: latest
+
+      - name: Login to OpenShift
+        run: |
+          oc login \
+            --token=${{ secrets.OPENSHIFT_TOKEN }} \
+            --server=${{ env.OPENSHIFT_SERVER }}
+
+      - name: Backup current image tag
+        run: |
+          echo "Backing up ${{ env.IMAGE_NAME }}:${{ inputs.image_tag }} → ${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}-backup"
+          oc tag \
+            "${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}" \
+            "${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}-backup" \
+            -n ${{ env.OPENSHIFT_TOOLS_NAMESPACE }} 2>/dev/null || true
+
+      - name: Login to OpenShift Image Registry
+        run: |
+          echo "${{ secrets.OPENSHIFT_TOKEN }}" | docker login \
+            image-registry.apps.silver.devops.gov.bc.ca \
+            -u serviceaccount \
+            --password-stdin
+
+      - name: Push Image to OpenShift Registry
+        run: |
+          docker tag \
+            ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}
+          docker push \
+            image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}
+
+      - name: Run Database Migration
+        run: |
+          echo "Running EF Core database migration in ${{ inputs.openshift_namespace }}"
+
+          oc delete pod ${{ env.IMAGE_NAME }} \
+            -n ${{ inputs.openshift_namespace }} \
+            --ignore-not-found=true
+
+          oc run ${{ env.IMAGE_NAME }} \
+            -n ${{ inputs.openshift_namespace }} \
+            --image=image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }} \
+            --image-pull-policy=Always \
+            --attach \
+            --rm \
+            --labels='role=migration,part-of=tno,component=database' \
+            --restart=Never \
+            --timeout=10m \
+            --override-type='merge' \
+            --overrides='{
+              "apiVersion":"v1",
+              "spec":{
+                "containers":[
+                  {
+                    "name":"${{ env.IMAGE_NAME }}",
+                    "image":"image-registry.apps.silver.devops.gov.bc.ca/${{ env.OPENSHIFT_TOOLS_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}",
+                    "env":[
+                      {
+                        "name":"ConnectionStrings__TNO",
+                        "valueFrom":{
+                          "configMapKeyRef":{
+                            "name":"api",
+                            "key":"CONNECTION_STRING"
+                          }
+                        }
+                      },
+                      {
+                        "name":"DB_POSTGRES_USERNAME",
+                        "valueFrom":{
+                          "secretKeyRef":{
+                            "name":"${{ inputs.db_secret_name }}",
+                            "key":"USERNAME"
+                          }
+                        }
+                      },
+                      {
+                        "name":"DB_POSTGRES_PASSWORD",
+                        "valueFrom":{
+                          "secretKeyRef":{
+                            "name":"${{ inputs.db_secret_name }}",
+                            "key":"PASSWORD"
+                          }
+                        }
+                      }
+                    ],
+                    "resources":{
+                      "requests":{
+                        "memory":"1Gi",
+                        "cpu":"500m"
+                      },
+                      "limits":{
+                        "memory":"2Gi",
+                        "cpu":"1000m"
+                      }
+                    }
+                  }
+                ]
+              }
+            }'
+
+      - name: Migration Report
+        if: always()
+        continue-on-error: true
+        run: |
+          echo "--- migration pod status ---"
+          oc get pods -l role=migration,component=database \
+            -n ${{ inputs.openshift_namespace }} \
+            --sort-by=.metadata.creationTimestamp 2>/dev/null || true
