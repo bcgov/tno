@@ -156,10 +156,20 @@ jobs:
             }'
 
           echo "Waiting for migration pod to complete (timeout 10m)..."
-          oc wait pod/${{ env.IMAGE_NAME }} \
-            -n ${{ inputs.openshift_namespace }} \
-            --for=jsonpath='{.status.phase}'=Succeeded \
-            --timeout=10m
+          for i in $(seq 1 120); do
+            PHASE=$(oc get pod ${{ env.IMAGE_NAME }} -n ${{ inputs.openshift_namespace }} -o jsonpath='{.status.phase}' 2>/dev/null || echo "Unknown")
+            echo "  [$i] pod phase: $PHASE"
+            if [ "$PHASE" = "Succeeded" ]; then
+              echo "Migration completed successfully."
+              break
+            elif [ "$PHASE" = "Failed" ] || [ "$PHASE" = "Error" ]; then
+              echo "Migration pod failed with phase: $PHASE"
+              echo "--- migration logs ---"
+              oc logs ${{ env.IMAGE_NAME }} -n ${{ inputs.openshift_namespace }} || true
+              exit 1
+            fi
+            sleep 5
+          done
 
           echo "--- migration logs ---"
           oc logs ${{ env.IMAGE_NAME }} -n ${{ inputs.openshift_namespace }}
