@@ -16,7 +16,7 @@ test.beforeEach(async ({ masterFixture }) => {
 
 test.describe('@smoke Create and Delete My Report Subscriber Side', () => {
   test(`Create and Delete My Report`, async ({}) => {
-     await appPage.navigateToSubscriberURL();
+    await appPage.navigateToSubscriberURL();
     await reportSubscriberSidePage.clickOnMyreportsLink();
     expect(await reportSubscriberSidePage.newReportButton).toBeVisible();
     await reportSubscriberSidePage.clickOnNewReportButton();

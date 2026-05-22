@@ -12,40 +12,34 @@ test.beforeEach(async ({ masterFixture }) => {
   page = masterFixture.page;
   addMediaPage = masterFixture.addMediaPage;
   await appPage.navigateToUrl(editorUrl);
-    await appPage.hardWait(5000);
-     console.log("TAGS",addMediaPage );
+  await appPage.hardWait(5000);
+  console.log('TAGS', addMediaPage);
 });
 test.describe('@smoke Add TAGS', () => {
-     test(`Login as ${process.env.app_username}`, async ({page}) => {
-     
+  test(`Login as ${process.env.app_username}`, async ({ page }) => {
     await page.goto(editorUrl);
     await addMediaPage.navigateToCC();
     await addMediaPage.navigateToTAGS();
     await addMediaPage.clickAddNewTag();
-    
+
     const TagCode = `AGG Auto `;
     const TagName = `Autotest Name`;
     const DescriptionTag = `Automation Test Description`;
-     const randomNumber = Math.floor(Math.random() * 100)+1;
+    const randomNumber = Math.floor(Math.random() * 100) + 1;
     const TagSortOrder = `${randomNumber}`;
 
-    await addMediaPage.enterTagDetails(
-      TagCode,
-      TagName,
-      DescriptionTag,
-      TagSortOrder
-    );
+    await addMediaPage.enterTagDetails(TagCode, TagName, DescriptionTag, TagSortOrder);
 
     await page.waitForTimeout(10000);
     await addMediaPage.clickBackToTAG();
     await page.waitForTimeout(2000);
 
     await addMediaPage.searchTagValue(TagCode);
-     console.log(" Fetch Value:", TagCode);
+    console.log(' Fetch Value:', TagCode);
 
-   await addMediaPage.clickOnVisiblecode();
-   await addMediaPage.clickOnDelete();
-   await addMediaPage.removeData();
-   await appPage.logOut();
+    await addMediaPage.clickOnVisiblecode();
+    await addMediaPage.clickOnDelete();
+    await addMediaPage.removeData();
+    await appPage.logOut();
   });
 });

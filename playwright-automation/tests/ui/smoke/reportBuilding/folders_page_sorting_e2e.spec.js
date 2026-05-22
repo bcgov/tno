@@ -10,10 +10,19 @@ const editorUrl = testData[testApp]['editor']['url'];
 const editorReportUrl = testData[testApp]['editor']['reportUrl'];
 const recipientEmail = reportData[testApp]['report']['recipient_email'];
 
-let page, appPage, editorHomePage, reportPage, subscriberNavBarPage, subscriberMyReportPage, addProductPage, 
-addFoldersPage, subscriberSearchResultPage, addFilterPage, editTopicsPage, subscriberMMIProductPage, gridPage;
-
-
+let page,
+  appPage,
+  editorHomePage,
+  reportPage,
+  subscriberNavBarPage,
+  subscriberMyReportPage,
+  addProductPage,
+  addFoldersPage,
+  subscriberSearchResultPage,
+  addFilterPage,
+  editTopicsPage,
+  subscriberMMIProductPage,
+  gridPage;
 
 test.beforeEach(async ({ masterFixture }) => {
   page = masterFixture.page;
@@ -32,11 +41,9 @@ test.beforeEach(async ({ masterFixture }) => {
   gridPage = masterFixture.gridPage;
   await appPage.navigateToUrl(editorUrl);
   await appPage.hardWait(2000);
-  
 });
 
 test.describe('@smoke Filters page grid column Sorting functionality', () => {
-
   test(`Verify sorting on Name columns on Filter page grid`, async ({}) => {
     await editorHomePage.verifyEditorHomePageLoaded();
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
@@ -45,9 +52,12 @@ test.describe('@smoke Filters page grid column Sorting functionality', () => {
     const rowCount = 30;
 
     // Check default sorting
-    const defaultNameColumnValuesOnUI = await gridPage.getFolderGridNameColumnDataFromGrid(rowCount);
+    const defaultNameColumnValuesOnUI =
+      await gridPage.getFolderGridNameColumnDataFromGrid(rowCount);
     expect(await gridPage.isGridColumnSorted(defaultNameColumnValuesOnUI, 'ascending')).toBe(false);
-    expect(await gridPage.isGridColumnSorted(defaultNameColumnValuesOnUI, 'descending')).toBe(false);
+    expect(await gridPage.isGridColumnSorted(defaultNameColumnValuesOnUI, 'descending')).toBe(
+      false,
+    );
 
     // Sort Ascending
     await gridPage.performSortingOnFoldersGrid(CONSTANTS.COLUMN_NAME.NAME);
@@ -63,9 +73,14 @@ test.describe('@smoke Filters page grid column Sorting functionality', () => {
 
     // Remove sorting
     await gridPage.performSortingOnFoldersGrid(CONSTANTS.COLUMN_NAME.NAME);
-    const withoutSortingNameColumnValuesOnUI = await gridPage.getFolderGridNameColumnDataFromGrid(rowCount);
-    expect(await gridPage.isGridColumnSorted(withoutSortingNameColumnValuesOnUI, 'ascending')).toBe(false);
-    expect(await gridPage.isGridColumnSorted(withoutSortingNameColumnValuesOnUI, 'descending')).toBe(false);
+    const withoutSortingNameColumnValuesOnUI =
+      await gridPage.getFolderGridNameColumnDataFromGrid(rowCount);
+    expect(await gridPage.isGridColumnSorted(withoutSortingNameColumnValuesOnUI, 'ascending')).toBe(
+      false,
+    );
+    expect(
+      await gridPage.isGridColumnSorted(withoutSortingNameColumnValuesOnUI, 'descending'),
+    ).toBe(false);
 
     await appPage.logOut();
   });
@@ -78,9 +93,14 @@ test.describe('@smoke Filters page grid column Sorting functionality', () => {
     const rowCount = 30;
 
     // Check default sorting
-    const defaultOwnerColumnValuesOnUI = await gridPage.getFolderGridOwnerColumnDataFromGrid(rowCount);
-    expect(await gridPage.isGridColumnSorted(defaultOwnerColumnValuesOnUI, 'ascending')).toBe(false);
-    expect(await gridPage.isGridColumnSorted(defaultOwnerColumnValuesOnUI, 'descending')).toBe(false);
+    const defaultOwnerColumnValuesOnUI =
+      await gridPage.getFolderGridOwnerColumnDataFromGrid(rowCount);
+    expect(await gridPage.isGridColumnSorted(defaultOwnerColumnValuesOnUI, 'ascending')).toBe(
+      false,
+    );
+    expect(await gridPage.isGridColumnSorted(defaultOwnerColumnValuesOnUI, 'descending')).toBe(
+      false,
+    );
 
     // Sort Ascending
     await gridPage.performSortingOnFoldersGrid(CONSTANTS.COLUMN_NAME.OWNER);
@@ -96,9 +116,14 @@ test.describe('@smoke Filters page grid column Sorting functionality', () => {
 
     // Remove sorting
     await gridPage.performSortingOnFoldersGrid(CONSTANTS.COLUMN_NAME.OWNER);
-    const withoutSortingOwnerColumnValuesOnUI = await gridPage.getFolderGridOwnerColumnDataFromGrid(rowCount);
-    expect(await gridPage.isGridColumnSorted(withoutSortingOwnerColumnValuesOnUI, 'ascending')).toBe(false);
-    expect(await gridPage.isGridColumnSorted(withoutSortingOwnerColumnValuesOnUI, 'descending')).toBe(false);
+    const withoutSortingOwnerColumnValuesOnUI =
+      await gridPage.getFolderGridOwnerColumnDataFromGrid(rowCount);
+    expect(
+      await gridPage.isGridColumnSorted(withoutSortingOwnerColumnValuesOnUI, 'ascending'),
+    ).toBe(false);
+    expect(
+      await gridPage.isGridColumnSorted(withoutSortingOwnerColumnValuesOnUI, 'descending'),
+    ).toBe(false);
 
     await appPage.logOut();
   });
@@ -111,29 +136,44 @@ test.describe('@smoke Filters page grid column Sorting functionality', () => {
     const rowCount = 30;
 
     // Check default sorting
-    const defaultDescriptionColumnValuesOnUI = await gridPage.getFolderGridDescriptionColumnDataFromGrid(rowCount);
-    expect(await gridPage.isGridColumnSorted(defaultDescriptionColumnValuesOnUI, 'ascending')).toBe(false);
-    expect(await gridPage.isGridColumnSorted(defaultDescriptionColumnValuesOnUI, 'descending')).toBe(false);
+    const defaultDescriptionColumnValuesOnUI =
+      await gridPage.getFolderGridDescriptionColumnDataFromGrid(rowCount);
+    expect(await gridPage.isGridColumnSorted(defaultDescriptionColumnValuesOnUI, 'ascending')).toBe(
+      false,
+    );
+    expect(
+      await gridPage.isGridColumnSorted(defaultDescriptionColumnValuesOnUI, 'descending'),
+    ).toBe(false);
 
     // Sort Ascending
     await gridPage.performSortingOnFoldersGrid(CONSTANTS.COLUMN_NAME.DESCRIPTION);
     // await editorHomePage.selectRecordsOnGrid(rowCount);
 
-    const ascDescriptionColumnValuesOnUI = await gridPage.getFolderGridDescriptionColumnDataFromGrid(rowCount);
-    expect(await gridPage.isGridColumnSorted(ascDescriptionColumnValuesOnUI, 'ascending')).toBe(true);
+    const ascDescriptionColumnValuesOnUI =
+      await gridPage.getFolderGridDescriptionColumnDataFromGrid(rowCount);
+    expect(await gridPage.isGridColumnSorted(ascDescriptionColumnValuesOnUI, 'ascending')).toBe(
+      true,
+    );
 
     // Sort Descending
     await gridPage.performSortingOnFoldersGrid(CONSTANTS.COLUMN_NAME.DESCRIPTION);
-    const descDescriptionColumnValuesOnUI = await gridPage.getFolderGridDescriptionColumnDataFromGrid(rowCount);
-    expect(await gridPage.isGridColumnSorted(descDescriptionColumnValuesOnUI, 'descending')).toBe(true);
+    const descDescriptionColumnValuesOnUI =
+      await gridPage.getFolderGridDescriptionColumnDataFromGrid(rowCount);
+    expect(await gridPage.isGridColumnSorted(descDescriptionColumnValuesOnUI, 'descending')).toBe(
+      true,
+    );
 
     // Remove sorting
     await gridPage.performSortingOnFoldersGrid(CONSTANTS.COLUMN_NAME.DESCRIPTION);
-    const withoutSortingDescriptionColumnValuesOnUI = await gridPage.getFolderGridDescriptionColumnDataFromGrid(rowCount);
-    expect(await gridPage.isGridColumnSorted(withoutSortingDescriptionColumnValuesOnUI, 'ascending')).toBe(false);
-    expect(await gridPage.isGridColumnSorted(withoutSortingDescriptionColumnValuesOnUI, 'descending')).toBe(false);
+    const withoutSortingDescriptionColumnValuesOnUI =
+      await gridPage.getFolderGridDescriptionColumnDataFromGrid(rowCount);
+    expect(
+      await gridPage.isGridColumnSorted(withoutSortingDescriptionColumnValuesOnUI, 'ascending'),
+    ).toBe(false);
+    expect(
+      await gridPage.isGridColumnSorted(withoutSortingDescriptionColumnValuesOnUI, 'descending'),
+    ).toBe(false);
 
     await appPage.logOut();
   });
-
 });

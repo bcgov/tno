@@ -12,20 +12,19 @@ test.beforeEach(async ({ masterFixture }) => {
   page = masterFixture.page;
   dataImport = masterFixture.dataImport;
   await appPage.navigateToUrl(editorUrl);
-    await appPage.hardWait(5000);
-     console.log("Actions",dataImport );
+  await appPage.hardWait(5000);
+  console.log('Actions', dataImport);
 });
 test.describe('@smoke Media Licenses', () => {
-     test(`Verify adding new media license`, async ({page}) => {
-     
+  test(`Verify adding new media license`, async ({ page }) => {
     await page.goto(editorUrl);
     await dataImport.navigateToDataImport();
     await dataImport.navigatetoMediaL();
     await dataImport.clickAddNewLicense();
-    
+
     const LicenseName = `Automation Test Data`;
     const LicenseDescription = `Automation Description Data for testing `;
-    const LicenserandomNmb = Math.floor(Math.random() * 100)+1;
+    const LicenserandomNmb = Math.floor(Math.random() * 100) + 1;
     const IngestSortOrder = `${LicenserandomNmb}`;
     const licensettl = `${LicenserandomNmb}`;
 
@@ -33,13 +32,13 @@ test.describe('@smoke Media Licenses', () => {
       LicenseName,
       LicenseDescription,
       IngestSortOrder,
-      licensettl
+      licensettl,
     );
-      await dataImport.validateMessage();
+    await dataImport.validateMessage();
     //Validate data is saved
     await expect(await dataImport.validateMessage()).toBe(true);
     await dataImport.backbtnMediaL();
-  
+
     await appPage.logOut();
   });
 });

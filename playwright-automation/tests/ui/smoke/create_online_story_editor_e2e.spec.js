@@ -15,8 +15,8 @@ test.beforeEach(async ({ masterFixture }) => {
 });
 
 test.describe('@smoke Adding an online story by editor and publishing it ', () => {
-  test(`Adding an online story by editor and publishing it`, async ({  }) => {
-    await expect(page).toHaveURL(mmiMSUrl+'contents');
+  test(`Adding an online story by editor and publishing it`, async ({}) => {
+    await expect(page).toHaveURL(mmiMSUrl + 'contents');
     await editorOnlineStoryPage.contentCreationOnline(mmiMSUrl);
     await editorOnlineStoryPage.selectFeaturedStories();
     await editorOnlineStoryPage.selectTopStories();
@@ -25,7 +25,9 @@ test.describe('@smoke Adding an online story by editor and publishing it ', () =
     const headline = `Test Online Story Headline - ${randomNum}`;
     await editorOnlineStoryPage.enterHeadline(headline);
     await editorOnlineStoryPage.selectTNOOption();
-    await editorOnlineStoryPage.enterParagraph(`This is a test paragraph for the online story created by automation script. Random number: ${randomNum}`);
+    await editorOnlineStoryPage.enterParagraph(
+      `This is a test paragraph for the online story created by automation script. Random number: ${randomNum}`,
+    );
     await editorOnlineStoryPage.selectPointsAndClickPublish();
     console.log(`Published story with headline: ${headline}`);
     const toastMessage = await editorOnlineStoryPage.getToastMessage();
@@ -37,6 +39,4 @@ test.describe('@smoke Adding an online story by editor and publishing it ', () =
     console.log(`Expected headline: ${headline}`);
     expect(verifiedHeadline).toBe(headline);
   });
-
-
 });

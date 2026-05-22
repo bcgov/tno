@@ -12,19 +12,18 @@ test.beforeEach(async ({ masterFixture }) => {
   page = masterFixture.page;
   systemSettings = masterFixture.systemSettings;
   await appPage.navigateToUrl(editorUrl);
-    await appPage.hardWait(5000);
-     console.log("Actions",systemSettings );
+  await appPage.hardWait(5000);
+  console.log('Actions', systemSettings);
 });
 test.describe('@smoke System Configurations', () => {
-     test(`Verify Search by Type for Work Orders`, async ({page}) => {
-     
+  test(`Verify Search by Type for Work Orders`, async ({ page }) => {
     await page.goto(editorUrl);
     await systemSettings.navigateToSystemSettings();
     await systemSettings.navigatetoWorkOrder();
-    
+
     const KeyType = `Transcription`;
     await systemSettings.searchWorkOrder(KeyType);
-    console.log(" Fetch Value:", KeyType);
+    console.log(' Fetch Value:', KeyType);
     await systemSettings.enterSearchKeyword(KeyType);
     await systemSettings.SaveWorkOrder();
     await systemSettings.backtoWorkorder();

@@ -12,40 +12,35 @@ test.beforeEach(async ({ masterFixture }) => {
   page = masterFixture.page;
   addMediaPage = masterFixture.addMediaPage;
   await appPage.navigateToUrl(editorUrl);
-    await appPage.hardWait(5000);
-     console.log("Ingest Type",addMediaPage );
+  await appPage.hardWait(5000);
+  console.log('Ingest Type', addMediaPage);
 });
 test.describe('@smoke Add TAGS', () => {
-     test(`Login as ${process.env.app_username}`, async ({page}) => {
-     
+  test(`Login as ${process.env.app_username}`, async ({ page }) => {
     await page.goto(editorUrl);
     await addMediaPage.navigateToDataImport();
     await addMediaPage.navigateToIngestType();
     await addMediaPage.clickAddNewIngestType();
-    
+
     const IngestName = `Test Automation IT`;
     const IngestDescriptionName = `Automation Test Description`;
-     const randomNumber = Math.floor(Math.random() * 100)+1;
+    const randomNumber = Math.floor(Math.random() * 100) + 1;
     const IngestNamertOrder = `${randomNumber}`;
 
-    await addMediaPage.enterMediaDetails(
-      IngestName,
-      IngestDescriptionName,
-      IngestNamertOrder
-    );
+    await addMediaPage.enterMediaDetails(IngestName, IngestDescriptionName, IngestNamertOrder);
 
     await addMediaPage.selectListOption('Internet');
-   
+
     await page.waitForTimeout(10000);
     await addMediaPage.clickBackToIngestType();
     await page.waitForTimeout(2000);
 
     await addMediaPage.searchAndValidation(IngestName);
-    console.log("Fetch Value:", IngestName);
+    console.log('Fetch Value:', IngestName);
 
-   await addMediaPage.clickOnSearchValue();
-   await addMediaPage.clickOnDelete();
-   await addMediaPage.removeData();
- await appPage.logOut();
-});
+    await addMediaPage.clickOnSearchValue();
+    await addMediaPage.clickOnDelete();
+    await addMediaPage.removeData();
+    await appPage.logOut();
+  });
 });
