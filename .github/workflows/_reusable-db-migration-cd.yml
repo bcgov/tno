@@ -28,7 +28,7 @@ env:
   OPENSHIFT_TOOLS_NAMESPACE: 9b301c-tools
   ACR_URL: bcgov-c4awhwfpcremdbga.azurecr.io
   IMAGE_NAME: db-migration
-  DOCKER_CONTEXT: libs/net
+  DOCKER_CONTEXT: ./libs/net
   DOCKERFILE: libs/net/Dockerfile
 
 jobs:
