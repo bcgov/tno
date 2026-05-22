@@ -17,6 +17,10 @@ on:
           - dev
           - test
 
+concurrency:
+  group: db-migration-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   contents: read
   security-events: write
