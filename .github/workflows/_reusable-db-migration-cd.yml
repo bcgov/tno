@@ -28,8 +28,6 @@ env:
   OPENSHIFT_TOOLS_NAMESPACE: 9b301c-tools
   ACR_URL: bcgov-c4awhwfpcremdbga.azurecr.io
   IMAGE_NAME: db-migration
-  DOCKER_CONTEXT: ./libs/net
-  DOCKERFILE: libs/net/Dockerfile
 
 jobs:
   migrate:
@@ -40,11 +38,12 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build Docker Image
+        working-directory: ./libs/net
         run: |
           docker build \
-            -f ${{ env.DOCKERFILE }} \
+            -f Dockerfile \
             -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            ${{ env.DOCKER_CONTEXT }}
+            .
 
       - name: Trivy Container Scan
         uses: ./.github/actions/trivy-scan
