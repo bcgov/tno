@@ -12,12 +12,11 @@ test.beforeEach(async ({ masterFixture }) => {
   page = masterFixture.page;
   dataImport = masterFixture.dataImport;
   await appPage.navigateToUrl(editorUrl);
-    await appPage.hardWait(5000);
-     console.log("Actions",dataImport );
+  await appPage.hardWait(5000);
+  console.log('Actions', dataImport);
 });
 test.describe('@smoke Media Licenses', () => {
-     test(`Search and Delete Media License`, async ({page}) => {
-     
+  test(`Search and Delete Media License`, async ({ page }) => {
     await page.goto(editorUrl);
     await dataImport.navigateToDataImport();
     await dataImport.navigatetoMediaL();
@@ -25,18 +24,18 @@ test.describe('@smoke Media Licenses', () => {
     const LicenseName = `Automation Test data`;
 
     await dataImport.searchboxValue(LicenseName);
-     console.log(" Fetch Value:", LicenseName);
-     await dataImport.clickRow();
-      console.log(`Row value validation for ${LicenseName} is successful.`);
-      await dataImport.clickDelete();
+    console.log(' Fetch Value:', LicenseName);
+    await dataImport.clickRow();
+    console.log(`Row value validation for ${LicenseName} is successful.`);
+    await dataImport.clickDelete();
     console.log(`Deletion of ${LicenseName} is successful.`);
-    await dataImport.removeBtn(); 
-      await dataImport.navigatetoMediaLicense();
-      console.log("Navigate to Data Locations");
+    await dataImport.removeBtn();
+    await dataImport.navigatetoMediaLicense();
+    console.log('Navigate to Data Locations');
 
-     //Validate the delete message
-     await dataImport.validateDeleteMessage();
-      console.log(`Deletion of ${LicenseName} is successful.`)
-       await appPage.logOut();
+    //Validate the delete message
+    await dataImport.validateDeleteMessage();
+    console.log(`Deletion of ${LicenseName} is successful.`);
+    await appPage.logOut();
   });
 });

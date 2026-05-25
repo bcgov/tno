@@ -17,17 +17,15 @@ test.beforeEach(async ({ masterFixture }) => {
 });
 
 test.describe('@smoke Add and Remove Minister ', () => {
-
   test(`Adding a minister`, async ({}) => {
     await appPage.navigateToSubscriberURL();
     await ministerPage.clickOnSettings();
     await ministerPage.clickOnMyMinister();
     await ministerPage.clickOnMinisterCheckbox(ministertName);
     await ministerPage.clickOnMinisterSaveButton();
-    await ministerPage.clickMyMinisterLink()
+    await ministerPage.clickMyMinisterLink();
     const expectedText = ministertName.replace(':', '(0)');
     await expect(page.getByText(expectedText)).toBeVisible();
-
   });
 
   test(`removing a minister`, async ({}) => {
@@ -36,9 +34,8 @@ test.describe('@smoke Add and Remove Minister ', () => {
     await ministerPage.clickOnMyMinister();
     await ministerPage.unClickOnMinisterCheckbox(ministertName);
     await ministerPage.clickOnMinisterSaveButton();
-    await ministerPage.clickMyMinisterLink()
+    await ministerPage.clickMyMinisterLink();
     const expectedText = ministertName.replace(':', '(0)');
     await expect(page.getByText(expectedText)).not.toBeVisible();
-
   });
 });

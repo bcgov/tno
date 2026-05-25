@@ -17,7 +17,7 @@ test.beforeEach(async ({ masterFixture }) => {
 });
 
 test.describe('@smoke Search and Media TYPE', () => {
-  test(`Search and Delete Media Type`, async ({ }) => {
+  test(`Search and Delete Media Type`, async ({}) => {
     // await page.goto(editorUrl);
     await addMediaPage.navigateToCC();
     await addMediaPage.navigateToMiMedia();

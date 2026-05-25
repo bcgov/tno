@@ -12,19 +12,18 @@ test.beforeEach(async ({ masterFixture }) => {
   page = masterFixture.page;
   systemSettings = masterFixture.systemSettings;
   await appPage.navigateToUrl(editorUrl);
-    await appPage.hardWait(5000);
-     console.log("Actions",systemSettings );
+  await appPage.hardWait(5000);
+  console.log('Actions', systemSettings);
 });
 test.describe('@smoke System Configurations', () => {
-     test(`Verify Search by Status for Work Orders`, async ({page}) => {
-     
+  test(`Verify Search by Status for Work Orders`, async ({ page }) => {
     await page.goto(editorUrl);
     await systemSettings.navigateToSystemSettings();
     await systemSettings.navigatetoWorkOrder();
-    
+
     const statusvalue = `Completed`;
     await systemSettings.searchWorkOrderbystatus(statusvalue);
-    console.log(" Fetch Value:", statusvalue);
+    console.log(' Fetch Value:', statusvalue);
     await expect(systemSettings.tablerow).toBeVisible();
     await systemSettings.enterstatuskeyword(statusvalue);
     await systemSettings.tablerowfiels();

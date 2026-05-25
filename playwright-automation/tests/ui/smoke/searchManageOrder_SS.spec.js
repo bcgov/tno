@@ -12,27 +12,25 @@ test.beforeEach(async ({ masterFixture }) => {
   page = masterFixture.page;
   systemSettings = masterFixture.systemSettings;
   await appPage.navigateToUrl(editorUrl);
-    await appPage.hardWait(5000);
-     console.log("Actions",systemSettings );
+  await appPage.hardWait(5000);
+  console.log('Actions', systemSettings);
 });
 test.describe('@smoke System Configurations', () => {
-     test(`Verify Search by Status for Manage Users`, async ({page}) => {
-     
+  test(`Verify Search by Status for Manage Users`, async ({ page }) => {
     await page.goto(editorUrl);
     await systemSettings.navigateToSystemSettings();
     await systemSettings.navigatetoManageUser();
-    
+
     const status = `Approved`;
     await systemSettings.searchWorkUserbystatus(status);
-    console.log(" Fetch Value:", status);
+    console.log(' Fetch Value:', status);
 
     await systemSettings.searchWorkOrder();
-    console.log("Clicked on Search button");
- 
+    console.log('Clicked on Search button');
 
-  // Verify that all the status values in the search results are "Approved"
+    // Verify that all the status values in the search results are "Approved"
     await systemSettings.tableStatusCol();
-    console.log("All status values are Approved");
+    console.log('All status values are Approved');
     await appPage.logOut();
   });
 });
