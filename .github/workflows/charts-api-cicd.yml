@@ -43,9 +43,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: api/node
-        run: |
-          yarn set version 3.x
-          yarn install
+        run: yarn install --immutable
 
       - name: Compile check
         working-directory: api/node
