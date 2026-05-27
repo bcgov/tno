@@ -28,7 +28,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: fileupload-service
-              image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/fileupload-service:latest
+              image: bcgov-c4awhwfpcremdbga.azurecr.io/fileupload-service:latest
               imagePullPolicy: Always
               resources:
                 requests:
