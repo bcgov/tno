@@ -6,8 +6,8 @@ commonLabels:
 resources:
   - ../../base
 images:
-  - name: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/fileupload-service
-    newTag: latest
+  - name: bcgov-c4awhwfpcremdbga.azurecr.io/fileupload-service
+    newTag: dev
 patches:
   - target:
       kind: ConfigMap

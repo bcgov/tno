@@ -1,17 +1,18 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Net.Http;
+using System.Net.Http.Json;
+using TNO.API.Areas.Services.Models.Content;
 using TNO.Ches;
 using TNO.Ches.Configuration;
 using TNO.Core.Exceptions;
-using TNO.Services.Managers;
-using TNO.API.Areas.Services.Models.Content;
-using System.Net.Http.Json;
-using TNO.Services.FileUpload.Config;
-namespace TNO.Services.FileUpload;
-using System.Net.Http;
-using System.Net.Http.Json;
-using Microsoft.AspNetCore.Mvc;
 using TNO.Core.Http;
+using TNO.Services.FileUpload.Config;
+using TNO.Services.Managers;
+
+namespace TNO.Services.FileUpload;
+
 public class FileUploadManager : ServiceManager<FileUploadOptions>
 {
     #region Variables

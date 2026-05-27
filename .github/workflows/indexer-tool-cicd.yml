@@ -1,0 +1,46 @@
+name: Indexer Tool CI/CD
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [dev, master]
+    paths:
+      - tools/indexer/**
+      - libs/net/**
+      - openshift/kustomize/tools/indexer/**
+      - .github/workflows/indexer-tool-cicd.yml
+  push:
+    branches: [dev, master, indexer-service]
+    paths:
+      - tools/indexer/**
+      - libs/net/**
+      - openshift/kustomize/tools/indexer/**
+      - .github/workflows/indexer-tool-cicd.yml
+
+concurrency:
+  group: indexer-service-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  pipeline:
+    uses: ./.github/workflows/_reusable-dotnet-cicd.yml
+    with:
+      image_name: indexer-service
+      csproj_path: tools/indexer/TNO.Tools.ElasticIndexer.csproj
+      dockerfile: tools/indexer/Dockerfile
+      component: indexer-service
+      deployment_name: indexer-service
+      kustomize_dev_path: openshift/kustomize/tools/indexer/overlays/dev
+      kustomize_test_path: openshift/kustomize/tools/indexer/overlays/test
+      dev_branch: indexer-service
+      rollout_timeout: '180s'
+      continue_on_error_verify: true
+      health_check_method: exec_curl
+    secrets:
+      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
