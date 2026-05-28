@@ -182,7 +182,7 @@ spec:
         # build_service 'nlp' # Moved to GitHub Actions CI/CD — nlp-service-cicd.yml
         # build_service 'notification' # Moved to GHA — notification-service-cicd.yml
         # build_service 'scheduler' # Moved to GHA — scheduler-service-cicd.yml
-        build_service 'syndication'
+        # build_service 'syndication' # Moved to GHA — syndication-service-cicd.yml
         # build_service 'transcription' # Moved to GHA — transcription-service-cicd.yml
         # build_service 'auto-clipper' # Moved to GitHub Actions CI/CD — auto-clipper-cicd.yml
 

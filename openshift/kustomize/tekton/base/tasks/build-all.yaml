@@ -91,12 +91,13 @@ spec:
         # ***************************************************
 
         # Ingest Services
-        declare -A COMPONENT0=(
-          [id]="syndication"
-          [image]="syndication-service"
-          [context]=""
-          [dockerfile]="/services/net/syndication/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — syndication-service-cicd.yml
+        # declare -A COMPONENT0=(
+        #   [id]="syndication"
+        #   [image]="syndication-service"
+        #   [context]=""
+        #   [dockerfile]="/services/net/syndication/Dockerfile"
+        # )
 
         # Moved to GitHub Actions CI/CD — filemonitor-service-cicd.yml
         # declare -A COMPONENT1=(
