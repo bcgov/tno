@@ -1,0 +1,216 @@
+name: Reusable Elastic Migration CD
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      image_tag:
+        required: true
+        type: string
+      openshift_namespace:
+        required: true
+        type: string
+      db_secret_name:
+        required: true
+        type: string
+      elastic_secret_name:
+        required: true
+        type: string
+      indexing_configmap:
+        required: true
+        type: string
+      elastic_apikey_enabled:
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      OPENSHIFT_TOKEN:
+        required: true
+      ACR_USERNAME:
+        required: true
+      ACR_PASSWORD:
+        required: true
+
+env:
+  OPENSHIFT_SERVER: https://api.silver.devops.gov.bc.ca:6443
+  OPENSHIFT_TOOLS_NAMESPACE: 9b301c-tools
+  ACR_URL: bcgov-c4awhwfpcremdbga.azurecr.io
+  IMAGE_NAME: elastic-migration
+  DOCKER_CONTEXT: .
+  DOCKERFILE: tools/elastic/migration/Dockerfile
+
+jobs:
+  migrate:
+    name: Run Elastic Migration
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: |
+          docker build \
+            -f ${{ env.DOCKERFILE }} \
+            -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            ${{ env.DOCKER_CONTEXT }}
+
+      - name: Trivy Container Scan
+        uses: ./.github/actions/trivy-scan
+        with:
+          image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
+
+      - name: Install oc CLI
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: latest
+
+      - name: Login to OpenShift
+        run: |
+          oc login \
+            --token=${{ secrets.OPENSHIFT_TOKEN }} \
+            --server=${{ env.OPENSHIFT_SERVER }}
+
+      - name: Login to ACR
+        run: |
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_URL }} \
+            -u ${{ secrets.ACR_USERNAME }} \
+            --password-stdin
+
+      - name: Backup current image tag
+        continue-on-error: true
+        run: |
+          echo "Backing up ${{ env.IMAGE_NAME }}:${{ inputs.image_tag }} → ${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}-backup"
+          docker pull ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }} && \
+          docker tag \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }} \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}-backup && \
+          docker push \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}-backup
+
+      - name: Push Image to ACR
+        run: |
+          docker tag \
+            ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}
+          docker push \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}
+
+      - name: Enable Maintenance Mode
+        run: |
+          echo "Enabling maintenance mode: pointing routes editor/subscriber to nginx"
+          oc patch route/editor -n ${{ inputs.openshift_namespace }} -p '{"spec":{"to":{"name":"nginx"}}}'
+          oc patch route/subscriber -n ${{ inputs.openshift_namespace }} -p '{"spec":{"to":{"name":"nginx"}}}'
+
+      - name: Build Pod Overrides
+        id: overrides
+        run: |
+          ENV_ARRAY='[
+            {"name":"ConnectionStrings__TNO","valueFrom":{"configMapKeyRef":{"name":"api","key":"CONNECTION_STRING"}}},
+            {"name":"DB_POSTGRES_USERNAME","valueFrom":{"secretKeyRef":{"name":"${{ inputs.db_secret_name }}","key":"USERNAME"}}},
+            {"name":"DB_POSTGRES_PASSWORD","valueFrom":{"secretKeyRef":{"name":"${{ inputs.db_secret_name }}","key":"PASSWORD"}}},
+            {"name":"Elastic__Url","valueFrom":{"configMapKeyRef":{"name":"${{ inputs.indexing_configmap }}","key":"ELASTICSEARCH_URI"}}},
+            {"name":"Elastic__Username","valueFrom":{"secretKeyRef":{"name":"${{ inputs.elastic_secret_name }}","key":"USERNAME"}}},
+            {"name":"Elastic__Password","valueFrom":{"secretKeyRef":{"name":"${{ inputs.elastic_secret_name }}","key":"PASSWORD"}}},
+            {"name":"Elastic__ContentIndex","valueFrom":{"configMapKeyRef":{"name":"${{ inputs.indexing_configmap }}","key":"CONTENT_INDEX"}}},
+            {"name":"Elastic__PublishedIndex","valueFrom":{"configMapKeyRef":{"name":"${{ inputs.indexing_configmap }}","key":"PUBLISHED_INDEX"}}}'
+
+          if [ "${{ inputs.elastic_apikey_enabled }}" = "true" ]; then
+            ENV_ARRAY="${ENV_ARRAY},
+            {\"name\":\"Elastic__ApiKey\",\"valueFrom\":{\"secretKeyRef\":{\"name\":\"${{ inputs.elastic_secret_name }}\",\"key\":\"ApiKey\"}}}"
+          fi
+
+          ENV_ARRAY="${ENV_ARRAY}]"
+
+          IMAGE_REF="${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}"
+
+          OVERRIDES=$(cat <<EOJSON
+          {
+            "apiVersion":"v1",
+            "spec":{
+              "imagePullSecrets":[
+                {"name":"acr-secret"}
+              ],
+              "containers":[
+                {
+                  "name":"${{ env.IMAGE_NAME }}",
+                  "image":"${IMAGE_REF}",
+                  "imagePullPolicy":"Always",
+                  "env":${ENV_ARRAY},
+                  "resources":{
+                    "requests":{"memory":"1Gi","cpu":"500m"},
+                    "limits":{"memory":"2Gi","cpu":"1000m"}
+                  }
+                }
+              ]
+            }
+          }
+          EOJSON
+          )
+
+          echo "OVERRIDES<<EOF" >> $GITHUB_OUTPUT
+          echo "$OVERRIDES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Run Elastic Migration
+        env:
+          POD_OVERRIDES: ${{ steps.overrides.outputs.OVERRIDES }}
+        run: |
+          echo "Running Elasticsearch migration in ${{ inputs.openshift_namespace }}"
+
+          oc delete pod ${{ env.IMAGE_NAME }} \
+            -n ${{ inputs.openshift_namespace }} \
+            --ignore-not-found=true
+
+          oc run ${{ env.IMAGE_NAME }} \
+            -n ${{ inputs.openshift_namespace }} \
+            --image=${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }} \
+            --image-pull-policy=Always \
+            --labels='role=migration,part-of=tno,component=elastic' \
+            --restart=Never \
+            --override-type='merge' \
+            --overrides="${POD_OVERRIDES}"
+
+          echo "Waiting for migration pod to complete (timeout 10m)..."
+          for i in $(seq 1 120); do
+            PHASE=$(oc get pod ${{ env.IMAGE_NAME }} -n ${{ inputs.openshift_namespace }} -o jsonpath='{.status.phase}' 2>/dev/null || echo "Unknown")
+            echo "  [$i] pod phase: $PHASE"
+            if [ "$PHASE" = "Succeeded" ]; then
+              echo "Migration completed successfully."
+              break
+            elif [ "$PHASE" = "Failed" ] || [ "$PHASE" = "Error" ]; then
+              echo "Migration pod failed with phase: $PHASE"
+              echo "--- migration logs ---"
+              oc logs ${{ env.IMAGE_NAME }} -n ${{ inputs.openshift_namespace }} || true
+              exit 1
+            fi
+            sleep 5
+          done
+
+          echo "--- migration logs ---"
+          oc logs ${{ env.IMAGE_NAME }} -n ${{ inputs.openshift_namespace }}
+
+      - name: Disable Maintenance Mode
+        if: always()
+        run: |
+          echo "Disabling maintenance mode: restoring routes editor/subscriber"
+          oc patch route/editor -n ${{ inputs.openshift_namespace }} -p '{"spec":{"to":{"name":"editor"}}}'
+          oc patch route/subscriber -n ${{ inputs.openshift_namespace }} -p '{"spec":{"to":{"name":"subscriber"}}}'
+
+      - name: Cleanup Migration Pod
+        if: always()
+        continue-on-error: true
+        run: |
+          oc delete pod ${{ env.IMAGE_NAME }} \
+            -n ${{ inputs.openshift_namespace }} \
+            --ignore-not-found=true
+
+      - name: Migration Report
+        if: always()
+        continue-on-error: true
+        run: |
+          echo "--- migration pod status ---"
+          oc get pods -l role=migration,component=elastic \
+            -n ${{ inputs.openshift_namespace }} \
+            --sort-by=.metadata.creationTimestamp 2>/dev/null || true

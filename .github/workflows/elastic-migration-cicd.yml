@@ -1,18 +1,16 @@
-name: DB Migration CI/CD
+name: Elastic Migration CI/CD
 
 on:
   push:
     branches: [dev, master]
     paths:
-      - 'libs/net/dal/**'
-      - 'libs/net/entities/**'
-      - 'libs/net/Dockerfile'
+      - 'tools/elastic/migration/**'
+      - 'libs/net/**'
   pull_request:
     branches: [dev, master]
     paths:
-      - 'libs/net/dal/**'
-      - 'libs/net/entities/**'
-      - 'libs/net/Dockerfile'
+      - 'tools/elastic/migration/**'
+      - 'libs/net/**'
   workflow_dispatch:
     inputs:
       environment:
@@ -24,7 +22,7 @@ on:
           - test
 
 concurrency:
-  group: db-migration-${{ github.ref }}
+  group: elastic-migration-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
@@ -44,40 +42,45 @@ jobs:
           dotnet-version: 9.x
 
       - name: Restore
-        run: dotnet restore "libs/net/TNO.sln" --configfile NuGet.Config
+        run: dotnet restore "tools/elastic/TNO.Elastic.sln" --configfile NuGet.Config
 
-      - name: Build DAL
-        run: dotnet build "libs/net/dal/TNO.DAL.csproj" --configuration Release --no-restore
+      - name: Build Migration Tool
+        run: dotnet build "tools/elastic/migration/TNO.Elastic.Migration.csproj" --configuration Release --no-restore
 
   cd-dev:
-    name: CD — Migrate Dev DB
+    name: CD — Migrate Dev Elastic
     needs: ci
     if: >-
       (github.event_name == 'push' && github.ref == 'refs/heads/dev' && github.repository == 'bcgov/tno') ||
       (github.event_name == 'workflow_dispatch' && inputs.environment == 'dev')
-    uses: ./.github/workflows/_reusable-db-migration-cd.yml
+    uses: ./.github/workflows/_reusable-elastic-migration-cd.yml
     with:
       environment: dev
       image_tag: dev
       openshift_namespace: 9b301c-dev
       db_secret_name: montford
+      elastic_secret_name: elastic
+      indexing_configmap: indexing-service
     secrets:
       OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
       ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
       ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
 
   cd-test:
-    name: CD — Migrate Test DB
+    name: CD — Migrate Test Elastic
     needs: ci
     if: >-
       (github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'bcgov/tno') ||
       (github.event_name == 'workflow_dispatch' && inputs.environment == 'test')
-    uses: ./.github/workflows/_reusable-db-migration-cd.yml
+    uses: ./.github/workflows/_reusable-elastic-migration-cd.yml
     with:
       environment: test
       image_tag: test
       openshift_namespace: 9b301c-test
       db_secret_name: mooncrest
+      elastic_secret_name: elastic-cloud
+      indexing_configmap: indexing-service-cloud
+      elastic_apikey_enabled: true
     secrets:
       OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
       ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
