@@ -237,3 +237,33 @@ Login with OpenID.
 Enter `BCDevOps` for the authentication.
 
 Login with IDIR.
+
+## Build and Deploy to ACR
+
+```bash
+# Login to Azure
+az login
+az acr login --name bcgov
+
+# Build the image
+docker build --platform linux/amd64 -t bcgov-c4awhwfpcremdbga.azurecr.io/transcription-service:latest -f services/net/transcription/Dockerfile .
+
+# Tag if required (skip if already tagged above)
+docker push bcgov-c4awhwfpcremdbga.azurecr.io/transcription-service:latest
+
+# Push to ACR
+docker push bcgov-c4awhwfpcremdbga.azurecr.io/transcription-service:latest
+
+# Verify
+az acr repository show-tags --name bcgov --repository transcription-service --output table
+
+# Tag with a different tag
+az acr import \
+  --name bcgov \
+  --source bcgov-c4awhwfpcremdbga.azurecr.io/transcription-service:latest \
+  --image transcription-service:dev \
+  --force
+
+# Rollout deployment
+oc rollout restart deployment/transcription-service -n 9b301c-dev
+```
