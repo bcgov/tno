@@ -10,7 +10,7 @@ on:
       - openshift/kustomize/services/syndication/**
       - .github/workflows/syndication-service-cicd.yml
   push:
-    branches: [dev, master, feature/syndication-service-cicd, syndication-service]
+    branches: [dev, master]
     paths:
       - services/net/syndication/**
       - libs/net/**
