@@ -7,16 +7,12 @@ on:
       - 'libs/net/dal/**'
       - 'libs/net/entities/**'
       - 'libs/net/Dockerfile'
-      - '.github/workflows/db-migration-cicd.yml'
-      - '.github/workflows/_reusable-db-migration-cd.yml'
   pull_request:
     branches: [dev, master]
     paths:
       - 'libs/net/dal/**'
       - 'libs/net/entities/**'
       - 'libs/net/Dockerfile'
-      - '.github/workflows/db-migration-cicd.yml'
-      - '.github/workflows/_reusable-db-migration-cd.yml'
   workflow_dispatch:
     inputs:
       environment:

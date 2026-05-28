@@ -6,15 +6,11 @@ on:
     paths:
       - 'tools/elastic/migration/**'
       - 'libs/net/**'
-      - '.github/workflows/elastic-migration-cicd.yml'
-      - '.github/workflows/_reusable-elastic-migration-cd.yml'
   pull_request:
     branches: [dev, master]
     paths:
       - 'tools/elastic/migration/**'
       - 'libs/net/**'
-      - '.github/workflows/elastic-migration-cicd.yml'
-      - '.github/workflows/_reusable-elastic-migration-cd.yml'
   workflow_dispatch:
     inputs:
       environment:
