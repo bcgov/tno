@@ -34,7 +34,7 @@ public class RssItem
     /// </summary>
     [XmlElement("description")]
     public string? Description { get; set; }
-    
+
     /// <summary>
     /// get/set - The item content.
     /// </summary>
@@ -95,7 +95,7 @@ public class RssItem
     {
         this.Title = element.Element("title")?.Value;
         this.Description = element.Element("description")?.Value;
-        
+
         var contentList = element.Descendants(contentXNamespace + "encoded");
         if (contentList != null && contentList.Any())
         {
@@ -180,12 +180,13 @@ public class RssItem
             SourceFeed = item.Source,
         };
         item.Categories.ForEach(c => result.Categories.Add(c));
-        if (!String.IsNullOrWhiteSpace(item.Author)) {
-            if (item.Author.Contains("@"))  // if the author contains "@" assume it is email
+        if (!String.IsNullOrWhiteSpace(item.Author))
+        {
+            if (item.Author.Contains("@"))
             {
                 result.Authors.Add(new SyndicationPerson(item.Author));
             }
-            else  // otherwise, add author string as name
+            else
             {
                 result.Authors.Add(new SyndicationPerson(null, item.Author, null));
             }
