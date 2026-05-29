@@ -13,17 +13,16 @@ metadata:
     managed-by: kustomize
     created-by: jeremy.foster
 spec:
-  # ttlSecondsAfterFinished: 100
-  schedule: "0 */6 * * *" # Every 6 hour
-  # schedule: "*/5 * * * *" # Immediately
+  schedule: "0 */6 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
+      activeDeadlineSeconds: 1800
       template:
         spec:
           restartPolicy: OnFailure
-          securityContext:
-            runAsUser: 1010230000
-            fsGroup: 1010230000
           volumes:
             - name: entrypoint
               configMap:
