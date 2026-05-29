@@ -1,4 +1,4 @@
-﻿using TNO.Services.Managers;
+using TNO.Services.Managers;
 using TNO.Services;
 
 namespace TNO.Services.FileUpload;

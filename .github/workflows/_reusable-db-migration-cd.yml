@@ -1,0 +1,193 @@
+name: Reusable DB Migration CD
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      image_tag:
+        required: true
+        type: string
+      openshift_namespace:
+        required: true
+        type: string
+      db_secret_name:
+        required: true
+        type: string
+    secrets:
+      OPENSHIFT_TOKEN:
+        required: true
+      ACR_USERNAME:
+        required: true
+      ACR_PASSWORD:
+        required: true
+
+env:
+  OPENSHIFT_SERVER: https://api.silver.devops.gov.bc.ca:6443
+  OPENSHIFT_TOOLS_NAMESPACE: 9b301c-tools
+  ACR_URL: bcgov-c4awhwfpcremdbga.azurecr.io
+  IMAGE_NAME: db-migration
+
+jobs:
+  migrate:
+    name: Run Migration
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        working-directory: ./libs/net
+        run: |
+          docker build \
+            -f Dockerfile \
+            -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            .
+
+      - name: Trivy Container Scan
+        uses: ./.github/actions/trivy-scan
+        with:
+          image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
+
+      - name: Install oc CLI
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: latest
+
+      - name: Login to OpenShift
+        run: |
+          oc login \
+            --token=${{ secrets.OPENSHIFT_TOKEN }} \
+            --server=${{ env.OPENSHIFT_SERVER }}
+
+      - name: Login to ACR
+        run: |
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_URL }} \
+            -u ${{ secrets.ACR_USERNAME }} \
+            --password-stdin
+
+      - name: Backup current image tag
+        continue-on-error: true
+        run: |
+          echo "Backing up ${{ env.IMAGE_NAME }}:${{ inputs.image_tag }} → ${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}-backup"
+          docker pull ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }} && \
+          docker tag \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }} \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}-backup && \
+          docker push \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}-backup
+
+      - name: Push Image to ACR
+        run: |
+          docker tag \
+            ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}
+          docker push \
+            ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}
+
+      - name: Run Database Migration
+        run: |
+          echo "Running EF Core database migration in ${{ inputs.openshift_namespace }}"
+
+          oc delete pod ${{ env.IMAGE_NAME }} \
+            -n ${{ inputs.openshift_namespace }} \
+            --ignore-not-found=true
+
+          oc run ${{ env.IMAGE_NAME }} \
+            -n ${{ inputs.openshift_namespace }} \
+            --image=${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }} \
+            --image-pull-policy=Always \
+            --labels='role=migration,part-of=tno,component=database' \
+            --restart=Never \
+            --override-type='merge' \
+            --overrides='{
+              "apiVersion":"v1",
+              "spec":{
+                "imagePullSecrets":[
+                  {"name":"acr-secret"}
+                ],
+                "containers":[
+                  {
+                    "name":"${{ env.IMAGE_NAME }}",
+                    "image":"${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}",
+                    "imagePullPolicy":"Always",
+                    "env":[
+                      {
+                        "name":"ConnectionStrings__TNO",
+                        "valueFrom":{
+                          "configMapKeyRef":{
+                            "name":"api",
+                            "key":"CONNECTION_STRING"
+                          }
+                        }
+                      },
+                      {
+                        "name":"DB_POSTGRES_USERNAME",
+                        "valueFrom":{
+                          "secretKeyRef":{
+                            "name":"${{ inputs.db_secret_name }}",
+                            "key":"USERNAME"
+                          }
+                        }
+                      },
+                      {
+                        "name":"DB_POSTGRES_PASSWORD",
+                        "valueFrom":{
+                          "secretKeyRef":{
+                            "name":"${{ inputs.db_secret_name }}",
+                            "key":"PASSWORD"
+                          }
+                        }
+                      }
+                    ],
+                    "resources":{
+                      "requests":{
+                        "memory":"2Gi",
+                        "cpu":"500m"
+                      },
+                      "limits":{
+                        "memory":"4Gi",
+                        "cpu":"1000m"
+                      }
+                    }
+                  }
+                ]
+              }
+            }'
+
+          echo "Waiting for migration pod to complete (timeout 10m)..."
+          for i in $(seq 1 120); do
+            PHASE=$(oc get pod ${{ env.IMAGE_NAME }} -n ${{ inputs.openshift_namespace }} -o jsonpath='{.status.phase}' 2>/dev/null || echo "Unknown")
+            echo "  [$i] pod phase: $PHASE"
+            if [ "$PHASE" = "Succeeded" ]; then
+              echo "Migration completed successfully."
+              break
+            elif [ "$PHASE" = "Failed" ] || [ "$PHASE" = "Error" ]; then
+              echo "Migration pod failed with phase: $PHASE"
+              echo "--- migration logs ---"
+              oc logs ${{ env.IMAGE_NAME }} -n ${{ inputs.openshift_namespace }} || true
+              exit 1
+            fi
+            sleep 5
+          done
+
+          echo "--- migration logs ---"
+          oc logs ${{ env.IMAGE_NAME }} -n ${{ inputs.openshift_namespace }}
+
+      - name: Cleanup Migration Pod
+        if: always()
+        continue-on-error: true
+        run: |
+          oc delete pod ${{ env.IMAGE_NAME }} \
+            -n ${{ inputs.openshift_namespace }} \
+            --ignore-not-found=true
+
+      - name: Migration Report
+        if: always()
+        continue-on-error: true
+        run: |
+          echo "--- migration pod status ---"
+          oc get pods -l role=migration,component=database \
+            -n ${{ inputs.openshift_namespace }} \
+            --sort-by=.metadata.creationTimestamp 2>/dev/null || true

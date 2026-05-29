@@ -6,23 +6,22 @@ const testData = DataLoader.loadJSON(`test-data/${process.env.ENV_NAME}/loginDat
 const testApp = process.env.APP_NAME;
 const editorUrl = testData[testApp]['editor']['url'];
 
-console.log("Editor URL:",editorUrl );
+console.log('Editor URL:', editorUrl);
 
 let page, appPage, notificationalertPage;
 
 test.beforeEach(async ({ masterFixture }) => {
-    page = masterFixture.page;  
-    appPage = masterFixture.appPage;
-    notificationalertPage = masterFixture.notificationalertPage;
-    await appPage.navigateToUrl(editorUrl);
-    await appPage.hardWait(5000);
+  page = masterFixture.page;
+  appPage = masterFixture.appPage;
+  notificationalertPage = masterFixture.notificationalertPage;
+  await appPage.navigateToUrl(editorUrl);
+  await appPage.hardWait(5000);
 });
 
 test.describe('@smoke Notification Module', () => {
-     test(`Notification Builder`, async ({  }) => {
-
-    await expect(page).toHaveURL(editorUrl);  
-    await notificationalertPage.navigateNotifBuild(); 
+  test(`Notification Builder`, async ({}) => {
+    await expect(page).toHaveURL(editorUrl);
+    await notificationalertPage.navigateNotifBuild();
     await notificationalertPage.notificationMenue();
     await notificationalertPage.addnotification();
     const randomNum = Math.floor(Math.random() * 10000);
@@ -37,5 +36,5 @@ test.describe('@smoke Notification Module', () => {
     );
 
     await appPage.logOut();
-     });
-    });
+  });
+});

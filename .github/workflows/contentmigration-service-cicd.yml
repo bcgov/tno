@@ -1,0 +1,46 @@
+name: Content Migration Service CI/CD
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [dev, master]
+    paths:
+      - services/net/contentmigration/**
+      - libs/net/**
+      - openshift/kustomize/services/contentmigration-current/**
+      - .github/workflows/contentmigration-service-cicd.yml
+  push:
+    branches: [dev, master, contentmigration-service]
+    paths:
+      - services/net/contentmigration/**
+      - libs/net/**
+      - openshift/kustomize/services/contentmigration-current/**
+      - .github/workflows/contentmigration-service-cicd.yml
+
+concurrency:
+  group: contentmigration-service-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  pipeline:
+    uses: ./.github/workflows/_reusable-dotnet-cicd.yml
+    with:
+      image_name: contentmigration-service
+      csproj_path: services/net/contentmigration/TNO.Services.ContentMigration.csproj
+      dockerfile: services/net/contentmigration/Dockerfile
+      component: contentmigration-service
+      deployment_name: contentmigration-service
+      kustomize_dev_path: openshift/kustomize/services/contentmigration-current/overlays/dev
+      kustomize_test_path: openshift/kustomize/services/contentmigration-current/overlays/test
+      dev_branch: contentmigration-service
+      rollout_timeout: '180s'
+      continue_on_error_verify: true
+      health_check_method: exec_curl
+    secrets:
+      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}

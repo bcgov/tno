@@ -91,12 +91,13 @@ spec:
         # ***************************************************
 
         # Ingest Services
-        declare -A COMPONENT0=(
-          [id]="syndication"
-          [image]="syndication-service"
-          [context]=""
-          [dockerfile]="/services/net/syndication/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — syndication-service-cicd.yml
+        # declare -A COMPONENT0=(
+        #   [id]="syndication"
+        #   [image]="syndication-service"
+        #   [context]=""
+        #   [dockerfile]="/services/net/syndication/Dockerfile"
+        # )
 
         # Moved to GitHub Actions CI/CD — filemonitor-service-cicd.yml
         # declare -A COMPONENT1=(
@@ -116,12 +117,13 @@ spec:
 
         # Processing Services
 
-        declare -A COMPONENT3=(
-          [id]="content"
-          [image]="content-service"
-          [context]=""
-          [dockerfile]="/services/net/content/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — content-service-cicd.yml
+        # declare -A COMPONENT3=(
+        #   [id]="content"
+        #   [image]="content-service"
+        #   [context]=""
+        #   [dockerfile]="/services/net/content/Dockerfile"
+        # )
 
         # Moved to GitHub Actions CI/CD — indexing-service-cicd.yml
         # declare -A COMPONENT4=(
@@ -155,12 +157,13 @@ spec:
         #   [dockerfile]="/services/net/extract-quotes/Dockerfile"
         # )
 
-        declare -A COMPONENT8=(
-          [id]="reporting"
-          [image]="reporting-service"
-          [context]=""
-          [dockerfile]="/services/net/reporting/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — reporting-service-cicd.yml
+        # declare -A COMPONENT8=(
+        #   [id]="reporting"
+        #   [image]="reporting-service"
+        #   [context]=""
+        #   [dockerfile]="/services/net/reporting/Dockerfile"
+        # )
 
         # Moved to GitHub Actions CI/CD — notification-service-cicd.yml
         # declare -A COMPONENT9=(
@@ -179,12 +182,13 @@ spec:
         # )
 
         # Moved to GitHub Actions CI/CD — folder-collection-cicd.yml
-        declare -A COMPONENT11=(
-          [id]="folder-collection"
-          [image]="folder-collection-service"
-          [context]=""
-          [dockerfile]="/services/net/folder-collection/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — folder-collection-cicd.yml
+        # declare -A COMPONENT11=(
+        #   [id]="folder-collection"
+        #   [image]="folder-collection-service"
+        #   [context]=""
+        #   [dockerfile]="/services/net/folder-collection/Dockerfile"
+        # )
 
         # Moved to GitHub Actions CI/CD — ffmpeg-service-cicd.yml
         # declare -A COMPONENT12=(
@@ -212,49 +216,53 @@ spec:
 
         # Applications
 
-        declare -A COMPONENT15=(
-          [id]="api"
-          [image]="api"
-          [context]=""
-          [dockerfile]="/api/net/Dockerfile.openshift"
-        )
+        # Moved to GitHub Actions CI/CD — api-services-cicd.yml
+        # declare -A COMPONENT15=(
+        #   [id]="api"
+        #   [image]="api"
+        #   [context]=""
+        #   [dockerfile]="/api/net/Dockerfile.openshift"
+        # )
 
-        declare -A COMPONENT16=(
-          [id]="charts-api"
-          [image]="charts-api"
-          [context]="/api/node"
-          [dockerfile]="/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — charts-api-cicd.yml
+        # declare -A COMPONENT16=(
+        #   [id]="charts-api"
+        #   [image]="charts-api"
+        #   [context]="/api/node"
+        #   [dockerfile]="/Dockerfile"
+        # )
 
         # Moved to GitHub Actions CI/CD — react-editor.yml
-        declare -A COMPONENT17=(
-          [id]="editor"
-          [image]="editor"
-          [context]="/app/editor"
-          [dockerfile]="/Dockerfile.open"
-        )
+        # declare -A COMPONENT17=(
+        #   [id]="editor"
+        #   [image]="editor"
+        #   [context]="/app/editor"
+        #   [dockerfile]="/Dockerfile.open"
+        # )
 
         # Moved to GitHub Actions CI/CD — react-subscriber.yml
-        declare -A COMPONENT18=(
-          [id]="subscriber"
-          [image]="subscriber"
-          [context]="/app/subscriber"
-          [dockerfile]="/Dockerfile.open"
-        )
+        # declare -A COMPONENT18=(
+        #   [id]="subscriber"
+        #   [image]="subscriber"
+        #   [context]="/app/subscriber"
+        #   [dockerfile]="/Dockerfile.open"
+        # )
 
-        declare -A COMPONENT19=(
-          [id]="db"
-          [image]="db-migration"
-          [context]="/libs/net"
-          [dockerfile]="/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — db-migration-cicd.yml
+        # declare -A COMPONENT19=(
+        #   [id]="db"
+        #   [image]="db-migration"
+        #   [context]="/libs/net"
+        #   [dockerfile]="/Dockerfile"
+        # )
 
-        declare -A COMPONENT20=(
-          [id]="elastic"
-          [image]="elastic-migration"
-          [context]=""
-          [dockerfile]="/tools/elastic/migration/Dockerfile"
-        )
+        # Moved to GitHub Actions CI/CD — elastic-migration-cicd.yml
+        # declare -A COMPONENT20=(
+        #   [id]="elastic"
+        #   [image]="elastic-migration"
+        #   [context]=""
+        #   [dockerfile]="/tools/elastic/migration/Dockerfile"
+        # )
 
         # Moved to GitHub Actions CI/CD — auto-clipper-cicd.yml
         # declare -A COMPONENT21=(

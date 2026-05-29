@@ -30,7 +30,7 @@ public static class OracleConnectionStringHelper
     public static string GetConnectionString(string userName, string password, string hostName, int? portNumber, string defaultDb)
     {
         var connectionString = portNumber != null
-            ?$"Data Source={hostName}:{portNumber}/{defaultDb}"
+            ? $"Data Source={hostName}:{portNumber}/{defaultDb}"
             : $"Data Source={hostName}/{defaultDb}";
         var oracleBuilder = new OracleConnectionStringBuilder(connectionString)
         {

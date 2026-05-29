@@ -95,9 +95,10 @@ spec:
           fi
         }
 
-        if grep -s libs/net/dal <<< $DIFF; then
-          echo 'BUILD_DB=true' >> build.env
-        fi
+        # Moved to GitHub Actions CI/CD — db-migration-cicd.yml
+        # if grep -s libs/net/dal <<< $DIFF; then
+        #   echo 'BUILD_DB=true' >> build.env
+        # fi
 
         # Moved to GitHub Actions CI/CD — react-editor.yml
         # if grep -s app/editor <<< $DIFF; then
@@ -109,76 +110,80 @@ spec:
         #   echo 'BUILD_SUBSCRIBER=true' >> build.env
         # fi
 
-        if grep -s api/net <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s libs/net/ches <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s libs/net/core <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s libs/net/dal <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s libs/net/elastic <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s libs/net/entities <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s libs/net/kafka <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s libs/net/keycloak <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s libs/net/models <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s libs/net/reports <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        elif grep -s libs/net/template <<< $DIFF; then
-          echo 'BUILD_API=true' >> build.env
-        fi
+        # Moved to GitHub Actions CI/CD — api-services-cicd.yml
+        # if grep -s api/net <<< $DIFF; then
+        #   echo 'BUILD_API=true' >> build.env
+        # elif grep -s libs/net/ches <<< $DIFF; then
+        #   echo 'BUILD_API=true' >> build.env
+        # elif grep -s libs/net/core <<< $DIFF; then
+        #   echo 'BUILD_API=true' >> build.env
+        # elif grep -s libs/net/dal <<< $DIFF; then
+        #   echo 'BUILD_API=true' >> build.env
+        # elif grep -s libs/net/elastic <<< $DIFF; then
+        #   echo 'BUILD_API=true' >> build.env
+        # elif grep -s libs/net/entities <<< $DIFF; then
+        #   echo 'BUILD_API=true' >> build.env
+        # elif grep -s libs/net/kafka <<< $DIFF; then
+        #   echo 'BUILD_API=true' >> build.env
+        # elif grep -s libs/net/keycloak <<< $DIFF; then
+        #   echo 'BUILD_API=true' >> build.env
+        # elif grep -s libs/net/models <<< $DIFF; then
+        #   echo 'BUILD_API=true' >> build.env
+        # elif grep -s libs/net/reports <<< $DIFF; then
+        #   echo 'BUILD_API=true' >> build.env
+        # elif grep -s libs/net/template <<< $DIFF; then
+        #   echo 'BUILD_API=true' >> build.env
+        # fi
 
-        if grep -s api/node <<< $DIFF; then
-          echo 'BUILD_CHARTS_API=true' >> build.env
-        fi
+        # Moved to GitHub Actions CI/CD — charts-api-cicd.yml
+        # if grep -s api/node <<< $DIFF; then
+        #   echo 'BUILD_CHARTS_API=true' >> build.env
+        # fi
 
-        if grep -s tools/elastic/migration <<< $DIFF; then
-          echo 'BUILD_ELASTIC_MIGRATION=true' >> build.env
-        fi
+        # Moved to GitHub Actions CI/CD — elastic-migration-cicd.yml
+        # if grep -s tools/elastic/migration <<< $DIFF; then
+        #   echo 'BUILD_ELASTIC_MIGRATION=true' >> build.env
+        # fi
 
-        if grep -s libs/net/ches <<< $DIFF; then
-          echo 'BUILD_REPORTING=true' >> build.env
-        elif grep -s libs/net/core <<< $DIFF; then
-          echo 'BUILD_REPORTING=true' >> build.env
-        elif grep -s libs/net/elastic <<< $DIFF; then
-          echo 'BUILD_REPORTING=true' >> build.env
-        elif grep -s libs/net/entities <<< $DIFF; then
-          echo 'BUILD_REPORTING=true' >> build.env
-        elif grep -s libs/net/kafka <<< $DIFF; then
-          echo 'BUILD_REPORTING=true' >> build.env
-        elif grep -s libs/net/models <<< $DIFF; then
-          echo 'BUILD_REPORTING=true' >> build.env
-        elif grep -s libs/net/services <<< $DIFF; then
-          echo 'BUILD_REPORTING=true' >> build.env
-        elif grep -s libs/net/template <<< $DIFF; then
-          echo 'BUILD_REPORTING=true' >> build.env
-        elif grep -s services/net/reporting <<< $DIFF; then
-          echo 'BUILD_REPORTING=true' >> build.env
-        fi
+        # Moved to GitHub Actions CI/CD — reporting-service-cicd.yml
+        # if grep -s libs/net/ches <<< $DIFF; then
+        #   echo 'BUILD_REPORTING=true' >> build.env
+        # elif grep -s libs/net/core <<< $DIFF; then
+        #   echo 'BUILD_REPORTING=true' >> build.env
+        # elif grep -s libs/net/elastic <<< $DIFF; then
+        #   echo 'BUILD_REPORTING=true' >> build.env
+        # elif grep -s libs/net/entities <<< $DIFF; then
+        #   echo 'BUILD_REPORTING=true' >> build.env
+        # elif grep -s libs/net/kafka <<< $DIFF; then
+        #   echo 'BUILD_REPORTING=true' >> build.env
+        # elif grep -s libs/net/models <<< $DIFF; then
+        #   echo 'BUILD_REPORTING=true' >> build.env
+        # elif grep -s libs/net/services <<< $DIFF; then
+        #   echo 'BUILD_REPORTING=true' >> build.env
+        # elif grep -s libs/net/template <<< $DIFF; then
+        #   echo 'BUILD_REPORTING=true' >> build.env
+        # elif grep -s services/net/reporting <<< $DIFF; then
+        #   echo 'BUILD_REPORTING=true' >> build.env
+        # fi
 
         build_service 'capture'
         # build_service 'ches-retry' # Moved to GitHub Actions CI/CD — ches-retry-service-cicd.yml
         build_service 'clip'
-        build_service 'content'
-        build_service 'contentmigration'
-        build_service 'ffmpeg'
-        build_service 'event-handler'
+        # build_service 'content' # Moved to GHA — content-service-cicd.yml
+        # build_service 'contentmigration' # Moved to GHA — contentmigration-service-cicd.yml
+        # build_service 'ffmpeg' # Moved to GHA — ffmpeg-service-cicd.yml
+        # build_service 'event-handler' # Moved to GHA — event-handler-cicd.yml
         # build_service 'extract-quotes' # Moved to GitHub Actions CI/CD — extract-quotes-service-cicd.yml
         build_service 'filecopy'
         # build_service 'filemonitor' # Moved to GitHub Actions CI/CD — filemonitor-service-cicd.yml
         # build_service 'folder-collection' # Moved to GitHub Actions CI/CD — folder-collection-cicd.yml
         # build_service 'image' # Moved to GitHub Actions CI/CD — image-service-cicd.yml
-        build_service 'indexing'
+        # build_service 'indexing' # Moved to GHA — indexing-service-cicd.yml
         # build_service 'nlp' # Moved to GitHub Actions CI/CD — nlp-service-cicd.yml
-        build_service 'notification'
-        build_service 'scheduler'
-        build_service 'syndication'
-        build_service 'transcription'
+        # build_service 'notification' # Moved to GHA — notification-service-cicd.yml
+        # build_service 'scheduler' # Moved to GHA — scheduler-service-cicd.yml
+        # build_service 'syndication' # Moved to GHA — syndication-service-cicd.yml
+        # build_service 'transcription' # Moved to GHA — transcription-service-cicd.yml
         # build_service 'auto-clipper' # Moved to GitHub Actions CI/CD — auto-clipper-cicd.yml
 
         echo "Build the following component."

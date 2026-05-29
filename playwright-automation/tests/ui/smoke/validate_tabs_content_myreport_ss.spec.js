@@ -39,3 +39,29 @@ test.describe('@smoke Validate My Report Content sub Tabs from Subscriber Side',
     await reportSubscriberSidePage.clickOnCancelButton();
   });
 });
+
+test.describe('@smoke Validate quaote extraction  ', () => {
+  test(`Validate quote extration `, async ({}) => {
+    await appPage.navigateToSubscriberURL();
+    await reportSubscriberSidePage.clickOnMyreportsLink();
+    expect(await reportSubscriberSidePage.newReportButton).toBeVisible();
+    await reportSubscriberSidePage.clickOnNewReportButton();
+    expect(await reportSubscriberSidePage.reportNameInput).toBeVisible();
+    await page.waitForTimeout(1000);
+    expect(await reportSubscriberSidePage.settingsTab).toBeVisible();
+    await reportSubscriberSidePage.clickOnSettingsTab();
+    await page.waitForTimeout(1000);
+    expect(await reportSubscriberSidePage.contentSectionTab).toBeVisible();
+    await reportSubscriberSidePage.clickOnContentSectionTab();
+    expect(await reportSubscriberSidePage.previewAndSendTab).toBeVisible();
+    await page.waitForTimeout(1000);
+    await reportSubscriberSidePage.validatecontentCurateStoriesText();
+    expect(await reportSubscriberSidePage.quickSort).toBeVisible();
+    await reportSubscriberSidePage.clickOnqQuickSort();
+    await page.waitForTimeout(1000);
+    expect(await reportSubscriberSidePage.executiveSummary).toBeVisible();
+    await reportSubscriberSidePage.clickOnExecutiveSummary();
+    await page.waitForTimeout(1000);
+    await reportSubscriberSidePage.clickOnCancelButton();
+  });
+});

@@ -16,7 +16,7 @@ patches:
         value: 1
       - op: replace
         path: /spec/template/spec/containers/0/image
-        value: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/corenlp:v4.5.6
+        value: bcgov-c4awhwfpcremdbga.azurecr.io/corenlp:test
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/cpu
         value: 250m

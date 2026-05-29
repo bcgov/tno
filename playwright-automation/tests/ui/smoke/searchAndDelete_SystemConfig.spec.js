@@ -12,12 +12,11 @@ test.beforeEach(async ({ masterFixture }) => {
   page = masterFixture.page;
   systemSettings = masterFixture.systemSettings;
   await appPage.navigateToUrl(editorUrl);
-    await appPage.hardWait(5000);
-     console.log("Actions",systemSettings );
+  await appPage.hardWait(5000);
+  console.log('Actions', systemSettings);
 });
 test.describe('@smoke System Configurations', () => {
-     test(`Search and Delete System Configuration`, async ({page}) => {
-     
+  test(`Search and Delete System Configuration`, async ({ page }) => {
     await page.goto(editorUrl);
     await systemSettings.navigateToSystemSettings();
     await systemSettings.navigatetoSystemConfig();
@@ -25,16 +24,16 @@ test.describe('@smoke System Configurations', () => {
     const KeyValue = `Automation Test System`;
 
     await systemSettings.searchSystemConfig(KeyValue);
-    console.log(" Fetch Value:", KeyValue);
+    console.log(' Fetch Value:', KeyValue);
     await systemSettings.deleteSystemConfig();
-      console.log(`Deletion of ${KeyValue} is successful.`);
+    console.log(`Deletion of ${KeyValue} is successful.`);
     await systemSettings.confirmDelete();
     await systemSettings.NavigatetoSettings();
-      console.log("Navigate to System Settings");
+    console.log('Navigate to System Settings');
 
     //Validate the delete message
-     await systemSettings.validateDeleteToastMessage();
-      console.log(`Deletion of ${KeyValue} is successful.`);
+    await systemSettings.validateDeleteToastMessage();
+    console.log(`Deletion of ${KeyValue} is successful.`);
     await appPage.logOut();
   });
 });

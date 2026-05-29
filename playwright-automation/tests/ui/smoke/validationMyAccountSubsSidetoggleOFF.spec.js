@@ -12,7 +12,6 @@ test.beforeEach(async ({ masterFixture }) => {
   settingsPage = masterFixture.settingsPage;
   await appPage.navigateToUrl(mmiMSUrl);
   await appPage.hardWait(5000);
-
 });
 
 test.describe('@smoke Validation MyAccount Subscriber side toggle notifaction OFF', () => {
@@ -24,6 +23,5 @@ test.describe('@smoke Validation MyAccount Subscriber side toggle notifaction OF
     await settingsPage.toggleReportSentimentOFF();
     expect(await settingsPage.emailToggleButton.getAttribute('value')).toBe('false');
     expect(await settingsPage.reportsentimentToggleButton.getAttribute('value')).toBe('false');
-
-  })
-})
+  });
+});

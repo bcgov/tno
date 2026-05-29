@@ -6,10 +6,17 @@ const testData = DataLoader.loadJSON(`test-data/${process.env.ENV_NAME}/loginDat
 const testApp = process.env.APP_NAME;
 const editorUrl = testData[testApp]['editor']['url'];
 
-let page, appPage, editorHomePage, reportPage, subscriberNavBarPage, subscriberMyReportPage, 
-addProductPage, addFoldersPage, subscriberSearchResultPage, addFilterPage, reportDashboardPage;
-
-
+let page,
+  appPage,
+  editorHomePage,
+  reportPage,
+  subscriberNavBarPage,
+  subscriberMyReportPage,
+  addProductPage,
+  addFoldersPage,
+  subscriberSearchResultPage,
+  addFilterPage,
+  reportDashboardPage;
 
 test.beforeEach(async ({ masterFixture }) => {
   page = masterFixture.page;
@@ -26,11 +33,9 @@ test.beforeEach(async ({ masterFixture }) => {
   reportDashboardPage = masterFixture.reportDashboardPage;
   await appPage.navigateToUrl(editorUrl);
   await appPage.hardWait(2000);
-  
 });
 
 test.describe('@smoke Report dashborad end to end workflow', () => {
-
   test(`Verify report dashboard end to end functionality`, async ({}) => {
     await editorHomePage.verifyEditorHomePageLoaded();
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
@@ -53,7 +58,5 @@ test.describe('@smoke Report dashborad end to end workflow', () => {
     expect(await reportDashboardPage.isErrorTextAreaVisible()).toBe(true);
 
     await appPage.logOut();
-
   });
-
 });

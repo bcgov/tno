@@ -96,28 +96,46 @@ spec:
           CREDS="--creds $IMAGE_REGISTRY_USER:$IMAGE_REGISTRY_PASS"
         fi
 
-        declare -A COMPONENT0=([id]="api" [name]="api" [build]="yes" [env]="dev test prod")
-        declare -A COMPONENT1=([id]="charts-api" [name]="charts-api" [build]="yes" [env]="dev test prod")
-        declare -A COMPONENT4=([id]="content" [name]="content-service" [build]="yes" [env]="dev test prod")
-        declare -A COMPONENT5=([id]="indexing" [name]="indexing-service" [build]="yes" [env]="dev test prod")
-        declare -A COMPONENT7=([id]="transcription" [name]="transcription-service" [build]="yes" [env]="dev test prod")
-        declare -A COMPONENT8=([id]="nlp" [name]="nlp-service" [build]="yes" [env]="dev test prod")
-        declare -A COMPONENT9=([id]="extract-quotes" [name]="extract-quotes-service" [build]="yes" [env]="dev test prod")
-        declare -A COMPONENT10=([id]="reporting" [name]="reporting-service" [build]="yes" [env]="dev test prod")
-        declare -A COMPONENT11=([id]="notification" [name]="notification-service" [build]="yes" [env]="dev test prod")
-        declare -A COMPONENT12=([id]="scheduler" [name]="scheduler-service" [build]="yes" [env]="dev test prod")
-        declare -A COMPONENT14=([id]="ffmpeg" [name]="ffmpeg-service" [build]="yes" [env]="dev test prod")
-        declare -A COMPONENT15=([id]="event-handler" [name]="event-handler-service" [build]="yes" [env]="dev test prod")
+        # Moved to GitHub Actions CI/CD — api-services-cicd.yml
+        # declare -A COMPONENT0=([id]="api" [name]="api" [build]="yes" [env]="dev test prod")
+        # Moved to GitHub Actions CI/CD — charts-api-cicd.yml
+        # declare -A COMPONENT1=([id]="charts-api" [name]="charts-api" [build]="yes" [env]="dev test prod")
+        # Moved to GitHub Actions CI/CD — content-service-cicd.yml
+        # declare -A COMPONENT4=([id]="content" [name]="content-service" [build]="yes" [env]="dev test prod")
+        # Moved to GitHub Actions CI/CD — indexing-service-cicd.yml
+        # declare -A COMPONENT5=([id]="indexing" [name]="indexing-service" [build]="yes" [env]="dev test prod")
+        # Moved to GitHub Actions CI/CD — transcription-service-cicd.yml
+        # declare -A COMPONENT7=([id]="transcription" [name]="transcription-service" [build]="yes" [env]="dev test prod")
+        # Moved to GitHub Actions CI/CD — nlp-service-cicd.yml
+        # declare -A COMPONENT8=([id]="nlp" [name]="nlp-service" [build]="yes" [env]="dev test prod")
+        # Moved to GitHub Actions CI/CD — extract-quotes-service-cicd.yml
+        # declare -A COMPONENT9=([id]="extract-quotes" [name]="extract-quotes-service" [build]="yes" [env]="dev test prod")
+        # Moved to GitHub Actions CI/CD — reporting-service-cicd.yml
+        # declare -A COMPONENT10=([id]="reporting" [name]="reporting-service" [build]="yes" [env]="dev test prod")
+        # Moved to GitHub Actions CI/CD — notification-service-cicd.yml
+        # declare -A COMPONENT11=([id]="notification" [name]="notification-service" [build]="yes" [env]="dev test prod")
+        # Moved to GitHub Actions CI/CD — scheduler-service-cicd.yml
+        # declare -A COMPONENT12=([id]="scheduler" [name]="scheduler-service" [build]="yes" [env]="dev test prod")
+        # Moved to GitHub Actions CI/CD — ffmpeg-service-cicd.yml
+        # declare -A COMPONENT14=([id]="ffmpeg" [name]="ffmpeg-service" [build]="yes" [env]="dev test prod")
+        # Moved to GitHub Actions CI/CD — event-handler-cicd.yml
+        # declare -A COMPONENT15=([id]="event-handler" [name]="event-handler-service" [build]="yes" [env]="dev test prod")
         # Moved to GitHub Actions CI/CD — ches-retry-service-cicd.yml
         # declare -A COMPONENT16=([id]="ches-retry" [name]="ches-retry-service" [build]="yes" [env]="dev test prod")
-        declare -A COMPONENT17=([id]="syndication" [name]="syndication-service" [build]="yes" [env]="dev test prod")
+        # Moved to GitHub Actions CI/CD — syndication-service-cicd.yml
+        # declare -A COMPONENT17=([id]="syndication" [name]="syndication-service" [build]="yes" [env]="dev test prod")
         # Moved to GitHub Actions CI/CD — filemonitor-service-cicd.yml
         # declare -A COMPONENT18=([id]="filemonitor" [name]="filemonitor-service" [build]="yes" [env]="dev test prod")
-        declare -A COMPONENT19=([id]="image" [name]="image-service" [build]="yes" [env]="dev test prod")
-        declare -A COMPONENT20=([id]="auto-clipper" [name]="auto-clipper-service" [build]="yes" [env]="dev test prod")
-        declare -A COMPONENT21=([id]="folder-collection" [name]="folder-collection-service" [build]="yes" [env]="dev test prod")
-        declare -A COMPONENT22=([id]="editor" [name]="editor" [build]="yes" [env]="dev test prod")
-        declare -A COMPONENT23=([id]="subscriber" [name]="subscriber" [build]="yes" [env]="dev test prod")
+        # Moved to GitHub Actions CI/CD — image-service-cicd.yml
+        # declare -A COMPONENT19=([id]="image" [name]="image-service" [build]="yes" [env]="dev test prod")
+        # Moved to GitHub Actions CI/CD — auto-clipper-cicd.yml
+        # declare -A COMPONENT20=([id]="auto-clipper" [name]="auto-clipper-service" [build]="yes" [env]="dev test prod")
+        # Moved to GitHub Actions CI/CD — folder-collection-cicd.yml
+        # declare -A COMPONENT21=([id]="folder-collection" [name]="folder-collection-service" [build]="yes" [env]="dev test prod")
+        # Moved to GitHub Actions CI/CD — react-editor.yml
+        # declare -A COMPONENT22=([id]="editor" [name]="editor" [build]="yes" [env]="dev test prod")
+        # Moved to GitHub Actions CI/CD — react-subscriber.yml
+        # declare -A COMPONENT23=([id]="subscriber" [name]="subscriber" [build]="yes" [env]="dev test prod")
 
         declare -n component;
 
@@ -164,162 +182,182 @@ spec:
 
         # Applications
 
-        declare -A COMPONENT0=(
-          [id]="api"
-          [name]="api"
-          [type]="sts"
-          [replicas]="1"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — api-services-cicd.yml
+        # declare -A COMPONENT0=(
+        #   [id]="api"
+        #   [name]="api"
+        #   [type]="sts"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
-        declare -A COMPONENT1=(
-          [id]="charts-api"
-          [name]="charts-api"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="maintenance"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — charts-api-cicd.yml
+        # declare -A COMPONENT1=(
+        #   [id]="charts-api"
+        #   [name]="charts-api"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="maintenance"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
         # Moved to GitHub Actions CI/CD — react-editor.yml
-        declare -A COMPONENT2=(
-          [id]="editor"
-          [name]="editor"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="maintenance"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # declare -A COMPONENT2=(
+        #   [id]="editor"
+        #   [name]="editor"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="maintenance"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
         # Moved to GitHub Actions CI/CD — react-subscriber.yml
-        declare -A COMPONENT3=(
-          [id]="subscriber"
-          [name]="subscriber"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="maintenance"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # declare -A COMPONENT3=(
+        #   [id]="subscriber"
+        #   [name]="subscriber"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="maintenance"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
         # Processing Services
 
-        declare -A COMPONENT4=(
-          [id]="content"
-          [name]="content-service"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — content-service-cicd.yml
+        # declare -A COMPONENT4=(
+        #   [id]="content"
+        #   [name]="content-service"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
         # Moved to GitHub Actions CI/CD — indexing-service-cicd.yml
-        declare -A COMPONENT5=(
-          [id]="indexing"
-          [name]="indexing-service"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # declare -A COMPONENT5=(
+        #   [id]="indexing"
+        #   [name]="indexing-service"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
-        declare -A COMPONENT6=(
-          [id]="indexing-cloud"
-          [name]="indexing-service-cloud"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="stop"
-          [build]="no"
-          [env]="test prod"
-        )
+        # Moved to GitHub Actions CI/CD — indexing-service-cicd.yml
+        # declare -A COMPONENT6=(
+        #   [id]="indexing-cloud"
+        #   [name]="indexing-service-cloud"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="no"
+        #   [env]="test prod"
+        # )
 
-        declare -A COMPONENT7=(
-          [id]="transcription"
-          [name]="transcription-service"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — transcription-service-cicd.yml
+        # declare -A COMPONENT7=(
+        #   [id]="transcription"
+        #   [name]="transcription-service"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
-        declare -A COMPONENT8=(
-          [id]="nlp"
-          [name]="nlp-service"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — nlp-service-cicd.yml
+        # declare -A COMPONENT8=(
+        #   [id]="nlp"
+        #   [name]="nlp-service"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
-        declare -A COMPONENT9=(
-          [id]="extract-quotes"
-          [name]="extract-quotes-service"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — extract-quotes-service-cicd.yml
+        # declare -A COMPONENT9=(
+        #   [id]="extract-quotes"
+        #   [name]="extract-quotes-service"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
-        declare -A COMPONENT10=(
-          [id]="reporting"
-          [name]="reporting-service"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — reporting-service-cicd.yml
+        # declare -A COMPONENT10=(
+        #   [id]="reporting"
+        #   [name]="reporting-service"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
+        # Moved to GitHub Actions CI/CD — reporting-service-cicd.yml
+        # declare -A COMPONENT10=(
+        #   [id]="reporting"
+        #   [name]="reporting-service"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
-        declare -A COMPONENT11=(
-          [id]="notification"
-          [name]="notification-service"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — notification-service-cicd.yml
+        # declare -A COMPONENT11=(
+        #   [id]="notification"
+        #   [name]="notification-service"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
-        declare -A COMPONENT12=(
-          [id]="scheduler"
-          [name]="scheduler-service"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — scheduler-service-cicd.yml
+        # declare -A COMPONENT12=(
+        #   [id]="scheduler"
+        #   [name]="scheduler-service"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
-        # Moved to GitHub Actions CI/CD — folder-collection-cicd.yml
-        declare -A COMPONENT13=(
-          [id]="ffmpeg"
-          [name]="ffmpeg-service"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — ffmpeg-service-cicd.yml
+        # declare -A COMPONENT13=(
+        #   [id]="ffmpeg"
+        #   [name]="ffmpeg-service"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
         # Moved to GitHub Actions CI/CD — event-handler-cicd.yml
-        declare -A COMPONENT15=(
-          [id]="event-handler"
-          [name]="event-handler-service"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # declare -A COMPONENT15=(
+        #   [id]="event-handler"
+        #   [name]="event-handler-service"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
         # Moved to GitHub Actions CI/CD — ches-retry-service-cicd.yml
         # declare -A COMPONENT16=(
@@ -334,15 +372,16 @@ spec:
 
         # Ingest Services
 
-        declare -A COMPONENT17=(
-          [id]="syndication"
-          [name]="syndication-service"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — syndication-service-cicd.yml
+        # declare -A COMPONENT17=(
+        #   [id]="syndication"
+        #   [name]="syndication-service"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
         # Moved to GitHub Actions CI/CD — filemonitor-service-cicd.yml
         # declare -A COMPONENT18=(
@@ -355,25 +394,27 @@ spec:
         #   [env]="dev test prod"
         # )
 
-        declare -A COMPONENT19=(
-          [id]="image"
-          [name]="image-service"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — image-service-cicd.yml
+        # declare -A COMPONENT19=(
+        #   [id]="image"
+        #   [name]="image-service"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
-        declare -A COMPONENT20=(
-          [id]="auto-clipper"
-          [name]="auto-clipper-service"
-          [type]="deployment"
-          [replicas]="1"
-          [action]="stop"
-          [build]="yes"
-          [env]="dev test prod"
-        )
+        # Moved to GitHub Actions CI/CD — auto-clipper-cicd.yml
+        # declare -A COMPONENT20=(
+        #   [id]="auto-clipper"
+        #   [name]="auto-clipper-service"
+        #   [type]="deployment"
+        #   [replicas]="1"
+        #   [action]="stop"
+        #   [build]="yes"
+        #   [env]="dev test prod"
+        # )
 
         declare -n component;
 
