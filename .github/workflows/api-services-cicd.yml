@@ -8,6 +8,7 @@ on:
       - api/net/**
       - libs/net/**
       - openshift/kustomize/api-services/**
+      - openshift/kustomize/api/**
       - .github/workflows/api-services-cicd.yml
   push:
     branches: [dev, master, folder-collection]
@@ -15,6 +16,7 @@ on:
       - api/net/**
       - libs/net/**
       - openshift/kustomize/api-services/**
+      - openshift/kustomize/api/**
       - .github/workflows/api-services-cicd.yml
 
 concurrency:
@@ -40,6 +42,7 @@ jobs:
       rollout_timeout: '600s'
       continue_on_error_verify: true
       health_check_method: port_forward
+      statefulset_name: api
     secrets:
       OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
       ACR_USERNAME: ${{ secrets.ACR_USERNAME }}

@@ -136,6 +136,15 @@ jobs:
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --timeout=180s
 
+      - name: Rollout API StatefulSet
+        if: ${{ inputs.service == 'api' }}
+        continue-on-error: true
+        run: |
+          oc set image statefulset/api api=${{ env.ACR_URL }}/${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }}
+          oc rollout restart statefulset/api -n ${{ env.OPENSHIFT_NAMESPACE }}
+          oc rollout status statefulset/api -n ${{ env.OPENSHIFT_NAMESPACE }} --timeout=180s
+
       - name: Rollback Summary
         if: always()
         run: |

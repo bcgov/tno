@@ -41,6 +41,11 @@ on:
         type: string
         default: 'deployment'
         description: 'Kubernetes resource kind: deployment or statefulset'
+      statefulset_name:
+        required: false
+        type: string
+        default: ''
+        description: 'Optional StatefulSet to also rollout (for components with both Deployment and StatefulSet)'
       health_check_method:
         required: false
         type: string
@@ -166,6 +171,29 @@ jobs:
         continue-on-error: ${{ inputs.continue_on_error_verify }}
         run: |
           oc rollout status ${{ inputs.resource_type }}/${{ inputs.deployment_name }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }} \
+            --timeout=${{ inputs.rollout_timeout }}
+
+      - name: Update StatefulSet Image
+        if: ${{ inputs.statefulset_name != '' }}
+        continue-on-error: true
+        run: |
+          oc set image statefulset/${{ inputs.statefulset_name }} \
+            ${{ inputs.statefulset_name }}=${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Rollout StatefulSet
+        if: ${{ inputs.statefulset_name != '' }}
+        continue-on-error: true
+        run: |
+          oc rollout restart statefulset/${{ inputs.statefulset_name }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Verify StatefulSet Rollout
+        if: ${{ inputs.statefulset_name != '' }}
+        continue-on-error: true
+        run: |
+          oc rollout status statefulset/${{ inputs.statefulset_name }} \
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --timeout=${{ inputs.rollout_timeout }}
 
@@ -296,6 +324,29 @@ jobs:
         continue-on-error: ${{ inputs.continue_on_error_verify }}
         run: |
           oc rollout status ${{ inputs.resource_type }}/${{ inputs.deployment_name }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }} \
+            --timeout=${{ inputs.rollout_timeout }}
+
+      - name: Update StatefulSet Image
+        if: ${{ inputs.statefulset_name != '' }}
+        continue-on-error: true
+        run: |
+          oc set image statefulset/${{ inputs.statefulset_name }} \
+            ${{ inputs.statefulset_name }}=${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Rollout StatefulSet
+        if: ${{ inputs.statefulset_name != '' }}
+        continue-on-error: true
+        run: |
+          oc rollout restart statefulset/${{ inputs.statefulset_name }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Verify StatefulSet Rollout
+        if: ${{ inputs.statefulset_name != '' }}
+        continue-on-error: true
+        run: |
+          oc rollout status statefulset/${{ inputs.statefulset_name }} \
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --timeout=${{ inputs.rollout_timeout }}
 
