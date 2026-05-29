@@ -37,6 +37,9 @@ RUN apt-get -y install \
       gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio \
       gstreamer1.0-x
 
+# Allow arbitrary UIDs (OpenShift) to write the fontconfig cache
+RUN mkdir -p /var/cache/fontconfig && chgrp -R 0 /var/cache/fontconfig && chmod -R g=u /var/cache/fontconfig
+
 # Run container by default as user with id 1001 (default)
 USER 1001
 
