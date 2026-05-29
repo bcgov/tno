@@ -36,6 +36,11 @@ on:
         required: false
         type: boolean
         default: false
+      resource_type:
+        required: false
+        type: string
+        default: 'deployment'
+        description: 'Kubernetes resource kind: deployment or statefulset'
       health_check_method:
         required: false
         type: string
@@ -154,13 +159,13 @@ jobs:
 
       - name: Rollout Restart
         run: |
-          oc rollout restart deployment/${{ inputs.deployment_name }} \
+          oc rollout restart ${{ inputs.resource_type }}/${{ inputs.deployment_name }} \
             -n ${{ env.OPENSHIFT_NAMESPACE }}
 
-      - name: Verify Deployment
+      - name: Verify Rollout
         continue-on-error: ${{ inputs.continue_on_error_verify }}
         run: |
-          oc rollout status deployment/${{ inputs.deployment_name }} \
+          oc rollout status ${{ inputs.resource_type }}/${{ inputs.deployment_name }} \
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --timeout=${{ inputs.rollout_timeout }}
 
@@ -284,13 +289,13 @@ jobs:
 
       - name: Rollout Restart
         run: |
-          oc rollout restart deployment/${{ inputs.deployment_name }} \
+          oc rollout restart ${{ inputs.resource_type }}/${{ inputs.deployment_name }} \
             -n ${{ env.OPENSHIFT_NAMESPACE }}
 
-      - name: Verify Deployment
+      - name: Verify Rollout
         continue-on-error: ${{ inputs.continue_on_error_verify }}
         run: |
-          oc rollout status deployment/${{ inputs.deployment_name }} \
+          oc rollout status ${{ inputs.resource_type }}/${{ inputs.deployment_name }} \
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --timeout=${{ inputs.rollout_timeout }}
 
