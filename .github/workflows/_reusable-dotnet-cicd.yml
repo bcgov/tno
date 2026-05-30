@@ -46,6 +46,11 @@ on:
         type: string
         default: ''
         description: 'Optional StatefulSet to also rollout (for components with both Deployment and StatefulSet)'
+      enable_cd_test:
+        required: false
+        type: boolean
+        default: false
+        description: 'Enable auto-deploy to test on master push. Default false — use deploy-all workflow instead.'
       health_check_method:
         required: false
         type: string
@@ -256,7 +261,7 @@ jobs:
     name: CD — Deploy to Test
     runs-on: ubuntu-latest
     needs: ci
-    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/master' && github.repository == 'bcgov/tno'
+    if: inputs.enable_cd_test && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/master' && github.repository == 'bcgov/tno'
     environment: test
     env:
       IMAGE_TAG: test
