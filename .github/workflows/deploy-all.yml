@@ -1,0 +1,390 @@
+name: Deploy All (Orchestrated)
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - dev
+          - test
+      skip_db_migration:
+        description: 'Skip DB migration (use when no schema changes)'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-all-${{ github.event.inputs.environment }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  security-events: write
+
+env:
+  OPENSHIFT_SERVER: https://api.silver.devops.gov.bc.ca:6443
+  ACR_URL: bcgov-c4awhwfpcremdbga.azurecr.io
+
+# ---------------------------------------------------------------------------
+# Phase 1 — Build all images in parallel and push to ACR
+# ---------------------------------------------------------------------------
+jobs:
+  build:
+    name: Build ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # --- API ---
+          - name: api
+            image: api
+            dockerfile: api/net/Dockerfile
+            context: .
+          - name: charts-api
+            image: charts-api
+            dockerfile: api/node/Dockerfile
+            context: api/node
+          # --- Frontend ---
+          - name: editor
+            image: editor
+            dockerfile: app/editor/Dockerfile.nginx
+            context: ./app/editor
+            build_args: REACT_APP_VERSION=${{ github.sha }}
+          - name: subscriber
+            image: subscriber
+            dockerfile: app/subscriber/Dockerfile.nginx
+            context: ./app/subscriber
+            build_args: REACT_APP_VERSION=${{ github.sha }}
+          # --- Backend services ---
+          - name: content-service
+            image: content-service
+            dockerfile: services/net/content/Dockerfile
+            context: .
+          - name: indexing-service
+            image: indexing-service
+            dockerfile: services/net/indexing/Dockerfile
+            context: .
+          - name: transcription-service
+            image: transcription-service
+            dockerfile: services/net/transcription/Dockerfile
+            context: .
+          - name: nlp-service
+            image: nlp-service
+            dockerfile: services/net/nlp/Dockerfile
+            context: .
+          - name: extract-quotes-service
+            image: extract-quotes-service
+            dockerfile: services/net/extract-quotes/Dockerfile
+            context: .
+          - name: reporting-service
+            image: reporting-service
+            dockerfile: services/net/reporting/Dockerfile
+            context: .
+          - name: notification-service
+            image: notification-service
+            dockerfile: services/net/notification/Dockerfile
+            context: .
+          - name: scheduler-service
+            image: scheduler-service
+            dockerfile: services/net/scheduler/Dockerfile
+            context: .
+          - name: ffmpeg-service
+            image: ffmpeg-service
+            dockerfile: services/net/ffmpeg/Dockerfile
+            context: .
+          - name: event-handler-service
+            image: event-handler-service
+            dockerfile: services/net/event-handler/Dockerfile
+            context: .
+          - name: ches-retry-service
+            image: ches-retry-service
+            dockerfile: services/net/ches-retry/Dockerfile
+            context: .
+          - name: syndication-service
+            image: syndication-service
+            dockerfile: services/net/syndication/Dockerfile
+            context: .
+          - name: filemonitor-service
+            image: filemonitor-service
+            dockerfile: services/net/filemonitor/Dockerfile
+            context: .
+          - name: image-service
+            image: image-service
+            dockerfile: services/net/image/Dockerfile
+            context: .
+          - name: auto-clipper-service
+            image: auto-clipper-service
+            dockerfile: services/net/auto-clipper/Dockerfile
+            context: .
+          - name: contentmigration-service
+            image: contentmigration-service
+            dockerfile: services/net/contentmigration/Dockerfile
+            context: .
+          - name: folder-collection-service
+            image: folder-collection-service
+            dockerfile: services/net/folder-collection/Dockerfile
+            context: .
+    env:
+      IMAGE_TAG: ${{ inputs.environment }}
+      OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: |
+          BUILD_ARGS=""
+          if [ -n "${{ matrix.build_args }}" ]; then
+            BUILD_ARGS="--build-arg ${{ matrix.build_args }}"
+          fi
+          docker build \
+            -f ${{ matrix.dockerfile }} \
+            -t ${{ matrix.image }}:${{ github.sha }} \
+            $BUILD_ARGS \
+            ${{ matrix.context }}
+
+      - name: Trivy Container Scan
+        uses: ./.github/actions/trivy-scan
+        with:
+          image-ref: '${{ matrix.image }}:${{ github.sha }}'
+
+      - name: Login to ACR
+        run: |
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_URL }} \
+            -u ${{ secrets.ACR_USERNAME }} \
+            --password-stdin
+
+      - name: Backup current image tag
+        continue-on-error: true
+        run: |
+          docker pull ${{ env.ACR_URL }}/${{ matrix.image }}:${{ env.IMAGE_TAG }} && \
+          docker tag \
+            ${{ env.ACR_URL }}/${{ matrix.image }}:${{ env.IMAGE_TAG }} \
+            ${{ env.ACR_URL }}/${{ matrix.image }}:${{ env.IMAGE_TAG }}-backup && \
+          docker push \
+            ${{ env.ACR_URL }}/${{ matrix.image }}:${{ env.IMAGE_TAG }}-backup
+
+      - name: Push Image to ACR
+        run: |
+          docker tag \
+            ${{ matrix.image }}:${{ github.sha }} \
+            ${{ env.ACR_URL }}/${{ matrix.image }}:${{ env.IMAGE_TAG }}
+          docker push \
+            ${{ env.ACR_URL }}/${{ matrix.image }}:${{ env.IMAGE_TAG }}
+
+  # ---------------------------------------------------------------------------
+  # Phase 2 — DB Migration
+  # ---------------------------------------------------------------------------
+  db-migration:
+    name: DB Migration
+    needs: build
+    if: ${{ inputs.skip_db_migration == false }}
+    uses: ./.github/workflows/_reusable-db-migration-cd.yml
+    with:
+      environment: ${{ inputs.environment }}
+      image_tag: ${{ inputs.environment }}
+      openshift_namespace: 9b301c-${{ inputs.environment }}
+      db_secret_name: ${{ inputs.environment == 'dev' && 'montford' || 'mooncrest' }}
+    secrets:
+      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+
+  # ---------------------------------------------------------------------------
+  # Phase 3 — Deploy API (Deployment + StatefulSet)
+  # ---------------------------------------------------------------------------
+  deploy-api:
+    name: Deploy API
+    needs: [build, db-migration]
+    if: ${{ always() && needs.build.result == 'success' && (needs.db-migration.result == 'success' || needs.db-migration.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      IMAGE_TAG: ${{ inputs.environment }}
+      OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
+    steps:
+      - name: Install oc CLI
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: latest
+
+      - name: Login to OpenShift
+        run: |
+          oc login \
+            --token=${{ secrets.OPENSHIFT_TOKEN }} \
+            --server=${{ env.OPENSHIFT_SERVER }}
+
+      - name: Rollout API Deployment
+        run: |
+          oc rollout restart deployment/api-services -n ${{ env.OPENSHIFT_NAMESPACE }}
+          oc rollout status deployment/api-services -n ${{ env.OPENSHIFT_NAMESPACE }} --timeout=600s
+
+      - name: Update API StatefulSet Image
+        continue-on-error: true
+        run: |
+          oc set image statefulset/api \
+            api=${{ env.ACR_URL }}/api:${{ env.IMAGE_TAG }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Rollout API StatefulSet
+        continue-on-error: true
+        run: |
+          oc rollout restart statefulset/api -n ${{ env.OPENSHIFT_NAMESPACE }}
+          oc rollout status statefulset/api -n ${{ env.OPENSHIFT_NAMESPACE }} --timeout=600s
+
+      - name: Verify API Health
+        continue-on-error: true
+        run: |
+          POD=$(oc get pod -l component=api-services \
+            -n ${{ env.OPENSHIFT_NAMESPACE }} \
+            --sort-by=.metadata.creationTimestamp \
+            -o jsonpath='{.items[-1].metadata.name}')
+          oc port-forward $POD 8080:8080 -n ${{ env.OPENSHIFT_NAMESPACE }} &
+          sleep 15
+          curl -sf http://localhost:8080/health
+          kill %1
+
+  # ---------------------------------------------------------------------------
+  # Phase 4 — Deploy all backend services (parallel)
+  # ---------------------------------------------------------------------------
+  deploy-services:
+    name: Deploy ${{ matrix.name }}
+    needs: deploy-api
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: charts-api
+            deployment: charts-api
+          - name: content-service
+            deployment: content-service
+          - name: indexing-service
+            deployment: indexing-service
+          - name: transcription-service
+            deployment: transcription-service
+          - name: nlp-service
+            deployment: nlp-service
+          - name: extract-quotes-service
+            deployment: extract-quotes-service
+          - name: reporting-service
+            deployment: reporting-service
+          - name: notification-service
+            deployment: notification-service
+          - name: scheduler-service
+            deployment: scheduler-service
+          - name: ffmpeg-service
+            deployment: ffmpeg-service
+          - name: event-handler-service
+            deployment: event-handler-service
+          - name: ches-retry-service
+            deployment: ches-retry-service
+          - name: syndication-service
+            deployment: syndication-service
+          - name: filemonitor-service
+            deployment: filemonitor-service
+          - name: image-service
+            deployment: image-service
+          - name: auto-clipper-service
+            deployment: auto-clipper-service
+          - name: contentmigration-service
+            deployment: contentmigration-service
+          - name: folder-collection-service
+            deployment: folder-collection-service
+    env:
+      OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
+    steps:
+      - name: Install oc CLI
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: latest
+
+      - name: Login to OpenShift
+        run: |
+          oc login \
+            --token=${{ secrets.OPENSHIFT_TOKEN }} \
+            --server=${{ env.OPENSHIFT_SERVER }}
+
+      - name: Rollout ${{ matrix.name }}
+        run: |
+          oc rollout restart deployment/${{ matrix.deployment }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Verify ${{ matrix.name }}
+        continue-on-error: true
+        run: |
+          oc rollout status deployment/${{ matrix.deployment }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }} \
+            --timeout=300s
+
+  # ---------------------------------------------------------------------------
+  # Phase 5 — Deploy frontend (editor + subscriber)
+  # ---------------------------------------------------------------------------
+  deploy-frontend:
+    name: Deploy ${{ matrix.name }}
+    needs: deploy-services
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: editor
+            deployment: editor
+          - name: subscriber
+            deployment: subscriber
+    env:
+      OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
+    steps:
+      - name: Install oc CLI
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: latest
+
+      - name: Login to OpenShift
+        run: |
+          oc login \
+            --token=${{ secrets.OPENSHIFT_TOKEN }} \
+            --server=${{ env.OPENSHIFT_SERVER }}
+
+      - name: Rollout ${{ matrix.name }}
+        run: |
+          oc rollout restart deployment/${{ matrix.deployment }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Verify ${{ matrix.name }}
+        continue-on-error: true
+        run: |
+          oc rollout status deployment/${{ matrix.deployment }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }} \
+            --timeout=300s
+
+  # ---------------------------------------------------------------------------
+  # Summary
+  # ---------------------------------------------------------------------------
+  summary:
+    name: Deployment Summary
+    needs: [build, db-migration, deploy-api, deploy-services, deploy-frontend]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "## Deploy All — ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Phase | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Build All Images | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| DB Migration | ${{ needs.db-migration.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deploy API | ${{ needs.deploy-api.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deploy Services | ${{ needs.deploy-services.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deploy Frontend | ${{ needs.deploy-frontend.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Detail | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Environment** | ${{ inputs.environment }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Triggered by** | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Timestamp (UTC)** | $(date -u '+%Y-%m-%d %H:%M:%S') |" >> $GITHUB_STEP_SUMMARY
