@@ -15,9 +15,25 @@ on:
         required: false
         type: boolean
         default: false
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      skip_db_migration:
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      OPENSHIFT_TOKEN:
+        required: true
+      ACR_USERNAME:
+        required: true
+      ACR_PASSWORD:
+        required: true
 
 concurrency:
-  group: deploy-all-${{ github.event.inputs.environment }}
+  group: deploy-all-${{ inputs.environment }}
   cancel-in-progress: false
 
 permissions:

@@ -52,9 +52,7 @@ jobs:
   cd-dev:
     name: CD — Migrate Dev DB
     needs: ci
-    if: >-
-      (github.event_name == 'push' && github.ref == 'refs/heads/dev' && github.repository == 'bcgov/tno') ||
-      (github.event_name == 'workflow_dispatch' && inputs.environment == 'dev')
+    if: github.event_name == 'workflow_dispatch' && inputs.environment == 'dev'
     uses: ./.github/workflows/_reusable-db-migration-cd.yml
     with:
       environment: dev

@@ -1,0 +1,19 @@
+name: Auto Deploy Dev (Full)
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - api/**
+      - app/**
+      - services/**
+      - libs/**
+      - openshift/**
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-all.yml
+    with:
+      environment: dev
+      skip_db_migration: false
+    secrets: inherit
