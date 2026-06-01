@@ -20,4 +20,7 @@ jobs:
       environment: dev
       skip_db_migration: false
       deploy_scope: changed
-    secrets: inherit
+    secrets:
+      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
