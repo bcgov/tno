@@ -49,7 +49,21 @@ class DetectDeployChangesTests(unittest.TestCase):
         self.assertTrue(result["deploy_api"])
         self.assertTrue(result["deploy_services"])
         self.assertIn("content-service", service_names)
+        self.assertFalse(result["run_db_migration"])
+
+    def test_dal_change_runs_db_migration(self):
+        result = detect_deploy_changes(["libs/net/dal/Migrations/20260512034029_1.5.0.cs"], "changed")
+
+        self.assertTrue(result["deploy_api"])
+        self.assertTrue(result["deploy_services"])
         self.assertTrue(result["run_db_migration"])
+
+    def test_libs_net_dockerfile_change_does_not_run_db_migration(self):
+        result = detect_deploy_changes(["libs/net/Dockerfile"], "changed")
+
+        self.assertTrue(result["deploy_api"])
+        self.assertTrue(result["deploy_services"])
+        self.assertFalse(result["run_db_migration"])
 
     def test_service_change_only_selects_that_service(self):
         result = detect_deploy_changes(["services/net/indexing/IndexingService.cs"], "changed")
