@@ -24,6 +24,8 @@ CLAUDE.md
 **/[Bb]in/
 **/[Oo]bj/
 test-results/
+**/__pycache__/
+*.pyc
 
 # TLS certificates - managed separately, not in git
 openshift/kustomize/.tls-certs/*.crt
