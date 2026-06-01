@@ -57,6 +57,7 @@ jobs:
       - name: Set service names
         id: svc
         run: |
+          RESTYPE="deployment"
           case "${{ inputs.service }}" in
             editor)             IMAGE="editor";                      DEPLOY="editor";                      DISPLAY="React Editor" ;;
             subscriber)         IMAGE="subscriber";                  DEPLOY="subscriber";                  DISPLAY="React Subscriber" ;;
@@ -68,6 +69,7 @@ jobs:
           echo "image=$IMAGE" >> $GITHUB_OUTPUT
           echo "deploy=$DEPLOY" >> $GITHUB_OUTPUT
           echo "display=$DISPLAY" >> $GITHUB_OUTPUT
+          echo "resource_type=$RESTYPE" >> $GITHUB_OUTPUT
 
       - name: Login to ACR
         run: |
@@ -125,14 +127,23 @@ jobs:
 
       - name: Rollout Restart
         run: |
-          oc rollout restart deployment/${{ steps.svc.outputs.deploy }} \
+          oc rollout restart ${{ steps.svc.outputs.resource_type }}/${{ steps.svc.outputs.deploy }} \
             -n ${{ env.OPENSHIFT_NAMESPACE }}
 
       - name: Verify Rollout
         run: |
-          oc rollout status deployment/${{ steps.svc.outputs.deploy }} \
+          oc rollout status ${{ steps.svc.outputs.resource_type }}/${{ steps.svc.outputs.deploy }} \
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --timeout=180s
+
+      - name: Rollout API StatefulSet
+        if: ${{ inputs.service == 'api' }}
+        continue-on-error: true
+        run: |
+          oc set image statefulset/api api=${{ env.ACR_URL }}/${{ steps.svc.outputs.image }}:${{ env.IMAGE_TAG }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }}
+          oc rollout restart statefulset/api -n ${{ env.OPENSHIFT_NAMESPACE }}
+          oc rollout status statefulset/api -n ${{ env.OPENSHIFT_NAMESPACE }} --timeout=180s
 
       - name: Rollback Summary
         if: always()
