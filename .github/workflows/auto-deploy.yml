@@ -13,6 +13,9 @@ on:
       - .github/workflows/deploy-all.yml
       - .github/scripts/**
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
     uses: ./.github/workflows/deploy-all.yml
