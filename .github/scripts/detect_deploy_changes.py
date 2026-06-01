@@ -234,8 +234,6 @@ def detect_deploy_changes(changed_files, scope):
                 or path == "libs/net/Dockerfile"
             ):
                 run_db_migration = True
-        elif path.startswith("db/postgres/"):
-            run_db_migration = True
         elif path.startswith("openshift/kustomize/api/") or path.startswith("openshift/kustomize/api-services/"):
             deploy_api = True
         elif path.startswith("openshift/kustomize/shared_resources/"):
