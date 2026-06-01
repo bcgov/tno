@@ -2,7 +2,7 @@ name: Auto Deploy
 
 on:
   push:
-    branches: [dev]
+    branches: [dev,auto_deployment_test]
     paths:
       - api/**
       - app/**
