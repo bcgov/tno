@@ -1,4 +1,4 @@
-name: Auto Deploy Dev (Full)
+name: Auto Deploy
 
 on:
   push:
@@ -8,7 +8,11 @@ on:
       - app/**
       - services/**
       - libs/**
+      - db/postgres/**
       - openshift/**
+      - .github/workflows/auto-deploy.yml
+      - .github/workflows/deploy-all.yml
+      - .github/scripts/**
 
 jobs:
   deploy:
@@ -16,4 +20,5 @@ jobs:
     with:
       environment: dev
       skip_db_migration: false
+      deploy_scope: changed
     secrets: inherit
