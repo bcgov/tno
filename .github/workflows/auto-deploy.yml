@@ -2,7 +2,7 @@ name: Auto Deploy
 
 on:
   push:
-    branches: [dev,auto_deployment_test]
+    branches: [dev, master]
     paths:
       - api/**
       - app/**
@@ -18,10 +18,23 @@ permissions:
   security-events: write
 
 jobs:
-  deploy:
+  deploy-dev:
+    if: github.ref == 'refs/heads/dev'
     uses: ./.github/workflows/deploy-all.yml
     with:
       environment: dev
+      skip_db_migration: false
+      deploy_scope: changed
+    secrets:
+      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+
+  deploy-test:
+    if: github.ref == 'refs/heads/master'
+    uses: ./.github/workflows/deploy-all.yml
+    with:
+      environment: test
       skip_db_migration: false
       deploy_scope: changed
     secrets:
