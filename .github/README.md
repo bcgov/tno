@@ -6,6 +6,9 @@ OpenShift.
 For the full deployment flow and changed-component detection rules, see
 [DEPLOYMENT.md](./DEPLOYMENT.md).
 
+For adding a normal .NET service to deployment, see
+[ADDING_SERVICE.md](./ADDING_SERVICE.md).
+
 ## Main Workflows
 
 `auto-deploy.yml` runs on selected pushes:
