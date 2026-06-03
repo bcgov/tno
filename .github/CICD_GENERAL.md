@@ -1,4 +1,4 @@
-# GitHub Actions
+# CI/CD General
 
 These workflows build TNO images, push them to ACR, and roll workloads out to
 OpenShift.
