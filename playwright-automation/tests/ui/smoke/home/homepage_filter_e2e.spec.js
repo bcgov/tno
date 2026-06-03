@@ -116,7 +116,7 @@ test.describe('@smoke Verify filtering of headlines using Published date content
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.HOME);
     await editorHomePage.selectShowOnlyFilterChecbox(CONSTANTS.HEADLINES.PRINT_CONTENT);
     expect(await editorHomePage.isPublishedHeadlinesPresent(headlineTitle)).toBe(true);
-    headlineDetailsPage = await editorHomePage.clickOnHeadlinesTitleByRowNumber(1);
+    headlineDetailsPage = await editorHomePage.clickOnHeadlinesByGivenTitle(headlineTitle);
     await headlineDetailsPage.unPublishHeadlines();
 
     await headlineDetailsPage.deleteUnpublishedHeadline();
@@ -153,7 +153,7 @@ test.describe('@smoke Verify filtering of headlines using Published date content
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.HOME);
     await editorHomePage.selectShowOnlyFilterChecbox(CONSTANTS.HEADLINES.PUBLISHED);
     expect(await editorHomePage.isPublishedHeadlinesPresent(headlineTitle)).toBe(true);
-    headlineDetailsPage = await editorHomePage.clickOnHeadlinesTitleByRowNumber(1);
+    headlineDetailsPage = await editorHomePage.clickOnHeadlinesByGivenTitle(headlineTitle);
     await headlineDetailsPage.unPublishHeadlines();
 
     await headlineDetailsPage.deleteUnpublishedHeadline();
@@ -191,7 +191,7 @@ test.describe('@smoke Verify filtering of headlines using Published date content
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.HOME);
     await editorHomePage.selectShowOnlyFilterChecbox(CONSTANTS.HEADLINES.TOP_STORIES);
     expect(await editorHomePage.isPublishedHeadlinesPresent(headlineTitle)).toBe(true);
-    headlineDetailsPage = await editorHomePage.clickOnHeadlinesTitleByRowNumber(1);
+    headlineDetailsPage = await editorHomePage.clickOnHeadlinesByGivenTitle(headlineTitle);
     await headlineDetailsPage.unPublishHeadlines();
 
     await headlineDetailsPage.deleteUnpublishedHeadline();
@@ -229,7 +229,7 @@ test.describe('@smoke Verify filtering of headlines using Published date content
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.HOME);
     await editorHomePage.selectShowOnlyFilterChecbox(CONSTANTS.HEADLINES.COMMENTARY);
     expect(await editorHomePage.isPublishedHeadlinesPresent(headlineTitle)).toBe(true);
-    headlineDetailsPage = await editorHomePage.clickOnHeadlinesTitleByRowNumber(1);
+    headlineDetailsPage = await editorHomePage.clickOnHeadlinesByGivenTitle(headlineTitle);
     await headlineDetailsPage.unPublishHeadlines();
 
     await headlineDetailsPage.deleteUnpublishedHeadline();
@@ -295,7 +295,7 @@ test.describe('@smoke Verify filtering of headlines using Published date content
     await editorHomePage.selectAdvanceSearchTypeAndValueFilter('Headline', headlineTitle);
 
     expect(await editorHomePage.isPublishedHeadlinesPresent(headlineTitle)).toBe(true);
-    headlineDetailsPage = await editorHomePage.clickOnHeadlinesTitleByRowNumber(1);
+    headlineDetailsPage = await editorHomePage.clickOnHeadlinesByGivenTitle(headlineTitle);
     await headlineDetailsPage.unPublishHeadlines();
 
     await headlineDetailsPage.deleteUnpublishedHeadline();
@@ -332,7 +332,7 @@ test.describe('@smoke Verify filtering of headlines using Published date content
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.HOME);
     await editorHomePage.clickOnDateFilterContent(CONSTANTS.BUTTONS.MY_CONTENT);
     expect(await editorHomePage.isPublishedHeadlinesPresent(headlineTitle)).toBe(true);
-    headlineDetailsPage = await editorHomePage.clickOnHeadlinesTitleByRowNumber(1);
+    headlineDetailsPage = await editorHomePage.clickOnHeadlinesByGivenTitle(headlineTitle);
     await headlineDetailsPage.unPublishHeadlines();
 
     await headlineDetailsPage.deleteUnpublishedHeadline();

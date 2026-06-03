@@ -87,7 +87,7 @@ class BasePage {
 
   async isElementClickable(locator) {
     try {
-      await locator.click({trail : true});
+      await locator.click({ trial: true });
       return true;
     } catch (error) {
       return false;
@@ -100,7 +100,12 @@ class BasePage {
 
   async isElementEnabled(locator) {
     await locator.waitFor({state:'attached'});
-    return await locator.isEnabled();
+    try {
+      await expect(locator).toBeEnabled({ timeout: 5000 });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   async getElementText(locator) {

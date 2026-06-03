@@ -26,7 +26,7 @@ test.describe('@smoke Un-Publishing headline workflow', () => {
 
     await headlineDetailsPage.enterHeadLineTitle(headlineTitle);
 
-    await headlineDetailsPage.selectMediaOutlet(CONSTANTS.HEADLINES.SOURCE_TORONTO_STAR);
+    await headlineDetailsPage.selectSource(CONSTANTS.HEADLINES.SOURCE_TORONTO_STAR);
     await headlineDetailsPage.enterSummary('Automation_Test_Summary');
     await headlineDetailsPage.uploadRadioTVContentFile('News_Article.png');
 

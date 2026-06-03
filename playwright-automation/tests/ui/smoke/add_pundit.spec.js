@@ -25,8 +25,7 @@ test.describe('@smoke Add TAGS', () => {
     const PunditName = `Test Automation Pundit`;
     //const PunditAliases = `Autotest Name`;
     const PunditDescriptionName = `Automation Test Description`;
-    const randomNumber = Math.floor(Math.random() * 100) + 1;
-    const PunditNamertOrder = `${randomNumber}`;
+    const PunditNamertOrder = `99`;
 
     await addMediaPage.enterMediaDetails(PunditName, PunditDescriptionName, PunditNamertOrder);
 

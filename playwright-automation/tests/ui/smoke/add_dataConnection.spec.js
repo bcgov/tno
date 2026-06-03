@@ -13,7 +13,6 @@ test.beforeEach(async ({ masterFixture }) => {
   dataImport = masterFixture.dataImport;
   await appPage.navigateToUrl(editorUrl);
   await appPage.hardWait(5000);
-  console.log('Actions', dataImport);
 });
 test.describe('@smoke Data Connections', () => {
   test(`Verify adding new data connection`, async ({ page }) => {
@@ -30,8 +29,6 @@ test.describe('@smoke Data Connections', () => {
     await dataImport.enterIngestDetails(DataLName, DataLDescription, DataSortOrder);
     const Path = `FTP Path input fields`;
     await dataImport.dropdownfield('NAS');
-
-    await dataImport.validateMessage();
 
     //Validate data is saved
     await expect(await dataImport.validateMessage()).toBe(true);

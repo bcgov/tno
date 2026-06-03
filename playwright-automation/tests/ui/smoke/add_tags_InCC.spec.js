@@ -25,8 +25,7 @@ test.describe('@smoke Add TAGS', () => {
     const TagCode = `AGG Auto `;
     const TagName = `Autotest Name`;
     const DescriptionTag = `Automation Test Description`;
-    const randomNumber = Math.floor(Math.random() * 100) + 1;
-    const TagSortOrder = `${randomNumber}`;
+    const TagSortOrder = `99`;
 
     await addMediaPage.enterTagDetails(TagCode, TagName, DescriptionTag, TagSortOrder);
 

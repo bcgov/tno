@@ -21,7 +21,7 @@ class SubscriberNavBarPage extends BasePage {
   async clickOnMyContentSectionByText(navBarOptionName) {
     await this.click(this.page.locator(`//*[@class='group-section']//div[text()='${navBarOptionName}']`));
     logger.info(`Clicked on My Content section option: ${navBarOptionName}`);
-    this.hardWait(1000);
+    await this.hardWait(1000);
   }
 
   /**
@@ -31,7 +31,7 @@ class SubscriberNavBarPage extends BasePage {
   async clickOnLeftNavOptionByText(navBarOptionName) {
     await this.click(this.page.locator(`//*[text()='${navBarOptionName}']`));
     logger.info(`Clicked on section option: ${navBarOptionName}`);
-    this.hardWait(6000);
+    await this.hardWait(6000);
   }
   
 

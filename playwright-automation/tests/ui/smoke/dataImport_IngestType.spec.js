@@ -24,8 +24,7 @@ test.describe('@smoke Add TAGS', () => {
 
     const IngestName = `Test Automation IT`;
     const IngestDescriptionName = `Automation Test Description`;
-    const randomNumber = Math.floor(Math.random() * 100) + 1;
-    const IngestNamertOrder = `${randomNumber}`;
+    const IngestNamertOrder = `99`;
 
     await addMediaPage.enterMediaDetails(IngestName, IngestDescriptionName, IngestNamertOrder);
 

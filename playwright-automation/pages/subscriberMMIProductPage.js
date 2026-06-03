@@ -9,13 +9,27 @@ class SubscriberMMIProductPage extends BasePage {
     this.confirUnSubscriberAction = page.locator(`//button[text()='Yes, request to unsubscribe']`);
   }
 
+  /**
+   * Method to get action button locator for given product
+   * @param {string} productName
+   * @returns {import('@playwright/test').Locator}
+   */
+  getProductActionButton(productName) {
+    return this.page.locator(`//span[text()='${productName}']//following-sibling::div/label`);
+  }
 
    /**
    * Method to Click on subscrib button
    * @param {string} product name 
    */
   async clickSubscribeButtonFOrGivenProduct(productName) {
-    await this.click(this.page.locator(`//span[text()='${productName}']//following-sibling::div/label`));
+    const currentAction = await this.getCancelSubscribedText(productName);
+    if (currentAction !== 'SUBSCRIBE') {
+      throw new Error(
+        `Cannot request subscribe for "${productName}". Expected action "SUBSCRIBE" but found "${currentAction}".`,
+      );
+    }
+    await this.click(this.getProductActionButton(productName));
     logger.info(`Clicked on subscribe button for : ${productName}`);
     await this.clickYesOnConfirmSubscriberPopUp();
     await this.hardWait(3000);
@@ -31,7 +45,13 @@ class SubscriberMMIProductPage extends BasePage {
    * @param {string} product name 
    */
   async clickUnSubscribeButtonForGivenProduct(productName) {
-    await this.click(this.page.locator(`//span[text()='${productName}']//following-sibling::div/label`));
+    const currentAction = await this.getCancelSubscribedText(productName);
+    if (currentAction !== 'UNSUBSCRIBE') {
+      throw new Error(
+        `Cannot request unsubscribe for "${productName}". Expected action "UNSUBSCRIBE" but found "${currentAction}".`,
+      );
+    }
+    await this.click(this.getProductActionButton(productName));
     logger.info('Clicked on subscribe button for : ', productName);
     await this.clickYesOnConfirmUnSubscriberPopUp();
   }
@@ -42,8 +62,9 @@ class SubscriberMMIProductPage extends BasePage {
   }
 
   async getCancelSubscribedText(productName) {
-    logger.info(`Text for subscribed product is : ${await this.getElementText(this.page.locator(`//span[text()='${productName}']//following-sibling::div/label`))}`);
-    return await this.getElementText(this.page.locator(`//span[text()='${productName}']//following-sibling::div/label`));
+    const actionText = (await this.getElementText(this.getProductActionButton(productName))).trim();
+    logger.info(`Text for subscribed product is : ${actionText}`);
+    return actionText;
   }
 
 }

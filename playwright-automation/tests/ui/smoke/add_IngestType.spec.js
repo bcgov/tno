@@ -13,7 +13,6 @@ test.beforeEach(async ({ masterFixture }) => {
   dataImport = masterFixture.dataImport;
   await appPage.navigateToUrl(editorUrl);
   await appPage.hardWait(5000);
-  console.log('Actions', dataImport);
 });
 test.describe('@smoke Ingest TYpe', () => {
   test(`Verify adding new ingest type`, async ({ page }) => {

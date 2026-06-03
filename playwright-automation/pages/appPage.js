@@ -46,6 +46,22 @@ class AppPage extends BasePage {
   async login(username, password) {
     logger.info(`Clicking on IDIR button to login..`);
 
+    for (let attempt = 0; attempt < 20; attempt++) {
+      if (
+        (await this.signOutButton.isVisible().catch(() => false)) ||
+        (await this.homePageLogo.isVisible().catch(() => false))
+      ) {
+        logger.info(`Editor session already exists. Continuing without signing in again.`);
+        return;
+      }
+
+      if (await this.idir.isVisible().catch(() => false)) {
+        break;
+      }
+
+      await this.page.waitForTimeout(500);
+    }
+
     await this.click(this.idir);
     await this.type(this.usernameInput, username);
     await this.type(this.passwordInput, password);
@@ -60,23 +76,78 @@ class AppPage extends BasePage {
    */
   async navigateToUrl(url) {
     logger.info(`Navigating to URL : ${url}`);
-    await this.page.goto(url);
+    const navigateAndSettle = async (targetUrl) => {
+      await this.page.goto(targetUrl, {
+        waitUntil: 'domcontentloaded',
+        timeout: CONSTANTS.TIMEOUTS.LONG,
+      });
+      await this.page.waitForLoadState('networkidle', { timeout: CONSTANTS.TIMEOUTS.MEDIUM }).catch(() => {
+        logger.info(`Editor URL did not become network idle; continuing after DOM content loaded.`);
+      });
+    };
+
+    const waitForEditorCallbackToFinish = async () => {
+      await this.page
+        .waitForURL((currentUrl) => !currentUrl.toString().includes('loginproxy.gov.bc.ca'), {
+          timeout: CONSTANTS.TIMEOUTS.LONG,
+        })
+        .catch(() => {
+          logger.info(`Editor URL stayed on loginproxy longer than expected; continuing recovery.`);
+        });
+
+      const callbackHashCleared = await this.page
+        .waitForFunction(() => !window.location.hash.includes('session_state'), null, {
+          timeout: CONSTANTS.TIMEOUTS.LONG,
+        })
+        .then(() => true)
+        .catch(() => false);
+
+      return callbackHashCleared;
+    };
+
+    await navigateAndSettle(url);
     await this.hardWait(2000);
-    if (!(await this.homePageLogo.isVisible())) {
-      try {
-        this.login(process.env.app_username, process.env.app_password);
-        await this.homePageLogo.waitFor({ state: 'visible' });
-      } catch (error) {
-        console.log(error);
+
+    if (!(await this.homePageLogo.isVisible().catch(() => false))) {
+      await this.login(process.env.app_username, process.env.app_password);
+    }
+
+    let callbackHashCleared = await waitForEditorCallbackToFinish();
+
+    if (
+      !callbackHashCleared ||
+      this.page.url().includes('session_state') ||
+      this.page.url().includes('loginproxy.gov.bc.ca')
+    ) {
+      logger.info(`Reloading clean editor URL after OIDC callback timeout or loginproxy redirect.`);
+      await navigateAndSettle(url);
+
+      if (!(await this.homePageLogo.isVisible().catch(() => false))) {
+        await this.login(process.env.app_username, process.env.app_password);
       }
+
+      callbackHashCleared = await waitForEditorCallbackToFinish();
+      if (!callbackHashCleared) {
+        logger.info(`Editor callback hash was not fully cleared after clean reload.`);
+      }
+    }
+
+    if (!(await this.homePageLogo.isVisible().catch(() => false))) {
+      await this.homePageLogo.waitFor({ state: 'visible', timeout: CONSTANTS.TIMEOUTS.LONG });
     }
   }
 
   /**
    * Navigate to Subscriber URL.
    */
-  async navigateToSubscriberURL() {
+  async navigateToSubscriberURL(options = {}) {
     const url = CONSTANTS.URL.SUBSCRIBER_URL;
+    const { clearCookies = false } = options;
+
+    if (clearCookies) {
+      await this.page.context().clearCookies();
+      logger.info(`Cleared cookies to force fresh login`);
+    }
 
     logger.info(`Navigating to URL ${url}`);
 
@@ -85,8 +156,20 @@ class AppPage extends BasePage {
       timeout: CONSTANTS.TIMEOUTS.LONG,
     });
 
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('networkidle', { timeout: CONSTANTS.TIMEOUTS.MEDIUM }).catch(() => {
+      logger.info(`Subscriber URL did not become network idle; continuing after DOM content loaded.`);
+    });
     logger.info(`Successfully navigated to URL ${url}`);
+  }
+
+  /**
+   * Ensure subscriber portal is on a signed-out page before logging in with a requested user.
+   */
+  async ensureSubscriberLoggedOut() {
+    if (await this.subscriberSignOutButton.isVisible().catch(() => false)) {
+      logger.info(`Subscriber session already exists. Logging out before signing in.`);
+      await this.logOutFromSubscriber();
+    }
   }
 
   /**
@@ -97,6 +180,7 @@ class AppPage extends BasePage {
   async loginAsSubscriber(user, password) {
     logger.info(`Sign in as Subscriber user...`);
 
+    await this.ensureSubscriberLoggedOut();
     await this.click(this.subscriberIdir);
     await this.hardWait(2000);
 
@@ -115,6 +199,7 @@ class AppPage extends BasePage {
   async loginAsOtherSubscriber(user, password) {
     logger.info(`Sign in as Other Subscriber user...`);
 
+    await this.ensureSubscriberLoggedOut();
     await this.click(this.subscriberOther);
     await this.hardWait(2000);
 
@@ -132,7 +217,8 @@ class AppPage extends BasePage {
   async logOut() {
     logger.info(`Clicking on SignOut button..`);
 
-    await this.click(this.signOutButton);
+    await this.signOutButton.waitFor({ state: 'visible' });
+    await this.signOutButton.click({ force: true });
     await this.isElementVisible(this.idir);
     await this.page.waitForLoadState('networkidle');
 

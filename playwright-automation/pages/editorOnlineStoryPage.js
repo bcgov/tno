@@ -14,6 +14,7 @@ this.commentaryCheckbox = page.getByRole('checkbox', { name: 'Commentary' })
 this.headlineInput = page.getByRole('textbox', { name: 'Headline *' })
 this.tnoOption = page.locator('#react-select-2-placeholder')
 this.tnoOptionSelect = this.page.locator('#react-select-2-option-0')
+this.mediaTypeInput = page.getByRole('combobox').nth(1)
 
 this.paragraph=page.getByRole('paragraph')
 this.paragraphEditor =  page.locator('.ql-editor');
@@ -21,7 +22,7 @@ this.paragraphEditor =  page.locator('.ql-editor');
 this.publishButton = page.getByRole('button', { name: 'Publish', exact: true });
 this.sentimentPoints=page.getByRole('button', { name: '4', exact: true });
 
-this.toastMessage = page.locator('[role="alert"]');
+this.toastMessage = page.locator('[role="alert"], .Toastify .Toastify__toast-body');
 this.featuredClick=page.getByText('Featured Stories', { exact: true });
 
 this.linkOnlineStoryWithRandomNum = page.getByRole('link', { name: 'Test Online Story Headline -' }).first()
@@ -76,6 +77,12 @@ async selectTNOOption() {
   logger.info(`Selected TNO option!!`);
 }
 
+async selectMediaType(mediaType = 'Online') {
+  await this.mediaTypeInput.fill(mediaType);
+  await this.page.keyboard.press('Enter');
+  logger.info(`Selected media type: ${mediaType}`);
+}
+
 async enterParagraph(paragraph) {
   await this.paragraph.click();
   await this.paragraphEditor.type(paragraph);
@@ -90,7 +97,8 @@ async selectPointsAndClickPublish() {
 }
 
 async getToastMessage() {
-  const message = await this.toastMessage.textContent();
+  await this.toastMessage.first().waitFor({ state: 'visible', timeout: CONSTANTS.TIMEOUTS.LONG });
+  const message = await this.toastMessage.first().textContent();
   logger.info(`Toast message: ${message}`);
   return message;
 }
@@ -104,10 +112,20 @@ async navigatefeaturedStories() {
 
 
   async verifyOnlineStory(randomNum) {
-    const message = await this.page
-      .getByRole('link', { name: `Test Online Story Headline - ${randomNum}` })
-      .first()
-      .textContent();
+    const headlineLink = this.page
+      .getByRole('link', { name: `Test Online Story Headline - ${randomNum}`, exact: true })
+      .first();
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (await headlineLink.isVisible({ timeout: CONSTANTS.TIMEOUTS.LONG }).catch(() => false)) {
+        break;
+      }
+
+      await this.page.reload({ waitUntil: 'domcontentloaded' });
+      await this.navigatefeaturedStories();
+    }
+
+    const message = await headlineLink.textContent();
 
     return message;
   }

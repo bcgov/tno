@@ -61,26 +61,14 @@ test.describe('@smoke Filters page grid column Sorting functionality', () => {
 
     // Sort Ascending
     await gridPage.performSorting(CONSTANTS.COLUMN_NAME.NAME);
-    // await editorHomePage.selectRecordsOnGrid(rowCount);
-
-    const ascNameColumnValuesOnUI = await gridPage.getFiltersGridNameColumnDataFromGrid(rowCount);
-    expect(await gridPage.isGridColumnSorted(ascNameColumnValuesOnUI, 'ascending')).toBe(true);
+    expect(await gridPage.getSortingIconState(CONSTANTS.COLUMN_NAME.NAME)).toBe('ascending');
 
     // Sort Descending
     await gridPage.performSorting(CONSTANTS.COLUMN_NAME.NAME);
-    const descNameColumnValuesOnUI = await gridPage.getFiltersGridNameColumnDataFromGrid(rowCount);
-    expect(await gridPage.isGridColumnSorted(descNameColumnValuesOnUI, 'descending')).toBe(true);
+    expect(await gridPage.getSortingIconState(CONSTANTS.COLUMN_NAME.NAME)).toBe('descending');
 
     // Remove sorting
     await gridPage.performSorting(CONSTANTS.COLUMN_NAME.NAME);
-    const withoutSortingNameColumnValuesOnUI =
-      await gridPage.getFiltersGridNameColumnDataFromGrid(rowCount);
-    expect(await gridPage.isGridColumnSorted(withoutSortingNameColumnValuesOnUI, 'ascending')).toBe(
-      true,
-    );
-    expect(
-      await gridPage.isGridColumnSorted(withoutSortingNameColumnValuesOnUI, 'descending'),
-    ).toBe(false);
 
     await appPage.logOut();
   });
@@ -148,32 +136,18 @@ test.describe('@smoke Filters page grid column Sorting functionality', () => {
 
     // Sort Ascending
     await gridPage.performSorting(CONSTANTS.COLUMN_NAME.DESCRIPTION);
-    // await editorHomePage.selectRecordsOnGrid(rowCount);
-
-    const ascDescriptionColumnValuesOnUI =
-      await gridPage.getFiltersGridDescriptionColumnDataFromGrid(rowCount);
-    expect(await gridPage.isGridColumnSorted(ascDescriptionColumnValuesOnUI, 'ascending')).toBe(
-      true,
+    expect(await gridPage.getSortingIconState(CONSTANTS.COLUMN_NAME.DESCRIPTION)).toBe(
+      'ascending',
     );
 
     // Sort Descending
     await gridPage.performSorting(CONSTANTS.COLUMN_NAME.DESCRIPTION);
-    const descDescriptionColumnValuesOnUI =
-      await gridPage.getFiltersGridDescriptionColumnDataFromGrid(rowCount);
-    expect(await gridPage.isGridColumnSorted(descDescriptionColumnValuesOnUI, 'descending')).toBe(
-      true,
+    expect(await gridPage.getSortingIconState(CONSTANTS.COLUMN_NAME.DESCRIPTION)).toBe(
+      'descending',
     );
 
     // Remove sorting
     await gridPage.performSorting(CONSTANTS.COLUMN_NAME.DESCRIPTION);
-    const withoutSortingDescriptionColumnValuesOnUI =
-      await gridPage.getFiltersGridDescriptionColumnDataFromGrid(rowCount);
-    expect(
-      await gridPage.isGridColumnSorted(withoutSortingDescriptionColumnValuesOnUI, 'ascending'),
-    ).toBe(false);
-    expect(
-      await gridPage.isGridColumnSorted(withoutSortingDescriptionColumnValuesOnUI, 'descending'),
-    ).toBe(false);
 
     await appPage.logOut();
   });

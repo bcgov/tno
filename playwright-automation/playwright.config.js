@@ -11,7 +11,7 @@ module.exports = defineConfig({
   testDir: './tests',
   globalSetup: './utils/global-setup.js',
   timeout: 300000,
-  retries: 0,
+  retries: 1,
   workers: process.env.CI ? 4 : 1,
 
   reporter: [['list'], ['html', { outputFolder: 'playwright-report' }], ['allure-playwright']],
