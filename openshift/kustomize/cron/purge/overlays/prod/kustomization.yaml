@@ -23,3 +23,8 @@ patches:
       - op: replace
         path: /spec/jobTemplate/spec/template/spec/containers/0/resources/limits/memory
         value: 200Mi
+      - op: add
+        path: /spec/jobTemplate/spec/template/spec/securityContext
+        value:
+          runAsUser: 1010230000
+          fsGroup: 1010230000

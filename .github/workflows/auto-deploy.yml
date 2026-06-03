@@ -1,0 +1,30 @@
+name: Auto Deploy
+
+on:
+  push:
+    branches: [dev, master]
+    paths:
+      - api/**
+      - app/**
+      - services/**
+      - libs/**
+      - openshift/**
+      - .github/workflows/auto-deploy.yml
+      - .github/workflows/deploy-all.yml
+      - .github/scripts/**
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-all.yml
+    with:
+      environment: ${{ github.ref == 'refs/heads/dev' && 'dev' || 'test' }}
+      skip_db_migration: false
+      deploy_scope: changed
+    secrets:
+      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}

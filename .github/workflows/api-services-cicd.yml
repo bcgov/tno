@@ -8,6 +8,7 @@ on:
       - api/net/**
       - libs/net/**
       - openshift/kustomize/api-services/**
+      - openshift/kustomize/api/**
       - .github/workflows/api-services-cicd.yml
   push:
     branches: [dev, master, folder-collection]
@@ -15,6 +16,7 @@ on:
       - api/net/**
       - libs/net/**
       - openshift/kustomize/api-services/**
+      - openshift/kustomize/api/**
       - .github/workflows/api-services-cicd.yml
 
 concurrency:
@@ -36,10 +38,11 @@ jobs:
       deployment_name: api-services
       kustomize_dev_path: openshift/kustomize/api-services/overlays/dev
       kustomize_test_path: openshift/kustomize/api-services/overlays/test
-      dev_branch: folder-collection
+      dev_branch: auto_deployment_test
       rollout_timeout: '600s'
       continue_on_error_verify: true
       health_check_method: port_forward
+      statefulset_name: api
     secrets:
       OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
       ACR_USERNAME: ${{ secrets.ACR_USERNAME }}

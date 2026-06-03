@@ -8,7 +8,7 @@ POSIXSHELL := 1
 else
 POSIXSHELL :=
 endif
-
+#
 # to see all colors, run
 # bash -c 'for c in {0..255}; do tput setaf $c; tput setaf $c | cat -v; echo =$c; done'
 # the first 15 entries are the 8-bit colors

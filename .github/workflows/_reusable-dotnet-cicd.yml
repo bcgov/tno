@@ -36,6 +36,26 @@ on:
         required: false
         type: boolean
         default: false
+      resource_type:
+        required: false
+        type: string
+        default: 'deployment'
+        description: 'Kubernetes resource kind: deployment or statefulset'
+      statefulset_name:
+        required: false
+        type: string
+        default: ''
+        description: 'Optional StatefulSet to also rollout (for components with both Deployment and StatefulSet)'
+      enable_cd_dev:
+        required: false
+        type: boolean
+        default: false
+        description: 'Enable auto-deploy to dev on dev push. Default false — use deploy-all workflow instead.'
+      enable_cd_test:
+        required: false
+        type: boolean
+        default: false
+        description: 'Enable auto-deploy to test on master push. Default false — use deploy-all workflow instead.'
       health_check_method:
         required: false
         type: string
@@ -93,7 +113,7 @@ jobs:
     name: CD — Deploy to Dev
     runs-on: ubuntu-latest
     needs: ci
-    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/dev' || (inputs.dev_branch != '' && github.ref == format('refs/heads/{0}', inputs.dev_branch))) && github.repository == 'bcgov/tno'
+    if: (inputs.enable_cd_dev || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/dev' || (inputs.dev_branch != '' && github.ref == format('refs/heads/{0}', inputs.dev_branch))) && github.repository == 'bcgov/tno'
     environment: dev
     env:
       IMAGE_TAG: dev
@@ -154,13 +174,36 @@ jobs:
 
       - name: Rollout Restart
         run: |
-          oc rollout restart deployment/${{ inputs.deployment_name }} \
+          oc rollout restart ${{ inputs.resource_type }}/${{ inputs.deployment_name }} \
             -n ${{ env.OPENSHIFT_NAMESPACE }}
 
-      - name: Verify Deployment
+      - name: Verify Rollout
         continue-on-error: ${{ inputs.continue_on_error_verify }}
         run: |
-          oc rollout status deployment/${{ inputs.deployment_name }} \
+          oc rollout status ${{ inputs.resource_type }}/${{ inputs.deployment_name }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }} \
+            --timeout=${{ inputs.rollout_timeout }}
+
+      - name: Update StatefulSet Image
+        if: ${{ inputs.statefulset_name != '' }}
+        continue-on-error: true
+        run: |
+          oc set image statefulset/${{ inputs.statefulset_name }} \
+            ${{ inputs.statefulset_name }}=${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Rollout StatefulSet
+        if: ${{ inputs.statefulset_name != '' }}
+        continue-on-error: true
+        run: |
+          oc rollout restart statefulset/${{ inputs.statefulset_name }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Verify StatefulSet Rollout
+        if: ${{ inputs.statefulset_name != '' }}
+        continue-on-error: true
+        run: |
+          oc rollout status statefulset/${{ inputs.statefulset_name }} \
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --timeout=${{ inputs.rollout_timeout }}
 
@@ -223,7 +266,7 @@ jobs:
     name: CD — Deploy to Test
     runs-on: ubuntu-latest
     needs: ci
-    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/master' && github.repository == 'bcgov/tno'
+    if: inputs.enable_cd_test && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/master' && github.repository == 'bcgov/tno'
     environment: test
     env:
       IMAGE_TAG: test
@@ -284,13 +327,36 @@ jobs:
 
       - name: Rollout Restart
         run: |
-          oc rollout restart deployment/${{ inputs.deployment_name }} \
+          oc rollout restart ${{ inputs.resource_type }}/${{ inputs.deployment_name }} \
             -n ${{ env.OPENSHIFT_NAMESPACE }}
 
-      - name: Verify Deployment
+      - name: Verify Rollout
         continue-on-error: ${{ inputs.continue_on_error_verify }}
         run: |
-          oc rollout status deployment/${{ inputs.deployment_name }} \
+          oc rollout status ${{ inputs.resource_type }}/${{ inputs.deployment_name }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }} \
+            --timeout=${{ inputs.rollout_timeout }}
+
+      - name: Update StatefulSet Image
+        if: ${{ inputs.statefulset_name != '' }}
+        continue-on-error: true
+        run: |
+          oc set image statefulset/${{ inputs.statefulset_name }} \
+            ${{ inputs.statefulset_name }}=${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Rollout StatefulSet
+        if: ${{ inputs.statefulset_name != '' }}
+        continue-on-error: true
+        run: |
+          oc rollout restart statefulset/${{ inputs.statefulset_name }} \
+            -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Verify StatefulSet Rollout
+        if: ${{ inputs.statefulset_name != '' }}
+        continue-on-error: true
+        run: |
+          oc rollout status statefulset/${{ inputs.statefulset_name }} \
             -n ${{ env.OPENSHIFT_NAMESPACE }} \
             --timeout=${{ inputs.rollout_timeout }}
 
