@@ -22,7 +22,7 @@ jobs:
     if: github.ref == 'refs/heads/dev'
     uses: ./.github/workflows/deploy-all.yml
     with:
-      environment: dev
+      environment: ${{ github.ref == 'refs/heads/dev' && 'dev' || 'test' }}
       skip_db_migration: false
       deploy_scope: changed
     secrets:
