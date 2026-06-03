@@ -1,7 +1,12 @@
-require('dotenv').config();
-
 const { defineConfig } = require('@playwright/test');
-const fs = require('fs');
+const { boolEnv, loadEnv, numberEnv } = require('./utils/env');
+
+loadEnv();
+
+const isCI = boolEnv('CI');
+const isHeadless = boolEnv('HEADLESS');
+const actionTimeout = numberEnv('ACTION_TIMEOUT', 30000);
+const testTimeout = numberEnv('TEST_TIMEOUT', 300000);
 
 // if(fs.existsSync('./allure-results')) {
 //   fs.rmSync('./allure-results', { recursive: true, force: true});
@@ -10,34 +15,19 @@ const fs = require('fs');
 module.exports = defineConfig({
   testDir: './tests',
   globalSetup: './utils/global-setup.js',
-  timeout: 300000,
-  retries: 1,
-  workers: process.env.CI ? 4 : 1,
+  timeout: testTimeout,
+  retries: isCI ? 2 : 1,
+  workers: isCI ? 4 : 1,
 
   reporter: [['list'], ['html', { outputFolder: 'playwright-report' }], ['allure-playwright']],
 
   use: {
     ignoreHTTPSErrors: true,
-    launchOptions: {
-      args: ['--start-maximized'],
-    },
-    use: { 
-      headless: false,
-      viewport: null,
-      launchOptions: {
-        slowMo: 1000,
-        args: ['--start-maximized'],
-      },
-      video: 'on',
-      trace: 'on',
-      screenshot: 'on',
-      storageState: '/tmp/login.json',
-    },
-    actionTimeout: 30000,
+    actionTimeout,
     trace: 'off',
     screenshot: 'on',
     storageState: '/tmp/login.json',
-    headless: false,
+    headless: isHeadless,
     viewport: null,
     launchOptions: {
       args: ['--start-maximized'],

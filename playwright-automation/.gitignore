@@ -7,6 +7,8 @@ node_modules/
 /playwright/.cache/
 /playwright/.auth/
 .env.test
+.env
+!.env.example
 allure-results/
 allure-report/
 playwright.config.js

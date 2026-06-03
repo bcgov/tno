@@ -1,23 +1,20 @@
-require('dotenv').config();
+const { boolEnv, loadEnv, numberEnv, requireEnv } = require('../utils/env');
 
-const requiredEnv = ['BASE_URL', 'API_BASE_URL', 'ENV'];
+loadEnv();
 
-requiredEnv.forEach((key) => {
-  if (!process.env[key]) {
-    throw new Error(`Missing required environment variable: ${key}`);
-  }
-});
+const requiredEnv = ['EDITOR_URL', 'SUBSCRIBER_URL', 'ENV', 'APP_USERNAME', 'APP_PASSWORD'];
+requireEnv(requiredEnv);
 
 const ENV_CONFIG = {
   env: process.env.ENV,
-  baseURL: process.env.BASE_URL,
+  baseURL: process.env.EDITOR_URL,
   apiBaseURL: process.env.API_BASE_URL,
-  headless: process.env.HEADLESS === 'true',
-  timeout: Number(process.env.TIMEOUT) || 60000,
+  headless: boolEnv('HEADLESS'),
+  timeout: numberEnv('ACTION_TIMEOUT', 30000),
   username: process.env.APP_USERNAME,
   password: process.env.APP_PASSWORD,
-  sub_username: process.env.SUB_USERNAME,
-  sub_password: process.env.SUB_PASSWORD
+  subscriberUsername: process.env.SUB_USERNAME,
+  subscriberPassword: process.env.SUB_PASSWORD
 };
 
 module.exports = ENV_CONFIG;

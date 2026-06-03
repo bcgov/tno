@@ -315,7 +315,7 @@ test.describe('@smoke Content Paper workflow', () => {
     await appPage.logOut();
 
     await appPage.navigateToSubscriberURL();
-    await appPage.loginAsSubscriber(process.env.sub_username, process.env.sub_password);
+    await appPage.loginAsSubscriber(process.env.SUB_USERNAME, process.env.SUB_PASSWORD);
 
     await subscriberSearchResultPage.clickOnSearchButton();
     await subscriberSearchResultPage.verifySearchResultPageLoaded();

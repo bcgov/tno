@@ -25,17 +25,6 @@ class AppPage extends BasePage {
     this.usernameInputOther = page.locator('input#username');
     this.loginButtonOther = page.locator('input[id="kc-login"]');
 
-    this.microsoftButton = page.getByRole('button', { name: 'Microsoft' });
-
-    this.loginEmailInput = page.getByRole('textbox', { name: 'Enter your email or phone' });
-
-    this.nextButton = page.getByRole('button', { name: 'Next' });
-
-    this.passwordInputField = page.locator('input[type="password"]');
-
-    this.signInButton = page.getByRole('button', { name: 'Sign in' });
-
-    this.noButton = page.getByRole('button', { name: 'No' });
   }
 
   /**
@@ -109,7 +98,7 @@ class AppPage extends BasePage {
     await this.hardWait(2000);
 
     if (!(await this.homePageLogo.isVisible().catch(() => false))) {
-      await this.login(process.env.app_username, process.env.app_password);
+      await this.login(process.env.APP_USERNAME, process.env.APP_PASSWORD);
     }
 
     let callbackHashCleared = await waitForEditorCallbackToFinish();
@@ -123,7 +112,7 @@ class AppPage extends BasePage {
       await navigateAndSettle(url);
 
       if (!(await this.homePageLogo.isVisible().catch(() => false))) {
-        await this.login(process.env.app_username, process.env.app_password);
+        await this.login(process.env.APP_USERNAME, process.env.APP_PASSWORD);
       }
 
       callbackHashCleared = await waitForEditorCallbackToFinish();
@@ -235,41 +224,6 @@ class AppPage extends BasePage {
     await this.page.waitForLoadState('networkidle');
 
     logger.info(`Successfully logged out from Subscriber portal!!`);
-  }
-
-  /**
-   * Login to MMI Editor Portal using Microsoft SSO.
-   * @param { String } username
-   * @param { String } password
-   */
-  async mmiMicrosoftLogin(username, password) {
-    logger.info(`Clicking on Microsoft button to login..`);
-    await this.microsoftButton.click();
-    await this.loginEmailInput.type(username);
-    await this.nextButton.click();
-    await this.page.waitForTimeout(2000);
-    await this.passwordInputField.type(password);
-    await this.signInButton.click();
-    await this.noButton.click();
-    logger.info(`Login MMI Editor Portal using Microsoft SSO!!`);
-  }
-
-  /**
-   * Method to navigate to given URL
-   * @param {string} url
-   */
-  async navigateToMMIUrl(url) {
-    logger.info(`Navigating to URL : ${url}`);
-    await this.page.goto(url);
-    await this.hardWait(2000);
-    if (!(await this.homePageLogo.isVisible())) {
-      try {
-        this.mmiMicrosoftLogin(process.env.app_username_MMI, process.env.app_password_MMI);
-        await this.homePageLogo.waitFor({ state: 'visible' });
-      } catch (error) {
-        console.log(error);
-      }
-    }
   }
 
   /**

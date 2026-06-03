@@ -1,8 +1,12 @@
+const { loadEnv, numberEnv } = require('./env');
+
+loadEnv();
+
 const CONSTANTS = {
   TIMEOUTS: {
     SHORT: 3000,
     MEDIUM: 7000,
-    LONG: 30000
+    LONG: numberEnv('ACTION_TIMEOUT', 30000)
   },
 
   FILTER_DATE: {
@@ -11,7 +15,7 @@ const CONSTANTS = {
   },
 
   URL: {
-    SUBSCRIBER_URL: 'https://test.mmi.gov.bc.ca/',
+    SUBSCRIBER_URL: process.env.SUBSCRIBER_URL,
   },
 
   HEADLINES: {

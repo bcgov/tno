@@ -16,7 +16,7 @@ test.beforeEach(async ({ masterFixture }) => {
   console.log('TAGS', addMediaPage);
 });
 test.describe('@smoke Add TAGS', () => {
-  test(`Login as ${process.env.app_username}`, async ({ page }) => {
+  test('Login as editor user', async ({ page }) => {
     await page.goto(editorUrl);
     await addMediaPage.navigateToCC();
     await addMediaPage.navigateToTAGS();

@@ -24,24 +24,29 @@ This framework is built using Playwright with JavaScript following OOP and POM d
 
 ## Environment Configuration
 
-After completing the project setup, you ust create a `.env.test` file in the root directory of the project
+After completing the project setup, create a `.env` file in the root directory of the Playwright project.
 
-### Step 1: Create `.env.test` File
+### Step 1: Create `.env` File
 
-Create a file named : `.env.test` at the root level of the project.
+Copy `.env.example` to `.env`, then fill in the real values.
 
 ### Step 2: Add the following environment variables
 
 ```
 ENV=test
-QA_URL=https://test.editor.mmi.gov.bc.ca/
-API_QA_URL=https://test.editor.mmi.gov.bc.ca/
+APP_NAME=qa
+EDITOR_URL=https://test.editor.mmi.gov.bc.ca/
+SUBSCRIBER_URL=https://test.mmi.gov.bc.ca/
+API_BASE_URL=
 APP_USERNAME=<uName>
 APP_PASSWORD=<password>
-SUB_USERNAME=<uNmae>
+SUB_USERNAME=<uName>
 SUB_PASSWORD=<password>
-HEADLESS=true
-TIMEOUT=60000
+SUB_USERNAME1=<other_subscriber_username>
+SUB_PASSWORD1=<other_subscriber_password>
+HEADLESS=false
+TEST_TIMEOUT=300000
+ACTION_TIMEOUT=30000
 CI=false
 MAIL_USER=<sender_Email_Id>
 MAIL_PASSWORD=<sender_password_not_plain_text>
@@ -49,7 +54,7 @@ MAIL_TO=<receipient_Email_Id>
 ```
 ## Update password
 
-Update your user credentials in `.env.test` file at root level. Please add belwo variables for user credentials (both Editor and Subscriber)
+Update your user credentials in the `.env` file at the Playwright project root. Please add the variables for both Editor and Subscriber users.
 
 ```
 APP_USERNAME=<editor_username>

@@ -100,7 +100,7 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.logOut();
 
     await appPage.navigateToSubscriberURL();
-    await appPage.loginAsSubscriber(process.env.sub_username, process.env.sub_password);
+    await appPage.loginAsSubscriber(process.env.SUB_USERNAME, process.env.SUB_PASSWORD);
 
     await subscriberNavBarPage.clickOnMyContentSectionByText(
       CONSTANTS.SUBSCRIBER_NAV_BAR_OPTIONS.MY_REPORTS,
@@ -246,7 +246,7 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.logOut();
 
     await appPage.navigateToSubscriberURL();
-    await appPage.loginAsSubscriber(process.env.sub_username, process.env.sub_password);
+    await appPage.loginAsSubscriber(process.env.SUB_USERNAME, process.env.SUB_PASSWORD);
 
     await subscriberNavBarPage.clickOnMyContentSectionByText(
       CONSTANTS.SUBSCRIBER_NAV_BAR_OPTIONS.MY_REPORTS,
@@ -296,7 +296,7 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.logOut();
 
     await appPage.page.goto(editorUrl);
-    await appPage.login(process.env.app_username, process.env.app_password);
+    await appPage.login(process.env.APP_USERNAME, process.env.APP_PASSWORD);
     await editorHomePage.verifyEditorHomePageLoaded();
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS);
