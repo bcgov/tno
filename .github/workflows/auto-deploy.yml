@@ -18,23 +18,10 @@ permissions:
   security-events: write
 
 jobs:
-  deploy-dev:
-    if: github.ref == 'refs/heads/dev'
+  deploy:
     uses: ./.github/workflows/deploy-all.yml
     with:
       environment: ${{ github.ref == 'refs/heads/dev' && 'dev' || 'test' }}
-      skip_db_migration: false
-      deploy_scope: changed
-    secrets:
-      OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
-      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
-      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
-
-  deploy-test:
-    if: github.ref == 'refs/heads/master'
-    uses: ./.github/workflows/deploy-all.yml
-    with:
-      environment: test
       skip_db_migration: false
       deploy_scope: changed
     secrets:
