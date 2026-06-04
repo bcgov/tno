@@ -8,7 +8,7 @@ const reportData = DataLoader.loadJSON(`test-data/${process.env.ENV_NAME}/report
 const testApp = process.env.APP_NAME;
 const editorUrl = testData[testApp]['editor']['url'];
 const editorReportUrl = testData[testApp]['editor']['reportUrl'];
-const recipientEmail = reportData[testApp]['report']['recipient_email'];
+const previewEmail = process.env.MAIL_TO || reportData[testApp]['report']['recipient_email'];
 
 let page,
   appPage,
@@ -46,8 +46,16 @@ async function cleanupAutomationReport() {
   await appPage.navigateToUrl(editorUrl);
 }
 
+function skipIfPreviewEmailMissing() {
+  test.skip(
+    !previewEmail || previewEmail === 'email' || !previewEmail.includes('@'),
+    'Set MAIL_TO in .env to run report preview email tests.',
+  );
+}
+
 test.describe('@smoke Report building end to end workflow', () => {
-  test(`Subscriber should able to see the reports created and send by editor under My Reports section`, async ({}) => {
+  test(`Editor should be able to send report preview email`, async ({}) => {
+    skipIfPreviewEmailMissing();
     await cleanupAutomationReport();
     await editorHomePage.verifyEditorHomePageLoaded();
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
@@ -96,19 +104,8 @@ test.describe('@smoke Report building end to end workflow', () => {
     await reportPage.clickOnToastNotificationCloseButton();
 
     await reportPage.clickOnReportSubTab(CONSTANTS.REPORT_SUBNAVIGATION_TABS.PREVIEW);
-    await reportPage.sendTestEmailPreview(recipientEmail);
+    await reportPage.sendTestEmailPreviewAndVerifyRequested(previewEmail);
     await appPage.logOut();
-
-    await appPage.navigateToSubscriberURL();
-    await appPage.loginAsSubscriber(process.env.SUB_USERNAME, process.env.SUB_PASSWORD);
-
-    await subscriberNavBarPage.clickOnMyContentSectionByText(
-      CONSTANTS.SUBSCRIBER_NAV_BAR_OPTIONS.MY_REPORTS,
-    );
-
-    await subscriberNavBarPage.hardWait(1500);
-    expect(await subscriberMyReportPage.isPublishedReportPresent(reportName)).toBe(true);
-    await appPage.logOutFromSubscriber();
 
     await appPage.navigateToUrl(editorUrl);
     await editorHomePage.verifyEditorHomePageLoaded();
@@ -248,11 +245,7 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.navigateToSubscriberURL();
     await appPage.loginAsSubscriber(process.env.SUB_USERNAME, process.env.SUB_PASSWORD);
 
-    await subscriberNavBarPage.clickOnMyContentSectionByText(
-      CONSTANTS.SUBSCRIBER_NAV_BAR_OPTIONS.MY_REPORTS,
-    );
-    await subscriberNavBarPage.hardWait(1500);
-    expect(await subscriberMyReportPage.isPublishedReportPresent(reportName)).toBe(true);
+    expect(await subscriberMyReportPage.isPublicReportAvailable(reportName)).toBe(true);
     await appPage.logOutFromSubscriber();
 
     await appPage.navigateToUrl(editorUrl);

@@ -47,8 +47,8 @@ class AddProductPage extends BasePage {
     await this.selectReactOption(this.productTypeDropdown, productType);
     await this.selectReactOption(this.targetProductDropdown, targetProduct);
 
-    await this.verifyReactValueSelected(productType);
-    await this.verifyReactValueSelected(targetProduct);
+    await this.verifyReactValueSelected(this.productTypeDropdown, productType);
+    await this.verifyReactValueSelected(this.targetProductDropdown, targetProduct);
 
     logger.info(`Added Product Details.`);
   }
@@ -59,26 +59,32 @@ class AddProductPage extends BasePage {
    * @param {string} optionText
    */
   async selectReactOption(input, optionText) {
-    await this.type(input, optionText);
+    await input.waitFor({ state: 'visible' });
+    await input.click();
+    await input.fill('');
+    await input.fill(optionText);
     const option = this.page.getByRole('option', { name: optionText, exact: true }).first();
     if (await this.isElementVisible(option, 5000)) {
       await this.click(option);
     } else {
       await this.page.keyboard.press('Enter');
     }
+    await this.page.waitForTimeout(500);
     logger.info(`Selected react option : ${optionText}`);
   }
 
   /**
    * Verify the selected react-select value is visible in a control.
+   * @param {import('@playwright/test').Locator} input
    * @param {string} optionText
    */
-  async verifyReactValueSelected(optionText) {
-    const selectedValue = this.page
+  async verifyReactValueSelected(input, optionText) {
+    const control = input.locator('xpath=ancestor::div[contains(@class,"rs__control")][1]');
+    const selectedValue = control
       .locator('.rs__single-value, .rs__multi-value__label')
       .filter({ hasText: optionText })
       .first();
-    await expect(selectedValue).toBeVisible();
+    await expect(selectedValue).toBeVisible({ timeout: 10000 });
   }
 
   /**

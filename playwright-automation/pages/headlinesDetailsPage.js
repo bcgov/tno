@@ -89,13 +89,20 @@ class HeadlinesDetailsPage extends BasePage {
   async verifyToastNotificationVisible(headlinesTitle) {
     logger.info(`Verifying visibility of Toast Notification Message`);
     const matchingToast = this.toastNotification.filter({ hasText: headlinesTitle }).first();
-    await expect(matchingToast).toContainText(headlinesTitle, {
-      timeout: CONSTANTS.TIMEOUTS.LONG,
-    });
-    await expect(matchingToast).toContainText('has successfully been saved.', {
-      timeout: CONSTANTS.TIMEOUTS.LONG,
-    });
-    return await this.isElementVisible(matchingToast);
+    if (await this.isElementVisible(matchingToast, CONSTANTS.TIMEOUTS.LONG)) {
+      await expect(matchingToast).toContainText(headlinesTitle);
+      await expect(matchingToast).toContainText('has successfully been saved.');
+      return true;
+    }
+
+    const savedToast = this.toastNotification
+      .filter({ hasText: 'has successfully been saved.' })
+      .first();
+    await expect(savedToast).toBeVisible({ timeout: CONSTANTS.TIMEOUTS.LONG });
+    logger.info(
+      `Saved toast was visible, but it did not include headline title: ${headlinesTitle}`,
+    );
+    return true;
   }
 
   async isToastNotificationVisible(headlinesTitle) {

@@ -35,21 +35,20 @@ async function globalSetup() {
 
  await page.goto(login_url, { timeout: 10000 });
   //await page.waitForLoadState ('documentloaded');
-  const idir = page.locator('//button[./div[normalize-space()="IDIR"]]');
-  const IdirUserName = page.locator('input#user');
-  const IdirPassword = page.locator('input#password');
-  //const continueButton = page.locator("//a/img[@class='app-logo']");
-  const continueButton = page.locator('input[name="btnSubmit"]');
+  const otherLoginButton = page.getByRole('button', { name: 'Other' });
+  const usernameInput = page.locator('input#username');
+  const passwordInput = page.locator('input#password');
+  const loginButton = page.locator('input[id="kc-login"]');
 
-  // Only perform IDIR login operation if presented with login page else skip login process
+  // Only perform Other login operation if presented with login page else skip login process
 
-   const idirVisible = await idir.isVisible().catch(() => false) ;
-   if (idirVisible) {
+   const otherLoginVisible = await otherLoginButton.isVisible().catch(() => false) ;
+   if (otherLoginVisible) {
     try {
-      await idir.click();
-      await IdirUserName.fill(process.env.APP_USERNAME);
-      await IdirPassword.fill(process.env.APP_PASSWORD);
-      await continueButton.click();
+      await otherLoginButton.click();
+      await usernameInput.fill(process.env.APP_USERNAME);
+      await passwordInput.fill(process.env.APP_PASSWORD);
+      await loginButton.click();
      //await homePageLogo.waitFor({ state: 'visible' });
     } catch (error) {
       console.log(error);

@@ -123,6 +123,7 @@ class EditorHomePage extends BasePage {
     const maxReloads = 2;
     for (let attempt = 0; attempt <= maxReloads; attempt++) {
       try {
+        await this.recoverFromLoginCallbackIfNeeded();
         await this.firstHeadlineFromHeadlinesGrid.waitFor({
           state: 'visible',
           timeout: CONSTANTS.TIMEOUTS.LONG,
@@ -134,6 +135,7 @@ class EditorHomePage extends BasePage {
           logger.info(
             `Editor Home grid was not visible (attempt ${attempt + 1}/${maxReloads + 1}). Reloading and retrying.`,
           );
+          await this.recoverFromLoginCallbackIfNeeded();
           await this.page.reload({ waitUntil: 'domcontentloaded' });
         } else {
           logger.error(
@@ -142,6 +144,20 @@ class EditorHomePage extends BasePage {
           throw error;
         }
       }
+    }
+  }
+
+  async recoverFromLoginCallbackIfNeeded() {
+    const currentUrl = this.page.url();
+    const editorUrl = process.env.EDITOR_URL;
+    if (!editorUrl) return;
+
+    if (currentUrl.includes('loginproxy.gov.bc.ca') || currentUrl.includes('session_state=')) {
+      logger.info('Recovering editor page from login callback URL before waiting for home grid.');
+      await this.page.goto(editorUrl, {
+        waitUntil: 'domcontentloaded',
+        timeout: CONSTANTS.TIMEOUTS.LONG,
+      });
     }
   }
 

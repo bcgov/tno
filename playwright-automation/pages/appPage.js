@@ -5,25 +5,20 @@ const CONSTANTS = require('../utils/constants');
 class AppPage extends BasePage {
   constructor(page) {
     super(page);
-    this.idir = page.locator('//button[./div[normalize-space()="IDIR"]]');
-    this.usernameInput = page.locator('input#user');
     this.passwordInput = page.locator('input#password');
-    this.loginButton = page.locator('input[name="btnSubmit"]');
+    this.otherLoginButton = page.getByRole('button', { name: 'Other' });
+    this.usernameInputOther = page.locator('input#username');
+    this.loginButtonOther = page.locator('input[id="kc-login"]');
     this.homePageLogo = page.locator('//a/img[@class="app-logo"]');
     this.signOutButton = page.locator('//button[@name="signOut"]');
     this.subscriberSignOutButton = page.locator('div.logout');
 
-    this.subscriberIdir = page.locator('button.idir-logo');
     this.menuNavigationLink = page.locator('div.nav-item .dropdown-toggle');
     this.subMenuNavigationLink = page.locator('.show a.dropdown-item');
     this.allContentSubNavLink = page.locator(`.dropdown-menu a[href="/contents"]`);
     this.homeMenu = page.locator(`.navbar-brand[href="/contents"]`);
     this.papersSubNavLink = page.locator(`.dropdown-menu a[href="/papers"]`);
     this.transcriptQueueSubNavLink = page.locator(`.dropdown-menu a[href="/transcriptions"]`);
-
-    this.subscriberOther = page.locator('//button[text()="Other"]');
-    this.usernameInputOther = page.locator('input#username');
-    this.loginButtonOther = page.locator('input[id="kc-login"]');
 
   }
 
@@ -32,31 +27,46 @@ class AppPage extends BasePage {
    * @param { String } username
    * @param { String } password
    */
+  async isEditorSignedIn() {
+    return (
+      (await this.signOutButton.isVisible().catch(() => false)) ||
+      (await this.menuNavigationLink.first().isVisible().catch(() => false))
+    );
+  }
+
   async login(username, password) {
-    logger.info(`Clicking on IDIR button to login..`);
+    logger.info(`Signing in to Editor using Other login..`);
 
     for (let attempt = 0; attempt < 20; attempt++) {
-      if (
-        (await this.signOutButton.isVisible().catch(() => false)) ||
-        (await this.homePageLogo.isVisible().catch(() => false))
-      ) {
+      if (await this.isEditorSignedIn()) {
         logger.info(`Editor session already exists. Continuing without signing in again.`);
         return;
       }
 
-      if (await this.idir.isVisible().catch(() => false)) {
+      if (await this.otherLoginButton.isVisible().catch(() => false)) {
         break;
       }
 
       await this.page.waitForTimeout(500);
     }
 
-    await this.click(this.idir);
-    await this.type(this.usernameInput, username);
+    await this.click(this.otherLoginButton);
+    await this.type(this.usernameInputOther, username);
     await this.type(this.passwordInput, password);
-    await this.click(this.loginButton);
+    await this.click(this.loginButtonOther);
 
-    logger.info(`Clicked on Login!!`);
+    logger.info(`Clicked on Editor Other Login!!`);
+  }
+
+  async loginWithOther(username, password) {
+    await this.click(this.otherLoginButton);
+    await this.hardWait(2000);
+
+    await this.type(this.usernameInputOther, username);
+    await this.type(this.passwordInput, password);
+    await this.click(this.loginButtonOther);
+
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   /**
@@ -97,7 +107,7 @@ class AppPage extends BasePage {
     await navigateAndSettle(url);
     await this.hardWait(2000);
 
-    if (!(await this.homePageLogo.isVisible().catch(() => false))) {
+    if (!(await this.isEditorSignedIn())) {
       await this.login(process.env.APP_USERNAME, process.env.APP_PASSWORD);
     }
 
@@ -111,7 +121,7 @@ class AppPage extends BasePage {
       logger.info(`Reloading clean editor URL after OIDC callback timeout or loginproxy redirect.`);
       await navigateAndSettle(url);
 
-      if (!(await this.homePageLogo.isVisible().catch(() => false))) {
+      if (!(await this.isEditorSignedIn())) {
         await this.login(process.env.APP_USERNAME, process.env.APP_PASSWORD);
       }
 
@@ -121,8 +131,8 @@ class AppPage extends BasePage {
       }
     }
 
-    if (!(await this.homePageLogo.isVisible().catch(() => false))) {
-      await this.homePageLogo.waitFor({ state: 'visible', timeout: CONSTANTS.TIMEOUTS.LONG });
+    if (!(await this.isEditorSignedIn())) {
+      await this.signOutButton.waitFor({ state: 'visible', timeout: CONSTANTS.TIMEOUTS.LONG });
     }
   }
 
@@ -167,17 +177,10 @@ class AppPage extends BasePage {
    * @param { String } password
    */
   async loginAsSubscriber(user, password) {
-    logger.info(`Sign in as Subscriber user...`);
+    logger.info(`Sign in as Subscriber user using Other login...`);
 
     await this.ensureSubscriberLoggedOut();
-    await this.click(this.subscriberIdir);
-    await this.hardWait(2000);
-
-    await this.type(this.usernameInput, user);
-    await this.type(this.passwordInput, password);
-    await this.click(this.loginButton);
-
-    await this.page.waitForLoadState('domcontentloaded');
+    await this.loginWithOther(user, password);
     logger.info(`Clicked on Subscriber Login!!`);
   }
    /**
@@ -189,14 +192,7 @@ class AppPage extends BasePage {
     logger.info(`Sign in as Other Subscriber user...`);
 
     await this.ensureSubscriberLoggedOut();
-    await this.click(this.subscriberOther);
-    await this.hardWait(2000);
-
-    await this.type(this.usernameInputOther, user);
-    await this.type(this.passwordInput, password);
-    await this.click(this.loginButtonOther);
-
-    await this.page.waitForLoadState('domcontentloaded');
+    await this.loginWithOther(user, password);
     logger.info(`Clicked on Subscriber Login!!`);
   }
 
@@ -208,7 +204,7 @@ class AppPage extends BasePage {
 
     await this.signOutButton.waitFor({ state: 'visible' });
     await this.signOutButton.click({ force: true });
-    await this.isElementVisible(this.idir);
+    await this.isElementVisible(this.otherLoginButton);
     await this.page.waitForLoadState('networkidle');
 
     logger.info(`Successfully logged out!!`);

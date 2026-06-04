@@ -38,7 +38,7 @@ APP_NAME=qa
 EDITOR_URL=https://test.editor.mmi.gov.bc.ca/
 SUBSCRIBER_URL=https://test.mmi.gov.bc.ca/
 API_BASE_URL=
-APP_USERNAME=<uName>
+APP_USERNAME=<editor_other_username>
 APP_PASSWORD=<password>
 SUB_USERNAME=<uName>
 SUB_PASSWORD=<password>
@@ -54,11 +54,11 @@ MAIL_TO=<receipient_Email_Id>
 ```
 ## Update password
 
-Update your user credentials in the `.env` file at the Playwright project root. Please add the variables for both Editor and Subscriber users.
+Update your user credentials in the `.env` file at the Playwright project root. Editor and Subscriber users use the `Other` login option, not IDIR.
 
 ```
-APP_USERNAME=<editor_username>
-APP_PASSWORD=<editor_password>
+APP_USERNAME=<editor_other_username>
+APP_PASSWORD=<editor_other_password>
 SUB_USERNAME=<subscriber_username>
 SUB_PASSWORD=<subscriber_password>
 ```

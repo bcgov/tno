@@ -186,6 +186,15 @@ class ReportPage extends BasePage {
     await this.click(this.sendButton);
   }
 
+  async sendTestEmailPreviewAndVerifyRequested(email) {
+    await this.sendTestEmailPreview(email);
+    const requestedToast = this.toastNotification
+      .filter({ hasText: 'Report has been successfully requested' })
+      .first();
+    await expect(requestedToast).toBeVisible({ timeout: CONSTANTS.TIMEOUTS.LONG });
+    logger.info(`Verified report test email request toast.`);
+  }
+
   /**
    * Method to click on Delete button.
    */
