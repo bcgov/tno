@@ -22,7 +22,7 @@ jobs:
       codeCov-token: ${{ secrets.CodeCov }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Extract Branch Name
         shell: bash
