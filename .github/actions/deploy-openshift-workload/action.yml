@@ -1,0 +1,122 @@
+name: Deploy OpenShift Workload
+description: Apply optional Kustomize manifests and restart/verify an OpenShift workload.
+
+inputs:
+  namespace:
+    description: OpenShift namespace.
+    required: true
+  resource_type:
+    description: Kubernetes resource kind, such as deployment or statefulset.
+    required: false
+    default: deployment
+  resource_name:
+    description: Workload resource name.
+    required: true
+  rollout_timeout:
+    description: Rollout status timeout.
+    required: false
+    default: 300s
+  continue_on_error_verify:
+    description: Continue when rollout verification fails.
+    required: false
+    default: 'false'
+  kustomize_path:
+    description: Optional kustomize path to apply before rollout.
+    required: false
+    default: ''
+  statefulset_name:
+    description: Optional StatefulSet to update and roll out.
+    required: false
+    default: ''
+  statefulset_container:
+    description: Optional StatefulSet container name. Defaults to statefulset_name.
+    required: false
+    default: ''
+  statefulset_image:
+    description: Image to set on the optional StatefulSet.
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Apply Kustomize
+      if: ${{ inputs.kustomize_path != '' }}
+      shell: bash
+      env:
+        KUSTOMIZE_PATH: ${{ inputs.kustomize_path }}
+        OPENSHIFT_NAMESPACE: ${{ inputs.namespace }}
+      run: oc apply -k "${KUSTOMIZE_PATH}" -n "${OPENSHIFT_NAMESPACE}"
+
+    - name: Rollout Restart
+      shell: bash
+      env:
+        RESOURCE_TYPE: ${{ inputs.resource_type }}
+        RESOURCE_NAME: ${{ inputs.resource_name }}
+        OPENSHIFT_NAMESPACE: ${{ inputs.namespace }}
+      run: |
+        oc rollout restart "${RESOURCE_TYPE}/${RESOURCE_NAME}" \
+          -n "${OPENSHIFT_NAMESPACE}"
+
+    - name: Verify Rollout
+      shell: bash
+      env:
+        RESOURCE_TYPE: ${{ inputs.resource_type }}
+        RESOURCE_NAME: ${{ inputs.resource_name }}
+        OPENSHIFT_NAMESPACE: ${{ inputs.namespace }}
+        ROLLOUT_TIMEOUT: ${{ inputs.rollout_timeout }}
+        CONTINUE_ON_ERROR_VERIFY: ${{ inputs.continue_on_error_verify }}
+      run: |
+        set +e
+        oc rollout status "${RESOURCE_TYPE}/${RESOURCE_NAME}" \
+          -n "${OPENSHIFT_NAMESPACE}" \
+          --timeout="${ROLLOUT_TIMEOUT}"
+        STATUS=$?
+        set -e
+
+        if [ "$STATUS" -ne 0 ] && [ "$CONTINUE_ON_ERROR_VERIFY" != "true" ]; then
+          exit "$STATUS"
+        fi
+
+        if [ "$STATUS" -ne 0 ]; then
+          echo "Rollout verification failed, but continue_on_error_verify=true."
+        fi
+
+    - name: Update StatefulSet Image
+      if: ${{ inputs.statefulset_name != '' && inputs.statefulset_image != '' }}
+      continue-on-error: true
+      shell: bash
+      env:
+        STATEFULSET_NAME: ${{ inputs.statefulset_name }}
+        STATEFULSET_CONTAINER: ${{ inputs.statefulset_container }}
+        STATEFULSET_IMAGE: ${{ inputs.statefulset_image }}
+        OPENSHIFT_NAMESPACE: ${{ inputs.namespace }}
+      run: |
+        CONTAINER="${STATEFULSET_CONTAINER:-$STATEFULSET_NAME}"
+        oc set image "statefulset/${STATEFULSET_NAME}" \
+          "${CONTAINER}=${STATEFULSET_IMAGE}" \
+          -n "${OPENSHIFT_NAMESPACE}"
+
+    - name: Rollout StatefulSet
+      if: ${{ inputs.statefulset_name != '' }}
+      continue-on-error: true
+      shell: bash
+      env:
+        STATEFULSET_NAME: ${{ inputs.statefulset_name }}
+        OPENSHIFT_NAMESPACE: ${{ inputs.namespace }}
+      run: |
+        oc rollout restart "statefulset/${STATEFULSET_NAME}" \
+          -n "${OPENSHIFT_NAMESPACE}"
+
+    - name: Verify StatefulSet Rollout
+      if: ${{ inputs.statefulset_name != '' }}
+      continue-on-error: true
+      shell: bash
+      env:
+        STATEFULSET_NAME: ${{ inputs.statefulset_name }}
+        OPENSHIFT_NAMESPACE: ${{ inputs.namespace }}
+        ROLLOUT_TIMEOUT: ${{ inputs.rollout_timeout }}
+      run: |
+        oc rollout status "statefulset/${STATEFULSET_NAME}" \
+          -n "${OPENSHIFT_NAMESPACE}" \
+          --timeout="${ROLLOUT_TIMEOUT}"
