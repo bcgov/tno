@@ -54,6 +54,8 @@ jobs:
       IMAGE_TAG: ${{ inputs.environment }}
       OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
     steps:
+      - uses: actions/checkout@v4
+
       - name: Set service names
         id: svc
         run: |
@@ -120,10 +122,10 @@ jobs:
           oc: latest
 
       - name: Login to OpenShift
-        run: |
-          oc login \
-            --token=${{ secrets.OPENSHIFT_TOKEN }} \
-            --server=${{ env.OPENSHIFT_SERVER }}
+        uses: ./.github/actions/openshift-login
+        with:
+          token: ${{ secrets.OPENSHIFT_TOKEN }}
+          server: ${{ env.OPENSHIFT_SERVER }}
 
       - name: Rollout Restart
         run: |
