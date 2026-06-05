@@ -195,16 +195,18 @@ jobs:
       IMAGE_TAG: ${{ inputs.environment }}
       OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
     steps:
+      - uses: actions/checkout@v4
+
       - name: Install oc CLI
         uses: redhat-actions/openshift-tools-installer@v1
         with:
           oc: latest
 
       - name: Login to OpenShift
-        run: |
-          oc login \
-            --token=${{ secrets.OPENSHIFT_TOKEN }} \
-            --server=${{ env.OPENSHIFT_SERVER }}
+        uses: ./.github/actions/openshift-login
+        with:
+          token: ${{ secrets.OPENSHIFT_TOKEN }}
+          server: ${{ env.OPENSHIFT_SERVER }}
 
       - name: Rollout API Deployment
         run: |
@@ -251,16 +253,18 @@ jobs:
     env:
       OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
     steps:
+      - uses: actions/checkout@v4
+
       - name: Install oc CLI
         uses: redhat-actions/openshift-tools-installer@v1
         with:
           oc: latest
 
       - name: Login to OpenShift
-        run: |
-          oc login \
-            --token=${{ secrets.OPENSHIFT_TOKEN }} \
-            --server=${{ env.OPENSHIFT_SERVER }}
+        uses: ./.github/actions/openshift-login
+        with:
+          token: ${{ secrets.OPENSHIFT_TOKEN }}
+          server: ${{ env.OPENSHIFT_SERVER }}
 
       - name: Rollout ${{ matrix.name }}
         run: |
@@ -288,16 +292,18 @@ jobs:
     env:
       OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
     steps:
+      - uses: actions/checkout@v4
+
       - name: Install oc CLI
         uses: redhat-actions/openshift-tools-installer@v1
         with:
           oc: latest
 
       - name: Login to OpenShift
-        run: |
-          oc login \
-            --token=${{ secrets.OPENSHIFT_TOKEN }} \
-            --server=${{ env.OPENSHIFT_SERVER }}
+        uses: ./.github/actions/openshift-login
+        with:
+          token: ${{ secrets.OPENSHIFT_TOKEN }}
+          server: ${{ env.OPENSHIFT_SERVER }}
 
       - name: Rollout ${{ matrix.name }}
         run: |
