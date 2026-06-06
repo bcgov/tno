@@ -34,6 +34,14 @@ inputs:
     description: Optional Docker build argument value.
     required: false
     default: ''
+  build_attempts:
+    description: Number of Docker build attempts.
+    required: false
+    default: '3'
+  retry_seconds:
+    description: Seconds to wait between Docker build attempts.
+    required: false
+    default: '15'
   trivy_severity:
     description: Comma-separated list of severities to check.
     required: false
@@ -63,17 +71,32 @@ runs:
         SOURCE_TAG: ${{ inputs.source_tag }}
         BUILD_ARG_NAME: ${{ inputs.build_arg_name }}
         BUILD_ARG_VALUE: ${{ inputs.build_arg_value }}
+        BUILD_ATTEMPTS: ${{ inputs.build_attempts }}
+        RETRY_SECONDS: ${{ inputs.retry_seconds }}
       run: |
         BUILD_ARGS=()
         if [ -n "${BUILD_ARG_NAME}" ]; then
           BUILD_ARGS+=(--build-arg "${BUILD_ARG_NAME}=${BUILD_ARG_VALUE}")
         fi
 
-        docker build \
-          -f "${DOCKERFILE}" \
-          -t "${IMAGE_NAME}:${SOURCE_TAG}" \
-          "${BUILD_ARGS[@]}" \
-          "${CONTEXT}"
+        for attempt in $(seq 1 "${BUILD_ATTEMPTS}"); do
+          if docker build \
+            -f "${DOCKERFILE}" \
+            -t "${IMAGE_NAME}:${SOURCE_TAG}" \
+            "${BUILD_ARGS[@]}" \
+            "${CONTEXT}"; then
+            exit 0
+          else
+            status=$?
+          fi
+
+          if [ "$attempt" -eq "${BUILD_ATTEMPTS}" ]; then
+            exit "$status"
+          fi
+
+          echo "Docker build failed on attempt ${attempt}/${BUILD_ATTEMPTS}; retrying in ${RETRY_SECONDS} seconds..."
+          sleep "${RETRY_SECONDS}"
+        done
 
     - name: Cache Trivy DB
       uses: actions/cache@v4
@@ -95,7 +118,7 @@ runs:
 
     - name: Upload Trivy Results to GitHub Security
       uses: github/codeql-action/upload-sarif@v3
-      if: always()
+      if: ${{ hashFiles('trivy-results.sarif') != '' }}
       with:
         sarif_file: trivy-results.sarif
 
