@@ -123,11 +123,9 @@ class EditorHomePage extends BasePage {
     const maxReloads = 2;
     for (let attempt = 0; attempt <= maxReloads; attempt++) {
       try {
+        await this.waitForEditorUrlToSettle();
         await this.recoverFromLoginCallbackIfNeeded();
-        await this.firstHeadlineFromHeadlinesGrid.waitFor({
-          state: 'visible',
-          timeout: CONSTANTS.TIMEOUTS.LONG,
-        });
+        await this.waitForHomeGridOrCallback();
         logger.info('Editor Home page loaded successfully!!');
         return;
       } catch (error) {
@@ -135,8 +133,7 @@ class EditorHomePage extends BasePage {
           logger.info(
             `Editor Home grid was not visible (attempt ${attempt + 1}/${maxReloads + 1}). Reloading and retrying.`,
           );
-          await this.recoverFromLoginCallbackIfNeeded();
-          await this.page.reload({ waitUntil: 'domcontentloaded' });
+          await this.recoverEditorHomePage();
         } else {
           logger.error(
             `Editor Home grid was not visible after ${maxReloads + 1} attempts.`,
@@ -147,12 +144,68 @@ class EditorHomePage extends BasePage {
     }
   }
 
+  isLoginCallbackUrl(url = this.page.url()) {
+    return (
+      url.includes('loginproxy.gov.bc.ca') ||
+      url.includes('session_state=') ||
+      url.includes('#state=')
+    );
+  }
+
+  async waitForEditorUrlToSettle() {
+    await this.page
+      .waitForFunction(
+        () =>
+          !window.location.href.includes('loginproxy.gov.bc.ca') &&
+          !window.location.href.includes('session_state=') &&
+          !window.location.href.includes('#state='),
+        null,
+        { timeout: CONSTANTS.TIMEOUTS.MEDIUM },
+      )
+      .catch(() => {
+        logger.info('Editor URL did not settle before grid wait; recovery will handle it if needed.');
+      });
+  }
+
+  async waitForHomeGridOrCallback() {
+    const callbackDetected = Symbol('callbackDetected');
+    const result = await Promise.race([
+      this.firstHeadlineFromHeadlinesGrid.waitFor({
+        state: 'visible',
+        timeout: CONSTANTS.TIMEOUTS.LONG,
+      }),
+      this.page
+        .waitForURL((url) => this.isLoginCallbackUrl(url.toString()), {
+          timeout: CONSTANTS.TIMEOUTS.LONG,
+        })
+        .then(() => callbackDetected),
+    ]);
+
+    if (result === callbackDetected) {
+      throw new Error(`Editor login callback URL appeared while waiting for home grid.`);
+    }
+  }
+
+  async recoverEditorHomePage() {
+    const editorUrl = process.env.EDITOR_URL;
+    if (editorUrl && this.isLoginCallbackUrl()) {
+      logger.info('Recovering editor page with clean URL after callback/hash grid timeout.');
+      await this.page.goto(editorUrl, {
+        waitUntil: 'domcontentloaded',
+        timeout: CONSTANTS.TIMEOUTS.LONG,
+      });
+      return;
+    }
+
+    await this.page.reload({ waitUntil: 'domcontentloaded', timeout: CONSTANTS.TIMEOUTS.LONG });
+  }
+
   async recoverFromLoginCallbackIfNeeded() {
     const currentUrl = this.page.url();
     const editorUrl = process.env.EDITOR_URL;
     if (!editorUrl) return;
 
-    if (currentUrl.includes('loginproxy.gov.bc.ca') || currentUrl.includes('session_state=')) {
+    if (this.isLoginCallbackUrl(currentUrl)) {
       logger.info('Recovering editor page from login callback URL before waiting for home grid.');
       await this.page.goto(editorUrl, {
         waitUntil: 'domcontentloaded',
@@ -271,6 +324,11 @@ class EditorHomePage extends BasePage {
     await this.click(button);
     await this.hardWait(2000);
     logger.info(`Clicked on button  : ${buttonName}`);
+  }
+
+  async waitForPapersActionButtonEnabled(buttonName) {
+    const button = this.page.locator(`button:has(div:text-is("${buttonName}"))`);
+    await expect(button).toBeEnabled({ timeout: CONSTANTS.TIMEOUTS.LONG });
   }
 
   /**
@@ -478,6 +536,49 @@ class EditorHomePage extends BasePage {
     }
 
     throw new Error(`Headline '${headlineTitle}' was not found in Papers grid (first ${maxRows} rows).`);
+  }
+
+  /**
+   * Ensure a Papers row is selected without accidentally toggling an already-selected checkbox off.
+   * @param {string} headlineTitle
+   * @returns {number} row index (1-based)
+   */
+  async ensureHeadlinesCheckBoxSelectedByGivenTitle(headlineTitle) {
+    const maxRows = 50;
+    for (let row = 1; row <= maxRows; row++) {
+      try {
+        const currentHeadline = await this.getHeadlinesTitleByRowNumberOnPapersEditorGrid(row);
+        if (currentHeadline.trim() !== headlineTitle.trim()) continue;
+
+        const modernCheckboxCount = await this.papersGridRowCheckboxes.count();
+        if (modernCheckboxCount >= row) {
+          const checkbox = this.papersGridRowCheckboxes.nth(row - 1);
+          if (!(await checkbox.isChecked())) {
+            await this.click(checkbox);
+          }
+          logger.info(`Ensured headline checkbox is selected for '${headlineTitle}' at row ${row}`);
+          return row;
+        }
+
+        await this.selectOnHeadlinesCheckBoxByRowNumber(row);
+        logger.info(`Selected headline checkbox by title '${headlineTitle}' at row ${row}`);
+        return row;
+      } catch (error) {
+        break;
+      }
+    }
+
+    throw new Error(`Headline '${headlineTitle}' was not found in Papers grid (first ${maxRows} rows).`);
+  }
+
+  async cleanupPapersHeadlineState(headlineTitle, filterName, removeButtonName) {
+    await this.resetPapersFilterState();
+    await this.selectAdvanceSearchTextBoxForPapersContent(filterName);
+    await this.ensureHeadlinesCheckBoxSelectedByGivenTitle(headlineTitle);
+    await this.waitForPapersActionButtonEnabled(removeButtonName);
+    await this.clickButtonForPapersContentOnEditorGrid(removeButtonName);
+    await this.selectAdvanceSearchTextBoxForPapersContent(filterName);
+    logger.info(`Cleaned up ${filterName} state for headline '${headlineTitle}'.`);
   }
 
   /**

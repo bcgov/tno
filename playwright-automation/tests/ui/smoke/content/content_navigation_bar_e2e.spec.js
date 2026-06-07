@@ -123,12 +123,11 @@ test.describe('@smoke Content Paper workflow', () => {
     await editorHomePage.clickToSendTopStories(CONSTANTS.BUTTONS.CANCEL);
 
     try {
-      await editorHomePage.selectAdvanceSearchTextBoxForPapersContent(CONSTANTS.HEADLINES.TOP_STORY);
-      await editorHomePage.selectOnHeadlinesCheckBoxByGivenTitle(headlineTitle);
-      await editorHomePage.clickButtonForPapersContentOnEditorGrid(
+      await editorHomePage.cleanupPapersHeadlineState(
+        headlineTitle,
+        CONSTANTS.HEADLINES.TOP_STORY,
         CONSTANTS.BUTTONS.REMOVE_FROM_TOP_STORY,
       );
-      await editorHomePage.selectAdvanceSearchTextBoxForPapersContent(CONSTANTS.HEADLINES.TOP_STORY);
 
       await editorHomePage.selectAdvanceSearchTextBoxForPapersContent(CONSTANTS.HEADLINES.PUBLISHED);
       headlineDetailsPage = await editorHomePage.clickOnHeadlinesByGivenTitle(headlineTitle);
@@ -189,15 +188,10 @@ test.describe('@smoke Content Paper workflow', () => {
     await editorHomePage.clickToSendTopStories(CONSTANTS.BUTTONS.CANCEL);
 
     try {
-      await editorHomePage.selectAdvanceSearchTextBoxForPapersContent(
+      await editorHomePage.cleanupPapersHeadlineState(
+        headlineTitle,
         CONSTANTS.HEADLINES.FEATURE_STORIES,
-      );
-      await editorHomePage.selectOnHeadlinesCheckBoxByGivenTitle(headlineTitle);
-      await editorHomePage.clickButtonForPapersContentOnEditorGrid(
         CONSTANTS.BUTTONS.REMOVE_FROM_FEATURE_STORIES,
-      );
-      await editorHomePage.selectAdvanceSearchTextBoxForPapersContent(
-        CONSTANTS.HEADLINES.FEATURE_STORIES,
       );
 
       await editorHomePage.selectAdvanceSearchTextBoxForPapersContent(CONSTANTS.HEADLINES.PUBLISHED);
@@ -257,12 +251,11 @@ test.describe('@smoke Content Paper workflow', () => {
     await editorHomePage.clickToSendTopStories(CONSTANTS.BUTTONS.CANCEL);
 
     try {
-      await editorHomePage.selectAdvanceSearchTextBoxForPapersContent(CONSTANTS.HEADLINES.COMMENTARY);
-      await editorHomePage.selectOnHeadlinesCheckBoxByGivenTitle(headlineTitle);
-      await editorHomePage.clickButtonForPapersContentOnEditorGrid(
+      await editorHomePage.cleanupPapersHeadlineState(
+        headlineTitle,
+        CONSTANTS.HEADLINES.COMMENTARY,
         CONSTANTS.BUTTONS.REMOVE_FROM_COMMENTARY,
       );
-      await editorHomePage.selectAdvanceSearchTextBoxForPapersContent(CONSTANTS.HEADLINES.COMMENTARY);
 
       await editorHomePage.selectAdvanceSearchTextBoxForPapersContent(CONSTANTS.HEADLINES.PUBLISHED);
       headlineDetailsPage = await editorHomePage.clickOnHeadlinesByGivenTitle(headlineTitle);
@@ -329,12 +322,11 @@ test.describe('@smoke Content Paper workflow', () => {
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.CONTENT_SUBMENU.PAPERS);
 
     try {
-      await editorHomePage.selectAdvanceSearchTextBoxForPapersContent(CONSTANTS.HEADLINES.TOP_STORY);
-      await editorHomePage.selectOnHeadlinesCheckBoxByGivenTitle(headlineTitle);
-      await editorHomePage.clickButtonForPapersContentOnEditorGrid(
+      await editorHomePage.cleanupPapersHeadlineState(
+        headlineTitle,
+        CONSTANTS.HEADLINES.TOP_STORY,
         CONSTANTS.BUTTONS.REMOVE_FROM_TOP_STORY,
       );
-      await editorHomePage.selectAdvanceSearchTextBoxForPapersContent(CONSTANTS.HEADLINES.TOP_STORY);
 
       await editorHomePage.selectAdvanceSearchTextBoxForPapersContent(CONSTANTS.HEADLINES.PUBLISHED);
       headlineDetailsPage = await editorHomePage.clickOnHeadlinesByGivenTitle(headlineTitle);

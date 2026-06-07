@@ -1,4 +1,5 @@
 const BasePage = require('./base/BasePage');
+const CONSTANTS = require('../utils/constants');
 const logger = require('../utils/logger');
 
 
@@ -53,6 +54,16 @@ class SubscriberNavBarPage extends BasePage {
     await this.click(this.confirmDeleteFolderBtn);
     logger.info(`Clicked on Delete Folder button!!`); 
 
-}
+  }
+
+  async waitForFolderDeleted(folderName) {
+    const folder = this.page.locator('.folder-name', { hasText: folderName });
+    await folder.waitFor({ state: 'hidden', timeout: CONSTANTS.TIMEOUTS.LONG }).catch(async () => {
+      logger.info(`Folder ${folderName} was still visible after delete. Refreshing folder list.`);
+      await this.page.reload({ waitUntil: 'domcontentloaded', timeout: CONSTANTS.TIMEOUTS.LONG });
+      await folder.waitFor({ state: 'hidden', timeout: CONSTANTS.TIMEOUTS.LONG });
+    });
+    logger.info(`Verified deleted folder is no longer visible: ${folderName}`);
+  }
 }
 module.exports = { SubscriberNavBarPage };

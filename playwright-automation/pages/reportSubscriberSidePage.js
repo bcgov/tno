@@ -31,7 +31,7 @@ class ReportSubscriberSidePage extends BasePage {
     this.quickSort = page.getByText('Quick Sort')
     this.executiveSummary = page.getByText('Executive Summary')
     this.tableOfContents = page.getByRole('button', { name: 'Table of Contents', exact: true })
-    this.aiTab = page.getByRole('button', { name: 'AI' })
+    this.aiTab = page.getByRole('button', { name: 'AI', exact: true })
     this.templateStories = page.getByRole('button', { name: 'Stories' })
     this.templateMediaAnalytics = page.getByRole('button', { name: 'Media Analytics' })
     this.templateText = page.getByRole('button', { name: 'Text' })
