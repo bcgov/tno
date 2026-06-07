@@ -23,6 +23,11 @@ on:
           - all
           - changed
         default: all
+      allow_dev_branch_override:
+        description: 'Allow manual dev deploy from a non-dev branch for testing'
+        required: false
+        type: boolean
+        default: false
   workflow_call:
     inputs:
       environment:
@@ -36,6 +41,10 @@ on:
         required: false
         type: string
         default: all
+      allow_dev_branch_override:
+        required: false
+        type: boolean
+        default: false
     secrets:
       OPENSHIFT_TOKEN:
         required: true
@@ -57,8 +66,22 @@ env:
   ACR_URL: bcgov-c4awhwfpcremdbga.azurecr.io
 
 jobs:
+  validate-request:
+    name: Validate Deployment Request
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/validate-deploy-request
+        with:
+          environment: ${{ inputs.environment }}
+          deploy_scope: ${{ inputs.deploy_scope }}
+          allow_dev_branch_override: ${{ inputs.allow_dev_branch_override }}
+          event_name: ${{ github.event_name }}
+          ref: ${{ github.ref }}
+          ref_name: ${{ github.ref_name }}
+
   detect-changes:
     name: Detect Deploy Targets
+    needs: validate-request
     runs-on: ubuntu-latest
     outputs:
       build_matrix: ${{ steps.detect.outputs.build_matrix }}
@@ -297,7 +320,7 @@ jobs:
   # ---------------------------------------------------------------------------
   summary:
     name: Deployment Summary
-    needs: [detect-changes, build, db-migration, deploy-api, deploy-services, deploy-frontend]
+    needs: [validate-request, detect-changes, build, db-migration, deploy-api, deploy-services, deploy-frontend]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -307,6 +330,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Phase | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Validate Request | ${{ needs.validate-request.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Detect Deploy Targets | ${{ needs.detect-changes.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Build Images | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| DB Migration | ${{ needs.db-migration.result }} |" >> $GITHUB_STEP_SUMMARY
