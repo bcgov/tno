@@ -11,11 +11,11 @@ inputs:
   attempts:
     description: Number of login attempts.
     required: false
-    default: '3'
+    default: '5'
   retry_seconds:
-    description: Seconds to wait between attempts.
+    description: Base seconds to wait between attempts. The wait increases after each failed attempt.
     required: false
-    default: '10'
+    default: '20'
 
 runs:
   using: composite
@@ -38,6 +38,7 @@ runs:
             exit 1
           fi
 
-          echo "OpenShift login failed on attempt ${attempt}/${LOGIN_ATTEMPTS}; retrying in ${RETRY_SECONDS} seconds..."
-          sleep "${RETRY_SECONDS}"
+          WAIT_SECONDS=$((RETRY_SECONDS * attempt))
+          echo "OpenShift login failed on attempt ${attempt}/${LOGIN_ATTEMPTS}; retrying in ${WAIT_SECONDS} seconds..."
+          sleep "${WAIT_SECONDS}"
         done
