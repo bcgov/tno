@@ -70,7 +70,7 @@ jobs:
       deploy_frontend: ${{ steps.detect.outputs.deploy_frontend }}
       run_db_migration: ${{ steps.detect.outputs.run_db_migration }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -122,7 +122,7 @@ jobs:
       IMAGE_TAG: ${{ inputs.environment }}
       OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Build, scan, and push image
         uses: ./.github/actions/build-scan-push-image
@@ -169,7 +169,7 @@ jobs:
       IMAGE_TAG: ${{ inputs.environment }}
       OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install oc CLI
         uses: redhat-actions/openshift-tools-installer@v1
@@ -221,7 +221,7 @@ jobs:
     env:
       OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install oc CLI
         uses: redhat-actions/openshift-tools-installer@v1
@@ -258,7 +258,7 @@ jobs:
     env:
       OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install oc CLI
         uses: redhat-actions/openshift-tools-installer@v1
