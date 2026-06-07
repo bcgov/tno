@@ -116,6 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      max-parallel: 6
       matrix: ${{ fromJSON(needs.detect-changes.outputs.build_matrix) }}
     env:
       IMAGE_TAG: ${{ inputs.environment }}
@@ -215,6 +216,7 @@ jobs:
     environment: ${{ inputs.environment }}
     strategy:
       fail-fast: false
+      max-parallel: 6
       matrix: ${{ fromJSON(needs.detect-changes.outputs.service_matrix) }}
     env:
       OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
