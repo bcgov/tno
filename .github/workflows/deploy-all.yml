@@ -175,7 +175,7 @@ jobs:
       environment: ${{ inputs.environment }}
       image_tag: ${{ inputs.environment }}
       openshift_namespace: 9b301c-${{ inputs.environment }}
-      db_secret_name: ${{ inputs.environment == 'dev' && 'montford' || 'mooncrest' }}
+      db_secret_name: ${{ fromJSON('{"dev":"montford","test":"mooncrest"}')[inputs.environment] }}
     secrets:
       OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
       ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
