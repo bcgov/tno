@@ -99,7 +99,7 @@ runs:
         done
 
     - name: Cache Trivy DB
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ~/.cache/trivy
         key: trivy-db-${{ github.run_id }}
@@ -117,7 +117,7 @@ runs:
         trivyignores: ${{ inputs.trivyignores }}
 
     - name: Upload Trivy Results to GitHub Security
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v4
       if: ${{ hashFiles('trivy-results.sarif') != '' }}
       with:
         sarif_file: trivy-results.sarif
