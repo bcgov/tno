@@ -16,7 +16,7 @@ test.beforeEach(async ({ masterFixture }) => {
   console.log('TAGS', addMediaPage);
 });
 test.describe('@smoke Add TAGS', () => {
-  test(`Login as ${process.env.app_username}`, async ({ page }) => {
+  test('Login as editor user', async ({ page }) => {
     await page.goto(editorUrl);
     await addMediaPage.navigateToCC();
     await addMediaPage.navigateToColumn_Pundit();
@@ -25,8 +25,7 @@ test.describe('@smoke Add TAGS', () => {
     const PunditName = `Test Automation Pundit`;
     //const PunditAliases = `Autotest Name`;
     const PunditDescriptionName = `Automation Test Description`;
-    const randomNumber = Math.floor(Math.random() * 100) + 1;
-    const PunditNamertOrder = `${randomNumber}`;
+    const PunditNamertOrder = `99`;
 
     await addMediaPage.enterMediaDetails(PunditName, PunditDescriptionName, PunditNamertOrder);
 

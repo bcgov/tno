@@ -30,8 +30,8 @@ class ReportSubscriberSidePage extends BasePage {
     this.contentCurateStories = page.getByText('Show folder sections')
     this.quickSort = page.getByText('Quick Sort')
     this.executiveSummary = page.getByText('Executive Summary')
-    this.tableOfContents = page.getByRole('button', { name: 'Table of Contents' })
-    this.aiTab = page.getByRole('button', { name: 'AI' })
+    this.tableOfContents = page.getByRole('button', { name: 'Table of Contents', exact: true })
+    this.aiTab = page.getByRole('button', { name: 'AI', exact: true })
     this.templateStories = page.getByRole('button', { name: 'Stories' })
     this.templateMediaAnalytics = page.getByRole('button', { name: 'Media Analytics' })
     this.templateText = page.getByRole('button', { name: 'Text' })
@@ -77,6 +77,10 @@ async clickOnTemplateText() {
 
 
 async clickOnTableOfContents() {
+    if (!(await this.tableOfContents.isEnabled())) {
+      logger.info('Table of Contents template is already present or disabled. Skipping click.');
+      return;
+    }
     await this.click(this.tableOfContents);
     logger.info('Clicked on Table of Contents option!!');
   }

@@ -14,7 +14,7 @@ test.beforeEach(async ({ masterFixture }) => {
 });
 
 test.describe('@smoke Login Data Driven Tests', () => {
-  test(`Login as ${process.env.app_username}`, async ({}) => {
+  test('Login as editor user', async ({}) => {
     await expect(page).toHaveURL(editorUrl);
     await appPage.logOut();
   });

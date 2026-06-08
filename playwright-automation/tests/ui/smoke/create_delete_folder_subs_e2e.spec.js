@@ -30,6 +30,6 @@ test.describe('@smokeCreate/Delete Folder ', () => {
     await page.locator(`[class="folder-name"]`, { hasText: folderName }).click();
     await page.locator('.folder-row:has-text("' + folderName + '") .settings').click();
     await subscriberNavBarPage.clickOnDeleteFolder();
-    await expect(page.locator(`[class="folder-name"]`, { hasText: folderName })).not.toBeVisible();
+    await subscriberNavBarPage.waitForFolderDeleted(folderName);
   });
 });

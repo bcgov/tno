@@ -1,5 +1,6 @@
 const BasePage = require('./base/BasePage');
 const logger = require('../utils/logger');
+const { expect } = require('@playwright/test');
 
 class AddProductPage extends BasePage {
   constructor(page) {
@@ -7,8 +8,8 @@ class AddProductPage extends BasePage {
 
     this.backToProductButton = page.getByRole('button', { name: 'Back to Products' });
     this.nameInput = page.getByPlaceholder('Enter unique product name');
-    this.productTypeDropdown = page.locator(`input[name="select-productType"]`);
-    this.targetProductDropdown = page.locator(`input[name="targetProduct"]`);
+    this.productTypeDropdown = page.locator(`input[id*='react-select'][id$='-input']`).nth(0);
+    this.targetProductDropdown = page.locator(`input[id*='react-select'][id$='-input']`).nth(1);
     this.saveButton = page.getByRole('button', { name: 'Save' });
 
     this.deleteButton = page.getByRole('button', { name: 'Delete' });
@@ -43,13 +44,47 @@ class AddProductPage extends BasePage {
   async enterProductDetails(name, productType, targetProduct) {
     await this.type(this.nameInput, name);
 
-    await this.type(this.productTypeDropdown, productType);
-    await this.page.keyboard.press('Tab');
+    await this.selectReactOption(this.productTypeDropdown, productType);
+    await this.selectReactOption(this.targetProductDropdown, targetProduct);
 
-    await this.type(this.targetProductDropdown, targetProduct);
-    await this.page.keyboard.press('Tab');
+    await this.verifyReactValueSelected(this.productTypeDropdown, productType);
+    await this.verifyReactValueSelected(this.targetProductDropdown, targetProduct);
 
     logger.info(`Added Product Details.`);
+  }
+
+  /**
+   * Select an option from a react-select input.
+   * @param {import('@playwright/test').Locator} input
+   * @param {string} optionText
+   */
+  async selectReactOption(input, optionText) {
+    await input.waitFor({ state: 'visible' });
+    await input.click();
+    await input.fill('');
+    await input.fill(optionText);
+    const option = this.page.getByRole('option', { name: optionText, exact: true }).first();
+    if (await this.isElementVisible(option, 5000)) {
+      await this.click(option);
+    } else {
+      await this.page.keyboard.press('Enter');
+    }
+    await this.page.waitForTimeout(500);
+    logger.info(`Selected react option : ${optionText}`);
+  }
+
+  /**
+   * Verify the selected react-select value is visible in a control.
+   * @param {import('@playwright/test').Locator} input
+   * @param {string} optionText
+   */
+  async verifyReactValueSelected(input, optionText) {
+    const control = input.locator('xpath=ancestor::div[contains(@class,"rs__control")][1]');
+    const selectedValue = control
+      .locator('.rs__single-value, .rs__multi-value__label')
+      .filter({ hasText: optionText })
+      .first();
+    await expect(selectedValue).toBeVisible({ timeout: 10000 });
   }
 
   /**
@@ -59,6 +94,21 @@ class AddProductPage extends BasePage {
     await this.click(this.saveButton);
     await this.hardWait(2000);
     logger.info(`Clicked on Save Button`);
+  }
+
+  /**
+   * Save product details and verify the save toast before leaving the form.
+   * @param {string} productName
+   */
+  async saveAndVerifyProductSaved(productName) {
+    await this.save();
+    const matchingToast = this.page
+      .locator('.Toastify .Toastify__toast-body div:nth-child(2)')
+      .filter({ hasText: productName })
+      .first();
+    await expect(matchingToast).toContainText(productName);
+    await expect(matchingToast).toContainText('has successfully been saved.');
+    logger.info(`Verified product save toast for : ${productName}`);
   }
 
   /**
@@ -99,8 +149,13 @@ class AddProductPage extends BasePage {
    * @returns true if visible
    */
   async isAddedProductVisibleOnGrid(productName) {
-    logger.info(`Is Added product Visible : ${await this.isTextPresentInCollection(this.productLink, productName)}`);
-    return await this.isTextPresentInCollection(this.productLink, productName);
+    await this.clear(this.searchSubscriberInput);
+    await this.type(this.searchSubscriberInput, productName);
+    await this.page.keyboard.press('Enter');
+    const productLink = this.page.locator('.link', { hasText: productName }).first();
+    const isProductVisible = await this.isElementVisible(productLink, 10000);
+    logger.info(`Is Added product Visible : ${isProductVisible}`);
+    return isProductVisible;
   }
 
   /**
@@ -108,11 +163,13 @@ class AddProductPage extends BasePage {
    * @param {string} productName 
    */
   async selectProduct(productName) {
+    await this.clear(this.searchSubscriberInput);
     await this.type(this.searchSubscriberInput, productName);
     await this.page.keyboard.press('Enter');
-    await this.hardWait(500);
+    const productLink = this.page.locator('.link', { hasText: productName }).first();
+    await productLink.waitFor({ state: 'visible', timeout: 10000 });
     logger.info(`Total product shown on grid : ${await this.productLink.count()}`);
-    await this.click(this.productLink);
+    await this.click(productLink);
     logger.info(`Selected product : ${productName}`);
   }
 

@@ -16,7 +16,7 @@ test.beforeEach(async ({ masterFixture }) => {
   console.log('Ingest Type', addMediaPage);
 });
 test.describe('@smoke Add TAGS', () => {
-  test(`Login as ${process.env.app_username}`, async ({ page }) => {
+  test('Login as editor user', async ({ page }) => {
     await page.goto(editorUrl);
     await addMediaPage.navigateToDataImport();
     await addMediaPage.navigateToIngestType();
@@ -24,8 +24,7 @@ test.describe('@smoke Add TAGS', () => {
 
     const IngestName = `Test Automation IT`;
     const IngestDescriptionName = `Automation Test Description`;
-    const randomNumber = Math.floor(Math.random() * 100) + 1;
-    const IngestNamertOrder = `${randomNumber}`;
+    const IngestNamertOrder = `99`;
 
     await addMediaPage.enterMediaDetails(IngestName, IngestDescriptionName, IngestNamertOrder);
 

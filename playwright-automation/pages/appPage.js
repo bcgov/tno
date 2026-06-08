@@ -5,15 +5,14 @@ const CONSTANTS = require('../utils/constants');
 class AppPage extends BasePage {
   constructor(page) {
     super(page);
-    this.idir = page.locator('//button[./div[normalize-space()="IDIR"]]');
-    this.usernameInput = page.locator('input#user');
     this.passwordInput = page.locator('input#password');
-    this.loginButton = page.locator('input[name="btnSubmit"]');
+    this.otherLoginButton = page.getByRole('button', { name: 'Other' });
+    this.usernameInputOther = page.locator('input#username');
+    this.loginButtonOther = page.locator('input[id="kc-login"]');
     this.homePageLogo = page.locator('//a/img[@class="app-logo"]');
     this.signOutButton = page.locator('//button[@name="signOut"]');
     this.subscriberSignOutButton = page.locator('div.logout');
 
-    this.subscriberIdir = page.locator('button.idir-logo');
     this.menuNavigationLink = page.locator('div.nav-item .dropdown-toggle');
     this.subMenuNavigationLink = page.locator('.show a.dropdown-item');
     this.allContentSubNavLink = page.locator(`.dropdown-menu a[href="/contents"]`);
@@ -21,21 +20,6 @@ class AppPage extends BasePage {
     this.papersSubNavLink = page.locator(`.dropdown-menu a[href="/papers"]`);
     this.transcriptQueueSubNavLink = page.locator(`.dropdown-menu a[href="/transcriptions"]`);
 
-    this.subscriberOther = page.locator('//button[text()="Other"]');
-    this.usernameInputOther = page.locator('input#username');
-    this.loginButtonOther = page.locator('input[id="kc-login"]');
-
-    this.microsoftButton = page.getByRole('button', { name: 'Microsoft' });
-
-    this.loginEmailInput = page.getByRole('textbox', { name: 'Enter your email or phone' });
-
-    this.nextButton = page.getByRole('button', { name: 'Next' });
-
-    this.passwordInputField = page.locator('input[type="password"]');
-
-    this.signInButton = page.getByRole('button', { name: 'Sign in' });
-
-    this.noButton = page.getByRole('button', { name: 'No' });
   }
 
   /**
@@ -43,15 +27,46 @@ class AppPage extends BasePage {
    * @param { String } username
    * @param { String } password
    */
+  async isEditorSignedIn() {
+    return (
+      (await this.signOutButton.isVisible().catch(() => false)) ||
+      (await this.menuNavigationLink.first().isVisible().catch(() => false))
+    );
+  }
+
   async login(username, password) {
-    logger.info(`Clicking on IDIR button to login..`);
+    logger.info(`Signing in to Editor using Other login..`);
 
-    await this.click(this.idir);
-    await this.type(this.usernameInput, username);
+    for (let attempt = 0; attempt < 20; attempt++) {
+      if (await this.isEditorSignedIn()) {
+        logger.info(`Editor session already exists. Continuing without signing in again.`);
+        return;
+      }
+
+      if (await this.otherLoginButton.isVisible().catch(() => false)) {
+        break;
+      }
+
+      await this.page.waitForTimeout(500);
+    }
+
+    await this.click(this.otherLoginButton);
+    await this.type(this.usernameInputOther, username);
     await this.type(this.passwordInput, password);
-    await this.click(this.loginButton);
+    await this.click(this.loginButtonOther);
 
-    logger.info(`Clicked on Login!!`);
+    logger.info(`Clicked on Editor Other Login!!`);
+  }
+
+  async loginWithOther(username, password) {
+    await this.click(this.otherLoginButton);
+    await this.hardWait(2000);
+
+    await this.type(this.usernameInputOther, username);
+    await this.type(this.passwordInput, password);
+    await this.click(this.loginButtonOther);
+
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   /**
@@ -60,23 +75,78 @@ class AppPage extends BasePage {
    */
   async navigateToUrl(url) {
     logger.info(`Navigating to URL : ${url}`);
-    await this.page.goto(url);
+    const navigateAndSettle = async (targetUrl) => {
+      await this.page.goto(targetUrl, {
+        waitUntil: 'domcontentloaded',
+        timeout: CONSTANTS.TIMEOUTS.LONG,
+      });
+      await this.page.waitForLoadState('networkidle', { timeout: CONSTANTS.TIMEOUTS.MEDIUM }).catch(() => {
+        logger.info(`Editor URL did not become network idle; continuing after DOM content loaded.`);
+      });
+    };
+
+    const waitForEditorCallbackToFinish = async () => {
+      await this.page
+        .waitForURL((currentUrl) => !currentUrl.toString().includes('loginproxy.gov.bc.ca'), {
+          timeout: CONSTANTS.TIMEOUTS.LONG,
+        })
+        .catch(() => {
+          logger.info(`Editor URL stayed on loginproxy longer than expected; continuing recovery.`);
+        });
+
+      const callbackHashCleared = await this.page
+        .waitForFunction(() => !window.location.hash.includes('session_state'), null, {
+          timeout: CONSTANTS.TIMEOUTS.LONG,
+        })
+        .then(() => true)
+        .catch(() => false);
+
+      return callbackHashCleared;
+    };
+
+    await navigateAndSettle(url);
     await this.hardWait(2000);
-    if (!(await this.homePageLogo.isVisible())) {
-      try {
-        this.login(process.env.app_username, process.env.app_password);
-        await this.homePageLogo.waitFor({ state: 'visible' });
-      } catch (error) {
-        console.log(error);
+
+    if (!(await this.isEditorSignedIn())) {
+      await this.login(process.env.APP_USERNAME, process.env.APP_PASSWORD);
+    }
+
+    let callbackHashCleared = await waitForEditorCallbackToFinish();
+
+    if (
+      !callbackHashCleared ||
+      this.page.url().includes('session_state') ||
+      this.page.url().includes('loginproxy.gov.bc.ca')
+    ) {
+      logger.info(`Reloading clean editor URL after OIDC callback timeout or loginproxy redirect.`);
+      await navigateAndSettle(url);
+
+      if (!(await this.isEditorSignedIn())) {
+        await this.login(process.env.APP_USERNAME, process.env.APP_PASSWORD);
       }
+
+      callbackHashCleared = await waitForEditorCallbackToFinish();
+      if (!callbackHashCleared) {
+        logger.info(`Editor callback hash was not fully cleared after clean reload.`);
+      }
+    }
+
+    if (!(await this.isEditorSignedIn())) {
+      await this.signOutButton.waitFor({ state: 'visible', timeout: CONSTANTS.TIMEOUTS.LONG });
     }
   }
 
   /**
    * Navigate to Subscriber URL.
    */
-  async navigateToSubscriberURL() {
+  async navigateToSubscriberURL(options = {}) {
     const url = CONSTANTS.URL.SUBSCRIBER_URL;
+    const { clearCookies = false } = options;
+
+    if (clearCookies) {
+      await this.page.context().clearCookies();
+      logger.info(`Cleared cookies to force fresh login`);
+    }
 
     logger.info(`Navigating to URL ${url}`);
 
@@ -85,8 +155,20 @@ class AppPage extends BasePage {
       timeout: CONSTANTS.TIMEOUTS.LONG,
     });
 
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('networkidle', { timeout: CONSTANTS.TIMEOUTS.MEDIUM }).catch(() => {
+      logger.info(`Subscriber URL did not become network idle; continuing after DOM content loaded.`);
+    });
     logger.info(`Successfully navigated to URL ${url}`);
+  }
+
+  /**
+   * Ensure subscriber portal is on a signed-out page before logging in with a requested user.
+   */
+  async ensureSubscriberLoggedOut() {
+    if (await this.subscriberSignOutButton.isVisible().catch(() => false)) {
+      logger.info(`Subscriber session already exists. Logging out before signing in.`);
+      await this.logOutFromSubscriber();
+    }
   }
 
   /**
@@ -95,16 +177,10 @@ class AppPage extends BasePage {
    * @param { String } password
    */
   async loginAsSubscriber(user, password) {
-    logger.info(`Sign in as Subscriber user...`);
+    logger.info(`Sign in as Subscriber user using Other login...`);
 
-    await this.click(this.subscriberIdir);
-    await this.hardWait(2000);
-
-    await this.type(this.usernameInput, user);
-    await this.type(this.passwordInput, password);
-    await this.click(this.loginButton);
-
-    await this.page.waitForLoadState('domcontentloaded');
+    await this.ensureSubscriberLoggedOut();
+    await this.loginWithOther(user, password);
     logger.info(`Clicked on Subscriber Login!!`);
   }
    /**
@@ -115,14 +191,8 @@ class AppPage extends BasePage {
   async loginAsOtherSubscriber(user, password) {
     logger.info(`Sign in as Other Subscriber user...`);
 
-    await this.click(this.subscriberOther);
-    await this.hardWait(2000);
-
-    await this.type(this.usernameInputOther, user);
-    await this.type(this.passwordInput, password);
-    await this.click(this.loginButtonOther);
-
-    await this.page.waitForLoadState('domcontentloaded');
+    await this.ensureSubscriberLoggedOut();
+    await this.loginWithOther(user, password);
     logger.info(`Clicked on Subscriber Login!!`);
   }
 
@@ -132,8 +202,9 @@ class AppPage extends BasePage {
   async logOut() {
     logger.info(`Clicking on SignOut button..`);
 
-    await this.click(this.signOutButton);
-    await this.isElementVisible(this.idir);
+    await this.signOutButton.waitFor({ state: 'visible' });
+    await this.signOutButton.click({ force: true });
+    await this.isElementVisible(this.otherLoginButton);
     await this.page.waitForLoadState('networkidle');
 
     logger.info(`Successfully logged out!!`);
@@ -149,41 +220,6 @@ class AppPage extends BasePage {
     await this.page.waitForLoadState('networkidle');
 
     logger.info(`Successfully logged out from Subscriber portal!!`);
-  }
-
-  /**
-   * Login to MMI Editor Portal using Microsoft SSO.
-   * @param { String } username
-   * @param { String } password
-   */
-  async mmiMicrosoftLogin(username, password) {
-    logger.info(`Clicking on Microsoft button to login..`);
-    await this.microsoftButton.click();
-    await this.loginEmailInput.type(username);
-    await this.nextButton.click();
-    await this.page.waitForTimeout(2000);
-    await this.passwordInputField.type(password);
-    await this.signInButton.click();
-    await this.noButton.click();
-    logger.info(`Login MMI Editor Portal using Microsoft SSO!!`);
-  }
-
-  /**
-   * Method to navigate to given URL
-   * @param {string} url
-   */
-  async navigateToMMIUrl(url) {
-    logger.info(`Navigating to URL : ${url}`);
-    await this.page.goto(url);
-    await this.hardWait(2000);
-    if (!(await this.homePageLogo.isVisible())) {
-      try {
-        this.mmiMicrosoftLogin(process.env.app_username_MMI, process.env.app_password_MMI);
-        await this.homePageLogo.waitFor({ state: 'visible' });
-      } catch (error) {
-        console.log(error);
-      }
-    }
   }
 
   /**

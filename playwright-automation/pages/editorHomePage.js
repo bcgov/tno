@@ -77,6 +77,21 @@ class EditorHomePage extends BasePage {
     this.dailyMediaTypeOption = page.locator(`input[id="Daily Print"]`);
     this.headlineTitleUnderHeadlineColumn = page.locator(`.content-list .ellipsis`);
     this.pageRecordsUpdateTextBox = page.locator(`input[name="quantity"]`);
+    this.papersGridRowCheckboxes = page.locator(
+      `.content-list .grid-table:nth-child(2) input[name^="chk-content-"]`,
+    );
+    this.papersGridRowHeadlineTitles = page.locator(
+      `.content-list .grid-table:nth-child(2) .grid-column:nth-child(7n + 2) .ellipsis`,
+    );
+    this.papersAllTodayContentButton = page.getByText(`ALL TODAY'S CONTENT`, { exact: true });
+    this.papersSourceRemoveButtons = page.locator(`.sources .rs__multi-value__remove`);
+    this.papersSourceClearIndicator = page.locator(`.sources .rs__clear-indicator`);
+    this.papersMediaTypeRemoveButtons = page.locator(
+      `div:has(input[name="select-mediaTypeIds"]) .rs__multi-value__remove`,
+    );
+    this.papersMediaTypeClearIndicator = page.locator(
+      `div:has(input[name="select-mediaTypeIds"]) .rs__clear-indicator`,
+    );
 
     this.mediaTypeColumnValue = page.locator(
       `(//div[@class='clickable'])/div[contains(@class,'clickable')]`,
@@ -105,11 +120,98 @@ class EditorHomePage extends BasePage {
    * Method to check editor home page is loaded.
    */
   async verifyEditorHomePageLoaded() {
-    await this.firstHeadlineFromHeadlinesGrid.waitFor({
-      state: 'visible',
-      timeout: CONSTANTS.TIMEOUTS.LONG,
-    });
-    logger.info('Editor Home page loaded successfully!!');
+    const maxReloads = 2;
+    for (let attempt = 0; attempt <= maxReloads; attempt++) {
+      try {
+        await this.waitForEditorUrlToSettle();
+        await this.recoverFromLoginCallbackIfNeeded();
+        await this.waitForHomeGridOrCallback();
+        logger.info('Editor Home page loaded successfully!!');
+        return;
+      } catch (error) {
+        if (attempt < maxReloads) {
+          logger.info(
+            `Editor Home grid was not visible (attempt ${attempt + 1}/${maxReloads + 1}). Reloading and retrying.`,
+          );
+          await this.recoverEditorHomePage();
+        } else {
+          logger.error(
+            `Editor Home grid was not visible after ${maxReloads + 1} attempts.`,
+          );
+          throw error;
+        }
+      }
+    }
+  }
+
+  isLoginCallbackUrl(url = this.page.url()) {
+    return (
+      url.includes('loginproxy.gov.bc.ca') ||
+      url.includes('session_state=') ||
+      url.includes('#state=')
+    );
+  }
+
+  async waitForEditorUrlToSettle() {
+    await this.page
+      .waitForFunction(
+        () =>
+          !window.location.href.includes('loginproxy.gov.bc.ca') &&
+          !window.location.href.includes('session_state=') &&
+          !window.location.href.includes('#state='),
+        null,
+        { timeout: CONSTANTS.TIMEOUTS.MEDIUM },
+      )
+      .catch(() => {
+        logger.info('Editor URL did not settle before grid wait; recovery will handle it if needed.');
+      });
+  }
+
+  async waitForHomeGridOrCallback() {
+    const callbackDetected = Symbol('callbackDetected');
+    const result = await Promise.race([
+      this.firstHeadlineFromHeadlinesGrid.waitFor({
+        state: 'visible',
+        timeout: CONSTANTS.TIMEOUTS.LONG,
+      }),
+      this.page
+        .waitForURL((url) => this.isLoginCallbackUrl(url.toString()), {
+          timeout: CONSTANTS.TIMEOUTS.LONG,
+        })
+        .then(() => callbackDetected),
+    ]);
+
+    if (result === callbackDetected) {
+      throw new Error(`Editor login callback URL appeared while waiting for home grid.`);
+    }
+  }
+
+  async recoverEditorHomePage() {
+    const editorUrl = process.env.EDITOR_URL;
+    if (editorUrl && this.isLoginCallbackUrl()) {
+      logger.info('Recovering editor page with clean URL after callback/hash grid timeout.');
+      await this.page.goto(editorUrl, {
+        waitUntil: 'domcontentloaded',
+        timeout: CONSTANTS.TIMEOUTS.LONG,
+      });
+      return;
+    }
+
+    await this.page.reload({ waitUntil: 'domcontentloaded', timeout: CONSTANTS.TIMEOUTS.LONG });
+  }
+
+  async recoverFromLoginCallbackIfNeeded() {
+    const currentUrl = this.page.url();
+    const editorUrl = process.env.EDITOR_URL;
+    if (!editorUrl) return;
+
+    if (this.isLoginCallbackUrl(currentUrl)) {
+      logger.info('Recovering editor page from login callback URL before waiting for home grid.');
+      await this.page.goto(editorUrl, {
+        waitUntil: 'domcontentloaded',
+        timeout: CONSTANTS.TIMEOUTS.LONG,
+      });
+    }
   }
 
   /**
@@ -122,7 +224,7 @@ class EditorHomePage extends BasePage {
     }
 
     logger.info(`Clicking on headline title for row ${rowNumber}`);
-    const targetIndex = 1 + (rowNumber - 1) * 7;
+    const targetIndex = 2 + (rowNumber - 1) * 7;
     const headlinesTitleRow = `//div[contains(@class,'grid-column')][${targetIndex}]//div[@class='clickable']`;
     const headlinesRowTitleLocator = this.page.locator(headlinesTitleRow);
 
@@ -222,6 +324,11 @@ class EditorHomePage extends BasePage {
     await this.click(button);
     await this.hardWait(2000);
     logger.info(`Clicked on button  : ${buttonName}`);
+  }
+
+  async waitForPapersActionButtonEnabled(buttonName) {
+    const button = this.page.locator(`button:has(div:text-is("${buttonName}"))`);
+    await expect(button).toBeEnabled({ timeout: CONSTANTS.TIMEOUTS.LONG });
   }
 
   /**
@@ -356,11 +463,24 @@ class EditorHomePage extends BasePage {
       throw new Error('Row number must be greater than 0');
     }
 
-    const targetIndex = 1 + (rowNumber - 1) * 7;
-    const headlinesRow = `//div[contains(@class,'grid-column')][${targetIndex}]//div[contains(@class,'chk')]`;
-    const headlinesRowCheckBoxLocator = this.page.locator(headlinesRow);
+    const modernCheckboxCount = await this.papersGridRowCheckboxes.count();
+    if (modernCheckboxCount >= rowNumber) {
+      await this.click(this.papersGridRowCheckboxes.nth(rowNumber - 1));
+      logger.info(`Selected Headline checkbox for row : ${rowNumber}`);
+      return;
+    }
 
-    await this.click(headlinesRowCheckBoxLocator);
+    const legacyBaseIndex = await this.page
+      .locator(`//div[contains(@class,'grid-column')][8]//div[contains(@class,'chk')]`)
+      .count()
+      .then((count) => (count > 0 ? 8 : 1));
+
+    const targetIndex = legacyBaseIndex + (rowNumber - 1) * 7;
+    const legacyCheckboxLocator = this.page.locator(
+      `//div[contains(@class,'grid-column')][${targetIndex}]//div[contains(@class,'chk')]`,
+    );
+
+    await this.click(legacyCheckboxLocator);
     logger.info(`Selected Headline checkbox for row : ${rowNumber}`);
   }
 
@@ -373,14 +493,163 @@ class EditorHomePage extends BasePage {
       throw new Error('Row number must be greater than 0');
     }
 
-    let headlineTitle = '';
-    const targetIndex = 2 + (rowNumber - 1) * 7;
-    const headlinesTitleRow = `//div[contains(@class,'grid-column')][${targetIndex}]//div[@class='clickable']`;
-    const headlinesRowTitleLocator = this.page.locator(headlinesTitleRow);
-    logger.info(`Headline Title is : ${await this.getElementText(headlinesRowTitleLocator)}`);
-    headlineTitle = await this.getElementText(headlinesRowTitleLocator);
+    const modernTitleCount = await this.papersGridRowHeadlineTitles.count();
+    if (modernTitleCount >= rowNumber) {
+      const headlinesRowTitleLocator = this.papersGridRowHeadlineTitles.nth(rowNumber - 1);
+      const headlineTitle = (await this.getElementText(headlinesRowTitleLocator)).trim();
+      logger.info(`Headline Title is : ${headlineTitle}`);
+      return headlineTitle;
+    }
 
+    const legacyBaseIndex = await this.page
+      .locator(`//div[contains(@class,'grid-column')][9]//div[@class='clickable']`)
+      .count()
+      .then((count) => (count > 0 ? 9 : 2));
+
+    const targetIndex = legacyBaseIndex + (rowNumber - 1) * 7;
+    const legacyTitleLocator = this.page.locator(
+      `//div[contains(@class,'grid-column')][${targetIndex}]//div[@class='clickable']`,
+    );
+    const headlineTitle = (await this.getElementText(legacyTitleLocator)).trim();
+    logger.info(`Headline Title is : ${headlineTitle}`);
     return headlineTitle;
+  }
+
+  /**
+   * Select checkbox for a given headline title in Papers grid.
+   * @param {string} headlineTitle
+   * @returns {number} row index (1-based)
+   */
+  async selectOnHeadlinesCheckBoxByGivenTitle(headlineTitle) {
+    const maxRows = 50;
+    for (let row = 1; row <= maxRows; row++) {
+      try {
+        const currentHeadline = await this.getHeadlinesTitleByRowNumberOnPapersEditorGrid(row);
+        if (currentHeadline.trim() === headlineTitle.trim()) {
+          await this.selectOnHeadlinesCheckBoxByRowNumber(row);
+          logger.info(`Selected headline checkbox by title '${headlineTitle}' at row ${row}`);
+          return row;
+        }
+      } catch (error) {
+        break;
+      }
+    }
+
+    throw new Error(`Headline '${headlineTitle}' was not found in Papers grid (first ${maxRows} rows).`);
+  }
+
+  /**
+   * Ensure a Papers row is selected without accidentally toggling an already-selected checkbox off.
+   * @param {string} headlineTitle
+   * @returns {number} row index (1-based)
+   */
+  async ensureHeadlinesCheckBoxSelectedByGivenTitle(headlineTitle) {
+    const maxRows = 50;
+    for (let row = 1; row <= maxRows; row++) {
+      try {
+        const currentHeadline = await this.getHeadlinesTitleByRowNumberOnPapersEditorGrid(row);
+        if (currentHeadline.trim() !== headlineTitle.trim()) continue;
+
+        const modernCheckboxCount = await this.papersGridRowCheckboxes.count();
+        if (modernCheckboxCount >= row) {
+          const checkbox = this.papersGridRowCheckboxes.nth(row - 1);
+          if (!(await checkbox.isChecked())) {
+            await this.click(checkbox);
+          }
+          logger.info(`Ensured headline checkbox is selected for '${headlineTitle}' at row ${row}`);
+          return row;
+        }
+
+        await this.selectOnHeadlinesCheckBoxByRowNumber(row);
+        logger.info(`Selected headline checkbox by title '${headlineTitle}' at row ${row}`);
+        return row;
+      } catch (error) {
+        break;
+      }
+    }
+
+    throw new Error(`Headline '${headlineTitle}' was not found in Papers grid (first ${maxRows} rows).`);
+  }
+
+  async cleanupPapersHeadlineState(headlineTitle, filterName, removeButtonName) {
+    await this.resetPapersFilterState();
+    await this.selectAdvanceSearchTextBoxForPapersContent(filterName);
+    await this.ensureHeadlinesCheckBoxSelectedByGivenTitle(headlineTitle);
+    await this.waitForPapersActionButtonEnabled(removeButtonName);
+    await this.clickButtonForPapersContentOnEditorGrid(removeButtonName);
+    await this.selectAdvanceSearchTextBoxForPapersContent(filterName);
+    logger.info(`Cleaned up ${filterName} state for headline '${headlineTitle}'.`);
+  }
+
+  /**
+   * Select the first row that enables a specific Papers action button.
+   * @param {string} buttonName
+   * @param {number} maxRows
+   * @returns {{ rowNumber: number, headlineTitle: string }}
+   */
+  async selectFirstHeadlineRowForPapersAction(buttonName, maxRows = 20, headlineKeyword = '') {
+    for (let row = 1; row <= maxRows; row++) {
+      try {
+        await this.selectOnHeadlinesCheckBoxByRowNumber(row);
+      } catch (error) {
+        logger.info(`Stopped row scan at row ${row}: ${error.message}`);
+        break;
+      }
+
+      await this.hardWait(500);
+
+      if (await this.isButtonEnabledOnPapersEditorGrid(buttonName)) {
+        const headlineTitle = await this.getHeadlinesTitleByRowNumberOnPapersEditorGrid(row);
+        if (headlineKeyword && !headlineTitle.includes(headlineKeyword)) {
+          await this.selectOnHeadlinesCheckBoxByRowNumber(row).catch(() => {
+            logger.info(`Unable to unselect row ${row} while scanning keyword '${headlineKeyword}'.`);
+          });
+          continue;
+        }
+        logger.info(`Found eligible row ${row} for action '${buttonName}'`);
+        return { rowNumber: row, headlineTitle };
+      }
+
+      await this.selectOnHeadlinesCheckBoxByRowNumber(row).catch(() => {
+        logger.info(`Unable to unselect row ${row} during action scan.`);
+      });
+    }
+
+    throw new Error(`No eligible row found for Papers action '${buttonName}' within first ${maxRows} rows.`);
+  }
+
+  async clearReactMultiSelectValues(removeButtonsLocator, clearIndicatorLocator) {
+    if (await clearIndicatorLocator.count()) {
+      await clearIndicatorLocator.first().click().catch(() => {});
+    }
+
+    for (let i = 0; i < 20; i++) {
+      const removeCount = await removeButtonsLocator.count();
+      if (!removeCount) break;
+      await removeButtonsLocator.first().click().catch(() => {});
+      await this.hardWait(100);
+    }
+  }
+
+  /**
+   * Reset papers filter state and ensure it is not stuck on previously persisted selections.
+   */
+  async resetPapersFilterState() {
+    if (await this.papersAllTodayContentButton.count()) {
+      await this.click(this.papersAllTodayContentButton.first());
+    }
+
+    await this.clearReactMultiSelectValues(
+      this.papersSourceRemoveButtons,
+      this.papersSourceClearIndicator,
+    );
+    await this.clearReactMultiSelectValues(
+      this.papersMediaTypeRemoveButtons,
+      this.papersMediaTypeClearIndicator,
+    );
+
+    await this.hardWait(1000);
+    logger.info(`Reset papers filter state to default.`);
   }
 
   /**
@@ -546,15 +815,18 @@ class EditorHomePage extends BasePage {
    * @returns Published dates
    */
   async getPublishedDateFromGrid(totalRows) {
-    logger.info(`Fetching published dates for total rows: ${totalRows}`);
+    logger.info(`Fetching published dates for requested rows: ${totalRows}`);
 
+    const publishedDateColumn = this.page.locator(
+      `.content-list .grid-table:nth-child(2) .grid-column:nth-child(7n + 6) .clickable`,
+    );
+    const availableRows = await publishedDateColumn.count();
+    const rowsToRead = Math.min(totalRows, availableRows);
+    logger.info(`Published date rows available: ${availableRows}, reading: ${rowsToRead}`);
     const dates = [];
 
-    for (let i = 0; i < totalRows; i++) {
-      const index = 6 + i * 7;
-
-      const pDateLocator = `(//div[@class='clickable'])[${index}]`;
-      const rawText = await (await this.page.locator(pDateLocator).innerText()).trim();
+    for (let i = 0; i < rowsToRead; i++) {
+      const rawText = (await publishedDateColumn.nth(i).innerText()).trim();
       dates.push(rawText.trim());
     }
 
@@ -685,6 +957,7 @@ class EditorHomePage extends BasePage {
   async selectShowOnlyFilterChecbox(filterName) {
     switch (filterName) {
       case CONSTANTS.HEADLINES.TOP_STORY:
+      case CONSTANTS.HEADLINES.TOP_STORIES:
         await this.click(this.showOnlyTopStoryCheckbox);
         logger.info(`Successfully clicked on ${CONSTANTS.HEADLINES.TOP_STORY}`);
         break;
@@ -715,11 +988,15 @@ class EditorHomePage extends BasePage {
    */
   async isPublishedHeadlinesPresent(headlineTitle) {
     logger.info('Verifying published headlines in search results..');
-    const firstRowHeadlineTitle = await (
-      await this.getElementText(this.firstHeadlineFromHeadlinesGrid)
-    ).trim();
-    logger.info(`Headline Title is: ${firstRowHeadlineTitle}`);
-    const isPresent = firstRowHeadlineTitle === headlineTitle;
+    await this.headlineTitleUnderHeadlineColumn.first().waitFor({
+      state: 'visible',
+      timeout: CONSTANTS.TIMEOUTS.LONG,
+    });
+    const headlineTitles = (await this.headlineTitleUnderHeadlineColumn.allTextContents()).map((text) =>
+      text.trim(),
+    );
+    logger.info(`Headline Titles are: ${headlineTitles.join(' | ')}`);
+    const isPresent = headlineTitles.includes(headlineTitle);
     logger.info(`Is Headline present: ${isPresent}`);
     return isPresent;
   }

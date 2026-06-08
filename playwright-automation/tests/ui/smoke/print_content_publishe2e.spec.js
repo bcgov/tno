@@ -27,7 +27,7 @@ test.beforeEach(async ({ masterFixture }) => {
 });
 
 test.describe('@smoke Publish print Content', () => {
-  test(`Login as ${process.env.app_username}`, async ({ page }) => {
+  test('Login as editor user', async ({ page }) => {
     console.log('Editor URL:', editorUrl);
     await page.goto(editorUrl);
     await appPage.logOut();
@@ -61,7 +61,7 @@ test.describe('@smoke Publish print Content', () => {
     await appPage.logOut();
 
     await appPage.navigateToSubscriberURL();
-    await appPage.loginAsSubscriber(process.env.sub_username, process.env.sub_password);
+    await appPage.loginAsSubscriber(process.env.SUB_USERNAME, process.env.SUB_PASSWORD);
 
     await subscriberSearchResultPage.clickOnSearchButton();
     await subscriberSearchResultPage.verifySearchResultPageLoaded();

@@ -24,9 +24,8 @@ test.describe('@smoke Notification Module', () => {
     await notificationalertPage.navigateNotifBuild();
     await notificationalertPage.notificationMenue();
     await notificationalertPage.addnotification();
-    const randomNum = Math.floor(Math.random() * 10000);
-    const notificationName = `Auto Notification : ${randomNum}`;
-    const notificationDescription = `Auto Notification Description :${randomNum}`;
+    const notificationName = 'Automation_Notification';
+    const notificationDescription = 'Automation_Notification_Description';
     const ministerSortOrder = 4;
 
     await notificationalertPage.enterDetails(

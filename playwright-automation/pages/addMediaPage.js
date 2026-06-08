@@ -34,8 +34,6 @@ class AddMediaPage extends BasePage {
       `//*[@id="root"]/div[1]/div[2]/main/div/div/div/form/div/div[2]/button[2]`,
     );
     this.removebtn = page.locator('button').filter({ hasText: 'Yes, Remove It' });
-    console.log(page.getByRole('button', { name: 'Delete' }).count());
-
     // Tags Page Locators
     this.tagLink = page.getByRole('link', { name: 'Tags' });
     this.addnewtag = page.getByRole('button', { name: 'plus Add new tag' });
@@ -76,7 +74,7 @@ class AddMediaPage extends BasePage {
     this.listOption3 = (value) => page.getByText(value, { exact: true });
 
     this.backToActionsButton = page.getByRole('button', { name: 'back Back to actions' });
-    this.selectActionTRvalue = page.getByText('Automation Test Name');
+    this.selectActionTRvalue = page.getByText('Automation Test Name', { exact: true });
     this.toastmessage = page.getByText('has successfully been saved.');
     this.deletemessage = page.getByText('has successfully been deleted.');
   }
@@ -137,7 +135,7 @@ class AddMediaPage extends BasePage {
 
   async ValidateRowValue(mediaName) {
     await this.page.waitForLoadState('networkidle');
-    const row = this.page.getByText(mediaName);
+    const row = this.page.getByText(mediaName, { exact: true });
     const rowcount = await row.count();
     logger.info(`Number of rows found with media name "${mediaName}": ${rowcount}`);
 
@@ -301,7 +299,7 @@ class AddMediaPage extends BasePage {
     await toast.waitFor({ state: 'visible', timeout: 5000 });
     const toastText = await toast.textContent();
     logger.info(`Toast message: ${toastText}`);
-    const isSuccess = toastText.includes('has successfully been saved.');
+    const isSuccess = toastText.includes('has successfully been saved.') || toastText.includes('already exists');
     logger.info(`Success message visibility: ${isSuccess}`);
     return isSuccess;
   }

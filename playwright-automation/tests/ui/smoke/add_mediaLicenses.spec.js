@@ -13,7 +13,6 @@ test.beforeEach(async ({ masterFixture }) => {
   dataImport = masterFixture.dataImport;
   await appPage.navigateToUrl(editorUrl);
   await appPage.hardWait(5000);
-  console.log('Actions', dataImport);
 });
 test.describe('@smoke Media Licenses', () => {
   test(`Verify adding new media license`, async ({ page }) => {
@@ -34,10 +33,8 @@ test.describe('@smoke Media Licenses', () => {
       IngestSortOrder,
       licensettl,
     );
-    await dataImport.validateMessage();
     //Validate data is saved
     await expect(await dataImport.validateMessage()).toBe(true);
-    await dataImport.backbtnMediaL();
 
     await appPage.logOut();
   });

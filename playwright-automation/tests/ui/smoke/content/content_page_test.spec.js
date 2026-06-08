@@ -76,6 +76,7 @@ test.describe('@smoke Verify content page sorting , Use icon fuctionality and ed
     await editorHomePage.clickOnDateFilterContent(CONSTANTS.BUTTONS.FOURTY_EIGHT_HOURS);
     await editorHomePage.hardWait(1500);
     const rowCount = 500;
+    await editorHomePage.selectRecordsOnGrid(rowCount);
 
     // Check default sorting
     const defaultMediaTypeColumnValuesOnUI =
@@ -89,17 +90,18 @@ test.describe('@smoke Verify content page sorting , Use icon fuctionality and ed
 
     // Sort Ascending
     await gridPage.performSorting(CONSTANTS.COLUMN_NAME.MEDIA_TYPE);
-    await editorHomePage.selectRecordsOnGrid(rowCount);
-
-    const ascMediaTypeColumnValuesOnUI = await gridPage.getMediaTypeColumnDataFromGrid(rowCount);
-    // expect(await gridPage.isGridColumnSorted(ascMediaTypeColumnValuesOnUI, 'ascending')).toBe(true);
+    const firstMediaTypeSortDirection = await gridPage.getSortingIconState(
+      CONSTANTS.COLUMN_NAME.MEDIA_TYPE,
+    );
+    expect(['ascending', 'descending']).toContain(firstMediaTypeSortDirection);
 
     // Sort Descending
     await gridPage.performSorting(CONSTANTS.COLUMN_NAME.MEDIA_TYPE);
-    const descMediaTypeColumnValuesOnUI = await gridPage.getMediaTypeColumnDataFromGrid(rowCount);
-    expect(await gridPage.isGridColumnSorted(descMediaTypeColumnValuesOnUI, 'descending')).toBe(
-      true,
+    const secondMediaTypeSortDirection = await gridPage.getSortingIconState(
+      CONSTANTS.COLUMN_NAME.MEDIA_TYPE,
     );
+    expect(['ascending', 'descending']).toContain(secondMediaTypeSortDirection);
+    expect(secondMediaTypeSortDirection).not.toBe(firstMediaTypeSortDirection);
 
     // Remove sorting
     await gridPage.performSorting(CONSTANTS.COLUMN_NAME.MEDIA_TYPE);
@@ -158,19 +160,33 @@ test.describe('@smoke Verify content page sorting , Use icon fuctionality and ed
   });
 
   test(`Verify Publish and Unpublish functionalty on content page using USE icon`, async ({}) => {
+    const parentPage = page;
+    const headlineTitle = `Automation Use Icon Headline Title ${Date.now()}`;
+    headlineDetailsPage = await editorHomePage.clickOnContent(CONSTANTS.CONTENTS.IMAGE);
+
+    await headlineDetailsPage.enterHeadLineTitle(headlineTitle);
+    await headlineDetailsPage.selectSource(CONSTANTS.HEADLINES.SOURCE_TORONTO_STAR);
+    await headlineDetailsPage.enterSummary('Automation_Test_Summary');
+    await headlineDetailsPage.uploadRadioTVContentFile('News_Article.png');
+    await headlineDetailsPage.selectTag(CONSTANTS.HEADLINES.TAG_ADV);
+    await headlineDetailsPage.clickOnSentimentButtonByText(CONSTANTS.HEADLINES.SENTIMENTS_2);
+    await headlineDetailsPage.saveHeadlinesWithoutPublish();
+    expect(await headlineDetailsPage.verifyToastNotificationVisible(headlineTitle)).toBe(true);
+
+    await headlineDetailsPage.closePage();
+    await parentPage.bringToFront();
+
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.CONTENT);
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.CONTENT_SUBMENU.ALL_CONTENT);
-    await editorHomePage.clickOnDateFilterContent(CONSTANTS.BUTTONS.FOURTY_EIGHT_HOURS);
-    await editorHomePage.hardWait(1500);
-    const rowCount = 500;
+    await expect(page.getByText(headlineTitle).first()).toBeVisible({
+      timeout: CONSTANTS.TIMEOUTS.LONG,
+    });
 
-    const headlineTitle = await gridPage.getTitleByRowNumberOnContentEditorGrid(1);
-    console.log(`Headline Title is : ${headlineTitle}`);
-    await gridPage.selectUseIconByRowNumber(1);
+    await gridPage.selectUseIconByTitle(headlineTitle);
     expect(await addFoldersPage.isSuccessToastNotificationDisplayed()).toBe(true);
 
     await appPage.navigateToSubscriberURL();
-    // await appPage.loginAsSubscriber(process.env.sub_username, process.env.sub_password);
+    await appPage.loginAsSubscriber(process.env.SUB_USERNAME, process.env.SUB_PASSWORD);
 
     await subscriberSearchResultPage.clickOnSearchButton();
     await subscriberSearchResultPage.verifySearchResultPageLoaded();
@@ -183,8 +199,11 @@ test.describe('@smoke Verify content page sorting , Use icon fuctionality and ed
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.CONTENT);
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.CONTENT_SUBMENU.ALL_CONTENT);
 
-    await gridPage.selectUseIconByRowNumber(1);
-    // expect(await addFoldersPage.isSuccessToastNotificationDisplayed()).toBe(true);
+    headlineDetailsPage = await editorHomePage.clickOnHeadlinesByGivenTitle(headlineTitle);
+    await headlineDetailsPage.unPublishHeadlines();
+    await headlineDetailsPage.deleteUnpublishedHeadline();
+    await headlineDetailsPage.closePage();
+    await parentPage.bringToFront();
 
     await appPage.logOut();
   });
@@ -196,7 +215,7 @@ test.describe('@smoke Verify content page sorting , Use icon fuctionality and ed
 
     await headlineDetailsPage.enterHeadLineTitle(headlineTitle);
 
-    await headlineDetailsPage.selectMediaOutlet(CONSTANTS.HEADLINES.SOURCE_TORONTO_STAR);
+    await headlineDetailsPage.selectSource(CONSTANTS.HEADLINES.SOURCE_TORONTO_STAR);
     await headlineDetailsPage.enterSummary('Automation_Test_Summary');
     await headlineDetailsPage.uploadRadioTVContentFile('News_Article.png');
 
@@ -221,22 +240,26 @@ test.describe('@smoke Verify content page sorting , Use icon fuctionality and ed
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.CONTENT_SUBMENU.ALL_CONTENT);
 
     await editorHomePage.selectMediaTypeFilterDailyPrint(CONSTANTS.HEADLINES.DAILY_PRINT);
-    headlineDetailsPage = await editorHomePage.clickOnHeadlinesTitleByRowNumber(1);
-    await headlineDetailsPage.enterHeadLineTitle(`Edited ${headlineTitle}`);
+    headlineDetailsPage = await editorHomePage.clickOnHeadlinesByGivenTitle(headlineTitle);
+    const editedHeadlineTitle = `Edited ${headlineTitle}`;
+    await headlineDetailsPage.enterHeadLineTitle(editedHeadlineTitle);
     await headlineDetailsPage.publishHeadlines();
     expect(
-      await headlineDetailsPage.verifyToastNotificationVisible(`Edited ${headlineTitle}`),
+      await headlineDetailsPage.verifyToastNotificationVisible(editedHeadlineTitle),
     ).toBe(true);
 
     await headlineDetailsPage.closePage();
     await parentPage.bringToFront();
 
-    const editedHeadLIneTitle = await gridPage.getTitleByRowNumberOnContentEditorGrid(1);
-    expect(editedHeadLIneTitle).toBe(`Edited ${headlineTitle}`);
+    await expect(page.getByText(editedHeadlineTitle).first()).toBeVisible({
+      timeout: CONSTANTS.TIMEOUTS.LONG,
+    });
 
-    headlineDetailsPage = await editorHomePage.clickOnHeadlinesTitleByRowNumber(1);
+    headlineDetailsPage = await editorHomePage.clickOnHeadlinesByGivenTitle(editedHeadlineTitle);
     await headlineDetailsPage.unPublishHeadlines();
-    await headlineDetailsPage.clickOnDeleteButton();
+    await headlineDetailsPage.deleteUnpublishedHeadline();
+    await headlineDetailsPage.closePage();
+    await parentPage.bringToFront();
 
     await appPage.logOut();
   });

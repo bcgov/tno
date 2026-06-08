@@ -16,7 +16,7 @@ test.beforeEach(async ({ masterFixture }) => {
   console.log('Actions', dataImport);
 });
 test.describe('@smoke Media Licenses', () => {
-  test(`Login as ${process.env.app_username}`, async ({ page }) => {
+  test('Login as editor user', async ({ page }) => {
     await page.goto(editorUrl);
     await dataImport.navigateToDataImport();
     await dataImport.navigatetoDataLoctn();

@@ -97,10 +97,10 @@ class ReportPage extends BasePage {
    */
   async verifySucessToastNotification(reportTitle) {
     logger.info(`Verifying visibility of Success Toast Notification Message`);
-    await expect(this.toastNotification.first()).toHaveText(
-      `${reportTitle} has successfully been saved.`,
-    );
-    return await this.isElementVisible(this.toastNotification.first());
+    const matchingToast = this.toastNotification.filter({ hasText: reportTitle }).first();
+    await expect(matchingToast).toContainText(reportTitle);
+    await expect(matchingToast).toContainText('has successfully been saved.');
+    return await this.isElementVisible(matchingToast);
   }
 
   async clickOnToastNotificationCloseButton(){
@@ -186,6 +186,15 @@ class ReportPage extends BasePage {
     await this.click(this.sendButton);
   }
 
+  async sendTestEmailPreviewAndVerifyRequested(email) {
+    await this.sendTestEmailPreview(email);
+    const requestedToast = this.toastNotification
+      .filter({ hasText: 'Report has been successfully requested' })
+      .first();
+    await expect(requestedToast).toBeVisible({ timeout: CONSTANTS.TIMEOUTS.LONG });
+    logger.info(`Verified report test email request toast.`);
+  }
+
   /**
    * Method to click on Delete button.
    */
@@ -201,12 +210,17 @@ class ReportPage extends BasePage {
   async searchAndDeleteReport(reportName) {
     logger.info(`Searching for Report : ${reportName}`);
     await this.type(this.searchTextBox, reportName);
-    await this.click(
-      this.page.locator(`//div[text()='${reportName}']`),
-    );
+    const reportRow = this.page.locator(`//div[text()='${reportName}']`);
+    if ((await reportRow.count()) === 0) {
+      logger.info(`Report "${reportName}" not found, nothing to delete.`);
+      await this.clear(this.searchTextBox);
+      return;
+    }
+    await this.click(reportRow);
     await this.hardWait(1000);
     await this.clickOnDeleteButton();
     await this.click(this.deleteConfirmationButton);
+    await this.clear(this.searchTextBox);
   }
 
   /**

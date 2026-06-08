@@ -16,7 +16,7 @@ test.beforeEach(async ({ masterFixture }) => {
   console.log('TAGS', addMediaPage);
 });
 test.describe('@smoke Add TAGS', () => {
-  test(`Login as ${process.env.app_username}`, async ({ page }) => {
+  test('Login as editor user', async ({ page }) => {
     await page.goto(editorUrl);
     await addMediaPage.navigateToCC();
     await addMediaPage.navigateToTAGS();
@@ -25,8 +25,7 @@ test.describe('@smoke Add TAGS', () => {
     const TagCode = `AGG Auto `;
     const TagName = `Autotest Name`;
     const DescriptionTag = `Automation Test Description`;
-    const randomNumber = Math.floor(Math.random() * 100) + 1;
-    const TagSortOrder = `${randomNumber}`;
+    const TagSortOrder = `99`;
 
     await addMediaPage.enterTagDetails(TagCode, TagName, DescriptionTag, TagSortOrder);
 
