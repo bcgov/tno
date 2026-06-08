@@ -36,3 +36,22 @@ Production is not wired into this flow yet.
   workflows.
 - Elasticsearch migration is not part of `deploy-all.yml` yet because dev uses
   OpenShift-hosted Elasticsearch while test and prod use cloud Elasticsearch.
+
+## Shared Actions
+
+These local actions hold the common deployment pieces used by the newer flows:
+
+- `actions/build-scan-push-image`: builds an image, runs Trivy, backs up the
+  existing ACR tag, and pushes the new image tag. ACR login, backup, and push
+  operations retry with increasing waits.
+- `actions/deploy-openshift-workload`: applies kustomize, restarts the target
+  workload, waits for rollout, and can update the API StatefulSet when needed.
+- `actions/install-oc`: installs a pinned `oc` client directly from the
+  OpenShift mirror. This avoids the Node 20 and cache warnings from
+  `redhat-actions/openshift-tools-installer@v1`.
+- `actions/openshift-login`: logs in to OpenShift with retry support and
+  increasing waits.
+
+DB migration also uses `actions/install-oc` and `actions/openshift-login`.
+Its image build and ACR push steps are still inside
+`_reusable-db-migration-cd.yml`.
