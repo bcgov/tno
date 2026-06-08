@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Build Docker Image
         working-directory: ./libs/net
@@ -51,9 +51,9 @@ jobs:
           image-ref: '${{ env.IMAGE_NAME }}:${{ github.sha }}'
 
       - name: Install oc CLI
-        uses: redhat-actions/openshift-tools-installer@v1
-        with:
-          oc: latest
+        # Keep this local until redhat-actions/openshift-tools-installer has a
+        # Node 24 compatible release without cache/archive selection warnings.
+        uses: ./.github/actions/install-oc
 
       - name: Login to OpenShift
         uses: ./.github/actions/openshift-login
