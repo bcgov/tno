@@ -169,7 +169,15 @@ jobs:
   db-migration:
     name: DB Migration
     needs: [detect-changes, build]
-    if: ${{ always() && inputs.skip_db_migration == false && needs.detect-changes.outputs.run_db_migration == 'true' && (needs.build.result == 'success' || needs.build.result == 'skipped') }}
+    # Run migration only when detection requested it, the user did not skip it,
+    # and the image build phase did not fail.
+    if: >-
+      ${{
+        always() &&
+        inputs.skip_db_migration == false &&
+        needs.detect-changes.outputs.run_db_migration == 'true' &&
+        (needs.build.result == 'success' || needs.build.result == 'skipped')
+      }}
     uses: ./.github/workflows/_reusable-db-migration-cd.yml
     with:
       environment: ${{ inputs.environment }}
@@ -187,7 +195,15 @@ jobs:
   deploy-api:
     name: Deploy API
     needs: [detect-changes, build, db-migration]
-    if: ${{ always() && needs.detect-changes.outputs.deploy_api == 'true' && (needs.build.result == 'success' || needs.build.result == 'skipped') && (needs.db-migration.result == 'success' || needs.db-migration.result == 'skipped') }}
+    # Deploy API only when selected, after build and optional DB migration have
+    # either completed successfully or were skipped.
+    if: >-
+      ${{
+        always() &&
+        needs.detect-changes.outputs.deploy_api == 'true' &&
+        (needs.build.result == 'success' || needs.build.result == 'skipped') &&
+        (needs.db-migration.result == 'success' || needs.db-migration.result == 'skipped')
+      }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     env:
@@ -240,12 +256,21 @@ jobs:
   deploy-services:
     name: Deploy ${{ matrix.name }}
     needs: [detect-changes, build, db-migration, deploy-api]
-    if: ${{ always() && needs.detect-changes.outputs.deploy_services == 'true' && (needs.build.result == 'success' || needs.build.result == 'skipped') && (needs.db-migration.result == 'success' || needs.db-migration.result == 'skipped') && (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped') }}
+    # Deploy backend services only when selected, after build, DB migration, and
+    # any selected API deployment have cleared.
+    if: >-
+      ${{
+        always() &&
+        needs.detect-changes.outputs.deploy_services == 'true' &&
+        (needs.build.result == 'success' || needs.build.result == 'skipped') &&
+        (needs.db-migration.result == 'success' || needs.db-migration.result == 'skipped') &&
+        (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped')
+      }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     strategy:
       fail-fast: false
-      max-parallel: 6
+      max-parallel: 4
       matrix: ${{ fromJSON(needs.detect-changes.outputs.service_matrix) }}
     env:
       OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
@@ -282,7 +307,17 @@ jobs:
   deploy-frontend:
     name: Deploy ${{ matrix.name }}
     needs: [detect-changes, build, db-migration, deploy-api, deploy-services]
-    if: ${{ always() && needs.detect-changes.outputs.deploy_frontend == 'true' && (needs.build.result == 'success' || needs.build.result == 'skipped') && (needs.db-migration.result == 'success' || needs.db-migration.result == 'skipped') && (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped') && (needs.deploy-services.result == 'success' || needs.deploy-services.result == 'skipped') }}
+    # Deploy frontend apps only when selected, after all earlier rollout phases
+    # have either completed successfully or were skipped.
+    if: >-
+      ${{
+        always() &&
+        needs.detect-changes.outputs.deploy_frontend == 'true' &&
+        (needs.build.result == 'success' || needs.build.result == 'skipped') &&
+        (needs.db-migration.result == 'success' || needs.db-migration.result == 'skipped') &&
+        (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped') &&
+        (needs.deploy-services.result == 'success' || needs.deploy-services.result == 'skipped')
+      }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     strategy:
