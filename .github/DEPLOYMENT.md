@@ -64,6 +64,14 @@ The build, service deploy, and frontend deploy phases use matrix jobs. Items
 inside the same matrix can run in parallel, but each phase waits for the earlier
 phase through `needs`.
 
+The build phase uses the shared `actions/build-scan-push-image` action. Docker
+build failures retry.
+
+OpenShift deploy phases use the shared `actions/install-oc`,
+`actions/openshift-login`, and `actions/deploy-openshift-workload` actions.
+`install-oc` is a local shell action that pins the OpenShift client version and
+avoids the warning noise from `redhat-actions/openshift-tools-installer@v1`.
+
 ## Change Detection
 
 Changed deploys are decided by:
@@ -149,6 +157,10 @@ In `all` mode, DB migration runs unless `skip_db_migration` is `true`.
 
 The migration job builds the EF migration bundle from `libs/net` and runs it as
 a temporary OpenShift pod.
+
+DB migration uses the same local `install-oc` and `openshift-login` actions as
+the orchestrated deploy jobs. Its Docker build, Trivy scan, ACR backup, and ACR
+push steps still live in `_reusable-db-migration-cd.yml`.
 
 ## API StatefulSet
 

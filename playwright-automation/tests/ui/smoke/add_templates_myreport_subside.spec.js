@@ -21,9 +21,8 @@ test.describe('@smoke Add Templates to My Report Subscriber Side', () => {
     expect(await reportSubscriberSidePage.newReportButton).toBeVisible();
     await reportSubscriberSidePage.clickOnNewReportButton();
     await page.waitForTimeout(2000);
-    const randomNum = Math.floor(Math.random() * 1000);
 
-    await reportSubscriberSidePage.enterReportName('Test Report' + randomNum);
+    await reportSubscriberSidePage.enterReportName('Automation_MyReport');
     await reportSubscriberSidePage.enterReportDescription(
       'This is a test report created by automation script.',
     );

@@ -13,7 +13,6 @@ test.beforeEach(async ({ masterFixture }) => {
   addMediaPage = masterFixture.addMediaPage;
   await appPage.navigateToUrl(editorUrl);
   await appPage.hardWait(5000);
-  console.log('Actions', addMediaPage);
 });
 test.describe('@smoke Add New Actions', () => {
   test(`Verify user can Add new action successfully `, async ({ page }) => {

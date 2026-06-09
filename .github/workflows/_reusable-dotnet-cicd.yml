@@ -67,14 +67,6 @@ on:
         required: true
       ACR_PASSWORD:
         required: true
-      CHES_CLIENT_ID:
-        required: false
-      CHES_CLIENT_SECRET:
-        required: false
-      CHES_SENDER_EMAIL:
-        required: false
-      CHES_NOTIFY_EMAIL:
-        required: false
 
 permissions:
   contents: read
@@ -121,17 +113,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build Docker Image
-        run: |
-          docker build \
-            -f ${{ inputs.dockerfile }} \
-            -t ${{ inputs.image_name }}:${{ github.sha }} \
-            .
-
-      - name: Trivy Container Scan
-        uses: ./.github/actions/trivy-scan
+      - name: Build, scan, and push image
+        uses: ./.github/actions/build-scan-push-image
         with:
-          image-ref: '${{ inputs.image_name }}:${{ github.sha }}'
+          image_name: ${{ inputs.image_name }}
+          dockerfile: ${{ inputs.dockerfile }}
+          context: .
+          source_tag: ${{ github.sha }}
+          image_tag: ${{ env.IMAGE_TAG }}
+          acr_url: ${{ env.ACR_URL }}
+          acr_username: ${{ secrets.ACR_USERNAME }}
+          acr_password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Install oc CLI
         uses: redhat-actions/openshift-tools-installer@v1
@@ -139,73 +131,22 @@ jobs:
           oc: latest
 
       - name: Login to OpenShift
-        run: |
-          oc login \
-            --token=${{ secrets.OPENSHIFT_TOKEN }} \
-            --server=${{ env.OPENSHIFT_SERVER }}
+        uses: ./.github/actions/openshift-login
+        with:
+          token: ${{ secrets.OPENSHIFT_TOKEN }}
+          server: ${{ env.OPENSHIFT_SERVER }}
 
-      - name: Login to ACR
-        run: |
-          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_URL }} \
-            -u ${{ secrets.ACR_USERNAME }} \
-            --password-stdin
-
-      - name: Backup current image tag
-        continue-on-error: true
-        run: |
-          echo "Backing up ${{ inputs.image_name }}:${{ env.IMAGE_TAG }} → ${{ inputs.image_name }}:${{ env.IMAGE_TAG }}-backup"
-          docker pull ${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }} && \
-          docker tag \
-            ${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }} \
-            ${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }}-backup && \
-          docker push \
-            ${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }}-backup
-
-      - name: Push Image to ACR
-        run: |
-          docker tag \
-            ${{ inputs.image_name }}:${{ github.sha }} \
-            ${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }}
-          docker push \
-            ${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }}
-
-      - name: Deploy via Kustomize
-        run: oc apply -k ${{ inputs.kustomize_dev_path }} -n ${{ env.OPENSHIFT_NAMESPACE }}
-
-      - name: Rollout Restart
-        run: |
-          oc rollout restart ${{ inputs.resource_type }}/${{ inputs.deployment_name }} \
-            -n ${{ env.OPENSHIFT_NAMESPACE }}
-
-      - name: Verify Rollout
-        continue-on-error: ${{ inputs.continue_on_error_verify }}
-        run: |
-          oc rollout status ${{ inputs.resource_type }}/${{ inputs.deployment_name }} \
-            -n ${{ env.OPENSHIFT_NAMESPACE }} \
-            --timeout=${{ inputs.rollout_timeout }}
-
-      - name: Update StatefulSet Image
-        if: ${{ inputs.statefulset_name != '' }}
-        continue-on-error: true
-        run: |
-          oc set image statefulset/${{ inputs.statefulset_name }} \
-            ${{ inputs.statefulset_name }}=${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }} \
-            -n ${{ env.OPENSHIFT_NAMESPACE }}
-
-      - name: Rollout StatefulSet
-        if: ${{ inputs.statefulset_name != '' }}
-        continue-on-error: true
-        run: |
-          oc rollout restart statefulset/${{ inputs.statefulset_name }} \
-            -n ${{ env.OPENSHIFT_NAMESPACE }}
-
-      - name: Verify StatefulSet Rollout
-        if: ${{ inputs.statefulset_name != '' }}
-        continue-on-error: true
-        run: |
-          oc rollout status statefulset/${{ inputs.statefulset_name }} \
-            -n ${{ env.OPENSHIFT_NAMESPACE }} \
-            --timeout=${{ inputs.rollout_timeout }}
+      - name: Deploy OpenShift workload
+        uses: ./.github/actions/deploy-openshift-workload
+        with:
+          namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+          resource_type: ${{ inputs.resource_type }}
+          resource_name: ${{ inputs.deployment_name }}
+          rollout_timeout: ${{ inputs.rollout_timeout }}
+          continue_on_error_verify: ${{ inputs.continue_on_error_verify && 'true' || 'false' }}
+          kustomize_path: ${{ inputs.kustomize_dev_path }}
+          statefulset_name: ${{ inputs.statefulset_name }}
+          statefulset_image: ${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }}
 
       - name: Deployment Report
         if: always()
@@ -232,36 +173,6 @@ jobs:
           echo "--- recent logs ---"
           sleep 60
           oc logs $POD -n ${{ env.OPENSHIFT_NAMESPACE }} --tail=20
-
-      - name: Notify Deployment Result
-        if: always()
-        continue-on-error: true
-        run: |
-          TOKEN=$(curl -s -X POST \
-            "https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token" \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            -d "grant_type=client_credentials" \
-            -d "client_id=${{ secrets.CHES_CLIENT_ID }}" \
-            -d "client_secret=${{ secrets.CHES_CLIENT_SECRET }}" \
-            | jq -r '.access_token')
-
-          if [ "${{ job.status }}" = "success" ]; then
-            SUBJECT="Deployment Successful - ${{ inputs.image_name }} to ${{ env.OPENSHIFT_NAMESPACE }}"
-          else
-            SUBJECT="Deployment FAILED - ${{ inputs.image_name }} to ${{ env.OPENSHIFT_NAMESPACE }}"
-          fi
-
-          curl -s -X POST "https://ches-dev.api.gov.bc.ca/api/v1/email" \
-            -H "Authorization: Bearer $TOKEN" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"from\": \"${{ secrets.CHES_SENDER_EMAIL }}\",
-              \"to\": [\"${{ secrets.CHES_NOTIFY_EMAIL }}\"],
-              \"subject\": \"$SUBJECT\",
-              \"bodyType\": \"text\",
-              \"body\": \"SHA: ${{ github.sha }}\nRun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
-            }"
-
   cd-test:
     name: CD — Deploy to Test
     runs-on: ubuntu-latest
@@ -274,17 +185,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build Docker Image
-        run: |
-          docker build \
-            -f ${{ inputs.dockerfile }} \
-            -t ${{ inputs.image_name }}:${{ github.sha }} \
-            .
-
-      - name: Trivy Container Scan
-        uses: ./.github/actions/trivy-scan
+      - name: Build, scan, and push image
+        uses: ./.github/actions/build-scan-push-image
         with:
-          image-ref: '${{ inputs.image_name }}:${{ github.sha }}'
+          image_name: ${{ inputs.image_name }}
+          dockerfile: ${{ inputs.dockerfile }}
+          context: .
+          source_tag: ${{ github.sha }}
+          image_tag: ${{ env.IMAGE_TAG }}
+          acr_url: ${{ env.ACR_URL }}
+          acr_username: ${{ secrets.ACR_USERNAME }}
+          acr_password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Install oc CLI
         uses: redhat-actions/openshift-tools-installer@v1
@@ -292,73 +203,22 @@ jobs:
           oc: latest
 
       - name: Login to OpenShift
-        run: |
-          oc login \
-            --token=${{ secrets.OPENSHIFT_TOKEN }} \
-            --server=${{ env.OPENSHIFT_SERVER }}
+        uses: ./.github/actions/openshift-login
+        with:
+          token: ${{ secrets.OPENSHIFT_TOKEN }}
+          server: ${{ env.OPENSHIFT_SERVER }}
 
-      - name: Login to ACR
-        run: |
-          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_URL }} \
-            -u ${{ secrets.ACR_USERNAME }} \
-            --password-stdin
-
-      - name: Backup current image tag
-        continue-on-error: true
-        run: |
-          echo "Backing up ${{ inputs.image_name }}:${{ env.IMAGE_TAG }} → ${{ inputs.image_name }}:${{ env.IMAGE_TAG }}-backup"
-          docker pull ${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }} && \
-          docker tag \
-            ${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }} \
-            ${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }}-backup && \
-          docker push \
-            ${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }}-backup
-
-      - name: Push Image to ACR
-        run: |
-          docker tag \
-            ${{ inputs.image_name }}:${{ github.sha }} \
-            ${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }}
-          docker push \
-            ${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }}
-
-      - name: Deploy via Kustomize
-        run: oc apply -k ${{ inputs.kustomize_test_path }} -n ${{ env.OPENSHIFT_NAMESPACE }}
-
-      - name: Rollout Restart
-        run: |
-          oc rollout restart ${{ inputs.resource_type }}/${{ inputs.deployment_name }} \
-            -n ${{ env.OPENSHIFT_NAMESPACE }}
-
-      - name: Verify Rollout
-        continue-on-error: ${{ inputs.continue_on_error_verify }}
-        run: |
-          oc rollout status ${{ inputs.resource_type }}/${{ inputs.deployment_name }} \
-            -n ${{ env.OPENSHIFT_NAMESPACE }} \
-            --timeout=${{ inputs.rollout_timeout }}
-
-      - name: Update StatefulSet Image
-        if: ${{ inputs.statefulset_name != '' }}
-        continue-on-error: true
-        run: |
-          oc set image statefulset/${{ inputs.statefulset_name }} \
-            ${{ inputs.statefulset_name }}=${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }} \
-            -n ${{ env.OPENSHIFT_NAMESPACE }}
-
-      - name: Rollout StatefulSet
-        if: ${{ inputs.statefulset_name != '' }}
-        continue-on-error: true
-        run: |
-          oc rollout restart statefulset/${{ inputs.statefulset_name }} \
-            -n ${{ env.OPENSHIFT_NAMESPACE }}
-
-      - name: Verify StatefulSet Rollout
-        if: ${{ inputs.statefulset_name != '' }}
-        continue-on-error: true
-        run: |
-          oc rollout status statefulset/${{ inputs.statefulset_name }} \
-            -n ${{ env.OPENSHIFT_NAMESPACE }} \
-            --timeout=${{ inputs.rollout_timeout }}
+      - name: Deploy OpenShift workload
+        uses: ./.github/actions/deploy-openshift-workload
+        with:
+          namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+          resource_type: ${{ inputs.resource_type }}
+          resource_name: ${{ inputs.deployment_name }}
+          rollout_timeout: ${{ inputs.rollout_timeout }}
+          continue_on_error_verify: ${{ inputs.continue_on_error_verify && 'true' || 'false' }}
+          kustomize_path: ${{ inputs.kustomize_test_path }}
+          statefulset_name: ${{ inputs.statefulset_name }}
+          statefulset_image: ${{ env.ACR_URL }}/${{ inputs.image_name }}:${{ env.IMAGE_TAG }}
 
       - name: Deployment Report
         if: always()
@@ -385,32 +245,3 @@ jobs:
           echo "--- recent logs ---"
           sleep 60
           oc logs $POD -n ${{ env.OPENSHIFT_NAMESPACE }} --tail=20
-
-      - name: Notify Deployment Result
-        if: always()
-        continue-on-error: true
-        run: |
-          TOKEN=$(curl -s -X POST \
-            "https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token" \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            -d "grant_type=client_credentials" \
-            -d "client_id=${{ secrets.CHES_CLIENT_ID }}" \
-            -d "client_secret=${{ secrets.CHES_CLIENT_SECRET }}" \
-            | jq -r '.access_token')
-
-          if [ "${{ job.status }}" = "success" ]; then
-            SUBJECT="Deployment Successful - ${{ inputs.image_name }} to ${{ env.OPENSHIFT_NAMESPACE }}"
-          else
-            SUBJECT="Deployment FAILED - ${{ inputs.image_name }} to ${{ env.OPENSHIFT_NAMESPACE }}"
-          fi
-
-          curl -s -X POST "https://ches-dev.api.gov.bc.ca/api/v1/email" \
-            -H "Authorization: Bearer $TOKEN" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"from\": \"${{ secrets.CHES_SENDER_EMAIL }}\",
-              \"to\": [\"${{ secrets.CHES_NOTIFY_EMAIL }}\"],
-              \"subject\": \"$SUBJECT\",
-              \"bodyType\": \"text\",
-              \"body\": \"SHA: ${{ github.sha }}\nRun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
-            }"

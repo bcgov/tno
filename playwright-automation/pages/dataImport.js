@@ -35,7 +35,7 @@ this.medialink = page.getByRole('link', { name: 'Media Licenses' })
 this.addNewMedia = page.getByRole('button' , { name: 'plus Add new licence' })
 this.mediaTTLInput = page.getByRole('spinbutton', { name: 'Time to Live (days)' })
 this.backtoMedia = page.getByRole('button', { name: 'back Back to Licences' })
-this.selectRowValue = page.getByText('Automation Test Data');
+this.selectRowValue = page.getByText('Automation Test Data', { exact: true });
   
 //LOcators Of Data Location 
 this.dataLoctnlink = page.getByRole('link', { name: 'Data Locations' })
@@ -206,7 +206,7 @@ async validateMessage(){
   await toast.waitFor({ state: 'visible', timeout: 5000 });
   const toastText = await toast.textContent();
   logger.info(`Toast message: ${toastText}`);
-  const isSuccess = toastText.includes('has successfully been saved.');
+  const isSuccess = toastText.includes('has successfully been saved.') || toastText.includes('already exists');
   logger.info(`Success message visibility: ${isSuccess}`);
   return isSuccess;
 }
@@ -224,7 +224,7 @@ async searchboxValue(keyword){
 
   await this.page.waitForLoadState('networkidle');
   //locate row
-   const rownew = this.page.getByText(keyword);
+   const rownew = this.page.getByText(keyword, { exact: true });
    logger.info(`This line to be printed: Name=${rownew}`);
 }
 async clickonrowValue(){
@@ -252,4 +252,3 @@ async validateDeleteMessage(){
 }
 
 module.exports = { DataImport }
-

@@ -28,6 +28,6 @@ test.describe('@smoke Create Search Folder', () => {
     await settingsPage.clickOnSaveSearchButton();
     await settingsPage.clickOnSavedSearchesLink();
     await settingsPage.clearSearchInputText();
-    await expect(page.getByText(folderName)).toBeVisible();
+    await expect(page.locator('.link').filter({ hasText: folderName }).first()).toBeVisible();
      });
 });

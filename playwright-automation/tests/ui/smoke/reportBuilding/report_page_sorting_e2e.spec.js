@@ -61,7 +61,6 @@ test.describe('@smoke Report page grid column Sorting functionality', () => {
 
     // Sort Ascending
     await gridPage.performSortingOnFoldersGrid(CONSTANTS.COLUMN_NAME.NAME);
-
     const ascNameColumnValuesOnUI = await gridPage.getReportGridNameColumnDataFromGrid(rowCount);
     expect(await gridPage.isGridColumnSorted(ascNameColumnValuesOnUI, 'ascending')).toBe(true);
 
@@ -145,7 +144,6 @@ test.describe('@smoke Report page grid column Sorting functionality', () => {
 
     // Sort Ascending
     await gridPage.performSortingOnFoldersGrid(CONSTANTS.COLUMN_NAME.DESCRIPTION);
-
     const ascDescriptionColumnValuesOnUI =
       await gridPage.getReportGridDescriptionColumnDataFromGrid(rowCount);
     expect(await gridPage.isGridColumnSorted(ascDescriptionColumnValuesOnUI, 'ascending')).toBe(

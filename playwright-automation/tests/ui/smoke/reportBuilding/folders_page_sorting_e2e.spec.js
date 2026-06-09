@@ -61,8 +61,6 @@ test.describe('@smoke Filters page grid column Sorting functionality', () => {
 
     // Sort Ascending
     await gridPage.performSortingOnFoldersGrid(CONSTANTS.COLUMN_NAME.NAME);
-    // await editorHomePage.selectRecordsOnGrid(rowCount);
-
     const ascNameColumnValuesOnUI = await gridPage.getFolderGridNameColumnDataFromGrid(rowCount);
     expect(await gridPage.isGridColumnSorted(ascNameColumnValuesOnUI, 'ascending')).toBe(true);
 

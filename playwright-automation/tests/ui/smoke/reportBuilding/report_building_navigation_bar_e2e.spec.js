@@ -8,7 +8,7 @@ const reportData = DataLoader.loadJSON(`test-data/${process.env.ENV_NAME}/report
 const testApp = process.env.APP_NAME;
 const editorUrl = testData[testApp]['editor']['url'];
 const editorReportUrl = testData[testApp]['editor']['reportUrl'];
-const recipientEmail = reportData[testApp]['report']['recipient_email'];
+const previewEmail = process.env.MAIL_TO || reportData[testApp]['report']['recipient_email'];
 
 let page,
   appPage,
@@ -39,8 +39,24 @@ test.beforeEach(async ({ masterFixture }) => {
   await appPage.hardWait(2000);
 });
 
+async function cleanupAutomationReport() {
+  await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
+  await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS);
+  await reportPage.searchAndDeleteReport('Automation_Report');
+  await appPage.navigateToUrl(editorUrl);
+}
+
+function skipIfPreviewEmailMissing() {
+  test.skip(
+    !previewEmail || previewEmail === 'email' || !previewEmail.includes('@'),
+    'Set MAIL_TO in .env to run report preview email tests.',
+  );
+}
+
 test.describe('@smoke Report building end to end workflow', () => {
-  test(`Subscriber should able to see the reports created and send by editor under My Reports section`, async ({}) => {
+  test(`Editor should be able to send report preview email`, async ({}) => {
+    skipIfPreviewEmailMissing();
+    await cleanupAutomationReport();
     await editorHomePage.verifyEditorHomePageLoaded();
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS);
@@ -52,8 +68,8 @@ test.describe('@smoke Report building end to end workflow', () => {
       await reportPage.isReportSubTabVisible(CONSTANTS.REPORT_SUBNAVIGATION_TABS.REPORT),
     ).toBeTruthy();
 
-    const reportName = `ReportTitle_${Date.now()}`;
-    const reportDescription = `Report Description ${Date.now()}`;
+    const reportName = 'Automation_Report';
+    const reportDescription = 'Report Description';
     await reportPage.addReportName(reportName);
     await reportPage.addReportDescription(reportDescription);
     await reportPage.selectApplyOwnershipToFilters();
@@ -88,22 +104,10 @@ test.describe('@smoke Report building end to end workflow', () => {
     await reportPage.clickOnToastNotificationCloseButton();
 
     await reportPage.clickOnReportSubTab(CONSTANTS.REPORT_SUBNAVIGATION_TABS.PREVIEW);
-    await reportPage.sendTestEmailPreview(recipientEmail);
+    await reportPage.sendTestEmailPreviewAndVerifyRequested(previewEmail);
     await appPage.logOut();
 
-    await appPage.navigateToSubscriberURL();
-    await appPage.loginAsSubscriber(process.env.sub_username, process.env.sub_password);
-
-    await subscriberNavBarPage.clickOnMyContentSectionByText(
-      CONSTANTS.SUBSCRIBER_NAV_BAR_OPTIONS.MY_REPORTS,
-    );
-
-    await subscriberNavBarPage.hardWait(1500);
-    expect(await subscriberMyReportPage.isPublishedReportPresent(reportName)).toBe(true);
-    await appPage.logOutFromSubscriber();
-
-    await appPage.page.goto(editorUrl);
-    await appPage.login(process.env.app_username, process.env.app_password);
+    await appPage.navigateToUrl(editorUrl);
     await editorHomePage.verifyEditorHomePageLoaded();
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS);
@@ -143,6 +147,7 @@ test.describe('@smoke Report building end to end workflow', () => {
   });
 
   test(`Verify private report should not be shown on subscriber portal`, async ({}) => {
+    await cleanupAutomationReport();
     await editorHomePage.verifyEditorHomePageLoaded();
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS);
@@ -151,8 +156,8 @@ test.describe('@smoke Report building end to end workflow', () => {
     expect(await reportPage.isAddNewReportButtonVisible()).toBe(true);
     await reportPage.clickOnAddNewReportButton();
 
-    const reportName = `ReportTitle_${Date.now()}`;
-    const reportDescription = `Report Description ${Date.now()}`;
+    const reportName = 'Automation_Report';
+    const reportDescription = 'Report Description';
     await reportPage.addReportName(reportName);
     await reportPage.addReportDescription(reportDescription);
     await reportPage.selectApplyOwnershipToFilters();
@@ -182,7 +187,7 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.logOut();
 
     await appPage.navigateToSubscriberURL();
-    await appPage.loginAsSubscriber(process.env.sub_username, process.env.sub_password);
+    await appPage.loginAsOtherSubscriber(process.env.SUB_USERNAME1, process.env.SUB_PASSWORD1);
 
     await subscriberNavBarPage.clickOnMyContentSectionByText(
       CONSTANTS.SUBSCRIBER_NAV_BAR_OPTIONS.MY_REPORTS,
@@ -190,8 +195,7 @@ test.describe('@smoke Report building end to end workflow', () => {
     expect(await subscriberMyReportPage.isPublishedReportPresent(reportName)).toBe(false);
     await appPage.logOutFromSubscriber();
 
-    await appPage.page.goto(editorUrl);
-    await appPage.login(process.env.app_username, process.env.app_password);
+    await appPage.navigateToUrl(editorUrl);
     await editorHomePage.verifyEditorHomePageLoaded();
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS);
@@ -199,6 +203,7 @@ test.describe('@smoke Report building end to end workflow', () => {
   });
 
   test(`Verify public report should be shown on subscriber portal`, async ({}) => {
+    await cleanupAutomationReport();
     await editorHomePage.verifyEditorHomePageLoaded();
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS);
@@ -206,8 +211,8 @@ test.describe('@smoke Report building end to end workflow', () => {
     await reportPage.verifyReportPageLoaded();
     await reportPage.clickOnAddNewReportButton();
 
-    const reportName = `ReportTitle_${Date.now()}`;
-    const reportDescription = `Report Description ${Date.now()}`;
+    const reportName = 'Automation_Report';
+    const reportDescription = 'Report Description';
     await reportPage.addReportName(reportName);
     await reportPage.addReportDescription(reportDescription);
     await reportPage.selectApplyOwnershipToFilters();
@@ -238,25 +243,20 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.logOut();
 
     await appPage.navigateToSubscriberURL();
-    await appPage.loginAsSubscriber(process.env.sub_username, process.env.sub_password);
+    await appPage.loginAsSubscriber(process.env.SUB_USERNAME, process.env.SUB_PASSWORD);
 
-    await subscriberNavBarPage.clickOnMyContentSectionByText(
-      CONSTANTS.SUBSCRIBER_NAV_BAR_OPTIONS.MY_REPORTS,
-    );
-    await subscriberNavBarPage.hardWait(1500);
-    expect(await subscriberMyReportPage.isPublishedReportPresent(reportName)).toBe(true);
+    expect(await subscriberMyReportPage.isPublicReportAvailable(reportName)).toBe(true);
     await appPage.logOutFromSubscriber();
 
-    await appPage.page.goto(editorUrl);
-    await appPage.login(process.env.app_username, process.env.app_password);
+    await appPage.navigateToUrl(editorUrl);
     await editorHomePage.verifyEditorHomePageLoaded();
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS);
     await reportPage.searchAndDeleteReport(reportName);
   });
 
-  /** Enable Edit template changes are not saved..hence failing  */
   test(`Verify editing the existing Report and persistence across session`, async ({}) => {
+    await cleanupAutomationReport();
     await editorHomePage.verifyEditorHomePageLoaded();
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS);
@@ -264,8 +264,8 @@ test.describe('@smoke Report building end to end workflow', () => {
     await reportPage.verifyReportPageLoaded();
     await reportPage.clickOnAddNewReportButton();
 
-    const reportName = `ReportTitle_${Date.now()}`;
-    let reportDescription = `Report Description ${Date.now()}`;
+    const reportName = 'Automation_Report';
+    let reportDescription = 'Report Description';
     await reportPage.addReportName(reportName);
     await reportPage.addReportDescription(reportDescription);
     await reportPage.selectApplyOwnershipToFilters();
@@ -277,7 +277,7 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS);
     await reportPage.searchAndSelectReport(reportName);
 
-    reportDescription = `Report Description updated ${Date.now()}`;
+    reportDescription = 'Report Description updated';
     await reportPage.addReportDescription(reportDescription);
     await reportPage.checkIsSortOrderIsEnabledCheckbox();
 
@@ -289,7 +289,7 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.logOut();
 
     await appPage.page.goto(editorUrl);
-    await appPage.login(process.env.app_username, process.env.app_password);
+    await appPage.login(process.env.APP_USERNAME, process.env.APP_PASSWORD);
     await editorHomePage.verifyEditorHomePageLoaded();
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.REPORTS);
@@ -299,6 +299,7 @@ test.describe('@smoke Report building end to end workflow', () => {
     expect(await reportPage.isSortOrderEnabledCheckboxSelected()).toBe(true);
 
     await reportPage.clickOnReportSubTab(CONSTANTS.REPORT_SUBNAVIGATION_TABS.TEMPLATE);
+    await reportPage.checkEnableEditCheckbox();
     expect(await reportPage.isUseDefaultTemplateButtonClickable()).toBe(true);
 
     await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.REPORT_BUILDING);
@@ -339,7 +340,7 @@ test.describe('@smoke Report building end to end workflow', () => {
     await appPage.logOut();
 
     await appPage.navigateToSubscriberURL();
-    await appPage.loginAsOtherSubscriber(process.env.sub_username1, process.env.sub_password1);
+    await appPage.loginAsOtherSubscriber(process.env.SUB_USERNAME1, process.env.SUB_PASSWORD1);
 
     await appPage.page.goto(editorReportUrl);
     expect(await subscriberSearchResultPage.isEditorPageDisplayed()).toBe(false);

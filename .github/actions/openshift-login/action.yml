@@ -1,0 +1,44 @@
+name: OpenShift Login
+description: Log in to OpenShift with retry support.
+
+inputs:
+  token:
+    description: OpenShift token.
+    required: true
+  server:
+    description: OpenShift API server URL.
+    required: true
+  attempts:
+    description: Number of login attempts.
+    required: false
+    default: '5'
+  retry_seconds:
+    description: Base seconds to wait between attempts. The wait increases after each failed attempt.
+    required: false
+    default: '20'
+
+runs:
+  using: composite
+  steps:
+    - name: Login to OpenShift
+      shell: bash
+      env:
+        OPENSHIFT_TOKEN: ${{ inputs.token }}
+        OPENSHIFT_SERVER: ${{ inputs.server }}
+        LOGIN_ATTEMPTS: ${{ inputs.attempts }}
+        RETRY_SECONDS: ${{ inputs.retry_seconds }}
+      run: |
+        for attempt in $(seq 1 "${LOGIN_ATTEMPTS}"); do
+          if oc login --token="${OPENSHIFT_TOKEN}" --server="${OPENSHIFT_SERVER}"; then
+            exit 0
+          fi
+
+          if [ "$attempt" -eq "${LOGIN_ATTEMPTS}" ]; then
+            echo "OpenShift login failed after ${attempt} attempts." >&2
+            exit 1
+          fi
+
+          WAIT_SECONDS=$((RETRY_SECONDS * attempt))
+          echo "OpenShift login failed on attempt ${attempt}/${LOGIN_ATTEMPTS}; retrying in ${WAIT_SECONDS} seconds..."
+          sleep "${WAIT_SECONDS}"
+        done

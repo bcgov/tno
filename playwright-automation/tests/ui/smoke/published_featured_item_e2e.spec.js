@@ -20,23 +20,27 @@ test.beforeEach(async ({ masterFixture }) => {
 test.describe('@smoke Featued content Publishing', () => {
   test(`Editor publishes an item and Subscriber can see it under Featued column`, async ({}) => {
     const parentPage = page;
-    headlineDetailsPage = await editorHomePage.clickOnHeadlinesTitleByRowNumber(6);
+    const editorHeadlineTitle = `Automation Featured Headline Title ${Date.now()}`;
 
-    const editorHeadlineTitle = await headlineDetailsPage.getHeadlinesTextFieldValue();
+    headlineDetailsPage = await editorHomePage.clickOnContent(CONSTANTS.CONTENTS.PRINT_CONTENT);
 
+    await headlineDetailsPage.enterHeadLineTitle(editorHeadlineTitle);
     await headlineDetailsPage.enterByline(CONSTANTS.HEADLINES.BYLINE);
+    await headlineDetailsPage.selectSource(CONSTANTS.HEADLINES.SOURCE_TORONTO_STAR);
+    await headlineDetailsPage.enterSummary('Automation_Test_Summary');
+    await headlineDetailsPage.selectTopStoriesOrCommentaryChecbox(CONSTANTS.HEADLINES.FEATURE_STORIES);
+    await headlineDetailsPage.selectTag(CONSTANTS.HEADLINES.TAG_ADV);
     await headlineDetailsPage.clickOnSentimentButtonByText(CONSTANTS.HEADLINES.SENTIMENTS_2);
+    await headlineDetailsPage.enterPrepTime('5');
     await headlineDetailsPage.publishHeadlines();
-    expect(
-      await headlineDetailsPage.verifyToastNotificationVisible(editorHeadlineTitle),
-    ).toBeTruthy();
+    expect(await headlineDetailsPage.verifyToastNotificationVisible(editorHeadlineTitle)).toBeTruthy();
 
     await headlineDetailsPage.closePage();
     await parentPage.bringToFront();
     await appPage.logOut();
 
     await appPage.navigateToSubscriberURL();
-    await appPage.loginAsSubscriber(process.env.sub_username, process.env.sub_password);
+    await appPage.loginAsSubscriber(process.env.SUB_USERNAME, process.env.SUB_PASSWORD);
 
     await subscriberSearchResultPage.clickOnSearchButton();
 

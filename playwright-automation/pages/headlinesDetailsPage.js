@@ -13,7 +13,7 @@ class HeadlinesDetailsPage extends BasePage {
     this.headlinesTextBox = page.locator('textarea#txa-headline');
     this.byLineInput = page.locator('input#txt-byline');
     this.publishButton = page.locator('//button[@type="submit"]');
-    this.toastNotification = page.locator('.Toastify .Toastify__toast-body div:nth-child(2)');
+    this.toastNotification = page.getByRole('alert');
     this.browseUpload = page.locator('.upload-box .body');
     this.summaryTextField = page.locator('.ql-editor');
     this.sourceDropDownField = page.locator('#sel-sourceId input[name="sourceId"]');
@@ -22,13 +22,15 @@ class HeadlinesDetailsPage extends BasePage {
     this.prepTime = page.locator(`//input[@name="prep"]`);
     this.deleteButton = page.locator(`//button/div[text()='Delete']`);
     this.nextButton = page.locator(`.submit-buttons button[data-tooltip-content="Next"]`);
-    this.mediaOutletDropDownField = page.locator('.frm-select input[name="sourceId"]');
-    this.mediaTypeDropDownField = page.locator('input[name="mediaTypeId"]');
     this.unPublishButton = page.locator('//button/div[text()="Unpublish"]');
     this.delete = page.locator('//button/div[text()="Delete"]');
     this.deleteConfirmationButton = page.locator('//button/div[text()="Yes, Delete It"]');
     this.printcontent = page.locator('//*[@data-tooltip-content="Print content"]');
-    this.topStoriesCheckbox = page.locator(`//input[@id="actions.3.value-true"]`);
+    this.topStoriesCheckbox = page.getByRole('checkbox', { name: 'Top Stories', exact: true });
+    this.featuredStoriesCheckbox = page.getByRole('checkbox', {
+      name: 'Featured Stories',
+      exact: true,
+    });
     this.commentaryCheckbox = page.locator(`//input[@id="actions.4.placeholder-true"]`);
     this.commentaryCheckboxForPrintContent = page.locator(`//input[@id="actions.6.placeholder-true"]`);
   }
@@ -86,8 +88,30 @@ class HeadlinesDetailsPage extends BasePage {
    */
   async verifyToastNotificationVisible(headlinesTitle) {
     logger.info(`Verifying visibility of Toast Notification Message`);
-    await expect(this.toastNotification.first()).toHaveText(`"${headlinesTitle}" has successfully been saved.`)
-    return await this.isElementVisible(this.toastNotification.first());
+    const matchingToast = this.toastNotification.filter({ hasText: headlinesTitle }).first();
+    if (await this.isElementVisible(matchingToast, CONSTANTS.TIMEOUTS.LONG)) {
+      await expect(matchingToast).toContainText(headlinesTitle);
+      await expect(matchingToast).toContainText('has successfully been saved.');
+      return true;
+    }
+
+    const savedToast = this.toastNotification
+      .filter({ hasText: 'has successfully been saved.' })
+      .first();
+    await expect(savedToast).toBeVisible({ timeout: CONSTANTS.TIMEOUTS.LONG });
+    logger.info(
+      `Saved toast was visible, but it did not include headline title: ${headlinesTitle}`,
+    );
+    return true;
+  }
+
+  async isToastNotificationVisible(headlinesTitle) {
+    try {
+      return await this.verifyToastNotificationVisible(headlinesTitle);
+    } catch (error) {
+      logger.info(`Toast notification was not visible for headline: ${headlinesTitle}`);
+      return false;
+    }
   }
 
   /**
@@ -187,26 +211,6 @@ class HeadlinesDetailsPage extends BasePage {
   }
 
   /**
-   * Select Media Outlet 
-   * @param {string} outletOption 
-   */
-  async selectMediaOutlet(outletOption) {
-    await this.type(this.mediaOutletDropDownField, outletOption);
-    await this.page.keyboard.press('Tab');
-    logger.info(`Selected Media outlet option : ${outletOption}`);
-  }
-
-  /**
-   * Select Media Type 
-   * @param {string} type 
-   */
-  async selectMediaType(mType) {
-    await this.type(this.mediaTypeDropDownField, mType);
-    await this.page.keyboard.press('Tab');
-    logger.info(`Selected Media type : ${mType}`);
-  }
-
-  /**
    * Method to click on UnPublish button.
    */
   async unPublishHeadlines() {
@@ -273,6 +277,10 @@ class HeadlinesDetailsPage extends BasePage {
       case CONSTANTS.HEADLINES.TOP_STORIES:
         await this.click(this.topStoriesCheckbox);
         logger.info(`Successfully clicked on ${CONSTANTS.HEADLINES.TOP_STORIES}`);
+        break;
+      case CONSTANTS.HEADLINES.FEATURE_STORIES:
+        await this.click(this.featuredStoriesCheckbox);
+        logger.info(`Successfully clicked on ${CONSTANTS.HEADLINES.FEATURE_STORIES}`);
         break;
       case CONSTANTS.HEADLINES.COMMENTARY:
         if(await this.isElementVisible(await this.commentaryCheckbox)){

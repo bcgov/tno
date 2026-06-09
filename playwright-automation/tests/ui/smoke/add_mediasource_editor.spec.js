@@ -21,10 +21,10 @@ test.describe('@smoke Add media source', () => {
     await page.goto(`https://test.editor.mmi.gov.bc.ca/admin/sources`);
 
     await sourcePage.clickOnAddSourceButton();
-    const randomNum = Math.floor(Math.random() * 10000);
-    const legalName = 'Test Media Source' + randomNum;
+    const legalName = 'Automation_Media_Source';
+    const sourceCode = 'AUTO_MS';
     await sourcePage.enterLegalName(legalName);
-    await sourcePage.enterCode('TMS' + randomNum);
+    await sourcePage.enterCode(sourceCode);
     await sourcePage.selectLicense('One year');
     await sourcePage.toggleEnabledCheckbox();
     await sourcePage.toggleUseInTopicsCheckbox();
@@ -35,6 +35,6 @@ test.describe('@smoke Add media source', () => {
     await page.waitForTimeout(2000);
     await sourcePage.searchLeagelName(legalName);
     await page.waitForTimeout(2000);
-    await expect(page.getByText('Test Media Source' + randomNum)).toBeVisible();
+    await expect(page.getByText(legalName)).toBeVisible();
   });
 });

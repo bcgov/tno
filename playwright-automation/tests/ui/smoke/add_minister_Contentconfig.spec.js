@@ -21,10 +21,9 @@ test.describe('@smoke Adding a new minister', () => {
     await editorOnlineStoryPage.navigateToContentConfiguration();
     await editorOnlineStoryPage.navigateToMinisters();
     await editorOnlineStoryPage.clickAddNewMinister();
-    const randomNum = Math.floor(Math.random() * 10000);
-    const ministerName = `Test Minister Name - ${randomNum}`;
-    const ministerDescription = `Test Minister Description - ${randomNum}`;
-    const ministerPosition = `Test Minister Position - ${randomNum}`;
+    const ministerName = 'Automation_Minister';
+    const ministerDescription = 'Automation_Minister_Description';
+    const ministerPosition = 'Automation_Minister_Position';
     const ministerSortOrder = 1;
 
     await editorOnlineStoryPage.enterMinisterDetails(

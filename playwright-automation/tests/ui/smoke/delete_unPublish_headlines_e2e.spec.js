@@ -29,7 +29,7 @@ test.describe('@smoke Delete Un-Publishing headline workflow', () => {
 
       await headlineDetailsPage.enterHeadLineTitle(headlineTitle);
 
-      await headlineDetailsPage.selectMediaOutlet(CONSTANTS.HEADLINES.SOURCE_TORONTO_STAR);
+      await headlineDetailsPage.selectSource(CONSTANTS.HEADLINES.SOURCE_TORONTO_STAR);
       await headlineDetailsPage.enterSummary('Automation_Test_Summary');
       await headlineDetailsPage.uploadRadioTVContentFile('News_Article.png');
 
@@ -42,7 +42,7 @@ test.describe('@smoke Delete Un-Publishing headline workflow', () => {
       await appPage.logOut();
 
       await appPage.navigateToSubscriberURL();
-      await appPage.loginAsSubscriber(process.env.sub_username, process.env.sub_password);
+      await appPage.loginAsSubscriber(process.env.SUB_USERNAME, process.env.SUB_PASSWORD);
       
       await subscriberSearchResultPage.clickOnSearchButton();
       await subscriberSearchResultPage.verifySearchResultPageLoaded();
@@ -68,7 +68,7 @@ test.describe('@smoke Delete Un-Publishing headline workflow', () => {
       await appPage.logOut();
 
       await appPage.navigateToSubscriberURL();
-      await appPage.loginAsSubscriber(process.env.sub_username, process.env.sub_password);
+      await appPage.loginAsSubscriber(process.env.SUB_USERNAME, process.env.SUB_PASSWORD);
       
       await subscriberSearchResultPage.clickOnSearchButton();
       await subscriberSearchResultPage.verifySearchResultPageLoaded();

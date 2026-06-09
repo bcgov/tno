@@ -36,15 +36,18 @@ class GridPage extends BasePage {
    * @returns Published dates
    */
   async getSourceColumnDataFromGrid(totalRows) {
-    logger.info(`Fetching source column values for total rows: ${totalRows}`);
+    logger.info(`Fetching source column values for requested rows: ${totalRows}`);
+    const sourceColumnValues = this.page.locator(
+      `.content-list .grid-table:nth-child(2) .grid-column:nth-child(7n + 2) .ellipsis`,
+    );
+    const availableRows = await sourceColumnValues.count();
+    const rowsToRead = Math.min(totalRows, availableRows);
+    logger.info(`Source rows available: ${availableRows}, reading: ${rowsToRead}`);
 
     const source = [];
 
-    for (let i = 0; i < totalRows; i++) {
-      const index = 2 + i * 7;
-
-      const cLocator = `(//div[@class='clickable'])[${index}]`;
-      const rawText = await (await this.page.locator(cLocator).innerText()).trim();
+    for (let i = 0; i < rowsToRead; i++) {
+      const rawText = (await sourceColumnValues.nth(i).innerText()).trim();
       source.push(rawText.trim());
     }
 
@@ -57,16 +60,21 @@ class GridPage extends BasePage {
    * @returns Published dates
    */
   async getMediaTypeColumnDataFromGrid(totalRows) {
-    logger.info(`Fetching Media Type column values for total rows: ${totalRows}`);
+    logger.info(`Fetching Media Type column values for requested rows: ${totalRows}`);
+    const mediaTypeColumns = this.page.locator(
+      `.content-list .grid-table:nth-child(2) .grid-column:nth-child(7n + 3)`,
+    );
+    const availableRows = await mediaTypeColumns.count();
+    const rowsToRead = Math.min(totalRows, availableRows);
+    logger.info(`Media Type rows available: ${availableRows}, reading: ${rowsToRead}`);
 
     const mType = [];
 
-    for (let i = 0; i < totalRows; i++) {
-      const index = 3 + i * 7;
-
-      const cLocator = `(//div[@class='clickable'])[${index}]`;
-      const rawText = await (await this.page.locator(cLocator).innerText()).trim();
-      mType.push(rawText.trim());
+    for (let i = 0; i < rowsToRead; i++) {
+      const rawText = (await mediaTypeColumns.nth(i).innerText()).trim();
+      if (rawText) {
+        mType.push(rawText);
+      }
     }
 
     return mType;
@@ -83,6 +91,28 @@ class GridPage extends BasePage {
     await this.click(sortingIcon);
     logger.info(`Clicked on Sort icon`);
     await this.hardWait(1500);
+  }
+
+  async getSortingIconState(columnName) {
+    const sortingIconTitle = this.page
+      .locator(
+        `//div[contains(@class,"grid-table")]/div[text()='${columnName}']//following-sibling::*[local-name()='svg']/*[local-name()='title']`,
+      )
+      .or(
+        this.page.locator(
+          `//header[contains(@class,"header")]//span[text()='${columnName}']//following-sibling::div//*[local-name()='svg']/*[local-name()='title']`,
+        ),
+      );
+
+    await expect(sortingIconTitle.first()).toBeAttached();
+    const stateText = (await sortingIconTitle.first().textContent()).trim().toLowerCase();
+    const state = stateText.includes('ascending')
+      ? 'ascending'
+      : stateText.includes('descending')
+        ? 'descending'
+        : stateText;
+    logger.info(`Sorting icon state for ${columnName}: ${state}`);
+    return state;
   }
 
   /**
@@ -104,15 +134,19 @@ class GridPage extends BasePage {
    * @returns true if sorted in given order else false
    */
   async isGridColumnSorted(columnValues, sortingOrder){
-    const sortedValues = [...columnValues].sort();
+    const normalizedValues = columnValues.map((value) => value.trim());
+    const sortedValues = [...normalizedValues].sort((a, b) => {
+      if (a === b) return 0;
+      return a < b ? -1 : 1;
+    });
 
     switch(sortingOrder.toLowerCase()) {
         case 'ascending' :
-            logger.info(`Is sorted ascending: ${JSON.stringify(columnValues) === JSON.stringify(sortedValues)}`);
-            return JSON.stringify(columnValues) === JSON.stringify(sortedValues);
+            logger.info(`Is sorted ascending: ${JSON.stringify(normalizedValues) === JSON.stringify(sortedValues)}`);
+            return JSON.stringify(normalizedValues) === JSON.stringify(sortedValues);
 
         case 'descending' :
-            const isSortedDescending = JSON.stringify(columnValues) === JSON.stringify(sortedValues.reverse());
+            const isSortedDescending = JSON.stringify(normalizedValues) === JSON.stringify(sortedValues.reverse());
             logger.info(`Is sorted descending : ${isSortedDescending}`);
             return isSortedDescending;
 
@@ -120,6 +154,27 @@ class GridPage extends BasePage {
             throw new Error(`Invalid sorting order : ${sortingOrder}`);
     }
 
+  }
+
+  async getGridColumnSortDirection(columnValues) {
+    const normalizedValues = columnValues.map((value) => value.trim().toLowerCase());
+    const sortedValues = [...normalizedValues].sort((a, b) => a.localeCompare(b));
+    const isAscending = JSON.stringify(normalizedValues) === JSON.stringify(sortedValues);
+    const isDescending = JSON.stringify(normalizedValues) === JSON.stringify([...sortedValues].reverse());
+
+    if (isAscending && isDescending) {
+      return 'single-value';
+    }
+
+    if (isAscending) {
+      return 'ascending';
+    }
+
+    if (isDescending) {
+      return 'descending';
+    }
+
+    return 'unsorted';
   }
 
   /**
@@ -163,12 +218,29 @@ class GridPage extends BasePage {
       throw new Error('Row number must be greater than 0');
     }
 
-    const targetIndex = 7 + (rowNumber - 1) * 7;
-    const headlinesRow = `//div[contains(@class,'grid-column')][${targetIndex}]//*[local-name()='svg']`;
-    const headlinesRowIconLocator = this.page.locator(headlinesRow);
+    const useStatusIcons = this.page.locator(
+      `.content-list .grid-table:nth-child(2) .grid-column:nth-child(7n + 7) svg`,
+    );
+    const totalRows = await useStatusIcons.count();
+    if (rowNumber > totalRows) {
+      throw new Error(`Row number ${rowNumber} is out of range. Available rows: ${totalRows}`);
+    }
+    const headlinesRowIconLocator = useStatusIcons.nth(rowNumber - 1);
 
     await this.click(headlinesRowIconLocator);
     logger.info(`Clicked Use Icon for row : ${rowNumber}`);
+  }
+
+  /**
+   * Select Use icon for the row with the given headline title.
+   * @param {string} headlineTitle
+   */
+  async selectUseIconByTitle(headlineTitle) {
+    const useIcon = this.page.locator(
+      `//div[contains(@class,'content-list')]//div[contains(@class,'grid-table')][2]//div[contains(@class,'grid-column')][.//div[contains(@class,'ellipsis') and normalize-space(.)="${headlineTitle}"]]/following-sibling::div[contains(@class,'grid-column')][6]//*[local-name()='svg']`,
+    );
+    await this.click(useIcon.first());
+    logger.info(`Clicked Use Icon for headline : ${headlineTitle}`);
   }
 
   /**
@@ -180,13 +252,17 @@ class GridPage extends BasePage {
       throw new Error('Row number must be greater than 0');
     }
 
-    let headlineTitle = '';
-    const targetIndex = 1 + (rowNumber - 1) * 7;
-    const headlinesTitleRow = `//div[contains(@class,'grid-column')][${targetIndex}]//div[@class='clickable']`;
-    const headlinesRowTitleLocator = this.page.locator(headlinesTitleRow);
-    logger.info(`Headline Title is : ${await this.getElementText(headlinesRowTitleLocator)}`);
-    headlineTitle = await this.getElementText(headlinesRowTitleLocator);
+    const titleColumnValues = this.page.locator(
+      `.content-list .grid-table:nth-child(2) .grid-column:nth-child(7n + 1) .ellipsis`,
+    );
+    const totalRows = await titleColumnValues.count();
+    if (rowNumber > totalRows) {
+      throw new Error(`Row number ${rowNumber} is out of range. Available rows: ${totalRows}`);
+    }
 
+    const headlinesRowTitleLocator = titleColumnValues.nth(rowNumber - 1);
+    const headlineTitle = (await this.getElementText(headlinesRowTitleLocator)).trim();
+    logger.info(`Headline Title is : ${headlineTitle}`);
     return headlineTitle;
   }
 

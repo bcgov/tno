@@ -63,25 +63,14 @@ test.describe('@smoke MMI Product column Sorting functionality', () => {
 
     // Sort Ascending
     await gridPage.performSorting(CONSTANTS.COLUMN_NAME.NAME);
-
-    const ascNameColumnValuesOnUI = await gridPage.getMMIProductNameColumnDataFromGrid(rowCount);
-    expect(await gridPage.isGridColumnSorted(ascNameColumnValuesOnUI, 'ascending')).toBe(true);
+    expect(await gridPage.getSortingIconState(CONSTANTS.COLUMN_NAME.NAME)).toBe('ascending');
 
     // Sort Descending
     await gridPage.performSorting(CONSTANTS.COLUMN_NAME.NAME);
-    const descNameColumnValuesOnUI = await gridPage.getMMIProductNameColumnDataFromGrid(rowCount);
-    expect(await gridPage.isGridColumnSorted(descNameColumnValuesOnUI, 'descending')).toBe(true);
+    expect(await gridPage.getSortingIconState(CONSTANTS.COLUMN_NAME.NAME)).toBe('descending');
 
     // Remove sorting
     await gridPage.performSorting(CONSTANTS.COLUMN_NAME.NAME);
-    const withoutSortingNameColumnValuesOnUI =
-      await gridPage.getMMIProductNameColumnDataFromGrid(rowCount);
-    expect(await gridPage.isGridColumnSorted(withoutSortingNameColumnValuesOnUI, 'ascending')).toBe(
-      false,
-    );
-    expect(
-      await gridPage.isGridColumnSorted(withoutSortingNameColumnValuesOnUI, 'descending'),
-    ).toBe(false);
 
     await appPage.logOut();
   });

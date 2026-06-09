@@ -1,0 +1,53 @@
+name: Validate Deploy Request
+description: Validate deploy-all environment, scope, and branch safety.
+
+inputs:
+  environment:
+    required: true
+  deploy_scope:
+    required: true
+  allow_dev_branch_override:
+    required: false
+    default: 'false'
+  event_name:
+    required: true
+  ref:
+    required: true
+  ref_name:
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Validate inputs and branch
+      shell: bash
+      run: |
+        case "${{ inputs.environment }}" in
+          dev|test) ;;
+          *)
+            echo "::error::Unsupported environment: ${{ inputs.environment }}"
+            exit 1
+            ;;
+        esac
+
+        case "${{ inputs.deploy_scope }}" in
+          all|changed) ;;
+          *)
+            echo "::error::Unsupported deploy_scope: ${{ inputs.deploy_scope }}"
+            exit 1
+            ;;
+        esac
+
+        if [ "${{ inputs.environment }}" = "dev" ] && [ "${{ inputs.ref }}" != "refs/heads/dev" ]; then
+          if [ "${{ inputs.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.allow_dev_branch_override }}" = "true" ]; then
+            echo "Manual dev deploy branch override enabled for ${{ inputs.ref_name }}."
+          else
+            echo "::error::Dev deploy must run from refs/heads/dev unless allow_dev_branch_override is true on a manual run."
+            exit 1
+          fi
+        fi
+
+        if [ "${{ inputs.environment }}" = "test" ] && [ "${{ inputs.ref }}" != "refs/heads/master" ]; then
+          echo "::error::Test deploy must run from refs/heads/master."
+          exit 1
+        fi

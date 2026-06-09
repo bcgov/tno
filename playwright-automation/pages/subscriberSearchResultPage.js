@@ -34,7 +34,18 @@ class SubscriberSearchResultPage extends BasePage {
    */
   async isPublishedHeadlinesPresent(headlineTitle) {
     logger.info('Verifying published headlines in search results..');
-    return this.isTextPresentInCollection(this.headlines, headlineTitle);
+    for (let attempt = 1; attempt <= 6; attempt++) {
+      if (await this.isTextPresentInCollection(this.headlines, headlineTitle)) {
+        return true;
+      }
+
+      logger.info(`Headline "${headlineTitle}" not found in subscriber results. Retry ${attempt}.`);
+      await this.hardWait(5000);
+      await this.click(this.searchButtonOnTop);
+      await this.verifySearchResultPageLoaded();
+    }
+
+    return false;
   }
 
   /**
