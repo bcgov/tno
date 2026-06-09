@@ -1,4 +1,5 @@
 name: Auto Deploy
+run-name: Auto Deploy to ${{ fromJSON('{"refs/heads/dev":"dev","refs/heads/master":"test"}')[github.ref] }} from ${{ github.ref_name }}
 
 on:
   push:
@@ -19,9 +20,10 @@ permissions:
 
 jobs:
   deploy:
+    if: ${{ contains(fromJSON('["refs/heads/dev", "refs/heads/master"]'), github.ref) }}
     uses: ./.github/workflows/deploy-all.yml
     with:
-      environment: ${{ github.ref == 'refs/heads/dev' && 'dev' || 'test' }}
+      environment: ${{ fromJSON('{"refs/heads/dev":"dev","refs/heads/master":"test"}')[github.ref] }}
       skip_db_migration: false
       deploy_scope: changed
     secrets:

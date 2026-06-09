@@ -1,0 +1,163 @@
+name: Build, Scan, and Push Image
+description: Build a Docker image, scan it with Trivy, back up the current ACR tag, and push the new tag.
+
+inputs:
+  image_name:
+    description: Local image name and ACR repository name.
+    required: true
+  dockerfile:
+    description: Path to the Dockerfile.
+    required: true
+  context:
+    description: Docker build context.
+    required: true
+  source_tag:
+    description: Temporary local image tag, usually the commit SHA.
+    required: true
+  image_tag:
+    description: ACR deployment tag, such as dev or test.
+    required: true
+  acr_url:
+    description: ACR registry URL.
+    required: true
+  acr_username:
+    description: ACR username.
+    required: true
+  acr_password:
+    description: ACR password.
+    required: true
+  build_arg_name:
+    description: Optional Docker build argument name.
+    required: false
+    default: ''
+  build_arg_value:
+    description: Optional Docker build argument value.
+    required: false
+    default: ''
+  build_attempts:
+    description: Number of Docker build attempts.
+    required: false
+    default: '3'
+  retry_seconds:
+    description: Seconds to wait between Docker build attempts.
+    required: false
+    default: '15'
+  trivy_severity:
+    description: Comma-separated list of severities to check.
+    required: false
+    default: CRITICAL,HIGH
+  trivy_exit_code:
+    description: Exit code when vulnerabilities are found.
+    required: false
+    default: '0'
+  trivy_ignore_unfixed:
+    description: Whether to ignore unfixed vulnerabilities.
+    required: false
+    default: 'true'
+  trivyignores:
+    description: Path to .trivyignore file.
+    required: false
+    default: .trivyignore
+
+runs:
+  using: composite
+  steps:
+    - name: Build Docker Image
+      shell: bash
+      env:
+        IMAGE_NAME: ${{ inputs.image_name }}
+        DOCKERFILE: ${{ inputs.dockerfile }}
+        CONTEXT: ${{ inputs.context }}
+        SOURCE_TAG: ${{ inputs.source_tag }}
+        BUILD_ARG_NAME: ${{ inputs.build_arg_name }}
+        BUILD_ARG_VALUE: ${{ inputs.build_arg_value }}
+        BUILD_ATTEMPTS: ${{ inputs.build_attempts }}
+        RETRY_SECONDS: ${{ inputs.retry_seconds }}
+      run: |
+        BUILD_ARGS=()
+        if [ -n "${BUILD_ARG_NAME}" ]; then
+          BUILD_ARGS+=(--build-arg "${BUILD_ARG_NAME}=${BUILD_ARG_VALUE}")
+        fi
+
+        for attempt in $(seq 1 "${BUILD_ATTEMPTS}"); do
+          if docker build \
+            -f "${DOCKERFILE}" \
+            -t "${IMAGE_NAME}:${SOURCE_TAG}" \
+            "${BUILD_ARGS[@]}" \
+            "${CONTEXT}"; then
+            exit 0
+          else
+            status=$?
+          fi
+
+          if [ "$attempt" -eq "${BUILD_ATTEMPTS}" ]; then
+            exit "$status"
+          fi
+
+          echo "Docker build failed on attempt ${attempt}/${BUILD_ATTEMPTS}; retrying in ${RETRY_SECONDS} seconds..."
+          sleep "${RETRY_SECONDS}"
+        done
+
+    - name: Cache Trivy DB
+      uses: actions/cache@v5
+      with:
+        path: ~/.cache/trivy
+        key: trivy-db-${{ github.run_id }}
+        restore-keys: trivy-db-
+
+    - name: Trivy Container Scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ inputs.image_name }}:${{ inputs.source_tag }}
+        format: sarif
+        output: trivy-results.sarif
+        severity: ${{ inputs.trivy_severity }}
+        ignore-unfixed: ${{ inputs.trivy_ignore_unfixed }}
+        exit-code: ${{ inputs.trivy_exit_code }}
+        trivyignores: ${{ inputs.trivyignores }}
+
+    - name: Upload Trivy Results to GitHub Security
+      uses: github/codeql-action/upload-sarif@v4
+      if: ${{ hashFiles('trivy-results.sarif') != '' }}
+      with:
+        sarif_file: trivy-results.sarif
+
+    - name: Login to ACR
+      shell: bash
+      env:
+        ACR_URL: ${{ inputs.acr_url }}
+        ACR_USERNAME: ${{ inputs.acr_username }}
+        ACR_PASSWORD: ${{ inputs.acr_password }}
+      run: |
+        echo "${ACR_PASSWORD}" | docker login "${ACR_URL}" \
+          -u "${ACR_USERNAME}" \
+          --password-stdin
+
+    - name: Backup current image tag
+      continue-on-error: true
+      shell: bash
+      env:
+        IMAGE_NAME: ${{ inputs.image_name }}
+        IMAGE_TAG: ${{ inputs.image_tag }}
+        ACR_URL: ${{ inputs.acr_url }}
+      run: |
+        echo "Backing up ${IMAGE_NAME}:${IMAGE_TAG} to ${IMAGE_NAME}:${IMAGE_TAG}-backup"
+        docker pull "${ACR_URL}/${IMAGE_NAME}:${IMAGE_TAG}" && \
+          docker tag \
+            "${ACR_URL}/${IMAGE_NAME}:${IMAGE_TAG}" \
+            "${ACR_URL}/${IMAGE_NAME}:${IMAGE_TAG}-backup" && \
+          docker push \
+            "${ACR_URL}/${IMAGE_NAME}:${IMAGE_TAG}-backup"
+
+    - name: Push Image to ACR
+      shell: bash
+      env:
+        IMAGE_NAME: ${{ inputs.image_name }}
+        SOURCE_TAG: ${{ inputs.source_tag }}
+        IMAGE_TAG: ${{ inputs.image_tag }}
+        ACR_URL: ${{ inputs.acr_url }}
+      run: |
+        docker tag \
+          "${IMAGE_NAME}:${SOURCE_TAG}" \
+          "${ACR_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
+        docker push "${ACR_URL}/${IMAGE_NAME}:${IMAGE_TAG}"

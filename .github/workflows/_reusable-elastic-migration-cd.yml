@@ -65,10 +65,10 @@ jobs:
           oc: latest
 
       - name: Login to OpenShift
-        run: |
-          oc login \
-            --token=${{ secrets.OPENSHIFT_TOKEN }} \
-            --server=${{ env.OPENSHIFT_SERVER }}
+        uses: ./.github/actions/openshift-login
+        with:
+          token: ${{ secrets.OPENSHIFT_TOKEN }}
+          server: ${{ env.OPENSHIFT_SERVER }}
 
       - name: Login to ACR
         run: |

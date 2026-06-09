@@ -23,6 +23,11 @@ on:
           - all
           - changed
         default: all
+      allow_dev_branch_override:
+        description: 'Allow manual dev deploy from a non-dev branch for testing'
+        required: false
+        type: boolean
+        default: false
   workflow_call:
     inputs:
       environment:
@@ -36,6 +41,10 @@ on:
         required: false
         type: string
         default: all
+      allow_dev_branch_override:
+        required: false
+        type: boolean
+        default: false
     secrets:
       OPENSHIFT_TOKEN:
         required: true
@@ -57,8 +66,24 @@ env:
   ACR_URL: bcgov-c4awhwfpcremdbga.azurecr.io
 
 jobs:
+  validate-request:
+    name: Validate Deployment Request
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/validate-deploy-request
+        with:
+          environment: ${{ inputs.environment }}
+          deploy_scope: ${{ inputs.deploy_scope }}
+          allow_dev_branch_override: ${{ inputs.allow_dev_branch_override }}
+          event_name: ${{ github.event_name }}
+          ref: ${{ github.ref }}
+          ref_name: ${{ github.ref_name }}
+
   detect-changes:
     name: Detect Deploy Targets
+    needs: validate-request
     runs-on: ubuntu-latest
     outputs:
       build_matrix: ${{ steps.detect.outputs.build_matrix }}
@@ -70,7 +95,7 @@ jobs:
       deploy_frontend: ${{ steps.detect.outputs.deploy_frontend }}
       run_db_migration: ${{ steps.detect.outputs.run_db_migration }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -116,53 +141,27 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      max-parallel: 6
       matrix: ${{ fromJSON(needs.detect-changes.outputs.build_matrix) }}
     env:
       IMAGE_TAG: ${{ inputs.environment }}
       OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Build Docker Image
-        run: |
-          BUILD_ARGS=""
-          if [ -n "${{ matrix.build_arg_name }}" ]; then
-            BUILD_ARGS="--build-arg ${{ matrix.build_arg_name }}=${{ github.sha }}"
-          fi
-          docker build \
-            -f ${{ matrix.dockerfile }} \
-            -t ${{ matrix.image }}:${{ github.sha }} \
-            $BUILD_ARGS \
-            ${{ matrix.context }}
-
-      - name: Trivy Container Scan
-        uses: ./.github/actions/trivy-scan
+      - name: Build, scan, and push image
+        uses: ./.github/actions/build-scan-push-image
         with:
-          image-ref: '${{ matrix.image }}:${{ github.sha }}'
-
-      - name: Login to ACR
-        run: |
-          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_URL }} \
-            -u ${{ secrets.ACR_USERNAME }} \
-            --password-stdin
-
-      - name: Backup current image tag
-        continue-on-error: true
-        run: |
-          docker pull ${{ env.ACR_URL }}/${{ matrix.image }}:${{ env.IMAGE_TAG }} && \
-          docker tag \
-            ${{ env.ACR_URL }}/${{ matrix.image }}:${{ env.IMAGE_TAG }} \
-            ${{ env.ACR_URL }}/${{ matrix.image }}:${{ env.IMAGE_TAG }}-backup && \
-          docker push \
-            ${{ env.ACR_URL }}/${{ matrix.image }}:${{ env.IMAGE_TAG }}-backup
-
-      - name: Push Image to ACR
-        run: |
-          docker tag \
-            ${{ matrix.image }}:${{ github.sha }} \
-            ${{ env.ACR_URL }}/${{ matrix.image }}:${{ env.IMAGE_TAG }}
-          docker push \
-            ${{ env.ACR_URL }}/${{ matrix.image }}:${{ env.IMAGE_TAG }}
+          image_name: ${{ matrix.image }}
+          dockerfile: ${{ matrix.dockerfile }}
+          context: ${{ matrix.context }}
+          source_tag: ${{ github.sha }}
+          image_tag: ${{ env.IMAGE_TAG }}
+          acr_url: ${{ env.ACR_URL }}
+          acr_username: ${{ secrets.ACR_USERNAME }}
+          acr_password: ${{ secrets.ACR_PASSWORD }}
+          build_arg_name: ${{ matrix.build_arg_name }}
+          build_arg_value: ${{ github.sha }}
 
   # ---------------------------------------------------------------------------
   # Phase 2 — DB Migration
@@ -170,13 +169,21 @@ jobs:
   db-migration:
     name: DB Migration
     needs: [detect-changes, build]
-    if: ${{ always() && inputs.skip_db_migration == false && needs.detect-changes.outputs.run_db_migration == 'true' && (needs.build.result == 'success' || needs.build.result == 'skipped') }}
+    # Run migration only when detection requested it, the user did not skip it,
+    # and the image build phase did not fail.
+    if: >-
+      ${{
+        always() &&
+        inputs.skip_db_migration == false &&
+        needs.detect-changes.outputs.run_db_migration == 'true' &&
+        (needs.build.result == 'success' || needs.build.result == 'skipped')
+      }}
     uses: ./.github/workflows/_reusable-db-migration-cd.yml
     with:
       environment: ${{ inputs.environment }}
       image_tag: ${{ inputs.environment }}
       openshift_namespace: 9b301c-${{ inputs.environment }}
-      db_secret_name: ${{ inputs.environment == 'dev' && 'montford' || 'mooncrest' }}
+      db_secret_name: ${{ fromJSON('{"dev":"montford","test":"mooncrest"}')[inputs.environment] }}
     secrets:
       OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
       ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
@@ -188,41 +195,48 @@ jobs:
   deploy-api:
     name: Deploy API
     needs: [detect-changes, build, db-migration]
-    if: ${{ always() && needs.detect-changes.outputs.deploy_api == 'true' && (needs.build.result == 'success' || needs.build.result == 'skipped') && (needs.db-migration.result == 'success' || needs.db-migration.result == 'skipped') }}
+    # Deploy API only when selected, after build and optional DB migration have
+    # either completed successfully or were skipped.
+    if: >-
+      ${{
+        always() &&
+        needs.detect-changes.outputs.deploy_api == 'true' &&
+        (needs.build.result == 'success' || needs.build.result == 'skipped') &&
+        (needs.db-migration.result == 'success' || needs.db-migration.result == 'skipped')
+      }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     env:
       IMAGE_TAG: ${{ inputs.environment }}
       OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
     steps:
+      - uses: actions/checkout@v6
+
       - name: Install oc CLI
-        uses: redhat-actions/openshift-tools-installer@v1
-        with:
-          oc: latest
+        # Previously used redhat-actions/openshift-tools-installer@v1:
+        #   uses: redhat-actions/openshift-tools-installer@v1
+        #   with:
+        #     oc: latest
+        # Keep the local installer while v1 emits Node.js 20 and cache race warnings.
+        # If a Node 24-compatible v2 becomes available, this can be switched back.
+        uses: ./.github/actions/install-oc
 
       - name: Login to OpenShift
-        run: |
-          oc login \
-            --token=${{ secrets.OPENSHIFT_TOKEN }} \
-            --server=${{ env.OPENSHIFT_SERVER }}
+        uses: ./.github/actions/openshift-login
+        with:
+          token: ${{ secrets.OPENSHIFT_TOKEN }}
+          server: ${{ env.OPENSHIFT_SERVER }}
 
-      - name: Rollout API Deployment
-        run: |
-          oc rollout restart deployment/api-services -n ${{ env.OPENSHIFT_NAMESPACE }}
-          oc rollout status deployment/api-services -n ${{ env.OPENSHIFT_NAMESPACE }} --timeout=600s
-
-      - name: Update API StatefulSet Image
-        continue-on-error: true
-        run: |
-          oc set image statefulset/api \
-            api=${{ env.ACR_URL }}/api:${{ env.IMAGE_TAG }} \
-            -n ${{ env.OPENSHIFT_NAMESPACE }}
-
-      - name: Rollout API StatefulSet
-        continue-on-error: true
-        run: |
-          oc rollout restart statefulset/api -n ${{ env.OPENSHIFT_NAMESPACE }}
-          oc rollout status statefulset/api -n ${{ env.OPENSHIFT_NAMESPACE }} --timeout=600s
+      - name: Deploy API workloads
+        uses: ./.github/actions/deploy-openshift-workload
+        with:
+          namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+          resource_type: deployment
+          resource_name: api-services
+          rollout_timeout: 1200s
+          statefulset_name: api
+          statefulset_container: api
+          statefulset_image: ${{ env.ACR_URL }}/api:${{ env.IMAGE_TAG }}
 
       - name: Verify API Health
         continue-on-error: true
@@ -242,36 +256,50 @@ jobs:
   deploy-services:
     name: Deploy ${{ matrix.name }}
     needs: [detect-changes, build, db-migration, deploy-api]
-    if: ${{ always() && needs.detect-changes.outputs.deploy_services == 'true' && (needs.build.result == 'success' || needs.build.result == 'skipped') && (needs.db-migration.result == 'success' || needs.db-migration.result == 'skipped') && (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped') }}
+    # Deploy backend services only when selected, after build, DB migration, and
+    # any selected API deployment have cleared.
+    if: >-
+      ${{
+        always() &&
+        needs.detect-changes.outputs.deploy_services == 'true' &&
+        (needs.build.result == 'success' || needs.build.result == 'skipped') &&
+        (needs.db-migration.result == 'success' || needs.db-migration.result == 'skipped') &&
+        (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped')
+      }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     strategy:
       fail-fast: false
+      max-parallel: 4
       matrix: ${{ fromJSON(needs.detect-changes.outputs.service_matrix) }}
     env:
       OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
     steps:
+      - uses: actions/checkout@v6
+
       - name: Install oc CLI
-        uses: redhat-actions/openshift-tools-installer@v1
-        with:
-          oc: latest
+        # Previously used redhat-actions/openshift-tools-installer@v1:
+        #   uses: redhat-actions/openshift-tools-installer@v1
+        #   with:
+        #     oc: latest
+        # Keep the local installer while v1 emits Node.js 20 and cache race warnings.
+        # If a Node 24-compatible v2 becomes available, this can be switched back.
+        uses: ./.github/actions/install-oc
 
       - name: Login to OpenShift
-        run: |
-          oc login \
-            --token=${{ secrets.OPENSHIFT_TOKEN }} \
-            --server=${{ env.OPENSHIFT_SERVER }}
+        uses: ./.github/actions/openshift-login
+        with:
+          token: ${{ secrets.OPENSHIFT_TOKEN }}
+          server: ${{ env.OPENSHIFT_SERVER }}
 
-      - name: Rollout ${{ matrix.name }}
-        run: |
-          oc rollout restart deployment/${{ matrix.deployment }} -n ${{ env.OPENSHIFT_NAMESPACE }}
-
-      - name: Verify ${{ matrix.name }}
-        continue-on-error: true
-        run: |
-          oc rollout status deployment/${{ matrix.deployment }} \
-            -n ${{ env.OPENSHIFT_NAMESPACE }} \
-            --timeout=300s
+      - name: Deploy ${{ matrix.name }}
+        uses: ./.github/actions/deploy-openshift-workload
+        with:
+          namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+          resource_type: deployment
+          resource_name: ${{ matrix.deployment }}
+          rollout_timeout: 300s
+          continue_on_error_verify: 'true'
 
   # ---------------------------------------------------------------------------
   # Phase 5 — Deploy frontend (editor + subscriber)
@@ -279,7 +307,17 @@ jobs:
   deploy-frontend:
     name: Deploy ${{ matrix.name }}
     needs: [detect-changes, build, db-migration, deploy-api, deploy-services]
-    if: ${{ always() && needs.detect-changes.outputs.deploy_frontend == 'true' && (needs.build.result == 'success' || needs.build.result == 'skipped') && (needs.db-migration.result == 'success' || needs.db-migration.result == 'skipped') && (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped') && (needs.deploy-services.result == 'success' || needs.deploy-services.result == 'skipped') }}
+    # Deploy frontend apps only when selected, after all earlier rollout phases
+    # have either completed successfully or were skipped.
+    if: >-
+      ${{
+        always() &&
+        needs.detect-changes.outputs.deploy_frontend == 'true' &&
+        (needs.build.result == 'success' || needs.build.result == 'skipped') &&
+        (needs.db-migration.result == 'success' || needs.db-migration.result == 'skipped') &&
+        (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped') &&
+        (needs.deploy-services.result == 'success' || needs.deploy-services.result == 'skipped')
+      }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     strategy:
@@ -288,34 +326,38 @@ jobs:
     env:
       OPENSHIFT_NAMESPACE: 9b301c-${{ inputs.environment }}
     steps:
+      - uses: actions/checkout@v6
+
       - name: Install oc CLI
-        uses: redhat-actions/openshift-tools-installer@v1
-        with:
-          oc: latest
+        # Previously used redhat-actions/openshift-tools-installer@v1:
+        #   uses: redhat-actions/openshift-tools-installer@v1
+        #   with:
+        #     oc: latest
+        # Keep the local installer while v1 emits Node.js 20 and cache race warnings.
+        # If a Node 24-compatible v2 becomes available, this can be switched back.
+        uses: ./.github/actions/install-oc
 
       - name: Login to OpenShift
-        run: |
-          oc login \
-            --token=${{ secrets.OPENSHIFT_TOKEN }} \
-            --server=${{ env.OPENSHIFT_SERVER }}
+        uses: ./.github/actions/openshift-login
+        with:
+          token: ${{ secrets.OPENSHIFT_TOKEN }}
+          server: ${{ env.OPENSHIFT_SERVER }}
 
-      - name: Rollout ${{ matrix.name }}
-        run: |
-          oc rollout restart deployment/${{ matrix.deployment }} -n ${{ env.OPENSHIFT_NAMESPACE }}
-
-      - name: Verify ${{ matrix.name }}
-        continue-on-error: true
-        run: |
-          oc rollout status deployment/${{ matrix.deployment }} \
-            -n ${{ env.OPENSHIFT_NAMESPACE }} \
-            --timeout=300s
+      - name: Deploy ${{ matrix.name }}
+        uses: ./.github/actions/deploy-openshift-workload
+        with:
+          namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+          resource_type: deployment
+          resource_name: ${{ matrix.deployment }}
+          rollout_timeout: 300s
+          continue_on_error_verify: 'true'
 
   # ---------------------------------------------------------------------------
   # Summary
   # ---------------------------------------------------------------------------
   summary:
     name: Deployment Summary
-    needs: [detect-changes, build, db-migration, deploy-api, deploy-services, deploy-frontend]
+    needs: [validate-request, detect-changes, build, db-migration, deploy-api, deploy-services, deploy-frontend]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -325,6 +367,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Phase | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Validate Request | ${{ needs.validate-request.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Detect Deploy Targets | ${{ needs.detect-changes.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Build Images | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| DB Migration | ${{ needs.db-migration.result }} |" >> $GITHUB_STEP_SUMMARY

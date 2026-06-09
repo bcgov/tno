@@ -56,10 +56,10 @@ jobs:
           oc: latest
 
       - name: Login to OpenShift
-        run: |
-          oc login \
-            --token=${{ secrets.OPENSHIFT_TOKEN }} \
-            --server=${{ env.OPENSHIFT_SERVER }}
+        uses: ./.github/actions/openshift-login
+        with:
+          token: ${{ secrets.OPENSHIFT_TOKEN }}
+          server: ${{ env.OPENSHIFT_SERVER }}
 
       - name: Deploy CronJob via Kustomize
         run: oc apply -k openshift/kustomize/cron/restart/overlays/dev -n 9b301c-dev
@@ -82,10 +82,10 @@ jobs:
           oc: latest
 
       - name: Login to OpenShift
-        run: |
-          oc login \
-            --token=${{ secrets.OPENSHIFT_TOKEN }} \
-            --server=${{ env.OPENSHIFT_SERVER }}
+        uses: ./.github/actions/openshift-login
+        with:
+          token: ${{ secrets.OPENSHIFT_TOKEN }}
+          server: ${{ env.OPENSHIFT_SERVER }}
 
       - name: Deploy CronJob via Kustomize
         run: oc apply -k openshift/kustomize/cron/restart/overlays/test -n 9b301c-test

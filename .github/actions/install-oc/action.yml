@@ -1,0 +1,34 @@
+name: Install OpenShift CLI
+description: Install a pinned OpenShift CLI without using the Node-based Red Hat installer.
+
+inputs:
+  version:
+    description: OpenShift client version to install.
+    required: false
+    default: '4.22.0'
+
+runs:
+  using: composite
+  steps:
+    - name: Install oc
+      shell: bash
+      env:
+        OC_VERSION: ${{ inputs.version }}
+      run: |
+        set -euo pipefail
+
+        INSTALL_DIR="${RUNNER_TEMP}/oc-${OC_VERSION}"
+        ARCHIVE="${RUNNER_TEMP}/openshift-client-linux-${OC_VERSION}.tar.gz"
+        URL="https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OC_VERSION}/openshift-client-linux-${OC_VERSION}.tar.gz"
+
+        mkdir -p "${INSTALL_DIR}"
+        curl --fail --location --show-error --silent \
+          --retry 3 --retry-delay 5 --retry-all-errors \
+          "${URL}" \
+          --output "${ARCHIVE}"
+
+        tar -xzf "${ARCHIVE}" -C "${INSTALL_DIR}" oc
+        chmod +x "${INSTALL_DIR}/oc"
+        echo "${INSTALL_DIR}" >> "${GITHUB_PATH}"
+
+        "${INSTALL_DIR}/oc" version --client=true
