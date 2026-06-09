@@ -42,8 +42,7 @@ Production is not wired into this flow yet.
 These local actions hold the common deployment pieces used by the newer flows:
 
 - `actions/build-scan-push-image`: builds an image, runs Trivy, backs up the
-  existing ACR tag, and pushes the new image tag. ACR login, backup, and push
-  operations retry with increasing waits.
+  existing ACR tag, and pushes the new image tag.
 - `actions/deploy-openshift-workload`: applies kustomize, restarts the target
   workload, waits for rollout, and can update the API StatefulSet when needed.
 - `actions/install-oc`: installs a pinned `oc` client directly from the

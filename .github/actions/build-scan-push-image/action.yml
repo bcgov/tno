@@ -42,14 +42,6 @@ inputs:
     description: Seconds to wait between Docker build attempts.
     required: false
     default: '15'
-  acr_attempts:
-    description: Number of attempts for ACR login, pull, and push operations.
-    required: false
-    default: '5'
-  acr_retry_seconds:
-    description: Base seconds to wait between ACR retry attempts.
-    required: false
-    default: '20'
   trivy_severity:
     description: Comma-separated list of severities to check.
     required: false
@@ -136,26 +128,10 @@ runs:
         ACR_URL: ${{ inputs.acr_url }}
         ACR_USERNAME: ${{ inputs.acr_username }}
         ACR_PASSWORD: ${{ inputs.acr_password }}
-        ACR_ATTEMPTS: ${{ inputs.acr_attempts }}
-        ACR_RETRY_SECONDS: ${{ inputs.acr_retry_seconds }}
       run: |
-        for attempt in $(seq 1 "${ACR_ATTEMPTS}"); do
-          if echo "${ACR_PASSWORD}" | docker login "${ACR_URL}" \
-            -u "${ACR_USERNAME}" \
-            --password-stdin; then
-            exit 0
-          else
-            status=$?
-          fi
-
-          if [ "$attempt" -eq "${ACR_ATTEMPTS}" ]; then
-            exit "$status"
-          fi
-
-          wait_seconds=$((ACR_RETRY_SECONDS * attempt))
-          echo "ACR login failed on attempt ${attempt}/${ACR_ATTEMPTS}; retrying in ${wait_seconds} seconds..."
-          sleep "${wait_seconds}"
-        done
+        echo "${ACR_PASSWORD}" | docker login "${ACR_URL}" \
+          -u "${ACR_USERNAME}" \
+          --password-stdin
 
     - name: Backup current image tag
       continue-on-error: true
@@ -164,30 +140,14 @@ runs:
         IMAGE_NAME: ${{ inputs.image_name }}
         IMAGE_TAG: ${{ inputs.image_tag }}
         ACR_URL: ${{ inputs.acr_url }}
-        ACR_ATTEMPTS: ${{ inputs.acr_attempts }}
-        ACR_RETRY_SECONDS: ${{ inputs.acr_retry_seconds }}
       run: |
-        for attempt in $(seq 1 "${ACR_ATTEMPTS}"); do
-          echo "Backing up ${IMAGE_NAME}:${IMAGE_TAG} to ${IMAGE_NAME}:${IMAGE_TAG}-backup"
-          if docker pull "${ACR_URL}/${IMAGE_NAME}:${IMAGE_TAG}" && \
-            docker tag \
-              "${ACR_URL}/${IMAGE_NAME}:${IMAGE_TAG}" \
-              "${ACR_URL}/${IMAGE_NAME}:${IMAGE_TAG}-backup" && \
-            docker push \
-              "${ACR_URL}/${IMAGE_NAME}:${IMAGE_TAG}-backup"; then
-            exit 0
-          else
-            status=$?
-          fi
-
-          if [ "$attempt" -eq "${ACR_ATTEMPTS}" ]; then
-            exit "$status"
-          fi
-
-          wait_seconds=$((ACR_RETRY_SECONDS * attempt))
-          echo "ACR backup failed on attempt ${attempt}/${ACR_ATTEMPTS}; retrying in ${wait_seconds} seconds..."
-          sleep "${wait_seconds}"
-        done
+        echo "Backing up ${IMAGE_NAME}:${IMAGE_TAG} to ${IMAGE_NAME}:${IMAGE_TAG}-backup"
+        docker pull "${ACR_URL}/${IMAGE_NAME}:${IMAGE_TAG}" && \
+          docker tag \
+            "${ACR_URL}/${IMAGE_NAME}:${IMAGE_TAG}" \
+            "${ACR_URL}/${IMAGE_NAME}:${IMAGE_TAG}-backup" && \
+          docker push \
+            "${ACR_URL}/${IMAGE_NAME}:${IMAGE_TAG}-backup"
 
     - name: Push Image to ACR
       shell: bash
@@ -196,25 +156,8 @@ runs:
         SOURCE_TAG: ${{ inputs.source_tag }}
         IMAGE_TAG: ${{ inputs.image_tag }}
         ACR_URL: ${{ inputs.acr_url }}
-        ACR_ATTEMPTS: ${{ inputs.acr_attempts }}
-        ACR_RETRY_SECONDS: ${{ inputs.acr_retry_seconds }}
       run: |
         docker tag \
           "${IMAGE_NAME}:${SOURCE_TAG}" \
           "${ACR_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
-
-        for attempt in $(seq 1 "${ACR_ATTEMPTS}"); do
-          if docker push "${ACR_URL}/${IMAGE_NAME}:${IMAGE_TAG}"; then
-            exit 0
-          else
-            status=$?
-          fi
-
-          if [ "$attempt" -eq "${ACR_ATTEMPTS}" ]; then
-            exit "$status"
-          fi
-
-          wait_seconds=$((ACR_RETRY_SECONDS * attempt))
-          echo "ACR push failed on attempt ${attempt}/${ACR_ATTEMPTS}; retrying in ${wait_seconds} seconds..."
-          sleep "${wait_seconds}"
-        done
+        docker push "${ACR_URL}/${IMAGE_NAME}:${IMAGE_TAG}"

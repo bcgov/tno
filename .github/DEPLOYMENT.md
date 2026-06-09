@@ -65,8 +65,7 @@ inside the same matrix can run in parallel, but each phase waits for the earlier
 phase through `needs`.
 
 The build phase uses the shared `actions/build-scan-push-image` action. Docker
-build failures retry, and ACR login, backup, and push operations retry with
-increasing waits.
+build failures retry.
 
 OpenShift deploy phases use the shared `actions/install-oc`,
 `actions/openshift-login`, and `actions/deploy-openshift-workload` actions.
