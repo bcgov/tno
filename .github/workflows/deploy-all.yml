@@ -233,7 +233,7 @@ jobs:
           namespace: ${{ env.OPENSHIFT_NAMESPACE }}
           resource_type: deployment
           resource_name: api-services
-          rollout_timeout: 600s
+          rollout_timeout: 1200s
           statefulset_name: api
           statefulset_container: api
           statefulset_image: ${{ env.ACR_URL }}/api:${{ env.IMAGE_TAG }}
