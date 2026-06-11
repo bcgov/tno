@@ -20,6 +20,7 @@ auth/keycloak/config/*.log
 /services/net/image/data
 CLAUDE.md
 .claude/
+*.lscache
 
 **/[Bb]in/
 **/[Oo]bj/
