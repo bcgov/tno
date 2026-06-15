@@ -34,6 +34,7 @@ export const useSettings = (validate?: boolean) => {
       const eventOfTheDayReportId = settings.find(
         (s) => s.name === Settings.EventOfTheDayReport,
       )?.value;
+      const topDomainsUrl = settings.find((s) => s.name === Settings.TopDomainsUrl)?.value;
       storeValues({
         loadingState: 1,
         isReady,
@@ -51,6 +52,7 @@ export const useSettings = (validate?: boolean) => {
           ? +frontPageImageMediaTypeId
           : undefined,
         eventOfTheDayReportId: eventOfTheDayReportId ? +eventOfTheDayReportId : undefined,
+        topDomainsUrl: topDomainsUrl ? topDomainsUrl : undefined,
       });
     }
   }, [values.loadingState, isReady, settings, storeValues]);
@@ -95,6 +97,9 @@ export const useSettings = (validate?: boolean) => {
       if (!values.eventOfTheDayReportId)
         toast.error(`Configuration "${Settings.EventOfTheDayReport}" is missing from settings.`);
 
+      if (!values.topDomainsUrl)
+        toast.error(`Configuration "${Settings.TopDomainsUrl}" is missing from settings.`);
+
       storeLoading(2);
     }
   }, [
@@ -113,6 +118,7 @@ export const useSettings = (validate?: boolean) => {
     values.excludeSourceIds,
     values.eventOfTheDayReportId,
     values.frontPageImageMediaTypeId,
+    values.topDomainsUrl,
   ]);
 
   return values;

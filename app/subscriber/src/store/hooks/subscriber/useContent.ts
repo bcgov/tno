@@ -105,7 +105,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         return response.data;
       },
       getContent: async (id: number) => {
-        const response = await dispatch<IContentModel>(
+        const response = await dispatch<IContentModel | undefined>(
           'get-content',
           () => api.getContent(id),
           'content',
@@ -141,7 +141,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       storeMyMinisterFilter: actions.storeMyMinisterFilter,
       storeSearchResultsFilter: actions.storeSearchResultsFilter,
       addContent: async (content: IContentModel) => {
-        const response = await dispatch<IContentModel>(
+        const response = await dispatch<IContentModel | undefined>(
           'add-content',
           () => api.addContent(content),
           'content',
@@ -149,7 +149,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         return response.data;
       },
       updateContent: async (content: IContentModel) => {
-        const response = await dispatch<IContentModel>(
+        const response = await dispatch<IContentModel | undefined>(
           'update-content',
           () => api.updateContent(content),
           'content',
@@ -157,7 +157,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         return response.data;
       },
       updateContentSilent: async (content: IContentModel) => {
-        const response = await dispatch<IContentModel>(
+        const response = await dispatch<IContentModel | undefined>(
           'update-content',
           () => api.updateContent(content),
           'content',
@@ -167,7 +167,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         return response.data;
       },
       deleteContent: async (content: IContentModel) => {
-        const response = await dispatch<IContentModel>(
+        const response = await dispatch<IContentModel | undefined>(
           'delete-content',
           () => api.deleteContent(content),
           'content',
