@@ -53,4 +53,6 @@ export const Settings = {
   EventOfTheDayReportId: 'EventOfTheDayReportId',
   /** The default template ID to Basic Alerts. */
   BasicAlertTemplateId: 'BasicAlertTemplateId',
+  /** The URL to the Talkwalker Top Domains exported widget */
+  TopDomainsUrl: 'TopDomainsUrl',
 };

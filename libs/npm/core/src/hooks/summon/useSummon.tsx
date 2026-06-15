@@ -36,7 +36,7 @@ export const useSummon = ({
   envelope = defaultEnvelope,
   baseURL,
   ...rest
-}: ISummonProps = {}) => {
+}: ISummonProps = {}): AxiosInstance => {
   const state = React.useContext(SummonContext);
   let loadingToastId: React.ReactText | undefined = undefined;
 
