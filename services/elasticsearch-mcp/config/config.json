@@ -1,0 +1,15 @@
+{
+  "elasticsearch": {
+    "url": "${ES_URL}",
+    "apiKey": "${ES_API_KEY}"
+  },
+  "tools": {
+    "allowedIndices": ["logs-*", "metrics-*"],
+    "readOnly": true,
+    "maxResults": 100
+  },
+  "server": {
+    "transport": "http",
+    "port": 8080
+  }
+}

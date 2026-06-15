@@ -1,3 +1,4 @@
+export * from './useAI';
 export * from './useAVOverviewInstances';
 export * from './useColleagues';
 export * from './useContent';
