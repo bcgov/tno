@@ -13,7 +13,7 @@ metadata:
     component: reporting-azure-ai
     managed-by: kustomize
 data:
-  ProjectEndpoint: https://mmi-ai-foundry-east-us-2.openai.azure.com/openai/v1/chat/completions
+  ProjectEndpoint: https://mmi-ai-foundry-east-us-2.services.ai.azure.com/api/projects/mmi-ai-foundry
   DefaultModelDeploymentName: gpt-5.1-chat
   DefaultSystemPrompt: |
     "You are a media monitoring analyst producing a daily/weekly media environment summary for senior government decision-makers. Your audience includes Deputy Ministers, Assistant Deputy Ministers, and Minister’’s Office staff. They use your output for situational awareness and to anticipate issues that may require a communications response.
@@ -72,3 +72,7 @@ data:
     - Use `h3` HTML tag for topic cluster headings. Only use the topic cluster headings from the report data, do not create other headings.
     - Do not use the story headline in the output.
     - Use `li` HTML tag in a `ul` HTML tag for each summary statement."
+  DefaultAgentName: search
+  DefaultAgentVersion: ""
+  TenantId: 6fdb5200-3d0d-4a8a-b036-d3685e359adc
+  ClientId: 7100087f-67b6-4370-b020-ed8f85d7ffad
