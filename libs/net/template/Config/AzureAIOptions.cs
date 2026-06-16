@@ -27,6 +27,11 @@ public class AzureAIOptions
     public string? DefaultAgentName { get; set; }
 
     /// <summary>
+    /// get/set - Version of the deployed agent (null = latest)
+    /// </summary>
+    public string? DefaultAgentVersion { get; set; }
+
+    /// <summary>
     /// get/set - Default system prompt for report AI summary.
     /// </summary>
     public string? DefaultSystemPrompt { get; set; }
@@ -35,5 +40,20 @@ public class AzureAIOptions
     /// get/set - Default user prompt for report AI summary.
     /// </summary>
     public string? DefaultUserPrompt { get; set; }
+
+    /// <summary>
+    /// get/set - Azure Tenant ID
+    /// </summary>
+    public string? TenantId { get; set; }
+
+    /// <summary>
+    /// get/set - The application/client ID for the service principal that has access to Azure Foundry.
+    /// </summary>
+    public string? ClientId { get; set; }
+
+    /// <summary>
+    /// get/set - The service principal password (this will expire after the configured period of time.  Defaults: 2years)
+    /// </summary>
+    public string? ClientSecret { get; set; }
     #endregion
 }

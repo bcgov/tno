@@ -1,4 +1,3 @@
-
 using System.Globalization;
 using System.IO.Compression;
 using System.Net;
@@ -17,8 +16,6 @@ using TNO.TemplateEngine.Models;
 using TNO.TemplateEngine.Models.Charts;
 using TNO.TemplateEngine.Models.Charts.Options;
 using TNO.TemplateEngine.Models.Reports;
-
-#pragma warning disable OPENAI001
 
 namespace TNO.TemplateEngine;
 
@@ -70,6 +67,11 @@ public class ReportEngine : IReportEngine
     protected AzureOptions AzureOptions { get; }
 
     /// <summary>
+    /// get - AI agent service.
+    /// </summary>
+    protected IAIAgentService AIAgentService { get; }
+
+    /// <summary>
     /// get - Serialization options.
     /// </summary>
     protected JsonSerializerOptions SerializerOptions { get; }
@@ -93,6 +95,7 @@ public class ReportEngine : IReportEngine
     /// <param name="chartsOptions"></param>
     /// <param name="azureOptions"></param>
     /// <param name="serializerOptions"></param>
+    /// <param name="aiAgentService"></param>
     /// <param name="logger"></param>
     public ReportEngine(
         ITemplateEngine<ReportEngineContentModel> reportEngineContent,
@@ -104,6 +107,7 @@ public class ReportEngine : IReportEngine
         IOptions<ChartsOptions> chartsOptions,
         IOptions<AzureOptions> azureOptions,
         IOptions<JsonSerializerOptions> serializerOptions,
+        IAIAgentService aiAgentService,
         ILogger<ReportEngine> logger)
     {
         this.ReportEngineContent = reportEngineContent;
@@ -115,6 +119,7 @@ public class ReportEngine : IReportEngine
         this.ChartsOptions = chartsOptions.Value;
         this.AzureOptions = azureOptions.Value;
         this.SerializerOptions = serializerOptions.Value;
+        this.AIAgentService = aiAgentService;
         this.Logger = logger;
     }
     #endregion
@@ -761,18 +766,18 @@ public class ReportEngine : IReportEngine
     /// <param name="sectionContent"></param>
     /// <param name="getPreviousReportsAsync"></param>
     /// <param name="getLLMAsync"></param>
-    /// <param name=""></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
     private async Task GenerateReportAISectionsAsync(
         API.Areas.Services.Models.Report.ReportModel report,
         Dictionary<string, ReportSectionModel> sectionContent,
         Func<int, int?, int?, int, Task<Dictionary<string, ReportSectionModel>>> getPreviousReportsAsync,
-        Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync)
+        Func<int, Task<API.Areas.Services.Models.LLM.LLMModel?>> getLLMAsync,
+        CancellationToken? cancellationToken = null)
     {
         var includesAI = report.Sections.Any(s => s.SectionType == Entities.ReportSectionType.AI && s.IsEnabled);
         if (includesAI)
         {
-
             var serializer = new JsonSerializerOptions(JsonSerializerDefaults.Web)
             {
                 WriteIndented = false,
@@ -807,42 +812,53 @@ public class ReportEngine : IReportEngine
                 var sectionData = sectionContent[section.Name];
 
                 var llm = sectionData.Settings.LLMId.HasValue ? await getLLMAsync(sectionData.Settings.LLMId.Value) : null;
-                var projectEndpoint = llm?.ProjectEndpoint ?? this.AzureOptions.AI?.ProjectEndpoint;
+                var projectEndpoint = llm?.ProjectEndpoint;
                 var apiKey = llm?.ApiKey ?? this.AzureOptions.AI?.ApiKey;
 
                 if (projectEndpoint == null)
                 {
-                    this.Logger.LogError("Azure AI configuration 'Azure.AI.ProjectEndpoint' is required.");
+                    this.Logger.LogError("LLM configuration 'ProjectEndpoint' is required.");
                     sectionData.Data = "OpenAI API project endpoint is required.";
-                    return;
-                }
-                else if (String.IsNullOrWhiteSpace(apiKey))
-                {
-                    this.Logger.LogError("Azure AI configuration 'Azure.AI.ApiKey' is required.");
-                    sectionData.Data = "OpenAI API key is required.";
                     return;
                 }
 
                 var settings = section.Settings;
                 var deploymentName = !String.IsNullOrWhiteSpace(llm?.DeploymentName) ? llm.DeploymentName : this.AzureOptions.AI?.DefaultModelDeploymentName;
-                var agentName = !String.IsNullOrWhiteSpace(llm?.AgentName) ? llm.AgentName : this.AzureOptions.AI?.DefaultAgentName;
+                var agentName = llm?.AgentName;
+                var agentVersion = this.AzureOptions.AI?.DefaultAgentVersion;
                 var systemPrompt = !String.IsNullOrWhiteSpace(settings.SystemPrompt) ? settings.SystemPrompt : this.AzureOptions.AI?.DefaultSystemPrompt;
                 var userPrompt = new StringBuilder(!String.IsNullOrWhiteSpace(settings.UserPrompt) ? settings.UserPrompt : this.AzureOptions.AI?.DefaultUserPrompt);
                 var choiceIndex = settings.ChoiceIndex;
                 var temperature = settings.Temperature;
                 var resultCount = settings.ChoiceQty;
 
-                if (String.IsNullOrWhiteSpace(deploymentName))
+                if (!String.IsNullOrWhiteSpace(agentName))
                 {
-                    this.Logger.LogError("Azure AI deployment model name is required for report: {ReportId} and section: {SectionId}", report.Id, section.Settings.Label);
-                    sectionData.Data = $"Azure AI deployment model name is required";
+                    if (String.IsNullOrWhiteSpace(userPrompt.ToString()))
+                    {
+                        this.Logger.LogError("Azure AI user prompt is required for report: {ReportId} and section: {SectionId}", report.Id, section.Settings.Label);
+                        sectionData.Data = $"Azure AI user prompt is required";
+                    }
+                    else
+                    {
+                        try
+                        {
+                            var prompt = new StringBuilder(systemPrompt).AppendLine(userPrompt.ToString());
+                            sectionData.Data = await this.AIAgentService.AnalyzeAsync(
+                                agentName: agentName,
+                                projectEndpoint: projectEndpoint,
+                                prompt: prompt.ToString(),
+                                deploymentName: deploymentName,
+                                cancellationToken: cancellationToken ?? CancellationToken.None);
+                        }
+                        catch (InvalidOperationException ex)
+                        {
+                            this.Logger.LogError(ex, "Azure AI agent configuration error for report: {ReportId} and section: {SectionId}", report.Id, section.Settings.Label);
+                            sectionData.Data = ex.Message;
+                        }
+                    }
                 }
-                else if (String.IsNullOrWhiteSpace(userPrompt.ToString()))
-                {
-                    this.Logger.LogError("Azure AI user prompt is required for report: {ReportId} and section: {SectionId}", report.Id, section.Settings.Label);
-                    sectionData.Data = $"Azure AI user prompt is required";
-                }
-                else
+                else if (!String.IsNullOrWhiteSpace(deploymentName))
                 {
                     this.Logger.LogDebug("Starting AI summary for section {Section}", section.Settings.Label);
                     var requestBody = new
@@ -909,6 +925,10 @@ public class ReportEngine : IReportEngine
                         this.Logger.LogError(ex, "Failed to generate AI response for report: {ReportId} and section: {SectionId}.", report.Id, section.Settings.Label);
                         // sectionData.Data = $"{ex.GetAllMessages()}\n{responseJson}";
                     }
+                }
+                else
+                {
+                    sectionData.Data = "The LLM configuration is invalid.";
                 }
             });
         }

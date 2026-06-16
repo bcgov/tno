@@ -99,7 +99,11 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
         <Show visible={keycloak.hasClaim() && !popout}>
           <div className="grid-container">
             <div className="nav-bar">
-              <Navbar options={navbarOptions} />
+              <Navbar
+                options={navbarOptions.filter(
+                  (o) => !o.claims?.length || keycloak.hasClaim(o.claims),
+                )}
+              />
             </div>
             <div className="search-bar">
               <BasicSearch />

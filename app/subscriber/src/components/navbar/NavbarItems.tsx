@@ -16,7 +16,9 @@ import {
   FaUsers,
   FaUserTie,
 } from 'react-icons/fa';
+import { FaBrain } from 'react-icons/fa6';
 import { IContentState } from 'store/slices';
+import { Claim } from 'tno-core';
 
 export interface INavbarOptionItem {
   label: string;
@@ -26,6 +28,7 @@ export interface INavbarOptionItem {
   secondaryIcon?: JSX.Element;
   secondaryIconRoute?: string;
   reduxFilterStore?: keyof IContentState;
+  claims?: Claim[];
 }
 
 export interface INavbarOptions {
@@ -80,6 +83,12 @@ export const NavbarOptions: INavbarOptions = {
     label: 'MMI Products',
     path: 'products',
     icon: <FaEnvelope />,
+  },
+  ai: {
+    label: 'AI Analysis',
+    path: 'ai',
+    icon: <FaBrain />,
+    claims: [Claim.administrator],
   },
   myMinister: {
     label: 'My Minister',

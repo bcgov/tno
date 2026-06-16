@@ -1,5 +1,6 @@
 import { DefaultLayout, LayoutAnonymous } from 'components/layout';
 import { AccessRequest } from 'features/access-request';
+import { AIAnalysisPage } from 'features/ai-analysis';
 import { FilterMediaLanding } from 'features/filter-media';
 import { Help } from 'features/help';
 import { Impersonation } from 'features/impersonation';
@@ -188,6 +189,12 @@ export const AppRouter: React.FC = () => {
           }
         />
         <Route path="report/instances/:id/view" element={<ReportView regenerate={false} />} />
+        <Route
+          path="/ai"
+          element={
+            <PrivateRoute claims={Claim.administrator} element={<AIAnalysisPage />}></PrivateRoute>
+          }
+        />
         <Route
           path="/impersonation"
           element={
