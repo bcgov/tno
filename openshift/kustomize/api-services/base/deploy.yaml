@@ -204,6 +204,31 @@ spec:
                 configMapKeyRef:
                   name: reporting-azure-ai
                   key: DefaultUserPrompt
+            - name: Azure__AI__DefaultAgentName
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-azure-ai
+                  key: DefaultAgentName
+            - name: Azure__AI__DefaultAgentVersion
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-azure-ai
+                  key: DefaultAgentVersion
+            - name: Azure__AI__TenantId
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-azure-ai
+                  key: TenantId
+            - name: Azure__AI__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: reporting-azure-ai
+                  key: ClientId
+            - name: Azure__AI__ClientSecret
+              valueFrom:
+                secretKeyRef:
+                  name: azure-openai
+                  key: CLIENT_SECRET
 
             # S3 Configuration
             - name: S3_ACCESS_KEY
