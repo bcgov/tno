@@ -591,3 +591,37 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+
+  elasticsearch-mcp:
+    image: tno:elasticsearch-mcp
+    profiles:
+      - all
+      - service
+    restart: "no"
+    container_name: tno-elasticsearch-mcp
+    build:
+      context: ./services/elasticsearch-mcp/
+      dockerfile: Dockerfile
+    volumes:
+      - ./services/elasticsearch-mcp/config/config.json:/config/config.json:ro
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 250M
+        reservations:
+          cpus: "0.05"
+          memory: 50M
+    env_file:
+      - ./services/elasticsearch-mcp/.env
+    ports:
+      - ${ELASTICSEARCH_MCP_PORT:-40039}:8080
+    depends_on:
+      - elastic
+    networks:
+      - tno
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/ping || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

@@ -72,7 +72,7 @@ build: ## Builds all containers or the one specified (args: n={service name}, p=
 		-f ./db/kafka/docker-compose.yml \
 		-f ./services/docker-compose.yml \
 		$(if $(p),--profile $(p),$(if $(n),--profile all,)) \
-		build --no-cache --force-rm $(n)
+		build --force-rm $(n)
 
 up: ## Starts all containers or the one specified (args: n={service name}, p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]}))
 	$(info Starts all containers or the one specified (n=$(n), p=$(p)))

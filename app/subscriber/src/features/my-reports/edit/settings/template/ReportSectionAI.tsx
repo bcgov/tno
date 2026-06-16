@@ -65,9 +65,12 @@ export const ReportSectionAI = React.forwardRef<HTMLDivElement, IReportSectionAI
     React.useEffect(() => {
       if (llm === undefined) return;
       const newValues = { ...values };
-      newValues.sections[index].settings.llmId = llm.id;
-      newValues.sections[index].settings.temperature = llm.minTemperature;
-      newValues.sections[index].settings.userPrompt = llm.userPrompt;
+      console.error('What does this do?', llm);
+      if (llm.id && llm.id !== newValues.sections[index].settings.llmId) {
+        newValues.sections[index].settings.llmId = llm.id;
+        newValues.sections[index].settings.temperature = llm.minTemperature;
+        newValues.sections[index].settings.userPrompt = llm.userPrompt;
+      }
       setValues(newValues);
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [llm, setValues]);

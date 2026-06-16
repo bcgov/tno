@@ -174,6 +174,26 @@ E2e: Playwright (`playwright-automation/`).
 
 ---
 
+## Build Verification
+
+After making any code changes, **always build the affected project and resolve all errors before stopping**.
+
+| Files changed | Build command |
+|---|---|
+| `app/subscriber/src/**` | `cd app/subscriber && yarn build` |
+| `app/editor/src/**` | `cd app/editor && yarn build` |
+| `libs/net/template/**` | `dotnet build libs/net/template/TNO.TemplateEngine.csproj` |
+| `libs/net/dal/**` | `dotnet build libs/net/dal/TNO.Dal.csproj` |
+| `api/net/**` | `dotnet build api/net/` |
+| `services/net/<name>/**` | `dotnet build services/net/<name>/` |
+| Multiple .NET projects | `dotnet build` (solution root) |
+
+If the build fails: read the error output, fix the root cause, rebuild, and repeat until clean. Do not stop while there are build errors.
+
+A stop hook at `.claude/scripts/build-verify.sh` enforces this automatically by detecting changed files via `git status` and running the appropriate build.
+
+---
+
 ## Do Not
 
 - Do not run `npm install` inside `app/` — use `yarn`.

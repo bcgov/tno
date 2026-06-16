@@ -28,7 +28,8 @@ public static class ServiceCollectionExtensions
             .AddScoped<ITemplateEngine<Models.Reports.ChartEngineContentModel>, TemplateEngine<Models.Reports.ChartEngineContentModel>>()
             .AddScoped<ITemplateEngine<Models.Reports.ReportEngineDataModel<dynamic>>, TemplateEngine<Models.Reports.ReportEngineDataModel<dynamic>>>()
             .AddScoped<INotificationEngine, NotificationEngine>()
-            .AddScoped<IReportEngine, ReportEngine>();
+            .AddScoped<IReportEngine, ReportEngine>()
+            .AddScoped<IAIAgentService, AIAgentService>();
     }
 
     /// <summary>
@@ -49,6 +50,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<ITemplateEngine<Models.Reports.ChartEngineContentModel>, TemplateEngine<Models.Reports.ChartEngineContentModel>>()
             .AddSingleton<ITemplateEngine<Models.Reports.ReportEngineDataModel<dynamic>>, TemplateEngine<Models.Reports.ReportEngineDataModel<dynamic>>>()
             .AddSingleton<INotificationEngine, NotificationEngine>()
-            .AddSingleton<IReportEngine, ReportEngine>();
+            .AddSingleton<IReportEngine, ReportEngine>()
+            .AddSingleton<IAIAgentService, AIAgentService>();
     }
 }
