@@ -95,28 +95,104 @@ jobs:
           docker push \
             ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}
 
+      - name: Pre-flight — Verify Migration Index
+        run: |
+          echo "Checking if 'migrations' index exists in target Elasticsearch..."
+          NS="${{ inputs.openshift_namespace }}"
+          CONFIGMAP="${{ inputs.indexing_configmap }}"
+          SECRET="${{ inputs.elastic_secret_name }}"
+          API_KEY_ENABLED="${{ inputs.elastic_apikey_enabled }}"
+
+          # Build the curl auth header based on auth mode
+          if [ "${API_KEY_ENABLED}" = "true" ]; then
+            AUTH_CMD='APIKEY=$(cat /etc/elastic-secret/ApiKey); curl -sf -H \"Authorization: ApiKey $APIKEY\"'
+            VOLUME_MOUNT='{"name":"elastic-secret","mountPath":"/etc/elastic-secret","readOnly":true}'
+            VOLUME='{"name":"elastic-secret","secret":{"secretName":"'"${SECRET}"'"}}'
+          else
+            AUTH_CMD='USER=$(cat /etc/elastic-secret/USERNAME); PASS=$(cat /etc/elastic-secret/PASSWORD); curl -sf -u \"$USER:$PASS\"'
+            VOLUME_MOUNT='{"name":"elastic-secret","mountPath":"/etc/elastic-secret","readOnly":true}'
+            VOLUME='{"name":"elastic-secret","secret":{"secretName":"'"${SECRET}"'"}}'
+          fi
+
+          ES_URL=$(oc get configmap "${CONFIGMAP}" -n "${NS}" -o jsonpath='{.data.ELASTICSEARCH_URI}')
+          echo "Elasticsearch URL: ${ES_URL}"
+
+          # Run a lightweight curl pod to check the migrations index
+          oc delete pod migration-preflight -n "${NS}" --ignore-not-found=true 2>/dev/null
+          oc run migration-preflight -n "${NS}" \
+            --image=curlimages/curl:latest \
+            --restart=Never \
+            --override-type=merge \
+            --overrides='{
+              "apiVersion":"v1",
+              "spec":{
+                "containers":[{
+                  "name":"migration-preflight",
+                  "image":"curlimages/curl:latest",
+                  "command":["sh","-c","'"${AUTH_CMD}"' '"${ES_URL}"'/migrations/_count -o /dev/null && echo MIGRATIONS_INDEX_EXISTS || echo MIGRATIONS_INDEX_MISSING"],
+                  "volumeMounts":['"${VOLUME_MOUNT}"']
+                }],
+                "volumes":['"${VOLUME}"']
+              }
+            }'
+
+          # Wait for the preflight pod to complete
+          for i in $(seq 1 30); do
+            PHASE=$(oc get pod migration-preflight -n "${NS}" -o jsonpath='{.status.phase}' 2>/dev/null || echo "Unknown")
+            if [ "$PHASE" = "Succeeded" ] || [ "$PHASE" = "Failed" ]; then
+              break
+            fi
+            sleep 2
+          done
+
+          RESULT=$(oc logs migration-preflight -n "${NS}" 2>/dev/null || echo "UNKNOWN")
+          oc delete pod migration-preflight -n "${NS}" --ignore-not-found=true 2>/dev/null
+
+          echo "Pre-flight result: ${RESULT}"
+          if echo "${RESULT}" | grep -q "MIGRATIONS_INDEX_MISSING"; then
+            echo "::error::SAFETY CHECK FAILED: The 'migrations' index does not exist in the target Elasticsearch cluster."
+            echo "::error::Running the migration tool against a cluster without a 'migrations' index will replay ALL migrations (1.0.0 → 1.0.10),"
+            echo "::error::which can corrupt existing indices by creating duplicates, reindexing data, and breaking aliases."
+            echo "::error::"
+            echo "::error::To fix this, seed the migrations index manually before running this workflow:"
+            echo "::error::  curl -X POST '${ES_URL}/migrations/_doc/1.0.10' -H 'Content-Type: application/json' -d '{\"version\":\"1.0.10\"}'"
+            echo "::error::"
+            echo "::error::Or verify the current state of indices with:"
+            echo "::error::  curl '${ES_URL}/_cat/indices?v'"
+            exit 1
+          fi
+          echo "✅ migrations index exists — safe to proceed."
+
       - name: Enable Maintenance Mode
         run: |
-          echo "Enabling maintenance mode: pointing routes editor/subscriber to nginx"
+          echo "Enabling maintenance mode: pointing all routes to nginx maintenance page"
           oc patch route/editor -n ${{ inputs.openshift_namespace }} -p '{"spec":{"to":{"name":"nginx"}}}'
           oc patch route/subscriber -n ${{ inputs.openshift_namespace }} -p '{"spec":{"to":{"name":"nginx"}}}'
+          oc patch route/editor-tls -n ${{ inputs.openshift_namespace }} -p '{"spec":{"to":{"name":"nginx"}}}'
+          oc patch route/subscriber-tls -n ${{ inputs.openshift_namespace }} -p '{"spec":{"to":{"name":"nginx"}}}'
 
       - name: Build Pod Overrides
         id: overrides
         run: |
+          # Base env vars: DB connection, Elastic URL, and index names
           ENV_ARRAY='[
             {"name":"ConnectionStrings__TNO","valueFrom":{"configMapKeyRef":{"name":"api","key":"CONNECTION_STRING"}}},
             {"name":"DB_POSTGRES_USERNAME","valueFrom":{"secretKeyRef":{"name":"${{ inputs.db_secret_name }}","key":"USERNAME"}}},
             {"name":"DB_POSTGRES_PASSWORD","valueFrom":{"secretKeyRef":{"name":"${{ inputs.db_secret_name }}","key":"PASSWORD"}}},
             {"name":"Elastic__Url","valueFrom":{"configMapKeyRef":{"name":"${{ inputs.indexing_configmap }}","key":"ELASTICSEARCH_URI"}}},
-            {"name":"Elastic__Username","valueFrom":{"secretKeyRef":{"name":"${{ inputs.elastic_secret_name }}","key":"USERNAME"}}},
-            {"name":"Elastic__Password","valueFrom":{"secretKeyRef":{"name":"${{ inputs.elastic_secret_name }}","key":"PASSWORD"}}},
             {"name":"Elastic__ContentIndex","valueFrom":{"configMapKeyRef":{"name":"${{ inputs.indexing_configmap }}","key":"CONTENT_INDEX"}}},
             {"name":"Elastic__PublishedIndex","valueFrom":{"configMapKeyRef":{"name":"${{ inputs.indexing_configmap }}","key":"PUBLISHED_INDEX"}}}'
 
+          # Elastic auth: API key and Username/Password are mutually exclusive.
+          # The C# client prefers basic auth when both are present, so we must
+          # only inject one auth method to ensure the intended one is used.
           if [ "${{ inputs.elastic_apikey_enabled }}" = "true" ]; then
             ENV_ARRAY="${ENV_ARRAY},
             {\"name\":\"Elastic__ApiKey\",\"valueFrom\":{\"secretKeyRef\":{\"name\":\"${{ inputs.elastic_secret_name }}\",\"key\":\"ApiKey\"}}}"
+          else
+            ENV_ARRAY="${ENV_ARRAY},
+            {\"name\":\"Elastic__Username\",\"valueFrom\":{\"secretKeyRef\":{\"name\":\"${{ inputs.elastic_secret_name }}\",\"key\":\"USERNAME\"}}},
+            {\"name\":\"Elastic__Password\",\"valueFrom\":{\"secretKeyRef\":{\"name\":\"${{ inputs.elastic_secret_name }}\",\"key\":\"PASSWORD\"}}}"
           fi
 
           ENV_ARRAY="${ENV_ARRAY}]"
@@ -192,9 +268,13 @@ jobs:
       - name: Disable Maintenance Mode
         if: always()
         run: |
-          echo "Disabling maintenance mode: restoring routes editor/subscriber"
+          echo "Disabling maintenance mode: restoring all routes to normal targets"
+          # Non-TLS routes point directly to the app services (verified live state)
           oc patch route/editor -n ${{ inputs.openshift_namespace }} -p '{"spec":{"to":{"name":"editor"}}}'
           oc patch route/subscriber -n ${{ inputs.openshift_namespace }} -p '{"spec":{"to":{"name":"subscriber"}}}'
+          # TLS routes go through the nginx reverse proxy (verified live state)
+          oc patch route/editor-tls -n ${{ inputs.openshift_namespace }} -p '{"spec":{"to":{"name":"nginx-editor"}}}'
+          oc patch route/subscriber-tls -n ${{ inputs.openshift_namespace }} -p '{"spec":{"to":{"name":"nginx-subscriber"}}}'
 
       - name: Cleanup Migration Pod
         if: always()
