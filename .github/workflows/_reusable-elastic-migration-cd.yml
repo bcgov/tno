@@ -95,9 +95,9 @@ jobs:
           docker push \
             ${{ env.ACR_URL }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}
 
-      - name: Pre-flight — Verify Migration Index
+      - name: Pre-flight — Verify Migration State
         run: |
-          echo "Checking if 'migrations' index exists in target Elasticsearch..."
+          echo "Checking if 'migrations' index has migration version records in target Elasticsearch..."
           NS="${{ inputs.openshift_namespace }}"
           CONFIGMAP="${{ inputs.indexing_configmap }}"
           SECRET="${{ inputs.elastic_secret_name }}"
@@ -117,7 +117,7 @@ jobs:
           ES_URL=$(oc get configmap "${CONFIGMAP}" -n "${NS}" -o jsonpath='{.data.ELASTICSEARCH_URI}')
           echo "Elasticsearch URL: ${ES_URL}"
 
-          # Run a lightweight curl pod to check the migrations index
+          # Run a lightweight curl pod to check that the migrations index exists and is not empty.
           oc delete pod migration-preflight -n "${NS}" --ignore-not-found=true 2>/dev/null
           oc run migration-preflight -n "${NS}" \
             --image=curlimages/curl:latest \
@@ -129,7 +129,7 @@ jobs:
                 "containers":[{
                   "name":"migration-preflight",
                   "image":"curlimages/curl:latest",
-                  "command":["sh","-c","'"${AUTH_CMD}"' '"${ES_URL}"'/migrations/_count -o /dev/null && echo MIGRATIONS_INDEX_EXISTS || echo MIGRATIONS_INDEX_MISSING"],
+                  "command":["sh","-c","RESPONSE=$('"${AUTH_CMD}"' \"'"${ES_URL}"'/migrations/_count?q=version:%2A&filter_path=count\" 2>/tmp/migration-preflight-error); STATUS=$?; if [ \"$STATUS\" -ne 0 ]; then echo MIGRATIONS_INDEX_MISSING; cat /tmp/migration-preflight-error; else COUNT=$(echo \"$RESPONSE\" | tr -dc 0-9); if [ -n \"$COUNT\" ] && [ \"$COUNT\" -gt 0 ]; then echo MIGRATIONS_VERSION_EXISTS:$COUNT; elif [ \"$COUNT\" = 0 ]; then echo MIGRATIONS_VERSION_EMPTY; else echo MIGRATIONS_VERSION_UNKNOWN; echo \"$RESPONSE\"; fi; fi"],
                   "volumeMounts":['"${VOLUME_MOUNT}"']
                 }],
                 "volumes":['"${VOLUME}"']
@@ -150,7 +150,7 @@ jobs:
 
           echo "Pre-flight result: ${RESULT}"
           if echo "${RESULT}" | grep -q "MIGRATIONS_INDEX_MISSING"; then
-            echo "::error::SAFETY CHECK FAILED: The 'migrations' index does not exist in the target Elasticsearch cluster."
+            echo "::error::SAFETY CHECK FAILED: The 'migrations' index does not exist or cannot be queried in the target Elasticsearch cluster."
             echo "::error::Running the migration tool against a cluster without a 'migrations' index will replay ALL migrations (1.0.0 → 1.0.10),"
             echo "::error::which can corrupt existing indices by creating duplicates, reindexing data, and breaking aliases."
             echo "::error::"
@@ -161,7 +161,26 @@ jobs:
             echo "::error::  curl '${ES_URL}/_cat/indices?v'"
             exit 1
           fi
-          echo "✅ migrations index exists — safe to proceed."
+          if echo "${RESULT}" | grep -q "MIGRATIONS_VERSION_EMPTY"; then
+            echo "::error::SAFETY CHECK FAILED: The 'migrations' index exists, but it has no migration version records."
+            echo "::error::The migration tool will treat this as a brand-new cluster and replay ALL migrations (1.0.0 → 1.0.10),"
+            echo "::error::which can corrupt existing indices by creating duplicates, reindexing data, and breaking aliases."
+            echo "::error::"
+            echo "::error::To fix this, seed the migrations index manually before running this workflow:"
+            echo "::error::  curl -X POST '${ES_URL}/migrations/_doc/1.0.10' -H 'Content-Type: application/json' -d '{\"version\":\"1.0.10\"}'"
+            exit 1
+          fi
+          if echo "${RESULT}" | grep -q "MIGRATIONS_VERSION_UNKNOWN"; then
+            echo "::error::SAFETY CHECK FAILED: Unable to parse the migration version count from Elasticsearch."
+            echo "::error::Verify the current migration state with:"
+            echo "::error::  curl '${ES_URL}/_cat/count/migrations?v'"
+            exit 1
+          fi
+          if ! echo "${RESULT}" | grep -q "MIGRATIONS_VERSION_EXISTS"; then
+            echo "::error::SAFETY CHECK FAILED: Unexpected migration pre-flight result."
+            exit 1
+          fi
+          echo "✅ migrations index has version records — safe to proceed."
 
       - name: Enable Maintenance Mode
         run: |
