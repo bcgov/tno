@@ -62,6 +62,17 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Login to ACR
+      shell: bash
+      env:
+        ACR_URL: ${{ inputs.acr_url }}
+        ACR_USERNAME: ${{ inputs.acr_username }}
+        ACR_PASSWORD: ${{ inputs.acr_password }}
+      run: |
+        echo "${ACR_PASSWORD}" | docker login "${ACR_URL}" \
+          -u "${ACR_USERNAME}" \
+          --password-stdin
+
     - name: Build Docker Image
       shell: bash
       env:
@@ -121,17 +132,6 @@ runs:
       if: ${{ hashFiles('trivy-results.sarif') != '' }}
       with:
         sarif_file: trivy-results.sarif
-
-    - name: Login to ACR
-      shell: bash
-      env:
-        ACR_URL: ${{ inputs.acr_url }}
-        ACR_USERNAME: ${{ inputs.acr_username }}
-        ACR_PASSWORD: ${{ inputs.acr_password }}
-      run: |
-        echo "${ACR_PASSWORD}" | docker login "${ACR_URL}" \
-          -u "${ACR_USERNAME}" \
-          --password-stdin
 
     - name: Backup current image tag
       continue-on-error: true
