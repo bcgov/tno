@@ -32,9 +32,11 @@ spec:
         part-of: tno
         component: indexer-service
     spec:
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: indexer-service
-          image: image-registry.openshift-image-registry.svc:5000/9b301c-tools/indexer-service:dev
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/indexer-service:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
