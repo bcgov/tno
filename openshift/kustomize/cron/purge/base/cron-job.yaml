@@ -34,9 +34,11 @@ spec:
             - name: api-storage
               persistentVolumeClaim:
                 claimName: api-storage
+          imagePullSecrets:
+            - name: acr-secret
           containers:
             - name: ingest-purge-service
-              image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/node:18-bullseye
+              image: bcgov-c4awhwfpcremdbga.azurecr.io/node:18-bullseye
               imagePullPolicy: IfNotPresent
               resources:
                 requests:

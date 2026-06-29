@@ -32,7 +32,7 @@
 #     part-of: tno
 #   sessionAffinity: None
 #   type: ClusterIP
-# 
+#
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -68,11 +68,13 @@ spec:
         part-of: tno
       name: kowl
     spec:
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - env:
             - name: KAFKA_BROKERS
               value: kafka-broker-0.kafka-headless:29092,kafka-broker-1.kafka-headless:29092,kafka-broker-2.kafka-headless:29092
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/kafka:v1.5.0
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/kowl:v1.5.0
           imagePullPolicy: Always
           name: kowl
           ports:
