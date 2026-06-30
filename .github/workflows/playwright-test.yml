@@ -1,0 +1,94 @@
+name: Playwright E2E (Test Env)
+
+# Manual-only workflow. Runs the Playwright automation suite against the TEST
+# environment. Credentials/config are pulled from the GitHub "test" Environment
+# (Settings -> Environments -> test) so this can only ever target test.
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: "Which test suite to run"
+        type: choice
+        default: all
+        options:
+          - all
+          - smoke
+          - regression
+
+concurrency:
+  group: playwright-test-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: Playwright — Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment:
+      name: test
+    defaults:
+      run:
+        working-directory: ./playwright-automation
+    env:
+      CI: "true"
+      HEADLESS: "true"
+      ENV: test
+      # Non-sensitive config -> Environment "Variables"
+      APP_NAME: ${{ vars.APP_NAME }}
+      EDITOR_URL: ${{ vars.EDITOR_URL }}
+      SUBSCRIBER_URL: ${{ vars.SUBSCRIBER_URL }}
+      API_BASE_URL: ${{ vars.API_BASE_URL }}
+      MAIL_TO: ${{ vars.MAIL_TO }}
+      TEST_TIMEOUT: ${{ vars.TEST_TIMEOUT || '300000' }}
+      ACTION_TIMEOUT: ${{ vars.ACTION_TIMEOUT || '30000' }}
+      # Credentials -> Environment "Secrets"
+      APP_USERNAME: ${{ secrets.APP_USERNAME }}
+      APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+      SUB_USERNAME: ${{ secrets.SUB_USERNAME }}
+      SUB_PASSWORD: ${{ secrets.SUB_PASSWORD }}
+      SUB_USERNAME1: ${{ secrets.SUB_USERNAME1 }}
+      SUB_PASSWORD1: ${{ secrets.SUB_PASSWORD1 }}
+      MAIL_USER: ${{ secrets.MAIL_USER }}
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use NodeJS 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: npm
+          cache-dependency-path: playwright-automation/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        run: |
+          case "${{ inputs.suite }}" in
+            smoke)      npm run test:smoke ;;
+            regression) npm run test:regression ;;
+            *)          npm test ;;
+          esac
+
+      - name: Upload Playwright HTML report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-automation/playwright-report/
+          retention-days: 30
+
+      - name: Upload Allure results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: playwright-automation/allure-results/
+          retention-days: 30
