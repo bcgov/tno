@@ -5,15 +5,6 @@ name: Playwright E2E (Test Env)
 # (Settings -> Environments -> test) so this can only ever target test.
 on:
   workflow_dispatch:
-    inputs:
-      suite:
-        description: "Which test suite to run"
-        type: choice
-        default: all
-        options:
-          - all
-          - smoke
-          - regression
 
 concurrency:
   group: playwright-test-${{ github.ref }}
@@ -36,14 +27,15 @@ jobs:
       CI: "true"
       HEADLESS: "true"
       ENV: test
-      # Non-sensitive config -> Environment "Variables"
+      # Non-sensitive config -> Environment "Variables".
+      # APP_NAME/TEST_TIMEOUT/ACTION_TIMEOUT are optional; the test code has defaults.
       APP_NAME: ${{ vars.APP_NAME }}
       EDITOR_URL: ${{ vars.EDITOR_URL }}
       SUBSCRIBER_URL: ${{ vars.SUBSCRIBER_URL }}
       API_BASE_URL: ${{ vars.API_BASE_URL }}
       MAIL_TO: ${{ vars.MAIL_TO }}
-      TEST_TIMEOUT: ${{ vars.TEST_TIMEOUT || '300000' }}
-      ACTION_TIMEOUT: ${{ vars.ACTION_TIMEOUT || '30000' }}
+      TEST_TIMEOUT: ${{ vars.TEST_TIMEOUT }}
+      ACTION_TIMEOUT: ${{ vars.ACTION_TIMEOUT }}
       # Credentials -> Environment "Secrets"
       APP_USERNAME: ${{ secrets.APP_USERNAME }}
       APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
@@ -70,12 +62,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run Playwright tests
-        run: |
-          case "${{ inputs.suite }}" in
-            smoke)      npm run test:smoke ;;
-            regression) npm run test:regression ;;
-            *)          npm test ;;
-          esac
+        run: npm test
 
       - name: Upload Playwright HTML report
         if: ${{ !cancelled() }}
