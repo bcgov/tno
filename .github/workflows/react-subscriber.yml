@@ -77,6 +77,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Login to ACR
+        run: |
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_URL }} \
+            -u ${{ secrets.ACR_USERNAME }} \
+            --password-stdin
+
       - name: Build Docker Image
         run: |
           docker build \
@@ -100,12 +106,6 @@ jobs:
         with:
           token: ${{ secrets.OPENSHIFT_TOKEN }}
           server: ${{ env.OPENSHIFT_SERVER }}
-
-      - name: Login to ACR
-        run: |
-          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_URL }} \
-            -u ${{ secrets.ACR_USERNAME }} \
-            --password-stdin
 
       - name: Backup current image tag
         continue-on-error: true
@@ -172,6 +172,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Login to ACR
+        run: |
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_URL }} \
+            -u ${{ secrets.ACR_USERNAME }} \
+            --password-stdin
+
       - name: Build Docker Image
         run: |
           docker build \
@@ -195,12 +201,6 @@ jobs:
         with:
           token: ${{ secrets.OPENSHIFT_TOKEN }}
           server: ${{ env.OPENSHIFT_SERVER }}
-
-      - name: Login to ACR
-        run: |
-          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_URL }} \
-            -u ${{ secrets.ACR_USERNAME }} \
-            --password-stdin
 
       - name: Backup current image tag
         continue-on-error: true
