@@ -42,9 +42,11 @@ spec:
             items:
               - key: keycloak.json
                 path: keycloak.json
+      imagePullSecrets:
+        - name: acr-secret
       containers:
         - name: editor-validator
-          image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/editor:latest
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/editor:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
