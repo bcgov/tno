@@ -16,7 +16,7 @@ import { ReportSubscriberSidePage } from "../pages/reportSubscriberSidePage";
 import { NotificationalertPage } from "../pages/notificationalertPage";
 import { AddMediaPage } from "../pages/addMediaPage";  
 import { DataImport } from "../pages/dataImport";
-import { SystemSettings } from "../pages/systemSettings";
+import { SystemSettings } from "../pages/SystemSettings";
 import { AddFolderPage } from "../pages/addFolderPage";
 import { AddProductPage } from "../pages/addProductPage";
 import { AddFilterPage } from "../pages/addFilterPage";

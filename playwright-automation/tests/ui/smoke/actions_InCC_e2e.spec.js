@@ -14,8 +14,9 @@ test.beforeEach(async ({ masterFixture }) => {
   await appPage.navigateToUrl(editorUrl);
   await appPage.hardWait(5000);
 });
-test.describe('@smoke Add New Actions', () => {
-  test(`Verify user can Add new action successfully `, async ({ page }) => {
+
+test.describe.serial('@smoke Add and Delete Actions', () => {
+  test('Verify user can Add new action successfully', async ({ page }) => {
     await page.goto(editorUrl);
     await addMediaPage.navigateToCC();
     await addMediaPage.navigateToActions();
@@ -27,13 +28,27 @@ test.describe('@smoke Add New Actions', () => {
     const MediaSortOrder = `${randomNumber}`;
 
     await addMediaPage.enterMediaDetails(MediaName, MediaDescription, MediaSortOrder);
-
     await addMediaPage.contentdropdown('Print Content');
 
-    //Validate data is saved
     await expect(await addMediaPage.validateSuccessMessage()).toBe(true);
 
     await addMediaPage.clickBackToActions();
+    await appPage.logOut();
+  });
+
+  test('Verify Search and Delete action successfully', async ({ page }) => {
+    await page.goto(editorUrl);
+    await addMediaPage.navigateToCC();
+    await addMediaPage.navigateToActions();
+
+    const mediaName = `Automation Test Name`;
+
+    await addMediaPage.searchAndValidation(mediaName);
+    await addMediaPage.ValidateRowValue(mediaName);
+    await addMediaPage.clickOnSelectedValue();
+    await addMediaPage.clickonDeletebtn();
+    await addMediaPage.removeData();
+    await addMediaPage.validateDeleteMessage();
     await appPage.logOut();
   });
 });

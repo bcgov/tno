@@ -14,8 +14,9 @@ test.beforeEach(async ({ masterFixture }) => {
   await appPage.navigateToUrl(editorUrl);
   await appPage.hardWait(5000);
 });
-test.describe('@smoke Ingest TYpe', () => {
-  test(`Verify adding new ingest type`, async ({ page }) => {
+
+test.describe.serial('@smoke Add and Delete Ingest Type', () => {
+  test('Verify adding new ingest type', async ({ page }) => {
     await page.goto(editorUrl);
     await dataImport.navigateToDataImport();
     await dataImport.navigateToIngest();
@@ -24,16 +25,30 @@ test.describe('@smoke Ingest TYpe', () => {
     const IngestName = `Automation Test Data`;
     const IngestDescription = `Automation Description Data for testing `;
     const randomNmb = Math.floor(Math.random() * 100) + 1;
-    const IngestSortOrder = `${randomNmb}`;
 
     await dataImport.enterIngestDetails(IngestName, IngestDescription, randomNmb);
-
     await dataImport.dropdownOption('PrintContent');
 
-    //Validate data is saved
     await expect(await dataImport.validateMessage()).toBe(true);
     await dataImport.backbtnIngest();
 
+    await appPage.logOut();
+  });
+
+  test('Search and Delete Ingest Type', async ({ page }) => {
+    await page.goto(editorUrl);
+    await dataImport.navigateToDataImport();
+    await dataImport.navigateToIngest();
+    await page.waitForTimeout(5000);
+
+    const ingestName = `Automation Test data`;
+    await dataImport.searchboxValue(ingestName);
+    await dataImport.clickonrowValue();
+    await dataImport.clickDelete();
+    await dataImport.removeBtn();
+    await dataImport.navigatetotypes();
+
+    await dataImport.validateDeleteMessage();
     await appPage.logOut();
   });
 });

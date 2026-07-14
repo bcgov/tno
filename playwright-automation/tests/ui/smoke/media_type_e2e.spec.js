@@ -13,29 +13,40 @@ test.beforeEach(async ({ masterFixture }) => {
   addMediaPage = masterFixture.addMediaPage;
   await appPage.navigateToUrl(editorUrl);
   await appPage.hardWait(5000);
-  // console.log('Media Page', addMediaPage);
 });
 
-test.describe('@smoke Search and Media TYPE', () => {
-  test(`Search and Delete Media Type`, async ({}) => {
-    // await page.goto(editorUrl);
+test.describe.serial('@smoke Add and Delete Media Type', () => {
+  test('Verify adding new media type', async ({ page }) => {
+    await page.goto(editorUrl);
     await addMediaPage.navigateToCC();
     await addMediaPage.navigateToMiMedia();
-    // await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.NAVIGATIONMENU.CONTENT_CONFIGURATION);
-    // await appPage.clickOnMenuAndSubNavigationMenuLink(CONSTANTS.REPORTBUILDING_SUBMENU.MEDIA_TYPE);
+    await addMediaPage.clickAddNewMedia();
+
+    const randomNumber = Math.floor(Math.random() * 10000) + 1;
+    const MediaName = `Automation Test Name ${randomNumber}`;
+    const MediaDescription = `Automation Test Description`;
+    const MediaSortOrder = `${randomNumber}`;
+
+    await addMediaPage.enterMediaDetails(MediaName, MediaDescription, MediaSortOrder);
+    await addMediaPage.selectListTypeOption('Program/Show');
+
+    await expect(await addMediaPage.validateSuccessMessage()).toBe(true);
+    await addMediaPage.backbtnMedia();
+    await appPage.logOut();
+  });
+
+  test('Search and Delete Media Type', async ({}) => {
+    await addMediaPage.navigateToCC();
+    await addMediaPage.navigateToMiMedia();
     await page.waitForTimeout(5000);
 
     const mediaName = `Automation Test Name`;
     await addMediaPage.searchAndValidation(mediaName);
-    console.log(' Fetch Value:', mediaName);
 
     await addMediaPage.clickOnVisibleText();
-    console.log(`Row value validation for ${mediaName} is successful.`);
     await addMediaPage.clickonDeletebtn();
-    console.log(`Deletion of ${mediaName} is successful.`);
     await addMediaPage.removeData();
     await addMediaPage.NavigatetoMediatype();
-    //Validate the delete message
     await addMediaPage.validateDeleteMessage();
 
     await appPage.logOut();

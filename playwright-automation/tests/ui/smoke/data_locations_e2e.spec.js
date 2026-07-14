@@ -13,27 +13,38 @@ test.beforeEach(async ({ masterFixture }) => {
   dataImport = masterFixture.dataImport;
   await appPage.navigateToUrl(editorUrl);
   await appPage.hardWait(5000);
-  console.log('Actions', dataImport);
 });
-test.describe('@smoke Media Licenses', () => {
-  test(`Verify Search and Delete for Data Locations`, async ({ page }) => {
+
+test.describe.serial('@smoke Add and Delete Data Location', () => {
+  test('Verify adding new data location', async ({ page }) => {
+    await page.goto(editorUrl);
+    await dataImport.navigateToDataImport();
+    await dataImport.navigatetoDataLoctn();
+    await dataImport.clickAddNewDataLoctn();
+
+    const DataLName = `Automation Test Data`;
+    const DataLDescription = `Automation DEscription Data for testing `;
+    const DatarandomNmb = Math.floor(Math.random() * 100) + 1;
+    const DataSortOrder = `${DatarandomNmb}`;
+
+    await dataImport.enterIngestDetails(DataLName, DataLDescription, DataSortOrder);
+    await dataImport.dropdownValue('Local Volume - Clips');
+    await appPage.logOut();
+  });
+
+  test('Verify Search and Delete for Data Locations', async ({ page }) => {
     await page.goto(editorUrl);
     await dataImport.navigateToDataImport();
     await dataImport.navigatetoDataLoctn();
 
     const DataLName = `Automation Test Data`;
     await dataImport.searchboxValue(DataLName);
-    console.log(' Fetch Value:', DataLName);
     await dataImport.clickonrowValue();
-    console.log(`Row value validation for ${DataLName} is successful.`);
 
     await dataImport.clickDelete();
-    console.log(`Deletion of ${DataLName} is successful.`);
     await dataImport.removeBtn();
     await dataImport.navigatetoLocation();
-    console.log('Navigate to Data Locations');
     await dataImport.validateDeleteMessage();
-    console.log(`Deletion of ${DataLName} is successful.`);
 
     await appPage.logOut();
   });
