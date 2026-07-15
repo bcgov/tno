@@ -14,8 +14,9 @@ test.beforeEach(async ({ masterFixture }) => {
   await appPage.navigateToUrl(editorUrl);
   await appPage.hardWait(5000);
 });
-test.describe('@smoke Media Licenses', () => {
-  test(`Verify adding new media license`, async ({ page }) => {
+
+test.describe.serial('@smoke Add and Delete Media License', () => {
+  test('Verify adding new media license', async ({ page }) => {
     await page.goto(editorUrl);
     await dataImport.navigateToDataImport();
     await dataImport.navigatetoMediaL();
@@ -33,9 +34,25 @@ test.describe('@smoke Media Licenses', () => {
       IngestSortOrder,
       licensettl,
     );
-    //Validate data is saved
     await expect(await dataImport.validateMessage()).toBe(true);
 
+    await appPage.logOut();
+  });
+
+  test('Search and Delete Media License', async ({ page }) => {
+    await page.goto(editorUrl);
+    await dataImport.navigateToDataImport();
+    await dataImport.navigatetoMediaL();
+
+    const LicenseName = `Automation Test data`;
+
+    await dataImport.searchboxValue(LicenseName);
+    await dataImport.clickRow();
+    await dataImport.clickDelete();
+    await dataImport.removeBtn();
+    await dataImport.navigatetoMediaLicense();
+
+    await dataImport.validateDeleteMessage();
     await appPage.logOut();
   });
 });

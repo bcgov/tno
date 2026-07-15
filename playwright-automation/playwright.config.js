@@ -17,9 +17,12 @@ module.exports = defineConfig({
   globalSetup: './utils/global-setup.js',
   timeout: testTimeout,
   retries: isCI ? 2 : 1,
-  workers: isCI ? 4 : 1,
+  workers: isCI ? 1 : 1,
 
-  reporter: [['list'], ['html', { outputFolder: 'playwright-report' }], ['allure-playwright']],
+  reporter: [
+    ['list'],
+    ['allure-playwright'],
+  ],
 
   use: {
     ignoreHTTPSErrors: true,
@@ -28,9 +31,9 @@ module.exports = defineConfig({
     screenshot: 'on',
     storageState: '/tmp/login.json',
     headless: isHeadless,
-    viewport: null,
+    viewport: isHeadless ? { width: 1920, height: 1080 } : null,
     launchOptions: {
-      args: ['--start-maximized'],
+      args: isHeadless ? [] : ['--start-maximized'],
     },
   },
 
