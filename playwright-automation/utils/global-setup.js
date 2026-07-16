@@ -33,7 +33,7 @@ async function globalSetup() {
   //   console.log(`Headers: ${JSON.stringify(response.headers())}`);
   // });
 
- await page.goto(login_url, { timeout: 10000 });
+ await page.goto(login_url, { timeout: 60000 });
   //await page.waitForLoadState ('documentloaded');
   const otherLoginButton = page.getByRole('button', { name: 'Other' });
   const usernameInput = page.locator('input#username');

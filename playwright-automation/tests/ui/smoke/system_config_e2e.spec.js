@@ -13,10 +13,10 @@ test.beforeEach(async ({ masterFixture }) => {
   systemSettings = masterFixture.systemSettings;
   await appPage.navigateToUrl(editorUrl);
   await appPage.hardWait(5000);
-  console.log('Actions', systemSettings);
 });
-test.describe('@smoke System Configurations', () => {
-  test(`Add New System Configuration`, async ({ page }) => {
+
+test.describe.serial('@smoke Add and Delete System Configuration', () => {
+  test('Add New System Configuration', async ({ page }) => {
     await page.goto(editorUrl);
     await systemSettings.navigateToSystemSettings();
     await systemSettings.navigatetoSystemConfig();
@@ -29,8 +29,23 @@ test.describe('@smoke System Configurations', () => {
     const SCValue = `Automation test Value for System configuration`;
 
     await systemSettings.enterSystemConfigDetails(SCName, SCDescription, SCValue, SCSortOrder);
-    //Validate data is saved
     await expect(await systemSettings.validatetoastmsg()).toBe(true);
+    await appPage.logOut();
+  });
+
+  test('Search and Delete System Configuration', async ({ page }) => {
+    await page.goto(editorUrl);
+    await systemSettings.navigateToSystemSettings();
+    await systemSettings.navigatetoSystemConfig();
+
+    const KeyValue = `Automation Test System`;
+
+    await systemSettings.searchSystemConfig(KeyValue);
+    await systemSettings.deleteSystemConfig();
+    await systemSettings.confirmDelete();
+    await systemSettings.NavigatetoSettings();
+
+    await systemSettings.validateDeleteToastMessage();
     await appPage.logOut();
   });
 });

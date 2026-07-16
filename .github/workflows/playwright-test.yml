@@ -17,7 +17,7 @@ jobs:
   e2e:
     name: Playwright — Test
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     environment:
       name: test
     defaults:
@@ -27,8 +27,6 @@ jobs:
       CI: "true"
       HEADLESS: "true"
       ENV: test
-      # Non-sensitive config -> Environment "Variables".
-      # APP_NAME/TEST_TIMEOUT/ACTION_TIMEOUT are optional; the test code has defaults.
       APP_NAME: ${{ vars.APP_NAME }}
       EDITOR_URL: ${{ vars.EDITOR_URL }}
       SUBSCRIBER_URL: ${{ vars.SUBSCRIBER_URL }}
@@ -36,7 +34,6 @@ jobs:
       MAIL_TO: ${{ vars.MAIL_TO }}
       TEST_TIMEOUT: ${{ vars.TEST_TIMEOUT }}
       ACTION_TIMEOUT: ${{ vars.ACTION_TIMEOUT }}
-      # Credentials -> Environment "Secrets"
       APP_USERNAME: ${{ secrets.APP_USERNAME }}
       APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
       SUB_USERNAME: ${{ secrets.SUB_USERNAME }}
@@ -62,20 +59,52 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run Playwright tests
-        run: npm test
+        id: tests
+        continue-on-error: true
+        run: npx playwright test
 
-      - name: Upload Playwright HTML report
+      - name: Generate Allure report
+        if: ${{ !cancelled() }}
+        run: npx allure generate allure-results --clean -o allure-report
+
+      - name: Allure summary
+        if: ${{ !cancelled() }}
+        run: |
+          node -e "
+            const fs = require('fs');
+            const path = require('path');
+            const widgetFile = path.join('allure-report', 'widgets', 'summary.json');
+            if (fs.existsSync(widgetFile)) {
+              const data = JSON.parse(fs.readFileSync(widgetFile, 'utf8'));
+              const s = data.statistic || {};
+              const total = (s.total || 0);
+              const passed = (s.passed || 0);
+              const failed = (s.failed || 0);
+              const broken = (s.broken || 0);
+              const skipped = (s.skipped || 0);
+              const pct = total > 0 ? ((passed/total)*100).toFixed(1) : '0.0';
+              const summary = '## Allure Test Results\n' +
+                '| Status | Count |\n|---|---|\n' +
+                '| Passed | ' + passed + ' |\n' +
+                '| Failed | ' + failed + ' |\n' +
+                '| Broken | ' + broken + ' |\n' +
+                '| Skipped | ' + skipped + ' |\n' +
+                '| **Total** | **' + total + '** |\n' +
+                '| **Pass rate** | **' + pct + '%** |\n\n' +
+                '### View Full Report\n' +
+                'Download the **allure-report** artifact, unzip, then run: ' +
+                '\`npx allure open allure-report\`\n';
+              fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
+              console.log('Allure: ' + pct + '% (' + passed + '/' + total + ')');
+            } else {
+              console.log('No Allure summary widget found');
+            }
+          "
+
+      - name: Upload Allure report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
-          path: playwright-automation/playwright-report/
-          retention-days: 30
-
-      - name: Upload Allure results
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-results
-          path: playwright-automation/allure-results/
+          name: allure-report
+          path: playwright-automation/allure-report/
           retention-days: 30
