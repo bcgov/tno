@@ -14,10 +14,13 @@ export const generateMustNotQuery = (
   const publishedOn = generatePublishedOnQuery(settings);
   const filter = publishedOn ? [publishedOn] : undefined;
 
+  // A 'bool' clause replaces any prior 'match_all' placeholder; a query object must
+  // contain exactly one root clause or Elasticsearch rejects it.
+  const { match_all, ...priorQuery } = elastic.query ?? {};
   elastic = {
     ...elastic,
     query: {
-      ...(elastic.query ?? {}),
+      ...priorQuery,
       bool: {
         ...(elastic.query?.bool ?? {}),
         must_not: generateQueryValues(settings),

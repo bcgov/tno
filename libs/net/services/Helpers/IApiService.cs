@@ -356,6 +356,13 @@ public interface IApiService
     Task<IEnumerable<API.Areas.Services.Models.Notification.NotificationModel>> FindNotificationsAsync(TNO.Models.Filters.NotificationFilter filter);
 
     /// <summary>
+    /// Make a request to the API to publish the notification and send it to all subscribers.
+    /// </summary>
+    /// <param name="notificationId"></param>
+    /// <returns></returns>
+    Task PublishNotificationAsync(int notificationId);
+
+    /// <summary>
     /// Make a request to the API to fetch the notification with the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
@@ -645,5 +652,84 @@ public interface IApiService
     Task<HttpResponseMessage> GetSettingsResponseWithEtagAsync(string etag);
     string? GetResponseEtag(HttpResponseMessage response);
     Task<T?> GetResponseDataAsync<T>(HttpResponseMessage response);
+    #endregion
+
+    #region Automation
+    /// <summary>
+    /// Get all configured automation profiles.
+    /// </summary>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Admin.Models.Automation.AutomationProfileModel>?> GetAutomationProfilesAsync();
+
+    /// <summary>
+    /// Trigger curation for the specified profile.
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task<API.Areas.Admin.Models.Automation.AutomationRunModel?> RunAutomationProfileAsync(int profileId, API.Areas.Admin.Models.Automation.AutomationRunRequestModel? request = null);
+
+
+
+    /// <summary>
+    /// Prune automation runs older than the specified number of days.
+    /// </summary>
+    /// <param name="retentionDays"></param>
+    /// <returns>The number of runs deleted.</returns>
+    Task<int> PruneAutomationRunsAsync(int retentionDays);
+
+    /// <summary>
+    /// Get the automation profile for the specified 'profileId'.
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <returns></returns>
+    Task<API.Areas.Admin.Models.Automation.AutomationProfileModel?> GetAutomationProfileAsync(int profileId);
+
+    /// <summary>
+    /// Get automation runs, optionally filtered by profile.
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Admin.Models.Automation.AutomationRunModel>?> GetAutomationRunsAsync(int? profileId = null);
+
+    /// <summary>
+    /// Get the automation run for the specified 'runId'.
+    /// </summary>
+    /// <param name="runId"></param>
+    /// <returns></returns>
+    Task<API.Areas.Admin.Models.Automation.AutomationRunModel?> GetAutomationRunAsync(long runId);
+
+    /// <summary>
+    /// Update the specified automation run (status, note, completion). The summary is updated
+    /// separately via <see cref="UpdateAutomationRunSummaryAsync"/>.
+    /// </summary>
+    /// <param name="run"></param>
+    /// <returns></returns>
+    Task<API.Areas.Admin.Models.Automation.AutomationRunModel?> UpdateAutomationRunAsync(API.Areas.Admin.Models.Automation.AutomationRunModel run);
+
+    /// <summary>
+    /// Update only the summary of the specified automation run. Sent as the raw request body so a
+    /// large summary is never re-escaped as a JSON string property (that path can OOM the service).
+    /// </summary>
+    /// <param name="runId"></param>
+    /// <param name="summary"></param>
+    /// <returns></returns>
+    Task UpdateAutomationRunSummaryAsync(long runId, string summary);
+
+    /// <summary>
+    /// Append a batch of LLM prompt/response records to the specified run. Sent in chunks so the
+    /// large prompt/response text is never accumulated in the run summary or held for the whole run.
+    /// </summary>
+    /// <param name="runId"></param>
+    /// <param name="responses"></param>
+    /// <returns></returns>
+    Task AddAutomationRunResponsesAsync(long runId, IEnumerable<API.Areas.Admin.Models.Automation.AutomationRunResponseModel> responses);
+
+    /// <summary>
+    /// Make a request to the API to atomically claim a queued automation run (Draft -> Running).
+    /// </summary>
+    /// <param name="runId"></param>
+    /// <returns>Whether this caller claimed the run.</returns>
+    Task<bool> ClaimAutomationRunAsync(long runId);
     #endregion
 }

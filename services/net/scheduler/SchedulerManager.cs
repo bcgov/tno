@@ -77,6 +77,7 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
                         {
                             EventScheduleType.Report => scheduledEvent.ReportId.ToString(),
                             EventScheduleType.Notification => scheduledEvent.ReportId.ToString(),
+                            EventScheduleType.Automation => scheduledEvent.AutomationProfileId.ToString(),
                             _ => "",
                         };
                         if (VerifySchedule(scheduledEvent))
@@ -94,6 +95,8 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
                                 await GenerateReportRequestAsync(scheduledEvent);
                             else if (ev.EventType == EventScheduleType.Notification)
                                 await GenerateNotificationRequestAsync(scheduledEvent);
+                            else if (ev.EventType == EventScheduleType.Automation)
+                                await GenerateAutomationRequestAsync(scheduledEvent);
                             else
                                 await GenerateEventScheduleRequestAsync(scheduledEvent);
                         }
@@ -217,6 +220,28 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
             To = to,
         };
         await this.Api.SendMessageAsync(request);
+    }
+
+    /// <summary>
+    /// Request an automation run through the API. The API creates the queued run and publishes
+    /// the Kafka work item; an automation service instance picks it up (the consumer group
+    /// guarantees a single instance executes it, so the automation service can scale).
+    /// </summary>
+    /// <param name="scheduledEvent"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    private async Task GenerateAutomationRequestAsync(EventScheduleModel scheduledEvent)
+    {
+        if (scheduledEvent.EventType != EventScheduleType.Automation) throw new InvalidOperationException("Only automation event types allowed");
+
+        var profileId = scheduledEvent.AutomationProfileId;
+        if (profileId == null || profileId == 0) throw new InvalidOperationException($"Event schedule configuration must have a valid automation profile {scheduledEvent.Id}:{scheduledEvent.Name}");
+
+        await this.Api.RunAutomationProfileAsync(profileId.Value, new TNO.API.Areas.Admin.Models.Automation.AutomationRunRequestModel
+        {
+            Trigger = "schedule",
+            Note = $"Scheduled by event '{scheduledEvent.Name}' ({scheduledEvent.Id}).",
+        });
     }
 
     /// <summary>

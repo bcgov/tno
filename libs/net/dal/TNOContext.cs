@@ -126,6 +126,14 @@ public class TNOContext : DbContext
     public DbSet<LLM> LLM => Set<LLM>();
     #endregion
 
+    #region Automation
+    public DbSet<AutomationProfile> AutomationProfiles => Set<AutomationProfile>();
+    public DbSet<AutomationStep> AutomationSteps => Set<AutomationStep>();
+    public DbSet<AutomationAction> AutomationActions => Set<AutomationAction>();
+    public DbSet<AutomationRun> AutomationRuns => Set<AutomationRun>();
+    public DbSet<AutomationRunResponse> AutomationRunResponses => Set<AutomationRunResponse>();
+    #endregion
+
     #region Notifications
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<NotificationInstance> NotificationInstances => Set<NotificationInstance>();

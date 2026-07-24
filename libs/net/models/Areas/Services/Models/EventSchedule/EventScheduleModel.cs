@@ -61,6 +61,11 @@ public class EventScheduleModel : AuditColumnsModel
     public int? FolderId { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to the automation profile.
+    /// </summary>
+    public int? AutomationProfileId { get; set; }
+
+    /// <summary>
     /// get/set -
     /// </summary>
     public Dictionary<string, object> Settings { get; set; } = new Dictionary<string, object>();
@@ -99,6 +104,7 @@ public class EventScheduleModel : AuditColumnsModel
         this.NotificationId = entity.NotificationId;
         this.ReportId = entity.ReportId;
         this.FolderId = entity.FolderId;
+        this.AutomationProfileId = entity.AutomationProfileId;
         this.Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>();
         this.RequestSentOn = entity.RequestSentOn;
         this.LastRanOn = entity.LastRanOn;
@@ -132,6 +138,7 @@ public class EventScheduleModel : AuditColumnsModel
             NotificationId = model.NotificationId,
             ReportId = model.ReportId,
             FolderId = model.FolderId,
+            AutomationProfileId = model.AutomationProfileId,
             Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
             LastRanOn = model.LastRanOn,
             RequestSentOn = model.RequestSentOn,

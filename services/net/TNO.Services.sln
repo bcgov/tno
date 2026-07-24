@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33712.159
@@ -28,6 +28,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.FolderCollection", "folder-collection\TNO.Services.FolderCollection.csproj", "{D81A1C54-E2B3-4C35-B5B1-75D9D3D4E7EB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.ChesRetry", "ches-retry\TNO.Services.ChesRetry.csproj", "{E99C7AE8-6388-412C-9C35-F7148E2B5DFE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Automation", "automation\TNO.Services.Automation.csproj", "{484A005E-4301-41DB-AB53-3F589EC724C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -87,10 +89,10 @@ Global
 		{E99C7AE8-6388-412C-9C35-F7148E2B5DFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E99C7AE8-6388-412C-9C35-F7148E2B5DFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E99C7AE8-6388-412C-9C35-F7148E2B5DFE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{60B05E2B-CD93-4D44-9FF0-F84135B40E03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{60B05E2B-CD93-4D44-9FF0-F84135B40E03}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{60B05E2B-CD93-4D44-9FF0-F84135B40E03}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{60B05E2B-CD93-4D44-9FF0-F84135B40E03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{484A005E-4301-41DB-AB53-3F589EC724C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{484A005E-4301-41DB-AB53-3F589EC724C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{484A005E-4301-41DB-AB53-3F589EC724C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{484A005E-4301-41DB-AB53-3F589EC724C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

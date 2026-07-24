@@ -43,6 +43,10 @@ setup: ## Setup local environment for development, generate configuration files.
 	@mkdir -p ./app/editor/node_modules
 	@mkdir -p ./app/subscriber/node_modules
 
+worktree: ## List available worktrees, copy .env files from selected source branch, and print cd command.
+	$(info List available worktrees and copy .env files from selected source branch)
+	@./tools/scripts/worktree.sh
+
 nuke: ## Stop all containers, delete all containers, volumes, and configuration
 	$(info Stop all containers, delete all containers, volumes, and configuration)
 	@make down

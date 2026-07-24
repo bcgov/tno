@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "dist",
+    "ignoreDeprecations": "5.0",
     "baseUrl": "src",
     "target": "es5",
     "declarationDir": "dist",

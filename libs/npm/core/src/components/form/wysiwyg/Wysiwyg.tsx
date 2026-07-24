@@ -83,11 +83,15 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
   const [expand, setExpand] = React.useState(false);
   const [showRaw, setShowRaw] = React.useState(false);
   const dialogRef = React.useRef<HTMLDialogElement>(null);
+  // The last value emitted to the parent via onChange. When the parent echoes it back through
+  // props.value it must be ignored; re-applying it resets the Quill editor contents and moves
+  // the cursor while the user is typing.
+  const lastEmittedValue = React.useRef<string | undefined>(undefined);
 
   // carry over editor value to raw html or v.v when toggling
   const syncViews = (htmlFromRaw: boolean) => {
-    if (htmlFromRaw) setNormalState({ ...normalState, html: normalState.text });
-    else setNormalState({ ...normalState, text: normalState.html });
+    if (htmlFromRaw) setNormalState((state) => ({ ...state, html: state.text }));
+    else setNormalState((state) => ({ ...state, text: state.html }));
   };
 
   // toggle raw html view
@@ -111,24 +115,25 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
         ?.replaceAll('[p]', '<p>')
         .replaceAll('[/p]', '</p>')
         .replaceAll('[br]', '<br>') || '';
-    setNormalState({ ...normalState, html: doc.body.textContent });
-    props.onChange?.(doc.body.textContent);
+    const html = doc.body.textContent;
+    setNormalState((state) => ({ ...state, html }));
+    lastEmittedValue.current = html;
+    props.onChange?.(html);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.onChange, normalState]);
+  }, [props.onChange, normalState.text]);
 
   const onClickFormatRaw = () => {
     const text = html_beautify(normalState.text);
-    setNormalState({ ...normalState, text });
+    setNormalState((state) => ({ ...state, text }));
+    lastEmittedValue.current = text;
     props.onChange?.(text);
   };
 
   const handleChange = (html: string) => {
-    setNormalState({ ...normalState, html: html });
-    if (html === '<p><br></p>') {
-      props.onChange?.('');
-    } else {
-      props.onChange?.(html);
-    }
+    setNormalState((state) => ({ ...state, html }));
+    const value = html === '<p><br></p>' ? '' : html;
+    lastEmittedValue.current = value;
+    props.onChange?.(value);
   };
 
   const modules = React.useMemo(() => {
@@ -177,17 +182,19 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
   };
 
   React.useEffect(() => {
-    let formattedValue = '';
-    if (props.value) {
-      formattedValue = formatText(props.value);
-    }
-    if (props.value && props.value !== normalState.html) {
-      setNormalState({ ...normalState, text: formattedValue, html: formattedValue });
-    } else if (props.value && formattedValue !== normalState.text) {
-      setNormalState({ ...normalState, text: formattedValue });
-    } else if (!props.value && normalState.text) {
-      setNormalState({ ...normalState, text: formattedValue, html: formattedValue });
-    }
+    // Ignore the parent echoing back the editor's own change. Re-applying it would reset the
+    // Quill contents with stale state, losing keystrokes and moving the cursor mid-typing.
+    if ((props.value ?? '') === (lastEmittedValue.current ?? '')) return;
+    lastEmittedValue.current = props.value;
+
+    const formattedValue = props.value ? formatText(props.value) : '';
+    setNormalState((state) => {
+      if (props.value && formattedValue !== state.html)
+        return { ...state, text: formattedValue, html: formattedValue };
+      if (props.value && formattedValue !== state.text) return { ...state, text: formattedValue };
+      if (!props.value && (state.text || state.html)) return { text: '', html: '' };
+      return state;
+    });
     // only update when value changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.value]);
@@ -195,7 +202,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
   // sync expanded state with normal state
   React.useEffect(() => {
     if (!!expandedState.html) {
-      setNormalState({ ...normalState, html: expandedState.html });
+      setNormalState((state) => ({ ...state, html: expandedState.html }));
     }
     // only want to update when expanded state changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -244,7 +251,10 @@ export const Wysiwyg: React.FC<IWysiwygProps> = (props) => {
             name={props.name}
             disabled={props.disabled}
             className="raw-editor"
-            onChange={(e) => setNormalState({ ...normalState, text: e.target.value })}
+            onChange={(e) => {
+              const text = e.target.value;
+              setNormalState((state) => ({ ...state, text }));
+            }}
             value={normalState.text}
             placeholder={props.placeholder}
           />

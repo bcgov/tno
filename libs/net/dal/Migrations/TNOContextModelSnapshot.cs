@@ -567,6 +567,535 @@ namespace TNO.DAL.Migrations
                     b.ToTable("action");
                 });
 
+            modelBuilder.Entity("TNO.Entities.AutomationAction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AbortIfNoConfirmation")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("abort_if_no_confirmation");
+
+                    b.Property<string>("ActionType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("action_type");
+
+                    b.Property<bool>("AutoExecute")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("auto_execute");
+
+                    b.Property<int>("AutomationStepId")
+                        .HasColumnType("integer")
+                        .HasColumnName("automation_step_id");
+
+                    b.Property<string>("ConfirmationStatement")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasColumnName("confirmation_statement")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<int?>("ContentActionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("content_action_id");
+
+                    b.Property<string>("ContentField")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("content_field");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<int?>("LLMId")
+                        .HasColumnType("integer")
+                        .HasColumnName("llm_id");
+
+                    b.Property<int?>("MaxCalls")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_calls");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<int?>("NotificationId")
+                        .HasColumnType("integer")
+                        .HasColumnName("notification_id");
+
+                    b.Property<string>("Objective")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("objective");
+
+                    b.Property<int?>("PriorActionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("prior_action_id");
+
+                    b.Property<string>("Prompt")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasColumnName("prompt")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<int?>("ReportId")
+                        .HasColumnType("integer")
+                        .HasColumnName("report_id");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AutomationStepId");
+
+                    b.HasIndex("ContentActionId");
+
+                    b.HasIndex("LLMId");
+
+                    b.HasIndex("NotificationId");
+
+                    b.HasIndex("PriorActionId");
+
+                    b.HasIndex("ReportId");
+
+                    b.ToTable("automation_action");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AutomationProfile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<int?>("FilterId")
+                        .HasColumnType("integer")
+                        .HasColumnName("filter_id");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<int?>("LLMId")
+                        .HasColumnType("integer")
+                        .HasColumnName("llm_id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("SchemaVersion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1)
+                        .HasColumnName("schema_version");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FilterId");
+
+                    b.HasIndex("LLMId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_automationprofile_is_enabled");
+
+                    b.ToTable("automation_profile");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AutomationRun", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("AutomationProfileId")
+                        .HasColumnType("integer")
+                        .HasColumnName("automation_profile_id");
+
+                    b.Property<DateTime?>("CompletedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_on");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("text")
+                        .HasColumnName("note");
+
+                    b.Property<DateTime>("StartedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_on");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Summary")
+                        .HasColumnType("text")
+                        .HasColumnName("summary");
+
+                    b.Property<string>("Trigger")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("trigger")
+                        .HasDefaultValueSql("'manual'");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "AutomationProfileId", "StartedOn" }, "IX_automation_run_profile_started");
+
+                    b.HasIndex(new[] { "StartedOn" }, "IX_automation_run_started");
+
+                    b.ToTable("automation_run");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AutomationRunResponse", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ActionName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("action_name");
+
+                    b.Property<long>("AutomationRunId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("automation_run_id");
+
+                    b.Property<long?>("ContentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("content_id");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Prompt")
+                        .HasColumnType("text")
+                        .HasColumnName("prompt");
+
+                    b.Property<string>("Response")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasColumnName("response")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<int>("StepId")
+                        .HasColumnType("integer")
+                        .HasColumnName("step_id");
+
+                    b.Property<string>("StepName")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("step_name")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "AutomationRunId" }, "IX_automation_run_response_run");
+
+                    b.ToTable("automation_run_response");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AutomationStep", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("ApplyToAutomationFilter")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("apply_to_automation_filter");
+
+                    b.Property<int>("AutomationProfileId")
+                        .HasColumnType("integer")
+                        .HasColumnName("automation_profile_id");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<int?>("FilterId")
+                        .HasColumnType("integer")
+                        .HasColumnName("filter_id");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<bool>("IterateStepFilter")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("iterate_step_filter");
+
+                    b.Property<int?>("LLMId")
+                        .HasColumnType("integer")
+                        .HasColumnName("llm_id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Prompt")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasColumnName("prompt")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<bool>("SendSeparatePrompts")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("send_separate_prompts");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("Target")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("target")
+                        .HasDefaultValueSql("'content'");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<bool>("UseChatCompletions")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("use_chat_completions");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AutomationProfileId");
+
+                    b.HasIndex("FilterId");
+
+                    b.HasIndex("LLMId");
+
+                    b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_automationstep_is_enabled");
+
+                    b.ToTable("automation_step");
+                });
+
             modelBuilder.Entity("TNO.Entities.CBRAReportStaffSummary", b =>
                 {
                     b.Property<string>("CbraHours")
@@ -1859,6 +2388,10 @@ namespace TNO.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("AutomationProfileId")
+                        .HasColumnType("integer")
+                        .HasColumnName("automation_profile_id");
+
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -1942,6 +2475,8 @@ namespace TNO.DAL.Migrations
                         .HasDefaultValueSql("0");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AutomationProfileId");
 
                     b.HasIndex("FolderId");
 
@@ -6612,6 +7147,116 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Section");
                 });
 
+            modelBuilder.Entity("TNO.Entities.AutomationAction", b =>
+                {
+                    b.HasOne("TNO.Entities.AutomationStep", "AutomationStep")
+                        .WithMany("Actions")
+                        .HasForeignKey("AutomationStepId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TNO.Entities.Action", "ContentAction")
+                        .WithMany()
+                        .HasForeignKey("ContentActionId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("TNO.Entities.LLM", "LLM")
+                        .WithMany()
+                        .HasForeignKey("LLMId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("TNO.Entities.Notification", "Notification")
+                        .WithMany()
+                        .HasForeignKey("NotificationId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("TNO.Entities.AutomationAction", "PriorAction")
+                        .WithMany()
+                        .HasForeignKey("PriorActionId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("TNO.Entities.Report", "Report")
+                        .WithMany()
+                        .HasForeignKey("ReportId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("AutomationStep");
+
+                    b.Navigation("ContentAction");
+
+                    b.Navigation("LLM");
+
+                    b.Navigation("Notification");
+
+                    b.Navigation("PriorAction");
+
+                    b.Navigation("Report");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AutomationProfile", b =>
+                {
+                    b.HasOne("TNO.Entities.Filter", "Filter")
+                        .WithMany()
+                        .HasForeignKey("FilterId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("TNO.Entities.LLM", "LLM")
+                        .WithMany()
+                        .HasForeignKey("LLMId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Filter");
+
+                    b.Navigation("LLM");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AutomationRun", b =>
+                {
+                    b.HasOne("TNO.Entities.AutomationProfile", "AutomationProfile")
+                        .WithMany("Runs")
+                        .HasForeignKey("AutomationProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AutomationProfile");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AutomationRunResponse", b =>
+                {
+                    b.HasOne("TNO.Entities.AutomationRun", "AutomationRun")
+                        .WithMany("Responses")
+                        .HasForeignKey("AutomationRunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AutomationRun");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AutomationStep", b =>
+                {
+                    b.HasOne("TNO.Entities.AutomationProfile", "AutomationProfile")
+                        .WithMany("Steps")
+                        .HasForeignKey("AutomationProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TNO.Entities.Filter", "Filter")
+                        .WithMany()
+                        .HasForeignKey("FilterId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("TNO.Entities.LLM", "LLM")
+                        .WithMany()
+                        .HasForeignKey("LLMId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("AutomationProfile");
+
+                    b.Navigation("Filter");
+
+                    b.Navigation("LLM");
+                });
+
             modelBuilder.Entity("TNO.Entities.Content", b =>
                 {
                     b.HasOne("TNO.Entities.Contributor", "Contributor")
@@ -6824,6 +7469,11 @@ namespace TNO.DAL.Migrations
 
             modelBuilder.Entity("TNO.Entities.EventSchedule", b =>
                 {
+                    b.HasOne("TNO.Entities.AutomationProfile", "AutomationProfile")
+                        .WithMany("Events")
+                        .HasForeignKey("AutomationProfileId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("TNO.Entities.Folder", "Folder")
                         .WithMany("Events")
                         .HasForeignKey("FolderId")
@@ -6844,6 +7494,8 @@ namespace TNO.DAL.Migrations
                         .HasForeignKey("ScheduleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("AutomationProfile");
 
                     b.Navigation("Folder");
 
@@ -7659,6 +8311,25 @@ namespace TNO.DAL.Migrations
                     b.Navigation("ContentTypes");
 
                     b.Navigation("ContentsManyToMany");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AutomationProfile", b =>
+                {
+                    b.Navigation("Events");
+
+                    b.Navigation("Runs");
+
+                    b.Navigation("Steps");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AutomationRun", b =>
+                {
+                    b.Navigation("Responses");
+                });
+
+            modelBuilder.Entity("TNO.Entities.AutomationStep", b =>
+                {
+                    b.Navigation("Actions");
                 });
 
             modelBuilder.Entity("TNO.Entities.ChartTemplate", b =>
