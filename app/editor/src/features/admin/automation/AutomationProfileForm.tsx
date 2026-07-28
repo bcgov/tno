@@ -8,6 +8,7 @@ import {
   FaCopy,
   FaEdit,
   FaGripLines,
+  FaHistory,
   FaPlus,
   FaTrash,
 } from 'react-icons/fa';
@@ -953,6 +954,30 @@ const AutomationProfileForm: React.FC = () => {
                             </Col>
                             <Col className="state-col">{schedule.isEnabled ? 'Yes' : 'No'}</Col>
                             <Col className="actions-col">
+                              <button
+                                type="button"
+                                className="rule-icon-button"
+                                disabled={!schedule.id}
+                                aria-label={`Clear last run for schedule ${
+                                  schedule.name || index + 1
+                                }`}
+                                title={
+                                  schedule.id
+                                    ? 'Clear last run (makes the schedule eligible to run again for testing)'
+                                    : 'Save the profile before clearing last run'
+                                }
+                                onClick={async () => {
+                                  if (!schedule.id || !id) return;
+                                  await api.clearScheduleLastRun(+id, schedule.id);
+                                  toast.success(
+                                    `Cleared last run for schedule "${
+                                      schedule.name || index + 1
+                                    }".`,
+                                  );
+                                }}
+                              >
+                                <FaHistory />
+                              </button>
                               <button
                                 type="button"
                                 className="rule-icon-button"

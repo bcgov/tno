@@ -340,6 +340,23 @@ export const AdvancedSearch = styled(Row)<{ expanded: boolean }>`
     }
   }
 
+  /* NOT toggle rendered in the Media source accordion header row */
+  .header-actions {
+    display: flex;
+    align-items: center;
+    /* space between the toggle and the expand/collapse icon on the right */
+    margin-right: 1rem;
+
+    .button-toggle > div {
+      /* bring the "NOT" label closer to the switch */
+      gap: 0.2rem;
+    }
+    .button-toggle svg {
+      /* cancel the inherited .option-row svg spacing so the label sits close */
+      margin-right: 0;
+    }
+  }
+
   .option-children {
     .frm-in {
       width: 100%;

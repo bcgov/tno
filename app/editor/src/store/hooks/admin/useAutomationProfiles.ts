@@ -25,6 +25,7 @@ interface IAutomationProfileController {
     id: number,
     request: IAutomationDebugRequestModel,
   ) => Promise<IAutomationDebugResultModel>;
+  clearScheduleLastRun: (profileId: number, scheduleId: number) => Promise<void>;
 }
 
 export const useAutomationProfiles = (): [IAdminState, IAutomationProfileController] => {
@@ -102,6 +103,12 @@ export const useAutomationProfiles = (): [IAdminState, IAutomationProfileControl
           async () => await api.debugContent(id, request),
         );
         return response.data;
+      },
+      clearScheduleLastRun: async (profileId: number, scheduleId: number) => {
+        await dispatch<void>(
+          'clear-automation-schedule-last-run',
+          async () => await api.clearScheduleLastRun(profileId, scheduleId),
+        );
       },
     }),
     [api, dispatch],

@@ -1,0 +1,256 @@
+---
+# How the app will be deployed to the pod.
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: automation-service
+  namespace: default
+  annotations:
+    description: Defines how to deploy automation-service
+    created-by: jeremy.foster
+  labels:
+    name: automation-service
+    part-of: tno
+    version: 1.0.0
+    component: automation-service
+    managed-by: kustomize
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: automation-service
+      part-of: tno
+      component: automation-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      name: automation-service
+      labels:
+        name: automation-service
+        part-of: tno
+        component: automation-service
+    spec:
+      imagePullSecrets:
+        - name: acr-secret
+      containers:
+        - name: automation-service
+          image: bcgov-c4awhwfpcremdbga.azurecr.io/automation-service:dev
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 768Mi
+          env:
+            # .NET Configuration
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+
+            - name: Logging__LogLevel__TNO
+              value: Information
+
+            # Common Service Configuration
+            - name: Service__ApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: API_HOST_URL
+            - name: Service__EmailTo
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: EMAIL_FAILURE_TO
+            - name: Service__MaxFailLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: automation-service
+                  key: MAX_FAIL_LIMIT
+            - name: Service__SendEmailOnFailure
+              valueFrom:
+                configMapKeyRef:
+                  name: automation-service
+                  key: SEND_EMAIL_ON_FAILURE
+
+            # Authentication Configuration
+            - name: Auth__Keycloak__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUTHORITY
+            - name: Auth__Keycloak__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUDIENCE
+            - name: Auth__Keycloak__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak
+                  key: KEYCLOAK_CLIENT_SECRET
+
+            # Kafka Configuration
+            - name: Kafka__Admin__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: automation-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Admin__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            - name: Kafka__Consumer__GroupId
+              valueFrom:
+                configMapKeyRef:
+                  name: automation-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Consumer__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            # Automation Service Configuration
+            - name: Service__Topics
+              valueFrom:
+                configMapKeyRef:
+                  name: automation-service
+                  key: TOPICS
+            - name: Service__TimeZone
+              valueFrom:
+                configMapKeyRef:
+                  name: automation-service
+                  key: TIME_ZONE
+            - name: Service__MaxParallelContentItems
+              valueFrom:
+                configMapKeyRef:
+                  name: automation-service
+                  key: MAX_PARALLEL_CONTENT_ITEMS
+            - name: Service__AbandonedRunInactivityMinutes
+              valueFrom:
+                configMapKeyRef:
+                  name: automation-service
+                  key: ABANDONED_RUN_INACTIVITY_MINUTES
+            - name: Service__StalePendingRunMinutes
+              valueFrom:
+                configMapKeyRef:
+                  name: automation-service
+                  key: STALE_PENDING_RUN_MINUTES
+            - name: Service__RunRetentionDays
+              valueFrom:
+                configMapKeyRef:
+                  name: automation-service
+                  key: RUN_RETENTION_DAYS
+            - name: Service__LLMRequestTimeoutSeconds
+              valueFrom:
+                configMapKeyRef:
+                  name: automation-service
+                  key: LLM_REQUEST_TIMEOUT_SECONDS
+            - name: Service__LLMRequestAttempts
+              valueFrom:
+                configMapKeyRef:
+                  name: automation-service
+                  key: LLM_REQUEST_ATTEMPTS
+            - name: Service__IncludeLLMPromptsInSummary
+              valueFrom:
+                configMapKeyRef:
+                  name: automation-service
+                  key: INCLUDE_LLM_PROMPTS_IN_SUMMARY
+            - name: Service__DefaultTonePoolId
+              valueFrom:
+                configMapKeyRef:
+                  name: automation-service
+                  key: DEFAULT_TONE_POOL_ID
+
+            # Azure AI (Agent LLMs only; endpoint/key otherwise come from the DB).
+            # The client secret is optional so a missing 'azure-ai' secret never
+            # blocks startup - only Agent-based LLMs require it.
+            - name: AzureAI__TenantId
+              valueFrom:
+                configMapKeyRef:
+                  name: automation-service
+                  key: AZURE_AI_TENANT_ID
+            - name: AzureAI__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: automation-service
+                  key: AZURE_AI_CLIENT_ID
+            - name: AzureAI__ClientSecret
+              valueFrom:
+                secretKeyRef:
+                  name: azure-ai
+                  key: CLIENT_SECRET
+                  optional: true
+
+            # CHES Configuration
+            - name: CHES__From
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_FROM
+            - name: CHES__EmailEnabled
+              valueFrom:
+                configMapKeyRef:
+                  name: automation-service
+                  key: CHES_EMAIL_ENABLED
+            - name: CHES__EmailAuthorized
+              valueFrom:
+                configMapKeyRef:
+                  name: automation-service
+                  key: CHES_EMAIL_AUTHORIZED
+            - name: CHES__AuthUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_AUTH_URL
+            - name: CHES__HostUri
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_HOST_URI
+            - name: CHES__Username
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: USERNAME
+            - name: CHES__Password
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: PASSWORD
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30

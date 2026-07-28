@@ -36,6 +36,7 @@ public class AutomationController : ControllerBase
     private readonly IAutomationRunResponseService _runResponseService;
     private readonly ILLMService _llmService;
     private readonly IContentService _contentService;
+    private readonly IEventScheduleService _eventScheduleService;
     private readonly System.Net.Http.IHttpClientFactory _httpClientFactory;
     private readonly System.Text.Json.JsonSerializerOptions _serializerOptions;
     private readonly IKafkaMessenger _kafkaMessenger;
@@ -61,6 +62,7 @@ public class AutomationController : ControllerBase
         IAutomationRunResponseService runResponseService,
         ILLMService llmService,
         IContentService contentService,
+        IEventScheduleService eventScheduleService,
         System.Net.Http.IHttpClientFactory httpClientFactory,
         IOptions<System.Text.Json.JsonSerializerOptions> serializerOptions,
         IKafkaMessenger kafkaMessenger,
@@ -71,6 +73,7 @@ public class AutomationController : ControllerBase
         _runResponseService = runResponseService;
         _llmService = llmService;
         _contentService = contentService;
+        _eventScheduleService = eventScheduleService;
         _httpClientFactory = httpClientFactory;
         _serializerOptions = serializerOptions.Value;
         _kafkaMessenger = kafkaMessenger;
@@ -535,6 +538,34 @@ public class AutomationController : ControllerBase
             new AutomationRequestModel(run.Id, id));
 
         return new JsonResult(new AutomationRunModel(run));
+    }
+
+    /// <summary>
+    /// Clear the last-run information for the specified schedule so it becomes eligible to run
+    /// again (useful for testing). The scheduler uses 'RequestSentOn' to enforce the once-per-day
+    /// rule; both 'RequestSentOn' and 'LastRanOn' are cleared.
+    /// </summary>
+    /// <param name="id">The automation profile id.</param>
+    /// <param name="scheduleId">The event schedule id belonging to the profile.</param>
+    /// <returns></returns>
+    [HttpPost("profiles/{id}/schedules/{scheduleId}/clear-last-run")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(AutomationScheduleModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [SwaggerOperation(Tags = new[] { "Automation" })]
+    public IActionResult ClearScheduleLastRun(int id, int scheduleId)
+    {
+        var eventSchedule = _eventScheduleService.FindById(scheduleId);
+        if (eventSchedule == null
+            || eventSchedule.EventType != Entities.EventScheduleType.Automation
+            || eventSchedule.AutomationProfileId != id)
+            return new NoContentResult();
+
+        eventSchedule.RequestSentOn = null;
+        eventSchedule.LastRanOn = null;
+        eventSchedule = _eventScheduleService.UpdateAndSave(eventSchedule);
+
+        return new JsonResult(new AutomationScheduleModel(eventSchedule));
     }
 
     /// <summary>

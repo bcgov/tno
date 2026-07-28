@@ -123,7 +123,19 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                 // The service is stopping or has stopped, consume should stop too.
                 _listener.Stop();
             }
-            else if (this.State.Status != ServiceStatus.Running)
+
+            // Automatically recover from a critical failure after a configured delay so the
+            // service does not remain stuck in the 'Failed' state indefinitely.
+            if (this.State.Status == ServiceStatus.Failed && this.Options.AutoRestartAfterCriticalFailure)
+            {
+                this.Logger.LogInformation(
+                    "Automation service will attempt to restart after a critical failure in {delay} ms",
+                    this.Options.RetryAfterCriticalFailureDelayMS);
+                await Task.Delay(this.Options.RetryAfterCriticalFailureDelayMS);
+                this.State.Resume();
+            }
+
+            if (this.State.Status != ServiceStatus.Running)
             {
                 this.Logger.LogDebug("The service is not running: '{Status}'", this.State.Status);
             }

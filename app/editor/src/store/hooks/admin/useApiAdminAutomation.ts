@@ -65,5 +65,10 @@ export const useApiAdminAutomation = () => {
         any
       >(`/admin/automation/profiles/${id}/debug`, request);
     },
+    clearScheduleLastRun: (profileId: number, scheduleId: number) => {
+      return api.post<never, AxiosResponse<void>, any>(
+        `/admin/automation/profiles/${profileId}/schedules/${scheduleId}/clear-last-run`,
+      );
+    },
   }).current;
 };

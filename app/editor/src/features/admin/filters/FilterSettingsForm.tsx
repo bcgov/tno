@@ -1,6 +1,7 @@
 import { getIn, useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
+import { FaToggleOff, FaToggleOn } from 'react-icons/fa';
 import { useLookupOptions } from 'store/hooks';
 import {
   Col,
@@ -17,6 +18,7 @@ import {
   Section,
   SentimentSlider,
   Show,
+  ToggleButton,
   ToggleGroup,
 } from 'tno-core';
 
@@ -285,21 +287,44 @@ export const FilterSettingsForm: React.FC<IFilterSEttingsFormProps> = ({
       </Row>
       <Row>
         <Col flex="1">
-          <FormikSelect
-            name={`${path}sourceIds`}
-            label="Sources"
-            isMulti
-            options={sourceOptions}
-            value={
-              sourceOptions.filter((mt) =>
-                settings.sourceIds?.some((p: number) => p === mt.value),
-              ) ?? []
-            }
-            onChange={(newValue: any) => {
-              const sourceIds = newValue.map((v: OptionItem) => v.value);
-              updateSettings('sourceIds', sourceIds);
-            }}
-          />
+          <div className="not-sources">
+            <div className="not-toggle-field">
+              {/* invisible label matches the neighbouring "Sources" label height so the
+                  toggle lines up with the select input, not the label */}
+              <label className="not-spacer" aria-hidden="true">
+                &nbsp;
+              </label>
+              <ToggleButton
+                className={`not-toggle${settings.sourceIdsNegate ? ' active' : ''}`}
+                label="NOT"
+                labelPosition="left"
+                title="Exclude the selected sources (NOT)"
+                on={<FaToggleOn />}
+                off={<FaToggleOff />}
+                value={!!settings.sourceIdsNegate}
+                onClick={() => updateSettings('sourceIdsNegate', !settings.sourceIdsNegate)}
+                width="22px"
+                height="22px"
+              />
+            </div>
+            <div className="sources-select">
+              <FormikSelect
+                name={`${path}sourceIds`}
+                label="Sources"
+                isMulti
+                options={sourceOptions}
+                value={
+                  sourceOptions.filter((mt) =>
+                    settings.sourceIds?.some((p: number) => p === mt.value),
+                  ) ?? []
+                }
+                onChange={(newValue: any) => {
+                  const sourceIds = newValue.map((v: OptionItem) => v.value);
+                  updateSettings('sourceIds', sourceIds);
+                }}
+              />
+            </div>
+          </div>
         </Col>
         <Col flex="1">
           <FormikSelect
