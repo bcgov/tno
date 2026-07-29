@@ -116,6 +116,15 @@ public static partial class PromptComposer
     }
 
     /// <summary>
+    /// Resolve {content} / {content.&lt;path&gt;} tokens in an arbitrary string (e.g. an Extract Data
+    /// row value that copies a content property directly).
+    /// </summary>
+    /// <param name="text"></param>
+    /// <param name="contentJson"></param>
+    /// <returns></returns>
+    public static string ResolveContentTokens(string text, string? contentJson) => ReplaceContentTokens(text, contentJson);
+
+    /// <summary>
     /// Replace the {field} token with the action's selected content field.
     /// </summary>
     /// <param name="text"></param>

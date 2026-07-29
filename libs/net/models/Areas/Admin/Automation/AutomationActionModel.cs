@@ -88,6 +88,30 @@ public class AutomationActionModel
     public bool AbortIfNoConfirmation { get; set; }
 
     /// <summary>
+    /// get/set - Which content the action operates on. Null (or "original") targets the iterated
+    /// content item; otherwise the identifier of a content item created earlier in the same step by
+    /// a 'create-content' action. Only honoured when the step sends separate prompts per action.
+    /// </summary>
+    public string? WorksOn { get; set; }
+
+    /// <summary>
+    /// get/set - For 'create-content' actions, the identifier later actions reference (via WorksOn).
+    /// </summary>
+    public string? CreateIdentifier { get; set; }
+
+    /// <summary>
+    /// get/set - For 'create-content' actions, whether to clone the iterated content item as the
+    /// starting point for the new item before applying extracted data and prompt values.
+    /// </summary>
+    public bool CreateClone { get; set; }
+
+    /// <summary>
+    /// get/set - Action-type specific configuration stored as JSON (e.g. 'extract-data' key map and
+    /// custom pairs; 'create-content' static field overrides such as the headline).
+    /// </summary>
+    public System.Text.Json.JsonDocument Settings { get; set; } = System.Text.Json.JsonDocument.Parse("{}");
+
+    /// <summary>
     /// get/set - Whether action is enabled.
     /// </summary>
     public bool IsEnabled { get; set; } = true;
@@ -120,6 +144,10 @@ public class AutomationActionModel
         this.LLMId = entity.LLMId;
         this.AutoExecute = entity.AutoExecute;
         this.AbortIfNoConfirmation = entity.AbortIfNoConfirmation;
+        this.WorksOn = entity.WorksOn;
+        this.CreateIdentifier = entity.CreateIdentifier;
+        this.CreateClone = entity.CreateClone;
+        this.Settings = entity.Settings;
         this.IsEnabled = entity.IsEnabled;
     }
     #endregion
@@ -151,6 +179,10 @@ public class AutomationActionModel
             LLMId = this.LLMId,
             AutoExecute = this.AutoExecute,
             AbortIfNoConfirmation = this.AbortIfNoConfirmation,
+            WorksOn = this.WorksOn,
+            CreateIdentifier = this.CreateIdentifier,
+            CreateClone = this.CreateClone,
+            Settings = this.Settings ?? System.Text.Json.JsonDocument.Parse("{}"),
             IsEnabled = this.IsEnabled,
             SortOrder = sortOrder,
         };

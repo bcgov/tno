@@ -12,6 +12,8 @@ export const actionTypeOptions = [
   { value: 'select-columnist', label: 'Select Columnist/Pundit' },
   { value: 'add-tags', label: 'Add Tags' },
   { value: 'add-sentiment', label: 'Add Sentiment' },
+  { value: 'extract-data', label: 'Extract Data' },
+  { value: 'create-content', label: 'Create Content' },
   { value: 'deduplicate', label: 'Deduplication' },
   { value: 'run-report', label: 'Publish Report' },
   { value: 'run-notification', label: 'Publish Notification' },
@@ -74,6 +76,17 @@ export const actionTypeDefaults: Record<string, { prompt: string; confirmationSt
       prompt:
         '<p>Review the `content.headline`, `content.summary`, and `content.body` and generate a sentiment value from -5 to 5, where -5 is negative sentiment and 5 is positive sentiment. Base your evaluation on the perspective of the BC Government viewpoint. Respond with the following "[SENTIMENT:{value}]" where {value} is the sentiment value.</p>',
       confirmationStatement: '[SENTIMENT:{value}]',
+    },
+    // Extract Data and Create Content are driven by their grids (keys/values and the
+    // property-to-key mapping), not the action prompt; the step prompt is used as an optional
+    // preamble for any generate rows.
+    'extract-data': {
+      prompt: '',
+      confirmationStatement: '',
+    },
+    'create-content': {
+      prompt: '',
+      confirmationStatement: '',
     },
     deduplicate: {
       prompt:

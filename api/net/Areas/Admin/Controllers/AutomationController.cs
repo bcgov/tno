@@ -10,7 +10,9 @@ using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Kafka;
 using TNO.Kafka.Models;
+using TNO.Kafka.SignalR;
 using TNO.Keycloak;
+using SignalRModels = TNO.API.Models.SignalR;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
@@ -41,6 +43,7 @@ public class AutomationController : ControllerBase
     private readonly System.Text.Json.JsonSerializerOptions _serializerOptions;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly Config.KafkaOptions _kafkaOptions;
+    private readonly KafkaHubConfig _kafkaHubOptions;
     #endregion
 
     #region Constructors
@@ -66,7 +69,8 @@ public class AutomationController : ControllerBase
         System.Net.Http.IHttpClientFactory httpClientFactory,
         IOptions<System.Text.Json.JsonSerializerOptions> serializerOptions,
         IKafkaMessenger kafkaMessenger,
-        IOptions<Config.KafkaOptions> kafkaOptions)
+        IOptions<Config.KafkaOptions> kafkaOptions,
+        IOptions<KafkaHubConfig> kafkaHubOptions)
     {
         _profileService = profileService;
         _runService = runService;
@@ -78,6 +82,7 @@ public class AutomationController : ControllerBase
         _serializerOptions = serializerOptions.Value;
         _kafkaMessenger = kafkaMessenger;
         _kafkaOptions = kafkaOptions.Value;
+        _kafkaHubOptions = kafkaHubOptions.Value;
     }
     #endregion
 
@@ -530,6 +535,14 @@ public class AutomationController : ControllerBase
         };
         _runService.AddAndSave(run);
 
+        // Notify editors (via SignalR) that a run has begun so a scheduled run appears without a
+        // page refresh - the run may have been queued by the scheduler, not this user.
+        await _kafkaMessenger.SendMessageAsync(
+            _kafkaHubOptions.HubTopic,
+            new KafkaHubMessage(HubEvent.SendAll,
+                new KafkaInvocationMessage(MessageTarget.AutomationRunUpdated,
+                    new[] { new SignalRModels.AutomationRunMessageModel(run) })));
+
         // Publish a work item so an automation service instance picks up the run.
         // The queued run remains the source of truth; the service reconciles stale runs if a message is lost.
         await _kafkaMessenger.SendMessageAsync(
@@ -610,7 +623,7 @@ public class AutomationController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(AutomationRunModel), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Automation" })]
-    public IActionResult UpdateRun(long runId, [FromBody] AutomationRunModel model)
+    public async Task<IActionResult> UpdateRun(long runId, [FromBody] AutomationRunModel model)
     {
         var run = _runService.FindById(runId) ?? throw new NoContentException();
         run.Status = (Entities.AutomationRunStatus)(int)model.Status;
@@ -619,6 +632,14 @@ public class AutomationController : ControllerBase
         // The summary is written exclusively by UpdateRunSummary (raw body) so it is never
         // re-escaped as a JSON string property; leave the persisted value untouched here.
         _runService.UpdateAndSave(run);
+
+        // Notify editors (via SignalR) of the status change so the run's progress updates live.
+        await _kafkaMessenger.SendMessageAsync(
+            _kafkaHubOptions.HubTopic,
+            new KafkaHubMessage(HubEvent.SendAll,
+                new KafkaInvocationMessage(MessageTarget.AutomationRunUpdated,
+                    new[] { new SignalRModels.AutomationRunMessageModel(run) })));
+
         return new JsonResult(new AutomationRunModel(run));
     }
 

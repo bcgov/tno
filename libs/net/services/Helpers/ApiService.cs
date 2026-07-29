@@ -1378,7 +1378,8 @@ public class ApiService : IApiService
     public async Task AddAutomationRunResponsesAsync(long runId, IEnumerable<API.Areas.Admin.Models.Automation.AutomationRunResponseModel> responses)
     {
         var url = this.Options.ApiUrl.Append($"admin/automation/runs/{runId}/responses");
-        foreach (var chunk in responses.Chunk(25))
+        // Small chunks keep each POST payload bounded even for runs that process many stories.
+        foreach (var chunk in responses.Chunk(10))
         {
             await RetryRequestAsync<HttpResponseMessage>(async () =>
             {

@@ -151,6 +151,35 @@ public class AutomationAction : AuditColumns
     public bool AbortIfNoConfirmation { get; set; }
 
     /// <summary>
+    /// get/set - Which content the action operates on. Null (or "original") targets the iterated
+    /// content item; otherwise the identifier of a content item created earlier in the same step
+    /// by a 'create-content' action. Only honoured when the step sends separate prompts per action.
+    /// </summary>
+    [Column("works_on")]
+    public string? WorksOn { get; set; }
+
+    /// <summary>
+    /// get/set - For 'create-content' actions, the identifier later actions in the same step use
+    /// (via WorksOn) to reference the content item this action creates (e.g. "c1").
+    /// </summary>
+    [Column("create_identifier")]
+    public string? CreateIdentifier { get; set; }
+
+    /// <summary>
+    /// get/set - For 'create-content' actions, whether to clone the iterated content item's fields
+    /// as the starting point for the new item (before applying extracted data and prompt values).
+    /// </summary>
+    [Column("create_clone")]
+    public bool CreateClone { get; set; }
+
+    /// <summary>
+    /// get/set - Action-type specific configuration stored as JSON (e.g. 'extract-data' key map and
+    /// custom pairs; 'create-content' static field overrides such as the headline).
+    /// </summary>
+    [Column("settings")]
+    public System.Text.Json.JsonDocument Settings { get; set; } = System.Text.Json.JsonDocument.Parse("{}");
+
+    /// <summary>
     /// get/set - Whether the action is enabled.
     /// </summary>
     [Column("is_enabled")]

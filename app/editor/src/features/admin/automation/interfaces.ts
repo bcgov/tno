@@ -25,6 +25,17 @@ export interface IAutomationRuleActionModel {
   llmId?: number;
   /** The scoring objective key; links 'score-content' actions to their 'select-top' action. */
   objective?: string | null;
+  /** Which content the action operates on: 'original' (or undefined) targets the iterated item;
+   * otherwise the identifier of a content item created earlier in the same step by a
+   * 'create-content' action. Only honoured when the step sends separate prompts. */
+  worksOn?: string | null;
+  /** For 'create-content': the identifier later actions reference via worksOn (e.g. 'c1'). */
+  createIdentifier?: string | null;
+  /** For 'create-content': clone the iterated content item as the starting point before applying
+   * the extracted data and prompt values. */
+  createClone?: boolean;
+  /** Action-type specific configuration (e.g. create-content 'overrides' and 'requireKey'). */
+  settings?: Record<string, any> | null;
 }
 
 export interface IAutomationStepModel {

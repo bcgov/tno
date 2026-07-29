@@ -25,6 +25,10 @@ public class AutomationActionConfiguration : AuditColumnsConfiguration<Automatio
         builder.Property(m => m.AbortIfNoConfirmation).IsRequired().HasDefaultValue(false);
         builder.Property(m => m.LLMId);
         builder.Property(m => m.Objective).HasMaxLength(100);
+        builder.Property(m => m.WorksOn).HasMaxLength(100);
+        builder.Property(m => m.CreateIdentifier).HasMaxLength(100);
+        builder.Property(m => m.CreateClone).IsRequired().HasDefaultValue(false);
+        builder.Property(m => m.Settings).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'");
         builder.Property(m => m.IsEnabled);
         builder.Property(m => m.SortOrder).HasDefaultValue(0);
 

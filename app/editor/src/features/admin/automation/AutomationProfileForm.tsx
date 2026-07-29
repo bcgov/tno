@@ -15,7 +15,7 @@ import {
 import { FaArrowRotateLeft, FaCircleInfo } from 'react-icons/fa6';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useLookup } from 'store/hooks';
+import { useApiHub, useLookup } from 'store/hooks';
 import {
   useAutomationProfiles,
   useFilters,
@@ -176,6 +176,7 @@ const AutomationProfileForm: React.FC = () => {
   const { toggle: toggleRunDetailModal, isShowing: isRunDetailModalShowing } = useModal();
 
   const profileId = Number(id);
+  const hub = useApiHub();
   const DragDropContextAny = DragDropContext as any;
   const DroppableAny = StrictModeDroppable as any;
   const DraggableAny = Draggable as any;
@@ -409,6 +410,20 @@ const AutomationProfileForm: React.FC = () => {
     }, 3000);
     return () => window.clearInterval(timer);
   }, [lastRun, profileId, refreshRuns]);
+
+  // Real-time: a run can be queued by the scheduler (not this page), so listen for the
+  // "run begun / status changed" SignalR signal and refresh the runs list without a manual
+  // page refresh. Setting it as the latest run also drives the in-progress poll above.
+  hub.useHubEffect(
+    'automation-run-updated',
+    (message: { id?: number; profileId?: number } = {}) => {
+      if (!profileId || message.profileId !== profileId) return;
+      refreshRuns(profileId).then((results) => {
+        const run = results.find((r) => r.id === message.id) ?? results[0];
+        if (run) setLastRun(run);
+      });
+    },
+  );
 
   const openRunDetail = (run: IAutomationRunModel) => {
     setRunDetail(run);
@@ -678,6 +693,61 @@ const AutomationProfileForm: React.FC = () => {
                     createOption(`${step.name}: ${action.name || action.actionType}`, action.id!),
                   );
               });
+
+          // "Works on" targets for the action being edited: the original iterated item plus any
+          // content created earlier in the same step by a 'create-content' action (only honoured
+          // when the step sends separate prompts).
+          const worksOnStep = actionModalState
+            ? orderedSteps[actionModalState.stepIndex]
+            : undefined;
+          const worksOnLimit =
+            actionModalState?.mode === 'edit' && typeof actionModalState?.actionIndex === 'number'
+              ? actionModalState.actionIndex
+              : worksOnStep?.actions.length ?? 0;
+          const worksOnOptions: IOptionItem[] = [
+            createOption('Original content item', 'original'),
+            ...(worksOnStep?.actions ?? [])
+              .slice(0, worksOnLimit)
+              .filter(
+                (action) => action.actionType === 'create-content' && !!action.createIdentifier,
+              )
+              .map((action) => createOption(action.createIdentifier!, action.createIdentifier!)),
+          ];
+
+          // Content properties supported by Extract Data default rows and the Create Content
+          // mapping grid (fixed left column). Covers scalar, enum, foreign-key and collection
+          // fields; the engine resolves each back to the content model when creating.
+          const contentProperties = [
+            'headline',
+            'byline',
+            'summary',
+            'body',
+            'edition',
+            'section',
+            'page',
+            'status',
+            'contentType',
+            'source',
+            'mediaType',
+            'series',
+            'tags',
+            'topics',
+            'sentiment',
+          ];
+          // The default Extract Data value (right column) for a property: foreign keys copy the
+          // original's id; tags/topics/sentiment copy their aggregate token (resolved to a
+          // code/name list or tone value); everything else copies its content token. Any of these
+          // can be replaced with a prompt to generate the value instead.
+          const defaultExtractValue = (property: string): string => {
+            if (property === 'source') return '{content.sourceId}';
+            if (property === 'mediaType') return '{content.mediaTypeId}';
+            if (property === 'series') return '{content.seriesId}';
+            return `{content.${property}}`;
+          };
+          const extractRows: { key: string; value: string }[] =
+            actionModalState?.action.settings?.extract ?? [];
+          const contentMapping: Record<string, string> =
+            actionModalState?.action.settings?.mapping ?? {};
 
           return (
             <div className="form-container">
@@ -1801,8 +1871,8 @@ const AutomationProfileForm: React.FC = () => {
                         onChange={(newValue) => {
                           const actionType = (newValue as { value?: string } | null)?.value;
                           if (!actionType) return;
-                          updateActionDraft((action) =>
-                            syncActionDefaults(
+                          updateActionDraft((action) => {
+                            const synced = syncActionDefaults(
                               {
                                 ...action,
                                 // 'Always run' only applies to value-less action types.
@@ -1813,8 +1883,22 @@ const AutomationProfileForm: React.FC = () => {
                               actionType,
                               orderedSteps[actionModalState?.stepIndex ?? -1]?.useChatCompletions ??
                                 false,
-                            ),
-                          );
+                            );
+                            // Seed default configuration for the data-driven action types.
+                            const settings: Record<string, any> = { ...(synced.settings ?? {}) };
+                            if (actionType === 'extract-data' && !settings.extract) {
+                              settings.extract = contentProperties.map((property) => ({
+                                key: property,
+                                value: defaultExtractValue(property),
+                              }));
+                            }
+                            if (actionType === 'create-content' && !settings.mapping) {
+                              settings.mapping = Object.fromEntries(
+                                contentProperties.map((property) => [property, property]),
+                              );
+                            }
+                            return { ...synced, settings };
+                          });
                         }}
                       />
                       <Show
@@ -1885,7 +1969,202 @@ const AutomationProfileForm: React.FC = () => {
                           }}
                         />
                       </Show>
+                      {/* Create Content: identifier for later actions to reference. */}
+                      <Show visible={actionModalState?.action.actionType === 'create-content'}>
+                        <Text
+                          width={FieldSize.Small}
+                          name="action-create-identifier"
+                          label="Identifier"
+                          required
+                          value={actionModalState?.action.createIdentifier ?? ''}
+                          onChange={(event) => {
+                            const createIdentifier = event.target.value;
+                            updateActionDraft((action) => ({ ...action, createIdentifier }));
+                          }}
+                        />
+                      </Show>
                     </Row>
+                    {/* Extract Data: key/value grid. A token-only value is copied; a prompt generates it. */}
+                    <Show visible={actionModalState?.action.actionType === 'extract-data'}>
+                      <div className="extract-grid">
+                        <p className="modal-intro-text">
+                          Each row assigns a value to a key. A value that is only a content token
+                          (e.g. {'{content.body}'}) is copied directly; otherwise it is sent as a
+                          prompt to generate the value.
+                        </p>
+                        {extractRows.map((row, rowIndex) => (
+                          <Row
+                            key={rowIndex}
+                            className="field-grid"
+                            gap="0.5rem"
+                            alignItems="flex-end"
+                            nowrap
+                          >
+                            <Text
+                              width={FieldSize.Small}
+                              name={`extract-key-${rowIndex}`}
+                              label={rowIndex === 0 ? 'Key' : ''}
+                              value={row.key ?? ''}
+                              onChange={(event) => {
+                                const key = event.target.value;
+                                updateActionDraft((action) => {
+                                  const rows = [
+                                    ...((action.settings?.extract as {
+                                      key: string;
+                                      value: string;
+                                    }[]) ?? []),
+                                  ];
+                                  rows[rowIndex] = { ...rows[rowIndex], key };
+                                  return {
+                                    ...action,
+                                    settings: { ...(action.settings ?? {}), extract: rows },
+                                  };
+                                });
+                              }}
+                            />
+                            <Text
+                              width={FieldSize.Big}
+                              name={`extract-value-${rowIndex}`}
+                              label={rowIndex === 0 ? 'Value (content token or prompt)' : ''}
+                              value={row.value ?? ''}
+                              onChange={(event) => {
+                                const value = event.target.value;
+                                updateActionDraft((action) => {
+                                  const rows = [
+                                    ...((action.settings?.extract as {
+                                      key: string;
+                                      value: string;
+                                    }[]) ?? []),
+                                  ];
+                                  rows[rowIndex] = { ...rows[rowIndex], value };
+                                  return {
+                                    ...action,
+                                    settings: { ...(action.settings ?? {}), extract: rows },
+                                  };
+                                });
+                              }}
+                            />
+                            <button
+                              type="button"
+                              className="rule-icon-button delete"
+                              aria-label="Remove key"
+                              title="Remove key"
+                              onClick={() =>
+                                updateActionDraft((action) => {
+                                  const rows = [...((action.settings?.extract as any[]) ?? [])];
+                                  rows.splice(rowIndex, 1);
+                                  return {
+                                    ...action,
+                                    settings: { ...(action.settings ?? {}), extract: rows },
+                                  };
+                                })
+                              }
+                            >
+                              <FaTrash />
+                            </button>
+                          </Row>
+                        ))}
+                        <button
+                          type="button"
+                          className="rule-icon-button"
+                          aria-label="Add key"
+                          title="Add key"
+                          onClick={() =>
+                            updateActionDraft((action) => ({
+                              ...action,
+                              settings: {
+                                ...(action.settings ?? {}),
+                                extract: [
+                                  ...((action.settings?.extract as any[]) ?? []),
+                                  { key: '', value: '' },
+                                ],
+                              },
+                            }))
+                          }
+                        >
+                          <FaPlus /> Add key
+                        </button>
+                      </div>
+                    </Show>
+                    {/* Create Content: clone toggle + property-to-key mapping grid. */}
+                    <Show visible={actionModalState?.action.actionType === 'create-content'}>
+                      <Row className="field-grid" gap="1rem">
+                        <Checkbox
+                          label="Clone the original content item"
+                          name="action-create-clone"
+                          tooltip="Start the new item from a copy of the iterated item, then apply the mapped values. Otherwise the item is built only from the mapped extracted data."
+                          checked={actionModalState?.action.createClone ?? false}
+                          onChange={(event) => {
+                            const createClone = event.target.checked;
+                            updateActionDraft((action) => ({ ...action, createClone }));
+                          }}
+                        />
+                      </Row>
+                      <div className="mapping-grid">
+                        <p className="modal-intro-text">
+                          Apply extracted data to the new content item. Set each content property to
+                          the Extract Data key to copy from (defaults to the same name).
+                        </p>
+                        {contentProperties.map((property) => (
+                          <Row
+                            key={property}
+                            className="field-grid"
+                            gap="0.5rem"
+                            alignItems="center"
+                            nowrap
+                          >
+                            <Col className="name-col">{property}</Col>
+                            <Text
+                              width={FieldSize.Medium}
+                              name={`map-${property}`}
+                              value={contentMapping[property] ?? property}
+                              onChange={(event) => {
+                                const mappedKey = event.target.value;
+                                updateActionDraft((action) => ({
+                                  ...action,
+                                  settings: {
+                                    ...(action.settings ?? {}),
+                                    mapping: {
+                                      ...(action.settings?.mapping ?? {}),
+                                      [property]: mappedKey,
+                                    },
+                                  },
+                                }));
+                              }}
+                            />
+                          </Row>
+                        ))}
+                      </div>
+                    </Show>
+                    {/* Which content this action operates on (separate-prompt steps only). */}
+                    <Show
+                      visible={
+                        !!worksOnStep?.sendSeparatePrompts &&
+                        actionModalState?.action.actionType !== 'create-content' &&
+                        actionModalState?.action.actionType !== 'extract-data' &&
+                        worksOnOptions.length > 1
+                      }
+                    >
+                      <Row className="field-grid" gap="1rem">
+                        <Select
+                          name="action-works-on"
+                          label="Works on"
+                          isClearable={false}
+                          options={worksOnOptions}
+                          value={
+                            worksOnOptions.find(
+                              (option) =>
+                                option.value === (actionModalState?.action.worksOn || 'original'),
+                            ) ?? worksOnOptions[0]
+                          }
+                          onChange={(newValue) => {
+                            const worksOn =
+                              (newValue as { value?: string } | null)?.value ?? 'original';
+                            updateActionDraft((action) => ({ ...action, worksOn }));
+                          }}
+                        />
+                      </Row>
+                    </Show>
                     <Show visible={actionModalState?.action.actionType === RUN_NOTIFICATION_ACTION}>
                       <Row className="field-grid action-wide-select-row" gap="1rem">
                         <Select

@@ -33,4 +33,7 @@ public enum MessageTarget
 
     [Display(Name = "system-message")]
     SystemMessage = 9,
+
+    [Display(Name = "automation-run-updated")]
+    AutomationRunUpdated = 10,
 }

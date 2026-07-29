@@ -629,11 +629,22 @@ public class AutomationManager : ServiceManager<AutomationOptions>
         lock (stepSummary) stepSummary.Executions++;
 
         var pending = new PendingUpdates();
+        // Per-item state for the Extract Data / Create Content actions. The dictionary holds
+        // values extracted from the iterated item; createdContents holds new content items keyed
+        // by the identifier a 'create-content' action assigns, so later actions in this step can
+        // target them via their WorksOn property. Scoped per item (items run in parallel).
+        var extractedData = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var createdContents = new Dictionary<string, CreatedContent>(StringComparer.OrdinalIgnoreCase);
         for (var index = 0; index < actions.Length; index++)
         {
             var action = actions[index];
             var actionSummary = stepSummary.Actions[index];
 
+            // Isolate each action: an unexpected failure in one action is logged and skipped so it
+            // cannot abort the whole step and drop unrelated later actions (e.g. always-run
+            // reports/notifications). Intentional aborts (deduplicate / stop-remaining) still break.
+            try
+            {
             // 'deduplicate' is not confirmed by the main step response; it runs its own LLM
             // comparison per previously-processed content item. A detected duplicate aborts
             // the step at this position (accumulated updates before it are still applied).
@@ -650,6 +661,28 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                 }
                 continue;
             }
+
+            // Extract Data parses values from its response into the per-item dictionary; Create
+            // Content builds a new content item registered under its identifier. Both run their own
+            // prompt, so they require the step to send separate prompts per action.
+            if (action.ActionType == "extract-data")
+            {
+                await ProcessExtractDataAsync(step, action, llm, llmCache, content, contentJson, extractedData, resultsJson, scores, contentById, actionSummary, responses);
+                continue;
+            }
+            if (action.ActionType == "create-content")
+            {
+                await ProcessCreateContentAsync(step, action, content, extractedData, createdContents, actionSummary, changes);
+                continue;
+            }
+
+            // Resolve which content this action operates on: the iterated item ("original"), or a
+            // content item created earlier in this step (referenced by its identifier via WorksOn).
+            // Created-item targeting requires separate prompts so each action's prompt and applied
+            // changes use its own content.
+            var target = ResolveActionTarget(action, content, contentJson, pending, createdContents, step, actionSummary);
+            if (target == null) continue;
+            var targetPending = target.Pending;
 
             // 'Always run' actions execute unconditionally; everything else requires its
             // confirmation statement in the LLM response.
@@ -673,11 +706,9 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                     var userPrompt = ReplaceCandidatesTokens(
                         PromptComposer.ComposeAction(action.Prompt, action.ContentField, action.Objective, contentJson, resultsJson),
                         scores, contentById);
-                    // The first turn effectively sends the system prompt too; include it in the
-                    // recorded prompt so the run information shows what the model received.
-                    var recordedPrompt = conversation.Count == 1
-                        ? $"[system]\n{conversation[0].Content}\n\n[user]\n{userPrompt}"
-                        : userPrompt;
+                    // Note whether this is the first turn (which effectively also sends the system
+                    // prompt) before adding the user message.
+                    var isFirstTurn = conversation.Count == 1;
                     conversation.Add(("user", userPrompt));
 
                     response = await InvokeChatAsync(actionLlm, conversation);
@@ -689,7 +720,14 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                         StepName = step.Name,
                         ActionName = action.Name,
                         ContentId = content?.Id,
-                        Prompt = this.Options.IncludeLLMPromptsInSummary ? recordedPrompt : null,
+                        // Only build the (potentially large) recorded prompt when prompts are kept
+                        // in the run summary; otherwise skip the concatenation entirely so a second
+                        // copy of a large prompt is never held in memory.
+                        Prompt = this.Options.IncludeLLMPromptsInSummary
+                            ? (isFirstTurn
+                                ? $"[system]\n{conversation[0].Content}\n\n[user]\n{userPrompt}"
+                                : userPrompt)
+                            : null,
                         Response = response,
                     };
                     lock (responses) responses.Add(responseSummary);
@@ -703,7 +741,7 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                     var prompt = PromptComposer.Compose(
                         step.Prompt,
                         new[] { (action.Prompt, action.ContentField, action.Objective) },
-                        contentJson,
+                        target.Json,
                         resultsJson);
                     prompt = ReplaceCandidatesTokens(prompt, scores, contentById);
 
@@ -787,7 +825,7 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                 continue;
             }
 
-            executed = await ApplyActionAsync(action, value, pending, actionSummary, changes);
+            executed = await ApplyActionAsync(action, value, targetPending, actionSummary, changes);
             if (executed)
             {
                 lock (actionSummary) actionSummary.Executions++;
@@ -795,12 +833,20 @@ public class AutomationManager : ServiceManager<AutomationOptions>
             }
             else ReleaseExecution(executionCounts, key);
 
-            if (pending.Abort)
+            if (targetPending.Abort)
             {
                 // 'Stop Remaining Actions' is position sensitive: updates accumulated by actions
                 // ordered before it are still applied below; actions after it are skipped.
                 lock (stepSummary) stepSummary.Aborts++;
                 break;
+            }
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex,
+                    "Action '{action}' ({type}) in step '{step}' failed; skipping it and continuing with the remaining actions.",
+                    action.Name, action.ActionType, step.Name);
+                lock (actionSummary) actionSummary.Notes = $"Action failed: {ex.Message}";
             }
         }
 
@@ -808,6 +854,11 @@ public class AutomationManager : ServiceManager<AutomationOptions>
             await ApplyPendingUpdatesAsync(step, content.Id, pending, changes);
         else if (pending.HasContentChanges || pending.Status != null || pending.ContentActionIds.Any())
             this.Logger.LogWarning("Step '{step}' confirmed content actions but has no iterated content item to apply them to.", step.Name);
+
+        // Persist any content items created during this step, with the changes accumulated by the
+        // actions that targeted them (fields, tags, sentiment, publish).
+        foreach (var (identifier, created) in createdContents)
+            await PersistCreatedContentAsync(step, identifier, created, changes);
     }
 
     /// <summary>
@@ -1407,8 +1458,19 @@ public class AutomationManager : ServiceManager<AutomationOptions>
 
                 if (objectiveScores == null || objectiveScores.Count == 0) return "[]";
 
+                // Bound the digest: rank by score, keep the top N, and truncate the text fields so
+                // the prompt never grows unbounded with the number/size of scored items (which
+                // otherwise exhausts memory building this string). Selection still works because the
+                // model chooses from the highest-scored candidates.
+                const int maxCandidates = 500;
+                if (objectiveScores.Count > maxCandidates)
+                    this.Logger.LogInformation(
+                        "Candidates digest for objective '{objective}' capped from {count} to {max} highest-scored items.",
+                        objective, objectiveScores.Count, maxCandidates);
+
                 var candidates = objectiveScores
                     .OrderByDescending(pair => pair.Value)
+                    .Take(maxCandidates)
                     .Select(pair =>
                     {
                         contentById.TryGetValue(pair.Key, out var content);
@@ -1416,9 +1478,9 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                         {
                             ContentId = pair.Key,
                             Score = pair.Value,
-                            Headline = content?.Headline ?? "",
+                            Headline = Truncate(content?.Headline ?? "", 300),
                             Source = content?.Source?.Name ?? content?.OtherSource ?? "",
-                            Summary = content?.Summary ?? "",
+                            Summary = Truncate(content?.Summary ?? "", 500),
                         };
                     });
                 return JsonSerializer.Serialize(candidates, _jsonOptions);
@@ -1712,14 +1774,19 @@ public class AutomationManager : ServiceManager<AutomationOptions>
         if (responses.Count == 0) return;
         try
         {
+            // Cap each stored prompt/response so a single very large LLM prompt or response (e.g. a
+            // rewritten body, or a large candidates digest) cannot blow up the payload and exhaust
+            // memory when serialized. This is the diagnostic/audit copy only - the value the action
+            // actually applied to content was already parsed and applied.
+            const int maxResponseChars = 20000;
             var models = responses.Select(r => new AdminAutomationRunResponseModel
             {
                 StepId = r.StepId,
                 StepName = r.StepName,
                 ActionName = r.ActionName,
                 ContentId = r.ContentId,
-                Prompt = r.Prompt,
-                Response = r.Response,
+                Prompt = TruncateForStorage(r.Prompt, maxResponseChars),
+                Response = TruncateForStorage(r.Response, maxResponseChars) ?? "",
             }).ToArray();
             await this.Api.AddAutomationRunResponsesAsync(runId, models);
         }
@@ -1744,6 +1811,15 @@ public class AutomationManager : ServiceManager<AutomationOptions>
     private static string Truncate(string value, int length)
     {
         return value.Length <= length ? value : value[..length];
+    }
+
+    /// <summary>
+    /// Truncate a stored prompt/response to a maximum length, appending a marker. Preserves null.
+    /// </summary>
+    private static string? TruncateForStorage(string? value, int length)
+    {
+        if (value == null) return null;
+        return value.Length <= length ? value : value[..length] + "…[truncated]";
     }
     #endregion
 
@@ -1840,6 +1916,540 @@ public class AutomationManager : ServiceManager<AutomationOptions>
         public string? Field { get; set; }
         public string? Value { get; set; }
     }
+
+    #region Extract Data & Create Content
+
+    /// <summary>
+    /// The content an action applies its changes to, plus the accumulated pending updates.
+    /// </summary>
+    private sealed class ActionTarget
+    {
+        public ContentModel? Content { get; init; }
+        public string? Json { get; init; }
+        public PendingUpdates Pending { get; init; } = new();
+    }
+
+    /// <summary>
+    /// A content item created during a step by a 'create-content' action, held in memory until the
+    /// end of the step when it is persisted with the changes its downstream actions accumulate.
+    /// </summary>
+    private sealed class CreatedContent
+    {
+        public ContentModel Model { get; init; } = new();
+        public PendingUpdates Pending { get; } = new();
+    }
+
+    /// <summary>
+    /// Resolve which content an action operates on. Returns the iterated item for "original" (or no)
+    /// WorksOn; otherwise the content created earlier in the step under that identifier. Returns null
+    /// (skip the action) when a created target cannot be honoured.
+    /// </summary>
+    private ActionTarget? ResolveActionTarget(
+        AdminAutomationActionModel action,
+        ContentModel? content,
+        string? contentJson,
+        PendingUpdates originalPending,
+        Dictionary<string, CreatedContent> createdContents,
+        AdminAutomationStepModel step,
+        ActionSummary actionSummary)
+    {
+        var handle = action.WorksOn;
+        if (string.IsNullOrWhiteSpace(handle) || handle.Equals("original", StringComparison.OrdinalIgnoreCase))
+            return new ActionTarget { Content = content, Json = contentJson, Pending = originalPending };
+
+        if (!step.SendSeparatePrompts)
+        {
+            actionSummary.Notes = $"Action targets created content '{handle}' but the step does not send separate prompts; skipped.";
+            return null;
+        }
+        if (!createdContents.TryGetValue(handle, out var created))
+        {
+            actionSummary.Notes = $"No content was created with identifier '{handle}' earlier in this step; skipped.";
+            return null;
+        }
+        return new ActionTarget
+        {
+            Content = created.Model,
+            Json = JsonSerializer.Serialize(created.Model, _jsonOptions),
+            Pending = created.Pending,
+        };
+    }
+
+
+    /// <summary>
+    /// Execute an 'extract-data' action: seed the dictionary with the iterated item's field values
+    /// (default shape), then override/add keys parsed from the LLM response markers.
+    /// </summary>
+    private async Task ProcessExtractDataAsync(
+        AdminAutomationStepModel step,
+        AdminAutomationActionModel action,
+        LLMModel llm,
+        Dictionary<int, LLMModel> llmCache,
+        ContentModel? content,
+        string? contentJson,
+        Dictionary<string, string> data,
+        string? resultsJson,
+        Dictionary<string, Dictionary<long, int>> scores,
+        Dictionary<long, ContentModel> contentById,
+        ActionSummary actionSummary,
+        List<ResponseSummary> responses)
+    {
+        if (!step.SendSeparatePrompts)
+        {
+            actionSummary.Notes = "Extract Data requires the step to send separate prompts per action.";
+            return;
+        }
+        if (content == null)
+        {
+            actionSummary.Notes = "Extract Data requires an iterated content item.";
+            return;
+        }
+
+        var rows = ReadExtractRows(action.Settings);
+        if (rows.Count == 0)
+        {
+            actionSummary.Notes = "Extract Data has no keys configured.";
+            return;
+        }
+
+        // Token-only rows are resolved directly (a content-property copy); instruction rows are
+        // sent to the LLM in a single prompt that returns a marker block per key.
+        var copied = 0;
+        var generateRows = new List<(string Key, string Instruction)>();
+        foreach (var (key, value) in rows)
+        {
+            if (string.IsNullOrWhiteSpace(key)) continue;
+            var trimmed = (value ?? "").Trim();
+            if (trimmed.Length == 0) continue;
+            if (IsContentTokenOnly(trimmed))
+            {
+                // The aggregate fields (tags/topics/sentiment) are not scalar JSON properties, so
+                // resolve them to the code/name-list / value form Create Content can apply; every
+                // other token resolves against the content JSON.
+                data[key] = ResolveSpecialCopyToken(trimmed, content)
+                    ?? PromptComposer.ResolveContentTokens(trimmed, contentJson).Trim();
+                copied++;
+            }
+            else
+            {
+                generateRows.Add((key, PromptComposer.ResolveContentTokens(trimmed, contentJson)));
+            }
+        }
+
+        var generated = 0;
+        if (generateRows.Count > 0)
+        {
+            var builder = new System.Text.StringBuilder();
+            var preamble = PromptComposer.HtmlToText(step.Prompt);
+            if (!string.IsNullOrWhiteSpace(preamble)) builder.AppendLine(preamble).AppendLine();
+            builder.AppendLine("Produce a value for each key below. Follow each key's instruction and wrap its value in the markers exactly as shown (omit a block when there is no value):");
+            foreach (var (key, instruction) in generateRows)
+            {
+                builder.AppendLine();
+                builder.AppendLine($"Key '{key}': {instruction}");
+                builder.AppendLine($"[UPDATE FIELD START:{key}]");
+                builder.AppendLine("{value}");
+                builder.AppendLine($"[UPDATE FIELD END:{key}]");
+            }
+            var actionLlm = await ResolveLlmAsync(action.LLMId, llm, llmCache);
+            var prompt = builder.ToString();
+            var response = await InvokeLLMAsync(actionLlm, prompt);
+            var responseSummary = new ResponseSummary
+            {
+                StepId = step.Id,
+                StepName = step.Name,
+                ActionName = action.Name,
+                ContentId = content.Id,
+                Prompt = this.Options.IncludeLLMPromptsInSummary ? prompt : null,
+                Response = response,
+            };
+            lock (responses) responses.Add(responseSummary);
+            foreach (var (k, v) in ParseDataFields(response)) { data[k] = v; generated++; }
+        }
+
+        lock (actionSummary)
+        {
+            actionSummary.Confirmations++;
+            actionSummary.Executions++;
+            actionSummary.Notes = $"Extracted {copied} copied and {generated} generated value(s).";
+        }
+    }
+
+    /// <summary>
+    /// Execute a 'create-content' action: build a new content item (optionally cloned from the
+    /// iterated item) and apply the extracted dictionary to its properties using the configured
+    /// property-to-key mapping. Registered under the action's identifier for later actions.
+    /// </summary>
+    private async Task ProcessCreateContentAsync(
+        AdminAutomationStepModel step,
+        AdminAutomationActionModel action,
+        ContentModel? original,
+        Dictionary<string, string> data,
+        Dictionary<string, CreatedContent> createdContents,
+        ActionSummary actionSummary,
+        List<ChangeSummary> changes)
+    {
+        if (!step.SendSeparatePrompts)
+        {
+            actionSummary.Notes = "Create Content requires the step to send separate prompts per action.";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(action.CreateIdentifier))
+        {
+            actionSummary.Notes = "Create Content requires an identifier so later actions can reference it.";
+            return;
+        }
+
+        var model = action.CreateClone && original != null ? CloneContentModel(original) : new ContentModel();
+
+        // Apply the content-property <- extracted-key mapping (defaults to identity for the
+        // standard fields when the action has no explicit mapping configured). Handles scalar
+        // fields, enums (status/contentType), foreign keys (source/mediaType/series) and
+        // collections (tags/topics/sentiment).
+        var mapping = ReadMapping(action.Settings);
+        if (mapping.Count == 0) mapping = DefaultContentPropertyMap();
+        var applied = 0;
+        foreach (var (property, key) in mapping)
+        {
+            if (string.IsNullOrWhiteSpace(key) || !data.TryGetValue(key, out var val)) continue;
+            if (await ApplyContentValueAsync(model, property, val ?? "")) applied++;
+        }
+
+        // A cloned item must not share the original's business key, or the system treats it as the
+        // same story. Derive a fresh uid from the original uid + action name + date.
+        var stamp = GetProfileNow(this.Options.DefaultTimeZone).ToString("yyyyMMdd");
+        model.Id = 0;
+        model.Uid = original != null && !string.IsNullOrWhiteSpace(original.Uid)
+            ? $"{original.Uid}-{Slug(action.Name)}-{stamp}"
+            : $"{Slug(action.Name)}-{stamp}-{step.Id}";
+        model.ExternalUid = "";
+
+        createdContents[action.CreateIdentifier] = new CreatedContent { Model = model };
+        lock (actionSummary)
+        {
+            actionSummary.Confirmations++;
+            actionSummary.Executions++;
+            actionSummary.Notes = $"Prepared new content '{action.CreateIdentifier}' ({applied} field(s) applied).";
+        }
+        lock (changes) changes.Add(new ChangeSummary { Type = "create-content", Value = action.CreateIdentifier });
+    }
+
+    /// <summary>
+    /// Persist a created content item and apply the changes accumulated by actions that targeted it.
+    /// Created as Draft to obtain an id, then published (with indexing) when a 'publish' targeted it.
+    /// </summary>
+    private async Task PersistCreatedContentAsync(
+        AdminAutomationStepModel step,
+        string identifier,
+        CreatedContent created,
+        List<ChangeSummary> changes)
+    {
+        var model = created.Model;
+        var pending = created.Pending;
+
+        // Fold the target's pending field/tag/sentiment/contributor changes into the new model.
+        foreach (var (field, value) in pending.Fields) ApplyContentField(model, field, value);
+        if (pending.Tags.Any())
+        {
+            var tags = model.Tags.ToList();
+            foreach (var (tagId, code, name) in pending.Tags.DistinctBy(tag => tag.Id))
+                if (!tags.Any(tag => tag.Id == tagId)) tags.Add(new ContentTagModel(tagId, code, name));
+            model.Tags = tags;
+        }
+        if (pending.ContributorId.HasValue) model.ContributorId = pending.ContributorId.Value;
+        if (pending.Sentiment.HasValue)
+        {
+            var tonePools = model.TonePools.Where(pool => pool.Id != this.Options.DefaultTonePoolId).ToList();
+            tonePools.Add(new ContentTonePoolModel { Id = this.Options.DefaultTonePoolId, Value = pending.Sentiment.Value });
+            model.TonePools = tonePools;
+        }
+
+        var publish = pending.Status == Entities.ContentStatus.Publish
+            || model.Status == Entities.ContentStatus.Publish
+            || model.Status == Entities.ContentStatus.Published;
+
+        // Create as Draft to obtain an id; content actions and publishing are applied via a
+        // follow-up update that also sends the indexing message.
+        model.Status = Entities.ContentStatus.Draft;
+        var createdModel = await this.Api.AddContentAsync(model);
+        if (createdModel == null)
+        {
+            this.Logger.LogWarning("Failed to create content '{id}' in step '{step}'.", identifier, step.Name);
+            return;
+        }
+        lock (changes) changes.Add(new ChangeSummary { ContentId = createdModel.Id, Type = "create-content", Value = identifier });
+
+        var actionsChanged = false;
+        foreach (var actionId in pending.ContentActionIds.Distinct())
+            if (await SetContentActionAsync(createdModel, actionId)) actionsChanged = true;
+
+        if (publish || actionsChanged)
+        {
+            if (publish)
+            {
+                createdModel.Status = Entities.ContentStatus.Publish;
+                lock (changes) changes.Add(new ChangeSummary { ContentId = createdModel.Id, Type = "publish" });
+            }
+            await this.Api.UpdateContentAsync(createdModel, index: true);
+        }
+    }
+
+    /// <summary>
+    /// Parse '[UPDATE FIELD START:key] value [UPDATE FIELD END:key]' markers from an LLM response
+    /// into a key/value dictionary. Reuses the marker convention of 'update-content-field'.
+    /// </summary>
+    private static Dictionary<string, string> ParseDataFields(string? response)
+    {
+        var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (string.IsNullOrWhiteSpace(response)) return result;
+        var matches = System.Text.RegularExpressions.Regex.Matches(
+            response,
+            @"\[UPDATE FIELD START:(?<key>[^\]]+)\](?<val>.*?)\[UPDATE FIELD END:\k<key>\]",
+            System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        foreach (System.Text.RegularExpressions.Match match in matches)
+        {
+            var key = match.Groups["key"].Value.Trim();
+            if (!string.IsNullOrWhiteSpace(key)) result[key] = match.Groups["val"].Value.Trim();
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Whether an Extract Data row value is only content tokens (e.g. {content.headline}), meaning
+    /// it should be copied directly rather than sent to the LLM as an instruction.
+    /// </summary>
+    private static bool IsContentTokenOnly(string value)
+        => System.Text.RegularExpressions.Regex.IsMatch(
+            value.Trim(),
+            @"^(\s*\{content(?:\.[A-Za-z0-9_.]+)?\}\s*)+$",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+    /// <summary>
+    /// Resolve the aggregate copy tokens that are not scalar JSON properties into the form Create
+    /// Content applies: {content.tags} -> comma-separated tag codes, {content.topics} -> comma
+    /// -separated topic names, {content.sentiment} -> the default tone-pool value. Returns null for
+    /// any other token so the caller falls back to the generic JSON resolver.
+    /// </summary>
+    private string? ResolveSpecialCopyToken(string value, ContentModel content)
+    {
+        switch (value.Trim().ToLowerInvariant())
+        {
+            case "{content.tags}":
+                return string.Join(",", content.Tags.Select(tag => tag.Code).Where(code => !string.IsNullOrWhiteSpace(code)));
+            case "{content.topics}":
+                return string.Join(",", content.Topics.Select(topic => topic.Name).Where(name => !string.IsNullOrWhiteSpace(name)));
+            case "{content.sentiment}":
+                var pool = content.TonePools.FirstOrDefault(p => p.Id == this.Options.DefaultTonePoolId)
+                    ?? content.TonePools.FirstOrDefault();
+                return pool != null ? pool.Value.ToString() : "";
+            default:
+                return null;
+        }
+    }
+
+    /// <summary>
+    /// Read the Extract Data rows (settings.extract = [{ key, value }]) from the action settings.
+    /// </summary>
+    private static List<(string Key, string Value)> ReadExtractRows(System.Text.Json.JsonDocument? settings)
+    {
+        var rows = new List<(string, string)>();
+        if (settings != null
+            && settings.RootElement.ValueKind == System.Text.Json.JsonValueKind.Object
+            && settings.RootElement.TryGetProperty("extract", out var arr)
+            && arr.ValueKind == System.Text.Json.JsonValueKind.Array)
+        {
+            foreach (var item in arr.EnumerateArray())
+            {
+                if (item.ValueKind != System.Text.Json.JsonValueKind.Object) continue;
+                var key = item.TryGetProperty("key", out var k) && k.ValueKind == System.Text.Json.JsonValueKind.String ? k.GetString() ?? "" : "";
+                var value = item.TryGetProperty("value", out var v) && v.ValueKind == System.Text.Json.JsonValueKind.String ? v.GetString() ?? "" : "";
+                if (!string.IsNullOrWhiteSpace(key)) rows.Add((key, value));
+            }
+        }
+        return rows;
+    }
+
+    /// <summary>
+    /// Read the Create Content property-to-key mapping (settings.mapping = { property: key }).
+    /// </summary>
+    private static Dictionary<string, string> ReadMapping(System.Text.Json.JsonDocument? settings)
+    {
+        var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (settings != null
+            && settings.RootElement.ValueKind == System.Text.Json.JsonValueKind.Object
+            && settings.RootElement.TryGetProperty("mapping", out var obj)
+            && obj.ValueKind == System.Text.Json.JsonValueKind.Object)
+        {
+            foreach (var prop in obj.EnumerateObject())
+                map[prop.Name] = prop.Value.ValueKind == System.Text.Json.JsonValueKind.String ? (prop.Value.GetString() ?? "") : "";
+        }
+        return map;
+    }
+
+    /// <summary>
+    /// The default Create Content mapping: each supported content property maps to a same-named key.
+    /// </summary>
+    private static Dictionary<string, string> DefaultContentPropertyMap()
+        => MappableContentProperties.ToDictionary(p => p, p => p, StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// The content properties Extract Data / Create Content can map. Scalar fields, enums, foreign
+    /// keys and collections are all supported by <see cref="ApplyContentValueAsync"/>.
+    /// </summary>
+    private static readonly string[] MappableContentProperties = new[]
+    {
+        "headline", "byline", "summary", "body", "edition", "section", "page",
+        "status", "contentType", "source", "mediaType", "series", "tags", "topics", "sentiment",
+    };
+
+    /// <summary>
+    /// Apply a single extracted value to a content property: scalar text, enums (status,
+    /// contentType), foreign keys (source/mediaType/series by id or code/name), and collections
+    /// (tags/topics by code/name, sentiment as a tone value). Returns whether anything was applied.
+    /// </summary>
+    private async Task<bool> ApplyContentValueAsync(ContentModel content, string property, string value)
+    {
+        var val = (value ?? "").Trim();
+        switch (property.Trim().ToLowerInvariant())
+        {
+            case "headline":
+            case "byline":
+            case "summary":
+            case "body":
+            case "edition":
+            case "section":
+            case "page":
+                ApplyContentField(content, property, val);
+                return true;
+            case "othersource":
+                content.OtherSource = val;
+                return true;
+            case "otherseries":
+                content.OtherSeries = val;
+                return true;
+            case "status":
+                if (Enum.TryParse<Entities.ContentStatus>(val, true, out var status)) { content.Status = status; return true; }
+                return false;
+            case "contenttype":
+                if (Enum.TryParse<Entities.ContentType>(val, true, out var contentType)) { content.ContentType = contentType; return true; }
+                return false;
+            case "ownerid":
+                if (int.TryParse(val, out var ownerId)) { content.OwnerId = ownerId; return true; }
+                return false;
+            case "source":
+                if (string.IsNullOrWhiteSpace(val)) return false;
+                if (int.TryParse(val, out var sourceId)) { content.SourceId = sourceId; return true; }
+                else
+                {
+                    var lookups = await GetLookupsAsync();
+                    var source = lookups?.Sources.FirstOrDefault(s =>
+                        s.Code.Equals(val, StringComparison.OrdinalIgnoreCase) || s.Name.Equals(val, StringComparison.OrdinalIgnoreCase));
+                    if (source != null) { content.SourceId = source.Id; content.OtherSource = ""; }
+                    else { content.SourceId = null; content.OtherSource = val; }
+                    return true;
+                }
+            case "mediatype":
+                if (string.IsNullOrWhiteSpace(val)) return false;
+                if (int.TryParse(val, out var mediaTypeId)) { content.MediaTypeId = mediaTypeId; return true; }
+                else
+                {
+                    var lookups = await GetLookupsAsync();
+                    var mediaType = lookups?.MediaTypes.FirstOrDefault(m => m.Name.Equals(val, StringComparison.OrdinalIgnoreCase));
+                    if (mediaType != null) { content.MediaTypeId = mediaType.Id; return true; }
+                    return false;
+                }
+            case "series":
+                if (string.IsNullOrWhiteSpace(val)) return false;
+                if (int.TryParse(val, out var seriesId)) { content.SeriesId = seriesId; return true; }
+                else
+                {
+                    var lookups = await GetLookupsAsync();
+                    var series = lookups?.Series.FirstOrDefault(s => s.Name.Equals(val, StringComparison.OrdinalIgnoreCase));
+                    if (series != null) { content.SeriesId = series.Id; content.OtherSeries = ""; }
+                    else { content.SeriesId = null; content.OtherSeries = val; }
+                    return true;
+                }
+            case "tags":
+                if (string.IsNullOrWhiteSpace(val)) return false;
+                {
+                    var lookups = await GetLookupsAsync();
+                    var tags = content.Tags.ToList();
+                    var added = false;
+                    foreach (var request in val.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                    {
+                        var tag = lookups?.Tags.FirstOrDefault(t =>
+                            t.Code.Equals(request, StringComparison.OrdinalIgnoreCase) || t.Name.Equals(request, StringComparison.OrdinalIgnoreCase));
+                        if (tag != null && !tags.Any(x => x.Id == tag.Id)) { tags.Add(new ContentTagModel(tag.Id, tag.Code, tag.Name)); added = true; }
+                    }
+                    if (added) content.Tags = tags;
+                    return added;
+                }
+            case "topics":
+                if (string.IsNullOrWhiteSpace(val)) return false;
+                {
+                    var lookups = await GetLookupsAsync();
+                    var topics = content.Topics.ToList();
+                    var added = false;
+                    foreach (var request in val.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                    {
+                        var topic = lookups?.Topics.FirstOrDefault(t => t.Name.Equals(request, StringComparison.OrdinalIgnoreCase));
+                        if (topic != null && !topics.Any(x => x.Id == topic.Id))
+                        {
+                            topics.Add(new TNO.API.Areas.Services.Models.Content.ContentTopicModel { Id = topic.Id, Name = topic.Name, TopicType = topic.TopicType });
+                            added = true;
+                        }
+                    }
+                    if (added) content.Topics = topics;
+                    return added;
+                }
+            case "sentiment":
+                if (int.TryParse(val, out var sentiment))
+                {
+                    var pools = content.TonePools.Where(p => p.Id != this.Options.DefaultTonePoolId).ToList();
+                    pools.Add(new ContentTonePoolModel { Id = this.Options.DefaultTonePoolId, Value = Math.Clamp(sentiment, -5, 5) });
+                    content.TonePools = pools;
+                    return true;
+                }
+                return false;
+            default:
+                return false;
+        }
+    }
+
+    /// <summary>
+    /// Deep clone a content model for a new derived item, resetting identity and clearing the
+    /// collections that should start fresh (actions, tags, tone pools, topics, labels, files).
+    /// </summary>
+    private ContentModel CloneContentModel(ContentModel content)
+    {
+        var clone = JsonSerializer.Deserialize<ContentModel>(JsonSerializer.Serialize(content, _jsonOptions), _jsonOptions)
+            ?? new ContentModel();
+        clone.Id = 0;
+        clone.Uid = "";
+        clone.ExternalUid = "";
+        clone.Status = Entities.ContentStatus.Draft;
+        clone.Actions = Array.Empty<ContentActionModel>();
+        clone.Tags = Array.Empty<ContentTagModel>();
+        clone.TonePools = Array.Empty<ContentTonePoolModel>();
+        clone.Topics = Array.Empty<TNO.API.Areas.Services.Models.Content.ContentTopicModel>();
+        clone.Labels = Array.Empty<TNO.API.Areas.Services.Models.Content.ContentLabelModel>();
+        clone.FileReferences = Array.Empty<TNO.API.Areas.Services.Models.Content.FileReferenceModel>();
+        clone.TimeTrackings = Array.Empty<TNO.API.Areas.Services.Models.Content.TimeTrackingModel>();
+        clone.Quotes = Array.Empty<TNO.API.Areas.Services.Models.Content.QuoteModel>();
+        return clone;
+    }
+
+    /// <summary>
+    /// Produce a uid-safe slug from a name.
+    /// </summary>
+    private static string Slug(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "content";
+        var slug = System.Text.RegularExpressions.Regex.Replace(name.Trim().ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
+        return string.IsNullOrEmpty(slug) ? "content" : slug;
+    }
+
+    #endregion
 
     private sealed class PendingUpdates
     {
