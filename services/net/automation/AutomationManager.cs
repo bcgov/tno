@@ -607,9 +607,12 @@ public class AutomationManager : ServiceManager<AutomationOptions>
         var sharedResponse = "";
         if (!step.UseChatCompletions && !step.SendSeparatePrompts && promptActions.Length > 0)
         {
+            var promptRows = new List<(string Prompt, string? ContentField, string? Objective)>();
+            foreach (var promptAction in promptActions)
+                promptRows.Add((await GetActionPromptAsync(promptAction), promptAction.ContentField, promptAction.Objective));
             var prompt = PromptComposer.Compose(
                 step.Prompt,
-                promptActions.Select(action => (action.Prompt, action.ContentField, action.Objective)),
+                promptRows,
                 contentJson,
                 resultsJson);
             prompt = ReplaceCandidatesTokens(prompt, scores, contentById);
@@ -704,7 +707,7 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                     // abort has already exited the loop, so no further messages are sent.
                     var actionLlm = await ResolveLlmAsync(action.LLMId, llm, llmCache);
                     var userPrompt = ReplaceCandidatesTokens(
-                        PromptComposer.ComposeAction(action.Prompt, action.ContentField, action.Objective, contentJson, resultsJson),
+                        PromptComposer.ComposeAction(await GetActionPromptAsync(action), action.ContentField, action.Objective, contentJson, resultsJson),
                         scores, contentById);
                     // Note whether this is the first turn (which effectively also sends the system
                     // prompt) before adding the user message.
@@ -740,7 +743,7 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                     var actionLlm = await ResolveLlmAsync(action.LLMId, llm, llmCache);
                     var prompt = PromptComposer.Compose(
                         step.Prompt,
-                        new[] { (action.Prompt, action.ContentField, action.Objective) },
+                        new[] { (await GetActionPromptAsync(action), action.ContentField, action.Objective) },
                         target.Json,
                         resultsJson);
                     prompt = ReplaceCandidatesTokens(prompt, scores, contentById);
@@ -760,6 +763,11 @@ public class AutomationManager : ServiceManager<AutomationOptions>
 
                 if (!matcher.TryMatch(response, out value))
                 {
+                    // Distinguish "the LLM answered but did not confirm" from "the LLM returned
+                    // nothing" — the step instructions request silence when criteria are not met,
+                    // so an empty response is a decision; record it for debuggability.
+                    if (string.IsNullOrWhiteSpace(response))
+                        lock (actionSummary) actionSummary.Notes = "No confirmation; the LLM response was empty (no criteria met).";
                     // No confirmation for this action. When configured to abort on a missing
                     // confirmation (e.g. a 'publish' that did not happen), stop the remaining
                     // actions on this step; updates accumulated by earlier actions are still
@@ -856,9 +864,23 @@ public class AutomationManager : ServiceManager<AutomationOptions>
             this.Logger.LogWarning("Step '{step}' confirmed content actions but has no iterated content item to apply them to.", step.Name);
 
         // Persist any content items created during this step, with the changes accumulated by the
-        // actions that targeted them (fields, tags, sentiment, publish).
+        // actions that targeted them (fields, tags, sentiment, publish). Each item is isolated so
+        // one failure cannot drop the others, and the failure is surfaced on the create action's
+        // summary instead of silently discarding the item.
         foreach (var (identifier, created) in createdContents)
-            await PersistCreatedContentAsync(step, identifier, created, changes);
+        {
+            try
+            {
+                await PersistCreatedContentAsync(step, identifier, created, changes);
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogError(ex, "Failed to create content '{id}' in step '{step}'.", identifier, step.Name);
+                if (created.Summary != null)
+                    lock (created.Summary) created.Summary.Notes = $"Failed to create content '{identifier}': {ex.Message}";
+                lock (stepSummary) stepSummary.Failures++;
+            }
+        }
     }
 
     /// <summary>
@@ -878,6 +900,24 @@ public class AutomationManager : ServiceManager<AutomationOptions>
             throw new InvalidOperationException($"LLM '{llm.Name}' is missing a project endpoint.");
         lock (llmCache) llmCache[llmId.Value] = llm;
         return llm;
+    }
+
+    /// <summary>
+    /// Return the action's prompt, augmented with the context the LLM needs to answer it. An
+    /// 'add-tags' action requires the tag vocabulary — the model cannot know the system's tag
+    /// codes, and without them it can never "clearly" match one, so (per the step instructions)
+    /// it stays silent and the action never confirms.
+    /// </summary>
+    private async Task<string> GetActionPromptAsync(AdminAutomationActionModel action)
+    {
+        if (action.ActionType != "add-tags") return action.Prompt;
+
+        var lookups = await GetLookupsAsync();
+        var tags = lookups?.Tags.Where(tag => tag.IsEnabled).OrderBy(tag => tag.Code).ToArray() ?? [];
+        if (tags.Length == 0) return action.Prompt;
+
+        var vocabulary = string.Join(", ", tags.Select(tag => $"{tag.Code} ({tag.Name})"));
+        return $"{action.Prompt}\n<p>Available tag codes (only use codes from this list): {vocabulary}.</p>";
     }
 
     /// <summary>
@@ -1119,13 +1159,16 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                     actionSummary.Notes = "No report selected to run.";
                     return false;
                 }
-                // Queue the report with the reporting service; it generates an instance and
-                // sends it to the report's subscribers.
-                var reportRequest = new ReportRequestModel(ReportDestination.ReportingService, Entities.ReportType.Content, action.ReportId.Value, JsonDocument.Parse("{}"));
-                var delivery = await this.Api.SendMessageAsync(reportRequest);
-                if (delivery == null)
+                // Publish the report via the services endpoint; the reporting service generates an
+                // instance and sends it to the report's subscribers.
+                try
                 {
-                    actionSummary.Notes = $"Failed to send the report request for report {action.ReportId.Value}.";
+                    await this.Api.PublishReportAsync(action.ReportId.Value);
+                }
+                catch (Exception ex)
+                {
+                    this.Logger.LogError(ex, "Failed to publish report {id}.", action.ReportId.Value);
+                    actionSummary.Notes = $"Failed to publish report {action.ReportId.Value}.";
                     return false;
                 }
                 lock (changes) changes.Add(new ChangeSummary { Type = "run-report", Value = action.ReportId.Value.ToString() });
@@ -1136,16 +1179,17 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                     actionSummary.Notes = "No notification selected to run.";
                     return false;
                 }
-                // Queue the notification with the notification service; it sends to the
-                // notification's subscribers.
+                // Publish the notification via the services endpoint; the notification service sends
+                // it to the notification's subscribers. The editor '/publish' endpoint requires an
+                // interactive user (username claim), which a background service does not have.
                 try
                 {
                     await this.Api.PublishNotificationAsync(action.NotificationId.Value);
                 }
                 catch (Exception ex)
                 {
-                    this.Logger.LogError(ex, "Failed to send the notification request for notification {id}.", action.NotificationId.Value);
-                    actionSummary.Notes = $"Failed to send the notification request for notification {action.NotificationId.Value}.";
+                    this.Logger.LogError(ex, "Failed to publish notification {id}.", action.NotificationId.Value);
+                    actionSummary.Notes = $"Failed to publish notification {action.NotificationId.Value}.";
                     return false;
                 }
                 lock (changes) changes.Add(new ChangeSummary { Type = "run-notification", Value = action.NotificationId.Value.ToString() });
@@ -1169,6 +1213,8 @@ public class AutomationManager : ServiceManager<AutomationOptions>
     /// <returns>The LLM response text.</returns>
     private async Task<string> InvokeLLMAsync(LLMModel llm, string prompt)
     {
+        // Note: an empty response is a legitimate outcome — the step instructions tell the model
+        // to output nothing when no action's criteria are met — so it is not retried.
         if (!string.IsNullOrWhiteSpace(llm.AgentName))
         {
             if (string.IsNullOrWhiteSpace(_azureAIOptions.TenantId) ||
@@ -1937,6 +1983,10 @@ public class AutomationManager : ServiceManager<AutomationOptions>
     {
         public ContentModel Model { get; init; } = new();
         public PendingUpdates Pending { get; } = new();
+        /// <summary>The iterated item the create action ran against; used to backfill required fields.</summary>
+        public ContentModel? Original { get; init; }
+        /// <summary>The create action's summary so persistence failures are visible in the run summary.</summary>
+        public ActionSummary? Summary { get; init; }
     }
 
     /// <summary>
@@ -1955,7 +2005,14 @@ public class AutomationManager : ServiceManager<AutomationOptions>
     {
         var handle = action.WorksOn;
         if (string.IsNullOrWhiteSpace(handle) || handle.Equals("original", StringComparison.OrdinalIgnoreCase))
-            return new ActionTarget { Content = content, Json = contentJson, Pending = originalPending };
+            return new ActionTarget
+            {
+                Content = content,
+                Json = content != null && originalPending.HasContentChanges
+                    ? SerializeTargetView(content, originalPending)
+                    : contentJson,
+                Pending = originalPending,
+            };
 
         if (!step.SendSeparatePrompts)
         {
@@ -1970,9 +2027,38 @@ public class AutomationManager : ServiceManager<AutomationOptions>
         return new ActionTarget
         {
             Content = created.Model,
-            Json = JsonSerializer.Serialize(created.Model, _jsonOptions),
+            Json = SerializeTargetView(created.Model, created.Pending),
             Pending = created.Pending,
         };
+    }
+
+    /// <summary>
+    /// Serialize the target with its pending changes (fields, tags, sentiment, contributor) folded
+    /// in, so later actions' prompts see the step's evolving state — e.g. tags confirmed by an
+    /// earlier action appear in the next action's content JSON. The model itself is not modified;
+    /// pending changes are still applied once when the step's updates are persisted.
+    /// </summary>
+    private string SerializeTargetView(ContentModel model, PendingUpdates pending)
+    {
+        if (!pending.HasContentChanges) return JsonSerializer.Serialize(model, _jsonOptions);
+
+        var view = JsonSerializer.Deserialize<ContentModel>(JsonSerializer.Serialize(model, _jsonOptions), _jsonOptions) ?? model;
+        foreach (var (field, value) in pending.Fields) ApplyContentField(view, field, value);
+        if (pending.Tags.Any())
+        {
+            var tags = view.Tags.ToList();
+            foreach (var (tagId, code, name) in pending.Tags.DistinctBy(tag => tag.Id))
+                if (!tags.Any(tag => tag.Id == tagId)) tags.Add(new ContentTagModel(tagId, code, name));
+            view.Tags = tags;
+        }
+        if (pending.ContributorId.HasValue) view.ContributorId = pending.ContributorId.Value;
+        if (pending.Sentiment.HasValue)
+        {
+            var tonePools = view.TonePools.Where(pool => pool.Id != this.Options.DefaultTonePoolId).ToList();
+            tonePools.Add(new ContentTonePoolModel { Id = this.Options.DefaultTonePoolId, Value = pending.Sentiment.Value });
+            view.TonePools = tonePools;
+        }
+        return JsonSerializer.Serialize(view, _jsonOptions);
     }
 
 
@@ -2012,8 +2098,9 @@ public class AutomationManager : ServiceManager<AutomationOptions>
             return;
         }
 
-        // Token-only rows are resolved directly (a content-property copy); instruction rows are
-        // sent to the LLM in a single prompt that returns a marker block per key.
+        // Token-only rows are resolved directly (a content-property copy) and quoted values are
+        // literal constants; instruction rows are sent to the LLM in a single prompt that returns
+        // a marker block per key.
         var copied = 0;
         var generateRows = new List<(string Key, string Instruction)>();
         foreach (var (key, value) in rows)
@@ -2030,6 +2117,12 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                     ?? PromptComposer.ResolveContentTokens(trimmed, contentJson).Trim();
                 copied++;
             }
+            else if (trimmed.Length > 1 && trimmed.StartsWith('"') && trimmed.EndsWith('"'))
+            {
+                // A double-quoted value is a literal constant — no LLM round-trip required.
+                data[key] = trimmed[1..^1];
+                copied++;
+            }
             else
             {
                 generateRows.Add((key, PromptComposer.ResolveContentTokens(trimmed, contentJson)));
@@ -2040,7 +2133,14 @@ public class AutomationManager : ServiceManager<AutomationOptions>
         if (generateRows.Count > 0)
         {
             var builder = new System.Text.StringBuilder();
-            var preamble = PromptComposer.HtmlToText(step.Prompt);
+            // The step prompt participates like the composed prompts do: {content}/{content.*} and
+            // {results} tokens are replaced. When the author places the bare {content} token the
+            // content is inserted there and the automatic 'Content:' block below is skipped
+            // (mirrors how Compose handles the {actions} token).
+            var stepText = PromptComposer.HtmlToText(step.Prompt);
+            var stepPlacesContent = stepText.Contains("{content}");
+            var preamble = PromptComposer.ResolveResultsTokens(
+                PromptComposer.ResolveContentTokens(stepText, contentJson), resultsJson);
             if (!string.IsNullOrWhiteSpace(preamble)) builder.AppendLine(preamble).AppendLine();
             builder.AppendLine("Produce a value for each key below. Follow each key's instruction and wrap its value in the markers exactly as shown (omit a block when there is no value):");
             foreach (var (key, instruction) in generateRows)
@@ -2050,6 +2150,15 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                 builder.AppendLine($"[UPDATE FIELD START:{key}]");
                 builder.AppendLine("{value}");
                 builder.AppendLine($"[UPDATE FIELD END:{key}]");
+            }
+            // The instructions typically reference the content's fields (e.g. "parse the
+            // content.body") — include the content itself or the model has nothing to work from.
+            // Skipped when the step prompt already placed it via the {content} token.
+            if (!stepPlacesContent && !string.IsNullOrWhiteSpace(contentJson))
+            {
+                builder.AppendLine();
+                builder.AppendLine("Content:");
+                builder.AppendLine(contentJson);
             }
             var actionLlm = await ResolveLlmAsync(action.LLMId, llm, llmCache);
             var prompt = builder.ToString();
@@ -2124,14 +2233,15 @@ public class AutomationManager : ServiceManager<AutomationOptions>
             : $"{Slug(action.Name)}-{stamp}-{step.Id}";
         model.ExternalUid = "";
 
-        createdContents[action.CreateIdentifier] = new CreatedContent { Model = model };
+        createdContents[action.CreateIdentifier] = new CreatedContent { Model = model, Original = original, Summary = actionSummary };
         lock (actionSummary)
         {
             actionSummary.Confirmations++;
             actionSummary.Executions++;
             actionSummary.Notes = $"Prepared new content '{action.CreateIdentifier}' ({applied} field(s) applied).";
         }
-        lock (changes) changes.Add(new ChangeSummary { Type = "create-content", Value = action.CreateIdentifier });
+        // The 'create-content' change entry is recorded when the item is actually persisted (with
+        // its real id); recording it here would report a phantom item when persistence fails.
     }
 
     /// <summary>
@@ -2168,6 +2278,28 @@ public class AutomationManager : ServiceManager<AutomationOptions>
             || model.Status == Entities.ContentStatus.Publish
             || model.Status == Entities.ContentStatus.Published;
 
+        // Backfill required fields from the original iterated item when the extract/mapping did not
+        // supply them — the Content entity rejects a blank source, and license/media-type are
+        // required foreign keys.
+        var original = created.Original;
+        if (string.IsNullOrWhiteSpace(model.OtherSource) && original != null) model.OtherSource = original.OtherSource;
+        if (model.LicenseId == 0 && original != null) model.LicenseId = original.LicenseId;
+        if (model.MediaTypeId == 0 && original != null) model.MediaTypeId = original.MediaTypeId;
+        // Published content without a published-on date is invisible to every date-filtered query
+        // (filters, reports, the subscriber app) even though it is indexed.
+        model.PublishedOn ??= original?.PublishedOn ?? DateTime.UtcNow;
+        var missing = new List<string>();
+        if (string.IsNullOrWhiteSpace(model.OtherSource)) missing.Add("source");
+        if (model.LicenseId == 0) missing.Add("license");
+        if (model.MediaTypeId == 0) missing.Add("mediaType");
+        if (missing.Any())
+        {
+            this.Logger.LogWarning("Cannot create content '{id}' in step '{step}'; missing required field(s): {fields}.", identifier, step.Name, string.Join(", ", missing));
+            if (created.Summary != null)
+                lock (created.Summary) created.Summary.Notes = $"Failed to create content '{identifier}'; missing required field(s): {string.Join(", ", missing)}.";
+            return;
+        }
+
         // Create as Draft to obtain an id; content actions and publishing are applied via a
         // follow-up update that also sends the indexing message.
         model.Status = Entities.ContentStatus.Draft;
@@ -2175,6 +2307,8 @@ public class AutomationManager : ServiceManager<AutomationOptions>
         if (createdModel == null)
         {
             this.Logger.LogWarning("Failed to create content '{id}' in step '{step}'.", identifier, step.Name);
+            if (created.Summary != null)
+                lock (created.Summary) created.Summary.Notes = $"Failed to create content '{identifier}'; the API returned no result.";
             return;
         }
         lock (changes) changes.Add(new ChangeSummary { ContentId = createdModel.Id, Type = "create-content", Value = identifier });
@@ -2338,13 +2472,22 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                 return false;
             case "source":
                 if (string.IsNullOrWhiteSpace(val)) return false;
-                if (int.TryParse(val, out var sourceId)) { content.SourceId = sourceId; return true; }
-                else
                 {
+                    // Resolve numeric ids and code/name matches through the lookups so the source
+                    // code can be carried on OtherSource — the Content entity requires a non-empty
+                    // source string on create (its convention is OtherSource = source.Code).
                     var lookups = await GetLookupsAsync();
-                    var source = lookups?.Sources.FirstOrDefault(s =>
-                        s.Code.Equals(val, StringComparison.OrdinalIgnoreCase) || s.Name.Equals(val, StringComparison.OrdinalIgnoreCase));
-                    if (source != null) { content.SourceId = source.Id; content.OtherSource = ""; }
+                    var source = int.TryParse(val, out var sourceId)
+                        ? lookups?.Sources.FirstOrDefault(s => s.Id == sourceId)
+                        : lookups?.Sources.FirstOrDefault(s =>
+                            s.Code.Equals(val, StringComparison.OrdinalIgnoreCase) || s.Name.Equals(val, StringComparison.OrdinalIgnoreCase));
+                    if (source != null)
+                    {
+                        content.SourceId = source.Id;
+                        content.OtherSource = source.Code;
+                        if (content.LicenseId == 0) content.LicenseId = source.LicenseId;
+                    }
+                    else if (int.TryParse(val, out var unknownSourceId)) content.SourceId = unknownSourceId;
                     else { content.SourceId = null; content.OtherSource = val; }
                     return true;
                 }

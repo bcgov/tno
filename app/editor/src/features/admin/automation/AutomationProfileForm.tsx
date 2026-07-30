@@ -74,7 +74,6 @@ import {
   UPDATE_CONTENT_FIELD_ACTION,
 } from './constants';
 import {
-  type IAutomationLegacyProfileModel,
   type IAutomationProfileModel,
   type IAutomationRuleActionModel,
   type IAutomationRunDiffModel,
@@ -2404,47 +2403,57 @@ const AutomationProfileForm: React.FC = () => {
                         </styled.ModalEnabledCheckbox>
                       </Show>
                     </Row>
-                    <styled.ModalPromptField>
-                      <styled.ActionPromptHelpButton
-                        type="button"
-                        aria-label="Action prompt help"
-                        title="Action prompt help"
-                        onClick={() => openSectionDoc('actionPrompt')}
-                      >
-                        <FaCircleInfo />
-                      </styled.ActionPromptHelpButton>
-                      <Wysiwyg
-                        className="modal-wysiwyg"
-                        name="action-prompt"
-                        label="Action Prompt"
-                        value={actionModalState?.action.prompt ?? ''}
-                        onChange={(prompt) => {
-                          updateActionDraft((action) => ({ ...action, prompt }));
-                        }}
-                      />
-                      <p className="modal-help-text">
-                        Action prompt is sent to the model for this action and can use output from
-                        the step context. Keep it explicit about expected response format.
-                      </p>
-                    </styled.ModalPromptField>
-                    <Show visible={!actionModalState?.action.autoExecute}>
+                    {/* 'Extract Data' and 'Create Content' are deterministic (driven by their
+                        grid/mapping); the engine ignores the action prompt and confirmation
+                        statement for these types, so the fields are hidden to avoid confusion. */}
+                    <Show
+                      visible={
+                        actionModalState?.action.actionType !== 'create-content' &&
+                        actionModalState?.action.actionType !== 'extract-data'
+                      }
+                    >
                       <styled.ModalPromptField>
-                        <TextArea
-                          name="action-confirmation"
-                          label="Confirmation Statement"
-                          width="100%"
-                          rows={2}
-                          value={actionModalState?.action.confirmationStatement ?? ''}
-                          onChange={(event) => {
-                            const confirmationStatement = event.target.value;
-                            updateActionDraft((action) => ({ ...action, confirmationStatement }));
+                        <styled.ActionPromptHelpButton
+                          type="button"
+                          aria-label="Action prompt help"
+                          title="Action prompt help"
+                          onClick={() => openSectionDoc('actionPrompt')}
+                        >
+                          <FaCircleInfo />
+                        </styled.ActionPromptHelpButton>
+                        <Wysiwyg
+                          className="modal-wysiwyg"
+                          name="action-prompt"
+                          label="Action Prompt"
+                          value={actionModalState?.action.prompt ?? ''}
+                          onChange={(prompt) => {
+                            updateActionDraft((action) => ({ ...action, prompt }));
                           }}
                         />
                         <p className="modal-help-text">
-                          Confirmation Statement is the exact phrase the response must include
-                          before the action is treated as confirmed and eligible to execute.
+                          Action prompt is sent to the model for this action and can use output from
+                          the step context. Keep it explicit about expected response format.
                         </p>
                       </styled.ModalPromptField>
+                      <Show visible={!actionModalState?.action.autoExecute}>
+                        <styled.ModalPromptField>
+                          <TextArea
+                            name="action-confirmation"
+                            label="Confirmation Statement"
+                            width="100%"
+                            rows={2}
+                            value={actionModalState?.action.confirmationStatement ?? ''}
+                            onChange={(event) => {
+                              const confirmationStatement = event.target.value;
+                              updateActionDraft((action) => ({ ...action, confirmationStatement }));
+                            }}
+                          />
+                          <p className="modal-help-text">
+                            Confirmation Statement is the exact phrase the response must include
+                            before the action is treated as confirmed and eligible to execute.
+                          </p>
+                        </styled.ModalPromptField>
+                      </Show>
                     </Show>
                   </div>
                 }

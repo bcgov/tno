@@ -740,7 +740,19 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task PublishNotificationAsync(int notificationId)
     {
-        var url = this.Options.ApiUrl.Append($"editor/notifications/{notificationId}/publish");
+        var url = this.Options.ApiUrl.Append($"services/notifications/{notificationId}/publish");
+        await RetryRequestAsync(async () => await this.OpenClient.PostAsync(url));
+    }
+
+    /// <summary>
+    /// Make a request to the API to publish the report with the specified 'reportId' and send it to
+    /// its subscribers (service endpoint; no interactive user required).
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <returns></returns>
+    public async Task PublishReportAsync(int reportId)
+    {
+        var url = this.Options.ApiUrl.Append($"services/reports/{reportId}/publish");
         await RetryRequestAsync(async () => await this.OpenClient.PostAsync(url));
     }
 

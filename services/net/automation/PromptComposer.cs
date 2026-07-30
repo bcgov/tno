@@ -125,6 +125,14 @@ public static partial class PromptComposer
     public static string ResolveContentTokens(string text, string? contentJson) => ReplaceContentTokens(text, contentJson);
 
     /// <summary>
+    /// Resolve {results} / {results[i].&lt;path&gt;} tokens in an arbitrary string.
+    /// </summary>
+    /// <param name="text"></param>
+    /// <param name="resultsJson"></param>
+    /// <returns></returns>
+    public static string ResolveResultsTokens(string text, string? resultsJson) => ReplaceResultsTokens(text, resultsJson);
+
+    /// <summary>
     /// Replace the {field} token with the action's selected content field.
     /// </summary>
     /// <param name="text"></param>

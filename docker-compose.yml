@@ -153,7 +153,7 @@ services:
       - subscriber
       - service
       - main
-    restart: "no"
+    restart: unless-stopped
     container_name: tno-api
     build:
       context: ./
@@ -162,7 +162,7 @@ services:
       resources:
         limits:
           cpus: "1"
-          memory: 2G
+          memory: 4G
         reservations:
           cpus: "0.5"
           memory: 250M

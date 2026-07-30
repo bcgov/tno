@@ -363,6 +363,13 @@ public interface IApiService
     Task PublishNotificationAsync(int notificationId);
 
     /// <summary>
+    /// Make a request to the API to publish the report and send it to all subscribers.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <returns></returns>
+    Task PublishReportAsync(int reportId);
+
+    /// <summary>
     /// Make a request to the API to fetch the notification with the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
