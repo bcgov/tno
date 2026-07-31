@@ -15,8 +15,8 @@ using TNO.Entities.Models;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20260729185845_1.5.3")]
-    partial class _153
+    [Migration("20260731220054_1.5.2")]
+    partial class _152
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

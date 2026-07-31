@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TNO.DAL;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -185,6 +186,10 @@ namespace TNO.DAL.Migrations
                     llm_id = table.Column<int>(type: "integer", nullable: true),
                     auto_execute = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     abort_if_no_confirmation = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    works_on = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    create_identifier = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    create_clone = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    settings = table.Column<JsonDocument>(type: "jsonb", nullable: false, defaultValueSql: "'{}'"),
                     is_enabled = table.Column<bool>(type: "boolean", nullable: false),
                     sort_order = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                     created_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
@@ -332,7 +337,6 @@ namespace TNO.DAL.Migrations
                 principalTable: "automation_profile",
                 principalColumn: "id",
                 onDelete: ReferentialAction.Cascade);
-
             PostUp(migrationBuilder);
         }
 
@@ -366,7 +370,6 @@ namespace TNO.DAL.Migrations
             migrationBuilder.DropColumn(
                 name: "automation_profile_id",
                 table: "event_schedule");
-
             PostDown(migrationBuilder);
         }
     }
