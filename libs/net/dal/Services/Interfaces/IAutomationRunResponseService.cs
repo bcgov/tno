@@ -9,7 +9,7 @@ public interface IAutomationRunResponseService : IBaseService<AutomationRunRespo
     /// </summary>
     /// <param name="runId"></param>
     /// <returns></returns>
-    IEnumerable<AutomationRunResponse> FindByRun(long runId);
+    IEnumerable<AutomationRunResponse> FindByRun(long runId, int qty = 500);
 
     /// <summary>
     /// Insert a batch of run responses.

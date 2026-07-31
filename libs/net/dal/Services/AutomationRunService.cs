@@ -23,11 +23,14 @@ public class AutomationRunService : BaseService<AutomationRun, long>, IAutomatio
     #region Methods
     /// <summary>
     /// Find automation runs, optionally filtered by profile, ordered by most recent first.
+    /// Capped at 'qty' rows so the (polled) run list stays bounded as history grows.
     /// </summary>
     /// <param name="profileId"></param>
+    /// <param name="qty"></param>
     /// <returns></returns>
-    public IEnumerable<AutomationRun> Find(int? profileId)
+    public IEnumerable<AutomationRun> Find(int? profileId, int qty = 100)
     {
+        qty = Math.Clamp(qty, 1, 500);
         var query = this.Context.AutomationRuns.AsNoTracking().AsQueryable();
         if (profileId.HasValue) query = query.Where(r => r.AutomationProfileId == profileId.Value);
         // Select without the Summary column. Summaries can be many MB each and the run list (which
@@ -36,6 +39,7 @@ public class AutomationRunService : BaseService<AutomationRun, long>, IAutomatio
         // anonymous type in SQL (so only these columns are read), then map to the entity in memory.
         return query
             .OrderByDescending(r => r.StartedOn)
+            .Take(qty)
             .Select(r => new
             {
                 r.Id,

@@ -6,7 +6,6 @@ using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Automation;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
-using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Kafka;
 using TNO.Kafka.Models;
@@ -55,10 +54,12 @@ public class AutomationController : ControllerBase
     /// <param name="runResponseService"></param>
     /// <param name="llmService"></param>
     /// <param name="contentService"></param>
+    /// <param name="eventScheduleService"></param>
     /// <param name="httpClientFactory"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaOptions"></param>
+    /// <param name="kafkaHubOptions"></param>
     public AutomationController(
         IAutomationProfileService profileService,
         IAutomationRunService runService,
@@ -651,7 +652,9 @@ public class AutomationController : ControllerBase
     /// <param name="runId"></param>
     /// <returns></returns>
     [HttpPut("runs/{runId}/summary")]
-    [DisableRequestSizeLimit]
+    // Bounded (not unlimited): summaries are engine-truncated; 10MB is generous headroom while
+    // preventing a runaway payload from ballooning API memory.
+    [RequestSizeLimit(10_485_760)]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Automation" })]

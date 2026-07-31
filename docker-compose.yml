@@ -143,6 +143,28 @@ services:
     networks:
       - tno
 
+  ####################### Autoheal #######################
+  # Restarts any container labelled 'autoheal=true' whose healthcheck reports unhealthy.
+  # Docker does not restart unhealthy containers on its own; without this, a hung-but-running
+  # process (e.g. the API wedged at its memory limit) stays broken until manually restarted.
+  autoheal:
+    image: willfarrell/autoheal
+    profiles:
+      - all
+      - api
+      - editor
+      - subscriber
+      - service
+      - main
+    restart: unless-stopped
+    container_name: tno-autoheal
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=autoheal
+      - AUTOHEAL_INTERVAL=30
+      - AUTOHEAL_DEFAULT_STOP_TIMEOUT=30
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
   ####################### API #######################
   api:
     image: tno:api
@@ -180,11 +202,17 @@ services:
       - tno-av-data:/av
     networks:
       - tno
+    labels:
+      # Watched by the autoheal service: restart this container when its healthcheck fails.
+      - autoheal=true
     healthcheck:
-      test: curl -s -f http://localhost:8080/health
-      interval: 5m
-      timeout: 30s
-      retries: 3
+      # /health/ready exercises the thread pool + a DB round-trip with a strict timeout, so a
+      # wedged process (e.g. GC death spiral at the memory limit) fails the check instead of
+      # limping through a static /health response.
+      test: curl -s -f -m 10 http://localhost:8080/health/ready
+      interval: 30s
+      timeout: 15s
+      retries: 4
       start_period: 2m
 
   ####################### Charts API #######################

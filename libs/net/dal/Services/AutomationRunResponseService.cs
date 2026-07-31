@@ -24,15 +24,20 @@ public class AutomationRunResponseService : BaseService<AutomationRunResponse, l
 
     #region Methods
     /// <summary>
-    /// Find the responses captured for the specified run, ordered as captured.
+    /// Find the responses captured for the specified run, ordered as captured. Capped at 'qty'
+    /// rows — responses can be up to 20k characters each, so an unbounded read of a large run
+    /// would materialize tens of MB in one request.
     /// </summary>
     /// <param name="runId"></param>
+    /// <param name="qty"></param>
     /// <returns></returns>
-    public IEnumerable<AutomationRunResponse> FindByRun(long runId)
+    public IEnumerable<AutomationRunResponse> FindByRun(long runId, int qty = 500)
     {
+        qty = Math.Clamp(qty, 1, 2000);
         return this.Context.AutomationRunResponses.AsNoTracking()
             .Where(r => r.AutomationRunId == runId)
             .OrderBy(r => r.Id)
+            .Take(qty)
             .ToArray();
     }
 

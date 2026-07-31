@@ -1,7 +1,9 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Models.Health;
+using TNO.DAL;
 
 namespace TNO.API.Controllers;
 
@@ -18,6 +20,7 @@ public class HealthController : ControllerBase
 {
     #region Variables
     private readonly IWebHostEnvironment _environment;
+    private readonly TNOContext _dbContext;
     #endregion
 
     #region Constructors
@@ -25,9 +28,11 @@ public class HealthController : ControllerBase
     /// Creates a new instance of a HealthController object, initializes with specified parameters.
     /// </summary>
     /// <param name="environment"></param>
-    public HealthController(IWebHostEnvironment environment)
+    /// <param name="dbContext"></param>
+    public HealthController(IWebHostEnvironment environment, TNOContext dbContext)
     {
         _environment = environment;
+        _dbContext = dbContext;
     }
     #endregion
 
@@ -43,6 +48,35 @@ public class HealthController : ControllerBase
     public IActionResult Status()
     {
         return new JsonResult(new StatusModel("running"));
+    }
+
+    /// <summary>
+    /// Readiness probe: proves the app can serve a real request end-to-end (thread pool +
+    /// database round-trip) within a strict timeout. Unlike the status endpoint above (a static
+    /// response that keeps succeeding while the app is wedged, e.g. in a GC death spiral at the
+    /// container memory limit), this fails fast so the container healthcheck can flag the
+    /// instance unhealthy and it can be restarted.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("ready")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(StatusModel), 200)]
+    [ProducesResponseType(typeof(StatusModel), 503)]
+    [SwaggerOperation(Tags = new[] { "health" })]
+    public async Task<IActionResult> Ready(CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            await _dbContext.Database.ExecuteSqlRawAsync("SELECT 1", cts.Token);
+            return new JsonResult(new StatusModel("ready"));
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new StatusModel("not-ready"));
+        }
     }
 
     /// <summary>
