@@ -161,7 +161,15 @@ services:
     environment:
       - AUTOHEAL_CONTAINER_LABEL=autoheal
       - AUTOHEAL_INTERVAL=30
-      - AUTOHEAL_DEFAULT_STOP_TIMEOUT=30
+      # Grace period Docker gets to stop the container during a restart.
+      - AUTOHEAL_DEFAULT_STOP_TIMEOUT=20
+      # MUST stay comfortably larger than the stop timeout. Autoheal issues the restart as a
+      # single curl call (`POST /containers/{id}/restart?t=<stop timeout>`) capped by this value;
+      # if curl gives up first the client disconnect aborts the request between the stop and the
+      # start, leaving the container STOPPED - and `restart: unless-stopped` then treats it as
+      # intentionally stopped and never revives it. The default (30) equalled the stop timeout,
+      # which stopped the API and left it down.
+      - CURL_TIMEOUT=120
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
@@ -206,13 +214,16 @@ services:
       # Watched by the autoheal service: restart this container when its healthcheck fails.
       - autoheal=true
     healthcheck:
-      # /health/ready exercises the thread pool + a DB round-trip with a strict timeout, so a
+      # /health/live exercises the request pipeline + thread pool with a strict timeout, so a
       # wedged process (e.g. GC death spiral at the memory limit) fails the check instead of
-      # limping through a static /health response.
-      test: curl -s -f -m 10 http://localhost:8080/health/ready
+      # limping through a static /health response. It deliberately does NOT touch the database:
+      # this check drives an automatic restart, and restarting cannot fix a congested database -
+      # /health/ready (which does probe the DB, reporting "degraded" when it is merely slow) is
+      # for diagnostics.
+      test: curl -s -f -m 10 http://localhost:8080/health/live
       interval: 30s
       timeout: 15s
-      retries: 4
+      retries: 6
       start_period: 2m
 
   ####################### Charts API #######################
