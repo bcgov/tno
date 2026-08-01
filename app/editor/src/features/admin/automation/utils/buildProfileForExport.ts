@@ -46,6 +46,11 @@ export const buildProfileForExport = (values: IAutomationProfileModel) => {
         objective: action.objective,
         autoExecute: action.autoExecute,
         abortIfNoConfirmation: action.abortIfNoConfirmation,
+        worksOn: action.worksOn,
+        createIdentifier: action.createIdentifier,
+        createClone: action.createClone,
+        // Extract Data grid / Create Content mapping configuration.
+        settings: action.settings ?? {},
         llmId: action.llmId,
         isEnabled: action.isEnabled,
       })),

@@ -218,6 +218,10 @@ public class AutomationProfileService : BaseService<AutomationProfile, int>, IAu
                 originalAction.AbortIfNoConfirmation = incomingAction.AbortIfNoConfirmation;
                 originalAction.LLMId = incomingAction.LLMId;
                 originalAction.Objective = incomingAction.Objective;
+                originalAction.WorksOn = incomingAction.WorksOn;
+                originalAction.CreateIdentifier = incomingAction.CreateIdentifier;
+                originalAction.CreateClone = incomingAction.CreateClone;
+                originalAction.Settings = incomingAction.Settings;
                 originalAction.IsEnabled = incomingAction.IsEnabled;
                 originalAction.SortOrder = incomingAction.SortOrder;
             }
