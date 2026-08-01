@@ -465,7 +465,7 @@ services:
     profiles:
       - all
       - service
-    restart: "no"
+    restart: unless-stopped
     container_name: tno-automation
     build:
       context: ./
@@ -473,8 +473,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.25"
-          memory: 250M
+          cpus: "0.5"
+          memory: 1G
         reservations:
           cpus: "0.05"
           memory: 50M

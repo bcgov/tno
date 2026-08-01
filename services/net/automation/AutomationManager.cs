@@ -399,9 +399,10 @@ public class AutomationManager : ServiceManager<AutomationOptions>
         var hasProfileFilter = !IsEmptyQuery(profile.FilterQuery);
 
         // Load the content items to iterate when the profile has a filter.
-        // Run-scoped filter result cache: each filter query executes at most once per run.
-        // Filters return every match (paged); the run iterates all of them.
-        var filterCache = new Dictionary<string, List<ContentModel>>();
+        // Run-scoped gate-filter cache: each gate filter query executes at most once per run and
+        // only its content ids are kept - gates never need the content models, and caching full
+        // models here previously duplicated tens of MB of bodies for nothing.
+        var filterCache = new Dictionary<string, List<long>>();
         _lookups = null; // Refresh lookup caches (actions, tags, contributors) once per run.
 
         // Load lookup caches up front so parallel item processing never races the lazy fetch.
@@ -410,8 +411,7 @@ public class AutomationManager : ServiceManager<AutomationOptions>
         var contentItems = new List<ContentModel>();
         if (hasProfileFilter)
         {
-            contentItems = new List<ContentModel>(
-                await SearchFilterAsync(profile.FilterQuery!, profile.FilterSettings, FilterCacheKey(profile.FilterId, profile.FilterQuery!), filterCache));
+            contentItems = await SearchFilterAsync(profile.FilterQuery!, profile.FilterSettings, FilterCacheKey(profile.FilterId, profile.FilterQuery!));
             this.Logger.LogInformation("Profile '{name}' filter returned {count} content item(s) to iterate.", profile.Name, contentItems.Count);
         }
 
@@ -458,29 +458,42 @@ public class AutomationManager : ServiceManager<AutomationOptions>
             var stepTimer = System.Diagnostics.Stopwatch.StartNew();
             this.Logger.LogInformation("Step '{step}' ({target}) started.", step.Name, step.Target);
 
-            // Step filter behaviors.
+            // Step filter behaviors. Each behavior fetches only what it consumes: a gate needs
+            // content ids (cached run-wide, id-only Elasticsearch _source), iteration needs the
+            // full models, and prompt enrichment needs the full models only when a prompt
+            // actually references {results} - otherwise the query is skipped entirely.
             HashSet<long>? gateIds = null;
             string? resultsJson = null;
             List<ContentModel>? stepHits = null;
             var iterateStepFilter = step.IterateStepFilter && (step.Target == "start" || step.Target == "end");
             if (!IsEmptyQuery(step.FilterQuery))
             {
-                stepHits = await SearchFilterAsync(step.FilterQuery!, step.FilterSettings, FilterCacheKey(step.FilterId, step.FilterQuery!), filterCache);
-                var filterBehaviour = iterateStepFilter ? "iteration source"
-                    : step.ApplyToAutomationFilter ? "gate"
-                    : "prompt enrichment";
-                this.Logger.LogInformation("Step '{step}' filter returned {count} content item(s) ({behaviour}).", step.Name, stepHits.Count, filterBehaviour);
                 if (iterateStepFilter)
                 {
                     // The step filter results are the iteration source; each hit becomes the
                     // step's content item (no gate, no enrichment injection).
+                    stepHits = await SearchFilterAsync(step.FilterQuery!, step.FilterSettings, FilterCacheKey(step.FilterId, step.FilterQuery!));
+                    this.Logger.LogInformation("Step '{step}' filter returned {count} content item(s) (iteration source).", step.Name, stepHits.Count);
                     foreach (var hit in stepHits)
                         contentById.TryAdd(hit.Id, hit);
                 }
                 else if (step.ApplyToAutomationFilter)
-                    gateIds = stepHits.Select(item => item.Id).ToHashSet();
-                else
+                {
+                    var ids = await SearchFilterIdsAsync(step.FilterQuery!, step.FilterSettings, FilterCacheKey(step.FilterId, step.FilterQuery!), filterCache);
+                    this.Logger.LogInformation("Step '{step}' filter returned {count} content item(s) (gate).", step.Name, ids.Count);
+                    gateIds = ids.ToHashSet();
+                }
+                else if (StepUsesResultsToken(step))
+                {
+                    // Serialize the hit list only when a prompt actually references {results} -
+                    // this is one giant string (every hit with its full body) and for a large
+                    // filter it is among the biggest allocations a run makes.
+                    stepHits = await SearchFilterAsync(step.FilterQuery!, step.FilterSettings, FilterCacheKey(step.FilterId, step.FilterQuery!));
+                    this.Logger.LogInformation("Step '{step}' filter returned {count} content item(s) (prompt enrichment).", step.Name, stepHits.Count);
                     resultsJson = JsonSerializer.Serialize(stepHits, _jsonOptions);
+                }
+                else
+                    this.Logger.LogDebug("Step '{step}' filter not executed; results are unused (no gate, no iteration, no {{results}} token).", step.Name);
             }
 
             switch (step.Target)
@@ -508,6 +521,8 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                             lock (stepSummary) stepSummary.Failures++;
                             this.Logger.LogError(ex, "Step '{step}' failed for content {contentId}; continuing with the next item.", step.Name, content.Id);
                         }
+                        // Keep the buffered prompt/response records bounded while the step runs.
+                        await MaybeFlushRunResponsesAsync(runId, stepResponses);
                     });
                     break;
                 }
@@ -528,6 +543,8 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                                 lock (stepSummary) stepSummary.Failures++;
                                 this.Logger.LogError(ex, "Step '{step}' failed for content {contentId}; continuing with the next item.", step.Name, content.Id);
                             }
+                            // Keep the buffered prompt/response records bounded while the step runs.
+                            await MaybeFlushRunResponsesAsync(runId, stepResponses);
                         });
                         break;
                     }
@@ -1720,19 +1737,18 @@ public class AutomationManager : ServiceManager<AutomationOptions>
     private const int MaxResultWindow = 10000;
 
     /// <summary>
-    /// Execute a filter query and return ALL matching items, using the run-scoped cache so each
-    /// filter is only requested once per run. The filter's stored "size" is a UI page size, not a
-    /// cap - the engine pages through the full match set (bounded by Elasticsearch's
-    /// max_result_window) so automation iterates every item the filter matches.
+    /// Execute a filter query and return ALL matching items. The filter's stored "size" is a UI
+    /// page size, not a cap - the engine pages through the full match set (bounded by
+    /// Elasticsearch's max_result_window) so automation iterates every item the filter matches.
+    /// Full models are intentionally NOT cached - each behavior that needs them (profile
+    /// iteration, step iteration, {results} enrichment) fetches once and owns the memory; gates
+    /// use <see cref="SearchFilterIdsAsync"/> instead.
     /// </summary>
     private async Task<List<ContentModel>> SearchFilterAsync(
         string query,
         string? settings,
-        string cacheKey,
-        Dictionary<string, List<ContentModel>> cache)
+        string label)
     {
-        if (cache.TryGetValue(cacheKey, out var cached)) return cached;
-
         var index = SelectIndex(settings);
         var root = JsonNode.Parse(query)!.AsObject();
         root["size"] = FilterPageSize;
@@ -1750,14 +1766,53 @@ public class AutomationManager : ServiceManager<AutomationOptions>
             from += FilterPageSize;
             if (from + FilterPageSize > MaxResultWindow)
             {
+                this.Logger.LogWarning("Filter '{key}' exceeded the max result window ({max}); results truncated.", label, MaxResultWindow);
+                break;
+            }
+        }
+
+        return hits;
+    }
+
+    /// <summary>
+    /// Execute a filter query and return only the matching content ids, cached for the run.
+    /// Used by gate filters, which never need the content models - the Elasticsearch _source is
+    /// limited to the id so neither the transfer nor the cache carries document bodies.
+    /// </summary>
+    private async Task<List<long>> SearchFilterIdsAsync(
+        string query,
+        string? settings,
+        string cacheKey,
+        Dictionary<string, List<long>> cache)
+    {
+        if (cache.TryGetValue(cacheKey, out var cached)) return cached;
+
+        var index = SelectIndex(settings);
+        var root = JsonNode.Parse(query)!.AsObject();
+        root["size"] = FilterPageSize;
+        root["track_total_hits"] = true;
+        root["_source"] = new JsonArray("id");
+
+        var ids = new List<long>();
+        var from = 0;
+        while (true)
+        {
+            root["from"] = from;
+            var result = await _elasticClient.SearchAsync<ContentModel>(index, JsonDocument.Parse(root.ToJsonString()));
+            var page = result.Hits.Hits.Select(hit => hit.Source).Where(item => item != null).ToList();
+            ids.AddRange(page.Select(item => item!.Id));
+            if (page.Count < FilterPageSize) break;
+            from += FilterPageSize;
+            if (from + FilterPageSize > MaxResultWindow)
+            {
                 this.Logger.LogWarning("Filter '{key}' exceeded the max result window ({max}); results truncated.", cacheKey, MaxResultWindow);
                 break;
             }
         }
 
-        cache[cacheKey] = hits;
-        this.Logger.LogDebug("Filter '{key}' returned {count} item(s); results cached for this run.", cacheKey, hits.Count);
-        return hits;
+        cache[cacheKey] = ids;
+        this.Logger.LogDebug("Filter '{key}' returned {count} id(s); ids cached for this run.", cacheKey, ids.Count);
+        return ids;
     }
 
     /// <summary>
@@ -1815,26 +1870,69 @@ public class AutomationManager : ServiceManager<AutomationOptions>
     /// <param name="runId"></param>
     /// <param name="responses"></param>
     /// <returns></returns>
+    /// <summary>
+    /// Whether the step's prompt or any enabled action prompt references the {results} token
+    /// (including indexed/path forms like {results[0].headline}).
+    /// </summary>
+    private static bool StepUsesResultsToken(AdminAutomationStepModel step)
+    {
+        if (step.Prompt?.Contains("{results") == true) return true;
+        return step.Actions.Any(action => action.IsEnabled && action.Prompt?.Contains("{results") == true);
+    }
+
+    /// <summary>
+    /// Cap for each stored prompt/response (applied at capture in ResponseSummary). This is the
+    /// diagnostic/audit copy only - the value an action actually applied to content was already
+    /// parsed and applied in full.
+    /// </summary>
+    private const int MaxStoredResponseChars = 20000;
+
+    /// <summary>
+    /// Number of buffered response records that triggers an incremental flush while a step is
+    /// still executing, so a step with thousands of items cannot accumulate them all in memory.
+    /// </summary>
+    private const int ResponseFlushThreshold = 20;
+
+    /// <summary>
+    /// Flush the buffer when it has reached the threshold. Safe to call concurrently from the
+    /// parallel item loops: the buffer is snapshotted and cleared under its lock, and the
+    /// snapshot is persisted outside the lock.
+    /// </summary>
+    private async Task MaybeFlushRunResponsesAsync(long runId, List<ResponseSummary> responses)
+    {
+        List<ResponseSummary>? snapshot = null;
+        lock (responses)
+        {
+            if (responses.Count >= ResponseFlushThreshold)
+            {
+                snapshot = new List<ResponseSummary>(responses);
+                responses.Clear();
+            }
+        }
+        if (snapshot != null) await FlushRunResponsesAsync(runId, snapshot);
+    }
+
     private async Task FlushRunResponsesAsync(long runId, List<ResponseSummary> responses)
     {
         if (responses.Count == 0) return;
         try
         {
-            // Cap each stored prompt/response so a single very large LLM prompt or response (e.g. a
-            // rewritten body, or a large candidates digest) cannot blow up the payload and exhaust
-            // memory when serialized. This is the diagnostic/audit copy only - the value the action
-            // actually applied to content was already parsed and applied.
-            const int maxResponseChars = 20000;
-            var models = responses.Select(r => new AdminAutomationRunResponseModel
+            // Map and send in bounded batches instead of materializing every model at once - a
+            // large step can buffer thousands of records and the all-at-once projection is what
+            // previously exhausted memory. Values are already truncated at capture.
+            foreach (var chunk in responses.Chunk(ResponseFlushThreshold))
             {
-                StepId = r.StepId,
-                StepName = r.StepName,
-                ActionName = r.ActionName,
-                ContentId = r.ContentId,
-                Prompt = TruncateForStorage(r.Prompt, maxResponseChars),
-                Response = TruncateForStorage(r.Response, maxResponseChars) ?? "",
-            }).ToArray();
-            await this.Api.AddAutomationRunResponsesAsync(runId, models);
+                var models = chunk.Select(r => new AdminAutomationRunResponseModel
+                {
+                    StepId = r.StepId,
+                    StepName = r.StepName,
+                    ActionName = r.ActionName,
+                    ContentId = r.ContentId,
+                    Prompt = r.Prompt,
+                    Response = r.Response,
+                }).ToArray();
+                await this.Api.AddAutomationRunResponsesAsync(runId, models);
+            }
         }
         catch (Exception ex)
         {
@@ -1925,11 +2023,15 @@ public class AutomationManager : ServiceManager<AutomationOptions>
         /// <summary>
         /// The prompt sent to the LLM; only recorded when IncludeLLMPromptsInSummary is enabled
         /// (prompts embed the full content payload, which makes summaries large).
+        /// Truncated at capture so buffered records stay bounded — a step can produce thousands
+        /// of records and the untruncated originals must not live until the flush.
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Prompt { get; set; }
+        public string? Prompt { get => _prompt; set => _prompt = TruncateForStorage(value, MaxStoredResponseChars); }
+        private string? _prompt;
 
-        public string Response { get; set; } = "";
+        public string Response { get => _response; set => _response = TruncateForStorage(value, MaxStoredResponseChars) ?? ""; }
+        private string _response = "";
     }
 
     private sealed class StepSummary
