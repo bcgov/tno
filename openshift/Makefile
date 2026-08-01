@@ -83,4 +83,26 @@ annotate: ## Annotate an object.
 	$(info Annotate an object (n=name) [e=environment])
 	@cd ./scripts; ./annotate.sh $(if $(e),$(e),dev) $(n)
 
+##############################################################################
+# Azure Container Registry Images
+##############################################################################
+
+build: ## Build a linux/amd64 image tagged for ACR (n=component, t=tag [latest]).
+	$(info Build image [n=$(n), t=$(if $(t),$(t),latest)])
+	@cd ./scripts; ./build.sh $(n) $(if $(t),$(t),latest)
+
+push: ## Push a locally built image to ACR (n=component, t=tag [latest]).
+	$(info Push image to ACR [n=$(n), t=$(if $(t),$(t),latest)])
+	@cd ./scripts; ./push.sh $(n) $(if $(t),$(t),latest)
+
+pull: ## Pull an image from ACR to the local registry (n=component, t=tag [latest]).
+	$(info Pull image from ACR [n=$(n), t=$(if $(t),$(t),latest)])
+	@cd ./scripts; ./pull.sh $(n) $(if $(t),$(t),latest)
+
+tag: ## Tag an image (n=component, f=from tag, t=to tag, r=remote [local]).
+	$(info Tag image [n=$(n), f=$(if $(f),$(f),latest), t=$(t), $(if $(r),remote,local)])
+	@cd ./scripts; ./tag.sh $(n) $(if $(f),$(f),latest) $(t) $(if $(r),remote,local)
+
+.PHONY: build push pull tag
+
 .PHONY: local
