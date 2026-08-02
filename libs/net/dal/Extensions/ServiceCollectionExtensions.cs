@@ -18,6 +18,19 @@ namespace TNO.DAL;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
+    /// Logger factory used for Entity Framework's development SQL logging, built ONCE for the
+    /// lifetime of the process.
+    ///
+    /// The <see cref="EntityFrameworkServiceCollectionExtensions.AddDbContext{TContext}(IServiceCollection, Action{DbContextOptionsBuilder}, ServiceLifetime, ServiceLifetime)"/>
+    /// options callback runs every time the options are resolved - which, for the default scoped
+    /// lifetime, is once per HTTP request. Creating a logger factory inside that callback
+    /// therefore built (and never disposed) a console/debug logging pipeline per request, leaking
+    /// roughly 200KB each time until the heap filled, the GC thrashed, and the process wedged.
+    /// </summary>
+    private static readonly Lazy<ILoggerFactory> _developmentLoggerFactory = new(() =>
+        LoggerFactory.Create(builder => builder.AddConsole().AddDebug()));
+
+    /// <summary>
     /// Add a PostgreSQL DbContext to the service collection.
     /// </summary>
     /// <param name="services"></param>
@@ -40,17 +53,8 @@ public static class ServiceCollectionExtensions
             });
             options.EnableSensitiveDataLogging(env.IsDevelopment());
             options.EnableDetailedErrors(env.IsDevelopment());
-            if (env.IsDevelopment())
-            {
-                var debugLoggerFactory = LoggerFactory
-                    .Create(builder =>
-                    {
-                        builder
-                            .AddConsole()
-                            .AddDebug();
-                    });
-                db.UseLoggerFactory(debugLoggerFactory);
-            }
+            // Reuse the shared factory; never construct one here (see _developmentLoggerFactory).
+            if (env.IsDevelopment()) db.UseLoggerFactory(_developmentLoggerFactory.Value);
         });
 
         return services;
@@ -79,17 +83,8 @@ public static class ServiceCollectionExtensions
             });
             options.EnableSensitiveDataLogging(env.IsDevelopment());
             options.EnableDetailedErrors(env.IsDevelopment());
-            if (env.IsDevelopment())
-            {
-                var debugLoggerFactory = LoggerFactory
-                    .Create(builder =>
-                    {
-                        builder
-                            .AddConsole()
-                            .AddDebug();
-                    });
-                db.UseLoggerFactory(debugLoggerFactory);
-            }
+            // Reuse the shared factory; never construct one here (see _developmentLoggerFactory).
+            if (env.IsDevelopment()) db.UseLoggerFactory(_developmentLoggerFactory.Value);
         }, ServiceLifetime.Singleton);
 
         return services;

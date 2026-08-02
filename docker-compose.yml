@@ -161,8 +161,11 @@ services:
     environment:
       - AUTOHEAL_CONTAINER_LABEL=autoheal
       - AUTOHEAL_INTERVAL=30
-      # Grace period Docker gets to stop the container during a restart.
-      - AUTOHEAL_DEFAULT_STOP_TIMEOUT=20
+      # Grace period Docker gets to stop the container during a restart. Deliberately short: a
+      # container being autohealed is already wedged and will not shut down gracefully, so waiting
+      # only risks the restart call erroring out partway (after the stop, before the start) and
+      # leaving the container down - which is exactly what happened with a 20s grace period.
+      - AUTOHEAL_DEFAULT_STOP_TIMEOUT=5
       # MUST stay comfortably larger than the stop timeout. Autoheal issues the restart as a
       # single curl call (`POST /containers/{id}/restart?t=<stop timeout>`) capped by this value;
       # if curl gives up first the client disconnect aborts the request between the stop and the
