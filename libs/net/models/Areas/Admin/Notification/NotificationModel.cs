@@ -105,8 +105,8 @@ public class NotificationModel : BaseTypeWithAuditColumnsModel<int>
     public Entities.Notification ToEntity(JsonSerializerOptions options, bool includeTemplate = false)
     {
         var entity = (Entities.Notification)this;
-        entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
-        entity.Query = JsonDocument.Parse(JsonSerializer.Serialize(this.Query, options));
+        entity.Settings = JsonSerializer.SerializeToDocument(this.Settings, options);
+        entity.Query = JsonSerializer.SerializeToDocument(this.Query, options);
         if (includeTemplate && this.Template != null)
             entity.Template = this.Template.ToEntity(options);
         return entity;
@@ -128,8 +128,8 @@ public class NotificationModel : BaseTypeWithAuditColumnsModel<int>
             Resend = model.Resend,
             IsPublic = model.IsPublic,
             AlertOnIndex = model.AlertOnIndex,
-            Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
-            Query = JsonDocument.Parse(JsonSerializer.Serialize(model.Query)),
+            Settings = JsonSerializer.SerializeToDocument(model.Settings),
+            Query = JsonSerializer.SerializeToDocument(model.Query),
             Version = model.Version ?? 0
         };
 

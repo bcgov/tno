@@ -99,8 +99,8 @@ public class ReportSectionModel : BaseTypeWithAuditColumnsModel<int>
     public Entities.ReportSection ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.ReportSection)this;
-        entity.ChartTemplatesManyToMany.ForEach(c => c.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Filter, options)));
-        entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
+        entity.ChartTemplatesManyToMany.ForEach(c => c.Settings = JsonSerializer.SerializeToDocument(this.Filter, options));
+        entity.Settings = JsonSerializer.SerializeToDocument(this.Settings, options);
         return entity;
     }
 
@@ -116,13 +116,13 @@ public class ReportSectionModel : BaseTypeWithAuditColumnsModel<int>
             Description = model.Description,
             IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,
-            Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
+            Settings = JsonSerializer.SerializeToDocument(model.Settings),
             Version = model.Version ?? 0
         };
 
         entity.ChartTemplatesManyToMany.AddRange(model.ChartTemplates.OrderBy(ct => ct.SortOrder).Select(c => new Entities.ReportSectionChartTemplate(model.Id, c.Id, c.SortOrder)
         {
-            Settings = JsonDocument.Parse(JsonSerializer.Serialize(c.Settings)),
+            Settings = JsonSerializer.SerializeToDocument(c.Settings),
         }));
 
         return entity;

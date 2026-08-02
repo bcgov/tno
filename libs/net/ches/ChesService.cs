@@ -24,6 +24,13 @@ namespace TNO.Ches
         [GeneratedRegex("src=\\\"data:(image\\/[a-zA-Z]*);base64,([^\\\"]*)\\\"", RegexOptions.IgnoreCase | RegexOptions.Singleline, "en-CA")]
         private static partial Regex Base64InlineImageRegex();
         private readonly ClaimsPrincipal _user;
+
+        /// <summary>
+        /// Options for parsing CHES error bodies. Shared, not built per call: every
+        /// JsonSerializerOptions instance builds and permanently retains its own serialization
+        /// metadata cache, so constructing them per call grows the heap without bound.
+        /// </summary>
+        private static readonly System.Text.Json.JsonSerializerOptions _errorSerializerOptions = new() { PropertyNameCaseInsensitive = true };
         private TokenModel? _token = null;
         private readonly JwtSecurityTokenHandler _tokenHandler;
         private readonly ILogger<IChesService> _logger;
@@ -184,8 +191,7 @@ namespace TNO.Ches
                         Ches.Models.ErrorResponseModel? response = null;
                         try
                         {
-                            response = System.Text.Json.JsonSerializer.Deserialize<Ches.Models.ErrorResponseModel>(
-                                body, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                            response = System.Text.Json.JsonSerializer.Deserialize<Ches.Models.ErrorResponseModel>(body, _errorSerializerOptions);
                         }
                         catch
                         {

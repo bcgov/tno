@@ -97,7 +97,7 @@ public class WorkOrderModel : AuditColumnsModel
         entity.Description = this.Description;
         entity.Note = this.Note;
         entity.Version = this.Version ?? 0;
-        entity.Configuration = JsonDocument.Parse(JsonSerializer.Serialize(this.Configuration, options));
+        entity.Configuration = JsonSerializer.SerializeToDocument(this.Configuration, options);
         return entity;
     }
 

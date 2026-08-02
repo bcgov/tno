@@ -98,8 +98,8 @@ public class NotificationModel : BaseTypeWithAuditColumnsModel<int>
             Resend = model.Resend,
             IsPublic = model.IsPublic,
             AlertOnIndex = model.AlertOnIndex,
-            Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
-            Query = JsonDocument.Parse(JsonSerializer.Serialize(model.Query)),
+            Settings = JsonSerializer.SerializeToDocument(model.Settings),
+            Query = JsonSerializer.SerializeToDocument(model.Query),
             Version = model.Version ?? 0
         };
 

@@ -179,7 +179,7 @@ public class SchedulerManager : ServiceManager<SchedulerOptions>
         var autoSend = scheduledEvent.Settings.GetDictionaryJsonValue<bool?>("autoSend") ?? false;
 
         if (reportId == null || reportId == 0) throw new InvalidOperationException($"Event schedule configuration must have a valid report {scheduledEvent.Id}:{scheduledEvent.Name}");
-        var request = new ReportRequestModel(destination, reportType, reportId.Value, JsonDocument.Parse(JsonSerializer.Serialize(data)))
+        var request = new ReportRequestModel(destination, reportType, reportId.Value, JsonSerializer.SerializeToDocument(data))
         {
             EventScheduleId = scheduledEvent.Id,
             ReportInstanceId = reportInstanceId,

@@ -80,7 +80,7 @@ public class ContentReferenceModel : AuditColumnsModel
     public Entities.ContentReference ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.ContentReference)this;
-        entity.Metadata = JsonDocument.Parse(JsonSerializer.Serialize(this.Metadata, options));
+        entity.Metadata = JsonSerializer.SerializeToDocument(this.Metadata, options);
         return entity;
     }
 
@@ -92,7 +92,7 @@ public class ContentReferenceModel : AuditColumnsModel
     {
         var entity = new Entities.ContentReference(model.Source, model.Uid, model.Topic, (WorkflowStatus)Enum.ToObject(typeof(WorkflowStatus), model.Status))
         {
-            Metadata = JsonDocument.Parse(JsonSerializer.Serialize(model.Metadata)),
+            Metadata = JsonSerializer.SerializeToDocument(model.Metadata),
             PublishedOn = model.PublishedOn,
             SourceUpdateOn = model.SourceUpdateOn,
             Version = model.Version ?? 0

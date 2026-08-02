@@ -82,7 +82,7 @@ public class UserModel : AuditColumnsModel
     public Entities.User ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.User)this;
-        entity.Preferences = JsonDocument.Parse(JsonSerializer.Serialize(this.Preferences, options));
+        entity.Preferences = JsonSerializer.SerializeToDocument(this.Preferences, options);
         return entity;
 
     }
@@ -100,7 +100,7 @@ public class UserModel : AuditColumnsModel
             LastName = model.LastName,
             PreferredEmail = model.PreferredEmail,
             DisplayName = model.DisplayName,
-            Preferences = JsonDocument.Parse(JsonSerializer.Serialize(model.Preferences)),
+            Preferences = JsonSerializer.SerializeToDocument(model.Preferences),
             Version = model.Version ?? 0
         };
 

@@ -60,8 +60,8 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
     public Entities.Filter ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.Filter)this;
-        entity.Query = JsonDocument.Parse(JsonSerializer.Serialize(this.Query, options));
-        entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
+        entity.Query = JsonSerializer.SerializeToDocument(this.Query, options);
+        entity.Settings = JsonSerializer.SerializeToDocument(this.Settings, options);
         return entity;
     }
 
@@ -78,8 +78,8 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
             IsEnabled = model.IsEnabled,
             OwnerId = model.OwnerId,
             SortOrder = model.SortOrder,
-            Query = JsonDocument.Parse(JsonSerializer.Serialize(model.Query)),
-            Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
+            Query = JsonSerializer.SerializeToDocument(model.Query),
+            Settings = JsonSerializer.SerializeToDocument(model.Settings),
             Version = model.Version ?? 0
         };
 

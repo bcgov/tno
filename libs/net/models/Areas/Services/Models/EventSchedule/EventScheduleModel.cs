@@ -120,7 +120,7 @@ public class EventScheduleModel : AuditColumnsModel
     public Entities.EventSchedule ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.EventSchedule)this;
-        entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
+        entity.Settings = JsonSerializer.SerializeToDocument(this.Settings, options);
         return entity;
     }
 
@@ -139,7 +139,7 @@ public class EventScheduleModel : AuditColumnsModel
             ReportId = model.ReportId,
             FolderId = model.FolderId,
             AutomationProfileId = model.AutomationProfileId,
-            Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
+            Settings = JsonSerializer.SerializeToDocument(model.Settings),
             LastRanOn = model.LastRanOn,
             RequestSentOn = model.RequestSentOn,
             Version = model.Version ?? 0

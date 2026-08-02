@@ -507,7 +507,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                     Status = NotificationStatus.Accepted,
                     SentOn = DateTime.UtcNow,
                     OwnerId = request.RequestorId ?? notification.OwnerId,
-                    Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions)),
+                    Response = JsonSerializer.SerializeToDocument(response, _serializationOptions),
                     Subject = subject,
                     Body = body,
                 };
@@ -523,7 +523,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                 {
                     Status = NotificationStatus.Failed,
                     OwnerId = request.RequestorId ?? notification.OwnerId,
-                    Response = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions)),
+                    Response = JsonSerializer.SerializeToDocument(ex.Data["error"], _serializationOptions),
                     Subject = subject,
                     Body = body,
                 };

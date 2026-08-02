@@ -95,7 +95,7 @@ public class NotificationInstanceModel : AuditColumnsModel
     public Entities.NotificationInstance ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.NotificationInstance)this;
-        entity.Response = JsonDocument.Parse(JsonSerializer.Serialize(this.Response, options));
+        entity.Response = JsonSerializer.SerializeToDocument(this.Response, options);
         return entity;
     }
 
@@ -108,7 +108,7 @@ public class NotificationInstanceModel : AuditColumnsModel
         var entity = new Entities.NotificationInstance(model.NotificationId, model.ContentId, model.OwnerId)
         {
             Id = model.Id,
-            Response = JsonDocument.Parse(JsonSerializer.Serialize(model.Response)),
+            Response = JsonSerializer.SerializeToDocument(model.Response),
             Subject = model.Subject,
             Body = model.Body,
             Version = model.Version ?? 0

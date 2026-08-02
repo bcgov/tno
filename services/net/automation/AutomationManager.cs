@@ -1833,7 +1833,8 @@ public class AutomationManager : ServiceManager<AutomationOptions>
         {
             try
             {
-                var settings = JsonDocument.Parse(filterSettings);
+                // Disposed: nothing here outlives the scope, so the pooled buffer is returned.
+                using var settings = JsonDocument.Parse(filterSettings);
                 if (settings.RootElement.TryGetProperty("searchUnpublished", out var property))
                     searchUnpublished = property.ValueKind == JsonValueKind.True;
             }
@@ -1853,7 +1854,8 @@ public class AutomationManager : ServiceManager<AutomationOptions>
         if (string.IsNullOrWhiteSpace(query) || query == "{}") return true;
         try
         {
-            var document = JsonDocument.Parse(query);
+            // Disposed: only a bool leaves this scope, so the pooled buffer is returned.
+            using var document = JsonDocument.Parse(query);
             return !document.RootElement.TryGetProperty("query", out _);
         }
         catch (JsonException)

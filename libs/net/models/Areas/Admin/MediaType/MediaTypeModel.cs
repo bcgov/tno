@@ -54,7 +54,7 @@ public class MediaTypeModel : BaseTypeWithAuditColumnsModel<int>
     public Entities.MediaType ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.MediaType)this;
-        entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
+        entity.Settings = JsonSerializer.SerializeToDocument(this.Settings, options);
         return entity;
     }
 
@@ -72,7 +72,7 @@ public class MediaTypeModel : BaseTypeWithAuditColumnsModel<int>
             IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,
             ListOption = model.ListOption,
-            Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
+            Settings = JsonSerializer.SerializeToDocument(model.Settings),
             Version = model.Version ?? 0
         };
 
