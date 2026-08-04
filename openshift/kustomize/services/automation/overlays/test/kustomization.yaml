@@ -32,3 +32,50 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 768Mi
+
+  # Elasticsearch lives on the cloud cluster outside dev. Merged by env var name rather than
+  # by index so it survives changes to the base env list.
+  - target:
+      kind: Deployment
+      name: automation-service
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: automation-service
+      spec:
+        template:
+          spec:
+            containers:
+              - name: automation-service
+                env:
+                  - name: Elastic__Url
+                    valueFrom:
+                      configMapKeyRef:
+                        name: indexing-service-cloud
+                        key: ELASTICSEARCH_URI
+                  - name: Elastic__ContentIndex
+                    valueFrom:
+                      configMapKeyRef:
+                        name: indexing-service-cloud
+                        key: CONTENT_INDEX
+                  - name: Elastic__PublishedIndex
+                    valueFrom:
+                      configMapKeyRef:
+                        name: indexing-service-cloud
+                        key: PUBLISHED_INDEX
+                  - name: Elastic__Username
+                    valueFrom:
+                      secretKeyRef:
+                        name: elastic-cloud
+                        key: USERNAME
+                  - name: Elastic__Password
+                    valueFrom:
+                      secretKeyRef:
+                        name: elastic-cloud
+                        key: PASSWORD
+                  - name: Elastic__ApiKey
+                    valueFrom:
+                      secretKeyRef:
+                        name: elastic-cloud
+                        key: ApiKey

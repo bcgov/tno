@@ -122,6 +122,38 @@ spec:
                   name: services
                   key: KAFKA_BOOTSTRAP_SERVERS
 
+            # Elasticsearch Configuration
+            - name: Elastic__Url
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: ELASTICSEARCH_URI
+            - name: Elastic__ContentIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: CONTENT_INDEX
+            - name: Elastic__PublishedIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: PUBLISHED_INDEX
+            - name: Elastic__Username
+              valueFrom:
+                secretKeyRef:
+                  name: elastic
+                  key: USERNAME
+            - name: Elastic__Password
+              valueFrom:
+                secretKeyRef:
+                  name: elastic
+                  key: PASSWORD
+            - name: Elastic__ApiKey
+              valueFrom:
+                secretKeyRef:
+                  name: elastic
+                  key: ApiKey
+
             # Automation Service Configuration
             - name: Service__Topics
               valueFrom:
