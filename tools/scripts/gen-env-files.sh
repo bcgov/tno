@@ -801,7 +801,7 @@ Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
 
 Service__ApiUrl=http://api:8080/api
 
-# Elastic__Url=http://elastic:9200
+Elastic__Url=http://elastic:9200
 Elastic__Username=$elasticUser
 Elastic__Password=$password
 
