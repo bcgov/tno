@@ -48,8 +48,10 @@ spec:
     type: Docker
   output:
     to:
-      kind: ImageStreamTag
-      name: db-migration:latest
+      kind: DockerImage
+      name: bcgov-c4awhwfpcremdbga.azurecr.io/db-migration:latest
+    pushSecret:
+      name: acr-secret
   resources:
     limits:
       cpu: 1500m

@@ -1,12 +1,13 @@
 #!/bin/bash
-# Tag an image locally, or retag it directly in the Azure Container Registry.
-# Usage: tag.sh <component> <from-tag> <to-tag> [local|remote]
+# Retag an image in the Azure Container Registry, or locally.
+# Usage: tag.sh <component> <from-tag> <to-tag> [remote|local]
 #   component - short name (automation, notification, api, editor, ...); see acr-common.sh
 #   from-tag  - existing tag (e.g. latest)
 #   to-tag    - new tag (e.g. dev, test, prod)
-#   mode      - 'local'  (default): docker tag on the local image
-#               'remote': az acr import copies the manifest inside ACR - no image download,
-#                         the same mechanism deploy.sh uses to promote tags between environments.
+#   mode      - 'remote' (default): az acr import copies the manifest inside ACR - no image
+#                         download, so both tags end up pointing at the same image. This is the
+#                         same mechanism deploy.sh uses to promote tags between environments.
+#               'local':  docker tag on the local image, for a build that has not been pushed.
 
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/acr-common.sh"
@@ -14,7 +15,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/acr-common.sh"
 name=${1-}
 from=${2-}
 to=${3-}
-mode=${4-local}
+mode=${4-remote}
 
 resolve_image "$name"
 
@@ -44,8 +45,8 @@ case "$mode" in
       --source "$ACR_REGISTRY/$IMAGE:$from" \
       --image "$IMAGE:$to" \
       --force
-    echo "Tagged $IMAGE:$to in ACR."
-    echo "Rollout: oc rollout restart deployment/$IMAGE -n 9b301c-$to"
+    echo "Tagged $IMAGE:$to in ACR ($IMAGE:$from and $IMAGE:$to now point at the same image)."
+    echo "Deploy: make deploy e=$to n=$IMAGE"
     ;;
   *)
     echo "ERROR: mode must be 'local' or 'remote' (got '$mode')." >&2
