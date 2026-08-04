@@ -106,7 +106,7 @@ down: ## Stops all containers and removes them (p={profile name, [all,api,editor
 		-f docker-compose.override.yml \
 		-f ./db/kafka/docker-compose.yml \
 		-f ./services/docker-compose.yml \
-		$(if $(p),--profile $(p),$(if $(n),--profile all,)) \
+		$(if $(p),--profile $(p),--profile all) \
 		down -v
 
 restart: ## Restart all containers or the one specified (n={service name}, p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]}))
