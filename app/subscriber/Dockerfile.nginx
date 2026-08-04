@@ -1,4 +1,4 @@
-FROM bcgov-c4awhwfpcremdbga.azurecr.io/node:18-bullseye as build-deps
+FROM bcgov-c4awhwfpcremdbga.azurecr.io/node:18-bullseye AS build-deps
 
 USER root
 
