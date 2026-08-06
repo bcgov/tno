@@ -27,7 +27,7 @@ public class ReportingOptions : ServiceOptions
     /// <summary>
     /// get/set - Whether to use the mail merge option.
     /// </summary>
-    public bool UseMailMerge { get; set; } = true;
+    public bool UseMailMerge { get; set; } = false;
 
     /// <summary>
     /// get/set - Whether a failure to send to one subscriber should stop the process, or whether it should attempt to send to all subscribers before failing.

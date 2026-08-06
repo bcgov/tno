@@ -23,9 +23,9 @@ export interface IHubController {
   /** Stop the connection. */
   stop: () => Promise<void>;
   /** Add event listener and return function to remove listener. */
-  listen: (target: MessageTargetKey, newMethod: (...args: any[]) => void) => () => void;
+  listen: (target: MessageTargetKey | string, newMethod: (...args: any[]) => void) => () => void;
   /** Add event listener and return function to remove listener. */
-  useHubEffect: (target: MessageTargetKey, newMethod: (...args: any[]) => void) => void;
+  useHubEffect: (target: MessageTargetKey | string, newMethod: (...args: any[]) => void) => void;
   /** Send a message to the hub */
   send: (target: string, args: any[]) => Promise<void>;
   /** Invoke a message to the hub */
@@ -93,13 +93,13 @@ export const useApiHub = (): IHubController => {
     stop: async () => {
       await (hub?.stop() ?? Promise.resolve());
     },
-    listen: (target: MessageTargetKey, callback: (...args: any[]) => void) => {
+    listen: (target: MessageTargetKey | string, callback: (...args: any[]) => void) => {
       hub?.on(target, callback);
       return () => {
         hub?.off(target, callback);
       };
     },
-    useHubEffect: (target: MessageTargetKey, callback: (...args: any[]) => void) => {
+    useHubEffect: (target: MessageTargetKey | string, callback: (...args: any[]) => void) => {
       React.useEffect(() => {
         hub?.on(target, callback);
         return () => {

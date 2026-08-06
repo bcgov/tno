@@ -24,6 +24,13 @@ namespace TNO.Ches
         [GeneratedRegex("src=\\\"data:(image\\/[a-zA-Z]*);base64,([^\\\"]*)\\\"", RegexOptions.IgnoreCase | RegexOptions.Singleline, "en-CA")]
         private static partial Regex Base64InlineImageRegex();
         private readonly ClaimsPrincipal _user;
+
+        /// <summary>
+        /// Options for parsing CHES error bodies. Shared, not built per call: every
+        /// JsonSerializerOptions instance builds and permanently retains its own serialization
+        /// metadata cache, so constructing them per call grows the heap without bound.
+        /// </summary>
+        private static readonly System.Text.Json.JsonSerializerOptions _errorSerializerOptions = new() { PropertyNameCaseInsensitive = true };
         private TokenModel? _token = null;
         private readonly JwtSecurityTokenHandler _tokenHandler;
         private readonly ILogger<IChesService> _logger;
@@ -174,11 +181,29 @@ namespace TNO.Ches
             {
                 if (ex.Response != null && ex.Response.Content.Headers.ContentType?.MediaType?.Contains("json", StringComparison.InvariantCultureIgnoreCase) == true)
                 {
-                    var stream = await ex.Response.Content.ReadAsStreamAsync();
-                    if (stream.CanSeek && stream.Position == stream.Length && stream.Length > 0)
+                    // Read the error body directly. CHES returns a problem+json payload (with a
+                    // field-level 'errors' array) on a validation failure such as 422. The shared
+                    // DeserializeAsync only parses successful responses and the previous stream guard
+                    // never matched, so the real reason was being discarded; parse it here instead.
+                    var body = await ex.Response.Content.ReadAsStringAsync();
+                    if (!String.IsNullOrWhiteSpace(body))
                     {
-                        var response = await this.Client.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
+                        Ches.Models.ErrorResponseModel? response = null;
+                        try
+                        {
+                            response = System.Text.Json.JsonSerializer.Deserialize<Ches.Models.ErrorResponseModel>(body, _errorSerializerOptions);
+                        }
+                        catch
+                        {
+                            // Body was not the expected shape; the raw body is logged below.
+                        }
+
                         var error = String.Join(Environment.NewLine, response?.Errors.Select(e => e.Message) ?? []);
+                        if (String.IsNullOrWhiteSpace(error))
+                            error = !String.IsNullOrWhiteSpace(response?.Title) || !String.IsNullOrWhiteSpace(response?.Detail)
+                                ? $"{response?.Title}: {response?.Detail}".Trim(':', ' ')
+                                : body;
+
                         _logger.LogError(ex, "Failed to send/receive request: {code} {url}.  Error: {error}", ex.StatusCode, url, error);
                         throw new ChesException(ex, this.Client, response);
                     }

@@ -111,7 +111,7 @@ public class SourceModel : BaseTypeModel<int>
             AutoTranscribe = model.AutoTranscribe,
             DisableTranscribe = model.DisableTranscribe,
             UseInTopics = model.UseInTopics,
-            Configuration = JsonDocument.Parse(JsonSerializer.Serialize(model.Configuration)),       
+            Configuration = JsonSerializer.SerializeToDocument(model.Configuration),       
             IsCBRASource = model.IsCBRASource
         };
     }

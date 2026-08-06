@@ -6,8 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.Notification;
+using TNO.API.Config;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
+using TNO.Kafka;
+using TNO.Kafka.Models;
 using TNO.Keycloak;
 using TNO.Models.Filters;
 
@@ -30,6 +34,8 @@ public class NotificationController : ControllerBase
 {
     #region Variables
     private readonly INotificationService _service;
+    private readonly IKafkaMessenger _kafkaProducer;
+    private readonly KafkaOptions _kafkaOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -38,15 +44,44 @@ public class NotificationController : ControllerBase
     /// Creates a new instance of a NotificationController object, initializes with specified parameters.
     /// </summary>
     /// <param name="service"></param>
+    /// <param name="kafkaProducer"></param>
+    /// <param name="kafkaOptions"></param>
     /// <param name="serializerOptions"></param>
-    public NotificationController(INotificationService service, IOptions<JsonSerializerOptions> serializerOptions)
+    public NotificationController(INotificationService service, IKafkaMessenger kafkaProducer, IOptions<KafkaOptions> kafkaOptions, IOptions<JsonSerializerOptions> serializerOptions)
     {
         _service = service;
+        _kafkaProducer = kafkaProducer;
+        _kafkaOptions = kafkaOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
 
     #region Endpoints
+    /// <summary>
+    /// Publish the notification and send it to its subscribers. Service endpoint used by background
+    /// services (e.g. the automation service); unlike the editor endpoint it requires no interactive
+    /// user, only the service Administrator client role.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    [HttpPost("{id}/publish")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [SwaggerOperation(Tags = new[] { "Notification" })]
+    public async Task<IActionResult> Publish(int id, int? requestorId = null)
+    {
+        var notification = _service.FindById(id) ?? throw new NoContentException();
+        var request = new NotificationRequestModel(NotificationDestination.NotificationService, new { })
+        {
+            NotificationId = notification.Id,
+            RequestorId = requestorId,
+        };
+        await _kafkaProducer.SendMessageAsync(_kafkaOptions.NotificationTopic, request);
+        return new OkResult();
+    }
+
     /// <summary>
     /// Return all notifications.
     /// </summary>

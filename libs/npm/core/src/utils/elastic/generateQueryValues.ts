@@ -24,7 +24,9 @@ export const generateQueryValues = (
   const actionFilters = generateQueryForActions(settings.actions ?? []);
   const values = [
     generatePostedOnQuery(settings),
-    generateTerms('sourceId', settings.sourceIds),
+    settings.sourceIds?.length && settings.sourceIdsNegate
+      ? { bool: { must_not: [generateTerms('sourceId', settings.sourceIds)] } }
+      : generateTerms('sourceId', settings.sourceIds),
     generateTerms('mediaTypeId', settings.mediaTypeIds),
     generateTerms('seriesId', settings.seriesIds),
     generateTerms('contributorId', settings.contributorIds),

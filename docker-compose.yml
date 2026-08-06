@@ -1,3 +1,9 @@
+# Pin the compose project so every checkout — the main repo and all .worktrees/* branches — drives
+# the SAME stack (containers, networks, volumes). Without this the project name derives from the
+# directory, and a worktree spawns duplicate '<branch>-*' containers and warns that shared volumes
+# "were created for project tno".
+name: tno
+
 services:
   ####################### Database #######################
   database:
@@ -20,10 +26,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.50'
+          cpus: "0.50"
           memory: 500M
         reservations:
-          cpus: '0.10'
+          cpus: "0.10"
           memory: 50M
     env_file:
       - ${DB_CONTEXT:-db/postgres/docker}/.env
@@ -53,10 +59,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.50'
+          cpus: "0.50"
           memory: 500M
         reservations:
-          cpus: '0.05'
+          cpus: "0.05"
           memory: 50M
     env_file:
       - auth/keycloak/.env
@@ -70,7 +76,11 @@ services:
     networks:
       - tno
     healthcheck:
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && printf 'GET /realms/mmi HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q '200 OK' <&3 || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "exec 3<>/dev/tcp/localhost/8080 && printf 'GET /realms/mmi HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q '200 OK' <&3 || exit 1",
+        ]
       interval: 5m
       timeout: 15s
       retries: 3
@@ -96,10 +106,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
+          cpus: "1"
           memory: 2G
         reservations:
-          cpus: '0.10'
+          cpus: "0.10"
           memory: 250M
     env_file:
       - db/elasticsearch/.env
@@ -122,7 +132,6 @@ services:
     #   retries: 3
     #   start_period: 15s
 
-
   indexer:
     profiles:
       - indexer
@@ -134,6 +143,39 @@ services:
     networks:
       - tno
 
+  ####################### Autoheal #######################
+  # Restarts any container labelled 'autoheal=true' whose healthcheck reports unhealthy.
+  # Docker does not restart unhealthy containers on its own; without this, a hung-but-running
+  # process (e.g. the API wedged at its memory limit) stays broken until manually restarted.
+  autoheal:
+    image: willfarrell/autoheal
+    profiles:
+      - all
+      - api
+      - editor
+      - subscriber
+      - service
+      - main
+    restart: unless-stopped
+    container_name: tno-autoheal
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=autoheal
+      - AUTOHEAL_INTERVAL=30
+      # Grace period Docker gets to stop the container during a restart. Deliberately short: a
+      # container being autohealed is already wedged and will not shut down gracefully, so waiting
+      # only risks the restart call erroring out partway (after the stop, before the start) and
+      # leaving the container down - which is exactly what happened with a 20s grace period.
+      - AUTOHEAL_DEFAULT_STOP_TIMEOUT=5
+      # MUST stay comfortably larger than the stop timeout. Autoheal issues the restart as a
+      # single curl call (`POST /containers/{id}/restart?t=<stop timeout>`) capped by this value;
+      # if curl gives up first the client disconnect aborts the request between the stop and the
+      # start, leaving the container STOPPED - and `restart: unless-stopped` then treats it as
+      # intentionally stopped and never revives it. The default (30) equalled the stop timeout,
+      # which stopped the API and left it down.
+      - CURL_TIMEOUT=120
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
   ####################### API #######################
   api:
     image: tno:api
@@ -144,7 +186,7 @@ services:
       - subscriber
       - service
       - main
-    restart: "no"
+    restart: unless-stopped
     container_name: tno-api
     build:
       context: ./
@@ -152,10 +194,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: 2G
+          cpus: "1"
+          memory: 4G
         reservations:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 250M
     env_file: api/net/.env
     ports:
@@ -171,13 +213,21 @@ services:
       - tno-av-data:/av
     networks:
       - tno
+    labels:
+      # Watched by the autoheal service: restart this container when its healthcheck fails.
+      - autoheal=true
     healthcheck:
-      test: curl -s -f http://localhost:8080/health
-      interval: 5m
-      timeout: 30s
-      retries: 3
+      # /health/live exercises the request pipeline + thread pool with a strict timeout, so a
+      # wedged process (e.g. GC death spiral at the memory limit) fails the check instead of
+      # limping through a static /health response. It deliberately does NOT touch the database:
+      # this check drives an automatic restart, and restarting cannot fix a congested database -
+      # /health/ready (which does probe the DB, reporting "degraded" when it is merely slow) is
+      # for diagnostics.
+      test: curl -s -f -m 10 http://localhost:8080/health/live
+      interval: 30s
+      timeout: 15s
+      retries: 6
       start_period: 2m
-
 
   ####################### Charts API #######################
   charts:
@@ -197,10 +247,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.50'
+          cpus: "0.50"
           memory: 1G
         reservations:
-          cpus: '0.10'
+          cpus: "0.10"
           memory: 250M
     env_file: api/node/.env
     ports:
@@ -232,10 +282,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 4G
         reservations:
-          cpus: '0.10'
+          cpus: "0.10"
           memory: 500M
     env_file: app/editor/.env
     volumes:
@@ -269,10 +319,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 4G
         reservations:
-          cpus: '0.10'
+          cpus: "0.10"
           memory: 500M
     env_file: ./app/subscriber/.env
     volumes:
@@ -388,7 +438,7 @@ services:
     networks:
       - tno
 
-####################### CoreNLP #######################
+  ####################### CoreNLP #######################
   corenlp:
     profiles:
       - all
@@ -402,10 +452,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
+          cpus: "1"
           memory: 4G
         reservations:
-          cpus: '0.50'
+          cpus: "0.50"
           memory: 2G
     ports:
       - ${CORENLP_PORT:-40038}:9000

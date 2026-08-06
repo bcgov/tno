@@ -4,6 +4,12 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 const Dashboard = lazy(async () => await import('features/admin/dashboard/Dashboard'));
 const ActionForm = lazy(async () => await import('features/admin/actions/ActionForm'));
 const ActionList = lazy(async () => await import('features/admin/actions/ActionList'));
+const AutomationProfileForm = lazy(
+  async () => await import('features/admin/automation/AutomationProfileForm'),
+);
+const AutomationProfileList = lazy(
+  async () => await import('features/admin/automation/AutomationProfileList'),
+);
 const AVOverview = lazy(async () => await import('features/admin/av-overviews/AVOverview'));
 const ChartTemplateForm = lazy(async () => await import('features/admin/charts/ChartTemplateForm'));
 const ConnectionForm = lazy(async () => await import('features/admin/connections/ConnectionForm'));
@@ -131,6 +137,9 @@ export const AdminRouter: React.FC = () => {
 
         <Route path="actions" element={<ActionList />} />
         <Route path="actions/:id" element={<ActionForm />} />
+
+        <Route path="automations" element={<AutomationProfileList />} />
+        <Route path="automations/:id" element={<AutomationProfileForm />} />
 
         <Route path="licences" element={<LicenseList />} />
         <Route path="licences/:id" element={<LicenseForm />} />

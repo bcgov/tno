@@ -1,7 +1,9 @@
 using System.Net;
+using System.Net.Http;
 using System.Net.Mime;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.Lookup;
@@ -31,8 +33,16 @@ namespace TNO.API.Areas.Editor.Controllers;
 public class LookupController : ControllerBase
 {
     #region Variables
+    private const string HolidaysUrl = "https://canada-holidays.ca/api/v1/provinces/BC";
+    private const string HolidaysCacheKey = "lookup:bc-holidays";
+    private const string HolidaysFallbackCacheKey = "lookup:bc-holidays:last-known-good";
+    private static readonly TimeSpan HolidaysCacheDuration = TimeSpan.FromHours(12);
+    private static readonly TimeSpan HolidaysRequestTimeout = TimeSpan.FromSeconds(5);
+
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly IHttpRequestClient _httpClient;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IMemoryCache _cache;
     private readonly IActionService _actionService;
     private readonly ITopicService _topicService;
     private readonly ITopicScoreRuleService _topicScoreRuleService;
@@ -59,6 +69,8 @@ public class LookupController : ControllerBase
     /// Creates a new instance of a LookupController object, initializes with specified parameters.
     /// </summary>
     /// <param name="httpClient"></param>
+    /// <param name="httpClientFactory"></param>
+    /// <param name="cache"></param>
     /// <param name="actionService"></param>
     /// <param name="topicService"></param>
     /// <param name="topicScoreRuleService"></param>
@@ -81,6 +93,8 @@ public class LookupController : ControllerBase
     /// <param name="organizationService"></param>
     public LookupController(
         IHttpRequestClient httpClient,
+        IHttpClientFactory httpClientFactory,
+        IMemoryCache cache,
         IActionService actionService,
         ITopicService topicService,
         ITopicScoreRuleService topicScoreRuleService,
@@ -103,6 +117,8 @@ public class LookupController : ControllerBase
         IOrganizationService organizationService)
     {
         _httpClient = httpClient;
+        _httpClientFactory = httpClientFactory;
+        _cache = cache;
         _actionService = actionService;
         _topicService = topicService;
         _topicScoreRuleService = topicScoreRuleService;
@@ -142,15 +158,7 @@ public class LookupController : ControllerBase
     {
         if (!_keycloakOptions.ClientId.HasValue) throw new ConfigurationException("Keycloak ClientId must be in configuration.");
 
-        CanadaHolidayModel? statHolidays = null;
-        try
-        {
-            statHolidays = await _httpClient.GetAsync<CanadaHolidayModel>("https://canada-holidays.ca/api/v1/provinces/BC");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to fetch BC holidays");
-        }
+        var statHolidays = await GetStatHolidaysAsync();
 
         var actions = _actionService.FindAll();
         var topics = _topicService.FindAll();
@@ -186,10 +194,47 @@ public class LookupController : ControllerBase
             users,
             dataLocations,
             settings,
-            statHolidays?.Province?.Holidays ?? Array.Empty<HolidayModel>(),
+            statHolidays,
             _serializerOptions,
             organizations
             ));
+    }
+
+    /// <summary>
+    /// Fetch the BC statutory holidays from the external holiday service, cached for a long duration.
+    /// The external service is a soft dependency: a fresh cached value is served when available;
+    /// otherwise a single request is made with a short timeout (so a hung TLS handshake fails fast).
+    /// On failure the last successfully fetched value is served (or an empty list on a cold cache),
+    /// and the error is logged as a warning rather than an error so it does not pollute alerting.
+    /// </summary>
+    /// <returns></returns>
+    private async Task<IEnumerable<HolidayModel>> GetStatHolidaysAsync()
+    {
+        if (_cache.TryGetValue(HolidaysCacheKey, out IEnumerable<HolidayModel>? cached) && cached != null)
+            return cached;
+
+        try
+        {
+            using var client = _httpClientFactory.CreateClient();
+            client.Timeout = HolidaysRequestTimeout;
+            using var response = await client.GetAsync(HolidaysUrl);
+            response.EnsureSuccessStatusCode();
+            using var stream = await response.Content.ReadAsStreamAsync();
+            var model = await JsonSerializer.DeserializeAsync<CanadaHolidayModel>(stream, _serializerOptions);
+            var holidays = model?.Province?.Holidays ?? Array.Empty<HolidayModel>();
+
+            // Cache the fresh value and retain it as the last-known-good fallback for future failures.
+            _cache.Set(HolidaysCacheKey, holidays, HolidaysCacheDuration);
+            _cache.Set(HolidaysFallbackCacheKey, holidays);
+            return holidays;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to fetch BC holidays; serving last-known-good value.");
+            if (_cache.TryGetValue(HolidaysFallbackCacheKey, out IEnumerable<HolidayModel>? fallback) && fallback != null)
+                return fallback;
+            return Array.Empty<HolidayModel>();
+        }
     }
     #endregion
 }

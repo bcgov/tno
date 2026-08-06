@@ -1,0 +1,41 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: automation-service
+  namespace: default
+  annotations:
+    description: Automation service configuration settings
+    created-by: jeremy.foster
+  labels:
+    name: automation-service
+    part-of: tno
+    version: 1.0.0
+    component: automation-service
+    managed-by: kustomize
+data:
+  KAFKA_CLIENT_ID: Automation
+  MAX_FAIL_LIMIT: "5"
+  # Kafka topic the service consumes automation run requests from.
+  TOPICS: automation
+  TIME_ZONE: Pacific Standard Time
+  # Maximum content items processed concurrently within a single step.
+  MAX_PARALLEL_CONTENT_ITEMS: "8"
+  # A run with no responses for this many minutes is reconciled as failed.
+  ABANDONED_RUN_INACTIVITY_MINUTES: "30"
+  # A queued (pending) run not claimed within this many minutes is re-queued.
+  STALE_PENDING_RUN_MINUTES: "5"
+  # How long completed runs are retained before pruning.
+  RUN_RETENTION_DAYS: "7"
+  LLM_REQUEST_TIMEOUT_SECONDS: "300"
+  LLM_REQUEST_ATTEMPTS: "3"
+  INCLUDE_LLM_PROMPTS_IN_SUMMARY: "false"
+  DEFAULT_TONE_POOL_ID: "1"
+  SEND_EMAIL_ON_FAILURE: "true"
+  # Azure AD service principal for Azure AI Agent LLMs (endpoint/key otherwise come
+  # from the LLM record in the database). Non-secret identifiers only; the client
+  # secret is provided by the optional 'azure-ai' secret. Leave blank when unused.
+  AZURE_AI_TENANT_ID: ""
+  AZURE_AI_CLIENT_ID: ""
+  CHES_EMAIL_ENABLED: "true"
+  CHES_EMAIL_AUTHORIZED: "false"

@@ -98,7 +98,7 @@ public class FolderModel : BaseTypeWithAuditColumnsModel<int>
     public Entities.Folder ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.Folder)this;
-        entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
+        entity.Settings = JsonSerializer.SerializeToDocument(this.Settings, options);
         return entity;
     }
 
@@ -115,7 +115,7 @@ public class FolderModel : BaseTypeWithAuditColumnsModel<int>
             IsEnabled = model.IsEnabled,
             OwnerId = model.OwnerId,
             SortOrder = model.SortOrder,
-            Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
+            Settings = JsonSerializer.SerializeToDocument(model.Settings),
             Version = model.Version ?? 0,
             FilterId = model.FilterId
         };

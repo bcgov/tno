@@ -238,11 +238,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             if (reportingException != null)
             {
                 message.Value.ReportInstanceId = reportingException.InstanceId;
-                message.Value.Data = JsonDocument.Parse(JsonSerializer.Serialize(new { reportingException.Error, FailureCount = failureCount + 1 }, _serializationOptions));
+                message.Value.Data = JsonSerializer.SerializeToDocument(new { reportingException.Error, FailureCount = failureCount + 1 }, _serializationOptions);
             }
             else
             {
-                message.Value.Data = JsonDocument.Parse(JsonSerializer.Serialize(new { FailureCount = failureCount + 1 }, _serializationOptions));
+                message.Value.Data = JsonSerializer.SerializeToDocument(new { FailureCount = failureCount + 1 }, _serializationOptions);
             }
             // Add the report request back to Kafka so that it runs again.
             await this.Api.SendMessageAsync(message.Value);
@@ -728,7 +728,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                     if (instance != null)
                     {
                         instance.Status = ReportStatus.Cancelled;
-                        instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(new { Error = "No subscribers found for this report." }, _serializationOptions));
+                        instance.Response = JsonSerializer.SerializeToDocument(new { Error = "No subscribers found for this report." }, _serializationOptions);
                     }
                     this.Logger.LogWarning("No subscribers found for report. ReportId:{reportId}", report.Id);
                     return;
@@ -806,7 +806,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             if (instance != null)
             {
                 instance.Status = ReportStatus.Failed;
-                instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(new { Error = ex.GetAllMessages() }, _serializationOptions));
+                instance.Response = JsonSerializer.SerializeToDocument(new { Error = ex.GetAllMessages() }, _serializationOptions);
             }
 
             throw new ReportingException(report.Id, instance?.Id, ReportingErrors.FailedToGenerateOutput, $"Failed to generate output for report.  ReportId:{report.Id}, InstanceId:{instance?.Id}", ex);
@@ -871,12 +871,12 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                     linkBody,
                     $"{report.Name}-{report.Id}-linkOnly",
                     UpdateUserReportInstances(report, instance, userReportInstances, false));
-                responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseLinkOnly, _serializationOptions));
+                responseModel.LinkOnlyFormatResponse = JsonSerializer.SerializeToDocument(responseLinkOnly, _serializationOptions);
 
                 if (instance != null)
                 {
                     instance.Status = linkOnlyStatus;
-                    instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+                    instance.Response = JsonSerializer.SerializeToDocument(responseModel, _serializationOptions);
                 }
             }
 
@@ -892,12 +892,12 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                     fullBody,
                     $"{report.Name}-{report.Id}",
                     UpdateUserReportInstances(report, instance, userReportInstances, true));
-                responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(responseFullText, _serializationOptions));
+                responseModel.FullTextFormatResponse = JsonSerializer.SerializeToDocument(responseFullText, _serializationOptions);
 
                 if (instance != null)
                 {
                     instance.Status = fullTextStatus;
-                    instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+                    instance.Response = JsonSerializer.SerializeToDocument(responseModel, _serializationOptions);
                 }
             }
 
@@ -921,14 +921,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         {
             this.Logger.LogError(ex, "Failed to email report.  ReportId:{reportId}, InstanceId:{instanceId}", report.Id, instance?.Id);
             if (responseModel.LinkOnlyFormatResponse != null)
-                responseModel.LinkOnlyFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
+                responseModel.LinkOnlyFormatResponse = JsonSerializer.SerializeToDocument(ex.Data["error"], _serializationOptions);
             else
-                responseModel.FullTextFormatResponse = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
+                responseModel.FullTextFormatResponse = JsonSerializer.SerializeToDocument(ex.Data["error"], _serializationOptions);
 
             if (instance != null)
             {
                 instance.Status = ReportStatus.Failed;
-                instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+                instance.Response = JsonSerializer.SerializeToDocument(responseModel, _serializationOptions);
             }
             throw new ReportingException(report.Id, instance?.Id, ReportingErrors.FailedToEmail, $"Failed to email report.  ReportId:{report.Id}, InstanceId:{instance?.Id}", ex);
         }
@@ -938,7 +938,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             if (instance != null)
             {
                 instance.Status = ReportStatus.Failed;
-                instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(responseModel, _serializationOptions));
+                instance.Response = JsonSerializer.SerializeToDocument(responseModel, _serializationOptions);
             }
             throw new ReportingException(report.Id, instance?.Id, ReportingErrors.FailedToEmail, $"Failed to email report.  ReportId:{report.Id}, InstanceId:{instance?.Id}", ex);
         }
@@ -1273,7 +1273,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                 });
 
                 // Update the report instance with the email response.
-                instance.Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+                instance.Response = JsonSerializer.SerializeToDocument(response, _serializationOptions);
             }
 
             instance.IsPublished = true;
@@ -1368,7 +1368,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
                     if (request.ReportInstanceId.HasValue)
                     {
-                        var document = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+                        var document = JsonSerializer.SerializeToDocument(response, _serializationOptions);
                         await updateCallbackAsync(contexts.Select(c => c.User), ReportStatus.Accepted, document);
                     }
 
@@ -1419,7 +1419,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                         if (user.UserId != 0)
                         {
                             // Save the status of each email sent.
-                            var document = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+                            var document = JsonSerializer.SerializeToDocument(response, _serializationOptions);
                             await updateCallbackAsync(allUsers, ReportStatus.Accepted, document);
                         }
                         break;
@@ -1429,7 +1429,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                         if (user.UserId != 0)
                         {
                             // Save the status of each email sent.
-                            var document = JsonDocument.Parse(JsonSerializer.Serialize(ex.Data["error"], _serializationOptions));
+                            var document = JsonSerializer.SerializeToDocument(ex.Data["error"], _serializationOptions);
                             await updateCallbackAsync(allUsers, ReportStatus.Failed, document);
                         }
 
@@ -1452,7 +1452,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
                         if (user.UserId != 0)
                         {
                             // Save the status of each email sent.
-                            var document = JsonDocument.Parse(JsonSerializer.Serialize(new { Error = ex.GetAllMessages() }, _serializationOptions));
+                            var document = JsonSerializer.SerializeToDocument(new { Error = ex.GetAllMessages() }, _serializationOptions);
                             await updateCallbackAsync(allUsers, ReportStatus.Failed, document);
                         }
 

@@ -49,7 +49,7 @@ export const TimeZones = [
   new OptionItem('(UTC-02:00) Coordinated Universal Time-02', 'UTC-02'),
   new OptionItem('(UTC-02:00) Mid-Atlantic - Old', 'Mid-Atlantic Standard Time'),
   new OptionItem('(UTC-01:00) Azores', 'Azores Standard Time'),
-  new OptionItem('(UTC) Coordinated Universal Time', 'Coordinated Universal Time'),
+  new OptionItem('(UTC) Coordinated Universal Time', 'UTC'),
   new OptionItem('(UTC+00:00) Dublin, Edinburgh, Lisbon, London', 'GMT Standard Time'),
   new OptionItem('(UTC+00:00) Monrovia, Reykjavik', 'Greenwich Standard Time'),
   new OptionItem('(UTC+00:00) Sao Tome', 'Sao Tome Standard Time'),

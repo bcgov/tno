@@ -782,6 +782,35 @@ Elastic__Password=$password" >> ./services/net/folder-collection/.env
     echo "./services/net/folder-collection/.env created"
 fi
 
+## Automation Service
+if test -f "./services/net/automation/.env"; then
+    echo "./services/net/automation/.env exists"
+else
+echo \
+"# Local
+ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+###########################################
+# Local
+###########################################
+Auth__Keycloak__Authority=http://keycloak:8080
+Auth__Keycloak__Audience=mmi-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+Auth__OIDC__Token=/realms/mmi/protocol/openid-connect/token
+
+Service__ApiUrl=http://api:8080/api
+
+Elastic__Url=http://elastic:9200
+Elastic__Username=$elasticUser
+Elastic__Password=$password
+
+AzureAI__TenantId={AZURE TENANT ID}
+AzureAI__ClientId={AZURE CLIENT ID}
+AzureAI__ClientSecret={AZURE CLIENT SECRET}" >> ./services/net/automation/.env
+    echo "./services/net/automation/.env created"
+fi
+
 ## FFmpeg Service
 if test -f "./services/net/ffmpeg/.env"; then
     echo "./services/net/ffmpeg/.env exists"

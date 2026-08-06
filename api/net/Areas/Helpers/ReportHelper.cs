@@ -149,7 +149,7 @@ public class ReportHelper : IReportHelper
         bool isPreview = false)
     {
         var result = await _reportEngine.GenerateJsonAsync(model, isPreview);
-        result.Results = JsonDocument.Parse(JsonSerializer.Serialize(model.ChartTemplate.Content));
+        result.Results = JsonSerializer.SerializeToDocument(model.ChartTemplate.Content);
         return result;
     }
 
@@ -244,7 +244,7 @@ public class ReportHelper : IReportHelper
         });
 
         var result = await GenerateReportAsync(model, null, sections, viewOnWebOnly, isPreview);
-        result.Data = JsonDocument.Parse(JsonSerializer.Serialize(elasticResults));
+        result.Data = JsonSerializer.SerializeToDocument(elasticResults);
         return result;
 
         throw new NotImplementedException($"Report template type '{model.Template.ReportType.GetName()}' has not been implemented");
@@ -300,7 +300,7 @@ public class ReportHelper : IReportHelper
         var template = _overviewTemplateService.FindById(instance.TemplateType) ?? throw new InvalidOperationException($"AV overview template '{instance.TemplateType.GetName()}' not found.");
         if (template.Template == null) throw new InvalidOperationException($"Report template '{instance.TemplateType.GetName()}' not found.");
         var result = await GenerateReportAsync(new Areas.Services.Models.AVOverview.ReportTemplateModel(template.Template, _serializerOptions), instance, isPreview);
-        result.Data = JsonDocument.Parse(JsonSerializer.Serialize(instance));
+        result.Data = JsonSerializer.SerializeToDocument(instance);
         return result;
     }
 

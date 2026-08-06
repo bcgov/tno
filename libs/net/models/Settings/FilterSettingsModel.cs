@@ -135,6 +135,11 @@ public class FilterSettingsModel
     public int[]? SourceIds { get; set; }
 
     /// <summary>
+    /// get/set - When true the selected SourceIds become a NOT (must_not) condition.
+    /// </summary>
+    public bool SourceIdsNegate { get; set; }
+
+    /// <summary>
     /// get/set - An array of media type Id.
     /// </summary>
     public int[]? MediaTypeIds { get; set; }

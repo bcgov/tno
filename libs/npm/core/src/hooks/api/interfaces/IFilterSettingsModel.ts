@@ -33,6 +33,8 @@ export interface IFilterSettingsModel {
   seriesIds?: number[];
   actions?: IFilterActionSettingsModel[];
   sourceIds?: number[];
+  /** When true the selected sourceIds become a NOT (must_not) condition. */
+  sourceIdsNegate?: boolean;
   tags?: string[];
   dateOffset?: number;
   startDate?: string;

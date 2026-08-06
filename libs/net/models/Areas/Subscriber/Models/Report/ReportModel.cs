@@ -90,18 +90,18 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
     public Entities.Report ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.Report)this;
-        entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
+        entity.Settings = JsonSerializer.SerializeToDocument(this.Settings, options);
         entity.Sections.ForEach(s =>
         {
             var section = this.Sections.FirstOrDefault(us => us.Name == s.Name) ?? throw new InvalidOperationException("Unable to find matching section");
-            s.Settings = JsonDocument.Parse(JsonSerializer.Serialize(section.Settings, options));
+            s.Settings = JsonSerializer.SerializeToDocument(section.Settings, options);
             s.Folder = null;
             s.Filter = null;
             s.LinkedReport = null;
             s.ChartTemplatesManyToMany.ForEach(ct =>
             {
                 var chart = section.ChartTemplates.FirstOrDefault(uct => uct.Id == ct.ChartTemplateId) ?? throw new InvalidOperationException("Unable to find matching chart template");
-                ct.Settings = JsonDocument.Parse(JsonSerializer.Serialize(chart.SectionSettings, options));
+                ct.Settings = JsonSerializer.SerializeToDocument(chart.SectionSettings, options);
                 ct.ChartTemplate = null;
             });
         });
@@ -121,7 +121,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
             IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,
             IsPublic = model.IsPublic,
-            Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
+            Settings = JsonSerializer.SerializeToDocument(model.Settings),
             Version = model.Version ?? 0
         };
 
@@ -138,8 +138,8 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
                     Description = modelSection.Filter.Description,
                     IsEnabled = modelSection.Filter.IsEnabled,
                     SortOrder = modelSection.Filter.SortOrder,
-                    Settings = JsonDocument.Parse(JsonSerializer.Serialize(modelSection.Filter.Settings)),
-                    Query = JsonDocument.Parse(JsonSerializer.Serialize(modelSection.Filter.Query))
+                    Settings = JsonSerializer.SerializeToDocument(modelSection.Filter.Settings),
+                    Query = JsonSerializer.SerializeToDocument(modelSection.Filter.Query)
                 } : null,
                 FolderId = modelSection.FolderId,
                 Folder = modelSection.Folder != null ? new Entities.Folder(modelSection.Folder.Id, modelSection.Folder.Name, modelSection.Folder.OwnerId)
@@ -147,15 +147,15 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
                     Description = modelSection.Folder.Description,
                     IsEnabled = modelSection.Folder.IsEnabled,
                     SortOrder = modelSection.Folder.SortOrder,
-                    Settings = JsonDocument.Parse(JsonSerializer.Serialize(modelSection.Folder.Settings))
+                    Settings = JsonSerializer.SerializeToDocument(modelSection.Folder.Settings)
                 } : null,
                 LinkedReportId = modelSection.LinkedReportId,
-                Settings = JsonDocument.Parse(JsonSerializer.Serialize(modelSection.Settings)),
+                Settings = JsonSerializer.SerializeToDocument(modelSection.Settings),
                 Version = modelSection.Version ?? 0
             };
             section.ChartTemplatesManyToMany.AddRange(modelSection.ChartTemplates.OrderBy(ct => ct.SortOrder).Select(ct => new Entities.ReportSectionChartTemplate(modelSection.Id, ct.Id, ct.SortOrder)
             {
-                Settings = ct.SectionSettings != null ? JsonDocument.Parse(JsonSerializer.Serialize(ct.SectionSettings)) : JsonDocument.Parse(JsonSerializer.Serialize(new ChartSectionSettingsModel())),
+                Settings = ct.SectionSettings != null ? JsonSerializer.SerializeToDocument(ct.SectionSettings) : JsonSerializer.SerializeToDocument(new ChartSectionSettingsModel()),
             }));
             return section;
         }));

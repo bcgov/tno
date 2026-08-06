@@ -4,7 +4,7 @@ import { type IAdminState, useAdminStore } from 'store/slices';
 import { type IFilterFilter, type IFilterModel, useApiAdminFilters } from 'tno-core';
 
 interface IFilterController {
-  findFilters: (filter: IFilterFilter) => Promise<IFilterModel[]>;
+  findFilters: (filter: IFilterFilter, isSilent?: boolean) => Promise<IFilterModel[]>;
   getFilter: (id: number) => Promise<IFilterModel>;
   addFilter: (model: IFilterModel) => Promise<IFilterModel>;
   updateFilter: (model: IFilterModel) => Promise<IFilterModel>;
@@ -20,10 +20,12 @@ export const useFilters = (): [IAdminState & { initialized: boolean }, IFilterCo
 
   const controller = React.useMemo(
     () => ({
-      findFilters: async (filter: IFilterFilter) => {
+      findFilters: async (filter: IFilterFilter, isSilent?: boolean) => {
         const response = await dispatch<IFilterModel[]>(
           'find-all-filters',
           async () => await api.findFilters(filter),
+          undefined,
+          isSilent,
         );
         store.storeFilters(response.data);
         setInitialized(true);

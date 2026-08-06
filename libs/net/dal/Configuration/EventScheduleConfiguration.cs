@@ -18,6 +18,7 @@ public class EventScheduleConfiguration : AuditColumnsConfiguration<EventSchedul
         builder.Property(m => m.ReportId);
         builder.Property(m => m.NotificationId);
         builder.Property(m => m.FolderId);
+        builder.Property(m => m.AutomationProfileId);
         builder.Property(m => m.Settings).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
         builder.Property(m => m.RequestSentOn);
         builder.Property(m => m.LastRanOn);
@@ -26,6 +27,7 @@ public class EventScheduleConfiguration : AuditColumnsConfiguration<EventSchedul
         builder.HasOne(m => m.Report).WithMany(m => m.Events).HasForeignKey(m => m.ReportId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.Folder).WithMany(m => m.Events).HasForeignKey(m => m.FolderId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.Notification).WithMany(m => m.Schedules).HasForeignKey(m => m.NotificationId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(m => m.AutomationProfile).WithMany(m => m.Events).HasForeignKey(m => m.AutomationProfileId).OnDelete(DeleteBehavior.Cascade);
 
         base.Configure(builder);
     }
