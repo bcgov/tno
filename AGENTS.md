@@ -55,7 +55,7 @@ TNO is a BC Government news aggregation mono-repo. It ingests news from many sou
 ```bash
 make setup      # Generate .env files (first time)
 make up         # Start all containers
-make down       # Stop containers
+make down       # Stop and remove containers (v=1 also deletes the volumes/database)
 ```
 
 Default ports after `make up`:

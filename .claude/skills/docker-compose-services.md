@@ -12,7 +12,7 @@
 - Start all: `make up`
 - Start core profile: `make up p=main`
 - Start one service: `make up n=<service>`
-- Stop/remove: `make down`
+- Stop/remove: `make down` (volumes kept; `make down v=1` also deletes them, wiping the database)
 
 ## Direct Docker Compose Equivalent
 
