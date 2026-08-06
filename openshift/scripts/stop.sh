@@ -46,6 +46,7 @@ scale scheduler-service 0 deployment $env
 scale filemonitor-service 0 deployment $env
 scale syndication-service 0 deployment $env
 scale image-service 0 deployment $env
+scale automation-service 0 deployment $env
 
 scale api-services 0 deployment $env
 scale api 0 statefulset $env
