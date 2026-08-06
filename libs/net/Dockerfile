@@ -25,7 +25,14 @@ RUN ConnectionStrings__TNO="Host=placeholder;Database=placeholder" \
     --verbose \
     -o /app/efbundle
 
+# SeedMigration loads each migration's Pre/Post seed scripts from
+# <bundle directory>/Migrations at runtime, and silently skips them when the
+# folder is absent. The bundle is a single file, so copy the scripts beside it.
+RUN cp -r /src/dal/bin/Release/net*/Migrations /app/Migrations && \
+    test "$(find /app/Migrations -name '*.sql' | wc -l)" -gt 0
+
 RUN chmod +x /app/efbundle
+RUN chgrp -R 0 /app && chmod -R g=u /app
 RUN chmod -R 0777 /src
 RUN mkdir /.local
 RUN chmod -R 0777 /.local

@@ -46,6 +46,7 @@ declare -A REPLICAS=(
   [syndication-service_dev]=1 [syndication-service_test]=1 [syndication-service_prod]=1
   [image-service_dev]=1      [image-service_test]=1      [image-service_prod]=1
   [ches-retry-service_dev]=1 [ches-retry-service_test]=1 [ches-retry-service_prod]=1
+  [automation-service_dev]=1 [automation-service_test]=1 [automation-service_prod]=1
 )
 
 replicas() {
@@ -103,5 +104,6 @@ scale filemonitor-service $(replicas filemonitor-service $env) deployment $env
 scale syndication-service $(replicas syndication-service $env) deployment $env
 scale image-service      $(replicas image-service $env)      deployment $env
 scale ches-retry-service $(replicas ches-retry-service $env) deployment $env
+scale automation-service $(replicas automation-service $env) deployment $env
 
 # scale kowl 1 deployment $env
