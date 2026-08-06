@@ -1,0 +1,58 @@
+import { type IAutomationProfileModel } from '../interfaces';
+import { normalizeSteps } from './normalizeSteps';
+
+export const buildProfileForSave = (values: IAutomationProfileModel): IAutomationProfileModel => ({
+  id: values.id,
+  name: values.name,
+  description: values.description,
+  isEnabled: values.isEnabled,
+  schemaVersion: values.schemaVersion,
+  filterId: values.filterId,
+  llmId: values.llmId,
+  schedules: (values.schedules ?? []).map((schedule) => ({
+    id: schedule.id ?? 0,
+    name: schedule.name,
+    isEnabled: schedule.isEnabled,
+    startAt: schedule.startAt,
+    runOnWeekDays: schedule.runOnWeekDays ?? [],
+  })),
+  steps: normalizeSteps(values.steps).map((step) => ({
+    id: step.id,
+    name: step.name,
+    description: step.description,
+    prompt: step.prompt,
+    target: step.target,
+    filterId: step.filterId,
+    applyToAutomationFilter: step.applyToAutomationFilter,
+    iterateStepFilter: step.iterateStepFilter ?? false,
+    llmId: step.llmId,
+    sendSeparatePrompts: step.sendSeparatePrompts ?? false,
+    useChatCompletions: step.useChatCompletions ?? false,
+    priority: step.priority,
+    isEnabled: step.isEnabled,
+    actions: (step.actions ?? []).map((action) => ({
+      // Round-trip the id so saves keep action identities stable (required for
+      // 'deduplicate' prior-action references).
+      id: action.id ?? 0,
+      name: action.name,
+      prompt: action.prompt,
+      actionType: action.actionType,
+      maxCalls: action.maxCalls,
+      confirmationStatement: action.confirmationStatement,
+      contentField: action.contentField,
+      contentActionId: action.contentActionId,
+      reportId: action.reportId,
+      notificationId: action.notificationId,
+      priorActionId: action.priorActionId,
+      objective: action.objective,
+      autoExecute: action.autoExecute ?? false,
+      abortIfNoConfirmation: action.abortIfNoConfirmation ?? false,
+      worksOn: action.worksOn,
+      createIdentifier: action.createIdentifier,
+      createClone: action.createClone ?? false,
+      settings: action.settings ?? {},
+      llmId: action.llmId,
+      isEnabled: action.isEnabled,
+    })),
+  })),
+});

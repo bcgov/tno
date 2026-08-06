@@ -59,7 +59,7 @@ public class NotificationTemplateModel : BaseTypeWithAuditColumnsModel<int>
     public Entities.NotificationTemplate ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.NotificationTemplate)this;
-        entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
+        entity.Settings = JsonSerializer.SerializeToDocument(this.Settings, options);
         return entity;
     }
 
@@ -75,7 +75,7 @@ public class NotificationTemplateModel : BaseTypeWithAuditColumnsModel<int>
             IsEnabled = model.IsEnabled,
             IsPublic = model.IsPublic,
             SortOrder = model.SortOrder,
-            Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
+            Settings = JsonSerializer.SerializeToDocument(model.Settings),
             Version = model.Version ?? 0
         };
 

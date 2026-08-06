@@ -15,6 +15,8 @@ export interface IExpandableRowProps {
   children: React.ReactNode;
   /** show icon to indicate values are set inside collapsible row */
   hasValues?: boolean;
+  /** optional interactive content rendered in the header row (does not toggle expand) */
+  headerActions?: React.ReactNode;
 }
 
 /** contains the logic and skeleton for an expandable row in the advanced search section. helps to eliminate redundant code. */
@@ -24,6 +26,7 @@ export const ExpandableRow: React.FC<IExpandableRowProps> = ({
   iconTitle,
   title,
   hasValues = false,
+  headerActions,
 }) => {
   const [expanded, setExpanded] = React.useState(false);
   const [uniqueId] = React.useState(new Date().getTime().toString(36));
@@ -41,6 +44,13 @@ export const ExpandableRow: React.FC<IExpandableRowProps> = ({
         {iconTitle}
         {title}
         <Col className="action-icons">
+          {headerActions ? (
+            <span className="header-actions" onClick={(e) => e.stopPropagation()}>
+              {headerActions}
+            </span>
+          ) : (
+            <></>
+          )}
           {hasValues ? (
             <FaWater
               className="active-filter-icon"

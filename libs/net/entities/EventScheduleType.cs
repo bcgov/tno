@@ -17,4 +17,8 @@ public enum EventScheduleType
     /// This event cleans content from a folder.
     /// </summary>
     CleanFolder = 2,
+    /// <summary>
+    /// This event runs an automation profile.
+    /// </summary>
+    Automation = 3,
 }

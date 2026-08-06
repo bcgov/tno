@@ -335,6 +335,7 @@ public class ContentController : ControllerBase
 
         foreach (var content in items)
         {
+            var countBefore = update.Count;
             if (model.Action == ContentListAction.Publish)
             {
                 if (content.Status != ContentStatus.Published && content.Status != ContentStatus.Publish)
@@ -387,8 +388,11 @@ public class ContentController : ControllerBase
                 }
             }
 
-            // Always make the user who updated the content the owner if the owner is currently empty.
-            content.OwnerId ??= user.Id;
+            // Make the user who updated the content the owner if the owner is currently empty.
+            // Only rows that actually changed may be touched - assigning ownership to unchanged
+            // rows bumps their version without reindexing them, which desynchronizes
+            // Elasticsearch and breaks optimistic concurrency for every later editor save.
+            if (update.Count > countBefore) update[^1].OwnerId ??= user.Id;
         }
 
         // Save all changes in a single transaction.

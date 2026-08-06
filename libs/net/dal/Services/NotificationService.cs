@@ -341,16 +341,21 @@ public class NotificationService : BaseService<Notification, int>, INotification
                 && (settings.StartDate == null | ni.SentOn >= settings.StartDate))
                 .Select(ni => ni.ContentId).Distinct().ToArray();
 
-            if (topStoryLastRunOnSetting != null && topStoryLastRunOnSetting.Value != null)
+            // Only apply the incremental "since last run" narrowing when the setting holds a valid
+            // date. An empty or malformed value (e.g. cleared to reset the pointer) is treated as
+            // "no last run", so the query is not narrowed and the setting self-heals to 'now' below.
+            if (topStoryLastRunOnSetting != null
+                && !string.IsNullOrWhiteSpace(topStoryLastRunOnSetting.Value)
+                && DateTime.TryParse(topStoryLastRunOnSetting.Value, out var parsedLastRunOn))
             {
-                var lastRunOnTime = DateTime.SpecifyKind(DateTime.Parse(topStoryLastRunOnSetting.Value), DateTimeKind.Utc);
+                var lastRunOnTime = DateTime.SpecifyKind(parsedLastRunOn, DateTimeKind.Utc);
                 var topStoryActionId = this.Context.Actions.Where(x => x.Name == ActionTopStoryName).FirstOrDefault()?.Id;
                 var actionContentIds = this.Context.ContentActions.Where(ca => ca.ActionId == topStoryActionId
                     && !string.IsNullOrEmpty(ca.Value) && ca.Value.ToLower() == "true"
                     && ca.UpdatedOn > lastRunOnTime)
                     .Select(ca => ca.ContentId).Distinct().ToArray();
 
-                DateTime localLastRunOn = DateTime.Parse(topStoryLastRunOnSetting.Value).ToLocalTime();
+                DateTime localLastRunOn = parsedLastRunOn.ToLocalTime();
                 query = query.IncludeOnlyLatestPostedAndContentIds(actionContentIds, localLastRunOn);
             }
 

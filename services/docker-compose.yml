@@ -460,6 +460,40 @@ services:
       retries: 3
       start_period: 30s
 
+  automation:
+    image: tno:automation
+    profiles:
+      - all
+      - service
+    restart: unless-stopped
+    container_name: tno-automation
+    build:
+      context: ./
+      dockerfile: services/net/automation/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1G
+        reservations:
+          cpus: "0.05"
+          memory: 50M
+    env_file:
+      - services/net/automation/.env
+    ports:
+      - ${AUTOMATION_PORT:-40041}:8081
+    depends_on:
+      - api
+      - broker
+    networks:
+      - tno
+    healthcheck:
+      test: curl -s -f http://localhost:8081/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
   extract-quotes:
     image: tno:extract-quotes
     profiles:

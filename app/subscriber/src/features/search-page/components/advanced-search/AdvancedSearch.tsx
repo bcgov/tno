@@ -596,6 +596,19 @@ export const AdvancedSearch: React.FC<IAdvancedSearchProps> = ({
                   icon={<BsSun />}
                   title="Media source"
                   hasValues={!!search.sourceIds?.length}
+                  headerActions={
+                    <ToggleButton
+                      on={<FaToggleOn />}
+                      off={<FaToggleOff />}
+                      onClick={() =>
+                        storeSearchFilter({ ...search, sourceIdsNegate: !search.sourceIdsNegate })
+                      }
+                      value={!!search.sourceIdsNegate}
+                      width="25px"
+                      height="25px"
+                      label="NOT"
+                    />
+                  }
                 >
                   <MediaSection
                     displayFiltersAsDropdown={displayFiltersAsDropdown}

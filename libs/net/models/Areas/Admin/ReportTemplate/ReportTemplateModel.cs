@@ -76,7 +76,7 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
     public Entities.ReportTemplate ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.ReportTemplate)this;
-        entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
+        entity.Settings = JsonSerializer.SerializeToDocument(this.Settings, options);
         return entity;
     }
 
@@ -92,7 +92,7 @@ public class ReportTemplateModel : BaseTypeWithAuditColumnsModel<int>
             IsEnabled = model.IsEnabled,
             IsPublic = model.IsPublic,
             SortOrder = model.SortOrder,
-            Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
+            Settings = JsonSerializer.SerializeToDocument(model.Settings),
             Version = model.Version ?? 0
         };
         entity.ChartTemplatesManyToMany.AddRange(model.ChartTemplates.Select(ct => new Entities.ReportTemplateChartTemplate(entity.Id, ct.Id)));

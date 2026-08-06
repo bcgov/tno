@@ -734,6 +734,29 @@ public class ApiService : IApiService
     }
 
     /// <summary>
+    /// Make a request to the API to publish the notification and send it to all subscribers.
+    /// </summary>
+    /// <param name="notificationId"></param>
+    /// <returns></returns>
+    public async Task PublishNotificationAsync(int notificationId)
+    {
+        var url = this.Options.ApiUrl.Append($"services/notifications/{notificationId}/publish");
+        await RetryRequestAsync(async () => await this.OpenClient.PostAsync(url));
+    }
+
+    /// <summary>
+    /// Make a request to the API to publish the report with the specified 'reportId' and send it to
+    /// its subscribers (service endpoint; no interactive user required).
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <returns></returns>
+    public async Task PublishReportAsync(int reportId)
+    {
+        var url = this.Options.ApiUrl.Append($"services/reports/{reportId}/publish");
+        await RetryRequestAsync(async () => await this.OpenClient.PostAsync(url));
+    }
+
+    /// <summary>
     /// Make a request to the API to fetch the notification with the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
@@ -1242,6 +1265,153 @@ public class ApiService : IApiService
         return await RetryRequestAsync(async () => await this.OpenClient.GetAsync(url, etag));
     }
 
+    #endregion
+
+    #region Automation
+    /// <summary>
+    /// Get all configured automation profiles.
+    /// </summary>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Admin.Models.Automation.AutomationProfileModel>?> GetAutomationProfilesAsync()
+    {
+        var url = this.Options.ApiUrl.Append("admin/automation/profiles");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Admin.Models.Automation.AutomationProfileModel>>(url));
+    }
+
+    /// <summary>
+    /// Trigger an automation run for the specified profile.
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Admin.Models.Automation.AutomationRunModel?> RunAutomationProfileAsync(int profileId, API.Areas.Admin.Models.Automation.AutomationRunRequestModel? request = null)
+    {
+        var url = this.Options.ApiUrl.Append($"admin/automation/profiles/{profileId}/run");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Admin.Models.Automation.AutomationRunModel>(url, JsonContent.Create(request ?? new API.Areas.Admin.Models.Automation.AutomationRunRequestModel())));
+    }
+
+
+
+    /// <summary>
+    /// Prune automation runs older than the specified number of days.
+    /// </summary>
+    /// <param name="retentionDays"></param>
+    /// <returns>The number of runs deleted.</returns>
+    public async Task<int> PruneAutomationRunsAsync(int retentionDays)
+    {
+        var url = this.Options.ApiUrl.Append($"admin/automation/runs/prune?days={retentionDays}");
+        return await RetryRequestAsync(async () => await this.OpenClient.DeleteAsync<int>(url));
+    }
+
+    /// <summary>
+    /// Get the automation profile for the specified 'profileId'.
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Admin.Models.Automation.AutomationProfileModel?> GetAutomationProfileAsync(int profileId)
+    {
+        var url = this.Options.ApiUrl.Append($"admin/automation/profiles/{profileId}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Admin.Models.Automation.AutomationProfileModel>(url));
+    }
+
+    /// <summary>
+    /// Get automation runs, optionally filtered by profile.
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Admin.Models.Automation.AutomationRunModel>?> GetAutomationRunsAsync(int? profileId = null)
+    {
+        var query = profileId.HasValue ? $"?profileId={profileId}" : "";
+        var url = this.Options.ApiUrl.Append($"admin/automation/runs{query}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<IEnumerable<API.Areas.Admin.Models.Automation.AutomationRunModel>>(url));
+    }
+
+    /// <summary>
+    /// Get the automation run for the specified 'runId'.
+    /// </summary>
+    /// <param name="runId"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Admin.Models.Automation.AutomationRunModel?> GetAutomationRunAsync(long runId)
+    {
+        var url = this.Options.ApiUrl.Append($"admin/automation/runs/{runId}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Admin.Models.Automation.AutomationRunModel>(url));
+    }
+
+    /// <summary>
+    /// Update the specified automation run (status, note, completion, summary).
+    /// </summary>
+    /// <param name="run"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Admin.Models.Automation.AutomationRunModel?> UpdateAutomationRunAsync(API.Areas.Admin.Models.Automation.AutomationRunModel run)
+    {
+        var url = this.Options.ApiUrl.Append($"admin/automation/runs/{run.Id}");
+        // The summary is persisted separately (see UpdateAutomationRunSummaryAsync); it can be very
+        // large and must never be re-escaped as a JSON string property on this model - that path
+        // allocates a huge single buffer and throws OutOfMemoryException on big runs.
+        var summary = run.Summary;
+        run.Summary = null;
+        try
+        {
+            return await RetryRequestAsync(async () => await this.OpenClient.PutAsync<API.Areas.Admin.Models.Automation.AutomationRunModel>(url, JsonContent.Create(run)));
+        }
+        finally
+        {
+            run.Summary = summary;
+        }
+    }
+
+    /// <summary>
+    /// Update only the summary of the specified automation run. The summary (already-serialized
+    /// JSON) is sent as the raw request body rather than wrapped in the run model, so it is never
+    /// escaped/re-escaped into one large buffer - the allocation that OOMs on large runs.
+    /// </summary>
+    /// <param name="runId"></param>
+    /// <param name="summary"></param>
+    /// <returns></returns>
+    public async Task UpdateAutomationRunSummaryAsync(long runId, string summary)
+    {
+        var url = this.Options.ApiUrl.Append($"admin/automation/runs/{runId}/summary");
+        await RetryRequestAsync<HttpResponseMessage>(async () =>
+        {
+            var response = await this.OpenClient.PutAsync(url, new StringContent(summary, System.Text.Encoding.UTF8, "application/json"));
+            response.EnsureSuccessStatusCode();
+            return response;
+        });
+    }
+
+    /// <summary>
+    /// Append a batch of LLM prompt/response records to the specified run. Sent in chunks so a step
+    /// with many responses never builds one huge request body; combined with the automation service
+    /// flushing per step, the large prompt/response text is never held for the whole run.
+    /// </summary>
+    /// <param name="runId"></param>
+    /// <param name="responses"></param>
+    /// <returns></returns>
+    public async Task AddAutomationRunResponsesAsync(long runId, IEnumerable<API.Areas.Admin.Models.Automation.AutomationRunResponseModel> responses)
+    {
+        var url = this.Options.ApiUrl.Append($"admin/automation/runs/{runId}/responses");
+        // Small chunks keep each POST payload bounded even for runs that process many stories.
+        foreach (var chunk in responses.Chunk(10))
+        {
+            await RetryRequestAsync<HttpResponseMessage>(async () =>
+            {
+                var response = await this.OpenClient.PostAsync(url, JsonContent.Create(chunk));
+                response.EnsureSuccessStatusCode();
+                return response;
+            });
+        }
+    }
+
+    /// <summary>
+    /// Make a request to the API to atomically claim a queued automation run (Draft -> Running).
+    /// </summary>
+    /// <param name="runId"></param>
+    /// <returns>Whether this caller claimed the run.</returns>
+    public async Task<bool> ClaimAutomationRunAsync(long runId)
+    {
+        var url = this.Options.ApiUrl.Append($"admin/automation/runs/{runId}/claim");
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<bool>(url));
+    }
     #endregion
 
     #endregion

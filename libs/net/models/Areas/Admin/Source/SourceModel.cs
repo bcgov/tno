@@ -130,7 +130,7 @@ public class SourceModel : BaseTypeWithAuditColumnsModel<int>
     public Entities.Source ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.Source)this;
-        entity.Configuration = JsonDocument.Parse(JsonSerializer.Serialize(this.Configuration, options));
+        entity.Configuration = JsonSerializer.SerializeToDocument(this.Configuration, options);
         return entity;
     }
 
@@ -152,7 +152,7 @@ public class SourceModel : BaseTypeWithAuditColumnsModel<int>
             AutoTranscribe = model.AutoTranscribe,
             DisableTranscribe = model.DisableTranscribe,
             UseInTopics = model.UseInTopics,
-            Configuration = JsonDocument.Parse(JsonSerializer.Serialize(model.Configuration)),
+            Configuration = JsonSerializer.SerializeToDocument(model.Configuration),
             Version = model.Version ?? 0,
             IsCBRASource = model.IsCBRASource
         };

@@ -43,6 +43,10 @@ setup: ## Setup local environment for development, generate configuration files.
 	@mkdir -p ./app/editor/node_modules
 	@mkdir -p ./app/subscriber/node_modules
 
+worktree: ## List available worktrees, copy .env files from selected source branch, and print cd command.
+	$(info List available worktrees and copy .env files from selected source branch)
+	@./tools/scripts/worktree.sh
+
 nuke: ## Stop all containers, delete all containers, volumes, and configuration
 	$(info Stop all containers, delete all containers, volumes, and configuration)
 	@make down
@@ -102,7 +106,7 @@ down: ## Stops all containers and removes them (p={profile name, [all,api,editor
 		-f docker-compose.override.yml \
 		-f ./db/kafka/docker-compose.yml \
 		-f ./services/docker-compose.yml \
-		$(if $(p),--profile $(p),$(if $(n),--profile all,)) \
+		$(if $(p),--profile $(p),--profile all) \
 		down -v
 
 restart: ## Restart all containers or the one specified (n={service name}, p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]}))

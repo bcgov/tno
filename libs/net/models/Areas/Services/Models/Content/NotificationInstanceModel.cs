@@ -76,7 +76,7 @@ public class NotificationInstanceModel
     public Entities.NotificationInstance ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.NotificationInstance)this;
-        entity.Response = JsonDocument.Parse(JsonSerializer.Serialize(this.Response, options));
+        entity.Response = JsonSerializer.SerializeToDocument(this.Response, options);
         return entity;
     }
 
@@ -91,7 +91,7 @@ public class NotificationInstanceModel
             Id = model.Id,
             SentOn = model.SentOn,
             Status = model.Status,
-            Response = JsonDocument.Parse(JsonSerializer.Serialize(model.Response)),
+            Response = JsonSerializer.SerializeToDocument(model.Response),
         };
         return entity;
     }

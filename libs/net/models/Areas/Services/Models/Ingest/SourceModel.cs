@@ -111,7 +111,7 @@ public class SourceModel : AuditColumnsModel
     public Entities.Source ToEntity()
     {
         var entity = (Entities.Source)this;
-        entity.Configuration = JsonDocument.Parse(JsonSerializer.Serialize(this.Configuration));
+        entity.Configuration = JsonSerializer.SerializeToDocument(this.Configuration);
         return entity;
     }
 
@@ -131,7 +131,7 @@ public class SourceModel : AuditColumnsModel
             MediaTypeId = model.MediaTypeId,
             AutoTranscribe = model.AutoTranscribe,
             DisableTranscribe = model.DisableTranscribe,
-            Configuration = JsonDocument.Parse(JsonSerializer.Serialize(model.Configuration)),
+            Configuration = JsonSerializer.SerializeToDocument(model.Configuration),
             Version = model.Version ?? 0
         };
 

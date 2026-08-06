@@ -196,11 +196,11 @@ public class UserModel : AuditColumnsModel
     public Entities.User ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.User)this;
-        entity.Folders.ForEach(s => s.Settings = JsonDocument.Parse(JsonSerializer.Serialize(s.Settings, options)));
+        entity.Folders.ForEach(s => s.Settings = JsonSerializer.SerializeToDocument(s.Settings, options));
         entity.Filters.ForEach(s =>
         {
-            s.Query = JsonDocument.Parse(JsonSerializer.Serialize(s.Query, options));
-            s.Settings = JsonDocument.Parse(JsonSerializer.Serialize(s.Settings, options));
+            s.Query = JsonSerializer.SerializeToDocument(s.Query, options);
+            s.Settings = JsonSerializer.SerializeToDocument(s.Settings, options);
         });
         return entity;
     }
@@ -235,7 +235,7 @@ public class UserModel : AuditColumnsModel
             Description = f.Description,
             IsEnabled = f.IsEnabled,
             SortOrder = f.SortOrder,
-            Settings = JsonDocument.Parse(JsonSerializer.Serialize(f.Settings)),
+            Settings = JsonSerializer.SerializeToDocument(f.Settings),
         }));
 
         entity.Filters.AddRange(model.Filters.Select(f => new Entities.Filter(f.Id, f.Name, f.OwnerId)
@@ -243,8 +243,8 @@ public class UserModel : AuditColumnsModel
             Description = f.Description,
             IsEnabled = f.IsEnabled,
             SortOrder = f.SortOrder,
-            Query = JsonDocument.Parse(JsonSerializer.Serialize(f.Query)),
-            Settings = JsonDocument.Parse(JsonSerializer.Serialize(f.Settings)),
+            Query = JsonSerializer.SerializeToDocument(f.Query),
+            Settings = JsonSerializer.SerializeToDocument(f.Settings),
         }));
 
         entity.UserUpdateHistory.AddRange(model.UserUpdateHistory.Select(f => new UserUpdateHistory(f.Id, f.UserId, f.ChangeType, f.DateOfChange, f.Value)));

@@ -55,5 +55,10 @@ public class KafkaOptions
     /// get/set - The Kafka topic name to add content to folders.
     /// </summary>
     public string FolderTopic { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The Kafka topic name to request an automation run be executed.
+    /// </summary>
+    public string AutomationTopic { get; set; } = "automation";
     #endregion
 }

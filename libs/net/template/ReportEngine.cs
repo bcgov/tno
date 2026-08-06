@@ -237,7 +237,7 @@ public class ReportEngine : IReportEngine
                         var suggestedMax = (int)max + model.ChartTemplate.SectionSettings.ScaleCalcMax.Value;
                         chartOptions.Scales.X.SuggestedMax = suggestedMax;
                         chartOptions.Scales.Y.SuggestedMax = suggestedMax;
-                        model.ChartTemplate.SectionSettings.Options = JsonDocument.Parse(JsonSerializer.Serialize(chartOptions, this.SerializerOptions));
+                        model.ChartTemplate.SectionSettings.Options = JsonSerializer.SerializeToDocument(chartOptions, this.SerializerOptions);
                     }
                 }
             }

@@ -234,17 +234,25 @@ const Papers: React.FC<IPapersProps> = (props) => {
 
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
+    const paperFilter = defaultPaperFilter(paperSources);
     if (!window.location.search) {
-      replaceQueryParams(defaultPaperFilter(paperSources), { includeEmpty: false });
+      replaceQueryParams(paperFilter, { includeEmpty: false });
     }
-    storeFilterPaper({
+    const nextFilter = {
       ...queryToFilter(
         {
-          ...defaultPaperFilter(paperSources),
+          ...paperFilter,
         },
         window.location.search,
       ),
-    });
+      // The papers date floor is a fixed rule ("yesterday 10PM onward") and must be recomputed on
+      // every load. The absolute startDate is persisted in the URL query string, so on a later day
+      // queryToFilter would otherwise reuse a stale value and pull in all of the previous day.
+      startDate: paperFilter.startDate,
+    };
+    storeFilterPaper(nextFilter);
+    // Keep the URL in sync with the freshly computed floor so it never carries a stale startDate.
+    if (window.location.search) replaceQueryParams(nextFilter, { includeEmpty: false });
     storeContentFilterAdvanced(
       queryToFilterAdvanced(
         { ...filterAdvanced, fieldType: AdvancedSearchKeys.Headline },
@@ -556,6 +564,12 @@ const Papers: React.FC<IPapersProps> = (props) => {
                         if (rowIndex) rowRefs.current[rowIndex] = el;
                       }}
                       className="clickable"
+                      onClick={() => {
+                        // Clicking anywhere in the Use cell (including the status icon)
+                        // makes this the active row, without navigating.
+                        setFocusedRowIndex(row.id.toString());
+                        setCurrentItemId(row.id);
+                      }}
                     >
                       <Status
                         value={row.status}

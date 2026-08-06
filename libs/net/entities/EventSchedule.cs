@@ -102,6 +102,17 @@ public class EventSchedule : AuditColumns
     /// get/set - The folder this event is linked to.
     /// </summary>
     public Folder? Folder { get; set; }
+
+    /// <summary>
+    /// get/set - Foreign key to the automation profile this event is linked to.
+    /// </summary>
+    [Column("automation_profile_id")]
+    public int? AutomationProfileId { get; set; }
+
+    /// <summary>
+    /// get/set - The automation profile this event is linked to.
+    /// </summary>
+    public AutomationProfile? AutomationProfile { get; set; }
     #endregion
 
     #region Constructors

@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
@@ -32,6 +32,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Elastic", "elastic\TNO.Elastic.csproj", "{01FB5BC6-3AAA-43E2-8BFB-E6BAC0F6262F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.TemplateEngine", "template\TNO.TemplateEngine.csproj", "{B0CB9A82-4FB2-478F-957F-22795AB35694}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.AI", "ai\TNO.AI.csproj", "{BD4376B0-A847-4D34-AB4A-7EB0244FA0DF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -98,6 +100,10 @@ Global
 		{B0CB9A82-4FB2-478F-957F-22795AB35694}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0CB9A82-4FB2-478F-957F-22795AB35694}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0CB9A82-4FB2-478F-957F-22795AB35694}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD4376B0-A847-4D34-AB4A-7EB0244FA0DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD4376B0-A847-4D34-AB4A-7EB0244FA0DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD4376B0-A847-4D34-AB4A-7EB0244FA0DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD4376B0-A847-4D34-AB4A-7EB0244FA0DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{DE579C2E-05C3-4B91-8CEA-B59E430A2C53} = {062EACFE-9CC0-42F7-B6B5-4556892C36CC}

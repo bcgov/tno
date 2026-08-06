@@ -9,6 +9,7 @@ docker exec -i tno-broker bash -c "/bin/kafka-topics --create --if-not-exists --
 docker exec -i tno-broker bash -c "/bin/kafka-topics --create --if-not-exists --topic request-clips --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
 docker exec -i tno-broker bash -c "/bin/kafka-topics --create --if-not-exists --topic ffmpeg --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
 docker exec -i tno-broker bash -c "/bin/kafka-topics --create --if-not-exists --topic event-schedule --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
+docker exec -i tno-broker bash -c "/bin/kafka-topics --create --if-not-exists --topic automation --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
 
 ## Manually add topics
 # /bin/kafka-topics --create --if-not-exists --topic hub --bootstrap-server kafka-headless:29092 --partitions 6 --replication-factor 3

@@ -6,9 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.Report;
+using TNO.API.Config;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.DAL.Services;
+using TNO.Kafka;
+using TNO.Kafka.Models;
 using TNO.Keycloak;
 
 namespace TNO.API.Areas.Services.Controllers;
@@ -30,6 +33,8 @@ public class ReportController : ControllerBase
 {
     #region Variables
     private readonly IReportService _service;
+    private readonly IKafkaMessenger _kafkaProducer;
+    private readonly KafkaOptions _kafkaOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -38,15 +43,44 @@ public class ReportController : ControllerBase
     /// Creates a new instance of a ReportController object, initializes with specified parameters.
     /// </summary>
     /// <param name="service"></param>
+    /// <param name="kafkaProducer"></param>
+    /// <param name="kafkaOptions"></param>
     /// <param name="serializerOptions"></param>
-    public ReportController(IReportService service, IOptions<JsonSerializerOptions> serializerOptions)
+    public ReportController(IReportService service, IKafkaMessenger kafkaProducer, IOptions<KafkaOptions> kafkaOptions, IOptions<JsonSerializerOptions> serializerOptions)
     {
         _service = service;
+        _kafkaProducer = kafkaProducer;
+        _kafkaOptions = kafkaOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
 
     #region Endpoints
+    /// <summary>
+    /// Publish the report and send it to its subscribers. Service endpoint used by background
+    /// services (e.g. the automation service); unlike the editor endpoint it requires no interactive
+    /// user, only the service Administrator client role.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="requestorId"></param>
+    /// <returns></returns>
+    [HttpPost("{id}/publish")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public async Task<IActionResult> Publish(int id, int? requestorId = null)
+    {
+        var report = _service.FindById(id) ?? throw new NoContentException();
+        var request = new ReportRequestModel(ReportDestination.ReportingService, TNO.Entities.ReportType.Content, report.Id, System.Text.Json.JsonDocument.Parse("{}"))
+        {
+            RequestorId = requestorId,
+            SendToSubscribers = true,
+        };
+        await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, request);
+        return new OkResult();
+    }
+
     /// <summary>
     /// Find all of the reports for the specified query filter.
     /// </summary>

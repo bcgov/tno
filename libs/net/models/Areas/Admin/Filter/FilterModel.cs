@@ -61,7 +61,7 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
     {
         var entity = (Entities.Filter)this;
         entity.Query = this.Query;
-        entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
+        entity.Settings = JsonSerializer.SerializeToDocument(this.Settings, options);
         return entity;
     }
 
@@ -79,7 +79,7 @@ public class FilterModel : BaseTypeWithAuditColumnsModel<int>
             OwnerId = model.OwnerId,
             SortOrder = model.SortOrder,
             Query = model.Query,
-            Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
+            Settings = JsonSerializer.SerializeToDocument(model.Settings),
             Version = model.Version ?? 0
         };
 

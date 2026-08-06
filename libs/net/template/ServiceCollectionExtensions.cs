@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RazorEngineCore;
+using TNO.AI;
 using TNO.TemplateEngine.Config;
 
 namespace TNO.TemplateEngine;
@@ -29,6 +30,7 @@ public static class ServiceCollectionExtensions
             .AddScoped<ITemplateEngine<Models.Reports.ReportEngineDataModel<dynamic>>, TemplateEngine<Models.Reports.ReportEngineDataModel<dynamic>>>()
             .AddScoped<INotificationEngine, NotificationEngine>()
             .AddScoped<IReportEngine, ReportEngine>()
+            .AddScoped<IAIAgentClient, AIAgentClient>()
             .AddScoped<IAIAgentService, AIAgentService>();
     }
 
@@ -51,6 +53,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<ITemplateEngine<Models.Reports.ReportEngineDataModel<dynamic>>, TemplateEngine<Models.Reports.ReportEngineDataModel<dynamic>>>()
             .AddSingleton<INotificationEngine, NotificationEngine>()
             .AddSingleton<IReportEngine, ReportEngine>()
+            .AddSingleton<IAIAgentClient, AIAgentClient>()
             .AddSingleton<IAIAgentService, AIAgentService>();
     }
 }

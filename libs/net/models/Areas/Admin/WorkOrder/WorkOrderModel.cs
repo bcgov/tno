@@ -110,7 +110,7 @@ public class WorkOrderModel : AuditColumnsModel
         entity.AssignedId = this.AssignedId;
         entity.Description = this.Description;
         entity.Note = this.Note;
-        entity.Configuration = JsonDocument.Parse(JsonSerializer.Serialize(this.Configuration, options));
+        entity.Configuration = JsonSerializer.SerializeToDocument(this.Configuration, options);
         entity.ContentId = this.ContentId;
         entity.Version = this.Version ?? 0;
 

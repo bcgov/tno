@@ -1,0 +1,81 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: 9b301c-test
+
+resources:
+  - ../../base
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+patches:
+  - target:
+      kind: Deployment
+      name: automation-service
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 1
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: bcgov-c4awhwfpcremdbga.azurecr.io/automation-service:test
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: 50m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: 256Mi
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: 500m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: 768Mi
+
+  # Elasticsearch lives on the cloud cluster outside dev. Merged by env var name rather than
+  # by index so it survives changes to the base env list.
+  - target:
+      kind: Deployment
+      name: automation-service
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: automation-service
+      spec:
+        template:
+          spec:
+            containers:
+              - name: automation-service
+                env:
+                  - name: Elastic__Url
+                    valueFrom:
+                      configMapKeyRef:
+                        name: indexing-service-cloud
+                        key: ELASTICSEARCH_URI
+                  - name: Elastic__ContentIndex
+                    valueFrom:
+                      configMapKeyRef:
+                        name: indexing-service-cloud
+                        key: CONTENT_INDEX
+                  - name: Elastic__PublishedIndex
+                    valueFrom:
+                      configMapKeyRef:
+                        name: indexing-service-cloud
+                        key: PUBLISHED_INDEX
+                  - name: Elastic__Username
+                    valueFrom:
+                      secretKeyRef:
+                        name: elastic-cloud
+                        key: USERNAME
+                  - name: Elastic__Password
+                    valueFrom:
+                      secretKeyRef:
+                        name: elastic-cloud
+                        key: PASSWORD
+                  - name: Elastic__ApiKey
+                    valueFrom:
+                      secretKeyRef:
+                        name: elastic-cloud
+                        key: ApiKey

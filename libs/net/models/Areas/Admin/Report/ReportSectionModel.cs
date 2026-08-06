@@ -103,9 +103,9 @@ public class ReportSectionModel : BaseTypeWithAuditColumnsModel<int>
         {
             var chart = this.ChartTemplates.FirstOrDefault(ct => ct.Id == c.ChartTemplateId);
             if (chart != null)
-                c.Settings = JsonDocument.Parse(JsonSerializer.Serialize(chart.SectionSettings, options));
+                c.Settings = JsonSerializer.SerializeToDocument(chart.SectionSettings, options);
         });
-        entity.Settings = JsonDocument.Parse(JsonSerializer.Serialize(this.Settings, options));
+        entity.Settings = JsonSerializer.SerializeToDocument(this.Settings, options);
         return entity;
     }
 
@@ -121,7 +121,7 @@ public class ReportSectionModel : BaseTypeWithAuditColumnsModel<int>
             Description = model.Description,
             IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,
-            Settings = JsonDocument.Parse(JsonSerializer.Serialize(model.Settings)),
+            Settings = JsonSerializer.SerializeToDocument(model.Settings),
             Filter = model.Filter != null ? (Entities.Filter)model.Filter : null,
             Folder = model.Folder != null ? (Entities.Folder)model.Folder : null,
             Version = model.Version ?? 0
@@ -130,7 +130,7 @@ public class ReportSectionModel : BaseTypeWithAuditColumnsModel<int>
         entity.ChartTemplatesManyToMany.AddRange(model.ChartTemplates.OrderBy(ct => ct.SortOrder).Select(c => new Entities.ReportSectionChartTemplate(model.Id, c.Id, c.SortOrder)
         {
             ReportSection = entity,
-            Settings = JsonDocument.Parse(JsonSerializer.Serialize(c.SectionSettings)),
+            Settings = JsonSerializer.SerializeToDocument(c.SectionSettings),
         }));
 
         return entity;

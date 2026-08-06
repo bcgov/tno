@@ -1,8 +1,41 @@
 #!/bin/bash
 
+# Deploy an environment by promoting an image tag in ACR and restarting the workloads.
+# Usage: deploy.sh [environment] [tag] [workload]
+#   environment - target environment: dev, test, prod (default: dev)
+#   tag         - source image tag promoted onto the environment tag (default: latest)
+#   workload    - deployment/statefulset name (e.g. charts-api, automation-service), or
+#                 'db-migration' to run the EF migrations bundle as a one-shot Job.
+#                 When given, only that one workload is retagged and rolled; the rest of the
+#                 environment is left untouched. When omitted, the whole environment is
+#                 retagged, stopped, and scaled back up.
+#   migration   - db-migration only: the migration to migrate to. Omit to apply every pending
+#                 migration; name an earlier migration to roll back to it; '0' reverts all.
+#   secret      - db-migration only: name of the secret holding the database USERNAME/PASSWORD
+#                 (montford in dev, mooncrest in test, moonstep in prod). Omit to copy whatever
+#                 the api StatefulSet in that namespace uses.
+
 env=${1-dev}
 tag=${2-latest}
-echo "Deploying to $env"
+name=${3-}
+migration=${4-}
+secret=${5-}
+
+if [[ -n "$migration" && "$name" != "db-migration" ]]; then
+  echo "ERROR: a migration target only applies to n=db-migration (got n='$name')."
+  exit 1
+fi
+
+if [[ -n "$secret" && "$name" != "db-migration" ]]; then
+  echo "ERROR: a database secret only applies to n=db-migration (got n='$name')."
+  exit 1
+fi
+
+if [[ -n "$name" ]]; then
+  echo "Deploying $name to $env"
+else
+  echo "Deploying to $env"
+fi
 
 # Detect OS (Git Bash / MSYS / Cygwin all report Windows-like uname)
 _os=$(uname -s 2>/dev/null || echo "Windows")
@@ -261,6 +294,257 @@ else
     acr_verify "$image"
   }
 fi
+
+# --- Database migration (n=db-migration) ------------------------------------
+# The image is an EF migrations bundle (libs/net/Dockerfile, ENTRYPOINT /app/efbundle):
+# with no argument it applies every pending migration, with one it migrates to that named
+# migration - naming one that precedes the current state reverts down to it, and '0' reverts
+# them all. It is one-shot work, so it runs as a Job rather than a long-lived workload.
+if [[ "$name" == "db-migration" ]]; then
+  if [[ -n "$migration" && ! "$migration" =~ ^[A-Za-z0-9_.-]+$ ]]; then
+    echo "ERROR: invalid migration target '$migration'."
+    echo "       Expected a migration name (e.g. 20250704120000_AddAutomation) or 0 to revert all."
+    exit 1
+  fi
+
+  # The connection is assembled by TNOContextFactory from three values (see
+  # libs/net/dal/TNOContextFactory.cs:76-80). Read where they come from off the live api
+  # StatefulSet rather than hard-coding them: the credential secret is named differently in
+  # every environment (montford in dev, mooncrest in test, moonstep in prod), and the
+  # 'database' secret named in api/base/statefulset.yaml is stale.
+  _api_env_ref() {
+    oc get statefulset api -n "9b301c-$env" \
+      -o jsonpath="{.spec.template.spec.containers[0].env[?(@.name==\"$1\")].valueFrom.$2.$3}" 2>/dev/null || true
+  }
+  _cs_cm=$(_api_env_ref ConnectionStrings__TNO configMapKeyRef name)
+  _cs_key=$(_api_env_ref ConnectionStrings__TNO configMapKeyRef key)
+  _user_secret=$(_api_env_ref DB_POSTGRES_USERNAME secretKeyRef name)
+  _user_key=$(_api_env_ref DB_POSTGRES_USERNAME secretKeyRef key)
+  _pass_secret=$(_api_env_ref DB_POSTGRES_PASSWORD secretKeyRef name)
+  _pass_key=$(_api_env_ref DB_POSTGRES_PASSWORD secretKeyRef key)
+
+  # These have been the same in every environment; only the secret name varies.
+  _cs_cm=${_cs_cm:-api}
+  _cs_key=${_cs_key:-CONNECTION_STRING}
+  _user_key=${_user_key:-USERNAME}
+  _pass_key=${_pass_key:-PASSWORD}
+
+  # An explicit s= wins over whatever the api uses.
+  if [[ -n "$secret" ]]; then
+    _user_secret=$secret
+    _pass_secret=$secret
+  fi
+
+  if [[ -z "$_user_secret" || -z "$_pass_secret" ]]; then
+    echo "ERROR: could not determine the database credential secret for 9b301c-$env."
+    echo "       The api StatefulSet has no DB_POSTGRES_USERNAME/PASSWORD reference to copy."
+    echo "       Name it explicitly: make deploy n=db-migration e=$env s=<secret>"
+    echo "       Secrets in 9b301c-$env:"
+    oc get secret -n "9b301c-$env" -o name 2>/dev/null | sed 's|^|         |'
+    exit 1
+  fi
+
+  # Check the secret up front - a bad name only shows up as CreateContainerConfigError later.
+  for _s in "$_user_secret:$_user_key" "$_pass_secret:$_pass_key"; do
+    _s_name=${_s%:*}
+    _s_key=${_s#*:}
+    if ! oc get secret "$_s_name" -n "9b301c-$env" &>/dev/null; then
+      echo "ERROR: secret '$_s_name' does not exist in 9b301c-$env."
+      echo "       Secrets in 9b301c-$env:"
+      oc get secret -n "9b301c-$env" -o name 2>/dev/null | sed 's|^|         |'
+      exit 1
+    fi
+    if ! oc get secret "$_s_name" -n "9b301c-$env" -o "jsonpath={.data.$_s_key}" 2>/dev/null | grep -q .; then
+      echo "ERROR: secret '$_s_name' in 9b301c-$env has no '$_s_key' key. It holds:"
+      oc get secret "$_s_name" -n "9b301c-$env" -o go-template='{{range $k,$v := .data}}         {{$k}}{{"\n"}}{{end}}' 2>/dev/null
+      exit 1
+    fi
+  done
+
+  if [[ -n "$secret" ]]; then
+    echo "  database: configmap/$_cs_cm[$_cs_key], secret/$_user_secret (from s=)"
+  else
+    echo "  database: configmap/$_cs_cm[$_cs_key], secret/$_user_secret (as used by the api)"
+  fi
+
+  # Retag only once the configuration checks out, so a bad s= does not move the ACR tag first.
+  echo "Tagging image in ACR ($ACR_HOST): db-migration:$tag → db-migration:$env"
+  acr_tag db-migration
+
+  _job="db-migration-$(date +%Y%m%d%H%M%S)"
+  if [[ -n "$migration" ]]; then
+    echo "Migrating 9b301c-$env to '$migration'"
+    _args="[\"$migration\"]"
+  else
+    echo "Applying all pending migrations to 9b301c-$env"
+    _args="[]"
+  fi
+
+  oc apply -n "9b301c-$env" -f - <<YAML
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: $_job
+  labels:
+    name: db-migration
+    part-of: tno
+    component: db-migration
+    managed-by: deploy.sh
+spec:
+  # A half-applied migration should stop and be looked at, never be retried blindly.
+  backoffLimit: 0
+  activeDeadlineSeconds: 1800
+  # Keep the finished Job around for a day so its logs remain readable.
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        name: db-migration
+        part-of: tno
+        component: db-migration
+    spec:
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: acr-secret
+      containers:
+        - name: db-migration
+          image: $ACR_HOST/db-migration:$env
+          imagePullPolicy: Always
+          args: $_args
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          env:
+            - name: ConnectionStrings__TNO
+              valueFrom:
+                configMapKeyRef:
+                  name: $_cs_cm
+                  key: $_cs_key
+            - name: DB_POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: $_user_secret
+                  key: $_user_key
+            - name: DB_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: $_pass_secret
+                  key: $_pass_key
+YAML
+
+  # Wait for the container to actually start before following its output. `oc logs -f` fails
+  # outright while the pod is still ContainerCreating, and this image is a dotnet SDK build
+  # carrying the whole source tree - the first pull onto a node routinely takes minutes.
+  _pod=""
+  _phase=""
+  _start=$SECONDS
+  _next_beat=$((SECONDS + 30))
+  _deadline=$((SECONDS + 1800))
+  while (( SECONDS < _deadline )); do
+    _pod=$(oc get pod -l "job-name=$_job" -n "9b301c-$env" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)
+    if [[ -n "$_pod" ]]; then
+      _phase=$(oc get pod "$_pod" -n "9b301c-$env" -o jsonpath='{.status.phase}' 2>/dev/null || true)
+      case "$_phase" in
+        Running|Succeeded|Failed) break ;;
+      esac
+
+      _reason=$(oc get pod "$_pod" -n "9b301c-$env" -o jsonpath='{.status.containerStatuses[0].state.waiting.reason}' 2>/dev/null || true)
+      case "$_reason" in
+        ImagePullBackOff|ErrImagePull|InvalidImageName|CreateContainerConfigError|CreateContainerError)
+          # A missing image or a missing ConfigMap/Secret key will never resolve on its own.
+          echo "ERROR: $_pod cannot start ($_reason)."
+          oc describe pod "$_pod" -n "9b301c-$env" | sed -n '/^Events:/,$p'
+          echo "       Cleanup: oc delete job/$_job -n 9b301c-$env"
+          exit 1
+          ;;
+      esac
+
+      # Heartbeat every 30s so a long image pull does not look like a hang.
+      if (( SECONDS >= _next_beat )); then
+        echo "  waiting for $_pod: ${_reason:-$_phase} ($((SECONDS - _start))s)"
+        _next_beat=$((SECONDS + 30))
+      fi
+    fi
+    sleep 5
+  done
+
+  if [[ -z "$_pod" ]]; then
+    echo "ERROR: no pod was created for job $_job."
+    echo "       Cleanup: oc delete job/$_job -n 9b301c-$env"
+    exit 1
+  fi
+
+  oc logs -f "$_pod" -n "9b301c-$env" || true
+
+  # `oc wait --for=condition=complete` blocks for the whole timeout when the Job fails, so
+  # check both outcomes instead.
+  _succeeded=""
+  _job_failed=""
+  _deadline=$((SECONDS + 300))
+  while (( SECONDS < _deadline )); do
+    _succeeded=$(oc get job "$_job" -n "9b301c-$env" -o jsonpath='{.status.succeeded}' 2>/dev/null)
+    _job_failed=$(oc get job "$_job" -n "9b301c-$env" -o jsonpath='{.status.failed}' 2>/dev/null)
+    [[ "$_succeeded" == "1" ]] && break
+    [[ -n "$_job_failed" && "$_job_failed" != "0" ]] && break
+    sleep 5
+  done
+
+  if [[ "$_succeeded" != "1" ]]; then
+    echo "ERROR: migration job $_job did not succeed."
+    echo "       Logs:    oc logs job/$_job -n 9b301c-$env"
+    echo "       Cleanup: oc delete job/$_job -n 9b301c-$env"
+    exit 1
+  fi
+
+  echo "Migration complete (job $_job, retained for 24h)."
+  exit 0
+fi
+# ----------------------------------------------------------------------------
+
+# --- Single workload deploy (n=) --------------------------------------------
+# Retag just this workload's image and roll it, leaving the rest of the environment alone.
+# The image is read off the workload rather than a hard-coded table, so this keeps working as
+# services are added - automation-service, for one, is absent from the full lists below.
+if [[ -n "$name" ]]; then
+  if oc get deployment "$name" -n "9b301c-$env" &>/dev/null; then
+    _type=deployment
+  elif oc get statefulset "$name" -n "9b301c-$env" &>/dev/null; then
+    _type=statefulset
+  else
+    echo "ERROR: no deployment or statefulset named '$name' in 9b301c-$env."
+    echo "       Available workloads:"
+    oc get deployment,statefulset -n "9b301c-$env" -o name | sed 's|^|         |'
+    exit 1
+  fi
+
+  _image_ref=$(oc get "$_type" "$name" -n "9b301c-$env" -o jsonpath='{.spec.template.spec.containers[0].image}')
+  _image_host=${_image_ref%%/*}
+  _image_repo=${_image_ref#*/}
+  _image_repo=${_image_repo%%:*}
+
+  echo "Deploying $_type/$name to 9b301c-$env"
+  echo "  image: $_image_ref"
+
+  if [[ "$_image_host" == "$ACR_HOST" ]]; then
+    echo "Tagging image in ACR ($ACR_HOST): $_image_repo:$tag → $_image_repo:$env"
+    acr_tag "$_image_repo"
+  else
+    echo "NOTE: $_image_ref is not hosted in $ACR_HOST; skipping the retag and rolling as-is."
+  fi
+
+  # Every workload sets imagePullPolicy: Always, so a rolling restart picks up the moved tag
+  # without touching replica counts - a single service cannot be stranded at 0.
+  oc rollout restart "$_type/$name" -n "9b301c-$env"
+  oc rollout status "$_type/$name" --timeout=10m -n "9b301c-$env"
+
+  echo "Deployment complete!"
+  exit 0
+fi
+# ----------------------------------------------------------------------------
 
 # Get current pod counts for all services (25 total - oracle not in dev)
 

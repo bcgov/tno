@@ -16,10 +16,13 @@ export const generateFilterQuery = (
 ): MsearchMultisearchBody => {
   var elastic = { ...query };
 
+  // A 'bool' clause replaces any prior 'match_all' placeholder; a query object must
+  // contain exactly one root clause or Elasticsearch rejects it.
+  const { match_all, ...priorQuery } = elastic.query ?? {};
   elastic = {
     ...elastic,
     query: {
-      ...(elastic.query ?? {}),
+      ...priorQuery,
       bool: {
         ...(elastic.query?.bool ?? {}),
         filter: generateQueryValues(settings),

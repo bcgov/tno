@@ -184,7 +184,7 @@ public class IngestModel : AuditColumnsModel
     public Entities.Ingest ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.Ingest)this;
-        entity.Configuration = JsonDocument.Parse(JsonSerializer.Serialize(this.Configuration, options));
+        entity.Configuration = JsonSerializer.SerializeToDocument(this.Configuration, options);
         return entity;
     }
 
@@ -199,7 +199,7 @@ public class IngestModel : AuditColumnsModel
             Id = model.Id,
             Description = model.Description,
             IsEnabled = model.IsEnabled,
-            Configuration = JsonDocument.Parse(JsonSerializer.Serialize(model.Configuration)),
+            Configuration = JsonSerializer.SerializeToDocument(model.Configuration),
             RetryLimit = model.RetryLimit,
             State = new Entities.IngestState(model.Id)
             {
