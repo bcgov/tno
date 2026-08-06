@@ -508,7 +508,7 @@ fi
 # --- Single workload deploy (n=) --------------------------------------------
 # Retag just this workload's image and roll it, leaving the rest of the environment alone.
 # The image is read off the workload rather than a hard-coded table, so this keeps working as
-# services are added - automation-service, for one, is absent from the full lists below.
+# services are added, before they reach the full lists below.
 if [[ -n "$name" ]]; then
   if oc get deployment "$name" -n "9b301c-$env" &>/dev/null; then
     _type=deployment
@@ -563,7 +563,7 @@ podsFFmpeg=$(getPods ffmpeg-service deployment $env)
 podsTranscription=$(getPods transcription-service deployment $env)
 podsExtractQuotes=$(getPods extract-quotes-service deployment $env)
 
-# Kafka Consumers - Stateless (7 services)
+# Kafka Consumers - Stateless (8 services)
 podsFolderCollection=$(getPods folder-collection-service deployment $env)
 podsContent=$(getPods content-service deployment $env)
 podsIndexing=$(getPods indexing-service deployment $env)
@@ -575,6 +575,7 @@ podsNotification=$(getPods notification-service deployment $env)
 podsReporting=$(getPods reporting-service deployment $env)
 podsChesRetry=$(getPods ches-retry-service deployment $env)
 podsAutoClipper=$(getPods auto-clipper-service deployment $env)
+podsAutomation=$(getPods automation-service deployment $env)
 
 # Kafka Consumers - Single-Instance (4 services)
 podsScheduler=$(getPods scheduler-service deployment $env)
@@ -609,6 +610,7 @@ acr_tag notification-service
 acr_tag reporting-service
 acr_tag ches-retry-service
 acr_tag auto-clipper-service
+acr_tag automation-service
 
 # Kafka Producers (Single-Instance)
 acr_tag scheduler-service
@@ -654,6 +656,7 @@ scale notification-service $podsNotification deployment $env
 scale reporting-service $podsReporting deployment $env
 scale ches-retry-service $podsChesRetry deployment $env
 scale auto-clipper-service $podsAutoClipper deployment $env
+scale automation-service $podsAutomation deployment $env
 
 # Kafka Producers (Single-Instance)
 scale scheduler-service $podsScheduler deployment $env

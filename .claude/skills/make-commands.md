@@ -8,7 +8,7 @@
 
 - Initialize local config files: `make setup`
 - Start all default services: `make up`
-- Stop and remove running stack: `make down`
+- Stop and remove running stack: `make down` (volumes kept; `make down v=1` also deletes them, wiping the database)
 - Rebuild and restart selected service: `make refresh n=<service>`
 
 ## Service/Profile Control

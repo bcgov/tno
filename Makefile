@@ -28,6 +28,10 @@ RESET := $(shell tput -Txterm sgr0)
 # default "prompt"
 P = ${GREEN}[+]${RESET}
 
+# Warning shown before 'down' deletes the volumes. Defined here rather than inline
+# because make splits $(if ...) arguments on commas.
+DOWN_VOLUMES_WARNING = This deletes every docker volume in the project - the database, elasticsearch, kafka and api data are permanently lost.
+
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' Makefile | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
@@ -47,9 +51,9 @@ worktree: ## List available worktrees, copy .env files from selected source bran
 	$(info List available worktrees and copy .env files from selected source branch)
 	@./tools/scripts/worktree.sh
 
-nuke: ## Stop all containers, delete all containers, volumes, and configuration
+nuke: ## Stop all containers, delete all containers, volumes, and configuration (y=1 skips the confirmation)
 	$(info Stop all containers, delete all containers, volumes, and configuration)
-	@make down
+	@make down v=1 $(if $(y),y=$(y),)
 	@./tools/scripts/nuke.sh
 
 ##############################################################################
@@ -99,15 +103,17 @@ stop: ## Stops all containers or the one specified (args: n={service name}, p={p
 		$(if $(p),--profile $(p),$(if $(n),--profile all,--profile all)) \
 		stop $(n)
 
-down: ## Stops all containers and removes them (p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]})))
-	$(info Stops all containers and removes them (p=$(p)))
+down: ## Stops all containers and removes them (p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]}, v=1 also deletes the volumes (all local data), y=1 skips the confirmation)
+	$(info Stops all containers and removes them (p=$(p), v=$(v)))
+	@$(if $(v),./tools/scripts/confirm.sh "$(DOWN_VOLUMES_WARNING)" "$(y)",true)
 	@docker-compose \
 		-f docker-compose.yml \
 		-f docker-compose.override.yml \
 		-f ./db/kafka/docker-compose.yml \
 		-f ./services/docker-compose.yml \
 		$(if $(p),--profile $(p),--profile all) \
-		down -v
+		down $(if $(v),-v,)
+	@$(if $(v),true,echo "$(P) Volumes kept. Use 'make down v=1' to also delete all local data.")
 
 restart: ## Restart all containers or the one specified (n={service name}, p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]}))
 	$(info Restart all containers or the one specified (n=$(n), p=$(p)))
