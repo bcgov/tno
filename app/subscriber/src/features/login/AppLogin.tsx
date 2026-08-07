@@ -55,7 +55,7 @@ export const AppLogin: React.FC<IAppLoginProps> = ({ login }) => {
             <br />
             <p>
               Note: <br />
-              There is a cost recovery charge in excess of $4,500 annually, please ensure that you
+              There is a cost recovery charge in excess of $4,640 annually, please ensure that you
               have authorization for this purchase prior to emailing.
             </p>
           </div>
