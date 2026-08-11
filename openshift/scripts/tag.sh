@@ -37,14 +37,22 @@ case "$mode" in
     echo "Tagged $src -> $dst (local)"
     ;;
   remote)
-    require_az
-    acr_login
-    echo "Retagging in ACR: $IMAGE:$from -> $IMAGE:$to"
-    az acr import \
-      --name "$ACR_NAME" \
-      --source "$ACR_REGISTRY/$IMAGE:$from" \
-      --image "$IMAGE:$to" \
-      --force
+    if command -v docker &>/dev/null; then
+      # Remote manifest copy with the docker credential - same registry, so no layer download.
+      # Same effect as 'az acr import', but works when 'az login' is unavailable.
+      acr_login
+      echo "Retagging in ACR: $IMAGE:$from -> $IMAGE:$to"
+      docker buildx imagetools create --tag "$ACR_REGISTRY/$IMAGE:$to" "$ACR_REGISTRY/$IMAGE:$from"
+    else
+      # No docker on this machine - az acr import runs entirely inside the registry.
+      require_az
+      echo "Retagging in ACR: $IMAGE:$from -> $IMAGE:$to"
+      az acr import \
+        --name "$ACR_NAME" \
+        --source "$ACR_REGISTRY/$IMAGE:$from" \
+        --image "$IMAGE:$to" \
+        --force
+    fi
     echo "Tagged $IMAGE:$to in ACR ($IMAGE:$from and $IMAGE:$to now point at the same image)."
     echo "Deploy: make deploy e=$to n=$IMAGE"
     ;;
