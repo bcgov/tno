@@ -55,7 +55,10 @@ public class AutomationScheduleModel
     {
         this.Id = entity.Id;
         this.Name = entity.Name;
-        this.IsEnabled = entity.IsEnabled && (entity.Schedule?.IsEnabled ?? false);
+        // The schedule's own setting, not the event's: the event is additionally gated on the
+        // profile being enabled, and reporting that here would silently clear the schedule's
+        // setting the next time a disabled profile was saved.
+        this.IsEnabled = entity.Schedule?.IsEnabled ?? false;
         this.StartAt = entity.Schedule?.StartAt;
         this.RunOn = entity.Schedule?.RunOn;
         this.RunOnWeekDays = entity.Schedule == null

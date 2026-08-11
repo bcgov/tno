@@ -140,7 +140,11 @@ public class AutomationProfileModel
             })
             {
                 Id = schedule.Id,
-                IsEnabled = schedule.IsEnabled,
+                // The scheduler skips event schedules that are not enabled, so gate the event on the
+                // profile as well; a disabled profile would otherwise still queue a run every day
+                // that the automation service can only fail. The schedule keeps its own IsEnabled
+                // (above), so re-enabling the profile restores each schedule's setting.
+                IsEnabled = this.IsEnabled && schedule.IsEnabled,
                 AutomationProfileId = this.Id,
             });
         }
