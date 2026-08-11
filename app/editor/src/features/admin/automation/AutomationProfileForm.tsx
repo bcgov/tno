@@ -63,6 +63,7 @@ import {
   contentFieldOptionItems,
   createDefaultAction,
   createDefaultStep,
+  DATE_PICKER_PORTAL_ID,
   DEDUPLICATION_ACTION,
   defaultAutomationProfile,
   getRunColumns,
@@ -2685,6 +2686,9 @@ const AutomationProfileForm: React.FC = () => {
                         showTimeInput
                         showTimeSelect
                         isClearable
+                        // The modal clips its popup and scrolls its body, so the calendar renders
+                        // into a body-level portal instead of being cut off inside the dialog.
+                        portalId={DATE_PICKER_PORTAL_ID}
                         selectedDate={scheduleModalState?.schedule.runOn ?? undefined}
                         onChange={(date) => {
                           // Stored as a local date/time string, matching how report schedules
