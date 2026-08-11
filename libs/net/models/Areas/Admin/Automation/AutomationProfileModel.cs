@@ -135,6 +135,7 @@ public class AutomationProfileModel
             {
                 IsEnabled = schedule.IsEnabled,
                 StartAt = schedule.StartAt,
+                RunOn = schedule.RunOn,
                 RunOnWeekDays = schedule.GetRunOnWeekDays(),
             })
             {

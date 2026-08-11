@@ -18,6 +18,7 @@ export const buildProfileForExport = (values: IAutomationProfileModel) => {
       name: schedule.name,
       isEnabled: schedule.isEnabled,
       startAt: schedule.startAt,
+      runOn: schedule.runOn,
       runOnWeekDays: schedule.runOnWeekDays,
     })),
     steps: (saved.steps ?? []).map((step) => ({

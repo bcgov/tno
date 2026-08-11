@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { FaTrash } from 'react-icons/fa';
 import { CellCheckbox, CellEllipsis, type ITableHookColumn } from 'tno-core';
 
 import { type IAutomationProfileModel, type IAutomationRunModel } from '../interfaces';
@@ -57,7 +58,13 @@ export const columns: Array<ITableHookColumn<IAutomationProfileModel>> = [
   },
 ];
 
-export const runColumns: Array<ITableHookColumn<IAutomationRunModel>> = [
+/**
+ * Run history columns. The delete column is only included when 'onDelete' is supplied; its click is
+ * stopped from bubbling so removing a run does not also open the run detail modal (row click).
+ */
+export const getRunColumns = (
+  onDelete?: (run: IAutomationRunModel) => void,
+): Array<ITableHookColumn<IAutomationRunModel>> => [
   {
     label: 'Started',
     accessor: 'startedOn',
@@ -88,4 +95,29 @@ export const runColumns: Array<ITableHookColumn<IAutomationRunModel>> = [
     width: 2,
     cell: (cell) => <CellEllipsis>{cell.original.note ?? ''}</CellEllipsis>,
   },
+  ...(onDelete
+    ? [
+        {
+          label: '',
+          accessor: 'id',
+          width: 0.4,
+          hAlign: 'center',
+          showSort: false,
+          cell: (cell) => (
+            <button
+              type="button"
+              className="rule-icon-button delete"
+              aria-label={`Delete run ${cell.original.id}`}
+              title={`Delete run ${cell.original.id}`}
+              onClick={(event) => {
+                event.stopPropagation();
+                onDelete(cell.original);
+              }}
+            >
+              <FaTrash />
+            </button>
+          ),
+        } as ITableHookColumn<IAutomationRunModel>,
+      ]
+    : []),
 ];

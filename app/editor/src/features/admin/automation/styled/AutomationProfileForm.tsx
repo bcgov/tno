@@ -438,7 +438,7 @@ export const AutomationProfileForm = styled(FormPage)`
   .schedules-grid-header,
   .schedules-grid-row {
     display: grid;
-    grid-template-columns: minmax(150px, 1fr) 110px minmax(180px, 1fr) 90px 120px;
+    grid-template-columns: minmax(150px, 1fr) 110px minmax(180px, 1fr) 150px 90px 120px;
     gap: 0.5rem;
     align-items: center;
     padding: 0.6rem 0.75rem;

@@ -51,6 +51,12 @@ export const sectionDocs = {
         <ul>
           <li>Times are interpreted in the Scheduler service's configured time zone.</li>
           <li>Select no week days to run every day.</li>
+          <li>
+            <strong>Start After</strong> is the date/time the schedule becomes valid; nothing runs
+            before it. Leave it empty and a schedule saved after its Run At time has already passed
+            becomes eligible the same day - set it to a future date/time to hold the first run until
+            then.
+          </li>
           <li>Disable the schedule to run this profile manually only.</li>
         </ul>
       </>

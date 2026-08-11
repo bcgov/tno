@@ -5,5 +5,6 @@ export const createDefaultSchedule = (): IAutomationScheduleModel => ({
   name: '',
   isEnabled: true,
   startAt: null,
+  runOn: null,
   runOnWeekDays: [],
 });

@@ -141,6 +141,7 @@ public class AutomationProfileService : BaseService<AutomationProfile, int>, IAu
                 originalEvent.Schedule.Name = incomingEvent.Name;
                 originalEvent.Schedule.IsEnabled = incomingEvent.Schedule.IsEnabled;
                 originalEvent.Schedule.StartAt = incomingEvent.Schedule.StartAt;
+                originalEvent.Schedule.RunOn = incomingEvent.Schedule.RunOn;
                 originalEvent.Schedule.RunOnWeekDays = incomingEvent.Schedule.RunOnWeekDays;
             }
         }
