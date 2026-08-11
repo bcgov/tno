@@ -123,9 +123,40 @@ require_az() {
   fi
 }
 
-# Login to ACR (idempotent; refreshes the docker credential). Requires an active az session -
-# prompts a device login when the session is missing/expired.
+# True when docker already holds a working credential for the registry - e.g. a normal
+# 'docker login', or a token from 'az acr login --expose-token' pasted from Cloud Shell on a
+# machine where 'az login' itself is blocked (Conditional Access requires a registered device).
+# Probes the registry's oauth2 endpoint with the stored refresh token; checks the snap docker
+# config path too, since snap confinement keeps it out of ~/.docker.
+docker_acr_logged_in() {
+  local cfg token code
+  for cfg in "${DOCKER_CONFIG:-$HOME/.docker}/config.json" "$HOME/snap/docker/current/.docker/config.json"; do
+    [ -f "$cfg" ] || continue
+    token=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("auths",{}).get(sys.argv[2],{}).get("identitytoken",""))' "$cfg" "$ACR_REGISTRY" 2>/dev/null) || continue
+    [ -n "$token" ] || continue
+    code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 -X POST "https://$ACR_REGISTRY/oauth2/token" \
+      --data-urlencode "grant_type=refresh_token" \
+      --data-urlencode "service=$ACR_REGISTRY" \
+      --data-urlencode "scope=registry:catalog:*" \
+      --data-urlencode "refresh_token=$token") || continue
+    [ "$code" = "200" ] && return 0
+  done
+  return 1
+}
+
+# Login to ACR (idempotent; refreshes the docker credential). Tries, in order:
+#   1. an existing valid docker credential (skips az entirely),
+#   2. ACR_USERNAME/ACR_PASSWORD env vars (the service-principal creds CI uses),
+#   3. az acr login, prompting a device login when the az session is missing/expired.
 acr_login() {
+  if docker_acr_logged_in; then
+    echo "Using existing docker credential for $ACR_REGISTRY"
+    return 0
+  fi
+  if [ -n "${ACR_USERNAME:-}" ] && [ -n "${ACR_PASSWORD:-}" ]; then
+    printf '%s' "$ACR_PASSWORD" | docker login "$ACR_REGISTRY" -u "$ACR_USERNAME" --password-stdin
+    return
+  fi
   require_az || return 1
   if ! az acr login --name "$ACR_NAME" 2>/dev/null; then
     echo "ACR login failed; attempting 'az login' first..."
