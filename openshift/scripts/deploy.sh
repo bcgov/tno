@@ -188,12 +188,50 @@ _acr_login () {
   fi
 }
 
+# Use the local docker credential for ACR when the cluster secret is stale - e.g. a token from
+# 'az acr login --expose-token' pasted from Cloud Shell on a machine where 'az login' itself is
+# blocked by Conditional Access. Exchanges the stored refresh token for a pull+push access
+# token; checks the snap docker config path too, since snap confinement keeps it out of ~/.docker.
+_docker_cred_login () {
+  local _cfg _refresh _resp _access
+  for _cfg in "${DOCKER_CONFIG:-$HOME/.docker}/config.json" "$HOME/snap/docker/current/.docker/config.json"; do
+    [[ -f "$_cfg" ]] || continue
+    if [[ "$_json_tool" == "jq" ]]; then
+      _refresh=$(jq -r ".auths[\"$ACR_HOST\"].identitytoken // empty" "$_cfg" 2>/dev/null)
+    else
+      _refresh=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('auths',{}).get(sys.argv[2],{}).get('identitytoken',''))" "$_cfg" "$ACR_HOST" 2>/dev/null)
+    fi
+    [[ -n "$_refresh" ]] || continue
+    _resp=$(curl -sf -X POST "https://$ACR_HOST/oauth2/token" \
+      --data-urlencode "grant_type=refresh_token" \
+      --data-urlencode "service=$ACR_HOST" \
+      --data-urlencode "scope=repository:*:pull,push" \
+      --data-urlencode "refresh_token=$_refresh") || continue
+    if [[ "$_json_tool" == "jq" ]]; then
+      _access=$(echo "$_resp" | jq -r '.access_token // empty')
+    else
+      _access=$(echo "$_resp" | python3 -c "import sys,json; print(json.load(sys.stdin).get('access_token',''))")
+    fi
+    if [[ -n "$_access" ]]; then
+      ACR_USER="00000000-0000-0000-0000-000000000000"
+      ACR_PASS="$_access"
+      return 0
+    fi
+  done
+  return 1
+}
+
 # Verify ACR credentials are valid before doing any work; auto-login if not
 echo "Verifying ACR authentication..."
 _auth_status=$(curl -sf -o /dev/null -w "%{http_code}" -u "$ACR_USER:$ACR_PASS" "https://$ACR_HOST/v2/")
 if [[ "$_auth_status" != "200" ]]; then
-  echo "NOTE: ACR credentials invalid or expired (HTTP $_auth_status). Attempting login..."
-  _acr_login
+  echo "NOTE: ACR credentials invalid or expired (HTTP $_auth_status)."
+  if _docker_cred_login; then
+    echo "Using the local docker credential for $ACR_HOST."
+  else
+    echo "Attempting login..."
+    _acr_login
+  fi
   _auth_status=$(curl -sf -o /dev/null -w "%{http_code}" -u "$ACR_USER:$ACR_PASS" "https://$ACR_HOST/v2/")
   if [[ "$_auth_status" != "200" ]]; then
     echo "ERROR: ACR authentication failed after login (HTTP $_auth_status)."
