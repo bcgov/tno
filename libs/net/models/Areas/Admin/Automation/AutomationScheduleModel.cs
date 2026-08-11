@@ -29,6 +29,13 @@ public class AutomationScheduleModel
     public TimeSpan? StartAt { get; set; }
 
     /// <summary>
+    /// get/set - The date and time the schedule becomes valid; the scheduler will not fire before
+    /// it. Set it in the future so a schedule created after its 'StartAt' time has passed does not
+    /// run prematurely on the day it is created.
+    /// </summary>
+    public DateTime? RunOn { get; set; }
+
+    /// <summary>
     /// get/set - The week days to run on (ScheduleWeekDay flag values).
     /// </summary>
     public int[] RunOnWeekDays { get; set; } = Array.Empty<int>();
@@ -48,8 +55,12 @@ public class AutomationScheduleModel
     {
         this.Id = entity.Id;
         this.Name = entity.Name;
-        this.IsEnabled = entity.IsEnabled && (entity.Schedule?.IsEnabled ?? false);
+        // The schedule's own setting, not the event's: the event is additionally gated on the
+        // profile being enabled, and reporting that here would silently clear the schedule's
+        // setting the next time a disabled profile was saved.
+        this.IsEnabled = entity.Schedule?.IsEnabled ?? false;
         this.StartAt = entity.Schedule?.StartAt;
+        this.RunOn = entity.Schedule?.RunOn;
         this.RunOnWeekDays = entity.Schedule == null
             ? Array.Empty<int>()
             : Enum.GetValues<Entities.ScheduleWeekDay>()

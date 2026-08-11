@@ -14,6 +14,7 @@ export const buildProfileForSave = (values: IAutomationProfileModel): IAutomatio
     name: schedule.name,
     isEnabled: schedule.isEnabled,
     startAt: schedule.startAt,
+    runOn: schedule.runOn ?? null,
     runOnWeekDays: schedule.runOnWeekDays ?? [],
   })),
   steps: normalizeSteps(values.steps).map((step) => ({

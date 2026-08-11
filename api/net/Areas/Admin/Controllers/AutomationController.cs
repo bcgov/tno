@@ -747,6 +747,26 @@ public class AutomationController : ControllerBase
     }
 
     /// <summary>
+    /// Delete a single automation run from the run history. The run's responses are removed with it
+    /// (cascade). This only removes history - it does not affect scheduling, which is driven by the
+    /// schedule's own last-run date rather than by the run records.
+    /// </summary>
+    /// <param name="runId"></param>
+    /// <returns>The deleted run.</returns>
+    // The 'long' constraint keeps this from capturing the literal "runs/prune" route below.
+    [HttpDelete("runs/{runId:long}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(AutomationRunModel), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Automation" })]
+    public IActionResult DeleteRun(long runId)
+    {
+        var run = _runService.FindById(runId) ?? throw new NoContentException();
+        var model = new AutomationRunModel(run);
+        _runService.DeleteAndSave(run);
+        return new JsonResult(model);
+    }
+
+    /// <summary>
     /// Prune automation runs older than the specified number of days. Used by the automation service for retention.
     /// </summary>
     /// <param name="days"></param>

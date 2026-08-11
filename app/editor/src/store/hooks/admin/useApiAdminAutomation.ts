@@ -58,6 +58,11 @@ export const useApiAdminAutomation = () => {
         `/admin/automation/runs/${runId}/diff`,
       );
     },
+    deleteRun: (runId: number) => {
+      return api.delete<never, AxiosResponse<IAutomationRunModel>, any>(
+        `/admin/automation/runs/${runId}`,
+      );
+    },
     debugContent: (id: number, request: IAutomationDebugRequestModel) => {
       return api.post<
         IAutomationDebugRequestModel,

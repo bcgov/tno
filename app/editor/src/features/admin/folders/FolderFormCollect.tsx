@@ -153,7 +153,10 @@ export const FolderFormCollect: React.FC = () => {
                     : undefined
                 }
                 onChange={(value) => {
-                  setFieldValue('events.0.runOn', value ? moment(value).toString() : undefined);
+                  // Must be a UTC ISO string: moment's toString emits a non-ISO format the API
+                  // cannot bind to DateTime, and an offset-less one binds as Kind=Unspecified,
+                  // which Npgsql refuses to write to schedule.run_on (timestamp with time zone).
+                  setFieldValue('events.0.runOn', value ? moment(value).toISOString() : undefined);
                 }}
                 isClearable
               />
