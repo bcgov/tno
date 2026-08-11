@@ -2691,9 +2691,12 @@ const AutomationProfileForm: React.FC = () => {
                         portalId={DATE_PICKER_PORTAL_ID}
                         selectedDate={scheduleModalState?.schedule.runOn ?? undefined}
                         onChange={(date) => {
-                          // Stored as a local date/time string, matching how report schedules
-                          // record 'runOn'; the scheduler converts it to its configured time zone.
-                          const runOn = date ? moment(date as Date).toString() : null;
+                          // Sent as a UTC ISO string: the API binds it to a DateTime with
+                          // Kind=Utc, which is what both the 'timestamp with time zone' column
+                          // and the Scheduler's ToTimeZone conversion require. A non-ISO string
+                          // (moment's toString) fails JSON binding, and an offset-less one binds
+                          // as Kind=Unspecified, which Npgsql refuses to write.
+                          const runOn = date ? moment(date as Date).toISOString() : null;
                           setScheduleModalState((state) =>
                             state ? { ...state, schedule: { ...state.schedule, runOn } } : state,
                           );
