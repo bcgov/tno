@@ -1,6 +1,10 @@
 import { FormPage } from 'components/formpage';
 import styled, { createGlobalStyle } from 'styled-components';
 
+// Imported from the module rather than the 'constants' barrel to keep the component index out of
+// this stylesheet's import graph.
+import { DATE_PICKER_PORTAL_ID } from '../constants/datePickerPortalId';
+
 export const AutomationProfileForm = styled(FormPage)`
   display: flex;
   flex-direction: column;
@@ -438,7 +442,7 @@ export const AutomationProfileForm = styled(FormPage)`
   .schedules-grid-header,
   .schedules-grid-row {
     display: grid;
-    grid-template-columns: minmax(150px, 1fr) 110px minmax(180px, 1fr) 90px 120px;
+    grid-template-columns: minmax(150px, 1fr) 110px minmax(180px, 1fr) 150px 90px 120px;
     gap: 0.5rem;
     align-items: center;
     padding: 0.6rem 0.75rem;
@@ -798,6 +802,14 @@ export const AutomationModalStyles = createGlobalStyle`
 
   .modal-popup:has(.rule-modal-content) .button-row {
     flex-shrink: 0;
+  }
+
+  /* The schedule modal clips its popup ('overflow: hidden' above) and scrolls its body, so the
+     Start After calendar is rendered into a body-level portal ('portalId') instead of inline.
+     Both the modal and the portal are children of document.body, so the popper has to out-rank
+     the modal wrapper's z-index (1050) to paint over the dialog. */
+  #${DATE_PICKER_PORTAL_ID} .react-datepicker-popper {
+    z-index: 1060;
   }
 
   /* Full-width select rows (Prior Action, Report): the whole label is always visible.

@@ -1,5 +1,6 @@
 /* eslint-disable simple-import-sort/imports */
 import { FormikForm } from 'components/formik';
+import moment from 'moment';
 import React from 'react';
 import { DragDropContext, Draggable, type DropResult } from 'react-beautiful-dnd';
 import {
@@ -42,6 +43,7 @@ import {
   Modal,
   Row,
   Select,
+  SelectDate,
   Show,
   Tab,
   Tabs,
@@ -61,12 +63,13 @@ import {
   contentFieldOptionItems,
   createDefaultAction,
   createDefaultStep,
+  DATE_PICKER_PORTAL_ID,
   DEDUPLICATION_ACTION,
   defaultAutomationProfile,
+  getRunColumns,
   noneTargetOptions,
   RUN_NOTIFICATION_ACTION,
   RUN_REPORT_ACTION,
-  runColumns,
   SCORE_CONTENT_ACTION,
   sectionDocs,
   SELECT_TOP_ACTION,
@@ -173,6 +176,8 @@ const AutomationProfileForm: React.FC = () => {
   const [runDetail, setRunDetail] = React.useState<IAutomationRunModel | null>(null);
   const [runDiff, setRunDiff] = React.useState<IAutomationRunDiffModel | null>(null);
   const { toggle: toggleRunDetailModal, isShowing: isRunDetailModalShowing } = useModal();
+  // The run pending deletion; also drives the confirmation modal's visibility.
+  const [runDeleteState, setRunDeleteState] = React.useState<IAutomationRunModel | null>(null);
 
   const profileId = Number(id);
   const hub = useApiHub();
@@ -439,6 +444,16 @@ const AutomationProfileForm: React.FC = () => {
     setRunDiff(null);
     if (isRunDetailModalShowing) toggleRunDetailModal();
   };
+
+  const openRunDelete = React.useCallback((run: IAutomationRunModel) => {
+    setRunDeleteState(run);
+  }, []);
+
+  const closeRunDelete = () => setRunDeleteState(null);
+
+  // FlexboxTable rebuilds its internal table whenever the columns array identity changes, so this
+  // must stay referentially stable - hence the stable (state setter only) delete handler above.
+  const runColumns = React.useMemo(() => getRunColumns(openRunDelete), [openRunDelete]);
 
   React.useEffect(() => {
     if (!!profileId && profile.id !== profileId) {
@@ -988,6 +1003,7 @@ const AutomationProfileForm: React.FC = () => {
                           <Col className="name-col">Name</Col>
                           <Col className="state-col">Run At</Col>
                           <Col className="condition-col">Run On</Col>
+                          <Col className="date-col">Start After</Col>
                           <Col className="state-col">Enabled</Col>
                           <Col className="actions-col">
                             <button
@@ -1020,6 +1036,9 @@ const AutomationProfileForm: React.FC = () => {
                             </Col>
                             <Col className="condition-col">
                               {formatScheduleWeekDays(schedule.runOnWeekDays)}
+                            </Col>
+                            <Col className="date-col">
+                              {schedule.runOn ? formatRunTime(schedule.runOn) : 'Any time'}
                             </Col>
                             <Col className="state-col">{schedule.isEnabled ? 'Yes' : 'No'}</Col>
                             <Col className="actions-col">
@@ -2620,7 +2639,9 @@ const AutomationProfileForm: React.FC = () => {
                   <div className="rule-modal-content">
                     <p className="modal-intro-text">
                       The Scheduler service queues a run once per day at (or after) the Run At time
-                      on the selected week days.
+                      on the selected week days. The schedule is not eligible to run before Start
+                      After - set it to a future date/time so a schedule created after its Run At
+                      time has already passed does not run on the day it is created.
                     </p>
                     <Row className="field-grid" gap="1rem">
                       <Text
@@ -2653,6 +2674,31 @@ const AutomationProfileForm: React.FC = () => {
                                   },
                                 }
                               : state,
+                          );
+                        }}
+                      />
+                      <SelectDate
+                        width={FieldSize.Medium}
+                        name="schedule-run-on"
+                        label="Start After"
+                        placeholderText="Any time"
+                        dateFormat="yyyy-MM-dd HH:mm:ss"
+                        showTimeInput
+                        showTimeSelect
+                        isClearable
+                        // The modal clips its popup and scrolls its body, so the calendar renders
+                        // into a body-level portal instead of being cut off inside the dialog.
+                        portalId={DATE_PICKER_PORTAL_ID}
+                        selectedDate={scheduleModalState?.schedule.runOn ?? undefined}
+                        onChange={(date) => {
+                          // Sent as a UTC ISO string: the API binds it to a DateTime with
+                          // Kind=Utc, which is what both the 'timestamp with time zone' column
+                          // and the Scheduler's ToTimeZone conversion require. A non-ISO string
+                          // (moment's toString) fails JSON binding, and an offset-less one binds
+                          // as Kind=Unspecified, which Npgsql refuses to write.
+                          const runOn = date ? moment(date as Date).toISOString() : null;
+                          setScheduleModalState((state) =>
+                            state ? { ...state, schedule: { ...state.schedule, runOn } } : state,
                           );
                         }}
                       />
@@ -2823,6 +2869,30 @@ const AutomationProfileForm: React.FC = () => {
                     </Button>
                   </Row>
                 }
+              />
+              <Modal
+                headerText="Confirm Run Removal"
+                body={`Are you sure you wish to delete run #${
+                  runDeleteState?.id ?? ''
+                } from the run history? This cannot be undone.`}
+                isShowing={!!runDeleteState}
+                hide={closeRunDelete}
+                type="delete"
+                confirmText="Yes, Delete Run"
+                onConfirm={async () => {
+                  const run = runDeleteState;
+                  if (!run) return closeRunDelete();
+                  try {
+                    await api.deleteRun(run.id);
+                    setRuns((runs) => runs.filter((r) => r.id !== run.id));
+                    // The in-progress poll keys off the latest run; drop it so it does not keep
+                    // polling for a run that no longer exists.
+                    setLastRun((last) => (last?.id === run.id ? null : last));
+                    toast.success(`Run #${run.id} has been deleted.`);
+                  } finally {
+                    closeRunDelete();
+                  }
+                }}
               />
             </div>
           );

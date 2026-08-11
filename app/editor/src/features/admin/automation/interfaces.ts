@@ -67,6 +67,10 @@ export interface IAutomationScheduleModel {
   isEnabled: boolean;
   /** Time of day to run at (or after), 'HH:mm:ss'. */
   startAt?: string | null;
+  /** The date/time the schedule becomes valid; the scheduler will not fire before it. Set it in
+   * the future so a schedule created after its 'startAt' time has passed does not run prematurely
+   * on the day it is created. */
+  runOn?: string | null;
   /** ScheduleWeekDay flag values; empty runs every day. */
   runOnWeekDays: number[];
 }

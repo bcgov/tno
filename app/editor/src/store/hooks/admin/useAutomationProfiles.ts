@@ -21,6 +21,7 @@ interface IAutomationProfileController {
   runProfile: (id: number, request: IAutomationRunRequestModel) => Promise<IAutomationRunModel>;
   findRuns: (profileId?: number) => Promise<IAutomationRunModel[]>;
   getRunDiff: (runId: number) => Promise<IAutomationRunDiffModel>;
+  deleteRun: (runId: number) => Promise<IAutomationRunModel>;
   debugContent: (
     id: number,
     request: IAutomationDebugRequestModel,
@@ -94,6 +95,13 @@ export const useAutomationProfiles = (): [IAdminState, IAutomationProfileControl
           async () => await api.getRunDiff(runId),
           undefined,
           true,
+        );
+        return response.data;
+      },
+      deleteRun: async (runId: number) => {
+        const response = await dispatch<IAutomationRunModel>(
+          'delete-automation-run',
+          async () => await api.deleteRun(runId),
         );
         return response.data;
       },
