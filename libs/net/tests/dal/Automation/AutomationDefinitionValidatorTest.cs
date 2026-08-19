@@ -29,6 +29,7 @@ public class AutomationDefinitionValidatorTest
         },
         {
           "name": "Distribute", "phase": "complete",
+          "source": { "from": "collection", "collection": "$run.inbox" },
           "actions": [ { "type": "report.run", "report": 5 } ]
         }
       ]
@@ -159,11 +160,16 @@ public class AutomationDefinitionValidatorTest
     }
 
     [Fact]
-    public void SubjectActionInCompleteStep_IsAnError()
+    public void CompleteStepWithoutSource_IsAnError()
     {
+        // Source is required for process and complete phases.
         var definition = ValidDefinition();
-        definition.Steps[2].Actions.Add(new V2ActionDefinition { Type = "content.publish" });
+        definition.Steps[2].Source = null;
         var errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.Contains(errors, e => e.Path == "steps[2].source" && e.Severity == "error");
+        // And without a source the step cannot iterate, so subject actions are invalid too.
+        definition.Steps[2].Actions.Add(new V2ActionDefinition { Type = "content.publish" });
+        errors = AutomationDefinitionValidator.Validate(definition);
         Assert.Contains(errors, e => e.Path.StartsWith("steps[2]") && e.Message.Contains("process"));
     }
 

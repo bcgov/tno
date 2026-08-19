@@ -85,6 +85,13 @@ public static class AutomationProfileV2Migrator
                 LlmId = step.LLMId,
             };
 
+            if (phase == V2Phases.Complete)
+            {
+                // Complete steps require a source. Their selection/report actions keep their
+                // once-per-step semantics (the engine runs once-actions once, after iteration).
+                v2Step.Source = new V2SourceDefinition { From = "collection", Collection = InboxCollection };
+                warnings.Add($"Step '{step.Name}' (complete) was given {InboxCollection} as its source; its selection/report actions still run once - review the source.");
+            }
             if (phase == V2Phases.Process)
             {
                 v2Step.Source = step.IterateStepFilter && step.FilterId.HasValue

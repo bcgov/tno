@@ -170,17 +170,27 @@ public class V2Engine
 
             try
             {
-                // Process steps always iterate; a complete step iterates when it declares a
-                // source (v1's iterate-at-end capability), otherwise it runs once.
+                // Process steps always iterate; a complete step iterates its required source.
+                // Once-natured actions (select-top, report.run, set operations, ...) keep their
+                // once-per-step semantics inside an iterating step: they are partitioned out of
+                // the per-item pass and executed exactly once after iteration completes.
                 if (step.Phase != V2Phases.Init && step.Source != null)
                 {
+                    var perItemActions = step.Actions
+                        .Where(a => !V2ActionCatalog.Types.TryGetValue(a.Type, out var d) || d.Phases.Contains(V2Phases.Process))
+                        .ToList();
+                    var onceActions = step.Actions
+                        .Where(a => V2ActionCatalog.Types.TryGetValue(a.Type, out var d) && !d.Phases.Contains(V2Phases.Process))
+                        .ToList();
+                    var itemStep = CloneWithActions(step, perItemActions);
+
                     var entries = await ResolveSourceAsync(step, environment, stepSummary);
                     stepSummary.Items = entries.Count;
                     await Parallel.ForEachAsync(entries, parallelism, async (entry, _) =>
                     {
                         try
                         {
-                            await ExecuteStepInstanceAsync(step, new V2ItemScope(entry), environment, stepSummary);
+                            await ExecuteStepInstanceAsync(itemStep, new V2ItemScope(entry), environment, stepSummary);
                         }
                         catch (Exception ex)
                         {
@@ -190,6 +200,9 @@ public class V2Engine
                             runLogger.LogDecision(step.Name, null, null, entry.Kind == "existing" ? entry.Id : null, V2Outcomes.Failed, $"Step instance failed: {ex.Message}");
                         }
                     });
+
+                    if (onceActions.Count > 0)
+                        await ExecuteStepInstanceAsync(CloneWithActions(step, onceActions), new V2ItemScope(null), environment, stepSummary);
                 }
                 else
                 {
@@ -240,6 +253,23 @@ public class V2Engine
         summary.DurationMs = runTimer.ElapsedMilliseconds;
         return summary;
     }
+
+    /// <summary>
+    /// A shallow step copy carrying a subset of its actions (shared analyses), used to partition
+    /// per-item actions from once-actions in an iterating step.
+    /// </summary>
+    private static V2StepDefinition CloneWithActions(V2StepDefinition step, List<V2ActionDefinition> actions) => new()
+    {
+        Name = step.Name,
+        Description = step.Description,
+        Phase = step.Phase,
+        IsEnabled = step.IsEnabled,
+        Source = step.Source,
+        SaveMode = step.SaveMode,
+        LlmId = step.LlmId,
+        Analyses = step.Analyses,
+        Actions = actions,
+    };
 
     /// <summary>
     /// Shared per-variant services threaded through execution as one object rather than the v1

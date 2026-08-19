@@ -693,13 +693,19 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                   return;
                 }
                 const draft = { ...stepModal.draft };
-                // A complete step with nothing picked for its source runs once; an init step
-                // never has one. Only keep a source that actually selects something.
+                // Init steps never declare a source; process and complete steps require one.
                 const source = draft.source;
                 const sourceIsSet =
                   !!source && (source.from === 'filter' ? !!source.filter : !!source.collection);
-                if (draft.phase === 'init' || (draft.phase === 'complete' && !sourceIsSet))
-                  draft.source = undefined;
+                if (draft.phase === 'init') draft.source = undefined;
+                else if (!sourceIsSet) {
+                  toast.error(
+                    draft.source?.from === 'filter'
+                      ? 'A filter is required for the step source.'
+                      : 'A collection is required for the step source.',
+                  );
+                  return;
+                }
                 const steps = [...definition.steps];
                 if (stepModal.index != null) steps[stepModal.index] = draft;
                 else steps.push(draft);

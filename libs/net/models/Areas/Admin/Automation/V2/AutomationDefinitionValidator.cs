@@ -68,12 +68,12 @@ public static class AutomationDefinitionValidator
             // Source rules per phase: process requires a source, complete may declare one (and
             // then iterates it like a process step), init never has one.
             var sourceIsDraftCollection = false;
-            var iterates = step.Phase == V2Phases.Process || (step.Phase == V2Phases.Complete && step.Source != null);
+            var iterates = step.Phase != V2Phases.Init && step.Source != null;
             if (step.Phase != V2Phases.Init)
             {
-                if (step.Source == null && step.Phase == V2Phases.Process)
-                    errors.Add(new($"{stepPath}.source", "A process step requires a source."));
-                else if (step.Source != null)
+                if (step.Source == null)
+                    errors.Add(new($"{stepPath}.source", $"A {step.Phase} step requires a source."));
+                else
                 {
                     var source = step.Source;
                     var sourcePath = $"{stepPath}.source";

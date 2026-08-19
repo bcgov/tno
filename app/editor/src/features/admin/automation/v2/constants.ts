@@ -11,14 +11,14 @@ import {
 export const V2_PHASES = ['init', 'process', 'complete'] as const;
 
 export const v2PhaseOptions: IOptionItem[] = [
-  createOption('Initialize (runs once, first)', 'init'),
-  createOption('Process (runs per content item)', 'process'),
-  createOption('Complete (runs once, last)', 'complete'),
+  createOption('init', 'init'),
+  createOption('process', 'process'),
+  createOption('complete', 'complete'),
 ];
 
 export const v2SaveModeOptions: IOptionItem[] = [
-  createOption('End of run (one write per item)', 'end-of-run'),
-  createOption('End of step (write after each step)', 'end-of-step'),
+  createOption('end-of-run', 'end-of-run'),
+  createOption('end-of-step', 'end-of-step'),
 ];
 
 export const v2StepSaveModeOptions: IOptionItem[] = [
@@ -27,8 +27,8 @@ export const v2StepSaveModeOptions: IOptionItem[] = [
 ];
 
 export const v2SourceOptions: IOptionItem[] = [
-  createOption('A collection from the run', 'collection'),
-  createOption('Run a filter', 'filter'),
+  createOption('collection', 'collection'),
+  createOption('filter', 'filter'),
 ];
 
 export const v2ConditionOpOptions: IOptionItem[] = [
@@ -146,6 +146,20 @@ export const parseV2Definition = (json?: string | null): IV2Definition => {
   } catch {
     return createDefaultV2Definition();
   }
+};
+
+/** Width (in ch) that fits a select's widest option label plus its control chrome
+ * (padding + indicators), so fields size to the values inside their dropdowns.
+ * extraCh covers additional injected indicators (e.g. the filter field's pencil and +). */
+export const fitSelectWidth = (
+  labels: (string | number | undefined)[],
+  placeholder = '',
+  extraCh = 0,
+  minCh = 12,
+  maxCh = 40,
+): string => {
+  const longest = Math.max(placeholder.length, ...labels.map((label) => `${label ?? ''}`.length));
+  return `${Math.min(maxCh, Math.max(minCh, longest + 8 + extraCh))}ch`;
 };
 
 /** Collection names created anywhere in the definition, for pickers and hints. */

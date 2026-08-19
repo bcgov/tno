@@ -1,8 +1,13 @@
 import React from 'react';
 import { Checkbox, Col, type IOptionItem, Row, Select, Show, Text, TextArea } from 'tno-core';
 
-import { findOptionByValue, toNumberOrUndefined } from '../utils';
-import { v2PhaseOptions, v2SourceOptions, v2StepSaveModeOptions } from './constants';
+import { createOption, findOptionByValue, toNumberOrUndefined } from '../utils';
+import {
+  fitSelectWidth,
+  v2PhaseOptions,
+  v2SourceOptions,
+  v2StepSaveModeOptions,
+} from './constants';
 import { type IV2Step } from './interfaces';
 import { V2FilterField } from './V2FilterField';
 import { V2ScopedNameField } from './V2ScopedNameField';
@@ -49,7 +54,7 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
           name="step-phase"
           label="Phase"
           required
-          width="8rem"
+          width={fitSelectWidth(['init', 'process', 'complete'])}
           isClearable={false}
           options={v2PhaseOptions}
           value={findOptionByValue(v2PhaseOptions, step.phase)}
@@ -77,7 +82,7 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
           <Select
             name="step-save-mode"
             label="Save Mode"
-            width="10rem"
+            width={fitSelectWidth(['profile default', 'end-of-run', 'end-of-step'])}
             isClearable={false}
             options={v2StepSaveModeOptions}
             value={findOptionByValue(v2StepSaveModeOptions, step.saveMode ?? '')}
@@ -89,10 +94,13 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
           <Select
             name="step-llm"
             label="LLM Override"
-            width="10rem"
-            placeholder="profile default"
-            options={llmOptions}
-            value={findOptionByValue(llmOptions, step.llmId) ?? ''}
+            width={fitSelectWidth([
+              'profile default',
+              ...llmOptions.map((option) => `${option.label}`),
+            ])}
+            isClearable={false}
+            options={[createOption('profile default', ''), ...llmOptions]}
+            value={findOptionByValue(llmOptions, step.llmId) ?? createOption('profile default', '')}
             onChange={(newValue) => set({ llmId: toNumberOrUndefined(newValue as IOptionItem) })}
           />
         </Row>
@@ -110,7 +118,8 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
           <Select
             name="step-source-from"
             label="Source"
-            width="8rem"
+            required
+            width={fitSelectWidth(['collection', 'filter'])}
             isClearable={false}
             options={v2SourceOptions}
             value={findOptionByValue(v2SourceOptions, step.source?.from ?? 'collection')}

@@ -4,6 +4,7 @@ import { components as selectComponents, type IndicatorsContainerProps } from 'r
 import { type IOptionItem, Select } from 'tno-core';
 
 import { findOptionByValue, toNumberOrUndefined } from '../utils';
+import { fitSelectWidth } from './constants';
 
 export interface IV2FilterFieldProps {
   name: string;
@@ -30,7 +31,7 @@ export const V2FilterField: React.FC<IV2FilterFieldProps> = ({
   value,
   options,
   onChange,
-  width = '16rem',
+  width,
   required,
 }) => {
   // Injected into the control's indicators area, before the clear/dropdown indicators.
@@ -83,7 +84,14 @@ export const V2FilterField: React.FC<IV2FilterFieldProps> = ({
       name={name}
       label={label}
       required={required}
-      width={width}
+      width={
+        width ??
+        fitSelectWidth(
+          options.map((option) => `${option.label}`),
+          'Pick a filter',
+          6,
+        )
+      }
       placeholder="Pick a filter"
       options={options}
       value={findOptionByValue(options, value) ?? ''}
