@@ -1233,29 +1233,26 @@ export const AutomationModalStyles = createGlobalStyle`
   }
 
   .v2-filter-add {
-    /* Compact square per the design: ~2/3 the control height, centered beside it. */
+    /* Per the design: a bare plus glyph beside the control - no border, no box, no background. */
     flex: 0 0 auto;
-    width: 1.6rem;
-    height: 1.6rem;
     align-self: center;
-    margin-left: 0.25rem;
+    margin-left: 0.35rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #1a5a96;
-    border-radius: 0.2rem;
-    background: #fff;
+    border: none;
+    background: none;
     color: #1a5a96;
     cursor: pointer;
     padding: 0;
 
     svg {
-      width: 0.8rem;
-      height: 0.8rem;
+      width: 0.9rem;
+      height: 0.9rem;
     }
 
     &:hover {
-      background: #f5f8ff;
+      color: #0f3e6d;
     }
   }
   .v2-scoped-name label {
