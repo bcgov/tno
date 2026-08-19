@@ -1,22 +1,37 @@
 import React from 'react';
 import { DragDropContext, Draggable, type DropResult } from 'react-beautiful-dnd';
-import { FaChevronDown, FaChevronRight, FaGripLines, FaPlus, FaTrash } from 'react-icons/fa';
+import {
+  FaChevronDown,
+  FaChevronRight,
+  FaCopy,
+  FaEdit,
+  FaGripLines,
+  FaPlus,
+  FaTrash,
+} from 'react-icons/fa';
+import { FaCircleInfo } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
-import { Button, ButtonVariant, Col, type IOptionItem, Row, Show, TextArea } from 'tno-core';
+import { Button, ButtonVariant, Col, type IOptionItem, Modal, Row, Show, TextArea } from 'tno-core';
 
 import { StrictModeDroppable } from '../StrictModeDroppable';
+import { findOptionByValue } from '../utils';
 import {
   collectV2CollectionNames,
+  createDefaultV2Action,
   createDefaultV2Step,
   parseV2Definition,
   serializeV2Definition,
 } from './constants';
 import {
+  type IV2Action,
   type IV2ActionDescriptor,
+  type IV2Analysis,
   type IV2Definition,
   type IV2Step,
   type IV2ValidationError,
 } from './interfaces';
+import { V2ActionEditor } from './V2ActionEditor';
+import { V2AnalysisEditor } from './V2AnalysisEditor';
 import { V2PromptLibrary } from './V2PromptLibrary';
 import { V2StepEditor } from './V2StepEditor';
 
@@ -34,10 +49,33 @@ export interface IV2DesignerProps {
   onValidate?: (definition: string) => Promise<IV2ValidationError[]>;
 }
 
+interface IStepModalState {
+  /** The step index being edited, or null when adding. */
+  index: number | null;
+  draft: IV2Step;
+}
+
+interface IActionModalState {
+  stepIndex: number;
+  /** The action index being edited, or null when adding. */
+  index: number | null;
+  draft: IV2Action;
+}
+
+interface IAnalysisModalState {
+  stepIndex: number;
+  /** The analysis index being edited, or null when adding. */
+  index: number | null;
+  draft: IV2Analysis;
+}
+
+const deepCopy = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+
 /**
- * The v2 profile designer: the prompt library (shared text stored once, referenced by steps),
- * steps grouped by lifecycle phase, and on-demand validation with per-path findings. A raw JSON
- * editor is available for power edits; the same document round-trips both ways.
+ * The v2 profile designer: the prompt library, a steps grid (name, phase, source, counts - rows
+ * drag to reorder, chevrons expand to the step's analyses and actions, pencils open modal forms),
+ * and on-demand validation with per-path findings. A raw JSON editor is available for power
+ * edits; the same document round-trips both ways.
  */
 export const V2Designer: React.FC<IV2DesignerProps> = ({
   value,
@@ -51,10 +89,13 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
   onValidate,
 }) => {
   const definition = React.useMemo(() => parseV2Definition(value), [value]);
-  const [collapsed, setCollapsed] = React.useState<Set<number>>(new Set());
+  const [expanded, setExpanded] = React.useState<Set<number>>(new Set());
   const [showJson, setShowJson] = React.useState(false);
   const [jsonDraft, setJsonDraft] = React.useState('');
   const [findings, setFindings] = React.useState<IV2ValidationError[] | null>(null);
+  const [stepModal, setStepModal] = React.useState<IStepModalState | null>(null);
+  const [actionModal, setActionModal] = React.useState<IActionModalState | null>(null);
+  const [analysisModal, setAnalysisModal] = React.useState<IAnalysisModalState | null>(null);
 
   const update = (next: IV2Definition) => onChange(serializeV2Definition(next));
   const promptNames = Object.keys(definition.prompts);
@@ -66,15 +107,14 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
     update({ ...definition, steps });
   };
 
-  const toggleCollapsed = (index: number) =>
-    setCollapsed((current) => {
+  const anyExpanded = expanded.size > 0;
+  const toggleExpanded = (index: number) =>
+    setExpanded((current) => {
       const next = new Set(current);
       if (next.has(index)) next.delete(index);
       else next.add(index);
       return next;
     });
-
-  const allCollapsed = definition.steps.length > 0 && collapsed.size >= definition.steps.length;
 
   // One drag context covers both lists; distinct droppable ids keep steps and actions (and
   // actions across steps) from mixing.
@@ -93,12 +133,12 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
       const [moved] = steps.splice(source.index, 1);
       steps.splice(destination.index, 0, moved);
       update({ ...definition, steps });
-      // Move the collapsed flags the same way so they follow their steps.
-      setCollapsed((current) => {
+      // Move the expanded flags the same way so they follow their steps.
+      setExpanded((current) => {
         const flags = definition.steps.map((_, i) => current.has(i));
         const [movedFlag] = flags.splice(source.index, 1);
         flags.splice(destination.index, 0, movedFlag);
-        return new Set(flags.flatMap((isCollapsed, i) => (isCollapsed ? [i] : [])));
+        return new Set(flags.flatMap((isExpanded, i) => (isExpanded ? [i] : [])));
       });
       return;
     }
@@ -114,6 +154,59 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
     }
   };
 
+  const sourceLabel = (step: IV2Step): React.ReactNode => {
+    if (step.phase !== 'process') return '—';
+    const source = step.source;
+    if (source?.from === 'collection')
+      return <span className="v2-prompt-name">{source.collection ?? '?'}</span>;
+    if (source?.from === 'filter')
+      return findOptionByValue(filterOptions, source.filter)?.label ?? `filter ${source.filter}`;
+    return 'profile filter';
+  };
+
+  const typeLabel = (type: string): string =>
+    descriptors.find((descriptor) => descriptor.type === type)?.label ?? type;
+
+  const gateLabel = (action: IV2Action): string => {
+    if (action.confirm) return `confirm ${action.confirm}`;
+    if (action.when?.from) return `if ${action.when.from}`;
+    if (action.when) return 'condition';
+    return 'always';
+  };
+
+  const duplicateStep = (index: number) => {
+    const steps = [...definition.steps];
+    const copy = deepCopy(steps[index]);
+    copy.name = `${copy.name} (copy)`;
+    steps.splice(index + 1, 0, copy);
+    update({ ...definition, steps });
+  };
+
+  const duplicateAction = (stepIndex: number, index: number) => {
+    const step = definition.steps[stepIndex];
+    const actions = [...step.actions];
+    const copy = deepCopy(actions[index]);
+    copy.name = copy.name ? `${copy.name} (copy)` : copy.name;
+    actions.splice(index + 1, 0, copy);
+    setStep(stepIndex, { ...step, actions });
+  };
+
+  const duplicateAnalysis = (stepIndex: number, index: number) => {
+    const step = definition.steps[stepIndex];
+    const analyses = [...step.analyses];
+    const copy = deepCopy(analyses[index]);
+    copy.name = `${copy.name}-copy`;
+    analyses.splice(index + 1, 0, copy);
+    setStep(stepIndex, { ...step, analyses });
+  };
+
+  /** Drafts declared by content.create actions before the given index (modal draft pickers). */
+  const draftNamesBefore = (step: IV2Step, index: number | null): string[] =>
+    step.actions
+      .slice(0, index ?? step.actions.length)
+      .filter((action) => action.type === 'content.create' && !!action.as)
+      .map((action) => action.as!);
+
   return (
     <Col className="v2-designer" gap="0.5rem">
       <Row className="section-header" nowrap>
@@ -123,107 +216,367 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
 
       <Row className="section-header" nowrap>
         <h2>Steps</h2>
-        <button
-          type="button"
-          className="rule-icon-button"
-          aria-label={allCollapsed ? 'Expand all steps' : 'Collapse all steps'}
-          title={allCollapsed ? 'Expand all steps' : 'Collapse all steps'}
-          onClick={() =>
-            setCollapsed(
-              allCollapsed ? new Set() : new Set(definition.steps.map((_, index) => index)),
-            )
-          }
+        <span
+          className="v2-info"
+          title="Steps run in phase order (init → process → complete) and in row order within a phase. Every action in a step applies to the item the step iterates; to act on different content, iterate a different collection."
         >
-          {allCollapsed ? <FaChevronRight /> : <FaChevronDown />}
-        </button>
+          <FaCircleInfo />
+        </span>
       </Row>
       <p className="section-help-text">
-        Steps run in order within their phase: initialize (once) → process (per content item) →
-        complete (once). Every action in a step applies to the item the step iterates; to act on
-        different content, iterate a different collection.
+        Init steps run once before iteration; each process step iterates its declared source;
+        complete steps run once after. Drag rows to reorder within a phase.
+        <br />
+        An analysis executes at most once per item, and only when a consuming action is reachable —
+        actions gated by a property condition send no prompt.
       </p>
-      <DragDropContextAny onDragEnd={onDragEnd}>
-        <DroppableAny droppableId="v2-steps">
-          {(provided: any) => (
-            <div className="v2-steps-list" ref={provided.innerRef} {...provided.droppableProps}>
-              {definition.steps.map((step, index) => (
-                <DraggableAny key={`step-${index}`} draggableId={`step-${index}`} index={index}>
-                  {(dragProvided: any, dragSnapshot: any) => (
-                    <div
-                      className={`v2-step-card${dragSnapshot.isDragging ? ' is-dragging' : ''}`}
-                      ref={dragProvided.innerRef}
-                      {...dragProvided.draggableProps}
-                    >
-                      <Row gap="0.5rem" alignItems="center" nowrap className="v2-step-card-header">
-                        <span
-                          className="v2-drag-handle"
-                          title="Drag to reorder"
-                          {...dragProvided.dragHandleProps}
-                        >
-                          <FaGripLines />
-                        </span>
-                        <button
-                          type="button"
-                          className="rule-icon-button"
-                          title={collapsed.has(index) ? 'Expand' : 'Collapse'}
-                          onClick={() => toggleCollapsed(index)}
-                        >
-                          {collapsed.has(index) ? <FaChevronRight /> : <FaChevronDown />}
-                        </button>
-                        <span className={`v2-badge v2-phase-${step.phase}`}>{step.phase}</span>
-                        <strong>{step.name || '(unnamed step)'}</strong>
-                        <span className="v2-field-help">
-                          {step.analyses.length} analysis(es), {step.actions.length} action(s)
-                          {step.isEnabled ? '' : ' — disabled'}
-                        </span>
-                        <button
-                          type="button"
-                          className="rule-icon-button delete"
-                          title="Delete step"
-                          onClick={() =>
-                            update({
-                              ...definition,
-                              steps: definition.steps.filter((_, i) => i !== index),
-                            })
-                          }
-                        >
-                          <FaTrash />
-                        </button>
-                      </Row>
-                      <Show visible={!collapsed.has(index)}>
-                        <V2StepEditor
-                          step={step}
-                          stepIndex={index}
-                          descriptors={descriptors}
-                          collectionNames={collectionNames}
-                          promptNames={promptNames}
-                          filterOptions={filterOptions}
-                          llmOptions={llmOptions}
-                          reportOptions={reportOptions}
-                          notificationOptions={notificationOptions}
-                          actionOptions={actionOptions}
-                          onChange={(next) => setStep(index, next)}
-                        />
-                      </Show>
-                    </div>
-                  )}
-                </DraggableAny>
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </DroppableAny>
-      </DragDropContextAny>
-      <Row gap="0.5rem">
-        <Button
-          variant={ButtonVariant.secondary}
-          onClick={() =>
-            update({ ...definition, steps: [...definition.steps, createDefaultV2Step('process')] })
-          }
-        >
-          <FaPlus /> Add step
-        </Button>
-      </Row>
+      <div className="v2-grid">
+        <Row className="v2-grid-header" nowrap>
+          <span className="v2-gc-drag" />
+          <span className="v2-gc-collapse">
+            <button
+              type="button"
+              className="rule-icon-button"
+              aria-label={anyExpanded ? 'Collapse all steps' : 'Expand all steps'}
+              title={anyExpanded ? 'Collapse all steps' : 'Expand all steps'}
+              onClick={() =>
+                setExpanded(
+                  anyExpanded ? new Set() : new Set(definition.steps.map((_, index) => index)),
+                )
+              }
+            >
+              {anyExpanded ? <FaChevronDown /> : <FaChevronRight />}
+            </button>
+          </span>
+          <span className="v2-gc-name">Step Name</span>
+          <span className="v2-gc-phase">Phase</span>
+          <span className="v2-gc-source">Source</span>
+          <span className="v2-gc-count">Actions</span>
+          <span className="v2-gc-save">Save Mode</span>
+          <span className="v2-gc-enabled">Enabled</span>
+          <span className="v2-gc-actions">
+            <button
+              type="button"
+              className="rule-icon-button"
+              aria-label="Add a step"
+              title="Add a step"
+              onClick={() => setStepModal({ index: null, draft: createDefaultV2Step('process') })}
+            >
+              <FaPlus />
+            </button>
+          </span>
+        </Row>
+        <DragDropContextAny onDragEnd={onDragEnd}>
+          <DroppableAny droppableId="v2-steps">
+            {(provided: any) => (
+              <div ref={provided.innerRef} {...provided.droppableProps}>
+                {definition.steps.map((step, index) => (
+                  <DraggableAny key={`step-${index}`} draggableId={`step-${index}`} index={index}>
+                    {(dragProvided: any, dragSnapshot: any) => (
+                      <div
+                        className={`v2-grid-item${dragSnapshot.isDragging ? ' is-dragging' : ''}`}
+                        ref={dragProvided.innerRef}
+                        {...dragProvided.draggableProps}
+                      >
+                        <Row className="v2-grid-row" nowrap>
+                          <span
+                            className="v2-gc-drag v2-drag-handle"
+                            title="Drag to reorder"
+                            {...dragProvided.dragHandleProps}
+                          >
+                            <FaGripLines />
+                          </span>
+                          <span className="v2-gc-collapse">
+                            <button
+                              type="button"
+                              className="rule-icon-button"
+                              aria-label={expanded.has(index) ? 'Collapse' : 'Expand'}
+                              title={expanded.has(index) ? 'Collapse' : 'Expand'}
+                              onClick={() => toggleExpanded(index)}
+                            >
+                              {expanded.has(index) ? <FaChevronDown /> : <FaChevronRight />}
+                            </button>
+                          </span>
+                          <span className="v2-gc-name">{step.name || '(unnamed step)'}</span>
+                          <span className="v2-gc-phase">
+                            <span className={`v2-badge v2-phase-${step.phase}`}>{step.phase}</span>
+                          </span>
+                          <span className="v2-gc-source">{sourceLabel(step)}</span>
+                          <span className="v2-gc-count">{step.actions.length}</span>
+                          <span className="v2-gc-save">
+                            {step.phase === 'process' ? step.saveMode ?? definition.saveMode : '—'}
+                          </span>
+                          <span className="v2-gc-enabled">{step.isEnabled ? 'Yes' : 'No'}</span>
+                          <span className="v2-gc-actions">
+                            <button
+                              type="button"
+                              className="rule-icon-button"
+                              aria-label={`Edit step '${step.name}'`}
+                              title="Edit step"
+                              onClick={() => setStepModal({ index, draft: deepCopy(step) })}
+                            >
+                              <FaEdit />
+                            </button>
+                            <button
+                              type="button"
+                              className="rule-icon-button"
+                              aria-label={`Duplicate step '${step.name}'`}
+                              title="Duplicate step"
+                              onClick={() => duplicateStep(index)}
+                            >
+                              <FaCopy />
+                            </button>
+                            <button
+                              type="button"
+                              className="rule-icon-button delete"
+                              aria-label={`Delete step '${step.name}'`}
+                              title="Delete step"
+                              onClick={() =>
+                                update({
+                                  ...definition,
+                                  steps: definition.steps.filter((_, i) => i !== index),
+                                })
+                              }
+                            >
+                              <FaTrash />
+                            </button>
+                          </span>
+                        </Row>
+                        <Show visible={expanded.has(index)}>
+                          <div className="v2-grid-expanded">
+                            <Row className="v2-subsection-header" nowrap>
+                              <h3>Analyses</h3>
+                              <button
+                                type="button"
+                                className="rule-icon-button"
+                                aria-label="Add an analysis"
+                                title="Add an analysis"
+                                onClick={() =>
+                                  setAnalysisModal({
+                                    stepIndex: index,
+                                    index: null,
+                                    draft: { name: '', prompt: { text: '' }, returns: {} },
+                                  })
+                                }
+                              >
+                                <FaPlus />
+                              </button>
+                            </Row>
+                            <Show visible={step.analyses.length === 0}>
+                              <p className="v2-field-help">
+                                No analyses — actions with property conditions run without any LLM
+                                call.
+                              </p>
+                            </Show>
+                            <Show visible={step.analyses.length > 0}>
+                              <div className="v2-grid v2-subgrid">
+                                <Row className="v2-grid-header" nowrap>
+                                  <span className="v2-gc-name">Name</span>
+                                  <span className="v2-gc-source">Prompt</span>
+                                  <span className="v2-gc-name">Returns</span>
+                                  <span className="v2-gc-actions" />
+                                </Row>
+                                {step.analyses.map((analysis, analysisIndex) => (
+                                  <Row key={analysisIndex} className="v2-grid-row" nowrap>
+                                    <span className="v2-gc-name">
+                                      <span className="v2-prompt-name">{analysis.name}</span>
+                                    </span>
+                                    <span className="v2-gc-source">
+                                      {analysis.prompt?.ref ?? '(inline text)'}
+                                      {analysis.prompt?.override ? ' + override' : ''}
+                                    </span>
+                                    <span className="v2-gc-name">
+                                      {analysis.raw
+                                        ? 'raw response'
+                                        : Object.keys(analysis.returns ?? {}).join(', ')}
+                                    </span>
+                                    <span className="v2-gc-actions">
+                                      <button
+                                        type="button"
+                                        className="rule-icon-button"
+                                        aria-label={`Edit analysis '${analysis.name}'`}
+                                        title="Edit analysis"
+                                        onClick={() =>
+                                          setAnalysisModal({
+                                            stepIndex: index,
+                                            index: analysisIndex,
+                                            draft: deepCopy(analysis),
+                                          })
+                                        }
+                                      >
+                                        <FaEdit />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        className="rule-icon-button"
+                                        aria-label={`Duplicate analysis '${analysis.name}'`}
+                                        title="Duplicate analysis"
+                                        onClick={() => duplicateAnalysis(index, analysisIndex)}
+                                      >
+                                        <FaCopy />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        className="rule-icon-button delete"
+                                        aria-label={`Delete analysis '${analysis.name}'`}
+                                        title="Delete analysis"
+                                        onClick={() =>
+                                          setStep(index, {
+                                            ...step,
+                                            analyses: step.analyses.filter(
+                                              (_, i) => i !== analysisIndex,
+                                            ),
+                                          })
+                                        }
+                                      >
+                                        <FaTrash />
+                                      </button>
+                                    </span>
+                                  </Row>
+                                ))}
+                              </div>
+                            </Show>
+
+                            <Row className="v2-subsection-header" nowrap>
+                              <h3>Actions</h3>
+                              <button
+                                type="button"
+                                className="rule-icon-button"
+                                aria-label="Add an action"
+                                title="Add an action"
+                                onClick={() =>
+                                  setActionModal({
+                                    stepIndex: index,
+                                    index: null,
+                                    draft: createDefaultV2Action(
+                                      step.phase === 'process' ? 'content.update' : 'search',
+                                    ),
+                                  })
+                                }
+                              >
+                                <FaPlus />
+                              </button>
+                            </Row>
+                            <div className="v2-grid v2-subgrid">
+                              <Row className="v2-grid-header" nowrap>
+                                <span className="v2-gc-drag" />
+                                <span className="v2-gc-name">Name</span>
+                                <span className="v2-gc-name">Type</span>
+                                <span className="v2-gc-source">Runs When</span>
+                                <span className="v2-gc-enabled">Enabled</span>
+                                <span className="v2-gc-actions" />
+                              </Row>
+                              <DroppableAny droppableId={`v2-actions-${index}`}>
+                                {(actionsProvided: any) => (
+                                  <div
+                                    ref={actionsProvided.innerRef}
+                                    {...actionsProvided.droppableProps}
+                                  >
+                                    {step.actions.map((action, actionIndex) => (
+                                      <DraggableAny
+                                        key={`action-${index}-${actionIndex}`}
+                                        draggableId={`action-${index}-${actionIndex}`}
+                                        index={actionIndex}
+                                      >
+                                        {(actionDrag: any, actionSnapshot: any) => (
+                                          <div
+                                            className={
+                                              actionSnapshot.isDragging ? 'is-dragging' : undefined
+                                            }
+                                            ref={actionDrag.innerRef}
+                                            {...actionDrag.draggableProps}
+                                          >
+                                            <Row className="v2-grid-row" nowrap>
+                                              <span
+                                                className="v2-gc-drag v2-drag-handle"
+                                                title="Drag to reorder"
+                                                {...actionDrag.dragHandleProps}
+                                              >
+                                                <FaGripLines />
+                                              </span>
+                                              <span className="v2-gc-name">
+                                                {action.name ?? typeLabel(action.type)}
+                                              </span>
+                                              <span className="v2-gc-name">
+                                                {typeLabel(action.type)}
+                                              </span>
+                                              <span className="v2-gc-source v2-gc-clip">
+                                                {gateLabel(action)}
+                                              </span>
+                                              <span className="v2-gc-enabled">
+                                                {action.isEnabled ? 'Yes' : 'No'}
+                                              </span>
+                                              <span className="v2-gc-actions">
+                                                <button
+                                                  type="button"
+                                                  className="rule-icon-button"
+                                                  aria-label="Edit action"
+                                                  title="Edit action"
+                                                  onClick={() =>
+                                                    setActionModal({
+                                                      stepIndex: index,
+                                                      index: actionIndex,
+                                                      draft: deepCopy(action),
+                                                    })
+                                                  }
+                                                >
+                                                  <FaEdit />
+                                                </button>
+                                                <button
+                                                  type="button"
+                                                  className="rule-icon-button"
+                                                  aria-label="Duplicate action"
+                                                  title="Duplicate action"
+                                                  onClick={() =>
+                                                    duplicateAction(index, actionIndex)
+                                                  }
+                                                >
+                                                  <FaCopy />
+                                                </button>
+                                                <button
+                                                  type="button"
+                                                  className="rule-icon-button delete"
+                                                  aria-label="Delete action"
+                                                  title="Delete action"
+                                                  onClick={() =>
+                                                    setStep(index, {
+                                                      ...step,
+                                                      actions: step.actions.filter(
+                                                        (_, i) => i !== actionIndex,
+                                                      ),
+                                                    })
+                                                  }
+                                                >
+                                                  <FaTrash />
+                                                </button>
+                                              </span>
+                                            </Row>
+                                          </div>
+                                        )}
+                                      </DraggableAny>
+                                    ))}
+                                    {actionsProvided.placeholder}
+                                  </div>
+                                )}
+                              </DroppableAny>
+                            </div>
+                          </div>
+                        </Show>
+                      </div>
+                    )}
+                  </DraggableAny>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </DroppableAny>
+        </DragDropContextAny>
+        <Show visible={definition.steps.length === 0}>
+          <Row className="v2-grid-row v2-library-empty" nowrap>
+            <span>No steps configured.</span>
+          </Row>
+        </Show>
+      </div>
 
       <Row className="section-header" nowrap>
         <h2>Validation</h2>
@@ -298,6 +651,161 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
           </Row>
         </Col>
       </Show>
+
+      <Modal
+        headerText={stepModal?.index != null ? 'Edit Step' : 'Add Step'}
+        isShowing={!!stepModal}
+        hide={() => setStepModal(null)}
+        type="custom"
+        component={
+          <div className="rule-modal-content">
+            <Show visible={!!stepModal}>
+              <V2StepEditor
+                step={stepModal?.draft ?? createDefaultV2Step()}
+                collectionNames={collectionNames}
+                filterOptions={filterOptions}
+                llmOptions={llmOptions}
+                onChange={(draft) => setStepModal((state) => (state ? { ...state, draft } : state))}
+              />
+            </Show>
+          </div>
+        }
+        customButtons={
+          <Row justifyContent="flex-end" gap="0.5rem" width="100%">
+            <Button variant={ButtonVariant.secondary} onClick={() => setStepModal(null)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (!stepModal) return;
+                if (!stepModal.draft.name.trim()) {
+                  toast.error('A step name is required.');
+                  return;
+                }
+                const steps = [...definition.steps];
+                if (stepModal.index != null) steps[stepModal.index] = stepModal.draft;
+                else steps.push(stepModal.draft);
+                update({ ...definition, steps });
+                setStepModal(null);
+              }}
+            >
+              Save
+            </Button>
+          </Row>
+        }
+      />
+
+      <Modal
+        headerText={analysisModal?.index != null ? 'Edit Analysis' : 'Add Analysis'}
+        isShowing={!!analysisModal}
+        hide={() => setAnalysisModal(null)}
+        type="custom"
+        component={
+          <div className="rule-modal-content">
+            <Show visible={!!analysisModal}>
+              <V2AnalysisEditor
+                analysis={analysisModal?.draft ?? { name: '', prompt: {}, returns: {} }}
+                earlierNames={
+                  analysisModal
+                    ? definition.steps[analysisModal.stepIndex].analyses
+                        .slice(0, analysisModal.index ?? undefined)
+                        .map((analysis) => analysis.name)
+                    : []
+                }
+                promptNames={promptNames}
+                llmOptions={llmOptions}
+                onChange={(draft) =>
+                  setAnalysisModal((state) => (state ? { ...state, draft } : state))
+                }
+              />
+            </Show>
+          </div>
+        }
+        customButtons={
+          <Row justifyContent="flex-end" gap="0.5rem" width="100%">
+            <Button variant={ButtonVariant.secondary} onClick={() => setAnalysisModal(null)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (!analysisModal) return;
+                if (!analysisModal.draft.name.trim()) {
+                  toast.error('An analysis name is required.');
+                  return;
+                }
+                const step = definition.steps[analysisModal.stepIndex];
+                const analyses = [...step.analyses];
+                if (analysisModal.index != null)
+                  analyses[analysisModal.index] = analysisModal.draft;
+                else analyses.push(analysisModal.draft);
+                setStep(analysisModal.stepIndex, { ...step, analyses });
+                setAnalysisModal(null);
+              }}
+            >
+              Save
+            </Button>
+          </Row>
+        }
+      />
+
+      <Modal
+        headerText={actionModal?.index != null ? 'Edit Action' : 'Add Action'}
+        isShowing={!!actionModal}
+        hide={() => setActionModal(null)}
+        type="custom"
+        component={
+          <div className="rule-modal-content">
+            <Show visible={!!actionModal}>
+              <V2ActionEditor
+                action={actionModal?.draft ?? createDefaultV2Action()}
+                descriptors={descriptors}
+                phase={actionModal ? definition.steps[actionModal.stepIndex].phase : 'process'}
+                analysisNames={
+                  actionModal
+                    ? definition.steps[actionModal.stepIndex].analyses
+                        .map((analysis) => analysis.name)
+                        .filter((name) => !!name)
+                    : []
+                }
+                collectionNames={collectionNames}
+                draftNames={
+                  actionModal
+                    ? draftNamesBefore(definition.steps[actionModal.stepIndex], actionModal.index)
+                    : []
+                }
+                filterOptions={filterOptions}
+                reportOptions={reportOptions}
+                notificationOptions={notificationOptions}
+                actionOptions={actionOptions}
+                promptNames={promptNames}
+                onChange={(draft) =>
+                  setActionModal((state) => (state ? { ...state, draft } : state))
+                }
+              />
+            </Show>
+          </div>
+        }
+        customButtons={
+          <Row justifyContent="flex-end" gap="0.5rem" width="100%">
+            <Button variant={ButtonVariant.secondary} onClick={() => setActionModal(null)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (!actionModal) return;
+                const step = definition.steps[actionModal.stepIndex];
+                const actions = [...step.actions];
+                if (actionModal.index != null) actions[actionModal.index] = actionModal.draft;
+                else actions.push(actionModal.draft);
+                setStep(actionModal.stepIndex, { ...step, actions });
+                setActionModal(null);
+              }}
+            >
+              Save
+            </Button>
+          </Row>
+        }
+      />
     </Col>
   );
 };

@@ -467,6 +467,10 @@ export const AutomationProfileForm = styled(FormPage)`
     background: #f8fafc;
   }
 
+  .schedules-grid-row .condition-col {
+    color: #1a5a96;
+  }
+
   .rules-grid-header,
   .rules-grid-row {
     display: grid;
@@ -841,6 +845,119 @@ export const AutomationProfileForm = styled(FormPage)`
     flex-basis: 100%;
   }
 
+  /* Steps grid: header row, draggable rows, expanded analyses/actions subgrids. */
+  .v2-grid {
+    border: 1px solid #dfe3e8;
+    border-radius: 0.35rem;
+    background: #fff;
+    width: 100%;
+  }
+
+  .v2-grid-header,
+  .v2-grid-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.6rem;
+    width: 100%;
+  }
+
+  .v2-grid-header {
+    font-weight: 600;
+    background: #f2f4f7;
+    border-bottom: 1px solid #dfe3e8;
+  }
+
+  .v2-grid-item {
+    border-bottom: 1px solid #eef2f6;
+    background: #fff;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    &.is-dragging {
+      box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15);
+    }
+  }
+
+  .v2-grid-row:hover {
+    background: #f8fafc;
+  }
+
+  .v2-gc-drag {
+    width: 1.5rem;
+    flex: 0 0 auto;
+  }
+
+  .v2-gc-collapse {
+    width: 1.75rem;
+    flex: 0 0 auto;
+  }
+
+  .v2-gc-name {
+    flex: 2 1 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .v2-gc-phase {
+    width: 7rem;
+    flex: 0 0 auto;
+  }
+
+  .v2-gc-source {
+    flex: 1.5 1 0;
+    min-width: 0;
+  }
+
+  .v2-gc-clip {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .v2-gc-count {
+    width: 5rem;
+    flex: 0 0 auto;
+  }
+
+  .v2-gc-save {
+    width: 7rem;
+    flex: 0 0 auto;
+  }
+
+  .v2-gc-enabled {
+    width: 5rem;
+    flex: 0 0 auto;
+  }
+
+  .v2-gc-actions {
+    width: 7rem;
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+  }
+
+  .v2-grid-expanded {
+    padding: 0.5rem 0.75rem 0.75rem 3.4rem;
+    border-top: 1px dashed #e4e7ec;
+    background: #fcfcfd;
+  }
+
+  .v2-subgrid {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+
+    .v2-grid-header,
+    .v2-grid-row {
+      padding: 0.3rem 0.5rem;
+    }
+  }
+
   /* Prompt library table. */
   .v2-library-table {
     width: 100%;
@@ -872,9 +989,13 @@ export const AutomationProfileForm = styled(FormPage)`
   }
 
   .v2-col-actions {
-    width: 4.5rem;
+    width: 5.5rem;
     text-align: right !important;
     white-space: nowrap;
+
+    .rule-icon-button + .rule-icon-button {
+      margin-left: 0.6rem;
+    }
   }
 
   .v2-library-empty {

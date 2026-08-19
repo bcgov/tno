@@ -1,76 +1,34 @@
 import React from 'react';
-import { Draggable } from 'react-beautiful-dnd';
-import { FaGripLines, FaPlus, FaTrash } from 'react-icons/fa';
+import { FaPlus } from 'react-icons/fa';
 import { Checkbox, Col, type IOptionItem, Row, Select, Show, Text, TextArea } from 'tno-core';
 
-import { StrictModeDroppable } from '../StrictModeDroppable';
 import { findOptionByValue, toNumberOrUndefined } from '../utils';
-import {
-  createDefaultV2Action,
-  v2PhaseOptions,
-  v2SourceOptions,
-  v2StepSaveModeOptions,
-} from './constants';
-import {
-  type IV2Action,
-  type IV2ActionDescriptor,
-  type IV2Analysis,
-  type IV2Step,
-} from './interfaces';
-import { V2ActionEditor } from './V2ActionEditor';
-import { V2AnalysisEditor } from './V2AnalysisEditor';
+import { v2PhaseOptions, v2SourceOptions, v2StepSaveModeOptions } from './constants';
+import { type IV2Step } from './interfaces';
 import { V2FilterField } from './V2FilterField';
 import { V2ScopedNameField } from './V2ScopedNameField';
 
 export interface IV2StepEditorProps {
   step: IV2Step;
-  /** The step's position; keys this step's actions droppable in the shared drag context. */
-  stepIndex: number;
-  descriptors: IV2ActionDescriptor[];
   collectionNames: string[];
-  promptNames: string[];
   filterOptions: IOptionItem[];
   llmOptions: IOptionItem[];
-  reportOptions: IOptionItem[];
-  notificationOptions: IOptionItem[];
-  actionOptions: IOptionItem[];
   onChange: (step: IV2Step) => void;
 }
 
 /**
- * Editor for one v2 step: phase, content source (process steps), flush override, its named
- * analyses, and its ordered actions. Within a step every action applies to the item the step
- * iterates — to act on something else, iterate a different collection.
+ * The step settings form (shown in the step modal): phase, content source with gate filters
+ * (process steps), flush override, and LLM override. The step's analyses and actions are managed
+ * from the steps grid, not here.
  */
 export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
   step,
-  stepIndex,
-  descriptors,
   collectionNames,
-  promptNames,
   filterOptions,
   llmOptions,
-  reportOptions,
-  notificationOptions,
-  actionOptions,
   onChange,
 }) => {
   const set = (values: Partial<IV2Step>) => onChange({ ...step, ...values });
-  const DroppableAny = StrictModeDroppable as any;
-  const DraggableAny = Draggable as any;
-  const analysisNames = step.analyses.map((analysis) => analysis.name).filter((name) => !!name);
-
-  const setAnalysis = (index: number, analysis: IV2Analysis) => {
-    const analyses = [...step.analyses];
-    analyses[index] = analysis;
-    set({ analyses });
-  };
-
-  const setAction = (index: number, action: IV2Action) => {
-    const actions = [...step.actions];
-    actions[index] = action;
-    set({ actions });
-  };
 
   return (
     <Col className="v2-step-editor" gap="0.5rem">
@@ -102,6 +60,14 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
             });
           }}
         />
+        <Checkbox
+          name="step-enabled"
+          label="Enabled"
+          checked={step.isEnabled}
+          onChange={(e) => set({ isEnabled: e.target.checked })}
+        />
+      </Row>
+      <Row gap="0.5rem" alignItems="flex-end" nowrap>
         <Select
           name="step-save-mode"
           label="Save changes"
@@ -121,12 +87,6 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
           options={llmOptions}
           value={findOptionByValue(llmOptions, step.llmId) ?? ''}
           onChange={(newValue) => set({ llmId: toNumberOrUndefined(newValue as IOptionItem) })}
-        />
-        <Checkbox
-          name="step-enabled"
-          label="Enabled"
-          checked={step.isEnabled}
-          onChange={(e) => set({ isEnabled: e.target.checked })}
         />
       </Row>
       <TextArea
@@ -225,122 +185,6 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
           }
         />
       </Show>
-
-      <Row className="v2-subsection-header" nowrap>
-        <h3>Analyses</h3>
-        <button
-          type="button"
-          className="rule-icon-button"
-          title="Add analysis"
-          onClick={() =>
-            set({
-              analyses: [...step.analyses, { name: '', prompt: { text: '' }, returns: {} }],
-            })
-          }
-        >
-          <FaPlus />
-        </button>
-      </Row>
-      <p className="v2-field-help">
-        An analysis is one LLM prompt with a declared result shape. Analyses are lazy — one runs
-        only when an action consumes its result. Cover several properties with one analysis to share
-        a single call, or keep a complex prompt isolated in its own.
-      </p>
-      {step.analyses.map((analysis, index) => (
-        <Row key={index} gap="0.5rem" alignItems="flex-start" nowrap className="v2-list-item">
-          <V2AnalysisEditor
-            analysis={analysis}
-            earlierNames={step.analyses.slice(0, index).map((a) => a.name)}
-            promptNames={promptNames}
-            llmOptions={llmOptions}
-            onChange={(next) => setAnalysis(index, next)}
-          />
-          <button
-            type="button"
-            className="rule-icon-button delete"
-            title="Remove analysis"
-            onClick={() => set({ analyses: step.analyses.filter((_, i) => i !== index) })}
-          >
-            <FaTrash />
-          </button>
-        </Row>
-      ))}
-
-      <Row className="v2-subsection-header" nowrap>
-        <h3>Actions</h3>
-        <button
-          type="button"
-          className="rule-icon-button"
-          title="Add action"
-          onClick={() =>
-            set({
-              actions: [
-                ...step.actions,
-                createDefaultV2Action(step.phase === 'process' ? 'content.update' : 'search'),
-              ],
-            })
-          }
-        >
-          <FaPlus />
-        </button>
-      </Row>
-      <DroppableAny droppableId={`v2-actions-${stepIndex}`}>
-        {(provided: any) => (
-          <div className="v2-actions-list" ref={provided.innerRef} {...provided.droppableProps}>
-            {step.actions.map((action, index) => (
-              <DraggableAny
-                key={`action-${stepIndex}-${index}`}
-                draggableId={`action-${stepIndex}-${index}`}
-                index={index}
-              >
-                {(dragProvided: any, dragSnapshot: any) => (
-                  <div
-                    className={`v2-list-item${dragSnapshot.isDragging ? ' is-dragging' : ''}`}
-                    ref={dragProvided.innerRef}
-                    {...dragProvided.draggableProps}
-                  >
-                    <Row gap="0.5rem" alignItems="flex-start" nowrap>
-                      <span
-                        className="v2-drag-handle"
-                        title="Drag to reorder"
-                        {...dragProvided.dragHandleProps}
-                      >
-                        <FaGripLines />
-                      </span>
-                      <V2ActionEditor
-                        action={action}
-                        descriptors={descriptors}
-                        phase={step.phase}
-                        analysisNames={analysisNames}
-                        collectionNames={collectionNames}
-                        draftNames={step.actions
-                          .slice(0, index)
-                          .filter((earlier) => earlier.type === 'content.create' && !!earlier.as)
-                          .map((earlier) => earlier.as!)}
-                        filterOptions={filterOptions}
-                        reportOptions={reportOptions}
-                        notificationOptions={notificationOptions}
-                        actionOptions={actionOptions}
-                        promptNames={promptNames}
-                        onChange={(next) => setAction(index, next)}
-                      />
-                      <button
-                        type="button"
-                        className="rule-icon-button delete"
-                        title="Remove action"
-                        onClick={() => set({ actions: step.actions.filter((_, i) => i !== index) })}
-                      >
-                        <FaTrash />
-                      </button>
-                    </Row>
-                  </div>
-                )}
-              </DraggableAny>
-            ))}
-            {provided.placeholder}
-          </div>
-        )}
-      </DroppableAny>
     </Col>
   );
 };
