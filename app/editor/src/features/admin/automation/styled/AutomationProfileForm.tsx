@@ -866,6 +866,47 @@ export const AutomationProfileForm = styled(FormPage)`
  * (document.body); scoped to these modals via their '.rule-modal-content' body root.
  */
 export const AutomationModalStyles = createGlobalStyle`
+  /* Modal chrome per the design: dark header bar with a modest white title, white body,
+     grey footer strip for the buttons. Applies to the automation page's modals (this global
+     stylesheet is only mounted with the form). */
+  .modal-wrapper {
+    border-radius: 0.35rem;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .modal-header {
+    background: #332e2c;
+    color: #fff;
+    padding: 0.55rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    h1 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    svg,
+    button {
+      color: #fff;
+    }
+  }
+
+  .modal-body {
+    padding: 1rem;
+  }
+
+  .button-row {
+    background: #ece9e6;
+    border-top: 1px solid #dcd8d4;
+    padding: 0.65rem 1rem;
+    margin: 0;
+  }
+
   /* v2 designer component styles. Global (not page-scoped) because the step,
      action, analysis, and prompt editors render inside portal-mounted modals,
      outside the page wrapper - page-scoped rules never reach them. */
