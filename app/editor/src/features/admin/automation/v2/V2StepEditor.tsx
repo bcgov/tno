@@ -1,5 +1,4 @@
 import React from 'react';
-import { FaPlus } from 'react-icons/fa';
 import { Checkbox, Col, type IOptionItem, Row, Select, Show, Text, TextArea } from 'tno-core';
 
 import { findOptionByValue, toNumberOrUndefined } from '../utils';
@@ -166,92 +165,37 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
             }
           />
         </Row>
-        <GateFilterPicker
-          label="Only items matching every filter (include)"
-          name="step-include"
-          values={step.source?.include ?? []}
-          filterOptions={filterOptions}
-          onChange={(include) =>
-            set({ source: { ...(step.source ?? { from: 'profile' }), include } })
-          }
-        />
-        <GateFilterPicker
-          label="Skip items matching any filter (exclude)"
-          name="step-exclude"
-          values={step.source?.exclude ?? []}
-          filterOptions={filterOptions}
-          onChange={(exclude) =>
-            set({ source: { ...(step.source ?? { from: 'profile' }), exclude } })
-          }
-        />
+        <Row gap="1rem" alignItems="flex-end" nowrap>
+          <V2FilterField
+            name="step-include"
+            label="Only items matching filter (include)"
+            value={step.source?.include?.[0]}
+            options={filterOptions}
+            onChange={(filterId) =>
+              set({
+                source: {
+                  ...(step.source ?? { from: 'profile' }),
+                  include: filterId ? [filterId] : [],
+                },
+              })
+            }
+          />
+          <V2FilterField
+            name="step-exclude"
+            label="Skip items matching filter (exclude)"
+            value={step.source?.exclude?.[0]}
+            options={filterOptions}
+            onChange={(filterId) =>
+              set({
+                source: {
+                  ...(step.source ?? { from: 'profile' }),
+                  exclude: filterId ? [filterId] : [],
+                },
+              })
+            }
+          />
+        </Row>
       </Show>
     </Col>
   );
 };
-
-interface IGateFilterPickerProps {
-  label: string;
-  name: string;
-  values: number[];
-  filterOptions: IOptionItem[];
-  onChange: (values: number[]) => void;
-}
-
-/** Chip-list picker for gate filter ids (each resolves once per run to an id set). Chips open
- * their filter in a new tab; the plus opens a blank filter form in a new tab. */
-const GateFilterPicker: React.FC<IGateFilterPickerProps> = ({
-  label,
-  name,
-  values,
-  filterOptions,
-  onChange,
-}) => (
-  <Col gap="0.25rem">
-    <Row gap="0.25rem" alignItems="flex-end" nowrap>
-      <Select
-        name={name}
-        label={label}
-        width="20rem"
-        placeholder="add a filter…"
-        options={filterOptions.filter((option) => !values.includes(Number(option.value)))}
-        value={''}
-        onChange={(newValue) => {
-          const id = toNumberOrUndefined(newValue as IOptionItem);
-          if (id !== undefined && !values.includes(id)) onChange([...values, id]);
-        }}
-      />
-      <button
-        type="button"
-        className="rule-icon-button"
-        aria-label="Create a new filter in a new tab"
-        title="Create a new filter in a new tab"
-        onClick={() => window.open('/admin/filters/0', '_blank', 'noopener')}
-      >
-        <FaPlus />
-      </button>
-    </Row>
-    <Show visible={values.length > 0}>
-      <Row gap="0.25rem" className="v2-chips">
-        {values.map((id) => (
-          <span key={id} className="v2-chip">
-            <button
-              type="button"
-              className="v2-chip-open"
-              title="Edit this filter in a new tab"
-              onClick={() => window.open(`/admin/filters/${id}`, '_blank', 'noopener')}
-            >
-              {findOptionByValue(filterOptions, id)?.label ?? `filter ${id}`}
-            </button>
-            <button
-              type="button"
-              title="Remove"
-              onClick={() => onChange(values.filter((value) => value !== id))}
-            >
-              ×
-            </button>
-          </span>
-        ))}
-      </Row>
-    </Show>
-  </Col>
-);
