@@ -43,7 +43,6 @@ import {
   Modal,
   Row,
   Select,
-  SelectDate,
   Show,
   Tab,
   Tabs,
@@ -64,7 +63,6 @@ import {
   contentFieldOptionItems,
   createDefaultAction,
   createDefaultStep,
-  DATE_PICKER_PORTAL_ID,
   DEDUPLICATION_ACTION,
   deduplicateBatchDefaults,
   deduplicateModeOptions,
@@ -96,6 +94,7 @@ import {
   parseV2RunSummary,
   RunLogViewer,
   serializeV2Definition,
+  v2SaveModeOptions,
   V2Designer,
   V2RunOutcome,
 } from './v2';
@@ -1101,27 +1100,14 @@ const AutomationProfileForm: React.FC = () => {
                         </button>
                       </Row>
                       <p className="section-help-text">
-                        Configure the profile filter and schedule, then define ordered steps and
-                        actions.
+                        {values.schemaVersion >= 2
+                          ? 'Configure the profile, shared prompts and schedule, then define steps by phase: init runs once, process runs per item, complete runs after all steps.'
+                          : 'Configure the profile filter and schedule, then define ordered steps and actions.'}
                       </p>
                       <Row className="field-grid" gap="1rem">
                         <FormikText width={FieldSize.Big} name="name" label="Name" required />
-                        <FormikCheckbox
-                          labelPosition={LabelPosition.Right}
-                          label="Is Enabled"
-                          name="isEnabled"
-                        />
-                      </Row>
-                      <Row className="field-grid description-row" gap="1rem">
-                        <FormikTextArea
-                          name="description"
-                          label="Description"
-                          width={FieldSize.Stretch}
-                        />
-                      </Row>
-                      <Row className="field-grid" gap="1rem">
                         <FormikSelect
-                          width={FieldSize.Big}
+                          width={FieldSize.Medium}
                           name="llmId"
                           label="LLM"
                           value={findOptionByValue(llmOptions, values.llmId) ?? ''}
@@ -1134,59 +1120,94 @@ const AutomationProfileForm: React.FC = () => {
                           }}
                           isClearable={false}
                         />
-                        <Show visible={!!getLLMDescription(llms, values.llmId)}>
-                          <p className="llm-description">{getLLMDescription(llms, values.llmId)}</p>
+                        <Show visible={values.schemaVersion >= 2}>
+                          <Select
+                            width={FieldSize.Small}
+                            name="definition-save-mode"
+                            label="Save Mode"
+                            isClearable={false}
+                            options={v2SaveModeOptions}
+                            value={
+                              findOptionByValue(
+                                v2SaveModeOptions,
+                                parseV2Definition(values.definition).saveMode,
+                              ) ?? ''
+                            }
+                            onChange={(newValue) => {
+                              const option = newValue as IOptionItem;
+                              const definition = parseV2Definition(values.definition);
+                              definition.saveMode = `${option?.value ?? 'end-of-run'}`;
+                              setFieldValue('definition', serializeV2Definition(definition));
+                            }}
+                          />
                         </Show>
+                        <FormikCheckbox
+                          labelPosition={LabelPosition.Right}
+                          label="Is Enabled"
+                          name="isEnabled"
+                        />
                       </Row>
-                      <Row className="field-grid filter-row" gap="1rem">
-                        <FormikSelect
-                          width={FieldSize.Big}
-                          name="filterId"
-                          label="Automation Filter"
-                          value={findOptionByValue(filterOptions, values.filterId) ?? ''}
-                          options={filterOptions}
-                          onChange={(newValue) => {
-                            setFieldValue(
-                              'filterId',
-                              toNumberOrUndefined(newValue as { value?: unknown } | null),
-                            );
-                          }}
-                          isClearable
-                        >
-                          <div className="filter-controls">
-                            <Button
-                              type="button"
-                              className="filter-icon-button"
-                              variant={ButtonVariant.secondary}
-                              disabled={!values.filterId}
-                              aria-label="Edit Filter"
-                              title="Edit Filter"
-                              onClick={() => {
-                                if (!values.filterId) return;
-                                window.open(
-                                  `/admin/filters/${values.filterId}`,
-                                  '_blank',
-                                  'noopener',
-                                );
-                              }}
-                            >
-                              <FaEdit />
-                            </Button>
-                            <Button
-                              type="button"
-                              className="filter-icon-button"
-                              variant={ButtonVariant.secondary}
-                              aria-label="New Filter"
-                              title="New Filter"
-                              onClick={() => {
-                                window.open('/admin/filters/0', '_blank', 'noopener');
-                              }}
-                            >
-                              <FaPlus />
-                            </Button>
-                          </div>
-                        </FormikSelect>
+                      <Show visible={!!getLLMDescription(llms, values.llmId)}>
+                        <p className="llm-description">{getLLMDescription(llms, values.llmId)}</p>
+                      </Show>
+                      <Row className="field-grid description-row" gap="1rem">
+                        <FormikTextArea
+                          name="description"
+                          label="Description"
+                          width={FieldSize.Stretch}
+                        />
                       </Row>
+                      <Show visible={values.schemaVersion < 2}>
+                        <Row className="field-grid filter-row" gap="1rem">
+                          <FormikSelect
+                            width={FieldSize.Big}
+                            name="filterId"
+                            label="Automation Filter"
+                            value={findOptionByValue(filterOptions, values.filterId) ?? ''}
+                            options={filterOptions}
+                            onChange={(newValue) => {
+                              setFieldValue(
+                                'filterId',
+                                toNumberOrUndefined(newValue as { value?: unknown } | null),
+                              );
+                            }}
+                            isClearable
+                          >
+                            <div className="filter-controls">
+                              <Button
+                                type="button"
+                                className="filter-icon-button"
+                                variant={ButtonVariant.secondary}
+                                disabled={!values.filterId}
+                                aria-label="Edit Filter"
+                                title="Edit Filter"
+                                onClick={() => {
+                                  if (!values.filterId) return;
+                                  window.open(
+                                    `/admin/filters/${values.filterId}`,
+                                    '_blank',
+                                    'noopener',
+                                  );
+                                }}
+                              >
+                                <FaEdit />
+                              </Button>
+                              <Button
+                                type="button"
+                                className="filter-icon-button"
+                                variant={ButtonVariant.secondary}
+                                aria-label="New Filter"
+                                title="New Filter"
+                                onClick={() => {
+                                  window.open('/admin/filters/0', '_blank', 'noopener');
+                                }}
+                              >
+                                <FaPlus />
+                              </Button>
+                            </div>
+                          </FormikSelect>
+                        </Row>
+                      </Show>
                       <Show visible={values.schemaVersion >= 2}>
                         <V2Designer
                           value={values.definition}
@@ -2947,6 +2968,7 @@ const AutomationProfileForm: React.FC = () => {
                         width={FieldSize.Medium}
                         name="schedule-name"
                         label="Name"
+                        required
                         value={scheduleModalState?.schedule.name ?? ''}
                         onChange={(event) => {
                           const name = event.target.value;
@@ -2976,49 +2998,36 @@ const AutomationProfileForm: React.FC = () => {
                           );
                         }}
                       />
-                      <SelectDate
+                      <Text
                         width={FieldSize.Medium}
                         name="schedule-run-on"
                         label="Start After"
-                        placeholderText="Any time"
-                        dateFormat="yyyy-MM-dd HH:mm:ss"
-                        showTimeInput
-                        showTimeSelect
-                        isClearable
-                        // The modal clips its popup and scrolls its body, so the calendar renders
-                        // into a body-level portal instead of being cut off inside the dialog.
-                        portalId={DATE_PICKER_PORTAL_ID}
-                        selectedDate={scheduleModalState?.schedule.runOn ?? undefined}
-                        onChange={(date) => {
+                        type="datetime-local"
+                        value={
+                          scheduleModalState?.schedule.runOn
+                            ? moment(scheduleModalState.schedule.runOn).format('YYYY-MM-DDTHH:mm')
+                            : ''
+                        }
+                        onChange={(event) => {
                           // Sent as a UTC ISO string: the API binds it to a DateTime with
                           // Kind=Utc, which is what both the 'timestamp with time zone' column
-                          // and the Scheduler's ToTimeZone conversion require. A non-ISO string
-                          // (moment's toString) fails JSON binding, and an offset-less one binds
-                          // as Kind=Unspecified, which Npgsql refuses to write.
-                          const runOn = date ? moment(date as Date).toISOString() : null;
+                          // and the Scheduler's ToTimeZone conversion require.
+                          const runOn = event.target.value
+                            ? moment(event.target.value).toISOString()
+                            : null;
                           setScheduleModalState((state) =>
                             state ? { ...state, schedule: { ...state.schedule, runOn } } : state,
                           );
                         }}
                       />
-                      <styled.ModalEnabledCheckbox className="no-label-offset">
-                        <Checkbox
-                          label="Enabled"
-                          name="schedule-enabled"
-                          checked={scheduleModalState?.schedule.isEnabled ?? false}
-                          onChange={(event) => {
-                            const isEnabled = event.target.checked;
-                            setScheduleModalState((state) =>
-                              state
-                                ? { ...state, schedule: { ...state.schedule, isEnabled } }
-                                : state,
-                            );
-                          }}
-                        />
-                      </styled.ModalEnabledCheckbox>
                     </Row>
+                    <p className="schedule-help-text">
+                      Leave Start After empty to run at any time.
+                    </p>
                     <div className="schedule-field-group">
-                      <span className="schedule-label">Run On</span>
+                      <span className="schedule-label" title="Select none to run every day.">
+                        Run On
+                      </span>
                       <Row gap="0.5rem" nowrap>
                         {scheduleWeekDayOptions.map((day) => (
                           <Checkbox
@@ -3042,13 +3051,24 @@ const AutomationProfileForm: React.FC = () => {
                           />
                         ))}
                       </Row>
-                      <p className="schedule-help-text">Select none to run every day.</p>
                     </div>
+                    <Checkbox
+                      label="Enabled"
+                      name="schedule-enabled"
+                      checked={scheduleModalState?.schedule.isEnabled ?? false}
+                      onChange={(event) => {
+                        const isEnabled = event.target.checked;
+                        setScheduleModalState((state) =>
+                          state ? { ...state, schedule: { ...state.schedule, isEnabled } } : state,
+                        );
+                      }}
+                    />
                   </div>
                 }
                 customButtons={
                   <Row justifyContent="flex-end" width="100%" gap="0.5rem">
                     <Button
+                      className="header-btn-outline"
                       variant={ButtonVariant.secondary}
                       onClick={() => {
                         setScheduleModalState(null);
@@ -3058,6 +3078,7 @@ const AutomationProfileForm: React.FC = () => {
                       Cancel
                     </Button>
                     <Button
+                      className="header-btn-save"
                       onClick={() => {
                         if (!scheduleModalState) return;
                         if (!scheduleModalState.schedule.name.trim()) {
@@ -3078,7 +3099,7 @@ const AutomationProfileForm: React.FC = () => {
                         toggleScheduleModal();
                       }}
                     >
-                      Done
+                      {scheduleModalState?.mode === 'edit' ? 'Save' : 'Add'}
                     </Button>
                   </Row>
                 }

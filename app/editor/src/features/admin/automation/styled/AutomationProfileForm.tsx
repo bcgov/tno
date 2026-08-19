@@ -40,6 +40,8 @@ export const AutomationProfileForm = styled(FormPage)`
 
     .tab-menu {
       width: 100%;
+      /* Replace tno-core's navy underline with the design's gold one (set below). */
+      border-bottom-color: transparent;
 
       /* The tab bar is a flex Row: the tabs and the Run button sit on the left, the Save/Export/
          Import/Delete action group is pushed to the right. Keep everything vertically centered and
@@ -50,12 +52,16 @@ export const AutomationProfileForm = styled(FormPage)`
         row-gap: 0.35rem;
       }
 
-      /* Tab pills: light grey with the active tab in gold (per the design). */
+      /* Folder tabs on a full-width gold underline (per the design): inactive tabs are light
+         grey with rounded top corners; the active tab is gold and connects to the line. */
+      border-bottom: solid 3px #fcba19;
+
       .tab {
         background: #f2f4f7;
         border: 1px solid #e4e7ec;
-        border-radius: 0.25rem;
-        padding: 0.35rem 1.1rem;
+        border-bottom: none;
+        border-radius: 0.35rem 0.35rem 0 0;
+        padding: 0.4rem 1.2rem;
         font-weight: 600;
         color: #1d2939;
 
@@ -70,6 +76,8 @@ export const AutomationProfileForm = styled(FormPage)`
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        /* The action buttons float clear of the gold underline instead of sitting on it. */
+        margin-bottom: 0.4rem;
       }
 
       /* Header action buttons (per the design): green Run, navy-outline secondaries, red-outline
@@ -398,6 +406,13 @@ export const AutomationProfileForm = styled(FormPage)`
   }
 
   .modal-intro-text {
+    background: #f8f9fa;
+    border: 1px solid #d0d5dd;
+    border-radius: 0.35rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .modal-intro-text-legacy {
     margin: 0;
     font-size: 0.9rem;
     line-height: 1.45;
@@ -1202,6 +1217,41 @@ export const AutomationProfileForm = styled(FormPage)`
  * (document.body); scoped to these modals via their '.rule-modal-content' body root.
  */
 export const AutomationModalStyles = createGlobalStyle`
+  .header-btn-outline {
+    background: #fff;
+    border: 1px solid #1a3a6b;
+    color: #1a3a6b;
+    font-weight: 600;
+
+    &:hover:not(:disabled) {
+      background: #f5f8ff;
+      color: #1a3a6b;
+    }
+  }
+
+  .header-btn-delete {
+    background: #fff;
+    border: 1px solid #d8292f;
+    color: #d8292f;
+    font-weight: 600;
+
+    &:hover:not(:disabled) {
+      background: #fff5f5;
+      color: #d8292f;
+    }
+  }
+
+  .header-btn-save {
+    background: #1a3a6b;
+    border: 1px solid #1a3a6b;
+    color: #fff;
+    font-weight: 600;
+
+    &:hover:not(:disabled) {
+      background: #26428b;
+    }
+  }
+
   .modal-popup:has(.rule-modal-content) {
     max-height: calc(100vh - 3rem);
     overflow: hidden;
