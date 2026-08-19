@@ -1232,6 +1232,60 @@ export const AutomationProfileForm = styled(FormPage)`
     }
   }
 
+  /* Filter fields per the design: pencil inside the control (left of the ×/▼ indicators),
+     compact + attached at the right. */
+  .v2-filter-field {
+    .v2-filter-select-wrap {
+      position: relative;
+      display: inline-block;
+
+      /* Keep the selected label clear of the overlaid pencil. */
+      .rs__value-container {
+        padding-right: 1.7rem;
+      }
+    }
+
+    .v2-filter-edit {
+      position: absolute;
+      right: 3.9rem;
+      bottom: 0.55rem;
+      border: none;
+      background: none;
+      padding: 0;
+      cursor: pointer;
+      color: #1a5a96;
+      display: flex;
+      align-items: center;
+
+      svg {
+        width: 0.95rem;
+        height: 0.95rem;
+      }
+
+      &:hover {
+        color: #0f3e6d;
+      }
+    }
+
+    .v2-filter-add {
+      width: 2.1rem;
+      height: 2.35rem;
+      margin: 0 0 0.05rem 0.3rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #1a5a96;
+      border-radius: 0.25rem;
+      background: #fff;
+      color: #1a5a96;
+      cursor: pointer;
+
+      &:hover {
+        background: #f5f8ff;
+      }
+    }
+  }
+
   .v2-scoped-name label {
     display: block;
   }

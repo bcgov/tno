@@ -67,26 +67,31 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
         />
       </Row>
       <Row gap="0.5rem" alignItems="flex-end" nowrap>
-        <Select
-          name="step-save-mode"
-          label="Save changes"
-          width="16rem"
-          isClearable={false}
-          options={v2StepSaveModeOptions}
-          value={findOptionByValue(v2StepSaveModeOptions, step.saveMode ?? '')}
-          onChange={(newValue) => {
-            const option = newValue as IOptionItem;
-            set({ saveMode: option?.value ? `${option.value}` : null });
-          }}
-        />
-        <Select
-          name="step-llm"
-          label="LLM override"
-          width="14rem"
-          options={llmOptions}
-          value={findOptionByValue(llmOptions, step.llmId) ?? ''}
-          onChange={(newValue) => set({ llmId: toNumberOrUndefined(newValue as IOptionItem) })}
-        />
+        {/* Init steps only gather: no content changes to save, no analyses for an LLM to run. */}
+        <Show visible={step.phase === 'process'}>
+          <Select
+            name="step-save-mode"
+            label="Save changes"
+            width="16rem"
+            isClearable={false}
+            options={v2StepSaveModeOptions}
+            value={findOptionByValue(v2StepSaveModeOptions, step.saveMode ?? '')}
+            onChange={(newValue) => {
+              const option = newValue as IOptionItem;
+              set({ saveMode: option?.value ? `${option.value}` : null });
+            }}
+          />
+        </Show>
+        <Show visible={step.phase !== 'init'}>
+          <Select
+            name="step-llm"
+            label="LLM override"
+            width="14rem"
+            options={llmOptions}
+            value={findOptionByValue(llmOptions, step.llmId) ?? ''}
+            onChange={(newValue) => set({ llmId: toNumberOrUndefined(newValue as IOptionItem) })}
+          />
+        </Show>
       </Row>
       <TextArea
         name="step-description"

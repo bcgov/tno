@@ -154,7 +154,7 @@ Phases are independent of whether the profile has a filter. This removes the cur
 Every `process` step declares exactly one source, plus optional filter gates:
 
 ```jsonc
-"source": { "from": "profile", "include": [12], "exclude": [20] }  // profile results, gated
+"source": { "from": "collection", "collection": "$run.digests" }  // a named run collection
 "source": { "from": "filter", "filter": 13 }                       // the step runs its own search
 "source": { "from": "collection", "collection": "$run.digests" }   // from the dictionary
 ```
@@ -453,7 +453,7 @@ each action type a unit test boundary.
     {
       "name": "Vancouver Sun",
       "phase": "process",
-      "source": { "from": "profile", "include": [12] },
+      "source": { "from": "collection", "collection": "$run.inbox", "include": [12] },
       "saveMode": "end-of-run",
       "analyses": [
         {
@@ -578,7 +578,7 @@ Automatic mapping for a v1 profile:
 | -------------------------------------------- | ----------------------------------------------------------- |
 | Profile `filterId`                           | `init` step with `search` into `$run.inbox`                 |
 | Step `target: start`                         | `phase: init`                                               |
-| Step `target: content`                       | `phase: process`, `source.from: profile`                    |
+| Step `target: content`                       | `phase: process`, `source.from: collection`                 |
 | Step `target: end`                           | `phase: complete`                                           |
 | Step `target: none`                          | `phase: init` or `complete` by position                     |
 | `applyToAutomationFilter: true`              | `source.include: [filterId]`                                |
@@ -671,7 +671,8 @@ collection built earlier in the run.
 
 **Acceptance Criteria**
 
-- `source.from` supports `profile`, `filter`, and `collection`.
+- `source.from` supports `filter` and `collection`; there is no profile-level filter — content
+  enters a run only through `search` actions into named collections.
 - `include` and `exclude` filter id sets gate the resolved items.
 - Each distinct gate filter resolves once per run to an id set using an id-only projection.
 - Items are matched against gates by hash lookup, not by re-querying per step.
