@@ -50,8 +50,19 @@ export const AutomationProfileForm = styled(FormPage)`
         row-gap: 0.35rem;
       }
 
-      .run-button {
-        margin-left: 0.5rem;
+      /* Tab pills: light grey with the active tab in gold (per the design). */
+      .tab {
+        background: #f2f4f7;
+        border: 1px solid #e4e7ec;
+        border-radius: 0.25rem;
+        padding: 0.35rem 1.1rem;
+        font-weight: 600;
+        color: #1d2939;
+
+        &.active {
+          background: #fcba19;
+          border-color: #fcba19;
+        }
       }
 
       .tab-header-actions {
@@ -59,6 +70,43 @@ export const AutomationProfileForm = styled(FormPage)`
         display: flex;
         align-items: center;
         gap: 0.5rem;
+      }
+
+      /* Header action buttons (per the design): green Run, navy-outline secondaries, red-outline
+         Delete, solid navy Save. */
+      .header-btn-outline {
+        background: #fff;
+        border: 1px solid #1a3a6b;
+        color: #1a3a6b;
+        font-weight: 600;
+
+        &:hover:not(:disabled) {
+          background: #f5f8ff;
+          color: #1a3a6b;
+        }
+      }
+
+      .header-btn-delete {
+        background: #fff;
+        border: 1px solid #d8292f;
+        color: #d8292f;
+        font-weight: 600;
+
+        &:hover:not(:disabled) {
+          background: #fff5f5;
+          color: #d8292f;
+        }
+      }
+
+      .header-btn-save {
+        background: #1a3a6b;
+        border: 1px solid #1a3a6b;
+        color: #fff;
+        font-weight: 600;
+
+        &:hover:not(:disabled) {
+          background: #26428b;
+        }
       }
 
       /* The TabMenu applies 'margin-right: 0.5em' to every non-last-child descendant div. Inside a

@@ -174,7 +174,9 @@ const AutomationProfileForm: React.FC = () => {
   const [profile, setProfile] = React.useState<IAutomationProfileModel>(
     normalizeProfile(state?.profile),
   );
-  const [activeTab, setActiveTab] = React.useState<'profile' | 'runs' | 'debugging'>('profile');
+  const [activeTab, setActiveTab] = React.useState<'profile' | 'schedules' | 'runs' | 'debugging'>(
+    'profile',
+  );
   // Indexes of steps whose actions sub-grid is collapsed; remapped when steps reorder.
   const [collapsedSteps, setCollapsedSteps] = React.useState<Set<number>>(new Set());
 
@@ -824,7 +826,12 @@ const AutomationProfileForm: React.FC = () => {
                       onClick={() => setActiveTab('profile')}
                     />
                     <Tab
-                      label="Runs"
+                      label="Schedules"
+                      active={activeTab === 'schedules'}
+                      onClick={() => setActiveTab('schedules')}
+                    />
+                    <Tab
+                      label="History"
                       active={activeTab === 'runs'}
                       disabled={!values.id}
                       onClick={() => {
@@ -838,36 +845,32 @@ const AutomationProfileForm: React.FC = () => {
                       disabled={!values.id}
                       onClick={() => setActiveTab('debugging')}
                     />
-                    <Show visible={!!values.id}>
-                      <Button
-                        type="button"
-                        className="run-button"
-                        variant={ButtonVariant.success}
-                        disabled={isSubmitting || isRunning}
-                        onClick={() => handleRun(values.id)}
-                      >
-                        Run
-                      </Button>
-                      <Show visible={values.schemaVersion >= 2}>
-                        <Button
-                          type="button"
-                          className="run-button"
-                          variant={ButtonVariant.warning}
-                          disabled={isSubmitting || isRunning}
-                          tooltip="Compute and log every decision and change without writing anything."
-                          onClick={() => handleRun(values.id, true)}
-                        >
-                          Dry Run
-                        </Button>
-                      </Show>
-                    </Show>
                     <div className="tab-header-actions">
-                      <Button type="submit" disabled={isSubmitting}>
-                        Save
-                      </Button>
                       <Show visible={!!values.id}>
                         <Button
                           type="button"
+                          className="header-btn-run"
+                          variant={ButtonVariant.success}
+                          disabled={isSubmitting || isRunning}
+                          onClick={() => handleRun(values.id)}
+                        >
+                          Run
+                        </Button>
+                        <Show visible={values.schemaVersion >= 2}>
+                          <Button
+                            type="button"
+                            className="header-btn-outline"
+                            variant={ButtonVariant.secondary}
+                            disabled={isSubmitting || isRunning}
+                            tooltip="Compute and log every decision and change without writing anything."
+                            onClick={() => handleRun(values.id, true)}
+                          >
+                            Dry Run
+                          </Button>
+                        </Show>
+                        <Button
+                          type="button"
+                          className="header-btn-outline"
                           variant={ButtonVariant.secondary}
                           disabled={isSubmitting}
                           tooltip="Download this profile (steps, actions, and filters) as JSON."
@@ -876,19 +879,9 @@ const AutomationProfileForm: React.FC = () => {
                           Export
                         </Button>
                       </Show>
-                      <Show visible={!!values.id && values.schemaVersion < 2}>
-                        <Button
-                          type="button"
-                          variant={ButtonVariant.secondary}
-                          disabled={isSubmitting}
-                          tooltip="Create a disabled v2 copy of this profile (same prompts, same order); this profile keeps running until the copy is proven."
-                          onClick={() => handleMigrate(values.id)}
-                        >
-                          Create v2 copy
-                        </Button>
-                      </Show>
                       <Button
                         type="button"
+                        className="header-btn-outline"
                         variant={ButtonVariant.secondary}
                         disabled={isSubmitting}
                         tooltip="Create a new profile from an exported JSON file."
@@ -903,16 +896,32 @@ const AutomationProfileForm: React.FC = () => {
                         style={{ display: 'none' }}
                         onChange={handleImportFile}
                       />
+                      <Show visible={!!values.id && values.schemaVersion < 2}>
+                        <Button
+                          type="button"
+                          className="header-btn-outline"
+                          variant={ButtonVariant.secondary}
+                          disabled={isSubmitting}
+                          tooltip="Create a disabled v2 copy of this profile (same prompts, same order); this profile keeps running until the copy is proven."
+                          onClick={() => handleMigrate(values.id)}
+                        >
+                          Create v2 copy
+                        </Button>
+                      </Show>
                       <Show visible={!!values.id}>
                         <Button
                           type="button"
+                          className="header-btn-delete"
                           onClick={toggle}
-                          variant={ButtonVariant.danger}
+                          variant={ButtonVariant.secondary}
                           disabled={isSubmitting}
                         >
                           Delete
                         </Button>
                       </Show>
+                      <Button type="submit" className="header-btn-save" disabled={isSubmitting}>
+                        Save
+                      </Button>
                     </div>
                   </>
                 }
@@ -951,107 +960,8 @@ const AutomationProfileForm: React.FC = () => {
                       </Show>
                     </Col>
                   </div>
-                  <div className={`tab-panel${activeTab === 'profile' ? ' active' : ''}`}>
+                  <div className={`tab-panel${activeTab === 'schedules' ? ' active' : ''}`}>
                     <Col className="form-inputs">
-                      <Row className="section-header section-header-inline" nowrap>
-                        <h2>Profile</h2>
-                        <button
-                          type="button"
-                          className="section-doc-button"
-                          aria-label="Profile section help"
-                          title="Profile section help"
-                          onClick={() => openSectionDoc('profile')}
-                        >
-                          <FaCircleInfo />
-                        </button>
-                      </Row>
-                      <p className="section-help-text">
-                        Configure the profile filter and schedule, then define ordered steps and
-                        actions.
-                      </p>
-                      <Row className="field-grid" gap="1rem">
-                        <FormikText width={FieldSize.Big} name="name" label="Name" required />
-                        <FormikCheckbox
-                          labelPosition={LabelPosition.Right}
-                          label="Is Enabled"
-                          name="isEnabled"
-                        />
-                      </Row>
-                      <Row className="field-grid description-row" gap="1rem">
-                        <FormikTextArea
-                          name="description"
-                          label="Description"
-                          width={FieldSize.Stretch}
-                        />
-                      </Row>
-                      <Row className="field-grid" gap="1rem">
-                        <FormikSelect
-                          width={FieldSize.Big}
-                          name="llmId"
-                          label="LLM"
-                          value={findOptionByValue(llmOptions, values.llmId) ?? ''}
-                          options={llmOptions}
-                          onChange={(newValue) => {
-                            setFieldValue(
-                              'llmId',
-                              toNumberOrUndefined(newValue as { value?: unknown } | null),
-                            );
-                          }}
-                          isClearable={false}
-                        />
-                        <Show visible={!!getLLMDescription(llms, values.llmId)}>
-                          <p className="llm-description">{getLLMDescription(llms, values.llmId)}</p>
-                        </Show>
-                      </Row>
-                      <Row className="field-grid filter-row" gap="1rem">
-                        <FormikSelect
-                          width={FieldSize.Big}
-                          name="filterId"
-                          label="Automation Filter"
-                          value={findOptionByValue(filterOptions, values.filterId) ?? ''}
-                          options={filterOptions}
-                          onChange={(newValue) => {
-                            setFieldValue(
-                              'filterId',
-                              toNumberOrUndefined(newValue as { value?: unknown } | null),
-                            );
-                          }}
-                          isClearable
-                        >
-                          <div className="filter-controls">
-                            <Button
-                              type="button"
-                              className="filter-icon-button"
-                              variant={ButtonVariant.secondary}
-                              disabled={!values.filterId}
-                              aria-label="Edit Filter"
-                              title="Edit Filter"
-                              onClick={() => {
-                                if (!values.filterId) return;
-                                window.open(
-                                  `/admin/filters/${values.filterId}`,
-                                  '_blank',
-                                  'noopener',
-                                );
-                              }}
-                            >
-                              <FaEdit />
-                            </Button>
-                            <Button
-                              type="button"
-                              className="filter-icon-button"
-                              variant={ButtonVariant.secondary}
-                              aria-label="New Filter"
-                              title="New Filter"
-                              onClick={() => {
-                                window.open('/admin/filters/0', '_blank', 'noopener');
-                              }}
-                            >
-                              <FaPlus />
-                            </Button>
-                          </div>
-                        </FormikSelect>
-                      </Row>
                       <Row className="section-header" nowrap>
                         <Row className="section-header-title" nowrap>
                           <h2>Schedules</h2>
@@ -1174,7 +1084,109 @@ const AutomationProfileForm: React.FC = () => {
                           </Row>
                         ))}
                       </div>
-
+                    </Col>
+                  </div>
+                  <div className={`tab-panel${activeTab === 'profile' ? ' active' : ''}`}>
+                    <Col className="form-inputs">
+                      <Row className="section-header section-header-inline" nowrap>
+                        <h2>Profile</h2>
+                        <button
+                          type="button"
+                          className="section-doc-button"
+                          aria-label="Profile section help"
+                          title="Profile section help"
+                          onClick={() => openSectionDoc('profile')}
+                        >
+                          <FaCircleInfo />
+                        </button>
+                      </Row>
+                      <p className="section-help-text">
+                        Configure the profile filter and schedule, then define ordered steps and
+                        actions.
+                      </p>
+                      <Row className="field-grid" gap="1rem">
+                        <FormikText width={FieldSize.Big} name="name" label="Name" required />
+                        <FormikCheckbox
+                          labelPosition={LabelPosition.Right}
+                          label="Is Enabled"
+                          name="isEnabled"
+                        />
+                      </Row>
+                      <Row className="field-grid description-row" gap="1rem">
+                        <FormikTextArea
+                          name="description"
+                          label="Description"
+                          width={FieldSize.Stretch}
+                        />
+                      </Row>
+                      <Row className="field-grid" gap="1rem">
+                        <FormikSelect
+                          width={FieldSize.Big}
+                          name="llmId"
+                          label="LLM"
+                          value={findOptionByValue(llmOptions, values.llmId) ?? ''}
+                          options={llmOptions}
+                          onChange={(newValue) => {
+                            setFieldValue(
+                              'llmId',
+                              toNumberOrUndefined(newValue as { value?: unknown } | null),
+                            );
+                          }}
+                          isClearable={false}
+                        />
+                        <Show visible={!!getLLMDescription(llms, values.llmId)}>
+                          <p className="llm-description">{getLLMDescription(llms, values.llmId)}</p>
+                        </Show>
+                      </Row>
+                      <Row className="field-grid filter-row" gap="1rem">
+                        <FormikSelect
+                          width={FieldSize.Big}
+                          name="filterId"
+                          label="Automation Filter"
+                          value={findOptionByValue(filterOptions, values.filterId) ?? ''}
+                          options={filterOptions}
+                          onChange={(newValue) => {
+                            setFieldValue(
+                              'filterId',
+                              toNumberOrUndefined(newValue as { value?: unknown } | null),
+                            );
+                          }}
+                          isClearable
+                        >
+                          <div className="filter-controls">
+                            <Button
+                              type="button"
+                              className="filter-icon-button"
+                              variant={ButtonVariant.secondary}
+                              disabled={!values.filterId}
+                              aria-label="Edit Filter"
+                              title="Edit Filter"
+                              onClick={() => {
+                                if (!values.filterId) return;
+                                window.open(
+                                  `/admin/filters/${values.filterId}`,
+                                  '_blank',
+                                  'noopener',
+                                );
+                              }}
+                            >
+                              <FaEdit />
+                            </Button>
+                            <Button
+                              type="button"
+                              className="filter-icon-button"
+                              variant={ButtonVariant.secondary}
+                              aria-label="New Filter"
+                              title="New Filter"
+                              onClick={() => {
+                                window.open('/admin/filters/0', '_blank', 'noopener');
+                              }}
+                            >
+                              <FaPlus />
+                            </Button>
+                          </div>
+                        </FormikSelect>
+                      </Row>
                       <Show visible={values.schemaVersion >= 2}>
                         <V2Designer
                           value={values.definition}
