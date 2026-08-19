@@ -391,20 +391,6 @@ export const AutomationProfileForm = styled(FormPage)`
     gap: 0.75rem;
   }
 
-  /* Inline checkboxes beside labelled inputs: size the box to the input height and center the
-     checkbox in it, so bottom-aligned rows line it up with the input instead of floating. */
-  .checkbox-inline {
-    min-height: 2.35rem;
-    display: inline-flex;
-    align-items: center;
-
-    .frm-in,
-    p {
-      margin: 0;
-      padding: 0;
-    }
-  }
-
   .description-row {
     width: 100%;
   }
@@ -428,36 +414,6 @@ export const AutomationProfileForm = styled(FormPage)`
 
   .action-main-row {
     align-items: center;
-  }
-
-  .schedule-picker {
-    position: relative;
-
-    input {
-      padding-right: 1.9rem;
-    }
-
-    /* Our own icon: react-datepicker's showIcon renders unpredictably inside the SelectDate
-       wrapper, so the field owns an absolutely-positioned one instead. */
-    .schedule-picker-icon {
-      position: absolute;
-      right: 0.55rem;
-      bottom: 0.5rem;
-      pointer-events: none;
-      color: #1d2939;
-      display: flex;
-      align-items: center;
-
-      svg {
-        width: 0.95rem;
-        height: 0.95rem;
-      }
-    }
-
-    /* Keep the clearable × from colliding with the icon. */
-    .react-datepicker__close-icon {
-      right: 1.8rem;
-    }
   }
 
   .modal-intro-text {
@@ -898,6 +854,63 @@ export const AutomationProfileForm = styled(FormPage)`
     }
   }
 
+  .section-help-text .help-accent {
+    color: #2b7a78;
+  }
+`;
+
+/**
+ * Constrains the step/action modals to the browser viewport: the popup never grows taller than
+ * the viewing area, the body scrolls, and the footer buttons remain visible. Applied as a global
+ * style (mounted by the form) because the tno-core Modal renders through a React portal
+ * (document.body); scoped to these modals via their '.rule-modal-content' body root.
+ */
+export const AutomationModalStyles = createGlobalStyle`
+  /* v2 designer component styles. Global (not page-scoped) because the step,
+     action, analysis, and prompt editors render inside portal-mounted modals,
+     outside the page wrapper - page-scoped rules never reach them. */
+  /* Inline checkboxes beside labelled inputs: size the box to the input height and center the
+     checkbox in it, so bottom-aligned rows line it up with the input instead of floating. */
+  .checkbox-inline {
+    min-height: 2.35rem;
+    display: inline-flex;
+    align-items: center;
+
+    .frm-in,
+    p {
+      margin: 0;
+      padding: 0;
+    }
+  }
+  .schedule-picker {
+    position: relative;
+
+    input {
+      padding-right: 1.9rem;
+    }
+
+    /* Our own icon: react-datepicker's showIcon renders unpredictably inside the SelectDate
+       wrapper, so the field owns an absolutely-positioned one instead. */
+    .schedule-picker-icon {
+      position: absolute;
+      right: 0.55rem;
+      bottom: 0.5rem;
+      pointer-events: none;
+      color: #1d2939;
+      display: flex;
+      align-items: center;
+
+      svg {
+        width: 0.95rem;
+        height: 0.95rem;
+      }
+    }
+
+    /* Keep the clearable × from colliding with the icon. */
+    .react-datepicker__close-icon {
+      right: 1.8rem;
+    }
+  }
   /* ---- v2 designer, log viewer, and run outcome ---- */
   .v2-designer,
   .v2-step-editor,
@@ -905,14 +918,12 @@ export const AutomationProfileForm = styled(FormPage)`
   .v2-analysis-editor {
     width: 100%;
   }
-
   .v2-step-card {
     border: 1px solid #d0d5dd;
     border-radius: 0.35rem;
     padding: 0.5rem;
     background: #fff;
   }
-
   .v2-step-card-header {
     cursor: default;
 
@@ -920,7 +931,6 @@ export const AutomationProfileForm = styled(FormPage)`
       flex: 0 1 auto;
     }
   }
-
   .v2-list-item {
     border: 1px solid #e4e7ec;
     border-radius: 0.35rem;
@@ -928,20 +938,16 @@ export const AutomationProfileForm = styled(FormPage)`
     background: #fcfcfd;
     width: 100%;
   }
-
   .v2-steps-list .v2-step-card {
     margin-bottom: 0.5rem;
   }
-
   .v2-actions-list .v2-list-item {
     margin-bottom: 0.4rem;
   }
-
   .v2-step-card.is-dragging,
   .v2-list-item.is-dragging {
     box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15);
   }
-
   .v2-drag-handle {
     display: flex;
     align-items: center;
@@ -953,16 +959,13 @@ export const AutomationProfileForm = styled(FormPage)`
       color: #475467;
     }
   }
-
   /* Action fields flow side by side and wrap; structured editors take their own line. */
   .v2-action-fields {
     row-gap: 0.5rem;
   }
-
   .v2-field-wide {
     flex-basis: 100%;
   }
-
   /* Steps grid: header row, draggable rows, expanded analyses/actions subgrids. */
   .v2-grid {
     border: 1px solid #dfe3e8;
@@ -970,7 +973,6 @@ export const AutomationProfileForm = styled(FormPage)`
     background: #fff;
     width: 100%;
   }
-
   .v2-grid-header,
   .v2-grid-row {
     display: flex;
@@ -979,13 +981,11 @@ export const AutomationProfileForm = styled(FormPage)`
     padding: 0.45rem 0.6rem;
     width: 100%;
   }
-
   .v2-grid-header {
     font-weight: 600;
     background: #f2f4f7;
     border-bottom: 1px solid #dfe3e8;
   }
-
   .v2-grid-item {
     border-bottom: 1px solid #eef2f6;
     background: #fff;
@@ -1003,21 +1003,17 @@ export const AutomationProfileForm = styled(FormPage)`
       box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15);
     }
   }
-
   .v2-grid-row:hover {
     background: #f8fafc;
   }
-
   .v2-gc-drag {
     width: 1.5rem;
     flex: 0 0 auto;
   }
-
   .v2-gc-collapse {
     width: 1.75rem;
     flex: 0 0 auto;
   }
-
   .v2-gc-name {
     flex: 2 1 0;
     min-width: 0;
@@ -1025,38 +1021,31 @@ export const AutomationProfileForm = styled(FormPage)`
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-
   .v2-gc-phase {
     width: 7rem;
     flex: 0 0 auto;
   }
-
   .v2-gc-source {
     flex: 1.5 1 0;
     min-width: 0;
   }
-
   .v2-gc-clip {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-
   .v2-gc-count {
     width: 5rem;
     flex: 0 0 auto;
   }
-
   .v2-gc-save {
     width: 7rem;
     flex: 0 0 auto;
   }
-
   .v2-gc-enabled {
     width: 5rem;
     flex: 0 0 auto;
   }
-
   .v2-gc-actions {
     width: 7rem;
     flex: 0 0 auto;
@@ -1073,13 +1062,11 @@ export const AutomationProfileForm = styled(FormPage)`
       }
     }
   }
-
   .v2-grid-expanded {
     padding: 0.5rem 0.75rem 0.75rem 3.4rem;
     border-top: 1px dashed #e4e7ec;
     background: #fcfcfd;
   }
-
   .v2-subgrid {
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
@@ -1089,7 +1076,6 @@ export const AutomationProfileForm = styled(FormPage)`
       padding: 0.3rem 0.5rem;
     }
   }
-
   /* Prompt library table. */
   .v2-library-table {
     width: 100%;
@@ -1111,15 +1097,12 @@ export const AutomationProfileForm = styled(FormPage)`
       font-weight: 600;
     }
   }
-
   .v2-col-name {
     width: 14rem;
   }
-
   .v2-col-refs {
     width: 14rem;
   }
-
   .v2-col-actions {
     width: 5.5rem;
     text-align: right !important;
@@ -1138,12 +1121,10 @@ export const AutomationProfileForm = styled(FormPage)`
       }
     }
   }
-
   .v2-library-empty {
     color: #667085;
     text-align: center;
   }
-
   .v2-prompt-name {
     font-family: monospace;
     font-size: 0.8rem;
@@ -1151,7 +1132,6 @@ export const AutomationProfileForm = styled(FormPage)`
     border-radius: 0.25rem;
     padding: 0.1rem 0.4rem;
   }
-
   .v2-chip-open {
     border: none;
     background: none;
@@ -1164,7 +1144,6 @@ export const AutomationProfileForm = styled(FormPage)`
       text-decoration: underline;
     }
   }
-
   .v2-subsection-header {
     align-items: center;
     gap: 0.5rem;
@@ -1173,17 +1152,11 @@ export const AutomationProfileForm = styled(FormPage)`
       margin: 0;
     }
   }
-
   .v2-field-help {
     margin: 0;
     font-size: 0.8rem;
     color: #667085;
   }
-
-  .section-help-text .help-accent {
-    color: #2b7a78;
-  }
-
   .v2-badge {
     display: inline-block;
     padding: 0.05rem 0.5rem;
@@ -1193,41 +1166,33 @@ export const AutomationProfileForm = styled(FormPage)`
     font-size: 0.75rem;
     white-space: nowrap;
   }
-
   .v2-badge-success {
     background: #d1fadf;
     color: #05603a;
   }
-
   .v2-badge-warning {
     background: #fef0c7;
     color: #93370d;
   }
-
   .v2-badge-danger {
     background: #fee4e2;
     color: #912018;
   }
-
   .v2-phase-init {
     background: #e0eaff;
     color: #26428b;
   }
-
   .v2-phase-process {
     background: #d1fadf;
     color: #05603a;
   }
-
   .v2-phase-complete {
     background: #fce7f6;
     color: #9e165f;
   }
-
   .v2-chips {
     flex-wrap: wrap;
   }
-
   .v2-chip {
     display: inline-flex;
     align-items: center;
@@ -1245,7 +1210,6 @@ export const AutomationProfileForm = styled(FormPage)`
       padding: 0;
     }
   }
-
   /* Filter fields per the design: one control - the edit pencil is injected inside the
      control's indicators area (left of × and ▼) through react-select's components API, and a
      compact + sits attached at the right. */
@@ -1304,15 +1268,12 @@ export const AutomationProfileForm = styled(FormPage)`
       }
     }
   }
-
   .v2-scoped-name label {
     display: block;
   }
-
   .v2-scoped-name-input {
     gap: 0.15rem;
   }
-
   .v2-scope-prefix {
     font-family: monospace;
     color: #475467;
@@ -1322,7 +1283,6 @@ export const AutomationProfileForm = styled(FormPage)`
     border-radius: 0.25rem 0 0 0.25rem;
     padding: 0.3rem 0.35rem;
   }
-
   .v2-link-button {
     border: none;
     background: none;
@@ -1332,13 +1292,11 @@ export const AutomationProfileForm = styled(FormPage)`
     font-size: 0.85rem;
     text-align: left;
   }
-
   .v2-condition-children {
     margin-left: 1.5rem;
     padding-left: 0.5rem;
     border-left: 2px solid #e4e7ec;
   }
-
   .v2-findings {
     border: 1px solid #fda29b;
     border-radius: 0.35rem;
@@ -1349,15 +1307,7 @@ export const AutomationProfileForm = styled(FormPage)`
       font-size: 0.8rem;
     }
   }
-`;
 
-/**
- * Constrains the step/action modals to the browser viewport: the popup never grows taller than
- * the viewing area, the body scrolls, and the footer buttons remain visible. Applied as a global
- * style (mounted by the form) because the tno-core Modal renders through a React portal
- * (document.body); scoped to these modals via their '.rule-modal-content' body root.
- */
-export const AutomationModalStyles = createGlobalStyle`
   .header-btn-outline {
     background: #fff;
     border: 1px solid #1a3a6b;

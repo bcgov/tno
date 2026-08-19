@@ -12,6 +12,7 @@ export interface IV2FilterFieldProps {
   options: IOptionItem[];
   onChange: (filterId: number | undefined) => void;
   width?: string;
+  required?: boolean;
 }
 
 /**
@@ -29,6 +30,7 @@ export const V2FilterField: React.FC<IV2FilterFieldProps> = ({
   options,
   onChange,
   width = '16rem',
+  required,
 }) => {
   // Injected into the control's indicators area, before the clear/dropdown indicators.
   const IndicatorsContainer = React.useMemo(
@@ -62,7 +64,7 @@ export const V2FilterField: React.FC<IV2FilterFieldProps> = ({
 
   return (
     <div className="v2-filter-field">
-      <label>{label}</label>
+      <label className={required ? 'required' : undefined}>{label}</label>
       <div className="v2-filter-control">
         <Select
           name={name}

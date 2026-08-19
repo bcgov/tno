@@ -98,6 +98,7 @@ import {
   serializeV2Definition,
   v2SaveModeOptions,
   V2Designer,
+  V2FilterField,
   V2RunOutcome,
 } from './v2';
 import {
@@ -1163,53 +1164,14 @@ const AutomationProfileForm: React.FC = () => {
                       </Row>
                       <Show visible={values.schemaVersion < 2}>
                         <Row className="field-grid filter-row" gap="1rem">
-                          <FormikSelect
-                            width={FieldSize.Big}
+                          <V2FilterField
                             name="filterId"
                             label="Automation Filter"
-                            value={findOptionByValue(filterOptions, values.filterId) ?? ''}
+                            width="22rem"
+                            value={values.filterId}
                             options={filterOptions}
-                            onChange={(newValue) => {
-                              setFieldValue(
-                                'filterId',
-                                toNumberOrUndefined(newValue as { value?: unknown } | null),
-                              );
-                            }}
-                            isClearable
-                          >
-                            <div className="filter-controls">
-                              <Button
-                                type="button"
-                                className="filter-icon-button"
-                                variant={ButtonVariant.secondary}
-                                disabled={!values.filterId}
-                                aria-label="Edit Filter"
-                                title="Edit Filter"
-                                onClick={() => {
-                                  if (!values.filterId) return;
-                                  window.open(
-                                    `/admin/filters/${values.filterId}`,
-                                    '_blank',
-                                    'noopener',
-                                  );
-                                }}
-                              >
-                                <FaEdit />
-                              </Button>
-                              <Button
-                                type="button"
-                                className="filter-icon-button"
-                                variant={ButtonVariant.secondary}
-                                aria-label="New Filter"
-                                title="New Filter"
-                                onClick={() => {
-                                  window.open('/admin/filters/0', '_blank', 'noopener');
-                                }}
-                              >
-                                <FaPlus />
-                              </Button>
-                            </div>
-                          </FormikSelect>
+                            onChange={(filterId) => setFieldValue('filterId', filterId)}
+                          />
                         </Row>
                       </Show>
                       <Show visible={values.schemaVersion >= 2}>
@@ -1758,16 +1720,13 @@ const AutomationProfileForm: React.FC = () => {
                           <FaCircleInfo />
                         </styled.StepTargetHelpButton>
                       </styled.StepTargetWithHelp>
-                      <Select
+                      <V2FilterField
                         name="step-filter"
                         label="Step Filter"
-                        width="25rem"
+                        width="22rem"
+                        value={stepModalState?.step.filterId}
                         options={filterOptions}
-                        value={findOptionByValue(filterOptions, stepModalState?.step.filterId)}
-                        onChange={(newValue) => {
-                          const filterId = toNumberOrUndefined(
-                            newValue as { value?: unknown } | null,
-                          );
+                        onChange={(filterId) => {
                           updateStepDraft((step) =>
                             syncDefaultPrompt({
                               ...step,
@@ -1776,41 +1735,7 @@ const AutomationProfileForm: React.FC = () => {
                             }),
                           );
                         }}
-                        isClearable
-                      >
-                        <div className="filter-controls step-filter-controls">
-                          <Button
-                            type="button"
-                            className="filter-icon-button"
-                            variant={ButtonVariant.secondary}
-                            disabled={!stepModalState?.step.filterId}
-                            aria-label="Edit Step Filter"
-                            title="Edit Step Filter"
-                            onClick={() => {
-                              if (!stepModalState?.step.filterId) return;
-                              window.open(
-                                `/admin/filters/${stepModalState.step.filterId}`,
-                                '_blank',
-                                'noopener',
-                              );
-                            }}
-                          >
-                            <FaEdit />
-                          </Button>
-                          <Button
-                            type="button"
-                            className="filter-icon-button"
-                            variant={ButtonVariant.secondary}
-                            aria-label="New Step Filter"
-                            title="New Step Filter"
-                            onClick={() => {
-                              window.open('/admin/filters/0', '_blank', 'noopener');
-                            }}
-                          >
-                            <FaPlus />
-                          </Button>
-                        </div>
-                      </Select>
+                      />
                     </Row>
                     <Row className="field-grid action-main-row" gap="1rem">
                       <Show visible={stepModalState?.step.target === 'content'}>
@@ -2423,25 +2348,14 @@ const AutomationProfileForm: React.FC = () => {
                     </Show>
                     <Show visible={actionModalState?.action.actionType === FETCH_CONTENT_ACTION}>
                       <Row className="field-grid action-wide-select-row" gap="1rem">
-                        <Select
+                        <V2FilterField
                           name="action-filter"
                           label="Filter"
                           required
-                          width="100%"
-                          styles={{
-                            // Replaces the component default; keep the portal above the modal.
-                            menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
-                            container: (base: any) => ({ ...base, width: '100%' }),
-                          }}
+                          width="22rem"
+                          value={actionModalState?.action.filterId}
                           options={filterOptions}
-                          value={
-                            findOptionByValue(filterOptions, actionModalState?.action.filterId) ??
-                            null
-                          }
-                          onChange={(newValue) => {
-                            const filterId = toNumberOrUndefined(
-                              newValue as { value?: unknown } | null,
-                            );
+                          onChange={(filterId) => {
                             updateActionDraft((action) => ({
                               ...action,
                               filterId: filterId ?? null,
