@@ -20,9 +20,7 @@ describe('V2FilterField', () => {
         <V2FilterField name="test-filter" options={options} value={undefined} onChange={() => {}} />
       </TestWrapper>,
     );
-    const controlRow = container.querySelector('.v2-filter-control');
-    expect(controlRow).not.toBeNull();
-    expect(controlRow!.querySelector('.v2-filter-add')).not.toBeNull();
+    expect(container.querySelector('.v2-filter-add')).not.toBeNull();
     expect(container.querySelector('.v2-filter-edit')).toBeNull();
   });
 
@@ -55,7 +53,8 @@ describe('V2FilterField', () => {
     const add = container.querySelector('.v2-filter-add');
     const control = container.querySelector('.rs__control');
     expect(add).not.toBeNull();
+    // Outside the select's border, inside the field's own control row (the Select children slot).
     expect(control!.contains(add)).toBe(false);
-    expect(container.querySelector('.v2-filter-control')!.contains(add)).toBe(true);
+    expect(container.querySelector('.frm-in')!.contains(add)).toBe(true);
   });
 });

@@ -1210,62 +1210,52 @@ export const AutomationModalStyles = createGlobalStyle`
       padding: 0;
     }
   }
-  /* Filter fields per the design: one control - the edit pencil is injected inside the
-     control's indicators area (left of × and ▼) through react-select's components API, and a
-     compact + sits attached at the right. */
-  .v2-filter-field {
-    > label {
-      display: block;
-      font-weight: 600;
+  /* Filter fields: the edit pencil renders inside the control's indicators area; the compact +
+     renders in the Select's own control row (its children slot), so alignment matches every
+     other labelled field. */
+  .v2-filter-edit {
+    border: none;
+    background: none;
+    padding: 0 0.15rem;
+    cursor: pointer;
+    color: #1a5a96;
+    display: flex;
+    align-items: center;
+
+    svg {
+      width: 0.95rem;
+      height: 0.95rem;
     }
 
-    .v2-filter-control {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
+    &:hover {
+      color: #0f3e6d;
+    }
+  }
 
-      /* The Select wrapper adds form-row padding; the row owns spacing here. */
-      .frm-in {
-        padding: 0;
-        margin: 0;
-      }
+  .v2-filter-add {
+    /* Compact square per the design: ~2/3 the control height, centered beside it. */
+    flex: 0 0 auto;
+    width: 1.6rem;
+    height: 1.6rem;
+    align-self: center;
+    margin-left: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #1a5a96;
+    border-radius: 0.2rem;
+    background: #fff;
+    color: #1a5a96;
+    cursor: pointer;
+    padding: 0;
+
+    svg {
+      width: 0.8rem;
+      height: 0.8rem;
     }
 
-    .v2-filter-edit {
-      border: none;
-      background: none;
-      padding: 0 0.15rem;
-      cursor: pointer;
-      color: #1a5a96;
-      display: flex;
-      align-items: center;
-
-      svg {
-        width: 0.95rem;
-        height: 0.95rem;
-      }
-
-      &:hover {
-        color: #0f3e6d;
-      }
-    }
-
-    .v2-filter-add {
-      flex: 0 0 auto;
-      width: 2.1rem;
-      height: 2.35rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid #1a5a96;
-      border-radius: 0.25rem;
-      background: #fff;
-      color: #1a5a96;
-      cursor: pointer;
-
-      &:hover {
-        background: #f5f8ff;
-      }
+    &:hover {
+      background: #f5f8ff;
     }
   }
   .v2-scoped-name label {
