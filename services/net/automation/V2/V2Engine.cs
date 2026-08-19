@@ -44,6 +44,23 @@ public class V2Engine
     {
         "id", "headline", "byline", "summary", "body", "publishedOn", "source", "otherSource",
         "section", "page", "edition", "status", "contentType", "sourceId", "licenseId", "mediaTypeId", "uid",
+        "source.name", "source.code", "mediaType.name", "series.name", "contributor.name",
+        "labels", "topics", "sentiment",
+    };
+
+    /// <summary>
+    /// Compound digest fields project from nested _source objects; map each digest field to the
+    /// Elasticsearch source field(s) that carry it.
+    /// </summary>
+    private static readonly Dictionary<string, string[]> DigestSourceFields = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["source"] = new[] { "source", "otherSource" },
+        ["source.name"] = new[] { "source", "otherSource" },
+        ["source.code"] = new[] { "source", "otherSource" },
+        ["mediaType.name"] = new[] { "mediaType" },
+        ["series.name"] = new[] { "series", "otherSeries" },
+        ["contributor.name"] = new[] { "contributor" },
+        ["sentiment"] = new[] { "tonePools" },
     };
 
     private static readonly Dictionary<string, int> DefaultTruncation = new(StringComparer.OrdinalIgnoreCase)
@@ -359,8 +376,13 @@ public class V2Engine
         var root = JsonNode.Parse(query)!.AsObject();
         root["size"] = FilterPageSize;
         root["track_total_hits"] = true;
-        // Project the _source to scalar fields plus the nested source object (for its name).
-        root["_source"] = new JsonArray(digestFields.Select(f => (JsonNode?)f).ToArray());
+        // Project the _source to the fields the digest reads; compound digest fields map to the
+        // nested objects that carry them.
+        var sourceFields = digestFields
+            .SelectMany(f => DigestSourceFields.TryGetValue(f, out var mapped) ? mapped : new[] { f })
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        root["_source"] = new JsonArray(sourceFields.Select(f => (JsonNode?)f).ToArray());
 
         var entries = new List<V2ContentEntry>();
         var from = 0;
@@ -412,6 +434,14 @@ public class V2Engine
                 "uid" => content.Uid,
                 "tags" => string.Join(",", content.Tags.Select(t => t.Code)),
                 "actions" => string.Join(",", content.Actions.Select(a => a.Name)),
+                "source.name" => content.Source?.Name ?? content.OtherSource,
+                "source.code" => content.Source?.Code ?? content.OtherSource,
+                "mediatype.name" => content.MediaType?.Name,
+                "series.name" => content.Series?.Name ?? content.OtherSeries,
+                "contributor.name" => content.Contributor?.Name,
+                "labels" => string.Join(",", content.Labels.Select(l => string.IsNullOrWhiteSpace(l.Value) ? l.Key : l.Value)),
+                "topics" => string.Join(",", content.Topics.Select(t => t.Name)),
+                "sentiment" => content.TonePools.FirstOrDefault()?.Value.ToString(),
                 _ => null,
             };
             if (value == null) continue;

@@ -290,7 +290,7 @@ public static class AutomationProfileV2Migrator
         var name = baseName;
         var suffix = 1;
         while (definition.Prompts.ContainsKey(name)) name = $"{baseName}-{++suffix}";
-        definition.Prompts[name] = text;
+        definition.Prompts[name] = new V2PromptEntry { Text = text };
         index[text] = name;
         return name;
     }

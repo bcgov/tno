@@ -125,7 +125,7 @@ public class AutomationProfileV2MigratorTest
     {
         var result = AutomationProfileV2Migrator.Migrate(V1Profile());
         // Two steps carry the byte-identical step prompt; the library holds it once.
-        var entries = result.Definition.Prompts.Values.Count(text => text.Contains("Shared editorial rules"));
+        var entries = result.Definition.Prompts.Values.Count(entry => entry.Text.Contains("Shared editorial rules"));
         Assert.Equal(1, entries);
     }
 

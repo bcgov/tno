@@ -3142,7 +3142,7 @@ const AutomationProfileForm: React.FC = () => {
                               )}
                               onApplyPrompt={(name, text) => {
                                 const definition = parseV2Definition(values.definition);
-                                definition.prompts[name] = text;
+                                definition.prompts[name] = { ...definition.prompts[name], text };
                                 setFieldValue('definition', serializeV2Definition(definition));
                               }}
                             />

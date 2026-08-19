@@ -103,7 +103,7 @@ public static class V2ValueResolver
 
     private static string SubstituteFields(string text, V2ContentEntry target)
     {
-        return System.Text.RegularExpressions.Regex.Replace(text, @"\{content\.(?<field>[a-zA-Z]+)\}",
+        return System.Text.RegularExpressions.Regex.Replace(text, @"\{content\.(?<field>[a-zA-Z.]+)\}",
             match => target.GetField(match.Groups["field"].Value) ?? "");
     }
 }

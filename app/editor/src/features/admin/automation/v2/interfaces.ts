@@ -1,7 +1,15 @@
+/** One prompt library entry. Stored as a bare string when it has no description (legacy form);
+ * the parser normalizes both shapes to this object. */
+export interface IV2PromptEntry {
+  text: string;
+  /** What the prompt is for, shown in the library table. */
+  description?: string | null;
+}
+
 /** The v2 profile definition document, stored as JSON on the profile (schemaVersion >= 2). */
 export interface IV2Definition {
-  /** The prompt library: named prompt text shared via prompt refs. */
-  prompts: Record<string, string>;
+  /** The prompt library: named entries shared via prompt refs. */
+  prompts: Record<string, IV2PromptEntry>;
   /** When accumulated content changes flush: 'end-of-run' (default) or 'end-of-step'. */
   saveMode: string;
   steps: IV2Step[];

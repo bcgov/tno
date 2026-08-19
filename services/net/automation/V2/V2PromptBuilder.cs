@@ -26,7 +26,7 @@ public class V2PromptBuilder
 
     private static readonly Regex _lookupToken = new(@"\{lookup:(?<name>[a-zA-Z]+)(\[(?<cols>[^\]]+)\])?\}", RegexOptions.Compiled);
     private static readonly Regex _collectionToken = new(@"\{collection:(?<name>\$run\.[a-zA-Z0-9_-]+)(\[(?<cols>[^\]]+)\])?\}", RegexOptions.Compiled);
-    private static readonly Regex _contentFieldToken = new(@"\{content\.(?<field>[a-zA-Z]+)\}", RegexOptions.Compiled);
+    private static readonly Regex _contentFieldToken = new(@"\{content\.(?<field>[a-zA-Z.]+)\}", RegexOptions.Compiled);
 
     private readonly AutomationDefinition _definition;
     private readonly LookupModel? _lookups;
@@ -49,7 +49,7 @@ public class V2PromptBuilder
     {
         var text = "";
         if (!string.IsNullOrWhiteSpace(prompt.Ref) && _definition.Prompts.TryGetValue(prompt.Ref!, out var library))
-            text = library;
+            text = library.Text;
         if (!string.IsNullOrWhiteSpace(prompt.Text))
             text = string.IsNullOrEmpty(text) ? prompt.Text! : $"{text}\n\n{prompt.Text}";
         if (!string.IsNullOrWhiteSpace(prompt.Override))

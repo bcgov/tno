@@ -841,6 +841,55 @@ export const AutomationProfileForm = styled(FormPage)`
     flex-basis: 100%;
   }
 
+  /* Prompt library table. */
+  .v2-library-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    border: 1px solid #e4e7ec;
+    border-radius: 0.35rem;
+
+    th,
+    td {
+      border-bottom: 1px solid #e4e7ec;
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background: #f2f4f7;
+      font-weight: 600;
+    }
+  }
+
+  .v2-col-name {
+    width: 14rem;
+  }
+
+  .v2-col-refs {
+    width: 14rem;
+  }
+
+  .v2-col-actions {
+    width: 4.5rem;
+    text-align: right !important;
+    white-space: nowrap;
+  }
+
+  .v2-library-empty {
+    color: #667085;
+    text-align: center;
+  }
+
+  .v2-prompt-name {
+    font-family: monospace;
+    font-size: 0.8rem;
+    background: #f2f4f7;
+    border-radius: 0.25rem;
+    padding: 0.1rem 0.4rem;
+  }
+
   .v2-chip-open {
     border: none;
     background: none;
@@ -1025,6 +1074,42 @@ export const AutomationModalStyles = createGlobalStyle`
   }
 
   /* Run detail modal content. */
+  .v2-prompt-modal .v2-token-help {
+    margin: 0.5rem 0 0.25rem 0;
+    font-size: 0.85rem;
+    color: #475467;
+  }
+
+  .v2-prompt-modal .v2-token-group-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #667085;
+  }
+
+  .v2-prompt-modal .v2-token-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .v2-prompt-modal .v2-token {
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: #26428b;
+    background: #f5f8ff;
+    border: 1px solid #b2ccff;
+    border-radius: 0.9rem;
+    padding: 0.15rem 0.5rem;
+    cursor: pointer;
+
+    &:hover {
+      background: #e0eaff;
+    }
+  }
+
   .run-detail-content .v2-run-detail-toggle {
     margin: 0.5rem 0;
   }

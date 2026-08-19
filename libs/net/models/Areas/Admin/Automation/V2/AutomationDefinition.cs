@@ -12,10 +12,11 @@ public class AutomationDefinition
 {
     #region Properties
     /// <summary>
-    /// get/set - The prompt library: named prompt text shared by steps and analyses via
-    /// prompt.ref. Shared text lives once; steps store only their overrides.
+    /// get/set - The prompt library: named prompt entries shared by steps and analyses via
+    /// prompt.ref. Shared text lives once; steps store only their overrides. Each entry
+    /// serializes as a bare string when it has no description, so legacy documents stay valid.
     /// </summary>
-    public Dictionary<string, string> Prompts { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, V2PromptEntry> Prompts { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// get/set - When accumulated content changes are written to the database:
@@ -61,6 +62,67 @@ public class AutomationDefinition
         return JsonSerializer.Serialize(this, _options);
     }
     #endregion
+}
+
+/// <summary>
+/// V2PromptEntry class, one prompt library entry: its text and an optional description shown in
+/// the editor's library table. Reads/writes as a bare JSON string when there is no description.
+/// </summary>
+[JsonConverter(typeof(V2PromptEntryConverter))]
+public class V2PromptEntry
+{
+    #region Properties
+    /// <summary>
+    /// get/set - The prompt text.
+    /// </summary>
+    public string Text { get; set; } = "";
+
+    /// <summary>
+    /// get/set - What the prompt is for, shown in the library table.
+    /// </summary>
+    public string? Description { get; set; }
+    #endregion
+}
+
+/// <summary>
+/// V2PromptEntryConverter class, accepts both entry shapes - a bare string (legacy) or an object
+/// with text/description - and writes the compact string form back when possible.
+/// </summary>
+public class V2PromptEntryConverter : JsonConverter<V2PromptEntry>
+{
+    public override V2PromptEntry Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType == JsonTokenType.String)
+            return new V2PromptEntry { Text = reader.GetString() ?? "" };
+
+        var entry = new V2PromptEntry();
+        if (reader.TokenType != JsonTokenType.StartObject) throw new JsonException("A prompt entry must be a string or an object.");
+        while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
+        {
+            if (reader.TokenType != JsonTokenType.PropertyName) continue;
+            var property = reader.GetString() ?? "";
+            reader.Read();
+            if (property.Equals("text", StringComparison.OrdinalIgnoreCase))
+                entry.Text = reader.TokenType == JsonTokenType.String ? reader.GetString() ?? "" : "";
+            else if (property.Equals("description", StringComparison.OrdinalIgnoreCase))
+                entry.Description = reader.TokenType == JsonTokenType.String ? reader.GetString() : null;
+            else reader.Skip();
+        }
+        return entry;
+    }
+
+    public override void Write(Utf8JsonWriter writer, V2PromptEntry value, JsonSerializerOptions options)
+    {
+        if (string.IsNullOrWhiteSpace(value.Description))
+        {
+            writer.WriteStringValue(value.Text);
+            return;
+        }
+        writer.WriteStartObject();
+        writer.WriteString("text", value.Text);
+        writer.WriteString("description", value.Description);
+        writer.WriteEndObject();
+    }
 }
 
 /// <summary>

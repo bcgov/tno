@@ -2,7 +2,7 @@ import React from 'react';
 import { DragDropContext, Draggable, type DropResult } from 'react-beautiful-dnd';
 import { FaChevronDown, FaChevronRight, FaGripLines, FaPlus, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { Button, ButtonVariant, Col, type IOptionItem, Row, Show, Text, TextArea } from 'tno-core';
+import { Button, ButtonVariant, Col, type IOptionItem, Row, Show, TextArea } from 'tno-core';
 
 import { StrictModeDroppable } from '../StrictModeDroppable';
 import {
@@ -17,6 +17,7 @@ import {
   type IV2Step,
   type IV2ValidationError,
 } from './interfaces';
+import { V2PromptLibrary } from './V2PromptLibrary';
 import { V2StepEditor } from './V2StepEditor';
 
 export interface IV2DesignerProps {
@@ -51,8 +52,6 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
 }) => {
   const definition = React.useMemo(() => parseV2Definition(value), [value]);
   const [collapsed, setCollapsed] = React.useState<Set<number>>(new Set());
-  const [expandedPrompts, setExpandedPrompts] = React.useState<Set<string>>(new Set());
-  const [newPromptName, setNewPromptName] = React.useState('');
   const [showJson, setShowJson] = React.useState(false);
   const [jsonDraft, setJsonDraft] = React.useState('');
   const [findings, setFindings] = React.useState<IV2ValidationError[] | null>(null);
@@ -120,83 +119,7 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
       <Row className="section-header" nowrap>
         <h2>Prompt Library</h2>
       </Row>
-      <p className="section-help-text">
-        Shared prompt text lives here once and is referenced by analyses. A step stores only its
-        override — differences between steps are visible instead of hiding in near-identical copies.
-        Prompts support tokens: {'{content}'}, {'{content.field}'}, {'{lookup:tags}'},{' '}
-        {'{collection:$run.name}'}.
-      </p>
-      {promptNames.map((name) => (
-        <Col key={name} className="v2-list-item" gap="0.25rem">
-          <Row gap="0.5rem" alignItems="center" nowrap>
-            <button
-              type="button"
-              className="rule-icon-button"
-              title={expandedPrompts.has(name) ? 'Collapse' : 'Expand'}
-              onClick={() =>
-                setExpandedPrompts((current) => {
-                  const next = new Set(current);
-                  if (next.has(name)) next.delete(name);
-                  else next.add(name);
-                  return next;
-                })
-              }
-            >
-              {expandedPrompts.has(name) ? <FaChevronDown /> : <FaChevronRight />}
-            </button>
-            <strong>{name}</strong>
-            <span className="v2-field-help">
-              {definition.prompts[name].length.toLocaleString()} chars
-            </span>
-            <button
-              type="button"
-              className="rule-icon-button delete"
-              title={`Delete prompt '${name}'`}
-              onClick={() => {
-                const prompts = { ...definition.prompts };
-                delete prompts[name];
-                update({ ...definition, prompts });
-              }}
-            >
-              <FaTrash />
-            </button>
-          </Row>
-          <Show visible={expandedPrompts.has(name)}>
-            <TextArea
-              name={`prompt-${name}`}
-              rows={6}
-              value={definition.prompts[name]}
-              onChange={(e) =>
-                update({
-                  ...definition,
-                  prompts: { ...definition.prompts, [name]: e.target.value },
-                })
-              }
-            />
-          </Show>
-        </Col>
-      ))}
-      <Row gap="0.5rem" alignItems="flex-end" nowrap>
-        <Text
-          name="new-prompt-name"
-          label="New prompt name"
-          width="16rem"
-          value={newPromptName}
-          onChange={(e) => setNewPromptName(e.target.value)}
-        />
-        <Button
-          variant={ButtonVariant.secondary}
-          disabled={!newPromptName.trim() || !!definition.prompts[newPromptName.trim()]}
-          onClick={() => {
-            const name = newPromptName.trim();
-            update({ ...definition, prompts: { ...definition.prompts, [name]: '' } });
-            setExpandedPrompts((current) => new Set(current).add(name));
-            setNewPromptName('');
-          }}
-        >
-          <FaPlus /> Add prompt
-        </Button>
-      </Row>
+      <V2PromptLibrary definition={definition} onChange={update} />
 
       <Row className="section-header" nowrap>
         <h2>Steps</h2>

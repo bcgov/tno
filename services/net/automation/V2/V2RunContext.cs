@@ -48,6 +48,10 @@ public class V2ContentEntry
                 return Deltas.Sentiment.Value.ToString();
             if (field.Equals("status", StringComparison.OrdinalIgnoreCase) && Deltas.Status != null)
                 return Deltas.Status;
+            if ((field.Equals("contributor.name", StringComparison.OrdinalIgnoreCase)
+                || field.Equals("contributor", StringComparison.OrdinalIgnoreCase))
+                && Deltas.ContributorName != null)
+                return Deltas.ContributorName;
         }
         return Digest.TryGetValue(field, out var value) ? value : null;
     }

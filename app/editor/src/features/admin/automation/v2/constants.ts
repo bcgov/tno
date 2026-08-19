@@ -1,7 +1,12 @@
 import { type IOptionItem } from 'tno-core';
 
 import { createOption } from '../utils';
-import { type IV2Action, type IV2Definition, type IV2Step } from './interfaces';
+import {
+  type IV2Action,
+  type IV2Definition,
+  type IV2PromptEntry,
+  type IV2Step,
+} from './interfaces';
 
 export const V2_PHASES = ['init', 'process', 'complete'] as const;
 
@@ -101,17 +106,34 @@ export const createDefaultV2Definition = (): IV2Definition => ({
   ],
 });
 
-/** Serialize a definition for storage, dropping empty optional members so the stored document
- * stays close to what the engine reads. */
+/** Serialize a definition for storage. Prompt entries without a description collapse back to the
+ * compact bare-string form the engine also accepts. */
 export const serializeV2Definition = (definition: IV2Definition): string =>
-  JSON.stringify(definition);
+  JSON.stringify({
+    ...definition,
+    prompts: Object.fromEntries(
+      Object.entries(definition.prompts).map(([name, entry]) => [
+        name,
+        entry.description ? entry : entry.text,
+      ]),
+    ),
+  });
+
+/** Normalize a prompt entry from either stored shape (bare string or object). */
+export const toPromptEntry = (value: unknown): IV2PromptEntry => {
+  if (typeof value === 'string') return { text: value };
+  const entry = value as Partial<IV2PromptEntry> | null;
+  return { text: entry?.text ?? '', description: entry?.description ?? undefined };
+};
 
 export const parseV2Definition = (json?: string | null): IV2Definition => {
   if (!json) return createDefaultV2Definition();
   try {
     const parsed = JSON.parse(json) as Partial<IV2Definition>;
     return {
-      prompts: parsed.prompts ?? {},
+      prompts: Object.fromEntries(
+        Object.entries(parsed.prompts ?? {}).map(([name, value]) => [name, toPromptEntry(value)]),
+      ),
       saveMode: parsed.saveMode ?? 'end-of-run',
       steps: (parsed.steps ?? []).map((step) => ({
         ...step,
@@ -138,6 +160,42 @@ export const collectV2CollectionNames = (definition: IV2Definition): string[] =>
   });
   return Array.from(names).sort();
 };
+
+/** Insertable data tokens: replaced at prompt composition with consistent, readable values from
+ * the run's lookup bundle. Hints render as hover titles (the token's rendered form). */
+export const V2_LOOKUP_TOKENS: { token: string; hint: string }[] = [
+  { token: '{lookup:tags}', hint: 'Enabled tags: CODE | Name — Description, one per line' },
+  { token: '{lookup:contributors}', hint: 'Enabled contributors/columnists by name' },
+  { token: '{lookup:sources}', hint: 'Enabled sources: CODE | Name — Description' },
+  { token: '{lookup:mediaTypes}', hint: 'Enabled media types by name' },
+  { token: '{lookup:actions}', hint: 'Enabled content actions by name' },
+  { token: '{lookup:topics}', hint: 'Enabled topics by name' },
+];
+
+/** Insertable content tokens: replaced with the item's working copy (deltas folded in). */
+export const V2_CONTENT_TOKENS: { token: string; hint: string }[] = [
+  { token: '{content.status}', hint: 'e.g. Published (reflects a pending publish/unpublish)' },
+  { token: '{content.contentType}', hint: 'e.g. PrintContent, AudioVideo' },
+  { token: '{content.headline}', hint: 'The headline' },
+  { token: '{content.byline}', hint: 'The byline' },
+  { token: '{content.body}', hint: 'The story body (truncated per the digest settings)' },
+  { token: '{content.summary}', hint: 'The summary' },
+  { token: '{content.source.name}', hint: 'e.g. Vancouver Sun' },
+  { token: '{content.source.code}', hint: 'e.g. SUN' },
+  { token: '{content.otherSource}', hint: 'The source code text on the item' },
+  { token: '{content.mediaType.name}', hint: 'e.g. Newspaper' },
+  { token: '{content.series.name}', hint: 'The show/program name, when any' },
+  { token: '{content.contributor.name}', hint: 'The columnist (reflects a pending selection)' },
+  { token: '{content.edition}', hint: 'The paper edition' },
+  { token: '{content.section}', hint: 'e.g. A, Business' },
+  { token: '{content.page}', hint: 'e.g. A1' },
+  { token: '{content.publishedOn}', hint: 'The published date, yyyy-MM-dd' },
+  { token: '{content.tags}', hint: 'Comma-separated tag codes (includes pending adds)' },
+  { token: '{content.sentiment}', hint: '-5 to 5 (reflects a pending value)' },
+  { token: '{content.actions}', hint: 'Comma-separated content action names' },
+  { token: '{content.labels}', hint: 'Comma-separated label values' },
+  { token: '{content.topics}', hint: 'Comma-separated topic names' },
+];
 
 /** Outcomes that indicate a decision rather than an LLM exchange. */
 export const v2OutcomeBadgeClass = (outcome: string): string => {
