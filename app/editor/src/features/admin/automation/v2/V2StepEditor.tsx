@@ -59,12 +59,14 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
             });
           }}
         />
-        <Checkbox
-          name="step-enabled"
-          label="Enabled"
-          checked={step.isEnabled}
-          onChange={(e) => set({ isEnabled: e.target.checked })}
-        />
+        <div className="checkbox-inline">
+          <Checkbox
+            name="step-enabled"
+            label="Enabled"
+            checked={step.isEnabled}
+            onChange={(e) => set({ isEnabled: e.target.checked })}
+          />
+        </div>
       </Row>
       <Row gap="0.5rem" alignItems="flex-end" nowrap>
         {/* Init steps only gather: no content changes to save, no analyses for an LLM to run. */}

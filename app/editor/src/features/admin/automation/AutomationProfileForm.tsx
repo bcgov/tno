@@ -1146,11 +1146,13 @@ const AutomationProfileForm: React.FC = () => {
                             }}
                           />
                         </Show>
-                        <FormikCheckbox
-                          labelPosition={LabelPosition.Right}
-                          label="Is Enabled"
-                          name="isEnabled"
-                        />
+                        <div className="checkbox-inline">
+                          <FormikCheckbox
+                            labelPosition={LabelPosition.Right}
+                            label="Is Enabled"
+                            name="isEnabled"
+                          />
+                        </div>
                       </Row>
                       <Row className="field-grid description-row" gap="1rem">
                         <FormikTextArea

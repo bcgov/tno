@@ -80,13 +80,15 @@ export const V2AnalysisEditor: React.FC<IV2AnalysisEditorProps> = ({
           value={findOptionByValue(llmOptions, analysis.llmId) ?? ''}
           onChange={(newValue) => set({ llmId: toNumberOrUndefined(newValue as IOptionItem) })}
         />
-        <Checkbox
-          name="analysis-raw"
-          label="Raw response"
-          tooltip="Keep the response as plain text; actions gate on it with confirmation statements (how migrated v1 actions work)."
-          checked={analysis.raw ?? false}
-          onChange={(e) => set({ raw: e.target.checked })}
-        />
+        <div className="checkbox-inline">
+          <Checkbox
+            name="analysis-raw"
+            label="Raw response"
+            tooltip="Keep the response as plain text; actions gate on it with confirmation statements (how migrated v1 actions work)."
+            checked={analysis.raw ?? false}
+            onChange={(e) => set({ raw: e.target.checked })}
+          />
+        </div>
       </Row>
       <Show visible={!analysis.prompt?.ref}>
         <TextArea

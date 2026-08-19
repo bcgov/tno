@@ -201,13 +201,14 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           | boolean
           | undefined;
         return (
-          <Checkbox
-            key={key}
-            name={key}
-            label={field.name}
-            checked={current ?? false}
-            onChange={(e) => set({ [field.name]: e.target.checked } as Partial<IV2Action>)}
-          />
+          <div key={key} className="checkbox-inline">
+            <Checkbox
+              name={key}
+              label={field.name}
+              checked={current ?? false}
+              onChange={(e) => set({ [field.name]: e.target.checked } as Partial<IV2Action>)}
+            />
+          </div>
         );
       }
       case 'condition':
@@ -470,12 +471,14 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           value={action.name ?? ''}
           onChange={(e) => set({ name: e.target.value || null })}
         />
-        <Checkbox
-          name="action-enabled"
-          label="Enabled"
-          checked={action.isEnabled}
-          onChange={(e) => set({ isEnabled: e.target.checked })}
-        />
+        <div className="checkbox-inline">
+          <Checkbox
+            name="action-enabled"
+            label="Enabled"
+            checked={action.isEnabled}
+            onChange={(e) => set({ isEnabled: e.target.checked })}
+          />
+        </div>
       </Row>
       <Row gap="0.5rem" alignItems="flex-end" nowrap>
         <Select

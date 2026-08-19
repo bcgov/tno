@@ -391,6 +391,20 @@ export const AutomationProfileForm = styled(FormPage)`
     gap: 0.75rem;
   }
 
+  /* Inline checkboxes beside labelled inputs: size the box to the input height and center the
+     checkbox in it, so bottom-aligned rows line it up with the input instead of floating. */
+  .checkbox-inline {
+    min-height: 2.35rem;
+    display: inline-flex;
+    align-items: center;
+
+    .frm-in,
+    p {
+      margin: 0;
+      padding: 0;
+    }
+  }
+
   .description-row {
     width: 100%;
   }
