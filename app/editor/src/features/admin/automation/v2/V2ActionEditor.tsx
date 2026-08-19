@@ -5,6 +5,7 @@ import { contentFieldOptionItems } from '../constants';
 import { createOption, findOptionByValue, toNumberOrUndefined } from '../utils';
 import { type IV2Action, type IV2ActionDescriptor, type IV2FieldSpec } from './interfaces';
 import { V2ConditionBuilder } from './V2ConditionBuilder';
+import { V2ScopedNameField } from './V2ScopedNameField';
 import { V2ValueSourceEditor } from './V2ValueSourceEditor';
 
 type GateKind = 'always' | 'condition' | 'confirm';
@@ -43,6 +44,8 @@ export interface IV2ActionEditorProps {
   phase: string;
   analysisNames: string[];
   collectionNames: string[];
+  /** Drafts created by earlier content.create actions in this step ($item.* names). */
+  draftNames: string[];
   filterOptions: IOptionItem[];
   reportOptions: IOptionItem[];
   notificationOptions: IOptionItem[];
@@ -62,6 +65,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
   phase,
   analysisNames,
   collectionNames,
+  draftNames,
   filterOptions,
   reportOptions,
   notificationOptions,
@@ -78,8 +82,9 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
     [descriptors, phase],
   );
   const analysisOptions = analysisNames.map((name) => createOption(name, name));
-  const collectionOptions = collectionNames.map((name) => createOption(name, name));
   const promptOptions = promptNames.map((name) => createOption(name, name));
+  const subjectOption = createOption('The subject ($item)', '$item');
+  const draftOptions = draftNames.map((name) => createOption(name.replace(/^\$item\./, ''), name));
   const gate = getGate(action);
 
   const set = (values: Partial<IV2Action>) => onChange({ ...action, ...values });
@@ -159,35 +164,16 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           | string
           | undefined;
         return (
-          <Col key={key}>
-            <Row gap="0.5rem" alignItems="flex-end" nowrap>
-              <Text
-                name={key}
-                label={`${field.name} (collection)`}
-                placeholder="$run.name"
-                width="16rem"
-                value={current ?? ''}
-                onChange={(e) => set({ [field.name]: e.target.value } as Partial<IV2Action>)}
-              />
-              <Show visible={collectionOptions.length > 0}>
-                <Select
-                  name={`${key}-pick`}
-                  width="14rem"
-                  placeholder="known collections…"
-                  options={collectionOptions}
-                  value={''}
-                  onChange={(newValue) => {
-                    const option = newValue as IOptionItem;
-                    if (option?.value)
-                      set({ [field.name]: `${option.value}` } as Partial<IV2Action>);
-                  }}
-                />
-              </Show>
-            </Row>
-            <Show visible={!!field.help}>
-              <p className="v2-field-help">{field.help}</p>
-            </Show>
-          </Col>
+          <V2ScopedNameField
+            key={key}
+            name={key}
+            label={`${field.name} (collection)`}
+            scope="$run"
+            value={current}
+            knownNames={collectionNames}
+            help={field.help}
+            onChange={(next) => set({ [field.name]: next } as Partial<IV2Action>)}
+          />
         );
       }
       case 'int': {
@@ -355,20 +341,58 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
             />
           </Col>
         );
-      case 'item':
-      case 'draft': {
+      case 'item': {
+        // The subject or a draft created earlier in this step - a closed set, so a dropdown.
         const current = (action as unknown as Record<string, unknown>)[field.name] as
           | string
           | undefined;
+        const itemOptions = [subjectOption, ...draftOptions];
         return (
-          <Text
+          <Select
             key={key}
             name={key}
             label={field.name}
-            placeholder={field.kind === 'draft' ? '$item.digest' : '$item'}
-            width="14rem"
-            value={current ?? ''}
-            onChange={(e) => set({ [field.name]: e.target.value || null } as Partial<IV2Action>)}
+            width="16rem"
+            options={itemOptions}
+            value={findOptionByValue(itemOptions, current) ?? ''}
+            onChange={(newValue) => {
+              const option = newValue as IOptionItem;
+              set({ [field.name]: option?.value ? `${option.value}` : null } as Partial<IV2Action>);
+            }}
+          />
+        );
+      }
+      case 'draft': {
+        // 'as' names a NEW draft (scoped input); every other draft field targets an existing one.
+        if (field.name === 'as')
+          return (
+            <V2ScopedNameField
+              key={key}
+              name={key}
+              label={`${field.name} (new draft)`}
+              scope="$item"
+              value={action.as}
+              help={field.help}
+              onChange={(next) => set({ as: next })}
+            />
+          );
+        const current = (action as unknown as Record<string, unknown>)[field.name] as
+          | string
+          | undefined;
+        const targetOptions = [createOption('(the subject)', ''), ...draftOptions];
+        return (
+          <Select
+            key={key}
+            name={key}
+            label={field.name}
+            width="16rem"
+            isClearable={false}
+            options={targetOptions}
+            value={findOptionByValue(targetOptions, current ?? '')}
+            onChange={(newValue) => {
+              const option = newValue as IOptionItem;
+              set({ [field.name]: option?.value ? `${option.value}` : null } as Partial<IV2Action>);
+            }}
           />
         );
       }

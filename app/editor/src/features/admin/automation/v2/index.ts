@@ -7,5 +7,6 @@ export * from './V2AnalysisEditor';
 export * from './V2ConditionBuilder';
 export * from './V2Designer';
 export * from './V2RunOutcome';
+export * from './V2ScopedNameField';
 export * from './V2StepEditor';
 export * from './V2ValueSourceEditor';

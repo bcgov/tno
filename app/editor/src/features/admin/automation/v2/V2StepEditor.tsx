@@ -2,7 +2,7 @@ import React from 'react';
 import { FaPlus, FaTrash } from 'react-icons/fa';
 import { Checkbox, Col, type IOptionItem, Row, Select, Show, Text, TextArea } from 'tno-core';
 
-import { createOption, findOptionByValue, toNumberOrUndefined } from '../utils';
+import { findOptionByValue, toNumberOrUndefined } from '../utils';
 import {
   createDefaultV2Action,
   v2PhaseOptions,
@@ -17,6 +17,7 @@ import {
 } from './interfaces';
 import { V2ActionEditor } from './V2ActionEditor';
 import { V2AnalysisEditor } from './V2AnalysisEditor';
+import { V2ScopedNameField } from './V2ScopedNameField';
 
 export interface IV2StepEditorProps {
   step: IV2Step;
@@ -50,7 +51,6 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
 }) => {
   const set = (values: Partial<IV2Step>) => onChange({ ...step, ...values });
   const analysisNames = step.analyses.map((analysis) => analysis.name).filter((name) => !!name);
-  const collectionOptions = collectionNames.map((name) => createOption(name, name));
 
   const setAnalysis = (index: number, analysis: IV2Analysis) => {
     const analyses = [...step.analyses];
@@ -176,35 +176,18 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
             />
           </Show>
           <Show visible={step.source?.from === 'collection'}>
-            <Select
+            <V2ScopedNameField
               name="step-source-collection"
               label="Collection"
-              width="16rem"
-              options={collectionOptions}
-              value={findOptionByValue(collectionOptions, step.source?.collection) ?? ''}
-              onChange={(newValue) => {
-                const option = newValue as IOptionItem;
+              scope="$run"
+              value={step.source?.collection}
+              knownNames={collectionNames}
+              onChange={(next) =>
                 set({
                   source: {
                     ...(step.source ?? { from: 'collection' }),
                     from: 'collection',
-                    collection: option?.value ? `${option.value}` : null,
-                  },
-                });
-              }}
-            />
-            <Text
-              name="step-source-collection-text"
-              label="or type a name"
-              placeholder="$run.inbox"
-              width="12rem"
-              value={step.source?.collection ?? ''}
-              onChange={(e) =>
-                set({
-                  source: {
-                    ...(step.source ?? { from: 'collection' }),
-                    from: 'collection',
-                    collection: e.target.value || null,
+                    collection: next,
                   },
                 })
               }
@@ -332,6 +315,10 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
             phase={step.phase}
             analysisNames={analysisNames}
             collectionNames={collectionNames}
+            draftNames={step.actions
+              .slice(0, index)
+              .filter((earlier) => earlier.type === 'content.create' && !!earlier.as)
+              .map((earlier) => earlier.as!)}
             filterOptions={filterOptions}
             reportOptions={reportOptions}
             notificationOptions={notificationOptions}

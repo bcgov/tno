@@ -888,6 +888,24 @@ export const AutomationProfileForm = styled(FormPage)`
     }
   }
 
+  .v2-scoped-name label {
+    display: block;
+  }
+
+  .v2-scoped-name-input {
+    gap: 0.15rem;
+  }
+
+  .v2-scope-prefix {
+    font-family: monospace;
+    color: #475467;
+    background: #f2f4f7;
+    border: 1px solid #d0d5dd;
+    border-right: none;
+    border-radius: 0.25rem 0 0 0.25rem;
+    padding: 0.3rem 0.35rem;
+  }
+
   .v2-link-button {
     border: none;
     background: none;
