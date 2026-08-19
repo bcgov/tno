@@ -30,7 +30,7 @@ export const V2AnalysisEditor: React.FC<IV2AnalysisEditorProps> = ({
     ...promptNames.map((name) => createOption(name, name)),
   ];
   const chainOptions = [
-    createOption('(independent call)', ''),
+    createOption('(none)', ''),
     ...earlierNames.map((name) => createOption(name, name)),
   ];
   const returnEntries = Object.entries(analysis.returns ?? {});
