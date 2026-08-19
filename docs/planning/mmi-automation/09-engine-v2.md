@@ -90,19 +90,22 @@ hand.
 
 ### Requirement coverage
 
-| Requirement                                  | Mechanism                                        |
-| -------------------------------------------- | ------------------------------------------------ |
-| Execute searches for content                 | `search` action writing to a named collection    |
-| Named dictionaries containing content arrays | Run context collections and `collection.*` verbs |
-| Initialization steps and actions             | `init` phase                                     |
-| Completion steps and actions                 | `complete` phase                                 |
-| Reduce memory footprint                      | Content refs plus deltas, streaming hydration    |
-| Minimize runtime                             | Property conditions, lazy analyses, one flush    |
-| Perform analysis on content                  | Declared `analyses` per step                     |
-| Update content                               | `content.*` actions on the working copy          |
-| Create content populated by multiple actions | Drafts and draft collections                     |
-| Request a notification to run                | `notification.run`                               |
-| Request a report to run                      | `report.run`                                     |
+| Requirement                                    | Mechanism                                        |
+| ---------------------------------------------- | ------------------------------------------------ |
+| Execute searches for content                   | `search` action writing to a named collection    |
+| Named dictionaries containing content arrays   | Run context collections and `collection.*` verbs |
+| Initialization steps and actions               | `init` phase                                     |
+| Completion steps and actions                   | `complete` phase                                 |
+| Reduce memory footprint                        | Content refs plus deltas, streaming hydration    |
+| Minimize runtime                               | Property conditions, lazy analyses, one flush    |
+| Perform analysis on content                    | Declared `analyses` per step                     |
+| Update content                                 | `content.*` actions on the working copy          |
+| Create content populated by multiple actions   | Drafts and draft collections                     |
+| Request a notification to run                  | `notification.run`                               |
+| Request a report to run                        | `report.run`                                     |
+| Full prompt and response logs in the UI        | Run log with same-day retention and a log viewer |
+| Dry run without database changes               | `dryRun` mode reporting the intended change set  |
+| Ask why something happened, and how to improve | Explain-and-improve assistant over a log entry   |
 
 ### Run context
 
@@ -336,6 +339,50 @@ hundreds of items.
 Lists are size-guarded — a declared maximum, with truncation recorded in the run summary rather
 than a silently partial list. Subsets use fixed parameters (`{lookup:tags(group=ministries)}`),
 never expressions.
+
+### Observability and debugging
+
+Three capabilities share one substrate: a run log that records every decision, not only every
+prompt.
+
+**The run log.** Each entry records what the engine was doing, what it sent, what came back, and
+what it did about it:
+
+```text
+run, step, action, analysis, content id, attempt
+prompt, response, tokens (prompt/completion), duration
+outcome (confirmed | not confirmed | condition failed | skipped | failed | excluded)
+resulting change, if any
+```
+
+Prompts are recorded **always**, not behind a configuration flag. The flag exists today because
+prompts embed content bodies and the log shares the seven-day run-history retention. Separating
+the two retentions removes the reason for the flag: run history keeps its current retention, and
+log entries are kept for the **current date only** and pruned on the daily sweep.
+
+**Decisions, not just exchanges.** An entry is written when a property condition excludes an item,
+when an analysis is skipped because nothing consumes it, when a `maxCalls` budget is exhausted, and
+when an item is excluded or aborted. Without these, the questions that matter most — "why was this
+story ignored?", "why did nothing publish?" — have no data behind them, because increasingly the
+answer will be a condition that never reached the model.
+
+**Dry run.** `dryRun` executes everything, writes nothing: no content updates, no reports, no
+notifications. It produces a complete log and the full intended change set per item. This is the
+loop for tuning a profile — dry run, read the log, ask why, adjust, dry run again — with no risk
+to published content.
+
+**Explain and improve.** Any log entry can be opened as a conversation with the LLM, seeded with
+the exact prompt, the exact response, the parsed outcome, the action configuration, and the content
+digest. It answers two kinds of question:
+
+- _Why did this happen?_ — why the confirmation matched or did not, which part of the response the
+  engine parsed, which condition failed.
+- _How do I improve it?_ — a suggested revision of the prompt, shown as a diff against the current
+  text.
+
+Suggestions are never applied automatically. An admin reviews the diff and chooses to save it to
+the profile or the prompt library. The assistant conversation is itself logged, so a tuning session
+is auditable.
 
 ### Prompt library
 
@@ -811,25 +858,103 @@ anything.
 
 **Acceptance Criteria**
 
-- `dryRun` computes every decision and change but performs no content writes.
+- `dryRun` computes every decision and change but performs no content writes and creates no
+  content.
 - Reports and notifications are recorded as intended rather than sent.
-- The run summary lists the full intended change set per item.
+- The run summary lists the full intended change set per item, including created drafts.
+- A dry run produces the same complete run log as a live run, so it can be inspected and explained.
+- Dry run is available from the editor as a run option, and dry runs are visibly marked in run
+  history.
+
+### Epic Group 12: Observability and debugging
+
+#### MMI-AUTO-060 - Full Run Log Capture and Same-Day Retention
+
+**Story**: As admins, we need every prompt and response from today's runs recorded, without
+turning a flag on first.
+
+**Acceptance Criteria**
+
+- Prompts are always recorded; `IncludeLLMPromptsInSummary` is removed.
+- Each entry records run, step, action, analysis, content id, attempt, prompt, response, prompt and
+  completion tokens, duration, and outcome.
+- Where an entry produced a change, the change is linked to it.
+- Log retention is configured independently of run-history retention and defaults to the current
+  date; older entries are pruned on the daily sweep.
+- Truncation limits are configurable, and truncation is marked on the entry rather than silent.
+- Entries are written incrementally during the run, so a failed run still has the log up to the
+  failure.
+- Indexes support retrieval by run, by content item, and by date for pruning.
+
+#### MMI-AUTO-061 - Run Log Viewer
+
+**Story**: As admins, we need to read today's logs in the editor rather than in the database.
+
+**Acceptance Criteria**
+
+- A run opens a log view listing entries in execution order.
+- Filters by step, action, analysis, content item, and outcome; free-text search across prompt and
+  response.
+- An entry expands to the full prompt and response, with the parsed value and resulting change
+  shown beside them.
+- An entry links to its content item and to the change it produced.
+- A run's log can be exported for offline review.
+- The view handles a full day of entries without loading them all at once.
+
+#### MMI-AUTO-062 - Decision Trace
+
+**Story**: As admins, we need to see why something did not happen, not only why it did.
+
+**Acceptance Criteria**
+
+- Entries are recorded for property conditions that failed, including the field, operator, and
+  compared values.
+- Entries are recorded for analyses skipped as unreachable, exhausted `maxCalls` budgets, aborts,
+  and exclusions with their reason.
+- Every item in the run resolves to a trace explaining its outcome, including items that were
+  excluded before any prompt was sent.
+- Non-LLM entries are visually distinct in the viewer and carry no token cost.
+
+#### MMI-AUTO-063 - Explain and Improve Assistant
+
+**Story**: As admins, we need to ask why a decision was made and how to make the prompt better.
+
+**Acceptance Criteria**
+
+- Any log entry opens a conversation seeded with its prompt, response, parsed outcome, action
+  configuration, and content digest.
+- The assistant answers "why did this happen" with reference to the recorded response and the
+  confirmation or condition that was evaluated.
+- The assistant can propose a revised prompt, shown as a diff against the current text.
+- A proposed revision is applied only by an explicit admin action, and applies to the profile or
+  the prompt library entry.
+- The assistant uses a configurable LLM, defaulting to the profile's.
+- Assistant conversations are logged and attributed to the user who ran them.
+- The assistant never writes content and never modifies configuration on its own.
 
 ## Delivery phases
 
-### Phase A: Measure and refactor
+### Phase A: Measure, log, and refactor
 
-**Goal**: know the baseline, and make the engine extensible without changing behaviour.
+**Goal**: know the baseline, be able to read what a run did, and make the engine extensible
+without changing behaviour.
 
 - MMI-AUTO-057
+- MMI-AUTO-060
+- MMI-AUTO-061
 - MMI-AUTO-039
 - MMI-AUTO-040
 
 **Exit criteria**
 
 - A recorded baseline for `Morning Process`: calls, tokens, wall time, writes.
+- Every prompt and response from today's runs is readable in the editor, filterable and
+  searchable, with no flag to enable.
 - All action types dispatch through registered handlers with unit tests.
 - No configuration changes required; existing profiles behave identically.
+
+Logging and instrumentation come first deliberately. Every later phase is judged by whether a run
+got cheaper or better, and there is currently no run history to judge against.
 
 ### Phase B: Collections and phases
 
@@ -845,19 +970,28 @@ anything.
 - A profile can search into a named collection in `init` and iterate it in `process`.
 - Step sources and gate filters resolve once per run.
 
-### Phase C: Cheap decisions and safe exclusion
+### Phase C: Cheap decisions, safe exclusion, and dry run
 
-**Goal**: stop paying for decisions the database can make; control what carries forward.
+**Goal**: stop paying for decisions the database can make, control what carries forward, and make
+it safe to try changes.
 
 - MMI-AUTO-045
 - MMI-AUTO-047
 - MMI-AUTO-048
+- MMI-AUTO-062
+- MMI-AUTO-059
 
 **Exit criteria**
 
 - `body-size` and `page` run as property conditions with zero LLM calls.
 - Excluded items skip later steps and still have their changes written.
 - `end-of-run` flushing verified against a multi-step profile.
+- Every item in a run resolves to a trace explaining its outcome, including items excluded before
+  any prompt was sent.
+- A dry run over real content reports the full intended change set and writes nothing.
+
+Dry run lands here rather than at the end because it depends only on flushing being a discrete
+step, and because it is the safety net for everything that follows.
 
 ### Phase D: Analysis and prompt hygiene
 
@@ -866,12 +1000,15 @@ anything.
 - MMI-AUTO-046
 - MMI-AUTO-050
 - MMI-AUTO-051
+- MMI-AUTO-063
 
 **Exit criteria**
 
 - A step can merge several properties into one analysis, with the comparison harness showing the
   effect.
 - The tag list is injected from lookups; the pasted copies are deleted.
+- An admin can open any log entry, ask why the decision was made, and receive a proposed prompt
+  revision as a reviewable diff.
 
 ### Phase E: Content lifecycle
 
@@ -901,15 +1038,14 @@ anything.
 
 ### Phase G: Efficiency and confidence
 
-**Goal**: bound memory, and make changes safe to try.
+**Goal**: bound memory at scale.
 
 - MMI-AUTO-058
-- MMI-AUTO-059
 
 **Exit criteria**
 
 - Peak working set is independent of result-set size.
-- A dry run reports the full intended change set without writing.
+- A run over at least 2000 items reports a measured peak working set.
 
 ## Risks and open decisions
 
@@ -925,6 +1061,13 @@ anything.
 - **Structured output support varies by deployment.** The client already speaks both the Responses
   API and chat completions; JSON schema support should be confirmed per configured LLM before
   Phase D, with confirmation parsing retained as the fallback.
+- **Full prompt logging stores content bodies.** Every prompt embeds content, so a day of logs is
+  a copy of a day of content. Estimated at roughly 10-40 MB per day at current volumes, which is
+  manageable, but it is why retention is same-day and why the log is a separate table with its own
+  pruning. Access follows the existing admin authorization on automation.
+- **The explain assistant costs LLM calls and can be wrong.** It reasons about a recorded exchange,
+  it does not re-run it. Its suggestions are proposals shown as diffs; nothing it produces reaches
+  a profile without an admin saving it, and nothing it produces touches content.
 - **Migration touches live profiles.** Both existing profiles run daily. Migration produces a new
   version rather than editing in place, and v1 execution stays available until v2 is proven.
 
