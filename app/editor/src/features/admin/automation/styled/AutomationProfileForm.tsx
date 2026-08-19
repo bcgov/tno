@@ -40,32 +40,34 @@ export const AutomationProfileForm = styled(FormPage)`
 
     .tab-menu {
       width: 100%;
-      /* Replace tno-core's navy underline with the design's gold one (set below). */
-      border-bottom-color: transparent;
+      /* The design's gold underline replaces tno-core's navy one. */
+      border-bottom: solid 3px #fcba19;
 
       /* The tab bar is a flex Row: the tabs and the Run button sit on the left, the Save/Export/
          Import/Delete action group is pushed to the right. Keep everything vertically centered and
          allow wrapping on narrow screens. */
+      /* Bottom-align the row so the tabs sit flush on the gold underline; the action buttons
+         lift off it with their own bottom margin. */
       > div {
-        align-items: center;
+        align-items: flex-end;
         flex-wrap: wrap;
         row-gap: 0.35rem;
       }
 
-      /* Folder tabs on a full-width gold underline (per the design): inactive tabs are light
-         grey with rounded top corners; the active tab is gold and connects to the line. */
-      border-bottom: solid 3px #fcba19;
-
+      /* Folder tabs (per the design): inactive tabs are light grey with rounded top corners;
+         the active tab is gold and connects to the underline. tno-core's Tab styles its
+         background from the 'active' prop (no .active class), so the form stamps .tab-active. */
       .tab {
         background: #f2f4f7;
         border: 1px solid #e4e7ec;
         border-bottom: none;
         border-radius: 0.35rem 0.35rem 0 0;
         padding: 0.4rem 1.2rem;
+        margin-bottom: 0;
         font-weight: 600;
         color: #1d2939;
 
-        &.active {
+        &.tab-active {
           background: #fcba19;
           border-color: #fcba19;
         }

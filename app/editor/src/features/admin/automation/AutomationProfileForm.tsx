@@ -821,16 +821,19 @@ const AutomationProfileForm: React.FC = () => {
                   <>
                     <Tab
                       label="Profile"
+                      className={activeTab === 'profile' ? 'tab-active' : undefined}
                       active={activeTab === 'profile'}
                       onClick={() => setActiveTab('profile')}
                     />
                     <Tab
                       label="Schedules"
+                      className={activeTab === 'schedules' ? 'tab-active' : undefined}
                       active={activeTab === 'schedules'}
                       onClick={() => setActiveTab('schedules')}
                     />
                     <Tab
                       label="History"
+                      className={activeTab === 'runs' ? 'tab-active' : undefined}
                       active={activeTab === 'runs'}
                       disabled={!values.id}
                       onClick={() => {
@@ -840,6 +843,7 @@ const AutomationProfileForm: React.FC = () => {
                     />
                     <Tab
                       label="Debugging"
+                      className={activeTab === 'debugging' ? 'tab-active' : undefined}
                       active={activeTab === 'debugging'}
                       disabled={!values.id}
                       onClick={() => setActiveTab('debugging')}
