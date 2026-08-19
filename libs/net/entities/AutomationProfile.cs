@@ -20,6 +20,14 @@ public class AutomationProfile : BaseType<int>
     public int SchemaVersion { get; set; } = 1;
 
     /// <summary>
+    /// get/set - The v2 profile definition document (prompts library, steps, analyses, actions).
+    /// Only used when SchemaVersion >= 2; v1 profiles keep their configuration in the
+    /// automation_step/automation_action tables. Validated against the action catalog on save.
+    /// </summary>
+    [Column("definition")]
+    public System.Text.Json.JsonDocument? Definition { get; set; }
+
+    /// <summary>
     /// get/set - Optional foreign key to the Elasticsearch filter used to select content for iteration.
     /// </summary>
     [Column("filter_id")]

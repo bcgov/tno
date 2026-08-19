@@ -132,6 +132,7 @@ public class TNOContext : DbContext
     public DbSet<AutomationAction> AutomationActions => Set<AutomationAction>();
     public DbSet<AutomationRun> AutomationRuns => Set<AutomationRun>();
     public DbSet<AutomationRunResponse> AutomationRunResponses => Set<AutomationRunResponse>();
+    public DbSet<AutomationRunLog> AutomationRunLogs => Set<AutomationRunLog>();
     #endregion
 
     #region Notifications

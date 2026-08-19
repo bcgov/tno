@@ -47,6 +47,17 @@ public class AutomationRunModel
     public string? Summary { get; set; }
 
     /// <summary>
+    /// get/set - Whether this run is a dry run: decisions and changes are computed and logged,
+    /// but no content is written and no reports or notifications are sent.
+    /// </summary>
+    public bool IsDryRun { get; set; }
+
+    /// <summary>
+    /// get/set - Optional candidate definition (raw v2 definition JSON) for a comparison run.
+    /// </summary>
+    public string? CompareDefinition { get; set; }
+
+    /// <summary>
     /// get/set - When the run last posted a response record (its activity heartbeat), if any.
     /// </summary>
     public DateTime? LastResponseOn { get; set; }
@@ -72,6 +83,8 @@ public class AutomationRunModel
         this.StartedOn = entity.StartedOn;
         this.CompletedOn = entity.CompletedOn;
         this.Summary = entity.Summary;
+        this.IsDryRun = entity.IsDryRun;
+        this.CompareDefinition = entity.CompareDefinition?.RootElement.GetRawText();
         this.LastResponseOn = entity.LastResponseOn;
     }
     #endregion
@@ -93,6 +106,10 @@ public class AutomationRunModel
             StartedOn = this.StartedOn,
             CompletedOn = this.CompletedOn,
             Summary = this.Summary,
+            IsDryRun = this.IsDryRun,
+            CompareDefinition = !string.IsNullOrWhiteSpace(this.CompareDefinition)
+                ? System.Text.Json.JsonDocument.Parse(this.CompareDefinition)
+                : null,
         };
     }
     #endregion

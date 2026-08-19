@@ -34,6 +34,12 @@ public class AutomationProfileModel
     public int SchemaVersion { get; set; } = 1;
 
     /// <summary>
+    /// get/set - The v2 profile definition document as raw JSON (prompts library, steps, analyses,
+    /// actions). Only used when SchemaVersion >= 2; validated against the action catalog on save.
+    /// </summary>
+    public string? Definition { get; set; }
+
+    /// <summary>
     /// get/set - Optional Elasticsearch filter used to select content for iteration.
     /// </summary>
     public int? FilterId { get; set; }
@@ -96,6 +102,7 @@ public class AutomationProfileModel
         this.Description = entity.Description;
         this.IsEnabled = entity.IsEnabled;
         this.SchemaVersion = entity.SchemaVersion;
+        this.Definition = entity.Definition?.RootElement.GetRawText();
         this.FilterId = entity.FilterId;
         this.FilterQuery = entity.Filter?.Query.RootElement.GetRawText();
         this.FilterSettings = entity.Filter?.Settings.RootElement.GetRawText();
@@ -124,6 +131,9 @@ public class AutomationProfileModel
             Description = this.Description,
             IsEnabled = this.IsEnabled,
             SchemaVersion = this.SchemaVersion,
+            Definition = !string.IsNullOrWhiteSpace(this.Definition)
+                ? System.Text.Json.JsonDocument.Parse(this.Definition)
+                : null,
             FilterId = this.FilterId,
             LLMId = this.LLMId,
         };

@@ -104,6 +104,7 @@ public class AutomationProfileService : BaseService<AutomationProfile, int>, IAu
         original.Description = entity.Description;
         original.IsEnabled = entity.IsEnabled;
         original.SchemaVersion = entity.SchemaVersion;
+        original.Definition = entity.Definition;
         original.FilterId = entity.FilterId;
         original.LLMId = entity.LLMId;
         original.SortOrder = entity.SortOrder;

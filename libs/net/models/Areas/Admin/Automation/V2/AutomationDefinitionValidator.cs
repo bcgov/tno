@@ -1,0 +1,323 @@
+namespace TNO.API.Areas.Admin.Models.Automation.V2;
+
+/// <summary>
+/// V2ValidationError record, one validation finding with the definition path it anchors to,
+/// so the editor can highlight it in place.
+/// </summary>
+/// <param name="Path">Definition path (e.g. 'steps[2].actions[4].against').</param>
+/// <param name="Message">What is wrong.</param>
+/// <param name="Severity">'error' blocks save; 'warning' does not.</param>
+public record V2ValidationError(string Path, string Message, string Severity = "error");
+
+/// <summary>
+/// AutomationDefinitionValidator class, validates a v2 definition document against the action
+/// catalog and its own internal references, so configuration errors surface at save rather than
+/// in a run.
+/// </summary>
+public static class AutomationDefinitionValidator
+{
+    /// <summary>
+    /// Validate the specified definition. Returns every finding; the caller decides whether
+    /// warnings block.
+    /// </summary>
+    /// <param name="definition"></param>
+    /// <returns></returns>
+    public static List<V2ValidationError> Validate(AutomationDefinition definition)
+    {
+        var errors = new List<V2ValidationError>();
+
+        if (!V2SaveModes.All.Contains(definition.SaveMode))
+            errors.Add(new("saveMode", $"Save mode '{definition.SaveMode}' is not one of: {string.Join(", ", V2SaveModes.All)}."));
+        if (definition.Steps.Count == 0)
+            errors.Add(new("steps", "The definition has no steps."));
+
+        // Track named collections as they are created, in step order, so references to unknown
+        // names are caught. Collections created by add/move into a new name are registered too.
+        var collections = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        // Collections that receive drafts (items created during the run without a database id).
+        var draftCollections = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var usedPrompts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var stepNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var lastPhaseRank = 0;
+
+        for (var s = 0; s < definition.Steps.Count; s++)
+        {
+            var step = definition.Steps[s];
+            var stepPath = $"steps[{s}]";
+
+            if (string.IsNullOrWhiteSpace(step.Name))
+                errors.Add(new($"{stepPath}.name", "Step name is required."));
+            else if (!stepNames.Add(step.Name))
+                errors.Add(new($"{stepPath}.name", $"Step name '{step.Name}' is not unique."));
+
+            if (!V2Phases.All.Contains(step.Phase))
+            {
+                errors.Add(new($"{stepPath}.phase", $"Phase '{step.Phase}' is not one of: {string.Join(", ", V2Phases.All)}."));
+                continue;
+            }
+
+            // Phase order: init steps before process steps before complete steps.
+            var phaseRank = Array.IndexOf(V2Phases.All, step.Phase);
+            if (phaseRank < lastPhaseRank)
+                errors.Add(new($"{stepPath}.phase", $"A '{step.Phase}' step cannot follow a '{V2Phases.All[lastPhaseRank]}' step; order steps init → process → complete."));
+            lastPhaseRank = Math.Max(lastPhaseRank, phaseRank);
+
+            if (step.SaveMode != null && !V2SaveModes.All.Contains(step.SaveMode))
+                errors.Add(new($"{stepPath}.saveMode", $"Save mode '{step.SaveMode}' is not one of: {string.Join(", ", V2SaveModes.All)}."));
+
+            // Source rules per phase.
+            var sourceIsDraftCollection = false;
+            if (step.Phase == V2Phases.Process)
+            {
+                if (step.Source == null)
+                    errors.Add(new($"{stepPath}.source", "A process step requires a source."));
+                else
+                {
+                    var source = step.Source;
+                    var sourcePath = $"{stepPath}.source";
+                    switch (source.From)
+                    {
+                        case "profile":
+                            break;
+                        case "filter":
+                            if (!source.Filter.HasValue)
+                                errors.Add(new($"{sourcePath}.filter", "A filter source requires a filter id."));
+                            break;
+                        case "collection":
+                            if (string.IsNullOrWhiteSpace(source.Collection))
+                                errors.Add(new($"{sourcePath}.collection", "A collection source requires a collection name."));
+                            else
+                            {
+                                ValidateCollectionName(source.Collection, $"{sourcePath}.collection", errors);
+                                if (!collections.Contains(source.Collection))
+                                    errors.Add(new($"{sourcePath}.collection", $"Collection '{source.Collection}' is not created by any earlier step."));
+                                sourceIsDraftCollection = draftCollections.Contains(source.Collection);
+                            }
+                            break;
+                        default:
+                            errors.Add(new($"{sourcePath}.from", $"Source '{source.From}' is not one of: profile, filter, collection."));
+                            break;
+                    }
+                }
+            }
+            else if (step.Source != null)
+                errors.Add(new($"{stepPath}.source", $"An '{step.Phase}' step runs once and cannot declare a source."));
+
+            // Analyses.
+            var analyses = new Dictionary<string, V2AnalysisDefinition>(StringComparer.OrdinalIgnoreCase);
+            for (var a = 0; a < step.Analyses.Count; a++)
+            {
+                var analysis = step.Analyses[a];
+                var path = $"{stepPath}.analyses[{a}]";
+                if (string.IsNullOrWhiteSpace(analysis.Name))
+                    errors.Add(new($"{path}.name", "Analysis name is required."));
+                else if (!analyses.TryAdd(analysis.Name, analysis))
+                    errors.Add(new($"{path}.name", $"Analysis name '{analysis.Name}' is not unique within the step."));
+
+                ValidatePrompt(analysis.Prompt, definition, usedPrompts, $"{path}.prompt", errors);
+
+                if (!analysis.Raw && analysis.Returns.Count == 0)
+                    errors.Add(new($"{path}.returns", "A structured analysis must declare at least one return key (or set raw)."));
+                if (!string.IsNullOrWhiteSpace(analysis.Chain) && !analyses.ContainsKey(analysis.Chain!))
+                    errors.Add(new($"{path}.chain", $"Chained analysis '{analysis.Chain}' is not declared earlier in this step."));
+            }
+
+            // Actions.
+            var consumedAnalyses = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var drafts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            for (var i = 0; i < step.Actions.Count; i++)
+            {
+                var action = step.Actions[i];
+                var path = $"{stepPath}.actions[{i}]";
+
+                if (!V2ActionCatalog.Types.TryGetValue(action.Type, out var descriptor))
+                {
+                    errors.Add(new($"{path}.type", $"Action type '{action.Type}' is not registered."));
+                    continue;
+                }
+
+                if (!descriptor.Phases.Contains(step.Phase))
+                    errors.Add(new($"{path}.type", $"Action '{action.Type}' is not valid in a '{step.Phase}' step (allowed: {string.Join(", ", descriptor.Phases)})."));
+                if (descriptor.RequiresSubject && step.Phase != V2Phases.Process)
+                    errors.Add(new($"{path}.type", $"Action '{action.Type}' requires an iterated item and can only appear in a process step."));
+                if (descriptor.RequiresPersistedId && sourceIsDraftCollection && EffectiveSaveMode(definition, step) == V2SaveModes.EndOfRun)
+                    errors.Add(new($"{path}.type", $"Action '{action.Type}' requires persisted ids, but the step iterates a draft collection under end-of-run saving; set the creating step's saveMode to end-of-step."));
+
+                // Required fields per the descriptor.
+                foreach (var field in descriptor.Fields.Where(f => f.Required))
+                {
+                    if (!HasField(action, field.Name))
+                        errors.Add(new($"{path}.{field.Name}", $"Action '{action.Type}' requires '{field.Name}'."));
+                }
+
+                // Collection references.
+                foreach (var (name, value) in CollectionRefs(action))
+                {
+                    if (string.IsNullOrWhiteSpace(value)) continue;
+                    ValidateCollectionName(value!, $"{path}.{name}", errors);
+                    var creates = (action.Type == "search" && name == "into")
+                        || (action.Type == "collection.create" && name == "into")
+                        || (name == "into" && (action.Type.StartsWith("collection.") || action.Type == "select-top"));
+                    if (creates) collections.Add(value!);
+                    else if (!collections.Contains(value!))
+                        errors.Add(new($"{path}.{name}", $"Collection '{value}' is not created by any earlier action.", "warning"));
+                }
+                // Draft items entering a collection make it a draft collection.
+                if (action.Type is "collection.add" or "collection.move" && action.Item != null
+                    && action.Item.StartsWith("$item.", StringComparison.OrdinalIgnoreCase)
+                    && !string.IsNullOrWhiteSpace(action.Into))
+                    draftCollections.Add(action.Into!);
+
+                // Analysis references from gates and value sources.
+                foreach (var (refPath, reference) in AnalysisRefs(action))
+                {
+                    var name = reference.Split('.', 2)[0];
+                    if (name.Equals("content", StringComparison.OrdinalIgnoreCase)) continue;
+                    if (!analyses.ContainsKey(name))
+                        errors.Add(new($"{path}.{refPath}", $"Analysis '{name}' is not declared on this step."));
+                    else consumedAnalyses.Add(name);
+                }
+                if (!string.IsNullOrWhiteSpace(action.Analysis))
+                {
+                    if (!analyses.ContainsKey(action.Analysis!))
+                        errors.Add(new($"{path}.analysis", $"Analysis '{action.Analysis}' is not declared on this step."));
+                    else consumedAnalyses.Add(action.Analysis!);
+                }
+                else if (!string.IsNullOrWhiteSpace(action.Confirm))
+                {
+                    // Confirm without a named analysis requires exactly one to be unambiguous.
+                    if (analyses.Count == 1) consumedAnalyses.Add(analyses.Keys.First());
+                    else errors.Add(new($"{path}.confirm", "Confirm requires 'analysis' to name which analysis response to match (the step has more than one)."));
+                }
+
+                if (action.When != null)
+                    ValidateCondition(action.When, $"{path}.when", errors);
+                if (action.Where != null)
+                    ValidateCondition(action.Where, $"{path}.where", errors);
+                if (action.Prompt != null)
+                    ValidatePrompt(action.Prompt, definition, usedPrompts, $"{path}.prompt", errors);
+
+                // Draft registry: created by content.create, referenced by target/item.
+                if (action.Type == "content.create" && !string.IsNullOrWhiteSpace(action.As))
+                {
+                    if (!action.As!.StartsWith("$item.", StringComparison.OrdinalIgnoreCase))
+                        errors.Add(new($"{path}.as", "A draft name must start with '$item.' (drafts are scoped to the iteration)."));
+                    else drafts.Add(action.As!);
+                }
+                if (!string.IsNullOrWhiteSpace(action.Target) && !drafts.Contains(action.Target!))
+                    errors.Add(new($"{path}.target", $"Draft '{action.Target}' is not created by an earlier content.create in this step."));
+                if (!string.IsNullOrWhiteSpace(action.Item)
+                    && !action.Item!.Equals("$item", StringComparison.OrdinalIgnoreCase)
+                    && !drafts.Contains(action.Item!))
+                    errors.Add(new($"{path}.item", $"Item '{action.Item}' is neither '$item' nor a draft created earlier in this step."));
+            }
+
+            // Unconsumed analyses never run (they are lazy); surface as warnings.
+            foreach (var name in analyses.Keys.Where(n => !consumedAnalyses.Contains(n)))
+                errors.Add(new($"{stepPath}.analyses", $"Analysis '{name}' is not consumed by any action and will never run.", "warning"));
+        }
+
+        // Unused prompt library entries.
+        foreach (var name in definition.Prompts.Keys.Where(k => !usedPrompts.Contains(k)))
+            errors.Add(new($"prompts.{name}", $"Prompt '{name}' is not referenced.", "warning"));
+
+        return errors;
+    }
+
+    private static string EffectiveSaveMode(AutomationDefinition definition, V2StepDefinition step)
+        => step.SaveMode ?? definition.SaveMode;
+
+    private static void ValidateCollectionName(string name, string path, List<V2ValidationError> errors)
+    {
+        if (!name.StartsWith("$run.", StringComparison.OrdinalIgnoreCase))
+            errors.Add(new(path, $"Collection name '{name}' must start with '$run.' (collections are run-scoped)."));
+    }
+
+    private static void ValidatePrompt(V2PromptDefinition prompt, AutomationDefinition definition, HashSet<string> used, string path, List<V2ValidationError> errors)
+    {
+        if (string.IsNullOrWhiteSpace(prompt.Ref) && string.IsNullOrWhiteSpace(prompt.Text))
+            errors.Add(new(path, "A prompt requires a library reference or inline text."));
+        if (!string.IsNullOrWhiteSpace(prompt.Ref))
+        {
+            if (!definition.Prompts.ContainsKey(prompt.Ref!))
+                errors.Add(new($"{path}.ref", $"Prompt '{prompt.Ref}' is not in the prompt library."));
+            else used.Add(prompt.Ref!);
+        }
+    }
+
+    private static void ValidateCondition(V2ConditionDefinition condition, string path, List<V2ValidationError> errors)
+    {
+        var shapes = 0;
+        if (condition.All is { Count: > 0 }) { shapes++; for (var i = 0; i < condition.All.Count; i++) ValidateCondition(condition.All[i], $"{path}.all[{i}]", errors); }
+        if (condition.Any is { Count: > 0 }) { shapes++; for (var i = 0; i < condition.Any.Count; i++) ValidateCondition(condition.Any[i], $"{path}.any[{i}]", errors); }
+        if (condition.Not != null) { shapes++; ValidateCondition(condition.Not, $"{path}.not", errors); }
+        if (!string.IsNullOrWhiteSpace(condition.From)) shapes++;
+        if (!string.IsNullOrWhiteSpace(condition.Field) || !string.IsNullOrWhiteSpace(condition.Op))
+        {
+            shapes++;
+            if (string.IsNullOrWhiteSpace(condition.Field))
+                errors.Add(new($"{path}.field", "A leaf condition requires a field."));
+            if (string.IsNullOrWhiteSpace(condition.Op))
+                errors.Add(new($"{path}.op", "A leaf condition requires an operator."));
+            else if (!V2ConditionOps.All.Contains(condition.Op))
+                errors.Add(new($"{path}.op", $"Operator '{condition.Op}' is not one of: {string.Join(", ", V2ConditionOps.All)}."));
+        }
+        if (shapes == 0)
+            errors.Add(new(path, "A condition requires a leaf (field/op), a combinator (all/any/not), or an analysis gate (from)."));
+        else if (shapes > 1)
+            errors.Add(new(path, "A condition must be exactly one shape: a leaf, a combinator, or an analysis gate."));
+    }
+
+    private static bool HasField(V2ActionDefinition action, string name) => name switch
+    {
+        "filter" => action.Filter.HasValue,
+        "into" => !string.IsNullOrWhiteSpace(action.Into),
+        "from" => !string.IsNullOrWhiteSpace(action.FromCollection),
+        "with" => !string.IsNullOrWhiteSpace(action.With),
+        "item" => !string.IsNullOrWhiteSpace(action.Item),
+        "by" => !string.IsNullOrWhiteSpace(action.By),
+        "where" => action.Where != null,
+        "count" => action.Count.HasValue,
+        "field" => !string.IsNullOrWhiteSpace(action.Field),
+        "value" => action.Value != null,
+        "against" => !string.IsNullOrWhiteSpace(action.Against),
+        "objective" => !string.IsNullOrWhiteSpace(action.Objective),
+        "take" => action.Take.HasValue,
+        "contentAction" => action.ContentAction.HasValue,
+        "report" => action.Report.HasValue,
+        "notification" => action.Notification.HasValue,
+        "as" => !string.IsNullOrWhiteSpace(action.As),
+        _ => true,
+    };
+
+    private static IEnumerable<(string Name, string? Value)> CollectionRefs(V2ActionDefinition action)
+    {
+        yield return ("into", action.Into);
+        yield return ("from", action.FromCollection);
+        yield return ("with", action.With);
+        yield return ("against", action.Against);
+        yield return ("using", action.Using);
+    }
+
+    private static IEnumerable<(string Path, string Reference)> AnalysisRefs(V2ActionDefinition action)
+    {
+        if (!string.IsNullOrWhiteSpace(action.Value?.From)) yield return ("value.from", action.Value!.From!);
+        foreach (var reference in ConditionRefs(action.When, "when")) yield return reference;
+        if (action.Set != null)
+            foreach (var (key, source) in action.Set.Where(kv => !string.IsNullOrWhiteSpace(kv.Value.From)))
+                yield return ($"set.{key}.from", source.From!);
+    }
+
+    private static IEnumerable<(string Path, string Reference)> ConditionRefs(V2ConditionDefinition? condition, string path)
+    {
+        if (condition == null) yield break;
+        if (!string.IsNullOrWhiteSpace(condition.From)) yield return ($"{path}.from", condition.From!);
+        if (condition.All != null)
+            for (var i = 0; i < condition.All.Count; i++)
+                foreach (var reference in ConditionRefs(condition.All[i], $"{path}.all[{i}]")) yield return reference;
+        if (condition.Any != null)
+            for (var i = 0; i < condition.Any.Count; i++)
+                foreach (var reference in ConditionRefs(condition.Any[i], $"{path}.any[{i}]")) yield return reference;
+        foreach (var reference in ConditionRefs(condition.Not, $"{path}.not")) yield return reference;
+    }
+}

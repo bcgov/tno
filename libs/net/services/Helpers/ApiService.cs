@@ -895,6 +895,18 @@ public class ApiService : IApiService
     }
 
     /// <summary>
+    /// Make a request to the API to fetch the filter for the specified 'id'.
+    /// Used by the v2 automation engine, whose definitions reference filters by id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Admin.Models.Filter.FilterModel?> GetFilterAsync(int id)
+    {
+        var url = this.Options.ApiUrl.Append($"admin/filters/{id}");
+        return await RetryRequestAsync(async () => await this.OpenClient.GetAsync<API.Areas.Admin.Models.Filter.FilterModel>(url));
+    }
+
+    /// <summary>
     /// Make a request to the API to fetch the report instance with the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
@@ -1411,6 +1423,39 @@ public class ApiService : IApiService
     {
         var url = this.Options.ApiUrl.Append($"admin/automation/runs/{runId}/claim");
         return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<bool>(url));
+    }
+
+    /// <summary>
+    /// Append a batch of decision log entries to the specified run (v2 engine). Sent in chunks so
+    /// a step with many entries never builds one huge request body.
+    /// </summary>
+    /// <param name="runId"></param>
+    /// <param name="logs"></param>
+    /// <returns></returns>
+    public async Task AddAutomationRunLogsAsync(long runId, IEnumerable<API.Areas.Admin.Models.Automation.AutomationRunLogModel> logs)
+    {
+        var url = this.Options.ApiUrl.Append($"admin/automation/runs/{runId}/logs");
+        foreach (var chunk in logs.Chunk(20))
+        {
+            await RetryRequestAsync<HttpResponseMessage>(async () =>
+            {
+                var response = await this.OpenClient.PostAsync(url, JsonContent.Create(chunk));
+                response.EnsureSuccessStatusCode();
+                return response;
+            });
+        }
+    }
+
+    /// <summary>
+    /// Delete decision log entries created before the specified cutoff (UTC). The log retention
+    /// (current date) is independent of the run-history retention.
+    /// </summary>
+    /// <param name="cutoffUtc"></param>
+    /// <returns>The number of entries deleted.</returns>
+    public async Task<int> PruneAutomationRunLogsAsync(DateTime cutoffUtc)
+    {
+        var url = this.Options.ApiUrl.Append($"admin/automation/runs/logs/prune?cutoff={Uri.EscapeDataString(cutoffUtc.ToString("O"))}");
+        return await RetryRequestAsync(async () => await this.OpenClient.DeleteAsync<int>(url));
     }
     #endregion
 

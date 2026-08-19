@@ -358,11 +358,30 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                 ?? throw new InvalidOperationException($"Automation profile {run.ProfileId} does not exist.");
             if (!profile.IsEnabled) throw new InvalidOperationException($"Automation profile '{profile.Name}' is disabled.");
 
-            var summary = await ExecuteRunAsync(profile, run.Id);
-            run.Status = AdminAutomationRunStatus.Completed;
-            run.CompletedOn = DateTime.UtcNow;
-            run.Summary = JsonSerializer.Serialize(summary, _jsonOptions);
-            run.Note = BuildRunNote(run.Note, summary);
+            if (profile.SchemaVersion >= 2 && !string.IsNullOrWhiteSpace(profile.Definition))
+            {
+                // Schema version 2: the definition-document engine (run context, collections,
+                // phases, analyses, always-on decision log, dry runs). v1 profiles keep executing
+                // on the code path below until they are migrated.
+                var engine = new V2.V2Engine(this.Api, _elasticClient, _elasticOptions, this.Options, this.Logger);
+                var v2Summary = await engine.ExecuteAsync(profile, run);
+                run.Status = AdminAutomationRunStatus.Completed;
+                run.CompletedOn = DateTime.UtcNow;
+                run.Summary = JsonSerializer.Serialize(v2Summary, _jsonOptions);
+                run.Note = BuildV2RunNote(run.Note, v2Summary);
+            }
+            else if (run.IsDryRun)
+            {
+                throw new InvalidOperationException("Dry runs require a schema version 2 profile.");
+            }
+            else
+            {
+                var summary = await ExecuteRunAsync(profile, run.Id);
+                run.Status = AdminAutomationRunStatus.Completed;
+                run.CompletedOn = DateTime.UtcNow;
+                run.Summary = JsonSerializer.Serialize(summary, _jsonOptions);
+                run.Note = BuildRunNote(run.Note, summary);
+            }
         }
         catch (Exception ex)
         {
@@ -505,33 +524,33 @@ public class AutomationManager : ServiceManager<AutomationOptions>
             switch (step.Target)
             {
                 case "content" when hasProfileFilter:
-                {
-                    // Steps execute in sequence, but items within a step are independent -
-                    // process them in parallel (bounded by MaxParallelContentItems).
-                    var eligible = new List<ContentModel>();
-                    foreach (var content in contentItems)
                     {
-                        if (gateIds != null && !gateIds.Contains(content.Id)) stepSummary.Skipped++;
-                        else eligible.Add(content);
+                        // Steps execute in sequence, but items within a step are independent -
+                        // process them in parallel (bounded by MaxParallelContentItems).
+                        var eligible = new List<ContentModel>();
+                        foreach (var content in contentItems)
+                        {
+                            if (gateIds != null && !gateIds.Contains(content.Id)) stepSummary.Skipped++;
+                            else eligible.Add(content);
+                        }
+                        await Parallel.ForEachAsync(eligible, parallelism, async (content, _) =>
+                        {
+                            try
+                            {
+                                await ExecuteStepInstanceAsync(step, stepLlm, content, resultsJson, executionCounts, scores, contentById, stepSummary, summary.Changes, stepResponses, executedContentByAction, collectionsByAction, llmCache);
+                            }
+                            catch (Exception ex)
+                            {
+                                // One failed item (e.g. an exhausted LLM request) must not fail the
+                                // whole run; record it and continue with the next item.
+                                lock (stepSummary) stepSummary.Failures++;
+                                this.Logger.LogError(ex, "Step '{step}' failed for content {contentId}; continuing with the next item.", step.Name, content.Id);
+                            }
+                            // Keep the buffered prompt/response records bounded while the step runs.
+                            await MaybeFlushRunResponsesAsync(runId, stepResponses);
+                        });
+                        break;
                     }
-                    await Parallel.ForEachAsync(eligible, parallelism, async (content, _) =>
-                    {
-                        try
-                        {
-                            await ExecuteStepInstanceAsync(step, stepLlm, content, resultsJson, executionCounts, scores, contentById, stepSummary, summary.Changes, stepResponses, executedContentByAction, collectionsByAction, llmCache);
-                        }
-                        catch (Exception ex)
-                        {
-                            // One failed item (e.g. an exhausted LLM request) must not fail the
-                            // whole run; record it and continue with the next item.
-                            lock (stepSummary) stepSummary.Failures++;
-                            this.Logger.LogError(ex, "Step '{step}' failed for content {contentId}; continuing with the next item.", step.Name, content.Id);
-                        }
-                        // Keep the buffered prompt/response records bounded while the step runs.
-                        await MaybeFlushRunResponsesAsync(runId, stepResponses);
-                    });
-                    break;
-                }
                 case "start" when hasProfileFilter:
                 case "end" when hasProfileFilter:
                 case "none" when !hasProfileFilter:
@@ -673,214 +692,214 @@ public class AutomationManager : ServiceManager<AutomationOptions>
             // reports/notifications). Intentional aborts (deduplicate / stop-remaining) still break.
             try
             {
-            // 'fetch-content' gathers a collection for later actions to consume. It calls no LLM
-            // and acts on no content, so it neither confirms nor aborts.
-            if (action.ActionType == "fetch-content")
-            {
-                await ProcessFetchContentAsync(action, collectionsByAction, actionSummary);
-                continue;
-            }
-
-            // 'deduplicate' is not confirmed by the main step response; it runs its own LLM
-            // comparison against the candidates its prior action supplies. A detected duplicate
-            // aborts the step at this position (accumulated updates before it are still applied).
-            if (action.ActionType == "deduplicate")
-            {
-                var dedupeLlm = await ResolveLlmAsync(action.LLMId, llm, llmCache);
-                var isDuplicate = await DetectDuplicateAsync(
-                    step, action, dedupeLlm, content, contentJson, contentById, executionCounts, index,
-                    actionSummary, changes, responses, executedContentByAction, collectionsByAction);
-                if (isDuplicate)
+                // 'fetch-content' gathers a collection for later actions to consume. It calls no LLM
+                // and acts on no content, so it neither confirms nor aborts.
+                if (action.ActionType == "fetch-content")
                 {
-                    lock (stepSummary) stepSummary.Aborts++;
-                    break;
-                }
-                continue;
-            }
-
-            // Extract Data parses values from its response into the per-item dictionary; Create
-            // Content builds a new content item registered under its identifier. Both run their own
-            // prompt, so they require the step to send separate prompts per action.
-            if (action.ActionType == "extract-data")
-            {
-                await ProcessExtractDataAsync(step, action, llm, llmCache, content, contentJson, extractedData, resultsJson, scores, contentById, actionSummary, responses);
-                continue;
-            }
-            if (action.ActionType == "create-content")
-            {
-                await ProcessCreateContentAsync(step, action, content, extractedData, createdContents, actionSummary, changes);
-                continue;
-            }
-
-            // Resolve which content this action operates on: the iterated item ("original"), or a
-            // content item created earlier in this step (referenced by its identifier via WorksOn).
-            // Created-item targeting requires separate prompts so each action's prompt and applied
-            // changes use its own content.
-            var target = ResolveActionTarget(action, content, contentJson, pending, createdContents, step, actionSummary);
-            if (target == null) continue;
-            var targetPending = target.Pending;
-
-            // 'Always run' actions execute unconditionally; everything else requires its
-            // confirmation statement in the LLM response.
-            string? value = null;
-            if (!action.AutoExecute)
-            {
-                var matcher = new ConfirmationMatcher(action.ConfirmationStatement, action.ContentField, action.Objective);
-                if (!matcher.IsValid)
-                {
-                    actionSummary.Notes = "Invalid or empty confirmation statement.";
+                    await ProcessFetchContentAsync(action, collectionsByAction, actionSummary);
                     continue;
                 }
 
-                var response = sharedResponse;
-                if (conversation != null)
+                // 'deduplicate' is not confirmed by the main step response; it runs its own LLM
+                // comparison against the candidates its prior action supplies. A detected duplicate
+                // aborts the step at this position (accumulated updates before it are still applied).
+                if (action.ActionType == "deduplicate")
                 {
-                    // Chat-conversation mode: this action is the next user message; the model
-                    // sees the system prompt and every earlier action exchange. An earlier
-                    // abort has already exited the loop, so no further messages are sent.
-                    var actionLlm = await ResolveLlmAsync(action.LLMId, llm, llmCache);
-                    var userPrompt = ReplaceCandidatesTokens(
-                        PromptComposer.ComposeAction(await GetActionPromptAsync(action), action.ContentField, action.Objective, contentJson, resultsJson),
-                        scores, contentById);
-                    // Note whether this is the first turn (which effectively also sends the system
-                    // prompt) before adding the user message.
-                    var isFirstTurn = conversation.Count == 1;
-                    conversation.Add(("user", userPrompt));
-
-                    response = await InvokeChatAsync(actionLlm, conversation);
-                    conversation.Add(("assistant", response));
-
-                    var responseSummary = new ResponseSummary
+                    var dedupeLlm = await ResolveLlmAsync(action.LLMId, llm, llmCache);
+                    var isDuplicate = await DetectDuplicateAsync(
+                        step, action, dedupeLlm, content, contentJson, contentById, executionCounts, index,
+                        actionSummary, changes, responses, executedContentByAction, collectionsByAction);
+                    if (isDuplicate)
                     {
-                        StepId = step.Id,
-                        StepName = step.Name,
-                        ActionName = action.Name,
-                        ContentId = content?.Id,
-                        // Only build the (potentially large) recorded prompt when prompts are kept
-                        // in the run summary; otherwise skip the concatenation entirely so a second
-                        // copy of a large prompt is never held in memory.
-                        Prompt = this.Options.IncludeLLMPromptsInSummary
-                            ? (isFirstTurn
-                                ? $"[system]\n{conversation[0].Content}\n\n[user]\n{userPrompt}"
-                                : userPrompt)
-                            : null,
-                        Response = response,
-                    };
-                    lock (responses) responses.Add(responseSummary);
-                }
-                else if (step.SendSeparatePrompts)
-                {
-                    // One prompt per action: the step prompt plus this action's prompt only.
-                    // An earlier abort has already exited the loop, so aborted items never
-                    // send prompts for later actions.
-                    var actionLlm = await ResolveLlmAsync(action.LLMId, llm, llmCache);
-                    var prompt = PromptComposer.Compose(
-                        step.Prompt,
-                        new[] { (await GetActionPromptAsync(action), action.ContentField, action.Objective) },
-                        target.Json,
-                        resultsJson);
-                    prompt = ReplaceCandidatesTokens(prompt, scores, contentById);
-
-                    response = await InvokeLLMAsync(actionLlm, prompt);
-                    var responseSummary = new ResponseSummary
-                    {
-                        StepId = step.Id,
-                        StepName = step.Name,
-                        ActionName = action.Name,
-                        ContentId = content?.Id,
-                        Prompt = this.Options.IncludeLLMPromptsInSummary ? prompt : null,
-                        Response = response,
-                    };
-                    lock (responses) responses.Add(responseSummary);
-                }
-
-                if (!matcher.TryMatch(response, out value))
-                {
-                    // Distinguish "the LLM answered but did not confirm" from "the LLM returned
-                    // nothing" — the step instructions request silence when criteria are not met,
-                    // so an empty response is a decision; record it for debuggability.
-                    if (string.IsNullOrWhiteSpace(response))
-                        lock (actionSummary) actionSummary.Notes = "No confirmation; the LLM response was empty (no criteria met).";
-                    // No confirmation for this action. When configured to abort on a missing
-                    // confirmation (e.g. a 'publish' that did not happen), stop the remaining
-                    // actions on this step; updates accumulated by earlier actions are still
-                    // applied below (same position-sensitive semantics as 'Stop Remaining Actions').
-                    if (action.AbortIfNoConfirmation)
-                    {
-                        actionSummary.Notes = "No confirmation received; remaining actions on this step were aborted.";
                         lock (stepSummary) stepSummary.Aborts++;
                         break;
                     }
                     continue;
                 }
-            }
-            lock (actionSummary) actionSummary.Confirmations++;
 
-            var key = $"{step.Id}:{index}";
-            if (action.ActionType == "select-top")
-            {
-                // Applies to multiple items in one execution; the remaining budget is read
-                // and consumed under the executionCounts lock.
-                int remaining;
-                lock (executionCounts)
+                // Extract Data parses values from its response into the per-item dictionary; Create
+                // Content builds a new content item registered under its identifier. Both run their own
+                // prompt, so they require the step to send separate prompts per action.
+                if (action.ActionType == "extract-data")
                 {
-                    executionCounts.TryGetValue(key, out var current);
-                    remaining = action.MaxCalls.HasValue ? action.MaxCalls.Value - current : int.MaxValue;
+                    await ProcessExtractDataAsync(step, action, llm, llmCache, content, contentJson, extractedData, resultsJson, scores, contentById, actionSummary, responses);
+                    continue;
                 }
-                if (remaining <= 0)
+                if (action.ActionType == "create-content")
+                {
+                    await ProcessCreateContentAsync(step, action, content, extractedData, createdContents, actionSummary, changes);
+                    continue;
+                }
+
+                // Resolve which content this action operates on: the iterated item ("original"), or a
+                // content item created earlier in this step (referenced by its identifier via WorksOn).
+                // Created-item targeting requires separate prompts so each action's prompt and applied
+                // changes use its own content.
+                var target = ResolveActionTarget(action, content, contentJson, pending, createdContents, step, actionSummary);
+                if (target == null) continue;
+                var targetPending = target.Pending;
+
+                // 'Always run' actions execute unconditionally; everything else requires its
+                // confirmation statement in the LLM response.
+                string? value = null;
+                if (!action.AutoExecute)
+                {
+                    var matcher = new ConfirmationMatcher(action.ConfirmationStatement, action.ContentField, action.Objective);
+                    if (!matcher.IsValid)
+                    {
+                        actionSummary.Notes = "Invalid or empty confirmation statement.";
+                        continue;
+                    }
+
+                    var response = sharedResponse;
+                    if (conversation != null)
+                    {
+                        // Chat-conversation mode: this action is the next user message; the model
+                        // sees the system prompt and every earlier action exchange. An earlier
+                        // abort has already exited the loop, so no further messages are sent.
+                        var actionLlm = await ResolveLlmAsync(action.LLMId, llm, llmCache);
+                        var userPrompt = ReplaceCandidatesTokens(
+                            PromptComposer.ComposeAction(await GetActionPromptAsync(action), action.ContentField, action.Objective, contentJson, resultsJson),
+                            scores, contentById);
+                        // Note whether this is the first turn (which effectively also sends the system
+                        // prompt) before adding the user message.
+                        var isFirstTurn = conversation.Count == 1;
+                        conversation.Add(("user", userPrompt));
+
+                        response = await InvokeChatAsync(actionLlm, conversation);
+                        conversation.Add(("assistant", response));
+
+                        var responseSummary = new ResponseSummary
+                        {
+                            StepId = step.Id,
+                            StepName = step.Name,
+                            ActionName = action.Name,
+                            ContentId = content?.Id,
+                            // Only build the (potentially large) recorded prompt when prompts are kept
+                            // in the run summary; otherwise skip the concatenation entirely so a second
+                            // copy of a large prompt is never held in memory.
+                            Prompt = this.Options.IncludeLLMPromptsInSummary
+                                ? (isFirstTurn
+                                    ? $"[system]\n{conversation[0].Content}\n\n[user]\n{userPrompt}"
+                                    : userPrompt)
+                                : null,
+                            Response = response,
+                        };
+                        lock (responses) responses.Add(responseSummary);
+                    }
+                    else if (step.SendSeparatePrompts)
+                    {
+                        // One prompt per action: the step prompt plus this action's prompt only.
+                        // An earlier abort has already exited the loop, so aborted items never
+                        // send prompts for later actions.
+                        var actionLlm = await ResolveLlmAsync(action.LLMId, llm, llmCache);
+                        var prompt = PromptComposer.Compose(
+                            step.Prompt,
+                            new[] { (await GetActionPromptAsync(action), action.ContentField, action.Objective) },
+                            target.Json,
+                            resultsJson);
+                        prompt = ReplaceCandidatesTokens(prompt, scores, contentById);
+
+                        response = await InvokeLLMAsync(actionLlm, prompt);
+                        var responseSummary = new ResponseSummary
+                        {
+                            StepId = step.Id,
+                            StepName = step.Name,
+                            ActionName = action.Name,
+                            ContentId = content?.Id,
+                            Prompt = this.Options.IncludeLLMPromptsInSummary ? prompt : null,
+                            Response = response,
+                        };
+                        lock (responses) responses.Add(responseSummary);
+                    }
+
+                    if (!matcher.TryMatch(response, out value))
+                    {
+                        // Distinguish "the LLM answered but did not confirm" from "the LLM returned
+                        // nothing" — the step instructions request silence when criteria are not met,
+                        // so an empty response is a decision; record it for debuggability.
+                        if (string.IsNullOrWhiteSpace(response))
+                            lock (actionSummary) actionSummary.Notes = "No confirmation; the LLM response was empty (no criteria met).";
+                        // No confirmation for this action. When configured to abort on a missing
+                        // confirmation (e.g. a 'publish' that did not happen), stop the remaining
+                        // actions on this step; updates accumulated by earlier actions are still
+                        // applied below (same position-sensitive semantics as 'Stop Remaining Actions').
+                        if (action.AbortIfNoConfirmation)
+                        {
+                            actionSummary.Notes = "No confirmation received; remaining actions on this step were aborted.";
+                            lock (stepSummary) stepSummary.Aborts++;
+                            break;
+                        }
+                        continue;
+                    }
+                }
+                lock (actionSummary) actionSummary.Confirmations++;
+
+                var key = $"{step.Id}:{index}";
+                if (action.ActionType == "select-top")
+                {
+                    // Applies to multiple items in one execution; the remaining budget is read
+                    // and consumed under the executionCounts lock.
+                    int remaining;
+                    lock (executionCounts)
+                    {
+                        executionCounts.TryGetValue(key, out var current);
+                        remaining = action.MaxCalls.HasValue ? action.MaxCalls.Value - current : int.MaxValue;
+                    }
+                    if (remaining <= 0)
+                    {
+                        actionSummary.Notes = $"Max calls ({action.MaxCalls}) reached; execution skipped.";
+                        continue;
+                    }
+                    var applied = await SelectTopAsync(action.ContentActionId, value, remaining, changes, actionSummary, action.Id, executedContentByAction);
+                    if (applied > 0)
+                    {
+                        lock (executionCounts)
+                        {
+                            executionCounts.TryGetValue(key, out var current);
+                            executionCounts[key] = current + applied;
+                        }
+                        lock (actionSummary) actionSummary.Executions += applied;
+                    }
+                    continue;
+                }
+
+                // Reserve the execution slot atomically (items run in parallel); release it when
+                // the action does not end up executing.
+                if (!TryReserveExecution(executionCounts, key, action.MaxCalls))
                 {
                     actionSummary.Notes = $"Max calls ({action.MaxCalls}) reached; execution skipped.";
                     continue;
                 }
-                var applied = await SelectTopAsync(action.ContentActionId, value, remaining, changes, actionSummary, action.Id, executedContentByAction);
-                if (applied > 0)
+
+                bool executed;
+                if (action.ActionType == "score-content")
                 {
-                    lock (executionCounts)
+                    executed = RecordScore(action.Objective, content, value, scores, actionSummary);
+                    if (executed)
                     {
-                        executionCounts.TryGetValue(key, out var current);
-                        executionCounts[key] = current + applied;
+                        lock (actionSummary) actionSummary.Executions++;
+                        if (content != null) TrackExecutedContent(executedContentByAction, action.Id, content.Id);
                     }
-                    lock (actionSummary) actionSummary.Executions += applied;
+                    else ReleaseExecution(executionCounts, key);
+                    continue;
                 }
-                continue;
-            }
 
-            // Reserve the execution slot atomically (items run in parallel); release it when
-            // the action does not end up executing.
-            if (!TryReserveExecution(executionCounts, key, action.MaxCalls))
-            {
-                actionSummary.Notes = $"Max calls ({action.MaxCalls}) reached; execution skipped.";
-                continue;
-            }
-
-            bool executed;
-            if (action.ActionType == "score-content")
-            {
-                executed = RecordScore(action.Objective, content, value, scores, actionSummary);
+                executed = await ApplyActionAsync(action, value, targetPending, actionSummary, changes);
                 if (executed)
                 {
                     lock (actionSummary) actionSummary.Executions++;
                     if (content != null) TrackExecutedContent(executedContentByAction, action.Id, content.Id);
                 }
                 else ReleaseExecution(executionCounts, key);
-                continue;
-            }
 
-            executed = await ApplyActionAsync(action, value, targetPending, actionSummary, changes);
-            if (executed)
-            {
-                lock (actionSummary) actionSummary.Executions++;
-                if (content != null) TrackExecutedContent(executedContentByAction, action.Id, content.Id);
-            }
-            else ReleaseExecution(executionCounts, key);
-
-            if (targetPending.Abort)
-            {
-                // 'Stop Remaining Actions' is position sensitive: updates accumulated by actions
-                // ordered before it are still applied below; actions after it are skipped.
-                lock (stepSummary) stepSummary.Aborts++;
-                break;
-            }
+                if (targetPending.Abort)
+                {
+                    // 'Stop Remaining Actions' is position sensitive: updates accumulated by actions
+                    // ordered before it are still applied below; actions after it are skipped.
+                    lock (stepSummary) stepSummary.Aborts++;
+                    break;
+                }
             }
             catch (Exception ex)
             {
@@ -2053,6 +2072,16 @@ public class AutomationManager : ServiceManager<AutomationOptions>
         }
     }
 
+    private static string BuildV2RunNote(string? note, V2.V2RunSummary summary)
+    {
+        var variant = summary.VariantA;
+        var result = summary.IsComparison
+            ? $"Comparison run: {summary.Differences.Count} item(s) differ between the variants."
+            : $"Executed {variant?.Steps.Count ?? 0} step(s), {variant?.LlmCalls ?? 0} LLM call(s), {variant?.Changes.Count ?? 0} change(s), {variant?.Excluded.Count ?? 0} exclusion(s).";
+        if (summary.IsDryRun) result = $"DRY RUN - nothing was written. {result}";
+        return string.IsNullOrWhiteSpace(note) ? result : $"{note} | {result}";
+    }
+
     private static string BuildRunNote(string? note, RunSummary summary)
     {
         var executions = summary.Steps.Sum(step => step.Executions);
@@ -2108,6 +2137,18 @@ public class AutomationManager : ServiceManager<AutomationOptions>
             _lastPruneDate = today;
             if (deleted > 0)
                 this.Logger.LogInformation("Pruned {count} automation run(s) older than {days} day(s).", deleted, this.Options.RunRetentionDays);
+
+            // The v2 decision log keeps the current date only (independent of run retention):
+            // cut off at the start of today in the service's default time zone.
+            if (this.Options.RunLogRetentionDays > 0)
+            {
+                var localNow = GetProfileNow(this.Options.DefaultTimeZone);
+                var localCutoff = localNow.Date.AddDays(-(this.Options.RunLogRetentionDays - 1));
+                var cutoffUtc = DateTime.SpecifyKind(localCutoff + (DateTime.UtcNow - localNow), DateTimeKind.Utc);
+                var logsDeleted = await this.Api.PruneAutomationRunLogsAsync(cutoffUtc);
+                if (logsDeleted > 0)
+                    this.Logger.LogInformation("Pruned {count} automation run log entrie(s) older than {cutoff:u}.", logsDeleted, cutoffUtc);
+            }
         }
         catch (Exception ex)
         {

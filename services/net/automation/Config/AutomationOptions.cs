@@ -28,6 +28,14 @@ public class AutomationOptions : ServiceOptions
     public int RunRetentionDays { get; set; } = 7;
 
     /// <summary>
+    /// get/set - The number of days of v2 decision-log entries to keep (1 = the current date only,
+    /// the default). The log records every prompt, response, and engine decision, so its retention
+    /// is deliberately independent of (and much shorter than) the run-history retention.
+    /// Set to zero or less to disable pruning.
+    /// </summary>
+    public int RunLogRetentionDays { get; set; } = 1;
+
+    /// <summary>
     /// get/set - The default tone pool used when applying sentiment values to content.
     /// </summary>
     public int DefaultTonePoolId { get; set; } = 1;

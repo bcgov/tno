@@ -10,6 +10,8 @@ public class AutomationProfileConfiguration : BaseTypeConfiguration<AutomationPr
     {
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
         builder.Property(m => m.SchemaVersion).IsRequired().HasDefaultValue(1);
+        // The v2 definition document; nullable so v1 profiles carry no document at all.
+        builder.Property(m => m.Definition).HasColumnType("jsonb");
         builder.Property(m => m.FilterId);
         builder.Property(m => m.LLMId);
 
