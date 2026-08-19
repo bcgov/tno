@@ -1,12 +1,10 @@
 import { render } from '@testing-library/react';
+import { createOption } from 'features/admin/automation/utils';
 import { V2FilterField } from 'features/admin/automation/v2';
 import React from 'react';
 import { TestWrapper } from 'test/utils';
 
-const options = [
-  { label: 'Vancouver Sun', value: 12, discriminator: 'IOption', isDisabled: false },
-  { label: 'CPNEWS', value: 18, discriminator: 'IOption', isDisabled: false },
-];
+const options = [createOption('Vancouver Sun', 12), createOption('CPNEWS', 18)];
 
 /**
  * Structural contract for the filter field design:
