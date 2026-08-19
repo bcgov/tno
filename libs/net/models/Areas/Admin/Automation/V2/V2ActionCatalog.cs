@@ -42,7 +42,8 @@ public record V2FieldSpec(string Name, string Kind, bool Required, string? Help 
 public static class V2ActionCatalog
 {
     private static readonly string[] _all = { V2Phases.Init, V2Phases.Process, V2Phases.Complete };
-    private static readonly string[] _process = { V2Phases.Process };
+    // Per-item actions: process steps always iterate; complete steps iterate when they declare a source.
+    private static readonly string[] _process = { V2Phases.Process, V2Phases.Complete };
     private static readonly string[] _once = { V2Phases.Init, V2Phases.Complete };
 
     /// <summary>

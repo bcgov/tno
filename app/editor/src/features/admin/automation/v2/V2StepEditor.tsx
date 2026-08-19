@@ -16,9 +16,13 @@ export interface IV2StepEditorProps {
 }
 
 /**
- * The step settings form (shown in the step modal): phase, content source with gate filters
- * (process steps), flush override, and LLM override. The step's analyses and actions are managed
- * from the steps grid, not here.
+ * The step settings form (shown in the step modal), per the design:
+ * - Name / Phase / Enabled;
+ * - Save Mode / LLM Override (not for init - init only gathers);
+ * - Description;
+ * - Source and the include/exclude gate filters (process, and complete - a complete step that
+ *   declares a source iterates it; leaving the source unset runs it once).
+ * The step's analyses and actions are managed from the steps grid, not here.
  */
 export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
   step,
@@ -28,21 +32,24 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
   onChange,
 }) => {
   const set = (values: Partial<IV2Step>) => onChange({ ...step, ...values });
+  const isInit = step.phase === 'init';
 
   return (
     <Col className="v2-step-editor" gap="0.5rem">
-      <Row gap="0.5rem" alignItems="flex-end" nowrap>
+      <Row gap="1rem" alignItems="flex-end" nowrap>
         <Text
           name="step-name"
-          label="Step name"
-          width="16rem"
+          label="Name"
+          required
+          width="14rem"
           value={step.name}
           onChange={(e) => set({ name: e.target.value })}
         />
         <Select
           name="step-phase"
           label="Phase"
-          width="18rem"
+          required
+          width="8rem"
           isClearable={false}
           options={v2PhaseOptions}
           value={findOptionByValue(v2PhaseOptions, step.phase)}
@@ -51,11 +58,8 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
             const phase = `${option?.value ?? 'process'}` as IV2Step['phase'];
             set({
               phase,
-              // Once-phases run with no subject and cannot declare a source.
-              source:
-                phase === 'process'
-                  ? step.source ?? { from: 'collection', include: [], exclude: [] }
-                  : undefined,
+              // Init steps only gather; they never declare a source.
+              source: phase === 'init' ? undefined : step.source,
             });
           }}
         />
@@ -68,13 +72,12 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
           />
         </div>
       </Row>
-      <Row gap="0.5rem" alignItems="flex-end" nowrap>
-        {/* Init steps only gather: no content changes to save, no analyses for an LLM to run. */}
-        <Show visible={step.phase === 'process'}>
+      <Show visible={!isInit}>
+        <Row gap="1rem" alignItems="flex-end" nowrap>
           <Select
             name="step-save-mode"
-            label="Save changes"
-            width="16rem"
+            label="Save Mode"
+            width="10rem"
             isClearable={false}
             options={v2StepSaveModeOptions}
             value={findOptionByValue(v2StepSaveModeOptions, step.saveMode ?? '')}
@@ -83,32 +86,31 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
               set({ saveMode: option?.value ? `${option.value}` : null });
             }}
           />
-        </Show>
-        <Show visible={step.phase !== 'init'}>
           <Select
             name="step-llm"
-            label="LLM override"
-            width="14rem"
+            label="LLM Override"
+            width="10rem"
+            placeholder="profile default"
             options={llmOptions}
             value={findOptionByValue(llmOptions, step.llmId) ?? ''}
             onChange={(newValue) => set({ llmId: toNumberOrUndefined(newValue as IOptionItem) })}
           />
-        </Show>
-      </Row>
+        </Row>
+      </Show>
       <TextArea
         name="step-description"
         label="Description"
         rows={2}
+        placeholder="What this step does"
         value={step.description ?? ''}
         onChange={(e) => set({ description: e.target.value || undefined })}
       />
-
-      <Show visible={step.phase === 'process'}>
-        <Row gap="0.5rem" alignItems="flex-end" nowrap>
+      <Show visible={!isInit}>
+        <Row gap="1rem" alignItems="flex-end" nowrap>
           <Select
             name="step-source-from"
-            label="Content source"
-            width="18rem"
+            label="Source"
+            width="8rem"
             isClearable={false}
             options={v2SourceOptions}
             value={findOptionByValue(v2SourceOptions, step.source?.from ?? 'collection')}
@@ -124,27 +126,13 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
               });
             }}
           />
-          <Show visible={step.source?.from === 'filter'}>
-            <V2FilterField
-              name="step-source-filter"
-              value={step.source?.filter}
-              options={filterOptions}
-              onChange={(filterId) =>
-                set({
-                  source: {
-                    ...(step.source ?? { from: 'filter' }),
-                    from: 'filter',
-                    filter: filterId,
-                  },
-                })
-              }
-            />
-          </Show>
-          <Show visible={step.source?.from === 'collection'}>
+          <Show visible={(step.source?.from ?? 'collection') === 'collection'}>
             <V2ScopedNameField
               name="step-source-collection"
               label="Collection"
               scope="$run"
+              placeholder="Pick a collection"
+              allowNew={false}
               value={step.source?.collection}
               knownNames={collectionNames}
               onChange={(next) =>
@@ -158,26 +146,28 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
               }
             />
           </Show>
-          <Text
-            name="step-source-max"
-            label="Max items"
-            width="8rem"
-            type="number"
-            value={step.source?.max ?? ''}
-            onChange={(e) =>
-              set({
-                source: {
-                  ...(step.source ?? { from: 'collection' }),
-                  max: e.target.value === '' ? null : Number(e.target.value),
-                },
-              })
-            }
-          />
+          <Show visible={step.source?.from === 'filter'}>
+            <V2FilterField
+              name="step-source-filter"
+              label="Filter"
+              value={step.source?.filter}
+              options={filterOptions}
+              onChange={(filterId) =>
+                set({
+                  source: {
+                    ...(step.source ?? { from: 'filter' }),
+                    from: 'filter',
+                    filter: filterId,
+                  },
+                })
+              }
+            />
+          </Show>
         </Row>
         <Row gap="1rem" alignItems="flex-end" nowrap>
           <V2FilterField
             name="step-include"
-            label="Only items matching filter (include)"
+            label="Filter (include)"
             value={step.source?.include?.[0]}
             options={filterOptions}
             onChange={(filterId) =>
@@ -191,7 +181,7 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
           />
           <V2FilterField
             name="step-exclude"
-            label="Skip items matching filter (exclude)"
+            label="Filter (exclude)"
             value={step.source?.exclude?.[0]}
             options={filterOptions}
             onChange={(filterId) =>

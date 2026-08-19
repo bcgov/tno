@@ -65,13 +65,15 @@ public static class AutomationDefinitionValidator
             if (step.SaveMode != null && !V2SaveModes.All.Contains(step.SaveMode))
                 errors.Add(new($"{stepPath}.saveMode", $"Save mode '{step.SaveMode}' is not one of: {string.Join(", ", V2SaveModes.All)}."));
 
-            // Source rules per phase.
+            // Source rules per phase: process requires a source, complete may declare one (and
+            // then iterates it like a process step), init never has one.
             var sourceIsDraftCollection = false;
-            if (step.Phase == V2Phases.Process)
+            var iterates = step.Phase == V2Phases.Process || (step.Phase == V2Phases.Complete && step.Source != null);
+            if (step.Phase != V2Phases.Init)
             {
-                if (step.Source == null)
+                if (step.Source == null && step.Phase == V2Phases.Process)
                     errors.Add(new($"{stepPath}.source", "A process step requires a source."));
-                else
+                else if (step.Source != null)
                 {
                     var source = step.Source;
                     var sourcePath = $"{stepPath}.source";
@@ -99,7 +101,7 @@ public static class AutomationDefinitionValidator
                 }
             }
             else if (step.Source != null)
-                errors.Add(new($"{stepPath}.source", $"An '{step.Phase}' step runs once and cannot declare a source."));
+                errors.Add(new($"{stepPath}.source", "An init step runs once and cannot declare a source."));
 
             // Analyses.
             var analyses = new Dictionary<string, V2AnalysisDefinition>(StringComparer.OrdinalIgnoreCase);
@@ -136,8 +138,8 @@ public static class AutomationDefinitionValidator
 
                 if (!descriptor.Phases.Contains(step.Phase))
                     errors.Add(new($"{path}.type", $"Action '{action.Type}' is not valid in a '{step.Phase}' step (allowed: {string.Join(", ", descriptor.Phases)})."));
-                if (descriptor.RequiresSubject && step.Phase != V2Phases.Process)
-                    errors.Add(new($"{path}.type", $"Action '{action.Type}' requires an iterated item and can only appear in a process step."));
+                if (descriptor.RequiresSubject && !iterates)
+                    errors.Add(new($"{path}.type", $"Action '{action.Type}' requires an iterated item and can only appear in a process step, or a complete step that declares a source."));
                 if (descriptor.RequiresPersistedId && sourceIsDraftCollection && EffectiveSaveMode(definition, step) == V2SaveModes.EndOfRun)
                     errors.Add(new($"{path}.type", $"Action '{action.Type}' requires persisted ids, but the step iterates a draft collection under end-of-run saving; set the creating step's saveMode to end-of-step."));
 

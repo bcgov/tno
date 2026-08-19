@@ -168,6 +168,18 @@ public class AutomationDefinitionValidatorTest
     }
 
     [Fact]
+    public void CompleteStepWithSource_IteratesAndAllowsSubjectActions()
+    {
+        // A complete step that declares a source iterates it like a process step (v1's
+        // iterate-at-end capability), so per-item actions are valid there.
+        var definition = ValidDefinition();
+        definition.Steps[2].Source = new V2SourceDefinition { From = "collection", Collection = "$run.inbox" };
+        definition.Steps[2].Actions.Add(new V2ActionDefinition { Type = "content.publish" });
+        var errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.Empty(errors.Where(e => e.Severity == "error"));
+    }
+
+    [Fact]
     public void DraftTargetWithoutCreate_IsAnError()
     {
         var definition = ValidDefinition();

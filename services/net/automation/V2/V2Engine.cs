@@ -170,7 +170,9 @@ public class V2Engine
 
             try
             {
-                if (step.Phase == V2Phases.Process)
+                // Process steps always iterate; a complete step iterates when it declares a
+                // source (v1's iterate-at-end capability), otherwise it runs once.
+                if (step.Phase != V2Phases.Init && step.Source != null)
                 {
                     var entries = await ResolveSourceAsync(step, environment, stepSummary);
                     stepSummary.Items = entries.Count;

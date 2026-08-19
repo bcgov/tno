@@ -1246,26 +1246,31 @@ export const AutomationProfileForm = styled(FormPage)`
     }
   }
 
-  /* Filter fields per the design: pencil inside the control (left of the ×/▼ indicators),
-     compact + attached at the right. */
+  /* Filter fields per the design: one control - the edit pencil is injected inside the
+     control's indicators area (left of × and ▼) through react-select's components API, and a
+     compact + sits attached at the right. */
   .v2-filter-field {
-    .v2-filter-select-wrap {
-      position: relative;
-      display: inline-block;
+    > label {
+      display: block;
+      font-weight: 600;
+    }
 
-      /* Keep the selected label clear of the overlaid pencil. */
-      .rs__value-container {
-        padding-right: 1.7rem;
+    .v2-filter-control {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+
+      /* The Select wrapper adds form-row padding; the row owns spacing here. */
+      .frm-in {
+        padding: 0;
+        margin: 0;
       }
     }
 
     .v2-filter-edit {
-      position: absolute;
-      right: 3.9rem;
-      bottom: 0.55rem;
       border: none;
       background: none;
-      padding: 0;
+      padding: 0 0.15rem;
       cursor: pointer;
       color: #1a5a96;
       display: flex;
@@ -1282,9 +1287,9 @@ export const AutomationProfileForm = styled(FormPage)`
     }
 
     .v2-filter-add {
+      flex: 0 0 auto;
       width: 2.1rem;
       height: 2.35rem;
-      margin: 0 0 0.05rem 0.3rem;
       display: inline-flex;
       align-items: center;
       justify-content: center;

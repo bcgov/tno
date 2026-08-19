@@ -155,7 +155,7 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
   };
 
   const sourceLabel = (step: IV2Step): React.ReactNode => {
-    if (step.phase !== 'process') return '—';
+    if (step.phase === 'init' || !step.source) return '—';
     const source = step.source;
     if (source?.from === 'collection')
       return <span className="v2-prompt-name">{source.collection ?? '?'}</span>;
@@ -307,7 +307,7 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                           <span className="v2-gc-source">{sourceLabel(step)}</span>
                           <span className="v2-gc-count">{step.actions.length}</span>
                           <span className="v2-gc-save">
-                            {step.phase === 'process' ? step.saveMode ?? definition.saveMode : '—'}
+                            {step.phase !== 'init' ? step.saveMode ?? definition.saveMode : '—'}
                           </span>
                           <span className="v2-gc-enabled">{step.isEnabled ? 'Yes' : 'No'}</span>
                           <span className="v2-gc-actions">
@@ -677,24 +677,37 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
         }
         customButtons={
           <Row justifyContent="flex-end" gap="0.5rem" width="100%">
-            <Button variant={ButtonVariant.secondary} onClick={() => setStepModal(null)}>
+            <Button
+              className="header-btn-outline"
+              variant={ButtonVariant.secondary}
+              onClick={() => setStepModal(null)}
+            >
               Cancel
             </Button>
             <Button
+              className="header-btn-save"
               onClick={() => {
                 if (!stepModal) return;
                 if (!stepModal.draft.name.trim()) {
                   toast.error('A step name is required.');
                   return;
                 }
+                const draft = { ...stepModal.draft };
+                // A complete step with nothing picked for its source runs once; an init step
+                // never has one. Only keep a source that actually selects something.
+                const source = draft.source;
+                const sourceIsSet =
+                  !!source && (source.from === 'filter' ? !!source.filter : !!source.collection);
+                if (draft.phase === 'init' || (draft.phase === 'complete' && !sourceIsSet))
+                  draft.source = undefined;
                 const steps = [...definition.steps];
-                if (stepModal.index != null) steps[stepModal.index] = stepModal.draft;
-                else steps.push(stepModal.draft);
+                if (stepModal.index != null) steps[stepModal.index] = draft;
+                else steps.push(draft);
                 update({ ...definition, steps });
                 setStepModal(null);
               }}
             >
-              Save
+              {stepModal?.index != null ? 'Save' : 'Add'}
             </Button>
           </Row>
         }

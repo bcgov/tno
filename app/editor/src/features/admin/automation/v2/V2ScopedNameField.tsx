@@ -15,6 +15,8 @@ export interface IV2ScopedNameFieldProps {
   knownNames?: string[];
   /** Whether a new name can be typed (producers); consumers pick from known names only. */
   allowNew?: boolean;
+  /** Placeholder for the known-names dropdown. */
+  placeholder?: string;
   help?: string | null;
 }
 
@@ -45,6 +47,7 @@ export const V2ScopedNameField: React.FC<IV2ScopedNameFieldProps> = ({
   onChange,
   knownNames = [],
   allowNew = true,
+  placeholder,
   help,
 }) => {
   const isKnown = !!value && knownNames.includes(value);
@@ -70,6 +73,7 @@ export const V2ScopedNameField: React.FC<IV2ScopedNameFieldProps> = ({
           <Select
             name={`${name}-pick`}
             width="12rem"
+            placeholder={placeholder}
             options={options}
             value={selected}
             onChange={(newValue) => {

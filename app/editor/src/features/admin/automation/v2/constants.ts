@@ -22,7 +22,7 @@ export const v2SaveModeOptions: IOptionItem[] = [
 ];
 
 export const v2StepSaveModeOptions: IOptionItem[] = [
-  createOption('Inherit from profile', ''),
+  createOption('profile default', ''),
   ...v2SaveModeOptions,
 ];
 
