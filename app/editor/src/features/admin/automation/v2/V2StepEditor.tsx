@@ -1,7 +1,9 @@
 import React from 'react';
-import { FaPlus, FaTrash } from 'react-icons/fa';
+import { Draggable } from 'react-beautiful-dnd';
+import { FaGripLines, FaPlus, FaTrash } from 'react-icons/fa';
 import { Checkbox, Col, type IOptionItem, Row, Select, Show, Text, TextArea } from 'tno-core';
 
+import { StrictModeDroppable } from '../StrictModeDroppable';
 import { findOptionByValue, toNumberOrUndefined } from '../utils';
 import {
   createDefaultV2Action,
@@ -17,10 +19,13 @@ import {
 } from './interfaces';
 import { V2ActionEditor } from './V2ActionEditor';
 import { V2AnalysisEditor } from './V2AnalysisEditor';
+import { V2FilterField } from './V2FilterField';
 import { V2ScopedNameField } from './V2ScopedNameField';
 
 export interface IV2StepEditorProps {
   step: IV2Step;
+  /** The step's position; keys this step's actions droppable in the shared drag context. */
+  stepIndex: number;
   descriptors: IV2ActionDescriptor[];
   collectionNames: string[];
   promptNames: string[];
@@ -39,6 +44,7 @@ export interface IV2StepEditorProps {
  */
 export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
   step,
+  stepIndex,
   descriptors,
   collectionNames,
   promptNames,
@@ -50,6 +56,8 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
   onChange,
 }) => {
   const set = (values: Partial<IV2Step>) => onChange({ ...step, ...values });
+  const DroppableAny = StrictModeDroppable as any;
+  const DraggableAny = Draggable as any;
   const analysisNames = step.analyses.map((analysis) => analysis.name).filter((name) => !!name);
 
   const setAnalysis = (index: number, analysis: IV2Analysis) => {
@@ -64,17 +72,8 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
     set({ actions });
   };
 
-  const moveAction = (index: number, direction: -1 | 1) => {
-    const target = index + direction;
-    if (target < 0 || target >= step.actions.length) return;
-    const actions = [...step.actions];
-    const [moved] = actions.splice(index, 1);
-    actions.splice(target, 0, moved);
-    set({ actions });
-  };
-
   return (
-    <Col className="v2-step-editor" gap="0.75rem">
+    <Col className="v2-step-editor" gap="0.5rem">
       <Row gap="0.5rem" alignItems="flex-end" nowrap>
         <Text
           name="step-name"
@@ -158,18 +157,16 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
             }}
           />
           <Show visible={step.source?.from === 'filter'}>
-            <Select
+            <V2FilterField
               name="step-source-filter"
-              label="Filter"
-              width="18rem"
+              value={step.source?.filter}
               options={filterOptions}
-              value={findOptionByValue(filterOptions, step.source?.filter) ?? ''}
-              onChange={(newValue) =>
+              onChange={(filterId) =>
                 set({
                   source: {
                     ...(step.source ?? { from: 'filter' }),
                     from: 'filter',
-                    filter: toNumberOrUndefined(newValue as IOptionItem),
+                    filter: filterId,
                   },
                 })
               }
@@ -287,55 +284,63 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
           <FaPlus />
         </button>
       </Row>
-      {step.actions.map((action, index) => (
-        <Row key={index} gap="0.5rem" alignItems="flex-start" nowrap className="v2-list-item">
-          <Col gap="0.25rem" className="v2-list-item-order">
-            <button
-              type="button"
-              className="rule-icon-button"
-              title="Move up"
-              disabled={index === 0}
-              onClick={() => moveAction(index, -1)}
-            >
-              ↑
-            </button>
-            <button
-              type="button"
-              className="rule-icon-button"
-              title="Move down"
-              disabled={index === step.actions.length - 1}
-              onClick={() => moveAction(index, 1)}
-            >
-              ↓
-            </button>
-          </Col>
-          <V2ActionEditor
-            action={action}
-            descriptors={descriptors}
-            phase={step.phase}
-            analysisNames={analysisNames}
-            collectionNames={collectionNames}
-            draftNames={step.actions
-              .slice(0, index)
-              .filter((earlier) => earlier.type === 'content.create' && !!earlier.as)
-              .map((earlier) => earlier.as!)}
-            filterOptions={filterOptions}
-            reportOptions={reportOptions}
-            notificationOptions={notificationOptions}
-            actionOptions={actionOptions}
-            promptNames={promptNames}
-            onChange={(next) => setAction(index, next)}
-          />
-          <button
-            type="button"
-            className="rule-icon-button delete"
-            title="Remove action"
-            onClick={() => set({ actions: step.actions.filter((_, i) => i !== index) })}
-          >
-            <FaTrash />
-          </button>
-        </Row>
-      ))}
+      <DroppableAny droppableId={`v2-actions-${stepIndex}`}>
+        {(provided: any) => (
+          <div className="v2-actions-list" ref={provided.innerRef} {...provided.droppableProps}>
+            {step.actions.map((action, index) => (
+              <DraggableAny
+                key={`action-${stepIndex}-${index}`}
+                draggableId={`action-${stepIndex}-${index}`}
+                index={index}
+              >
+                {(dragProvided: any, dragSnapshot: any) => (
+                  <div
+                    className={`v2-list-item${dragSnapshot.isDragging ? ' is-dragging' : ''}`}
+                    ref={dragProvided.innerRef}
+                    {...dragProvided.draggableProps}
+                  >
+                    <Row gap="0.5rem" alignItems="flex-start" nowrap>
+                      <span
+                        className="v2-drag-handle"
+                        title="Drag to reorder"
+                        {...dragProvided.dragHandleProps}
+                      >
+                        <FaGripLines />
+                      </span>
+                      <V2ActionEditor
+                        action={action}
+                        descriptors={descriptors}
+                        phase={step.phase}
+                        analysisNames={analysisNames}
+                        collectionNames={collectionNames}
+                        draftNames={step.actions
+                          .slice(0, index)
+                          .filter((earlier) => earlier.type === 'content.create' && !!earlier.as)
+                          .map((earlier) => earlier.as!)}
+                        filterOptions={filterOptions}
+                        reportOptions={reportOptions}
+                        notificationOptions={notificationOptions}
+                        actionOptions={actionOptions}
+                        promptNames={promptNames}
+                        onChange={(next) => setAction(index, next)}
+                      />
+                      <button
+                        type="button"
+                        className="rule-icon-button delete"
+                        title="Remove action"
+                        onClick={() => set({ actions: step.actions.filter((_, i) => i !== index) })}
+                      >
+                        <FaTrash />
+                      </button>
+                    </Row>
+                  </div>
+                )}
+              </DraggableAny>
+            ))}
+            {provided.placeholder}
+          </div>
+        )}
+      </DroppableAny>
     </Col>
   );
 };
@@ -348,7 +353,8 @@ interface IGateFilterPickerProps {
   onChange: (values: number[]) => void;
 }
 
-/** Chip-list picker for gate filter ids (each resolves once per run to an id set). */
+/** Chip-list picker for gate filter ids (each resolves once per run to an id set). Chips open
+ * their filter in a new tab; the plus opens a blank filter form in a new tab. */
 const GateFilterPicker: React.FC<IGateFilterPickerProps> = ({
   label,
   name,
@@ -357,7 +363,7 @@ const GateFilterPicker: React.FC<IGateFilterPickerProps> = ({
   onChange,
 }) => (
   <Col gap="0.25rem">
-    <Row gap="0.5rem" alignItems="flex-end" nowrap>
+    <Row gap="0.25rem" alignItems="flex-end" nowrap>
       <Select
         name={name}
         label={label}
@@ -370,12 +376,28 @@ const GateFilterPicker: React.FC<IGateFilterPickerProps> = ({
           if (id !== undefined && !values.includes(id)) onChange([...values, id]);
         }}
       />
+      <button
+        type="button"
+        className="rule-icon-button"
+        aria-label="Create a new filter in a new tab"
+        title="Create a new filter in a new tab"
+        onClick={() => window.open('/admin/filters/0', '_blank', 'noopener')}
+      >
+        <FaPlus />
+      </button>
     </Row>
     <Show visible={values.length > 0}>
       <Row gap="0.25rem" className="v2-chips">
         {values.map((id) => (
           <span key={id} className="v2-chip">
-            {findOptionByValue(filterOptions, id)?.label ?? `filter ${id}`}
+            <button
+              type="button"
+              className="v2-chip-open"
+              title="Edit this filter in a new tab"
+              onClick={() => window.open(`/admin/filters/${id}`, '_blank', 'noopener')}
+            >
+              {findOptionByValue(filterOptions, id)?.label ?? `filter ${id}`}
+            </button>
             <button
               type="button"
               title="Remove"

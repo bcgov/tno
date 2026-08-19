@@ -5,6 +5,7 @@ import { contentFieldOptionItems } from '../constants';
 import { createOption, findOptionByValue, toNumberOrUndefined } from '../utils';
 import { type IV2Action, type IV2ActionDescriptor, type IV2FieldSpec } from './interfaces';
 import { V2ConditionBuilder } from './V2ConditionBuilder';
+import { V2FilterField } from './V2FilterField';
 import { V2ScopedNameField } from './V2ScopedNameField';
 import { V2ValueSourceEditor } from './V2ValueSourceEditor';
 
@@ -94,14 +95,13 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
     switch (field.kind) {
       case 'filter':
         return (
-          <Select
+          <V2FilterField
             key={key}
             name={key}
             label={field.name}
-            width="20rem"
+            value={action.filter}
             options={filterOptions}
-            value={findOptionByValue(filterOptions, action.filter) ?? ''}
-            onChange={(newValue) => set({ filter: toNumberOrUndefined(newValue as IOptionItem) })}
+            onChange={(filterId) => set({ filter: filterId })}
           />
         );
       case 'report':
@@ -212,7 +212,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
       }
       case 'condition':
         return (
-          <Col key={key}>
+          <Col key={key} className="v2-field-wide">
             <label>{field.name}</label>
             <V2ConditionBuilder
               value={action.where ?? { field: '', op: 'equals', value: '' }}
@@ -222,7 +222,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
         );
       case 'valueSource':
         return (
-          <Col key={key}>
+          <Col key={key} className="v2-field-wide">
             <label>value</label>
             <V2ValueSourceEditor
               name={key}
@@ -237,7 +237,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
       case 'valueMap': {
         const entries = Object.entries(action.set ?? {});
         return (
-          <Col key={key} gap="0.25rem">
+          <Col key={key} gap="0.25rem" className="v2-field-wide">
             <label>set fields</label>
             {entries.map(([fieldName, source], index) => (
               <Row key={index} gap="0.5rem" alignItems="center" nowrap>
@@ -532,9 +532,9 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
         />
       </Show>
       <Show visible={!!descriptor}>
-        <Col className="v2-action-fields" gap="0.5rem">
+        <Row className="v2-action-fields" gap="0.5rem" alignItems="flex-end">
           {descriptor?.fields.map((field) => renderField(field))}
-        </Col>
+        </Row>
       </Show>
       <Show visible={!!descriptor && descriptor.fields.length === 0}>
         <p className="v2-field-help">This action needs no configuration.</p>

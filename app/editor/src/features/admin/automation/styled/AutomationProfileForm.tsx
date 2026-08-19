@@ -802,13 +802,56 @@ export const AutomationProfileForm = styled(FormPage)`
   .v2-list-item {
     border: 1px solid #e4e7ec;
     border-radius: 0.35rem;
-    padding: 0.5rem;
+    padding: 0.4rem;
     background: #fcfcfd;
     width: 100%;
   }
 
-  .v2-list-item-order {
-    flex: 0 0 auto;
+  .v2-steps-list .v2-step-card {
+    margin-bottom: 0.5rem;
+  }
+
+  .v2-actions-list .v2-list-item {
+    margin-bottom: 0.4rem;
+  }
+
+  .v2-step-card.is-dragging,
+  .v2-list-item.is-dragging {
+    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15);
+  }
+
+  .v2-drag-handle {
+    display: flex;
+    align-items: center;
+    padding: 0.35rem 0.2rem;
+    color: #98a2b3;
+    cursor: grab;
+
+    &:hover {
+      color: #475467;
+    }
+  }
+
+  /* Action fields flow side by side and wrap; structured editors take their own line. */
+  .v2-action-fields {
+    row-gap: 0.5rem;
+  }
+
+  .v2-field-wide {
+    flex-basis: 100%;
+  }
+
+  .v2-chip-open {
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    color: #1570ef;
+    font-size: 0.8rem;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   .v2-subsection-header {

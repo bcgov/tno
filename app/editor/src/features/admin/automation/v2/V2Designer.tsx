@@ -1,8 +1,10 @@
 import React from 'react';
-import { FaChevronDown, FaChevronRight, FaPlus, FaTrash } from 'react-icons/fa';
+import { DragDropContext, Draggable, type DropResult } from 'react-beautiful-dnd';
+import { FaChevronDown, FaChevronRight, FaGripLines, FaPlus, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { Button, ButtonVariant, Col, type IOptionItem, Row, Show, Text, TextArea } from 'tno-core';
 
+import { StrictModeDroppable } from '../StrictModeDroppable';
 import {
   collectV2CollectionNames,
   createDefaultV2Step,
@@ -65,15 +67,6 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
     update({ ...definition, steps });
   };
 
-  const moveStep = (index: number, direction: -1 | 1) => {
-    const target = index + direction;
-    if (target < 0 || target >= definition.steps.length) return;
-    const steps = [...definition.steps];
-    const [moved] = steps.splice(index, 1);
-    steps.splice(target, 0, moved);
-    update({ ...definition, steps });
-  };
-
   const toggleCollapsed = (index: number) =>
     setCollapsed((current) => {
       const next = new Set(current);
@@ -82,8 +75,48 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
       return next;
     });
 
+  const allCollapsed = definition.steps.length > 0 && collapsed.size >= definition.steps.length;
+
+  // One drag context covers both lists; distinct droppable ids keep steps and actions (and
+  // actions across steps) from mixing.
+  const DragDropContextAny = DragDropContext as any;
+  const DroppableAny = StrictModeDroppable as any;
+  const DraggableAny = Draggable as any;
+
+  const onDragEnd = (result: DropResult) => {
+    const { source, destination } = result;
+    if (!destination) return;
+    if (source.droppableId !== destination.droppableId) return;
+    if (source.index === destination.index) return;
+
+    if (source.droppableId === 'v2-steps') {
+      const steps = [...definition.steps];
+      const [moved] = steps.splice(source.index, 1);
+      steps.splice(destination.index, 0, moved);
+      update({ ...definition, steps });
+      // Move the collapsed flags the same way so they follow their steps.
+      setCollapsed((current) => {
+        const flags = definition.steps.map((_, i) => current.has(i));
+        const [movedFlag] = flags.splice(source.index, 1);
+        flags.splice(destination.index, 0, movedFlag);
+        return new Set(flags.flatMap((isCollapsed, i) => (isCollapsed ? [i] : [])));
+      });
+      return;
+    }
+
+    if (source.droppableId.startsWith('v2-actions-')) {
+      const stepIndex = Number(source.droppableId.replace('v2-actions-', ''));
+      const step = definition.steps[stepIndex];
+      if (!step) return;
+      const actions = [...step.actions];
+      const [moved] = actions.splice(source.index, 1);
+      actions.splice(destination.index, 0, moved);
+      setStep(stepIndex, { ...step, actions });
+    }
+  };
+
   return (
-    <Col className="v2-designer" gap="0.75rem">
+    <Col className="v2-designer" gap="0.5rem">
       <Row className="section-header" nowrap>
         <h2>Prompt Library</h2>
       </Row>
@@ -167,74 +200,97 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
 
       <Row className="section-header" nowrap>
         <h2>Steps</h2>
+        <button
+          type="button"
+          className="rule-icon-button"
+          aria-label={allCollapsed ? 'Expand all steps' : 'Collapse all steps'}
+          title={allCollapsed ? 'Expand all steps' : 'Collapse all steps'}
+          onClick={() =>
+            setCollapsed(
+              allCollapsed ? new Set() : new Set(definition.steps.map((_, index) => index)),
+            )
+          }
+        >
+          {allCollapsed ? <FaChevronRight /> : <FaChevronDown />}
+        </button>
       </Row>
       <p className="section-help-text">
         Steps run in order within their phase: initialize (once) → process (per content item) →
         complete (once). Every action in a step applies to the item the step iterates; to act on
         different content, iterate a different collection.
       </p>
-      {definition.steps.map((step, index) => (
-        <Col key={index} className="v2-step-card" gap="0.5rem">
-          <Row gap="0.5rem" alignItems="center" nowrap className="v2-step-card-header">
-            <button
-              type="button"
-              className="rule-icon-button"
-              title={collapsed.has(index) ? 'Expand' : 'Collapse'}
-              onClick={() => toggleCollapsed(index)}
-            >
-              {collapsed.has(index) ? <FaChevronRight /> : <FaChevronDown />}
-            </button>
-            <span className={`v2-badge v2-phase-${step.phase}`}>{step.phase}</span>
-            <strong>{step.name || '(unnamed step)'}</strong>
-            <span className="v2-field-help">
-              {step.analyses.length} analysis(es), {step.actions.length} action(s)
-              {step.isEnabled ? '' : ' — disabled'}
-            </span>
-            <button
-              type="button"
-              className="rule-icon-button"
-              title="Move up"
-              disabled={index === 0}
-              onClick={() => moveStep(index, -1)}
-            >
-              ↑
-            </button>
-            <button
-              type="button"
-              className="rule-icon-button"
-              title="Move down"
-              disabled={index === definition.steps.length - 1}
-              onClick={() => moveStep(index, 1)}
-            >
-              ↓
-            </button>
-            <button
-              type="button"
-              className="rule-icon-button delete"
-              title="Delete step"
-              onClick={() =>
-                update({ ...definition, steps: definition.steps.filter((_, i) => i !== index) })
-              }
-            >
-              <FaTrash />
-            </button>
-          </Row>
-          <Show visible={!collapsed.has(index)}>
-            <V2StepEditor
-              step={step}
-              descriptors={descriptors}
-              collectionNames={collectionNames}
-              promptNames={promptNames}
-              filterOptions={filterOptions}
-              llmOptions={llmOptions}
-              reportOptions={reportOptions}
-              notificationOptions={notificationOptions}
-              actionOptions={actionOptions}
-              onChange={(next) => setStep(index, next)}
-            />
-          </Show>
-        </Col>
-      ))}
+      <DragDropContextAny onDragEnd={onDragEnd}>
+        <DroppableAny droppableId="v2-steps">
+          {(provided: any) => (
+            <div className="v2-steps-list" ref={provided.innerRef} {...provided.droppableProps}>
+              {definition.steps.map((step, index) => (
+                <DraggableAny key={`step-${index}`} draggableId={`step-${index}`} index={index}>
+                  {(dragProvided: any, dragSnapshot: any) => (
+                    <div
+                      className={`v2-step-card${dragSnapshot.isDragging ? ' is-dragging' : ''}`}
+                      ref={dragProvided.innerRef}
+                      {...dragProvided.draggableProps}
+                    >
+                      <Row gap="0.5rem" alignItems="center" nowrap className="v2-step-card-header">
+                        <span
+                          className="v2-drag-handle"
+                          title="Drag to reorder"
+                          {...dragProvided.dragHandleProps}
+                        >
+                          <FaGripLines />
+                        </span>
+                        <button
+                          type="button"
+                          className="rule-icon-button"
+                          title={collapsed.has(index) ? 'Expand' : 'Collapse'}
+                          onClick={() => toggleCollapsed(index)}
+                        >
+                          {collapsed.has(index) ? <FaChevronRight /> : <FaChevronDown />}
+                        </button>
+                        <span className={`v2-badge v2-phase-${step.phase}`}>{step.phase}</span>
+                        <strong>{step.name || '(unnamed step)'}</strong>
+                        <span className="v2-field-help">
+                          {step.analyses.length} analysis(es), {step.actions.length} action(s)
+                          {step.isEnabled ? '' : ' — disabled'}
+                        </span>
+                        <button
+                          type="button"
+                          className="rule-icon-button delete"
+                          title="Delete step"
+                          onClick={() =>
+                            update({
+                              ...definition,
+                              steps: definition.steps.filter((_, i) => i !== index),
+                            })
+                          }
+                        >
+                          <FaTrash />
+                        </button>
+                      </Row>
+                      <Show visible={!collapsed.has(index)}>
+                        <V2StepEditor
+                          step={step}
+                          stepIndex={index}
+                          descriptors={descriptors}
+                          collectionNames={collectionNames}
+                          promptNames={promptNames}
+                          filterOptions={filterOptions}
+                          llmOptions={llmOptions}
+                          reportOptions={reportOptions}
+                          notificationOptions={notificationOptions}
+                          actionOptions={actionOptions}
+                          onChange={(next) => setStep(index, next)}
+                        />
+                      </Show>
+                    </div>
+                  )}
+                </DraggableAny>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </DroppableAny>
+      </DragDropContextAny>
       <Row gap="0.5rem">
         <Button
           variant={ButtonVariant.secondary}
