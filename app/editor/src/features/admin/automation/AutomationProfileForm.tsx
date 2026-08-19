@@ -121,7 +121,6 @@ import {
   formatRunTime,
   formatScheduleWeekDays,
   getActionSettingsGroup,
-  getLLMDescription,
   getStepFilterLabel,
   hasEnrichmentFilter,
   normalizeProfile,
@@ -1151,9 +1150,6 @@ const AutomationProfileForm: React.FC = () => {
                           name="isEnabled"
                         />
                       </Row>
-                      <Show visible={!!getLLMDescription(llms, values.llmId)}>
-                        <p className="llm-description">{getLLMDescription(llms, values.llmId)}</p>
-                      </Show>
                       <Row className="field-grid description-row" gap="1rem">
                         <FormikTextArea
                           name="description"
