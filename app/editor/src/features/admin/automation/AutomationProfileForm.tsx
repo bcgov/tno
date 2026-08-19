@@ -2989,9 +2989,6 @@ const AutomationProfileForm: React.FC = () => {
                           showTimeSelectOnly
                           timeIntervals={30}
                           timeCaption=""
-                          showIcon
-                          icon={<FaRegClock />}
-                          toggleCalendarOnIconClick
                           portalId={DATE_PICKER_PORTAL_ID}
                           selectedDate={
                             scheduleModalState?.schedule.startAt
@@ -3010,6 +3007,9 @@ const AutomationProfileForm: React.FC = () => {
                             );
                           }}
                         />
+                        <span className="schedule-picker-icon">
+                          <FaRegClock />
+                        </span>
                       </div>
                       <div className="schedule-picker">
                         <SelectDate
@@ -3021,9 +3021,6 @@ const AutomationProfileForm: React.FC = () => {
                           showTimeSelect
                           timeIntervals={30}
                           isClearable
-                          showIcon
-                          icon={<FaRegCalendar />}
-                          toggleCalendarOnIconClick
                           // The modal clips its popup and scrolls its body, so the calendar
                           // renders into a body-level portal instead of being cut off.
                           portalId={DATE_PICKER_PORTAL_ID}
@@ -3038,6 +3035,9 @@ const AutomationProfileForm: React.FC = () => {
                             );
                           }}
                         />
+                        <span className="schedule-picker-icon">
+                          <FaRegCalendar />
+                        </span>
                       </div>
                     </Row>
                     <p className="schedule-help-text">

@@ -417,24 +417,32 @@ export const AutomationProfileForm = styled(FormPage)`
   }
 
   .schedule-picker {
-    .react-datepicker__input-container {
-      position: relative;
+    position: relative;
+
+    input {
+      padding-right: 1.9rem;
     }
 
-    .react-datepicker__calendar-icon {
+    /* Our own icon: react-datepicker's showIcon renders unpredictably inside the SelectDate
+       wrapper, so the field owns an absolutely-positioned one instead. */
+    .schedule-picker-icon {
       position: absolute;
-      left: auto;
-      right: 0.45rem;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 1rem;
-      height: 1rem;
-      padding: 0;
+      right: 0.55rem;
+      bottom: 0.5rem;
+      pointer-events: none;
       color: #1d2939;
+      display: flex;
+      align-items: center;
+
+      svg {
+        width: 0.95rem;
+        height: 0.95rem;
+      }
     }
 
-    .react-datepicker__view-calendar-icon input {
-      padding: 0.35rem 1.9rem 0.35rem 0.5rem;
+    /* Keep the clearable × from colliding with the icon. */
+    .react-datepicker__close-icon {
+      right: 1.8rem;
     }
   }
 
@@ -967,6 +975,11 @@ export const AutomationProfileForm = styled(FormPage)`
   .v2-grid-item {
     border-bottom: 1px solid #eef2f6;
     background: #fff;
+
+    /* Zebra rows per the design (the droppable wraps the rows; header sits outside it). */
+    &:nth-child(even) {
+      background: #f7f8fa;
+    }
 
     &:last-child {
       border-bottom: 0;
