@@ -775,6 +775,145 @@ export const AutomationProfileForm = styled(FormPage)`
       }
     }
   }
+
+  /* ---- v2 designer, log viewer, and run outcome ---- */
+  .v2-designer,
+  .v2-step-editor,
+  .v2-action-editor,
+  .v2-analysis-editor {
+    width: 100%;
+  }
+
+  .v2-step-card {
+    border: 1px solid #d0d5dd;
+    border-radius: 0.35rem;
+    padding: 0.5rem;
+    background: #fff;
+  }
+
+  .v2-step-card-header {
+    cursor: default;
+
+    strong {
+      flex: 0 1 auto;
+    }
+  }
+
+  .v2-list-item {
+    border: 1px solid #e4e7ec;
+    border-radius: 0.35rem;
+    padding: 0.5rem;
+    background: #fcfcfd;
+    width: 100%;
+  }
+
+  .v2-list-item-order {
+    flex: 0 0 auto;
+  }
+
+  .v2-subsection-header {
+    align-items: center;
+    gap: 0.5rem;
+
+    h3 {
+      margin: 0;
+    }
+  }
+
+  .v2-field-help {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #667085;
+  }
+
+  .v2-badge {
+    display: inline-block;
+    padding: 0.05rem 0.5rem;
+    border-radius: 0.75rem;
+    background: #eaecf0;
+    color: #344054;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .v2-badge-success {
+    background: #d1fadf;
+    color: #05603a;
+  }
+
+  .v2-badge-warning {
+    background: #fef0c7;
+    color: #93370d;
+  }
+
+  .v2-badge-danger {
+    background: #fee4e2;
+    color: #912018;
+  }
+
+  .v2-phase-init {
+    background: #e0eaff;
+    color: #26428b;
+  }
+
+  .v2-phase-process {
+    background: #d1fadf;
+    color: #05603a;
+  }
+
+  .v2-phase-complete {
+    background: #fce7f6;
+    color: #9e165f;
+  }
+
+  .v2-chips {
+    flex-wrap: wrap;
+  }
+
+  .v2-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 0.75rem;
+    background: #eaecf0;
+    font-size: 0.8rem;
+
+    button {
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #667085;
+      padding: 0;
+    }
+  }
+
+  .v2-link-button {
+    border: none;
+    background: none;
+    color: #1570ef;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.85rem;
+    text-align: left;
+  }
+
+  .v2-condition-children {
+    margin-left: 1.5rem;
+    padding-left: 0.5rem;
+    border-left: 2px solid #e4e7ec;
+  }
+
+  .v2-findings {
+    border: 1px solid #fda29b;
+    border-radius: 0.35rem;
+    padding: 0.5rem;
+    background: #fffbfa;
+
+    code {
+      font-size: 0.8rem;
+    }
+  }
 `;
 
 /**
@@ -825,6 +964,118 @@ export const AutomationModalStyles = createGlobalStyle`
   }
 
   /* Run detail modal content. */
+  .run-detail-content .v2-run-detail-toggle {
+    margin: 0.5rem 0;
+  }
+
+  .run-detail-content .v2-dry-run-banner {
+    padding: 0.4rem 0.75rem;
+    border-radius: 0.35rem;
+    background: #fef0c7;
+    color: #93370d;
+    font-weight: 600;
+  }
+
+  .run-detail-content .v2-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+
+    th,
+    td {
+      border: 1px solid #e4e7ec;
+      padding: 0.25rem 0.5rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f9fafb;
+    }
+  }
+
+  .run-detail-content .v2-cell-clip {
+    max-width: 20rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .run-detail-content .v2-log-entry {
+    border: 1px solid #e4e7ec;
+    border-radius: 0.35rem;
+    padding: 0.35rem 0.5rem;
+    background: #fff;
+  }
+
+  .run-detail-content .v2-log-entry-decision {
+    background: #f9fafb;
+  }
+
+  .run-detail-content .v2-log-entry-header {
+    cursor: pointer;
+    flex-wrap: wrap;
+  }
+
+  .run-detail-content .v2-log-entry-body pre {
+    max-height: 20rem;
+    overflow: auto;
+    white-space: pre-wrap;
+    background: #f2f4f7;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    margin: 0.25rem 0;
+  }
+
+  .run-detail-content .v2-badge {
+    display: inline-block;
+    padding: 0.05rem 0.5rem;
+    border-radius: 0.75rem;
+    background: #eaecf0;
+    color: #344054;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .run-detail-content .v2-badge-success {
+    background: #d1fadf;
+    color: #05603a;
+  }
+
+  .run-detail-content .v2-badge-warning {
+    background: #fef0c7;
+    color: #93370d;
+  }
+
+  .run-detail-content .v2-badge-danger {
+    background: #fee4e2;
+    color: #912018;
+  }
+
+  .run-detail-content .v2-field-help {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #667085;
+  }
+
+  .run-detail-content .v2-explain-panel {
+    border-top: 1px solid #e4e7ec;
+    padding-top: 0.5rem;
+  }
+
+  .run-detail-content .v2-explain-exchange {
+    border: 1px solid #e4e7ec;
+    border-radius: 0.35rem;
+    padding: 0.5rem;
+  }
+
+  .run-detail-content .v2-explain-suggestion {
+    border: 1px dashed #84caff;
+    border-radius: 0.35rem;
+    padding: 0.5rem;
+    background: #f5faff;
+  }
+
   .run-detail-content .run-detail-summary {
     display: grid;
     grid-template-columns: repeat(2, minmax(14rem, 1fr));

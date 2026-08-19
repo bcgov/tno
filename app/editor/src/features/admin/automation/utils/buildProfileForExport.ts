@@ -12,6 +12,10 @@ export const buildProfileForExport = (values: IAutomationProfileModel) => {
     description: saved.description,
     isEnabled: saved.isEnabled,
     schemaVersion: saved.schemaVersion,
+    // The v2 definition document travels whole. Filter/report/notification ids inside it are NOT
+    // remapped on import (unlike the v1 step/action columns) - review them after importing into
+    // another environment.
+    definition: saved.definition ?? null,
     filterId: saved.filterId,
     llmId: saved.llmId,
     schedules: (saved.schedules ?? []).map((schedule) => ({

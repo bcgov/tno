@@ -7,6 +7,7 @@ export const buildProfileForSave = (values: IAutomationProfileModel): IAutomatio
   description: values.description,
   isEnabled: values.isEnabled,
   schemaVersion: values.schemaVersion,
+  definition: values.definition ?? null,
   filterId: values.filterId,
   llmId: values.llmId,
   schedules: (values.schedules ?? []).map((schedule) => ({

@@ -91,6 +91,15 @@ import {
   type IAutomationStepModel,
 } from './interfaces';
 import {
+  type IV2ActionDescriptor,
+  parseV2Definition,
+  parseV2RunSummary,
+  RunLogViewer,
+  serializeV2Definition,
+  V2Designer,
+  V2RunOutcome,
+} from './v2';
+import {
   type ActionModalMode,
   type IActionDeleteState,
   type IActionModalState,
@@ -186,6 +195,10 @@ const AutomationProfileForm: React.FC = () => {
   const { toggle: toggleRunDetailModal, isShowing: isRunDetailModalShowing } = useModal();
   // The run pending deletion; also drives the confirmation modal's visibility.
   const [runDeleteState, setRunDeleteState] = React.useState<IAutomationRunModel | null>(null);
+  // The v2 action catalog (fetched once); the v2 designer renders action forms from it.
+  const [v2Descriptors, setV2Descriptors] = React.useState<IV2ActionDescriptor[]>([]);
+  // What the run detail modal shows: the outcome summary or the decision log (v2 runs).
+  const [runDetailView, setRunDetailView] = React.useState<'outcome' | 'log'>('outcome');
 
   const profileId = Number(id);
   const hub = useApiHub();
@@ -212,17 +225,34 @@ const AutomationProfileForm: React.FC = () => {
     [api],
   );
 
-  const handleRun = async (id: number) => {
+  const handleRun = async (id: number, isDryRun = false) => {
     setIsRunning(true);
     try {
-      const run = await api.runProfile(id, {});
+      const run = await api.runProfile(id, { isDryRun });
       setLastRun(run);
-      toast.success(`Automation run #${run.id} started.`);
+      toast.success(`Automation ${isDryRun ? 'dry ' : ''}run #${run.id} started.`);
       await refreshRuns(id);
     } catch {
       toast.error('Unable to start the automation run.');
     } finally {
       setIsRunning(false);
+    }
+  };
+
+  // Create a disabled v2 copy of a v1 profile (same prompts, same order); the v1 profile keeps
+  // running until the copy is proven.
+  const handleMigrate = async (id: number) => {
+    try {
+      const result = await api.migrateProfile(id);
+      toast.success(
+        `Created '${result.profile.name}' (disabled).${
+          result.warnings.length > 0 ? ` ${result.warnings.length} item(s) need review.` : ''
+        }`,
+      );
+      result.warnings.forEach((warning) => toast.warn(warning, { autoClose: false }));
+      navigate(`/admin/automations/${result.profile.id}`);
+    } catch {
+      // The ajax wrapper reports the error globally.
     }
   };
 
@@ -442,6 +472,7 @@ const AutomationProfileForm: React.FC = () => {
   const openRunDetail = (run: IAutomationRunModel) => {
     setRunDetail(run);
     setRunDiff(null);
+    setRunDetailView('outcome');
     if (!isRunDetailModalShowing) toggleRunDetailModal();
     api
       .getRunDiff(run.id)
@@ -521,6 +552,14 @@ const AutomationProfileForm: React.FC = () => {
       refreshFilters();
     }
   }, [filters.length, refreshFilters]);
+
+  React.useEffect(() => {
+    api
+      .getV2Descriptors()
+      .then(setV2Descriptors)
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   React.useEffect(() => {
     const handleFocus = () => {
@@ -809,6 +848,18 @@ const AutomationProfileForm: React.FC = () => {
                       >
                         Run
                       </Button>
+                      <Show visible={values.schemaVersion >= 2}>
+                        <Button
+                          type="button"
+                          className="run-button"
+                          variant={ButtonVariant.warning}
+                          disabled={isSubmitting || isRunning}
+                          tooltip="Compute and log every decision and change without writing anything."
+                          onClick={() => handleRun(values.id, true)}
+                        >
+                          Dry Run
+                        </Button>
+                      </Show>
                     </Show>
                     <div className="tab-header-actions">
                       <Button type="submit" disabled={isSubmitting}>
@@ -823,6 +874,17 @@ const AutomationProfileForm: React.FC = () => {
                           onClick={() => handleExport(values)}
                         >
                           Export
+                        </Button>
+                      </Show>
+                      <Show visible={!!values.id && values.schemaVersion < 2}>
+                        <Button
+                          type="button"
+                          variant={ButtonVariant.secondary}
+                          disabled={isSubmitting}
+                          tooltip="Create a disabled v2 copy of this profile (same prompts, same order); this profile keeps running until the copy is proven."
+                          onClick={() => handleMigrate(values.id)}
+                        >
+                          Create v2 copy
                         </Button>
                       </Show>
                       <Button
@@ -1113,406 +1175,425 @@ const AutomationProfileForm: React.FC = () => {
                         ))}
                       </div>
 
-                      <Row className="section-header" nowrap>
-                        <Row className="section-header-title" nowrap>
-                          <h2>Steps</h2>
-                          <button
-                            type="button"
-                            className="section-doc-button"
-                            aria-label="Steps section help"
-                            title="Steps section help"
-                            onClick={() => openSectionDoc('steps')}
-                          >
-                            <FaCircleInfo />
-                          </button>
-                        </Row>
-                      </Row>
-                      <p className="section-help-text">
-                        Each step will be executed in the order they are listed.
-                        <br />
-                        If this automation profile includes a filter the processes will iterate over
-                        the search results and execute all steps on each content item.
-                      </p>
-                      <div className="rules-grid">
-                        <Row className="rules-grid-header" nowrap>
-                          <Col className="drag-col" />
-                          <Col className="collapse-col">
+                      <Show visible={values.schemaVersion >= 2}>
+                        <V2Designer
+                          value={values.definition}
+                          onChange={(definition) => setFieldValue('definition', definition)}
+                          descriptors={v2Descriptors}
+                          filterOptions={filterOptions}
+                          llmOptions={llmOptions}
+                          reportOptions={reportOptions}
+                          notificationOptions={notificationOptions}
+                          actionOptions={actionOptions}
+                          onValidate={async (definition) =>
+                            api.validateProfile({ ...values, definition })
+                          }
+                        />
+                      </Show>
+                      <Show visible={values.schemaVersion < 2}>
+                        <Row className="section-header" nowrap>
+                          <Row className="section-header-title" nowrap>
+                            <h2>Steps</h2>
                             <button
                               type="button"
-                              className="rule-icon-button step-collapse-toggle"
-                              aria-label={
-                                collapsedSteps.size >= orderedSteps.length &&
-                                orderedSteps.length > 0
-                                  ? 'Show all step actions'
-                                  : 'Hide all step actions'
-                              }
-                              title={
-                                collapsedSteps.size >= orderedSteps.length &&
-                                orderedSteps.length > 0
-                                  ? 'Show all step actions'
-                                  : 'Hide all step actions'
-                              }
-                              onClick={() => {
-                                setCollapsedSteps((collapsed) =>
-                                  collapsed.size >= orderedSteps.length && orderedSteps.length > 0
-                                    ? new Set()
-                                    : new Set(orderedSteps.map((_, index) => index)),
-                                );
+                              className="section-doc-button"
+                              aria-label="Steps section help"
+                              title="Steps section help"
+                              onClick={() => openSectionDoc('steps')}
+                            >
+                              <FaCircleInfo />
+                            </button>
+                          </Row>
+                        </Row>
+                        <p className="section-help-text">
+                          Each step will be executed in the order they are listed.
+                          <br />
+                          If this automation profile includes a filter the processes will iterate
+                          over the search results and execute all steps on each content item.
+                        </p>
+                        <div className="rules-grid">
+                          <Row className="rules-grid-header" nowrap>
+                            <Col className="drag-col" />
+                            <Col className="collapse-col">
+                              <button
+                                type="button"
+                                className="rule-icon-button step-collapse-toggle"
+                                aria-label={
+                                  collapsedSteps.size >= orderedSteps.length &&
+                                  orderedSteps.length > 0
+                                    ? 'Show all step actions'
+                                    : 'Hide all step actions'
+                                }
+                                title={
+                                  collapsedSteps.size >= orderedSteps.length &&
+                                  orderedSteps.length > 0
+                                    ? 'Show all step actions'
+                                    : 'Hide all step actions'
+                                }
+                                onClick={() => {
+                                  setCollapsedSteps((collapsed) =>
+                                    collapsed.size >= orderedSteps.length && orderedSteps.length > 0
+                                      ? new Set()
+                                      : new Set(orderedSteps.map((_, index) => index)),
+                                  );
+                                }}
+                              >
+                                {collapsedSteps.size >= orderedSteps.length &&
+                                orderedSteps.length > 0 ? (
+                                  <FaChevronRight />
+                                ) : (
+                                  <FaChevronDown />
+                                )}
+                              </button>
+                            </Col>
+                            <Col className="name-col">Step Name</Col>
+                            <Col className="state-col">Target</Col>
+                            <Col className="condition-col">Filter</Col>
+                            <Col className="state-col">Enabled</Col>
+                            <Col className="actions-col">
+                              <button
+                                type="button"
+                                className="rule-icon-button"
+                                aria-label="Add Step"
+                                title="Add Step"
+                                onClick={() => openStepModal('add', orderedSteps, values.filterId)}
+                              >
+                                <FaPlus />
+                              </button>
+                            </Col>
+                          </Row>
+                          <Show visible={orderedSteps.length === 0}>
+                            <div className="rules-grid-empty">No steps configured.</div>
+                          </Show>
+                          <Show visible={orderedSteps.length > 0}>
+                            <DragDropContextAny
+                              onDragEnd={(result: DropResult) => {
+                                const { source, destination } = result;
+                                if (!destination) return;
+                                // Only reordering within the same list is supported; distinct droppable
+                                // types keep steps and actions (and actions across steps) from mixing.
+                                if (source.droppableId !== destination.droppableId) return;
+                                if (source.index === destination.index) return;
+
+                                if (source.droppableId === 'automation-steps-grid') {
+                                  const reorderedSteps = [...orderedSteps];
+                                  const [movedStep] = reorderedSteps.splice(source.index, 1);
+                                  reorderedSteps.splice(destination.index, 0, movedStep);
+                                  setFieldValue('steps', normalizeSteps(reorderedSteps));
+                                  // Move the collapsed flags the same way so they follow their steps.
+                                  setCollapsedSteps((collapsed) => {
+                                    const flags = orderedSteps.map((_, i) => collapsed.has(i));
+                                    const [movedFlag] = flags.splice(source.index, 1);
+                                    flags.splice(destination.index, 0, movedFlag);
+                                    return new Set(
+                                      flags.flatMap((isCollapsed, i) => (isCollapsed ? [i] : [])),
+                                    );
+                                  });
+                                  return;
+                                }
+
+                                if (source.droppableId.startsWith('automation-step-actions-')) {
+                                  const stepIndex = Number(
+                                    source.droppableId.replace('automation-step-actions-', ''),
+                                  );
+                                  if (Number.isNaN(stepIndex)) return;
+                                  const updatedSteps = [...orderedSteps];
+                                  const step = updatedSteps[stepIndex];
+                                  if (!step) return;
+
+                                  const reorderedActions = [...step.actions];
+                                  const [movedAction] = reorderedActions.splice(source.index, 1);
+                                  reorderedActions.splice(destination.index, 0, movedAction);
+
+                                  updatedSteps[stepIndex] = {
+                                    ...step,
+                                    actions: reorderedActions,
+                                  };
+                                  setFieldValue('steps', normalizeSteps(updatedSteps));
+                                }
                               }}
                             >
-                              {collapsedSteps.size >= orderedSteps.length &&
-                              orderedSteps.length > 0 ? (
-                                <FaChevronRight />
-                              ) : (
-                                <FaChevronDown />
-                              )}
-                            </button>
-                          </Col>
-                          <Col className="name-col">Step Name</Col>
-                          <Col className="state-col">Target</Col>
-                          <Col className="condition-col">Filter</Col>
-                          <Col className="state-col">Enabled</Col>
-                          <Col className="actions-col">
-                            <button
-                              type="button"
-                              className="rule-icon-button"
-                              aria-label="Add Step"
-                              title="Add Step"
-                              onClick={() => openStepModal('add', orderedSteps, values.filterId)}
-                            >
-                              <FaPlus />
-                            </button>
-                          </Col>
-                        </Row>
-                        <Show visible={orderedSteps.length === 0}>
-                          <div className="rules-grid-empty">No steps configured.</div>
-                        </Show>
-                        <Show visible={orderedSteps.length > 0}>
-                          <DragDropContextAny
-                            onDragEnd={(result: DropResult) => {
-                              const { source, destination } = result;
-                              if (!destination) return;
-                              // Only reordering within the same list is supported; distinct droppable
-                              // types keep steps and actions (and actions across steps) from mixing.
-                              if (source.droppableId !== destination.droppableId) return;
-                              if (source.index === destination.index) return;
-
-                              if (source.droppableId === 'automation-steps-grid') {
-                                const reorderedSteps = [...orderedSteps];
-                                const [movedStep] = reorderedSteps.splice(source.index, 1);
-                                reorderedSteps.splice(destination.index, 0, movedStep);
-                                setFieldValue('steps', normalizeSteps(reorderedSteps));
-                                // Move the collapsed flags the same way so they follow their steps.
-                                setCollapsedSteps((collapsed) => {
-                                  const flags = orderedSteps.map((_, i) => collapsed.has(i));
-                                  const [movedFlag] = flags.splice(source.index, 1);
-                                  flags.splice(destination.index, 0, movedFlag);
-                                  return new Set(
-                                    flags.flatMap((isCollapsed, i) => (isCollapsed ? [i] : [])),
-                                  );
-                                });
-                                return;
-                              }
-
-                              if (source.droppableId.startsWith('automation-step-actions-')) {
-                                const stepIndex = Number(
-                                  source.droppableId.replace('automation-step-actions-', ''),
-                                );
-                                if (Number.isNaN(stepIndex)) return;
-                                const updatedSteps = [...orderedSteps];
-                                const step = updatedSteps[stepIndex];
-                                if (!step) return;
-
-                                const reorderedActions = [...step.actions];
-                                const [movedAction] = reorderedActions.splice(source.index, 1);
-                                reorderedActions.splice(destination.index, 0, movedAction);
-
-                                updatedSteps[stepIndex] = {
-                                  ...step,
-                                  actions: reorderedActions,
-                                };
-                                setFieldValue('steps', normalizeSteps(updatedSteps));
-                              }
-                            }}
-                          >
-                            <DroppableAny
-                              droppableId="automation-steps-grid"
-                              type="automation-step"
-                            >
-                              {(provided: any) => (
-                                <div
-                                  className="rules-grid-body"
-                                  ref={provided.innerRef}
-                                  {...provided.droppableProps}
-                                >
-                                  {orderedSteps.map((step, index) => (
-                                    <DraggableAny
-                                      key={`${step.id}-${index}`}
-                                      draggableId={`step-${step.id}-${index}`}
-                                      index={index}
-                                    >
-                                      {(dragProvided: any, dragSnapshot: any) => (
-                                        <div
-                                          className={`step-row-container${
-                                            dragSnapshot.isDragging ? ' is-dragging' : ''
-                                          }`}
-                                          ref={dragProvided.innerRef}
-                                          {...dragProvided.draggableProps}
-                                        >
-                                          <Row className="rules-grid-row" nowrap>
-                                            <Col
-                                              className="drag-col"
-                                              {...dragProvided.dragHandleProps}
-                                            >
-                                              <FaGripLines />
-                                            </Col>
-                                            <Col className="collapse-col">
-                                              <button
-                                                type="button"
-                                                className="rule-icon-button step-collapse-toggle"
-                                                aria-label={
-                                                  collapsedSteps.has(index)
-                                                    ? `Expand ${step.name}`
-                                                    : `Collapse ${step.name}`
-                                                }
-                                                title={
-                                                  collapsedSteps.has(index)
-                                                    ? `Expand ${step.name}`
-                                                    : `Collapse ${step.name}`
-                                                }
-                                                onClick={() => toggleStepCollapsed(index)}
+                              <DroppableAny
+                                droppableId="automation-steps-grid"
+                                type="automation-step"
+                              >
+                                {(provided: any) => (
+                                  <div
+                                    className="rules-grid-body"
+                                    ref={provided.innerRef}
+                                    {...provided.droppableProps}
+                                  >
+                                    {orderedSteps.map((step, index) => (
+                                      <DraggableAny
+                                        key={`${step.id}-${index}`}
+                                        draggableId={`step-${step.id}-${index}`}
+                                        index={index}
+                                      >
+                                        {(dragProvided: any, dragSnapshot: any) => (
+                                          <div
+                                            className={`step-row-container${
+                                              dragSnapshot.isDragging ? ' is-dragging' : ''
+                                            }`}
+                                            ref={dragProvided.innerRef}
+                                            {...dragProvided.draggableProps}
+                                          >
+                                            <Row className="rules-grid-row" nowrap>
+                                              <Col
+                                                className="drag-col"
+                                                {...dragProvided.dragHandleProps}
                                               >
-                                                {collapsedSteps.has(index) ? (
-                                                  <FaChevronRight />
-                                                ) : (
-                                                  <FaChevronDown />
-                                                )}
-                                              </button>
-                                            </Col>
-                                            <Col className="name-col">
-                                              {step.name}
-                                              <Show visible={collapsedSteps.has(index)}>
-                                                <span className="step-action-count">
-                                                  ({step.actions.length}{' '}
-                                                  {step.actions.length === 1 ? 'action' : 'actions'}
-                                                  )
-                                                </span>
-                                              </Show>
-                                            </Col>
-                                            <Col className="state-col">
-                                              {[...stepTargetOptions, ...noneTargetOptions].find(
-                                                (option) => option.value === step.target,
-                                              )?.label ?? step.target}
-                                            </Col>
-                                            <Col className="condition-col">
-                                              {getStepFilterLabel(filterOptions, step.filterId)}
-                                            </Col>
-                                            <Col className="state-col">
-                                              {step.isEnabled ? 'Yes' : 'No'}
-                                            </Col>
-                                            <Col className="actions-col">
-                                              <button
-                                                type="button"
-                                                className="rule-icon-button"
-                                                aria-label={`Edit ${step.name}`}
-                                                title={`Edit ${step.name}`}
-                                                onClick={() =>
-                                                  openStepModal(
-                                                    'edit',
-                                                    orderedSteps,
-                                                    values.filterId,
-                                                    index,
-                                                  )
-                                                }
-                                              >
-                                                <FaEdit />
-                                              </button>
-                                              <button
-                                                type="button"
-                                                className="rule-icon-button"
-                                                aria-label={`Duplicate ${step.name}`}
-                                                title={`Duplicate ${step.name}`}
-                                                onClick={() => {
-                                                  const updatedSteps = [...orderedSteps];
-                                                  const copy = {
-                                                    ...cloneStep(step),
-                                                    id: 0,
-                                                    name: `${step.name} (copy)`,
-                                                    // Copied actions are new rows; they must not
-                                                    // carry the original action ids.
-                                                    actions: step.actions.map((action) => ({
-                                                      ...action,
+                                                <FaGripLines />
+                                              </Col>
+                                              <Col className="collapse-col">
+                                                <button
+                                                  type="button"
+                                                  className="rule-icon-button step-collapse-toggle"
+                                                  aria-label={
+                                                    collapsedSteps.has(index)
+                                                      ? `Expand ${step.name}`
+                                                      : `Collapse ${step.name}`
+                                                  }
+                                                  title={
+                                                    collapsedSteps.has(index)
+                                                      ? `Expand ${step.name}`
+                                                      : `Collapse ${step.name}`
+                                                  }
+                                                  onClick={() => toggleStepCollapsed(index)}
+                                                >
+                                                  {collapsedSteps.has(index) ? (
+                                                    <FaChevronRight />
+                                                  ) : (
+                                                    <FaChevronDown />
+                                                  )}
+                                                </button>
+                                              </Col>
+                                              <Col className="name-col">
+                                                {step.name}
+                                                <Show visible={collapsedSteps.has(index)}>
+                                                  <span className="step-action-count">
+                                                    ({step.actions.length}{' '}
+                                                    {step.actions.length === 1
+                                                      ? 'action'
+                                                      : 'actions'}
+                                                    )
+                                                  </span>
+                                                </Show>
+                                              </Col>
+                                              <Col className="state-col">
+                                                {[...stepTargetOptions, ...noneTargetOptions].find(
+                                                  (option) => option.value === step.target,
+                                                )?.label ?? step.target}
+                                              </Col>
+                                              <Col className="condition-col">
+                                                {getStepFilterLabel(filterOptions, step.filterId)}
+                                              </Col>
+                                              <Col className="state-col">
+                                                {step.isEnabled ? 'Yes' : 'No'}
+                                              </Col>
+                                              <Col className="actions-col">
+                                                <button
+                                                  type="button"
+                                                  className="rule-icon-button"
+                                                  aria-label={`Edit ${step.name}`}
+                                                  title={`Edit ${step.name}`}
+                                                  onClick={() =>
+                                                    openStepModal(
+                                                      'edit',
+                                                      orderedSteps,
+                                                      values.filterId,
+                                                      index,
+                                                    )
+                                                  }
+                                                >
+                                                  <FaEdit />
+                                                </button>
+                                                <button
+                                                  type="button"
+                                                  className="rule-icon-button"
+                                                  aria-label={`Duplicate ${step.name}`}
+                                                  title={`Duplicate ${step.name}`}
+                                                  onClick={() => {
+                                                    const updatedSteps = [...orderedSteps];
+                                                    const copy = {
+                                                      ...cloneStep(step),
                                                       id: 0,
-                                                    })),
-                                                  };
-                                                  updatedSteps.splice(index + 1, 0, copy);
-                                                  setFieldValue(
-                                                    'steps',
-                                                    normalizeSteps(updatedSteps),
-                                                  );
-                                                  // Shift collapsed flags for steps after the insert.
-                                                  setCollapsedSteps(
-                                                    (collapsed) =>
-                                                      new Set(
-                                                        Array.from(collapsed).map((i) =>
-                                                          i > index ? i + 1 : i,
+                                                      name: `${step.name} (copy)`,
+                                                      // Copied actions are new rows; they must not
+                                                      // carry the original action ids.
+                                                      actions: step.actions.map((action) => ({
+                                                        ...action,
+                                                        id: 0,
+                                                      })),
+                                                    };
+                                                    updatedSteps.splice(index + 1, 0, copy);
+                                                    setFieldValue(
+                                                      'steps',
+                                                      normalizeSteps(updatedSteps),
+                                                    );
+                                                    // Shift collapsed flags for steps after the insert.
+                                                    setCollapsedSteps(
+                                                      (collapsed) =>
+                                                        new Set(
+                                                          Array.from(collapsed).map((i) =>
+                                                            i > index ? i + 1 : i,
+                                                          ),
                                                         ),
-                                                      ),
-                                                  );
-                                                }}
-                                              >
-                                                <FaCopy />
-                                              </button>
-                                              <button
-                                                type="button"
-                                                className="rule-icon-button delete"
-                                                aria-label={`Delete ${step.name}`}
-                                                title={`Delete ${step.name}`}
-                                                onClick={() =>
-                                                  openStepDeleteModal(index, step.name)
-                                                }
-                                              >
-                                                <FaTrash />
-                                              </button>
-                                            </Col>
-                                          </Row>
-                                          <Show visible={!collapsedSteps.has(index)}>
-                                            <div className="actions-sub-grid">
-                                              <Row className="actions-sub-grid-header" nowrap>
-                                                <Col className="drag-col" />
-                                                <Col className="name-col">Action Name</Col>
-                                                <Col className="condition-col">Action Type</Col>
-                                                <Col className="state-col">Max Calls</Col>
-                                                <Col className="state-col">Enabled</Col>
-                                                <Col className="actions-col">
-                                                  <button
-                                                    type="button"
-                                                    className="rule-icon-button"
-                                                    aria-label={`Add action to ${step.name}`}
-                                                    title={`Add action to ${step.name}`}
-                                                    onClick={() =>
-                                                      openActionModal('add', orderedSteps, index)
-                                                    }
-                                                  >
-                                                    <FaPlus />
-                                                  </button>
-                                                </Col>
-                                              </Row>
-                                              <DroppableAny
-                                                droppableId={`automation-step-actions-${index}`}
-                                                type={`automation-step-actions-${index}`}
-                                              >
-                                                {(actionProvided: any) => (
-                                                  <div
-                                                    className="actions-sub-grid-body"
-                                                    ref={actionProvided.innerRef}
-                                                    {...actionProvided.droppableProps}
-                                                  >
-                                                    {step.actions.map((action, actionIndex) => (
-                                                      <DraggableAny
-                                                        key={`step-${index}-action-${actionIndex}`}
-                                                        draggableId={`step-${index}-action-${actionIndex}`}
-                                                        index={actionIndex}
-                                                      >
-                                                        {(
-                                                          actionDragProvided: any,
-                                                          actionDragSnapshot: any,
-                                                        ) => (
-                                                          <Row
-                                                            className={`actions-sub-grid-row${
-                                                              actionDragSnapshot.isDragging
-                                                                ? ' is-dragging'
-                                                                : ''
-                                                            }`}
-                                                            ref={actionDragProvided.innerRef}
-                                                            {...actionDragProvided.draggableProps}
-                                                            nowrap
-                                                          >
-                                                            <Col
-                                                              className="drag-col"
-                                                              {...actionDragProvided.dragHandleProps}
+                                                    );
+                                                  }}
+                                                >
+                                                  <FaCopy />
+                                                </button>
+                                                <button
+                                                  type="button"
+                                                  className="rule-icon-button delete"
+                                                  aria-label={`Delete ${step.name}`}
+                                                  title={`Delete ${step.name}`}
+                                                  onClick={() =>
+                                                    openStepDeleteModal(index, step.name)
+                                                  }
+                                                >
+                                                  <FaTrash />
+                                                </button>
+                                              </Col>
+                                            </Row>
+                                            <Show visible={!collapsedSteps.has(index)}>
+                                              <div className="actions-sub-grid">
+                                                <Row className="actions-sub-grid-header" nowrap>
+                                                  <Col className="drag-col" />
+                                                  <Col className="name-col">Action Name</Col>
+                                                  <Col className="condition-col">Action Type</Col>
+                                                  <Col className="state-col">Max Calls</Col>
+                                                  <Col className="state-col">Enabled</Col>
+                                                  <Col className="actions-col">
+                                                    <button
+                                                      type="button"
+                                                      className="rule-icon-button"
+                                                      aria-label={`Add action to ${step.name}`}
+                                                      title={`Add action to ${step.name}`}
+                                                      onClick={() =>
+                                                        openActionModal('add', orderedSteps, index)
+                                                      }
+                                                    >
+                                                      <FaPlus />
+                                                    </button>
+                                                  </Col>
+                                                </Row>
+                                                <DroppableAny
+                                                  droppableId={`automation-step-actions-${index}`}
+                                                  type={`automation-step-actions-${index}`}
+                                                >
+                                                  {(actionProvided: any) => (
+                                                    <div
+                                                      className="actions-sub-grid-body"
+                                                      ref={actionProvided.innerRef}
+                                                      {...actionProvided.droppableProps}
+                                                    >
+                                                      {step.actions.map((action, actionIndex) => (
+                                                        <DraggableAny
+                                                          key={`step-${index}-action-${actionIndex}`}
+                                                          draggableId={`step-${index}-action-${actionIndex}`}
+                                                          index={actionIndex}
+                                                        >
+                                                          {(
+                                                            actionDragProvided: any,
+                                                            actionDragSnapshot: any,
+                                                          ) => (
+                                                            <Row
+                                                              className={`actions-sub-grid-row${
+                                                                actionDragSnapshot.isDragging
+                                                                  ? ' is-dragging'
+                                                                  : ''
+                                                              }`}
+                                                              ref={actionDragProvided.innerRef}
+                                                              {...actionDragProvided.draggableProps}
+                                                              nowrap
                                                             >
-                                                              <FaGripLines />
-                                                            </Col>
-                                                            <Col className="name-col">
-                                                              {action.name || '-'}
-                                                            </Col>
-                                                            <Col className="condition-col">
-                                                              {actionTypeOptionItems.find(
-                                                                (option) =>
-                                                                  option.value ===
-                                                                  action.actionType,
-                                                              )?.label ?? action.actionType}
-                                                            </Col>
-                                                            <Col className="state-col">
-                                                              {action.maxCalls ?? '-'}
-                                                            </Col>
-                                                            <Col className="state-col">
-                                                              {action.isEnabled ? 'Yes' : 'No'}
-                                                            </Col>
-                                                            <Col className="actions-col">
-                                                              <button
-                                                                type="button"
-                                                                className="rule-icon-button"
-                                                                aria-label={`Edit action ${
-                                                                  action.name || action.actionType
-                                                                }`}
-                                                                title={`Edit action ${
-                                                                  action.name || action.actionType
-                                                                }`}
-                                                                onClick={() =>
-                                                                  openActionModal(
-                                                                    'edit',
-                                                                    orderedSteps,
-                                                                    index,
-                                                                    actionIndex,
-                                                                  )
-                                                                }
+                                                              <Col
+                                                                className="drag-col"
+                                                                {...actionDragProvided.dragHandleProps}
                                                               >
-                                                                <FaEdit />
-                                                              </button>
-                                                              <button
-                                                                type="button"
-                                                                className="rule-icon-button delete"
-                                                                aria-label={`Delete action ${
-                                                                  action.name || action.actionType
-                                                                }`}
-                                                                title={`Delete action ${
-                                                                  action.name || action.actionType
-                                                                }`}
-                                                                onClick={() =>
-                                                                  openActionDeleteModal(
-                                                                    index,
-                                                                    actionIndex,
-                                                                    action.name ||
-                                                                      action.actionType,
-                                                                  )
-                                                                }
-                                                              >
-                                                                <FaTrash />
-                                                              </button>
-                                                            </Col>
-                                                          </Row>
-                                                        )}
-                                                      </DraggableAny>
-                                                    ))}
-                                                    {actionProvided.placeholder}
-                                                  </div>
-                                                )}
-                                              </DroppableAny>
-                                            </div>
-                                          </Show>
-                                        </div>
-                                      )}
-                                    </DraggableAny>
-                                  ))}
-                                  {provided.placeholder}
-                                </div>
-                              )}
-                            </DroppableAny>
-                          </DragDropContextAny>
-                        </Show>
-                      </div>
+                                                                <FaGripLines />
+                                                              </Col>
+                                                              <Col className="name-col">
+                                                                {action.name || '-'}
+                                                              </Col>
+                                                              <Col className="condition-col">
+                                                                {actionTypeOptionItems.find(
+                                                                  (option) =>
+                                                                    option.value ===
+                                                                    action.actionType,
+                                                                )?.label ?? action.actionType}
+                                                              </Col>
+                                                              <Col className="state-col">
+                                                                {action.maxCalls ?? '-'}
+                                                              </Col>
+                                                              <Col className="state-col">
+                                                                {action.isEnabled ? 'Yes' : 'No'}
+                                                              </Col>
+                                                              <Col className="actions-col">
+                                                                <button
+                                                                  type="button"
+                                                                  className="rule-icon-button"
+                                                                  aria-label={`Edit action ${
+                                                                    action.name || action.actionType
+                                                                  }`}
+                                                                  title={`Edit action ${
+                                                                    action.name || action.actionType
+                                                                  }`}
+                                                                  onClick={() =>
+                                                                    openActionModal(
+                                                                      'edit',
+                                                                      orderedSteps,
+                                                                      index,
+                                                                      actionIndex,
+                                                                    )
+                                                                  }
+                                                                >
+                                                                  <FaEdit />
+                                                                </button>
+                                                                <button
+                                                                  type="button"
+                                                                  className="rule-icon-button delete"
+                                                                  aria-label={`Delete action ${
+                                                                    action.name || action.actionType
+                                                                  }`}
+                                                                  title={`Delete action ${
+                                                                    action.name || action.actionType
+                                                                  }`}
+                                                                  onClick={() =>
+                                                                    openActionDeleteModal(
+                                                                      index,
+                                                                      actionIndex,
+                                                                      action.name ||
+                                                                        action.actionType,
+                                                                    )
+                                                                  }
+                                                                >
+                                                                  <FaTrash />
+                                                                </button>
+                                                              </Col>
+                                                            </Row>
+                                                          )}
+                                                        </DraggableAny>
+                                                      ))}
+                                                      {actionProvided.placeholder}
+                                                    </div>
+                                                  )}
+                                                </DroppableAny>
+                                              </div>
+                                            </Show>
+                                          </div>
+                                        )}
+                                      </DraggableAny>
+                                    ))}
+                                    {provided.placeholder}
+                                  </div>
+                                )}
+                              </DroppableAny>
+                            </DragDropContextAny>
+                          </Show>
+                        </div>
+                      </Show>
                     </Col>
                   </div>
                 </div>
@@ -2991,7 +3072,7 @@ const AutomationProfileForm: React.FC = () => {
                 }
               />
               <Modal
-                headerText={`Run #${runDetail?.id ?? ''}`}
+                headerText={`Run #${runDetail?.id ?? ''}${runDetail?.isDryRun ? ' (dry run)' : ''}`}
                 isShowing={isRunDetailModalShowing}
                 hide={closeRunDetail}
                 type="custom"
@@ -3002,7 +3083,11 @@ const AutomationProfileForm: React.FC = () => {
                         <label>Status:</label> <span>{String(runDetail?.status ?? '-')}</span>
                       </div>
                       <div>
-                        <label>Trigger:</label> <span>{runDetail?.trigger ?? '-'}</span>
+                        <label>Trigger:</label>{' '}
+                        <span>
+                          {runDetail?.trigger ?? '-'}
+                          {runDetail?.isDryRun ? ' • DRY' : ''}
+                        </span>
                       </div>
                       <div>
                         <label>Started:</label> <span>{formatRunTime(runDetail?.startedOn)}</span>
@@ -3017,54 +3102,105 @@ const AutomationProfileForm: React.FC = () => {
                         <label>Note:</label> <span>{runDetail?.note}</span>
                       </div>
                     </Show>
-                    <h2>LLM Responses</h2>
-                    <Show visible={!!runDiff && (runDiff.responses ?? []).length > 0}>
-                      <div className="run-detail-responses">
-                        {(runDiff?.responses ?? []).map((response, index) => (
-                          <div key={index} className="run-detail-response">
-                            <label>
-                              {response.stepName}
-                              {response.actionName ? ` / ${response.actionName}` : ''}
-                              {response.contentId ? ` — content ${response.contentId}` : ''}:
-                            </label>
-                            <Show visible={!!response.prompt}>
-                              <details className="run-detail-prompt">
-                                <summary>Prompt</summary>
-                                <pre>{response.prompt}</pre>
-                              </details>
-                            </Show>
-                            <pre>{response.response}</pre>
-                          </div>
-                        ))}
-                      </div>
-                    </Show>
-                    <Show visible={!runDiff || (runDiff.responses ?? []).length === 0}>
-                      <p className="modal-help-text">
-                        No LLM responses have been recorded for this run.
-                      </p>
-                    </Show>
-                    <h2>Action Outcomes</h2>
-                    <Show
-                      visible={
-                        !!runDiff && (runDiff.changes.length > 0 || runDiff.stepHits.length > 0)
-                      }
-                    >
-                      <pre className="run-detail-outcomes">
-                        {JSON.stringify(
-                          { changes: runDiff?.changes, stepHits: runDiff?.stepHits },
-                          null,
-                          2,
-                        )}
-                      </pre>
-                    </Show>
-                    <Show
-                      visible={
-                        !runDiff || (runDiff.changes.length === 0 && runDiff.stepHits.length === 0)
-                      }
-                    >
-                      <p className="modal-help-text">
-                        No action outcomes have been recorded for this run.
-                      </p>
+                    {(() => {
+                      const v2Summary = parseV2RunSummary(runDiff?.run?.summary);
+                      if (!v2Summary) return null;
+                      return (
+                        <>
+                          <Row gap="0.5rem" className="v2-run-detail-toggle">
+                            <Button
+                              variant={
+                                runDetailView === 'outcome'
+                                  ? ButtonVariant.primary
+                                  : ButtonVariant.secondary
+                              }
+                              onClick={() => setRunDetailView('outcome')}
+                            >
+                              Outcome
+                            </Button>
+                            <Button
+                              variant={
+                                runDetailView === 'log'
+                                  ? ButtonVariant.primary
+                                  : ButtonVariant.secondary
+                              }
+                              onClick={() => setRunDetailView('log')}
+                            >
+                              Decision Log
+                            </Button>
+                          </Row>
+                          <Show visible={runDetailView === 'outcome'}>
+                            <V2RunOutcome summary={v2Summary} />
+                          </Show>
+                          <Show visible={runDetailView === 'log' && !!runDetail}>
+                            <RunLogViewer
+                              runId={runDetail!.id}
+                              onFetch={api.findRunLogs}
+                              onExplain={api.explainRunLog}
+                              promptNames={Object.keys(
+                                parseV2Definition(values.definition).prompts,
+                              )}
+                              onApplyPrompt={(name, text) => {
+                                const definition = parseV2Definition(values.definition);
+                                definition.prompts[name] = text;
+                                setFieldValue('definition', serializeV2Definition(definition));
+                              }}
+                            />
+                          </Show>
+                        </>
+                      );
+                    })()}
+                    <Show visible={!parseV2RunSummary(runDiff?.run?.summary)}>
+                      <h2>LLM Responses</h2>
+                      <Show visible={!!runDiff && (runDiff.responses ?? []).length > 0}>
+                        <div className="run-detail-responses">
+                          {(runDiff?.responses ?? []).map((response, index) => (
+                            <div key={index} className="run-detail-response">
+                              <label>
+                                {response.stepName}
+                                {response.actionName ? ` / ${response.actionName}` : ''}
+                                {response.contentId ? ` — content ${response.contentId}` : ''}:
+                              </label>
+                              <Show visible={!!response.prompt}>
+                                <details className="run-detail-prompt">
+                                  <summary>Prompt</summary>
+                                  <pre>{response.prompt}</pre>
+                                </details>
+                              </Show>
+                              <pre>{response.response}</pre>
+                            </div>
+                          ))}
+                        </div>
+                      </Show>
+                      <Show visible={!runDiff || (runDiff.responses ?? []).length === 0}>
+                        <p className="modal-help-text">
+                          No LLM responses have been recorded for this run.
+                        </p>
+                      </Show>
+                      <h2>Action Outcomes</h2>
+                      <Show
+                        visible={
+                          !!runDiff && (runDiff.changes.length > 0 || runDiff.stepHits.length > 0)
+                        }
+                      >
+                        <pre className="run-detail-outcomes">
+                          {JSON.stringify(
+                            { changes: runDiff?.changes, stepHits: runDiff?.stepHits },
+                            null,
+                            2,
+                          )}
+                        </pre>
+                      </Show>
+                      <Show
+                        visible={
+                          !runDiff ||
+                          (runDiff.changes.length === 0 && runDiff.stepHits.length === 0)
+                        }
+                      >
+                        <p className="modal-help-text">
+                          No action outcomes have been recorded for this run.
+                        </p>
+                      </Show>
                     </Show>
                   </div>
                 }

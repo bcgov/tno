@@ -89,6 +89,8 @@ export interface IAutomationProfileModel {
   description: string;
   isEnabled: boolean;
   schemaVersion: number;
+  /** The v2 definition document as raw JSON; only used when schemaVersion >= 2. */
+  definition?: string | null;
   filterId?: number;
   llmId?: number;
   schedules: IAutomationScheduleModel[];
@@ -102,6 +104,10 @@ export interface IAutomationLegacyProfileModel extends IAutomationProfileModel {
 
 export interface IAutomationRunRequestModel {
   note?: string;
+  /** Compute and log every decision and change without writing anything. */
+  isDryRun?: boolean;
+  /** A candidate definition (raw v2 JSON) for a comparison run; forces a dry run. */
+  compareDefinition?: string | null;
 }
 
 /** A single message in a debugging conversation. */
@@ -135,6 +141,10 @@ export interface IAutomationRunModel {
   note?: string;
   startedOn?: string;
   completedOn?: string;
+  /** Whether the run computed and logged everything but wrote nothing. */
+  isDryRun?: boolean;
+  /** The run outcome summary JSON (v2 runs carry engineVersion 2). */
+  summary?: string | null;
 }
 
 export interface IAutomationRunResponseModel {

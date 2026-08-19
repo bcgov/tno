@@ -6,6 +6,15 @@ import {
   type IAutomationRunModel,
   type IAutomationRunRequestModel,
 } from 'features/admin/automation/interfaces';
+import {
+  type IAutomationExplainRequestModel,
+  type IAutomationExplainResultModel,
+  type IAutomationRunLogFilter,
+  type IAutomationRunLogPage,
+  type IV2ActionDescriptor,
+  type IV2MigrateResultModel,
+  type IV2ValidationError,
+} from 'features/admin/automation/v2/interfaces';
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import { type IAdminState, useAdminStore } from 'store/slices';
@@ -27,6 +36,15 @@ interface IAutomationProfileController {
     request: IAutomationDebugRequestModel,
   ) => Promise<IAutomationDebugResultModel>;
   clearScheduleLastRun: (profileId: number, scheduleId: number) => Promise<void>;
+  getV2Descriptors: () => Promise<IV2ActionDescriptor[]>;
+  validateProfile: (model: IAutomationProfileModel) => Promise<IV2ValidationError[]>;
+  migrateProfile: (id: number) => Promise<IV2MigrateResultModel>;
+  findRunLogs: (runId: number, filter: IAutomationRunLogFilter) => Promise<IAutomationRunLogPage>;
+  explainRunLog: (
+    runId: number,
+    logId: number,
+    request: IAutomationExplainRequestModel,
+  ) => Promise<IAutomationExplainResultModel>;
 }
 
 export const useAutomationProfiles = (): [IAdminState, IAutomationProfileController] => {
@@ -117,6 +135,55 @@ export const useAutomationProfiles = (): [IAdminState, IAutomationProfileControl
           'clear-automation-schedule-last-run',
           async () => await api.clearScheduleLastRun(profileId, scheduleId),
         );
+      },
+      getV2Descriptors: async () => {
+        // Silent: fetched to render v2 action forms; must not trigger the page loading overlay.
+        const response = await dispatch<IV2ActionDescriptor[]>(
+          'get-automation-v2-descriptors',
+          async () => await api.getV2Descriptors(),
+          undefined,
+          true,
+        );
+        return response.data;
+      },
+      validateProfile: async (model: IAutomationProfileModel) => {
+        const response = await dispatch<IV2ValidationError[]>(
+          'validate-automation-profile',
+          async () => await api.validateProfile(model),
+          undefined,
+          true,
+        );
+        return response.data;
+      },
+      migrateProfile: async (id: number) => {
+        const response = await dispatch<IV2MigrateResultModel>(
+          'migrate-automation-profile',
+          async () => await api.migrateProfile(id),
+        );
+        return response.data;
+      },
+      findRunLogs: async (runId: number, filter: IAutomationRunLogFilter) => {
+        // Silent: fetched inside the log viewer; must not trigger the page loading overlay.
+        const response = await dispatch<IAutomationRunLogPage>(
+          'find-automation-run-logs',
+          async () => await api.findRunLogs(runId, filter),
+          undefined,
+          true,
+        );
+        return response.data;
+      },
+      explainRunLog: async (
+        runId: number,
+        logId: number,
+        request: IAutomationExplainRequestModel,
+      ) => {
+        const response = await dispatch<IAutomationExplainResultModel>(
+          'explain-automation-run-log',
+          async () => await api.explainRunLog(runId, logId, request),
+          undefined,
+          true,
+        );
+        return response.data;
       },
     }),
     [api, dispatch],

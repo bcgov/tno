@@ -7,6 +7,15 @@ import {
   type IAutomationRunModel,
   type IAutomationRunRequestModel,
 } from 'features/admin/automation/interfaces';
+import {
+  type IAutomationExplainRequestModel,
+  type IAutomationExplainResultModel,
+  type IAutomationRunLogFilter,
+  type IAutomationRunLogPage,
+  type IV2ActionDescriptor,
+  type IV2MigrateResultModel,
+  type IV2ValidationError,
+} from 'features/admin/automation/v2/interfaces';
 import React from 'react';
 import { useApi } from 'tno-core';
 
@@ -74,6 +83,42 @@ export const useApiAdminAutomation = () => {
       return api.post<never, AxiosResponse<void>, any>(
         `/admin/automation/profiles/${profileId}/schedules/${scheduleId}/clear-last-run`,
       );
+    },
+    getV2Descriptors: () => {
+      return api.get<never, AxiosResponse<IV2ActionDescriptor[]>, any>(
+        '/admin/automation/v2/descriptors',
+      );
+    },
+    validateProfile: (model: IAutomationProfileModel) => {
+      return api.post<IAutomationProfileModel, AxiosResponse<IV2ValidationError[]>, any>(
+        '/admin/automation/profiles/validate',
+        model,
+      );
+    },
+    migrateProfile: (id: number) => {
+      return api.post<never, AxiosResponse<IV2MigrateResultModel>, any>(
+        `/admin/automation/profiles/${id}/migrate`,
+      );
+    },
+    findRunLogs: (runId: number, filter: IAutomationRunLogFilter) => {
+      const params = new URLSearchParams();
+      if (filter.step) params.set('step', filter.step);
+      if (filter.action) params.set('action', filter.action);
+      if (filter.outcome) params.set('outcome', filter.outcome);
+      if (filter.contentId) params.set('contentId', `${filter.contentId}`);
+      if (filter.search) params.set('search', filter.search);
+      params.set('page', `${filter.page ?? 1}`);
+      params.set('qty', `${filter.qty ?? 100}`);
+      return api.get<never, AxiosResponse<IAutomationRunLogPage>, any>(
+        `/admin/automation/runs/${runId}/logs?${params.toString()}`,
+      );
+    },
+    explainRunLog: (runId: number, logId: number, request: IAutomationExplainRequestModel) => {
+      return api.post<
+        IAutomationExplainRequestModel,
+        AxiosResponse<IAutomationExplainResultModel>,
+        any
+      >(`/admin/automation/runs/${runId}/logs/${logId}/explain`, request);
     },
   }).current;
 };

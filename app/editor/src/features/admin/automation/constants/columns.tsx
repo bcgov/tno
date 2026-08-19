@@ -87,7 +87,11 @@ export const getRunColumns = (
     label: 'Trigger',
     accessor: 'trigger',
     width: 1,
-    cell: (cell) => <CellEllipsis>{cell.original.trigger ?? '-'}</CellEllipsis>,
+    cell: (cell) => (
+      <CellEllipsis>
+        {`${cell.original.trigger ?? '-'}${cell.original.isDryRun ? ' • DRY' : ''}`}
+      </CellEllipsis>
+    ),
   },
   {
     label: 'Note',
