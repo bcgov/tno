@@ -664,6 +664,14 @@ public class V2Engine
         var target = scope.ResolveTarget(action.Target);
         var contentId = subject is { Kind: "existing" } ? subject.Id : (long?)null;
 
+        // Value sources consume analyses too - run them lazily before resolving, exactly like
+        // the when/confirm gates do, so action order never decides whether a result exists.
+        if (!string.IsNullOrWhiteSpace(action.Value?.From))
+            await EnsureAnalysisForReferenceAsync(step, action.Value!.From!, scope, env, stepSummary);
+        if (action.Set != null)
+            foreach (var source in action.Set.Values.Where(v => !string.IsNullOrWhiteSpace(v.From)))
+                await EnsureAnalysisForReferenceAsync(step, source.From!, scope, env, stepSummary);
+
         // Resolve the action's value. The migrated-v1 pattern maps '<analysis>.value' to the
         // confirmation's {value} capture, which is the extracted value, not the raw response.
         string? value = null;

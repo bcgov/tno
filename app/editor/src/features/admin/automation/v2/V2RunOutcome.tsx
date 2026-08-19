@@ -177,7 +177,7 @@ const VariantOutcome: React.FC<{ variant: IV2VariantSummaryModel; title: string 
     </Show>
     <Show visible={variant.changes.length > 0}>
       <details>
-        <summary>Changes ({variant.changes.length}) </summary>
+        <summary>Changes ({variant.changes.length})</summary>
         <table className="v2-table">
           <thead>
             <tr>
