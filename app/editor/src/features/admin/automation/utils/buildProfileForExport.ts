@@ -44,6 +44,7 @@ export const buildProfileForExport = (values: IAutomationProfileModel) => {
         contentActionId: action.contentActionId,
         reportId: action.reportId,
         notificationId: action.notificationId,
+        filterId: action.filterId,
         objective: action.objective,
         autoExecute: action.autoExecute,
         abortIfNoConfirmation: action.abortIfNoConfirmation,

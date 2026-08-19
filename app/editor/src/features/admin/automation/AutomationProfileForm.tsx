@@ -54,6 +54,7 @@ import {
 } from 'tno-core';
 
 import {
+  actionTypeDefaults,
   actionTypeOptionItems,
   ADD_ACTION_ACTION,
   AUTO_EXECUTE_ACTION_TYPES,
@@ -65,7 +66,12 @@ import {
   createDefaultStep,
   DATE_PICKER_PORTAL_ID,
   DEDUPLICATION_ACTION,
+  deduplicateBatchDefaults,
+  deduplicateModeOptions,
+  DEFAULT_COLLECTION_MAX_ITEMS,
+  DEFAULT_DEDUPLICATE_BATCH_SIZE,
   defaultAutomationProfile,
+  FETCH_CONTENT_ACTION,
   getRunColumns,
   noneTargetOptions,
   RUN_NOTIFICATION_ACTION,
@@ -106,12 +112,14 @@ import {
   findOptionByValue,
   formatRunTime,
   formatScheduleWeekDays,
+  getActionSettingsGroup,
   getLLMDescription,
   getStepFilterLabel,
   hasEnrichmentFilter,
   normalizeProfile,
   normalizeSteps,
   scheduleWeekDayOptions,
+  setActionSettingsGroup,
   syncActionDefaults,
   syncDefaultPrompt,
   toNumberOrUndefined,
@@ -232,6 +240,7 @@ const AutomationProfileForm: React.FC = () => {
         if (step.llmId) llmIds.add(step.llmId);
         (step.actions ?? []).forEach((action) => {
           if (action.llmId) llmIds.add(action.llmId);
+          if (action.filterId) filterIds.add(action.filterId);
         });
       });
 
@@ -375,6 +384,7 @@ const AutomationProfileForm: React.FC = () => {
             id: 0,
             // Dedupe prior-action links reference action ids that no longer exist; re-link after save.
             priorActionId: undefined,
+            filterId: mapFilter(action.filterId ?? undefined) ?? null,
             llmId: mapLLM(action.llmId),
           })),
         })),
@@ -1915,7 +1925,16 @@ const AutomationProfileForm: React.FC = () => {
                                 contentProperties.map((property) => [property, property]),
                               );
                             }
-                            return { ...synced, settings };
+                            return {
+                              ...synced,
+                              // The filter only belongs to 'fetch-content'; leaving it set on
+                              // another type would persist a reference nothing reads.
+                              filterId:
+                                actionType === FETCH_CONTENT_ACTION
+                                  ? synced.filterId ?? null
+                                  : null,
+                              settings,
+                            };
                           });
                         }}
                       />
@@ -2160,6 +2179,7 @@ const AutomationProfileForm: React.FC = () => {
                         !!worksOnStep?.sendSeparatePrompts &&
                         actionModalState?.action.actionType !== 'create-content' &&
                         actionModalState?.action.actionType !== 'extract-data' &&
+                        actionModalState?.action.actionType !== FETCH_CONTENT_ACTION &&
                         worksOnOptions.length > 1
                       }
                     >
@@ -2283,6 +2303,66 @@ const AutomationProfileForm: React.FC = () => {
                         />
                       </Row>
                     </Show>
+                    <Show visible={actionModalState?.action.actionType === FETCH_CONTENT_ACTION}>
+                      <Row className="field-grid action-wide-select-row" gap="1rem">
+                        <Select
+                          name="action-filter"
+                          label="Filter"
+                          required
+                          width="100%"
+                          styles={{
+                            // Replaces the component default; keep the portal above the modal.
+                            menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
+                            container: (base: any) => ({ ...base, width: '100%' }),
+                          }}
+                          options={filterOptions}
+                          value={
+                            findOptionByValue(filterOptions, actionModalState?.action.filterId) ??
+                            null
+                          }
+                          onChange={(newValue) => {
+                            const filterId = toNumberOrUndefined(
+                              newValue as { value?: unknown } | null,
+                            );
+                            updateActionDraft((action) => ({
+                              ...action,
+                              filterId: filterId ?? null,
+                            }));
+                          }}
+                        />
+                      </Row>
+                      <Row className="field-grid" gap="1rem">
+                        <Text
+                          width={FieldSize.Small}
+                          name="action-collection-max-items"
+                          label="Max Items"
+                          type="number"
+                          value={
+                            getActionSettingsGroup(
+                              actionModalState?.action,
+                              'collection',
+                            ).maxItems?.toString() ?? ''
+                          }
+                          placeholder={`${DEFAULT_COLLECTION_MAX_ITEMS}`}
+                          onChange={(event) => {
+                            const raw = event.target.value;
+                            const parsed = Number.parseInt(raw || '0', 10);
+                            const maxItems =
+                              raw === '' || Number.isNaN(parsed) || parsed < 1 ? undefined : parsed;
+                            updateActionDraft((action) =>
+                              setActionSettingsGroup(action, 'collection', { maxItems }),
+                            );
+                          }}
+                        />
+                      </Row>
+                      <p className="schedule-help-text">
+                        The filter runs once per run and its results are held in memory for later
+                        actions to compare against. Only the fields a comparison needs are fetched
+                        (headline, byline, summary, body, published date, source) and long text is
+                        truncated, so keep Max Items no larger than the comparison actually
+                        requires.
+                      </p>
+                    </Show>
                     <Show visible={actionModalState?.action.actionType === DEDUPLICATION_ACTION}>
                       <Row className="field-grid action-wide-select-row" gap="1rem">
                         <Select
@@ -2333,6 +2413,117 @@ const AutomationProfileForm: React.FC = () => {
                           }}
                         />
                       </Row>
+                      <Row className="field-grid" gap="1rem">
+                        <Select
+                          name="action-deduplicate-mode"
+                          label="Comparison"
+                          isClearable={false}
+                          width={FieldSize.Medium}
+                          styles={{
+                            // Replaces the component default; keep the portal above the modal.
+                            menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
+                          }}
+                          options={deduplicateModeOptions}
+                          value={
+                            deduplicateModeOptions.find(
+                              (option) =>
+                                option.value ===
+                                (getActionSettingsGroup(actionModalState?.action, 'deduplicate')
+                                  .mode ?? 'iterate'),
+                            ) ?? deduplicateModeOptions[0]
+                          }
+                          onChange={(newValue) => {
+                            const mode =
+                              (newValue as { value?: string } | null)?.value ?? 'iterate';
+                            updateActionDraft((action) => {
+                              const updated = setActionSettingsGroup(action, 'deduplicate', {
+                                mode,
+                              });
+                              // The two modes need different prompts: batch mode has to name which
+                              // candidate matched, so its confirmation captures the content id.
+                              // Only replace values the admin has not customized.
+                              const iterateDefaults = actionTypeDefaults[DEDUPLICATION_ACTION];
+                              const from =
+                                mode === 'batch' ? iterateDefaults : deduplicateBatchDefaults;
+                              const to =
+                                mode === 'batch' ? deduplicateBatchDefaults : iterateDefaults;
+                              return {
+                                ...updated,
+                                prompt:
+                                  !action.prompt ||
+                                  action.prompt === '<p><br></p>' ||
+                                  action.prompt === from.prompt
+                                    ? to.prompt
+                                    : action.prompt,
+                                confirmationStatement:
+                                  !action.confirmationStatement ||
+                                  action.confirmationStatement === from.confirmationStatement
+                                    ? to.confirmationStatement
+                                    : action.confirmationStatement,
+                              };
+                            });
+                          }}
+                        />
+                        <Show
+                          visible={
+                            getActionSettingsGroup(actionModalState?.action, 'deduplicate').mode ===
+                            'batch'
+                          }
+                        >
+                          <Text
+                            width={FieldSize.Small}
+                            name="action-deduplicate-batch-size"
+                            label="Batch Size"
+                            type="number"
+                            value={
+                              getActionSettingsGroup(
+                                actionModalState?.action,
+                                'deduplicate',
+                              ).batchSize?.toString() ?? ''
+                            }
+                            placeholder={`${DEFAULT_DEDUPLICATE_BATCH_SIZE}`}
+                            onChange={(event) => {
+                              const raw = event.target.value;
+                              const parsed = Number.parseInt(raw || '0', 10);
+                              const batchSize =
+                                raw === '' || Number.isNaN(parsed) || parsed < 1
+                                  ? undefined
+                                  : parsed;
+                              updateActionDraft((action) =>
+                                setActionSettingsGroup(action, 'deduplicate', { batchSize }),
+                              );
+                            }}
+                          />
+                        </Show>
+                        <Text
+                          width={FieldSize.Small}
+                          name="action-deduplicate-max-comparisons"
+                          label="Max Candidates"
+                          type="number"
+                          value={
+                            getActionSettingsGroup(
+                              actionModalState?.action,
+                              'deduplicate',
+                            ).maxComparisons?.toString() ?? ''
+                          }
+                          placeholder="No max"
+                          onChange={(event) => {
+                            const raw = event.target.value;
+                            const parsed = Number.parseInt(raw || '0', 10);
+                            const maxComparisons =
+                              raw === '' || Number.isNaN(parsed) || parsed < 1 ? undefined : parsed;
+                            updateActionDraft((action) =>
+                              setActionSettingsGroup(action, 'deduplicate', { maxComparisons }),
+                            );
+                          }}
+                        />
+                      </Row>
+                      <p className="schedule-help-text">
+                        One prompt per item is the most precise but costs one LLM call for every
+                        candidate. Batching sends many candidates in a single prompt, so comparing
+                        against a fetched collection takes a fraction of the calls. Max Candidates
+                        caps how many are examined per content item.
+                      </p>
                     </Show>
                     <Row className="field-grid" gap="1rem">
                       <Show
@@ -2363,21 +2554,25 @@ const AutomationProfileForm: React.FC = () => {
                           </p>
                         </div>
                       </Show>
-                      <Text
-                        width={FieldSize.Small}
-                        name="action-max-calls"
-                        label="Max Calls"
-                        type="number"
-                        value={actionModalState?.action.maxCalls?.toString() ?? ''}
-                        placeholder="No max"
-                        onChange={(event) => {
-                          const raw = event.target.value;
-                          const parsed = Number.parseInt(raw || '0', 10);
-                          const maxCalls =
-                            raw === '' ? null : Math.max(0, Number.isNaN(parsed) ? 0 : parsed);
-                          updateActionDraft((action) => ({ ...action, maxCalls }));
-                        }}
-                      />
+                      {/* 'Fetch Content Collection' runs once per run regardless of how often the
+                          step reaches it, so an execution cap has no meaning for it. */}
+                      <Show visible={actionModalState?.action.actionType !== FETCH_CONTENT_ACTION}>
+                        <Text
+                          width={FieldSize.Small}
+                          name="action-max-calls"
+                          label="Max Calls"
+                          type="number"
+                          value={actionModalState?.action.maxCalls?.toString() ?? ''}
+                          placeholder="No max"
+                          onChange={(event) => {
+                            const raw = event.target.value;
+                            const parsed = Number.parseInt(raw || '0', 10);
+                            const maxCalls =
+                              raw === '' ? null : Math.max(0, Number.isNaN(parsed) ? 0 : parsed);
+                            updateActionDraft((action) => ({ ...action, maxCalls }));
+                          }}
+                        />
+                      </Show>
                       <styled.ModalEnabledCheckbox className="no-label-offset">
                         <Checkbox
                           label="Enabled"
@@ -2423,12 +2618,14 @@ const AutomationProfileForm: React.FC = () => {
                       </Show>
                     </Row>
                     {/* 'Extract Data' and 'Create Content' are deterministic (driven by their
-                        grid/mapping); the engine ignores the action prompt and confirmation
-                        statement for these types, so the fields are hidden to avoid confusion. */}
+                        grid/mapping) and 'Fetch Content Collection' only runs its filter; the
+                        engine ignores the action prompt and confirmation statement for these
+                        types, so the fields are hidden to avoid confusion. */}
                     <Show
                       visible={
                         actionModalState?.action.actionType !== 'create-content' &&
-                        actionModalState?.action.actionType !== 'extract-data'
+                        actionModalState?.action.actionType !== 'extract-data' &&
+                        actionModalState?.action.actionType !== FETCH_CONTENT_ACTION
                       }
                     >
                       <styled.ModalPromptField>
@@ -2540,6 +2737,15 @@ const AutomationProfileForm: React.FC = () => {
                         ) {
                           toast.error(
                             "The Prior Action is required when the action type is 'Deduplication'. Save the profile first if the action you want to reference is new.",
+                          );
+                          return;
+                        }
+                        if (
+                          actionModalState.action.actionType === FETCH_CONTENT_ACTION &&
+                          !actionModalState.action.filterId
+                        ) {
+                          toast.error(
+                            "The Filter is required when the action type is 'Fetch Content Collection'.",
                           );
                           return;
                         }

@@ -110,9 +110,23 @@ public class AutomationAction : AuditColumns
     public Notification? Notification { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to the filter that produces this action's content collection.
+    /// Only used when ActionType is 'fetch-content'; the filter's Elasticsearch query is executed
+    /// once per run and the results are made available to later actions that reference this one.
+    /// </summary>
+    [Column("filter_id")]
+    public int? FilterId { get; set; }
+
+    /// <summary>
+    /// get/set - The filter that produces this action's content collection.
+    /// </summary>
+    public Filter? Filter { get; set; }
+
+    /// <summary>
     /// get/set - Foreign key to a prior automation action (earlier in this step or in an earlier step).
     /// Only used when ActionType is 'deduplicate'; the content items the prior action successfully
-    /// processed are compared against the current item to detect duplicates.
+    /// processed - or, when it is a 'fetch-content' action, the collection it fetched - are compared
+    /// against the current item to detect duplicates.
     /// </summary>
     [Column("prior_action_id")]
     public int? PriorActionId { get; set; }

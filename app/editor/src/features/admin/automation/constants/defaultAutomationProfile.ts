@@ -14,6 +14,7 @@ export const actionTypeOptions = [
   { value: 'add-sentiment', label: 'Add Sentiment' },
   { value: 'extract-data', label: 'Extract Data' },
   { value: 'create-content', label: 'Create Content' },
+  { value: 'fetch-content', label: 'Fetch Content Collection' },
   { value: 'deduplicate', label: 'Deduplication' },
   { value: 'run-report', label: 'Publish Report' },
   { value: 'run-notification', label: 'Publish Notification' },
@@ -88,9 +89,15 @@ export const actionTypeDefaults: Record<string, { prompt: string; confirmationSt
       prompt: '',
       confirmationStatement: '',
     },
+    // Fetch Content Collection runs its filter and holds the results for later actions; it never
+    // calls an LLM, so it has no prompt and no confirmation statement.
+    'fetch-content': {
+      prompt: '',
+      confirmationStatement: '',
+    },
     deduplicate: {
       prompt:
-        '<p>Compare the following two news stories and determine whether they report the same underlying story. They may be duplicates even when the headline, byline, and body formatting differ (for example, papers owned by the same parent company often mirror each other\'s stories). If they are the same story respond with "[DUPLICATE]", otherwise respond with "[UNIQUE]".</p><p>Current story: {content}</p><p>Previously processed story: {previous}</p>',
+        '<p>Compare the following two news stories and determine whether they report the same underlying story. Compare the headline, the story text (the summary, or the body when there is no summary), and the published date. They may be duplicates even when the headline, byline, and body formatting differ (for example, papers owned by the same parent company often mirror each other\'s stories). If they are the same story respond with "[DUPLICATE]", otherwise respond with "[UNIQUE]".</p><p>Current story: {content}</p><p>Previously processed story: {previous}</p>',
       confirmationStatement: '[DUPLICATE]',
     },
     'run-report': {
@@ -133,6 +140,37 @@ export const RUN_REPORT_ACTION = 'run-report';
 
 /** The action type that compares the current item against a prior action's processed content. */
 export const DEDUPLICATION_ACTION = 'deduplicate';
+
+/** The action type that runs a filter to gather a content collection for later actions. */
+export const FETCH_CONTENT_ACTION = 'fetch-content';
+
+/**
+ * How a 'deduplicate' action compares the current item against its candidates.
+ * - 'iterate' sends one LLM comparison per candidate (precise, one call each).
+ * - 'batch' sends a digest of up to 'batchSize' candidates per comparison (far fewer calls,
+ *   which is what makes comparing against a large fetched collection affordable).
+ */
+export const deduplicateModeOptions = [
+  { value: 'iterate', label: 'One prompt per item' },
+  { value: 'batch', label: 'Batch items into one prompt' },
+];
+
+/** Default number of candidates sent per prompt in batch mode. */
+export const DEFAULT_DEDUPLICATE_BATCH_SIZE = 25;
+
+/** Default number of content items a 'fetch-content' collection holds. */
+export const DEFAULT_COLLECTION_MAX_ITEMS = 500;
+
+/**
+ * Batch-mode prompt and confirmation for 'deduplicate'. The confirmation must capture which
+ * candidate matched, so it uses the {value} token to extract the duplicate's contentId — with
+ * one prompt covering many candidates the response has to name the one it matched.
+ */
+export const deduplicateBatchDefaults = {
+  prompt:
+    '<p>Compare the current news story against each of the previously processed stories listed below and determine whether any of them report the same underlying story. Compare the headline, the story text, and the published date. They may be duplicates even when the headline, byline, and body formatting differ (for example, papers owned by the same parent company often mirror each other\'s stories). If the current story duplicates one of them respond with "[DUPLICATE:{value}]" where {value} is that story\'s contentId. If none of them are the same story respond with "[UNIQUE]".</p><p>Current story: {content}</p><p>Previously processed stories: {previous}</p>',
+  confirmationStatement: '[DUPLICATE:{value}]',
+};
 
 /**
  * Action types eligible for 'Always run' (no LLM confirmation). Only types that do not
@@ -347,6 +385,7 @@ const defaultAction: IAutomationRuleActionModel = {
   isEnabled: true,
   contentField: null,
   contentActionId: null,
+  filterId: null,
   objective: null,
   autoExecute: false,
   abortIfNoConfirmation: false,

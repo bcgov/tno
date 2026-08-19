@@ -187,7 +187,7 @@ public class NotificationValidator : INotificationValidator
             // Send updates every time it has been updated.
             Entities.ResendOption.Updated => true,
             // Send every time published.
-            Entities.ResendOption.Republished => this.Content.Status == Entities.ContentStatus.Published,
+            Entities.ResendOption.Republished => this.Content.Status == Entities.ContentStatus.Published || this.Content.Status == Entities.ContentStatus.Publish,
             // Send every time published an approved transcript
             Entities.ResendOption.Transcribed => this.Content.ContentType == ContentType.AudioVideo &&
                 this.Content.Status == Entities.ContentStatus.Published &&
@@ -195,7 +195,7 @@ public class NotificationValidator : INotificationValidator
             _ => false,
         });
 
-        if (!send) _logger.LogDebug("Notification '{name}' with content '{contentId}' resend rule did not pass.", this.Notification.Name, this.Content.Id);
+        if (!send) _logger.LogDebug("Notification '{name}' with content '{contentId}':'{status}' resend rule did not pass.", this.Notification.Name, this.Content.Id, this.Content.Status);
         return send;
     }
 

@@ -44,6 +44,7 @@ export const buildProfileForSave = (values: IAutomationProfileModel): IAutomatio
       contentActionId: action.contentActionId,
       reportId: action.reportId,
       notificationId: action.notificationId,
+      filterId: action.filterId,
       priorActionId: action.priorActionId,
       objective: action.objective,
       autoExecute: action.autoExecute ?? false,

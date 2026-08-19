@@ -430,6 +430,12 @@ public class AutomationManager : ServiceManager<AutomationOptions>
         // the current item against a prior action's processed items.
         var executedContentByAction = new Dictionary<int, List<long>>();
 
+        // Run-scoped collections produced by 'fetch-content' actions (keyed by automation action
+        // id). The Task is stored rather than the list so the filter executes exactly once per run
+        // even when the owning step processes items in parallel; the list is read-only once built
+        // and shared by every consumer, so a collection is only ever held in memory once.
+        var collectionsByAction = new Dictionary<int, Task<IReadOnlyList<ContentModel>>>();
+
         // Steps may override the profile LLM; fetch each override once per run.
         var llmCache = new Dictionary<int, LLMModel>();
 
@@ -512,7 +518,7 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                     {
                         try
                         {
-                            await ExecuteStepInstanceAsync(step, stepLlm, content, resultsJson, executionCounts, scores, contentById, stepSummary, summary.Changes, stepResponses, executedContentByAction, llmCache);
+                            await ExecuteStepInstanceAsync(step, stepLlm, content, resultsJson, executionCounts, scores, contentById, stepSummary, summary.Changes, stepResponses, executedContentByAction, collectionsByAction, llmCache);
                         }
                         catch (Exception ex)
                         {
@@ -536,7 +542,7 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                         {
                             try
                             {
-                                await ExecuteStepInstanceAsync(step, stepLlm, content, null, executionCounts, scores, contentById, stepSummary, summary.Changes, stepResponses, executedContentByAction, llmCache);
+                                await ExecuteStepInstanceAsync(step, stepLlm, content, null, executionCounts, scores, contentById, stepSummary, summary.Changes, stepResponses, executedContentByAction, collectionsByAction, llmCache);
                             }
                             catch (Exception ex)
                             {
@@ -550,7 +556,7 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                     }
                     try
                     {
-                        await ExecuteStepInstanceAsync(step, stepLlm, null, resultsJson, executionCounts, scores, contentById, stepSummary, summary.Changes, stepResponses, executedContentByAction, llmCache);
+                        await ExecuteStepInstanceAsync(step, stepLlm, null, resultsJson, executionCounts, scores, contentById, stepSummary, summary.Changes, stepResponses, executedContentByAction, collectionsByAction, llmCache);
                     }
                     catch (Exception ex)
                     {
@@ -594,16 +600,18 @@ public class AutomationManager : ServiceManager<AutomationOptions>
         List<ChangeSummary> changes,
         List<ResponseSummary> responses,
         Dictionary<int, List<long>> executedContentByAction,
+        Dictionary<int, Task<IReadOnlyList<ContentModel>>> collectionsByAction,
         Dictionary<int, LLMModel> llmCache)
     {
         var actions = step.Actions.Where(action => action.IsEnabled).ToArray();
         if (actions.Length == 0) return;
 
         var contentJson = content != null ? JsonSerializer.Serialize(content, _jsonOptions) : null;
-        // 'deduplicate' actions run their own LLM comparisons and 'always run' (AutoExecute)
-        // actions require no confirmation; neither contributes to the composed step prompt.
+        // 'deduplicate' actions run their own LLM comparisons, 'fetch-content' actions never call
+        // an LLM at all, and 'always run' (AutoExecute) actions require no confirmation; none of
+        // them contribute to the composed step prompt.
         var promptActions = actions
-            .Where(action => action.ActionType != "deduplicate" && !action.AutoExecute)
+            .Where(action => action.ActionType != "deduplicate" && action.ActionType != "fetch-content" && !action.AutoExecute)
             .ToArray();
 
         // Chat-conversation mode: the step prompt becomes the system prompt and each action is
@@ -665,15 +673,23 @@ public class AutomationManager : ServiceManager<AutomationOptions>
             // reports/notifications). Intentional aborts (deduplicate / stop-remaining) still break.
             try
             {
+            // 'fetch-content' gathers a collection for later actions to consume. It calls no LLM
+            // and acts on no content, so it neither confirms nor aborts.
+            if (action.ActionType == "fetch-content")
+            {
+                await ProcessFetchContentAsync(action, collectionsByAction, actionSummary);
+                continue;
+            }
+
             // 'deduplicate' is not confirmed by the main step response; it runs its own LLM
-            // comparison per previously-processed content item. A detected duplicate aborts
-            // the step at this position (accumulated updates before it are still applied).
+            // comparison against the candidates its prior action supplies. A detected duplicate
+            // aborts the step at this position (accumulated updates before it are still applied).
             if (action.ActionType == "deduplicate")
             {
                 var dedupeLlm = await ResolveLlmAsync(action.LLMId, llm, llmCache);
                 var isDuplicate = await DetectDuplicateAsync(
                     step, action, dedupeLlm, content, contentJson, contentById, executionCounts, index,
-                    actionSummary, changes, responses, executedContentByAction);
+                    actionSummary, changes, responses, executedContentByAction, collectionsByAction);
                 if (isDuplicate)
                 {
                     lock (stepSummary) stepSummary.Aborts++;
@@ -982,9 +998,12 @@ public class AutomationManager : ServiceManager<AutomationOptions>
     }
 
     /// <summary>
-    /// Compare the current content item against each item the configured prior action
-    /// successfully processed. One LLM comparison per prior item; the first response that
-    /// contains the action's confirmation statement marks the current item as a duplicate.
+    /// Compare the current content item against the candidates supplied by the configured prior
+    /// action - either the collection a 'fetch-content' action gathered, or the items the prior
+    /// action successfully processed this run. The comparison runs in one of two modes:
+    /// 'iterate' sends one LLM comparison per candidate, 'batch' sends a digest of up to
+    /// 'batchSize' candidates per comparison. The first response that contains the action's
+    /// confirmation statement marks the current item as a duplicate.
     /// </summary>
     /// <returns>Whether the current item is a duplicate (the step should abort).</returns>
     private async Task<bool> DetectDuplicateAsync(
@@ -999,7 +1018,8 @@ public class AutomationManager : ServiceManager<AutomationOptions>
         ActionSummary actionSummary,
         List<ChangeSummary> changes,
         List<ResponseSummary> responses,
-        Dictionary<int, List<long>> executedContentByAction)
+        Dictionary<int, List<long>> executedContentByAction,
+        Dictionary<int, Task<IReadOnlyList<ContentModel>>> collectionsByAction)
     {
         if (content == null || contentJson == null)
         {
@@ -1029,28 +1049,36 @@ public class AutomationManager : ServiceManager<AutomationOptions>
             }
         }
 
-        // Nothing processed by the prior action yet; nothing to compare against.
-        // Items run in parallel, so snapshot the prior action's processed ids under the lock.
-        long[] priorIds;
-        lock (executedContentByAction)
+        var settings = ReadDeduplicateSettings(action.Settings);
+
+        // Resolve the candidates to compare against. A 'fetch-content' prior action supplies its
+        // gathered collection; any other prior action supplies the items it processed this run.
+        var candidates = await ResolveDuplicateCandidatesAsync(
+            action, content.Id, contentById, executedContentByAction, collectionsByAction);
+        if (candidates.Count == 0) return false;
+
+        if (settings.MaxComparisons > 0 && candidates.Count > settings.MaxComparisons)
         {
-            if (!executedContentByAction.TryGetValue(action.PriorActionId.Value, out var tracked) || tracked.Count == 0)
-                return false;
-            priorIds = tracked.ToArray();
+            this.Logger.LogInformation(
+                "Deduplication '{action}' capped from {count} to {max} candidate(s) for content {contentId}.",
+                action.Name, candidates.Count, settings.MaxComparisons, content.Id);
+            actionSummary.Notes = $"Candidates capped at {settings.MaxComparisons} of {candidates.Count}.";
+            candidates = candidates.Take(settings.MaxComparisons).ToList();
         }
 
-        foreach (var priorId in priorIds)
+        // 'iterate' compares one candidate per LLM call; 'batch' digests up to 'batchSize'
+        // candidates into a single call, which is what makes a large collection affordable.
+        var batchSize = settings.IsBatch ? Math.Max(1, settings.BatchSize) : 1;
+        for (var offset = 0; offset < candidates.Count; offset += batchSize)
         {
-            if (priorId == content.Id) continue;
-
-            var prior = contentById.TryGetValue(priorId, out var cached)
-                ? cached
-                : await this.Api.FindContentByIdAsync(priorId);
-            if (prior == null) continue;
+            var batch = candidates.Skip(offset).Take(batchSize).ToList();
+            var previousJson = settings.IsBatch
+                ? JsonSerializer.Serialize(batch.Select(BuildComparisonDigest), _jsonOptions)
+                : JsonSerializer.Serialize(BuildComparisonDigest(batch[0]), _jsonOptions);
 
             var comparePrompt = action.Prompt
                 .Replace("{content}", contentJson)
-                .Replace("{previous}", JsonSerializer.Serialize(prior, _jsonOptions));
+                .Replace("{previous}", previousJson);
             var response = await InvokeLLMAsync(llm, comparePrompt);
             var responseSummary = new ResponseSummary
             {
@@ -1063,25 +1091,104 @@ public class AutomationManager : ServiceManager<AutomationOptions>
             };
             lock (responses) responses.Add(responseSummary);
 
-            if (matcher.TryMatch(response, out _))
+            if (!matcher.TryMatch(response, out var captured)) continue;
+
+            // Identify which candidate matched. A single-candidate comparison is unambiguous; a
+            // batch relies on the statement's {value} token capturing the duplicate's content id.
+            long matchedId;
+            if (!settings.IsBatch) matchedId = batch[0].Id;
+            else if (long.TryParse((captured ?? "").Trim(), out var parsed) && batch.Any(item => item.Id == parsed))
+                matchedId = parsed;
+            else
             {
-                lock (actionSummary)
-                {
-                    actionSummary.Confirmations++;
-                    actionSummary.Executions++;
-                }
-                lock (executionCounts)
-                {
-                    executionCounts.TryGetValue(key, out var executions);
-                    executionCounts[key] = executions + 1;
-                }
-                actionSummary.Notes = $"Content {content.Id} is a duplicate of content {priorId}.";
-                lock (changes) changes.Add(new ChangeSummary { ContentId = content.Id, Type = "duplicate", Value = priorId.ToString() });
-                this.Logger.LogInformation("Content {contentId} detected as a duplicate of {priorId}; step '{step}' aborted.", content.Id, priorId, step.Name);
-                return true;
+                // The model confirmed a duplicate but did not name a candidate from this batch.
+                // Treating it as a match would abort the step against an unknown item, so record
+                // the miss and keep comparing.
+                actionSummary.Notes = $"Duplicate confirmed without a resolvable content id ('{Truncate(captured ?? "", 100)}'); batch skipped.";
+                this.Logger.LogWarning(
+                    "Deduplication '{action}' confirmed for content {contentId} but returned no candidate id from the batch.",
+                    action.Name, content.Id);
+                continue;
             }
+
+            lock (actionSummary)
+            {
+                actionSummary.Confirmations++;
+                actionSummary.Executions++;
+            }
+            lock (executionCounts)
+            {
+                executionCounts.TryGetValue(key, out var executions);
+                executionCounts[key] = executions + 1;
+            }
+            actionSummary.Notes = $"Content {content.Id} is a duplicate of content {matchedId}.";
+            lock (changes) changes.Add(new ChangeSummary { ContentId = content.Id, Type = "duplicate", Value = matchedId.ToString() });
+            this.Logger.LogInformation("Content {contentId} detected as a duplicate of {matchedId}; step '{step}' aborted.", content.Id, matchedId, step.Name);
+            return true;
         }
         return false;
+    }
+
+    /// <summary>
+    /// Resolve the content items a 'deduplicate' action compares the current item against.
+    /// A 'fetch-content' prior action supplies the collection it gathered; any other prior action
+    /// supplies the items it successfully processed this run (resolved from the run's content
+    /// lookup, falling back to the API). The current item is never its own candidate.
+    /// </summary>
+    private async Task<List<ContentModel>> ResolveDuplicateCandidatesAsync(
+        AdminAutomationActionModel action,
+        long currentContentId,
+        Dictionary<long, ContentModel> contentById,
+        Dictionary<int, List<long>> executedContentByAction,
+        Dictionary<int, Task<IReadOnlyList<ContentModel>>> collectionsByAction)
+    {
+        var priorActionId = action.PriorActionId!.Value;
+
+        // A collection is built once and then read-only, so it can be shared without copying.
+        Task<IReadOnlyList<ContentModel>>? collection;
+        lock (collectionsByAction) collectionsByAction.TryGetValue(priorActionId, out collection);
+        if (collection != null)
+            return (await collection).Where(item => item.Id != currentContentId).ToList();
+
+        // Items run in parallel, so snapshot the prior action's processed ids under the lock.
+        long[] priorIds;
+        lock (executedContentByAction)
+        {
+            if (!executedContentByAction.TryGetValue(priorActionId, out var tracked) || tracked.Count == 0)
+                return new List<ContentModel>();
+            priorIds = tracked.ToArray();
+        }
+
+        var candidates = new List<ContentModel>();
+        foreach (var priorId in priorIds)
+        {
+            if (priorId == currentContentId) continue;
+            var prior = contentById.TryGetValue(priorId, out var cached)
+                ? cached
+                : await this.Api.FindContentByIdAsync(priorId);
+            if (prior != null) candidates.Add(prior);
+        }
+        return candidates;
+    }
+
+    /// <summary>
+    /// Build the compact projection a duplicate comparison is made on: the headline, the summary
+    /// (falling back to the body when there is no summary), and the published date. The date is
+    /// rendered without its time component because two stories filed on the same day must compare
+    /// as the same date regardless of the hour, and text is truncated so a batch prompt stays
+    /// bounded no matter how large the candidate set is.
+    /// </summary>
+    private static object BuildComparisonDigest(ContentModel content)
+    {
+        return new
+        {
+            ContentId = content.Id,
+            Headline = Truncate(content.Headline ?? "", 300),
+            Byline = Truncate(content.Byline ?? "", 200),
+            Source = content.Source?.Name ?? content.OtherSource ?? "",
+            PublishedOn = content.PublishedOn?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) ?? "",
+            Story = Truncate(!string.IsNullOrWhiteSpace(content.Summary) ? content.Summary : content.Body ?? "", 2000),
+        };
     }
 
     /// <summary>
@@ -2483,6 +2590,231 @@ public class AutomationManager : ServiceManager<AutomationOptions>
             default:
                 return null;
         }
+    }
+
+    /// <summary>
+    /// Execute a 'fetch-content' action: run its filter once per run and hold the results for
+    /// later actions that reference it. The action acts on no content and calls no LLM.
+    /// </summary>
+    private async Task ProcessFetchContentAsync(
+        AdminAutomationActionModel action,
+        Dictionary<int, Task<IReadOnlyList<ContentModel>>> collectionsByAction,
+        ActionSummary actionSummary)
+    {
+        // Unsaved actions (id 0) have no stable identity, so nothing could reference the result.
+        if (action.Id == 0)
+        {
+            actionSummary.Notes = "Save the profile before this action can supply a collection.";
+            return;
+        }
+        if (IsEmptyQuery(action.FilterQuery))
+        {
+            actionSummary.Notes = "No filter selected; no content fetched.";
+            return;
+        }
+
+        var settings = ReadCollectionSettings(action.Settings);
+
+        // Get-or-add the task under the lock and await it outside, so the filter runs exactly once
+        // per run however many items (or steps) reach this action concurrently.
+        Task<IReadOnlyList<ContentModel>> collection;
+        var fetched = false;
+        lock (collectionsByAction)
+        {
+            if (!collectionsByAction.TryGetValue(action.Id, out var existing))
+            {
+                existing = SearchFilterProjectedAsync(
+                    action.FilterQuery!, action.FilterSettings, $"action:{action.Id}", settings);
+                collectionsByAction[action.Id] = existing;
+                fetched = true;
+            }
+            collection = existing;
+        }
+
+        var items = await collection;
+        // Only the call that started the fetch counts as an execution - later items on a parallel
+        // step reuse the same collection and must not inflate the count.
+        if (!fetched) return;
+        lock (actionSummary)
+        {
+            actionSummary.Executions++;
+            actionSummary.Notes = items.Count >= settings.MaxItems
+                ? $"Fetched {items.Count} content item(s); capped at {settings.MaxItems}."
+                : $"Fetched {items.Count} content item(s).";
+        }
+    }
+
+    /// <summary>
+    /// The content fields a fetched collection carries by default. Driven by what a duplicate
+    /// comparison reads - the headline, the summary or body, and the published date - plus the
+    /// identity and attribution fields the prompts and run summary need. The body is included but
+    /// truncated on ingest: excluding it would break comparisons against stories with no summary,
+    /// while keeping it whole is what makes a large collection expensive to hold.
+    /// </summary>
+    private static readonly string[] DefaultCollectionFields = new[]
+    {
+        "id", "headline", "byline", "summary", "body", "publishedOn", "source", "otherSource",
+    };
+
+    /// <summary>
+    /// Default number of items a collection holds. A collection lives for the whole run, so it is
+    /// capped rather than paged to the Elasticsearch max result window like the profile filter.
+    /// </summary>
+    private const int DefaultCollectionMaxItems = 500;
+
+    /// <summary>
+    /// Execute a filter and return a bounded, projected collection to be held for the run.
+    /// Unlike <see cref="SearchFilterAsync"/> this limits the Elasticsearch _source to the fields
+    /// the comparison needs and truncates the long text fields on arrival, so holding the result
+    /// for the whole run costs megabytes rather than hundreds of megabytes.
+    /// </summary>
+    private async Task<IReadOnlyList<ContentModel>> SearchFilterProjectedAsync(
+        string query,
+        string? settings,
+        string label,
+        CollectionSettings collectionSettings)
+    {
+        var index = SelectIndex(settings);
+        var root = JsonNode.Parse(query)!.AsObject();
+        root["track_total_hits"] = true;
+        root["_source"] = new JsonArray(collectionSettings.Fields.Select(field => (JsonNode)field!).ToArray());
+
+        var hits = new List<ContentModel>();
+        var from = 0;
+        while (hits.Count < collectionSettings.MaxItems)
+        {
+            var pageSize = Math.Min(FilterPageSize, collectionSettings.MaxItems - hits.Count);
+            // Elasticsearch rejects a request whose from + size exceeds the result window, so the
+            // last page is clamped to it rather than allowed to overrun.
+            if (from + pageSize > MaxResultWindow)
+            {
+                pageSize = MaxResultWindow - from;
+                if (pageSize <= 0)
+                {
+                    this.Logger.LogWarning("Collection '{key}' reached the max result window ({max}); results truncated.", label, MaxResultWindow);
+                    break;
+                }
+            }
+            root["size"] = pageSize;
+            root["from"] = from;
+            var result = await _elasticClient.SearchAsync<ContentModel>(index, JsonDocument.Parse(root.ToJsonString()));
+            var page = result.Hits.Hits.Select(hit => hit.Source).Where(item => item != null).ToList();
+            foreach (var item in page)
+            {
+                item!.Headline = Truncate(item.Headline ?? "", collectionSettings.TruncateHeadline);
+                item.Summary = Truncate(item.Summary ?? "", collectionSettings.TruncateSummary);
+                item.Body = Truncate(item.Body ?? "", collectionSettings.TruncateBody);
+                hits.Add(item);
+            }
+            if (page.Count < pageSize) break;
+            from += pageSize;
+        }
+
+        this.Logger.LogInformation("Collection '{key}' fetched {count} content item(s).", label, hits.Count);
+        return hits;
+    }
+
+    /// <summary>
+    /// Configuration for a 'fetch-content' action's collection.
+    /// </summary>
+    private sealed class CollectionSettings
+    {
+        public string[] Fields { get; init; } = DefaultCollectionFields;
+        public int MaxItems { get; init; } = DefaultCollectionMaxItems;
+        public int TruncateHeadline { get; init; } = 300;
+        public int TruncateSummary { get; init; } = 500;
+        public int TruncateBody { get; init; } = 2000;
+    }
+
+    /// <summary>
+    /// Configuration for a 'deduplicate' action's comparison.
+    /// </summary>
+    private sealed class DeduplicateSettings
+    {
+        public bool IsBatch { get; init; }
+        public int BatchSize { get; init; } = 25;
+        public int MaxComparisons { get; init; }
+    }
+
+    /// <summary>
+    /// Read the collection configuration (settings.collection) from a 'fetch-content' action.
+    /// </summary>
+    private static CollectionSettings ReadCollectionSettings(System.Text.Json.JsonDocument? settings)
+    {
+        if (settings == null
+            || settings.RootElement.ValueKind != System.Text.Json.JsonValueKind.Object
+            || !settings.RootElement.TryGetProperty("collection", out var obj)
+            || obj.ValueKind != System.Text.Json.JsonValueKind.Object)
+            return new CollectionSettings();
+
+        var fields = DefaultCollectionFields;
+        if (obj.TryGetProperty("fields", out var arr) && arr.ValueKind == System.Text.Json.JsonValueKind.Array)
+        {
+            var configured = arr.EnumerateArray()
+                .Where(item => item.ValueKind == System.Text.Json.JsonValueKind.String)
+                .Select(item => item.GetString() ?? "")
+                .Where(item => !string.IsNullOrWhiteSpace(item))
+                .ToArray();
+            // 'id' identifies the match, so it is always retrieved even if it was not configured.
+            if (configured.Length > 0)
+                fields = configured.Contains("id") ? configured : configured.Prepend("id").ToArray();
+        }
+
+        return new CollectionSettings
+        {
+            Fields = fields,
+            MaxItems = ReadPositiveInt(obj, "maxItems", DefaultCollectionMaxItems),
+            TruncateHeadline = ReadTruncation(obj, "headline", 300),
+            TruncateSummary = ReadTruncation(obj, "summary", 500),
+            TruncateBody = ReadTruncation(obj, "body", 2000),
+        };
+    }
+
+    /// <summary>
+    /// Read the comparison configuration (settings.deduplicate) from a 'deduplicate' action.
+    /// Absent settings keep the original behaviour: one LLM comparison per candidate.
+    /// </summary>
+    private static DeduplicateSettings ReadDeduplicateSettings(System.Text.Json.JsonDocument? settings)
+    {
+        if (settings == null
+            || settings.RootElement.ValueKind != System.Text.Json.JsonValueKind.Object
+            || !settings.RootElement.TryGetProperty("deduplicate", out var obj)
+            || obj.ValueKind != System.Text.Json.JsonValueKind.Object)
+            return new DeduplicateSettings();
+
+        var mode = obj.TryGetProperty("mode", out var modeValue) && modeValue.ValueKind == System.Text.Json.JsonValueKind.String
+            ? modeValue.GetString() ?? ""
+            : "";
+
+        return new DeduplicateSettings
+        {
+            IsBatch = mode.Equals("batch", StringComparison.OrdinalIgnoreCase),
+            BatchSize = ReadPositiveInt(obj, "batchSize", 25),
+            MaxComparisons = Math.Max(0, ReadPositiveInt(obj, "maxComparisons", 0)),
+        };
+    }
+
+    /// <summary>
+    /// Read a positive integer from the settings object, falling back to the default.
+    /// </summary>
+    private static int ReadPositiveInt(System.Text.Json.JsonElement obj, string property, int fallback)
+    {
+        if (obj.TryGetProperty(property, out var value)
+            && value.ValueKind == System.Text.Json.JsonValueKind.Number
+            && value.TryGetInt32(out var parsed)
+            && parsed > 0)
+            return parsed;
+        return fallback;
+    }
+
+    /// <summary>
+    /// Read a per-field truncation length from the settings object's 'truncate' map.
+    /// </summary>
+    private static int ReadTruncation(System.Text.Json.JsonElement obj, string field, int fallback)
+    {
+        if (obj.TryGetProperty("truncate", out var truncate) && truncate.ValueKind == System.Text.Json.JsonValueKind.Object)
+            return ReadPositiveInt(truncate, field, fallback);
+        return fallback;
     }
 
     /// <summary>

@@ -15,7 +15,11 @@ export interface IAutomationRuleActionModel {
   reportId?: number | null;
   /** The notification to run (FK to Notification); only used when actionType is 'run-notification'. */
   notificationId?: number | null;
-  /** A prior action (FK to AutomationAction) whose processed content is compared against the current item; only used when actionType is 'deduplicate'. */
+  /** The filter (FK to Filter) whose results become this action's content collection; only used when actionType is 'fetch-content'. */
+  filterId?: number | null;
+  /** A prior action (FK to AutomationAction) whose processed content — or, when it is a
+   * 'fetch-content' action, whose fetched collection — is compared against the current item;
+   * only used when actionType is 'deduplicate'. */
   priorActionId?: number | null;
   /** Whether the action executes unconditionally without LLM confirmation (value-less action types only). */
   autoExecute?: boolean;
@@ -34,7 +38,11 @@ export interface IAutomationRuleActionModel {
   /** For 'create-content': clone the iterated content item as the starting point before applying
    * the extracted data and prompt values. */
   createClone?: boolean;
-  /** Action-type specific configuration (e.g. create-content 'overrides' and 'requireKey'). */
+  /** Action-type specific configuration. Keys the automation service reads:
+   * - 'extract' — extract-data rows ([{ key, value }]).
+   * - 'mapping' — create-content property-to-key map.
+   * - 'collection' — fetch-content projection ({ fields, maxItems, truncate }).
+   * - 'deduplicate' — comparison config ({ mode, batchSize, maxComparisons }). */
   settings?: Record<string, any> | null;
 }
 

@@ -20,6 +20,7 @@ public class AutomationActionConfiguration : AuditColumnsConfiguration<Automatio
         builder.Property(m => m.ContentActionId);
         builder.Property(m => m.ReportId);
         builder.Property(m => m.NotificationId);
+        builder.Property(m => m.FilterId);
         builder.Property(m => m.PriorActionId);
         builder.Property(m => m.AutoExecute).IsRequired().HasDefaultValue(false);
         builder.Property(m => m.AbortIfNoConfirmation).IsRequired().HasDefaultValue(false);
@@ -39,6 +40,8 @@ public class AutomationActionConfiguration : AuditColumnsConfiguration<Automatio
         builder.HasOne(m => m.Report).WithMany().HasForeignKey(m => m.ReportId).OnDelete(DeleteBehavior.SetNull);
         // Optional reference; removing a notification should not delete the automation action.
         builder.HasOne(m => m.Notification).WithMany().HasForeignKey(m => m.NotificationId).OnDelete(DeleteBehavior.SetNull);
+        // Optional reference; removing a filter should not delete the automation action.
+        builder.HasOne(m => m.Filter).WithMany().HasForeignKey(m => m.FilterId).OnDelete(DeleteBehavior.SetNull);
         // Optional self-reference; removing the prior action should not delete the dedupe action.
         builder.HasOne(m => m.PriorAction).WithMany().HasForeignKey(m => m.PriorActionId).OnDelete(DeleteBehavior.SetNull);
         // Optional reference; removing an LLM should not delete the action (it falls back to the step/profile LLM).

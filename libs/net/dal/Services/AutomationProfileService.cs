@@ -32,7 +32,7 @@ public class AutomationProfileService : BaseService<AutomationProfile, int>, IAu
         return this.Context.AutomationProfiles
             .AsNoTracking()
             .Include(p => p.Filter)
-            .Include(p => p.Steps).ThenInclude(s => s.Actions)
+            .Include(p => p.Steps).ThenInclude(s => s.Actions).ThenInclude(a => a.Filter)
             .Include(p => p.Steps).ThenInclude(s => s.Filter)
             .OrderBy(p => p.SortOrder).ThenBy(p => p.Name)
             .ToArray();
@@ -48,7 +48,7 @@ public class AutomationProfileService : BaseService<AutomationProfile, int>, IAu
         return this.Context.AutomationProfiles
             .AsNoTracking()
             .Include(p => p.Filter)
-            .Include(p => p.Steps).ThenInclude(s => s.Actions)
+            .Include(p => p.Steps).ThenInclude(s => s.Actions).ThenInclude(a => a.Filter)
             .Include(p => p.Steps).ThenInclude(s => s.Filter)
             .Include(p => p.Events).ThenInclude(e => e.Schedule)
             .FirstOrDefault(p => p.Id == id);
@@ -214,6 +214,7 @@ public class AutomationProfileService : BaseService<AutomationProfile, int>, IAu
                 originalAction.ContentActionId = incomingAction.ContentActionId;
                 originalAction.ReportId = incomingAction.ReportId;
                 originalAction.NotificationId = incomingAction.NotificationId;
+                originalAction.FilterId = incomingAction.FilterId;
                 originalAction.PriorActionId = incomingAction.PriorActionId;
                 originalAction.AutoExecute = incomingAction.AutoExecute;
                 originalAction.AbortIfNoConfirmation = incomingAction.AbortIfNoConfirmation;

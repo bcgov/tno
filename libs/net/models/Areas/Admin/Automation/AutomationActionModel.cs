@@ -58,8 +58,25 @@ public class AutomationActionModel
     public int? NotificationId { get; set; }
 
     /// <summary>
-    /// get/set - Foreign key to a prior automation action whose processed content is compared
-    /// against the current item; only used when ActionType is 'deduplicate'.
+    /// get/set - Foreign key to the filter that produces this action's content collection;
+    /// only used when ActionType is 'fetch-content'.
+    /// </summary>
+    public int? FilterId { get; set; }
+
+    /// <summary>
+    /// get/set - The filter's Elasticsearch query, so the automation service does not need to look
+    /// the filter up.
+    /// </summary>
+    public string? FilterQuery { get; set; }
+
+    /// <summary>
+    /// get/set - The filter's settings, which determine the index the query is executed against.
+    /// </summary>
+    public string? FilterSettings { get; set; }
+
+    /// <summary>
+    /// get/set - Foreign key to a prior automation action whose processed content - or fetched
+    /// collection - is compared against the current item; only used when ActionType is 'deduplicate'.
     /// </summary>
     public int? PriorActionId { get; set; }
 
@@ -139,6 +156,9 @@ public class AutomationActionModel
         this.ContentActionId = entity.ContentActionId;
         this.ReportId = entity.ReportId;
         this.NotificationId = entity.NotificationId;
+        this.FilterId = entity.FilterId;
+        this.FilterQuery = entity.Filter?.Query.RootElement.GetRawText();
+        this.FilterSettings = entity.Filter?.Settings.RootElement.GetRawText();
         this.PriorActionId = entity.PriorActionId;
         this.Objective = entity.Objective;
         this.LLMId = entity.LLMId;
@@ -174,6 +194,7 @@ public class AutomationActionModel
             ContentActionId = this.ContentActionId,
             ReportId = this.ReportId,
             NotificationId = this.NotificationId,
+            FilterId = this.FilterId,
             PriorActionId = this.PriorActionId,
             Objective = this.Objective,
             LLMId = this.LLMId,
