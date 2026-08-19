@@ -869,10 +869,13 @@ export const AutomationModalStyles = createGlobalStyle`
   /* Modal chrome per the design: dark header bar with a modest white title, white body,
      grey footer strip for the buttons. Applies to the automation page's modals (this global
      stylesheet is only mounted with the form). */
-  .modal-wrapper {
-    border-radius: 0.35rem;
-    overflow: hidden;
+  /* The modal box is .modal-popup (tno-core gives it 1.5rem padding; .modal-wrapper is the
+     fullscreen layer). Zero the popup padding so the header and footer run edge to edge inside
+     the rounded box; the body carries its own padding. */
+  .modal-popup,
+  .modal-full {
     padding: 0;
+    overflow: hidden;
   }
 
   .modal-header {
@@ -888,6 +891,7 @@ export const AutomationModalStyles = createGlobalStyle`
       font-size: 1rem;
       font-weight: 700;
       color: #fff;
+      text-transform: none;
     }
 
     svg,
@@ -905,6 +909,7 @@ export const AutomationModalStyles = createGlobalStyle`
     border-top: 1px solid #dcd8d4;
     padding: 0.65rem 1rem;
     margin: 0;
+    width: 100%;
   }
 
   /* v2 designer component styles. Global (not page-scoped) because the step,
