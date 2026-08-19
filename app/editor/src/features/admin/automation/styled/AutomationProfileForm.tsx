@@ -1233,18 +1233,14 @@ export const AutomationModalStyles = createGlobalStyle`
   }
 
   .v2-filter-add {
-    /* Per the design: a bare plus glyph beside the control - no border, no box, no background. */
-    flex: 0 0 auto;
-    align-self: center;
-    margin-left: 0.35rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    /* Attached inside the control per the design: a bare plus glyph after the dropdown arrow. */
     border: none;
     background: none;
     color: #1a5a96;
     cursor: pointer;
-    padding: 0;
+    padding: 0 0.5rem 0 0.35rem;
+    display: flex;
+    align-items: center;
 
     svg {
       width: 0.9rem;

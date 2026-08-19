@@ -20,7 +20,8 @@ describe('V2FilterField', () => {
         <V2FilterField name="test-filter" options={options} value={undefined} onChange={() => {}} />
       </TestWrapper>,
     );
-    expect(container.querySelector('.v2-filter-add')).not.toBeNull();
+    // The + is always present inside the control; the pencil only with a selection.
+    expect(container.querySelector('.rs__control')!.querySelector('.v2-filter-add')).not.toBeNull();
     expect(container.querySelector('.v2-filter-edit')).toBeNull();
   });
 
@@ -44,17 +45,17 @@ describe('V2FilterField', () => {
     expect(indicators!.firstElementChild!.classList.contains('v2-filter-edit')).toBe(true);
   });
 
-  it('keeps the add button outside the select but beside it', () => {
+  it('renders the add button inside the control, after the dropdown indicator', () => {
     const { container } = render(
       <TestWrapper>
         <V2FilterField name="test-filter" options={options} value={12} onChange={() => {}} />
       </TestWrapper>,
     );
     const add = container.querySelector('.v2-filter-add');
-    const control = container.querySelector('.rs__control');
+    const indicators = container.querySelector('.rs__indicators');
     expect(add).not.toBeNull();
-    // Outside the select's border, inside the field's own control row (the Select children slot).
-    expect(control!.contains(add)).toBe(false);
-    expect(container.querySelector('.frm-in')!.contains(add)).toBe(true);
+    // Attached: the + is part of the control itself (one component), last in the indicators.
+    expect(container.querySelector('.rs__control')!.contains(add)).toBe(true);
+    expect(indicators!.lastElementChild!.classList.contains('v2-filter-add')).toBe(true);
   });
 });

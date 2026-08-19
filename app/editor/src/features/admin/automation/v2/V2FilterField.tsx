@@ -19,10 +19,10 @@ export interface IV2FilterFieldProps {
  * A filter picker per the design: 'Pick a filter' placeholder; when a filter is selected an edit
  * pencil renders INSIDE the control (in the indicators area, left of the clear × and dropdown ▼)
  * and opens the filter in a new tab; a compact + beside the control opens a blank filter form in
- * a new tab. The pencil is injected through react-select's components API and the + renders in
- * the Select's own control row (its children slot - the same slot v1 used), so the field aligns
- * exactly like every other labelled field. The profile form refreshes its filter options when
- * the window regains focus, so a filter saved in the other tab appears on return.
+ * a new tab. Both are injected through react-select's components API into the control's
+ * indicators area - pencil before the clear/dropdown indicators, + after them - so the whole
+ * thing is one attached control, exactly as designed. The profile form refreshes its filter
+ * options when the window regains focus, so a filter saved in the other tab appears on return.
  */
 export const V2FilterField: React.FC<IV2FilterFieldProps> = ({
   name,
@@ -57,6 +57,19 @@ export const V2FilterField: React.FC<IV2FilterFieldProps> = ({
               </button>
             )}
             {props.children}
+            <button
+              type="button"
+              className="v2-filter-add"
+              aria-label="Create a new filter in a new tab"
+              title="Create a new filter in a new tab"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onClick={() => window.open('/admin/filters/0', '_blank', 'noopener')}
+            >
+              <FaPlus />
+            </button>
           </selectComponents.IndicatorsContainer>
         );
       },
@@ -74,18 +87,6 @@ export const V2FilterField: React.FC<IV2FilterFieldProps> = ({
       value={findOptionByValue(options, value) ?? ''}
       onChange={(newValue) => onChange(toNumberOrUndefined(newValue as IOptionItem))}
       components={{ IndicatorsContainer }}
-    >
-      {/* Rendered in the Select's own control row (the same slot v1 used for its filter
-          buttons), so the field aligns exactly like every other labelled field. */}
-      <button
-        type="button"
-        className="v2-filter-add"
-        aria-label="Create a new filter in a new tab"
-        title="Create a new filter in a new tab"
-        onClick={() => window.open('/admin/filters/0', '_blank', 'noopener')}
-      >
-        <FaPlus />
-      </button>
-    </Select>
+    />
   );
 };
