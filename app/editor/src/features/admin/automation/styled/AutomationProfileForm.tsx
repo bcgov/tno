@@ -870,15 +870,16 @@ export const AutomationModalStyles = createGlobalStyle`
      grey footer strip for the buttons. Applies to the automation page's modals (this global
      stylesheet is only mounted with the form). */
   /* The modal box is .modal-popup (tno-core gives it 1.5rem padding; .modal-wrapper is the
-     fullscreen layer). Zero the popup padding so the header and footer run edge to edge inside
-     the rounded box; the body carries its own padding. */
-  .modal-popup,
-  .modal-full {
-    padding: 0;
+     fullscreen layer). tno-core's rules compile as '.generated .modal-popup' (two classes), so
+     these overrides need the wrapper prefix and !important on the contested properties to win
+     regardless of style-injection order. */
+  .modal-wrapper .modal-popup,
+  .modal-wrapper .modal-full {
+    padding: 0 !important;
     overflow: hidden;
   }
 
-  .modal-header {
+  .modal-wrapper .modal-header {
     background: #332e2c;
     color: #fff;
     padding: 0.55rem 1rem;
@@ -900,15 +901,15 @@ export const AutomationModalStyles = createGlobalStyle`
     }
   }
 
-  .modal-body {
+  .modal-wrapper .modal-body {
     padding: 1rem;
   }
 
-  .button-row {
+  .modal-wrapper .button-row {
     background: #ece9e6;
     border-top: 1px solid #dcd8d4;
     padding: 0.65rem 1rem;
-    margin: 0;
+    margin: 0 !important;
     width: 100%;
   }
 
