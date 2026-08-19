@@ -66,10 +66,10 @@ public class V2SourceDefinition
 {
     #region Properties
     /// <summary>
-    /// get/set - The source kind: 'profile' (the profile filter's results), 'filter' (the step
-    /// runs its own search), or 'collection' (a named collection from the run context).
+    /// get/set - The source kind: 'filter' (the step runs its own search) or 'collection'
+    /// (a named collection from the run context; content enters a run through 'search' actions).
     /// </summary>
-    public string From { get; set; } = "profile";
+    public string From { get; set; } = "collection";
 
     /// <summary>
     /// get/set - The filter to execute when From is 'filter'.

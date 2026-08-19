@@ -77,8 +77,6 @@ public static class AutomationDefinitionValidator
                     var sourcePath = $"{stepPath}.source";
                     switch (source.From)
                     {
-                        case "profile":
-                            break;
                         case "filter":
                             if (!source.Filter.HasValue)
                                 errors.Add(new($"{sourcePath}.filter", "A filter source requires a filter id."));
@@ -95,7 +93,7 @@ public static class AutomationDefinitionValidator
                             }
                             break;
                         default:
-                            errors.Add(new($"{sourcePath}.from", $"Source '{source.From}' is not one of: profile, filter, collection."));
+                            errors.Add(new($"{sourcePath}.from", $"Source '{source.From}' is not one of: filter, collection (content enters a run through 'search' actions)."));
                             break;
                     }
                 }

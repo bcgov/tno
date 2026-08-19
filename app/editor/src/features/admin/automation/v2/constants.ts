@@ -27,9 +27,8 @@ export const v2StepSaveModeOptions: IOptionItem[] = [
 ];
 
 export const v2SourceOptions: IOptionItem[] = [
-  createOption('Profile filter results', 'profile'),
-  createOption('Run a filter', 'filter'),
   createOption('A collection from the run', 'collection'),
+  createOption('Run a filter', 'filter'),
 ];
 
 export const v2ConditionOpOptions: IOptionItem[] = [
@@ -77,7 +76,7 @@ export const createDefaultV2Step = (phase: IV2Step['phase'] = 'process'): IV2Ste
   name: '',
   phase,
   isEnabled: true,
-  source: phase === 'process' ? { from: 'profile', include: [], exclude: [] } : undefined,
+  source: phase === 'process' ? { from: 'collection', include: [], exclude: [] } : undefined,
   analyses: [],
   actions: [],
 });

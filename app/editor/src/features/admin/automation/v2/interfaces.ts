@@ -31,8 +31,9 @@ export interface IV2Step {
 }
 
 export interface IV2Source {
-  /** 'profile' (the profile filter's results), 'filter' (own search), or 'collection'. */
-  from: 'profile' | 'filter' | 'collection';
+  /** 'filter' (the step runs its own search) or 'collection' (a named run collection;
+   * content enters a run through 'search' actions). */
+  from: 'filter' | 'collection';
   filter?: number | null;
   collection?: string | null;
   /** Gate filter ids: only items matching every one are processed. */

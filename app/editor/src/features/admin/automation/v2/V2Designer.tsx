@@ -161,7 +161,8 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
       return <span className="v2-prompt-name">{source.collection ?? '?'}</span>;
     if (source?.from === 'filter')
       return findOptionByValue(filterOptions, source.filter)?.label ?? `filter ${source.filter}`;
-    return 'profile filter';
+    // Legacy documents may still carry an unsupported source kind; validation flags it.
+    return source?.from ? `${source.from} (unsupported)` : '—';
   };
 
   const typeLabel = (type: string): string =>

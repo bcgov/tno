@@ -54,7 +54,7 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
               // Once-phases run with no subject and cannot declare a source.
               source:
                 phase === 'process'
-                  ? step.source ?? { from: 'profile', include: [], exclude: [] }
+                  ? step.source ?? { from: 'collection', include: [], exclude: [] }
                   : undefined,
             });
           }}
@@ -104,13 +104,15 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
             width="18rem"
             isClearable={false}
             options={v2SourceOptions}
-            value={findOptionByValue(v2SourceOptions, step.source?.from ?? 'profile')}
+            value={findOptionByValue(v2SourceOptions, step.source?.from ?? 'collection')}
             onChange={(newValue) => {
               const option = newValue as IOptionItem;
               set({
                 source: {
                   ...(step.source ?? { include: [], exclude: [] }),
-                  from: `${option?.value ?? 'profile'}` as NonNullable<IV2Step['source']>['from'],
+                  from: `${option?.value ?? 'collection'}` as NonNullable<
+                    IV2Step['source']
+                  >['from'],
                 },
               });
             }}
@@ -158,7 +160,7 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
             onChange={(e) =>
               set({
                 source: {
-                  ...(step.source ?? { from: 'profile' }),
+                  ...(step.source ?? { from: 'collection' }),
                   max: e.target.value === '' ? null : Number(e.target.value),
                 },
               })
@@ -174,7 +176,7 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
             onChange={(filterId) =>
               set({
                 source: {
-                  ...(step.source ?? { from: 'profile' }),
+                  ...(step.source ?? { from: 'collection' }),
                   include: filterId ? [filterId] : [],
                 },
               })
@@ -188,7 +190,7 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
             onChange={(filterId) =>
               set({
                 source: {
-                  ...(step.source ?? { from: 'profile' }),
+                  ...(step.source ?? { from: 'collection' }),
                   exclude: filterId ? [filterId] : [],
                 },
               })

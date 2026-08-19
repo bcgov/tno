@@ -66,9 +66,19 @@ public class AutomationDefinitionValidatorTest
     public void InitStepWithSource_IsAnError()
     {
         var definition = ValidDefinition();
-        definition.Steps[0].Source = new V2SourceDefinition { From = "profile" };
+        definition.Steps[0].Source = new V2SourceDefinition { From = "collection", Collection = "$run.inbox" };
         var errors = AutomationDefinitionValidator.Validate(definition);
         Assert.Contains(errors, e => e.Path == "steps[0].source");
+    }
+
+    [Fact]
+    public void ProfileSource_IsAnError()
+    {
+        // v2 has no profile filter: content enters a run through 'search' actions.
+        var definition = ValidDefinition();
+        definition.Steps[1].Source = new V2SourceDefinition { From = "profile" };
+        var errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.Contains(errors, e => e.Path == "steps[1].source.from" && e.Severity == "error");
     }
 
     [Fact]
