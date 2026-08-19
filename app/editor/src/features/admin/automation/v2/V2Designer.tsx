@@ -227,8 +227,10 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
         Init steps run once before iteration; each process step iterates its declared source;
         complete steps run once after. Drag rows to reorder within a phase.
         <br />
-        An analysis executes at most once per item, and only when a consuming action is reachable —
-        actions gated by a property condition send no prompt.
+        <span className="help-accent">
+          An analysis executes at most once per item, and only when a consuming action is reachable
+          — actions gated by a property condition send no prompt.
+        </span>
       </p>
       <div className="v2-grid">
         <Row className="v2-grid-header" nowrap>

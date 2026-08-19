@@ -210,6 +210,15 @@ export const AutomationProfileForm = styled(FormPage)`
     align-items: center;
     justify-content: space-between;
     margin-top: 1rem;
+
+    h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: #1a5a96;
+    }
   }
 
   .section-header-inline {
@@ -405,6 +414,28 @@ export const AutomationProfileForm = styled(FormPage)`
 
   .action-main-row {
     align-items: center;
+  }
+
+  .schedule-picker {
+    .react-datepicker__input-container {
+      position: relative;
+    }
+
+    .react-datepicker__calendar-icon {
+      position: absolute;
+      left: auto;
+      right: 0.45rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1rem;
+      height: 1rem;
+      padding: 0;
+      color: #1d2939;
+    }
+
+    .react-datepicker__view-calendar-icon input {
+      padding: 0.35rem 1.9rem 0.35rem 0.5rem;
+    }
   }
 
   .modal-intro-text {
@@ -1005,6 +1036,15 @@ export const AutomationProfileForm = styled(FormPage)`
     display: flex;
     justify-content: flex-end;
     gap: 0.6rem;
+
+    .rule-icon-button,
+    .rule-icon-button.delete {
+      color: #1a5a96;
+
+      &:hover:not(:disabled) {
+        color: #0f3e6d;
+      }
+    }
   }
 
   .v2-grid-expanded {
@@ -1061,6 +1101,15 @@ export const AutomationProfileForm = styled(FormPage)`
     .rule-icon-button + .rule-icon-button {
       margin-left: 0.6rem;
     }
+
+    .rule-icon-button,
+    .rule-icon-button.delete {
+      color: #1a5a96;
+
+      &:hover:not(:disabled) {
+        color: #0f3e6d;
+      }
+    }
   }
 
   .v2-library-empty {
@@ -1102,6 +1151,10 @@ export const AutomationProfileForm = styled(FormPage)`
     margin: 0;
     font-size: 0.8rem;
     color: #667085;
+  }
+
+  .section-help-text .help-accent {
+    color: #2b7a78;
   }
 
   .v2-badge {

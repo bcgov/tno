@@ -13,7 +13,7 @@ import {
   FaPlus,
   FaTrash,
 } from 'react-icons/fa';
-import { FaArrowRotateLeft, FaCircleInfo } from 'react-icons/fa6';
+import { FaArrowRotateLeft, FaCircleInfo, FaRegCalendar, FaRegClock } from 'react-icons/fa6';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApiHub, useLookup } from 'store/hooks';
@@ -43,6 +43,7 @@ import {
   Modal,
   Row,
   Select,
+  SelectDate,
   Show,
   Tab,
   Tabs,
@@ -63,6 +64,7 @@ import {
   contentFieldOptionItems,
   createDefaultAction,
   createDefaultStep,
+  DATE_PICKER_PORTAL_ID,
   DEDUPLICATION_ACTION,
   deduplicateBatchDefaults,
   deduplicateModeOptions,
@@ -2977,49 +2979,66 @@ const AutomationProfileForm: React.FC = () => {
                           );
                         }}
                       />
-                      <Text
-                        width={FieldSize.Small}
-                        name="schedule-start-at"
-                        label="Run At"
-                        type="time"
-                        value={(scheduleModalState?.schedule.startAt ?? '').slice(0, 5)}
-                        onChange={(event) => {
-                          const time = event.target.value;
-                          setScheduleModalState((state) =>
-                            state
-                              ? {
-                                  ...state,
-                                  schedule: {
-                                    ...state.schedule,
-                                    startAt: time ? `${time}:00` : null,
-                                  },
-                                }
-                              : state,
-                          );
-                        }}
-                      />
-                      <Text
-                        width={FieldSize.Medium}
-                        name="schedule-run-on"
-                        label="Start After"
-                        type="datetime-local"
-                        value={
-                          scheduleModalState?.schedule.runOn
-                            ? moment(scheduleModalState.schedule.runOn).format('YYYY-MM-DDTHH:mm')
-                            : ''
-                        }
-                        onChange={(event) => {
-                          // Sent as a UTC ISO string: the API binds it to a DateTime with
-                          // Kind=Utc, which is what both the 'timestamp with time zone' column
-                          // and the Scheduler's ToTimeZone conversion require.
-                          const runOn = event.target.value
-                            ? moment(event.target.value).toISOString()
-                            : null;
-                          setScheduleModalState((state) =>
-                            state ? { ...state, schedule: { ...state.schedule, runOn } } : state,
-                          );
-                        }}
-                      />
+                      <div className="schedule-picker">
+                        <SelectDate
+                          width={FieldSize.Small}
+                          name="schedule-start-at"
+                          label="Run At"
+                          dateFormat="h:mm aa"
+                          showTimeSelect
+                          showTimeSelectOnly
+                          timeIntervals={30}
+                          timeCaption=""
+                          showIcon
+                          icon={<FaRegClock />}
+                          toggleCalendarOnIconClick
+                          portalId={DATE_PICKER_PORTAL_ID}
+                          selectedDate={
+                            scheduleModalState?.schedule.startAt
+                              ? moment(
+                                  scheduleModalState.schedule.startAt,
+                                  'HH:mm:ss',
+                                ).toISOString()
+                              : undefined
+                          }
+                          onChange={(date) => {
+                            const startAt = date ? moment(date as Date).format('HH:mm:00') : null;
+                            setScheduleModalState((state) =>
+                              state
+                                ? { ...state, schedule: { ...state.schedule, startAt } }
+                                : state,
+                            );
+                          }}
+                        />
+                      </div>
+                      <div className="schedule-picker">
+                        <SelectDate
+                          width={FieldSize.Medium}
+                          name="schedule-run-on"
+                          label="Start After"
+                          placeholderText="yyyy-mm-dd --:-- --"
+                          dateFormat="yyyy-MM-dd h:mm aa"
+                          showTimeSelect
+                          timeIntervals={30}
+                          isClearable
+                          showIcon
+                          icon={<FaRegCalendar />}
+                          toggleCalendarOnIconClick
+                          // The modal clips its popup and scrolls its body, so the calendar
+                          // renders into a body-level portal instead of being cut off.
+                          portalId={DATE_PICKER_PORTAL_ID}
+                          selectedDate={scheduleModalState?.schedule.runOn ?? undefined}
+                          onChange={(date) => {
+                            // Sent as a UTC ISO string: the API binds it to a DateTime with
+                            // Kind=Utc, which is what both the 'timestamp with time zone' column
+                            // and the Scheduler's ToTimeZone conversion require.
+                            const runOn = date ? moment(date as Date).toISOString() : null;
+                            setScheduleModalState((state) =>
+                              state ? { ...state, schedule: { ...state.schedule, runOn } } : state,
+                            );
+                          }}
+                        />
+                      </div>
                     </Row>
                     <p className="schedule-help-text">
                       Leave Start After empty to run at any time.
