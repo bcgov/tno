@@ -344,99 +344,101 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                         </Row>
                         <Show visible={expanded.has(index)}>
                           <div className="v2-grid-expanded">
-                            <Row className="v2-subsection-header" nowrap>
-                              <h3>Analyses</h3>
-                              <button
-                                type="button"
-                                className="rule-icon-button"
-                                aria-label="Add an analysis"
-                                title="Add an analysis"
-                                onClick={() =>
-                                  setAnalysisModal({
-                                    stepIndex: index,
-                                    index: null,
-                                    draft: { name: '', prompt: { text: '' }, returns: {} },
-                                  })
-                                }
-                              >
-                                <FaPlus />
-                              </button>
-                            </Row>
-                            <Show visible={step.analyses.length === 0}>
-                              <p className="v2-field-help">
-                                No analyses — actions with property conditions run without any LLM
-                                call.
-                              </p>
-                            </Show>
-                            <Show visible={step.analyses.length > 0}>
-                              <div className="v2-grid v2-subgrid">
-                                <Row className="v2-grid-header" nowrap>
-                                  <span className="v2-gc-name">Name</span>
-                                  <span className="v2-gc-source">Prompt</span>
-                                  <span className="v2-gc-name">Returns</span>
-                                  <span className="v2-gc-actions" />
-                                </Row>
-                                {step.analyses.map((analysis, analysisIndex) => (
-                                  <Row key={analysisIndex} className="v2-grid-row" nowrap>
-                                    <span className="v2-gc-name">
-                                      <span className="v2-prompt-name">{analysis.name}</span>
-                                    </span>
-                                    <span className="v2-gc-source">
-                                      {analysis.prompt?.ref ?? '(inline text)'}
-                                      {analysis.prompt?.override ? ' + override' : ''}
-                                    </span>
-                                    <span className="v2-gc-name">
-                                      {analysis.raw
-                                        ? 'raw response'
-                                        : Object.keys(analysis.returns ?? {}).join(', ')}
-                                    </span>
-                                    <span className="v2-gc-actions">
-                                      <button
-                                        type="button"
-                                        className="rule-icon-button"
-                                        aria-label={`Edit analysis '${analysis.name}'`}
-                                        title="Edit analysis"
-                                        onClick={() =>
-                                          setAnalysisModal({
-                                            stepIndex: index,
-                                            index: analysisIndex,
-                                            draft: deepCopy(analysis),
-                                          })
-                                        }
-                                      >
-                                        <FaEdit />
-                                      </button>
-                                      <button
-                                        type="button"
-                                        className="rule-icon-button"
-                                        aria-label={`Duplicate analysis '${analysis.name}'`}
-                                        title="Duplicate analysis"
-                                        onClick={() => duplicateAnalysis(index, analysisIndex)}
-                                      >
-                                        <FaCopy />
-                                      </button>
-                                      <button
-                                        type="button"
-                                        className="rule-icon-button delete"
-                                        aria-label={`Delete analysis '${analysis.name}'`}
-                                        title="Delete analysis"
-                                        onClick={() =>
-                                          setStep(index, {
-                                            ...step,
-                                            analyses: step.analyses.filter(
-                                              (_, i) => i !== analysisIndex,
-                                            ),
-                                          })
-                                        }
-                                      >
-                                        <FaTrash />
-                                      </button>
-                                    </span>
+                            <Show visible={step.phase !== 'init'}>
+                              <Row className="v2-subsection-header" nowrap>
+                                <h3>Analyses</h3>
+                                <button
+                                  type="button"
+                                  className="rule-icon-button"
+                                  aria-label="Add an analysis"
+                                  title="Add an analysis"
+                                  onClick={() =>
+                                    setAnalysisModal({
+                                      stepIndex: index,
+                                      index: null,
+                                      draft: { name: '', prompt: { text: '' }, returns: {} },
+                                    })
+                                  }
+                                >
+                                  <FaPlus />
+                                </button>
+                              </Row>
+                              <Show visible={step.analyses.length === 0}>
+                                <p className="v2-field-help">
+                                  {step.phase === 'process'
+                                    ? 'No analyses — an analysis asks the LLM about each item (once per item); actions consume its answers. Actions gated by property conditions run without any LLM call.'
+                                    : 'No analyses — here an analysis runs once per run: {collection:$run.name} tokens let it reason over what the run produced, and actions gate on its answers (e.g. whether to send a report).'}
+                                </p>
+                              </Show>
+                              <Show visible={step.analyses.length > 0}>
+                                <div className="v2-grid v2-subgrid">
+                                  <Row className="v2-grid-header" nowrap>
+                                    <span className="v2-gc-name">Name</span>
+                                    <span className="v2-gc-source">Prompt</span>
+                                    <span className="v2-gc-name">Returns</span>
+                                    <span className="v2-gc-actions" />
                                   </Row>
-                                ))}
-                              </div>
+                                  {step.analyses.map((analysis, analysisIndex) => (
+                                    <Row key={analysisIndex} className="v2-grid-row" nowrap>
+                                      <span className="v2-gc-name">
+                                        <span className="v2-prompt-name">{analysis.name}</span>
+                                      </span>
+                                      <span className="v2-gc-source">
+                                        {analysis.prompt?.ref ?? '(inline text)'}
+                                        {analysis.prompt?.override ? ' + override' : ''}
+                                      </span>
+                                      <span className="v2-gc-name">
+                                        {analysis.raw
+                                          ? 'raw response'
+                                          : Object.keys(analysis.returns ?? {}).join(', ')}
+                                      </span>
+                                      <span className="v2-gc-actions">
+                                        <button
+                                          type="button"
+                                          className="rule-icon-button"
+                                          aria-label={`Edit analysis '${analysis.name}'`}
+                                          title="Edit analysis"
+                                          onClick={() =>
+                                            setAnalysisModal({
+                                              stepIndex: index,
+                                              index: analysisIndex,
+                                              draft: deepCopy(analysis),
+                                            })
+                                          }
+                                        >
+                                          <FaEdit />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          className="rule-icon-button"
+                                          aria-label={`Duplicate analysis '${analysis.name}'`}
+                                          title="Duplicate analysis"
+                                          onClick={() => duplicateAnalysis(index, analysisIndex)}
+                                        >
+                                          <FaCopy />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          className="rule-icon-button delete"
+                                          aria-label={`Delete analysis '${analysis.name}'`}
+                                          title="Delete analysis"
+                                          onClick={() =>
+                                            setStep(index, {
+                                              ...step,
+                                              analyses: step.analyses.filter(
+                                                (_, i) => i !== analysisIndex,
+                                              ),
+                                            })
+                                          }
+                                        >
+                                          <FaTrash />
+                                        </button>
+                                      </span>
+                                    </Row>
+                                  ))}
+                                </div>
+                              </Show>
                             </Show>
-
                             <Row className="v2-subsection-header" nowrap>
                               <h3>Actions</h3>
                               <button
