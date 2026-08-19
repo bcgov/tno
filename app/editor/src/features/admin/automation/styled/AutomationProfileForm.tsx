@@ -1232,6 +1232,14 @@ export const AutomationModalStyles = createGlobalStyle`
     }
   }
 
+  .v2-filter-separator {
+    /* Same geometry/colour as react-select's .rs__indicator-separator. */
+    align-self: stretch;
+    width: 1px;
+    margin: 8px 0;
+    background-color: hsl(0, 0%, 80%);
+  }
+
   .v2-filter-add {
     /* Attached inside the control per the design: a bare plus glyph after the dropdown arrow. */
     border: none;

@@ -57,6 +57,8 @@ export const V2FilterField: React.FC<IV2FilterFieldProps> = ({
               </button>
             )}
             {props.children}
+            {/* Matches react-select's own indicator separator, dividing the arrow from the +. */}
+            <span className="v2-filter-separator" />
             <button
               type="button"
               className="v2-filter-add"
