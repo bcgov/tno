@@ -17,7 +17,7 @@ const shapeOptions: IOptionItem[] = [
   createOption('All of…', 'all'),
   createOption('Any of…', 'any'),
   createOption('Not…', 'not'),
-  createOption('Analysis answer (boolean)', 'from'),
+  createOption('Analysis answer', 'from'),
 ];
 
 const getShape = (condition: IV2Condition): ConditionShape => {
@@ -107,7 +107,7 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
       <Row gap="0.5rem" alignItems="center" nowrap>
         <Select
           name={`condition-shape-${depth}`}
-          width="16rem"
+          width="10rem"
           isClearable={false}
           options={shapeOptions}
           value={findOptionByValue(shapeOptions, shape)}
@@ -120,14 +120,14 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
           <Text
             name={`condition-field-${depth}`}
             placeholder="field"
-            width="11rem"
+            width="9rem"
             list={fieldListId}
             value={value.field ?? ''}
             onChange={(e) => onChange({ ...value, field: e.target.value })}
           />
           <Select
             name={`condition-op-${depth}`}
-            width="14rem"
+            width="10rem"
             isClearable={false}
             options={v2ConditionOpOptions}
             value={findOptionByValue(v2ConditionOpOptions, value.op ?? 'equals')}
@@ -143,7 +143,7 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
                 V2_LIST_OPS.includes(value.op ?? '') ? 'comma-separated values' : 'value'
               }
               value={valueToText(value.value)}
-              width="16rem"
+              width="10rem"
               onChange={(e) => onChange({ ...value, value: textToValue(e.target.value, value.op) })}
             />
           </Show>
@@ -153,7 +153,7 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
             name={`condition-from-${depth}`}
             placeholder="analysisName.key (a boolean result)"
             value={value.from ?? ''}
-            width="20rem"
+            width="14rem"
             onChange={(e) => onChange({ from: e.target.value })}
           />
         </Show>

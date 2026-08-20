@@ -705,7 +705,9 @@ export const AutomationProfileForm = styled(FormPage)`
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    min-width: min(60rem, 90vw);
+    /* Must stay narrower than the popup's max-width (52rem) or the modal scrolls horizontally. */
+    min-width: min(46rem, 86vw);
+    max-width: 100%;
   }
 
   .section-doc-content {
