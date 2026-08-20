@@ -104,12 +104,32 @@ export const V2PromptLibrary: React.FC<IV2PromptLibraryProps> = ({ definition, o
     setDraft(null);
   };
 
+  /** Copies drop the reserved 'default-' prefix so they read as ordinary entries. */
+  const copyName = (name: string): string => {
+    const base = `${name.replace(/^default-/, '')}-copy`;
+    let copy = base;
+    for (let n = 2; definition.prompts[copy]; n++) copy = `${base}-${n}`;
+    return copy;
+  };
+
   const duplicate = (name: string) => {
-    let copy = `${name}-copy`;
-    for (let n = 2; definition.prompts[copy]; n++) copy = `${name}-copy-${n}`;
     onChange({
       ...definition,
-      prompts: { ...definition.prompts, [copy]: { ...definition.prompts[name] } },
+      prompts: { ...definition.prompts, [copyName(name)]: { ...definition.prompts[name] } },
+    });
+  };
+
+  /** Materialize a modifiable copy of a built-in prompt; the built-in itself stays untouched. */
+  const duplicateBuiltin = (name: string) => {
+    onChange({
+      ...definition,
+      prompts: {
+        ...definition.prompts,
+        [copyName(name)]: {
+          text: V2_DEFAULT_PROMPTS[name].text,
+          description: `Copy of the built-in ${name} prompt.`,
+        },
+      },
     });
   };
 
@@ -196,6 +216,15 @@ export const V2PromptLibrary: React.FC<IV2PromptLibraryProps> = ({ definition, o
                   }
                 >
                   <FaEdit />
+                </button>
+                <button
+                  type="button"
+                  className="rule-icon-button"
+                  aria-label={`Copy the built-in prompt '${name}'`}
+                  title="Create an editable copy (the built-in stays untouched)"
+                  onClick={() => duplicateBuiltin(name)}
+                >
+                  <FaCopy />
                 </button>
               </td>
             </tr>
