@@ -872,7 +872,7 @@ const AutomationProfileForm: React.FC = () => {
                         </Show>
                         <Button
                           type="button"
-                          className="header-btn-outline"
+                          className="header-btn-outline header-btn-gap"
                           variant={ButtonVariant.secondary}
                           disabled={isSubmitting}
                           tooltip="Download this profile (steps, actions, and filters) as JSON."
@@ -913,7 +913,7 @@ const AutomationProfileForm: React.FC = () => {
                       <Show visible={!!values.id}>
                         <Button
                           type="button"
-                          className="header-btn-delete"
+                          className="header-btn-delete header-btn-gap"
                           onClick={toggle}
                           variant={ButtonVariant.secondary}
                           disabled={isSubmitting}

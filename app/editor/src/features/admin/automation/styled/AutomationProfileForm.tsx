@@ -96,6 +96,11 @@ export const AutomationProfileForm = styled(FormPage)`
         }
       }
 
+      /* Visual grouping: run actions | transfer actions | destructive + save. */
+      .header-btn-gap {
+        margin-left: 1rem;
+      }
+
       .header-btn-delete {
         background: #fff;
         border: 1px solid #d8292f;
