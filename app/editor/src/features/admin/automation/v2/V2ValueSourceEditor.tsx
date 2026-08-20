@@ -19,6 +19,15 @@ const getKind = (value?: IV2ValueSource | null): ValueKind => {
   return 'from';
 };
 
+/** Full explanation of the selected source, shown under the row. */
+const kindHelp: Record<ValueKind, string> = {
+  from: "Reads a named result: 'analysisName.key' takes the answer from one of this step's analyses (the analysis runs when first used - one LLM call per item); 'content.field' copies a field from the item's working copy, changes included.",
+  literal:
+    'Applies this exact value to every item. A plain number is stored as a number (e.g. 0); anything else is text.',
+  template:
+    "Builds text per item: every {content.*} token is replaced with that item's value and the finished text is stored. Example: [{content.source.code}] {content.headline} becomes [SUN] Mayor announces budget.",
+};
+
 export interface IV2ValueSourceEditorProps {
   name: string;
   value?: IV2ValueSource | null;
@@ -39,60 +48,64 @@ export const V2ValueSourceEditor: React.FC<IV2ValueSourceEditorProps> = ({
 }) => {
   const kind = getKind(value);
   return (
-    <Row gap="0.5rem" alignItems="center" nowrap>
-      <Select
-        name={`${name}-kind`}
-        width="16rem"
-        isClearable={false}
-        options={kindOptions}
-        value={findOptionByValue(kindOptions, kind)}
-        onChange={(newValue) => {
-          const option = newValue as IOptionItem;
-          switch (option?.value) {
-            case 'literal':
-              onChange({ literal: '' });
-              break;
-            case 'template':
-              onChange({ template: '' });
-              break;
-            default:
-              onChange({ from: '' });
-              break;
-          }
-        }}
-      />
-      <Show visible={kind === 'from'}>
-        <V2ComboBox
-          name={`${name}-from`}
-          placeholder="Pick an analysis key or content field"
-          width="20rem"
-          suggestions={fromSuggestions}
-          value={value?.from ?? ''}
-          onChange={(from) => onChange({ from })}
-        />
-      </Show>
-      <Show visible={kind === 'literal'}>
-        <Text
-          name={`${name}-literal`}
-          placeholder="a fixed value"
-          value={value?.literal === undefined ? '' : `${value.literal}`}
-          width="20rem"
-          onChange={(e) => {
-            const text = e.target.value;
-            const numeric = text.trim() !== '' && !Number.isNaN(Number(text)) ? Number(text) : text;
-            onChange({ literal: numeric });
+    <div className="v2-value-source">
+      <Row gap="0.5rem" alignItems="center" nowrap>
+        <Select
+          name={`${name}-kind`}
+          width="16rem"
+          isClearable={false}
+          options={kindOptions}
+          value={findOptionByValue(kindOptions, kind)}
+          onChange={(newValue) => {
+            const option = newValue as IOptionItem;
+            switch (option?.value) {
+              case 'literal':
+                onChange({ literal: '' });
+                break;
+              case 'template':
+                onChange({ template: '' });
+                break;
+              default:
+                onChange({ from: '' });
+                break;
+            }
           }}
         />
-      </Show>
-      <Show visible={kind === 'template'}>
-        <Text
-          name={`${name}-template`}
-          placeholder="Text with {content.*} tokens, e.g. [{content.source.code}] {content.headline}"
-          value={value?.template ?? ''}
-          width="20rem"
-          onChange={(e) => onChange({ template: e.target.value })}
-        />
-      </Show>
-    </Row>
+        <Show visible={kind === 'from'}>
+          <V2ComboBox
+            name={`${name}-from`}
+            placeholder="Pick an analysis key or content field"
+            width="20rem"
+            suggestions={fromSuggestions}
+            value={value?.from ?? ''}
+            onChange={(from) => onChange({ from })}
+          />
+        </Show>
+        <Show visible={kind === 'literal'}>
+          <Text
+            name={`${name}-literal`}
+            placeholder="a fixed value"
+            value={value?.literal === undefined ? '' : `${value.literal}`}
+            width="20rem"
+            onChange={(e) => {
+              const text = e.target.value;
+              const numeric =
+                text.trim() !== '' && !Number.isNaN(Number(text)) ? Number(text) : text;
+              onChange({ literal: numeric });
+            }}
+          />
+        </Show>
+        <Show visible={kind === 'template'}>
+          <Text
+            name={`${name}-template`}
+            placeholder="Text with {content.*} tokens, e.g. [{content.source.code}] {content.headline}"
+            value={value?.template ?? ''}
+            width="20rem"
+            onChange={(e) => onChange({ template: e.target.value })}
+          />
+        </Show>
+      </Row>
+      <p className="v2-field-help">{kindHelp[kind]}</p>
+    </div>
   );
 };

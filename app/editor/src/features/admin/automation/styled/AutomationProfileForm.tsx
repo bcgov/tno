@@ -1424,6 +1424,11 @@ export const AutomationModalStyles = createGlobalStyle`
   .v2-action-fields .v2-field-help {
     max-width: 16rem;
   }
+  /* Wide blocks (value sources, condition builders) span the modal; their help does too. */
+  .v2-action-fields .v2-field-wide .v2-field-help,
+  .v2-value-source .v2-field-help {
+    max-width: none;
+  }
   /* Hand-rolled field columns carry .frm-in, so label spacing/weight match tno-core fields
      exactly; the nested combobox drops its own wrapper padding to avoid doubling it. */
   .v2-scoped-name .frm-in,
