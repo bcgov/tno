@@ -246,16 +246,48 @@ export const AutomationProfileForm = styled(FormPage)`
     line-height: 1.4;
   }
 
+  .section-doc-anchor {
+    position: relative;
+    display: inline-flex;
+    /* Room for the icon's full circle so neighbouring layout never clips it. */
+    padding-right: 0.15rem;
+  }
+  .section-doc-popover {
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    left: 0;
+    z-index: 1100;
+    width: min(34rem, 80vw);
+    background: #fff;
+    border: 1px solid #d0d5dd;
+    border-radius: 0.35rem;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.18);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    text-transform: none;
+    font-weight: 400;
+    font-size: 0.9rem;
+    color: #1d2939;
+  }
+  .section-doc-popover-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+  }
   .section-doc-button {
     all: unset;
     appearance: none;
     -webkit-appearance: none;
     min-width: 0;
-    /* Fixed 1em square, centered on the adjacent text line: the icon can never be
-       clipped, and it never changes the row's vertical spacing. */
-    width: 1rem;
-    height: 1rem;
-    font-size: 0.85rem;
+    /* A square slightly larger than the glyph, centered on the text line, so the
+       icon's circle always renders fully. */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    font-size: 0.9rem;
     overflow: visible;
     padding: 0;
     margin: 0;

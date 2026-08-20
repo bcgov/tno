@@ -13,7 +13,7 @@ import {
   FaPlus,
   FaTrash,
 } from 'react-icons/fa';
-import { FaArrowRotateLeft, FaCircleInfo, FaRegCalendar, FaRegClock } from 'react-icons/fa6';
+import { FaArrowRotateLeft, FaRegCalendar, FaRegClock } from 'react-icons/fa6';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApiHub, useLookup } from 'store/hooks';
@@ -77,7 +77,6 @@ import {
   RUN_NOTIFICATION_ACTION,
   RUN_REPORT_ACTION,
   SCORE_CONTENT_ACTION,
-  sectionDocs,
   SELECT_TOP_ACTION,
   stepTargetOptions,
   UPDATE_CONTENT_FIELD_ACTION,
@@ -106,7 +105,6 @@ import {
   type IActionModalState,
   type IStepDeleteState,
   type IStepModalState,
-  type SectionDocKey,
   type StepModalMode,
 } from './types';
 import {
@@ -136,6 +134,7 @@ import {
 } from './utils';
 import { AutomationDebugging } from './AutomationDebugging';
 import { StrictModeDroppable } from './StrictModeDroppable';
+import { SectionInfoButton } from './SectionInfoButton';
 import * as styled from './styled';
 
 const AutomationProfileForm: React.FC = () => {
@@ -149,14 +148,12 @@ const AutomationProfileForm: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toggle, isShowing } = useModal();
-  const { toggle: toggleSectionDoc, isShowing: isSectionDocShowing } = useModal();
   const { toggle: toggleStepModal, isShowing: isStepModalShowing } = useModal();
   const { toggle: toggleStepDeleteModal, isShowing: isStepDeleteModalShowing } = useModal();
   const { toggle: toggleActionModal, isShowing: isActionModalShowing } = useModal();
   const { toggle: toggleScheduleModal, isShowing: isScheduleModalShowing } = useModal();
   const { toggle: toggleActionDeleteModal, isShowing: isActionDeleteModalShowing } = useModal();
 
-  const [activeSectionDoc, setActiveSectionDoc] = React.useState<SectionDocKey>('profile');
   const [llmOptions, setLLMOptions] = React.useState<IOptionItem[]>([]);
   const [filterOptions, setFilterOptions] = React.useState<IOptionItem[]>([]);
   const [actionOptions, setActionOptions] = React.useState<IOptionItem[]>([]);
@@ -585,15 +582,6 @@ const AutomationProfileForm: React.FC = () => {
     setFilterOptions(filters.map((value) => createOption(value.name, value.id)));
   }, [filters]);
 
-  const openSectionDoc = (section: SectionDocKey) => {
-    setActiveSectionDoc(section);
-    if (!isSectionDocShowing) toggleSectionDoc();
-  };
-
-  const closeSectionDoc = () => {
-    if (isSectionDocShowing) toggleSectionDoc();
-  };
-
   const openStepModal = (
     mode: StepModalMode,
     steps: IAutomationStepModel[],
@@ -969,15 +957,7 @@ const AutomationProfileForm: React.FC = () => {
                       <Row className="section-header" nowrap>
                         <Row className="section-header-title" nowrap>
                           <h2>Schedules</h2>
-                          <button
-                            type="button"
-                            className="section-doc-button"
-                            aria-label="Schedule help"
-                            title="Schedule help"
-                            onClick={() => openSectionDoc('schedule')}
-                          >
-                            <FaCircleInfo />
-                          </button>
+                          <SectionInfoButton doc="schedule" />
                         </Row>
                       </Row>
                       <p className="section-help-text">
@@ -1094,15 +1074,7 @@ const AutomationProfileForm: React.FC = () => {
                     <Col className="form-inputs">
                       <Row className="section-header section-header-inline" nowrap>
                         <h2>Profile</h2>
-                        <button
-                          type="button"
-                          className="section-doc-button"
-                          aria-label="Profile section help"
-                          title="Profile section help"
-                          onClick={() => openSectionDoc('profile')}
-                        >
-                          <FaCircleInfo />
-                        </button>
+                        <SectionInfoButton doc="profile" />
                       </Row>
                       <p className="section-help-text">
                         {values.schemaVersion >= 2
@@ -1171,15 +1143,7 @@ const AutomationProfileForm: React.FC = () => {
                         <Row className="section-header" nowrap>
                           <Row className="section-header-title" nowrap>
                             <h2>Steps</h2>
-                            <button
-                              type="button"
-                              className="section-doc-button"
-                              aria-label="Steps section help"
-                              title="Steps section help"
-                              onClick={() => openSectionDoc('steps')}
-                            >
-                              <FaCircleInfo />
-                            </button>
+                            <SectionInfoButton doc="steps" />
                           </Row>
                         </Row>
                         <p className="section-help-text">
@@ -1595,20 +1559,6 @@ const AutomationProfileForm: React.FC = () => {
                 }}
               />
               <Modal
-                headerText={sectionDocs[activeSectionDoc].title}
-                isShowing={isSectionDocShowing}
-                hide={closeSectionDoc}
-                type="custom"
-                component={
-                  <div className="section-doc-content">{sectionDocs[activeSectionDoc].content}</div>
-                }
-                customButtons={
-                  <Button variant={ButtonVariant.secondary} onClick={closeSectionDoc}>
-                    Close
-                  </Button>
-                }
-              />
-              <Modal
                 headerText={stepModalState?.mode === 'edit' ? 'Edit Step' : 'Add Step'}
                 isShowing={isStepModalShowing}
                 hide={closeStepModal}
@@ -1689,14 +1639,7 @@ const AutomationProfileForm: React.FC = () => {
                             );
                           }}
                         />
-                        <styled.StepTargetHelpButton
-                          type="button"
-                          aria-label="Target and filter behavior help"
-                          title="Target and filter behavior help"
-                          onClick={() => openSectionDoc('stepFilters')}
-                        >
-                          <FaCircleInfo />
-                        </styled.StepTargetHelpButton>
+                        <SectionInfoButton doc="stepFilters" />
                       </styled.StepTargetWithHelp>
                       <V2FilterField
                         name="step-filter"
@@ -1821,25 +1764,10 @@ const AutomationProfileForm: React.FC = () => {
                         }}
                       />
                       <p className="modal-help-text">
-                        <span
-                          className="step-modal-info-icon"
-                          role="button"
-                          tabIndex={0}
-                          aria-label="Step prompt keyword help"
-                          title="Step prompt keyword help"
-                          onClick={() => openSectionDoc('stepPrompt')}
-                          onKeyDown={(event) => {
-                            if (event.key === 'Enter' || event.key === ' ') {
-                              event.preventDefault();
-                              openSectionDoc('stepPrompt');
-                            }
-                          }}
-                        >
-                          <FaCircleInfo />
-                        </span>{' '}
-                        The step prompt is the runtime instruction for this step. Use template
-                        tokens (for example <code>{`{content}`}</code>, <code>{`{actions}`}</code>{' '}
-                        or <code>{`{content.headline}`}</code>) to inject dynamic values. Click the
+                        <SectionInfoButton doc="stepPrompt" /> The step prompt is the runtime
+                        instruction for this step. Use template tokens (for example{' '}
+                        <code>{`{content}`}</code>, <code>{`{actions}`}</code> or{' '}
+                        <code>{`{content.headline}`}</code>) to inject dynamic values. Click the
                         reset icon beside the Prompt label to reapply the default prompt.
                       </p>
                     </styled.ModalPromptField>
@@ -2639,14 +2567,7 @@ const AutomationProfileForm: React.FC = () => {
                       }
                     >
                       <styled.ModalPromptField>
-                        <styled.ActionPromptHelpButton
-                          type="button"
-                          aria-label="Action prompt help"
-                          title="Action prompt help"
-                          onClick={() => openSectionDoc('actionPrompt')}
-                        >
-                          <FaCircleInfo />
-                        </styled.ActionPromptHelpButton>
+                        <SectionInfoButton doc="actionPrompt" />
                         <Wysiwyg
                           className="modal-wysiwyg"
                           name="action-prompt"
