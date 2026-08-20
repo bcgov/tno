@@ -4,6 +4,7 @@ export * from './interfaces';
 export * from './RunLogViewer';
 export * from './V2ActionEditor';
 export * from './V2AnalysisEditor';
+export * from './V2ComboBox';
 export * from './V2ConditionBuilder';
 export * from './V2Designer';
 export * from './V2FilterField';

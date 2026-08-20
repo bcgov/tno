@@ -5,6 +5,7 @@ import { Checkbox, Col, type IOptionItem, Row, Select, Show, Text, TextArea } fr
 import { createOption, findOptionByValue, toNumberOrUndefined } from '../utils';
 import { fitSelectWidth } from './constants';
 import { type IV2Analysis } from './interfaces';
+import { V2ComboBox } from './V2ComboBox';
 
 export interface IV2AnalysisEditorProps {
   analysis: IV2Analysis;
@@ -41,17 +42,11 @@ export const V2AnalysisEditor: React.FC<IV2AnalysisEditorProps> = ({
   ];
   const llmSelectOptions = [createOption('step default', ''), ...llmOptions];
   const returnEntries = Object.entries(analysis.returns ?? {});
-  const typeListId = React.useId();
 
   const set = (values: Partial<IV2Analysis>) => onChange({ ...analysis, ...values });
 
   return (
     <Col className="v2-analysis-editor" gap="0.5rem">
-      <datalist id={typeListId}>
-        {RETURN_TYPES.map((type) => (
-          <option key={type} value={type} />
-        ))}
-      </datalist>
       <Row gap="1rem" alignItems="flex-end" nowrap>
         <Text
           name="analysis-name"
@@ -159,15 +154,14 @@ export const V2AnalysisEditor: React.FC<IV2AnalysisEditorProps> = ({
                     set({ returns: Object.fromEntries(updated) });
                   }}
                 />
-                <Text
+                <V2ComboBox
                   name={`analysis-return-type-${index}`}
                   placeholder="type"
-                  width="100%"
-                  list={typeListId}
+                  suggestions={RETURN_TYPES}
                   value={type}
-                  onChange={(e) => {
+                  onChange={(next) => {
                     const updated = returnEntries.map(([k, t], i) =>
-                      i === index ? ([k, e.target.value] as const) : ([k, t] as const),
+                      i === index ? ([k, next] as const) : ([k, t] as const),
                     );
                     set({ returns: Object.fromEntries(updated) });
                   }}

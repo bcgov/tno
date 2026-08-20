@@ -1437,12 +1437,6 @@ export const AutomationModalStyles = createGlobalStyle`
     width: max-content;
     text-align: left;
   }
-  /* Autocomplete inputs render as comboboxes: keep the datalist dropdown arrow visible. */
-  .v2-condition input[list]::-webkit-calendar-picker-indicator,
-  .v2-returns input[list]::-webkit-calendar-picker-indicator {
-    opacity: 1;
-    display: block;
-  }
   .v2-returns {
     border: 1px solid #e4e7ec;
 

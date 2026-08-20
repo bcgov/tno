@@ -10,6 +10,7 @@ import {
   v2ContentFieldOptions,
 } from './constants';
 import { type IV2Condition } from './interfaces';
+import { V2ComboBox } from './V2ComboBox';
 
 type ConditionShape = 'leaf' | 'all' | 'any' | 'not' | 'from';
 
@@ -54,8 +55,6 @@ export interface IV2ConditionBuilderProps {
   onChange: (condition: IV2Condition) => void;
   /** Nesting depth; combinator children beyond a sane depth only offer leaves. */
   depth?: number;
-  /** The shared field-name datalist id; the root renders the list once. */
-  listId?: string;
   /** 'analysisName.key' references whose declared type is bool, for the Analysis answer
    * autocomplete (freeform still allowed). */
   fromSuggestions?: string[];
@@ -69,13 +68,9 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
   value,
   onChange,
   depth = 0,
-  listId,
   fromSuggestions = [],
 }) => {
   const shape = getShape(value);
-  const ownId = React.useId();
-  const fieldListId = listId ?? `v2-fields-${ownId}`;
-  const fromListId = `${fieldListId}-from`;
 
   const setShape = (next: ConditionShape) => {
     switch (next) {
@@ -102,21 +97,6 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
 
   return (
     <Col className="v2-condition" gap="0.25rem">
-      {/* Known working-copy property names for the field autocomplete; freeform is allowed. */}
-      {depth === 0 && (
-        <>
-          <datalist id={fieldListId}>
-            {v2ContentFieldOptions.map((option) => (
-              <option key={`${option.value}`} value={`${option.value}`} />
-            ))}
-          </datalist>
-          <datalist id={fromListId}>
-            {fromSuggestions.map((reference) => (
-              <option key={reference} value={reference} />
-            ))}
-          </datalist>
-        </>
-      )}
       <Row gap="0.5rem" alignItems="center" nowrap>
         <Select
           name={`condition-shape-${depth}`}
@@ -130,13 +110,13 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
           }}
         />
         <Show visible={shape === 'leaf'}>
-          <Text
+          <V2ComboBox
             name={`condition-field-${depth}`}
             placeholder="field"
             width="9rem"
-            list={fieldListId}
+            suggestions={v2ContentFieldOptions.map((option) => `${option.value}`)}
             value={value.field ?? ''}
-            onChange={(e) => onChange({ ...value, field: e.target.value })}
+            onChange={(field) => onChange({ ...value, field })}
           />
           <Select
             name={`condition-op-${depth}`}
@@ -162,13 +142,13 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
           </Show>
         </Show>
         <Show visible={shape === 'from'}>
-          <Text
+          <V2ComboBox
             name={`condition-from-${depth}`}
             placeholder="analysisName.key (a boolean result)"
-            list={fromListId}
-            value={value.from ?? ''}
             width="14rem"
-            onChange={(e) => onChange({ from: e.target.value })}
+            suggestions={fromSuggestions}
+            value={value.from ?? ''}
+            onChange={(from) => onChange({ from })}
           />
         </Show>
       </Row>
@@ -179,7 +159,7 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
               <V2ConditionBuilder
                 value={child}
                 depth={depth + 1}
-                listId={fieldListId}
+                fromSuggestions={fromSuggestions}
                 onChange={(next) => {
                   const updated = [...children];
                   updated[index] = next;
@@ -213,7 +193,7 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
           <V2ConditionBuilder
             value={value.not ?? { field: '', op: 'equals', value: '' }}
             depth={depth + 1}
-            listId={fieldListId}
+            fromSuggestions={fromSuggestions}
             onChange={(next) => onChange({ not: next })}
           />
         </Col>
