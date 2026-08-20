@@ -13,6 +13,9 @@ interface IComboOption {
  * tno-core's Select, so it inherits the same default menu look.
  */
 const ComboBoxWrapper = styled.div<{ $width?: string }>`
+  /* Carries the global .frm-in class so it gets the same wrapper padding as every tno-core
+     field and lines up beside them. */
+
   .rs__control {
     display: flex;
     width: ${(props) => props.$width ?? '100%'};
@@ -65,7 +68,7 @@ export const V2ComboBox: React.FC<IV2ComboBoxProps> = ({
   const selected: IComboOption | null = value ? { label: value, value } : null;
 
   return (
-    <ComboBoxWrapper $width={width}>
+    <ComboBoxWrapper className="frm-in" $width={width}>
       <CreatableSelect<IComboOption, false>
         name={name}
         aria-label={ariaLabel ?? placeholder}

@@ -1455,6 +1455,15 @@ export const AutomationModalStyles = createGlobalStyle`
       align-items: center;
       gap: 0.75rem;
       padding: 0.35rem 0.75rem;
+
+      /* Strip the fields' wrapper padding and equalize control heights so the Key input and
+         Type combobox align exactly; the grid row owns the spacing. */
+      .frm-in {
+        padding: 0;
+      }
+      input[type='text'] {
+        height: 2.375rem;
+      }
     }
     .v2-returns-add,
     .v2-returns-del {
