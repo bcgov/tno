@@ -534,10 +534,16 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
         </Show>
       </Row>
       <Show visible={gate === 'condition'}>
-        <V2ConditionBuilder
-          value={action.when ?? { field: '', op: 'equals', value: '' }}
-          onChange={(when) => set({ when })}
-        />
+        <Col gap="0.25rem">
+          <label>Condition</label>
+          <V2ConditionBuilder
+            value={action.when ?? { field: '', op: 'equals', value: '' }}
+            onChange={(when) => set({ when })}
+          />
+          <p className="v2-config-hint">
+            Evaluated against the working copy. When it fails, no prompt is sent.
+          </p>
+        </Col>
       </Show>
       <label className="v2-config-label">Configuration</label>
       <Show visible={!descriptor}>

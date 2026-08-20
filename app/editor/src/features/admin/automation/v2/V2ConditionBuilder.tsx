@@ -3,7 +3,6 @@ import { Button, ButtonVariant, Col, type IOptionItem, Row, Select, Show, Text }
 
 import { createOption, findOptionByValue } from '../utils';
 import {
-  fitSelectWidth,
   V2_LIST_OPS,
   V2_VALUELESS_OPS,
   v2ConditionOpOptions,
@@ -54,6 +53,8 @@ export interface IV2ConditionBuilderProps {
   onChange: (condition: IV2Condition) => void;
   /** Nesting depth; combinator children beyond a sane depth only offer leaves. */
   depth?: number;
+  /** The shared field-name datalist id; the root renders the list once. */
+  listId?: string;
 }
 
 /**
@@ -64,8 +65,11 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
   value,
   onChange,
   depth = 0,
+  listId,
 }) => {
   const shape = getShape(value);
+  const ownId = React.useId();
+  const fieldListId = listId ?? `v2-fields-${ownId}`;
 
   const setShape = (next: ConditionShape) => {
     switch (next) {
@@ -92,6 +96,14 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
 
   return (
     <Col className="v2-condition" gap="0.25rem">
+      {/* Known working-copy property names for the field autocomplete; freeform is allowed. */}
+      {depth === 0 && (
+        <datalist id={fieldListId}>
+          {v2ContentFieldOptions.map((option) => (
+            <option key={`${option.value}`} value={`${option.value}`} />
+          ))}
+        </datalist>
+      )}
       <Row gap="0.5rem" alignItems="center" nowrap>
         <Select
           name={`condition-shape-${depth}`}
@@ -105,17 +117,13 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
           }}
         />
         <Show visible={shape === 'leaf'}>
-          <Select
+          <Text
             name={`condition-field-${depth}`}
-            width={fitSelectWidth(v2ContentFieldOptions.map((option) => `${option.label}`))}
-            isClearable={false}
             placeholder="field"
-            options={v2ContentFieldOptions}
-            value={findOptionByValue(v2ContentFieldOptions, value.field) ?? ''}
-            onChange={(newValue) => {
-              const option = newValue as IOptionItem;
-              onChange({ ...value, field: option?.value ? `${option.value}` : '' });
-            }}
+            width="11rem"
+            list={fieldListId}
+            value={value.field ?? ''}
+            onChange={(e) => onChange({ ...value, field: e.target.value })}
           />
           <Select
             name={`condition-op-${depth}`}
@@ -157,6 +165,7 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
               <V2ConditionBuilder
                 value={child}
                 depth={depth + 1}
+                listId={fieldListId}
                 onChange={(next) => {
                   const updated = [...children];
                   updated[index] = next;
@@ -190,6 +199,7 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
           <V2ConditionBuilder
             value={value.not ?? { field: '', op: 'equals', value: '' }}
             depth={depth + 1}
+            listId={fieldListId}
             onChange={(next) => onChange({ not: next })}
           />
         </Col>
