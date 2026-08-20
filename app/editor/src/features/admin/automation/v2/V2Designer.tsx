@@ -303,7 +303,18 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                           </span>
                           <span className="v2-gc-source">{sourceLabel(step)}</span>
                           <span className="v2-gc-count">{step.actions.length}</span>
-                          <span className="v2-gc-enabled">{step.isEnabled ? 'Yes' : 'No'}</span>
+                          <span className="v2-gc-enabled">
+                            <input
+                              type="checkbox"
+                              className="v2-enabled-toggle"
+                              aria-label={`Step '${step.name}' enabled`}
+                              title="Toggle this step"
+                              checked={step.isEnabled}
+                              onChange={(e) =>
+                                setStep(index, { ...step, isEnabled: e.target.checked })
+                              }
+                            />
+                          </span>
                           <span className="v2-gc-actions">
                             <button
                               type="button"
@@ -459,6 +470,7 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                                 <span className="v2-gc-sm">Runs When</span>
                                 <span className="v2-gc-name">Filter</span>
                                 <span className="v2-gc-name">Into Collection</span>
+                                <span className="v2-gc-on">Enabled</span>
                                 <span className="v2-gc-actions">
                                   <button
                                     type="button"
@@ -540,6 +552,27 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                                                 ) : (
                                                   <span className="v2-muted">—</span>
                                                 )}
+                                              </span>
+                                              <span className="v2-gc-on">
+                                                <input
+                                                  type="checkbox"
+                                                  className="v2-enabled-toggle"
+                                                  aria-label={`Action '${
+                                                    action.name ?? action.type
+                                                  }' enabled`}
+                                                  title="Toggle this action"
+                                                  checked={action.isEnabled}
+                                                  onChange={(e) =>
+                                                    setStep(index, {
+                                                      ...step,
+                                                      actions: step.actions.map((a, i) =>
+                                                        i === actionIndex
+                                                          ? { ...a, isEnabled: e.target.checked }
+                                                          : a,
+                                                      ),
+                                                    })
+                                                  }
+                                                />
                                               </span>
                                               <span className="v2-gc-actions">
                                                 <button

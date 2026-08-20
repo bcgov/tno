@@ -1139,6 +1139,17 @@ export const AutomationModalStyles = createGlobalStyle`
     width: 5rem;
     flex: 0 0 auto;
   }
+  .v2-gc-on {
+    width: 5rem;
+    flex: 0 0 auto;
+  }
+  /* Quick enable/disable directly in the grid rows. */
+  .v2-enabled-toggle {
+    width: 1.05rem;
+    height: 1.05rem;
+    accent-color: #1a3a6b;
+    cursor: pointer;
+  }
   .v2-gc-actions {
     width: 7rem;
     flex: 0 0 auto;
