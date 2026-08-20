@@ -177,7 +177,10 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
     const notFrom = action.when?.not?.from;
     if (notFrom && notFrom.endsWith('.isDuplicate'))
       return `'${notFrom.replace(/\.isDuplicate$/, '')}' found no duplicate`;
-    if (action.confirm || action.when?.from) return 'LLM analysis';
+    if (action.confirm) return 'LLM confirmation';
+    // An Analysis answer gate is a condition; show which answer it reads.
+    if (fromRef) return `when '${fromRef}'`;
+    if (notFrom) return `unless '${notFrom}'`;
     if (action.when) return 'Condition';
     return <span className="v2-muted">Always run</span>;
   };
