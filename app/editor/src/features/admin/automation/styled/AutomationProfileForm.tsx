@@ -1110,17 +1110,68 @@ export const AutomationModalStyles = createGlobalStyle`
     }
   }
   .v2-grid-expanded {
-    padding: 0.5rem 0.75rem 0.75rem 3.4rem;
-    border-top: 1px dashed #e4e7ec;
-    background: #fcfcfd;
+    /* Inset white card per the design. */
+    margin: 0.4rem 0.75rem 0.75rem 3.4rem;
+    border: 1px solid #e4e7ec;
+    border-radius: 0.35rem;
+    background: #fff;
+    padding: 0.25rem 0.5rem 0.5rem;
   }
+
+  .v2-gc-sm {
+    width: 8rem;
+    flex: 0 0 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .v2-gc-icon {
+    color: #98a2b3;
+    display: flex;
+    align-items: center;
+  }
+
+  .v2-muted {
+    color: #98a2b3;
+  }
+
+  .v2-override-note {
+    font-size: 0.7rem;
+    color: #667085;
+  }
+
+  .v2-row-even {
+    background: #f7f8fa;
+  }
+
+  /* Drag placeholder: a visible dropzone row while dragging (react-beautiful-dnd sizes it to
+     the dragged row); the droppable keeps a little tail space so drops land cleanly below the
+     last row and above the first. */
+  .v2-grid [data-rbd-placeholder-context-id] {
+    background: #e0eaff;
+    border: 1px dashed #84a9e2;
+    border-radius: 0.2rem;
+  }
+
+  .v2-grid [data-rbd-droppable-id] {
+    min-height: 0.4rem;
+    padding-bottom: 2px;
+  }
+
   .v2-subgrid {
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
+    border: none;
 
     .v2-grid-header,
     .v2-grid-row {
       padding: 0.3rem 0.5rem;
+    }
+
+    .v2-grid-header {
+      background: #fff;
+      border-bottom: 1px solid #dfe3e8;
     }
   }
   /* Prompt library table. */
@@ -1230,12 +1281,12 @@ export const AutomationModalStyles = createGlobalStyle`
     color: #26428b;
   }
   .v2-phase-process {
-    background: #d1fadf;
-    color: #05603a;
+    background: #fef0c7;
+    color: #93370d;
   }
   .v2-phase-complete {
-    background: #fce7f6;
-    color: #9e165f;
+    background: #d1fadf;
+    color: #05603a;
   }
   .v2-chips {
     flex-wrap: wrap;
