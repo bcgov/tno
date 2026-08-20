@@ -1252,6 +1252,11 @@ export const AutomationModalStyles = createGlobalStyle`
       }
     }
   }
+  /* Built-in defaults not yet overridden: present but visibly not part of the document. */
+  .v2-builtin-row td {
+    color: #667085;
+    font-style: italic;
+  }
   .v2-library-empty {
     color: #667085;
     text-align: center;

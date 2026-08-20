@@ -58,6 +58,15 @@ public class V2PromptBuilder
     }
 
     /// <summary>
+    /// Resolve a library entry by name, or null when the library has no such entry. Reserved
+    /// names (e.g. 'default-dedupe') let a profile override an engine built-in prompt.
+    /// </summary>
+    public string? TryResolveRef(string name)
+        => _definition.Prompts.TryGetValue(name, out var library) && !string.IsNullOrWhiteSpace(library.Text)
+            ? PromptComposer.HtmlToText(library.Text)
+            : null;
+
+    /// <summary>
     /// Substitute runtime tokens into resolved prompt text for the specified subject.
     /// When the text carries no {content} token and a subject exists, the working copy is
     /// appended as a '## News Story' section so the model always sees the item.

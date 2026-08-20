@@ -3,7 +3,7 @@ import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { Button, ButtonVariant, Col, Modal, Row, Show, Text, TextArea, Wysiwyg } from 'tno-core';
 
-import { V2_CONTENT_TOKENS, V2_LOOKUP_TOKENS } from './constants';
+import { V2_CONTENT_TOKENS, V2_DEFAULT_PROMPTS, V2_LOOKUP_TOKENS } from './constants';
 import { type IV2Definition, type IV2Prompt } from './interfaces';
 
 export interface IV2PromptLibraryProps {
@@ -61,8 +61,11 @@ export const V2PromptLibrary: React.FC<IV2PromptLibraryProps> = ({ definition, o
 
   const names = Object.keys(definition.prompts);
   const refs = promptRefs(definition);
+  // Engine built-ins not yet overridden render as editable placeholder rows.
+  const missingDefaults = Object.keys(V2_DEFAULT_PROMPTS).filter((name) => !names.includes(name));
 
   const referencedBy = (name: string): string => {
+    if (name in V2_DEFAULT_PROMPTS) return 'built-in default';
     const mine = refs.filter((ref) => ref.name === name);
     const steps = new Set(mine.map((ref) => ref.step));
     if (steps.size === 0) return 'unused';
@@ -147,13 +150,40 @@ export const V2PromptLibrary: React.FC<IV2PromptLibraryProps> = ({ definition, o
           </tr>
         </thead>
         <tbody>
-          <Show visible={names.length === 0}>
+          <Show visible={names.length === 0 && missingDefaults.length === 0}>
             <tr>
               <td colSpan={4} className="v2-library-empty">
                 No prompts yet — add one and reference it from an analysis.
               </td>
             </tr>
           </Show>
+          {missingDefaults.map((name) => (
+            <tr key={name} className="v2-builtin-row">
+              <td className="v2-col-name">
+                <span className="v2-prompt-name">{name}</span>
+              </td>
+              <td>{V2_DEFAULT_PROMPTS[name].description}</td>
+              <td className="v2-col-refs">built-in default</td>
+              <td className="v2-col-actions">
+                <button
+                  type="button"
+                  className="rule-icon-button"
+                  aria-label={`Customize the built-in prompt '${name}'`}
+                  title="Customize this built-in prompt"
+                  onClick={() =>
+                    setDraft({
+                      originalName: null,
+                      name,
+                      description: V2_DEFAULT_PROMPTS[name].description,
+                      text: V2_DEFAULT_PROMPTS[name].text,
+                    })
+                  }
+                >
+                  <FaEdit />
+                </button>
+              </td>
+            </tr>
+          ))}
           {names.map((name) => (
             <tr key={name}>
               <td className="v2-col-name">

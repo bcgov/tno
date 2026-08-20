@@ -16,6 +16,16 @@ export const v2PhaseOptions: IOptionItem[] = [
   createOption('complete', 'complete'),
 ];
 
+/** Built-in engine prompts a profile can override by creating a library entry with the
+ * reserved name. The text mirrors the engine default (V2Engine) so editing starts from it. */
+export const V2_DEFAULT_PROMPTS: Record<string, { description: string; text: string }> = {
+  'default-dedupe': {
+    description:
+      'What Detect Duplicate sends when no prompt is selected. Edit to customize; delete to restore the built-in.',
+    text: '<p>Compare the CURRENT story to each PREVIOUS story. Two stories are duplicates when they have the same (or a trivially reworded) headline, the same story text (the summary, or the body when there is no summary), and the same published date. If a previous story is a duplicate of the current story respond with "[DUPLICATE:{value}]" where {value} is the id of that previous story. If none are duplicates respond with nothing.</p>',
+  },
+};
+
 export const v2SourceOptions: IOptionItem[] = [
   createOption('collection', 'collection'),
   createOption('filter', 'filter'),

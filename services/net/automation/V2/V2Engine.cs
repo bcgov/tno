@@ -1216,7 +1216,10 @@ public class V2Engine
 
         var isBatch = string.Equals(action.Mode, "batch", StringComparison.OrdinalIgnoreCase);
         var batchSize = isBatch ? Math.Max(1, action.BatchSize ?? 25) : 1;
-        var promptText = action.Prompt != null ? env.Prompts.Resolve(action.Prompt) : DefaultDedupePrompt;
+        // No prompt selected: a 'default-dedupe' library entry overrides the built-in text.
+        var promptText = action.Prompt != null
+            ? env.Prompts.Resolve(action.Prompt)
+            : env.Prompts.TryResolveRef("default-dedupe") ?? DefaultDedupePrompt;
         var confirm = string.IsNullOrWhiteSpace(action.Confirm) ? "[DUPLICATE:{value}]" : action.Confirm!;
         var matcher = new ConfirmationMatcher(confirm, null, null);
         var llm = await ResolveLlmAsync(action.LlmId ?? step.LlmId ?? env.Profile.LLMId, env);

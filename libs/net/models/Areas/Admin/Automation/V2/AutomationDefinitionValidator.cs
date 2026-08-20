@@ -227,7 +227,8 @@ public static class AutomationDefinitionValidator
         }
 
         // Unused prompt library entries.
-        foreach (var name in definition.Prompts.Keys.Where(k => !usedPrompts.Contains(k)))
+        foreach (var name in definition.Prompts.Keys.Where(k => !usedPrompts.Contains(k)
+            && !k.StartsWith("default-", StringComparison.OrdinalIgnoreCase)))
             errors.Add(new($"prompts.{name}", $"Prompt '{name}' is not referenced.", "warning"));
 
         return errors;
