@@ -71,7 +71,7 @@ public class V2PromptBuilder
     /// When the text carries no {content} token and a subject exists, the working copy is
     /// appended as a '## News Story' section so the model always sees the item.
     /// </summary>
-    public string Substitute(string text, V2ContentEntry? subject)
+    public string Substitute(string text, V2ContentEntry? subject, bool appendSubject = true)
     {
         var result = _lookupToken.Replace(text, match => RenderLookup(match.Groups["name"].Value, SplitColumns(match)));
         result = _collectionToken.Replace(result, match => RenderCollection(match.Groups["name"].Value, SplitColumns(match)));
@@ -82,7 +82,7 @@ public class V2PromptBuilder
             var json = subject.ToWorkingJson(_jsonOptions);
             result = result.Contains("{content}")
                 ? result.Replace("{content}", json)
-                : $"{result}\n\n## News Story\n{json}";
+                : appendSubject ? $"{result}\n\n## News Story\n{json}" : result;
         }
         return result;
     }

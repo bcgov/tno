@@ -26,9 +26,23 @@ export const V2_DEFAULT_PROMPTS: Record<
     action: 'dedupe',
     description:
       'What Detect Duplicate sends when no prompt is selected. Edit to customize; delete to restore the built-in.',
-    text: '<p>Compare the CURRENT story to each PREVIOUS story. Two stories are duplicates when they have the same (or a trivially reworded) headline, the same story text (the summary, or the body when there is no summary), and the same published date. If a previous story is a duplicate of the current story respond with "[DUPLICATE:{value}]" where {value} is the id of that previous story. If none are duplicates respond with nothing.</p>',
+    text: '<p>Compare the CURRENT story to each CANDIDATE story. Two stories are duplicates when they have the same (or a trivially reworded) headline, the same story text (the summary, or the body when there is no summary), and the same published date. If a candidate is a duplicate of the current story respond with "[DUPLICATE:{value}]" where {value} is the contentId of that candidate. If none are duplicates respond with nothing.</p><p>## Current Story</p><p>{content}</p><p>## Candidates</p><p>{candidates}</p>',
   },
 };
+
+/** Tokens for the compared story in Detect Duplicate prompts. Field tokens resolve per
+ * candidate in iterate mode; batch prompts use {candidates} (the full list). */
+export const V2_CANDIDATE_TOKENS: { token: string; hint: string }[] = [
+  { token: '{candidate.publishedOn}', hint: "The candidate's published date" },
+  { token: '{candidate.headline}', hint: "The candidate's headline" },
+  { token: '{candidate.byline}', hint: "The candidate's byline" },
+  { token: '{candidate.source}', hint: "The candidate's source" },
+  { token: '{candidate.summary}', hint: "The candidate's summary" },
+  { token: '{candidate.body}', hint: "The candidate's body" },
+  { token: '{candidate.story}', hint: 'Summary, or body when there is no summary' },
+  { token: '{candidate.contentId}', hint: "The candidate's id (for [DUPLICATE:{value}])" },
+  { token: '{candidates}', hint: 'The whole candidate list as JSON (batch mode)' },
+];
 
 export const v2SourceOptions: IOptionItem[] = [
   createOption('collection', 'collection'),

@@ -178,7 +178,22 @@ public static class AutomationDefinitionValidator
                     else if (!dedupeResults.Contains(name))
                         errors.Add(new($"{path}.{refPath}", $"Analysis '{name}' is not declared on this step (and no earlier Detect Duplicate action publishes it)."));
                 }
-                if (action.Type == "dedupe") dedupeResults.Add(action.Name ?? "dedupe");
+                if (action.Type == "dedupe")
+                {
+                    dedupeResults.Add(action.Name ?? "dedupe");
+                    // The prompt is exactly what is sent, so it must place the data itself.
+                    var effective = $"{action.Prompt?.Text} {action.Prompt?.Override} " +
+                        (action.Prompt?.Ref != null && definition.Prompts.TryGetValue(action.Prompt.Ref, out var entry) ? entry.Text : "");
+                    if (action.Prompt == null && definition.Prompts.TryGetValue("default-dedupe", out var customized))
+                        effective = customized.Text;
+                    var hasCustomText = !string.IsNullOrWhiteSpace(effective.Trim());
+                    if (hasCustomText && !effective.Contains("{content"))
+                        errors.Add(new($"{path}.prompt", "The comparison prompt never includes the current story - add {content} (or {content.*} fields) where it belongs.", "warning"));
+                    if (hasCustomText && !effective.Contains("{candidate"))
+                        errors.Add(new($"{path}.prompt", "The comparison prompt never includes the candidate stories - add {candidates} (or {candidate.*} fields in iterate mode) where they belong.", "warning"));
+                    if (string.Equals(action.Mode, "batch", StringComparison.OrdinalIgnoreCase) && effective.Contains("{candidate."))
+                        errors.Add(new($"{path}.prompt", "Field-level {candidate.*} tokens only resolve in iterate mode; batch prompts should use {candidates} (the full list).", "warning"));
+                }
                 if (!string.IsNullOrWhiteSpace(action.Analysis))
                 {
                     if (!analyses.ContainsKey(action.Analysis!))

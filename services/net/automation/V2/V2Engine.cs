@@ -1178,12 +1178,29 @@ public class V2Engine
     #endregion
 
     #region Deduplication
+    /// <summary>
+    /// The complete default comparison prompt - what is sent IS this text, with the tokens
+    /// replaced. There is no hidden assembly: a custom prompt places {content} and
+    /// {candidates} (or {candidate.*} fields in iterate mode) wherever it wants them.
+    /// </summary>
     private const string DefaultDedupePrompt =
-        "Compare the CURRENT story to each PREVIOUS story. Two stories are duplicates when they " +
+        "Compare the CURRENT story to each CANDIDATE story. Two stories are duplicates when they " +
         "have the same (or a trivially reworded) headline, the same story text (the summary, or " +
         "the body when there is no summary), and the same published date. " +
-        "If a previous story is a duplicate of the current story respond with \"[DUPLICATE:{value}]\" " +
-        "where {value} is the id of that previous story. If none are duplicates respond with nothing.";
+        "If a candidate is a duplicate of the current story respond with \"[DUPLICATE:{value}]\" " +
+        "where {value} is the contentId of that candidate. If none are duplicates respond with nothing." +
+        "\n\n## Current Story\n{content}\n\n## Candidates\n{candidates}";
+
+    private static readonly System.Text.RegularExpressions.Regex _candidateFieldToken =
+        new(@"\{candidate\.(?<field>[a-zA-Z.]+)\}", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    /// <summary>Resolve one digest field of a comparison candidate for {candidate.*} tokens.</summary>
+    private static string? ResolveCandidateField(V2ContentEntry entry, string field) => field.ToLowerInvariant() switch
+    {
+        "contentid" or "id" => entry.Kind == "draft" ? entry.TempKey : entry.Id.ToString(),
+        "story" => string.IsNullOrWhiteSpace(entry.GetField("summary")) ? entry.GetField("body") : entry.GetField("summary"),
+        _ => entry.GetField(field),
+    };
 
     /// <summary>
     /// Compare the subject against a collection's candidates in iterate mode (one prompt per
@@ -1244,7 +1261,21 @@ public class V2Engine
             var previousJson = isBatch
                 ? JsonSerializer.Serialize(digest, _jsonOptions)
                 : JsonSerializer.Serialize(digest[0], _jsonOptions);
-            var prompt = $"{promptText}\n\n## Current Story\n{subjectJson}\n\n## Previous {(isBatch ? "Stories" : "Story")}\n{previousJson}";
+            // The prompt IS what is sent: tokens are substituted in place and nothing is
+            // appended invisibly. A prompt without data tokens sends no story data (the
+            // validator warns about that at save).
+            var body = env.Prompts.Substitute(promptText, subject, appendSubject: false);
+            if (isBatch)
+            {
+                // Field-level candidate tokens are per-candidate; a batch has many.
+                body = _candidateFieldToken.Replace(body, "(batch mode: use {candidates})");
+            }
+            else
+            {
+                var candidate = batch[0];
+                body = _candidateFieldToken.Replace(body, match => ResolveCandidateField(candidate, match.Groups["field"].Value) ?? "");
+            }
+            var prompt = body.Replace("{candidates}", previousJson).Replace("{candidate}", previousJson);
 
             var timer = Stopwatch.StartNew();
             LlmResult result;
@@ -1261,6 +1292,11 @@ public class V2Engine
             timer.Stop();
 
             var confirmed = matcher.IsValid && matcher.TryMatch(result.Content, out var capturedValue);
+            // Iterate mode compares exactly one candidate, so a plain [DUPLICATE] answer is
+            // unambiguous; accept it alongside the default [DUPLICATE:{value}] marker.
+            if (!confirmed && !isBatch && string.IsNullOrWhiteSpace(action.Confirm)
+                && result.Content.Contains("[DUPLICATE]", StringComparison.OrdinalIgnoreCase))
+                confirmed = true;
             string? matchedRef = null;
             if (confirmed)
             {

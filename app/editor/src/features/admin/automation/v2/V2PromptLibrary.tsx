@@ -3,7 +3,12 @@ import { FaCopy, FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { Button, ButtonVariant, Col, Modal, Row, Show, Text, TextArea, Wysiwyg } from 'tno-core';
 
-import { V2_CONTENT_TOKENS, V2_DEFAULT_PROMPTS, V2_LOOKUP_TOKENS } from './constants';
+import {
+  V2_CANDIDATE_TOKENS,
+  V2_CONTENT_TOKENS,
+  V2_DEFAULT_PROMPTS,
+  V2_LOOKUP_TOKENS,
+} from './constants';
 import { type IV2Definition, type IV2Prompt } from './interfaces';
 
 export interface IV2PromptLibraryProps {
@@ -306,9 +311,15 @@ export const V2PromptLibrary: React.FC<IV2PromptLibraryProps> = ({ definition, o
               onChange={(text) => setDraft((d) => (d ? { ...d, text: text ?? '' } : d))}
             />
             <p className="v2-token-help">
-              <strong>Insert Data Token</strong> — inserted at the cursor and replaced at prompt
-              composition with consistent, readable values from the lookup bundle or the item's
-              working copy (hover a token for its rendered form)
+              <strong>Insert Data Token</strong> — the prompt is exactly what is sent to the LLM;
+              tokens mark where data is inserted, replaced once per item.{' '}
+              <code>{'{content.*}'}</code> is the item being processed (its working copy, changes
+              included). In Detect Duplicate prompts <code>{'{candidates}'}</code> inserts the
+              compared stories and <code>{'{candidate.*}'}</code> single fields (iterate mode); the
+              prompt must place them itself — see default-dedupe for the layout.{' '}
+              <code>{'{lookup:*}'}</code> inserts reference lists (identical for every item).
+              Analyses only: with no <code>{'{content}'}</code> token, the story is appended as a
+              final '## News Story' section.
             </p>
             <label className="v2-token-group-label">Lookups</label>
             <div className="v2-token-list">
@@ -325,9 +336,24 @@ export const V2PromptLibrary: React.FC<IV2PromptLibraryProps> = ({ definition, o
                 </button>
               ))}
             </div>
-            <label className="v2-token-group-label">Content (working copy)</label>
+            <label className="v2-token-group-label">Content (the item being processed)</label>
             <div className="v2-token-list">
               {V2_CONTENT_TOKENS.map(({ token, hint }) => (
+                <button
+                  key={token}
+                  type="button"
+                  className="v2-token"
+                  title={hint}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => insertToken(token)}
+                >
+                  {token}
+                </button>
+              ))}
+            </div>
+            <label className="v2-token-group-label">Candidate (Detect Duplicate prompts)</label>
+            <div className="v2-token-list">
+              {V2_CANDIDATE_TOKENS.map(({ token, hint }) => (
                 <button
                   key={token}
                   type="button"
