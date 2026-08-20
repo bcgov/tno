@@ -1,8 +1,9 @@
 import React from 'react';
-import { type IOptionItem, Row, Select, Text } from 'tno-core';
+import { Col, type IOptionItem, Select } from 'tno-core';
 
 import { createOption, findOptionByValue } from '../utils';
 import { fitSelectWidth } from './constants';
+import { V2ComboBox } from './V2ComboBox';
 
 export interface IV2ScopedNameFieldProps {
   name: string;
@@ -21,9 +22,6 @@ export interface IV2ScopedNameFieldProps {
   help?: string | null;
 }
 
-/** The dropdown sentinel that reveals the new-name input. */
-const NEW_NAME = '__new__';
-
 /** Strip the scope prefix (and any sigil the user typed) down to the bare name. */
 const toBare = (value: string | null | undefined, scope: string): string => {
   if (!value) return '';
@@ -35,11 +33,10 @@ const toBare = (value: string | null | undefined, scope: string): string => {
 };
 
 /**
- * A scoped runtime name rendered as a standard labelled field: the tno-core Select owns the
- * label (so it styles like every other field) and lists the known names; when new names are
- * allowed, a 'New…' option reveals a bare-name input behind a fixed scope prefix in the field's
- * control row. The scope is never typed; the stored document keeps the explicit '<scope>.<name>'
- * form the engine and validator read. The field sizes to fit the values in its dropdown.
+ * A scoped runtime name. Producers (allowNew) render a standard combobox: prior collection names
+ * as suggestions, freeform text for a new name. Consumers render a pick-only dropdown of the
+ * known names. Either way the field shows bare names; the stored document keeps the explicit
+ * '<scope>.<name>' form the engine and validator read.
  */
 export const V2ScopedNameField: React.FC<IV2ScopedNameFieldProps> = ({
   name,
@@ -52,21 +49,30 @@ export const V2ScopedNameField: React.FC<IV2ScopedNameFieldProps> = ({
   placeholder,
   help,
 }) => {
-  const isKnown = !!value && knownNames.includes(value);
-  // Typing a new name is a mode: entered via the 'New…' option, exited by picking a known name.
-  // Starts on when the current value is a custom name the dropdown cannot represent.
-  const [isCreating, setIsCreating] = React.useState(!!value && !isKnown);
-  const showInput = allowNew && (knownNames.length === 0 || isCreating);
-
   const bareNames = knownNames.map((known) => toBare(known, scope));
-  const options: IOptionItem[] = [
-    ...knownNames.map((known, index) => createOption(bareNames[index], known)),
-    ...(allowNew ? [createOption('➕ New…', NEW_NAME)] : []),
-  ];
-  const selected = isCreating
-    ? findOptionByValue(options, NEW_NAME)
-    : findOptionByValue(options, value) ?? '';
 
+  if (allowNew)
+    return (
+      <Col gap="0.25rem">
+        <label htmlFor={`sel-${name}`}>{label}</label>
+        <V2ComboBox
+          name={name}
+          placeholder={placeholder}
+          width={fitSelectWidth(bareNames, placeholder)}
+          suggestions={bareNames}
+          value={toBare(value, scope)}
+          onChange={(next) => {
+            const bare = toBare(next, scope);
+            onChange(bare ? `${scope}.${bare}` : null);
+          }}
+        />
+        {!!help && <p className="v2-field-help">{help}</p>}
+      </Col>
+    );
+
+  const options: IOptionItem[] = knownNames.map((known, index) =>
+    createOption(bareNames[index], known),
+  );
   return (
     <Select
       name={name}
@@ -75,33 +81,12 @@ export const V2ScopedNameField: React.FC<IV2ScopedNameFieldProps> = ({
       isClearable={false}
       placeholder={placeholder}
       options={options}
-      value={selected}
+      value={findOptionByValue(options, value) ?? ''}
       onChange={(newValue) => {
         const option = newValue as IOptionItem;
-        if (option?.value === NEW_NAME) {
-          setIsCreating(true);
-          onChange(null);
-        } else {
-          setIsCreating(false);
-          onChange(option?.value ? `${option.value}` : null);
-        }
+        onChange(option?.value ? `${option.value}` : null);
       }}
     >
-      {showInput && (
-        <Row alignItems="center" nowrap className="v2-scoped-name-input">
-          <span className="v2-scope-prefix">{scope}.</span>
-          <Text
-            name={`${name}-new`}
-            placeholder="name"
-            width="10rem"
-            value={toBare(value, scope)}
-            onChange={(e) => {
-              const next = toBare(e.target.value, scope);
-              onChange(next ? `${scope}.${next}` : null);
-            }}
-          />
-        </Row>
-      )}
       {!!help && <p className="v2-field-help">{help}</p>}
     </Select>
   );
