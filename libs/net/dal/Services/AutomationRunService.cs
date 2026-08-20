@@ -49,8 +49,13 @@ public class AutomationRunService : BaseService<AutomationRun, long>, IAutomatio
                 r.Note,
                 r.StartedOn,
                 r.CompletedOn,
-                // Activity heartbeat: when this run last posted a response record.
+                // Activity heartbeat: v1 runs post response records, v2 runs post decision log
+                // entries - the newest of either counts, or the abandoned-run watchdog shoots
+                // healthy long v2 runs.
                 LastResponseOn = this.Context.AutomationRunResponses
+                    .Where(x => x.AutomationRunId == r.Id)
+                    .Max(x => (DateTime?)x.CreatedOn),
+                LastLogOn = this.Context.AutomationRunLogs
                     .Where(x => x.AutomationRunId == r.Id)
                     .Max(x => (DateTime?)x.CreatedOn),
             })
@@ -64,7 +69,7 @@ public class AutomationRunService : BaseService<AutomationRun, long>, IAutomatio
                 Note = r.Note,
                 StartedOn = r.StartedOn,
                 CompletedOn = r.CompletedOn,
-                LastResponseOn = r.LastResponseOn,
+                LastResponseOn = r.LastLogOn > r.LastResponseOn ? r.LastLogOn : r.LastResponseOn ?? r.LastLogOn,
             })
             .ToArray();
     }
