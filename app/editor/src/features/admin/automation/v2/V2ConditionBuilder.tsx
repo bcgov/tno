@@ -170,8 +170,16 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
                 type="button"
                 className="v2-condition-remove"
                 title="Remove this condition"
-                disabled={children.length <= 1}
-                onClick={() => onChange({ [listKey]: children.filter((_, i) => i !== index) })}
+                onClick={() => {
+                  const remaining = children.filter((_, i) => i !== index);
+                  // An empty combinator is invalid; removing the last row collapses the group
+                  // back to a blank field test.
+                  onChange(
+                    remaining.length > 0
+                      ? { [listKey]: remaining }
+                      : { field: '', op: 'equals', value: '' },
+                  );
+                }}
               >
                 <FaMinusCircle />
               </button>

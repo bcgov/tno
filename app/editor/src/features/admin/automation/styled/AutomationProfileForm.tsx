@@ -1409,8 +1409,10 @@ export const AutomationModalStyles = createGlobalStyle`
   }
   .v2-condition-children {
     margin-left: 0.35rem;
-    padding-left: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e4e7ec;
     border-left: 3px solid #234075;
+    border-radius: 0 0.25rem 0.25rem 0;
   }
   .v2-condition-remove {
     border: none;
