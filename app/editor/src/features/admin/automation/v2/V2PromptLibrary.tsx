@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
+import { FaCopy, FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { Button, ButtonVariant, Col, Modal, Row, Show, Text, TextArea, Wysiwyg } from 'tno-core';
 
@@ -61,8 +61,15 @@ export const V2PromptLibrary: React.FC<IV2PromptLibraryProps> = ({ definition, o
 
   const names = Object.keys(definition.prompts);
   const refs = promptRefs(definition);
-  // Engine built-ins not yet overridden render as editable placeholder rows.
-  const missingDefaults = Object.keys(V2_DEFAULT_PROMPTS).filter((name) => !names.includes(name));
+  // Engine built-ins render as editable placeholder rows, but only when the definition
+  // actually uses the action that sends them.
+  const missingDefaults = Object.keys(V2_DEFAULT_PROMPTS).filter(
+    (name) =>
+      !names.includes(name) &&
+      definition.steps.some((step) =>
+        step.actions.some((action) => action.type === V2_DEFAULT_PROMPTS[name].action),
+      ),
+  );
 
   const referencedBy = (name: string): string => {
     if (name in V2_DEFAULT_PROMPTS) return 'built-in default';
@@ -95,6 +102,15 @@ export const V2PromptLibrary: React.FC<IV2PromptLibraryProps> = ({ definition, o
     prompts[name] = { text: draft.text, description: draft.description.trim() || undefined };
     onChange({ ...next, prompts });
     setDraft(null);
+  };
+
+  const duplicate = (name: string) => {
+    let copy = `${name}-copy`;
+    for (let n = 2; definition.prompts[copy]; n++) copy = `${name}-copy-${n}`;
+    onChange({
+      ...definition,
+      prompts: { ...definition.prompts, [copy]: { ...definition.prompts[name] } },
+    });
   };
 
   const remove = (name: string) => {
@@ -207,6 +223,15 @@ export const V2PromptLibrary: React.FC<IV2PromptLibraryProps> = ({ definition, o
                   }
                 >
                   <FaEdit />
+                </button>
+                <button
+                  type="button"
+                  className="rule-icon-button"
+                  aria-label={`Duplicate prompt '${name}'`}
+                  title={`Duplicate prompt '${name}'`}
+                  onClick={() => duplicate(name)}
+                >
+                  <FaCopy />
                 </button>
                 <button
                   type="button"
