@@ -19,7 +19,8 @@ const getShape = (condition: IV2Condition): ConditionShape => {
   if (condition.all) return 'all';
   if (condition.any) return 'any';
   if (condition.not) return 'not';
-  if (condition.from) return 'from';
+  // Presence, not truthiness: selecting the shape seeds an empty 'from' the user then fills.
+  if (condition.from != null) return 'from';
   return 'leaf';
 };
 

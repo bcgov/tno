@@ -14,7 +14,7 @@ type GateKind = 'always' | 'condition' | 'confirm';
 
 const gateOptions: IOptionItem[] = [
   createOption('Always run', 'always'),
-  createOption('Condition (no LLM call)', 'condition'),
+  createOption('Condition', 'condition'),
   createOption('LLM confirmation statement', 'confirm'),
 ];
 
@@ -489,11 +489,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           name="action-gate"
           label="Runs when"
           required
-          width={fitSelectWidth([
-            'Always run',
-            'Condition (no LLM call)',
-            'LLM confirmation statement',
-          ])}
+          width={fitSelectWidth(['Always run', 'Condition', 'LLM confirmation statement'])}
           isClearable={false}
           options={gateOptions}
           value={findOptionByValue(gateOptions, gate)}
