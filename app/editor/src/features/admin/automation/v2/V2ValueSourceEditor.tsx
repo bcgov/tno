@@ -3,6 +3,7 @@ import { type IOptionItem, Row, Select, Show, Text } from 'tno-core';
 
 import { createOption, findOptionByValue } from '../utils';
 import { type IV2ValueSource } from './interfaces';
+import { V2ComboBox } from './V2ComboBox';
 
 type ValueKind = 'from' | 'literal' | 'template';
 
@@ -21,6 +22,8 @@ const getKind = (value?: IV2ValueSource | null): ValueKind => {
 export interface IV2ValueSourceEditorProps {
   name: string;
   value?: IV2ValueSource | null;
+  /** 'analysisName.key' / 'content.field' references offered by the from autocomplete. */
+  fromSuggestions?: string[];
   onChange: (value: IV2ValueSource) => void;
 }
 
@@ -31,6 +34,7 @@ export interface IV2ValueSourceEditorProps {
 export const V2ValueSourceEditor: React.FC<IV2ValueSourceEditorProps> = ({
   name,
   value,
+  fromSuggestions = [],
   onChange,
 }) => {
   const kind = getKind(value);
@@ -58,12 +62,13 @@ export const V2ValueSourceEditor: React.FC<IV2ValueSourceEditorProps> = ({
         }}
       />
       <Show visible={kind === 'from'}>
-        <Text
+        <V2ComboBox
           name={`${name}-from`}
-          placeholder="triage.sentiment or content.byline"
-          value={value?.from ?? ''}
+          placeholder="Pick an analysis key or content field"
           width="20rem"
-          onChange={(e) => onChange({ from: e.target.value })}
+          suggestions={fromSuggestions}
+          value={value?.from ?? ''}
+          onChange={(from) => onChange({ from })}
         />
       </Show>
       <Show visible={kind === 'literal'}>
@@ -82,7 +87,7 @@ export const V2ValueSourceEditor: React.FC<IV2ValueSourceEditorProps> = ({
       <Show visible={kind === 'template'}>
         <Text
           name={`${name}-template`}
-          placeholder="DIGEST: {content.headline}"
+          placeholder="Text with {content.*} tokens, e.g. [{content.source.code}] {content.headline}"
           value={value?.template ?? ''}
           width="20rem"
           onChange={(e) => onChange({ template: e.target.value })}
