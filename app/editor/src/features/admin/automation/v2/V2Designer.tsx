@@ -252,7 +252,7 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
           </span>
         </Row>
         <DragDropContextAny onDragEnd={onDragEnd}>
-          <DroppableAny droppableId="v2-steps">
+          <DroppableAny droppableId="v2-steps" type="v2-steps">
             {(provided: any) => (
               <div ref={provided.innerRef} {...provided.droppableProps}>
                 {definition.steps.map((step, index) => (
@@ -467,7 +467,10 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                                   </button>
                                 </span>
                               </Row>
-                              <DroppableAny droppableId={`v2-actions-${index}`}>
+                              <DroppableAny
+                                droppableId={`v2-actions-${index}`}
+                                type={`v2-actions-${index}`}
+                              >
                                 {(actionsProvided: any) => (
                                   <div
                                     ref={actionsProvided.innerRef}
