@@ -213,6 +213,23 @@ public class AutomationDefinitionValidatorTest
     }
 
     [Fact]
+    public void DuplicateConfirmationOnSameAnalysis_IsAWarning()
+    {
+        // Deliberate fan-out (one marker driving two consequences) is legal, so a duplicate is
+        // surfaced as a warning against copy-paste accidents rather than an error.
+        var definition = ValidDefinition();
+        definition.Steps[1].Actions.Add(new V2ActionDefinition { Type = "content.publish", Confirm = "[GO]", Analysis = "triage" });
+        definition.Steps[1].Actions.Add(new V2ActionDefinition { Type = "collection.add", Into = "$run.inbox", Confirm = "[GO]", Analysis = "triage" });
+        var errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.Contains(errors, e => e.Severity == "warning" && e.Message.Contains("[GO]"));
+        // The same marker against a DIFFERENT analysis does not warn - no crosstalk.
+        definition.Steps[1].Analyses.Add(new V2AnalysisDefinition { Name = "second", Raw = true, Prompt = new V2PromptDefinition { Text = "x" } });
+        definition.Steps[1].Actions[^1].Analysis = "second";
+        errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.DoesNotContain(errors, e => e.Severity == "warning" && e.Message.Contains("[GO]"));
+    }
+
+    [Fact]
     public void DefinitionRoundTrip_PreservesShape()
     {
         var definition = ValidDefinition();

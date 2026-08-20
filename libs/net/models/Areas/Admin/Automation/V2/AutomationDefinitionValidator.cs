@@ -125,6 +125,9 @@ public static class AutomationDefinitionValidator
             // Actions.
             var consumedAnalyses = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var drafts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            // Analysis + confirmation-statement pairs already used, to flag accidental copies:
+            // two actions sharing a marker against the same response both fire on it.
+            var confirmations = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             for (var i = 0; i < step.Actions.Count; i++)
             {
                 var action = step.Actions[i];
@@ -188,6 +191,12 @@ public static class AutomationDefinitionValidator
                     // Confirm without a named analysis requires exactly one to be unambiguous.
                     if (analyses.Count == 1) consumedAnalyses.Add(analyses.Keys.First());
                     else errors.Add(new($"{path}.confirm", "Confirm requires 'analysis' to name which analysis response to match (the step has more than one)."));
+                }
+                if (!string.IsNullOrWhiteSpace(action.Confirm))
+                {
+                    var confirmAnalysis = action.Analysis ?? (analyses.Count == 1 ? analyses.Keys.First() : "");
+                    if (!confirmations.Add($"{confirmAnalysis}|{action.Confirm!.Trim()}"))
+                        errors.Add(new($"{path}.confirm", $"Confirmation '{action.Confirm}' is already used by an earlier action against analysis '{confirmAnalysis}'; both actions will fire on the same response marker (fine if the fan-out is deliberate).", "warning"));
                 }
 
                 if (action.When != null)
