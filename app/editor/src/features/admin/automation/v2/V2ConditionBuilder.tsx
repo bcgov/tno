@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button, ButtonVariant, Col, type IOptionItem, Row, Select, Show, Text } from 'tno-core';
+import { FaMinusCircle } from 'react-icons/fa';
+import { Col, type IOptionItem, Row, Select, Show, Text } from 'tno-core';
 
 import { createOption, findOptionByValue } from '../utils';
 import {
@@ -55,6 +56,9 @@ export interface IV2ConditionBuilderProps {
   depth?: number;
   /** The shared field-name datalist id; the root renders the list once. */
   listId?: string;
+  /** 'analysisName.key' references whose declared type is bool, for the Analysis answer
+   * autocomplete (freeform still allowed). */
+  fromSuggestions?: string[];
 }
 
 /**
@@ -66,10 +70,12 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
   onChange,
   depth = 0,
   listId,
+  fromSuggestions = [],
 }) => {
   const shape = getShape(value);
   const ownId = React.useId();
   const fieldListId = listId ?? `v2-fields-${ownId}`;
+  const fromListId = `${fieldListId}-from`;
 
   const setShape = (next: ConditionShape) => {
     switch (next) {
@@ -98,11 +104,18 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
     <Col className="v2-condition" gap="0.25rem">
       {/* Known working-copy property names for the field autocomplete; freeform is allowed. */}
       {depth === 0 && (
-        <datalist id={fieldListId}>
-          {v2ContentFieldOptions.map((option) => (
-            <option key={`${option.value}`} value={`${option.value}`} />
-          ))}
-        </datalist>
+        <>
+          <datalist id={fieldListId}>
+            {v2ContentFieldOptions.map((option) => (
+              <option key={`${option.value}`} value={`${option.value}`} />
+            ))}
+          </datalist>
+          <datalist id={fromListId}>
+            {fromSuggestions.map((reference) => (
+              <option key={reference} value={reference} />
+            ))}
+          </datalist>
+        </>
       )}
       <Row gap="0.5rem" alignItems="center" nowrap>
         <Select
@@ -152,6 +165,7 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
           <Text
             name={`condition-from-${depth}`}
             placeholder="analysisName.key (a boolean result)"
+            list={fromListId}
             value={value.from ?? ''}
             width="14rem"
             onChange={(e) => onChange({ from: e.target.value })}
@@ -159,7 +173,7 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
         </Show>
       </Row>
       <Show visible={shape === 'all' || shape === 'any'}>
-        <Col className="v2-condition-children" gap="0.25rem">
+        <Col className="v2-condition-children" gap="0.5rem">
           {children.map((child, index) => (
             <Row key={index} gap="0.5rem" alignItems="flex-start" nowrap>
               <V2ConditionBuilder
@@ -172,26 +186,26 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
                   onChange({ [listKey]: updated });
                 }}
               />
-              <Button
-                variant={ButtonVariant.danger}
+              <button
+                type="button"
+                className="v2-condition-remove"
+                title="Remove this condition"
                 disabled={children.length <= 1}
-                tooltip="Remove this condition"
                 onClick={() => onChange({ [listKey]: children.filter((_, i) => i !== index) })}
               >
-                −
-              </Button>
+                <FaMinusCircle />
+              </button>
             </Row>
           ))}
-          <Row>
-            <Button
-              variant={ButtonVariant.secondary}
-              onClick={() =>
-                onChange({ [listKey]: [...children, { field: '', op: 'equals', value: '' }] })
-              }
-            >
-              + condition
-            </Button>
-          </Row>
+          <button
+            type="button"
+            className="v2-condition-add"
+            onClick={() =>
+              onChange({ [listKey]: [...children, { field: '', op: 'equals', value: '' }] })
+            }
+          >
+            + condition
+          </button>
         </Col>
       </Show>
       <Show visible={shape === 'not'}>

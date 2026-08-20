@@ -1408,9 +1408,70 @@ export const AutomationModalStyles = createGlobalStyle`
     text-align: left;
   }
   .v2-condition-children {
-    margin-left: 1.5rem;
-    padding-left: 0.5rem;
-    border-left: 2px solid #e4e7ec;
+    margin-left: 0.35rem;
+    padding-left: 0.75rem;
+    border-left: 3px solid #234075;
+  }
+  .v2-condition-remove {
+    border: none;
+    background: none;
+    color: #234075;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0.6rem 0 0 0;
+    cursor: pointer;
+
+    &:disabled {
+      color: #b8c4d4;
+      cursor: not-allowed;
+    }
+  }
+  .v2-condition-add {
+    border: none;
+    background: none;
+    color: #1a5a96;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0;
+    cursor: pointer;
+    width: max-content;
+    text-align: left;
+  }
+  /* Autocomplete inputs render as comboboxes: keep the datalist dropdown arrow visible. */
+  .v2-condition input[list]::-webkit-calendar-picker-indicator,
+  .v2-returns input[list]::-webkit-calendar-picker-indicator {
+    opacity: 1;
+    display: block;
+  }
+  .v2-returns {
+    border: 1px solid #e4e7ec;
+
+    .v2-returns-head {
+      display: grid;
+      grid-template-columns: 1fr 1fr 2.25rem;
+      align-items: center;
+      background: #f2f4f7;
+      border-bottom: 1px solid #e4e7ec;
+      font-weight: 700;
+      padding: 0.4rem 0.75rem;
+    }
+    .v2-returns-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 2.25rem;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.35rem 0.75rem;
+    }
+    .v2-returns-add,
+    .v2-returns-del {
+      border: none;
+      background: none;
+      color: #234075;
+      cursor: pointer;
+      font-size: 1rem;
+      justify-self: end;
+      padding: 0;
+    }
   }
   .v2-findings {
     border: 1px solid #fda29b;

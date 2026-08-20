@@ -4,7 +4,12 @@ import { Checkbox, Col, type IOptionItem, Row, Select, Show, Text } from 'tno-co
 import { contentFieldOptionItems } from '../constants';
 import { createOption, findOptionByValue, toNumberOrUndefined } from '../utils';
 import { fitSelectWidth } from './constants';
-import { type IV2Action, type IV2ActionDescriptor, type IV2FieldSpec } from './interfaces';
+import {
+  type IV2Action,
+  type IV2ActionDescriptor,
+  type IV2Analysis,
+  type IV2FieldSpec,
+} from './interfaces';
 import { V2ConditionBuilder } from './V2ConditionBuilder';
 import { V2FilterField } from './V2FilterField';
 import { V2ScopedNameField } from './V2ScopedNameField';
@@ -44,7 +49,8 @@ export interface IV2ActionEditorProps {
   action: IV2Action;
   descriptors: IV2ActionDescriptor[];
   phase: string;
-  analysisNames: string[];
+  /** The step's analyses; drives the confirm picker and the bool-answer autocomplete. */
+  analyses: IV2Analysis[];
   collectionNames: string[];
   /** Drafts created by earlier content.create actions in this step ($item.* names). */
   draftNames: string[];
@@ -65,7 +71,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
   action,
   descriptors,
   phase,
-  analysisNames,
+  analyses,
   collectionNames,
   draftNames,
   filterOptions,
@@ -83,7 +89,16 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
         .map((d) => createOption(`${d.category} — ${d.label}`, d.type)),
     [descriptors, phase],
   );
+  const analysisNames = analyses.map((analysis) => analysis.name).filter((name) => !!name);
   const analysisOptions = analysisNames.map((name) => createOption(name, name));
+  // 'analysisName.key' references whose declared return type is bool.
+  const analysisBoolRefs = analyses
+    .filter((analysis) => !analysis.raw)
+    .flatMap((analysis) =>
+      Object.entries(analysis.returns ?? {})
+        .filter(([, type]) => `${type}`.trim().toLowerCase().startsWith('bool'))
+        .map(([key]) => `${analysis.name}.${key}`),
+    );
   const promptOptions = promptNames.map((name) => createOption(name, name));
   const subjectOption = createOption('The subject ($item)', '$item');
   const draftOptions = draftNames.map((name) => createOption(name.replace(/^\$item\./, ''), name));
@@ -538,6 +553,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <label>Condition</label>
           <V2ConditionBuilder
             value={action.when ?? { field: '', op: 'equals', value: '' }}
+            fromSuggestions={analysisBoolRefs}
             onChange={(when) => set({ when })}
           />
           <p className="v2-config-hint">

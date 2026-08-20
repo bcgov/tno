@@ -796,13 +796,7 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                 action={actionModal?.draft ?? createDefaultV2Action()}
                 descriptors={descriptors}
                 phase={actionModal ? definition.steps[actionModal.stepIndex].phase : 'process'}
-                analysisNames={
-                  actionModal
-                    ? definition.steps[actionModal.stepIndex].analyses
-                        .map((analysis) => analysis.name)
-                        .filter((name) => !!name)
-                    : []
-                }
+                analyses={actionModal ? definition.steps[actionModal.stepIndex].analyses : []}
                 collectionNames={collectionNames}
                 draftNames={
                   actionModal

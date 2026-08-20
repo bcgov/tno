@@ -1,7 +1,9 @@
 import React from 'react';
+import { FaPlus, FaTrash } from 'react-icons/fa';
 import { Checkbox, Col, type IOptionItem, Row, Select, Show, Text, TextArea } from 'tno-core';
 
 import { createOption, findOptionByValue, toNumberOrUndefined } from '../utils';
+import { fitSelectWidth } from './constants';
 import { type IV2Analysis } from './interfaces';
 
 export interface IV2AnalysisEditorProps {
@@ -12,6 +14,10 @@ export interface IV2AnalysisEditorProps {
   llmOptions: IOptionItem[];
   onChange: (analysis: IV2Analysis) => void;
 }
+
+/** Common return type specs offered by the Type autocomplete; freeform (e.g. 'int(-5..5)')
+ * stays allowed. */
+const RETURN_TYPES = ['string', 'string?', 'string[]', 'bool', 'int', 'int(-5..5)'];
 
 /**
  * Editor for one named analysis: its prompt (library reference plus override, or inline text),
@@ -33,24 +39,32 @@ export const V2AnalysisEditor: React.FC<IV2AnalysisEditorProps> = ({
     createOption('(none)', ''),
     ...earlierNames.map((name) => createOption(name, name)),
   ];
+  const llmSelectOptions = [createOption('step default', ''), ...llmOptions];
   const returnEntries = Object.entries(analysis.returns ?? {});
+  const typeListId = React.useId();
 
   const set = (values: Partial<IV2Analysis>) => onChange({ ...analysis, ...values });
 
   return (
     <Col className="v2-analysis-editor" gap="0.5rem">
-      <Row gap="0.5rem" alignItems="flex-end" nowrap>
+      <datalist id={typeListId}>
+        {RETURN_TYPES.map((type) => (
+          <option key={type} value={type} />
+        ))}
+      </datalist>
+      <Row gap="1rem" alignItems="flex-end" nowrap>
         <Text
           name="analysis-name"
-          label="Analysis name"
-          width="14rem"
+          label="Name"
+          required
+          width="12rem"
           value={analysis.name}
           onChange={(e) => set({ name: e.target.value })}
         />
         <Select
           name="analysis-prompt-ref"
-          label="Prompt (library entry)"
-          width="18rem"
+          label="Prompt"
+          width={fitSelectWidth(['(inline text)', ...promptNames])}
           isClearable={false}
           options={promptOptions}
           value={findOptionByValue(promptOptions, analysis.prompt?.ref ?? '')}
@@ -62,8 +76,8 @@ export const V2AnalysisEditor: React.FC<IV2AnalysisEditorProps> = ({
         />
         <Select
           name="analysis-chain"
-          label="Continue (chain)"
-          width="14rem"
+          label="Chain"
+          width={fitSelectWidth(['(none)', ...earlierNames])}
           isClearable={false}
           options={chainOptions}
           value={findOptionByValue(chainOptions, analysis.chain ?? '')}
@@ -72,12 +86,15 @@ export const V2AnalysisEditor: React.FC<IV2AnalysisEditorProps> = ({
             set({ chain: option?.value ? `${option.value}` : null });
           }}
         />
+      </Row>
+      <Row gap="1rem" alignItems="flex-end" nowrap>
         <Select
           name="analysis-llm"
-          label="LLM override"
-          width="14rem"
-          options={llmOptions}
-          value={findOptionByValue(llmOptions, analysis.llmId) ?? ''}
+          label="LLM Override"
+          width={fitSelectWidth(['step default', ...llmOptions.map((option) => `${option.label}`)])}
+          isClearable={false}
+          options={llmSelectOptions}
+          value={findOptionByValue(llmOptions, analysis.llmId) ?? createOption('step default', '')}
           onChange={(newValue) => set({ llmId: toNumberOrUndefined(newValue as IOptionItem) })}
         />
         <div className="checkbox-inline">
@@ -93,8 +110,9 @@ export const V2AnalysisEditor: React.FC<IV2AnalysisEditorProps> = ({
       <Show visible={!analysis.prompt?.ref}>
         <TextArea
           name="analysis-prompt-text"
-          label="Prompt text"
+          label="Prompt Text"
           rows={4}
+          placeholder="The prompt sent for this analysis"
           value={analysis.prompt?.text ?? ''}
           onChange={(e) => set({ prompt: { ...analysis.prompt, text: e.target.value } })}
         />
@@ -102,8 +120,9 @@ export const V2AnalysisEditor: React.FC<IV2AnalysisEditorProps> = ({
       <Show visible={!!analysis.prompt?.ref}>
         <TextArea
           name="analysis-prompt-override"
-          label="Override (layered onto the library entry)"
-          rows={3}
+          label="Prompt Override"
+          rows={4}
+          placeholder="Text layered onto the shared prompt for this step only"
           value={analysis.prompt?.override ?? ''}
           onChange={(e) =>
             set({ prompt: { ...analysis.prompt, override: e.target.value || null } })
@@ -112,58 +131,62 @@ export const V2AnalysisEditor: React.FC<IV2AnalysisEditorProps> = ({
       </Show>
       <Show visible={!analysis.raw}>
         <Col gap="0.25rem">
-          <label>
-            Returns (key and type — 'string', 'string?', 'string[]', 'bool', 'int', 'int(-5..5)')
-          </label>
-          {returnEntries.map(([key, type], index) => (
-            <Row key={index} gap="0.5rem" alignItems="center" nowrap>
-              <Text
-                name={`analysis-return-key-${index}`}
-                placeholder="key"
-                width="12rem"
-                value={key}
-                onChange={(e) => {
-                  const updated = returnEntries.map(([k, t], i) =>
-                    i === index ? ([e.target.value, t] as const) : ([k, t] as const),
-                  );
-                  set({ returns: Object.fromEntries(updated) });
-                }}
-              />
-              <Text
-                name={`analysis-return-type-${index}`}
-                placeholder="type"
-                width="10rem"
-                value={type}
-                onChange={(e) => {
-                  const updated = returnEntries.map(([k, t], i) =>
-                    i === index ? ([k, e.target.value] as const) : ([k, t] as const),
-                  );
-                  set({ returns: Object.fromEntries(updated) });
-                }}
-              />
+          <label>Returns</label>
+          <div className="v2-returns">
+            <div className="v2-returns-head">
+              <span>Key</span>
+              <span>Type</span>
               <button
                 type="button"
-                className="rule-icon-button delete"
-                title="Remove key"
-                onClick={() =>
-                  set({
-                    returns: Object.fromEntries(returnEntries.filter((_, i) => i !== index)),
-                  })
-                }
+                className="v2-returns-add"
+                title="Add a return key"
+                onClick={() => set({ returns: { ...(analysis.returns ?? {}), '': 'string' } })}
               >
-                ×
+                <FaPlus />
               </button>
-            </Row>
-          ))}
-          <Row>
-            <button
-              type="button"
-              className="v2-link-button"
-              onClick={() => set({ returns: { ...(analysis.returns ?? {}), '': 'string' } })}
-            >
-              + return key
-            </button>
-          </Row>
+            </div>
+            {returnEntries.map(([key, type], index) => (
+              <div key={index} className="v2-returns-row">
+                <Text
+                  name={`analysis-return-key-${index}`}
+                  placeholder="key"
+                  width="100%"
+                  value={key}
+                  onChange={(e) => {
+                    const updated = returnEntries.map(([k, t], i) =>
+                      i === index ? ([e.target.value, t] as const) : ([k, t] as const),
+                    );
+                    set({ returns: Object.fromEntries(updated) });
+                  }}
+                />
+                <Text
+                  name={`analysis-return-type-${index}`}
+                  placeholder="type"
+                  width="100%"
+                  list={typeListId}
+                  value={type}
+                  onChange={(e) => {
+                    const updated = returnEntries.map(([k, t], i) =>
+                      i === index ? ([k, e.target.value] as const) : ([k, t] as const),
+                    );
+                    set({ returns: Object.fromEntries(updated) });
+                  }}
+                />
+                <button
+                  type="button"
+                  className="v2-returns-del"
+                  title="Remove this return key"
+                  onClick={() =>
+                    set({
+                      returns: Object.fromEntries(returnEntries.filter((_, i) => i !== index)),
+                    })
+                  }
+                >
+                  <FaTrash />
+                </button>
+              </div>
+            ))}
+          </div>
         </Col>
       </Show>
     </Col>
