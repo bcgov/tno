@@ -141,6 +141,8 @@ export interface IV2Action {
 export interface IV2ActionDescriptor {
   type: string;
   label: string;
+  /** How the action works and what each field does; shown under the Configuration label. */
+  description?: string | null;
   category: string;
   requiresSubject: boolean;
   requiresPersistedId: boolean;

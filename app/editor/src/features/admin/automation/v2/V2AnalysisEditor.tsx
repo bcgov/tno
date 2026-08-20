@@ -125,7 +125,7 @@ export const V2AnalysisEditor: React.FC<IV2AnalysisEditorProps> = ({
         />
       </Show>
       <Show visible={!analysis.raw}>
-        <Col gap="0.25rem">
+        <div className="frm-in">
           <label>Returns</label>
           <div className="v2-returns">
             <div className="v2-returns-head">
@@ -181,7 +181,7 @@ export const V2AnalysisEditor: React.FC<IV2AnalysisEditorProps> = ({
               </div>
             ))}
           </div>
-        </Col>
+        </div>
       </Show>
     </Col>
   );

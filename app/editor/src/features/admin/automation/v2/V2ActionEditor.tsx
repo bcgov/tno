@@ -239,17 +239,17 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
       }
       case 'condition':
         return (
-          <Col key={key} className="v2-field-wide">
+          <div key={key} className="v2-field-wide frm-in">
             <label>{field.name}</label>
             <V2ConditionBuilder
               value={action.where ?? { field: '', op: 'equals', value: '' }}
               onChange={(where) => set({ where })}
             />
-          </Col>
+          </div>
         );
       case 'valueSource':
         return (
-          <Col key={key} className="v2-field-wide">
+          <div key={key} className="v2-field-wide frm-in">
             <label>value</label>
             <V2ValueSourceEditor
               name={key}
@@ -259,60 +259,62 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
             <Show visible={analysisNames.length > 0}>
               <p className="v2-field-help">Analyses on this step: {analysisNames.join(', ')}</p>
             </Show>
-          </Col>
+          </div>
         );
       case 'valueMap': {
         const entries = Object.entries(action.set ?? {});
         return (
-          <Col key={key} gap="0.25rem" className="v2-field-wide">
+          <div key={key} className="v2-field-wide frm-in">
             <label>set fields</label>
-            {entries.map(([fieldName, source], index) => (
-              <Row key={index} gap="0.5rem" alignItems="center" nowrap>
-                <Text
-                  name={`${key}-field-${index}`}
-                  placeholder="field"
-                  width="10rem"
-                  value={fieldName}
-                  onChange={(e) => {
-                    const updated = entries.map(([k, v], i) =>
-                      i === index ? ([e.target.value, v] as const) : ([k, v] as const),
-                    );
-                    set({ set: Object.fromEntries(updated) });
-                  }}
-                />
-                <V2ValueSourceEditor
-                  name={`${key}-source-${index}`}
-                  value={source}
-                  onChange={(next) => {
-                    const updated = entries.map(([k, v], i) =>
-                      i === index ? ([k, next] as const) : ([k, v] as const),
-                    );
-                    set({ set: Object.fromEntries(updated) });
-                  }}
-                />
+            <Col gap="0.25rem">
+              {entries.map(([fieldName, source], index) => (
+                <Row key={index} gap="0.5rem" alignItems="center" nowrap>
+                  <Text
+                    name={`${key}-field-${index}`}
+                    placeholder="field"
+                    width="10rem"
+                    value={fieldName}
+                    onChange={(e) => {
+                      const updated = entries.map(([k, v], i) =>
+                        i === index ? ([e.target.value, v] as const) : ([k, v] as const),
+                      );
+                      set({ set: Object.fromEntries(updated) });
+                    }}
+                  />
+                  <V2ValueSourceEditor
+                    name={`${key}-source-${index}`}
+                    value={source}
+                    onChange={(next) => {
+                      const updated = entries.map(([k, v], i) =>
+                        i === index ? ([k, next] as const) : ([k, v] as const),
+                      );
+                      set({ set: Object.fromEntries(updated) });
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="rule-icon-button delete"
+                    title="Remove field"
+                    onClick={() => {
+                      const updated = entries.filter((_, i) => i !== index);
+                      set({ set: updated.length > 0 ? Object.fromEntries(updated) : null });
+                    }}
+                  >
+                    ×
+                  </button>
+                </Row>
+              ))}
+              <Row>
                 <button
                   type="button"
-                  className="rule-icon-button delete"
-                  title="Remove field"
-                  onClick={() => {
-                    const updated = entries.filter((_, i) => i !== index);
-                    set({ set: updated.length > 0 ? Object.fromEntries(updated) : null });
-                  }}
+                  className="v2-link-button"
+                  onClick={() => set({ set: { ...(action.set ?? {}), '': { from: '' } } })}
                 >
-                  ×
+                  + field
                 </button>
               </Row>
-            ))}
-            <Row>
-              <button
-                type="button"
-                className="v2-link-button"
-                onClick={() => set({ set: { ...(action.set ?? {}), '': { from: '' } } })}
-              >
-                + field
-              </button>
-            </Row>
-          </Col>
+            </Col>
+          </div>
         );
       }
       case 'fields': {
@@ -572,7 +574,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
         </Row>
       </Show>
       <Show visible={gate === 'condition'}>
-        <Col gap="0.25rem">
+        <div className="frm-in">
           <label>Condition</label>
           <V2ConditionBuilder
             value={action.when ?? { field: '', op: 'equals', value: '' }}
@@ -582,11 +584,14 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <p className="v2-config-hint">
             Evaluated against the working copy. When it fails, no prompt is sent.
           </p>
-        </Col>
+        </div>
       </Show>
       <label className="v2-config-label">Configuration</label>
       <Show visible={!descriptor}>
         <p className="v2-config-hint">Pick an action to configure it.</p>
+      </Show>
+      <Show visible={!!descriptor?.description}>
+        <p className="v2-config-desc">{descriptor?.description}</p>
       </Show>
       <Show visible={!!descriptor}>
         <Row className="v2-action-fields" gap="1rem" alignItems="flex-start">

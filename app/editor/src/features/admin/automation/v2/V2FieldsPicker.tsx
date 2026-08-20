@@ -1,5 +1,4 @@
 import React from 'react';
-import { Col } from 'tno-core';
 
 import { fitSelectWidth } from './constants';
 import { V2ComboBox } from './V2ComboBox';
@@ -29,7 +28,7 @@ export const V2FieldsPicker: React.FC<IV2FieldsPickerProps> = ({
 }) => {
   const remaining = suggestions.filter((suggestion) => !values.includes(suggestion));
   return (
-    <Col className="v2-fields-picker frm-in">
+    <div className="v2-fields-picker frm-in">
       <label>{label}</label>
       <V2ComboBox
         name={name}
@@ -58,6 +57,6 @@ export const V2FieldsPicker: React.FC<IV2FieldsPickerProps> = ({
           ))}
         </div>
       )}
-    </Col>
+    </div>
   );
 };

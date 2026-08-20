@@ -1157,6 +1157,13 @@ export const AutomationModalStyles = createGlobalStyle`
     color: #5b7a9b;
   }
 
+    .v2-config-desc {
+    margin: 0;
+    color: #495057;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    max-width: 72ch;
+  }
   .v2-config-hint {
     margin: 0;
     color: #5b7a9b;

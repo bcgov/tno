@@ -1,5 +1,5 @@
 import React from 'react';
-import { Col, type IOptionItem, Select } from 'tno-core';
+import { type IOptionItem, Select } from 'tno-core';
 
 import { createOption, findOptionByValue } from '../utils';
 import { fitSelectWidth } from './constants';
@@ -53,7 +53,7 @@ export const V2ScopedNameField: React.FC<IV2ScopedNameFieldProps> = ({
 
   if (allowNew)
     return (
-      <Col className="v2-scoped-name frm-in">
+      <div className="v2-scoped-name frm-in">
         <label htmlFor={`sel-${name}`}>{label}</label>
         <V2ComboBox
           name={name}
@@ -70,7 +70,7 @@ export const V2ScopedNameField: React.FC<IV2ScopedNameFieldProps> = ({
           }}
         />
         {!!help && <p className="v2-field-help">{help}</p>}
-      </Col>
+      </div>
     );
 
   const options: IOptionItem[] = knownNames.map((known, index) =>
