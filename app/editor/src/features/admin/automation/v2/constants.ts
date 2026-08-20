@@ -78,17 +78,34 @@ export const v2RunLogOutcomeOptions: IOptionItem[] = [
   createOption('Any outcome', ''),
   createOption('Executed', 'executed'),
   createOption('Confirmed', 'confirmed'),
-  createOption('Not confirmed', 'not-confirmed'),
-  createOption('Condition passed', 'condition-passed'),
-  createOption('Condition failed', 'condition-failed'),
+  createOption('No match', 'not-confirmed'),
+  createOption('Condition met', 'condition-passed'),
+  createOption('Condition not met', 'condition-failed'),
   createOption('Skipped', 'skipped'),
   createOption('Excluded', 'excluded'),
   createOption('Aborted', 'aborted'),
   createOption('Failed', 'failed'),
-  createOption('Flushed', 'flushed'),
+  createOption('Saved', 'flushed'),
   createOption('Explain', 'explain'),
   createOption('Info', 'info'),
 ];
+
+/** Friendly display labels for stored outcome values: routine non-events ('condition-failed',
+ * 'not-confirmed') read as normal flow, not errors. Stored values are unchanged. */
+export const v2OutcomeLabel = (outcome: string): string => {
+  switch (outcome) {
+    case 'not-confirmed':
+      return 'no match';
+    case 'condition-passed':
+      return 'condition met';
+    case 'condition-failed':
+      return 'condition not met';
+    case 'flushed':
+      return 'saved';
+    default:
+      return outcome;
+  }
+};
 
 export const createDefaultV2Step = (phase: IV2Step['phase'] = 'process'): IV2Step => ({
   name: '',
@@ -249,8 +266,6 @@ export const v2OutcomeBadgeClass = (outcome: string): string => {
       return 'v2-badge v2-badge-danger';
     case 'excluded':
     case 'aborted':
-    case 'not-confirmed':
-    case 'condition-failed':
       return 'v2-badge v2-badge-warning';
     default:
       return 'v2-badge';

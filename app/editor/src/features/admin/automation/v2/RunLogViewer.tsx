@@ -3,7 +3,7 @@ import { FaAngleLeft, FaAngleRight, FaAnglesLeft, FaAnglesRight } from 'react-ic
 import { Button, ButtonVariant, Col, type IOptionItem, Row, Select, Show, Text } from 'tno-core';
 
 import { createOption, findOptionByValue } from '../utils';
-import { v2OutcomeBadgeClass, v2RunLogOutcomeOptions } from './constants';
+import { v2OutcomeBadgeClass, v2OutcomeLabel, v2RunLogOutcomeOptions } from './constants';
 import { ExplainPanel } from './ExplainPanel';
 import {
   type IAutomationExplainRequestModel,
@@ -308,7 +308,7 @@ const LogEntry: React.FC<ILogEntryProps> = ({
 }) => (
   <Col className={`v2-log-entry${entry.isLLM ? '' : ' v2-log-entry-decision'}`} gap="0.25rem">
     <Row gap="0.5rem" alignItems="center" nowrap className="v2-log-entry-header" onClick={onToggle}>
-      <span className={v2OutcomeBadgeClass(entry.outcome)}>{entry.outcome}</span>
+      <span className={v2OutcomeBadgeClass(entry.outcome)}>{v2OutcomeLabel(entry.outcome)}</span>
       <Show visible={!entry.isLLM}>
         <span className="v2-badge">engine</span>
       </Show>
