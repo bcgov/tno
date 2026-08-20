@@ -56,6 +56,23 @@ public class AutomationRunLogService : BaseService<AutomationRunLog, long>, IAut
     }
 
     /// <summary>
+    /// Count a run's log entries grouped by step and outcome - whole-run aggregates for
+    /// summaries and the debug assistant.
+    /// </summary>
+    /// <param name="runId"></param>
+    /// <returns></returns>
+    public IEnumerable<(string StepName, string Outcome, int Count)> CountByRun(long runId)
+    {
+        return this.Context.AutomationRunLogs.AsNoTracking()
+            .Where(l => l.AutomationRunId == runId)
+            .GroupBy(l => new { l.StepName, l.Outcome })
+            .Select(g => new { g.Key.StepName, g.Key.Outcome, Count = g.Count() })
+            .OrderBy(x => x.StepName).ThenBy(x => x.Outcome)
+            .AsEnumerable()
+            .Select(x => (x.StepName, x.Outcome, x.Count));
+    }
+
+    /// <summary>
     /// Insert a batch of run log entries.
     /// </summary>
     public int AddRange(IEnumerable<AutomationRunLog> logs)

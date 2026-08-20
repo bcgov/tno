@@ -17,6 +17,7 @@ public interface IAutomationRunLogService : IBaseService<AutomationRunLog, long>
     /// <param name="qty">Page size.</param>
     /// <returns>The page of entries and the total matching count.</returns>
     (IEnumerable<AutomationRunLog> Items, int Total) FindByRun(long runId, string? step = null, string? action = null, string? outcome = null, long? contentId = null, string? search = null, int page = 1, int qty = 100, bool descending = false);
+    IEnumerable<(string StepName, string Outcome, int Count)> CountByRun(long runId);
 
     /// <summary>
     /// Insert a batch of run log entries.

@@ -319,8 +319,13 @@ public class AutomationController : ControllerBase
             }
             else
             {
-                // No content item: give the run-level decision log tail so the model can answer
-                // about the run as a whole.
+                // No content item: whole-run outcome counts (so aggregate questions have real
+                // numbers), then the decision log tail for detail.
+                sb.AppendLine();
+                sb.AppendLine("Outcome counts for the WHOLE run, grouped by step (on a Detect Duplicate action, 'confirmed' means a duplicate was found and 'not-confirmed' means no match):");
+                foreach (var (stepName, outcome, count) in _runLogService.CountByRun(runId.Value))
+                    sb.AppendLine($"- {stepName}: {outcome} = {count}");
+
                 var (_, totalLogs) = _runLogService.FindByRun(runId.Value, qty: 1);
                 var lastPage = Math.Max(1, (int)Math.Ceiling(totalLogs / 80.0));
                 var (tail, _) = _runLogService.FindByRun(runId.Value, page: lastPage, qty: 80);
