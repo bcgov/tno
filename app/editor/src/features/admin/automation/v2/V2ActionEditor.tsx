@@ -82,12 +82,21 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
   onChange,
 }) => {
   const descriptor = descriptors.find((d) => d.type === action.type);
+  // Grouped by category for the menu; a flat list backs the value lookup.
+  const typeGroups = React.useMemo(() => {
+    const allowed = descriptors.filter((d) => d.phases.includes(phase));
+    const categories = Array.from(new Set(allowed.map((d) => d.category))).sort();
+    return categories.map((category) => ({
+      label: category,
+      options: allowed
+        .filter((d) => d.category === category)
+        .map((d) => createOption(d.label, d.type))
+        .sort((a, b) => `${a.label}`.localeCompare(`${b.label}`)),
+    }));
+  }, [descriptors, phase]);
   const typeOptions = React.useMemo(
-    () =>
-      descriptors
-        .filter((d) => d.phases.includes(phase))
-        .map((d) => createOption(`${d.category} — ${d.label}`, d.type)),
-    [descriptors, phase],
+    () => typeGroups.flatMap((group) => group.options),
+    [typeGroups],
   );
   const analysisNames = analyses.map((analysis) => analysis.name).filter((name) => !!name);
   const analysisOptions = analysisNames.map((name) => createOption(name, name));
@@ -484,8 +493,18 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           width="18rem"
           isClearable={false}
           placeholder="Pick an action"
-          options={typeOptions}
+          options={typeGroups}
           value={findOptionByValue(typeOptions, action.type) ?? ''}
+          formatOptionLabel={(data, meta) => {
+            const option = data as IOptionItem;
+            // The control shows 'category > label'; menu rows show the label under their
+            // group heading.
+            if (meta.context === 'value') {
+              const selected = descriptors.find((d) => d.type === option.value);
+              return selected ? `${selected.category} › ${selected.label}` : option.label;
+            }
+            return option.label;
+          }}
           onChange={(newValue) => {
             const option = newValue as IOptionItem;
             // Changing the type keeps only the identity/gate fields; type-specific config resets.
