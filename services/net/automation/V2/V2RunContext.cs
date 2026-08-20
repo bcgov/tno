@@ -37,6 +37,13 @@ public class V2ContentEntry
         lock (Deltas)
         {
             if (Deltas.Fields.TryGetValue(field, out var overridden)) return overridden;
+            // 'story' is a virtual read: the summary, or the body when there is no summary.
+            // (The lock is reentrant, so the nested reads are safe.)
+            if (field.Equals("story", StringComparison.OrdinalIgnoreCase))
+            {
+                var summary = GetField("summary");
+                return string.IsNullOrWhiteSpace(summary) ? GetField("body") : summary;
+            }
             if (field.Equals("tags", StringComparison.OrdinalIgnoreCase) && Deltas.Tags.Count > 0)
             {
                 var baseTags = Digest.TryGetValue("tags", out var t) ? t : null;

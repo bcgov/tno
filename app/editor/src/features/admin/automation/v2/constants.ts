@@ -203,12 +203,14 @@ export const V2_LOOKUP_TOKENS: { token: string; hint: string }[] = [
 
 /** Insertable content tokens: replaced with the item's working copy (deltas folded in). */
 export const V2_CONTENT_TOKENS: { token: string; hint: string }[] = [
+  { token: '{content}', hint: "The item's full working copy as JSON (changes included)" },
   { token: '{content.status}', hint: 'e.g. Published (reflects a pending publish/unpublish)' },
   { token: '{content.contentType}', hint: 'e.g. PrintContent, AudioVideo' },
   { token: '{content.headline}', hint: 'The headline' },
   { token: '{content.byline}', hint: 'The byline' },
   { token: '{content.body}', hint: 'The story body (truncated per the digest settings)' },
   { token: '{content.summary}', hint: 'The summary' },
+  { token: '{content.story}', hint: 'Summary, or body when there is no summary' },
   { token: '{content.source.name}', hint: 'e.g. Vancouver Sun' },
   { token: '{content.source.code}', hint: 'e.g. SUN' },
   { token: '{content.otherSource}', hint: 'The source code text on the item' },
@@ -228,7 +230,9 @@ export const V2_CONTENT_TOKENS: { token: string; hint: string }[] = [
 
 /** The working-copy property fields conditions can test, derived from the content token list so
  * the dropdown and the prompt tokens stay one surface. */
-export const v2ContentFieldOptions: IOptionItem[] = V2_CONTENT_TOKENS.map(({ token }) => {
+export const v2ContentFieldOptions: IOptionItem[] = V2_CONTENT_TOKENS.filter(({ token }) =>
+  token.startsWith('{content.'),
+).map(({ token }) => {
   const field = token.replace('{content.', '').replace('}', '');
   return createOption(field, field);
 });
