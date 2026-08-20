@@ -11,6 +11,7 @@ import {
   type IV2FieldSpec,
 } from './interfaces';
 import { V2ConditionBuilder } from './V2ConditionBuilder';
+import { V2DraftText } from './V2DraftText';
 import { V2FieldsPicker } from './V2FieldsPicker';
 import { V2FilterField } from './V2FilterField';
 import { V2ScopedNameField } from './V2ScopedNameField';
@@ -373,14 +374,14 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
       }
       case 'truncateMap':
         return (
-          <Text
+          <V2DraftText
             key={key}
             name={key}
             label="truncate (field=chars, …)"
             placeholder="body=2000, summary=500"
             width="24rem"
-            value={truncateToText(action.truncate)}
-            onChange={(e) => set({ truncate: textToTruncate(e.target.value) })}
+            canonical={truncateToText(action.truncate)}
+            onText={(text) => set({ truncate: textToTruncate(text) })}
           />
         );
       case 'prompt':

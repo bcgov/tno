@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaMinusCircle } from 'react-icons/fa';
-import { Col, type IOptionItem, Row, Select, Show, Text } from 'tno-core';
+import { Col, type IOptionItem, Row, Select, Show } from 'tno-core';
 
 import { createOption, findOptionByValue } from '../utils';
 import {
@@ -11,6 +11,7 @@ import {
 } from './constants';
 import { type IV2Condition } from './interfaces';
 import { V2ComboBox } from './V2ComboBox';
+import { V2DraftText } from './V2DraftText';
 
 type ConditionShape = 'leaf' | 'all' | 'any' | 'not' | 'from';
 
@@ -130,14 +131,14 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
             }}
           />
           <Show visible={!V2_VALUELESS_OPS.includes(value.op ?? '')}>
-            <Text
+            <V2DraftText
               name={`condition-value-${depth}`}
               placeholder={
                 V2_LIST_OPS.includes(value.op ?? '') ? 'comma-separated values' : 'value'
               }
-              value={valueToText(value.value)}
+              canonical={valueToText(value.value)}
               width="10rem"
-              onChange={(e) => onChange({ ...value, value: textToValue(e.target.value, value.op) })}
+              onText={(text) => onChange({ ...value, value: textToValue(text, value.op) })}
             />
           </Show>
         </Show>
