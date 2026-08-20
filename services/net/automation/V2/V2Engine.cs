@@ -1286,6 +1286,18 @@ public class V2Engine
                 Step = step.Name,
             });
 
+            // Detected duplicates are optionally collected before the disposition applies, so a
+            // later step can review or act on them.
+            if (!string.IsNullOrWhiteSpace(action.Into))
+            {
+                lock (env.Context.Sync)
+                {
+                    var into = env.Context.GetCollection(action.Into!);
+                    if (!into.Any(e => e.Key == subject.Key)) into.Add(subject);
+                }
+                env.Log.LogDecision(step.Name, actionName, action.Type, contentId, V2Outcomes.Info, $"Duplicate of {matchedRef}; added to {action.Into}.");
+            }
+
             // A detected duplicate applies the configured disposition.
             switch ((action.OnDuplicate ?? "exclude").ToLowerInvariant())
             {
