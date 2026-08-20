@@ -1728,23 +1728,31 @@ export const AutomationModalStyles = createGlobalStyle`
     white-space: nowrap;
   }
 
-  .run-detail-content .v2-log-entry {
+  /* The entries list scrolls in place so a long (or live) log never grows the page. */
+  .v2-log-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  .v2-log-viewer .v2-log-entry {
     border: 1px solid #e4e7ec;
     border-radius: 0.35rem;
     padding: 0.35rem 0.5rem;
     background: #fff;
   }
 
-  .run-detail-content .v2-log-entry-decision {
+  .v2-log-viewer .v2-log-entry-decision {
     background: #f9fafb;
   }
 
-  .run-detail-content .v2-log-entry-header {
+  .v2-log-viewer .v2-log-entry-header {
     cursor: pointer;
     flex-wrap: wrap;
   }
 
-  .run-detail-content .v2-log-entry-body pre {
+  .v2-log-viewer .v2-log-entry-body pre {
     max-height: 20rem;
     overflow: auto;
     white-space: pre-wrap;

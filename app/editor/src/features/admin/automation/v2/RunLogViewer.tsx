@@ -168,35 +168,37 @@ export const RunLogViewer: React.FC<IRunLogViewerProps> = ({
           No log entries match. Logs are kept for the current date only.
         </p>
       </Show>
-      {(data?.items ?? []).map((entry) => (
-        <LogEntry
-          key={entry.id}
-          entry={entry}
-          expanded={expanded.has(entry.id)}
-          explaining={explaining === entry.id}
-          onToggle={() =>
-            setExpanded((current) => {
-              const next = new Set(current);
-              if (next.has(entry.id)) next.delete(entry.id);
-              else next.add(entry.id);
-              return next;
-            })
-          }
-          onToggleExplain={() =>
-            setExplaining((current) => (current === entry.id ? null : entry.id))
-          }
-        >
-          <Show visible={explaining === entry.id}>
-            <ExplainPanel
-              runId={runId}
-              logId={entry.id}
-              onExplain={onExplain}
-              promptNames={promptNames}
-              onApplyPrompt={onApplyPrompt}
-            />
-          </Show>
-        </LogEntry>
-      ))}
+      <div className="v2-log-scroll">
+        {(data?.items ?? []).map((entry) => (
+          <LogEntry
+            key={entry.id}
+            entry={entry}
+            expanded={expanded.has(entry.id)}
+            explaining={explaining === entry.id}
+            onToggle={() =>
+              setExpanded((current) => {
+                const next = new Set(current);
+                if (next.has(entry.id)) next.delete(entry.id);
+                else next.add(entry.id);
+                return next;
+              })
+            }
+            onToggleExplain={() =>
+              setExplaining((current) => (current === entry.id ? null : entry.id))
+            }
+          >
+            <Show visible={explaining === entry.id}>
+              <ExplainPanel
+                runId={runId}
+                logId={entry.id}
+                onExplain={onExplain}
+                promptNames={promptNames}
+                onApplyPrompt={onApplyPrompt}
+              />
+            </Show>
+          </LogEntry>
+        ))}
+      </div>
       <Show visible={(data?.total ?? 0) > PAGE_SIZE}>
         <Row gap="0.5rem" alignItems="center">
           <Button

@@ -171,9 +171,9 @@ const AutomationProfileForm: React.FC = () => {
   const [profile, setProfile] = React.useState<IAutomationProfileModel>(
     normalizeProfile(state?.profile),
   );
-  const [activeTab, setActiveTab] = React.useState<'profile' | 'schedules' | 'runs' | 'debugging'>(
-    'profile',
-  );
+  const [activeTab, setActiveTab] = React.useState<
+    'profile' | 'schedules' | 'runs' | 'livelog' | 'debugging'
+  >('profile');
   // Indexes of steps whose actions sub-grid is collapsed; remapped when steps reorder.
   const [collapsedSteps, setCollapsedSteps] = React.useState<Set<number>>(new Set());
 
@@ -831,6 +831,16 @@ const AutomationProfileForm: React.FC = () => {
                       }}
                     />
                     <Tab
+                      label="Live Log"
+                      className={activeTab === 'livelog' ? 'tab-active' : undefined}
+                      active={activeTab === 'livelog'}
+                      disabled={!values.id}
+                      onClick={() => {
+                        setActiveTab('livelog');
+                        if (values.id) refreshRuns(values.id);
+                      }}
+                    />
+                    <Tab
                       label="Debugging"
                       className={activeTab === 'debugging' ? 'tab-active' : undefined}
                       active={activeTab === 'debugging'}
@@ -942,20 +952,23 @@ const AutomationProfileForm: React.FC = () => {
                       </Show>
                     </Col>
                   </div>
-                  <div className={`tab-panel${activeTab === 'debugging' ? ' active' : ''}`}>
+                  <div className={`tab-panel${activeTab === 'livelog' ? ' active' : ''}`}>
                     <Col className="form-inputs">
                       <Row className="section-header" nowrap>
-                        <h2>Debugging</h2>
-                      </Row>
-                      <Show visible={!!values.id && runs.length > 0}>
-                        <Row className="section-header" nowrap>
-                          <Row className="section-header-title" nowrap>
-                            <h3>
-                              Most recent run #{(lastRun ?? runs[0])?.id} —{' '}
-                              {(lastRun ?? runs[0])?.status}
-                            </h3>
-                          </Row>
+                        <Row className="section-header-title" nowrap>
+                          <h2>Live Log</h2>
                         </Row>
+                      </Row>
+                      <Show visible={runs.length === 0}>
+                        <p className="section-help-text">No runs have been recorded.</p>
+                      </Show>
+                      <Show visible={runs.length > 0}>
+                        <p className="section-help-text">
+                          Run #{(lastRun ?? runs[0])?.id} — {(lastRun ?? runs[0])?.status}
+                          {(lastRun ?? runs[0])?.status === 'Running'
+                            ? ' (streaming, refreshes every 5s)'
+                            : ''}
+                        </p>
                         <RunLogViewer
                           runId={(lastRun ?? runs[0])?.id ?? 0}
                           live={(lastRun ?? runs[0])?.status === 'Running'}
@@ -969,6 +982,13 @@ const AutomationProfileForm: React.FC = () => {
                           }}
                         />
                       </Show>
+                    </Col>
+                  </div>
+                  <div className={`tab-panel${activeTab === 'debugging' ? ' active' : ''}`}>
+                    <Col className="form-inputs">
+                      <Row className="section-header" nowrap>
+                        <h2>Debugging</h2>
+                      </Row>
                       <Show visible={!!values.id}>
                         <AutomationDebugging profileId={values.id} />
                       </Show>
