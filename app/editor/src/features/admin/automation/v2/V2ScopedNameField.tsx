@@ -59,6 +59,7 @@ export const V2ScopedNameField: React.FC<IV2ScopedNameFieldProps> = ({
           name={name}
           placeholder={placeholder}
           width={fitSelectWidth(bareNames, placeholder)}
+          isClearable
           suggestions={bareNames}
           value={toBare(value, scope)}
           onChange={(next) => {

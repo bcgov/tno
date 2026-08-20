@@ -44,6 +44,10 @@ const ComboBoxWrapper = styled.div<{ $width?: string }>`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  .rs__clear-indicator {
+    cursor: pointer;
+  }
 `;
 
 export interface IV2ComboBoxProps {
@@ -55,6 +59,8 @@ export interface IV2ComboBoxProps {
   onChange: (value: string) => void;
   placeholder?: string;
   width?: string;
+  /** Show the standard clear (x) indicator; clearing commits an empty value. */
+  isClearable?: boolean;
   'aria-label'?: string;
 }
 
@@ -69,6 +75,7 @@ export const V2ComboBox: React.FC<IV2ComboBoxProps> = ({
   onChange,
   placeholder,
   width,
+  isClearable = false,
   'aria-label': ariaLabel,
 }) => {
   const [inputValue, setInputValue] = React.useState('');
@@ -86,7 +93,7 @@ export const V2ComboBox: React.FC<IV2ComboBoxProps> = ({
         options={options}
         value={selected}
         inputValue={inputValue}
-        isClearable={false}
+        isClearable={isClearable}
         menuPortalTarget={document.body}
         styles={{
           menuPortal: (base) => ({ ...base, zIndex: 9999 }),
