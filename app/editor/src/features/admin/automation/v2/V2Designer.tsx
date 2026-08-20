@@ -801,10 +801,16 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                 phase={actionModal ? definition.steps[actionModal.stepIndex].phase : 'process'}
                 analyses={actionModal ? definition.steps[actionModal.stepIndex].analyses : []}
                 dedupeRefs={
+                  // Unnamed dedupe actions share the 'dedupe' result (latest verdict wins),
+                  // so identical refs collapse to one gate option.
                   actionModal
-                    ? definition.steps[actionModal.stepIndex].actions
-                        .filter((a) => a.type === 'dedupe')
-                        .map((a) => `${a.name || 'dedupe'}.isDuplicate`)
+                    ? Array.from(
+                        new Set(
+                          definition.steps[actionModal.stepIndex].actions
+                            .filter((a) => a.type === 'dedupe')
+                            .map((a) => `${a.name || 'dedupe'}.isDuplicate`),
+                        ),
+                      )
                     : []
                 }
                 collectionNames={collectionNames}
