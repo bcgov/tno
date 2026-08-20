@@ -1136,6 +1136,23 @@ export const AutomationModalStyles = createGlobalStyle`
     color: #98a2b3;
   }
 
+  .v2-config-label {
+    display: block;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #eef2f6;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #5b7a9b;
+  }
+
+  .v2-config-hint {
+    margin: 0;
+    color: #5b7a9b;
+  }
+
   .v2-override-note {
     font-size: 0.7rem;
     color: #667085;

@@ -3,6 +3,7 @@ import { Checkbox, Col, type IOptionItem, Row, Select, Show, Text } from 'tno-co
 
 import { contentFieldOptionItems } from '../constants';
 import { createOption, findOptionByValue, toNumberOrUndefined } from '../utils';
+import { fitSelectWidth } from './constants';
 import { type IV2Action, type IV2ActionDescriptor, type IV2FieldSpec } from './interfaces';
 import { V2ConditionBuilder } from './V2ConditionBuilder';
 import { V2FilterField } from './V2FilterField';
@@ -442,14 +443,34 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
 
   return (
     <Col className="v2-action-editor" gap="0.5rem">
-      <Row gap="0.5rem" alignItems="flex-end" nowrap>
+      <Row gap="1rem" alignItems="flex-end" nowrap>
+        <Text
+          name="action-name"
+          label="Name"
+          placeholder="Optional name"
+          width="14rem"
+          value={action.name ?? ''}
+          onChange={(e) => set({ name: e.target.value || null })}
+        />
+        <div className="checkbox-inline">
+          <Checkbox
+            name="action-enabled"
+            label="Enabled"
+            checked={action.isEnabled}
+            onChange={(e) => set({ isEnabled: e.target.checked })}
+          />
+        </div>
+      </Row>
+      <Row gap="1rem" alignItems="flex-end" nowrap>
         <Select
           name="action-type"
           label="Action"
-          width="24rem"
+          required
+          width="18rem"
           isClearable={false}
+          placeholder="Pick an action"
           options={typeOptions}
-          value={findOptionByValue(typeOptions, action.type)}
+          value={findOptionByValue(typeOptions, action.type) ?? ''}
           onChange={(newValue) => {
             const option = newValue as IOptionItem;
             // Changing the type keeps only the identity/gate fields; type-specific config resets.
@@ -464,27 +485,15 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
               });
           }}
         />
-        <Text
-          name="action-name"
-          label="Name (optional)"
-          width="14rem"
-          value={action.name ?? ''}
-          onChange={(e) => set({ name: e.target.value || null })}
-        />
-        <div className="checkbox-inline">
-          <Checkbox
-            name="action-enabled"
-            label="Enabled"
-            checked={action.isEnabled}
-            onChange={(e) => set({ isEnabled: e.target.checked })}
-          />
-        </div>
-      </Row>
-      <Row gap="0.5rem" alignItems="flex-end" nowrap>
         <Select
           name="action-gate"
           label="Runs when"
-          width="18rem"
+          required
+          width={fitSelectWidth([
+            'Always run',
+            'Condition (no LLM call)',
+            'LLM confirmation statement',
+          ])}
           isClearable={false}
           options={gateOptions}
           value={findOptionByValue(gateOptions, gate)}
@@ -511,14 +520,14 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <Text
             name="action-confirm"
             label="Confirmation statement"
-            width="18rem"
+            width="16rem"
             value={action.confirm ?? ''}
             onChange={(e) => set({ confirm: e.target.value })}
           />
           <Select
             name="action-analysis"
             label="Against analysis"
-            width="14rem"
+            width="12rem"
             options={analysisOptions}
             value={findOptionByValue(analysisOptions, action.analysis) ?? ''}
             onChange={(newValue) => {
@@ -533,6 +542,10 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           value={action.when ?? { field: '', op: 'equals', value: '' }}
           onChange={(when) => set({ when })}
         />
+      </Show>
+      <label className="v2-config-label">Configuration</label>
+      <Show visible={!descriptor}>
+        <p className="v2-config-hint">Pick an action to configure it.</p>
       </Show>
       <Show visible={!!descriptor}>
         <Row className="v2-action-fields" gap="0.5rem" alignItems="flex-end">

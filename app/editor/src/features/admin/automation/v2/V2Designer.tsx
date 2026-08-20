@@ -457,9 +457,7 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                                       setActionModal({
                                         stepIndex: index,
                                         index: null,
-                                        draft: createDefaultV2Action(
-                                          step.phase === 'process' ? 'content.update' : 'search',
-                                        ),
+                                        draft: createDefaultV2Action(''),
                                       })
                                     }
                                   >
@@ -826,6 +824,10 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
             <Button
               onClick={() => {
                 if (!actionModal) return;
+                if (!actionModal.draft.type) {
+                  toast.error('Pick an action.');
+                  return;
+                }
                 const step = definition.steps[actionModal.stepIndex];
                 const actions = [...step.actions];
                 if (actionModal.index != null) actions[actionModal.index] = actionModal.draft;
