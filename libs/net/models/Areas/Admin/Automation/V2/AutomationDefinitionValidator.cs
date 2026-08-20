@@ -111,6 +111,9 @@ public static class AutomationDefinitionValidator
                     errors.Add(new($"{path}.name", $"Analysis name '{analysis.Name}' is not unique within the step."));
 
                 ValidatePrompt(analysis.Prompt, definition, usedPrompts, $"{path}.prompt", errors);
+                var analysisPromptText = $"{analysis.Prompt.Text} {analysis.Prompt.Override} " +
+                    (analysis.Prompt.Ref != null && definition.Prompts.TryGetValue(analysis.Prompt.Ref, out var libraryEntry) ? libraryEntry.Text : "");
+                ValidatePromptTokens(analysisPromptText, $"{path}.prompt", allowCandidates: false, errors);
 
                 if (!analysis.Raw && analysis.Returns.Count == 0)
                     errors.Add(new($"{path}.returns", "A structured analysis must declare at least one return key (or set raw)."));
@@ -187,6 +190,7 @@ public static class AutomationDefinitionValidator
                     if (action.Prompt == null && definition.Prompts.TryGetValue("default-dedupe", out var customized))
                         effective = customized.Text;
                     var hasCustomText = !string.IsNullOrWhiteSpace(effective.Trim());
+                    ValidatePromptTokens(effective, $"{path}.prompt", allowCandidates: true, errors);
                     if (hasCustomText && !effective.Contains("{content"))
                         errors.Add(new($"{path}.prompt", "The comparison prompt never includes the current story - add {content} (or {content.*} fields) where it belongs.", "warning"));
                     if (hasCustomText && !effective.Contains("{candidate"))
@@ -266,6 +270,27 @@ public static class AutomationDefinitionValidator
                 errors.Add(new($"{path}.ref", $"Prompt '{prompt.Ref}' is not in the prompt library."));
             else used.Add(prompt.Ref!);
         }
+    }
+
+    private static readonly System.Text.RegularExpressions.Regex _promptToken =
+        new(@"\{(?<name>[a-zA-Z][a-zA-Z0-9_-]*)(?<rest>[.:][^}]*)?\}", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    /// <summary>
+    /// Warn about tokens the engine does not recognize: they are sent to the LLM as literal
+    /// text, which usually means a typo (e.g. '{duplicates}' instead of '{candidates}').
+    /// </summary>
+    private static void ValidatePromptTokens(string? text, string path, bool allowCandidates, List<V2ValidationError> errors)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return;
+        var known = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "content", "lookup", "collection", "value" };
+        if (allowCandidates) { known.Add("candidate"); known.Add("candidates"); }
+        var unknown = _promptToken.Matches(text!)
+            .Select(m => m.Groups["name"].Value)
+            .Where(name => !known.Contains(name))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        foreach (var name in unknown)
+            errors.Add(new(path, $"Token '{{{name}}}' is not recognized and will be sent to the LLM as literal text{(allowCandidates ? " (did you mean {candidates} or {candidate.*}?)" : "")}.", "warning"));
     }
 
     private static void ValidateCondition(V2ConditionDefinition condition, string path, List<V2ValidationError> errors)
