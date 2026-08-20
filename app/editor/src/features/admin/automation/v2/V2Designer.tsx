@@ -10,10 +10,10 @@ import {
   FaPlus,
   FaTrash,
 } from 'react-icons/fa';
-import { FaCircleInfo } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import { Button, ButtonVariant, Col, type IOptionItem, Modal, Row, Show, TextArea } from 'tno-core';
 
+import { SectionInfoButton } from '../SectionInfoButton';
 import { StrictModeDroppable } from '../StrictModeDroppable';
 import { findOptionByValue } from '../utils';
 import {
@@ -208,13 +208,19 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
       <V2PromptLibrary definition={definition} onChange={update} />
 
       <Row className="section-header" nowrap>
-        <h2>Steps</h2>
-        <span
-          className="v2-info"
-          title="Steps run in phase order (init → process → complete) and in row order within a phase. Every action in a step applies to the item the step iterates; to act on different content, iterate a different collection."
-        >
-          <FaCircleInfo />
-        </span>
+        <Row className="section-header-title" nowrap>
+          <h2>Steps</h2>
+          <SectionInfoButton
+            title="Steps"
+            content={
+              <p>
+                Steps run in phase order (init → process → complete) and in row order within a
+                phase. Every action in a step applies to the item the step iterates; to act on
+                different content, iterate a different collection.
+              </p>
+            }
+          />
+        </Row>
       </Row>
       <p className="section-help-text">
         Init steps run once before iteration; each process step iterates its declared source;

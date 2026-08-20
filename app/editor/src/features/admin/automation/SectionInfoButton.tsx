@@ -4,14 +4,22 @@ import { FaCircleInfo } from 'react-icons/fa6';
 import { sectionDocs } from './constants';
 
 export interface ISectionInfoButtonProps {
-  doc: keyof typeof sectionDocs;
+  /** A section documentation key... */
+  doc?: keyof typeof sectionDocs;
+  /** ...or inline title + content for one-off help. */
+  title?: string;
+  content?: React.ReactNode;
 }
 
 /**
  * An info icon that opens its section documentation in a light-weight popover anchored at the
  * icon - not a modal: the page stays interactive, and a click outside or Escape dismisses it.
  */
-export const SectionInfoButton: React.FC<ISectionInfoButtonProps> = ({ doc }) => {
+export const SectionInfoButton: React.FC<ISectionInfoButtonProps> = ({
+  doc,
+  title: inlineTitle,
+  content: inlineContent,
+}) => {
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef<HTMLDivElement>(null);
 
@@ -31,7 +39,9 @@ export const SectionInfoButton: React.FC<ISectionInfoButtonProps> = ({ doc }) =>
     };
   }, [open]);
 
-  const { title, content } = sectionDocs[doc];
+  const { title, content } = doc
+    ? sectionDocs[doc]
+    : { title: inlineTitle ?? '', content: inlineContent };
   return (
     <div className="section-doc-anchor" ref={anchorRef}>
       <button
