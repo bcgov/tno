@@ -119,6 +119,17 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
         .map(([key]) => `${analysis.name}.${key}`),
     );
   const promptOptions = promptNames.map((name) => createOption(name, name));
+  // Everything a value source can read: declared analysis keys, dedupe results, and the
+  // working-copy fields.
+  const valueRefs = [
+    ...analyses
+      .filter((analysis) => !analysis.raw)
+      .flatMap((analysis) =>
+        Object.keys(analysis.returns ?? {}).map((key) => `${analysis.name}.${key}`),
+      ),
+    ...dedupeRefs.flatMap((ref) => [ref, ref.replace(/\.isDuplicate$/, '.matchedId')]),
+    ...v2ContentFieldOptions.map((option) => `content.${option.value}`),
+  ];
   const subjectOption = createOption('original item', '$item');
   const draftOptions = draftNames.map((name) => createOption(name.replace(/^\$item\./, ''), name));
   const gate = getGate(action, dedupeRefs);
@@ -273,6 +284,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
             <V2ValueSourceEditor
               name={key}
               value={action.value}
+              fromSuggestions={valueRefs}
               onChange={(value) => set({ value })}
             />
             <Show visible={analysisNames.length > 0}>
@@ -303,6 +315,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
                   <V2ValueSourceEditor
                     name={`${key}-source-${index}`}
                     value={source}
+                    fromSuggestions={valueRefs}
                     onChange={(next) => {
                       const updated = entries.map(([k, v], i) =>
                         i === index ? ([k, next] as const) : ([k, v] as const),
