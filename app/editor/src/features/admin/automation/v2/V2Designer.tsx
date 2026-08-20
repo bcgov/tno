@@ -297,7 +297,21 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                               {expanded.has(index) ? <FaChevronDown /> : <FaChevronRight />}
                             </button>
                           </span>
-                          <span className="v2-gc-name">{step.name || '(unnamed step)'}</span>
+                          <span
+                            className="v2-gc-name v2-step-name-toggle"
+                            role="button"
+                            tabIndex={0}
+                            title={expanded.has(index) ? 'Collapse this step' : 'Expand this step'}
+                            onClick={() => toggleExpanded(index)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                toggleExpanded(index);
+                              }
+                            }}
+                          >
+                            {step.name || '(unnamed step)'}
+                          </span>
                           <span className="v2-gc-phase">
                             <span className={`v2-badge v2-phase-${step.phase}`}>{step.phase}</span>
                           </span>

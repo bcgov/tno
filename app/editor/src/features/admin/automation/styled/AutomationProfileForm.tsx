@@ -1143,6 +1143,15 @@ export const AutomationModalStyles = createGlobalStyle`
     width: 5rem;
     flex: 0 0 auto;
   }
+  /* The step name doubles as the expand/collapse control. */
+  .v2-step-name-toggle {
+    cursor: pointer;
+
+    &:hover {
+      color: #1a5a96;
+      text-decoration: underline;
+    }
+  }
   /* Quick enable/disable directly in the grid rows. */
   .v2-enabled-toggle {
     width: 1.05rem;
