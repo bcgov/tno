@@ -153,12 +153,6 @@ public class V2ActionDefinition
     public int? MaxComparisons { get; set; }
 
     /// <summary>
-    /// get/set - What 'dedupe' does with a detected duplicate: 'exclude' (default), 'abort',
-    /// or 'remove' (membership only).
-    /// </summary>
-    public string? OnDuplicate { get; set; }
-
-    /// <summary>
     /// get/set - Prompt override for 'dedupe' comparisons.
     /// </summary>
     public V2PromptDefinition? Prompt { get; set; }

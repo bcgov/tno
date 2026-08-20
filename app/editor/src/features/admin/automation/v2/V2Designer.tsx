@@ -793,6 +793,13 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                 descriptors={descriptors}
                 phase={actionModal ? definition.steps[actionModal.stepIndex].phase : 'process'}
                 analyses={actionModal ? definition.steps[actionModal.stepIndex].analyses : []}
+                dedupeRefs={
+                  actionModal
+                    ? definition.steps[actionModal.stepIndex].actions
+                        .filter((a) => a.type === 'dedupe')
+                        .map((a) => `${a.name || 'dedupe'}.isDuplicate`)
+                    : []
+                }
                 collectionNames={collectionNames}
                 draftNames={
                   actionModal

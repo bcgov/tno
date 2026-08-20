@@ -1204,7 +1204,8 @@ public class V2Engine
         }
         if (candidates.Count == 0)
         {
-            env.Log.LogDecision(step.Name, actionName, action.Type, contentId, V2Outcomes.Skipped, $"No candidates in {action.Against}.");
+            StoreDedupeResult(scope, actionName, false, null);
+            env.Log.LogDecision(step.Name, actionName, action.Type, contentId, V2Outcomes.Skipped, $"No candidates in {action.Against}; recorded {actionName}.isDuplicate = false.");
             return;
         }
         if (action.MaxComparisons is > 0 && candidates.Count > action.MaxComparisons.Value)
@@ -1286,48 +1287,26 @@ public class V2Engine
                 Step = step.Name,
             });
 
-            // Detected duplicates are optionally collected before the disposition applies, so a
-            // later step can review or act on them.
-            if (!string.IsNullOrWhiteSpace(action.Into))
-            {
-                lock (env.Context.Sync)
-                {
-                    var into = env.Context.GetCollection(action.Into!);
-                    if (!into.Any(e => e.Key == subject.Key)) into.Add(subject);
-                }
-                env.Log.LogDecision(step.Name, actionName, action.Type, contentId, V2Outcomes.Info, $"Duplicate of {matchedRef}; added to {action.Into}.");
-            }
-
-            // A detected duplicate applies the configured disposition.
-            switch ((action.OnDuplicate ?? "exclude").ToLowerInvariant())
-            {
-                case "abort":
-                    scope.Aborted = true;
-                    lock (stepSummary) stepSummary.Aborted++;
-                    env.Log.LogDecision(step.Name, actionName, action.Type, contentId, V2Outcomes.Aborted, $"Duplicate of {matchedRef}; remaining actions stopped.");
-                    break;
-                case "remove":
-                    if (step.Source?.From == "collection" && step.Source.Collection != null)
-                    {
-                        lock (env.Context.Sync)
-                        {
-                            if (env.Context.Collections.TryGetValue(step.Source.Collection, out var sourceList))
-                                sourceList.RemoveAll(e => e.Key == subject.Key);
-                        }
-                    }
-                    scope.Aborted = true;
-                    env.Log.LogDecision(step.Name, actionName, action.Type, contentId, V2Outcomes.Executed, $"Duplicate of {matchedRef}; removed from the source collection.");
-                    break;
-                default: // exclude
-                    lock (env.Context.Sync) env.Context.Excluded[subject.Key] = $"duplicate of {matchedRef}";
-                    lock (env.Summary.Excluded) env.Summary.Excluded.Add(new V2ExclusionSummary { ContentRef = subject.Kind == "draft" ? subject.TempKey ?? "" : subject.Id.ToString(), Reason = $"duplicate of {matchedRef}", Step = step.Name });
-                    scope.Excluded = true;
-                    lock (stepSummary) stepSummary.Excluded++;
-                    env.Log.LogDecision(step.Name, actionName, action.Type, contentId, V2Outcomes.Excluded, $"Duplicate of {matchedRef}; excluded from later steps (accumulated changes are kept).");
-                    break;
-            }
+            // Pure detector: record the answer and stop comparing. Later actions route on the
+            // result with condition gates - the action itself decides nothing.
+            StoreDedupeResult(scope, actionName, true, matchedRef);
+            env.Log.LogDecision(step.Name, actionName, action.Type, contentId, V2Outcomes.Confirmed, $"Duplicate of {matchedRef}; recorded {actionName}.isDuplicate = true.");
             return;
         }
+
+        StoreDedupeResult(scope, actionName, false, null);
+        env.Log.LogDecision(step.Name, actionName, action.Type, contentId, V2Outcomes.NotConfirmed, $"No duplicate found among {candidates.Count} candidate(s); recorded {actionName}.isDuplicate = false.");
+    }
+
+    /// <summary>
+    /// Publish a dedupe result into the item scope under the action's name, in the same stores
+    /// analyses use - so conditions ('name.isDuplicate'), value sources ('name.matchedId'), and
+    /// the lazy-analysis resolver all see it like any other analysis answer.
+    /// </summary>
+    private static void StoreDedupeResult(V2ItemScope scope, string name, bool isDuplicate, string? matchedRef)
+    {
+        scope.Raw[name] = isDuplicate ? $"[DUPLICATE:{matchedRef}]" : "";
+        scope.Structured[name] = JsonDocument.Parse(JsonSerializer.Serialize(new { isDuplicate, matchedId = matchedRef }, _jsonOptions));
     }
     #endregion
 

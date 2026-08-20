@@ -208,12 +208,20 @@ public static class AutomationProfileV2Migrator
                             Mode = ReadSetting(action.Settings, "deduplicate", "mode") ?? "iterate",
                             BatchSize = ReadSettingInt(action.Settings, "deduplicate", "batchSize"),
                             MaxComparisons = ReadSettingInt(action.Settings, "deduplicate", "maxComparisons"),
-                            OnDuplicate = "abort",
                             Prompt = string.IsNullOrWhiteSpace(action.Prompt) ? null : new V2PromptDefinition
                             {
                                 Ref = InternPrompt(definition, promptIndex, action.Prompt, Slug(action.Name)),
                             },
                             LlmId = action.LLMId,
+                        });
+                        // v1 dedupe stopped the item's remaining actions on a match; the pure
+                        // detector records an answer, so an explicit gated abort preserves that.
+                        v2Step.Actions.Add(new V2ActionDefinition
+                        {
+                            Type = "abort",
+                            Name = $"stop when {Slug(action.Name)} is a duplicate",
+                            IsEnabled = action.IsEnabled,
+                            When = new V2ConditionDefinition { From = $"{action.Name ?? "dedupe"}.isDuplicate" },
                         });
                         continue;
                     }

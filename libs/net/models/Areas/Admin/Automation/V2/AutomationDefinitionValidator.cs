@@ -124,6 +124,8 @@ public static class AutomationDefinitionValidator
             // Analysis + confirmation-statement pairs already used, to flag accidental copies:
             // two actions sharing a marker against the same response both fire on it.
             var confirmations = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            // Dedupe actions publish '<name>.isDuplicate' results later actions may reference.
+            var dedupeResults = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             for (var i = 0; i < step.Actions.Count; i++)
             {
                 var action = step.Actions[i];
@@ -172,10 +174,11 @@ public static class AutomationDefinitionValidator
                 {
                     var name = reference.Split('.', 2)[0];
                     if (name.Equals("content", StringComparison.OrdinalIgnoreCase)) continue;
-                    if (!analyses.ContainsKey(name))
-                        errors.Add(new($"{path}.{refPath}", $"Analysis '{name}' is not declared on this step."));
-                    else consumedAnalyses.Add(name);
+                    if (analyses.ContainsKey(name)) consumedAnalyses.Add(name);
+                    else if (!dedupeResults.Contains(name))
+                        errors.Add(new($"{path}.{refPath}", $"Analysis '{name}' is not declared on this step (and no earlier Detect Duplicate action publishes it)."));
                 }
+                if (action.Type == "dedupe") dedupeResults.Add(action.Name ?? "dedupe");
                 if (!string.IsNullOrWhiteSpace(action.Analysis))
                 {
                     if (!analyses.ContainsKey(action.Analysis!))

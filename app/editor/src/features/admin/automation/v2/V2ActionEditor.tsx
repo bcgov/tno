@@ -52,6 +52,8 @@ export interface IV2ActionEditorProps {
   phase: string;
   /** The step's analyses; drives the confirm picker and the bool-answer autocomplete. */
   analyses: IV2Analysis[];
+  /** '<name>.isDuplicate' references published by the step's Detect Duplicate actions. */
+  dedupeRefs?: string[];
   collectionNames: string[];
   /** Drafts created by earlier content.create actions in this step ($item.* names). */
   draftNames: string[];
@@ -73,6 +75,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
   descriptors,
   phase,
   analyses,
+  dedupeRefs = [],
   collectionNames,
   draftNames,
   filterOptions,
@@ -595,7 +598,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <label>Condition</label>
           <V2ConditionBuilder
             value={action.when ?? { field: '', op: 'equals', value: '' }}
-            fromSuggestions={analysisBoolRefs}
+            fromSuggestions={[...analysisBoolRefs, ...dedupeRefs]}
             onChange={(when) => set({ when })}
           />
           <p className="v2-config-hint">

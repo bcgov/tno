@@ -875,6 +875,10 @@ export const AutomationModalStyles = createGlobalStyle`
      fullscreen layer). tno-core's rules compile as '.generated .modal-popup' (two classes), so
      these overrides need the wrapper prefix and !important on the contested properties to win
      regardless of style-injection order. */
+  /* tno-core's overlay is rgba(0,0,0,0.9) - nearly black; use a standard scrim instead. */
+  .modal-overlay {
+    background: rgba(0, 0, 0, 0.45) !important;
+  }
   .modal-wrapper .modal-popup,
   .modal-wrapper .modal-full {
     padding: 0 !important;

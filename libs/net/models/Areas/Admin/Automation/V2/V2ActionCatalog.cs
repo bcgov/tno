@@ -205,11 +205,9 @@ public static class V2ActionCatalog
             new V2FieldSpec("mode", "enum:iterate|batch", false),
             new V2FieldSpec("batchSize", "int", false),
             new V2FieldSpec("maxComparisons", "int", false),
-            new V2FieldSpec("onDuplicate", "enum:exclude|abort|remove", false),
-            new V2FieldSpec("into", "collection", false, "Collection the detected duplicates are added to."),
             new V2FieldSpec("prompt", "prompt", false, "Comparison prompt override."),
         },
-            Description: "Asks the LLM whether the current item duplicates any candidate in the 'against' collection. 'mode' compares one candidate per call (iterate, default) or 'batchSize' candidates per call (batch); 'maxComparisons' caps how many candidates are examined; 'onDuplicate' sets what happens on a match - exclude the item from the run (default), abort the step's remaining actions, or remove it from the step's source collection; 'into' collects the detected duplicates into a collection (the unique items simply continue to the next action); 'prompt' overrides the comparison prompt."),
+            Description: "Asks the LLM whether the current item duplicates any candidate in the 'against' collection, and records the answer for later actions to route on: '<action name>.isDuplicate' (true/false) and '<action name>.matchedId' (the matched candidate's id). The action decides nothing itself - gate later actions with Runs when = Condition and an Analysis answer of '<action name>.isDuplicate' (e.g. add duplicates to a collection or Exclude From Run; use Not for the unique items). 'mode' compares one candidate per call (iterate, default) or 'batchSize' candidates per call (batch); 'maxComparisons' caps how many candidates are examined; 'prompt' overrides the comparison prompt."),
         new V2ActionDescriptor("score", "Score Content", "content", true, false, false, _process, new[]
         {
             new V2FieldSpec("objective", "string", true),
