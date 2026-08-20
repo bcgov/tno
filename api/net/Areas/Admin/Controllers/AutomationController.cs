@@ -229,8 +229,12 @@ public class AutomationController : ControllerBase
             var content = request.ContentId > 0
                 ? _contentService.FindById(request.ContentId) ?? throw new NoContentException()
                 : null;
+            // The decision log is written incrementally, so a run still executing is fair game -
+            // the prompt notes that its information is partial.
             var lastRun = _runService.Find(id)
-                .Where(r => r.Status == Entities.AutomationRunStatus.Completed || r.Status == Entities.AutomationRunStatus.Failed)
+                .Where(r => r.Status == Entities.AutomationRunStatus.Completed
+                    || r.Status == Entities.AutomationRunStatus.Failed
+                    || r.Status == Entities.AutomationRunStatus.Running)
                 .OrderByDescending(r => r.StartedOn)
                 .FirstOrDefault();
             runId = lastRun?.Id;
@@ -293,7 +297,10 @@ public class AutomationController : ControllerBase
         if (runId.HasValue)
         {
             var run = _runService.FindById(runId.Value);
-            sb.AppendLine($"Run #{runId} ({run?.Status}) completed {run?.CompletedOn:u}.");
+            if (run?.CompletedOn == null)
+                sb.AppendLine($"Run #{runId} is STILL EXECUTING (started {run?.StartedOn:u}); the information below is partial.");
+            else
+                sb.AppendLine($"Run #{runId} ({run?.Status}) completed {run?.CompletedOn:u}.");
             if (!string.IsNullOrWhiteSpace(run?.Note)) sb.AppendLine($"Outcome: {run!.Note}");
 
             if (content != null)
