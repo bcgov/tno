@@ -160,14 +160,14 @@ public class AutomationDefinitionValidatorTest
     }
 
     [Fact]
-    public void CompleteStepWithoutSource_IsAnError()
+    public void CompleteStepWithoutSource_RunsOnce_ButRejectsSubjectActions()
     {
-        // Source is required for process and complete phases.
+        // A complete step needs no source (it runs once); only per-item actions demand one.
         var definition = ValidDefinition();
         definition.Steps[2].Source = null;
         var errors = AutomationDefinitionValidator.Validate(definition);
-        Assert.Contains(errors, e => e.Path == "steps[2].source" && e.Severity == "error");
-        // And without a source the step cannot iterate, so subject actions are invalid too.
+        Assert.DoesNotContain(errors, e => e.Path == "steps[2].source" && e.Severity == "error");
+        // Without a source the step cannot iterate, so subject actions are invalid.
         definition.Steps[2].Actions.Add(new V2ActionDefinition { Type = "content.publish" });
         errors = AutomationDefinitionValidator.Validate(definition);
         Assert.Contains(errors, e => e.Path.StartsWith("steps[2]") && e.Message.Contains("process"));

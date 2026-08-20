@@ -33,6 +33,12 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
 }) => {
   const set = (values: Partial<IV2Step>) => onChange({ ...step, ...values });
   const isInit = step.phase === 'init';
+  // Complete steps only iterate when they declare a source; without one they run once.
+  const hasSource = step.phase === 'process' || step.source != null;
+  const sourceOptions =
+    step.phase === 'complete'
+      ? [createOption('(none — run once)', ''), ...v2SourceOptions]
+      : v2SourceOptions;
 
   return (
     <Col className="v2-step-editor" gap="0.5rem">
@@ -101,24 +107,29 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
           <Select
             name="step-source-from"
             label="Source"
-            required
-            width={fitSelectWidth(['collection', 'filter'])}
+            required={step.phase === 'process'}
+            width={fitSelectWidth(['(none — run once)', 'collection', 'filter'])}
             isClearable={false}
-            options={v2SourceOptions}
-            value={findOptionByValue(v2SourceOptions, step.source?.from ?? 'collection')}
+            options={sourceOptions}
+            value={findOptionByValue(
+              sourceOptions,
+              step.source?.from ?? (step.phase === 'complete' ? '' : 'collection'),
+            )}
             onChange={(newValue) => {
               const option = newValue as IOptionItem;
+              if (!option?.value) {
+                set({ source: undefined });
+                return;
+              }
               set({
                 source: {
                   ...(step.source ?? { include: [], exclude: [] }),
-                  from: `${option?.value ?? 'collection'}` as NonNullable<
-                    IV2Step['source']
-                  >['from'],
+                  from: `${option.value}` as NonNullable<IV2Step['source']>['from'],
                 },
               });
             }}
           />
-          <Show visible={(step.source?.from ?? 'collection') === 'collection'}>
+          <Show visible={hasSource && (step.source?.from ?? 'collection') === 'collection'}>
             <V2ScopedNameField
               name="step-source-collection"
               label="Collection"
@@ -138,7 +149,7 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
               }
             />
           </Show>
-          <Show visible={step.source?.from === 'filter'}>
+          <Show visible={hasSource && step.source?.from === 'filter'}>
             <V2FilterField
               name="step-source-filter"
               label="Filter"
@@ -156,36 +167,38 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
             />
           </Show>
         </Row>
-        <Row gap="1rem" alignItems="flex-end" nowrap>
-          <V2FilterField
-            name="step-include"
-            label="Filter (include)"
-            value={step.source?.include?.[0]}
-            options={filterOptions}
-            onChange={(filterId) =>
-              set({
-                source: {
-                  ...(step.source ?? { from: 'collection' }),
-                  include: filterId ? [filterId] : [],
-                },
-              })
-            }
-          />
-          <V2FilterField
-            name="step-exclude"
-            label="Filter (exclude)"
-            value={step.source?.exclude?.[0]}
-            options={filterOptions}
-            onChange={(filterId) =>
-              set({
-                source: {
-                  ...(step.source ?? { from: 'collection' }),
-                  exclude: filterId ? [filterId] : [],
-                },
-              })
-            }
-          />
-        </Row>
+        <Show visible={hasSource}>
+          <Row gap="1rem" alignItems="flex-end" nowrap>
+            <V2FilterField
+              name="step-include"
+              label="Filter (include)"
+              value={step.source?.include?.[0]}
+              options={filterOptions}
+              onChange={(filterId) =>
+                set({
+                  source: {
+                    ...(step.source ?? { from: 'collection' }),
+                    include: filterId ? [filterId] : [],
+                  },
+                })
+              }
+            />
+            <V2FilterField
+              name="step-exclude"
+              label="Filter (exclude)"
+              value={step.source?.exclude?.[0]}
+              options={filterOptions}
+              onChange={(filterId) =>
+                set({
+                  source: {
+                    ...(step.source ?? { from: 'collection' }),
+                    exclude: filterId ? [filterId] : [],
+                  },
+                })
+              }
+            />
+          </Row>
+        </Show>
       </Show>
     </Col>
   );

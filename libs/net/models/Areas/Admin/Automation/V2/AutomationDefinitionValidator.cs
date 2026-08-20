@@ -67,8 +67,13 @@ public static class AutomationDefinitionValidator
             var iterates = step.Phase != V2Phases.Init && step.Source != null;
             if (step.Phase != V2Phases.Init)
             {
+                // Process steps are per-item by definition; a complete step only needs a source
+                // when it contains per-item actions (the action rule below enforces that).
                 if (step.Source == null)
-                    errors.Add(new($"{stepPath}.source", $"A {step.Phase} step requires a source."));
+                {
+                    if (step.Phase == V2Phases.Process)
+                        errors.Add(new($"{stepPath}.source", "A process step requires a source."));
+                }
                 else
                 {
                     var source = step.Source;
