@@ -318,8 +318,8 @@ export const V2PromptLibrary: React.FC<IV2PromptLibraryProps> = ({ definition, o
               compared stories and <code>{'{candidate.*}'}</code> single fields (iterate mode); the
               prompt must place them itself — see default-dedupe for the layout.{' '}
               <code>{'{lookup:*}'}</code> inserts reference lists (identical for every item).
-              Analyses only: with no <code>{'{content}'}</code> token, the story is appended as a
-              final '## News Story' section.
+              Analyses only: a prompt with no content tokens at all gets the story appended as a
+              final '## News Story' section; any <code>{'{content...}'}</code> token disables that.
             </p>
             <label className="v2-token-group-label">Lookups</label>
             <div className="v2-token-list">

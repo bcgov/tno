@@ -78,11 +78,14 @@ public class V2PromptBuilder
 
         if (subject != null)
         {
+            // Any content token means the author placed the data deliberately; the fallback
+            // section is only appended when the text references no content at all.
+            var placedContent = result.Contains("{content}") || _contentFieldToken.IsMatch(result);
             result = _contentFieldToken.Replace(result, match => subject.GetField(match.Groups["field"].Value) ?? "");
             var json = subject.ToWorkingJson(_jsonOptions);
             result = result.Contains("{content}")
                 ? result.Replace("{content}", json)
-                : appendSubject ? $"{result}\n\n## News Story\n{json}" : result;
+                : appendSubject && !placedContent ? $"{result}\n\n## News Story\n{json}" : result;
         }
         return result;
     }
