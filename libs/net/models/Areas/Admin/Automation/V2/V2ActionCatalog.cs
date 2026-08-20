@@ -61,7 +61,7 @@ public static class V2ActionCatalog
         }),
         new V2ActionDescriptor("collection.create", "Create Collection", "collection", false, false, false, _all, new[]
         {
-            new V2FieldSpec("into", "collection", true, "The collection name to create (e.g. $run.published)."),
+            new V2FieldSpec("into", "collection", true, "New collection name"),
         }),
         new V2ActionDescriptor("collection.add", "Add To Collection", "collection", true, false, false, _process, new[]
         {

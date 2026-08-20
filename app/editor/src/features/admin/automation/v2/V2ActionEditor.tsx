@@ -527,7 +527,9 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
             }
           }}
         />
-        <Show visible={gate === 'confirm'}>
+      </Row>
+      <Show visible={gate === 'confirm'}>
+        <Row gap="1rem" alignItems="flex-end" nowrap>
           <Text
             name="action-confirm"
             label="Confirmation statement"
@@ -538,7 +540,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <Select
             name="action-analysis"
             label="Against analysis"
-            width="12rem"
+            width={fitSelectWidth(analysisNames)}
             options={analysisOptions}
             value={findOptionByValue(analysisOptions, action.analysis) ?? ''}
             onChange={(newValue) => {
@@ -546,8 +548,8 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
               set({ analysis: option?.value ? `${option.value}` : null });
             }}
           />
-        </Show>
-      </Row>
+        </Row>
+      </Show>
       <Show visible={gate === 'condition'}>
         <Col gap="0.25rem">
           <label>Condition</label>
