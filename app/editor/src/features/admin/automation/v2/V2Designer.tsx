@@ -754,10 +754,15 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
         }
         customButtons={
           <Row justifyContent="flex-end" gap="0.5rem" width="100%">
-            <Button variant={ButtonVariant.secondary} onClick={() => setAnalysisModal(null)}>
+            <Button
+              className="header-btn-outline"
+              variant={ButtonVariant.secondary}
+              onClick={() => setAnalysisModal(null)}
+            >
               Cancel
             </Button>
             <Button
+              className="header-btn-save"
               onClick={() => {
                 if (!analysisModal) return;
                 if (!analysisModal.draft.name.trim()) {
@@ -773,7 +778,7 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                 setAnalysisModal(null);
               }}
             >
-              Save
+              {analysisModal?.index != null ? 'Save' : 'Add'}
             </Button>
           </Row>
         }
@@ -818,10 +823,15 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
         }
         customButtons={
           <Row justifyContent="flex-end" gap="0.5rem" width="100%">
-            <Button variant={ButtonVariant.secondary} onClick={() => setActionModal(null)}>
+            <Button
+              className="header-btn-outline"
+              variant={ButtonVariant.secondary}
+              onClick={() => setActionModal(null)}
+            >
               Cancel
             </Button>
             <Button
+              className="header-btn-save"
               onClick={() => {
                 if (!actionModal) return;
                 if (!actionModal.draft.type) {
@@ -836,7 +846,7 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                 setActionModal(null);
               }}
             >
-              Save
+              {actionModal?.index != null ? 'Save' : 'Add'}
             </Button>
           </Row>
         }

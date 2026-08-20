@@ -903,6 +903,13 @@ export const AutomationModalStyles = createGlobalStyle`
 
   .modal-wrapper .modal-body {
     padding: 1rem;
+
+    /* tno-core renders a second, empty .modal-body row when only 'component' is used;
+       collapse it so the header does not trail dead space. */
+    &:empty {
+      display: none;
+      padding: 0;
+    }
   }
 
   .modal-wrapper .button-row {

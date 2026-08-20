@@ -2,7 +2,13 @@ import React from 'react';
 import { Button, ButtonVariant, Col, type IOptionItem, Row, Select, Show, Text } from 'tno-core';
 
 import { createOption, findOptionByValue } from '../utils';
-import { V2_LIST_OPS, V2_VALUELESS_OPS, v2ConditionOpOptions } from './constants';
+import {
+  fitSelectWidth,
+  V2_LIST_OPS,
+  V2_VALUELESS_OPS,
+  v2ConditionOpOptions,
+  v2ContentFieldOptions,
+} from './constants';
 import { type IV2Condition } from './interfaces';
 
 type ConditionShape = 'leaf' | 'all' | 'any' | 'not' | 'from';
@@ -99,12 +105,17 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
           }}
         />
         <Show visible={shape === 'leaf'}>
-          <Text
+          <Select
             name={`condition-field-${depth}`}
-            placeholder="field (e.g. body, page, section)"
-            value={value.field ?? ''}
-            width="12rem"
-            onChange={(e) => onChange({ ...value, field: e.target.value })}
+            width={fitSelectWidth(v2ContentFieldOptions.map((option) => `${option.label}`))}
+            isClearable={false}
+            placeholder="field"
+            options={v2ContentFieldOptions}
+            value={findOptionByValue(v2ContentFieldOptions, value.field) ?? ''}
+            onChange={(newValue) => {
+              const option = newValue as IOptionItem;
+              onChange({ ...value, field: option?.value ? `${option.value}` : '' });
+            }}
           />
           <Select
             name={`condition-op-${depth}`}

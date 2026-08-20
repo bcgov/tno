@@ -210,6 +210,13 @@ export const V2_CONTENT_TOKENS: { token: string; hint: string }[] = [
   { token: '{content.topics}', hint: 'Comma-separated topic names' },
 ];
 
+/** The working-copy property fields conditions can test, derived from the content token list so
+ * the dropdown and the prompt tokens stay one surface. */
+export const v2ContentFieldOptions: IOptionItem[] = V2_CONTENT_TOKENS.map(({ token }) => {
+  const field = token.replace('{content.', '').replace('}', '');
+  return createOption(field, field);
+});
+
 /** Outcomes that indicate a decision rather than an LLM exchange. */
 export const v2OutcomeBadgeClass = (outcome: string): string => {
   switch (outcome) {
