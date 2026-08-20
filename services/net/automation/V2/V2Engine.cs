@@ -537,16 +537,16 @@ public class V2Engine
                 if (action.When != null)
                 {
                     var target = scope.ResolveTarget(action.Target) ?? subject;
-                    V2ConditionResult result;
-                    if (!string.IsNullOrWhiteSpace(action.When.From))
-                    {
-                        await EnsureAnalysisForReferenceAsync(step, action.When.From!, scope, env, stepSummary);
-                        result = V2ConditionEvaluator.Evaluate(action.When, f => target?.GetField(f), reference => V2ValueResolver.ResolveBool(reference, scope));
-                    }
-                    else
-                    {
-                        result = V2ConditionEvaluator.Evaluate(action.When, f => target?.GetField(f));
-                    }
+                    // Result references can sit anywhere in the condition tree (not/all/any, not
+                    // just the top level); every one needs its analysis triggered and the boolean
+                    // resolver supplied, or the gate reads nothing and fails/passes wrongly.
+                    var references = new List<string>();
+                    CollectFromRefs(action.When, references);
+                    foreach (var reference in references)
+                        await EnsureAnalysisForReferenceAsync(step, reference, scope, env, stepSummary);
+                    var result = references.Count > 0
+                        ? V2ConditionEvaluator.Evaluate(action.When, f => target?.GetField(f), reference => V2ValueResolver.ResolveBool(reference, scope))
+                        : V2ConditionEvaluator.Evaluate(action.When, f => target?.GetField(f));
                     if (!result.Passed)
                     {
                         env.Log.LogDecision(step.Name, actionName, action.Type, contentId, V2Outcomes.ConditionFailed, result.Detail);
@@ -594,6 +594,15 @@ public class V2Engine
     /// <summary>
     /// Ensure the analysis a 'name.key' reference names has run (lazily) for this item.
     /// </summary>
+    /// <summary>Collect every 'analysisName.key' reference anywhere in a condition tree.</summary>
+    private static void CollectFromRefs(V2ConditionDefinition condition, List<string> references)
+    {
+        if (!string.IsNullOrWhiteSpace(condition.From)) references.Add(condition.From!);
+        if (condition.Not != null) CollectFromRefs(condition.Not, references);
+        foreach (var child in condition.All ?? Enumerable.Empty<V2ConditionDefinition>()) CollectFromRefs(child, references);
+        foreach (var child in condition.Any ?? Enumerable.Empty<V2ConditionDefinition>()) CollectFromRefs(child, references);
+    }
+
     private async Task EnsureAnalysisForReferenceAsync(V2StepDefinition step, string reference, V2ItemScope scope, V2Environment env, V2StepSummary stepSummary)
     {
         var name = reference.Split('.', 2)[0];
