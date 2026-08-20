@@ -16,17 +16,23 @@ import { V2FilterField } from './V2FilterField';
 import { V2ScopedNameField } from './V2ScopedNameField';
 import { V2ValueSourceEditor } from './V2ValueSourceEditor';
 
-type GateKind = 'always' | 'condition' | 'confirm';
-
 const gateOptions: IOptionItem[] = [
   createOption('Always run', 'always'),
   createOption('Condition', 'condition'),
   createOption('LLM confirmation statement', 'confirm'),
 ];
 
-const getGate = (action: IV2Action): GateKind => {
+/** The gate, with dedupe-result shapes recognised so the friendly options display as chosen:
+ * when = {from: 'name.isDuplicate'} -> dupe:<ref>; when = {not: {from: ...}} -> unique:<ref>. */
+const getGate = (action: IV2Action, dedupeRefs: string[]): string => {
   if (action.confirm) return 'confirm';
-  if (action.when) return 'condition';
+  if (action.when) {
+    if (action.when.from != null && dedupeRefs.includes(action.when.from))
+      return `dupe:${action.when.from}`;
+    const notFrom = action.when.not?.from;
+    if (notFrom != null && dedupeRefs.includes(notFrom)) return `unique:${notFrom}`;
+    return 'condition';
+  }
   return 'always';
 };
 
@@ -115,7 +121,17 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
   const promptOptions = promptNames.map((name) => createOption(name, name));
   const subjectOption = createOption('original item', '$item');
   const draftOptions = draftNames.map((name) => createOption(name.replace(/^\$item\./, ''), name));
-  const gate = getGate(action);
+  const gate = getGate(action, dedupeRefs);
+  // Every Detect Duplicate in the step contributes ready-made routing gates, so the connection
+  // between the detector and the routed action is a visible choice, not a recipe.
+  const dedupeGateOptions = dedupeRefs.flatMap((ref) => {
+    const dedupeName = ref.replace(/\.isDuplicate$/, '');
+    return [
+      createOption(`'${dedupeName}' found a duplicate`, `dupe:${ref}`),
+      createOption(`'${dedupeName}' found no duplicate`, `unique:${ref}`),
+    ];
+  });
+  const allGateOptions = [...gateOptions, ...dedupeGateOptions];
 
   const set = (values: Partial<IV2Action>) => onChange({ ...action, ...values });
 
@@ -375,33 +391,28 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           </Col>
         );
       case 'item': {
-        // The subject or a draft created earlier in this step - a closed set, so a dropdown.
+        // With no drafts in the step the only possible value is the item being processed -
+        // the field would be a one-option dropdown, so it only renders when a choice exists.
+        if (draftNames.length === 0) return null;
         const current = (action as unknown as Record<string, unknown>)[field.name] as
           | string
           | undefined;
         const itemOptions = [subjectOption, ...draftOptions];
         return (
-          <div key={key}>
-            <Select
-              name={key}
-              label={field.name}
-              width="16rem"
-              options={itemOptions}
-              value={findOptionByValue(itemOptions, current) ?? ''}
-              onChange={(newValue) => {
-                const option = newValue as IOptionItem;
-                set({
-                  [field.name]: option?.value ? `${option.value}` : null,
-                } as Partial<IV2Action>);
-              }}
-            />
-            {draftNames.length === 0 && (
-              <p className="v2-field-help">
-                Only the original item is available — a Create Content action earlier in this step
-                adds draft options.
-              </p>
-            )}
-          </div>
+          <Select
+            key={key}
+            name={key}
+            label={field.name}
+            width="16rem"
+            options={itemOptions}
+            value={findOptionByValue(itemOptions, current) ?? ''}
+            onChange={(newValue) => {
+              const option = newValue as IOptionItem;
+              set({
+                [field.name]: option?.value ? `${option.value}` : null,
+              } as Partial<IV2Action>);
+            }}
+          />
         );
       }
       case 'draft': {
@@ -421,29 +432,24 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
         const current = (action as unknown as Record<string, unknown>)[field.name] as
           | string
           | undefined;
+        if (draftNames.length === 0) return null;
         const targetOptions = [createOption('(original item)', ''), ...draftOptions];
         return (
-          <div key={key}>
-            <Select
-              name={key}
-              label={field.name}
-              width="16rem"
-              isClearable={false}
-              options={targetOptions}
-              value={findOptionByValue(targetOptions, current ?? '')}
-              onChange={(newValue) => {
-                const option = newValue as IOptionItem;
-                set({
-                  [field.name]: option?.value ? `${option.value}` : null,
-                } as Partial<IV2Action>);
-              }}
-            />
-            {draftNames.length === 0 && (
-              <p className="v2-field-help">
-                No drafts yet — a Create Content action earlier in this step creates one.
-              </p>
-            )}
-          </div>
+          <Select
+            key={key}
+            name={key}
+            label={field.name}
+            width="16rem"
+            isClearable={false}
+            options={targetOptions}
+            value={findOptionByValue(targetOptions, current ?? '')}
+            onChange={(newValue) => {
+              const option = newValue as IOptionItem;
+              set({
+                [field.name]: option?.value ? `${option.value}` : null,
+              } as Partial<IV2Action>);
+            }}
+          />
         );
       }
       default: {
@@ -547,13 +553,22 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           name="action-gate"
           label="Runs when"
           required
-          width={fitSelectWidth(['Always run', 'Condition', 'LLM confirmation statement'])}
+          width={fitSelectWidth(allGateOptions.map((option) => `${option.label}`))}
           isClearable={false}
-          options={gateOptions}
-          value={findOptionByValue(gateOptions, gate)}
+          options={allGateOptions}
+          value={findOptionByValue(allGateOptions, gate)}
           onChange={(newValue) => {
             const option = newValue as IOptionItem;
-            switch (option?.value) {
+            const value = `${option?.value ?? ''}`;
+            if (value.startsWith('dupe:')) {
+              set({ when: { from: value.slice(5) }, confirm: null, analysis: null });
+              return;
+            }
+            if (value.startsWith('unique:')) {
+              set({ when: { not: { from: value.slice(7) } }, confirm: null, analysis: null });
+              return;
+            }
+            switch (value) {
               case 'condition':
                 set({
                   when: { field: '', op: 'equals', value: '' },

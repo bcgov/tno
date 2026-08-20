@@ -170,6 +170,13 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
     descriptors.find((descriptor) => descriptor.type === type)?.label ?? type;
 
   const runsWhenLabel = (action: IV2Action): React.ReactNode => {
+    // Dedupe routing gates read as sentences, matching the Runs when options.
+    const fromRef = action.when?.from;
+    if (fromRef && fromRef.endsWith('.isDuplicate'))
+      return `'${fromRef.replace(/\.isDuplicate$/, '')}' found a duplicate`;
+    const notFrom = action.when?.not?.from;
+    if (notFrom && notFrom.endsWith('.isDuplicate'))
+      return `'${notFrom.replace(/\.isDuplicate$/, '')}' found no duplicate`;
     if (action.confirm || action.when?.from) return 'LLM analysis';
     if (action.when) return 'Condition';
     return <span className="v2-muted">Always run</span>;
