@@ -1412,10 +1412,11 @@ export const AutomationModalStyles = createGlobalStyle`
   .v2-action-fields .v2-field-help {
     max-width: 16rem;
   }
-  /* Hand-rolled field labels match the global .frm-in label styling. */
-  .v2-scoped-name > label,
-  .v2-fields-picker > label {
-    font-weight: bold;
+  /* Hand-rolled field columns carry .frm-in, so label spacing/weight match tno-core fields
+     exactly; the nested combobox drops its own wrapper padding to avoid doubling it. */
+  .v2-scoped-name .frm-in,
+  .v2-fields-picker .frm-in {
+    padding-bottom: 0;
   }
   .v2-chips {
     display: flex;

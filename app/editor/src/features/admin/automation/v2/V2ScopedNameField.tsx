@@ -53,7 +53,7 @@ export const V2ScopedNameField: React.FC<IV2ScopedNameFieldProps> = ({
 
   if (allowNew)
     return (
-      <Col gap="0.25rem" className="v2-scoped-name">
+      <Col className="v2-scoped-name frm-in">
         <label htmlFor={`sel-${name}`}>{label}</label>
         <V2ComboBox
           name={name}

@@ -29,7 +29,7 @@ export const V2FieldsPicker: React.FC<IV2FieldsPickerProps> = ({
 }) => {
   const remaining = suggestions.filter((suggestion) => !values.includes(suggestion));
   return (
-    <Col gap="0.35rem" className="v2-fields-picker">
+    <Col className="v2-fields-picker frm-in">
       <label>{label}</label>
       <V2ComboBox
         name={name}
