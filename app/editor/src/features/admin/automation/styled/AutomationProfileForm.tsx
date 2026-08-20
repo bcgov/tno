@@ -1728,6 +1728,11 @@ export const AutomationModalStyles = createGlobalStyle`
     white-space: nowrap;
   }
 
+  /* Buttons beside the filter fields: the fields' .frm-in wrappers carry bottom padding, so
+     the bottom-aligned buttons lift by the same amount to sit level with the controls. */
+  .v2-log-filter-actions {
+    margin-bottom: 0.5em;
+  }
   /* The entries list scrolls in place so a long (or live) log never grows the page. */
   .v2-log-scroll {
     display: flex;

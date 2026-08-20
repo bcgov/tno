@@ -148,18 +148,20 @@ export const RunLogViewer: React.FC<IRunLogViewerProps> = ({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <Button
-          variant={ButtonVariant.secondary}
-          onClick={() => {
-            setPage(1);
-            setApplied((count) => count + 1);
-          }}
-        >
-          Apply filters
-        </Button>
-        <Button variant={ButtonVariant.link} disabled={!data?.items.length} onClick={exportLog}>
-          Export page
-        </Button>
+        <Row className="v2-log-filter-actions" gap="0.5rem" alignItems="center" nowrap>
+          <Button
+            variant={ButtonVariant.secondary}
+            onClick={() => {
+              setPage(1);
+              setApplied((count) => count + 1);
+            }}
+          >
+            Apply filters
+          </Button>
+          <Button variant={ButtonVariant.link} disabled={!data?.items.length} onClick={exportLog}>
+            Export page
+          </Button>
+        </Row>
       </Row>
       <Show visible={loading}>
         <p className="v2-field-help">Loading…</p>

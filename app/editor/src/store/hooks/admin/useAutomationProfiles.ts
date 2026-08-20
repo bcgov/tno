@@ -124,9 +124,13 @@ export const useAutomationProfiles = (): [IAdminState, IAutomationProfileControl
         return response.data;
       },
       debugContent: async (id: number, request: IAutomationDebugRequestModel) => {
+        // Silent: the debugging panel shows its own pending state; the page overlay would block
+        // navigating to other tabs while the LLM answers.
         const response = await dispatch<IAutomationDebugResultModel>(
           'debug-automation-content',
           async () => await api.debugContent(id, request),
+          undefined,
+          true,
         );
         return response.data;
       },
