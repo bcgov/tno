@@ -723,7 +723,7 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                 setStepModal(null);
               }}
             >
-              {stepModal?.index != null ? 'Save' : 'Add'}
+              {stepModal?.index != null ? 'Done' : 'Add'}
             </Button>
           </Row>
         }
@@ -781,7 +781,7 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                 setAnalysisModal(null);
               }}
             >
-              {analysisModal?.index != null ? 'Save' : 'Add'}
+              {analysisModal?.index != null ? 'Done' : 'Add'}
             </Button>
           </Row>
         }
