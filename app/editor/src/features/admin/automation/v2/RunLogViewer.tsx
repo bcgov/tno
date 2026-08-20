@@ -13,6 +13,8 @@ import {
 } from './interfaces';
 
 export interface IRunLogViewerProps {
+  /** Poll the current page every few seconds (a run in progress). */
+  live?: boolean;
   runId: number;
   onFetch: (runId: number, filter: IAutomationRunLogFilter) => Promise<IAutomationRunLogPage>;
   onExplain: (
@@ -38,6 +40,7 @@ export const RunLogViewer: React.FC<IRunLogViewerProps> = ({
   onExplain,
   promptNames,
   onApplyPrompt,
+  live = false,
 }) => {
   const [page, setPage] = React.useState(1);
   const [step, setStep] = React.useState('');
@@ -50,6 +53,15 @@ export const RunLogViewer: React.FC<IRunLogViewerProps> = ({
   const [loading, setLoading] = React.useState(false);
   const [expanded, setExpanded] = React.useState<Set<number>>(new Set());
   const [explaining, setExplaining] = React.useState<number | null>(null);
+  const [tick, setTick] = React.useState(0);
+
+  // Live tail: while the run is executing, re-fetch the current page every few seconds so the
+  // log streams in without a manual refresh.
+  React.useEffect(() => {
+    if (!live) return;
+    const timer = window.setInterval(() => setTick((value) => value + 1), 5000);
+    return () => window.clearInterval(timer);
+  }, [live]);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -75,7 +87,7 @@ export const RunLogViewer: React.FC<IRunLogViewerProps> = ({
     };
     // Refetch on paging and on explicit 'Apply filters' (the applied counter).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [runId, page, applied]);
+  }, [runId, page, applied, tick]);
 
   const totalPages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1;
 

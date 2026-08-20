@@ -947,6 +947,28 @@ const AutomationProfileForm: React.FC = () => {
                       <Row className="section-header" nowrap>
                         <h2>Debugging</h2>
                       </Row>
+                      <Show visible={!!values.id && runs.length > 0}>
+                        <Row className="section-header" nowrap>
+                          <Row className="section-header-title" nowrap>
+                            <h3>
+                              Most recent run #{(lastRun ?? runs[0])?.id} —{' '}
+                              {(lastRun ?? runs[0])?.status}
+                            </h3>
+                          </Row>
+                        </Row>
+                        <RunLogViewer
+                          runId={(lastRun ?? runs[0])?.id ?? 0}
+                          live={(lastRun ?? runs[0])?.status === 'Running'}
+                          onFetch={api.findRunLogs}
+                          onExplain={api.explainRunLog}
+                          promptNames={Object.keys(parseV2Definition(values.definition).prompts)}
+                          onApplyPrompt={(name, text) => {
+                            const definition = parseV2Definition(values.definition);
+                            definition.prompts[name] = { ...definition.prompts[name], text };
+                            setFieldValue('definition', serializeV2Definition(definition));
+                          }}
+                        />
+                      </Show>
                       <Show visible={!!values.id}>
                         <AutomationDebugging profileId={values.id} />
                       </Show>

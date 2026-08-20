@@ -115,10 +115,6 @@ export const AutomationDebugging: React.FC<IAutomationDebuggingProps> = ({ profi
   };
 
   const handleSend = async () => {
-    if (!hasConversation && !selected) {
-      toast.warning('Select a content item first.');
-      return;
-    }
     const text = stripHtml(input);
     if (!text) {
       toast.warning('Enter a question.');
@@ -175,16 +171,16 @@ export const AutomationDebugging: React.FC<IAutomationDebuggingProps> = ({ profi
   return (
     <Col className="debugging-section" gap="1rem">
       <p>
-        Ask the profile&apos;s LLM why a specific content item was or was not acted upon. The first
-        message sent (shown in the history) combines your question with how the profile works, its
-        configuration, the last run&apos;s outcome, and the content item; follow-up questions
-        continue the same conversation.
+        Ask the profile&apos;s LLM about the most recent run. The first message sent (shown in the
+        history) combines your question with how the profile works, its configuration, and the
+        run&apos;s outcome — plus a specific content item when you pick one below; follow-up
+        questions continue the same conversation.
       </p>
 
       {/* 1. Find the content item (first turn only). */}
       <Show visible={!hasConversation && !isAsking}>
         <Col gap="0.5rem">
-          <label>Find content by headline</label>
+          <label>Find content by headline (optional — focuses the question on one item)</label>
           <Row gap="0.5rem" alignItems="center">
             <Text
               name="debug-search"

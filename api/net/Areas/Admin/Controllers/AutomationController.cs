@@ -223,10 +223,14 @@ public class AutomationController : ControllerBase
 
         if (isFirstTurn)
         {
-            // First turn: compose the content and last-run context as the opening user message.
-            var content = _contentService.FindById(request.ContentId) ?? throw new NoContentException();
+            // First turn: compose the profile, most-recent-run, and (optional) content context as
+            // the opening user message. Without a content item the question is answered against
+            // the run as a whole.
+            var content = request.ContentId > 0
+                ? _contentService.FindById(request.ContentId) ?? throw new NoContentException()
+                : null;
             var lastRun = _runService.Find(id)
-                .Where(r => r.Status == Entities.AutomationRunStatus.Completed)
+                .Where(r => r.Status == Entities.AutomationRunStatus.Completed || r.Status == Entities.AutomationRunStatus.Failed)
                 .OrderByDescending(r => r.StartedOn)
                 .FirstOrDefault();
             runId = lastRun?.Id;
@@ -272,7 +276,7 @@ public class AutomationController : ControllerBase
     /// Compose the full debugging prompt from the question, the last run's information for the content
     /// item, and the full content item data.
     /// </summary>
-    private string BuildDebugPrompt(Entities.AutomationProfile profile, long? runId, AutomationDebugRequestModel request, Entities.Content content)
+    private string BuildDebugPrompt(Entities.AutomationProfile profile, long? runId, AutomationDebugRequestModel request, Entities.Content? content)
     {
         var sb = new System.Text.StringBuilder();
         sb.AppendLine(PromptToText(request.Question));
@@ -285,47 +289,73 @@ public class AutomationController : ControllerBase
         // about why the content item was or was not acted upon.
         sb.Append(BuildProfileProcessDescription(profile));
 
-        sb.AppendLine("## Last successful automation run");
+        sb.AppendLine("## Most recent automation run");
         if (runId.HasValue)
         {
             var run = _runService.FindById(runId.Value);
-            sb.AppendLine($"Run #{runId} completed {run?.CompletedOn:u}.");
+            sb.AppendLine($"Run #{runId} ({run?.Status}) completed {run?.CompletedOn:u}.");
             if (!string.IsNullOrWhiteSpace(run?.Note)) sb.AppendLine($"Outcome: {run!.Note}");
 
-            var (responses, changes) = GetRunRecordsForContent(run, request.ContentId);
-            sb.AppendLine();
-            sb.AppendLine("Actions the automation evaluated for this content item (empty means the action did not fire):");
-            if (responses.Count == 0) sb.AppendLine("- (no records for this content item in the last run)");
-            foreach (var r in responses)
-                sb.AppendLine($"- [{r.Step}{(string.IsNullOrEmpty(r.Action) ? "" : $" / {r.Action}")}]: {(string.IsNullOrWhiteSpace(r.Response) ? "(no response)" : r.Response.Trim())}");
+            if (content != null)
+            {
+                var (responses, changes) = GetRunRecordsForContent(run, request.ContentId);
+                sb.AppendLine();
+                sb.AppendLine("Actions the automation evaluated for this content item (empty means the action did not fire):");
+                if (responses.Count == 0) sb.AppendLine("- (no records for this content item in the last run)");
+                foreach (var r in responses)
+                    sb.AppendLine($"- [{r.Step}{(string.IsNullOrEmpty(r.Action) ? "" : $" / {r.Action}")}]: {(string.IsNullOrWhiteSpace(r.Response) ? "(no response)" : r.Response.Trim())}");
 
-            sb.AppendLine();
-            sb.AppendLine("Changes the automation applied to this content item:");
-            if (changes.Count == 0) sb.AppendLine("- (none)");
-            foreach (var c in changes) sb.AppendLine($"- {c}");
+                sb.AppendLine();
+                sb.AppendLine("Changes the automation applied to this content item:");
+                if (changes.Count == 0) sb.AppendLine("- (none)");
+                foreach (var c in changes) sb.AppendLine($"- {c}");
+            }
+            else
+            {
+                // No content item: give the run-level decision log tail so the model can answer
+                // about the run as a whole.
+                var (_, totalLogs) = _runLogService.FindByRun(runId.Value, qty: 1);
+                var lastPage = Math.Max(1, (int)Math.Ceiling(totalLogs / 80.0));
+                var (tail, _) = _runLogService.FindByRun(runId.Value, page: lastPage, qty: 80);
+                sb.AppendLine();
+                sb.AppendLine($"Decision log (most recent {Math.Min(80, totalLogs)} of {totalLogs} entries):");
+                foreach (var l in tail)
+                {
+                    var text = (l.Response ?? "").Trim();
+                    if (text.Length > 240) text = text[..240] + "…";
+                    sb.AppendLine($"- [{l.StepName}{(string.IsNullOrEmpty(l.ActionName) ? "" : $" / {l.ActionName}")}] {l.Outcome}{(l.ContentId.HasValue ? $" (content {l.ContentId})" : "")}: {text}");
+                }
+            }
         }
         else
         {
-            sb.AppendLine("(No successful run was found for this profile.)");
+            sb.AppendLine("(No completed run was found for this profile.)");
         }
 
         sb.AppendLine();
-        sb.AppendLine($"## Content item (id {content.Id})");
-        sb.AppendLine(System.Text.Json.JsonSerializer.Serialize(new
+        if (content != null)
         {
-            content.Id,
-            content.Headline,
-            content.Byline,
-            Source = content.Source?.Name ?? content.OtherSource,
-            content.Section,
-            content.Page,
-            content.Edition,
-            Status = content.Status.ToString(),
-            ContentType = content.ContentType.ToString(),
-            content.PublishedOn,
-            content.Summary,
-            Body = PromptToText(content.Body),
-        }, _serializerOptions));
+            sb.AppendLine($"## Content item (id {content.Id})");
+            sb.AppendLine(System.Text.Json.JsonSerializer.Serialize(new
+            {
+                content.Id,
+                content.Headline,
+                content.Byline,
+                Source = content.Source?.Name ?? content.OtherSource,
+                content.Section,
+                content.Page,
+                content.Edition,
+                Status = content.Status.ToString(),
+                ContentType = content.ContentType.ToString(),
+                content.PublishedOn,
+                content.Summary,
+                Body = PromptToText(content.Body),
+            }, _serializerOptions));
+        }
+        else
+        {
+            sb.AppendLine("(No specific content item was selected; answer about the run as a whole.)");
+        }
 
         return sb.ToString();
     }

@@ -118,7 +118,8 @@ export interface IAutomationDebugMessageModel {
 
 /** A request to ask the profile's LLM why a content item was (or was not) acted upon. */
 export interface IAutomationDebugRequestModel {
-  contentId: number;
+  /** Optional focus item; 0/absent answers against the most recent run as a whole. */
+  contentId?: number;
   question: string;
   /** The conversation returned from the previous response; empty starts a new chat. */
   messages?: IAutomationDebugMessageModel[];
