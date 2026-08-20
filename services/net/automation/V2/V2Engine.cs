@@ -163,6 +163,9 @@ public class V2Engine
 
         foreach (var step in steps)
         {
+            // A deleted run must stop executing, not grind on with nowhere to record anything.
+            if (runLogger.IsAbandoned)
+                throw new InvalidOperationException("The run record was deleted while executing; the run was stopped.");
             var stepTimer = Stopwatch.StartNew();
             var stepSummary = new V2StepSummary { Name = step.Name, Phase = step.Phase };
             summary.Steps.Add(stepSummary);
@@ -188,6 +191,7 @@ public class V2Engine
                     stepSummary.Items = entries.Count;
                     await Parallel.ForEachAsync(entries, parallelism, async (entry, _) =>
                     {
+                        if (environment.Log.IsAbandoned) return;
                         try
                         {
                             await ExecuteStepInstanceAsync(itemStep, new V2ItemScope(entry), environment, stepSummary);

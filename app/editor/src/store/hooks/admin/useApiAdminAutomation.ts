@@ -109,6 +109,7 @@ export const useApiAdminAutomation = () => {
       if (filter.search) params.set('search', filter.search);
       params.set('page', `${filter.page ?? 1}`);
       params.set('qty', `${filter.qty ?? 100}`);
+      if (filter.direction) params.set('direction', filter.direction);
       return api.get<never, AxiosResponse<IAutomationRunLogPage>, any>(
         `/admin/automation/runs/${runId}/logs?${params.toString()}`,
       );

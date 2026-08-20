@@ -936,10 +936,11 @@ public class AutomationController : ControllerBase
     [HttpGet("runs/{runId}/logs")]
     [Produces(MediaTypeNames.Application.Json)]
     [SwaggerOperation(Tags = new[] { "Automation" })]
-    public IActionResult FindRunLogs(long runId, [FromQuery] string? step, [FromQuery] string? action, [FromQuery] string? outcome, [FromQuery] long? contentId, [FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int qty = 100)
+    public IActionResult FindRunLogs(long runId, [FromQuery] string? step, [FromQuery] string? action, [FromQuery] string? outcome, [FromQuery] long? contentId, [FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int qty = 100, [FromQuery] string? direction = null)
     {
         _ = _runService.FindById(runId) ?? throw new NoContentException();
-        var (items, total) = _runLogService.FindByRun(runId, step, action, outcome, contentId, search, page, qty);
+        var (items, total) = _runLogService.FindByRun(runId, step, action, outcome, contentId, search, page, qty,
+            string.Equals(direction, "desc", StringComparison.OrdinalIgnoreCase));
         return new JsonResult(new
         {
             items = items.Select(l => new AutomationRunLogModel(l)),

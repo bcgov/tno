@@ -97,8 +97,13 @@ public class V2RunLogger
         });
     }
 
+    /// <summary>get - The API rejected this run as gone (deleted); logging has stopped and the
+    /// engine should stop the run.</summary>
+    public bool IsAbandoned { get; private set; }
+
     private void Add(AutomationRunLogModel entry)
     {
+        if (IsAbandoned) return;
         bool flush;
         lock (_sync)
         {
@@ -118,6 +123,7 @@ public class V2RunLogger
     /// </summary>
     public async Task FlushAsync()
     {
+        if (IsAbandoned) return;
         AutomationRunLogModel[] batch;
         lock (_sync)
         {
@@ -128,6 +134,13 @@ public class V2RunLogger
         try
         {
             await _api.AddAutomationRunLogsAsync(_runId, batch);
+        }
+        catch (System.Net.Http.HttpRequestException ex) when (ex.StatusCode is System.Net.HttpStatusCode.BadRequest or System.Net.HttpStatusCode.NotFound)
+        {
+            // The run record is gone (deleted while executing). Retrying forever spams the API
+            // and burns the run's remaining work - drop the buffer and signal the engine to stop.
+            IsAbandoned = true;
+            _logger.LogWarning("Run {runId} no longer exists; dropped {count} log entrie(s) and stopping the run.", _runId, batch.Length);
         }
         catch (Exception ex)
         {

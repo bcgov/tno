@@ -2,7 +2,7 @@ import React from 'react';
 import { FaAngleLeft, FaAngleRight, FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6';
 import { Button, ButtonVariant, Col, type IOptionItem, Row, Select, Show, Text } from 'tno-core';
 
-import { findOptionByValue } from '../utils';
+import { createOption, findOptionByValue } from '../utils';
 import { v2OutcomeBadgeClass, v2RunLogOutcomeOptions } from './constants';
 import { ExplainPanel } from './ExplainPanel';
 import {
@@ -35,6 +35,11 @@ const PAGE_SIZE = 50;
  * (condition gates, exclusions, flushes) render distinctly — they carry no token cost. Any entry
  * opens an explain-and-improve conversation.
  */
+const logOrderOptions: IOptionItem[] = [
+  createOption('Oldest first', 'asc'),
+  createOption('Newest first', 'desc'),
+];
+
 export const RunLogViewer: React.FC<IRunLogViewerProps> = ({
   runId,
   onFetch,
@@ -51,6 +56,10 @@ export const RunLogViewer: React.FC<IRunLogViewerProps> = ({
   const [search, setSearch] = React.useState('');
   const [applied, setApplied] = React.useState(0);
   const [data, setData] = React.useState<IAutomationRunLogPage | null>(null);
+  // While running, newest entries first so the tail is always visible; once complete, oldest
+  // first for review in execution order. The default follows the transition; manual choice sticks
+  // until the run state changes.
+  const [direction, setDirection] = React.useState<'asc' | 'desc'>(live ? 'desc' : 'asc');
   const [loading, setLoading] = React.useState(false);
   const [expanded, setExpanded] = React.useState<Set<number>>(new Set());
   const [explaining, setExplaining] = React.useState<number | null>(null);
@@ -64,9 +73,22 @@ export const RunLogViewer: React.FC<IRunLogViewerProps> = ({
     return () => window.clearInterval(timer);
   }, [live]);
 
+  // Reset the default order when the run transitions between running and complete.
+  const liveRef = React.useRef(live);
+  React.useEffect(() => {
+    if (liveRef.current === live) return;
+    liveRef.current = live;
+    setDirection(live ? 'desc' : 'asc');
+    setPage(1);
+  }, [live]);
+
+  const tickRef = React.useRef(tick);
   React.useEffect(() => {
     let cancelled = false;
-    setLoading(true);
+    // Background polls keep the current list on screen instead of flashing 'Loading…'.
+    const isBackground = tick !== tickRef.current;
+    tickRef.current = tick;
+    if (!isBackground) setLoading(true);
     onFetch(runId, {
       step: step || undefined,
       action: action || undefined,
@@ -75,6 +97,7 @@ export const RunLogViewer: React.FC<IRunLogViewerProps> = ({
       search: search || undefined,
       page,
       qty: PAGE_SIZE,
+      direction,
     })
       .then((result) => {
         if (!cancelled) setData(result);
@@ -88,7 +111,7 @@ export const RunLogViewer: React.FC<IRunLogViewerProps> = ({
     };
     // Refetch on paging and on explicit 'Apply filters' (the applied counter).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [runId, page, applied, tick]);
+  }, [runId, page, applied, tick, direction]);
 
   const totalPages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1;
 
@@ -147,6 +170,19 @@ export const RunLogViewer: React.FC<IRunLogViewerProps> = ({
           width="14rem"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+        />
+        <Select
+          name="log-direction"
+          label="Order"
+          width="11rem"
+          isClearable={false}
+          options={logOrderOptions}
+          value={findOptionByValue(logOrderOptions, direction)}
+          onChange={(newValue) => {
+            const option = newValue as IOptionItem;
+            setDirection(option?.value === 'desc' ? 'desc' : 'asc');
+            setPage(1);
+          }}
         />
         <Row className="v2-log-filter-actions" gap="0.5rem" alignItems="center" nowrap>
           <Button

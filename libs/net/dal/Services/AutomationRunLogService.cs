@@ -29,7 +29,7 @@ public class AutomationRunLogService : BaseService<AutomationRunLog, long>, IAut
     /// Paged because a run over a full day of content produces thousands of entries, each holding
     /// prompt text - an unbounded read would materialize tens of MB in one request.
     /// </summary>
-    public (IEnumerable<AutomationRunLog> Items, int Total) FindByRun(long runId, string? step = null, string? action = null, string? outcome = null, long? contentId = null, string? search = null, int page = 1, int qty = 100)
+    public (IEnumerable<AutomationRunLog> Items, int Total) FindByRun(long runId, string? step = null, string? action = null, string? outcome = null, long? contentId = null, string? search = null, int page = 1, int qty = 100, bool descending = false)
     {
         page = Math.Max(1, page);
         qty = Math.Clamp(qty, 1, 500);
@@ -48,7 +48,7 @@ public class AutomationRunLogService : BaseService<AutomationRunLog, long>, IAut
         }
 
         var total = query.Count();
-        var items = query.OrderBy(l => l.Id)
+        var items = (descending ? query.OrderByDescending(l => l.Id) : query.OrderBy(l => l.Id))
             .Skip((page - 1) * qty)
             .Take(qty)
             .ToArray();

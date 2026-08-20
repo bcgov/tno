@@ -197,6 +197,8 @@ export interface IAutomationRunLogFilter {
   search?: string;
   page?: number;
   qty?: number;
+  /** 'asc' (default) or 'desc' by execution order. */
+  direction?: 'asc' | 'desc';
 }
 
 export interface IAutomationExplainRequestModel {
