@@ -70,22 +70,22 @@ public static class V2ActionCatalog
         new V2ActionDescriptor("collection.add", "Add To Collection", "collection", true, false, false, _process, new[]
         {
             new V2FieldSpec("into", "collection", true),
-            new V2FieldSpec("item", "item", false, "What to add: $item (default) or a draft name."),
+            new V2FieldSpec("item", "item", false, "What to add: the original item (default), or a draft created by an earlier Create Content action in this step."),
         },
-            Description: "Adds the current item to the 'into' collection (duplicates are skipped). 'item' picks what is added: the original item (default) or a draft created earlier in this step."),
+            Description: "Adds the current item to the 'into' collection (duplicates are skipped). 'item' picks what is added: the original item (default) or a draft - a new content item produced by an earlier Create Content action in this step."),
         new V2ActionDescriptor("collection.remove", "Remove From Collection", "collection", true, false, false, _process, new[]
         {
             new V2FieldSpec("from", "collection", true),
-            new V2FieldSpec("item", "item", false),
+            new V2FieldSpec("item", "item", false, "The original item (default), or a draft created by an earlier Create Content action in this step."),
         },
-            Description: "Removes the current item from the 'from' collection. 'item' picks what is removed: the original item (default) or a draft."),
+            Description: "Removes the current item from the 'from' collection. 'item' picks what is removed: the original item (default) or a draft - a new content item produced by an earlier Create Content action in this step."),
         new V2ActionDescriptor("collection.move", "Move Between Collections", "collection", true, false, false, _process, new[]
         {
             new V2FieldSpec("from", "collection", true),
             new V2FieldSpec("into", "collection", true),
-            new V2FieldSpec("item", "item", false),
+            new V2FieldSpec("item", "item", false, "The original item (default), or a draft created by an earlier Create Content action in this step."),
         },
-            Description: "Moves the current item out of the 'from' collection and into the 'into' collection. 'item' picks what moves: the original item (default) or a draft."),
+            Description: "Moves the current item out of the 'from' collection and into the 'into' collection. 'item' picks what moves: the original item (default) or a draft - a new content item produced by an earlier Create Content action in this step."),
         new V2ActionDescriptor("collection.filter", "Filter Collection", "collection", false, false, false, _once, new[]
         {
             new V2FieldSpec("from", "collection", true),
@@ -136,57 +136,57 @@ public static class V2ActionCatalog
         {
             new V2FieldSpec("field", "contentField", true),
             new V2FieldSpec("value", "valueSource", true),
-            new V2FieldSpec("target", "draft", false, "A draft name; omitted for the subject."),
+            new V2FieldSpec("target", "draft", false, "A draft created by an earlier Create Content action in this step; leave empty for the original item."),
         },
-            Description: "Sets one property on the item's working copy. 'field' picks the property, 'value' supplies it (an analysis result, a literal, or a template), and 'target' redirects the write to a named draft instead of the original item. Changes are written when the save mode flushes."),
+            Description: "Sets one property on the item's working copy. 'field' picks the property, 'value' supplies it (an analysis result, a literal, or a template), and 'target' redirects the write to a draft (a new content item produced by an earlier Create Content action in this step) instead of the original item. Changes are written when the save mode flushes."),
         new V2ActionDescriptor("content.tags", "Add Tags", "content", true, false, false, _process, new[]
         {
             new V2FieldSpec("value", "valueSource", true, "Tag codes (array or comma-separated)."),
-            new V2FieldSpec("target", "draft", false),
+            new V2FieldSpec("target", "draft", false, "A draft created by an earlier Create Content action in this step; leave empty for the original item."),
         },
-            Description: "Adds tag codes to the working copy (existing tags are kept). 'value' supplies the codes from an analysis result, a literal list, or a template; 'target' applies them to a draft instead."),
+            Description: "Adds tag codes to the working copy (existing tags are kept). 'value' supplies the codes from an analysis result, a literal list, or a template; 'target' applies them to a draft (a new content item produced by an earlier Create Content action in this step) instead."),
         new V2ActionDescriptor("content.sentiment", "Set Sentiment", "content", true, false, false, _process, new[]
         {
             new V2FieldSpec("value", "valueSource", true, "An integer from -5 to 5."),
-            new V2FieldSpec("target", "draft", false),
+            new V2FieldSpec("target", "draft", false, "A draft created by an earlier Create Content action in this step; leave empty for the original item."),
         },
-            Description: "Sets the sentiment score on the working copy. 'value' supplies the number, usually from an analysis; 'target' applies it to a draft instead."),
+            Description: "Sets the sentiment score on the working copy. 'value' supplies the number, usually from an analysis; 'target' applies it to a draft (a new content item produced by an earlier Create Content action in this step) instead."),
         new V2ActionDescriptor("content.contributor", "Set Columnist/Contributor", "content", true, false, false, _process, new[]
         {
             new V2FieldSpec("value", "valueSource", true, "A contributor name or alias."),
-            new V2FieldSpec("target", "draft", false),
+            new V2FieldSpec("target", "draft", false, "A draft created by an earlier Create Content action in this step; leave empty for the original item."),
         },
-            Description: "Sets the columnist/contributor on the working copy. 'value' supplies a name or alias that is matched against the contributor list; 'target' applies it to a draft instead."),
+            Description: "Sets the columnist/contributor on the working copy. 'value' supplies a name or alias that is matched against the contributor list; 'target' applies it to a draft (a new content item produced by an earlier Create Content action in this step) instead."),
         new V2ActionDescriptor("content.action", "Apply Content Action", "content", true, true, false, _process, new[]
         {
             new V2FieldSpec("contentAction", "contentAction", true),
-            new V2FieldSpec("target", "draft", false),
+            new V2FieldSpec("target", "draft", false, "A draft created by an earlier Create Content action in this step; leave empty for the original item."),
         },
-            Description: "Stamps a content action (editorial flag) on the item. 'contentAction' picks the flag; 'target' stamps a draft instead. The item must already exist in the database."),
+            Description: "Stamps a content action (editorial flag) on the item. 'contentAction' picks the flag; 'target' stamps a draft (a new content item produced by an earlier Create Content action in this step) instead. The item must already exist in the database."),
         new V2ActionDescriptor("content.publish", "Publish Content", "content", true, false, false, _process, new[]
         {
-            new V2FieldSpec("target", "draft", false),
+            new V2FieldSpec("target", "draft", false, "A draft created by an earlier Create Content action in this step; leave empty for the original item."),
         },
-            Description: "Marks the working copy as published; the status change is written when the save mode flushes. 'target' publishes a draft instead of the original item."),
+            Description: "Marks the working copy as published; the status change is written when the save mode flushes. 'target' publishes a draft (a new content item produced by an earlier Create Content action in this step) instead of the original item."),
         new V2ActionDescriptor("content.unpublish", "Unpublish Content", "content", true, false, false, _process, new[]
         {
-            new V2FieldSpec("target", "draft", false),
+            new V2FieldSpec("target", "draft", false, "A draft created by an earlier Create Content action in this step; leave empty for the original item."),
         },
-            Description: "Marks the working copy as unpublished; the status change is written when the save mode flushes. 'target' unpublishes a draft instead of the original item."),
+            Description: "Marks the working copy as unpublished; the status change is written when the save mode flushes. 'target' unpublishes a draft (a new content item produced by an earlier Create Content action in this step) instead of the original item."),
         new V2ActionDescriptor("content.create", "Create Content", "content", true, false, false, _process, new[]
         {
             new V2FieldSpec("as", "draft", true, "The draft name later actions target (e.g. $item.digest)."),
-            new V2FieldSpec("copyFrom", "item", false, "$item to copy from the subject; empty for a blank item."),
+            new V2FieldSpec("copyFrom", "item", false, "Copies from the original item; leave empty to start blank."),
             new V2FieldSpec("copyFields", "fields", false),
             new V2FieldSpec("set", "valueMap", false, "Field values from analysis results, literals, or templates."),
         },
-            Description: "Creates a new draft content item that later actions target by the name given in 'as'. 'copyFrom' seeds the draft from the original item or leaves it blank; 'copyFields' limits which properties are copied; 'set' fills fields from analysis results, literals, or templates."),
+            Description: "Creates a draft: a brand-new content item that later actions in this step target by the name given in 'as'. 'copyFrom' seeds the draft from the original item or leaves it blank; 'copyFields' limits which properties are copied; 'set' fills fields from analysis results, literals, or templates."),
         new V2ActionDescriptor("content.save", "Save Content Now", "content", true, false, false, _process, new[]
         {
-            new V2FieldSpec("target", "draft", false),
+            new V2FieldSpec("target", "draft", false, "A draft created by an earlier Create Content action in this step; leave empty for the original item."),
             new V2FieldSpec("index", "bool", false, "Send the indexing message (default true)."),
         },
-            Description: "Writes the working copy (or the 'target' draft) to the database immediately instead of waiting for the save-mode flush. 'index' controls whether the search-index message is sent (default true)."),
+            Description: "Writes the working copy (or the draft named by 'target' - a new content item produced by an earlier Create Content action in this step) to the database immediately instead of waiting for the save-mode flush. 'index' controls whether the search-index message is sent (default true)."),
         new V2ActionDescriptor("exclude", "Exclude From Run", "flow", true, false, false, _process, new[]
         {
             new V2FieldSpec("reason", "string", false),

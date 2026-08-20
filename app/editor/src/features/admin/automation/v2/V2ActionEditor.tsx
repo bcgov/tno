@@ -378,18 +378,27 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           | undefined;
         const itemOptions = [subjectOption, ...draftOptions];
         return (
-          <Select
-            key={key}
-            name={key}
-            label={field.name}
-            width="16rem"
-            options={itemOptions}
-            value={findOptionByValue(itemOptions, current) ?? ''}
-            onChange={(newValue) => {
-              const option = newValue as IOptionItem;
-              set({ [field.name]: option?.value ? `${option.value}` : null } as Partial<IV2Action>);
-            }}
-          />
+          <div key={key}>
+            <Select
+              name={key}
+              label={field.name}
+              width="16rem"
+              options={itemOptions}
+              value={findOptionByValue(itemOptions, current) ?? ''}
+              onChange={(newValue) => {
+                const option = newValue as IOptionItem;
+                set({
+                  [field.name]: option?.value ? `${option.value}` : null,
+                } as Partial<IV2Action>);
+              }}
+            />
+            {draftNames.length === 0 && (
+              <p className="v2-field-help">
+                Only the original item is available — a Create Content action earlier in this step
+                adds draft options.
+              </p>
+            )}
+          </div>
         );
       }
       case 'draft': {
@@ -409,21 +418,29 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
         const current = (action as unknown as Record<string, unknown>)[field.name] as
           | string
           | undefined;
-        const targetOptions = [createOption('(the subject)', ''), ...draftOptions];
+        const targetOptions = [createOption('(original item)', ''), ...draftOptions];
         return (
-          <Select
-            key={key}
-            name={key}
-            label={field.name}
-            width="16rem"
-            isClearable={false}
-            options={targetOptions}
-            value={findOptionByValue(targetOptions, current ?? '')}
-            onChange={(newValue) => {
-              const option = newValue as IOptionItem;
-              set({ [field.name]: option?.value ? `${option.value}` : null } as Partial<IV2Action>);
-            }}
-          />
+          <div key={key}>
+            <Select
+              name={key}
+              label={field.name}
+              width="16rem"
+              isClearable={false}
+              options={targetOptions}
+              value={findOptionByValue(targetOptions, current ?? '')}
+              onChange={(newValue) => {
+                const option = newValue as IOptionItem;
+                set({
+                  [field.name]: option?.value ? `${option.value}` : null,
+                } as Partial<IV2Action>);
+              }}
+            />
+            {draftNames.length === 0 && (
+              <p className="v2-field-help">
+                No drafts yet — a Create Content action earlier in this step creates one.
+              </p>
+            )}
+          </div>
         );
       }
       default: {
