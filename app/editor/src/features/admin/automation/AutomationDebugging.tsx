@@ -262,11 +262,7 @@ export const AutomationDebugging: React.FC<IAutomationDebuggingProps> = ({ profi
         <Show visible={!hasConversation}>
           <span />
         </Show>
-        <Button
-          type="button"
-          disabled={isAsking || (!hasConversation && !selected)}
-          onClick={handleSend}
-        >
+        <Button type="button" disabled={isAsking} onClick={handleSend}>
           {isAsking ? 'Sending…' : hasConversation ? 'Send' : 'Ask the LLM'}
         </Button>
       </Row>

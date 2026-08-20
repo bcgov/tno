@@ -1,4 +1,5 @@
 import React from 'react';
+import { FaAngleLeft, FaAngleRight, FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6';
 import { Button, ButtonVariant, Col, type IOptionItem, Row, Select, Show, Text } from 'tno-core';
 
 import { findOptionByValue } from '../utils';
@@ -201,23 +202,49 @@ export const RunLogViewer: React.FC<IRunLogViewerProps> = ({
       </div>
       <Show visible={(data?.total ?? 0) > PAGE_SIZE}>
         <Row gap="0.5rem" alignItems="center">
-          <Button
-            variant={ButtonVariant.secondary}
+          <button
+            type="button"
+            className="rule-icon-button"
+            aria-label="Beginning of the log"
+            title="Beginning of the log"
+            disabled={page <= 1}
+            onClick={() => setPage(1)}
+          >
+            <FaAnglesLeft />
+          </button>
+          <button
+            type="button"
+            className="rule-icon-button"
+            aria-label="Previous page"
+            title="Previous page"
             disabled={page <= 1}
             onClick={() => setPage((current) => current - 1)}
           >
-            Previous
-          </Button>
+            <FaAngleLeft />
+          </button>
           <span>
             Page {page} of {totalPages} ({data?.total.toLocaleString()} entries)
           </span>
-          <Button
-            variant={ButtonVariant.secondary}
+          <button
+            type="button"
+            className="rule-icon-button"
+            aria-label="Next page"
+            title="Next page"
             disabled={page >= totalPages}
             onClick={() => setPage((current) => current + 1)}
           >
-            Next
-          </Button>
+            <FaAngleRight />
+          </button>
+          <button
+            type="button"
+            className="rule-icon-button"
+            aria-label="End of the log"
+            title="End of the log (newest entries)"
+            disabled={page >= totalPages}
+            onClick={() => setPage(totalPages)}
+          >
+            <FaAnglesRight />
+          </button>
         </Row>
       </Show>
     </Col>
