@@ -195,6 +195,69 @@ export const fitSelectWidth = (
   return `${Math.min(maxCh, Math.max(minCh, longest + 8 + extraCh))}ch`;
 };
 
+/** All filter ids referenced inside a v2 definition: step sources, include/exclude gates, and
+ * action filters. Export bundles their definitions; import remaps them. */
+export const collectV2FilterIds = (definition: IV2Definition): number[] => {
+  const ids = new Set<number>();
+  definition.steps.forEach((step) => {
+    if (step.source?.filter != null) ids.add(step.source.filter);
+    (step.source?.include ?? []).forEach((id) => ids.add(id));
+    (step.source?.exclude ?? []).forEach((id) => ids.add(id));
+    step.actions.forEach((action) => {
+      if (action.filter != null) ids.add(action.filter);
+    });
+  });
+  return Array.from(ids);
+};
+
+/** All LLM ids referenced inside a v2 definition (step/analysis/action overrides). */
+export const collectV2LlmIds = (definition: IV2Definition): number[] => {
+  const ids = new Set<number>();
+  definition.steps.forEach((step) => {
+    if (step.llmId != null) ids.add(step.llmId);
+    step.analyses.forEach((analysis) => {
+      if (analysis.llmId != null) ids.add(analysis.llmId);
+    });
+    step.actions.forEach((action) => {
+      if (action.llmId != null) ids.add(action.llmId);
+    });
+  });
+  return Array.from(ids);
+};
+
+/** Rewrite every filter/LLM id inside a definition through the import id maps. */
+export const remapV2Definition = (
+  definition: IV2Definition,
+  mapFilter: (id?: number) => number | undefined,
+  mapLLM: (id?: number) => number | undefined,
+): IV2Definition => ({
+  ...definition,
+  steps: definition.steps.map((step) => ({
+    ...step,
+    llmId: step.llmId != null ? mapLLM(step.llmId) ?? step.llmId : step.llmId,
+    source: step.source
+      ? {
+          ...step.source,
+          filter:
+            step.source.filter != null
+              ? mapFilter(step.source.filter) ?? step.source.filter
+              : step.source.filter,
+          include: (step.source.include ?? []).map((id) => mapFilter(id) ?? id),
+          exclude: (step.source.exclude ?? []).map((id) => mapFilter(id) ?? id),
+        }
+      : step.source,
+    analyses: step.analyses.map((analysis) => ({
+      ...analysis,
+      llmId: analysis.llmId != null ? mapLLM(analysis.llmId) ?? analysis.llmId : analysis.llmId,
+    })),
+    actions: step.actions.map((action) => ({
+      ...action,
+      filter: action.filter != null ? mapFilter(action.filter) ?? action.filter : action.filter,
+      llmId: action.llmId != null ? mapLLM(action.llmId) ?? action.llmId : action.llmId,
+    })),
+  })),
+});
+
 /** Collection names created anywhere in the definition, for pickers and hints. */
 export const collectV2CollectionNames = (definition: IV2Definition): string[] => {
   const names = new Set<string>();

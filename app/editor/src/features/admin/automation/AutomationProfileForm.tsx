@@ -98,6 +98,9 @@ import {
   V2Designer,
   V2FilterField,
   V2RunOutcome,
+  collectV2FilterIds,
+  collectV2LlmIds,
+  remapV2Definition,
 } from './v2';
 import {
   type ActionModalMode,
@@ -272,6 +275,12 @@ const AutomationProfileForm: React.FC = () => {
           if (action.filterId) filterIds.add(action.filterId);
         });
       });
+      // v2: filters and LLM overrides live inside the definition document.
+      if (values.schemaVersion >= 2 && values.definition) {
+        const definition = parseV2Definition(values.definition);
+        collectV2FilterIds(definition).forEach((id) => filterIds.add(id));
+        collectV2LlmIds(definition).forEach((id) => llmIds.add(id));
+      }
 
       const [filterDefs, llmDefs] = await Promise.all([
         Promise.all(Array.from(filterIds).map((id) => getFilter(id))),
@@ -395,8 +404,17 @@ const AutomationProfileForm: React.FC = () => {
       const mapFilter = (id?: number) => (id ? filterMap.get(id) ?? id : id);
       const mapLLM = (id?: number) => (id ? llmMap.get(id) ?? id : id);
 
+      // v2: rewrite the filter/LLM ids inside the definition document through the same maps.
+      const importedDefinition =
+        imported.schemaVersion >= 2 && imported.definition
+          ? serializeV2Definition(
+              remapV2Definition(parseV2Definition(imported.definition), mapFilter, mapLLM),
+            )
+          : imported.definition;
+
       setProfile({
         ...imported,
+        definition: importedDefinition,
         id: 0,
         // Suffix the name so it does not collide with the source profile on Save (editable).
         name: imported.name ? `${imported.name} (imported)` : imported.name,

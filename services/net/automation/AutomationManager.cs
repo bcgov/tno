@@ -39,6 +39,8 @@ public class AutomationManager : ServiceManager<AutomationOptions>
     private CancellationTokenSource? _cancelToken;
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
+    private readonly DateTime _instanceStartedOn = DateTime.UtcNow;
+    private bool _startupSweepDone;
     private int _retries = 0;
     private string? _lastPruneDate;
     private API.Areas.Editor.Models.Lookup.LookupModel? _lookups;
@@ -305,6 +307,27 @@ public class AutomationManager : ServiceManager<AutomationOptions>
         {
             this.Logger.LogWarning("Reconciling stale queued automation run {runId} (queued {startedOn:O}).", run.Id, run.StartedOn);
             await ExecuteQueuedRunAsync(run);
+        }
+
+        // Runs executing when this instance started cannot still be executing here - a restart
+        // killed them. Fail them immediately with a clear note instead of waiting for the
+        // inactivity watchdog (activity newer than our start belongs to another instance).
+        if (!_startupSweepDone)
+        {
+            _startupSweepDone = true;
+            var dead = runs
+                .Where(run => run.Status == AdminAutomationRunStatus.Running &&
+                    run.CompletedOn == null &&
+                    (run.LastResponseOn ?? run.StartedOn) < _instanceStartedOn)
+                .ToArray();
+            foreach (var run in dead)
+            {
+                this.Logger.LogWarning("Automation run {runId} was executing when the service restarted; marking it Failed.", run.Id);
+                run.Status = AdminAutomationRunStatus.Failed;
+                run.CompletedOn = DateTime.UtcNow;
+                run.Note = "The automation service restarted while this run was executing; the run was stopped. Re-run it to start over.";
+                await this.Api.UpdateAutomationRunAsync(run);
+            }
         }
 
         if (this.Options.AbandonedRunInactivityMinutes > 0)
