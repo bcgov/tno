@@ -27,7 +27,7 @@ namespace TNO.Services.Automation.V2;
 /// - lazy named analyses (structured or raw) consumed by actions through value sources;
 /// - declarative property conditions evaluated before any prompt is sent;
 /// - exclusion that stops future work but never discards accumulated changes;
-/// - end-of-run (or per-step) flushing: one fetch + one update + one index per dirty item;
+/// - explicit saving (Save Collection / Save Content Now): one fetch + one update + one index per saved item;
 /// - an always-on decision log (prompts included) flushed incrementally;
 /// - dry runs that compute and log everything but write nothing;
 /// - comparison runs executing two definitions dry and diffing their intended changes.
@@ -218,10 +218,6 @@ public class V2Engine
                     }
                 }
 
-                // Per-step flushing when configured; changes stay visible in-memory either way.
-                var saveMode = step.SaveMode ?? definition.SaveMode;
-                if (saveMode == V2SaveModes.EndOfStep)
-                    await FlushAllAsync(environment, step.Name);
             }
             finally
             {
@@ -236,9 +232,9 @@ public class V2Engine
             }
         }
 
-        // End-of-run flush: everything still dirty (including excluded items - exclusion never
-        // discards changes) plus unsaved drafts.
-        await FlushAllAsync(environment, null);
+        // Nothing auto-saves: whatever is still dirty (or an unsaved draft) was never covered by
+        // a Save Collection / Save Content Now action - surface it rather than silently drop it.
+        ReportUnwritten(environment);
         await runLogger.FlushAsync();
 
         runTimer.Stop();
@@ -265,7 +261,6 @@ public class V2Engine
         Phase = step.Phase,
         IsEnabled = step.IsEnabled,
         Source = step.Source,
-        SaveMode = step.SaveMode,
         LlmId = step.LlmId,
         Analyses = step.Analyses,
         Actions = actions,
@@ -998,6 +993,38 @@ public class V2Engine
                     LogExecuted($"Prepared draft {draft.TempKey} as {action.As}.");
                     break;
                 }
+            case "collection.save":
+                {
+                    if (string.IsNullOrWhiteSpace(action.FromCollection)) break;
+                    List<V2ContentEntry> items;
+                    lock (env.Context.Sync) items = env.Context.GetCollection(action.FromCollection!).ToList();
+                    // Only items with something to write: dirty deltas or unsaved drafts.
+                    var dirtyKeys = env.Context.GetFlushables().Select(e => e.Key).ToHashSet();
+                    var toSave = items.Where(e => dirtyKeys.Contains(e.Key)).ToList();
+                    var saved = 0;
+                    foreach (var entry in toSave)
+                    {
+                        if (env.IsDryRun)
+                        {
+                            env.Log.LogDecision(step.Name, actionName, action.Type, entry.Kind == "existing" ? entry.Id : null, V2Outcomes.Flushed, $"Dry run: {entry.Key} would be saved.");
+                            saved++;
+                            continue;
+                        }
+                        try
+                        {
+                            await FlushEntryAsync(entry, env, step.Name, index: true);
+                            saved++;
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Failed to save {key}.", entry.Key);
+                            lock (env.Summary.FlushFailures) env.Summary.FlushFailures.Add($"{entry.Key}: {ex.Message}");
+                            env.Log.LogDecision(step.Name, actionName, action.Type, entry.Kind == "existing" ? entry.Id : null, V2Outcomes.Failed, $"Save failed; changes were not written: {ex.Message}");
+                        }
+                    }
+                    LogExecuted($"Saved {saved} of {items.Count} item(s) from {action.FromCollection} ({items.Count - toSave.Count} unchanged).");
+                    break;
+                }
             case "content.save":
                 {
                     var saveTarget = target ?? subject;
@@ -1294,36 +1321,18 @@ public class V2Engine
 
     #region Flushing
     /// <summary>
-    /// Flush every dirty entry and unsaved draft: one fetch + one update + one index per item,
-    /// however many steps touched it. On a dry run the intended writes are logged instead.
+    /// Report every entry still dirty (or an unsaved draft) at the end of the run: nothing
+    /// auto-saves, so anything not covered by a Save Collection / Save Content Now action is
+    /// surfaced in the log and summary instead of being silently dropped.
     /// </summary>
-    private async Task FlushAllAsync(V2Environment env, string? stepName)
+    private static void ReportUnwritten(V2Environment env)
     {
-        var flushables = env.Context.GetFlushables();
-        foreach (var entry in flushables)
+        foreach (var entry in env.Context.GetFlushables())
         {
-            if (env.IsDryRun)
-            {
-                string description;
-                lock (entry.Deltas)
-                {
-                    description = entry.Kind == "draft"
-                        ? $"Dry run: draft {entry.TempKey} would be created ({entry.Digest.Count} field(s), {entry.Deltas.Fields.Count} delta(s), status: {entry.Deltas.Status ?? "draft"})."
-                        : $"Dry run: content {entry.Id} would be updated ({entry.Deltas.Fields.Count} field(s), {entry.Deltas.Tags.Count} tag(s){(entry.Deltas.Sentiment.HasValue ? ", sentiment" : "")}{(entry.Deltas.Status != null ? $", {entry.Deltas.Status}" : "")}).";
-                }
-                env.Log.LogDecision(stepName ?? "flush", null, null, entry.Kind == "existing" ? entry.Id : null, V2Outcomes.Flushed, description);
-                continue;
-            }
-            try
-            {
-                await FlushEntryAsync(entry, env, stepName ?? "flush", index: true);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to flush {key}.", entry.Key);
-                lock (env.Summary.FlushFailures) env.Summary.FlushFailures.Add($"{entry.Key}: {ex.Message}");
-                env.Log.LogDecision(stepName ?? "flush", null, null, entry.Kind == "existing" ? entry.Id : null, V2Outcomes.Failed, $"Flush failed; changes were not written: {ex.Message}");
-            }
+            var reference = entry.Kind == "draft" ? entry.TempKey ?? entry.Key : entry.Id.ToString();
+            lock (env.Summary.FlushFailures)
+                env.Summary.FlushFailures.Add($"{reference}: changes were not saved - no Save Collection or Save Content Now action covered this item.");
+            env.Log.LogDecision("end-of-run", null, null, entry.Kind == "existing" ? entry.Id : null, V2Outcomes.Skipped, $"{entry.Key}: accumulated changes were never saved (add a Save Collection action).");
         }
     }
 

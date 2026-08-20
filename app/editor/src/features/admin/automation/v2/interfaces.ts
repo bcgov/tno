@@ -10,8 +10,6 @@ export interface IV2PromptEntry {
 export interface IV2Definition {
   /** The prompt library: named entries shared via prompt refs. */
   prompts: Record<string, IV2PromptEntry>;
-  /** When accumulated content changes flush: 'end-of-run' (default) or 'end-of-step'. */
-  saveMode: string;
   steps: IV2Step[];
 }
 
@@ -23,8 +21,6 @@ export interface IV2Step {
   isEnabled: boolean;
   /** Where a process step's content comes from; required for 'process', absent otherwise. */
   source?: IV2Source;
-  /** Optional flush-mode override for this step. */
-  saveMode?: string | null;
   llmId?: number | null;
   analyses: IV2Analysis[];
   actions: IV2Action[];

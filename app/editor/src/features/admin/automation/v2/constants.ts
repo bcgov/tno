@@ -16,16 +16,6 @@ export const v2PhaseOptions: IOptionItem[] = [
   createOption('complete', 'complete'),
 ];
 
-export const v2SaveModeOptions: IOptionItem[] = [
-  createOption('end-of-run', 'end-of-run'),
-  createOption('end-of-step', 'end-of-step'),
-];
-
-export const v2StepSaveModeOptions: IOptionItem[] = [
-  createOption('profile default', ''),
-  ...v2SaveModeOptions,
-];
-
 export const v2SourceOptions: IOptionItem[] = [
   createOption('collection', 'collection'),
   createOption('filter', 'filter'),
@@ -88,7 +78,6 @@ export const createDefaultV2Action = (type = 'content.update'): IV2Action => ({
 
 export const createDefaultV2Definition = (): IV2Definition => ({
   prompts: {},
-  saveMode: 'end-of-run',
   steps: [
     {
       ...createDefaultV2Step('init'),
@@ -133,7 +122,6 @@ export const parseV2Definition = (json?: string | null): IV2Definition => {
       prompts: Object.fromEntries(
         Object.entries(parsed.prompts ?? {}).map(([name, value]) => [name, toPromptEntry(value)]),
       ),
-      saveMode: parsed.saveMode ?? 'end-of-run',
       steps: (parsed.steps ?? []).map((step) => ({
         ...step,
         isEnabled: step.isEnabled ?? true,

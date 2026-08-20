@@ -132,13 +132,18 @@ public static class V2ActionCatalog
             new V2FieldSpec("into", "collection", true),
         },
             Description: "Writes the items present in BOTH 'from' and 'with' into the 'into' collection."),
+        new V2ActionDescriptor("collection.save", "Save Collection", "collection", false, false, false, _once, new[]
+        {
+            new V2FieldSpec("from", "collection", true, "The collection whose items are written to the database."),
+        },
+            Description: "Writes every changed item of the 'from' collection to the database - accumulated field changes update existing items and drafts are created. Changes not covered by a Save Collection or Save Content Now action are never written."),
         new V2ActionDescriptor("content.update", "Update Content Field", "content", true, false, false, _process, new[]
         {
             new V2FieldSpec("field", "contentField", true),
             new V2FieldSpec("value", "valueSource", true),
             new V2FieldSpec("target", "draft", false, "A draft created by an earlier Create Content action in this step; leave empty for the original item."),
         },
-            Description: "Sets one property on the item's working copy. 'field' picks the property, 'value' supplies it (an analysis result, a literal, or a template), and 'target' redirects the write to a draft (a new content item produced by an earlier Create Content action in this step) instead of the original item. Changes are written when the save mode flushes."),
+            Description: "Sets one property on the item's working copy. 'field' picks the property, 'value' supplies it (an analysis result, a literal, or a template), and 'target' redirects the write to a draft (a new content item produced by an earlier Create Content action in this step) instead of the original item. Changes are written when the item is saved (a Save Collection or Save Content Now action)."),
         new V2ActionDescriptor("content.tags", "Add Tags", "content", true, false, false, _process, new[]
         {
             new V2FieldSpec("value", "valueSource", true, "Tag codes (array or comma-separated)."),
@@ -167,12 +172,12 @@ public static class V2ActionCatalog
         {
             new V2FieldSpec("target", "draft", false, "A draft created by an earlier Create Content action in this step; leave empty for the original item."),
         },
-            Description: "Marks the working copy as published; the status change is written when the save mode flushes. 'target' publishes a draft (a new content item produced by an earlier Create Content action in this step) instead of the original item."),
+            Description: "Marks the working copy as published; the status change is written when the item is saved (a Save Collection or Save Content Now action). 'target' publishes a draft (a new content item produced by an earlier Create Content action in this step) instead of the original item."),
         new V2ActionDescriptor("content.unpublish", "Unpublish Content", "content", true, false, false, _process, new[]
         {
             new V2FieldSpec("target", "draft", false, "A draft created by an earlier Create Content action in this step; leave empty for the original item."),
         },
-            Description: "Marks the working copy as unpublished; the status change is written when the save mode flushes. 'target' unpublishes a draft (a new content item produced by an earlier Create Content action in this step) instead of the original item."),
+            Description: "Marks the working copy as unpublished; the status change is written when the item is saved (a Save Collection or Save Content Now action). 'target' unpublishes a draft (a new content item produced by an earlier Create Content action in this step) instead of the original item."),
         new V2ActionDescriptor("content.create", "Create Content", "content", true, false, false, _process, new[]
         {
             new V2FieldSpec("as", "draft", true, "The draft name later actions target (e.g. $item.digest)."),
@@ -186,7 +191,7 @@ public static class V2ActionCatalog
             new V2FieldSpec("target", "draft", false, "A draft created by an earlier Create Content action in this step; leave empty for the original item."),
             new V2FieldSpec("index", "bool", false, "Send the indexing message (default true)."),
         },
-            Description: "Writes the working copy (or the draft named by 'target' - a new content item produced by an earlier Create Content action in this step) to the database immediately instead of waiting for the save-mode flush. 'index' controls whether the search-index message is sent (default true)."),
+            Description: "Writes the working copy (or the draft named by 'target' - a new content item produced by an earlier Create Content action in this step) to the database immediately instead of waiting for a Save Collection action. 'index' controls whether the search-index message is sent (default true)."),
         new V2ActionDescriptor("exclude", "Exclude From Run", "flow", true, false, false, _process, new[]
         {
             new V2FieldSpec("reason", "string", false),

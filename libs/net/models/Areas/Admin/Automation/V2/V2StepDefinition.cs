@@ -36,10 +36,6 @@ public class V2StepDefinition
     /// </summary>
     public V2SourceDefinition? Source { get; set; }
 
-    /// <summary>
-    /// get/set - Optional flush-mode override for this step ('end-of-run' or 'end-of-step').
-    /// </summary>
-    public string? SaveMode { get; set; }
 
     /// <summary>
     /// get/set - Optional LLM override for this step's analyses.

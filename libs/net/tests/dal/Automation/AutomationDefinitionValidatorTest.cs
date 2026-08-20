@@ -235,7 +235,6 @@ public class AutomationDefinitionValidatorTest
         var definition = ValidDefinition();
         var reparsed = AutomationDefinition.Parse(definition.ToJson());
         Assert.Equal(definition.Steps.Count, reparsed.Steps.Count);
-        Assert.Equal(definition.SaveMode, reparsed.SaveMode);
         Assert.Equal("triage", reparsed.Steps[1].Analyses[0].Name);
         Assert.Equal(100, reparsed.Steps[1].Actions[0].When!.Value!.Value.GetInt32());
         Assert.Empty(AutomationDefinitionValidator.Validate(reparsed).Where(e => e.Severity == "error"));

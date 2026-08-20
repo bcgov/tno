@@ -237,7 +237,6 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
           <span className="v2-gc-phase">Phase</span>
           <span className="v2-gc-source">Source</span>
           <span className="v2-gc-count">Actions</span>
-          <span className="v2-gc-save">Save Mode</span>
           <span className="v2-gc-enabled">Enabled</span>
           <span className="v2-gc-actions">
             <button
@@ -288,9 +287,6 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                           </span>
                           <span className="v2-gc-source">{sourceLabel(step)}</span>
                           <span className="v2-gc-count">{step.actions.length}</span>
-                          <span className="v2-gc-save">
-                            {step.phase !== 'init' ? step.saveMode ?? definition.saveMode : '—'}
-                          </span>
                           <span className="v2-gc-enabled">{step.isEnabled ? 'Yes' : 'No'}</span>
                           <span className="v2-gc-actions">
                             <button

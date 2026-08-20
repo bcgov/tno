@@ -18,12 +18,6 @@ public class AutomationDefinition
     /// </summary>
     public Dictionary<string, V2PromptEntry> Prompts { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
-    /// <summary>
-    /// get/set - When accumulated content changes are written to the database:
-    /// 'end-of-run' (default; one update+index per dirty item) or 'end-of-step'.
-    /// Steps may override.
-    /// </summary>
-    public string SaveMode { get; set; } = V2SaveModes.EndOfRun;
 
     /// <summary>
     /// get/set - The ordered steps of the profile, grouped by lifecycle phase
@@ -134,16 +128,6 @@ public static class V2Phases
     public const string Process = "process";
     public const string Complete = "complete";
     public static readonly string[] All = { Init, Process, Complete };
-}
-
-/// <summary>
-/// The flush modes for accumulated content changes.
-/// </summary>
-public static class V2SaveModes
-{
-    public const string EndOfRun = "end-of-run";
-    public const string EndOfStep = "end-of-step";
-    public static readonly string[] All = { EndOfRun, EndOfStep };
 }
 
 /// <summary>

@@ -131,6 +131,33 @@ public static class AutomationProfileV2Migrator
         definition.Steps.Add(init);
         definition.Steps.AddRange(processSteps);
         definition.Steps.AddRange(completeSteps);
+
+        // Nothing auto-saves in v2: a final step writes every collection the definition produced,
+        // preserving v1's persist-everything behaviour.
+        var produced = definition.Steps
+            .SelectMany(st => st.Actions)
+            .Select(a => a.Into)
+            .Where(name => !string.IsNullOrWhiteSpace(name))
+            .Concat(definition.Steps.Select(st => st.Source?.Collection).Where(name => !string.IsNullOrWhiteSpace(name)))
+            .Select(name => name!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        if (produced.Count > 0)
+        {
+            var save = new V2StepDefinition
+            {
+                Name = "Save Changes",
+                Phase = V2Phases.Complete,
+                IsEnabled = true,
+                // Complete steps require a source; save actions are once-per-step, so the
+                // iteration is a no-op.
+                Source = new V2SourceDefinition { From = "collection", Collection = produced[0] },
+            };
+            foreach (var name in produced)
+                save.Actions.Add(new V2ActionDefinition { Type = "collection.save", Name = $"save {name}", FromCollection = name, IsEnabled = true });
+            definition.Steps.Add(save);
+            warnings.Add("Added a final 'Save Changes' step: v2 only writes changes through Save Collection actions, so every produced collection is saved to match v1's behaviour.");
+        }
         return new V2MigrationResult(definition, warnings);
     }
 

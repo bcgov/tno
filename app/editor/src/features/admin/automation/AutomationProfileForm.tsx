@@ -96,7 +96,6 @@ import {
   parseV2RunSummary,
   RunLogViewer,
   serializeV2Definition,
-  v2SaveModeOptions,
   V2Designer,
   V2FilterField,
   V2RunOutcome,
@@ -1126,27 +1125,6 @@ const AutomationProfileForm: React.FC = () => {
                           }}
                           isClearable={false}
                         />
-                        <Show visible={values.schemaVersion >= 2}>
-                          <Select
-                            width={FieldSize.Small}
-                            name="definition-save-mode"
-                            label="Save Mode"
-                            isClearable={false}
-                            options={v2SaveModeOptions}
-                            value={
-                              findOptionByValue(
-                                v2SaveModeOptions,
-                                parseV2Definition(values.definition).saveMode,
-                              ) ?? ''
-                            }
-                            onChange={(newValue) => {
-                              const option = newValue as IOptionItem;
-                              const definition = parseV2Definition(values.definition);
-                              definition.saveMode = `${option?.value ?? 'end-of-run'}`;
-                              setFieldValue('definition', serializeV2Definition(definition));
-                            }}
-                          />
-                        </Show>
                         <div className="checkbox-inline">
                           <FormikCheckbox
                             labelPosition={LabelPosition.Right}

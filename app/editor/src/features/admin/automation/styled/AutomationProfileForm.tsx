@@ -1094,10 +1094,6 @@ export const AutomationModalStyles = createGlobalStyle`
     width: 5rem;
     flex: 0 0 auto;
   }
-  .v2-gc-save {
-    width: 7rem;
-    flex: 0 0 auto;
-  }
   .v2-gc-enabled {
     width: 5rem;
     flex: 0 0 auto;

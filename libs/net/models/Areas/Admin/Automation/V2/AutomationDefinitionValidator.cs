@@ -26,8 +26,6 @@ public static class AutomationDefinitionValidator
     {
         var errors = new List<V2ValidationError>();
 
-        if (!V2SaveModes.All.Contains(definition.SaveMode))
-            errors.Add(new("saveMode", $"Save mode '{definition.SaveMode}' is not one of: {string.Join(", ", V2SaveModes.All)}."));
         if (definition.Steps.Count == 0)
             errors.Add(new("steps", "The definition has no steps."));
 
@@ -62,8 +60,6 @@ public static class AutomationDefinitionValidator
                 errors.Add(new($"{stepPath}.phase", $"A '{step.Phase}' step cannot follow a '{V2Phases.All[lastPhaseRank]}' step; order steps init → process → complete."));
             lastPhaseRank = Math.Max(lastPhaseRank, phaseRank);
 
-            if (step.SaveMode != null && !V2SaveModes.All.Contains(step.SaveMode))
-                errors.Add(new($"{stepPath}.saveMode", $"Save mode '{step.SaveMode}' is not one of: {string.Join(", ", V2SaveModes.All)}."));
 
             // Source rules per phase: process requires a source, complete may declare one (and
             // then iterates it like a process step), init never has one.
@@ -143,8 +139,8 @@ public static class AutomationDefinitionValidator
                     errors.Add(new($"{path}.type", $"Action '{action.Type}' is not valid in a '{step.Phase}' step (allowed: {string.Join(", ", descriptor.Phases)})."));
                 if (descriptor.RequiresSubject && !iterates)
                     errors.Add(new($"{path}.type", $"Action '{action.Type}' requires an iterated item and can only appear in a process step, or a complete step that declares a source."));
-                if (descriptor.RequiresPersistedId && sourceIsDraftCollection && EffectiveSaveMode(definition, step) == V2SaveModes.EndOfRun)
-                    errors.Add(new($"{path}.type", $"Action '{action.Type}' requires persisted ids, but the step iterates a draft collection under end-of-run saving; set the creating step's saveMode to end-of-step."));
+                if (descriptor.RequiresPersistedId && sourceIsDraftCollection)
+                    errors.Add(new($"{path}.type", $"Action '{action.Type}' requires persisted ids; make sure the drafts are saved (Save Content Now or a Save Collection action) before this step runs.", "warning"));
 
                 // Required fields per the descriptor.
                 foreach (var field in descriptor.Fields.Where(f => f.Required))
@@ -234,8 +230,6 @@ public static class AutomationDefinitionValidator
         return errors;
     }
 
-    private static string EffectiveSaveMode(AutomationDefinition definition, V2StepDefinition step)
-        => step.SaveMode ?? definition.SaveMode;
 
     private static void ValidateCollectionName(string name, string path, List<V2ValidationError> errors)
     {

@@ -2,12 +2,7 @@ import React from 'react';
 import { Checkbox, Col, type IOptionItem, Row, Select, Show, Text, TextArea } from 'tno-core';
 
 import { createOption, findOptionByValue, toNumberOrUndefined } from '../utils';
-import {
-  fitSelectWidth,
-  v2PhaseOptions,
-  v2SourceOptions,
-  v2StepSaveModeOptions,
-} from './constants';
+import { fitSelectWidth, v2PhaseOptions, v2SourceOptions } from './constants';
 import { type IV2Step } from './interfaces';
 import { V2FilterField } from './V2FilterField';
 import { V2ScopedNameField } from './V2ScopedNameField';
@@ -23,7 +18,7 @@ export interface IV2StepEditorProps {
 /**
  * The step settings form (shown in the step modal), per the design:
  * - Name / Phase / Enabled;
- * - Save Mode / LLM Override (not for init - init only gathers);
+ * - LLM Override (not for init - init only gathers);
  * - Description;
  * - Source and the include/exclude gate filters (process, and complete - a complete step that
  *   declares a source iterates it; leaving the source unset runs it once).
@@ -79,18 +74,6 @@ export const V2StepEditor: React.FC<IV2StepEditorProps> = ({
       </Row>
       <Show visible={!isInit}>
         <Row gap="1rem" alignItems="flex-end" nowrap>
-          <Select
-            name="step-save-mode"
-            label="Save Mode"
-            width={fitSelectWidth(['profile default', 'end-of-run', 'end-of-step'])}
-            isClearable={false}
-            options={v2StepSaveModeOptions}
-            value={findOptionByValue(v2StepSaveModeOptions, step.saveMode ?? '')}
-            onChange={(newValue) => {
-              const option = newValue as IOptionItem;
-              set({ saveMode: option?.value ? `${option.value}` : null });
-            }}
-          />
           <Select
             name="step-llm"
             label="LLM Override"
