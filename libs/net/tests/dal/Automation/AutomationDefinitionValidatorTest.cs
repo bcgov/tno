@@ -201,6 +201,18 @@ public class AutomationDefinitionValidatorTest
     }
 
     [Fact]
+    public void DuplicateDraftName_IsAnError()
+    {
+        // Two creates with the same 'as' would leave later references pointing at only the last
+        // draft while the first still persists as an orphan.
+        var definition = ValidDefinition();
+        definition.Steps[1].Actions.Add(new V2ActionDefinition { Type = "content.create", As = "$item.digest" });
+        definition.Steps[1].Actions.Add(new V2ActionDefinition { Type = "content.create", As = "$item.digest" });
+        var errors = AutomationDefinitionValidator.Validate(definition);
+        Assert.Contains(errors, e => e.Severity == "error" && e.Message.Contains("already created"));
+    }
+
+    [Fact]
     public void DefinitionRoundTrip_PreservesShape()
     {
         var definition = ValidDefinition();

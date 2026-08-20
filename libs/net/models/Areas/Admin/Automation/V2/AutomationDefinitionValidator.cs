@@ -202,7 +202,8 @@ public static class AutomationDefinitionValidator
                 {
                     if (!action.As!.StartsWith("$item.", StringComparison.OrdinalIgnoreCase))
                         errors.Add(new($"{path}.as", "A draft name must start with '$item.' (drafts are scoped to the iteration)."));
-                    else drafts.Add(action.As!);
+                    else if (!drafts.Add(action.As!))
+                        errors.Add(new($"{path}.as", $"Draft name '{action.As}' is already created by an earlier action in this step; later references would only see the last one."));
                 }
                 if (!string.IsNullOrWhiteSpace(action.Target) && !drafts.Contains(action.Target!))
                     errors.Add(new($"{path}.target", $"Draft '{action.Target}' is not created by an earlier content.create in this step."));
