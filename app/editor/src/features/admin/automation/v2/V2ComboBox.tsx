@@ -36,6 +36,14 @@ const ComboBoxWrapper = styled.div<{ $width?: string }>`
     background-color: ${(props) => props.theme.css.inputBackgroundColor};
     border-color: #606060;
   }
+
+  /* Single-line control: long placeholders/values never wrap the control taller. */
+  .rs__placeholder,
+  .rs__single-value {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 `;
 
 export interface IV2ComboBoxProps {
@@ -80,7 +88,13 @@ export const V2ComboBox: React.FC<IV2ComboBoxProps> = ({
         inputValue={inputValue}
         isClearable={false}
         menuPortalTarget={document.body}
-        styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+        styles={{
+          menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+          // The menu is portaled, so wrapper CSS can't reach it: options stay on one line and
+          // the menu grows to fit them instead of wrapping inside the control's width.
+          menu: (base) => ({ ...base, width: 'max-content', minWidth: '100%' }),
+          option: (base) => ({ ...base, whiteSpace: 'nowrap' }),
+        }}
         formatCreateLabel={(text) => `Use "${text}"`}
         onInputChange={(text, meta) => {
           if (meta.action === 'input-change') setInputValue(text);

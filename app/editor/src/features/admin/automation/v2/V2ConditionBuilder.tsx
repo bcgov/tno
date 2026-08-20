@@ -144,7 +144,7 @@ export const V2ConditionBuilder: React.FC<IV2ConditionBuilderProps> = ({
         <Show visible={shape === 'from'}>
           <V2ComboBox
             name={`condition-from-${depth}`}
-            placeholder="analysisName.key (a boolean result)"
+            placeholder="analysisName.key"
             width="14rem"
             suggestions={fromSuggestions}
             value={value.from ?? ''}
