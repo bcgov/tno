@@ -86,6 +86,12 @@ public static class V2ActionCatalog
             new V2FieldSpec("item", "item", false, "The original item (default), or a draft created by an earlier Create Content action in this step."),
         },
             Description: "Moves the current item out of the 'from' collection and into the 'into' collection. 'item' picks what moves: the original item (default) or a draft - a new content item produced by an earlier Create Content action in this step."),
+        new V2ActionDescriptor("collection.copy", "Copy Collection", "collection", false, false, false, _once, new[]
+        {
+            new V2FieldSpec("from", "collection", true, "The collection whose items are copied; it is unchanged."),
+            new V2FieldSpec("into", "collection", true, "The destination collection - an existing one or a new name."),
+        },
+            Description: "Copies every item of the 'from' collection into the 'into' collection - an existing collection or a new name typed into the field. Items already in the destination are skipped, and the source is unchanged."),
         new V2ActionDescriptor("collection.filter", "Filter Collection", "collection", false, false, false, _once, new[]
         {
             new V2FieldSpec("from", "collection", true),

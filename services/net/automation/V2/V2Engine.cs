@@ -884,6 +884,25 @@ public class V2Engine
                     }
                     break;
                 }
+            case "collection.copy":
+                {
+                    if (string.IsNullOrWhiteSpace(action.FromCollection) || string.IsNullOrWhiteSpace(action.Into)) break;
+                    lock (env.Context.Sync)
+                    {
+                        var from = env.Context.GetCollection(action.FromCollection!);
+                        var into = env.Context.GetCollection(action.Into!);
+                        var have = into.Select(e => e.Key).ToHashSet();
+                        var added = 0;
+                        foreach (var entry in from)
+                        {
+                            if (!have.Add(entry.Key)) continue;
+                            into.Add(entry);
+                            added++;
+                        }
+                        LogExecuted($"Copied {added} of {from.Count} item(s) from {action.FromCollection} into {action.Into} ({from.Count - added} already present); {action.Into} now has {into.Count}.");
+                    }
+                    break;
+                }
             case "content.update":
                 {
                     if (target == null || string.IsNullOrWhiteSpace(action.Field) || string.IsNullOrWhiteSpace(value)) break;
