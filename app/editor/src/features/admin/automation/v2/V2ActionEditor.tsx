@@ -611,7 +611,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <Select
             name="action-analysis"
             label="Against analysis"
-            width={fitSelectWidth(analysisNames)}
+            width={fitSelectWidth(analysisNames, '', 4, 18)}
             options={analysisOptions}
             value={findOptionByValue(analysisOptions, action.analysis) ?? ''}
             onChange={(newValue) => {

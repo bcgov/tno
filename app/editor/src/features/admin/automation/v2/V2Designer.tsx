@@ -856,7 +856,7 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                 setActionModal(null);
               }}
             >
-              {actionModal?.index != null ? 'Save' : 'Add'}
+              {actionModal?.index != null ? 'Done' : 'Add'}
             </Button>
           </Row>
         }
