@@ -1092,17 +1092,17 @@ public class AutomationController : ControllerBase
     }
 
     /// <summary>
-    /// Validate a v2 profile definition at save. Returns a 400 result carrying the error list when
-    /// the definition is invalid, or null when the save may proceed (warnings do not block).
+    /// Validate a v2 profile definition at save. Only malformed JSON blocks the save - a
+    /// work-in-progress definition with validation errors persists as a draft (the findings
+    /// panel and the run-time guard in the automation service cover invalid definitions).
     /// </summary>
     private IActionResult? ValidateDefinition(AutomationProfileModel model)
     {
         if (model.SchemaVersion < 2 || string.IsNullOrWhiteSpace(model.Definition)) return null;
         try
         {
-            var definition = AutomationDefinition.Parse(model.Definition!);
-            var errors = AutomationDefinitionValidator.Validate(definition).Where(e => e.Severity == "error").ToArray();
-            return errors.Length > 0 ? BadRequest(new { errors }) : null;
+            AutomationDefinition.Parse(model.Definition!);
+            return null;
         }
         catch (System.Text.Json.JsonException ex)
         {

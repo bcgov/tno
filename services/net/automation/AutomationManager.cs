@@ -363,6 +363,15 @@ public class AutomationManager : ServiceManager<AutomationOptions>
                 // Schema version 2: the definition-document engine (run context, collections,
                 // phases, analyses, always-on decision log, dry runs). v1 profiles keep executing
                 // on the code path below until they are migrated.
+                // Drafts persist with validation errors; runs must not execute one.
+                var parsed = TNO.API.Areas.Admin.Models.Automation.V2.AutomationDefinition.Parse(profile.Definition!);
+                var invalid = TNO.API.Areas.Admin.Models.Automation.V2.AutomationDefinitionValidator.Validate(parsed)
+                    .Where(e => e.Severity == "error")
+                    .ToArray();
+                if (invalid.Length > 0)
+                    throw new InvalidOperationException(
+                        $"The definition is invalid and cannot run ({invalid.Length} error(s)): " +
+                        string.Join("; ", invalid.Take(5).Select(e => $"{e.Path}: {e.Message}")));
                 var engine = new V2.V2Engine(this.Api, _elasticClient, _elasticOptions, this.Options, this.Logger);
                 var v2Summary = await engine.ExecuteAsync(profile, run);
                 run.Status = AdminAutomationRunStatus.Completed;
