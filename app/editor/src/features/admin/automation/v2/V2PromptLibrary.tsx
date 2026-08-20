@@ -373,7 +373,7 @@ export const V2PromptLibrary: React.FC<IV2PromptLibraryProps> = ({ definition, o
             <Button variant={ButtonVariant.secondary} onClick={() => setDraft(null)}>
               Cancel
             </Button>
-            <Button onClick={save}>Save</Button>
+            <Button onClick={save}>{draft?.originalName != null ? 'Done' : 'Add'}</Button>
           </Row>
         }
       />
