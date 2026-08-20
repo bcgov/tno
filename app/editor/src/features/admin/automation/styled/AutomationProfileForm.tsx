@@ -1456,13 +1456,11 @@ export const AutomationModalStyles = createGlobalStyle`
       gap: 0.75rem;
       padding: 0.35rem 0.75rem;
 
-      /* Strip the fields' wrapper padding and equalize control heights so the Key input and
-         Type combobox align exactly; the grid row owns the spacing. */
+      /* Strip the fields' wrapper padding so the Key input and Type combobox align; their
+         natural control heights already match. (No input height rules here - react-select's
+         search input is also type=text and inflates the control.) */
       .frm-in {
         padding: 0;
-      }
-      input[type='text'] {
-        height: 2.375rem;
       }
     }
     .v2-returns-add,

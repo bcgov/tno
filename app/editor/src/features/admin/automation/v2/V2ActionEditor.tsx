@@ -100,7 +100,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
         .map(([key]) => `${analysis.name}.${key}`),
     );
   const promptOptions = promptNames.map((name) => createOption(name, name));
-  const subjectOption = createOption('The subject ($item)', '$item');
+  const subjectOption = createOption('original item', '$item');
   const draftOptions = draftNames.map((name) => createOption(name.replace(/^\$item\./, ''), name));
   const gate = getGate(action);
 
