@@ -7,6 +7,7 @@ export * from './V2AnalysisEditor';
 export * from './V2ComboBox';
 export * from './V2ConditionBuilder';
 export * from './V2Designer';
+export * from './V2FieldsPicker';
 export * from './V2FilterField';
 export * from './V2PromptLibrary';
 export * from './V2RunOutcome';

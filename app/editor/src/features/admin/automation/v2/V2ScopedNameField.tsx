@@ -53,12 +53,14 @@ export const V2ScopedNameField: React.FC<IV2ScopedNameFieldProps> = ({
 
   if (allowNew)
     return (
-      <Col gap="0.25rem">
+      <Col gap="0.25rem" className="v2-scoped-name">
         <label htmlFor={`sel-${name}`}>{label}</label>
         <V2ComboBox
           name={name}
           placeholder={placeholder}
-          width={fitSelectWidth(bareNames, placeholder)}
+          // extraCh covers the clear indicator; the floor keeps empty-suggestion fields
+          // (e.g. 'as (new draft)') wide enough to type a name into.
+          width={fitSelectWidth(bareNames, placeholder, 4, 24)}
           isClearable
           suggestions={bareNames}
           value={toBare(value, scope)}

@@ -3,7 +3,7 @@ import { Checkbox, Col, type IOptionItem, Row, Select, Show, Text } from 'tno-co
 
 import { contentFieldOptionItems } from '../constants';
 import { createOption, findOptionByValue, toNumberOrUndefined } from '../utils';
-import { fitSelectWidth } from './constants';
+import { fitSelectWidth, v2ContentFieldOptions } from './constants';
 import {
   type IV2Action,
   type IV2ActionDescriptor,
@@ -11,6 +11,7 @@ import {
   type IV2FieldSpec,
 } from './interfaces';
 import { V2ConditionBuilder } from './V2ConditionBuilder';
+import { V2FieldsPicker } from './V2FieldsPicker';
 import { V2FilterField } from './V2FilterField';
 import { V2ScopedNameField } from './V2ScopedNameField';
 import { V2ValueSourceEditor } from './V2ValueSourceEditor';
@@ -318,20 +319,21 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
         const current = (action as unknown as Record<string, unknown>)[field.name] as
           | string[]
           | undefined;
+        // 'copyFields' -> 'Copy fields'.
+        const fieldsLabel = field.name
+          .replace(/([A-Z])/g, ' $1')
+          .toLowerCase()
+          .replace(/^./, (c) => c.toUpperCase());
         return (
-          <Text
+          <V2FieldsPicker
             key={key}
             name={key}
-            label={`${field.name} (comma-separated)`}
-            width="30rem"
-            value={(current ?? []).join(', ')}
-            onChange={(e) => {
-              const list = e.target.value
-                .split(',')
-                .map((item) => item.trim())
-                .filter((item) => item.length > 0);
-              set({ [field.name]: list.length > 0 ? list : null } as Partial<IV2Action>);
-            }}
+            label={fieldsLabel}
+            values={current ?? []}
+            suggestions={v2ContentFieldOptions.map((option) => `${option.value}`)}
+            onChange={(list) =>
+              set({ [field.name]: list.length > 0 ? list : null } as Partial<IV2Action>)
+            }
           />
         );
       }
@@ -587,7 +589,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
         <p className="v2-config-hint">Pick an action to configure it.</p>
       </Show>
       <Show visible={!!descriptor}>
-        <Row className="v2-action-fields" gap="0.5rem" alignItems="flex-end">
+        <Row className="v2-action-fields" gap="1rem" alignItems="flex-start">
           {descriptor?.fields.map((field) => renderField(field))}
         </Row>
       </Show>

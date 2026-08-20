@@ -1407,6 +1407,48 @@ export const AutomationModalStyles = createGlobalStyle`
     font-size: 0.85rem;
     text-align: left;
   }
+  /* Config fields top-align so a field's help line never pushes its neighbours down;
+     help wraps under its own field instead of widening the column. */
+  .v2-action-fields .v2-field-help {
+    max-width: 16rem;
+  }
+  /* Hand-rolled field labels match the global .frm-in label styling. */
+  .v2-scoped-name > label,
+  .v2-fields-picker > label {
+    font-weight: bold;
+  }
+  .v2-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    max-width: 24rem;
+  }
+  .v2-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: #f2f4f7;
+    border: 1px solid #d0d5dd;
+    border-radius: 999px;
+    padding: 0.1rem 0.6rem;
+    font-size: 0.85rem;
+
+    button {
+      border: none;
+      background: #667085;
+      color: #fff;
+      border-radius: 50%;
+      width: 0.95rem;
+      height: 0.95rem;
+      line-height: 1;
+      font-size: 0.7rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+    }
+  }
   .v2-condition-children {
     margin-left: 0.35rem;
     padding: 0.5rem 0.75rem;
