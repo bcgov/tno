@@ -1093,7 +1093,7 @@ public class V2Engine
                         }
                         try
                         {
-                            await FlushEntryAsync(entry, env, step.Name, index: true);
+                            await FlushEntryAsync(entry, env, step.Name, action.Index ?? true);
                             saved++;
                         }
                         catch (Exception ex)

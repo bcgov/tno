@@ -141,8 +141,9 @@ public static class V2ActionCatalog
         new V2ActionDescriptor("collection.save", "Save Collection", "collection", false, false, false, _once, new[]
         {
             new V2FieldSpec("from", "collection", true, "The collection whose items are written to the database."),
+            new V2FieldSpec("index", "bool", false, "Send the indexing message so Elasticsearch gets the saved content (default true)."),
         },
-            Description: "Writes every changed item of the 'from' collection to the database - accumulated field changes update existing items and drafts are created. Changes not covered by a Save Collection or Save Content Now action are never written."),
+            Description: "Writes every changed item of the 'from' collection to the database - accumulated field changes update existing items and drafts are created. 'index' sends the search-index message for each saved item (default true) so Elasticsearch receives the changes. Changes not covered by a Save Collection or Save Content Now action are never written."),
         new V2ActionDescriptor("content.update", "Update Content Field", "content", true, false, false, _process, new[]
         {
             new V2FieldSpec("field", "contentField", true),
