@@ -19,7 +19,8 @@ const AutomationProfileList: React.FC = () => {
 
   React.useEffect(() => {
     api.findProfiles().then((profiles) => {
-      setItems(profiles);
+      // This page only works with v2 profiles; anything older is invisible here.
+      setItems(profiles.filter((profile) => profile.schemaVersion >= 2));
     });
   }, [api]);
 
@@ -28,8 +29,8 @@ const AutomationProfileList: React.FC = () => {
       <FormPage>
         <Row className="add-media" justifyContent="flex-end">
           <Col flex="1 1 0">
-            Configure structured automation profiles with filters, ordered steps, and ordered
-            actions.
+            Configure automation profiles with shared prompts and phased steps: init runs once,
+            process runs per item, complete runs after all steps.
           </Col>
           <IconButton
             iconType="plus"
@@ -56,7 +57,7 @@ const AutomationProfileList: React.FC = () => {
             onClick={async () => {
               if (!selected) return;
               const result = await api.runProfile(selected.id, defaultRunRequest);
-              toast.success(`Automation run ${result.id} completed with status ${result.status}.`);
+              toast.success(`Automation run #${result.id} started.`);
             }}
           >
             Run Automation

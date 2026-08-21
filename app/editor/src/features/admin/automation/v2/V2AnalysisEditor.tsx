@@ -1,6 +1,16 @@
 import React from 'react';
 import { FaPlus, FaTrash } from 'react-icons/fa';
-import { Checkbox, Col, type IOptionItem, Row, Select, Show, Text, TextArea } from 'tno-core';
+import {
+  Checkbox,
+  Col,
+  type IOptionItem,
+  Row,
+  Select,
+  Show,
+  Text,
+  TextArea,
+  Wysiwyg,
+} from 'tno-core';
 
 import { createOption, findOptionByValue, toNumberOrUndefined } from '../utils';
 import { fitSelectWidth } from './constants';
@@ -113,15 +123,12 @@ export const V2AnalysisEditor: React.FC<IV2AnalysisEditorProps> = ({
         />
       </Show>
       <Show visible={!!analysis.prompt?.ref}>
-        <TextArea
+        <Wysiwyg
+          className="modal-wysiwyg"
           name="analysis-prompt-override"
           label="Prompt Override"
-          rows={4}
-          placeholder="Text layered onto the shared prompt for this step only"
           value={analysis.prompt?.override ?? ''}
-          onChange={(e) =>
-            set({ prompt: { ...analysis.prompt, override: e.target.value || null } })
-          }
+          onChange={(text) => set({ prompt: { ...analysis.prompt, override: text || null } })}
         />
       </Show>
       <Show visible={!analysis.raw}>

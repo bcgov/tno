@@ -3,14 +3,15 @@ import { FaTrash } from 'react-icons/fa';
 import { CellCheckbox, CellEllipsis, type ITableHookColumn } from 'tno-core';
 
 import { type IAutomationProfileModel, type IAutomationRunModel } from '../interfaces';
+// Imported from the module, not the ../v2 barrel: the barrel pulls in components that import
+// ../constants, which would cycle back into this file.
+import { parseV2Definition } from '../v2/constants';
 
 const formatRunDate = (value?: string): string =>
   value ? moment(value).format('YYYY-MM-DD HH:mm:ss') : '-';
 
-const getStepCount = (profile: IAutomationProfileModel): number => {
-  const legacyProfile = profile as IAutomationProfileModel & { rules?: unknown[] };
-  return legacyProfile.steps?.length ?? legacyProfile.rules?.length ?? 0;
-};
+const getStepCount = (profile: IAutomationProfileModel): number =>
+  parseV2Definition(profile.definition).steps.length;
 
 export const columns: Array<ITableHookColumn<IAutomationProfileModel>> = [
   {
