@@ -444,9 +444,21 @@ public class AutomationController : ControllerBase
         var changes = new List<string>();
         if (run == null) return (responses, changes);
 
-        // Responses: dedicated table first.
+        // Responses: dedicated table first (v1 runs).
         foreach (var r in _runResponseService.FindByRun(run.Id).Where(r => r.ContentId == contentId))
             responses.Add((r.StepName, r.ActionName, r.Response));
+
+        // v2 runs record their per-item trace in the decision log instead.
+        if (responses.Count == 0)
+        {
+            var (logs, _) = _runLogService.FindByRun(run.Id, contentId: contentId, qty: 300);
+            foreach (var l in logs)
+            {
+                var text = (l.Response ?? "").Trim();
+                if (text.Length > 400) text = text[..400] + "…";
+                responses.Add((l.StepName, l.ActionName ?? l.AnalysisName, $"{l.Outcome}{(text.Length > 0 ? $": {text}" : "")}"));
+            }
+        }
 
         if (string.IsNullOrWhiteSpace(run.Summary)) return (responses, changes);
         try
@@ -468,7 +480,13 @@ public class AutomationController : ControllerBase
             {
                 foreach (var c in chs.EnumerateArray())
                 {
-                    if (!c.TryGetProperty("contentId", out var cid) || !cid.TryGetInt64(out var v) || v != contentId) continue;
+                    // v1 summaries carry 'contentId' (number); v2 summaries 'contentRef' (string).
+                    var matches = c.TryGetProperty("contentId", out var cid) && cid.TryGetInt64(out var v) && v == contentId;
+                    if (!matches && c.TryGetProperty("contentRef", out var cref)
+                        && cref.ValueKind == System.Text.Json.JsonValueKind.String
+                        && cref.GetString() == contentId.ToString())
+                        matches = true;
+                    if (!matches) continue;
                     var type = c.TryGetProperty("type", out var t) ? t.GetString() : "";
                     var field = c.TryGetProperty("field", out var f) && f.ValueKind == System.Text.Json.JsonValueKind.String ? f.GetString() : null;
                     var value = c.TryGetProperty("value", out var val) && val.ValueKind == System.Text.Json.JsonValueKind.String ? val.GetString() : null;
