@@ -95,6 +95,18 @@ public class FilterSettingsModel
     public int? DateOffset { get; set; }
 
     /// <summary>
+    /// get/set - Exclude stories whose body has fewer characters than this (evaluated at search
+    /// time via a runtime field; no reindex).
+    /// </summary>
+    public int? MinBodyLength { get; set; }
+
+    /// <summary>
+    /// get/set - Exclude stories whose body has fewer words than this (evaluated at search time
+    /// via a runtime field; no reindex).
+    /// </summary>
+    public int? MinBodyWords { get; set; }
+
+    /// <summary>
     /// get/set - Filter content with this edition.
     /// </summary>
     public string? Edition { get; set; }
