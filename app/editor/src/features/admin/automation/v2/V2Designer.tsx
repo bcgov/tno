@@ -96,6 +96,15 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
   const [findings, setFindings] = React.useState<IV2ValidationError[] | null>(null);
   const [stepModal, setStepModal] = React.useState<IStepModalState | null>(null);
   const [actionModal, setActionModal] = React.useState<IActionModalState | null>(null);
+  // Collapsed page sections.
+  const [collapsedSections, setCollapsedSections] = React.useState<Set<string>>(new Set());
+  const toggleSection = (name: string) =>
+    setCollapsedSections((previous) => {
+      const next = new Set(previous);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
   // Collapsed step groups, keyed by group name (all runs of the name collapse together).
   const [collapsedGroups, setCollapsedGroups] = React.useState<Set<string>>(new Set());
   const toggleGroup = (name: string) =>
@@ -212,13 +221,41 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
   return (
     <Col className="v2-designer" gap="0.5rem">
       <Row className="section-header" nowrap>
-        <h2>Prompt Library</h2>
+        <Row className="section-header-title" nowrap>
+          <button
+            type="button"
+            className="rule-icon-button"
+            aria-expanded={!collapsedSections.has('prompts')}
+            aria-label="Toggle the Prompt Library section"
+            title={collapsedSections.has('prompts') ? 'Expand' : 'Collapse'}
+            onClick={() => toggleSection('prompts')}
+          >
+            {collapsedSections.has('prompts') ? <FaChevronRight /> : <FaChevronDown />}
+          </button>
+          <h2 className="v2-section-toggle" onClick={() => toggleSection('prompts')}>
+            Prompt Library
+          </h2>
+        </Row>
       </Row>
-      <V2PromptLibrary definition={definition} onChange={update} />
+      <Show visible={!collapsedSections.has('prompts')}>
+        <V2PromptLibrary definition={definition} onChange={update} />
+      </Show>
 
       <Row className="section-header" nowrap>
         <Row className="section-header-title" nowrap>
-          <h2>Steps</h2>
+          <button
+            type="button"
+            className="rule-icon-button"
+            aria-expanded={!collapsedSections.has('steps')}
+            aria-label="Toggle the Steps section"
+            title={collapsedSections.has('steps') ? 'Expand' : 'Collapse'}
+            onClick={() => toggleSection('steps')}
+          >
+            {collapsedSections.has('steps') ? <FaChevronRight /> : <FaChevronDown />}
+          </button>
+          <h2 className="v2-section-toggle" onClick={() => toggleSection('steps')}>
+            Steps
+          </h2>
           <SectionInfoButton
             title="Steps"
             content={
@@ -231,199 +268,317 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
           />
         </Row>
       </Row>
-      <p className="section-help-text">
-        Init steps run once before iteration; each process step iterates its declared source;
-        complete steps run once after. Drag rows to reorder within a phase.
-        <br />
-        <span className="help-accent">
-          An analysis executes at most once per item, and only when a consuming action is reachable
-          — actions gated by a property condition send no prompt.
-        </span>
-      </p>
-      <div className="v2-grid">
-        <Row className="v2-grid-header" nowrap>
-          <span className="v2-gc-drag" />
-          <span className="v2-gc-collapse">
-            <button
-              type="button"
-              className="rule-icon-button"
-              aria-label={anyExpanded ? 'Collapse all steps' : 'Expand all steps'}
-              title={anyExpanded ? 'Collapse all steps' : 'Expand all steps'}
-              onClick={() =>
-                setExpanded(
-                  anyExpanded ? new Set() : new Set(definition.steps.map((_, index) => index)),
-                )
-              }
-            >
-              {anyExpanded ? <FaChevronDown /> : <FaChevronRight />}
-            </button>
+      <Show visible={!collapsedSections.has('steps')}>
+        <p className="section-help-text">
+          Init steps run once before iteration; each process step iterates its declared source;
+          complete steps run once after. Drag rows to reorder within a phase.
+          <br />
+          <span className="help-accent">
+            An analysis executes at most once per item, and only when a consuming action is
+            reachable — actions gated by a property condition send no prompt.
           </span>
-          <span className="v2-gc-name">Step Name</span>
-          <span className="v2-gc-phase">Phase</span>
-          <span className="v2-gc-source">Source</span>
-          <span className="v2-gc-count">Actions</span>
-          <span className="v2-gc-enabled">Enabled</span>
-          <span className="v2-gc-actions">
-            <button
-              type="button"
-              className="rule-icon-button"
-              aria-label="Add a step"
-              title="Add a step"
-              onClick={() => setStepModal({ index: null, draft: createDefaultV2Step('process') })}
-            >
-              <FaPlus />
-            </button>
-          </span>
-        </Row>
-        <DragDropContextAny onDragEnd={onDragEnd}>
-          <DroppableAny droppableId="v2-steps" type="v2-steps">
-            {(provided: any) => (
-              <div ref={provided.innerRef} {...provided.droppableProps}>
-                {definition.steps.map((step, index) => (
-                  <DraggableAny key={`step-${index}`} draggableId={`step-${index}`} index={index}>
-                    {(dragProvided: any, dragSnapshot: any) => (
-                      <div
-                        className={`v2-grid-item${dragSnapshot.isDragging ? ' is-dragging' : ''}${
-                          step.group ? ' v2-grouped' : ''
-                        }`}
-                        ref={dragProvided.innerRef}
-                        {...dragProvided.draggableProps}
-                      >
-                        {!!step.group &&
-                          step.group !== definition.steps[index - 1]?.group &&
-                          !dragSnapshot.isDragging && (
-                            <button
-                              type="button"
-                              className="v2-group-band"
-                              aria-expanded={!collapsedGroups.has(step.group)}
-                              title={
-                                collapsedGroups.has(step.group)
-                                  ? 'Expand this group'
-                                  : 'Collapse this group'
-                              }
-                              onClick={() => toggleGroup(step.group!)}
-                            >
-                              {collapsedGroups.has(step.group) ? (
-                                <FaChevronRight />
-                              ) : (
-                                <FaChevronDown />
-                              )}{' '}
-                              {step.group}
-                            </button>
-                          )}
-                        <Show visible={!step.group || !collapsedGroups.has(step.group)}>
-                          <Row className="v2-grid-row" nowrap>
-                            <span
-                              className="v2-gc-drag v2-drag-handle"
-                              title="Drag to reorder"
-                              {...dragProvided.dragHandleProps}
-                            >
-                              <FaGripLines />
-                            </span>
-                            <span className="v2-gc-collapse">
+        </p>
+        <div className="v2-grid">
+          <Row className="v2-grid-header" nowrap>
+            <span className="v2-gc-drag" />
+            <span className="v2-gc-collapse">
+              <button
+                type="button"
+                className="rule-icon-button"
+                aria-label={anyExpanded ? 'Collapse all steps' : 'Expand all steps'}
+                title={anyExpanded ? 'Collapse all steps' : 'Expand all steps'}
+                onClick={() =>
+                  setExpanded(
+                    anyExpanded ? new Set() : new Set(definition.steps.map((_, index) => index)),
+                  )
+                }
+              >
+                {anyExpanded ? <FaChevronDown /> : <FaChevronRight />}
+              </button>
+            </span>
+            <span className="v2-gc-name">Step Name</span>
+            <span className="v2-gc-phase">Phase</span>
+            <span className="v2-gc-source">Source</span>
+            <span className="v2-gc-count">Actions</span>
+            <span className="v2-gc-enabled">Enabled</span>
+            <span className="v2-gc-actions">
+              <button
+                type="button"
+                className="rule-icon-button"
+                aria-label="Add a step"
+                title="Add a step"
+                onClick={() => setStepModal({ index: null, draft: createDefaultV2Step('process') })}
+              >
+                <FaPlus />
+              </button>
+            </span>
+          </Row>
+          <DragDropContextAny onDragEnd={onDragEnd}>
+            <DroppableAny droppableId="v2-steps" type="v2-steps">
+              {(provided: any) => (
+                <div ref={provided.innerRef} {...provided.droppableProps}>
+                  {definition.steps.map((step, index) => (
+                    <DraggableAny key={`step-${index}`} draggableId={`step-${index}`} index={index}>
+                      {(dragProvided: any, dragSnapshot: any) => (
+                        <div
+                          className={`v2-grid-item${dragSnapshot.isDragging ? ' is-dragging' : ''}${
+                            step.group ? ' v2-grouped' : ''
+                          }`}
+                          ref={dragProvided.innerRef}
+                          {...dragProvided.draggableProps}
+                        >
+                          {!!step.group &&
+                            step.group !== definition.steps[index - 1]?.group &&
+                            !dragSnapshot.isDragging && (
                               <button
                                 type="button"
-                                className="rule-icon-button"
-                                aria-label={expanded.has(index) ? 'Collapse' : 'Expand'}
-                                title={expanded.has(index) ? 'Collapse' : 'Expand'}
-                                onClick={() => toggleExpanded(index)}
-                              >
-                                {expanded.has(index) ? <FaChevronDown /> : <FaChevronRight />}
-                              </button>
-                            </span>
-                            <span
-                              className="v2-gc-name v2-step-name-toggle"
-                              role="button"
-                              tabIndex={0}
-                              title={
-                                expanded.has(index) ? 'Collapse this step' : 'Expand this step'
-                              }
-                              onClick={() => toggleExpanded(index)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                  e.preventDefault();
-                                  toggleExpanded(index);
+                                className="v2-group-band"
+                                aria-expanded={!collapsedGroups.has(step.group)}
+                                title={
+                                  collapsedGroups.has(step.group)
+                                    ? 'Expand this group'
+                                    : 'Collapse this group'
                                 }
-                              }}
-                            >
-                              {step.name || '(unnamed step)'}
-                            </span>
-                            <span className="v2-gc-phase">
-                              <span className={`v2-badge v2-phase-${step.phase}`}>
-                                {step.phase}
+                                onClick={() => toggleGroup(step.group!)}
+                              >
+                                {collapsedGroups.has(step.group) ? (
+                                  <FaChevronRight />
+                                ) : (
+                                  <FaChevronDown />
+                                )}{' '}
+                                {step.group}
+                              </button>
+                            )}
+                          <Show visible={!step.group || !collapsedGroups.has(step.group)}>
+                            <Row className="v2-grid-row" nowrap>
+                              <span
+                                className="v2-gc-drag v2-drag-handle"
+                                title="Drag to reorder"
+                                {...dragProvided.dragHandleProps}
+                              >
+                                <FaGripLines />
                               </span>
-                            </span>
-                            <span className="v2-gc-source">{sourceLabel(step)}</span>
-                            <span className="v2-gc-count">{step.actions.length}</span>
-                            <span className="v2-gc-enabled">
-                              <input
-                                type="checkbox"
-                                className="v2-enabled-toggle"
-                                aria-label={`Step '${step.name}' enabled`}
-                                title="Toggle this step"
-                                checked={step.isEnabled}
-                                onChange={(e) =>
-                                  setStep(index, { ...step, isEnabled: e.target.checked })
+                              <span className="v2-gc-collapse">
+                                <button
+                                  type="button"
+                                  className="rule-icon-button"
+                                  aria-label={expanded.has(index) ? 'Collapse' : 'Expand'}
+                                  title={expanded.has(index) ? 'Collapse' : 'Expand'}
+                                  onClick={() => toggleExpanded(index)}
+                                >
+                                  {expanded.has(index) ? <FaChevronDown /> : <FaChevronRight />}
+                                </button>
+                              </span>
+                              <span
+                                className="v2-gc-name v2-step-name-toggle"
+                                role="button"
+                                tabIndex={0}
+                                title={
+                                  expanded.has(index) ? 'Collapse this step' : 'Expand this step'
                                 }
-                              />
-                            </span>
-                            <span className="v2-gc-actions">
-                              <button
-                                type="button"
-                                className="rule-icon-button"
-                                aria-label={`Edit step '${step.name}'`}
-                                title="Edit step"
-                                onClick={() => setStepModal({ index, draft: deepCopy(step) })}
+                                onClick={() => toggleExpanded(index)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    toggleExpanded(index);
+                                  }
+                                }}
                               >
-                                <FaEdit />
-                              </button>
-                              <button
-                                type="button"
-                                className="rule-icon-button"
-                                aria-label={`Duplicate step '${step.name}'`}
-                                title="Duplicate step"
-                                onClick={() => duplicateStep(index)}
-                              >
-                                <FaCopy />
-                              </button>
-                              <button
-                                type="button"
-                                className="rule-icon-button delete"
-                                aria-label={`Delete step '${step.name}'`}
-                                title="Delete step"
-                                onClick={() =>
-                                  update({
-                                    ...definition,
-                                    steps: definition.steps.filter((_, i) => i !== index),
-                                  })
-                                }
-                              >
-                                <FaTrash />
-                              </button>
-                            </span>
-                          </Row>
-                          <Show visible={expanded.has(index)}>
-                            <div className="v2-grid-expanded">
-                              <Show visible={step.phase !== 'init'}>
+                                {step.name || '(unnamed step)'}
+                              </span>
+                              <span className="v2-gc-phase">
+                                <span className={`v2-badge v2-phase-${step.phase}`}>
+                                  {step.phase}
+                                </span>
+                              </span>
+                              <span className="v2-gc-source">{sourceLabel(step)}</span>
+                              <span className="v2-gc-count">{step.actions.length}</span>
+                              <span className="v2-gc-enabled">
+                                <input
+                                  type="checkbox"
+                                  className="v2-enabled-toggle"
+                                  aria-label={`Step '${step.name}' enabled`}
+                                  title="Toggle this step"
+                                  checked={step.isEnabled}
+                                  onChange={(e) =>
+                                    setStep(index, { ...step, isEnabled: e.target.checked })
+                                  }
+                                />
+                              </span>
+                              <span className="v2-gc-actions">
+                                <button
+                                  type="button"
+                                  className="rule-icon-button"
+                                  aria-label={`Edit step '${step.name}'`}
+                                  title="Edit step"
+                                  onClick={() => setStepModal({ index, draft: deepCopy(step) })}
+                                >
+                                  <FaEdit />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="rule-icon-button"
+                                  aria-label={`Duplicate step '${step.name}'`}
+                                  title="Duplicate step"
+                                  onClick={() => duplicateStep(index)}
+                                >
+                                  <FaCopy />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="rule-icon-button delete"
+                                  aria-label={`Delete step '${step.name}'`}
+                                  title="Delete step"
+                                  onClick={() =>
+                                    update({
+                                      ...definition,
+                                      steps: definition.steps.filter((_, i) => i !== index),
+                                    })
+                                  }
+                                >
+                                  <FaTrash />
+                                </button>
+                              </span>
+                            </Row>
+                            <Show visible={expanded.has(index)}>
+                              <div className="v2-grid-expanded">
+                                <Show visible={step.phase !== 'init'}>
+                                  <div className="v2-grid v2-subgrid">
+                                    <Row className="v2-grid-header" nowrap>
+                                      <span className="v2-gc-drag" />
+                                      <span className="v2-gc-name">Analysis</span>
+                                      <span className="v2-gc-source">Prompt</span>
+                                      <span className="v2-gc-sm">Chain</span>
+                                      <span className="v2-gc-sm">LLM Override</span>
+                                      <span className="v2-gc-sm">Returns</span>
+                                      <span className="v2-gc-actions">
+                                        <button
+                                          type="button"
+                                          className="rule-icon-button"
+                                          aria-label="Add an analysis"
+                                          title="Add an analysis"
+                                          onClick={() =>
+                                            setAnalysisModal({
+                                              stepIndex: index,
+                                              index: null,
+                                              draft: {
+                                                name: '',
+                                                prompt: { text: '' },
+                                                returns: {},
+                                              },
+                                            })
+                                          }
+                                        >
+                                          <FaPlus />
+                                        </button>
+                                      </span>
+                                    </Row>
+                                    <Show visible={step.analyses.length === 0}>
+                                      <Row className="v2-grid-row" nowrap>
+                                        <span className="v2-muted">
+                                          No analyses — actions gated by property conditions run
+                                          without any LLM call.
+                                        </span>
+                                      </Row>
+                                    </Show>
+                                    {step.analyses.map((analysis, analysisIndex) => (
+                                      <Row
+                                        key={analysisIndex}
+                                        className={`v2-grid-row${
+                                          analysisIndex % 2 ? ' v2-row-even' : ''
+                                        }`}
+                                        nowrap
+                                      >
+                                        <span className="v2-gc-drag v2-gc-icon">
+                                          <FaFlask />
+                                        </span>
+                                        <span className="v2-gc-name">{analysis.name}</span>
+                                        <span className="v2-gc-source">
+                                          {analysis.prompt?.ref ? (
+                                            <>
+                                              <span className="v2-prompt-name">
+                                                {analysis.prompt.ref}
+                                              </span>
+                                              {analysis.prompt.override ? (
+                                                <span className="v2-override-note">
+                                                  {' '}
+                                                  + override
+                                                </span>
+                                              ) : null}
+                                            </>
+                                          ) : (
+                                            <span className="v2-muted">(inline text)</span>
+                                          )}
+                                        </span>
+                                        <span className="v2-gc-sm">
+                                          {analysis.chain ?? <span className="v2-muted">—</span>}
+                                        </span>
+                                        <span className="v2-gc-sm">
+                                          {findOptionByValue(llmOptions, analysis.llmId)?.label ?? (
+                                            <span className="v2-muted">step default</span>
+                                          )}
+                                        </span>
+                                        <span className="v2-gc-sm">
+                                          {analysis.raw ? 'Raw response' : 'Configured fields'}
+                                        </span>
+                                        <span className="v2-gc-actions">
+                                          <button
+                                            type="button"
+                                            className="rule-icon-button"
+                                            aria-label={`Edit analysis '${analysis.name}'`}
+                                            title="Edit analysis"
+                                            onClick={() =>
+                                              setAnalysisModal({
+                                                stepIndex: index,
+                                                index: analysisIndex,
+                                                draft: deepCopy(analysis),
+                                              })
+                                            }
+                                          >
+                                            <FaEdit />
+                                          </button>
+                                          <button
+                                            type="button"
+                                            className="rule-icon-button delete"
+                                            aria-label={`Delete analysis '${analysis.name}'`}
+                                            title="Delete analysis"
+                                            onClick={() =>
+                                              setStep(index, {
+                                                ...step,
+                                                analyses: step.analyses.filter(
+                                                  (_, i) => i !== analysisIndex,
+                                                ),
+                                              })
+                                            }
+                                          >
+                                            <FaTrash />
+                                          </button>
+                                        </span>
+                                      </Row>
+                                    ))}
+                                  </div>
+                                </Show>
+
                                 <div className="v2-grid v2-subgrid">
                                   <Row className="v2-grid-header" nowrap>
                                     <span className="v2-gc-drag" />
-                                    <span className="v2-gc-name">Analysis</span>
-                                    <span className="v2-gc-source">Prompt</span>
-                                    <span className="v2-gc-sm">Chain</span>
-                                    <span className="v2-gc-sm">LLM Override</span>
-                                    <span className="v2-gc-sm">Returns</span>
+                                    <span className="v2-gc-name">Name</span>
+                                    <span className="v2-gc-source">Action Type</span>
+                                    <span className="v2-gc-sm">Runs When</span>
+                                    <span className="v2-gc-name">Filter</span>
+                                    <span className="v2-gc-name">Into Collection</span>
+                                    <span className="v2-gc-on">Enabled</span>
                                     <span className="v2-gc-actions">
                                       <button
                                         type="button"
                                         className="rule-icon-button"
-                                        aria-label="Add an analysis"
-                                        title="Add an analysis"
+                                        aria-label="Add an action"
+                                        title="Add an action"
                                         onClick={() =>
-                                          setAnalysisModal({
+                                          setActionModal({
                                             stepIndex: index,
                                             index: null,
-                                            draft: { name: '', prompt: { text: '' }, returns: {} },
+                                            draft: createDefaultV2Action(''),
                                           })
                                         }
                                       >
@@ -431,264 +586,160 @@ export const V2Designer: React.FC<IV2DesignerProps> = ({
                                       </button>
                                     </span>
                                   </Row>
-                                  <Show visible={step.analyses.length === 0}>
-                                    <Row className="v2-grid-row" nowrap>
-                                      <span className="v2-muted">
-                                        No analyses — actions gated by property conditions run
-                                        without any LLM call.
-                                      </span>
-                                    </Row>
-                                  </Show>
-                                  {step.analyses.map((analysis, analysisIndex) => (
-                                    <Row
-                                      key={analysisIndex}
-                                      className={`v2-grid-row${
-                                        analysisIndex % 2 ? ' v2-row-even' : ''
-                                      }`}
-                                      nowrap
-                                    >
-                                      <span className="v2-gc-drag v2-gc-icon">
-                                        <FaFlask />
-                                      </span>
-                                      <span className="v2-gc-name">{analysis.name}</span>
-                                      <span className="v2-gc-source">
-                                        {analysis.prompt?.ref ? (
-                                          <>
-                                            <span className="v2-prompt-name">
-                                              {analysis.prompt.ref}
-                                            </span>
-                                            {analysis.prompt.override ? (
-                                              <span className="v2-override-note"> + override</span>
-                                            ) : null}
-                                          </>
-                                        ) : (
-                                          <span className="v2-muted">(inline text)</span>
-                                        )}
-                                      </span>
-                                      <span className="v2-gc-sm">
-                                        {analysis.chain ?? <span className="v2-muted">—</span>}
-                                      </span>
-                                      <span className="v2-gc-sm">
-                                        {findOptionByValue(llmOptions, analysis.llmId)?.label ?? (
-                                          <span className="v2-muted">step default</span>
-                                        )}
-                                      </span>
-                                      <span className="v2-gc-sm">
-                                        {analysis.raw ? 'Raw response' : 'Configured fields'}
-                                      </span>
-                                      <span className="v2-gc-actions">
-                                        <button
-                                          type="button"
-                                          className="rule-icon-button"
-                                          aria-label={`Edit analysis '${analysis.name}'`}
-                                          title="Edit analysis"
-                                          onClick={() =>
-                                            setAnalysisModal({
-                                              stepIndex: index,
-                                              index: analysisIndex,
-                                              draft: deepCopy(analysis),
-                                            })
-                                          }
-                                        >
-                                          <FaEdit />
-                                        </button>
-                                        <button
-                                          type="button"
-                                          className="rule-icon-button delete"
-                                          aria-label={`Delete analysis '${analysis.name}'`}
-                                          title="Delete analysis"
-                                          onClick={() =>
-                                            setStep(index, {
-                                              ...step,
-                                              analyses: step.analyses.filter(
-                                                (_, i) => i !== analysisIndex,
-                                              ),
-                                            })
-                                          }
-                                        >
-                                          <FaTrash />
-                                        </button>
-                                      </span>
-                                    </Row>
-                                  ))}
-                                </div>
-                              </Show>
-
-                              <div className="v2-grid v2-subgrid">
-                                <Row className="v2-grid-header" nowrap>
-                                  <span className="v2-gc-drag" />
-                                  <span className="v2-gc-name">Name</span>
-                                  <span className="v2-gc-source">Action Type</span>
-                                  <span className="v2-gc-sm">Runs When</span>
-                                  <span className="v2-gc-name">Filter</span>
-                                  <span className="v2-gc-name">Into Collection</span>
-                                  <span className="v2-gc-on">Enabled</span>
-                                  <span className="v2-gc-actions">
-                                    <button
-                                      type="button"
-                                      className="rule-icon-button"
-                                      aria-label="Add an action"
-                                      title="Add an action"
-                                      onClick={() =>
-                                        setActionModal({
-                                          stepIndex: index,
-                                          index: null,
-                                          draft: createDefaultV2Action(''),
-                                        })
-                                      }
-                                    >
-                                      <FaPlus />
-                                    </button>
-                                  </span>
-                                </Row>
-                                <DroppableAny
-                                  droppableId={`v2-actions-${index}`}
-                                  type={`v2-actions-${index}`}
-                                >
-                                  {(actionsProvided: any) => (
-                                    <div
-                                      ref={actionsProvided.innerRef}
-                                      {...actionsProvided.droppableProps}
-                                    >
-                                      {step.actions.map((action, actionIndex) => (
-                                        <DraggableAny
-                                          key={`action-${index}-${actionIndex}`}
-                                          draggableId={`action-${index}-${actionIndex}`}
-                                          index={actionIndex}
-                                        >
-                                          {(actionDrag: any, actionSnapshot: any) => (
-                                            <div
-                                              className={
-                                                actionSnapshot.isDragging
-                                                  ? 'is-dragging'
-                                                  : undefined
-                                              }
-                                              ref={actionDrag.innerRef}
-                                              {...actionDrag.draggableProps}
-                                            >
-                                              <Row
-                                                className={`v2-grid-row${
-                                                  actionIndex % 2 ? ' v2-row-even' : ''
-                                                }`}
-                                                nowrap
+                                  <DroppableAny
+                                    droppableId={`v2-actions-${index}`}
+                                    type={`v2-actions-${index}`}
+                                  >
+                                    {(actionsProvided: any) => (
+                                      <div
+                                        ref={actionsProvided.innerRef}
+                                        {...actionsProvided.droppableProps}
+                                      >
+                                        {step.actions.map((action, actionIndex) => (
+                                          <DraggableAny
+                                            key={`action-${index}-${actionIndex}`}
+                                            draggableId={`action-${index}-${actionIndex}`}
+                                            index={actionIndex}
+                                          >
+                                            {(actionDrag: any, actionSnapshot: any) => (
+                                              <div
+                                                className={
+                                                  actionSnapshot.isDragging
+                                                    ? 'is-dragging'
+                                                    : undefined
+                                                }
+                                                ref={actionDrag.innerRef}
+                                                {...actionDrag.draggableProps}
                                               >
-                                                <span
-                                                  className="v2-gc-drag v2-drag-handle"
-                                                  title="Drag to reorder"
-                                                  {...actionDrag.dragHandleProps}
+                                                <Row
+                                                  className={`v2-grid-row${
+                                                    actionIndex % 2 ? ' v2-row-even' : ''
+                                                  }`}
+                                                  nowrap
                                                 >
-                                                  <FaGripLines />
-                                                </span>
-                                                <span className="v2-gc-name">
-                                                  {action.name ?? typeLabel(action.type)}
-                                                </span>
-                                                <span className="v2-gc-source">
-                                                  <span className="v2-prompt-name">
-                                                    {action.type}
+                                                  <span
+                                                    className="v2-gc-drag v2-drag-handle"
+                                                    title="Drag to reorder"
+                                                    {...actionDrag.dragHandleProps}
+                                                  >
+                                                    <FaGripLines />
                                                   </span>
-                                                </span>
-                                                <span className="v2-gc-sm">
-                                                  {runsWhenLabel(action)}
-                                                </span>
-                                                <span className="v2-gc-name">
-                                                  {action.filter != null ? (
-                                                    findOptionByValue(filterOptions, action.filter)
-                                                      ?.label ?? `filter ${action.filter}`
-                                                  ) : (
-                                                    <span className="v2-muted">—</span>
-                                                  )}
-                                                </span>
-                                                <span className="v2-gc-name">
-                                                  {action.into ? (
+                                                  <span className="v2-gc-name">
+                                                    {action.name ?? typeLabel(action.type)}
+                                                  </span>
+                                                  <span className="v2-gc-source">
                                                     <span className="v2-prompt-name">
-                                                      {action.into}
+                                                      {action.type}
                                                     </span>
-                                                  ) : (
-                                                    <span className="v2-muted">—</span>
-                                                  )}
-                                                </span>
-                                                <span className="v2-gc-on">
-                                                  <input
-                                                    type="checkbox"
-                                                    className="v2-enabled-toggle"
-                                                    aria-label={`Action '${
-                                                      action.name ?? action.type
-                                                    }' enabled`}
-                                                    title="Toggle this action"
-                                                    checked={action.isEnabled}
-                                                    onChange={(e) =>
-                                                      setStep(index, {
-                                                        ...step,
-                                                        actions: step.actions.map((a, i) =>
-                                                          i === actionIndex
-                                                            ? { ...a, isEnabled: e.target.checked }
-                                                            : a,
-                                                        ),
-                                                      })
-                                                    }
-                                                  />
-                                                </span>
-                                                <span className="v2-gc-actions">
-                                                  <button
-                                                    type="button"
-                                                    className="rule-icon-button"
-                                                    aria-label="Edit action"
-                                                    title="Edit action"
-                                                    onClick={() =>
-                                                      setActionModal({
-                                                        stepIndex: index,
-                                                        index: actionIndex,
-                                                        draft: deepCopy(action),
-                                                      })
-                                                    }
-                                                  >
-                                                    <FaEdit />
-                                                  </button>
-                                                  <button
-                                                    type="button"
-                                                    className="rule-icon-button delete"
-                                                    aria-label="Delete action"
-                                                    title="Delete action"
-                                                    onClick={() =>
-                                                      setStep(index, {
-                                                        ...step,
-                                                        actions: step.actions.filter(
-                                                          (_, i) => i !== actionIndex,
-                                                        ),
-                                                      })
-                                                    }
-                                                  >
-                                                    <FaTrash />
-                                                  </button>
-                                                </span>
-                                              </Row>
-                                            </div>
-                                          )}
-                                        </DraggableAny>
-                                      ))}
-                                      {actionsProvided.placeholder}
-                                    </div>
-                                  )}
-                                </DroppableAny>
+                                                  </span>
+                                                  <span className="v2-gc-sm">
+                                                    {runsWhenLabel(action)}
+                                                  </span>
+                                                  <span className="v2-gc-name">
+                                                    {action.filter != null ? (
+                                                      findOptionByValue(
+                                                        filterOptions,
+                                                        action.filter,
+                                                      )?.label ?? `filter ${action.filter}`
+                                                    ) : (
+                                                      <span className="v2-muted">—</span>
+                                                    )}
+                                                  </span>
+                                                  <span className="v2-gc-name">
+                                                    {action.into ? (
+                                                      <span className="v2-prompt-name">
+                                                        {action.into}
+                                                      </span>
+                                                    ) : (
+                                                      <span className="v2-muted">—</span>
+                                                    )}
+                                                  </span>
+                                                  <span className="v2-gc-on">
+                                                    <input
+                                                      type="checkbox"
+                                                      className="v2-enabled-toggle"
+                                                      aria-label={`Action '${
+                                                        action.name ?? action.type
+                                                      }' enabled`}
+                                                      title="Toggle this action"
+                                                      checked={action.isEnabled}
+                                                      onChange={(e) =>
+                                                        setStep(index, {
+                                                          ...step,
+                                                          actions: step.actions.map((a, i) =>
+                                                            i === actionIndex
+                                                              ? {
+                                                                  ...a,
+                                                                  isEnabled: e.target.checked,
+                                                                }
+                                                              : a,
+                                                          ),
+                                                        })
+                                                      }
+                                                    />
+                                                  </span>
+                                                  <span className="v2-gc-actions">
+                                                    <button
+                                                      type="button"
+                                                      className="rule-icon-button"
+                                                      aria-label="Edit action"
+                                                      title="Edit action"
+                                                      onClick={() =>
+                                                        setActionModal({
+                                                          stepIndex: index,
+                                                          index: actionIndex,
+                                                          draft: deepCopy(action),
+                                                        })
+                                                      }
+                                                    >
+                                                      <FaEdit />
+                                                    </button>
+                                                    <button
+                                                      type="button"
+                                                      className="rule-icon-button delete"
+                                                      aria-label="Delete action"
+                                                      title="Delete action"
+                                                      onClick={() =>
+                                                        setStep(index, {
+                                                          ...step,
+                                                          actions: step.actions.filter(
+                                                            (_, i) => i !== actionIndex,
+                                                          ),
+                                                        })
+                                                      }
+                                                    >
+                                                      <FaTrash />
+                                                    </button>
+                                                  </span>
+                                                </Row>
+                                              </div>
+                                            )}
+                                          </DraggableAny>
+                                        ))}
+                                        {actionsProvided.placeholder}
+                                      </div>
+                                    )}
+                                  </DroppableAny>
+                                </div>
                               </div>
-                            </div>
+                            </Show>
                           </Show>
-                        </Show>
-                      </div>
-                    )}
-                  </DraggableAny>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </DroppableAny>
-        </DragDropContextAny>
-        <Show visible={definition.steps.length === 0}>
-          <Row className="v2-grid-row v2-library-empty" nowrap>
-            <span>No steps configured.</span>
-          </Row>
-        </Show>
-      </div>
+                        </div>
+                      )}
+                    </DraggableAny>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </DroppableAny>
+          </DragDropContextAny>
+          <Show visible={definition.steps.length === 0}>
+            <Row className="v2-grid-row v2-library-empty" nowrap>
+              <span>No steps configured.</span>
+            </Row>
+          </Show>
+        </div>
+      </Show>
 
       <Row className="section-header" nowrap>
         <h2>Validation</h2>

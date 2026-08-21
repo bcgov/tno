@@ -231,6 +231,10 @@ export const AutomationProfileForm = styled(FormPage)`
     gap: 0.35rem;
   }
 
+  .v2-section-toggle {
+    cursor: pointer;
+    user-select: none;
+  }
   .section-header-title {
     align-items: center;
     gap: 0.35rem;
