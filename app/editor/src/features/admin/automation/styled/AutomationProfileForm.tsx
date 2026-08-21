@@ -1532,6 +1532,11 @@ export const AutomationModalStyles = createGlobalStyle`
     font-size: 0.85rem;
     text-align: left;
   }
+  /* Set-fields rows top-align so the value source's help line never pushes the field name
+     input down; the remove button nudges down to sit on the control line. */
+  .v2-set-fields-row .rule-icon-button {
+    margin-top: 0.5em;
+  }
   /* Config fields top-align so a field's help line never pushes its neighbours down;
      help wraps under its own field instead of widening the column. */
   .v2-action-fields .v2-field-help {

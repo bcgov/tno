@@ -189,7 +189,7 @@ public static class V2ActionCatalog
         {
             new V2FieldSpec("as", "draft", true, "The draft name later actions target (e.g. $item.digest)."),
             new V2FieldSpec("copyFrom", "item", false, "Copies from the original item; leave empty to start blank."),
-            new V2FieldSpec("copyFields", "fields", false),
+            new V2FieldSpec("copyFields", "fields", false, "Leave empty to copy the defaults: sourceId, otherSource, licenseId, mediaTypeId, publishedOn, contentType. A derived uid is always set."),
             new V2FieldSpec("set", "valueMap", false, "Field values from analysis results, literals, or templates."),
         },
             Description: "Creates a draft: a brand-new content item that later actions in this step target by the name given in 'as'. 'copyFrom' seeds the draft from the original item or leaves it blank; 'copyFields' limits which properties are copied; 'set' fills fields from analysis results, literals, or templates."),

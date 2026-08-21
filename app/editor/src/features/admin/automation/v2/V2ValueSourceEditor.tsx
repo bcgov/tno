@@ -20,7 +20,7 @@ const getKind = (value?: IV2ValueSource | null): ValueKind => {
 };
 
 /** Full explanation of the selected source, shown under the row. */
-const kindHelp: Record<ValueKind, string> = {
+export const kindHelp: Record<ValueKind, string> = {
   from: "Reads a named result: 'analysisName.key' takes the answer from one of this step's analyses (the analysis runs when first used - one LLM call per item); 'content.field' copies a field from the item's working copy, changes included.",
   literal:
     'Applies this exact value to every item. A plain number is stored as a number (e.g. 0); anything else is text.',
@@ -33,6 +33,8 @@ export interface IV2ValueSourceEditorProps {
   value?: IV2ValueSource | null;
   /** 'analysisName.key' / 'content.field' references offered by the from autocomplete. */
   fromSuggestions?: string[];
+  /** Hide the per-row kind help (the caller renders it once for the whole section). */
+  showHelp?: boolean;
   onChange: (value: IV2ValueSource) => void;
 }
 
@@ -44,6 +46,7 @@ export const V2ValueSourceEditor: React.FC<IV2ValueSourceEditorProps> = ({
   name,
   value,
   fromSuggestions = [],
+  showHelp = true,
   onChange,
 }) => {
   const kind = getKind(value);
@@ -105,7 +108,9 @@ export const V2ValueSourceEditor: React.FC<IV2ValueSourceEditorProps> = ({
           />
         </Show>
       </Row>
-      <p className="v2-field-help">{kindHelp[kind]}</p>
+      <Show visible={showHelp}>
+        <p className="v2-field-help">{kindHelp[kind]}</p>
+      </Show>
     </div>
   );
 };

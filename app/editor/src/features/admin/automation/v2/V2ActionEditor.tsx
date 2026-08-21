@@ -16,7 +16,7 @@ import { V2DraftText } from './V2DraftText';
 import { V2FieldsPicker } from './V2FieldsPicker';
 import { V2FilterField } from './V2FilterField';
 import { V2ScopedNameField } from './V2ScopedNameField';
-import { V2ValueSourceEditor } from './V2ValueSourceEditor';
+import { kindHelp, V2ValueSourceEditor } from './V2ValueSourceEditor';
 
 const gateOptions: IOptionItem[] = [
   createOption('Always run', 'always'),
@@ -302,9 +302,19 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
         return (
           <div key={key} className="v2-field-wide frm-in">
             <label>set fields</label>
+            <p className="v2-field-help">
+              Each row sets one field on every item. Analysis result / content field:{' '}
+              {kindHelp.from} Literal value: {kindHelp.literal} Template: {kindHelp.template}
+            </p>
             <Col gap="0.25rem">
               {entries.map(([fieldName, source], index) => (
-                <Row key={index} gap="0.5rem" alignItems="center" nowrap>
+                <Row
+                  key={index}
+                  gap="0.5rem"
+                  alignItems="flex-start"
+                  nowrap
+                  className="v2-set-fields-row"
+                >
                   <Text
                     name={`${key}-field-${index}`}
                     placeholder="field"
@@ -321,6 +331,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
                     name={`${key}-source-${index}`}
                     value={source}
                     fromSuggestions={valueRefs}
+                    showHelp={false}
                     onChange={(next) => {
                       const updated = entries.map(([k, v], i) =>
                         i === index ? ([k, next] as const) : ([k, v] as const),
