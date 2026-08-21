@@ -3034,28 +3034,24 @@ const AutomationProfileForm: React.FC = () => {
                       if (!v2Summary) return null;
                       return (
                         <>
-                          <Row gap="0.5rem" className="v2-run-detail-toggle">
-                            <Button
-                              variant={
-                                runDetailView === 'outcome'
-                                  ? ButtonVariant.primary
-                                  : ButtonVariant.secondary
-                              }
+                          <div className="v2-modal-tabs">
+                            <button
+                              type="button"
+                              className={`v2-modal-tab${
+                                runDetailView === 'outcome' ? ' active' : ''
+                              }`}
                               onClick={() => setRunDetailView('outcome')}
                             >
                               Outcome
-                            </Button>
-                            <Button
-                              variant={
-                                runDetailView === 'log'
-                                  ? ButtonVariant.primary
-                                  : ButtonVariant.secondary
-                              }
+                            </button>
+                            <button
+                              type="button"
+                              className={`v2-modal-tab${runDetailView === 'log' ? ' active' : ''}`}
                               onClick={() => setRunDetailView('log')}
                             >
                               Decision Log
-                            </Button>
-                          </Row>
+                            </button>
+                          </div>
                           <Show visible={runDetailView === 'outcome'}>
                             <V2RunOutcome summary={v2Summary} />
                           </Show>

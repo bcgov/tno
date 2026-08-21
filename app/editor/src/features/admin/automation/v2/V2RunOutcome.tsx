@@ -3,6 +3,20 @@ import { Col, Row, Show } from 'tno-core';
 
 import { type IV2RunSummaryModel, type IV2VariantSummaryModel } from './interfaces';
 
+type V2Change = IV2VariantSummaryModel['changes'][number];
+
+/** Group changes by the content item they apply to, preserving first-seen order. */
+const groupByContent = (changes: V2Change[]): [string, V2Change[]][] => {
+  const map = new Map<string, V2Change[]>();
+  changes.forEach((change) => {
+    const key = change.contentRef || '(run)';
+    const list = map.get(key) ?? [];
+    list.push(change);
+    map.set(key, list);
+  });
+  return Array.from(map.entries());
+};
+
 /** Parse a run's summary JSON when it was produced by the v2 engine; null otherwise. */
 export const parseV2RunSummary = (summary?: string | null): IV2RunSummaryModel | null => {
   if (!summary) return null;
@@ -145,12 +159,14 @@ const VariantOutcome: React.FC<{ variant: IV2VariantSummaryModel; title: string 
       </p>
     </Show>
     <Show visible={variant.flushFailures.length > 0}>
-      <Col className="v2-findings">
-        <label>Unwritten changes (flush failures):</label>
-        {variant.flushFailures.map((failure, index) => (
-          <span key={index}>{failure}</span>
-        ))}
-      </Col>
+      <details className="v2-findings">
+        <summary>Unwritten changes (flush failures) — {variant.flushFailures.length}</summary>
+        <ul className="v2-flush-list">
+          {variant.flushFailures.map((failure, index) => (
+            <li key={index}>{failure}</li>
+          ))}
+        </ul>
+      </details>
     </Show>
     <Show visible={variant.excluded.length > 0}>
       <details>
@@ -177,29 +193,38 @@ const VariantOutcome: React.FC<{ variant: IV2VariantSummaryModel; title: string 
     </Show>
     <Show visible={variant.changes.length > 0}>
       <details>
-        <summary>Changes ({variant.changes.length})</summary>
-        <table className="v2-table">
-          <thead>
-            <tr>
-              <th>Type</th>
-              <th>Content</th>
-              <th>Field</th>
-              <th>Value</th>
-              <th>Step</th>
-            </tr>
-          </thead>
-          <tbody>
-            {variant.changes.slice(0, 500).map((change, index) => (
-              <tr key={index}>
-                <td>{change.type}</td>
-                <td>{change.contentRef}</td>
-                <td>{change.field ?? ''}</td>
-                <td className="v2-cell-clip">{change.value ?? ''}</td>
-                <td>{change.step ?? ''}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <summary>
+          Changes ({variant.changes.length} on{' '}
+          {groupByContent(variant.changes.slice(0, 500)).length} item
+          {groupByContent(variant.changes.slice(0, 500)).length === 1 ? '' : 's'})
+        </summary>
+        {groupByContent(variant.changes.slice(0, 500)).map(([contentRef, items]) => (
+          <details key={contentRef} className="v2-change-group">
+            <summary>
+              Content {contentRef} — {items.length} change{items.length === 1 ? '' : 's'}
+            </summary>
+            <table className="v2-table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Field</th>
+                  <th>Value</th>
+                  <th>Step</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((change, index) => (
+                  <tr key={index}>
+                    <td>{change.type}</td>
+                    <td>{change.field ?? ''}</td>
+                    <td className="v2-cell-clip">{change.value ?? ''}</td>
+                    <td>{change.step ?? ''}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </details>
+        ))}
         <Show visible={variant.changes.length > 500}>
           <p className="v2-field-help">Showing the first 500 of {variant.changes.length}.</p>
         </Show>

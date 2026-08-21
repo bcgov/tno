@@ -1593,6 +1593,31 @@ export const AutomationModalStyles = createGlobalStyle`
       padding: 0;
     }
   }
+  /* Run outcome: per-item change groups and the unwritten-changes list. */
+  .v2-change-group {
+    margin: 0.35rem 0 0.35rem 0.75rem;
+
+    > summary {
+      cursor: pointer;
+      font-weight: 600;
+    }
+  }
+  .v2-flush-list {
+    list-style: none;
+    margin: 0.4rem 0 0;
+    padding: 0;
+
+    li {
+      padding: 0.3rem 0.5rem;
+    }
+    li:nth-child(even) {
+      background: #f2f4f7;
+    }
+  }
+  .v2-findings > summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
   .v2-findings {
     border: 1px solid #fda29b;
     border-radius: 0.35rem;
@@ -1716,6 +1741,45 @@ export const AutomationModalStyles = createGlobalStyle`
     }
   }
 
+  /* Folder tabs inside the run modal, matching the page's gold-underline tab design. */
+  .run-detail-content .v2-modal-tabs {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.25rem;
+    border-bottom: solid 3px #fcba19;
+    margin-bottom: 0.5rem;
+  }
+  .run-detail-content .v2-modal-tab {
+    background: #f2f4f7;
+    border: 1px solid #e4e7ec;
+    border-bottom: none;
+    border-radius: 0.35rem 0.35rem 0 0;
+    padding: 0.4rem 1.2rem;
+    font-weight: 600;
+    color: #1d2939;
+    cursor: pointer;
+
+    &.active {
+      background: #fcba19;
+      border-color: #fcba19;
+    }
+  }
+  /* The log entries wrap instead of forcing the modal wider. */
+  .run-detail-content .v2-log-entry-header {
+    flex-wrap: wrap;
+  }
+  .run-detail-content .v2-log-entry-body pre,
+  .run-detail-content .v2-log-entry-body {
+    max-width: 100%;
+    overflow-x: hidden;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .run-detail-content .v2-log-viewer,
+  .run-detail-content .v2-log-scroll {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
   .run-detail-content .v2-run-detail-toggle {
     margin: 0.5rem 0;
   }
