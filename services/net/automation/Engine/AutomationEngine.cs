@@ -20,7 +20,7 @@ namespace TNO.Services.Automation.Engine;
 
 /// <summary>
 /// AutomationEngine class, executes schema-version-2 automation profiles.
-/// Concepts (see docs/planning/mmi-automation/09-engine-v2.md):
+/// Concepts (see docs/planning/mmi-automation/01-engine.md):
 /// - a run context of named collections holding projected digests plus deltas - never full models;
 /// - lifecycle phases (init → process → complete), each process step declaring its content source;
 /// - the subject rule: every action applies to the item its step iterates;
