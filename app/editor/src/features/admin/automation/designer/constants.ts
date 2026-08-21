@@ -321,7 +321,8 @@ export const CONTENT_TOKENS: { token: string; hint: string }[] = [
 export const contentTokenFieldOptions: IOptionItem[] = CONTENT_TOKENS.filter(({ token }) =>
   token.startsWith('{content.'),
 ).map(({ token }) => {
-  const field = token.replace('{content.', '').replace('}', '');
+  // Strip the '{content.' prefix and the closing '}' ('{content.headline}' -> 'headline').
+  const field = token.slice('{content.'.length, -1);
   return createOption(field, field);
 });
 
