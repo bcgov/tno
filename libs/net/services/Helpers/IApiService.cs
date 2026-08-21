@@ -270,6 +270,7 @@ public interface IApiService
     Task<API.Areas.Services.Models.Content.ContentModel?> FindContentByIdAsync(long id, bool includeUserNotifications = false);
     Task<IEnumerable<API.Areas.Services.Models.Content.ContentLinkModel>> FindContentLinksAsync(long contentId, string? value = null);
     Task<API.Areas.Services.Models.Content.ContentLinkModel?> AddContentLinkAsync(long contentId, long linkId, string value);
+    Task<API.Areas.Services.Models.Contributor.ContributorModel?> AddContributorAsync(string name);
 
     /// <summary>
     /// Make a request to the API to get all notification instances for the specified 'contentId'.

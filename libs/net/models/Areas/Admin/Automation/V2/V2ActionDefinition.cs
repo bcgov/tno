@@ -159,6 +159,12 @@ public class V2ActionDefinition
     public bool? Remember { get; set; }
 
     /// <summary>
+    /// get/set - 'content.contributor': create the contributor when no enabled record matches
+    /// the value (real runs only; dry runs log the intent).
+    /// </summary>
+    public bool? Create { get; set; }
+
+    /// <summary>
     /// get/set - Prompt override for 'dedupe' comparisons.
     /// </summary>
     public V2PromptDefinition? Prompt { get; set; }

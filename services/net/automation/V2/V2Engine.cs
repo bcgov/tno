@@ -950,10 +950,38 @@ public class V2Engine
             case "content.contributor":
                 {
                     if (target == null || string.IsNullOrWhiteSpace(value)) break;
-                    var contributor = FindContributor(value.Trim(), env.Lookups);
+                    var contributorName = value.Trim();
+                    var contributor = FindContributor(contributorName, env.Lookups);
+                    if (contributor == null && env.Context.CreatedContributors.TryGetValue(contributorName, out var runCreated))
+                        contributor = runCreated;
+                    if (contributor == null && action.Create == true)
+                    {
+                        if (env.IsDryRun)
+                        {
+                            RecordChange("select-columnist", target, null, contributorName);
+                            env.Log.LogDecision(step.Name, actionName, action.Type, contentId, V2Outcomes.Executed, $"Dry run: contributor '{Truncate(contributorName, 100)}' would be created and selected.");
+                            break;
+                        }
+                        try
+                        {
+                            var created = await _api.AddContributorAsync(contributorName);
+                            if (created != null)
+                            {
+                                contributor = (created.Id, created.Name);
+                                env.Context.CreatedContributors[contributorName] = contributor.Value;
+                                env.Log.LogDecision(step.Name, actionName, action.Type, contentId, V2Outcomes.Executed, $"Created contributor '{created.Name}' ({created.Id}).");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Failed to create contributor '{name}'.", contributorName);
+                            env.Log.LogDecision(step.Name, actionName, action.Type, contentId, V2Outcomes.Failed, $"Failed to create contributor '{Truncate(contributorName, 100)}': {ex.Message}");
+                            break;
+                        }
+                    }
                     if (contributor == null)
                     {
-                        env.Log.LogDecision(step.Name, actionName, action.Type, contentId, V2Outcomes.Skipped, $"No contributor matched '{Truncate(value.Trim(), 100)}'.");
+                        env.Log.LogDecision(step.Name, actionName, action.Type, contentId, V2Outcomes.Skipped, $"No contributor matched '{Truncate(contributorName, 100)}'.");
                         break;
                     }
                     lock (target.Deltas)

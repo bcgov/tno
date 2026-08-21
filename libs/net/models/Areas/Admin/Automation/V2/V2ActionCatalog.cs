@@ -165,9 +165,10 @@ public static class V2ActionCatalog
         new V2ActionDescriptor("content.contributor", "Set Columnist/Contributor", "content", true, false, false, _process, new[]
         {
             new V2FieldSpec("value", "valueSource", true, "A contributor name or alias."),
+            new V2FieldSpec("create", "bool", false, "Create the contributor when no enabled record matches (real runs create immediately; dry runs log the intent). Off: unmatched values are skipped."),
             new V2FieldSpec("target", "draft", false, "A draft created by an earlier Create Content action in this step; leave empty for the original item."),
         },
-            Description: "Sets the columnist/contributor on the working copy. 'value' supplies a name or alias that is matched against the contributor list; 'target' applies it to a draft (a new content item produced by an earlier Create Content action in this step) instead."),
+            Description: "Sets the columnist/contributor on the working copy. 'value' supplies a name or alias that is matched against the enabled contributor list; 'create' adds a new contributor record when nothing matches (otherwise unmatched values are skipped); 'target' applies it to a draft (a new content item produced by an earlier Create Content action in this step) instead."),
         new V2ActionDescriptor("content.action", "Apply Content Action", "content", true, true, false, _process, new[]
         {
             new V2FieldSpec("contentAction", "contentAction", true),

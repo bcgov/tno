@@ -165,6 +165,10 @@ public class V2RunContext
     /// <summary>
     /// Every dirty entry (existing items with pending deltas) plus every unsaved draft.
     /// </summary>
+    /// <summary>get - Contributors created this run (via the contributor action's 'create'),
+    /// so later items match without refetching the lookup bundle.</summary>
+    public System.Collections.Concurrent.ConcurrentDictionary<string, (int Id, string Name)> CreatedContributors { get; } = new(StringComparer.OrdinalIgnoreCase);
+
     public List<V2ContentEntry> GetFlushables()
     {
         lock (Sync)

@@ -542,6 +542,19 @@ public class ApiService : IApiService
     }
 
     /// <summary>
+    /// Make an HTTP request to the api to add a contributor (or return the existing enabled
+    /// match by name/alias).
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.Contributor.ContributorModel?> AddContributorAsync(string name)
+    {
+        var url = this.Options.ApiUrl.Append($"services/contributors");
+        var model = new API.Areas.Services.Models.Contributor.ContributorModel { Name = name };
+        return await RetryRequestAsync(async () => await this.OpenClient.PostAsync<API.Areas.Services.Models.Contributor.ContributorModel>(url, JsonContent.Create(model)));
+    }
+
+    /// <summary>
     /// Make an HTTP request to the api to add a content link (or update its value when the pair
     /// already exists).
     /// </summary>
