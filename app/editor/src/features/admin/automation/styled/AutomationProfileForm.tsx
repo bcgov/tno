@@ -1146,14 +1146,25 @@ export const AutomationModalStyles = createGlobalStyle`
   /* Step grouping: a band labels the first row of a run of same-group steps, and every
      grouped row carries the accent edge so membership reads at a glance. */
   .v2-group-band {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    width: 100%;
+    text-align: left;
+    border: none;
+    cursor: pointer;
     background: #e8eef7;
     color: #234075;
     font-weight: 700;
     font-size: 0.75rem;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    padding: 0.2rem 0.75rem;
+    padding: 0.25rem 0.75rem;
     border-left: 3px solid #234075;
+
+    svg {
+      font-size: 0.7rem;
+    }
   }
   .v2-grouped > .v2-grid-row {
     box-shadow: inset 3px 0 0 #234075;
