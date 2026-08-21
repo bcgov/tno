@@ -445,13 +445,18 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           </Col>
         );
       case 'item': {
-        // With no drafts in the step the only possible value is the item being processed -
-        // the field would be a one-option dropdown, so it only renders when a choice exists.
-        if (draftNames.length === 0) return null;
+        // 'copyFrom' must always render: the engine treats an unset value as 'start blank', so
+        // hiding it would make Copy fields silently do nothing (there is no $item default here).
+        // For the other item fields the engine defaults to the processed item, so with no drafts
+        // the field would be a one-option dropdown and only renders when a choice exists.
+        const isCopyFrom = field.name === 'copyFrom';
+        if (!isCopyFrom && draftNames.length === 0) return null;
         const current = (action as unknown as Record<string, unknown>)[field.name] as
           | string
           | undefined;
-        const itemOptions = [subjectOption, ...draftOptions];
+        const itemOptions = isCopyFrom
+          ? [createOption('(start blank)', ''), subjectOption, ...draftOptions]
+          : [subjectOption, ...draftOptions];
         return (
           <Select
             key={key}

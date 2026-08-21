@@ -236,6 +236,10 @@ public static class AutomationDefinitionValidator
                 if (action.Prompt != null)
                     ValidatePrompt(action.Prompt, definition, usedPrompts, $"{path}.prompt", errors);
 
+                // Copy fields only apply when copyFrom names a source; unset means 'start blank'.
+                if (action.Type == "content.create" && action.CopyFields is { Count: > 0 } && string.IsNullOrWhiteSpace(action.CopyFrom))
+                    errors.Add(new($"{path}.copyFields", "'Copy fields' has no effect because 'copyFrom' is not set - the draft starts blank. Set copyFrom to the original item to copy from it.", "warning"));
+
                 // Draft registry: created by content.create, referenced by target/item.
                 if (action.Type == "content.create" && !string.IsNullOrWhiteSpace(action.As))
                 {
