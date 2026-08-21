@@ -1529,15 +1529,14 @@ public class AutomationEngine
             var model = BuildDraftModel(entry);
             ApplyDeltas(entry, model, env);
             var publish = entry.Deltas.Status == "publish";
-            model.Status = Entities.ContentStatus.Draft;
+            // Create with the final status. A Draft-then-publish two-step makes the indexing
+            // service request notifications for the DRAFT (alert rules fail against it) and its
+            // dedupe cache then swallows the publish's own request - so alerts never send. With
+            // Publish on the create, the first index pass publishes and notifies in one motion.
+            model.Status = publish ? Entities.ContentStatus.Publish : Entities.ContentStatus.Draft;
             var created = await _api.AddContentAsync(model)
                 ?? throw new InvalidOperationException("The API returned no content for the created draft.");
-            if (publish)
-            {
-                created.Status = Entities.ContentStatus.Publish;
-                created = await _api.UpdateContentAsync(created, index: true) ?? created;
-            }
-            else if (index)
+            if (!publish && index)
             {
                 created = await _api.UpdateContentAsync(created, index: true) ?? created;
             }
