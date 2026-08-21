@@ -18,6 +18,9 @@ import { V2FilterField } from './V2FilterField';
 import { V2ScopedNameField } from './V2ScopedNameField';
 import { kindHelp, V2ValueSourceEditor } from './V2ValueSourceEditor';
 
+/** Field labels render in sentence case ('value' -> 'Value'); names stay camelCase in data. */
+const fieldLabel = (label: string): string => label.replace(/^./, (c) => c.toUpperCase());
+
 const gateOptions: IOptionItem[] = [
   createOption('Always run', 'always'),
   createOption('Condition', 'condition'),
@@ -171,7 +174,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <V2FilterField
             key={key}
             name={key}
-            label={field.name}
+            label={fieldLabel(field.name)}
             value={action.filter}
             options={filterOptions}
             onChange={(filterId) => set({ filter: filterId })}
@@ -182,7 +185,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <Select
             key={key}
             name={key}
-            label={field.name}
+            label={fieldLabel(field.name)}
             width="20rem"
             options={reportOptions}
             value={findOptionByValue(reportOptions, action.report) ?? ''}
@@ -194,7 +197,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <Select
             key={key}
             name={key}
-            label={field.name}
+            label={fieldLabel(field.name)}
             width="20rem"
             options={notificationOptions}
             value={findOptionByValue(notificationOptions, action.notification) ?? ''}
@@ -208,7 +211,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <Select
             key={key}
             name={key}
-            label="content action"
+            label={fieldLabel('content action')}
             width="20rem"
             options={actionOptions}
             value={findOptionByValue(actionOptions, action.contentAction) ?? ''}
@@ -222,7 +225,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <Select
             key={key}
             name={key}
-            label={field.name}
+            label={fieldLabel(field.name)}
             width="20rem"
             options={contentFieldOptionItems}
             value={findOptionByValue(contentFieldOptionItems, action.field) ?? ''}
@@ -240,7 +243,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <V2ScopedNameField
             key={key}
             name={key}
-            label={`${field.name} (collection)`}
+            label={`${fieldLabel(field.name)} (collection)`}
             scope="$run"
             value={current}
             knownNames={collectionNames}
@@ -257,7 +260,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <Text
             key={key}
             name={key}
-            label={field.name}
+            label={fieldLabel(field.name)}
             width="8rem"
             type="number"
             value={current ?? ''}
@@ -277,7 +280,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <div key={key} className="checkbox-inline">
             <Checkbox
               name={key}
-              label={field.name}
+              label={fieldLabel(field.name)}
               checked={current ?? false}
               onChange={(e) => set({ [field.name]: e.target.checked } as Partial<IV2Action>)}
             />
@@ -413,7 +416,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
               <div className="checkbox-inline">
                 <Checkbox
                   name={`${key}-all`}
-                  label="all fields"
+                  label="All fields"
                   checked={allFields}
                   onChange={(e) =>
                     set({ [field.name]: e.target.checked ? ['*'] : null } as Partial<IV2Action>)
@@ -429,7 +432,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <V2DraftText
             key={key}
             name={key}
-            label="truncate (field=chars, …)"
+            label="Truncate (field=chars, …)"
             placeholder="body=2000, summary=500"
             width="24rem"
             canonical={truncateToText(action.truncate)}
@@ -441,7 +444,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <Col key={key}>
             <Select
               name={`${key}-ref`}
-              label="prompt (library entry)"
+              label="Prompt (library entry)"
               width="20rem"
               options={promptOptions}
               value={findOptionByValue(promptOptions, action.prompt?.ref) ?? ''}
@@ -473,7 +476,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <Select
             key={key}
             name={key}
-            label={isCopyFrom ? 'Copy from' : field.name}
+            label={isCopyFrom ? 'Copy from' : fieldLabel(field.name)}
             width="16rem"
             options={itemOptions}
             value={findOptionByValue(itemOptions, current) ?? ''}
@@ -493,7 +496,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
             <V2ScopedNameField
               key={key}
               name={key}
-              label={`${field.name} (new draft)`}
+              label={`${fieldLabel(field.name)} (new draft)`}
               scope="$item"
               value={action.as}
               help={field.help}
@@ -509,7 +512,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <Select
             key={key}
             name={key}
-            label={field.name}
+            label={fieldLabel(field.name)}
             width="16rem"
             isClearable={false}
             options={targetOptions}
@@ -536,7 +539,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
             <Select
               key={key}
               name={key}
-              label={field.name}
+              label={fieldLabel(field.name)}
               width="12rem"
               options={options}
               value={findOptionByValue(options, current) ?? ''}
@@ -572,7 +575,7 @@ export const V2ActionEditor: React.FC<IV2ActionEditorProps> = ({
           <Text
             key={key}
             name={key}
-            label={field.name}
+            label={fieldLabel(field.name)}
             width="16rem"
             value={current ?? ''}
             onChange={(e) => set({ [field.name]: e.target.value || null } as Partial<IV2Action>)}

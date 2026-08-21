@@ -1588,7 +1588,12 @@ public class V2Engine
         if (int.TryParse(entry.GetField("mediaTypeId"), out var mediaTypeId)) model.MediaTypeId = mediaTypeId;
         if (Enum.TryParse<Entities.ContentType>(entry.GetField("contentType"), true, out var contentType)) model.ContentType = contentType;
         // Published content without a published-on date is invisible to every date-filtered query.
-        model.PublishedOn = DateTime.TryParse(entry.GetField("publishedOn"), out var publishedOn) ? publishedOn : DateTime.UtcNow;
+        // The digest renders publishedOn as a bare date (yyyy-MM-dd); parse it as UTC - postgres
+        // rejects DateTime Kind=Unspecified for 'timestamp with time zone'.
+        model.PublishedOn = DateTime.TryParse(entry.GetField("publishedOn"), System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal, out var publishedOn)
+            ? publishedOn
+            : DateTime.UtcNow;
         return model;
     }
 
